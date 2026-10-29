@@ -2560,3 +2560,77 @@ Text-entry AC3 gains the rating field, score metadata and input evidence;
 its full assistive-client criterion remains partial/not-run. AC8 remains
 complete/runtime-tested from numeric fields. No phone runtime, images/pixels,
 IME, Wayland or assistive-client output is qualified.
+
+## GTK selection-part and box-model qualification
+
+The direct-source SelectorOption baseline completed 50 checks with six
+failures on Ubuntu 24.04.5 amd64 / GJS 1.80.2 / GTK 4.14.5. Authored 280 by
+80 with an 8px margin became 264 by 64. Clearing RTL restored native widget
+directions but retained reversed Mason child order. The native leaf omitted
+web's disabled class and decorative icon exclusion. A private text-column
+identity assertion also failed when removing an unkeyed conditional icon;
+that identity is not a public guarantee. It now asserts one correctly
+parented text column instead. Feedback a4cbf87f-1fb8-4810-a3dc-f0ccaf598f37 and
+guest /tmp/gtk-selector-option-{first,trace}.log preserve the original result.
+
+Mason now owns border-box dimensions and CSS margin spacing. Container
+padding and borders participate in recursive sizing. The native leaf measure
+removes GTK's CSS margins; child allocation supplies the surrounding margin
+box so GTK consumes those margins once. Root measures remove the padding and
+border GTK adds, and transforms keep the border-box center. This is a renderer
+correction; the UI leaf has no geometry fork.
+[GTK 4.14.5's allocation source](https://github.com/GNOME/gtk/blob/4.14.5/gtk/gtkwidget.c#L3698-L3850)
+shows its separate margin, border and padding consumption.
+
+The local JSON facade sends an omitted enum as -1, preserving the pinned
+Mason engine's prior value. The renderer must send the effective default
+direction when a direction leaves the cascade, rather than treating omission
+as a reset. The same Mason beta5 engine archive at
+1f101ca3c6454895af4e4608d46756010bdeab67 is retained. The GTK C measure facade
+was rebuilt with XPLAT_MASON_CORE_TARGET=x86_64-unknown-linux-gnu to consume
+the task-local archive; this avoids the existing build script's rustc probe
+on this guest. Build log: /tmp/gtk-box-native-build.log.
+
+The maintained box-model fixture passes 54 native geometry/lifecycle checks:
+container/foreign-leaf margins, natural sizing, padding/border insets,
+percentage/min/max widths, sibling spacing, clearing styles, inherited and
+application-default RTL/reset, asymmetric-margin transforms and cleanup.
+Its first 54-check run had two transform failures because the fixture used
+a scale style key; the supported scaleX/scaleY axes pass. No new shorthand
+API was added. Logs: /tmp/gtk-box-properties-typed.log and
+/tmp/gtk-box-contracts.log.
+
+Decorative icon metadata exposed a separate GTK lifecycle boundary:
+[GTK 4.14.5 writes HIDDEN=false after emitting map](https://github.com/GNOME/gtk/blob/4.14.5/gtk/gtkwidget.c#L2681-L2713).
+That overwrites exclusions set before first mount. The renderer reapplies
+current declarative accessibility state after the native map call returns,
+with a disposed-node guard. Hidden state also respects native mapping.
+The maintained accessibility case passes 66 typed native checks, including
+first-map exclusion, explicit exposure and unmap/remap. This verifies stored
+GTK metadata, not assistive-client navigation or speech.
+
+The shared native SelectorOption supplies the same disabled modifier class
+and decorative icon exclusion as web. SelectorOption and its existing prop
+type are public GTK root exports (68 values and 105 types). All 60 registered
+Linux tests pass without skips, including the public-root 51-check part case
+and 54-check box-model case. A subsequent 66-check accessibility run passes
+with the final typed display-based remap fixture.
+
+All 62 affected/dependent typecheck tasks, a subsequent 12-task focused
+type/native/package run (58 Node and 464 native tests), and 28 docs build/test
+tasks pass. Static checks pass for 141 docs pages, 1,146 parsing examples,
+66 release notes, recipes, UI barrels and git diff --check.
+Logs: guest /tmp/gtk-selector-option-root-full.log,
+/tmp/gtk-selector-option-mapping-final.log and
+/tmp/gtk-selector-option-native-artifacts.sha256; andromeda
+/tmp/gtk-selector-option-root-{types-final,regression,doc-site}.log and
+/tmp/gtk-selector-option-doc-checks.log.
+
+The part's checks are native presentation/metadata/geometry/lifecycle evidence,
+without OS interaction. Existing input cases in the full sweep retain their
+named X11 input evidence. The presentation part owns no selection or action;
+Selector and MultiSelector still depend on an unqualified Popover. Search and
+token-entry recipe criteria remain unexecuted on GTK. Text-entry AC3 remains
+partial/not-run, and AC8 remains complete/runtime-tested. View stays running
+for its remaining style contracts; these checks do not qualify every margin
+unit, auto/negative margin or pixel/assistive-client behavior.

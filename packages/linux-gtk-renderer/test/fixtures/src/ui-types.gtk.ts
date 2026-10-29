@@ -129,3 +129,5 @@ type SliderPropsContract = Assert<Equal<GtkUI.SliderProps, NativeUI.SliderProps>
 type SliderMarkContract = Assert<Equal<GtkUI.SliderMark, NativeUI.SliderMark>>
 
 type InputRatingPropsContract = Assert<Equal<GtkUI.InputRatingProps, NativeUI.InputRatingProps>>
+
+type SelectorOptionContract = Assert<Equal<GtkUI.SelectorOptionProps, NativeUI.SelectorOptionProps>>

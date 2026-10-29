@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/ui, Select, Selector, MultiSelector, SelectOption, h
 
 ## Starting point
 
-An app already uses `@octane-xplat/ui` and needs users to find one or more values, create free-text values, or choose from a custom popup. Linux uses the web implementation; macOS remains experimental.
+An app already uses `@octane-xplat/ui` and needs users to find one or more values, create free-text values, or choose from a custom popup. Linux WebKitGTK uses the web implementation; the GJS/GTK renderer has a separate curated UI surface. macOS remains experimental.
 
 ## Requirements
 
@@ -35,3 +35,14 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC6: [Choose from a finite list](../../../docs/app/search-selection.md#choose-from-a-finite-list), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../../../examples/probes/select.tsrx).
 
 - AC7: [Search commands across targets](../../../docs/app/command-palette.md), [maintained demo](../../../packages/demos/src/ComponentsDemo.tsrx), and [platform boundaries](../../../docs/app/command-palette.md#platform-boundaries-and-verification), and [the nonvisual AppKit host case](../../../packages/ui/tests/command-palette-host.macos.tsrx).
+
+## GTK coverage
+
+SelectorOption's standalone presentation part is available from the curated
+GTK root. Its icon/text layout and native metadata do not qualify AC6's
+finite-list popup, filtering, selection or async commit workflow; Selector and
+MultiSelector remain unavailable there. See
+[GTK option content](../../../docs/platform/linux-gtk.md#present-option-content)
+and the maintained
+[GTK part case](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-selector-option-main.ts).
+The remaining search/token criteria have no GTK workflow execution.

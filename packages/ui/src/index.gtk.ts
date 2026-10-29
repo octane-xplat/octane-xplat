@@ -183,3 +183,6 @@ export type { SliderProps, SliderMark } from './props'
 
 export { InputRating } from './InputRating'
 export type { InputRatingProps } from './props'
+
+export { SelectorOption } from './SelectorOption'
+export type { SelectorOptionProps } from './props'

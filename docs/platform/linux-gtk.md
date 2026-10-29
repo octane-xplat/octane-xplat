@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider and InputRating.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -163,6 +163,72 @@ export function FocusableField() {
 	)
 }
 ```
+
+## Lay out boxes with margins
+
+A box's width includes its padding and border. Margins add space outside that
+width. This box is 160px wide, with 8px of extra space on each side; the text
+starts after the border and padding.
+
+```tsx
+import { View, Text } from '@octane-xplat/ui'
+
+export function InsetMessage() {
+  return (
+    <View style={{ width: 160, padding: 12, borderWidth: 2, margin: 8 }}>
+      <Text>Ready to travel</Text>
+    </View>
+  )
+}
+```
+
+Set direction on a containing View to reverse its descendants' layout.
+Removing the value restores the application's default direction.
+
+```tsx
+import { useState } from 'octane'
+import { View, Text, Pressable } from '@octane-xplat/ui'
+
+export function DirectionExample() {
+  const [rtl, setRtl] = useState(false)
+  return (
+    <View style={{ direction: rtl ? 'rtl' : undefined }}>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <Text>First</Text>
+        <Text>Second</Text>
+      </View>
+      <Pressable onPress={() => setRtl(value => !value)}>
+        <Text>Change direction</Text>
+      </Pressable>
+    </View>
+  )
+}
+```
+
+## Present option content
+
+SelectorOption arranges a decorative icon beside a label and description.
+It presents content; the containing control owns selection and activation.
+Its isDisabled prop supplies the same modifier class as web for custom styling.
+
+```tsx
+import { SelectorOption, Text } from '@octane-xplat/ui'
+
+export function RoomOption(props: { disabled?: boolean }) {
+  return (
+    <SelectorOption
+      label="Small"
+      description="Fits a day bag"
+      icon={<Text>+</Text>}
+      isDisabled={props.disabled}
+      style={{ width: 240, margin: 8 }}
+    />
+  )
+}
+```
+
+The GTK root does not yet expose Selector or MultiSelector. Their popup,
+search and selection workflows require separate qualification.
 
 ## Show and hide retained content
 

@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 67 runtime values and 104 types in index.gtk.ts, including
+Current availability is 68 runtime values and 105 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider and InputRating. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1195,3 +1195,23 @@ AC8 remains complete/runtime-tested. Selection controls depend on the still
 unqualified Popover layer; their standalone SelectorOption part can be
 qualified independently. Remaining inputs/parts, Image, overlays, navigation,
 theme, services and View contracts stay under the full goal.
+
+### Public GTK option presentation
+
+SelectorOption and its existing prop type reuse the shared native presentation
+leaf, with web's disabled modifier class and decorative icon exclusion.
+Availability is 68 values and 105 types. This part owns no selection or action.
+
+All 60 registered Linux tests pass without skips, including 51 public-root
+part checks and 54 box-model checks. A subsequent 66-check accessibility run
+passes with the final typed remap fixture. All 62 affected typecheck tasks,
+a subsequent 12-task focused type/native/package run and 28 docs build/test
+tasks pass. See [the renderer evidence](linux-gtk-renderer.md#gtk-selection-part-and-box-model-qualification)
+for baseline failures, the margin/direction and first-map corrections, native
+facade build, exact logs and qualification limits.
+
+The search/token recipe now distinguishes WebKitGTK from GJS/GTK; its selection
+workflows remain unavailable. Text-entry AC3 remains partial/not-run and AC8
+remains complete/runtime-tested. View remains running for other style
+contracts. Popover/finite-list selection, remaining inputs/parts, Image,
+overlays, navigation, theme and services stay under the full goal.

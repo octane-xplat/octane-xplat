@@ -289,3 +289,10 @@ compare values and distinguish false/true/mixed, not merely attribute presence.
 Integer-valued optional booleans and tristates require G_TYPE_INT values; ordinary
 boolean states/properties use boolean values. See
 [the GTK state example](../../../../docs/platform/linux-gtk.md#control-accessibility-state).
+
+SelectorOption reuses its shared native presentation leaf on GTK. Its icon
+lane is decorative, and disabled styling uses the web modifier class; the
+parent owns selection/actions. The GTK renderer handles outer CSS margins,
+container padding/border sizing and direction resets. Do not add compensating
+UI widths or reverse child arrays. Selector/MultiSelector's popup boundary
+remains unqualified.

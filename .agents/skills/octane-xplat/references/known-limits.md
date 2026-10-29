@@ -286,3 +286,16 @@ vx-power-search-input class on an explicit FormField and passes the resolved
 size, so the automatic wrapper does not absorb the row's flex-grow contract.
 The maintained GTK test checks this composition in a 320px row with a 40px
 sibling; it is not full PowerSearch GTK qualification.
+### GTK option presentation and box layout
+
+SelectorOption presents an icon, label and description; it has no selection
+or press owner. isDisabled adds the same modifier class as web. Selector and
+MultiSelector remain absent from the curated root until popup/search/input
+contracts pass. Do not substitute the presentation part for a selection field.
+
+GTK Mason owns border-box sizes and CSS margin spacing; keep margins outside
+authored width/height. The renderer bridge consumes GTK margin/padding/border
+once and restores Mason order when direction clears. Rebuild the native C
+facade after pulling this change. Decorative accessible=false content must
+stay excluded after first map and remap; check native metadata separately
+from assistive-client behavior.
