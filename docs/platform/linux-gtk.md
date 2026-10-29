@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, and `TextInput`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, and `SearchInput`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -406,6 +406,32 @@ styles native widget chrome underneath your CSS.
 ```
 
 \n
+
+## Search fields
+
+SearchInput includes a registered search icon and a clear action. Labels,
+descriptions, validation and width use the shared field contract. Return
+submits the search; clearing reports onChange('') before onClear and returns
+focus to the editor.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { SearchInput } from '@octane-xplat/ui'
+
+export function FindFiles(props: { search: (query: string) => void }) {
+  const [query, setQuery] = useState('')
+  return (
+    <SearchInput label="Find files" description="All folders" width="100%"
+      placeholder="Search files" value={query} onChange={setQuery}
+      onSubmit={() => props.search(query)} onClear={() => console.log('Cleared')} />
+  )
+}
+```
+
+The maintained Linux check uses actual keyboard and pointer input. OS keyboard
+captions, composition, assistive-technology clients and visual parity remain
+unqualified.
 
 ## Multiline fields
 

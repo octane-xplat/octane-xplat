@@ -249,7 +249,33 @@ export function SearchEntry(props: { search: () => void }) {
 These raw-ref methods do not provide a general NativeScript View facade.
 \n
 
-### Multiline fields
+### Search fields
+
+SearchInput includes a registered search icon and a clear action. Labels,
+descriptions, validation and width use the shared field contract. Return
+submits the search; clearing reports onChange('') before onClear and returns
+focus to the editor.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { SearchInput } from '@octane-xplat/ui'
+
+export function FindFiles(props: { search: (query: string) => void }) {
+  const [query, setQuery] = useState('')
+  return (
+    <SearchInput label="Find files" description="All folders" width="100%"
+      placeholder="Search files" value={query} onChange={setQuery}
+      onSubmit={() => props.search(query)} onClear={() => console.log('Cleared')} />
+  )
+}
+```
+
+The maintained Linux check uses actual keyboard and pointer input. OS keyboard
+captions, composition, assistive-technology clients and visual parity remain
+unqualified.
+
+## Multiline fields
 
 Import TextArea from the GTK root for a labeled multiline field. It supports
 controlled or local text, row sizing, capped growth, placeholders, length limits

@@ -8,10 +8,12 @@ state and callbacks.
 
 For a complete labeled form with validation, focus and announcement checks,
 follow [Build and test an accessible screen](accessibility.md).
-For the experimental GTK target, start with the
-[GTK TextInput guide](../platform/linux-gtk.md#text-entry). Its single-line
-subset is qualified separately; the other form, keyboard and overlay pieces
-below are not a complete GTK workflow.
+For the experimental GTK target, use the platform examples for
+[TextInput](../platform/linux-gtk.md#text-entry),
+[TextArea](../platform/linux-gtk.md#multiline-fields) and
+[SearchInput](../platform/linux-gtk.md#search-fields). These controls have
+separate Linux qualification; the form, keyboard and overlay pieces below
+are not a complete GTK workflow.
 
 ## Control a field
 
@@ -142,6 +144,16 @@ export function Account() {
 			<TextInput id="account" defaultValue="" />
 		</Field>
 	)
+}
+```
+
+Use TextInput secure for passwords. Secure multiline entry is unsupported;
+TextArea rejects secure=true on iOS, Android and GTK.
+
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+export function Password() {
+  return <TextInput label="Password" secure />
 }
 ```
 

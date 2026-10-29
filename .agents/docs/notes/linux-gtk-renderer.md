@@ -1549,3 +1549,88 @@ Final logs: guest /tmp/gtk-textarea-root-full.log; andromeda
 /tmp/gtk-textarea-root-types.log, /tmp/gtk-textarea-root-pack.log and
 /tmp/gtk-textarea-props-native-final.log. The full GTK UI parity goal remains
 active; this is one qualified component addition.
+
+
+## Public GTK SearchInput
+
+SearchInput and SearchInputProps join the curated root, giving40 runtime
+values and66 types. The shared native leaf now uses the field resolver and a
+persistent automatic FormField, matching TextInput/TextArea ownership. The
+textfield keeps a stable key while icons or clear actions change. Its id,
+testID, platform escape props and accessible name/hint/state belong to the
+editable widget; visual classes/style stay on the search shell.
+
+The previous implementation assigned id/name to its shell and ignored field
+context/chrome. The same structure is present in stable v0.17.1. A maintained
+real-GJS baseline failed the explicit-control-id check at
+/tmp/gtk-search-before.log. Source confirms that descriptions, required/default
+state and widths were not wired. No renderer intrinsic or GTK UI fork was
+needed: the existing native entry, field, icons and Pressable provide the
+behavior.
+
+Clear now uses Pressable with button role and native keyboard focus support.
+It is absent when empty, read-only, disabled or hasClear=false. It reports
+onChange('') before onClear and restores editor focus. Loading announces busy
+without blocking edits. Done/Return captions still follow the existing GTK
+limit; SearchInput's actual Return submission is tested, not an OSK caption.
+
+### Parent layout ownership
+
+PowerSearchView's vx-power-search-input class owns flex-grow in its row.
+With a persistent field wrapper that class must sit on the explicit FormField
+owner, with the resolved size passed through. The shared native caller now
+does so. A maintained GTK composition allocates280px to that field and its
+search control inside a320px row with a40px sibling. It also checks that an
+explicit field does not create a duplicate wrapper. This is geometry evidence
+for the integration pattern, not full GTK PowerSearch qualification.
+
+### Runtime and diagnostic corrections
+
+The public-root focused test passes76 assertions on Ubuntu24.04.5 amd64,
+GJS1.80.2/GTK4.14.5 and private Xvfb/X11. Actual OS input exercises repeated
+controlled rejection, acceptance/caret, Space clearing, disabled and busy
+typing, label click and Return submission. Native assertions cover default/
+replacement/hidden icons, field widths, focus/backward selection retention,
+required/read-only/busy/invalid metadata, description/status deduplication,
+nested defaults/name override, row growth, ref replacement and disposal.
+
+The first retention assertions read GtkEntry.get_position for a backward
+selection. That wrapper normalizes bounds; get_delegate().cursor_position is
+the true active edge, as the existing renderer entryCursor helper and entry
+fixture already document. A direct GTK probe and an explicit test precondition
+confirmed the measurement mistake. Correcting the getter preserves the exact
+cursor/range expectation; it is not a renderer selection fix. Logs:
+/tmp/gtk-search-first.log, -second.log, -third.log and -fourth.log. The baseline
+fixture also needed to quit its GLib loop before exiting on failure; current
+failure cleanup exits promptly.
+
+The native controlled-input fixture's escape-props mock lacked
+nativeAccessibilityRole once the SearchInput clear action used Pressable.
+Adding that export preserves the real role mapping contract; final selected
+tests pass58 Node checks and13 native Vitest tests, including automation IDs.
+All58 affected/dependent typecheck tasks pass. Final full/package results are
+recorded below when complete.
+
+GTK warns that cornerShape and CSS userSelect/WebkitUserSelect are ignored in
+this fixture. This change does not qualify squircle drawing or CSS-driven
+selection behavior. IME/OSK, AT clients, full bidi, Wayland, touchpad, HiDPI,
+images/pixels and packaged consumers remain unqualified. React Aria presence
+rows are unchanged: SearchInput's equivalent already ships; this is platform
+qualification and shared behavior, not a new presence-level mapping.
+
+Logs: guest /tmp/gtk-search-before.log, /tmp/gtk-search-root.log and
+/tmp/gtk-search-full.log; andromeda /tmp/gtk-search-native-final.log and
+/tmp/gtk-search-types.log.
+
+
+Final SearchInput qualification passes all 43 maintained Linux renderer tests
+with no skips, including the public-root 76 checks. All 58 affected/dependent
+typecheck tasks, 58 Node checks plus 13 selected native Vitest tests, six UI
+package validation tasks, recipes, barrel checks, 26 release notes, formatting
+and whitespace pass. The TypeScript checker resolves SearchInput and
+SearchInputProps from generated GTK/native barrels to the exact same
+declarations; the GTK root has 106 total exports (40 values/66 types).
+Logs: guest /tmp/gtk-search-full.log; andromeda /tmp/gtk-search-types.log,
+/tmp/gtk-search-pack.log, /tmp/gtk-search-declarations.log and
+/tmp/gtk-search-native-final.log. No phone, AT-client, IME or pixel
+qualification, and no full PowerSearch GTK claim.

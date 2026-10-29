@@ -82,7 +82,7 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
 
 ### GTK text input
 
-Use TextInput and TextArea from the curated GTK root. Both have maintained
+Use TextInput, TextArea and SearchInput from the curated GTK root. They have maintained
 Linux checks. TextInput clear/help/status affordances retain its editor.
 Keep width on the outer field owner and use the GTK status-variant policy
 for hover/focus tooltips. Field remains outside the root.
@@ -102,9 +102,9 @@ for explicit numeric dimensions and their removal. Controlled TextArea edits
 now have GTK-root acceptance/rejection checks; preserve per-edit
 reconciliation even when value is unchanged. Group buffer changes using GTK
 user-action boundaries, and disconnect every grouped-action signal on disposal.
-SearchInput has the same native reconciliation fix with object-driver coverage;
-its complete GTK component is still unqualified. Multiline maxLength now has
-direct-source GTK edit/clipboard/undo checks: count UTF-16 units, preserve
+SearchInput has maintained GTK-root reconciliation, field and clear/submit
+checks plus native object-driver coverage. Multiline maxLength has maintained
+GTK edit/clipboard/undo checks: count UTF-16 units, preserve
 whole surrogate pairs, revalidate the borrowed insertion iterator, and dispose
 the filter. Owner writes bypass GTK's edit cap. NativeScript insertion and
 programmatic-value behavior differs by platform; see the
@@ -165,3 +165,24 @@ TextArea row fitting, prefer resolved positive numeric/px/dip lineHeight over
 that font-only fallback. This includes ancestor CSS and shorter-than-font line
 spacing. Keep the bounded frame refits and cleanup. Relative line-height units
 remain unqualified for row fitting; do not claim support from CSS forwarding.
+
+
+### Native search fields
+
+SearchInput uses the shared field resolver and a persistent automatic
+FormField. Pass original props to its inner control so descriptions/status
+are joined once. Keep id, testID, platform escape props and accessible name/
+state on the keyed textfield; the search shell owns its visual classes/style.
+The clear action is a Pressable with button role, is hidden for read-only or
+disabled controls, calls onChange before onClear and restores editor focus.
+
+On GtkEntry, read get_delegate().cursor_position for the true active edge.
+The wrapper's get_position normalizes backward selections to the upper bound;
+do not use it to decide whether an update preserved selection direction.
+Keep explicit preconditions in retention tests.
+
+Parent-row growth belongs to the field owner. PowerSearchView places its
+vx-power-search-input class on an explicit FormField and passes the resolved
+size, so the automatic wrapper does not absorb the row's flex-grow contract.
+The maintained GTK test checks this composition in a 320px row with a 40px
+sibling; it is not full PowerSearch GTK qualification.

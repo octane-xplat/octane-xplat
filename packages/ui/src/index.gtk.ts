@@ -110,3 +110,6 @@ export type {
 
 export { TextArea } from './TextArea'
 export type { TextAreaProps } from './props'
+
+export { SearchInput } from './SearchInput'
+export type { SearchInputProps } from './props'

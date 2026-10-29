@@ -7,8 +7,8 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 39 runtime values and 65 types in index.gtk.ts, including
-Tooltip, TextInput and TextArea. Counts in the earlier slice records describe those commits; the JSON
+Current availability is 40 runtime values and 66 types in index.gtk.ts, including
+Tooltip, TextInput, TextArea and SearchInput. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -939,3 +939,35 @@ Final logs: guest /tmp/gtk-textarea-root-full.log; andromeda
 /tmp/gtk-textarea-root-types.log, /tmp/gtk-textarea-root-pack.log and
 /tmp/gtk-textarea-props-native-final.log. The full GTK UI parity goal remains
 active; this is one qualified component addition.
+
+
+### Public-root SearchInput qualification
+
+The curated root adds SearchInput and SearchInputProps, bringing availability
+to40 values/66 types. The native leaf reuses stable Field ownership and its
+shared resolver, targets identity/accessibility/escape props at the keyed
+editor and uses an accessible Pressable clear action. The public-root Linux
+fixture passes76 checks with real keyboard/click input and native metadata,
+including nested defaults and exact row-growth geometry. The existing native
+PowerSearch caller keeps its grow class on an explicit field owner; full GTK
+PowerSearch remains unqualified.
+
+Selected native tests pass58 Node checks and13 Vitest tests; all58 affected/
+dependent typecheck tasks pass. See
+[the renderer evidence](linux-gtk-renderer.md#public-gtk-searchinput) for the
+baseline ID/name gap, corrected native cursor measurement and retained limits.
+The full UI parity goal remains active across the remaining inputs, standalone
+Field/InputGroup, overlays, Image, navigation, theme and services.
+
+
+Final SearchInput qualification passes all 43 maintained Linux renderer tests
+with no skips, including the public-root 76 checks. All 58 affected/dependent
+typecheck tasks, 58 Node checks plus 13 selected native Vitest tests, six UI
+package validation tasks, recipes, barrel checks, 26 release notes, formatting
+and whitespace pass. The TypeScript checker resolves SearchInput and
+SearchInputProps from generated GTK/native barrels to the exact same
+declarations; the GTK root has 106 total exports (40 values/66 types).
+Logs: guest /tmp/gtk-search-full.log; andromeda /tmp/gtk-search-types.log,
+/tmp/gtk-search-pack.log, /tmp/gtk-search-declarations.log and
+/tmp/gtk-search-native-final.log. No phone, AT-client, IME or pixel
+qualification, and no full PowerSearch GTK claim.

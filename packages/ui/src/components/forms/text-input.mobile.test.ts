@@ -14,6 +14,7 @@ vi.mock('@nativescript/core', () => ({
 
 vi.mock('../overlays/escape-props', () => ({
 	applyEscapeProps: () => {},
+	nativeAccessibilityRole: (role: unknown) => role,
 	nativeAccessibilityState: (state: any) => (state?.disabled ? 'disabled' : undefined),
 }))
 
