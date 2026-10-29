@@ -514,3 +514,115 @@ it('AppKit menu links forward their current text label and clear it for non-text
 		env.render({ label: <label text="Rich label" /> }); expect(host.props.accessibilityLabel).toBeUndefined()
 	} finally { env.root.unmount() }
 })
+
+
+it('rapid AppKit dropdown toggles use current local visibility before render', () => {
+	const events: boolean[] = []
+	const env = mount(DropdownMenu, { id: 'current-menu', button: { label: 'Actions' }, onOpenChange: (open: boolean) => events.push(open) })
+	try {
+		const press = env.byID('current-menu').props.onTap
+		press(); press(); press(); flushUniversalSync(() => {})
+		expect(events).toEqual([true, false, true])
+		expect(popup.current.open).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('held dropdown toggles respect current controlled visibility, callbacks and the original local seed', () => {
+	const old: boolean[] = [], current: boolean[] = []
+	const base = { id: 'current-menu', button: { label: 'Actions' } }
+	const env = mount(DropdownMenu, { ...base, isOpen: false, defaultOpen: false, onOpenChange: (open: boolean) => old.push(open) })
+	try {
+		const press = env.byID('current-menu').props.onTap
+		press(); press(); flushUniversalSync(() => {})
+		expect(old).toEqual([true, true]); expect(popup.current.open).toBe(false)
+		env.render({ ...base, isOpen: true, onOpenChange: (open: boolean) => current.push(open) })
+		press(); expect(current).toEqual([false]); expect(popup.current.open).toBe(true)
+		env.render({ ...base, defaultOpen: true, onOpenChange: (open: boolean) => current.push(open) })
+		expect(popup.current.open).toBe(false)
+		press(); flushUniversalSync(() => {})
+		expect(current).toEqual([false, true]); expect(popup.current.open).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('held dropdown opening checks current own, button, group and loading policy', () => {
+	const events: boolean[] = []
+	function Grouped(props: any) {
+		return <ButtonGroupProvider value={{ position: 'only', isDisabled: props.group }}>
+			<DropdownMenu id="current-menu" isDisabled={props.own} button={{ label: 'Actions', isDisabled: props.button,
+				isLoading: props.loading, isInterruptible: props.interruptible }} onOpenChange={(open) => events.push(open)} />
+		</ButtonGroupProvider>
+	}
+	const env = mount(Grouped, {})
+	try {
+		const press = env.byID('current-menu').props.onTap
+		for (const state of [{ own: true }, { button: true }, { group: true }, { loading: true }]) {
+			env.render(state); press()
+		}
+		expect(events).toEqual([])
+		env.render({ loading: true, interruptible: true }); press()
+		expect(events).toEqual([true])
+	} finally { env.root.unmount() }
+})
+
+it('dropdown dismissal and trigger requests reject cross-action callback reentry', () => {
+	const events: unknown[] = []
+	let nested = () => {}, replace = () => {}
+	const base = { id: 'current-menu', button: { label: 'Actions' } }
+	const env = mount(DropdownMenu, { ...base, defaultOpen: true,
+		onOpenChange: (open: boolean) => { events.push(open); nested(); replace(); nested() } })
+	try {
+		const press = env.byID('current-menu').props.onTap, dismiss = popup.current.onDismiss
+		nested = () => { press(); dismiss() }
+		replace = () => env.render({ ...base, button: { label: 'Actions', ref: { current: null } },
+			onOpenChange: (open: boolean) => events.push(`current:${open}`) })
+		dismiss(); expect(events).toEqual([false])
+		press(); flushUniversalSync(() => {})
+		expect(events).toEqual([false, 'current:true']); expect(popup.current.open).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('a throwing dropdown callback releases its claim and keeps accepted local visibility', () => {
+	const events: boolean[] = [], failure = new Error('consumer callback')
+	let fail = true
+	const env = mount(DropdownMenu, { id: 'current-menu', defaultOpen: true, button: { label: 'Actions' },
+		onOpenChange: (open: boolean) => { events.push(open); if (fail) throw failure } })
+	try {
+		const press = env.byID('current-menu').props.onTap, dismiss = popup.current.onDismiss
+		expect(() => dismiss()).toThrow(failure)
+		fail = false; press(); flushUniversalSync(() => {})
+		expect(events).toEqual([false, true]); expect(popup.current.open).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('dropdown teardown makes held dismiss and trigger callbacks inert', () => {
+	const events: boolean[] = []
+	let detach = () => {}
+	const env = mount(DropdownMenu, { id: 'current-menu', defaultOpen: true, button: { label: 'Actions' },
+		onOpenChange: (open: boolean) => { events.push(open); detach() } })
+	try {
+		const press = env.byID('current-menu').props.onTap, dismiss = popup.current.onDismiss
+		detach = () => env.root.unmount()
+		dismiss(); press(); dismiss(); expect(events).toEqual([false])
+	} finally { env.root.unmount() }
+})
+
+it('dropdown arrow opening shares current busy, local visibility and reentry ownership', () => {
+	const f = triggerKeysFixture(), events: boolean[] = []
+	let nested = () => {}
+	const base = { id: 'current-menu', button: { label: 'Actions' }, onOpenChange: (open: boolean) => { events.push(open); nested() } }
+	const env = mount(DropdownMenu, base)
+	try {
+		const host = env.byID('current-menu'), key = [...f.subscriptions.get(host)!][0].onKeyDown
+		const event = () => ({ key: 'ArrowUp', target: host, defaultPrevented: false,
+			preventDefault() { this.defaultPrevented = true }, stopPropagation() {} })
+		env.render({ ...base, button: { label: 'Actions', isLoading: true } })
+		const blocked = event(); key(blocked); expect(blocked.defaultPrevented).toBe(false); expect(events).toEqual([])
+		env.render(base)
+		const dismiss = popup.current.onDismiss
+		nested = () => { key(event()); dismiss() }
+		const first = event(); key(first)
+		expect(first.defaultPrevented).toBe(true); expect(events).toEqual([true])
+		const repeated = event(); key(repeated); expect(repeated.defaultPrevented).toBe(false)
+		flushUniversalSync(() => {}); expect(popup.current.open).toBe(true)
+	} finally { env.root.unmount(); expect(f.subscriptions.size).toBe(0); vi.unstubAllGlobals() }
+})

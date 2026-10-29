@@ -43,6 +43,8 @@ context-menu leaf has its own recipe.
 
 - AC13: AppKit menu surfaces capture focused-row/window ownership, repair removed/disabled/hidden rows to the previous position or retained container, and keep selection manual. Preserve unrelated/nested-editor/other-window responders, cancel stale scope/teardown intent, coalesce row changes and release claims/observers. Distinguish policy/object-driver evidence from native ref/responder/fallback/notification/IME/layer/AX qualification.
 
+- AC14: AppKit dropdown trigger, arrow and dismissal requests share current props, local open intent, attachment and reentry ownership. Preserve controlled rejection and original local state across mode changes; apply current own/button/group disablement and loading/interruptible opening policy without hiding an existing menu for loading. Retain the claim across callback-driven button-ref replacement, release it after errors without local rollback, and reject detached callbacks. Keep existing Button error, menu focus, keyboard, accepted-close and Tab-return paths, and distinguish source cases from native evidence.
+
 ## Documentation
 
 - AC1: [Start with actions](../../../docs/app/menus.md#start-with-actions), [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard), and [component demo](../../../packages/demos/src/ComponentsDemo.tsrx).
@@ -66,3 +68,5 @@ context-menu leaf has its own recipe.
 - AC12: [Menu accessibility metadata](../../../docs/app/menus.md#appkit-menu-accessibility-metadata), renderer contract, two renderer/one inline-popup source cases and [target note](../parity/appkit-progress.md#appkit-menu-role-and-state-query-metadata). All three cases and native checks remain unrun.
 
 - AC13: [Dynamic menu guide](../../../docs/app/menus.md#keep-focus-owned-when-appkit-menu-rows-change), private menu-focus owner/row notifications, five policy/three surface/one appended TabMenu cases, [extended fixture](../../../examples/probes/menu-keyboard.macos.tsrx), skill and [target note](../parity/appkit-progress.md#appkit-menu-row-focus-repair). All cases/fixture/native qualification remain unrun.
+
+- AC14: [Current dropdown guide](../../../docs/app/menus.md#appkit-menu-host-state), seven new [inline-popup cases](../../../packages/ui/src/menu-family.macos.mobile.test.tsrx), [target fixture](../../../examples/probes/menu-keyboard.macos.tsrx), [AppKit leaf](../../../packages/ui/src/DropdownMenu.macos.tsrx), Octane primitive reference and [target note](../parity/appkit-progress.md#appkit-dropdown-current-open-intent). Cases and fixture remain unrun; the fixture hook directly dispatches only the ordinary trigger and synthesizes no OS input.

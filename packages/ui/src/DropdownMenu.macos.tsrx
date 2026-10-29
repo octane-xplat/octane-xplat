@@ -3,7 +3,8 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationMenuImplementation } from './nav-link'
 import { MenuData } from './MenuParts.macos.tsrx'
 import { MenuSurface } from './MenuSurface.macos.tsrx'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import type { NSView } from '@octane-xplat/platform/macos'
 import type { DropdownMenuProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { Button } from './controls.macos.tsrx'
@@ -29,21 +30,34 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 	const button = props.button ?? { label: 'Menu' }
 	const disabled = !!(props.isDisabled || group?.isDisabled || button.isDisabled)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
-	const controlled = props.isOpen !== undefined
 	const requestedOpen = props.isOpen ?? internal
 	const open = requestedOpen && !disabled
 
 	const initialFocus = useRef<'first' | 'last'>('first')
-	const setOpen = (next: boolean) => {
-		if (disabled && next) {
-			return
+	const local = useRef(internal), active = useRef<symbol | null>(null)
+	const live = useRef({ props, disabled, busy: false })
+	live.current = { props, disabled, busy: !!(button.isLoading && !button.isInterruptible) }
+	const bindAnchor = useCallback((view: NSView | null) => {
+		// Ref replacement may detach and reattach the same host during a callback.
+		// Keep an accepted request claimed until its own finally releases it.
+		anchor.current = view
+	}, [])
+	const setOpen = (intent: boolean | 'toggle', resetReturn = false, edge?: 'first' | 'last') => {
+		const current = live.current
+		if (!anchor.current || active.current) return
+		const previous = current.props.isOpen ?? local.current
+		const next = intent === 'toggle' ? !previous : intent
+		if (next && (current.disabled || current.busy || (edge && previous))) return
+		const token = Symbol('dropdown-open-change')
+		active.current = token
+		try {
+			if (resetReturn) returnOwner.reset()
+			if (next) initialFocus.current = edge ?? 'first'
+			if (current.props.isOpen === undefined) { local.current = next; setInternal(next) }
+			current.props.onOpenChange?.(next)
+		} finally {
+			if (active.current === token) active.current = null
 		}
-
-		if (!controlled) {
-			setInternal(next)
-		}
-
-		props.onOpenChange?.(next)
 	}
 
 
@@ -52,16 +66,18 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 	const returnOwner = useMemo(() => createAppKitMenuReturn({ anchor: () => anchor.current,
 		open: () => liveReturn.current.open, close: () => liveReturn.current.close() }), [])
 	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
-	const closeMenu = () => { returnOwner.reset(); setOpen(false) }
+	const closeMenu = () => setOpen(false, true)
 
 	const keys = useAppKitViewKeys({ onKeyDown: (event) => {
-		if (disabled || open || event.defaultPrevented || event.isComposing ||
+		const current = live.current
+		if (!anchor.current || active.current || current.disabled || current.busy ||
+			(current.props.isOpen ?? local.current) || event.defaultPrevented || event.isComposing ||
 			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
 		if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
-		initialFocus.current = event.key === 'ArrowUp' ? 'last' : 'first'
-		event.preventDefault(); event.stopPropagation(); setOpen(true)
+		event.preventDefault(); event.stopPropagation()
+		setOpen(true, true, event.key === 'ArrowUp' ? 'last' : 'first')
 	} })
-	const mergedRef = useMemo(() => button.ref ? [anchor, keys.ref, button.ref] : [anchor, keys.ref], [button.ref, keys.ref])
+	const mergedRef = useMemo(() => button.ref ? [bindAnchor, keys.ref, button.ref] : [bindAnchor, keys.ref], [button.ref, keys.ref, bindAnchor])
 	useLayoutEffect(() => { if (!open) initialFocus.current = 'first'; else returnOwner.reset() }, [open])
 
 	useEffect(() => {
@@ -84,7 +100,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 			className={cx('vx-menu-trigger', button.className)}
 			isDisabled={disabled}
 			endContent={endContent}
-			clickAction={() => { returnOwner.reset(); initialFocus.current = 'first'; setOpen(!open) }}
+			clickAction={() => setOpen('toggle', true)}
 			accessibilityState={{ ...button.accessibilityState, expanded: open }}
 		/>
 		<Popover

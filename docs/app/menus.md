@@ -202,7 +202,28 @@ export function ControlledActions({ disabled }: { disabled: boolean }) {
 }
 ```
 
-Five authored AppKit object-driver cases remain unrun and replace popovers with
+AppKit dropdown trigger, arrow and dismiss requests use current props and one
+shared guard. Rapid local toggles use the latest open intent before render;
+controlled requests keep the parent's visibility, and leaving controlled mode
+retains the original local state. Opening checks current own, button and group
+disablement plus the button's loading/interruptible policy. Loading does not
+force an already-open menu closed. Nested requests are ignored, including during
+button-ref replacement; detached trigger and dismiss callbacks are inert.
+Consumer callback errors release the guard without rolling back local intent.
+The existing Button error channel still handles trigger callback failures;
+dismissal retains its existing error path.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function LocalActions({ saving }: { saving: boolean }) {
+	return <DropdownMenu button={{ label: 'Actions', isLoading: saving }}>
+		<DropdownMenuItem label="Archive" />
+	</DropdownMenu>
+}
+```
+
+Authored AppKit object-driver cases remain unrun and replace popovers with
 inline content. Subsequent surface/trigger keyboard source paths are described below; reliable
 owned-dropdown Tab return intent is described below; real popup/ref/focus timing, physical keys, mouse hit testing,
 VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu also has the Shift+F10 source path described below; secondary-click source ownership is described below.

@@ -9295,3 +9295,84 @@ newer documentation-quality reference was read from the original checkout.
 No tests, typegen, typechecks, builds, installs, probes, native/OS automation,
 packaging, visual analysis or additional task/agent ran. All evidence-gated
 issue checkboxes and native qualification remain open.
+
+## AppKit dropdown current open intent
+
+Demand assumption: ComponentsDemo's action/checkbox/radio/export menu,
+OverlayDemo and the sandbox's menu examples represent common application actions.
+They rank ahead of niche integrations. At 1fe3f6a58 DropdownMenu toggled from its
+rendered open value and setOpen captured props/disablement; trigger, arrow,
+dismissal and return-close requests lacked a shared claim. A held native Button
+callback can still reach that old closure. These are source findings, not a
+native timing failure or executed reproduction. Button's own retained-handler
+policy outside this composed dropdown remains a separate review item.
+
+The AppKit dropdown leaf now retains current props, own/button/group blocking,
+button loading/interruptible policy and local open intent. One claim covers
+trigger, arrow, dismiss and return-close requests; uncontrolled intent updates
+before state/callback work, while controlled requests await parent acceptance.
+Leaving controlled mode restores the preexisting local state rather than a
+changed defaultOpen. Opening rechecks current blocking/loading and arrow opening
+also rejects current open intent before render. Loading does not suppress an
+already-open surface; disabled visibility suppression and close effects retain
+their previous policy. Close remains allowed while disabled/loading.
+
+A stable typed trigger binding makes detached callbacks inert. An accepted claim
+survives callback-driven button-ref replacement, whose null/reattach handoff must
+not release it. Nested requests are ignored. Consumer errors release the claim
+without rolling back accepted local intent. Trigger errors still flow through
+Button's existing reportActionError path; raw dismissal errors retain their
+existing propagation path. Existing menu-return target/reset, initial first/last
+focus, accepted controlled visibility, layer, menu keyboard and public ref/ID
+paths are preserved. No public prop, dependency, manifest, shared coordination
+hook or other-target leaf changed. This is not a generic Button, submenu or
+ContextMenu ownership rewrite, or proof against arbitrarily delayed obsolete
+native popup callbacks; those retain their existing layer contracts.
+
+Seven new authored inline-popup object-driver cases, all UNRUN, cover rapid local
+toggles, controlled rejection/current callbacks/local seed, own/button/group/
+loading/interruptible policy, trigger/dismiss cross-action reentry and callback-
+driven button-ref handoff, error release, teardown and arrow/current-open/reentry
+policy. Existing ref/ID, controlled visibility, keyboard and Tab-return cases
+remain relevant and unrun. The maintained menu-keyboard fixture now has human-
+operated local/controlled acceptance/hold modes, external parent visibility,
+disablement, trigger loading, removal/remount and bounded request history. Its
+run hook still directly dispatches only the ordinary trigger, with no OS key or
+pointer synthesis. No fixture ran.
+
+The menu guide, Octane primitive reference and shared-menus AC14 reconcile this
+source boundary. Local entity history and the cdb5207 source show rendered-open
+closure behavior; stable local v0.18.0 contains that commit, so a focused stable
+fix note records the correction. This is local Git evidence, not a registry audit
+or native qualification. No shared audit snapshot was regenerated.
+
+Lightweight checks: three TSRX source/test/fixture files and five scoped TSX
+fences parsed; five added/changed local targets/anchors resolved; staged semantic and
+whitespace review completed. Zero test cases or compiler transforms executed.
+Native merged-ref/effect/field/window timing, popup dismissal races, key delivery,
+Tab/return focus, repeated physical clicks, loading paint, VoiceOver, installed
+consumers and pixels remain unqualified. Source cases replace popovers with inline
+content and cannot establish any of those native behaviors.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human
+verification authorization; resource admission is not visual-analysis approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-family.macos.mobile.test.tsrx src/menu-return.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit dropdown current intent package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+check:docs and check:doc-examples remain absent in this worktree; the newer
+documentation-quality reference was read from the original checkout. No tests,
+typegen, typechecks, builds, installs, probes, native/OS automation, packaging,
+visual analysis or additional task/agent ran. All evidence-gated checkboxes and
+native qualification remain open.

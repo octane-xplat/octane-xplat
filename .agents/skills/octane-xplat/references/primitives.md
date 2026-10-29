@@ -1454,8 +1454,13 @@ state applies to rows. DropdownMenu forwards button.ref and uses button.id unles
 its own id is supplied. Destructive tone classes forward across row kinds.
 Disabled dropdown/context/submenu surfaces are suppressed even when controlled
 isOpen remains true and request onOpenChange(false); Dropdown also observes
-button/ButtonGroup disablement. Use the current button prop, not the old trigger
-spelling. See the [AppKit menu contract](../../../../docs/menus.md#appkit-menu-host-state).
+button/ButtonGroup disablement. Dropdown trigger/arrow/dismiss requests read
+current props and local open intent through one claim. Controlled parents retain
+visibility and the original local seed survives mode changes. Current trigger
+loading blocks opening unless interruptible; it does not dismiss existing menus.
+Nested/detached requests are ignored; button-ref replacement preserves the active
+claim. Errors release it without local rollback; existing Button/dismiss error
+paths remain. Use the current button prop, not the old trigger spelling. See the [AppKit menu contract](../../../../docs/menus.md#appkit-menu-host-state).
 
 ```tsx
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
