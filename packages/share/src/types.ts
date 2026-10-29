@@ -20,9 +20,9 @@ export interface Share {
 	 * only — a `content://` URI, which is shared directly without the
 	 * FileProvider hop. Web links belong to `share.url`.
 	 *
-	 * Resolves `'shared'` once the platform sheet completes (iOS) or the
+	 * Resolves `'shared'` once the platform sheet/service completes (iOS/macOS) or the
 	 * chooser launches (Android — `ACTION_SEND` reports no outcome), and
-	 * `'cancelled'` when the user dismisses the sheet (iOS, web). Resolves
+	 * `'cancelled'` when the user dismisses the sheet (iOS/macOS/web). Resolves
 	 * `'unavailable'` when the file can't be reached, no presenter is
 	 * attached, or the platform has no file-share path (browsers — the Web
 	 * Share API needs a `File` handle, not a path). Rejects when `path`

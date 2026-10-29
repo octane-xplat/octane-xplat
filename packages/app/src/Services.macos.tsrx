@@ -4,6 +4,7 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 import { files } from '@octane-xplat/files'
 import { media } from '@octane-xplat/media'
 import { notifications } from '@octane-xplat/notifications'
+import { share } from '@octane-xplat/share'
 import { HStack, Image, Text, Pressable, View } from '@octane-xplat/ui'
 import {
 	announce,
@@ -21,6 +22,8 @@ export function Services() @{
 	const [settingsResult, setSettingsResult] = useState('—')
 	const [notificationResult, setNotificationResult] = useState('Not checked')
 	const notificationGeneration = useRef(0)
+	const [shareResult, setShareResult] = useState('Not requested')
+	const shareGeneration = useRef(0)
 	const [announcementResult, setAnnouncementResult] = useState('—')
 	const [keychainResult, setKeychainResult] = useState('—')
 	const [imageResult, setImageResult] = useState('—')
@@ -34,6 +37,7 @@ export function Services() @{
 			alive.current = false
 			pickGeneration.current++
 			notificationGeneration.current++
+			shareGeneration.current++
 			// Also cover a result received before its state update committed.
 			if (latestPicked.current) files.release(latestPicked.current)
 			latestPicked.current = null
@@ -48,6 +52,13 @@ export function Services() @{
 	const conn = connectivity.getState()
 	const appState = useAppState()
 	const size = useWindowSize()
+	async function shareAction(kind: 'text' | 'url') {
+		const generation = ++shareGeneration.current
+		try {
+			const result = await (kind === 'text' ? share.text('Kitchen sink share check', 'AppKit sharing') : share.url('https://example.com', 'Example link'))
+			if (alive.current && generation === shareGeneration.current) setShareResult(result)
+		} catch { if (alive.current && generation === shareGeneration.current) setShareResult('Sharing failed') }
+	}
 	async function notificationAction(action: 'status' | 'request' | 'send') {
 		const generation = ++notificationGeneration.current
 		try {
@@ -105,6 +116,14 @@ export function Services() @{
 				<Pressable className="btn btn-secondary" onPress={() => notificationAction('send')}><Text>Send test</Text></Pressable>
 			</HStack>
 			<Text>{notificationResult}</Text>
+		</View>
+		<View className="sink-section">
+			<Text className="section-label">Sharing</Text>
+			<HStack className="gap-3 items-center">
+				<Pressable className="btn btn-secondary" onPress={() => shareAction('text')}><Text>Share text</Text></Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => shareAction('url')}><Text>Share link</Text></Pressable>
+			</HStack>
+			<Text>{shareResult}</Text>
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Clipboard</Text>

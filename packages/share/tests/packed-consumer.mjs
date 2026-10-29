@@ -83,6 +83,12 @@ void bad
 `,
 }
 
+consumers.macos = consumers.native + `
+import type { ShareFileOptions } from '@octane-xplat/share'
+const options: ShareFileOptions = { subject: 'Android only', mimeType: 'text/plain' }
+void options
+`
+
 const extraFiles = {}
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
@@ -90,6 +96,7 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
+	macos: { moduleSuffixes: ['.macos', ''], customConditions: ['macos'], types: [] },
 	web: {
 		moduleSuffixes: ['.web', ''],
 		customConditions: ['web'],
@@ -177,6 +184,11 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+
+	for (const file of ['include/XplatShare.h', 'src/XplatShare.m']) {
+		assert.ok(existsSync(join(packedRoot, 'platforms/macos', file)), `Missing native share file: ${file}`)
+	}
+	assert.deepEqual(packedManifest.xplat?.macos?.frameworks, ['Foundation', 'AppKit'])
 
 	const exportMaps = [
 		workspaceManifest.exports,

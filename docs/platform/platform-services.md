@@ -380,7 +380,19 @@ import { share } from '@octane-xplat/share'
 const result = await share.url('https://example.com/trips/42', 'Summer trip')
 if (result === 'unavailable') console.log('Sharing unavailable')
 else if (result === 'copied') console.log('Link copied')
-else console.log('Share flow opened')
+else console.log(result) // shared or cancelled; neither proves recipient delivery
+```
+
+For native AppKit, rebuild the host after updating the share package. It owns
+its compiled picker bridge and waits for service completion or cancellation;
+opening a picker alone is not shared. Keep local files alive until the promise
+settles. Actual OS UI and transfer remain unqualified. The separate hosted macOS
+webview backend still reports shared on picker launch. See
+[native AppKit sharing](../../packages/share/README.md#native-appkit-sharing).
+
+```ts
+import { share } from '@octane-xplat/share'
+const outcome = await share.file('file:///tmp/trip%20notes.txt')
 ```
 
 `share.file(path)` opens the same picker for a local file — for example a

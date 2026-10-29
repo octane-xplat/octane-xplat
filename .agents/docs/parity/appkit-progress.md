@@ -6526,3 +6526,75 @@ ran. Actual compilation, callback marshalling/main-thread behavior, first-launch
 prompt-free reads, explicit prompts, relaunch/revocation, foreground/background
 presentation, bundle/signing and installed-consumer behavior remain unqualified.
 No shared audit regeneration or evidence-gated checkbox changes; goal active.
+
+## AppKit owned sharing completion
+
+Demand is grounded in the app's declared share dependency, explicit share QA
+trigger and maintained text/link/file guide. Source inspection found native
+share required a private harness seam; that host passed file:// to a raw-path
+existence check and returned shared immediately on picker launch. These are
+source findings, not observed OS failures. Native-service audit/TSV qualification
+remains open; shared snapshots were not regenerated.
+
+Added package-owned Objective-C header/source with Foundation/AppKit discovery
+metadata, replacing the native facade's harness-global dependency. The native
+call requires a visible key/main window without an attached sheet; missing/stale
+metadata, missing presenter and overlap are unavailable. No activation is added.
+Absolute/local file URLs decode once; empty/localhost authorities are accepted,
+remote/malformed/query/fragment/NUL inputs rejected, and native existence/readable/
+non-directory checks precede presentation. Text subject/URL title becomes the
+service subject; URL items are not duplicated with title body text. Android-only
+file options are unchanged. Native invocation/metadata access errors reject.
+The macOS declaration now exports the existing ShareFileOptions type.
+
+A strong process-owned operation retains the picker and selected service through
+weak AppKit delegates. Selection/launch remains pending. didShareItems settles
+shared; picker dismissal/Cocoa cancellation settles cancelled and other service
+errors unavailable. Window close/app termination retires observers and owned
+delegates, closes the picker where available, and settles once. Retain self through
+cleanup after releasing the active claim; retired callbacks cannot settle twice.
+Already-running external service actions cannot be retracted. No synthetic
+success timer is used; a service that never calls its delegate remains pending
+until presenter/app teardown. Screen teardown alone cannot cancel native UI.
+
+Services adds explicit text/link actions with retired-result guards. An idle
+manual fixture separates file preparation from sharing, preserves a prepared
+file while a promise is pending (including screen teardown), and releases it
+on replacement or after completion when disposed. The app already declares the
+leaf; no dependency/lockfile change is needed. The separate hosted macOS webview
+bridge remains launch-as-shared and is not changed or qualified here.
+
+Eight facade cases, an intercepted native picker and metadata/no-presenter
+callback checks plus macOS Bundler/NodeNext packed-consumer/header/source checks
+are authored, all UNRUN. The native fixture replaces NSApp and picker creation,
+never presents real share UI or sends content. It covers pending selection,
+subject, overlap, duplicate terminals, cancellation/failure, teardown, file/URL/
+presenter guards and an off-main invocation returning to main. Source follows
+the installed NSSharingService SDK and Apple's service-selection/service docs.
+README, services skill, recipe, fix note and public service guide reconcile
+this experimental subset. The original share implementation shipped in v0.18.0.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/share
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit sharing intercepted fixture"}' -- pnpm exec turbo run test:macos --filter=@octane-xplat/share
+pnpm exec turbo run typecheck --filter=...@octane-xplat/share --filter=...@xplat/app
+pnpm probe doctor
+pnpm probe run examples/probes/share.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/share
+pnpm exec turbo run pack:check --filter=@octane-xplat/share
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit sharing package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+The share package has no typecheck task; dependent checks do not independently
+prove its facade or Objective-C. Nine TS/TSRX/MJS/declaration files, one manifest
+and one generated JS snippet syntax parsed. Source/semantic/whitespace review
+only. No tests/compiler transforms/typechecks/builds, probes, native/OS/AX
+operation, packaging or visual analysis ran. Actual compilation/linkage/metadata,
+native callback marshalling/main-thread/lifetime, picker input-event context
+(AppKit specifies mouse-down; existing press/keyboard/AX paths are unqualified),
+service availability/subject support/real cancellation, file transfer/lifetime,
+window/termination/HMR, VoiceOver and signed/installed consumers remain open.
+Evidence-gated checkboxes unchanged; persistent goal active.

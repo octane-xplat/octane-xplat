@@ -1,5 +1,5 @@
-// macOS twin — the share leaf resolves on the AppKit host (the host presents
-// NSSharingServicePicker itself). The remaining media leaves carry only
+// macOS twin — the share package owns its native AppKit picker and completion.
+// The remaining media leaves carry only
 // web/native export conditions, so their triggers stay unsupported.
 import { share } from '@octane-xplat/share'
 

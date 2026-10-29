@@ -578,3 +578,29 @@ const status = await notifications.getPermissions()
 The native read/request/thread/metadata cases are authored, unrun. Real OS
 prompts, relaunch/revocation, bridge callbacks, foreground/background delivery,
 packaging and signing remain unqualified in #62.
+
+
+## Native AppKit sharing ownership
+
+Use the runtime `@octane-xplat/share` dependency and rebuild for its package-owned
+Objective-C bridge. The native leaf no longer uses the private harness share seam.
+Call directly from an input action, retain files until completion, and branch on
+outcomes. Subjects apply to text/URL services; file options remain Android-only.
+A visible key/main window without an attached sheet is required. Overlap is
+unavailable, not a replacement. Picker/service cancellation and presenter teardown
+settle cancelled; didShareItems alone settles shared, which is not receipt proof.
+Metadata/presenter/service failures are unavailable; invalid file kinds reject.
+
+```ts
+import { share } from '@octane-xplat/share'
+const outcome = await share.file('file:///tmp/trip%20notes.txt')
+```
+
+Local file URLs support empty/localhost authority and decode once. Do not pass
+content://, remote file authorities, raw query/fragment syntax or NUL; use share.url
+for non-file absolute URLs. Missing callbacks stay pending until window/app
+teardown; no timeout fabricates success. Screen teardown alone cannot cancel the
+native service. The separate hosted webview host still reports launch as shared.
+Eight facade cases, intercepted picker and metadata/consumer fixtures are unrun;
+AppKit event-context requirements (including mouse-down), native callbacks, OS UI,
+actual transfer, VoiceOver and packaged consumers remain unqualified in #62.
