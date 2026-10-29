@@ -203,15 +203,70 @@ export function SavedAttachments({ save }: { save(value: FileInputFile | FileInp
 }
 ```
 
-The default AppKit adapter also supplies known filename-based MIME hints and
-optional Foundation file-size metadata for validation. Unknown metadata stays
-absent; these hints do not inspect bytes or guarantee a later read limit.
-Controller/metadata cases remain unrun; native panel/ref/focus and packaged
-behavior remain unqualified. AppKit dropzone mode now has a local file-URL source
-path described below; actual OS drag delivery remains unqualified. See [AppKit attachment lifetime](../../packages/files/README.md#appkit-attachment-picker-lifetime).
+The default AppKit adapter supplies OS filename-based MIME hints, with known
+extension hints as a fallback, and optional Foundation file-size metadata for
+validation. Custom pickers keep their metadata. These are hints and snapshots;
+they do not inspect file contents or guarantee a later read limit.
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Images(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
+	return <FileInput label="Images" value={props.value} onChange={props.change}
+		isMultiple accept="image/*" maxSize={5000000} />
+}
+```
+
+Unknown metadata stays absent and can fail MIME validation. Controller/metadata
+cases remain unrun; native type discovery, panel/ref/focus and packaged behavior
+remain unqualified. AppKit's local file-URL drop source is described below;
+actual OS drag delivery remains unqualified. See [AppKit attachment lifetime](../../packages/files/README.md#appkit-attachment-picker-lifetime).
 
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
 field presentation. Install both packages when using `FileInput`.
+
+## Choose file types on AppKit
+
+In an experimental AppKit app, `accept` can combine extensions and MIME types
+(file-format labels). Image, audio, video and text wildcard families use OS type
+groups; concrete MIME types use registered native types with a known-extension
+fallback. FileInput then validates the selected names and available MIME hints
+against its current rule. OS type matching can include aliases or related formats,
+so a file enabled by the panel can still fail field validation.
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Documents(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
+	return <FileInput label="Documents" value={props.value} onChange={props.change}
+		isMultiple accept=".pdf,.docx" />
+}
+```
+
+Use `*/*` for any file. An empty rule also allows any file; `*/*` overrides
+other entries in a mixed list. Malformed or unresolved restrictions reject with
+`UnsupportedFileTypeError` before presentation; FileInput shows picker errors as
+field status. Use explicit extensions for unregistered formats. Wildcard families
+other than image/audio/video/text are unsupported.
+
+```ts
+// FileActions.macos.ts
+import { files } from '@octane-xplat/files'
+
+export async function chooseAttachment() {
+	return files.pick('*/*')
+}
+export async function chooseCustomFormat() {
+	return files.pick('.mydoc')
+}
+```
+
+These filters do not verify contents or persist access across app sessions.
+Framework/type bridging, OS enabled-file behavior, sandbox access and installed
+consumers still need native qualification. See [AppKit file filters](../../packages/files/README.md#appkit-file-type-filters)
+for registered MIME errors and metadata details.
 
 ## Keyboard and app language
 

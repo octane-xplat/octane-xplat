@@ -98,9 +98,56 @@ call `files.release(ref)` when done.
 
 The AppKit implementation is experimental. Native bridge availability, real
 picker interaction, sandbox access and packaged operation still need runtime
-qualification. MIME filters use a finite extension table; unrecognized types
-do not restrict the picker. Neither picking nor reading persists a security
-bookmark for a later app session.
+qualification. Neither picking nor reading persists a security bookmark for a
+later app session.
+
+## AppKit file type filters
+
+On AppKit, pass comma-separated filename extensions or MIME types (labels such
+as `application/pdf`) to limit a picker. The image, audio, video and text wildcard
+families use OS type groups. Concrete MIME types use registered OS types, with a
+small extension table as a fallback for known types when native lookup is absent.
+
+```ts
+// AttachmentActions.macos.ts
+import { files } from '@octane-xplat/files'
+
+export async function chooseDocuments() {
+	return files.pickMultiple('.pdf,.docx')
+}
+export async function chooseImagesOrPDF() {
+	return files.pickMultiple('image/*,.pdf')
+}
+```
+
+An empty filter or `*/*` allows any file, including when mixed with other
+entries. A malformed or unresolved restriction rejects the whole request with
+`UnsupportedFileTypeError` before the panel opens. Use explicit extensions for
+unregistered formats; other wildcard families such as `application/*` are not
+supported. FileInput displays picker errors as field status.
+
+```ts
+// AttachmentActions.macos.ts
+import { files } from '@octane-xplat/files'
+
+export async function chooseAnyFile() {
+	return files.pick('*/*')
+}
+export async function chooseCustomDocument() {
+	try { return await files.pick('application/x-my-document') }
+	catch (error) {
+		if (error instanceof Error && error.name === 'UnsupportedFileTypeError') {
+			return files.pick('.mydoc')
+		}
+		throw error
+	}
+}
+```
+
+Native type groups can include aliases and conforming formats rather than only
+literal extensions. The panel does not verify file contents. Framework loading,
+native type bridging, actual enabled files and installed-app behavior remain
+unqualified. See [attachment metadata](#appkit-file-metadata).
 
 Continue with [File entry and picking](https://octane-xplat.goddardai.org/date-picker).
 
@@ -132,11 +179,13 @@ ownership is described below; native drag delivery remains unqualified.
 
 ### AppKit file metadata
 
-The default AppKit FileInput adapter adds known MIME hints from the filename
-extension and, when available, file-size metadata from Foundation. This lets
-common image picks reach `accept="image/*"` validation and gives `maxSize` a byte
-count to check. Custom pickers keep their own metadata; unknown types or failed
-metadata reads leave fields absent. The files service's FileRef contract is unchanged.
+The default AppKit FileInput adapter asks the OS for a MIME hint from the
+filename extension, then falls back to known extension hints. A requested
+concrete MIME alias is retained when the table recognizes it or it resolves to
+the same native type. Optional file-size metadata from Foundation gives `maxSize`
+a byte count to check. Custom pickers keep their own metadata. FileInput checks
+its current accept rule against names and available MIME hints, so a file enabled
+by the OS panel can still fail field validation.
 
 ```tsx
 import { FileInput } from '@octane-xplat/files'
@@ -147,13 +196,14 @@ export function Images(props: { value: FileInputFile[]; change(value: FileInputF
 }
 ```
 
-MIME hints use a finite extension table, not OS content-type discovery or byte
-inspection. Size is a metadata snapshot: missing sizes skip maxSize, and later
-reads still need their own `readBytes` maxBytes limit. Foundation attributes use
+Filename MIME hints do not inspect bytes. Unknown metadata or failed discovery
+leaves fields absent; a missing MIME hint can fail a MIME accept rule. Size is a
+snapshot: missing sizes skip maxSize, and later reads still need their own
+`readBytes` maxBytes limit. Foundation attributes use
 [FileManager attributes](https://developer.apple.com/documentation/foundation/filemanager/attributesofitem(atpath:));
-any metadata security-scope claim is released. Recognized concrete MIME aliases use the matching table hint. Five authored
-metadata/controller cases remain unrun. Real Foundation values, sandbox grants and packaged picker
-validation remain unqualified.
+any metadata security-scope claim is released. Nine authored metadata/controller
+cases remain unrun. Real native type discovery, Foundation values, sandbox grants
+and packaged picker validation remain unqualified.
 
 
 ### AppKit local file drops

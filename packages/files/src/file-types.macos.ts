@@ -1,7 +1,5 @@
-// Extensions for the common `accept` MIME tokens. UniformTypeIdentifiers is
-// not bridged in the AppKit host, so MIME filtering resolves through this
-// table; an unmapped token leaves the panel unrestricted rather than breaking
-// the pick.
+// Filename MIME hints and concrete-MIME fallback extensions. The native picker
+// resolves OS types separately; these entries are not content inspection.
 export const MIME_EXTENSIONS: Record<string, string[]> = {
 	'image/*': ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'heic', 'svg'],
 	'image/png': ['png'],

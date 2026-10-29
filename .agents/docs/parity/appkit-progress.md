@@ -8771,3 +8771,115 @@ selection/undo, editable alignment, physical cleanup/memory, supported-version
 installed consumers and pixels remain unqualified. Native-resource authorization
 would not authorize visual analysis. All evidence gates stay open and the
 persistent goal remains active.
+
+## AppKit native file type filters and MIME hints
+
+Demand is ordinary attachment selection: the maintained shared FileInput demo
+requests image/* plus PDF, and the sandbox FileInputBasic example requests PDF
+and DOCX. Assume these file and image flows outrank new niche integrations.
+Source review found that unknown MIME members disappeared from the finite picker
+table, potentially producing an unrestricted panel; mixing */* with an extension
+could instead narrow the request. A reused any-type panel did not explicitly
+clear prior restrictions. This is source evidence, not an observed OS failure.
+The historical Files/default-metadata entries and audit snapshot remain history;
+this entry supersedes their finite-only filter/hint limitation.
+
+The target-only filter helper resolves the whole comma-separated union before
+filter mutation/presentation. Explicit extensions are normalized/deduplicated;
+image/audio/video/text wildcards use native type-family identifiers rather than
+the finite table. Video uses public.movie plus public.video to include movies
+without broadening to audio-only audiovisual types. Concrete MIME uses every
+registered native result, declining dynamic-only guesses, then known concrete
+extension fallbacks. Unknown/malformed restrictions (including unsupported
+wildcard families and bare *) reject with fixed UnsupportedFileTypeError;
+unknown members are never silently dropped. Empty or */* requests allow any file,
+including */* mixed with restrictions. Starting folders, multiplicity, reference
+shape, null/empty cancellation and read/write/export code remain unchanged.
+
+When every member has a native type and the property exists, set allowedContentTypes
+with identifier-deduplicated types; otherwise keep the complete extension/UTI
+union in allowedFileTypes. Any-type resets modern filters with [] or legacy
+filters with null, never the legacy empty array that Apple documents as invalid.
+Disable allowsOtherFileTypes explicitly. No partial modern array may silently
+lose an unresolved extension. Native aliases/conformance can differ from literal
+filename/MIME validation; enabled panel entries are not content verification.
+
+Framework loading is a prerequisite, not proof. The repository's generated
+platform SDK runtime at pre-change ca0e85d06 records that reading unloaded lazy
+native symbols can crash the host. Its broad framework loader was not imported
+or changed. The helper lazily loads only UniformTypeIdentifiers via the host's
+existing objc.import pattern (also used by auth-session.macos) or dlopen, before
+reading an accessor-backed UTType. Explicit data bindings are usable directly;
+failed loads never dereference a lazy class and can retry; successful loads are
+cached per host. These are project-source patterns, not a new upstream runtime
+finding or proof that either loader works in this app. No dependency install,
+manifest/SDK generation, shared CLI/UI/GTK changes or audit regeneration occurred.
+
+The default FileInput metadata path shares that resolver. Preserve supplied MIME;
+retain a recognized requested concrete table alias first. Otherwise use a same-
+native-identifier concrete alias or the OS extension type's preferred MIME, then
+finite fallback hints. A broad supertype match must not relabel a concrete file.
+Unknown/failed hints remain absent and can fail current MIME accept validation.
+This only classifies filenames; there is no byte inspection. Existing Foundation
+size snapshots and balanced metadata security scopes are unchanged; custom
+pickers keep their own metadata. No persistent sandbox bookmark is added.
+
+Primary API references (read as documentation/source rationale only):
+[UTType lookup](https://developer.apple.com/documentation/uniformtypeidentifiers/uttypereference),
+[filename extension lookup](https://developer.apple.com/documentation/uniformtypeidentifiers/uttypereference/init(filenameextension:)),
+[movie type](https://developer.apple.com/documentation/uniformtypeidentifiers/uttypemovie),
+[modern filters](https://developer.apple.com/documentation/appkit/nssavepanel/allowedcontenttypes),
+[legacy extension/UTI filters](https://developer.apple.com/documentation/appkit/nssavepanel/allowedfiletypes)
+and [other file types](https://developer.apple.com/documentation/appkit/nssavepanel/allowsotherfiletypes).
+
+Eighteen new cases are authored, all UNRUN: ten parser/union/native-lookup/loader/
+setter models; four actual files service panel models for setup, cancellation,
+reused any reset, registered MIME and failure before presentation; four metadata/
+controller cases for newly registered filename types, same-type concrete aliases,
+no supertype relabeling, preserved supplied metadata and failure fallbacks. The
+metadata case file now has nine cases; the files bridge file has eleven. No model
+case was executed and no compiler transform or typecheck was run.
+
+The existing fileinput-drop fixture now offers human-operated filter cycles and
+single/multiple service picks alongside FileInput validation. It retains disabled/
+presentation/drop comparison and selection output, releases service refs after
+reporting, and never opens a panel or synthesizes a drag from its run hook. The
+hook only waits for mounting; even running it would not establish OS behavior.
+The guide, files README, Octane reference, recipe date-picker AC10/AC18 and feature
+note explain the breaking unresolved-filter error and current hint boundaries.
+
+Lightweight verification: eight source/fixture files parsed (seven TypeScript
+files plus the TSRX fixture); eight scoped TS/TSX documentation fences parsed;
+thirteen distinct new/changed local link targets and anchors resolved; the files
+manifest parsed as JSON; focused semantic/whitespace review passed. These checks
+executed zero tests/compiler transforms and are not a runtime or type qualification. All native framework/type availability, SDK collection/
+Boolean/property bridging, supported OS versions, registered custom types,
+compound/dotfile/case/symlink behavior, actual enabled/selectable files,
+FileInput validation/drop delivery, panel concurrency, security grants/ref
+lifetime, cancellation/focus/VoiceOver, installed consumers and visual/pixel
+behavior remain unqualified. Editable text alignment and pull-refresh native
+phase proof remain separate outstanding gaps.
+
+Exact deferred commands (DO NOT RUN until this task receives explicit human
+verification authorization; native resource authorization does not authorize
+visual analysis):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/files
+pnpm exec turbo run typecheck --filter=...@octane-xplat/files
+pnpm exec turbo run test:packed --filter=@octane-xplat/files
+pnpm exec turbo run pack:check --filter=@octane-xplat/files
+pnpm probe doctor
+pnpm probe run examples/probes/fileinput-drop.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit file type filter package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+The files manifest has no typecheck script in this snapshot; the touched-package/
+dependents filter is still recorded for the pre-merge gate. check:docs and
+check:doc-examples are absent here; do not copy another task's in-flight tooling
+or claim those checks passed. Issue #62 must remain open with evidence gates
+unchanged; implementation coverage and verification are separate.

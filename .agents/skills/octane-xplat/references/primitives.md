@@ -2338,6 +2338,42 @@ these do not qualify native text/IME/focus/AX/calendar/installed-consumer behavi
 No public type/dependency/React Aria presence change. See
 [absolute UTC workflow](../../../../docs/app/power-search.md#edit-native-appkit-absolute-dates).
 
+## AppKit file type filters and MIME hints
+
+Use the existing files leaf for attachment flows. AppKit resolves image/audio/
+video/text wildcard families through native type groups and concrete MIME through
+registered UTType results, retaining known-extension fallbacks. Resolve every
+member before presentation: unknown/malformed restrictions reject with
+UnsupportedFileTypeError rather than dropping members or opening unrestricted.
+Empty or */* means any type, including */* in a mixed list; clear reused panel filters.
+Prefer explicit extensions for unregistered formats. Modern content-type arrays
+require a complete resolution; partial resolution retains the full legacy
+extension/UTI union. Load only UniformTypeIdentifiers before a lazy UTType global;
+never import the entire generated native SDK merely to load this framework.
+
+```ts
+// FileActions.macos.ts
+import { files } from '@octane-xplat/files'
+export async function chooseDocuments() {
+	return files.pickMultiple('.pdf,.docx')
+}
+export async function chooseImagesOrPDF() {
+	return files.pickMultiple('image/*,.pdf')
+}
+```
+
+Default FileInput metadata uses requested known concrete aliases first, otherwise
+same-native-type aliases/preferred filename MIME, then finite hints; preserve
+supplied metadata. Never relabel a concrete image as a broad supertype solely
+because it conforms. Missing MIME can fail current accept validation. Panel
+conformance/aliases and field validation are separate; neither inspects bytes.
+Eighteen new parser/loader/panel/metadata/controller cases and the extended idle
+fileinput-drop fixture remain UNRUN. No dependency/public type/React Aria presence
+change. Native loading/type arrays/conformance, sandbox/ref lifecycle, OS picking/
+dragging, focus/VoiceOver and installed/visual qualification remain pending. See
+[file filter workflow](../../../../docs/platform/date-picker.md#choose-file-types-on-appkit)
+and [metadata](../../../../packages/files/README.md#appkit-file-metadata).
+
 ## Native AppKit date-picker ownership
 
 Use AppKitDatePicker from @octane-xplat/date-picker/macos only in native macOS

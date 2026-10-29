@@ -1,5 +1,6 @@
 import type { FileInputFile } from './props'
 import { MIME_EXTENSIONS } from './file-types.macos'
+import { appKitFileTypeClass, appKitTypeForExtension, appKitTypesForMIME } from './file-pick-filter.macos'
 
 const types = new Map<string, string>()
 for (const [mime, extensions] of Object.entries(MIME_EXTENSIONS)) {
@@ -11,12 +12,23 @@ for (const [mime, extensions] of Object.entries(MIME_EXTENSIONS)) {
 export function appKitFileInputDetails(file: FileInputFile, accept?: string): FileInputFile {
 	const result = { ...file }
 	const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : ''
-	// Honor a recognized concrete alias (e.g. application/xml vs text/xml)
-	// before falling back to the table's first concrete filename hint.
-	const accepted = accept?.split(',').map((token) => token.trim().toLowerCase())
-		.find((token) => !token.includes('*') && MIME_EXTENSIONS[token]?.includes(extension))
-	const mime = accepted ?? types.get(extension)
-	if (result.mimeType == null && mime) result.mimeType = mime
+	if (result.mimeType == null && extension) {
+		const accepted = accept?.split(',').map(token => token.trim().toLowerCase()).filter(token => token.includes('/') && !token.includes('*')) ?? []
+		let mime = accepted.find(token => Object.prototype.hasOwnProperty.call(MIME_EXTENSIONS, token) && MIME_EXTENSIONS[token].includes(extension))
+		if (!mime) {
+			try {
+				const Type = appKitFileTypeClass(), type = appKitTypeForExtension(Type, extension)
+				// Concrete MIME aliases must resolve to the same native type, not
+				// merely a broad supertype such as public.data.
+				const alias = typeof type?.identifier === 'string' ? accepted.find(token =>
+					appKitTypesForMIME(Type, token).some(candidate => candidate.identifier === type.identifier)) : undefined
+				const preferred = type?.preferredMIMEType
+				mime = alias ?? (typeof preferred === 'string' && preferred.includes('/') ? preferred.trim().toLowerCase() : undefined)
+			} catch { /* MIME metadata is optional, like the size snapshot below. */ }
+		}
+		mime ??= types.get(extension)
+		if (mime) result.mimeType = mime
+	}
 	if (result.size != null) return result
 
 	const host = globalThis as any

@@ -12,6 +12,7 @@ describe('AppKit files bridge', () => {
 	let destination: any
 
 	beforeEach(() => {
+		vi.stubGlobal('UTType', undefined); vi.stubGlobal('objc', undefined); vi.stubGlobal('dlopen', undefined)
 		source = new Uint8Array([1, 2, 3])
 		closed = vi.fn()
 		stop = vi.fn()
@@ -112,5 +113,39 @@ describe('AppKit files bridge', () => {
 		for (const uri of ['https://example.com/a', 'relative.txt']) {
 			await expect(files.readBytes({ name: 'a', uri })).rejects.toThrow('Not a local file')
 		}
+	})
+
+	it('single picking preserves extension/MIME restrictions and starting-folder options', async () => {
+		const panel: any = { URL: { lastPathComponent: 'report.pdf', absoluteString: 'file:///tmp/report.pdf' }, runModal: vi.fn(() => 1) }
+		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
+		expect(await files.pick('.PDF,application/json', { startingFolder: '/tmp' })).toEqual({ name: 'report.pdf', uri: 'file:///tmp/report.pdf' })
+		expect(panel.allowedFileTypes).toEqual(['pdf', 'json']); expect(panel.allowsOtherFileTypes).toBe(false)
+		expect(panel.directoryURL.path).toBe('/tmp'); expect(panel.allowsMultipleSelection).toBe(false)
+	})
+
+	it('multiple picking retains cancellation and clears a reused panel for any-type requests', async () => {
+		const urls = [{ lastPathComponent: 'a.pdf', absoluteString: 'file:///a.pdf' }, { lastPathComponent: 'b.pdf', absoluteString: 'file:///b.pdf' }]
+		const panel: any = { URLs: { count: urls.length, objectAtIndex: index => urls[index] }, runModal: () => response }
+		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
+		expect(await files.pickMultiple('.pdf')).toHaveLength(2); expect(panel.allowedFileTypes).toEqual(['pdf'])
+		response = 0
+		expect(await files.pick('*/*,.png')).toBeNull(); expect(panel.allowedFileTypes).toBeNull()
+		expect(await files.pickMultiple()).toEqual([])
+	})
+
+	it('registered MIME types outside the fallback table reach modern native panel filtering', async () => {
+		const document = { identifier: 'org.example.document', dynamic: false }
+		vi.stubGlobal('UTType', { typeWithMIMEType: mime => mime === 'application/x-example-document' ? document : null })
+		const panel: any = { allowedContentTypes: [], runModal: () => 0 }
+		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
+		expect(await files.pick('application/x-example-document')).toBeNull()
+		expect(panel.allowedContentTypes).toEqual([document])
+	})
+
+	it('an unresolved filter rejects before modal presentation without becoming unrestricted', async () => {
+		const panel: any = { allowedFileTypes: ['previous'], runModal: vi.fn(() => 1) }
+		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
+		await expect(files.pick('.pdf,application/x-not-known')).rejects.toMatchObject({ name: 'UnsupportedFileTypeError' })
+		expect(panel.runModal).not.toHaveBeenCalled(); expect(panel.allowedFileTypes).toEqual(['previous'])
 	})
 })

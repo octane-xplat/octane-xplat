@@ -1,5 +1,5 @@
 // Files — AppKit host leaf.
-import { MIME_EXTENSIONS } from './file-types.macos'
+import { applyAppKitFileTypeFilter } from './file-pick-filter.macos'
 import { assertSafeFileName, concatBytes, exactBuffer, exportBusy, fileTooLarge, throwIfAborted } from './file-bytes'
 import type {
 	FileExportOptions,
@@ -66,14 +66,7 @@ function openPanel(accept = '*/*', multiple = false, opts?: FilePickOptions): Fi
 	if (opts?.startingFolder) {
 		panel.directoryURL = fileURL(opts.startingFolder)
 	}
-	const extensions = accept
-		.split(',')
-		.map((value) => value.trim().toLowerCase())
-		.flatMap((token) => (token.startsWith('.') ? [token.slice(1)] : (MIME_EXTENSIONS[token] ?? [])))
-
-	if (extensions.length) {
-		panel.allowedFileTypes = extensions
-	}
+	applyAppKitFileTypeFilter(panel, accept, appKit)
 
 	if (panel.runModal() !== (appKit.NSModalResponseOK ?? 1)) {
 		return null

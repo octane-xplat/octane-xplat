@@ -1,9 +1,10 @@
-import { afterEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { appKitFileInputDetails } from './file-input-details.macos'
 import { fileAccepts, validateFiles } from './file-input-utils'
 import { createAppKitFileInputState } from './file-input-state.macos'
 
 afterEach(() => vi.unstubAllGlobals())
+beforeEach(() => { vi.stubGlobal('UTType', undefined); vi.stubGlobal('objc', undefined); vi.stubGlobal('dlopen', undefined) })
 
 function bridge(value: unknown, scoped = true) {
 	const stop = vi.fn(), start = vi.fn(() => scoped)
@@ -78,4 +79,40 @@ it('known concrete MIME aliases remain usable instead of being replaced by a dif
 		expect(file.mimeType).toBe(accept)
 		expect(fileAccepts(file, accept)).toBe(true)
 	}
+})
+
+it('OS filename types outside the table supply MIME hints for family validation', () => {
+	vi.stubGlobal('UTType', { typeWithFilenameExtension: extension => extension === 'avif' ? { identifier: 'public.avif', preferredMIMEType: 'image/avif' } : null })
+	const file = appKitFileInputDetails({ name: 'photo.avif', uri: '/tmp/photo.avif', size: 10 }, 'image/*')
+	expect(file.mimeType).toBe('image/avif')
+	expect(validateFiles([file], { accept: 'image/*', maxSize: 20 }).valid).toEqual([file])
+})
+
+it('registered concrete aliases reach controller validation without replacing the native type', async () => {
+	const type = { identifier: 'org.example.document', preferredMIMEType: 'application/x-example' }
+	vi.stubGlobal('UTType', { typeWithFilenameExtension: () => type, typeWithMIMEType: () => type })
+	const accept = 'application/vnd.example-document', change = vi.fn()
+	const state = createAppKitFileInputState({
+		props: () => ({ value: null, accept, onChange: change }),
+		pick: async () => appKitFileInputDetails({ name: 'document.custom', uri: '/tmp/document.custom', size: 5 }, accept), publish() {},
+	})
+	state.attach()
+	try { state.open(); await vi.waitFor(() => expect(change).toHaveBeenCalledWith(expect.objectContaining({ mimeType: accept }))) }
+	finally { state.detach() }
+})
+
+it('a MIME supertype cannot relabel a concrete file and supplied metadata bypasses discovery', () => {
+	const lookup = vi.fn(() => ({ identifier: 'public.avif', preferredMIMEType: 'image/avif' }))
+	vi.stubGlobal('UTType', { typeWithFilenameExtension: lookup, typeWithMIMEType: () => ({ identifier: 'public.data' }) })
+	const result = appKitFileInputDetails({ name: 'image.avif', uri: '/tmp/image.avif', size: 5 }, 'application/octet-stream')
+	expect(result.mimeType).toBe('image/avif'); expect(fileAccepts(result, 'application/octet-stream')).toBe(false)
+	lookup.mockClear()
+	const supplied = { name: 'image.avif', uri: '/tmp/image.avif', size: 5, mimeType: 'application/x-owned' }
+	expect(appKitFileInputDetails(supplied)).toEqual(supplied); expect(lookup).not.toHaveBeenCalled()
+})
+
+it('failed native MIME discovery keeps finite hints and unknown metadata optional', () => {
+	vi.stubGlobal('UTType', { typeWithFilenameExtension() { throw Error('private bridge payload') } })
+	expect(appKitFileInputDetails({ name: 'image.png', uri: '/tmp/image.png', size: 5 }).mimeType).toBe('image/png')
+	expect(appKitFileInputDetails({ name: 'unknown.custom', uri: '/tmp/unknown.custom', size: 5 })).not.toHaveProperty('mimeType')
 })
