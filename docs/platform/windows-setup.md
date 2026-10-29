@@ -379,3 +379,27 @@ disabled options reject input. The complete Field/props contract, Narrator and
 visual parity, other Windows versions/architectures and downstream consumers
 remain unqualified. See the [Windows progress record](../../.agents/docs/parity/windows-support-progress.md)
 for the bounded evidence and remaining gaps.
+
+## Segmented choices
+
+The experimental Windows `SegmentedControl` keeps the shared track and segment
+design and puts a native radio input over each segment. That gives each segment
+keyboard focus, arrow-key selection and a screen-reader name, including
+icon-only segments.
+
+```tsx
+import { useState } from 'octane'
+import { SegmentedControl } from '@octane-xplat/ui'
+
+export function CalendarRange() {
+  const [range, setRange] = useState('week')
+  return <SegmentedControl ariaLabel="Range" layout="fill" value={range} onValueChange={setRange}
+    options={[{ value: 'day', label: 'Day' }, { value: 'week', label: 'Week' }, { value: 'month', label: 'Month', isDisabled: true }]} />
+}
+```
+
+Left and Right move between enabled segments and stop at the ends. Tab visits
+one segment per control. Read-only controls keep focus navigation and reject
+changes, and disabled segments reject input. Long labels can be wider than a
+fill segment, and how they overflow is not yet checked. Narrator, visual parity, other
+Windows versions/architectures and downstream consumers also remain unqualified.

@@ -3305,3 +3305,40 @@ downstream apps remain unqualified. The delegated checker still reports the
 prior12 diagnostics in11 other files. `ui:RadioList` and the broad issue row
 stay pending. Artifacts: `windy-os-radio-public-v39c.log` and
 `windy-v39c-radio-public-{os-results,current-boot-console,installed-package}.json`.
+
+## V40 qualifies common public Windows SegmentedControl input
+
+Demand: 13 maintained app/example files use `SegmentedControl`. The earlier
+Windows sweep showed mouse selection worked but exposed only Text labels, with
+no keyboard or selection semantics. The web leaf already uses radiogroup/radio
+semantics, so the Windows leaves reuse the qualified RadioList peer and group
+controller: shared track/segment visuals, one measured transparent native
+RadioButton per segment, and no segment tap handler. Icon-only segments name
+their peer from `label`. No dependency or public prop changed.
+
+Contracts: 15/15 via one uncached Turbo task on windy (4 new segmented
+compiler/runtime cases plus the 11 RadioList cases). The bounded graph built
+38/38, 28 cached, 12m40.549s, exit0; MSIX1.0.0.40 then passed **12/12**
+OS-input/UIA groups on the first run (boot`mvtsg0vu`, per-monitor DPI driver,
+fitted 2256x1504 work area, owned-foreground and hit-process guards).
+
+| Bounded public behavior | Native result |
+| --- | --- |
+| Automation shape | Named nonempty RadioButton peers with SelectionItem in option, child-part (including icon-only) and read-only controls |
+| Fill layout | Three `layout="fill"` peers measure 315px each in one ordered row |
+| Keyboard | Tab visits one segment per control; Right/Left request once and stop before a disabled last segment |
+| State ownership | Reselect neither clears nor echoes; rejected controlled changes and read-only input restore the native group |
+| Guards and pointer | Disabled segments reject focus, selection and pointer input; pointer selection stays within its control |
+| Lifetime | Remount restores defaults with one owned event handler |
+
+The fixture's long label "Qualification segmented accepted a" reports Text
+bounds 404px wide against a 315px segment peer, so long labels can exceed a
+fill segment. Overflow presentation was not inspected (no visual analysis).
+RTL/Home/End remain mocked controller contracts. Narrator, visual parity,
+hardware touch/pen, the full Field/props/size matrix, package/dependent
+typechecks, packed consumers and other versions/architectures remain
+unqualified. `ui:SegmentedControl` stays pending. The windy build checkout is
+still the older overlaid base; it does not prove the merged `main` lockfile.
+Artifacts: `windy-v40-segmented-contracts-task.log`, `windy-native-v40-public-segmented.log`,
+`windy-v40-build-exit.json`, `windy-os-segmented-public-v40.log` and
+`windy-v40-segmented-public-{os-results,current-boot-console,installed-package}.json`.

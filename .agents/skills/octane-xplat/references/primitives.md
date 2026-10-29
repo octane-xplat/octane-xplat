@@ -353,6 +353,24 @@ export function ViewMode() {
 }
 ```
 
+On experimental Windows, the same names reuse the RadioList native peers: one
+measured transparent RadioButton per segment, one group-owned keyboard adapter,
+and Left/Right navigation that stops at the ends. Keep selection in the parent
+and do not add tap handlers to segments. Icon-only segments still need `label`
+because it names the native peer. Long labels may be wider than a fill segment,
+and overflow handling is not yet checked. See [Windows segments](../../../../docs/platform/windows-setup.md#segmented-choices).
+
+```tsx
+import { Icon, SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
+
+export function Sorting(props: { value: string; onValueChange(value: string): void }) {
+	return <SegmentedControl value={props.value} onValueChange={props.onValueChange} ariaLabel="Sort">
+		<SegmentedControlItem value="newest" label="Newest" />
+		<SegmentedControlItem value="filter" label="Filter" isLabelHidden icon={<Icon name="xplat-funnel" />} />
+	</SegmentedControl>
+}
+```
+
 ## Platform-authentic subpaths
 
 The OS widget is the value of these exports. They are intentionally absent
