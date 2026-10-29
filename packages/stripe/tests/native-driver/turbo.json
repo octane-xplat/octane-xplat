@@ -12,6 +12,10 @@
 				"XPLAT_IOS_DEVICE",
 				"XPLAT_IMAGE_LIB_ROOT"
 			]
+		},
+		"test:ios-spm": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_NATIVE_TEST_REPO", "XPLAT_STRIPE_CONSUMER_ARCHIVE"]
 		}
 	}
 }

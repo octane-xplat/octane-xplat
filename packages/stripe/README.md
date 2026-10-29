@@ -301,8 +301,10 @@ packed consumer checks and a Swift bridge typecheck against the official iOS
 simulator SDK pass. They do not prove a completed payment. The iOS26.2 smoke on skymac.local passed
 ten assertions for initialization,
 concurrency, invalid-credential SDK failure and presenter cleanup. It uses the
-official binary SDK; consuming-app SPM installation, a successful test payment,
-loaded-sheet cancellation, redirects and wallets remain unverified. Android runtime is explicitly unverified. Native AppKit, GTK and Windows exports report unavailable: Stripe's
+official binary SDK. A separate packed consumer resolves the plugin’s three
+Swift Package Manager products at SDK26.15.1 on skymac.local without compiling
+the SDK. SPM source compilation, a successful test payment, loaded-sheet
+cancellation, redirects and wallets remain unverified. Android runtime is explicitly unverified. Native AppKit, GTK and Windows exports report unavailable: Stripe's
 PaymentSheet uses UIKit or Android UI, and a native desktop payment backend is
 not wired. A web app can use the web adapter in a supported browser.
 

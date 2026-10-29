@@ -4,7 +4,8 @@
 	"type": "module",
 	"scripts": {
 		"test:ios-bridge": "node ../ios-bridge.mjs",
-		"test:ios-runtime": "node ../ios-runtime.mjs"
+		"test:ios-runtime": "node ../ios-runtime.mjs",
+		"test:ios-spm": "node ../ios-spm.mjs"
 	},
 	"packageManager": "pnpm@11.24.0"
 }

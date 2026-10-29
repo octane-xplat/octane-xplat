@@ -78,8 +78,21 @@ app must recover through server order state. Android runtime is unverified.
   The corrected iOS26.2 fixture passed ten assertions covering initialization,
   guest preparation, duplicate presentation/reset guards, actual SDK failure on
   invalid fixture credentials, presenter release, disposal and unrelated URL
-  rejection. The task-owned simulator was shut down after the run. Consumer SPM
-  resolution is still unverified.
+  rejection. The task-owned simulator was shut down after the run.
+- A separate packed-consumer SPM check on skymac.local now passes: NativeScript
+  consumes nativescript.config.ts from the unpacked archive, attaches all three
+  product declarations and resolves Stripe iOS exactly26.15.1. The maintained
+  tests/ios-spm.mjs checks the real Xcode pins after NativeScript prepare, which
+  already invokes dependency resolution; it avoids a second resolution command.
+  Its private Turbo driver uses the existing reference checkout and an archive
+  packed locally with scripts disabled. Public dependencies are linked from
+  installed copies; no registry publication or new signing setup is needed.
+  This is package preparation/resolution evidence, not SPM SDK compilation,
+  installed checkout, a payment, or a current native hook test. No simulator is
+  launched. The first SDK fetch took4m40; subsequent checks reuse its cache.
+  Logs: /tmp/xplat-stripe-spm-first-resolution.log and final fixture output in
+  /tmp/xplat-stripe-spm-final.log. The command runner supervises a process group
+  so a timeout does not leave its own resolver running.
 
 A successful real test-mode payment, cancellation/retry with a loaded Intent,
 authentication redirects and wallet merchant setup remain unverified pending an
