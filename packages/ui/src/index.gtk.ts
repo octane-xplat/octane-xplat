@@ -174,3 +174,6 @@ export type { CheckboxGroupProps, CheckboxListProps, CheckboxListItemProps } fro
 export { SegmentedControl } from './SegmentedControl'
 export { SegmentedControlItem } from './SegmentedControlItem'
 export type { SegmentedControlProps, SegmentedControlItemProps } from './props'
+
+export { PinInput } from './PinInput'
+export type { PinInputProps } from './props'

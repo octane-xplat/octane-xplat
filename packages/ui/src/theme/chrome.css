@@ -963,6 +963,9 @@
 	}
 
 	/* PinInput — row of single cells. */
+	.vx-pininput--native { display: flex; flex-direction: row; gap: 8px; }
+	.vx-pininput--native > .vx-input-shell { width: 40px; min-width: 0; flex-shrink: 0; }
+	.vx-pininput--native .vx-pininput-cell { width: 100%; min-width: 0; margin-right: 0; }
 	.vx-pininput--disabled {
 		opacity: 0.5;
 	}

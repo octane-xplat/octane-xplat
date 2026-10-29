@@ -265,6 +265,10 @@ RadioList. The native field frame owns width and chrome; option and child-part
 rendering share one row implementation. Native-only layout classes preserve
 hug/fill geometry and icon spacing without changing the web leaf.
 
+PinInput also shares the native TextInput path. Its group owns one field frame;
+numbered editors retain their own names and ids. Native-only shell sizing and
+gap classes fit the existing 40px cells without changing the web/AppKit trees.
+
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property

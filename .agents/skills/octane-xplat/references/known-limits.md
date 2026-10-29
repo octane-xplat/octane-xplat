@@ -157,6 +157,13 @@ content. Icon-only items retain their label as the name. Preserve controlled
 rejection, local defaults, keyed updates and RTL behavior when changing this
 leaf. The existing NativeScript composite-role fallback still applies.
 
+PinInput reuses TextInput editors under one native group field. Keep unique
+numbered editor ids and accessible names; do not clear the Field provider and
+create an automatic field per digit. Sequential edits retain the existing
+prefix, clearing truncates the suffix, and focus advances after the next cell
+becomes editable. Keep controlled rejection and completion checks alongside
+secure and length updates. Numeric purpose is a keyboard hint, not validation.
+
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
 handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have

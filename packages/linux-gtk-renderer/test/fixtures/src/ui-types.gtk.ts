@@ -122,3 +122,5 @@ type SegmentedControlPropsContract = Assert<
 type SegmentedControlItemPropsContract = Assert<
 	Equal<GtkUI.SegmentedControlItemProps, NativeUI.SegmentedControlItemProps>
 >
+
+type PinInputPropsContract = Assert<Equal<GtkUI.PinInputProps, NativeUI.PinInputProps>>

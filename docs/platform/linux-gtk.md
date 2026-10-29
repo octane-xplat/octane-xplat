@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl and SegmentedControlItem.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem and PinInput.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -382,6 +382,37 @@ export function Quantity() {
         hasNumberSteppers={false} hasClear onClear={() => console.log('Cleared')} />
     </Field>
   )
+}
+```
+
+## PIN entry
+
+Use PinInput for a short code. It starts empty when value is omitted, advances
+to the next cell as you enter characters, and calls onComplete when all cells
+are filled. Clearing a cell also clears the cells after it. secure masks the
+characters; the numeric keyboard hint does not validate them.
+
+```tsx
+import { PinInput } from '@octane-xplat/ui'
+
+export function VerificationCode() {
+  return <PinInput label="Code" width={280} length={4} secure
+    onComplete={(code) => console.log('Code entered', code.length)} />
+}
+```
+
+For controlled input, keep value in state and accept changes through
+onValueChange. Keeping value unchanged rejects an edit. The group shares one
+field label, while each editor has a numbered accessible name.
+
+```tsx
+import { useState } from 'octane'
+import { PinInput } from '@octane-xplat/ui'
+
+export function ControlledCode() {
+  const [code, setCode] = useState('')
+  return <PinInput label="Code" width={280} length={4} value={code}
+    onValueChange={(next) => { if (/^\d*$/.test(next)) setCode(next) }} />
 }
 ```
 

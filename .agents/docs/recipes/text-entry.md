@@ -193,6 +193,12 @@ names, inherited state, width ownership and actual grouped keyboard/pointer
 input. Hug/fill geometry, RTL and retained updates have separate checks.
 These do not establish assistive-client speech or navigation.
 
+The public-root [PIN fixture](../../../packages/linux-gtk-renderer/test/ui-pin-input.test.mjs)
+adds AC3 field evidence for one labelled group with numbered editors. Actual
+X11 input exercises sequential focus, controlled acceptance/rejection, suffix
+clearing, completion, secure mode and disabled/read-only behavior. Length,
+metadata and geometry updates are separate from assistive-client output.
+
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
 recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance

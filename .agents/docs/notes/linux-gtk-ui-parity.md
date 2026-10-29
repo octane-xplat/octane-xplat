@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 64 runtime values and 100 types in index.gtk.ts, including
+Current availability is 65 runtime values and 101 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl and SegmentedControlItem. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem and PinInput. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1130,3 +1130,24 @@ tests, six package tasks and 28 docs build/test tasks pass. See
 for the baseline and limits. Text-entry AC3 remains partial and AC8 remains
 complete/runtime-tested. Remaining inputs/parts, Image, overlays, navigation,
 theme and services stay under the full goal. No partial-surface PR is opened.
+
+
+### Public GTK PIN input
+
+PinInput and its existing prop type reuse the shared native TextInput path.
+One persistent field owns the label, width and group state; editors keep
+numbered names and ids under an authored group id. Availability is 65 values
+and 101 types. The editing state machine is unchanged.
+
+The public-root case passes 103 checks with actual X11 input, covering
+contiguous entry/focus, controlled acceptance/repeated rejection, suffix
+clearing, completion, secure entry, disabled/read-only behavior, length
+transitions, metadata/layout resets and cleanup. The existing full sweep
+passes 55 tests without skips; the newly registered PinInput test passes
+separately, for 56 exercised maintained tests. All 62 affected typecheck tasks,
+a subsequent 12-task focused type/native/package run, 62 selected web tests
+and 28 docs build/test tasks pass. See
+[the PIN evidence](linux-gtk-renderer.md#gtk-pin-input-qualification) for the
+baseline, exact logs and qualification limits. Text-entry AC3 remains partial
+and AC8 remains complete/runtime-tested. Remaining inputs/parts, Image,
+overlays, navigation, theme and services stay under the full goal.

@@ -2363,3 +2363,59 @@ partial/not-run status for the complete criterion; AC8 retains its earlier
 complete/runtime-tested assessment. No phone runtime, images/pixels, IME,
 Wayland or AT-client output was qualified. Other exports remain under the
 full parity goal; no partial-surface PR has been opened.
+
+
+## GTK PIN input qualification
+
+At b725ab341 the direct-source baseline completed 31 checks with 12 failures:
+separate digit field owners and visible labels, ignored group width, missing
+group role/required/busy/invalid/read-only metadata, enabled disabled group,
+overflowing cells and duplicated external Field ownership. Numeric hints,
+secure mode, programmatic writes and editor retention passed. Feedback
+e063bcd9-bd37-4469-9db3-933535c8d0c5 preserves the expectation; guest
+/tmp/gtk-pin-first.log records this property/geometry/lifecycle run without
+OS input.
+
+The shared native leaf now uses one persistent NativeToggleField unless a
+Field already owns it. Editors keep the inherited field context, explicit
+numbered accessible names and unique ids under an authored group id. GTK
+retains group semantics through the existing role adapter; native sensitivity
+and field state apply to the group and editors. Native-only shell width and
+gap rules use the existing 40px cell width and 8px spacing. The editing state
+machine is unchanged; no renderer fork or dependency was needed.
+
+The corrected baseline passes 31 checks. Its expanded direct-source case
+passes 103 checks with actual X11 keyboard/pointer input on Linux GJS 1.80.2 /
+GTK 4.14.5: future-cell guards, contiguous entry and automatic focus, suffix
+clearing, native editor retention, masked entry, disabled/read-only behavior,
+controlled acceptance/repeated rejection, replacement and completion callbacks,
+length growth/shrink/zero/repopulation, id/name/optionality/class/style resets,
+geometry and cleanup. Logs: guest /tmp/gtk-pin-{fixed,os}.log.
+
+The Node object-driver suite initially could not import NativeScript host APIs
+after field-wrapper integration. Its existing host-isolation stubs now cover
+the field chrome imports, while real field behavior stays in the Linux case.
+Public-root PinInput and its existing prop type now pass the same 103-check
+case, giving 65 values and 101 types. The existing full Linux sweep passes
+55 tests without skips; PinInput was then registered in its explicit file list
+and run separately through the public root. This is 56 exercised maintained
+tests, rather than a claim that the earlier sweep already included PinInput.
+The native library and typelib hashes are unchanged.
+
+All 62 affected/dependent typecheck tasks pass. A subsequent 12-task run adds
+the explicit PinInputProps equality assertion, both focused typechecks,
+package validation, 58 Node checks and 464 native object-driver tests.
+Selected web tests pass 62 across four files, including PinInput and composite
+field anatomy. All 28 docs build/test tasks pass. Static checks cover
+141 pages/links, 1139 parsing examples, 61 release notes, recipes, UI barrels
+and whitespace. Logs: guest /tmp/gtk-pin-root-{full,input}.log; andromeda
+/tmp/gtk-pin-root-{types,regression,web,doc-site}.log and
+/tmp/gtk-pin-doc-checks.log.
+
+The stable v0.17.1 native leaf already declared field width while creating
+separate digit fields, so the ownership/width correction receives a fix note.
+A separate note covers GTK availability. Text-entry AC3 gains named field
+and actual-input evidence while remaining partial/not-run for its complete
+assistive-client criterion; AC8 keeps complete/runtime-tested status.
+No phone runtime, images/pixels, IME, Wayland or AT-client output was qualified.
+Other exports remain under the full goal; no partial-surface PR is opened.
