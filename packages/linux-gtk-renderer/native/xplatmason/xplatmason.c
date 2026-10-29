@@ -35,19 +35,26 @@ static long long XGtkMeasure(const void *ctx, float known_w, float known_h,
     return 0;
   }
 
-  // Natural size on both axes. GTK's for_size is the opposite axis' offer —
-  // take the engine's known value first, then its available-space offer.
+  // GTK measures margin boxes; Mason owns those margins separately.
+  // Known/available sizes are border-box offers, so add CSS margins only
+  // while asking GTK, then remove them from the measured result.
+  GtkBorder margin;
+  gtk_style_context_get_margin(gtk_widget_get_style_context(widget), &margin);
+  int margin_w = margin.left + margin.right;
+  int margin_h = margin.top + margin.bottom;
   int min_w = 0, nat_w = 0, min_h = 0, nat_h = 0;
   float for_h = known_h >= 0 ? known_h : (avail_h >= 0 ? avail_h : -1.f);
+  if (for_h >= 0) for_h += margin_h;
   gtk_widget_measure(widget, GTK_ORIENTATION_HORIZONTAL, (int)for_h, &min_w,
                      &nat_w, NULL, NULL);
 
-  float for_v = known_w >= 0 ? known_w : (float)nat_w;
+  float for_v = known_w >= 0 ? known_w + margin_w : (float)nat_w;
   gtk_widget_measure(widget, GTK_ORIENTATION_VERTICAL, (int)for_v, &min_h,
                      &nat_h, NULL, NULL);
 
   guint32 wb, hb;
-  float w = (float)nat_w, h = (float)nat_h;
+  float w = (float)MAX(0, nat_w - margin_w);
+  float h = (float)MAX(0, nat_h - margin_h);
   memcpy(&wb, &w, sizeof(float));
   memcpy(&hb, &h, sizeof(float));
   return (long long)(((guint64)wb << 32) | (guint64)hb);

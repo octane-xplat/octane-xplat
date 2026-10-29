@@ -332,7 +332,17 @@ declare module 'gi://Gtk?version=4.0' {
 			disconnect(id: number): void
 		}
 
+		interface Border {
+			left: number
+			right: number
+			top: number
+			bottom: number
+		}
+
 		class StyleContext {
+			get_margin(): Border
+			get_border(): Border
+			get_padding(): Border
 			add_provider(provider: CssProvider, priority: number): void
 			remove_provider(provider: CssProvider): void
 		}

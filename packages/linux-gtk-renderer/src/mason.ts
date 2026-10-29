@@ -10,11 +10,9 @@
 // GI_TYPELIB_PATH, the XPLAT_MASON_TYPELIB env var, or a system install;
 // absent it, masonview falls back to the Gtk.Box emulation in index.ts.
 //
-// Style-dict contract matches the macOS dict one-for-one except margin and
-// padding: GTK's own measure/allocate pipeline already folds the widget's
-// CSS margin/padding into leaf measures and child allocations, so feeding
-// them to the engine would double-count. Everything else (dims, edges,
-// enums, gaps, grid tracks) is identical.
+// Mason owns border-box sizes and sibling spacing. GTK still paints CSS
+// borders/padding/margins, so bridge its outer allocation and leaf measures
+// at that boundary instead of letting CSS margins shrink authored sizes.
 
 import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
@@ -222,12 +220,9 @@ export const MASON_STYLE_KEYS = new Set([
  *  liquidglass does not exist here). */
 const MASON_CONTAINERS = new Set(['masonview'])
 
-/** Translates a node's resolved style state into the mason style dict.
- *  `style` carries authored CSS-ish props; the width/height/min/max dims
- *  may also arrive as plain props (shared contract allows both). Margin and
- *  padding are
- *  deliberately absent — GTK CSS owns them inside the measure/allocate
- *  channel. */
+/** Translates resolved styles into Mason border-box layout. Container
+ * padding/borders participate in recursive sizing; GTK-measured leaves
+ * already include them. Root allocation receives a GTK content box. */
 function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 	const props = node.props ?? {}
 	// The cascade's computed bag already folds the inline style prop in;
@@ -235,15 +230,17 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 	const style = paintStyle(node)
 	const out: Record<string, any> = {}
 
-	// GTK measures foreign leaves, but Mason descends through its own
-	// containers without asking GTK for their CSS border box. Include that
-	// border for nested sizing. The current GTK allocation root already
-	// receives a content box and must not consume its own border again.
+	const context = physicalView(node)?.get_style_context()
+	const edges = ['left', 'right', 'top', 'bottom'] as const
+	const margin = contentBox ? null : context?.get_margin()
+	out.margin = Object.fromEntries(edges.map((edge) => [edge, [1, margin?.[edge] ?? 0]]))
 	if (MASON_CONTAINERS.has(node.type)) {
-		const border = contentBox ? null : node.view.get_style_context().get_border()
-		out.border = Object.fromEntries(
-			['left', 'right', 'top', 'bottom'].map((edge) => [edge, [0, border?.[edge] ?? 0]]),
-		)
+		for (const box of ['border', 'padding']) {
+			const values = contentBox
+				? null
+				: context?.[box === 'border' ? 'get_border' : 'get_padding']()
+			out[box] = Object.fromEntries(edges.map((edge) => [edge, [0, values?.[edge] ?? 0]]))
+		}
 	}
 
 	for (const key of ENUM_STYLE_KEYS) {
@@ -252,6 +249,11 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 			out[key] = value
 		}
 	}
+
+	// Omitted enums retain the native engine's previous value. The cascade
+	// has already resolved inherited directions; clearing one uses GTK's
+	// default, including applications whose default is RTL.
+	out.direction ??= Gtk.Widget.get_default_direction() === Gtk.TextDirection.RTL ? 'rtl' : 'ltr'
 
 	// Only collapse removes layout space — NS `hidden` keeps it, so it maps
 	// to child-invisible on the widget, never display:none. The computed
@@ -461,11 +463,14 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
 		// an invisible editor at its zero-size display:none rectangle.
 		if (!child.get_visible()) continue
 
-		allocation.x = Math.round(flat[off + 1])
-		allocation.y = Math.round(flat[off + 2])
-		allocation.width = Math.max(0, Math.round(flat[off + 3]))
-		allocation.height = Math.max(0, Math.round(flat[off + 4]))
-		const transform = childTransform(nodesByChildView.get(child), allocation)
+		// Mason returns a border box after placing its margins. GTK expects
+		// the surrounding margin box and consumes its CSS margin itself.
+		const margin = child.get_style_context().get_margin()
+		allocation.x = Math.round(flat[off + 1]) - margin.left
+		allocation.y = Math.round(flat[off + 2]) - margin.top
+		allocation.width = Math.max(0, Math.round(flat[off + 3]) + margin.left + margin.right)
+		allocation.height = Math.max(0, Math.round(flat[off + 4]) + margin.top + margin.bottom)
+		const transform = childTransform(nodesByChildView.get(child), allocation, margin)
 		if (transform) {
 			child.allocate(allocation.width, allocation.height, -1, transform)
 		} else {
@@ -484,7 +489,7 @@ function paintStyle(node: NodeLike): Record<string, any> {
 /** NS transform on the child allocation: origin at the allocation's
  *  centre, steps in updateNativeTransform order, % against the child's own
  *  size. GTK picking honours allocation transforms, as UIKit/Android do. */
-function childTransform(node: NodeLike, allocation: any): any {
+function childTransform(node: NodeLike, allocation: any, margin: any): any {
 	if (!node) {
 		return null
 	}
@@ -492,10 +497,15 @@ function childTransform(node: NodeLike, allocation: any): any {
 	if (!parts) {
 		return null
 	}
-	const w = allocation.width
-	const h = allocation.height
+	const w = allocation.width - margin.left - margin.right
+	const h = allocation.height - margin.top - margin.bottom
 	let t = new (Gsk as any).Transform()
-	t = t.translate(new (Graphene as any).Point({ x: allocation.x + w / 2, y: allocation.y + h / 2 }))
+	t = t.translate(
+		new (Graphene as any).Point({
+			x: allocation.x + margin.left + w / 2,
+			y: allocation.y + margin.top + h / 2,
+		}),
+	)
 	for (const step of transformSteps(parts, w, h)) {
 		switch (step.kind) {
 			case 'perspective':
@@ -518,7 +528,9 @@ function childTransform(node: NodeLike, allocation: any): any {
 				break
 		}
 	}
-	return t.translate(new (Graphene as any).Point({ x: -w / 2, y: -h / 2 }))
+	return t.translate(
+		new (Graphene as any).Point({ x: -w / 2 - margin.left, y: -h / 2 - margin.top }),
+	)
 }
 
 let polygonClipWarned = false
@@ -663,21 +675,37 @@ function measureNode(node: NodeLike, horizontal: boolean, forSize: number): [num
 	if (!root) {
 		return [0, 0]
 	}
-	// The engine computes border boxes, including authored fixed dimensions.
-	// GTK asks this vfunc for content dimensions and adds its CSS border.
-	// Keep the authored box semantics in the engine, then remove only the
-	// border GTK will add; the cross-axis offer likewise arrives as content.
-	const border = node.view.get_style_context().get_border()
-	const own = horizontal ? border.left + border.right : border.top + border.bottom
-	const cross = horizontal ? border.top + border.bottom : border.left + border.right
+	// GTK asks for content size, then adds border/padding/margin itself.
+	// Mason's root size excludes margins; remove its border/padding from
+	// the result and ignore its own margins while resolving the cross axis.
+	const context = node.view.get_style_context()
+	const border = context.get_border()
+	const padding = context.get_padding()
+	const x = border.left + border.right + padding.left + padding.right
+	const y = border.top + border.bottom + padding.top + padding.bottom
+	const own = horizontal ? x : y
+	const cross = horizontal ? y : x
 	const offer = forSize >= 0 ? forSize + cross : MAX_CONTENT
-	const nat = horizontal
-		? computeRootSize(root, MAX_CONTENT, offer)[0]
-		: computeRootSize(root, offer, MAX_CONTENT)[1]
-	const min = horizontal
-		? computeRootSize(root, MIN_CONTENT, offer)[0]
-		: computeRootSize(root, offer, MIN_CONTENT)[1]
-	return [Math.max(0, min - own), Math.max(0, nat - own)]
+	const authored = styleDict(node)
+	mason.node_set_style(
+		masonEngine()!,
+		root,
+		JSON.stringify({
+			...authored,
+			margin: { left: [1, 0], right: [1, 0], top: [1, 0], bottom: [1, 0] },
+		}),
+	)
+	try {
+		const nat = horizontal
+			? computeRootSize(root, MAX_CONTENT, offer)[0]
+			: computeRootSize(root, offer, MAX_CONTENT)[1]
+		const min = horizontal
+			? computeRootSize(root, MIN_CONTENT, offer)[0]
+			: computeRootSize(root, offer, MIN_CONTENT)[1]
+		return [Math.max(0, min - own), Math.max(0, nat - own)]
+	} finally {
+		mason.node_set_style(masonEngine()!, root, JSON.stringify(authored))
+	}
 }
 
 /** Frees the engine-side nodes under `node` — call from the driver's
