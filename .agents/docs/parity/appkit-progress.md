@@ -251,6 +251,94 @@ syntax; the four AC6 local Markdown target paths exist. Semantic and whitespace
 review passed. Anchors, remote contents, native import/compiled hook behavior,
 types and runtime semantics were not verified by those checks.
 
+## AppKit marked grid-cell focus hook
+
+The repository's Astryx ComplexSelectorShowcase uses a 3×3 department palette
+with useGridFocus. That caller is browser markup and is demand/API-shape
+evidence, not a native example or runtime proof. The AppKit root already
+exported useGridFocus, but resolved to the default mobile no-op; a skill note
+incorrectly said it had no export. This change supplies a native hook for that
+existing marked-cell contract. The selector-based useGridList requires a
+separate native query contract and remains explicitly unsupported; no CSS
+selector backend or shared audit snapshot was generated as a shortcut.
+
+The renderer now retains/clears data-grid-cell metadata without unknown-prop
+warnings and reads managed marked descendants in actual native child order.
+False/empty values still count as presence; null/undefined/omission removes the
+marker. Native NSArray wrappers, unmanaged host wrappers, stale node identities,
+duplicates/cycles and invalid child counts are handled without synthesizing
+views or OS events. Nested hook roots and native GridList roots form separate
+cell boundaries.
+
+The macOS hook is in the renderer's TSRX include path and the explicit AppKit
+barrel selects it. It retains the shared options/result types, with a concrete
+native default ref type. It reuses the existing native row focus, reveal and
+roving Tab-stop engine rather than introducing another key monitor. The cell
+owner adds bounded native-order Left/Right, column-stride Up/Down and Home/End,
+skips hidden/disabled cells without compressing indices, and leaves activation,
+descendant editing, IME, modified/prevented keys and native Tab delivery alone.
+focusIndex changes after an accepted hook-directed move; keyboard moves notify
+the current callback. Optional onFocusCell clamps integer requests without
+selection or callback emission and is absent for unavailable/invalid inputs.
+Ref/window/geometry/metadata changes and repaired native bridges use current
+state; failed or disposed owners cannot revive through captured key methods.
+If focus handling disposes or retargets the owner before returning, its pending
+index/callback update is dropped. Nested query-root leases are released on exit;
+boundary changes synchronously repair other live cell owners' Tab exclusions,
+including parent-before-child layout-effect ordering, without waiting for a
+window notification. Root replacement updates the registry atomically before
+publishing, and repeated native notifications are not needed for that repair.
+
+The reused row engine now retires observer generations before removal and
+attempts every Tab lease even when a removal throws. Old notifications cannot
+apply to a later generation. This is best-effort cleanup, not proof that failed
+OS removals released native resources. No public option/export or dependency was
+added, and shared CLI/UI manifests and other targets' source remain intact.
+
+Eight cell-controller, three renderer-reader, two row-lifecycle and one actual
+metadata prop-application case were authored, all **unrun**. They use native
+fakes and do not compile hooks. The idle native probe includes programmatic
+focus, disabled/hidden/removed cells, current callbacks, nested grids and an
+editing child; no input action runs automatically. Public component guidance,
+keyboard-clipboard AC9, Octane primitives/services references and the feature
+note reconcile the new source implementation. No new React Aria equivalent is
+counted; this implements an existing Astryx hook on another target.
+
+The inspected web reference also stores the raw requested programmatic index
+after clamping the DOM focus target, and its native-style disabled/roving
+behavior is not established by this work. That existing cross-target edge
+parity remains open; the native contract reports the accepted clamped target.
+No full cross-platform or AppKit qualification claim is made. Compiled hooks/
+marker forwarding, physical arrows/Tab/Home/End, activation, native BOOL, editing/
+IME, nested ownership, focus/scroll timing, RTL/layout, VoiceOver, HMR, native
+cleanup/memory and installed consumers remain unqualified.
+
+Deferred commands; run only after explicit human authorization for this task:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/grid-cell-focus.macos.test.ts src/grid-navigation.macos.test.ts
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/grid-cell-focus.macos.tsrx --target macos --watch
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Inspect selected consumer lanes before reporting native hook coverage. The
+current docs-quality guide was read from the original checkout; that guide
+and its two scripts remain absent in this isolated snapshot, whose public
+reader path/examples were reviewed manually. Only syntax, local link paths,
+semantic diff and whitespace are checked. No test, compiler transform,
+typecheck, build, probe, native/OS automation, packaging or visual analysis ran.
+All evidence-gated tracker checkboxes remain open.
+Source-only review parsed 13 changed TS/TSRX/declaration files and five scoped
+documentation fences. Seven scoped local Markdown target paths exist; anchors
+and remote contents were not checked. Semantic and whitespace review passed.
+None of these checks executes or verifies the authored models or hook behavior.
+
 ## Priorities and evidence boundary
 
 Assume everyday document workflows, settings, inbox filters and view switches

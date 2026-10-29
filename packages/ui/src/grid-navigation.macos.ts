@@ -56,6 +56,7 @@ export function createAppKitGridNavigation(
 	let center: any
 	let failed = false
 	let active = false
+	let generation = 0
 	const available = () => !failed && Boolean(bridge()?.keyboardEventsSupported) &&
 		typeof bridge()?.suppressTabStop === 'function' &&
 		typeof native().NSNotificationCenter?.defaultCenter?.addObserverForNameObjectQueueUsingBlock === 'function' &&
@@ -65,8 +66,9 @@ export function createAppKitGridNavigation(
 		return root?.window ? options.rows().filter((row) => row.view.window === root.window && contains(root, row.view)) : []
 	}
 	const releaseAll = () => {
-		for (const release of suppressed.values()) release()
+		const leases = [...suppressed.values()]
 		suppressed.clear()
+		for (const release of leases) { try { release() } catch { failed = true } }
 	}
 	const synchronize = () => {
 		if (!active) return
@@ -79,7 +81,7 @@ export function createAppKitGridNavigation(
 		const excluded = new Set(options.tabMode() ? [] : all.filter((row) => row.view !== current).map((row) => row.view))
 		let changed = false
 		for (const [view, release] of suppressed) {
-			if (!excluded.has(view)) { release(); suppressed.delete(view); changed = true }
+			if (!excluded.has(view)) { suppressed.delete(view); changed = true; try { release() } catch { failed = true } }
 		}
 		for (const view of excluded) {
 			if (!suppressed.has(view)) {
@@ -93,16 +95,17 @@ export function createAppKitGridNavigation(
 	}
 	const dispose = () => {
 		active = false
+		generation++
 		const token = observer
 		observer = undefined
 		try {
 			if (token != null) center.removeObserver(token)
-		} finally {
+		} catch { failed = true } finally {
 			const window = options.root()?.window
 			const changed = suppressed.size > 0
 			releaseAll()
 			current = null
-			if (changed) window?.recalculateKeyViewLoop()
+			if (changed) { try { window?.recalculateKeyViewLoop() } catch { failed = true } }
 		}
 	}
 	return {
@@ -110,12 +113,17 @@ export function createAppKitGridNavigation(
 		synchronize,
 		start(): () => void {
 			if (active || !available()) return () => {}
+			const owner = ++generation
 			try {
 				const host = native()
 				center = host.NSNotificationCenter.defaultCenter
 				observer = center.addObserverForNameObjectQueueUsingBlock(
 					host.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification', null, null,
-					(notification: any) => { if (notification.object === options.root()?.window) synchronize() },
+					(notification: any) => {
+						if (active && owner === generation && notification.object === options.root()?.window) {
+							try { synchronize() } catch { failed = true; dispose() }
+						}
+					},
 				)
 				if (observer == null) throw new Error('AppKit grid focus observation unavailable')
 				active = true

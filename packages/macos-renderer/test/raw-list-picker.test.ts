@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
+import { readGridCells } from '../src/grid-cells.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -107,6 +108,14 @@ function fixture() {
 	const update = (props: any) => api.applyCommand(container, { op: 'update', id: 1, props })
 	return { api, node, view, events, titles, update, onSelectedIndexChange }
 }
+
+test('retains and clears data-grid-cell metadata without applying it as an unknown native prop', () => {
+	const f = fixture(), root = { subviews: [f.view] }
+	f.update({ 'data-grid-cell': true })
+	assert.deepEqual(readGridCells(root, (view) => view === f.view ? f.node : undefined), [f.view])
+	f.update({ items: [] })
+	assert.deepEqual(readGridCells(root, (view) => view === f.view ? f.node : undefined), [])
+})
 
 test('ListPicker preserves duplicate/empty labels, renders nulls as indices and clamps selection', () => {
 	const { view, titles, update, events, onSelectedIndexChange } = fixture()

@@ -368,7 +368,9 @@ Read the canonical guide for scope-reader hooks and RTL host wiring.
 empty text clears the requested channel. Native forwards nonempty text to the
 platform service without politeness/clear semantics. Do not report DOM region
 or handler checks as screen-reader delivery, or the iOS/Android no-op `useGridFocus`
-as host keyboard qualification. AppKit currently has no root `useGridFocus` export.
+as host keyboard qualification. AppKit's root `useGridFocus` now has a marked-cell
+source implementation; its physical input and compiled-hook behavior remain
+unqualified. See [AppKit custom cells](../../../../docs/app/components.md#custom-grid-cell-focus-on-appkit).
 
 ```tsx
 import { Button, useAnnounce } from '@octane-xplat/ui'

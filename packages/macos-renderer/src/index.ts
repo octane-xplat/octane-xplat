@@ -32,6 +32,7 @@ import { createStickyPlacements } from './sticky-placement.ts'
 import { normalizeHostStyleProps } from './inline-style.ts'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 import { readOutlineHeadings } from './outline-headings.ts'
+import { readGridCells } from './grid-cells.ts'
 import {
 	configureGesture,
 	setPressGesture,
@@ -6742,6 +6743,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	for (const [name, value] of Object.entries(props)) {
+		if (name === 'data-grid-cell') continue // Retained in props for native useGridFocus discovery.
 		if (name === 'testID') continue // Applied once to every concrete native host above.
 		if (name === 'onKeyDown' || name === 'onKeyUp' || name === 'onFocus' || name === 'onBlur') continue
 		if (
@@ -10394,6 +10396,7 @@ function presentSheet(view: NSView, options: PropBag) {
 
 const appKitBridge = (globalThis.__xplatAppKit ??= {})
 appKitBridge.readOutlineHeadings = (view) => readOutlineHeadings(view, (child) => cssNodesByView.get(child as NSView))
+appKitBridge.readGridCells = (view, nestedRoots) => readGridCells(view, (child) => cssNodesByView.get(child as NSView), nestedRoots)
 installAppearanceBridge(appKitBridge)
 
 // Stylesheet and appearance changes restyle every live container.

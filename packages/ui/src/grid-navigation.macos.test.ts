@@ -23,7 +23,7 @@ function fixture() {
 	let rows = [row('a', 0), row('b', 0), row('c', 20), row('d', 20)]
 	const native = { NSNotificationCenter: { defaultCenter: {
 		addObserverForNameObjectQueueUsingBlock(_name: string, _object: unknown, _queue: unknown, handler: typeof notify) {
-			notify = handler; registrations++; return 'observer'
+			notify = handler; registrations++; return registrations === 1 ? 'observer' : `observer-${registrations}`
 		},
 		removeObserver: (token: unknown) => removed.push(token),
 	} } }
@@ -45,6 +45,7 @@ function fixture() {
 	}
 	return { navigation, root, window, rows, suppressed, removed, presses, native, bridge, send,
 		update: () => notify({ object: window }), registrations: () => registrations, recalc: () => recalc,
+		getNotify: () => notify,
 		setRows: (next: typeof rows) => { rows = next }, setColumns: (value?: number) => { columns = value },
 		setTabMode: (value: boolean) => { tabMode = value }, rejectFocus: () => { acceptsFocus = false },
 	}
@@ -194,4 +195,24 @@ it('leaves focus outside an all-disabled grid and releases every exclusion on te
 	expect(env.send('Home').prevented).toBe(false)
 	env.navigation.dispose()
 	expect(env.suppressed.size).toBe(0)
+})
+
+it('retires old notification closures before another observation generation starts', () => {
+	const env = fixture(); env.navigation.start(); const stale = env.getNotify()
+	env.navigation.dispose(); env.navigation.start(); env.window.firstResponder = env.rows[2].view
+	stale({ object: env.window }); expect(env.suppressed.has(env.rows[2].view)).toBe(true)
+	env.update(); expect(env.suppressed.has(env.rows[2].view)).toBe(false)
+	env.navigation.dispose(); env.navigation.dispose(); expect(env.removed).toEqual(['observer', 'observer-2'])
+})
+
+it('attempts each observation/Tab lease removal once despite native release and key-loop failure', () => {
+	const env = fixture(), suppress = env.bridge.suppressTabStop
+	let releases = 0
+	env.bridge.suppressTabStop = (view: any) => { const release = suppress(view); return () => { release(); releases++; throw Error('private lease detail') } }
+	env.native.NSNotificationCenter.defaultCenter.removeObserver = (token) => { env.removed.push(token); throw Error('private observer detail') }
+	env.navigation.start(); const stale = env.getNotify()
+	env.window.recalculateKeyViewLoop = () => { throw Error('private loop detail') }
+	expect(() => env.navigation.dispose()).not.toThrow(); expect(() => env.navigation.dispose()).not.toThrow()
+	expect(releases).toBe(3); expect(env.suppressed.size).toBe(0); expect(env.removed).toEqual(['observer'])
+	expect(() => stale({ object: env.window })).not.toThrow(); expect(env.suppressed.size).toBe(0)
 })

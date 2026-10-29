@@ -2394,3 +2394,40 @@ export function RecordPicker({ recordID }: { recordID: string }) {
 		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
 }
 ```
+
+## AppKit custom grid-cell focus
+
+The AppKit root `useGridFocus` resolves to a native marked-cell hook. In a macOS
+leaf, attach its ref/key handler to a raw native container and mark focusable
+native cells with `data-grid-cell`; give cells real actions. Shared component
+bags do not promise marker forwarding. This is a presence attribute: false/empty
+values still mark; undefined/omission removes it. Positive integer rows/columns
+are required. Current native child order supplies indices; columns supplies
+vertical stride, arrows clamp rather than wrap, and Home/End find edges.
+Selection/activation stays with cells. Do not confuse it with the selector-based
+`useGridList`, which still reports false on AppKit.
+
+```tsx
+// Palette.macos.tsx
+import { useGridFocus } from '@octane-xplat/ui'
+export function Palette() {
+	const grid = useGridFocus<NSView>({ rows: 1, columns: 2 })
+	return <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
+		<button data-grid-cell text="Red" onTap={() => console.log('Red')} />
+		<button data-grid-cell text="Blue" onTap={() => console.log('Blue')} />
+	</masonview>
+}
+```
+
+Reuse the renderer metadata reader and existing row focus/Tab/scroll engine.
+Nested hook roots and GridList roots own their descendants; preserve nested
+text controls, IME, modified/prevented keys and native activation. `focusIndex`
+is the last accepted hook target, not a selected ID; successful keyboard moves
+notify the current onFocusChange. Optional onFocusCell clamps integer requests
+without selection/callback emission and is absent when unavailable/invalid.
+Retired callbacks cannot reopen a disposed owner. Native removal remains best
+effort; stale observers are inert, and every owned Tab lease is attempted even
+after a removal failure. Model cases and the idle manual probe are unrun;
+compiled hooks/marker forwarding, real input/Tab, BOOL, nested focus, scrolling,
+RTL/layout, AX, native cleanup and installed consumers remain unqualified. See
+[custom native cells](../../../../docs/app/components.md#custom-grid-cell-focus-on-appkit).

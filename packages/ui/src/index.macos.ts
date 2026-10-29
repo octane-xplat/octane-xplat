@@ -570,7 +570,7 @@ export { FieldStatus } from './FieldStatus.tsrx'
 export { LinkContext } from './link-context'
 export { LinkProvider } from './LinkProvider.tsrx'
 export { useLinkComponent } from './use-link-component'
-export { useGridFocus } from './use-grid-focus'
+export { useGridFocus } from './use-grid-focus.macos.tsrx'
 export { Theme } from './theme/Theme.macos.tsrx'
 export {
 	defineTheme,

@@ -1155,6 +1155,85 @@ with the leaf's key as its argument. The visual `TreeNode` prop type is now
 `useListData`, `useTreeData`, and `useAsyncList` now type `items` and
 `selectedKeys` as readonly.
 
+### Custom grid-cell focus on AppKit
+
+In a configured native AppKit app, use `useGridFocus` for a custom palette of
+focusable cells. Put this component in a `.macos.tsx` file. Attach the returned
+ref and key handler to a raw native container, mark its cells with
+`data-grid-cell`, and give each cell a real action. Positive integer `rows` and
+`columns` describe the grid. The source implementation moves by one native cell
+with Left/Right, by `columns` with Up/Down, and to an edge with Home/End.
+Movement clamps at the first/last cell; item activation stays with the cell.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// Palette.macos.tsx
+import { useState } from 'octane'
+import { Text, View, useGridFocus } from '@octane-xplat/ui'
+export function Palette() {
+	const [chosen, setChosen] = useState('none')
+	const grid = useGridFocus<NSView>({ rows: 2, columns: 2 })
+	return <View className="gap-2">
+		<masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row flex-wrap gap-2 w-72">
+			{['Red', 'Blue', 'Green', 'Gold'].map((name) =>
+				<masonview key={name} data-grid-cell className="w-32 p-2" accessible accessibilityRole="button"
+					onTap={() => setChosen(name)}>
+					<label text={name} />
+				</masonview>)}
+		</masonview>
+		<Text>{`Chosen: ${chosen}`}</Text>
+	</View>
+}
+```
+
+`focusIndex` reports the last accepted hook-directed target index. Indices follow
+the current native child order; keep persistent option IDs in your own selected
+value. `onFocusChange` reports successful keyboard moves. The optional
+`onFocusCell(index)` moves programmatically, clamps an integer index, and does
+not select an item or call that callback. Its presence reflects bridge
+availability and valid dimensions, not native input qualification.
+
+```tsx
+// PaletteControls.macos.tsx
+import { Button, Text, View, useGridFocus } from '@octane-xplat/ui'
+export function PaletteControls() {
+	const grid = useGridFocus<NSView>({ rows: 1, columns: 2, onFocusChange: (index) => console.log(index) })
+	return <View className="gap-2">
+		<Button label="Focus last cell" clickAction={() => grid.onFocusCell?.(1)} />
+		<masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
+			<button data-grid-cell text="First" onTap={() => console.log('First')} />
+			<button data-grid-cell text="Last" onTap={() => console.log('Last')} />
+		</masonview>
+		<Text>{`Hook index: ${grid.focusIndex}`}</Text>
+	</View>
+}
+```
+
+Native cell navigation skips hidden/disabled cells, keeps one roving cell Tab
+stop, reveals a focused cell, and leaves descendant editing controls, IME,
+modified shortcuts and already-prevented keys alone. Descendant controls retain
+their own native Tab behavior. Nested marked grids and `GridList` components
+own their cells separately. Mark raw native hosts: shared component props do
+not automatically forward this marker. It is a presence marker, including a
+false or empty value; omit it or pass `undefined` to remove it.
+
+```tsx
+// OptionalCell.macos.tsx
+export function OptionalCell({ included }: { included: boolean }) {
+	return <button data-grid-cell={included ? '' : undefined} text="Optional"
+		onTap={() => console.log('Optional')} />
+}
+```
+
+This is an experimental source implementation. Compiled hooks/marker forwarding,
+real Tab/arrows, keyboard activation, editing/IME, native BOOL state, nested
+ownership, focus/scroll timing, RTL presentation, layout, VoiceOver, cleanup and
+installed consumers remain unqualified. The selector-based `useGridList` hook
+still reports false; this API discovers marked cells rather than arbitrary CSS
+selectors. The [manual probe](../../examples/probes/grid-cell-focus.macos.tsrx)
+includes disabled/hidden/removed cells, current callbacks, programmatic focus,
+nested grids and an editing child; its runner only records mounting and is unrun.
+
 ### Image loading on AppKit
 
 AppKit `Image` accepts local and HTTP(S) sources and preserves its declared

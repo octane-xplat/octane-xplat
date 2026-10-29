@@ -29,6 +29,7 @@ declare global {
 			clear(): void
 		}
 		readonly keyboardEventsSupported?: boolean
+		readGridCells?: (root: object, nestedRoots?: readonly object[]) => object[]
 		/** CSS hover/focus-within source capability; not native input qualification. */
 		readonly containerRevealSupported?: boolean
 		/** Owned native layout pins and row ordering; OS hit-testing remains unqualified. */
