@@ -10158,9 +10158,32 @@ Feasibility evidence, source-read only: pinned NativeScript runtimes
 `ffi/napi/ClassMember.mm`, a `macosx-universal` libffi and an x86_64 metadata
 target in `scripts/metagen.js`. Its macOS CMake branch, however, forces
 `CMAKE_OSX_ARCHITECTURES` to `arm64`, so our runtimes patch must lift that.
-Whether the host, framework, Mason and generator cross-compile and run under
-x86_64 is unproven. Proving it needs native builds, which are not yet
-authorized.
+A 2026-10-29 feasibility probe, run with human authorization, settled most
+of this. The scratch scripts, logs and report are in the main checkout's
+gitignored `research/macos-x86_64-probe/` (`REPORT.md`). Built on this arm64
+Mac with Xcode 27.0 and run on the Intel Mac `andromeda.local` (macOS 15.7.7):
+
+| Piece | Result |
+| --- | --- |
+| x86_64 SDK metadata | Built by the arm64 generator with `-target x86_64-apple-macos11.0`; same `NSMD` layout, 5,017,175 bytes |
+| JSC host | Cross-compiled with `CMAKE_OSX_ARCHITECTURES=x86_64`, `minos 13.5` |
+| `NativeScript.framework` | Cross-compiled after editing upstream's macOS branch from `set(CMAKE_OSX_ARCHITECTURES "arm64")` to `x86_64`; `minos 13.3` as before; the bundled libffi is already universal |
+| Mason | Rust `x86_64-apple-darwin` + clang `x86_64-apple-macos13.5`; `dlopen` succeeds on andromeda |
+| Minimal app | The `macos-jsc-app` fixture, packaged for arm64 and then given the x86_64 host, framework and metadata, exits 0 with `JSC_FIXTURE_OK` on andromeda |
+| Metadata generator for x86_64 | Fails to link: Xcode's and the Command Line Tools' `libclang` are arm64-only |
+
+What the probe shows:
+- `METADATA_BINARY_ARCH` only sets the generator binary's own compile target.
+  The emitted metadata's architecture follows the clang `-target`.
+- Our `CMAKE_SYSTEM_PROCESSOR` guard does not trip when cross-compiling.
+- The probe shipped x86_64 metadata under the hardcoded name
+  `metadata.macos.arm64.nsmd`; universal packaging needs `host.m` to select
+  the file by architecture.
+- Intel Macs can run Xplat apps, but app native leaves cannot yet be built on
+  an Intel Mac without an x86_64 libclang.
+
+Still unproven: the AppKit renderer, Mason layout and native leaves running
+inside an x86_64 app, and a universal (lipo) bundle.
 
 Planned shape, pending that probe: universal (arm64 + x86_64) binaries and one
 `.app`/`.dmg`, with per-architecture metadata files selected by the host at
