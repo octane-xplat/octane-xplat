@@ -351,8 +351,7 @@ test('(l) a used pseudo-class restyles; an unused one only updates the set', asy
 
 
 test('AppKit reveal cascades hover/focus into actions while nested containers reset their own state', async () => {
-	const source = readFileSync(new URL('../../ui/src/components/layout/use-container-reveal.macos.tsrx', import.meta.url), 'utf8')
-	const css = source.match(/<style>([\s\S]*?)<\/style>/)?.[1]
+	const css = readFileSync(new URL('../../ui/src/components/layout/use-container-reveal.macos.css', import.meta.url), 'utf8')
 	assert.ok(css)
 	registerStylesheet('t-appkit-container-reveal', css)
 	const { api } = machineryApi()
