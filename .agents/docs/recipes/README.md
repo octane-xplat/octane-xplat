@@ -55,6 +55,7 @@ Workflows:
 - [Produce a transformed image file](image-manipulation.md)
 - [Hash and encrypt app-owned bytes](crypto.md)
 - [Print a document and own its PDF file](print-pdf.md)
+- [Keep JavaScript updates compatible with native binaries](native-compatibility.md)
 - [Collect a guest payment with Stripe](stripe-checkout.md)
 - [Browse and manage the device media library](device-media-library.md)
 - [Pick and capture images](pick-and-capture-images.md)

@@ -712,6 +712,25 @@ export function PackedLabel() {
 
 ## Choose a capability and handle availability
 
+For OTA compatibility, use the Node-only
+[fingerprint tool](../../../../packages/fingerprint/README.md) as an app development
+dependency, alongside the Updates runtime. Never import it into app code.
+Regenerate an older prepare hook and rebuild binaries when adopting the exact
+fingerprint protocol. Preserve the private `.xplat/fingerprints/<platform>.json`
+record with the release artifact; a source-only hash omits actual compiler
+context. Custom native generators must declare their additional inputs. The
+publisher refuses changed native inputs and debug payloads; do not edit a stamp
+to bypass that check. Current Android runtime qualification remains deferred.
+
+```sh
+pnpm add @octane-xplat/updates
+pnpm add -D @octane-xplat/fingerprint
+pnpm exec xplat updates init
+pnpm exec xplat-fingerprint --dir . \
+  --build-record .xplat/fingerprints/ios.json \
+  --diff .xplat/fingerprints/ios.json
+```
+
 For image pixels, use the [image-manipulator guide](../../../../packages/image-manipulator/README.md).
 `image-crop` provides geometry; `ImageManipulator` creates a file from it. Keep
 the original normalized dimensions for selection, and pass whole-pixel natural

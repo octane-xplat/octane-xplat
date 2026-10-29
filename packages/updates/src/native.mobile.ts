@@ -1,7 +1,7 @@
 import { File, Folder, Http, Utils, isIOS, path } from '@nativescript/core'
 import type { Environment } from './client'
 import { java } from '@octane-xplat/platform/android'
-import { NSBundle, NSData, NSFileManager, NSHomeDirectory } from '@octane-xplat/platform/ios'
+import { NSData, NSFileManager, NSHomeDirectory } from '@octane-xplat/platform/ios'
 
 // `Utils.android` is a {} stub in the pinned Windows core build; callers only
 // reach it under the isIOS guard.
@@ -11,17 +11,6 @@ export function nativeEnvironment(): Environment {
 	const root = isIOS
 		? path.join(NSHomeDirectory(), 'Library', 'Application Support', 'xplat-ota')
 		: path.join(androidUtils.getApplicationContext().getFilesDir().getAbsolutePath(), 'xplat-ota')
-
-	const rawVersion = isIOS
-		? (NSBundle.mainBundle.objectForInfoDictionaryKey('CFBundleShortVersionString') as string)
-		: androidUtils
-				.getApplicationContext()
-				.getPackageManager()
-				.getPackageInfo(androidUtils.getApplicationContext().getPackageName(), 0).versionName
-
-	const nativeVersion = /^\d+(?:\.\d+){0,2}$/.test(rawVersion)
-		? rawVersion.split('.').map(Number).concat([0, 0]).slice(0, 3).join('.')
-		: rawVersion
 
 	const fail = (error: unknown) => {
 		throw error
@@ -57,7 +46,7 @@ export function nativeEnvironment(): Environment {
 
 	return {
 		platform: isIOS ? 'ios' : 'android',
-		nativeVersion,
+		nativeFingerprint: File.fromPath(location('fingerprint.txt')).readTextSync(fail).trim(),
 		releaseBuild:
 			!File.exists(location('mode.txt')) ||
 			File.fromPath(location('mode.txt')).readTextSync(fail) === 'release',
@@ -74,12 +63,15 @@ export function nativeEnvironment(): Environment {
 				}
 
 				if (isIOS) {
-					const data = NSData.dataWithBytesLength(
-						value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength),
-						value.byteLength,
+					// NativeScript bridges ArrayBuffer as NSData, matching core's
+					// FileSystemAccess.getBuffer branch. Keep an exact owned window.
+					const data = NSData.dataWithData(
+						value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength) as any,
 					)
-
-					if (!data.writeToFileAtomically(file, true)) {
+					// Large Foundation data can bridge as OS_dispatch_data without
+					// NSData instance methods. Keep the write inside Foundation.
+					// This file is private staging; move() commits the whole directory.
+					if (!NSFileManager.defaultManager.createFileAtPathContentsAttributes(file, data, null)) {
 						throw new Error(`Cannot write OTA file ${name}`)
 					}
 				} else {

@@ -45,7 +45,7 @@
     }
     private void otaRestore(java.io.File root, java.io.File app) throws java.io.IOException {
         java.io.File previous = new java.io.File(root, "previous/app");
-        boolean hasPrevious = previous.isDirectory();
+        boolean hasPrevious = previous.isDirectory() && otaExists(root, "previous.json") && otaCompatible(otaRead(root, "previous.json")) && otaPayloadCompatible(previous);
         if (!hasPrevious) {
             // Android's extraction thumb will not change on an OTA rollback.
             // Recreate the immutable APK baseline ourselves before touching live app/.
@@ -59,6 +59,18 @@
         if (hasPrevious && otaExists(root, "previous.json")) otaWrite(root, "current.json", otaRead(root, "previous.json"));
         else otaDelete(new java.io.File(root, "current.json"));
     }
+    private static final String XPLAT_NATIVE_FINGERPRINT = "__XPLAT_NATIVE_FINGERPRINT__";
+    private static boolean otaCompatible(String release) {
+        try { return XPLAT_NATIVE_FINGERPRINT.equals(new org.json.JSONObject(release).optString("nativeFingerprint", "")); }
+        catch (org.json.JSONException error) { return false; }
+    }
+    private static boolean otaPayloadCompatible(java.io.File app) throws java.io.IOException {
+        if (!otaExists(app, "xplat-native.json")) return false;
+        try {
+            org.json.JSONObject value = new org.json.JSONObject(otaRead(app, "xplat-native.json"));
+            return "octane-xplat.native-fingerprint.v1".equals(value.optString("format")) && "android".equals(value.optString("platform")) && value.optBoolean("release",false) && XPLAT_NATIVE_FINGERPRINT.equals(value.optString("hash"));
+        } catch (org.json.JSONException error) { return false; }
+    }
     private void xplatOTABoot() {
         java.io.File root = new java.io.File(getFilesDir(), "xplat-ota");
         java.io.File app = new java.io.File(getFilesDir(), "app");
@@ -66,16 +78,25 @@
             if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
                 if (!root.isDirectory() && !root.mkdirs()) throw new java.io.IOException("Cannot record debug mode");
                 otaWrite(root, "mode.txt", "debug");
+                otaWrite(root,"fingerprint.txt",XPLAT_NATIVE_FINGERPRINT);
                 return;
             }
             android.content.pm.PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
-            String binary = info.lastUpdateTime + "-" + info.versionCode + "-" + info.versionName;
+            String binary = XPLAT_NATIVE_FINGERPRINT + "-" + info.lastUpdateTime + "-" + info.versionCode + "-" + info.versionName;
             if (otaExists(root, "native.txt") && !otaRead(root, "native.txt").equals(binary)) {
                 // NativeScript's package-version extraction follows this guard.
                 otaDelete(root);
                 otaDelete(app);
             }
             if (!root.isDirectory() && !root.mkdirs()) throw new java.io.IOException("Cannot create OTA storage");
+            if ((otaExists(root, "current.json") && !otaCompatible(otaRead(root, "current.json"))) || (app.isDirectory() && !otaPayloadCompatible(app))) {
+                // The previous payload may be incompatible too; restore only the immutable APK baseline.
+                otaDelete(new java.io.File(root, "previous"));
+                otaRestore(root, app);
+                otaDelete(root);
+                if (!root.mkdirs()) throw new java.io.IOException("Cannot reset incompatible OTA state");
+            }
+            otaWrite(root, "fingerprint.txt", XPLAT_NATIVE_FINGERPRINT);
             otaWrite(root, "native.txt", binary);
             otaWrite(root, "mode.txt", "release");
             if (otaExists(root, "pending.txt") || otaExists(root, "rollback.txt")) {
@@ -91,6 +112,11 @@
                 // No JS download ever mutates live app/. Only a native cold boot swaps it.
                 String release = otaRead(root, "next/release.json");
                 String sha = new org.json.JSONObject(release).getString("sha256");
+                if (!otaCompatible(release) || !otaPayloadCompatible(new java.io.File(root, "next/app"))) {
+                    otaWrite(root, "rejected.txt", sha);
+                    otaDelete(new java.io.File(root, "next"));
+                    return;
+                }
                 otaDelete(new java.io.File(root, "previous"));
                 if (otaExists(root, "current.json")) otaWrite(root, "previous.json", otaRead(root, "current.json"));
                 else otaDelete(new java.io.File(root, "previous.json"));

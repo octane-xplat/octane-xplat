@@ -36,6 +36,17 @@ static NSString *XplatOTASha(NSString *json) {
         [NSException raise:@"XplatOTA" format:@"Invalid OTA journal"];
     return sha;
 }
+static NSString *XplatOTAFingerprint(void) { return @"__XPLAT_NATIVE_FINGERPRINT__"; }
+static BOOL XplatOTACompatible(NSString *json) {
+    NSDictionary *release = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    return [release isKindOfClass:[NSDictionary class]] && [release[@"nativeFingerprint"] isEqual:XplatOTAFingerprint()];
+}
+static BOOL XplatOTAPayloadCompatible(NSString *directory) {
+    NSString *file = [directory stringByAppendingPathComponent:@"xplat-native.json"];
+    NSData *data = [NSData dataWithContentsOfFile:file];
+    NSDictionary *value = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+    return [value isKindOfClass:[NSDictionary class]] && [value[@"format"] isEqual:@"octane-xplat.native-fingerprint.v1"] && [value[@"platform"] isEqual:@"ios"] && [value[@"release"] isEqual:@YES] && [value[@"hash"] isEqual:XplatOTAFingerprint()];
+}
 static NSString *XplatOTABoot(NSString *embedded) {
     NSString *root = [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support/xplat-ota"];
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -44,20 +55,27 @@ static NSString *XplatOTABoot(NSString *embedded) {
     if (![fm createDirectoryAtPath:root withIntermediateDirectories:YES attributes:nil error:&debugError])
         [NSException raise:@"XplatOTA" format:@"Cannot record debug mode: %@", debugError];
     XplatOTAWrite(root, @"mode.txt", @"debug");
+    XplatOTAWrite(root, @"fingerprint.txt", XplatOTAFingerprint());
     return embedded;
 #endif
     NSBundle *bundle = [NSBundle mainBundle];
-    NSString *binary = [NSString stringWithFormat:@"%@-%@", [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"], [bundle objectForInfoDictionaryKey:@"CFBundleVersion"]];
+    NSString *binary = [NSString stringWithFormat:@"%@-%@-%@", XplatOTAFingerprint(), [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"], [bundle objectForInfoDictionaryKey:@"CFBundleVersion"]];
     if (XplatOTAExists(root, @"native.txt") && ![XplatOTARead(root, @"native.txt") isEqualToString:binary]) XplatOTADelete(root);
     NSError *error = nil;
     if (![fm createDirectoryAtPath:root withIntermediateDirectories:YES attributes:nil error:&error])
         [NSException raise:@"XplatOTA" format:@"Cannot create OTA storage: %@", error];
+    if (XplatOTAExists(root, @"current.json") && !XplatOTACompatible(XplatOTARead(root, @"current.json"))) {
+        XplatOTADelete(root);
+        if (![fm createDirectoryAtPath:root withIntermediateDirectories:YES attributes:nil error:&error])
+            [NSException raise:@"XplatOTA" format:@"Cannot reset incompatible OTA state"];
+    }
+    XplatOTAWrite(root, @"fingerprint.txt", XplatOTAFingerprint());
     XplatOTAWrite(root, @"native.txt", binary);
     XplatOTAWrite(root, @"mode.txt", @"release");
     if (XplatOTAExists(root, @"pending.txt") || XplatOTAExists(root, @"rollback.txt")) {
         NSString *rejected = XplatOTAExists(root, @"pending.txt") ? XplatOTARead(root, @"pending.txt") :
             (XplatOTAExists(root, @"current.json") ? XplatOTASha(XplatOTARead(root, @"current.json")) : @"");
-        BOOL hasPrevious = XplatOTAExists(root, @"previous/app");
+        BOOL hasPrevious = XplatOTAExists(root, @"previous/app") && XplatOTAExists(root, @"previous.json") && XplatOTACompatible(XplatOTARead(root, @"previous.json")) && XplatOTAPayloadCompatible(XplatOTAPath(root, @"previous/app"));
         XplatOTADelete(XplatOTAPath(root, @"active/app"));
         if (hasPrevious) XplatOTAMove(XplatOTAPath(root, @"previous/app"), XplatOTAPath(root, @"active/app"));
         if (hasPrevious && XplatOTAExists(root, @"previous.json")) XplatOTAWrite(root, @"current.json", XplatOTARead(root, @"previous.json"));
@@ -70,6 +88,11 @@ static NSString *XplatOTABoot(NSString *embedded) {
     if (XplatOTAExists(root, @"next/app/package.json") && XplatOTAExists(root, @"next/release.json")) {
         NSString *release = XplatOTARead(root, @"next/release.json");
         NSString *sha = XplatOTASha(release);
+        if (!XplatOTACompatible(release) || !XplatOTAPayloadCompatible(XplatOTAPath(root, @"next/app"))) {
+            XplatOTAWrite(root, @"rejected.txt", sha);
+            XplatOTADelete(XplatOTAPath(root, @"next"));
+            return XplatOTAExists(root, @"current.json") && XplatOTACompatible(XplatOTARead(root, @"current.json")) && XplatOTAPayloadCompatible(XplatOTAPath(root, @"active/app")) ? XplatOTAPath(root, @"active") : embedded;
+        }
         XplatOTADelete(XplatOTAPath(root, @"previous"));
         if (XplatOTAExists(root, @"current.json")) XplatOTAWrite(root, @"previous.json", XplatOTARead(root, @"current.json"));
         else XplatOTADelete(XplatOTAPath(root, @"previous.json"));
@@ -79,5 +102,10 @@ static NSString *XplatOTABoot(NSString *embedded) {
         XplatOTAWrite(root, @"current.json", release);
         XplatOTADelete(XplatOTAPath(root, @"next"));
     }
-    return XplatOTAExists(root, @"active/app/package.json") ? XplatOTAPath(root, @"active") : embedded;
+    if (XplatOTAExists(root, @"active/app/package.json")) {
+        if (XplatOTAExists(root, @"current.json") && XplatOTACompatible(XplatOTARead(root, @"current.json")) && XplatOTAPayloadCompatible(XplatOTAPath(root, @"active/app"))) return XplatOTAPath(root, @"active");
+        XplatOTADelete(XplatOTAPath(root, @"active/app"));
+        XplatOTADelete(XplatOTAPath(root, @"current.json"));
+    }
+    return embedded;
 }

@@ -21,6 +21,12 @@
 
 ## Mechanisms
 
+The evidence below qualifies the original redirect/recovery mechanism. The
+current exact-fingerprint guard and build/publish protocol are tracked in
+[native fingerprints](fingerprint.md). In particular, historical Android runs
+do not qualify the new Android guard; current Android runtime verification is
+explicitly deferred. The old minimum-native-version protocol has been removed.
+
 ### Where each runtime reads the bundle
 
 - **Android** (`@nativescript/android` 9.1.1): `RuntimeHelper.initRuntime`

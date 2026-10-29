@@ -1,17 +1,15 @@
-import { compareVersions } from './semver.ts'
-
 export interface Env {
 	BUNDLES: R2Bucket
 }
 
 // Shape of the channel pointer object stored at
-// channels/<channel>/<platform>.json in the BUNDLES bucket. `url` is added by
+// channels/<channel>/<platform>/<nativeFingerprint>.json. `url` is added by
 // the worker at serve time so the same pointer works on every origin.
 interface ChannelPointer {
 	version: string
 	sha256: string
 	size: number
-	minNativeVersion: string
+	nativeFingerprint: string
 	releasedAt?: string
 }
 
@@ -35,11 +33,19 @@ function readPointer(raw: string): ChannelPointer | null {
 	}
 
 	if (
+		!pointer ||
+		typeof pointer !== 'object' ||
+		Array.isArray(pointer) ||
 		typeof pointer.version !== 'string' ||
+		!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(pointer.version) ||
+		!pointer.version.split('.').every((part) => Number.isSafeInteger(Number(part))) ||
+		typeof pointer.sha256 !== 'string' ||
 		!SHA256_RE.test(pointer.sha256) ||
 		typeof pointer.size !== 'number' ||
-		typeof pointer.minNativeVersion !== 'string' ||
-		compareVersions(pointer.minNativeVersion, '0.0.0') === null
+		!Number.isSafeInteger(pointer.size) ||
+		pointer.size <= 0 ||
+		typeof pointer.nativeFingerprint !== 'string' ||
+		!SHA256_RE.test(pointer.nativeFingerprint)
 	) {
 		return null
 	}
@@ -51,7 +57,7 @@ async function manifest(request: Request, env: Env): Promise<Response> {
 	const params = new URL(request.url).searchParams
 	const platform = params.get('platform') ?? ''
 	const channel = params.get('channel') ?? 'stable'
-	const nativeVersion = params.get('nativeVersion')
+	const nativeFingerprint = params.get('nativeFingerprint')
 	const currentVersion = params.get('currentVersion')
 
 	if (!PLATFORMS.has(platform)) {
@@ -68,14 +74,14 @@ async function manifest(request: Request, env: Env): Promise<Response> {
 		)
 	}
 
-	if (nativeVersion !== null && compareVersions(nativeVersion, '0.0.0') === null) {
+	if (nativeFingerprint === null || !SHA256_RE.test(nativeFingerprint)) {
 		return json(
-			{ error: 'bad-request', detail: 'nativeVersion must be numeric x.y.z' },
+			{ error: 'bad-request', detail: 'nativeFingerprint must be a generated 64-hex identity' },
 			{ status: 400 },
 		)
 	}
 
-	const key = `channels/${channel}/${platform}.json`
+	const key = `channels/${channel}/${platform}/${nativeFingerprint}.json`
 	const object = await env.BUNDLES.get(key)
 	if (object === null) {
 		return json({ error: 'no-release', channel, platform }, { status: 404 })
@@ -89,17 +95,16 @@ async function manifest(request: Request, env: Env): Promise<Response> {
 		)
 	}
 
-	if (currentVersion === pointer.version) {
-		return json({ updateAvailable: false, reason: 'up-to-date', version: pointer.version })
-	}
-
-	if (nativeVersion !== null && compareVersions(nativeVersion, pointer.minNativeVersion) === -1) {
+	if (nativeFingerprint !== pointer.nativeFingerprint) {
 		return json({
 			updateAvailable: false,
-			reason: 'min-native-version',
+			reason: 'native-incompatible',
 			version: pointer.version,
-			minNativeVersion: pointer.minNativeVersion,
+			nativeFingerprint: pointer.nativeFingerprint,
 		})
+	}
+	if (currentVersion === pointer.version) {
+		return json({ updateAvailable: false, reason: 'up-to-date', version: pointer.version })
 	}
 
 	return json({
@@ -109,7 +114,7 @@ async function manifest(request: Request, env: Env): Promise<Response> {
 		version: pointer.version,
 		sha256: pointer.sha256,
 		size: pointer.size,
-		minNativeVersion: pointer.minNativeVersion,
+		nativeFingerprint: pointer.nativeFingerprint,
 		releasedAt: pointer.releasedAt ?? null,
 		url: `${new URL(request.url).origin}/bundles/${pointer.sha256}`,
 	})

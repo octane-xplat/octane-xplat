@@ -2,7 +2,7 @@
 
 ID: ota-updates
 Targets: ios, android
-Related APIs: @octane-xplat/updates, createUpdates, check, install, markHealthy, rollback, xplat updates init
+Related APIs: @octane-xplat/updates, @octane-xplat/fingerprint, createUpdates, check, install, markHealthy, rollback, xplat updates init
 
 ## Starting point
 
@@ -21,7 +21,7 @@ provisioning and app-store approval are outside the client workflow.
 ## Acceptance criteria
 
 - AC1: The reader can enable the boot hook, rebuild the binary, configure the endpoint and versions, and identify custom native startup configurations that require integration.
-- AC2: The reader can publish a production app archive, check its channel, stage verified bytes, and reject corruption, unsafe paths and a higher minimum native version before activation.
+- AC2: The reader can publish a prepared release archive with its source/build record, check its fingerprint-specific channel, stage verified bytes, and reject corruption, unsafe paths, debug payloads and incompatible native fingerprints before activation.
 - AC3: The current session remains unchanged after staging; the next cold launch runs the new code, and the reader confirms startup only when essential UI/data are ready.
 - AC4: An update that fails before confirmation restores a working backup on the following launch; explicit rollback restores the backup or embedded app, retains user data, and rejects the bad hash.
 - AC5: The reader can distinguish native release support from debug/LiveSync, browser and desktop behavior, and identify unsigned simulator evidence, hosted deployment and signing gaps.

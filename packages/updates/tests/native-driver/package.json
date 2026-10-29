@@ -1,0 +1,10 @@
+{
+	"name": "@xplat/updates-native-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:native-guard": "node --test ../native-guard.test.mjs",
+		"test:native-lifecycle": "node ../native-lifecycle.mjs --target ios --device $XPLAT_IOS_DEVICE"
+	},
+	"packageManager": "pnpm@11.24.0"
+}

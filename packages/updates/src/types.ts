@@ -19,7 +19,7 @@ export interface UpdateManifest {
 	version: string
 	sha256: string
 	size: number
-	minNativeVersion: string
+	nativeFingerprint: string
 	url: string
 }
 
@@ -28,7 +28,7 @@ export type UpdateCheck =
 	| { available: true; manifest: UpdateManifest }
 	| {
 			available: false
-			reason: 'unsupported' | 'no-release' | 'up-to-date' | 'min-native-version' | 'rejected'
+			reason: 'unsupported' | 'no-release' | 'up-to-date' | 'native-incompatible' | 'rejected'
 	  }
 
 /** Local state; downloading or staging never changes the current session's version. */

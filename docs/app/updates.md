@@ -4,8 +4,8 @@
 > it the next time the user opens the app from a fully closed state.
 
 This optional workflow supports iOS and Android release builds. The release
-lifecycle is tested on a simulator/emulator; signed physical iOS
-qualification remains a gap. Store policies still govern which changes you
+lifecycle has simulator evidence; current Android runtime and signed physical iOS
+qualification remain gaps. Store policies still govern which changes you
 may distribute. Adding a native plugin, changing permissions or upgrading the
 native runtime needs a new binary through your normal release process.
 
@@ -17,12 +17,16 @@ how to create storage and deploy the server. Framework installation does not
 create a Cloudflare account or deploy a service.
 
 Run these commands in your app directory. The
-second command creates a hook that adds native startup recovery during builds.
-Commit that hook alongside the dependency change.
+last command creates a hook that adds native startup recovery and records
+native compatibility during builds. Commit that hook alongside the dependency
+changes. The fingerprint package runs in Node during builds, outside the app's
+runtime graph. Some starters ignore `hooks/`, so explicitly stage this file.
 
 ```sh
 pnpm add @octane-xplat/updates
+pnpm add -D @octane-xplat/fingerprint
 pnpm exec xplat updates init
+git add -f hooks/after-prepare/xplat-updates.cjs
 ```
 
 Rebuild and distribute both native binaries after enabling the hook. An older
@@ -40,12 +44,26 @@ Android `com.tns.NativeScriptApplication`. A custom Android Application or iOS
 SwiftUI embedder needs its own native startup integration. Unknown templates
 fail the build instead of quietly dropping recovery.
 
+If upgrading an existing OTA app, review and remove the old generated
+`hooks/after-prepare/xplat-updates.cjs`, regenerate it, then rebuild the native
+binary. The initializer preserves differing hooks and asks you to reconcile
+them. This release replaces minimum-native-version manifests; deploy the new
+server and publish into fingerprint-specific channels. Existing binaries need
+their previous server contract until replaced.
+
+```sh
+# After reviewing and removing the previous generated hook:
+pnpm exec xplat updates init
+pnpm exec ns build ios --release
+```
+
 ## Create one client
 
 Create `src/updates.ts` using your deployed Worker's HTTPS origin. The embedded
-version identifies the JavaScript included in this binary; native OS versions
-are read separately and normalized, for example `1.0` becomes `1.0.0`. Payload
-and configured embedded versions use numeric `x.y.z`.
+version identifies the JavaScript included in this binary. Native compatibility
+comes from the fingerprint baked into native startup; there is no version or
+fingerprint override on the client. Payload and configured embedded versions
+use numeric `x.y.z`.
 
 ```ts
 import { createUpdates } from '@octane-xplat/updates'
@@ -129,20 +147,40 @@ it is not a timer that assumes startup succeeded.
 ## Publish and validate
 
 Build production phone JavaScript, then use the server's publishing script
-with the built Vite `app/` directory. The script zips it, uploads the
-content-addressed bundle, then changes the channel pointer. Choose the minimum
-native version yourself: it must include every native API the update calls.
-There is no automatic native dependency fingerprint check yet.
+with the built Vite `app/` directory and the source app root. Native prepare
+puts `xplat-native.json` inside that payload and a private compiler/input record
+in the source app's `.xplat/fingerprints/` directory. Keep both with your release
+artifacts. The publisher recomputes the current native inputs using that build's
+recorded compiler context. Changed native inputs, a missing record or a debug
+payload stop publishing; rebuild the native binary and payload when native
+inputs change. Ordinary JavaScript changes can keep the same native identity.
 
 ```sh
 # From the framework repository's tools/ota-server directory:
 pnpm publish:bundle -- --dir /path/to/built/app --platform ios \
-  --version 2.0.0 --min-native 1.0.0 --channel staging --dry-run
+  --project-dir /path/to/source-app --version 2.0.0 --channel staging --dry-run
 ```
 
 Remove `--dry-run` only when ready to upload to your configured R2 bucket. Build
 and publish Android separately. Never publish a development bundle; it may
 reference inspector APIs missing from a release binary.
+
+The dry run prints a channel key containing the native fingerprint. Compatible
+binaries share that pointer; binaries with another fingerprint keep their own
+pointer. Inspect source differences with the Node tool when a release is
+refused. An empty diff means collected inputs match the record.
+
+```sh
+# In the source app directory:
+pnpm exec xplat-fingerprint --dir . \
+  --build-record .xplat/fingerprints/ios.json \
+  --diff .xplat/fingerprints/ios.json
+```
+
+See [fingerprint input coverage](../../packages/fingerprint/README.md#include-a-custom-native-input)
+if your native generator consumes custom files. This identifies collected build
+inputs, not arbitrary compiler behavior. The server and native boot guard also
+check exact identity; downloaded JavaScript cannot change the baked value.
 
 ### Verify installation and recovery
 
@@ -155,9 +193,11 @@ sequence with a local fixture server; it does not qualify a hosted deployment.
 ```sh
 # From the framework repository, choose your own test device IDs:
 node scripts/with-target-lock.ts ios -- \
-  node packages/updates/tests/native-lifecycle.mjs --target ios --device SIMULATOR_UDID
+  pnpm exec turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
+  --target ios --device SIMULATOR_UDID
 node scripts/with-target-lock.ts android -- \
-  node packages/updates/tests/native-lifecycle.mjs --target android --device EMULATOR_SERIAL
+  pnpm exec turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
+  --target android --device EMULATOR_SERIAL
 ```
 
 ## Recover a release
@@ -204,8 +244,8 @@ This release checks SHA-256 over HTTPS but does not verify a publisher
 signature. The server and its TLS connection are trusted; a compromised server
 can publish a matching malicious manifest and archive. Limits default to
 32 MiB compressed and 128 MiB expanded. Archive paths must stay inside the
-staged app directory; corrupt bytes, missing entries and incompatible minimum
-native versions fail before activation.
+staged app directory; corrupt bytes, missing entries and incompatible native
+fingerprints or payload build stamps fail before activation.
 
 ```ts
 import { createUpdates } from '@octane-xplat/updates'

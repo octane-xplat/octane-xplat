@@ -1,17 +1,18 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Publishes an OTA payload: zips a built vite `app/` dir, uploads it to R2
-// under bundles/<sha256>, then repoints channels/<channel>/<platform>.json.
+// under bundles/<sha256>, then repoints the matching native-fingerprint cohort.
 //
 // Usage:
 //   node scripts/publish-bundle.ts --dir <app-dir> --platform ios|android \
-//     --version x.y.z --min-native x.y.z [--channel stable] [--bucket NAME] [--dry-run]
+//     --version x.y.z --project-dir APP_ROOT [--channel stable] [--bucket NAME] [--dry-run]
 //
 // Requires `zip` and a wrangler-authenticated shell (the same credentials used
 // for `wrangler deploy`). The pointer is written AFTER the bundle lands, so a
 // failed upload never leaves a channel pointing at a missing object.
 
+import { createFingerprintAsync, NATIVE_FINGERPRINT_FORMAT } from '@octane-xplat/fingerprint'
 import { createHash } from 'node:crypto'
-import { mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -23,13 +24,13 @@ const { values: args } = parseArgs({
 		platform: { type: 'string' },
 		channel: { type: 'string', default: 'stable' },
 		version: { type: 'string' },
-		'min-native': { type: 'string' },
+		'project-dir': { type: 'string' },
 		bucket: { type: 'string', default: 'octane-xplat-ota-bundles' },
 		'dry-run': { type: 'boolean', default: false },
 	},
 })
 
-const VERSION_RE = /^\d+\.\d+\.\d+$/
+const VERSION_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/
 
 function fail(message) {
 	console.error(`publish-bundle: ${message}`)
@@ -44,12 +45,16 @@ if (!['ios', 'android'].includes(args.platform ?? '')) {
 	fail('--platform must be ios or android')
 }
 
-if (!args.version || !VERSION_RE.test(args.version)) {
+if (
+	!args.version ||
+	!VERSION_RE.test(args.version) ||
+	!args.version.split('.').every((part) => Number.isSafeInteger(Number(part)))
+) {
 	fail('--version must be numeric x.y.z')
 }
 
-if (!args['min-native'] || !VERSION_RE.test(args['min-native'])) {
-	fail('--min-native must be numeric x.y.z')
+if (!args['project-dir']) {
+	fail('--project-dir <source app root> is required')
 }
 
 if (!/^[a-z0-9][a-z0-9-]{0,31}$/.test(args.channel)) {
@@ -65,7 +70,45 @@ if (!statSync(join(appDir, 'package.json'), { throwIfNoEntry: false })?.isFile()
 	fail(`${appDir} has no package.json — is this the built vite app/ output?`)
 }
 
+const metadata = JSON.parse(readFileSync(join(appDir, 'xplat-native.json'), 'utf8'))
+if (
+	metadata.format !== NATIVE_FINGERPRINT_FORMAT ||
+	metadata.platform !== args.platform ||
+	metadata.release !== true ||
+	!/^[0-9a-f]{64}$/.test(metadata.hash)
+) {
+	fail('A prepared release payload with native build metadata is required')
+}
+const record = JSON.parse(
+	readFileSync(
+		join(resolve(args['project-dir']), '.xplat/fingerprints', args.platform + '.json'),
+		'utf8',
+	),
+)
+if (
+	record.hash !== metadata.hash ||
+	record.platform !== metadata.platform ||
+	record.release !== true ||
+	record.format !== metadata.format ||
+	!record.toolchain ||
+	typeof record.toolchain !== 'object' ||
+	Array.isArray(record.toolchain) ||
+	Object.values(record.toolchain).some((value) => typeof value !== 'string')
+) {
+	fail('Native build record does not match this release payload')
+}
+const current = await createFingerprintAsync(resolve(args['project-dir']), {
+	platforms: [args.platform],
+	toolchain: record.toolchain,
+})
+if (current.hash !== metadata.hash) {
+	fail(
+		'Native inputs changed after this payload was prepared; rebuild the native binary and payload before publishing',
+	)
+}
+
 const scratch = mkdtempSync(join(tmpdir(), 'xplat-ota-'))
+process.on('exit', () => rmSync(scratch, { recursive: true, force: true }))
 const zipPath = join(scratch, 'payload.zip')
 
 run('zip', ['-qr', zipPath, '.'], { cwd: appDir })
@@ -76,7 +119,7 @@ const pointer = {
 	version: args.version,
 	sha256,
 	size,
-	minNativeVersion: args['min-native'],
+	nativeFingerprint: metadata.hash,
 	releasedAt: new Date().toISOString(),
 }
 
@@ -84,7 +127,7 @@ const pointerPath = join(scratch, 'pointer.json')
 writeFileSync(pointerPath, JSON.stringify(pointer, null, '\t') + '\n')
 
 const bundleKey = `bundles/${sha256}`
-const channelKey = `channels/${args.channel}/${args.platform}.json`
+const channelKey = `channels/${args.channel}/${args.platform}/${metadata.hash}.json`
 
 if (args['dry-run']) {
 	console.log(`bundle  ${args.bucket}/${bundleKey}  (${size} bytes)`)
@@ -120,7 +163,7 @@ console.log(
 )
 
 console.log(
-	`manifest: GET /manifest?platform=${args.platform}&channel=${args.channel}&nativeVersion=<x.y.z>`,
+	`manifest: GET /manifest?platform=${args.platform}&channel=${args.channel}&nativeFingerprint=${metadata.hash}`,
 )
 
 function wrangler(argv) {

@@ -50,3 +50,6 @@ packages/*/platforms/android/*.aar
 
 # Local checkout links for opt-in development hooks (links/README.md).
 /links/nativescript-mason
+
+# Private native fingerprint build records.
+.xplat/

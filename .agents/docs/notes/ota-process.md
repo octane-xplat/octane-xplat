@@ -5,13 +5,13 @@
 > Mechanism evidence lives in the [bundle-redirect gate](ota-updates.md);
 > server source lives in [`tools/ota-server`](../../../tools/ota-server).
 >
-> **Status: client and native boot integration implemented; release lifecycle verified on iOS simulator and Android emulator.**
+> **Status: client and native boot integration implemented. Historical release lifecycle evidence is below; current fingerprint qualification is tracked in [fingerprint](fingerprint.md).**
 > `@octane-xplat/updates` downloads, verifies and stages archives.
 > `xplat updates init` installs a maintained after-prepare hook that wires iOS and Android
 > native startup. Native code activates staged bytes only on a cold launch and
 > restores backups when startup was not confirmed. Public setup lives in the
 > [phone update guide](../../../docs/app/updates.md). Worker deployment, bundle signing,
-> automatic native compatibility fingerprints and signed-device iOS evidence
+> signed-device iOS evidence and current Android fingerprint-guard qualification
 > remain gaps. npm publication of the new leaf is pending.
 
 ## How a boot works
@@ -55,7 +55,7 @@ simulator, where container UUIDs rotate).
 ```
 publish:                       serve:
   vite app/ dir ──zip──► sha256 ──► R2 bundles/<sha256>         Cloudflare Worker (tools/ota-server)
-  pointer JSON  ──────────────► R2 channels/<chan>/<plat>.json  ┌ GET /manifest ──► reads pointer, gates, returns {version, sha256, url}
+  pointer JSON  ──────────────► R2 channels/<chan>/<plat>/<fingerprint>.json  ┌ GET /manifest ──► reads pointer, gates, returns {version, sha256, url}
                                                               └ GET /bundles/<sha256> ──► streams zip (immutable)
 ```
 
@@ -67,16 +67,16 @@ can never reference an object that isn't there yet.
 
 The payload is a **zip archive of the built vite `app/` directory** —
 `bundle.mjs`, `vendor.mjs`, `rolldown-runtime-*.mjs`, and `package.json` with
-`"main": "bundle"`, plus any emitted assets. Unpacked on device it becomes the
+`"main": "bundle"`, `xplat-native.json` (format/platform/hash/release), plus any emitted assets. Unpacked on device it becomes the
 `app/` dir the runtime boots.
 
-Two things the payload does **not** contain:
+The payload does not contain these build-only inputs:
 
 - **Native metadata.** `__TNSMetadata` is compiled into the binary at
   `ns build` time. An OTA bundle cannot call a native API the shipped binary
   doesn't already expose — adding or upgrading a NativeScript plugin, a leaf
   package with a native dependency, or `@nativescript/core` itself always
-  requires a store release. This is what `minNativeVersion` exists to guard.
+  requires a store release. The exact native fingerprint guards this boundary.
 - **Dev-mode graph.** A development-mode bundle crashes a release binary
   (`__registerDomainDispatcher is not defined` — the inspector backend isn't
   registered). Payloads are always `ns build --release` / production vite
@@ -86,7 +86,11 @@ Two things the payload does **not** contain:
 
 ### Manifest fields
 
-The channel pointer stored at `channels/<channel>/<platform>.json` and the
+This replaces the former minimum-native-version protocol. Regenerate the
+prepare hook, rebuild binaries and deploy the matching server; old manifests
+and channel pointers are not migrated automatically.
+
+The channel pointer stored at `channels/<channel>/<platform>/<nativeFingerprint>.json` and the
 manifest the worker serves share one schema:
 
 | Field              | Type          | Meaning                                                                 |
@@ -94,7 +98,7 @@ manifest the worker serves share one schema:
 | `version`          | `"x.y.z"`     | JS payload version. Numeric semver only — no prerelease/build suffixes. |
 | `sha256`           | 64-hex string | SHA-256 of the zip payload; also the R2 object key under `bundles/`.    |
 | `size`             | number        | Zip size in bytes; lets the client preflight storage and show progress. |
-| `minNativeVersion` | `"x.y.z"`     | Oldest native binary version allowed to apply this payload.             |
+| `nativeFingerprint` | 64-hex string | Exact native input identity baked into the target binary. |
 | `releasedAt`       | ISO 8601      | When the pointer was published. Informational.                          |
 
 Served responses add `channel`, `platform`, `updateAvailable`, and a computed
@@ -119,11 +123,12 @@ is infrastructure we already control.
 ### Versioning rules
 
 - `version` is the JS payload's semver, independent of the native binary's
-  version. Publish order is monotonic per channel+platform.
-- `minNativeVersion` compares as a three-integer tuple against the native
-  app's version. Bump it whenever a payload relies on a native surface
-  introduced after older binaries shipped — safer to bump than to debug a
-  missing plugin at runtime.
+  version. Publish order is monotonic per channel, platform and native fingerprint.
+- `nativeFingerprint` must exactly match the native guard, manifest and
+  `app/xplat-native.json` payload stamp. Prepare captures compiler context and
+  native inputs in `.xplat/fingerprints/<platform>.json`; publishing recomputes
+  inputs using that context. Source-only hashes omit the build context and are
+  not substitutes. See [fingerprint implementation](fingerprint.md).
 - `channel` selects the pointer: `stable` is the default; use `staging` or
   per-release channels for ring deploys. Names match `[a-z0-9-]{1,32}`.
 
@@ -131,7 +136,7 @@ is infrastructure we already control.
 
 The contract on both platforms is **install-now, apply-on-next-launch**:
 
-1. Download → verify sha256 → validate archive paths and sizes → unzip into
+1. Download → verify sha256 → validate exact fingerprint, release payload stamp, archive paths and sizes → unzip into
    `xplat-ota/staging/app` → atomically rename the complete stage to `next`.
    On the next cold boot, native code moves the working app into `previous/app`
    and activates the stage (iOS: `xplat-ota/active/app`; Android: `files/app`).
@@ -170,7 +175,7 @@ are content-addressed and never deleted on republish, so every old pointer
 remains valid):
 
 ```sh
-wrangler r2 object put octane-xplat-ota-bundles/channels/stable/ios.json \
+wrangler r2 object put octane-xplat-ota-bundles/channels/stable/ios/NATIVE_FINGERPRINT.json \
 	--file previous-pointer.json --content-type application/json
 ```
 
@@ -192,12 +197,12 @@ are outside the bundle directories and remain intact.
 Base: the deployed worker origin (`https://octane-xplat-ota.<account>.workers.dev`
 or a custom route).
 
-`GET /manifest?platform=&channel=&nativeVersion=&currentVersion=`
+`GET /manifest?platform=&channel=&nativeFingerprint=&currentVersion=`
 
 - `platform` — required, `ios` | `android`.
 - `channel` — optional, default `stable`.
-- `nativeVersion` — optional `x.y.z`; when present, payloads gated by
-  `minNativeVersion` are withheld.
+- `nativeFingerprint` — required lowercase 64-hex native identity. The pointer
+  is selected by this value as well as platform and channel.
 - `currentVersion` — optional `x.y.z`; when equal to the pointer's `version`,
   the response is `updateAvailable: false, reason: "up-to-date"`.
 
@@ -206,10 +211,10 @@ Responses:
 ```
 200 {"updateAvailable":true,"channel":"stable","platform":"ios",
      "version":"1.4.2","sha256":"<64 hex>","size":1234567,
-     "minNativeVersion":"1.2.0","releasedAt":"…","url":"<origin>/bundles/<sha256>"}
-200 {"updateAvailable":false,"reason":"up-to-date"|"min-native-version",…}
+     "nativeFingerprint":"<64 hex>","releasedAt":"…","url":"<origin>/bundles/<sha256>"}
+200 {"updateAvailable":false,"reason":"up-to-date"|"native-incompatible",…}
 400 {"error":"bad-request","detail":"…"}
-404 {"error":"no-release"}          # no pointer for channel+platform
+404 {"error":"no-release"}          # no pointer for channel+platform+fingerprint
 502 {"error":"bad-pointer"}         # pointer object malformed — server-side bug
 ```
 
@@ -248,8 +253,8 @@ or display its app dir at boot.
 | OTA "installed" but old code runs                      | App wasn't cold-restarted; no active iOS payload                 | Kill and relaunch (don't background/resume); check `active/app/package.json` exists                                               |
 | Failed first OTA boot, previous version on next launch | Native pending journal triggered backup recovery                 | Check the rejected SHA and essential-startup confirmation point                                                                   |
 | `__registerDomainDispatcher is not defined`            | Dev-mode vite graph published as payload                         | Rebuild payload with release/prod vite output                                                                                     |
-| Manifest 404                                           | No pointer for that channel/platform, or wrong channel param     | `wrangler r2 object get octane-xplat-ota-bundles/channels/<channel>/<platform>.json`                                              |
-| Manifest `min-native-version`                          | Binary is older than the payload requires                        | Publish with a lower `minNativeVersion` only if the JS truly doesn't touch newer native surfaces; otherwise ship a native release |
+| Manifest 404                                           | No pointer for that channel/platform, or wrong channel param     | `wrangler r2 object get octane-xplat-ota-bundles/channels/<channel>/<platform>/<nativeFingerprint>.json`                                              |
+| Manifest `native-incompatible` | Stored pointer has a different native identity | Rebuild/publish for the correct fingerprint; never edit the hash to bypass the guard |
 | `bad-pointer` 502                                      | Pointer JSON missing fields / bad sha256                         | Fetch the pointer object and validate against the schema table                                                                    |
 | Android self-restart never fires                       | BAL block (ColorOS/Android 15+)                                  | Expected — the contract is next-launch; don't rely on programmatic restart                                                        |
 | iOS sim: payload "disappears" between runs             | Data-container UUID rotated on rebuild                           | Reinstall the payload in the new container; harmless on device                                                                    |
@@ -259,10 +264,10 @@ or display its app dir at boot.
 
 ```sh
 # what does the channel currently point at?
-curl 'https://<origin>/manifest?platform=ios&channel=stable&nativeVersion=9.9.9'
+curl 'https://<origin>/manifest?platform=ios&channel=stable&nativeFingerprint=NATIVE_FINGERPRINT'
 
 # read the pointer object directly
-wrangler r2 object get octane-xplat-ota-bundles/channels/stable/ios.json
+wrangler r2 object get octane-xplat-ota-bundles/channels/stable/ios/NATIVE_FINGERPRINT.json
 
 # live request logs (errors, console output)
 wrangler tail octane-xplat-ota
@@ -294,6 +299,15 @@ service, App Store signing, or physical iOS devices. See the
 [guide's verification commands](../../../docs/app/updates.md#verify-installation-and-recovery).
 
 ## Known limits
+
+Current exact-fingerprint qualification (2026-10-29) passes on skymac.local
+iOS26.2: compatible activation/confirmation, failed-update recovery, manual
+rollback and a native-source-change rejection before JavaScript. The run uses
+an unsigned simulator executable with refreshed release JS resources after a
+fresh compatibility check. Foundation release/debug guard checks also pass.
+See [fingerprint evidence](fingerprint.md#verification-and-limits). Android's
+historical evidence above predates the new guard; its current runtime is
+explicitly unverified.
 
 - iOS redirect verified on an unsigned Release-configuration simulator build
   only — no signed-device run yet (none was available at gate time).

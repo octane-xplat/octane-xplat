@@ -30,9 +30,11 @@
 	"scripts": {
 		"typegen": "tsc -p tsconfig.types.json",
 		"typecheck": "tsc -p tsconfig.types.json --noEmit --emitDeclarationOnly false",
-		"test": "node --test tests/*.test.mjs",
+		"test": "node --test tests/client.test.mjs tests/prepare.test.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"prepack": "pnpm typegen"
+		"prepack": "pnpm typegen",
+		"test:native-guard": "node --test tests/native-guard.test.mjs",
+		"test:native-lifecycle": "node tests/native-lifecycle.mjs"
 	},
 	"dependencies": {
 		"@noble/hashes": "2.4.0",
@@ -42,13 +44,18 @@
 	"devDependencies": {
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
+		"@octane-xplat/fingerprint": "workspace:*",
 		"typescript": "catalog:"
 	},
 	"peerDependencies": {
-		"@nativescript/core": ">=9.1.0 <10"
+		"@nativescript/core": ">=9.1.0 <10",
+		"@octane-xplat/fingerprint": ">=0.18.0 <1"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript/core": {
+			"optional": true
+		},
+		"@octane-xplat/fingerprint": {
 			"optional": true
 		}
 	},

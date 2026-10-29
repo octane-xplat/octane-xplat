@@ -17,6 +17,7 @@ import { zipSync, strToU8 } from 'fflate/browser'
 import { createClient } from '../src/client.ts'
 import { createUpdates } from '../src/index.web.ts'
 
+const nativeFingerprint = 'a'.repeat(64)
 const options = { endpoint: 'https://ota.example.test', embeddedVersion: '1.0.0' }
 function fixture(t, extra = {}) {
 	const root = mkdtempSync(join(tmpdir(), 'xplat-ota-client-'))
@@ -25,13 +26,21 @@ function fixture(t, extra = {}) {
 	const archive = zipSync({
 		'package.json': strToU8('{"main":"bundle"}'),
 		'bundle.mjs': strToU8('globalThis.version = 2'),
+		'xplat-native.json': strToU8(
+			JSON.stringify({
+				format: 'octane-xplat.native-fingerprint.v1',
+				platform: 'ios',
+				release: true,
+				hash: nativeFingerprint,
+			}),
+		),
 		...extra,
 	})
 
 	const sha256 = createHash('sha256').update(archive).digest('hex')
 	const manifest = {
 		version: '2.0.0',
-		minNativeVersion: '1.0.0',
+		nativeFingerprint,
 		sha256,
 		size: archive.length,
 		url: `${options.endpoint}/bundles/${sha256}`,
@@ -50,7 +59,7 @@ function fixture(t, extra = {}) {
 
 	const env = {
 		platform: 'ios',
-		nativeVersion: '1.0.0',
+		nativeFingerprint,
 		storage,
 		request: async (url) => ({
 			status: 200,
@@ -110,11 +119,11 @@ test('caps expanded bytes before writing any archive file', async (t) => {
 	assert.equal(f.storage.exists('next'), false)
 })
 
-test('requires the real boot entry and a newer-enough native binary', async (t) => {
+test('requires the real boot entry and a matching native fingerprint', async (t) => {
 	const f = fixture(t)
 	await assert.rejects(
-		f.client.install({ ...f.manifest, minNativeVersion: '1.1.0' }),
-		/newer native binary/,
+		f.client.install({ ...f.manifest, nativeFingerprint: 'b'.repeat(64) }),
+		/incompatible/,
 	)
 
 	await assert.rejects(
@@ -181,4 +190,25 @@ test('unsupported target has identical API and performs no installation', async 
 	assert.equal(client.supported, false)
 	assert.deepEqual(await client.check(), { available: false, reason: 'unsupported' })
 	await assert.rejects(client.install({}), /iOS or Android release build/)
+})
+
+test('matching descriptor cannot authorize a mismatched or missing payload fingerprint', async (t) => {
+	for (const metadata of [
+		'{}',
+		JSON.stringify({
+			format: 'octane-xplat.native-fingerprint.v1',
+			platform: 'android',
+			release: true,
+			hash: nativeFingerprint,
+		}),
+		JSON.stringify({
+			format: 'octane-xplat.native-fingerprint.v1',
+			platform: 'ios',
+			hash: 'b'.repeat(64),
+		}),
+	]) {
+		const f = fixture(t, { 'xplat-native.json': strToU8(metadata) })
+		await assert.rejects(f.client.install(f.manifest), /payload does not match/)
+		assert.equal(f.storage.exists('next'), false)
+	}
 })

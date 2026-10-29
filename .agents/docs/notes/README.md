@@ -39,6 +39,7 @@ source before relying on them.
 - [Optional service qualification](optional-service-qualification.md)
 - [OTA process](ota-process.md)
 - [OTA update gate](ota-updates.md)
+- [Native compatibility fingerprints](fingerprint.md) — collected inputs, build records and exact OTA matching
 - [UI primitives](primitive-notes.md)
 - [SQLite](sqlite-notes.md)
 

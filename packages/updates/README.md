@@ -8,6 +8,17 @@ See the [setup and recovery guide](https://octane-xplat.goddardai.org/updates). 
 new in the repository; npm publication and the first trusted-publisher setup
 remain release prerequisites.
 
+Install the runtime and its Node build tool in your app, then generate the
+native prepare hook. Commit that hook and rebuild the binary before sending
+updates. Keep the fingerprint tool in development dependencies.
+
+```sh
+pnpm add @octane-xplat/updates
+pnpm add -D @octane-xplat/fingerprint
+pnpm exec xplat updates init
+git add -f hooks/after-prepare/xplat-updates.cjs
+```
+
 ```ts
 import { createUpdates } from '@octane-xplat/updates'
 
@@ -34,7 +45,10 @@ export async function afterSuccessfulStartup() {
 
 The endpoint must be HTTPS. Archive limits default to 32 MiB downloaded and
 128 MiB expanded. Installation checks the archive SHA-256, size, paths, entry
-point and minimum native version. Bundles are **not signed**: the configured
+point and exact native fingerprint. Native startup also validates the
+payload's release stamp against its baked fingerprint before running it.
+Bundles are **not signed**: the configured
 server and its TLS connection are trusted. Native dependencies and permissions
-still require a binary release. Automatic native-compatibility fingerprinting
-and signed physical iOS device qualification remain gaps.
+still require a binary release. Signed physical iOS device qualification and
+the current Android runtime qualification remain gaps. See
+[native fingerprinting](../fingerprint/README.md) for input coverage.

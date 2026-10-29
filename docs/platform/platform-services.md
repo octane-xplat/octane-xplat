@@ -7,6 +7,19 @@ For example, a storage service remembers a setting and a sharing service
 opens the device's share options. Some features need permission or are not
 available on every platform. Check those results and explain them in the app.
 
+## Update a released phone app
+
+For updating a phone app's JavaScript after release, follow
+[phone updates](../app/updates.md). Its Node build tool compares native inputs
+and compiler context; keep it out of app imports. Generate the prepare hook,
+rebuild the binary, and retain its private build record with the payload.
+
+```sh
+pnpm add @octane-xplat/updates
+pnpm add -D @octane-xplat/fingerprint
+pnpm exec xplat updates init
+```
+
 ## Choose a useful feature
 
 Give your agent an outcome with a fallback: “Let me attach a photo to a trip

@@ -1,0 +1,12 @@
+{
+	"tasks": {
+		"test:native-guard": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_NATIVE_TEST_HOST"]
+		},
+		"test:native-lifecycle": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_IOS_DEVICE", "XPLAT_NATIVE_TEST_REPO"]
+		}
+	}
+}

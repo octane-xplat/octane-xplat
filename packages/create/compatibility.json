@@ -29,6 +29,7 @@
 		"@octane-xplat/dnd-kit",
 		"@octane-xplat/effects",
 		"@octane-xplat/files",
+		"@octane-xplat/fingerprint",
 		"@octane-xplat/firebase-analytics",
 		"@octane-xplat/firebase-crashlytics",
 		"@octane-xplat/geofencing",

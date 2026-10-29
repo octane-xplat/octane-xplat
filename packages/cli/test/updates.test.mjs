@@ -18,6 +18,13 @@ test('init resolves the app runtime, preserves edited hooks, and is repeatable',
 	)
 
 	writeFileSync(join(pkg, 'prepare.cjs'), 'module.exports = () => {}')
+	const buildTool = join(root, 'node_modules/@octane-xplat/fingerprint')
+	mkdirSync(buildTool, { recursive: true })
+	writeFileSync(
+		join(buildTool, 'package.json'),
+		JSON.stringify({ name: '@octane-xplat/fingerprint', exports: './index.js' }),
+	)
+	writeFileSync(join(buildTool, 'index.js'), 'export {}')
 	const file = await initializeUpdates(root)
 	const first = readFileSync(file, 'utf8')
 	await initializeUpdates(root)

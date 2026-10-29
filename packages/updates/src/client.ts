@@ -13,7 +13,7 @@ export interface Storage {
 
 export interface Environment {
 	platform: 'ios' | 'android'
-	nativeVersion: string
+	nativeFingerprint: string
 	storage: Storage
 	releaseBuild?: boolean
 	request(url: string, timeout: number): Promise<{ status: number; bytes: Uint8Array }>
@@ -23,19 +23,6 @@ const version = (value: unknown): value is string =>
 	typeof value === 'string' &&
 	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(value) &&
 	value.split('.').every((part) => Number.isSafeInteger(Number(part)))
-
-const older = (a: string, b: string) => {
-	const x = a.split('.').map(Number),
-		y = b.split('.').map(Number)
-
-	for (let i = 0; i < 3; i++) {
-		if (x[i] !== y[i]) {
-			return x[i] < y[i]
-		}
-	}
-
-	return false
-}
 
 const digest = (bytes: Uint8Array) =>
 	Array.from(sha256(bytes), (v) => v.toString(16).padStart(2, '0')).join('')
@@ -60,8 +47,8 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
 		throw new Error('Updates endpoint must be an HTTPS origin')
 	}
 
-	if (!version(options.embeddedVersion) || !version(env.nativeVersion)) {
-		throw new Error('Updates require numeric x.y.z versions')
+	if (!version(options.embeddedVersion) || !/^[0-9a-f]{64}$/.test(env.nativeFingerprint)) {
+		throw new Error('Updates require a numeric payload version and a generated native fingerprint')
 	}
 
 	const channel = options.channel ?? 'stable'
@@ -86,7 +73,8 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
 		if (
 			!input ||
 			!version(input.version) ||
-			!version(input.minNativeVersion) ||
+			typeof input.nativeFingerprint !== 'string' ||
+			!/^[0-9a-f]{64}$/.test(input.nativeFingerprint) ||
 			typeof input.sha256 !== 'string' ||
 			!/^[0-9a-f]{64}$/.test(input.sha256) ||
 			!Number.isSafeInteger(input.size) ||
@@ -97,15 +85,15 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
 			throw new Error('Invalid update manifest or download limit exceeded')
 		}
 
-		if (older(env.nativeVersion, input.minNativeVersion)) {
-			throw new Error('Update requires a newer native binary')
+		if (env.nativeFingerprint !== input.nativeFingerprint) {
+			throw new Error('Update is incompatible with this native fingerprint')
 		}
 
 		return {
 			version: input.version,
 			sha256: input.sha256,
 			size: input.size,
-			minNativeVersion: input.minNativeVersion,
+			nativeFingerprint: input.nativeFingerprint,
 			url: input.url,
 		}
 	}
@@ -116,7 +104,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
 	const client: UpdatesClient = {
 		supported: true,
 		async check(): Promise<UpdateCheck> {
-			const url = `${endpoint}/manifest?platform=${env.platform}&channel=${channel}&nativeVersion=${env.nativeVersion}&currentVersion=${client.status().currentVersion}`
+			const url = `${endpoint}/manifest?platform=${env.platform}&channel=${channel}&nativeFingerprint=${env.nativeFingerprint}&currentVersion=${client.status().currentVersion}`
 			const response = await env.request(url, timeout)
 			if (response.status === 404) {
 				return { available: false, reason: 'no-release' }
@@ -129,7 +117,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
 			const data = decode(response.bytes)
 			if (
 				data.updateAvailable === false &&
-				['up-to-date', 'min-native-version'].includes(data.reason)
+				['up-to-date', 'native-incompatible'].includes(data.reason)
 			) {
 				return { available: false, reason: data.reason }
 			}
@@ -213,6 +201,16 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
 					throw new Error('Update archive must contain app/package.json at its root')
 				}
 
+				const metadata = files['xplat-native.json'] ? decode(files['xplat-native.json']) : null
+				if (
+					!metadata ||
+					metadata.format !== 'octane-xplat.native-fingerprint.v1' ||
+					metadata.platform !== env.platform ||
+					metadata.release !== true ||
+					metadata.hash !== env.nativeFingerprint
+				) {
+					throw new Error('Update payload does not match the installed native fingerprint')
+				}
 				const pkg = decode(files['package.json'])
 				if (typeof pkg.main !== 'string' || !/^[a-zA-Z0-9_-]+(?:\.mjs)?$/.test(pkg.main)) {
 					throw new Error('Invalid update entry point')
