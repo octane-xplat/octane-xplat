@@ -46,7 +46,13 @@ function LightboxPanel(
 				</Button>
 			</masonview>
 			{item?.type === 'video' ? (
-				<label whiteSpace="normal">{`Video playback is unavailable in the shared macOS lightbox. ${item.alt}`}</label>
+				<xplatvideo
+					className="vx-lightbox-media"
+					src={item?.src}
+					controls={true}
+					autoplay={props.hasAutoPlay ?? false}
+					accessibilityLabel={item?.alt}
+				/>
 			) : (
 				<scrollview className="vx-lightbox-scroll">
 					<image src={item?.src} accessibilityLabel={item?.alt} />

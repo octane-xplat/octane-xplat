@@ -59,6 +59,7 @@ import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
+import { makeVideoView, updateVideoView, disposeVideoView } from './video'
 import { validateListProps } from './list-template'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
@@ -179,6 +180,7 @@ import {
 	NSWorkspace,
 	NativeClass,
 	WKWebView,
+	AVPlayerView,
 	interop,
 } from '@octane-xplat/platform/macos'
 
@@ -2510,6 +2512,7 @@ const SUPPORTED_TYPES = new Set([
 	'image',
 	'animatedimage',
 	'pager',
+	'xplatvideo',
 	'placeholder',
 	'span',
 	'formattedstring',
@@ -2902,6 +2905,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 					break
 				case 'pager':
 					node.view = makePagerView()
+					break
+				case 'xplatvideo':
+					node.view = makeVideoView()
 					break
 				case 'placeholder':
 					node.view = makePlaceholder(node)
@@ -6866,6 +6872,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 		updatePagerView(node.view!, node.props)
 	}
 
+	if (node.type === 'xplatvideo') {
+		updateVideoView(node, node.props)
+	}
+
 	if (node.type === 'datepicker') {
 		syncDatePicker(node, props)
 	}
@@ -7779,6 +7789,10 @@ function destroy(node: ElementNode) {
 
 	if (node.type === 'pager' && node.view) {
 		disposePagerView(node.view)
+	}
+
+	if (node.type === 'xplatvideo' && node.view) {
+		disposeVideoView(node.view as AVPlayerView)
 	}
 
 	if (node.type === 'tabview') {

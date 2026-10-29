@@ -65,7 +65,7 @@ function scrollToPage(state: PagerState, index: number) {
 	}
 
 	state.clip.scrollToPoint({ x, y: 0 })
-	state.view.reflectScrolledClipView?.(state.clip)
+	state.view.reflectScrolledClipView?.(state.clip as any)
 }
 
 /** After the gesture's bounds changes idle out, land on the nearest page and
@@ -125,7 +125,7 @@ function bindPage(state: PagerState, page: PagerPage, index: number) {
 		page.portalItem = item
 		page.host.__portalIndex = index
 		page.portalNotify = state.props.__onCellTarget
-		page.portalNotify({
+		page.portalNotify?.({
 			type: 'bind',
 			id: page.portalId,
 			generation: page.portalGeneration,
