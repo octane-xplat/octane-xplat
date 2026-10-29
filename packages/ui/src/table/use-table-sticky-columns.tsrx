@@ -1,12 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
-// Sticky-columns plugin — universal leaf. Native Table leaves have no
-// horizontal scroll container to pin against, so this is a pass-through
-// plugin exposing the same config contract (recorded gap; documented in
-// .agents/docs). The offset math lives in ./sticky-column-offsets (shared).
+// Sticky-columns plugin — universal fallback. AppKit data Table now has a
+// horizontal viewport, but native pinning is still unimplemented. Keep the
+// shared config as a pass-through; offset math lives in ./sticky-column-offsets.
 
 import type { TablePlugin, UseTableStickyColumnsConfig } from './types'
 
-/** Sticky-columns plugin — no-op on native leaves (no horizontal scroller). */
+/** Native fallback: scrolling is separate from unimplemented column pinning. */
 export function useTableStickyColumns<T extends Record<string, unknown>>(
 	config: UseTableStickyColumnsConfig,
 ): TablePlugin<T> {

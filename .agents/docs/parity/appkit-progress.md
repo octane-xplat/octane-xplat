@@ -6151,3 +6151,61 @@ and descendant focus, Tab/Shift-Tab, opacity/hit-testing/VoiceOver behavior,
 hidden/reparented/removed rows and supported macOS/clean installed native
 consumers remain unqualified. Evidence gates/audit snapshots unchanged; goal
 active. F6 landmark cycling and native sticky-column behavior remain gaps.
+
+## AppKit data Table horizontal viewport source path
+
+Demand evidence: Astryx sandbox StickyColumnsHookUsage constrains its table to
+560 points and assumes an internal horizontal scroll container. Source review
+found AppKit data mode instead rendered a plain Mason outer container and
+ignored plan.tableMinWidth. Thus native scroll range is a prerequisite before
+implementing sticky columns; this increment does not implement pinning.
+
+Data mode now uses a horizontal native scrollview with one column-flow document
+for before/table/after slots. It measures clip width through the renderer's
+owned geometry notifications and sizes content to max(viewport, shared plan
+minimum). This avoids relying on unresolved percentage widths during the
+renderer's max-content scroll-axis solve. Unchanged width snapshots do not
+write state again. The viewport is width/maxWidth constrained to its parent;
+content can exceed it. Pixel cells get fixed basis/minimum and zero shrink;
+proportional cells get zero basis, weighted growth and shared default/declared
+minimums. Header/body share that source sizing, and header plugin style now
+forwards like body style. Public ref binds inner table content; wrapper plugin
+refs bind NSScrollView, with styles/classes/before/after slots preserved. DOM
+handlers/attributes remain outside the native safe subset. Table style remains
+on inner content, with render-plan minimum width enforced as on web.
+
+Child-composed Table mode retains its existing flow; it does not acquire the
+data viewport automatically. Sticky plugin remains a pass-through on AppKit,
+and its stale no-horizontal-wrapper comment/guidance was reconciled. Native
+Mason/scroll source reads establish document/clip ownership and geometry
+notification paths, not actual automatic/bounded height, proportional geometry,
+scroll range, input/RTL, header/body alignment, reparent/ref teardown or AX.
+
+The manual fixture exposes narrow/wide viewports, mixed pixel/proportional
+columns, empty/refill, auto/bounded height, plugin slots/native ref and explicit
+metrics read. Its runner records mounted controls only. No new automated
+layout test is claimed: existing shared pipeline/width tests cannot establish
+this native behavior, and native verification remains deferred. Docs, skill,
+recipe and feature note record both source coverage and qualification gaps.
+No shared Table runtime, CLI or other native-target implementation changed.
+
+Exact deferred commands, still awaiting this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit wide data-table package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Three TSRX files syntax parsed; source/semantic and whitespace checks only.
+No tests/typechecks/builds,
+probe/native/OS automation, packaging or visual analysis ran. Verify native
+clip/document sizing across auto/bounded height and resize, actual wheel/
+trackpad/momentum/RTL/nested scrolling, header/body and plugin sizing, empty/
+refill, ref cleanup, accessibility and clean installed supported-macOS consumers
+before qualification. Frozen-install/task-graph deferrals remain. Evidence gates
+and source audit snapshots unchanged; persistent goal active.

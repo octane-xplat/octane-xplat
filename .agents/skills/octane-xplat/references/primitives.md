@@ -570,7 +570,11 @@ function ExampleTable() {
 ```
 
 `useTableStickyColumns` is web-only behavior: native leaves currently return a
-pass-through plugin because Table has no native horizontal scroll wrapper. Do
+pass-through plugin. AppKit data Table now has an experimental native horizontal
+viewport, measured clip width, fixed pixel widths and proportional minimums;
+child-composed tables retain their existing flow. Scroll-wrapper styles/classes,
+slots and native NSScrollView refs are forwarded; the public Table ref targets
+inner content. Actual height/layout/scroll/RTL/ref lifetime remains unrun. Do
 not claim native pinning or native keyboard/accessibility qualification from
 the shared export. Multiple pinned proportional columns use minimum-width
 offsets; use pixel widths when their offsets must remain exact.

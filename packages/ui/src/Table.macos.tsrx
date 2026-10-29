@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { useCallback, useRef, useState } from 'octane'
 import { mergeStyle } from './style-merge'
 import type {
 	TableProps,
@@ -22,14 +23,13 @@ import {
 
 import { TableContext, TableContextProvider } from './table/table-context'
 import { TableSlot } from './table/table-slot'
+import { DEFAULT_MIN_COLUMN_WIDTH } from './table/column-utils'
+import { refList } from './ref-list'
 
 function cellWidthStyle(col: TableColumn<any>) {
 	const w = col.width
-	if (w?.type === 'pixel') {
-		return { width: w.value }
-	}
-
-	return { flexGrow: w?.value ?? 1 }
+	if (w?.type === 'pixel') return { width: w.value, minWidth: w.value, flexBasis: w.value, flexGrow: 0, flexShrink: 0 }
+	return { flexBasis: 0, flexGrow: w?.value ?? 1, flexShrink: 0, minWidth: w ? w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH : 0 }
 }
 
 function cellStyle(col: TableColumn<any>, extra?: Record<string, any>) {
@@ -54,7 +54,8 @@ function cellContent(content: any) {
 
 /** Table — data-driven + plugin pipeline (Astryx `Table`), AppKit leaf.
  *  Same render plan as web mapped to flex views; DOM-only plugin effects
- *  (resize drag, pointer context menus) degrade to their data effects. */
+ *  (resize drag, pointer context menus) degrade to their data effects. Data mode
+ *  has a native horizontal viewport; sticky positioning remains unimplemented. */
 export function Table<T extends Record<string, unknown> = Record<string, unknown>>(
 	props: TableProps<T>,
 ) @{
@@ -79,6 +80,21 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 		ref,
 		...rest
 	} = props
+
+	const scrollViewport = useRef<NSScrollView | null>(null)
+	const [viewportWidth, setViewportWidth] = useState(0)
+	const measuredWidth = useRef(0)
+	const measureViewport = useCallback(() => {
+		const width = Number(scrollViewport.current?.contentView?.bounds?.size.width)
+		if (Number.isFinite(width) && width > 0 && Math.abs(measuredWidth.current - width) >= 0.5) {
+			measuredWidth.current = width
+			setViewportWidth(width)
+		}
+	}, [])
+	const bindViewport = useCallback((view: NSScrollView | null) => {
+		scrollViewport.current = view
+		if (view) measureViewport()
+	}, [measureViewport])
 
 	const plugins = resolveTablePlugins<T>([], pluginRecord)
 	const ctx = { density, dividers, isStriped, hasHover, verticalAlign, textOverflow }
@@ -128,18 +144,22 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 	})
 
 	const tableElement = (
-		<masonview
-			ref={(v: any) => applyEscapeProps(v, props)}
+		<scrollview
+			ref={refList<NSScrollView>(plan.scrollWrapper.htmlProps?.ref, bindViewport, (view) => applyEscapeProps(view, props))}
 			id={id}
+			orientation="horizontal"
+			onLayoutChanged={measureViewport}
+			accessibilityLabel="Table"
 			className={cx('vx-table-scroll', plan.scrollWrapper.classes)}
-			style={{ display: 'flex', flexDirection: 'column' }}
+			style={mergeStyle({ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100%', minWidth: 0 }, plan.scrollWrapper.htmlProps?.style)}
 		>
 			<TableSlot value={plan.scrollWrapper.beforeTable} />
 			<masonview
+				ref={ref}
 				className={cx(tableClasses, plan.table.classes)}
 				style={mergeStyle(
-					{ display: 'flex', flexDirection: 'column' },
-					mergeStyle(plan.table.htmlProps?.style ?? {}, style),
+					mergeStyle({ display: 'flex', flexDirection: 'column', width: Math.max(viewportWidth, plan.tableMinWidth) || '100%', flexShrink: 0 }, mergeStyle(plan.table.htmlProps?.style ?? {}, style)),
+					plan.tableMinWidth > 0 ? { minWidth: plan.tableMinWidth } : {},
 				)}
 			>
 				{plan.columns.length > 0 && (
@@ -154,7 +174,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 										`vx-table-cell--${density}`,
 										cell.render.classes,
 									)}
-									style={cellStyle(cell.column, { display: 'flex', flexDirection: 'column' })}
+									style={mergeStyle(cellStyle(cell.column, { display: 'flex', flexDirection: 'column' }), cell.render.htmlProps?.style ?? {})}
 								>
 									<TableSlot value={before} />
 									<masonview
@@ -228,7 +248,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 				)}
 			</masonview>
 			<TableSlot value={plan.scrollWrapper.afterTable} />
-		</masonview>
+		</scrollview>
 	)
 
 	<TableContextProvider value={ctx}>

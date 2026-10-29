@@ -114,8 +114,9 @@ column and from the first `endKeys` column. Synthetic gutter columns in those
 runs are pinned too. Use pixel widths for multiple pinned columns: offsets
 use declared pixel widths or proportional minimums, rather than measuring
 expanded proportional columns. NativeScript and AppKit currently retain the
-data without pinning columns because their Table leaves have no horizontal
-scroll wrapper. Native interaction and accessibility remain unqualified.
+data without pinning columns. AppKit data tables now have a horizontal viewport
+source path, but pinned positioning is still unimplemented. Native interaction
+and accessibility remain unqualified.
 
 ```tsx
 import { Table, pixel, useTableStickyColumns } from '@octane-xplat/ui'
@@ -129,4 +130,39 @@ export function PinnedPeople() {
     { key: 'email', header: 'Email', width: pixel(500) },
   ]} plugins={{ sticky }} />
 }
+```
+
+
+## Wide data tables on AppKit
+
+AppKit data tables now have an experimental horizontal NSScrollView source
+path. Constrain the surrounding container to make wide columns overflow.
+Pixel widths stay fixed; proportional widths share remaining space with their
+declared minimums. The viewport measures its clip width and preserves the
+render plan's minimum content width. Child-composed tables retain their
+existing flow and are outside this automatic viewport subset.
+
+```tsx
+import { Table, View, pixel, proportional } from '@octane-xplat/ui'
+export function People() {
+  return <View style={{ width: 360, maxWidth: '100%' }}><Table
+    data={[{ name: 'Ada', team: 'Platform' }]}
+    columns={[
+      { key: 'name', header: 'Name', width: pixel(180) },
+      { key: 'team', header: 'Team', width: proportional(1, { minWidth: 300 }) },
+    ]}
+  /></View>
+}
+```
+
+AppKit honors scroll-wrapper plugin styles/classes, before/after content and
+native NSScrollView refs. Table's public ref binds to its inner table view;
+Table style remains on that content. DOM handlers/attributes and sticky
+positioning are not supplied by the viewport. The manual fixture can read
+native metrics after a human action; it has not run. Auto/bounded height,
+header/body sizing, native wheel/trackpad/RTL, nested scrolling, plugin ref
+lifetimes, accessibility and clean packaged consumers remain unqualified.
+
+```sh
+pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
 ```
