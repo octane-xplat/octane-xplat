@@ -167,3 +167,120 @@ it('IconButton inherits group disablement and uses Button sanitized href dispatc
 	try { env.host().props.onTap(); expect(openUrl).toHaveBeenCalledWith('https://example.com/help') }
 	finally { env.root.unmount() }
 })
+
+
+it('held AppKit presses use current props, inherited blocking, href and callback', () => {
+	const events: string[] = []
+	vi.mocked(openUrl).mockReset().mockImplementation((url) => { events.push(url); return true })
+	function Grouped(props: any) {
+		const { group, ...button } = props
+		return <ButtonGroupProvider value={{ position: 'only', isDisabled: group }}><Button {...button} /></ButtonGroupProvider>
+	}
+	const base = { label: 'Save', href: 'https://example.com/old', clickAction: () => events.push('old') }
+	const env = mount(Grouped, base)
+	try {
+		const press = env.host().props.onTap
+		for (const state of [{ isDisabled: true }, { group: true }, { isLoading: true }]) { env.render({ ...base, ...state }); press() }
+		expect(events).toEqual([])
+		env.render({ label: 'Current', href: ' https://example.com/new ', clickAction: () => events.push('current') })
+		press(); expect(events).toEqual(['https://example.com/new', 'current'])
+	} finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
+})
+
+it('held presses use current interruptibility and active tokens rather than rendered pending state', async () => {
+	const tasks = [deferred(), deferred(), deferred()]
+	let calls = 0
+	const action = () => tasks[calls++].promise
+	const env = mount(Button, { label: 'Save', isInterruptible: true, clickAction: action })
+	try {
+		const press = env.host().props.onTap
+		press(); press(); expect(calls).toBe(2)
+		env.render({ label: 'Save', isInterruptible: false, clickAction: action })
+		press(); expect(calls).toBe(2)
+		tasks[0].resolve(); await Promise.resolve(); press(); expect(calls).toBe(2)
+		tasks[1].resolve(); await Promise.resolve()
+		// No renderer flush: the rendered busy state may still describe the old call.
+		press(); expect(calls).toBe(3)
+		tasks[2].resolve(); await Promise.resolve(); flushUniversalSync(() => {})
+		expect(env.host().props.accessibilityState.busy).toBeUndefined()
+	} finally { tasks.forEach((task) => task.resolve()); env.root.unmount() }
+})
+
+it('noninterruptible Button ownership is claimed before URL bridge reentry', () => {
+	const events: string[] = []
+	let press = () => {}, entered = false
+	vi.mocked(openUrl).mockReset().mockImplementation(() => {
+		events.push('url'); if (!entered) { entered = true; press() }; return true
+	})
+	const env = mount(Button, { label: 'Help', href: 'https://example.com/help', clickAction: () => events.push('action') })
+	try { press = env.host().props.onTap; press(); expect(events).toEqual(['url', 'action']) }
+	finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
+})
+
+it('an accepted URL/action pair retains its callback and error owner across prop/ref replacement', () => {
+	const events: string[] = [], failure = new Error('accepted action')
+	let replace = () => {}, press = () => {}
+	vi.mocked(openUrl).mockReset().mockImplementation(() => { replace(); press(); return true })
+	const env = mount(Button, { label: 'Help', href: 'https://example.com/old',
+		clickAction: () => { events.push('accepted'); throw failure }, onActionError: (error: unknown) => { expect(error).toBe(failure); events.push('accepted-error') } })
+	try {
+		press = env.host().props.onTap
+		const nextRef = { current: null }, nestedRef = { current: null }
+		replace = () => env.render({ label: 'New', ref: [nextRef, [nestedRef]], href: 'https://example.com/new',
+			clickAction: () => events.push('current'), onActionError: () => events.push('current-error') })
+		press(); expect(events).toEqual(['accepted', 'accepted-error']); expect(nextRef.current).toBe(env.host()); expect(nestedRef.current).toBe(env.host())
+		vi.mocked(openUrl).mockReturnValue(true); press()
+		expect(openUrl).toHaveBeenLastCalledWith('https://example.com/new')
+		expect(events).toEqual(['accepted', 'accepted-error', 'current'])
+	} finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
+})
+
+it('a synchronous URL opener error releases the claim and skips the action without changing its error channel', () => {
+	const failure = new Error('URL bridge'), action = vi.fn(), errors = vi.fn()
+	vi.mocked(openUrl).mockReset().mockImplementation(() => { throw failure })
+	const env = mount(Button, { label: 'Help', href: 'https://example.com/help', clickAction: action, onActionError: errors })
+	try {
+		const press = env.host().props.onTap
+		expect(() => press()).toThrow(failure); expect(action).not.toHaveBeenCalled(); expect(errors).not.toHaveBeenCalled()
+		vi.mocked(openUrl).mockReturnValue(true); press(); expect(action).toHaveBeenCalledOnce()
+	} finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
+})
+
+it('throwing action then access reports to the accepted error owner and releases the token', () => {
+	const failure = new Error('then getter'), errors = vi.fn()
+	let press = () => {}, malformed = true, calls = 0
+	const value = Object.defineProperty({}, 'then', { get() { press(); throw failure } })
+	const env = mount(Button, { label: 'Save', clickAction: () => { calls++; return malformed ? value : undefined }, onActionError: errors })
+	try {
+		press = env.host().props.onTap; press()
+		expect(calls).toBe(1); expect(errors).toHaveBeenCalledTimes(1); expect(errors).toHaveBeenCalledWith(failure)
+		malformed = false; press(); expect(calls).toBe(2)
+	} finally { env.root.unmount() }
+})
+
+it('pending Button failure keeps its accepted error callback after replacement and teardown', async () => {
+	const task = deferred(), failure = new Error('save failed'), accepted = vi.fn(), replacement = vi.fn(), action = vi.fn(() => task.promise)
+	const ref = { current: null }
+	const env = mount(Button, { label: 'Save', clickAction: action, onActionError: accepted, ref })
+	try {
+		const press = env.host().props.onTap
+		press(); env.render({ label: 'Changed', clickAction: action, onActionError: replacement, ref })
+		env.root.unmount(); expect(ref.current).toBeNull(); press()
+		task.reject(failure); await Promise.resolve(); flushUniversalSync(() => {})
+		expect(action).toHaveBeenCalledOnce(); expect(accepted).toHaveBeenCalledTimes(1); expect(accepted).toHaveBeenCalledWith(failure)
+		expect(replacement).not.toHaveBeenCalled()
+	} finally { env.root.unmount() }
+})
+
+it('IconButton held actions inherit current Button loading, href and action ownership', () => {
+	const events: string[] = []
+	vi.mocked(openUrl).mockReset().mockImplementation((url) => { events.push(url); return true })
+	const base = { label: 'Help', icon: <label text="Help" />, href: 'https://example.com/old', clickAction: () => events.push('old') }
+	const env = mount(IconButton, base)
+	try {
+		const press = env.host().props.onTap
+		env.render({ ...base, isLoading: true }); press(); expect(events).toEqual([])
+		env.render({ ...base, href: 'https://example.com/current', clickAction: () => events.push('current') })
+		press(); expect(events).toEqual(['https://example.com/current', 'current'])
+	} finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
+})

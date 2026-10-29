@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useLayoutEffect, useRef, useState } from 'octane'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import type { NSView } from '@octane-xplat/platform/macos'
 import { openUrl } from '@octane-xplat/platform'
 import { cx } from '@octane-xplat/lib'
 import type { ButtonProps } from './props'
@@ -12,13 +13,18 @@ import { useSize } from './size-context'
 import { mergeStyle } from './style-merge'
 import { sanitizeUrl } from './safe-url'
 import { reportActionError } from './action-error'
+import { refList } from './ref-list'
 
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup()
 	const size = useSize(props.size ?? group?.size, 'md')
 	const [pending, setPending] = useState(false)
 	const actions = useRef(new Set<symbol>())
-	const attached = useRef(true)
+	const attached = useRef(true), host = useRef<NSView | null>(null)
+	const live = useRef({ props, group }); live.current = { props, group }
+	// A caller ref may change during an accepted action; only teardown retires it.
+	const bind = useCallback((view: NSView | null) => { host.current = view }, [])
+	const ref = useMemo(() => refList(bind, props.ref), [bind, props.ref])
 	useLayoutEffect(() => {
 		attached.current = true
 		return () => { attached.current = false; actions.current.clear() }
@@ -27,29 +33,32 @@ export function Button(props: ButtonProps) @{
 	const isDisabled = Boolean(props.isDisabled || group?.isDisabled)
 	const disabled = isDisabled || (busy && !props.isInterruptible)
 	const press = () => {
-		if (!attached.current || disabled || (actions.current.size > 0 && !props.isInterruptible)) return
-		if (props.href != null) {
-			const url = sanitizeUrl(props.href)
-			if (url != null) openUrl(url)
-		}
-		// Claim ownership before calling user code so a synchronous reentrant
-		// press cannot start another noninterruptible action in the same frame.
+		const { props, group } = live.current
+		const busy = Boolean(props.isLoading || actions.current.size)
+		if (!attached.current || !host.current || props.isDisabled || group?.isDisabled || (busy && !props.isInterruptible)) return
+		// URL dispatch is an external effect too; claim before it can reenter.
 		const token = Symbol('button-action')
 		actions.current.add(token)
 		const settle = () => {
 			if (!actions.current.delete(token) || !attached.current) return
 			setPending(actions.current.size > 0)
 		}
-		let action: void | Promise<void>
-		try { action = props.clickAction?.() }
-		catch (error) { settle(); reportActionError(error, props.onActionError); return }
-		if (action && typeof action.then === 'function') {
-			if (attached.current) setPending(true)
-			Promise.resolve(action).then(settle, (error) => {
-				settle()
-				reportActionError(error, props.onActionError)
-			})
-		} else settle()
+		try {
+			if (props.href != null) {
+				const url = sanitizeUrl(props.href)
+				if (url != null) openUrl(url)
+			}
+		} catch (error) { settle(); throw error }
+		try {
+			const action = props.clickAction?.()
+			if (action && typeof action.then === 'function') {
+				if (attached.current && actions.current.has(token)) setPending(true)
+				Promise.resolve(action).then(settle, (error) => {
+					settle()
+					reportActionError(error, props.onActionError)
+				})
+			} else settle()
+		} catch (error) { settle(); reportActionError(error, props.onActionError) }
 	}
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon
 	const label = props.children != null ? <TextSlot className="vx-button-label">{props.children}</TextSlot>
@@ -57,6 +66,7 @@ export function Button(props: ButtonProps) @{
 	const content = props.isIconOnly ? (icon ?? label) : <>{icon}{label}{props.endContent}</>
 
 	<Pressable {...props}
+		ref={ref}
 		disabled={disabled} onPress={press}
 		className={cx('vx-button', `vx-button--${props.variant ?? 'secondary'}`, `vx-button--size-${size}`,
 			group && `vx-button--group-${group.position}`, props.isIconOnly && 'vx-button--icon',

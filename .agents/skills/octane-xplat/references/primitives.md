@@ -1249,7 +1249,13 @@ Use the dedicated AppKit Button leaf (re-exported by controls). It wraps primiti
 children, forwards inherited Pressable props and preserves content while busy.
 Noninterruptible actions acquire a synchronous ownership token; interruptible
 overlap stays busy until all calls settle. Group/explicit disablement always
-wins. Unmount stops pending UI writes; failures still use onActionError.
+wins. Held presses read current props/group/loading/interruptibility and active
+tokens rather than rendered pending state. Claim before URL dispatch; accepted
+calls retain their action/error pair across props/ref replacement or teardown.
+Ref handoff preserves pending tokens; detached presses are inert. URL opener
+throws release the claim and propagate without invoking the action. Action or
+then-access errors use the captured onActionError, and unmount stops pending UI
+writes while accepted app work and its failure reporting continue.
 
 ```tsx
 import { Button } from '@octane-xplat/ui'

@@ -9376,3 +9376,84 @@ documentation-quality reference was read from the original checkout. No tests,
 typegen, typechecks, builds, installs, probes, native/OS automation, packaging,
 visual analysis or additional task/agent ran. All evidence-gated checkboxes and
 native qualification remain open.
+
+## AppKit Button current press ownership
+
+Demand assumption: ComponentsDemo's normal/loading/disabled actions, everyday
+save/help forms and composed dropdown/IconButton flows represent core desktop
+usage. Dropdown review at 0fa8c0859 exposed the generic Button source gap: held
+presses captured old props/group/loading, rendered pending state could outlive
+settled tokens, URL opening preceded the reentry claim, and throwing then-access
+could leave a token live. These are source findings, not observed OS behavior or
+an executed failing case. This continues the shared action prerequisite before
+niche integrations.
+
+The AppKit Button now retains current props/group state and consults active
+calls at press time. Explicit/group blocking wins; current loading or pending
+calls block unless interruptible. A typed host binding rejects detached presses,
+with existing refList flattening private/caller refs, including nested arrays.
+Ref handoff preserves pending claims, while the existing teardown effect retires
+actions and pending UI writes. Ownership is claimed before URL dispatch so a
+noninterruptible platform-opener callback cannot reenter. Sanitization/URL-before-
+action order and unsafe-URL/action behavior are preserved. Synchronous URL errors
+release the claim, skip the action and retain their propagating error path.
+
+Each accepted call snapshots its props, so URL/action/error callbacks keep their
+accepted owner across props/ref replacement or teardown. Accepted app work is
+not cancelled by teardown; its failure still reaches the captured error handler.
+Action invocation/then-access/setup errors now release ownership and use that
+handler. Standard Promise.resolve assimilation, explicit interruptible overlap,
+settlement token counting, uncaught asynchronous fallback reporting, native link
+target neutrality, content/busy/metadata and IconButton delegation remain. This
+does not sanitize consumer error payloads, add cancellation, implement tooltip
+presentation or rewrite Pressable/ToggleButton/other target action policies.
+No public prop, dependency, manifest or other-target leaf changed.
+
+Eight new object-driver cases (sixteen Button cases total), all UNRUN, cover
+current own/group/loading/href/action policy, current interruptibility and token
+settlement before render, URL bridge reentry, accepted action/error/ref-array
+handoff, URL error/retry, throwing then-access/reentry, pending error ownership
+after replacement/teardown and IconButton delegation. The new button-actions
+fixture exposes human-operated manual success/failure, callback revisions,
+external loading/disablement/interruptibility, opt-in documentation URL opening
+and remove/remount. Fixture cleanup resolves queued work without later history
+writes; its run hook records mounting only. It performs no automatic action,
+URL opening or OS input. No test or fixture ran.
+
+The components guide, Octane primitive reference, appkit-button-actions AC6 and
+existing unreleased Button feature note reconcile this boundary. Entity history
+identifies e7e123f as the target leaf introduction and no local stable v-tag
+contains it, so the existing feature note was extended. This is local Git
+evidence, not a registry audit. No shared audit snapshot was regenerated.
+
+Lightweight verification: three TSRX source/test/fixture files and nine scoped
+TSX fences parsed; five added/changed local targets/anchors resolved; staged semantic
+and whitespace review completed. Zero tests or compiler transforms executed.
+Actual merged ref/commit/teardown ordering, native URL bridge behavior, pointer/
+hardware-key delivery, focus, pending layout/paint, VoiceOver, error delivery
+across app shutdown, installed consumers and pixels remain unqualified. Existing
+menu/numeric cases are still unrun; private composition guards do not establish
+native platform support.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human
+verification authorization; resource admission is not visual-analysis approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/button.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx src/toggle-button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/button-actions.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit current Button ownership package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+check:docs/check:doc-examples remain absent in this worktree; the newer
+documentation-quality reference was read from the original checkout. No tests,
+typegen, typechecks, builds, installs, probes, native/OS automation, packaging,
+visual analysis or additional task/agent ran. All evidence-gated checkboxes and
+native qualification remain open.

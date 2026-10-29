@@ -2,7 +2,10 @@
 
 AppKit Button now opens sanitized hrefs, wraps text children in a native label
 and keeps content mounted while an action is busy. Interruptible overlapping
-calls keep busy state until every call settles.
+calls keep busy state until every call settles. Held presses now use current
+props and active calls, with ownership claimed before URL dispatch. Accepted
+action/error callbacks and pending work survive prop/ref replacement; detached
+presses are ignored.
 
 ```tsx
 import { Button } from '@octane-xplat/ui'

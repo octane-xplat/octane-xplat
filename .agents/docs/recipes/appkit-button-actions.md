@@ -17,6 +17,8 @@ An ordinary form has a save action and a help link. The save may return a promis
 
 - AC5: IconButton delegates to the same Button owner, preserving accessible name, icon/content hosts, refs/metadata, group defaults/disablement and sanitized links.
 
+- AC6: Held Button/IconButton presses use current props/group/loading/interruptibility and active tokens before render. Claim before URL effects; preserve captured accepted action/error callbacks and pending work across prop/ref replacement, release claims on URL/action/then-access errors, and reject detached handlers. Keep URL error propagation, interruptible overlap and accepted app work after teardown explicit. Distinguish source models/manual fixture from OS input/opening/focus/AX/installed verification.
+
 ## Documentation
 
 - AC1: [Button source contract and examples](../../../docs/app/components.md#appkit-button-actions-and-links) and [authored object-driver cases](../../../packages/ui/src/button.macos.mobile.test.tsrx). Tests unrun.
@@ -25,3 +27,5 @@ An ordinary form has a save action and a help link. The save may return a promis
 - AC4: [Target note](../parity/appkit-progress.md#appkit-button-links-and-busy-actions) records exact deferred commands and remaining native evidence.
 
 - AC5: [AppKit action guide](../../../docs/app/components.md#appkit-button-actions-and-links) and appended IconButton cases in the same authored Button suite; tests unrun.
+
+- AC6: [Current Button guide](../../../docs/app/components.md#appkit-button-actions-and-links), eight new [authored object-driver cases](../../../packages/ui/src/button.macos.mobile.test.tsrx) (sixteen total), [human-operated fixture](../../../examples/probes/button-actions.macos.tsrx), [target leaf](../../../packages/ui/src/Button.macos.tsrx), Octane primitive reference and [target note](../parity/appkit-progress.md#appkit-button-current-press-ownership). Cases and fixture remain unrun; the fixture run hook records mounting only.

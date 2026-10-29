@@ -1741,6 +1741,27 @@ export function HelpButton() {
 }
 ```
 
+Retained AppKit press callbacks recheck current props, group disablement,
+external loading and interruptibility. Active calls determine whether another
+press can start, even before the next render. The guard is claimed before URL
+dispatch, so a noninterruptible URL handoff cannot reenter the button. Each
+accepted call keeps its captured action and error handler through prop/ref
+replacement or teardown; teardown stops UI work, not accepted app work. A
+synchronous URL opener error releases the guard, skips the action and propagates
+through the existing URL error path. Action invocation or thenable-access errors
+use the accepted `onActionError` handler.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function CurrentSave({ disabled, save, report }: {
+	disabled: boolean; save(): Promise<void>; report(error: unknown): void
+}) {
+	return <Button label="Save" isDisabled={disabled} clickAction={save}
+		onActionError={report} />
+}
+```
+
 These are source implementations with authored, unrun object-driver cases.
 Native click/keyboard delivery, OS URL opening, busy sizing/appearance and
 VoiceOver remain unqualified. Button tooltip presentation remains a separate
