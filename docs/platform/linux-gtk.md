@@ -224,7 +224,7 @@ export function ReferenceEntry() {
 GTK Entry has no per-field Return-key caption selector in the inspected API.
 returnKeyType therefore keeps Return submission working and emits one diagnostic
 that its caption hint is unavailable. It does not move focus for next.
-TextArea, IME, assistive-technology clients, Wayland and visual parity remain
+IME, assistive-technology clients, Wayland and visual parity remain
 outside this qualification.
 
 ```tsx
@@ -407,6 +407,39 @@ styles native widget chrome underneath your CSS.
 
 \n
 
+## Multiline fields
+
+Import TextArea from the GTK root for a labeled multiline field. It supports
+controlled or local text, row sizing, capped growth, placeholders, length limits
+and leading icons. Registered icon names use the native icon registry.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { TextArea } from '@octane-xplat/ui'
+
+export function Notes() {
+  const [notes, setNotes] = useState('')
+  return (
+    <TextArea label="Notes" value={notes} onChange={setNotes}
+      placeholder="Write a note" rows={3} autoGrow maxRows={6}
+      maxLength={200} startIcon="xplat-check" />
+  )
+}
+```
+
+GTK has no built-in secure multiline editor. TextArea rejects secure=true;
+use TextInput for password entry. IME composition, OS keyboards, screen-reader
+clients, full bidirectional editing and pixel parity remain unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+export function Password() {
+  return <TextInput label="Password" secure />
+}
+```
+
 ## Low-level multiline editor
 
 The GTK textview intrinsic supports multiline text, Unicode selection,
@@ -440,7 +473,7 @@ export function NotesEditor(props: { readOnly?: boolean }) {
 maxLength caps new input in UTF-16 units, matching JavaScript String.length.
 A paste keeps the prefix that fits. For example, 😀 consumes two units and
 is kept whole. App-authored text can exceed the cap, and clearing maxLength removes
-it. The GTK TextArea component is still outside the public root.
+it.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -456,9 +489,7 @@ export function ShortNote() {
 }
 ```
 
-This is renderer support; TextArea remains outside the GTK UI root.
-The remaining shared TextArea props still need qualification.
-Direct-source field ownership and label-click checks do not yet promote TextArea.
+The maintained TextArea fixture imports the component through the GTK root.
 Source-harness row, growth and X11 keyboard/wheel checks are recorded in the
 [renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
 the renderer reports that limit once when returnKeyType is supplied.

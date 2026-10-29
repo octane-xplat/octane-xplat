@@ -69,7 +69,9 @@ test(
 					}
 				}
 				send('windowfocus', id)
-				if (phase.phase === 'end' || phase.phase === 'home') {
+				if (phase.phase === 'return') {
+					send('key', '--clearmodifiers', 'Return')
+				} else if (phase.phase === 'end' || phase.phase === 'home') {
 					send('key', '--clearmodifiers', phase.phase === 'end' ? 'ctrl+End' : 'ctrl+Home')
 				} else if (phase.phase.startsWith('type-')) {
 					send('type', '--clearmodifiers', '--delay', '35', phase.phase.slice(5))
@@ -112,7 +114,7 @@ test(
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_AREA '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_TEXT_AREA '.length))
-		assert.ok(result.checks >= (osInput ? 232 : 188), JSON.stringify(result))
+		assert.ok(result.checks >= (osInput ? 260 : 209), JSON.stringify(result))
 		assert.equal(result.osInput, osInput)
 		t.diagnostic(
 			process.platform +

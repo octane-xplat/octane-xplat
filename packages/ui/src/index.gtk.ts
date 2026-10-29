@@ -107,3 +107,6 @@ export type {
 	FieldStatusType,
 	FieldStatusVariant,
 } from './props'
+
+export { TextArea } from './TextArea'
+export type { TextAreaProps } from './props'

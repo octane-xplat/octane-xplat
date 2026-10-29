@@ -1469,3 +1469,83 @@ affected/dependent typecheck tasks, six UI packaging tasks, recipes, barrel
 checks, 23 release notes, formatting and whitespace pass. No shared native
 leaf changed, so the earlier58 Node/7 selected native tests were not rerun.
 Final log: guest /tmp/gtk-textarea-alignment-full-final.log.
+
+
+## Public GTK TextArea
+
+The curated GTK root now exports TextArea and TextAreaProps. It reuses the
+shared native leaf, its GTK fitting helper and the existing renderer textview;
+no UI dependency or duplicated GTK component leaf is added. The maintained
+fixture now imports TextArea from the public root. Availability is39 runtime
+values and65 type-only exports; public props come from the same shared type
+as the native barrel.
+
+The native leaf now renders registered leading icons and arbitrary renderable
+nodes. A keyed editor survives adding, replacing and removing that content
+without losing its handle, uncontrolled text, focus or selection. The root
+fixture also checks native focus/blur callbacks, every documented keyboard
+purpose and reset, done/send submission and ordinary Return newline behavior.
+
+### Secure multiline input limit
+
+GTK4.14.5 TextView has neither a visibility masking property nor an
+invisible-char property. Its ordinary visible/cursor-visible properties do not
+provide password masking. This is runtime GObject property introspection in
+the maintained GTK fixture, not a screenshot or AT-client observation. The
+underlying
+[GTK TextView API](https://docs.gtk.org/gtk4/class.TextView.html)
+does not supply a secure editor. Xplat leaves secure multiline entry
+unsupported and directs callers to TextInput secure.
+
+TextArea inherited secure from TextInputProps but the shared native leaf never
+forwarded it. Attempting a direct binding failed declaration emit because the
+typed NativeScript TextView vocabulary excludes it. Canonical NativeScript
+9.1.3 declarations at commit45b3b99afd89f19e799da84203aa19d673f7b20a confirm
+that
+[TextView](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/text-view/index.d.ts)
+does not expose secure, while
+[TextField](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/text-field/index.d.ts)
+does. This is source/build evidence for the SDK, not phone-runtime proof.
+
+The shared iOS/Android/GTK TextArea now rejects secure=true before rendering.
+GTK's low-level driver also preflights secure textview batches, tracking
+pending create/recreate types so rejection precedes every mutation. The test
+places an unrelated label create before the invalid field and verifies that
+the host and node map remain untouched. Defensive prop handling also rejects
+it. Revisit this limit if GTK provides a secure multiline control or the
+renderer adopts a separately qualified masked editor. The separate web and
+macOS leaves were not changed by this guard; they still need an explicit
+shared-contract review rather than an inferred safety claim.
+
+### Qualification and corrections
+
+The public-root focused check passes260 assertions on Linux GTK4.14.5/
+GJS1.80.2 with actual X11 typing, Return, click and wheel input. It retains
+earlier sizing, maxLength/emoji, placeholder, controlled rejection, field,
+native-host/recreation and lifecycle checks. No IME/OSK, AT-client, complete
+bidirectional editing, Wayland, touchpad, HiDPI, image/pixel or packaged consumer
+claim is added.
+
+The first icon measurement used an unregistered name, check; missing registry
+names intentionally render nothing. Using the built-in xplat-check preserves
+the same native dimension assertion and passes. The first new native test
+expected an asynchronous error callback, but root.render rejects this
+prepare-time error synchronously; its corrected assertion verifies the throw
+and that no native handle was published. These were fixture expectation
+corrections. Selected native tests now pass58 Node checks and8 Vitest tests.
+Final full/dependent/package results are recorded below when complete.
+Logs: guest /tmp/gtk-textarea-props-first.log,
+/tmp/gtk-textarea-props-second.log and /tmp/gtk-textarea-props-root.log;
+andromeda /tmp/gtk-textarea-props-native.log and
+/tmp/gtk-textarea-props-native-final.log.
+
+
+Final public-root qualification passes all42 maintained Linux renderer tests
+with no skips, including TextArea260. All58 affected/dependent typecheck tasks,
+58 Node checks plus8 selected native Vitest tests, six UI package validation
+tasks, recipes, barrel checks, 24 release notes, formatting and whitespace
+pass. The declaration export uses the same TextAreaProps as the native barrel.
+Final logs: guest /tmp/gtk-textarea-root-full.log; andromeda
+/tmp/gtk-textarea-root-types.log, /tmp/gtk-textarea-root-pack.log and
+/tmp/gtk-textarea-props-native-final.log. The full GTK UI parity goal remains
+active; this is one qualified component addition.

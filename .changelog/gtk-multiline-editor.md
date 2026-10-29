@@ -1,6 +1,8 @@
-### Add a multiline editor to GTK screens
+### Add multiline fields to GTK screens
 
-The experimental GTK renderer now supports the textview intrinsic for
+The GTK UI root now exports TextArea and TextAreaProps for labeled multiline
+fields, row sizing, capped growth and leading icons. The renderer supports
+its textview intrinsic for
 multiline text, placeholder hints, read-only editing, focus and change events. Long text scrolls
 inside its assigned height, including read-only editors. Explicit width and
 height stay fixed as text wraps; clearing them restores automatic sizing.
@@ -25,6 +27,15 @@ export function NotesEditor() {
 }
 ```
 
-The public TextArea component still needs its remaining shared-prop
-qualification. [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry)
-describes the current scope.
+Import the field from the same package as other shared controls.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextArea } from '@octane-xplat/ui'
+export function Notes() {
+  return <TextArea label="Notes" defaultValue="" rows={3} autoGrow maxRows={6} />
+}
+```
+
+[GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#multiline-fields)
+describes the supported behavior and runtime limits.

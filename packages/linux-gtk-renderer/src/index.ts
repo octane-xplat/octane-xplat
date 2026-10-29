@@ -2241,7 +2241,12 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 
 			return
 		case 'textview':
-			if (name === 'textAlignment' || name === 'xalign') {
+			if (name === 'secure') {
+				if (value === true)
+					throw new Error(
+						'linux-gtk: secure multiline input is unavailable; use TextInput with secure instead.',
+					)
+			} else if (name === 'textAlignment' || name === 'xalign') {
 				syncTextAlign(node, view, node.appliedStyle ?? {})
 			} else if (name === 'value' || name === 'text') {
 				writeEntryText(node, view, value)
@@ -3898,12 +3903,25 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 		},
 	},
 	prepareBatch(container: GtkContainer, batch: UniversalHostBatch) {
-		// Reject deterministic failures before any command mutates — a
+		// Reject renderer/secure-entry mismatches before any command mutates — a
 		// partially applied batch cannot be rolled back once apply() commits.
 		if (batch.renderer !== GTK_RENDERER_ID) {
 			throw new Error(
 				`linux-gtk driver: batch renderer ${JSON.stringify(batch.renderer)} does not match.`,
 			)
+		}
+		const types = new Map<number, string>()
+		for (const command of batch.commands) {
+			if (command.op === 'create' || command.op === 'recreate') types.set(command.id, command.type)
+			const type =
+				'id' in command
+					? (types.get(command.id) ?? container.nodes.get(command.id)?.type)
+					: undefined
+			if (type === 'textview' && 'props' in command && command.props?.secure === true) {
+				throw new Error(
+					'linux-gtk: secure multiline input is unavailable; use TextInput with secure instead.',
+				)
+			}
 		}
 		return {
 			apply() {

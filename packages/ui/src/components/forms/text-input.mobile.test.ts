@@ -31,6 +31,17 @@ import { fitTextArea } from './text-area-fit'
 // Model that event here, through the real compiled leaves and event dispatch.
 // This is regression coverage, not keyboard/IME/device evidence.
 describe('native controlled input writes', () => {
+	it('TextArea rejects secure multiline input before publishing a native handle', () => {
+		const container = createObjectContainer('nativescript')
+		const ref = vi.fn()
+		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+		expect(() => root.render(TextArea, { secure: true, defaultValue: 'private', ref })).toThrow(
+			'secure multiline input is unavailable',
+		)
+		expect(ref.mock.calls.some(([handle]) => handle != null)).toBe(false)
+		root.unmount()
+	})
+
 	it('TextArea forwards finite, zero and removed native length limits', async () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))

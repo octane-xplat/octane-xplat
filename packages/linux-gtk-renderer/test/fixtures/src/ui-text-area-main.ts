@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import './ui-text-area.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
-import { createGtkRoot } from '@octane-xplat/linux-gtk'
+import { createGtkRoot, gtkDriver } from '@octane-xplat/linux-gtk'
 import {
 	TextAreaHarness,
 	NestedAreaHarness,
@@ -83,6 +83,44 @@ async function input(view: any, phase: string, repeat = 6, offsetY = 0) {
 	await pause(300)
 }
 async function run() {
+	let secureError: unknown
+	try {
+		gtkDriver
+			.prepareBatch(container, {
+				renderer: 'gtk',
+				commands: [
+					{ op: 'create', id: 999, type: 'label', props: { text: 'Public' } },
+					{ op: 'create', id: 1, type: 'textview', props: { secure: true } },
+				],
+			})
+			.apply()
+	} catch (error) {
+		secureError = error
+	}
+	check(
+		'secure multiline input fails explicitly before attachment',
+		String(secureError).includes('secure multiline input is unavailable'),
+	)
+	check(
+		'GTK native multiline has no masking property',
+		Gtk.TextView.find_property('visibility') == null &&
+			Gtk.TextView.find_property('invisible-char') == null,
+	)
+	check(
+		'rejected secure input leaves the host untouched',
+		container.nodes.size === 0 && container.children.length === 0,
+	)
+	let secureComponentError: unknown
+	try {
+		root.render(TextAreaHarness, { secure: true, defaultValue: 'private' })
+	} catch (error) {
+		secureComponentError = error
+	}
+	check(
+		'shared TextArea rejects secure input before native mount',
+		String(secureComponentError).includes('secure multiline input is unavailable') &&
+			container.nodes.size === 0,
+	)
 	await render()
 	window.present()
 	await pause(250)
@@ -440,8 +478,11 @@ async function run() {
 			throw error
 		},
 	})
+	const fieldEvents: string[] = []
 	let fieldProps: Parameters<typeof TextAreaHarness>[0] = {
 		defaultValue: 'Local',
+		onFocus: () => fieldEvents.push('focus'),
+		onBlur: () => fieldEvents.push('blur'),
 		testID: 'draft-automation',
 		rows: 2,
 		style: { fontSize: 26, padding: 0, borderWidth: 0, margin: 0 },
@@ -455,7 +496,65 @@ async function run() {
 		[...fieldHarness.container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 	await fieldRender({})
 	const localArea = areaRef.current!.native as any
+	const originalLocalArea = localArea
+	for (const [keyboardType, purpose] of [
+		['email', Gtk.InputPurpose.EMAIL],
+		['number', Gtk.InputPurpose.NUMBER],
+		['decimal', Gtk.InputPurpose.NUMBER],
+		['phone', Gtk.InputPurpose.PHONE],
+		['url', Gtk.InputPurpose.URL],
+		['default', Gtk.InputPurpose.FREE_FORM],
+	] as const) {
+		await fieldRender({ keyboardType })
+		check('TextArea keyboard purpose ' + keyboardType, localArea.input_purpose === purpose)
+	}
+	await fieldRender({ keyboardType: undefined })
+	check(
+		'removing keyboard purpose restores free form',
+		localArea.input_purpose === Gtk.InputPurpose.FREE_FORM,
+	)
+
+	await fieldRender({ startIcon: 'xplat-check' })
+	check(
+		'leading icon renders inside the multiline shell',
+		fieldNodes('vx-textarea-icon').length === 1,
+	)
+	check('adding an icon preserves the editor handle', areaRef.current!.native === originalLocalArea)
+	check('adding an icon preserves uncontrolled text', localArea.text === 'Local')
+	check(
+		'icon has a measured native child',
+		fieldNodes('vx-textarea-icon')[0].view!.get_height() >= 16,
+	)
+	await fieldRender({ startIcon: undefined, customIcon: true })
+	const customGlyph = [...fieldHarness.container.nodes.values()].find(
+		(n) => n.props.testID === 'area-custom-icon',
+	)?.view
+	check('leading renderable nodes reach the native glyph', customGlyph?.get_label() === '✦')
+	check(
+		'replacing a leading icon preserves the editor and value',
+		areaRef.current!.native === originalLocalArea && localArea.text === 'Local',
+	)
+	await fieldRender({ startIcon: undefined, customIcon: false })
+	check('removing an icon retires its wrapper', fieldNodes('vx-textarea-icon').length === 0)
+	check(
+		'removing an icon preserves the editor and value',
+		areaRef.current!.native === originalLocalArea && localArea.text === 'Local',
+	)
 	localArea.focus()
+	await pause()
+	fieldEvents.length = 0
+	areaRef.current!.blur()
+	await pause()
+	check(
+		'handle blur reaches the native callback',
+		fieldEvents.join(',') === 'blur' && window.get_focus() !== localArea,
+	)
+	areaRef.current!.focus()
+	await pause()
+	check(
+		'handle focus reaches the native callback',
+		fieldEvents.join(',') === 'blur,focus' && window.get_focus() === localArea,
+	)
 	localArea.set_position(5)
 	if (osInput) await input(localArea, 'type-X')
 	else {
@@ -604,6 +703,20 @@ async function run() {
 	await fieldRender({ isDisabled: false })
 	areaRef.current!.focus()
 	check('retained public handle still focuses the editor', window.get_focus() === localArea)
+	if (osInput) {
+		let submissions = 0
+		await fieldRender({ returnKeyType: 'done', onSubmit: () => submissions++ })
+		await input(localArea, 'return')
+		check('done Return submits through the shared TextArea prop', submissions === 1)
+		await fieldRender({ returnKeyType: undefined })
+		const beforeNewline = localArea.text
+		await input(localArea, 'return')
+		check('ordinary Return does not submit', submissions === 1)
+		check('ordinary Return inserts a native newline', localArea.text === beforeNewline + '\n')
+		await fieldRender({ returnKeyType: 'send' })
+		await input(localArea, 'return')
+		check('send Return submits through the shared TextArea prop', submissions === 2)
+	}
 	fieldHarness.root.render(NestedAreaHarness, {})
 	await pause()
 	const nestedArea = areaRef.current!.native as any

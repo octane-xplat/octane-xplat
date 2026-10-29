@@ -1179,7 +1179,7 @@ export interface TextInputProps extends FieldControlProps, TestIDProps {
 	web?: PlatformProps
 }
 
-/** Multi-line text entry — `TextInput` minus the clear affordance. `rows` sets the height in text rows; `autoGrow` grows with content up to `maxRows` rows (native TextViews grow by default, so `autoGrow` is what keeps the platforms matching). Submit semantics differ: native fires `onSubmit` only when `returnKeyType` is `done`/`send` (other keys insert newlines), web on Cmd/Ctrl+Enter.
+/** Multi-line text entry — `TextInput` minus the clear affordance. On iOS, Android and GTK, TextArea rejects `secure=true`; use a secure TextInput for passwords. `rows` sets the height in text rows; `autoGrow` grows with content up to `maxRows` rows (native TextViews grow by default, so `autoGrow` is what keeps the platforms matching). Submit semantics differ: native fires `onSubmit` only when `returnKeyType` is `done`/`send` (other keys insert newlines), web on Cmd/Ctrl+Enter.
  *
  * @example
  * ```tsx

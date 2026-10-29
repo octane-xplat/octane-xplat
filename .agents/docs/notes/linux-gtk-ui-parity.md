@@ -7,12 +7,12 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 38 runtime values and 64 types in index.gtk.ts, including
-Tooltip and TextInput. Counts in the earlier slice records describe those commits; the JSON
+Current availability is 39 runtime values and 65 types in index.gtk.ts, including
+Tooltip, TextInput and TextArea. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
-The renderer also provides a multiline textview buffer foundation; TextArea
-remains unexported until its sizing, growth, placeholder and component contracts
-are qualified.
+TextArea uses the shared native leaf with GTK fitting and native TextView
+support. The current root qualification and remaining limits are recorded
+at the end of this note.
 
 ## Reading the inventory
 
@@ -911,3 +911,31 @@ No TextArea root export is added by this slice.
 Final verification passes all42 real-Linux renderer tests without skips,
 including TextArea232;58 affected/dependent typechecks and six package
 validation tasks pass. Root availability remains38 values/64 types.
+
+
+### Public-root TextArea qualification
+
+The curated root adds TextArea and TextAreaProps, bringing availability to39
+values/65 types. The shared native leaf retains a keyed editor while leading
+registered icons or renderable nodes change. The public-root Linux fixture
+passes260 checks, including native callbacks, keyboard-purpose/reset and
+actual done/send/ordinary Return behavior. Secure multiline input is explicitly
+unsupported: the shared iOS/Android/GTK component rejects it before rendering
+and GTK preflights low-level batches before mutation. See
+[the component and upstream evidence](linux-gtk-renderer.md#public-gtk-textarea).
+
+Composition, OSK/AT, complete bidirectional text, relative line-height row
+fitting, Wayland, touchpad, HiDPI, pixels and packaged-consumer qualification
+remain open. Other input families, standalone Field/InputGroup, overlays,
+navigation, theme and service exports remain part of the full goal.
+
+
+Final public-root qualification passes all42 maintained Linux renderer tests
+with no skips, including TextArea260. All58 affected/dependent typecheck tasks,
+58 Node checks plus8 selected native Vitest tests, six UI package validation
+tasks, recipes, barrel checks, 24 release notes, formatting and whitespace
+pass. The declaration export uses the same TextAreaProps as the native barrel.
+Final logs: guest /tmp/gtk-textarea-root-full.log; andromeda
+/tmp/gtk-textarea-root-types.log, /tmp/gtk-textarea-root-pack.log and
+/tmp/gtk-textarea-props-native-final.log. The full GTK UI parity goal remains
+active; this is one qualified component addition.

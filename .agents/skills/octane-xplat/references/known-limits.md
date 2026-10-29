@@ -82,17 +82,16 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
 
 ### GTK text input
 
-Use TextInput from the curated GTK root. Its controlled value, native handle,
-clear/help/status affordances and retained editor have maintained Linux checks.
+Use TextInput and TextArea from the curated GTK root. Both have maintained
+Linux checks. TextInput clear/help/status affordances retain its editor.
 Keep width on the outer field owner and use the GTK status-variant policy
-for hover/focus tooltips. Field and TextArea remain outside the root.
+for hover/focus tooltips. Field remains outside the root.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
-as renderer foundation evidence. Before exporting TextArea, qualify
-the remaining shared control props; persistent field/width/handle ownership
-has direct-source runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have
-a maintained direct-source GTK fixture, now including X11 internal wheel input
-and native host/recreation cases; that evidence does not yet qualify public TextArea. Preserve the fitting effect's cleanup and defer GTK metric
+alongside the maintained public-root TextArea fixture. Persistent field/width/
+handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have
+a maintained public-root GTK fixture, now including X11 internal wheel input
+and native host/recreation cases. Preserve the fitting effect's cleanup and defer GTK metric
 reads after fontChanged until native CSS validation has run. GTK textview refs
 stay on the native editor; its scrolling/placeholder parents are adapter-owned. Hint overlays do not
 participate in preferred measurement or pointer targeting; keep the accessible
@@ -100,7 +99,7 @@ label independent of hint text. Use framework
 style props for the full control's size, opacity and placement. GTK size
 requests are minima: preserve the adapter's natural-size propagation policy
 for explicit numeric dimensions and their removal. Controlled TextArea edits
-now have direct-source GTK acceptance/rejection checks; preserve per-edit
+now have GTK-root acceptance/rejection checks; preserve per-edit
 reconciliation even when value is unchanged. Group buffer changes using GTK
 user-action boundaries, and disconnect every grouped-action signal on disposal.
 SearchInput has the same native reconciliation fix with object-driver coverage;
@@ -147,8 +146,11 @@ resolve the id inside the logical field subtree, including viewless parents;
 testID is an independent automation name. GTK getViewById becomes inert on
 disposal. Do not fabricate a Page or search outside the receiver subtree.
 
-Direct-source TextArea field checks pass on Linux. The remaining shared props
-still need qualification before adding it to the GTK root.
+TextArea is exported from the GTK root. Keep its editor keyed while inserting,
+replacing or removing a leading icon; registered names and renderable nodes
+both have runtime coverage. The shared iOS/Android/GTK TextArea rejects
+secure=true before rendering;
+GTK rejects low-level secure textview batches before any command applies.
 
 
 ### GTK multiline alignment and pixel line spacing

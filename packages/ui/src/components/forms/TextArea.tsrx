@@ -11,6 +11,7 @@ import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField'
+import { Icon } from './Icon'
 
 /** Multiline input. Fixed rows match the web default; autoGrow measures to
  * content and maxRows caps that growth. Platform helpers use native line
@@ -60,7 +61,15 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 		)}
 		style={mergeStyle({ flexDirection: 'column', alignItems: 'stretch' }, { display: 'flex' })}
 	>
+		{props.startIcon != null ? (
+			<masonview key="icon" className="vx-textarea-icon">
+				{typeof props.startIcon === 'string' ? (
+					<Icon name={props.startIcon} size={16} />
+				) : props.startIcon}
+			</masonview>
+		) : null}
 		<textview
+			key="editor"
 			id={props.id}
 			testID={props.testID ?? ''}
 			ref={(v: any) => {
@@ -121,6 +130,9 @@ function TextAreaControl(inputProps: TextAreaProps) @{
  *  the automatic field owner mounted while labels and status change, so
  *  uncontrolled text, native focus, selection and handles survive. */
 export function TextArea(inputProps: TextAreaProps): unknown @{
+	if (inputProps.secure) {
+		throw new Error('native TextArea: secure multiline input is unavailable; use TextInput with secure instead.')
+	}
 	const inField = useContext(FieldContext) != null
 	const props = useFieldControlProps(inputProps)
 
