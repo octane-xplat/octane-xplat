@@ -1925,3 +1925,17 @@ only the owned app ran, and its process stopped in wrapper cleanup. No visual
 analysis was performed. Skill platform-leaf/primitive guidance was reviewed;
 no existing advice relies on global System.IO or claims full filesystem support.
 No recipe target is promoted by these bounded prerequisite repairs.
+
+The next focused lead is the overlay exit interval, not a confirmed navigation
+cause. Actual installed RootLayout.close removes its popup registry entry
+immediately but retains the host/shade until Promise.all(exit animations)
+finishes. The Windows shade exit uses the default300ms animation; Dialog's
+content exit is140ms. The framework common lifetime releases background guards
+and unmounts portal content before awaiting owner.close. Thus absence of dialog
+fields and restored focus alone do not establish that the native shade has
+finished leaving. Source copies: research/windows61/core-index.windows.js and
+core-root-layout-common.js (cached SDK source lacks the Windows leaf, so the
+exact installed artifact was inspected). A controlled native measurement is
+needed before choosing a lifecycle repair; do not disable animation or bypass
+ownership to make the driver pass. The instrumented15-group pass remains
+bounded evidence and does not resolve this lead.
