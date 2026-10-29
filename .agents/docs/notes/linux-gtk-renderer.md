@@ -2695,3 +2695,60 @@ measurement example remains valid, so no recipe acceptance state is promoted.
 This fixes the unreleased ref implementation introduced in this task and needs
 no separate release note. Public overlay policies, Wayland, HiDPI, pixels and
 assistive clients remain unqualified.
+
+## Popup input shared across native surfaces
+
+The renderer's internal popup-events hub shares one controller pair per
+window/native popup while sessions exist. This covers sibling popups as well
+as nested ones: a controller only on the current popup and its ancestors would
+miss input on a sibling surface. The hub checks current session presence and
+lets the shared UI layer stack claim each event. It does not maintain a second
+layer order or close a controlled popup on its own.
+
+A session supplies callbacks that claim input before invoking dismissal code.
+Escape uses the bubble phase, after the focused editor can consume it; outside
+pointer presses use capture, before a background button can activate. GTK's
+[input propagation guide](https://docs.gtk.org/gtk4/input-handling.html)
+documents those phases. The maintained case sends actual Escape to an editor
+with a consuming controller and verifies that it does not dismiss the layer.
+This demonstrates handled-editor precedence, not real IME cancellation.
+
+```ts
+const detach = bindPopupEvents(window, popup, {
+	isPresent: () => popup.get_mapped(),
+	onEscape(event) {
+		dispatchLayerKey({ key: 'Escape', preventDefault: () => event.preventDefault() })
+	},
+	onOutside(event) {
+		if (!dismissOnOutsideTap || !shouldCloseLayer(token)) return
+		event.preventDefault()
+		requestDismiss()
+	},
+})
+// Release this registration when the declaring session closes.
+detach()
+```
+
+The initial maintained ui-popup-events case passes 57 checks on Ubuntu 24.04.5,
+GJS 1.80.2 and GTK 4.14.5 with actual X11 clicks, typing and Escape. It checks
+independent flags, top/depth ownership on sibling and nested surfaces,
+controlled rejection, synchronous top-layer removal without passing the same
+event down, and controller cleanup. Its composing guard is synthetic. Touch
+events are routed by source but have no OS touch evidence. Error reporting
+preserves an already made event claim; the error path is source-reviewed only.
+
+The helper remains internal and is not yet connected to a public Popover leaf.
+Public exports stay at 68 values and 105 types. Placement/alignment/collision,
+anchor removal, hook-owned focus restoration, real IME, touch, Wayland and AT
+remain separate qualification work. No public workflow or recipe acceptance
+state changes, and this internal foundation needs no release note.
+
+Final popup-event verification passes 61 assertions, including creation of a
+new layer and actual Escape after complete controller teardown. The adjacent
+portal geometry/input fixture still passes 56 assertions. Both run together
+through GTK test:runtime with no skips; the final renderer/dependent typecheck
+passes all 10 tasks. Logs: guest /tmp/gtk-popup-events-{runtime,final}.log and
+andromeda /tmp/gtk-popup-events-types-final.log. The regular renderer task now
+registers the event case. The full renderer sweep was not rerun for this new,
+internal helper. PR #77 is a draft; its initial CI run stopped at repository
+lint, which is being reconciled separately from this runtime qualification.

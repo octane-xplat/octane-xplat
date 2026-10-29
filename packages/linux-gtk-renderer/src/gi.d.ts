@@ -299,7 +299,7 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		const EventControllerLegacy: any
-		const PropagationPhase: { CAPTURE: number }
+		const PropagationPhase: { CAPTURE: number; BUBBLE: number }
 		class EventControllerKey extends EventController {
 			constructor()
 		}
@@ -463,6 +463,8 @@ declare module 'gi://Gdk?version=4.0' {
 			[key: string]: number
 		}
 
+		const KEY_Escape: number
+		const KEY_F12: number
 		const KEY_Up: number
 		const KEY_Down: number
 		const KEY_Left: number
