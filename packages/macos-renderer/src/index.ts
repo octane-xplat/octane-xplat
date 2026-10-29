@@ -924,8 +924,14 @@ class AccessibleHostView extends NSView {
 
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityOrientation() {
-		// NSAccessibilityOrientationVertical = 1 (AppKit SDK).
-		return this.accessibilityRole() === 'AXSplitter' ? 1 : super.accessibilityOrientation
+		// NSAccessibilityOrientation: Unknown = 0, Vertical = 1, Horizontal = 2.
+		const role = this.accessibilityRole()
+		if (role === 'AXSplitter') return 1
+		if (role === 'AXToolbar') {
+			const axis = stackAccessibilityPropsByView.get(this)?.accessibilityOrientation
+			return axis === 'vertical' ? 1 : axis === 'horizontal' ? 2 : 0
+		}
+		return super.accessibilityOrientation
 	}
 
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.

@@ -9790,3 +9790,51 @@ OS input, probe execution or visual analysis ran. Main's check:docs and
 check:doc-examples scripts are now present; the previously recorded exact
 commands remain deferred along with check:recipes/check:changelog. Native
 verification and the persistent goal remain open after the authorized Git merge.
+
+## AppKit Toolbar current accessibility axis
+
+Continued after the authorized clean rebase/local-main merge. Demand assumption:
+named contextual and table bulk-action toolbars should expose the axis used for
+layout/manual keys to accessibility before niche integrations. The existing
+AccessibleHostView orientation selector only handled splitters; Toolbar supplied
+no axis. This is a source gap, not an executed VoiceOver failure.
+
+The macOS-conditioned JSX declaration now permits horizontal/vertical
+accessibilityOrientation on masonview, using the same targeted declaration
+pattern as label heading metadata. Shared/mobile/GTK attributes and public
+Toolbar props are unchanged. Toolbar supplies its current effective axis,
+including the default horizontal value. The existing native orientation override
+maps toolbar values to SDK Vertical=1 / Horizontal=2 and missing/invalid values
+to Unknown=0. Other roles keep the superclass result, and splitters stay vertical.
+The existing accessibility prop ownership path stores updates; no new selector,
+callback, responder, role, key handler, dependency or bridge lifecycle is added.
+No native notification/announcement behavior is claimed.
+
+The existing renderer VM role case now includes current horizontal/vertical,
+invalid/missing reset, role removal and splitter assertions. The existing UI
+case includes default/vertical/default axis forwarding on the retained host.
+A target-specific JSX self-check accepts both axes and expects invalid/shared
+attributes to reject. All are authored and UNRUN; syntax parsing does not
+establish expected type errors or actual native method dispatch. Guide, renderer
+and JSX READMEs, skill reference, recipe AC5/AC6 and existing feature/fix notes
+now distinguish source-present axis metadata from actual AX qualification.
+
+Actually checked: six changed source/declaration/test files and six scoped TSX
+fences parsed; current whitespace and staged semantic review completed. Zero
+tests, typechecks, compiler transforms or native operations. Real NSAccessibility
+queries, BOOL/enum bridging, axis announcement/update notifications, VoiceOver,
+OS input/focus and installed consumers remain unqualified. Mixed/stock-control
+Toolbar Tab ownership remains an implementation gap. No audit snapshots changed.
+
+Additional exact deferred commands (alongside the prior Toolbar commands):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/jsx --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/jsx --filter=@octane-xplat/macos-renderer --filter=@octane-xplat/ui
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/toolbar.macos.mobile.test.tsrx
+```
+
+The resource limit still defers recipe/docs/doc-example/changelog gates, probes,
+builds, packaging and OS automation. No visual analysis is authorized. Clean
+Git integration is not native qualification; the persistent goal remains active.

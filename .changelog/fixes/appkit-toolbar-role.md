@@ -13,5 +13,6 @@ export function Actions() {
 }
 ```
 
-Complete mixed-control roving and orientation accessibility metadata remain gaps.
+The native accessibility metadata follows orientation changes. Complete
+mixed-control roving remains a gap.
 Native input and VoiceOver remain unqualified. See [toolbar actions](https://octane-xplat.goddardai.org/app/navigation-ui#add-toolbar-actions-and-responsive-overflow).

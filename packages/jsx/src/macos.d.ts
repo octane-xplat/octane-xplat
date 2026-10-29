@@ -61,6 +61,7 @@ export declare namespace JSX {
 	interface IntrinsicElements extends Omit<
 		NativeElements<HostElement>,
 		| 'label'
+		| 'masonview'
 		| 'proxyviewcontainer'
 		| 'formattedstring'
 		| 'span'
@@ -68,6 +69,8 @@ export declare namespace JSX {
 		| 'tabview'
 		| 'tabviewitem'
 	> {
+		/** AX orientation for named toolbar hosts; does not change layout or keys. */
+		masonview: NativeElements<HostElement>['masonview'] & { accessibilityOrientation?: 'horizontal' | 'vertical' }
 		/** AppKit AXHeading metadata; prefer ui's Heading level prop. */
 		label: NativeElements<HostElement>['label'] & { accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6 }
 		proxyviewcontainer: Attributes<LogicalElement>

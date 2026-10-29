@@ -103,3 +103,16 @@ Platform-scoped registrations belong in platform-suffixed files so the added
 membership only appears where the element exists.
 
 For app configuration, follow [TypeScript and JSX setup](https://octane-xplat.goddardai.org/module-resolution#typescript).
+
+The macOS condition adds `accessibilityOrientation` to `masonview` for native
+named toolbar hosts. It describes the accessibility axis; it does not arrange
+children or handle keys. UI Toolbar supplies it from its existing `orientation`
+prop. Actual native accessibility behavior remains unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function NamedActions() {
+	return <masonview accessibilityRole="toolbar" accessibilityLabel="Actions"
+		accessibilityOrientation="horizontal" />
+}
+```

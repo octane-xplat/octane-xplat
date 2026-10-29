@@ -1589,14 +1589,17 @@ The AppKit UI Toolbar supplies `accessibilityRole="toolbar"` and its current
 label on its existing host. AccessibleHostView maps that role to `AXToolbar`;
 the container gains no press action or Tab stop from the role alone. Child
 controls retain their own activation. Role mapping alone adds no keyboard
-behavior or orientation accessibility metadata and proves no native VoiceOver
-announcement. UI Toolbar owns its separate discrete-action focus path; see the
+behavior and proves no native VoiceOver announcement. The AppKit-only
+`accessibilityOrientation` attribute maps horizontal/vertical to native AX
+orientation for toolbar hosts; missing or invalid values report Unknown. Other
+roles retain their existing orientation, including vertical splitters. UI Toolbar owns its separate discrete-action focus path; see the
 guide for mixed-control and native evidence limits.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function NamedActions() {
-	return <masonview accessibilityRole="toolbar" accessibilityLabel="Page actions" />
+	return <masonview accessibilityRole="toolbar" accessibilityLabel="Page actions"
+		accessibilityOrientation="horizontal" />
 }
 ```
 

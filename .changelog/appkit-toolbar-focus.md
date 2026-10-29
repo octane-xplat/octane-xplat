@@ -2,7 +2,8 @@
 
 AppKit Toolbar now moves focus between discrete actions with axis arrows and
 Home/End, without activating them. Hidden/disabled actions are skipped, and
-changing orientation preserves slot controls and their local state.
+changing orientation preserves slot controls and their local state. The native
+accessibility metadata follows the current axis.
 
 ```tsx
 import { Button, Toolbar } from '@octane-xplat/ui'
@@ -14,6 +15,6 @@ export function Actions() {
 ```
 
 Editors, sliders and nested composites keep their own keys and Tab stops.
-Complete mixed-control roving, stock native-control Tab suppression and
-orientation accessibility metadata remain gaps. Native keys, Tab, VoiceOver,
+Complete mixed-control roving and stock native-control Tab suppression remain
+gaps. Native keys, Tab, VoiceOver,
 layout and installed behavior remain unqualified. See [toolbar actions](https://octane-xplat.goddardai.org/app/navigation-ui#add-toolbar-actions-and-responsive-overflow).

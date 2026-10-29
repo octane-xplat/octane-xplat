@@ -18,12 +18,16 @@ it('Toolbar keeps a named toolbar host and its actions while label, orientation 
 		render({ id: 'actions', label: 'Page actions', startContent: start, centerContent: <label text="Draft" /> })
 		const host = nodes().find((node) => node.props?.id === 'actions')
 		expect(host.props.accessibilityRole).toBe('toolbar'); expect(host.props.accessibilityLabel).toBe('Page actions')
+		expect(host.props.accessibilityOrientation).toBe('horizontal')
 		expect(host.props.onTap).toBeUndefined()
 		nodes().find((node) => node.props?.id === 'save').props.onTap(); expect(actions).toEqual(['save'])
 		render({ id: 'actions', label: 'Document actions', orientation: 'vertical', startContent: start, endContent: <label text="Ready" /> })
 		expect(nodes().find((node) => node.props?.id === 'actions')).toBe(host)
 		expect(host.props.accessibilityRole).toBe('toolbar'); expect(host.props.accessibilityLabel).toBe('Document actions')
 		expect(nodes().some((node) => node.props?.text === 'Ready')).toBe(true)
+		expect(host.props.accessibilityOrientation).toBe('vertical')
+		render({ id: 'actions', label: 'Document actions', startContent: start })
+		expect(host.props.accessibilityOrientation).toBe('horizontal')
 	} finally { root.unmount() }
 })
 

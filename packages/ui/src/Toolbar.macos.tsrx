@@ -28,7 +28,8 @@ export function Toolbar(props: ToolbarProps) @{
 			className={cx('vx-toolbar', 'vx-toolbar--' + (props.variant ?? 'transparent'),
 				'vx-toolbar--' + size, dividerCls, props.className)}
 			style={mergeStyle({ display: 'flex' }, props.style)}
-			accessibilityRole="toolbar" accessibilityLabel={props.label}>
+			accessibilityRole="toolbar" accessibilityLabel={props.label}
+			accessibilityOrientation={vertical ? 'vertical' : 'horizontal'}>
 			<masonview className="vx-toolbar-inner" style={{
 				display: grid ? 'grid' : 'flex', gridTemplateColumns: grid ? '1fr auto 1fr' : undefined,
 				flexDirection: vertical ? 'column' : 'row', alignItems: vertical ? 'stretch' : 'center',

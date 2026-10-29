@@ -205,8 +205,8 @@ actions such as Button, IconButton and ToggleButton. Unmodified Left/Right
 (horizontal) or Up/Down (vertical) and Home/End move focus in native child order
 without activating an action. Hidden and disabled actions are skipped; Enter or
 Space still belongs to the focused control. Slots keep their controls and local
-state when orientation changes. AppKit orientation accessibility metadata and
-actual native VoiceOver/input behavior remain incomplete or unqualified. `variant` and `dividers` only affect the
+state when orientation changes and supplies the current native accessibility
+axis. Actual VoiceOver announcements and native input remain unqualified. `variant` and `dividers` only affect the
 painted chrome. `size` sets the row height and the default `size` for controls
 inside the toolbar — a control with its own `size` prop keeps it.
 

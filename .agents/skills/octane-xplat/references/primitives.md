@@ -2624,6 +2624,8 @@ hosts in current child order and reuses choice focus for roving Tab exclusions.
 Horizontal Left/Right, vertical Up/Down and Home/End move focus manually; keys
 never toggle or press a control. Current window updates refresh hidden/disabled/
 removed/reordered actions, and orientation changes retain slot/component state.
+The host exposes the current horizontal/vertical accessibility axis; native AX
+queries and VoiceOver announcements remain unqualified.
 Modifiers, composition, prevented events and nested key reentry are ignored.
 Editors, adjustable controls and nested composites retain their own keys/Tab
 stops; mixed toolbars can have additional Tab stops. Physical order follows the
@@ -2643,6 +2645,6 @@ observer; absent capability preserves natural focus. Scope/observer/Tab claims
 retire before teardown effects, late handles release their own owner, removal
 failures log fixed diagnostics and cleanup attempts remaining leases. Native
 release is best effort. This covers self-drawn action hosts; complete mixed-
-control roving, stock native-control Tab suppression and AX orientation remain
+control roving and stock native-control Tab suppression remain
 implementation gaps. Native ref/BOOL/window/key/Tab/selection/AX, RTL/pixels and
 installed behavior remain unqualified. See [toolbar actions](../../../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow).
