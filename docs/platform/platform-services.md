@@ -228,6 +228,34 @@ compare root and subpath values and allow readers to unmount/remount. Authored
 source and packed-consumer cases remain unrun; actual native resize/activity,
 Octane effects, focus/IME, memory and installed-app behavior remain unqualified.
 
+## Handle incoming AppKit links
+
+The native AppKit host delivers live resize, activity and incoming-link events
+to the registrations present when that broadcast starts. Each registration owns
+its cleanup, including duplicate callbacks. Removing a reader before its turn
+suppresses it; adding or re-registering one starts on the next broadcast. A live
+synchronous handler failure cannot block other readers. Async work must handle
+its own rejection; the host does not await event handlers. Incoming-link registration can also
+deliver queued launch URLs synchronously; if it throws, that registration is
+removed and the failed/unattempted URLs stay queued for a later retry:
+
+```ts
+import { onDeepLink } from '@octane-xplat/platform'
+
+export function tryWatchIncomingLinks(onURL: (url: string) => void): (() => void) | null {
+	try {
+		return onDeepLink(onURL)
+	} catch {
+		return null // Initial delivery failed. Fix the handler before retrying.
+	}
+}
+// Keep a successful cleanup function with the owner and call it when that owner ends.
+```
+
+These are native-host source contracts. A returned cleanup function does not
+confirm host availability, or acknowledge that a URL was opened or routed. Actual AppKit notification/URL dispatch, signed-app launch,
+reentrant native delivery and subscription memory remain unqualified.
+
 ## Announce a status
 
 Keep a status such as “Settings saved” visible, and call `announce` after the

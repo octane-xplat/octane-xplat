@@ -1,5 +1,6 @@
 import { harnessFontOptions } from './fonts'
 import { announceAppKit } from './accessibility'
+import { notifyAppKitListeners, subscribeAppKitEvent } from './platform-events'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import type { UniversalComponent, UniversalRoot } from '@octane-xplat/macos-renderer'
@@ -224,22 +225,17 @@ class AppDelegate extends NSObject {
 
 	applicationDidBecomeActive() {
 		shared.platformServices.appState = 'active'
-		for (const listener of shared.platformServices.appStateListeners) {
-			listener()
-		}
+		notifyAppKitListeners(shared.platformServices.appStateListeners, listener => listener())
 	}
 
 	applicationDidResignActive() {
 		shared.platformServices.appState = 'inactive'
-		for (const listener of shared.platformServices.appStateListeners) {
-			listener()
-		}
+		notifyAppKitListeners(shared.platformServices.appStateListeners, listener => listener())
 	}
 
 	windowDidResize(notification: any) {
-		for (const listener of shared.platformServices.windowResizeListeners) {
-			listener(notification.object)
-		}
+		const nativeWindow = notification.object
+		notifyAppKitListeners(shared.platformServices.windowResizeListeners, listener => listener(nativeWindow))
 	}
 
 	applicationOpenURLs(_application: any, urls: any) {
@@ -248,9 +244,7 @@ class AppDelegate extends NSObject {
 			if (shared.platformServices.deepLinkListeners.size === 0) {
 				shared.platformServices.pendingUrls.push(string)
 			} else {
-				for (const listener of shared.platformServices.deepLinkListeners) {
-					listener(string)
-				}
+				notifyAppKitListeners(shared.platformServices.deepLinkListeners, listener => listener(string))
 			}
 		}
 	}
@@ -468,20 +462,23 @@ function installPlatformServices() {
 			return Boolean(NSUserDefaults.standardUserDefaults.synchronize())
 		},
 		onAppStateChange(listener: () => void) {
-			services.appStateListeners.add(listener)
-			return () => services.appStateListeners.delete(listener)
+			return subscribeAppKitEvent(services.appStateListeners, listener).dispose
 		},
 		onWindowResize(listener: (window?: NSWindow) => void) {
-			services.windowResizeListeners.add(listener)
-			return () => services.windowResizeListeners.delete(listener)
+			return subscribeAppKitEvent(services.windowResizeListeners, listener).dispose
 		},
 		onDeepLink(listener: (url: string) => void) {
-			services.deepLinkListeners.add(listener)
-			for (const pending of services.pendingUrls.splice(0)) {
-				listener(pending)
+			const registration = subscribeAppKitEvent(services.deepLinkListeners, listener)
+			const pending = services.pendingUrls.splice(0)
+			for (const [index, url] of pending.entries()) {
+				try { registration.dispatch(url) } catch (error) {
+					registration.dispose()
+					// Restore the failed and unattempted URLs before any newer queue.
+					services.pendingUrls = pending.slice(index).concat(services.pendingUrls)
+					throw error
+				}
 			}
-
-			return () => services.deepLinkListeners.delete(listener)
+			return registration.dispose
 		},
 		consumeInitialUrl() {
 			return services.pendingUrls.shift() ?? null

@@ -143,6 +143,40 @@ export function SharedScreen() {
 
 See [AppKit window and activity state](../../../../docs/platform/platform-services.md#read-appkit-window-and-activity-state).
 
+## AppKit host event delivery
+
+The stock native host captures listener membership for each activity/resize/link
+broadcast, checks removal before invocation and isolates synchronous live errors.
+Async work must handle its own rejection; the host does not await callbacks.
+Each subscription wraps its callback with an independent active lease, so using
+the same callback twice or removing/re-registering it cannot revive an old lease.
+Resize captures one window payload before calling readers. These are JS ownership
+policies; do not infer ObjC/OS delivery or native resource cleanup from the models.
+
+```ts
+import { onDeepLink } from '@octane-xplat/platform'
+
+export function watchLinks(onURL: (url: string) => void): () => void {
+	return onDeepLink(onURL)
+}
+```
+
+Queued launch URLs still dispatch synchronously during subscription. Initial
+handler failure retires that registration, restores the failed/unattempted URLs
+before newer queued URLs, and rethrows the original error. Successfully delivered
+URLs are not replayed. This does not serialize reentrant native events or guarantee
+routing success; a repaired handler/new subscription or explicit consume owns
+retry. See [incoming AppKit links](../../../../docs/platform/platform-services.md#handle-incoming-appkit-links).
+
+```ts
+import { onDeepLink } from '@octane-xplat/platform'
+
+export function tryWatchLinks(onURL: (url: string) => void): (() => void) | null {
+	try { return onDeepLink(onURL) }
+	catch { return null }
+}
+```
+
 ## `random` — OS CSPRNG
 
 `random.bytes(length)` returns a `Uint8Array` of secure random bytes;

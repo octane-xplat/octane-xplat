@@ -4,6 +4,84 @@ Target: native AppKit, issue #62. The immutable audit at `720c9ef93`
 remains a source snapshot; do not regenerate shared snapshots while the
 three desktop tasks share this checkout.
 
+## AppKit native platform event dispatch
+
+The preceding responsive/lifecycle prerequisite is pushed as dd3a573d7. Its
+native host still iterated live listener sets directly: mutation/re-registration
+during a callback could extend that same iteration, and one synchronous throw
+could abort other resize/activity/link readers. Duplicate callbacks shared a
+single Set entry, so one cleanup removed both callers. Initial link subscription
+added its listener before draining all pending URLs; a throw leaked the listener
+and lost the failed/unattempted queue. These are source findings, not observed
+AppKit failures.
+
+The private proving host now uses a pure membership-snapshot notifier, checks
+removal before invoking each captured registration, and isolates synchronous
+live consumer throws. It does not await async work or serialize nested native
+events. Activity is committed before notification; resize captures one window
+payload for the broadcast. Each registration has a unique dispatch closure and
+active flag, so duplicate callbacks are independent and removal/re-registration
+cannot revive a former lease. Cleanup retires before removing the Set entry and
+is idempotent. No error text, URL or application value is logged by the helper.
+
+Incoming URLs still queue when no readers exist. Registration still drains its
+pending snapshot synchronously. Initial handler failure disposes that lease,
+restores the failed/unattempted URLs before any newer pending queue, and rethrows
+the original error. URLs whose callbacks returned normally are not replayed;
+that is invocation, not navigation acknowledgement. A repaired handler/new
+subscription or explicit consume owns retry. Native cross-event ordering,
+async rejection handling and signed OS URL-scheme delivery remain separate.
+
+Seven new models execute the actual extracted AppDelegate/service installer and
+pure helper against fake NSObject/NativeClass only when eventually run. They
+cover activity/error isolation, duplicate/retired registrations, resize payload
+and re-registration membership, next-URL link membership, consume-once queues,
+initial failure restoration and retry without replay. All **UNRUN**. The existing
+window fixture now loads the actual helper rather than omitting its new import;
+other installer extraction cases only use announcement/storage methods and were
+reviewed without adding unrelated mocks. These are JS policy models, not native
+class registration, selector/BOOL bridge, OS dispatch or physical memory proof.
+
+Demand comes from the maintained native route-link installer, Services activity
+and responsive reader fixtures. Static graph lookup reports ambiguous/no indexed
+link callers and incomplete dynamic delegate edges; exact native route source
+and installer extraction references were reviewed. Public incoming-link guide,
+Octane services reference and appkit-host-events recipe state the same contracts.
+This changes the private @xplat/macos proving host and its source tests, not a
+published runtime/API; no release note, dependency, native bridge engine, package
+manifest, other-target code or audit snapshot was changed.
+
+A separate source finding remains in packages/app/src/route-links.macos.ts: its
+wired flag is set before subscription succeeds, cleanup is discarded and async
+navigation work is voided without a rejection handler. The host fix does not
+repair that caller's startup/owner policy. It is a follow-up ordinary navigation
+seam, not a native runtime failure or proof that every route consumer is broken.
+
+Exact deferred commands; run only after this human's explicit go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm probe doctor
+pnpm probe run examples/probes/platform-state.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit platform event package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Platform has no standalone typecheck; @xplat/macos does. Turbo may prepare SDK/
+generated/dependency sources, and platform test glob includes packed work. All
+remain deferred. Docs checker scripts remain absent from this snapshot; no
+shared in-flight tooling was copied. Permitted checks: four TS/MJS syntax files,
+three scoped doc fences, ten local paths, source/semantic and whitespace review.
+No tests/transforms/builds/typechecks/probes, OS link launch/resize/activity,
+input/IME/focus/AX/native subscription memory, visual analysis, installs or
+packaging ran. Actual native delegate invocation, queue/notification behavior,
+reentrant OS delivery and installed consumers remain unqualified. Coverage is
+separate from not-run verification; all gates stay open and the goal is active.
+
 ## AppKit responsive and lifecycle purpose entries
 
 Demand assumption: the maintained responsive-layout probe, Services environment

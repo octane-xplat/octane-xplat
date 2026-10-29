@@ -5,6 +5,12 @@ import vm from 'node:vm'
 import { readFile } from 'node:fs/promises'
 import ts from 'typescript'
 
+const eventContext = { exports: {} }
+vm.runInNewContext(ts.transpile(
+	await readFile(new URL('../../../apps/macos/src/platform-events.ts', import.meta.url), 'utf8'),
+	{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+), eventContext)
+
 async function installedHost() {
 	const source = ts.transpile(
 		await readFile(new URL('../../../apps/macos/src/appkit.ts', import.meta.url), 'utf8'),
@@ -20,6 +26,7 @@ async function installedHost() {
 	const services = { appState: 'active', primaryWindow: window, windowResizeListeners: new Set(), appStateListeners: new Set() }
 	const hover = () => {}
 	const context = {
+		...eventContext.exports,
 		__xplatAppKit: { observeHover: hover },
 		shared: { running: true, platformServices: services },
 		app: {},
