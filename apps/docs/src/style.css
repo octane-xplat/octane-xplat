@@ -1829,13 +1829,12 @@ body {
 	line-height: 1.5;
 }
 
-/* ——— mobile ——— */
-@media (max-width: 720px) {
+/* Phones and tablets share a reading scale; the sidebar needs desktop room. */
+@media (max-width: 1100px) {
 	.shell {
 		padding: 8px;
 	}
 
-	/* The in-flow sidebar goes away; its nav moves into the sheet. */
 	.side {
 		display: none;
 	}
@@ -1844,7 +1843,7 @@ body {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		height: 54px;
+		min-height: 60px;
 		margin: -8px -8px 4px;
 		padding: 0 6px 0 14px;
 		border-bottom: 0.5px solid var(--doc-hairline);
@@ -1853,6 +1852,7 @@ body {
 	}
 
 	.mh-brand {
+		min-height: 44px;
 		padding: 4px 6px;
 		border-radius: 12px;
 		corner-shape: squircle;
@@ -1872,17 +1872,157 @@ body {
 	}
 
 	.constellation {
-		/* at this width the svg bound cuts through the doc instead
-		   of tucking into the card corner — drop it entirely */
 		display: none;
 	}
 
+	.doc-page {
+		font-size: 1.125rem;
+		max-width: calc(65ch + 64px);
+	}
+
+	.doc {
+		padding: 32px 32px 64px;
+	}
+
+	.orbit {
+		--orbit-inset: 32px;
+	}
+
+	.table-block {
+		margin-right: -32px;
+	}
+
+	.doc-next {
+		max-width: calc(100% - 32px);
+		margin-right: 32px;
+		margin-bottom: 32px;
+	}
+
+	.h1 {
+		font-size: 2rem;
+	}
+
+	.h2 {
+		font-size: 1.625rem;
+		margin-top: 36px;
+	}
+
+	.h3,
+	.h4 {
+		font-size: 1.25rem;
+	}
+
+	.p,
+	.li,
+	.quote span,
+	.doc > .h1 + .quote span,
+	.callout-line,
+	.agent-prompt-text p {
+		font-size: 1.125rem;
+		font-weight: 400;
+		line-height: 1.65;
+	}
+
+	.code {
+		padding: 16px;
+	}
+
+	.code .mono,
+	.code span,
+	.td,
+	.tr-head .td,
+	.tr-head span {
+		font-size: 1rem;
+	}
+
+	.code .mono,
+	.code span,
+	.td {
+		font-weight: 400;
+	}
+
+	.td {
+		padding: 10px 12px;
+	}
+
+	.callout-tagtext {
+		font-size: 0.8125rem;
+	}
+
+	.home-action,
+	.doc-copy,
+	.doc-action-title,
+	.doc-next-title,
+	.agent-prompt-label,
+	.agent-prompt-expand,
+	.agent-prompt-menu button,
+	.agent-prompt-menu a,
+	.docs-menu .nav-label,
+	.docs-menu .sec-head,
+	.docs-menu .side-text,
+	.palette .vx-cmdk-search,
+	.palette .hit-label {
+		font-size: 1.0625rem;
+		font-weight: 400;
+	}
+
+	.doc-action-desc,
+	.palette .hit-sub {
+		font-size: 0.9375rem;
+		font-weight: 400;
+	}
+
+	.home-action,
+	.agent-prompt-expand,
+	.agent-prompt-menu button,
+	.agent-prompt-menu a,
+	.docs-menu .nav-row,
+	.docs-menu .side-item,
+	.palette .vx-menu-item {
+		min-height: 44px;
+	}
+
+	.docs-menu .mode-toggle,
+	.agent-prompt-icon-button {
+		width: 44px;
+		height: 44px;
+	}
+
+	.agent-prompt-menu {
+		top: 48px;
+	}
+
+	.agent-prompt-text {
+		/* Keep two lines visible at the larger reading scale. */
+		max-height: 3.3em;
+	}
+
+	.doc-actions-bar {
+		width: 190px;
+		height: 44px;
+	}
+
+	.doc-copy {
+		width: 146px;
+	}
+
+	.doc-actions-menu {
+		max-width: 100%;
+	}
+
+	.doc-copy-toggle::before {
+		top: 8px;
+		height: 28px;
+	}
+}
+
+@media (max-width: 720px) {
 	.doc {
 		padding: 20px 20px 64px;
 	}
 
 	.doc-page {
-		max-width: none;
+		max-width: calc(65ch + 40px);
 	}
 
 	.orbit {
@@ -1896,11 +2036,6 @@ body {
 	.doc-next {
 		max-width: calc(100% - 20px);
 		margin-right: 20px;
-		margin-bottom: 32px;
-	}
-
-	.h1 {
-		font-size: 27px;
 	}
 
 	.doc > .h1 + .quote .lede-content {
@@ -1913,60 +2048,11 @@ body {
 			0 calc(100% - 14px)
 		);
 	}
-
-	.h2 {
-		font-size: 23px;
-		margin-top: 36px;
-	}
-
-	/* Body copy keeps the desktop 16px — the old 14px mobile shrink
-	   read too small on phones. */
-
-	.code {
-		padding: 12px 14px;
-	}
-
-	.code .mono,
-	.code span {
-		font-size: 13px;
-	}
-
-	.td {
-		padding: 8px 10px;
-		font-size: 14px;
-	}
 }
 
 @media (max-width: 400px) {
 	.orbit-ring {
 		scale: 0.7;
-	}
-}
-
-/* ——— tablet ——— */
-@media (min-width: 721px) and (max-width: 1100px) {
-	.side {
-		width: 236px;
-	}
-
-	.wordmark {
-		width: 124px;
-	}
-
-	.doc {
-		padding: 32px 40px 64px;
-	}
-
-	.doc-page {
-		max-width: 1013px;
-	}
-
-	.orbit {
-		--orbit-inset: 40px;
-	}
-
-	.table-block {
-		margin-right: -40px;
 	}
 }
 

@@ -411,7 +411,12 @@ export function MdDoc(props: {
 		{props.showPageActions !== false && (
 			<div className="doc-actions" id="doc-actions">
 				<div className="doc-actions-bar">
-					<svg className="doc-copy-surface" viewBox="0 0 162 30" aria-hidden="true">
+					<svg
+						className="doc-copy-surface"
+						viewBox="0 0 162 30"
+						preserveAspectRatio="none"
+						aria-hidden="true"
+					>
 						<path d="M147.176777,-0.176776695 L162.176777,14.8232233 L162.25,15 L162.25,30.25 L9,30.25 L8.8232233,30.1767767 L-0.176776695,21.1767767 L-0.25,21 L-0.25,-0.25 L147,-0.25 Z" />
 					</svg>
 					<button className="doc-copy" type="button" onClick={copyPage}>
