@@ -519,6 +519,16 @@ task outcomes, lacks expiration handling and does not resubmit requests (#72).
 Do not claim production periodic delivery. Register each iOS handler once before
 launch completes, keep a foreground action, and report device evidence separately.
 
+## Production error reporting
+
+Use the [production-error guide](../../../../docs/testing/production-errors.md)
+for a browser SDK owner with filtering/collection controls, Debug ID artifacts
+and project-delivery checks. The framework Sentry wrapper lacks those typed
+controls (#73); native Vite artifact qualification remains open (#74).
+Crashlytics is native-only and currently needs an explicit plugin import (#75).
+Do not infer desktop support from a browser re-export or native crash delivery
+from a handled JavaScript report. Keep upload tokens out of runtime config.
+
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.

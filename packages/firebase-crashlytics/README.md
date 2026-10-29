@@ -10,14 +10,21 @@ for those targets.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/firebase-crashlytics
+pnpm add @octane-xplat/firebase-crashlytics @nativescript/firebase-crashlytics@5.0.2
 ```
+
+Follow [production error reporting](https://octane-xplat.goddardai.org/production-errors#use-crashlytics-as-a-native-alternative)
+for the native registration workaround and symbol/crash qualification. The
+wrapper currently misses the plugin registration import
+([#75](https://github.com/octane-xplat/octane-xplat/issues/75)); declare and import
+`@nativescript/firebase-crashlytics` in native bootstrap before using it.
 
 Complete the [NativeScript Firebase setup](https://firebase.nativescript.org/)
 with the app's Firebase configuration files before running this example.
 Use a test project, then call this function from a test action:
 
 ```ts
+import '@nativescript/firebase-crashlytics'
 import { crashlytics } from '@octane-xplat/firebase-crashlytics'
 
 export async function reportTestError() {

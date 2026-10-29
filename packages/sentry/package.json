@@ -57,12 +57,16 @@
 		"access": "public"
 	},
 	"scripts": {
+		"test": "node --test tests/*.test.mjs",
+		"test:artifacts": "node tests/source-map-artifacts.mjs",
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"devDependencies": {
+		"@sentry/cli": "3.8.2",
+		"vite": "catalog:",
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",

@@ -76,6 +76,7 @@ export const GROUPS = [
 			'argent',
 			'development-actions',
 			'diagnostics',
+			'production-errors',
 			'image-performance',
 			'known-limits',
 		],
