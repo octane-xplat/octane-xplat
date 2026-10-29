@@ -6923,3 +6923,64 @@ typechecks/builds/probes, native/OS/AX/visual analysis or packaging ran. Actual
 Tokenizer/paste/keyboard/IME/focus/VoiceOver, read-only/attachment/effect timing,
 source cancellation timing, popover sizing/scrolling and clean installed consumers
 remain unqualified. Evidence-gated checkboxes stay open; persistent goal active.
+
+## AppKit PowerSearch scalar drafts and numeric validation
+
+The retained PowerSearchDemo filters book titles and publication years, so basic
+text/numeric editing takes priority over custom/nested expansion. Source review
+found unchecked Number(text) could save NaN, blank zero, fractional integers and
+values outside configured bounds. useState(initialText) also retained the prior
+filter's text after replacement; direct held save callbacks did not check current
+read-only/lifecycle ownership. These are source findings, not observed OS failures.
+
+AppKit numeric Apply now accepts explicit finite decimal/scientific text, enforces
+safe whole integers and inclusive minValue/maxValue, and rejects invalid/nonfinite/
+reversed bounds. Never clamp or coerce blank/hex/trailing/grouped input. Display
+units/bounds and preserve the draft with an actionable error. Dot decimal notation
+is the documented subset; locale-specific numeric parsing remains unsupported.
+
+The scalar editor keeps a current draft record for rapid edits, resets on
+filter/field/operator replacement, and guards readonly filter/editor, stale
+callbacks, marked-text input and unmount. Claims one submission before consumer
+reentry and releases on throw. Cancel retires the session without saving. Missing
+operator uses the configured default, then first; explicit unknown field/operator
+keys disable Apply rather than saving a different filter. Matching value type
+owns draft seeding/conversion. Invalid stored absolute dates no longer throw in
+render, but scalar calendar validation/time precision remain separate source gaps.
+String completions, richer list/time/relative/custom/enum/date behavior, web/mobile
+parity and full native qualification are not claimed by this numeric repair.
+
+Five numeric model and five mocked-control scalar cases plus an idle fixture are
+authored, all UNRUN. They cover invalid/coerced/bounded/exact-integer text, rapid
+drafts/reentry, replacement, readonly/composition/unmount, default/missing keys,
+Cancel and consumer-error retry. Mock TextInput/Button do not prove actual native
+event translation, editing, focus or accessibility. Public guide/skill/feature/
+recipe reconcile the same subset; no new dependency/public type/React Aria
+presence-level equivalent changes. Semantic impact resolved the target editor
+but reported incomplete callback edges and lexical web-test references; exact
+AppKit imports/cases were reviewed without claiming a complete test graph.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit PowerSearch scalar package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Five changed TS/TSRX and five new documentation fences syntax parsed; source,
+semantic and whitespace review only. check:docs/check:doc-examples scripts remain
+absent from this isolated revision; no shared in-flight tooling was copied. The
+entity entry records the pre-existing whole-primitives fence syntax limitation;
+new fences alone were parsed here. No tests/compiler transforms/typechecks/builds,
+probes, native/OS/AX/visual analysis, packaging or real filter operations ran.
+Actual keyboard/IME/Tab/focus/VoiceOver, hook/effect/attachment/consumer timing,
+popover sizing/scrolling and installed-consumer behavior remain unqualified.
+Shared audit snapshots and evidence-gated checkboxes unchanged; goal active.

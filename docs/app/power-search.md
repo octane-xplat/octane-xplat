@@ -126,7 +126,8 @@ date text, and absolute dates (ISO date input on web, text entry on native).
 Nested values and app-specific custom values need an override in `components`.
 Entity lists and date ranges also need an override on web/mobile. Experimental
 AppKit built-ins are described below for [ranges](#edit-native-appkit-date-ranges)
-and [entity selection](#edit-native-appkit-entity-filters).
+and [entity selection](#edit-native-appkit-entity-filters). For plain text and
+bounded numbers, see [AppKit scalar drafts](#validate-native-appkit-numeric-filters).
 
 ```tsx
 import { useState } from 'octane'
@@ -379,4 +380,78 @@ Web/mobile entity built-ins and complete nested/custom parity remain open.
 
 ```sh
 pnpm probe run examples/probes/power-search-entities.macos.tsrx --target macos --watch
+```
+
+## Validate native AppKit numeric filters
+
+In the AppKit built-in editor, integer and float operators validate the entered
+number before calling `onSave`. The form displays configured units and inclusive
+minimum/maximum bounds. Use a default operator to choose which comparison opens
+when a filter has no operator yet. This component starts a bounded year filter;
+enter `1968` and choose Apply to display its saved value. Empty text, `NaN`,
+`Infinity`, fractions for integers, and values outside 1800–2100 show an error
+without calling `onSave`. Cancel closes the draft without saving it.
+
+```tsx
+import { useState } from 'octane'
+import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
+import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
+
+const config: PowerSearchConfig = { name: 'years', fields: [{
+	key: 'year', label: 'Year', defaultOperator: 'at_least', operators: [{
+		key: 'at_least', label: 'At least',
+		value: { type: 'integer', minValue: 1800, maxValue: 2100, units: 'publication year' },
+	}],
+}] }
+export function YearFilter() {
+	const [filter, setFilter] = useState<PartialFilter>({ field: 'year' })
+	const [editing, setEditing] = useState(true)
+	return <VStack gap={2}>
+		<Button label="Edit year" clickAction={() => setEditing(true)} />
+		{editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+			onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
+			onCancel={() => setEditing(false)} /> : null}
+		<Text>{JSON.stringify(filter.value)}</Text>
+	</VStack>
+}
+```
+
+Numbers accept ordinary decimal/scientific notation such as `-1.5` or `1e3`,
+with a dot for the decimal separator. They reject hexadecimal, grouping separators,
+trailing text and nonfinite results. Integers must be whole numbers within
+JavaScript's exact range (−9007199254740991 to 9007199254740991). Values are never
+clamped to fit bounds. Invalid or reversed configured bounds also block Apply.
+Locale-specific numeric entry is outside this experimental subset.
+
+```ts
+import type { FloatOperatorValue } from '@octane-xplat/ui'
+const price: FloatOperatorValue = { type: 'float', minValue: 0, maxValue: 100, units: 'USD' }
+// Enter 1.5e1 for 15; 101 is rejected rather than saved as 100.
+```
+
+The scalar form keeps rapid edits and resets its draft when the current filter,
+field or operator is replaced. Read-only filter/editor state blocks editing and
+Apply; stale callbacks and unmount cannot save. An unknown explicit field/operator
+disables Apply. Missing operators use the field's configured default, then its
+first operator if no matching default exists. Apply waits for the attached input's
+marked text, and a draft submits once; a throwing save callback permits retry.
+Cancel retires the session; remount or replace the filter to reopen it. These
+ownership paths also cover ordinary text filters; string completions, list/time/
+relative/custom validation and richer enum/date editors still need separate
+coverage or custom editors.
+
+```tsx
+// Inside YearFilter's return, use this editor to block editing and Apply while keeping Cancel.
+<PowerSearchFilterEditor config={config} filter={filter} mode="edit" isReadOnly
+	onSave={() => {}} onCancel={() => setEditing(false)} />
+```
+
+Five numeric model and five mocked-control scalar cases plus a manual fixture are
+authored, all unrun. Source/syntax review does not prove actual text/keyboard/IME,
+focus, VoiceOver, popover layout or installed-consumer behavior. The fixture also
+lets a maintainer replace text/number filters and try missing keys; run it only
+when native verification is authorized.
+
+```sh
+pnpm probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
 ```

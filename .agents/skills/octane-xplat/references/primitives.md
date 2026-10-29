@@ -2224,3 +2224,29 @@ native input/IME/AX/popover/cancellation/installed-consumer qualification, no ne
 public API/dependency and no React Aria presence change. Web/mobile entity editors
 and full nested/custom parity remain gaps.
 See [entity workflow and source example](../../../../docs/app/power-search.md#edit-native-appkit-entity-filters).
+
+## AppKit PowerSearch scalar ownership and numbers
+
+Native scalar drafts now reset on filter/field/operator replacement and retain
+rapid edits before render. Guard current revision, readonly filter/editor, marked
+text and unmount; claim one submission before consumer reentry, release on throw.
+Cancel retires the session. Explicit missing field/operator keys disable Apply;
+an absent operator uses the configured default, then first. Numeric Apply accepts
+finite decimal/scientific text, requires safe whole integers, enforces inclusive
+minValue/maxValue and rejects nonfinite/reversed configured bounds. Never coerce
+blank text to zero, accept hex/trailing text or silently clamp. Units/bounds are
+displayed, with dot decimal notation (locale numeric parsing remains unsupported).
+
+```ts
+import type { IntegerOperatorValue } from '@octane-xplat/ui'
+const year: IntegerOperatorValue = {
+	type: 'integer', minValue: 1800, maxValue: 2100, units: 'publication year',
+}
+```
+
+Five model/five mocked-control editor cases and an idle scalar fixture are unrun.
+This does not complete string-source/list/time/relative/custom/enum/date behavior
+or native text/IME/focus/AX/popover/consumer qualification. Invalid stored absolute
+dates render as empty rather than throwing, but scalar calendar validation/time
+precision remain separate gaps. No public type/dependency or React Aria presence
+change. See [numeric draft workflow](../../../../docs/app/power-search.md#validate-native-appkit-numeric-filters).
