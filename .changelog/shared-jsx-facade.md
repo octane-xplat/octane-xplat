@@ -1,6 +1,6 @@
-# Shared JSX type facade is now the repo-wide JSX vocabulary
+### Use the shared JSX types on every platform
 
-Every Octane Xplat package types its JSX against the type-only facade
+**Breaking change.** Every Octane Xplat package types its JSX against the type-only facade
 `@octane-xplat/jsx` (native: iOS/Android/Windows/macOS/GTK) or
 `@octane-xplat/jsx/dom` (browser). The renderer pragmas are gone — this is
 breaking for any consumer code that still carries them:
@@ -22,9 +22,15 @@ breaking for any consumer code that still carries them:
 The shared `HostElement` is now `object`: annotate refs with the concrete
 host type where declared instead of casting:
 
-```ts
-const ref = useRef<View | null>(null)          // NativeScript leaf
-<masonview ref={(view: NSView | null) => view?.layout()} />   // AppKit leaf
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useRef } from 'octane'
+import type { View } from '@nativescript/core'
+
+export function NativeLabel() {
+	const labelRef = useRef<View | null>(null)
+	return <label ref={labelRef} text="Trip details" />
+}
 ```
 
 Leaf element registration moves to the facade intrinsics module:
@@ -39,3 +45,5 @@ declare module '@octane-xplat/jsx/intrinsics' {
 
 Layout on intrinsics goes through `style`/`className` only — there are no
 layout props on host elements.
+
+[JSX configuration and types](https://github.com/octane-xplat/octane-xplat/tree/main/packages/jsx#select-a-jsx-source)
