@@ -121,44 +121,38 @@ export function FormField(props: FormFieldProps): unknown @{
 		props.className,
 	)
 
+	const authoredStyle = styleRecord(props.style)
 	const fieldStyle = {
 		...(props.width != null ? { width: props.width } : {}),
-		...styleRecord(props.style),
+		...authoredStyle,
 	}
 
-	@if (isHorizontalLabels) {
+	<masonview
+		ref={(view: any) => { fieldRef.current = view; applyEscapeProps(view, props) }}
+		id={props.id}
+		className={cx(rootClass, isHorizontalLabels && 'vx-field--hl')}
+		style={mergeStyle(
+			{ display: 'flex', flexDirection: isHorizontalLabels ? 'row' : 'column' },
+			fieldStyle,
+		)}
+	>
 		<masonview
-			ref={(v: any) => { fieldRef.current = v; applyEscapeProps(v, props) }}
-			id={props.id}
-			className={cx(rootClass, 'vx-field--hl')}
-			style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, fieldStyle))}
-		>
-			<masonview
-				className="vx-field-hl-label"
-				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-			>
-				{labelNode}
-			</masonview>
-			<masonview
-				className="vx-field-hl-body"
-				style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}
-			>
-				{descriptionNode}
-				<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
-				{statusNode}
-			</masonview>
-		</masonview>
-	} @else {
-		<masonview
-			ref={(v: any) => { fieldRef.current = v; applyEscapeProps(v, props) }}
-			id={props.id}
-			className={rootClass}
-			style={mergeStyle({ display: 'flex' }, fieldStyle)}
+			className={cx('vx-field-label-wrap', isHorizontalLabels && 'vx-field-hl-label')}
+			style={{ display: labelNode == null ? 'none' : 'flex', flexDirection: 'column' }}
 		>
 			{labelNode}
+		</masonview>
+		<masonview
+			className={cx('vx-field-body', isHorizontalLabels && 'vx-field-hl-body')}
+			style={{
+				display: 'flex', flexDirection: 'column',
+				gap: authoredStyle.rowGap ?? authoredStyle.gap ?? 4,
+				...(isHorizontalLabels ? { flexGrow: 1 } : {}),
+			}}
+		>
 			{descriptionNode}
 			<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
 			{statusNode}
 		</masonview>
-	}
+	</masonview>
 }

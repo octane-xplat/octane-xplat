@@ -170,8 +170,13 @@ echoes. Keep GtkEditable.editable separate from widget sensitivity; read-only
 does not mean disabled. The Entry wrapper's get_position() can return the
 ordered selection bound for a backward range on GTK 4.14.5; use the renderer
 protocol rather than duplicating selection logic. Input cancels pending repair.
-TextInput is still a direct-source qualification fixture, not a GTK root export;
-its full field/state/prop surface and TextArea's multiline host remain open.
+TextInput, TextArea and SearchInput are curated GTK root exports with maintained
+real-Linux fixtures. Use TextInput secure for passwords; TextArea rejects secure.
+Field and FormLayout also use the shared native leaves. Keep their hosts and
+FieldProvider position stable across direction changes; use Mason implicit
+grid columns rather than NativeScript eachChildView/columns/col. Set the form
+gap explicitly. Horizontal labels use per-field rows, without a shared label
+column. InputGroup and the remaining form family still need qualification.
 
 For GTK descriptor events, call the universal root's dispatchEvent directly.
 It opens or inherits the proper scope; wrapping each listener's priority can
@@ -214,7 +219,7 @@ the same generation. Missing flags reset old native metadata; native switch
 checked state is restored when an override is removed. Keep behavior in
 isEnabled/editable/checked and use accessibilityState for metadata. The current
 shared TextInput forwards disabled/readOnly/required/busy/invalid fields without
-a GTK copy. Its full field/prop surface is still outside the curated barrel.
+a GTK copy. Its curated GTK field behavior is covered by maintained entry and chrome fixtures.
 
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and

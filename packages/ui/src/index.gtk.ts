@@ -113,3 +113,13 @@ export type { TextAreaProps } from './props'
 
 export { SearchInput } from './SearchInput'
 export type { SearchInputProps } from './props'
+
+export { FormField as Field } from './FormField'
+export { FormLayout } from './FormLayout'
+export type {
+	FormFieldProps,
+	FieldProps,
+	FormLayoutProps,
+	FormLayoutDirection,
+	FormOptionality,
+} from './props'

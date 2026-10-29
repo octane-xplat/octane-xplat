@@ -1634,3 +1634,62 @@ Logs: guest /tmp/gtk-search-full.log; andromeda /tmp/gtk-search-types.log,
 /tmp/gtk-search-pack.log, /tmp/gtk-search-declarations.log and
 /tmp/gtk-search-native-final.log. No phone, AT-client, IME or pixel
 qualification, and no full PowerSearch GTK claim.
+
+## GTK field and form-layout qualification
+
+The initial shared FormLayout rendered a masonview but invoked NativeScript's
+eachChildView, columns and col APIs in an effect. The real-Linux baseline
+failed with TypeError: i.current.eachChildView is not a function; both fields
+remained stacked. The GTK facade does not promise that legacy grid API.
+Existing Grid already demonstrates Mason's declarative auto-placement, so
+FormLayout now uses gridAutoFlow column and gridAutoColumns 1fr. Adding or
+removing fields updates implicit tracks without assigning child indices.
+
+One Mason host remains mounted for every form direction. FormField likewise
+keeps its label container, body and FieldProvider position stable. Before
+that change, switching to horizontal-labels failed the maintained
+editor/text/liveness retention assertion. The fixed tree retains native
+editors, uncontrolled text, focus and public handles as direction changes.
+The body preserves four logical pixels between description, control and
+status by default; authored rowGap/gap overrides that spacing.
+
+The baseline fixture initially assumed a16px form gap without authoring it.
+The fixture now explicitly sets gap16 and checks two292px tracks in600px.
+That correction is an authored-style assumption, not a renderer spacing fix.
+An older field-chrome test also found field owners by a fixed grandparent
+path. It now walks to the vx-field ancestor, preserving all existing width,
+state, focus, selection and tooltip criteria.
+
+The new maintained public-root fixture covers vertical, horizontal and
+horizontal-labels, dynamic child counts, required/optional inheritance and
+removal, native bounds, text/focus/ref retention and disposal. Field and
+FormLayout use the same native source and shared props. Native horizontal
+labels remain per-field rows rather than a web-style shared label column;
+set form gaps explicitly. No new dependency or GTK UI leaf is needed.
+
+Logs: guest /tmp/gtk-form-layout-before.log,
+ /tmp/gtk-form-layout-grid.log, /tmp/gtk-form-layout-directions.log,
+ /tmp/gtk-form-layout-stable.log, /tmp/gtk-form-layout-final.log and
+ /tmp/gtk-form-layout-full.log. The first stable chrome failures measured the
+new body as the field owner; the later corrected run is authoritative.
+Andromeda type logs distinguish the rejected rowGap/gap access on an inferred
+width-only object from the corrected authoredStyle record. These are build
+and native geometry/context assertions; phone runtime, IME, AT-client output,
+images/pixels and packaged consumers remain unqualified.
+
+Final qualification passes all44 maintained Linux renderer tests with no
+skips, including28 public-root form checks and the existing61 field-chrome,
+260 TextArea and76 SearchInput checks. All58 affected/dependent typecheck
+tasks,58 Node checks plus29 selected native Vitest tests and six UI package
+validation tasks pass. Recipes, barrels,28 release notes and focused
+format/whitespace checks pass. Generated GTK/native barrels resolve Field,
+FormLayout and all five associated types to identical declarations. The GTK
+root now has113 exports:42 values and71 types. Logs: guest
+/tmp/gtk-form-layout-full.log; andromeda /tmp/gtk-form-layout-types-final.log,
+ /tmp/gtk-form-layout-native-final.log, /tmp/gtk-form-layout-pack.log and
+ /tmp/gtk-form-layout-declarations.log. InputGroup remains unexported and is
+the next independent qualification. Text-entry recipe coverage remains
+partial for composition, full Field/AT/OSK workflows, overlays, Presence,
+InputGroup, insets and NumberInput; narrow form tests do not complete those
+journeys. No new upstream limitation was found: legacy placement and unstable
+ownership were local UI issues.

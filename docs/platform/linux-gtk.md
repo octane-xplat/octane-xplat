@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, and `SearchInput`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, and `FormLayout`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -813,3 +813,29 @@ export function AlignedNotes() {
     style={{ width: 280, height: 96, textAlign: 'center', lineHeight: 48 }} />
 }
 ```
+
+## Arrange labeled fields
+
+Use FormLayout to arrange fields vertically, in equal horizontal columns, or
+with each label beside its control. Set spacing explicitly. GTK's
+horizontal-labels mode sizes each label within its own field; it does not
+align every label into a shared column. Changing direction keeps existing
+editors, local text and focus.
+
+```tsx
+import { Field, FormLayout, TextInput } from '@octane-xplat/ui'
+
+export function Contact() {
+  return (
+    <FormLayout direction="horizontal" defaultOptionality="required" style={{ gap: 16 }}>
+      <Field label="Name"><TextInput /></Field>
+      <Field label="Email"><TextInput /></Field>
+    </FormLayout>
+  )
+}
+```
+
+Real Linux tests cover native geometry, changing child counts, direction
+changes, required/optional defaults and disposal. Existing field tests cover
+labels, widths, descriptions, status tooltips and state. These checks do not
+qualify screen-reader output, IME, phone runtime or pixel parity.

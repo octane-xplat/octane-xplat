@@ -35,6 +35,12 @@ const check = (name: string, ok: boolean) => {
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const byClass = (name: string) =>
 	[...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
+const fieldOwner = (id: string) => {
+	let owner = node(id).parent
+	while (owner && !owner.cssClasses?.has('vx-field')) owner = owner.parent
+	if (!owner) throw new Error('No field owner for ' + id)
+	return owner
+}
 const near = (actual: number, expected: number) => Math.abs(actual - expected) < 2
 const popup = (anchor: any) => {
 	for (let child = anchor.get_first_child(); child; child = child.get_next_sibling())
@@ -78,7 +84,7 @@ async function run() {
 	const field = node('field').view!
 	const shell = node('bare').parent!
 	const fieldShell = node('field').parent!
-	const chrome = fieldShell.parent!
+	const chrome = fieldOwner('field')
 	check('bare input width reaches its shell', near(shell.view!.getBounds().width, 260))
 	check('standalone field width is applied once', near(chrome.view!.getBounds().width, 300))
 	check(
@@ -223,7 +229,7 @@ async function run() {
 	check('adding chrome retains exact native focus delegate', window.get_focus() === focusedEditor)
 	check(
 		'automatic chrome inherits provider size',
-		node('bare').parent!.parent!.cssClasses.has('vx-field--size-lg'),
+		fieldOwner('bare').cssClasses.has('vx-field--size-lg'),
 	)
 	check(
 		'input and automatic chrome inherit the same size',
@@ -244,7 +250,7 @@ async function run() {
 	)
 	check(
 		'size provider updates both automatic chrome and input',
-		node('bare').parent!.parent!.cssClasses.has('vx-field--size-sm') &&
+		fieldOwner('bare').cssClasses.has('vx-field--size-sm') &&
 			node('bare').cssClasses.has('vx-input--size-sm'),
 	)
 	props = { ...props, bareMessage: 'Please correct the name' }
