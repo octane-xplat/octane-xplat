@@ -81,10 +81,14 @@ running and is not owned by this task.
 Use an npm CLI with the [documented trust command](https://docs.npmjs.com/cli/v11/commands/npm-trust/).
 Complete these before merging publication enablement: the release preflight
 requires an existing npm package and trusted publisher. Use an account allowed
-to publish under `@octane-xplat`. These commands have **not** been run.
+to publish under `@octane-xplat`. These steps were completed on 2026-10-29:
+`@octane-xplat/linux-gtk@0.0.1` is published under the `bootstrap` tag and the
+`release.yml` trusted publisher is bound with publish and stage-publish
+permission.
 
 1. In a terminal authenticated to npm, create a temporary stub. It intentionally
-   exports no API; the `bootstrap` tag keeps it away from `latest`.
+   exports no API. Note: npm still assigns `latest` to the first published
+   version even with `--tag bootstrap`; the tag is only an additional marker.
 
    ```sh
    GTK_STUB_DIR=$(mktemp -d)
