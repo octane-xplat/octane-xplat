@@ -10,6 +10,10 @@
 			"dependsOn": ["^typegen", "^build"],
 			"cache": false
 		},
+		"test:text-controls": {
+			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"cache": false
+		},
 		"test:camera-webview": {
 			"dependsOn": ["^typegen", "^build"],
 			"cache": false

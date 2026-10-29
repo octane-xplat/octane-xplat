@@ -46,6 +46,7 @@ import {
 import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, imageCache, imageMemoryCache, setImageEventHandlers, updateImage } from './image'
 import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from './text-value.ts'
+import { observeTextViewLayout, retireTextViewLayout } from './text-view-layout.ts'
 import { enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange } from './text-limit.ts'
 import { notifyImageGeometry, setImageGeometryHandler } from './image-geometry.ts'
 import { drawImageContent, setImageDrawingStyle } from './image-drawing'
@@ -3192,14 +3193,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			textView.textContainer.widthTracksTextView = true
 			viewport.documentView = textView
 			node.textViewport = viewport
-			viewport.contentView.postsFrameChangedNotifications = true
-			node.textLayoutObserver =
-				NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-					NSViewFrameDidChangeNotification,
-					viewport.contentView,
-					null,
-					() => fitTextView(node),
-				)
+			observeTextViewLayout(node, () => fitTextView(node))
 
 			const placeholder = makeLabel()
 			placeholder.font = fontForFamilyStyle(14, 400, node.appliedFontFamily)
@@ -6414,37 +6408,53 @@ function syncSecureTextField(node: ElementNode) {
 
 /** Measure wrapped content with AppKit, then size the viewport rather than truncate text. */
 function fitTextView(node: ElementNode | undefined) {
-	if (!node?.textViewport || node.fittingText) {
+	if (!node?.view || !node.textViewport || node.textLayoutRetired || node.fittingText) {
 		return
 	}
 
 	node.fittingText = true
 	try {
 		const view = node.view!
-		const viewport = node.textViewport
+		const viewport = node.textViewport, clip = viewport.contentView
+		const current = () => {
+			if (node.textLayoutRetired || node.view !== view || node.textViewport !== viewport) return false
+			const content = viewport.contentView, document = viewport.documentView
+			return !node.textLayoutRetired && node.view === view && node.textViewport === viewport && content === clip && document === view
+		}
+		if (!current()) return
 		const styleLine = Number(effectiveStyle(node).lineHeight)
 		if (styleLine > 0) {
 			const paragraph = NSMutableParagraphStyle.alloc().init()
 			paragraph.minimumLineHeight = styleLine
 			paragraph.maximumLineHeight = styleLine
+			if (!current()) return
 			view.defaultParagraphStyle = paragraph
-			view.textStorage?.addAttributeValueRange(NSParagraphStyleAttributeName, paragraph, {
-				location: 0,
-				length: String(view.string ?? '').length,
-			})
+			if (!current()) return
+			const storage = view.textStorage, length = String(view.string ?? '').length
+			if (!current()) return
+			storage?.addAttributeValueRange(NSParagraphStyleAttributeName, paragraph, { location: 0, length })
 		}
 
-		const width = Number(viewport.contentView.bounds.size.width)
+		if (!current()) return
+		const width = Number(clip.bounds.size.width)
+		const textContainer = view.textContainer, inset = view.textContainerInset
+		if (!current()) return
 		if (width > 0) {
-			view.textContainer.containerSize = {
-				width: Math.max(0, width - 2 * Number(view.textContainerInset?.width ?? 0)),
+			textContainer.containerSize = {
+				width: Math.max(0, width - 2 * Number(inset?.width ?? 0)),
 				height: Number.MAX_SAFE_INTEGER,
 			}
 		}
 
-		view.layoutManager.ensureLayoutForTextContainer(view.textContainer)
-		const used = view.layoutManager.usedRectForTextContainer(view.textContainer)
+		if (!current()) return
+		const manager = view.layoutManager
+		if (!current()) return
+		manager.ensureLayoutForTextContainer(textContainer)
+		if (!current()) return
+		const used = manager.usedRectForTextContainer(textContainer)
+		if (!current()) return
 		const font = view.font
+		if (!current()) return
 		const measured = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
 		const line = Math.max(
 			1,
@@ -6457,6 +6467,7 @@ function fitTextView(node: ElementNode | undefined) {
 			),
 		)
 
+		if (!current()) return
 		const padding = 2 * Number(view.textContainerInset?.height ?? 0)
 
 		const rows = Math.max(1, Math.floor(Number(node.props.rows) || (node.props.autoGrow ? 1 : 3)))
@@ -6466,7 +6477,7 @@ function fitTextView(node: ElementNode | undefined) {
 				: Infinity
 
 		// TextKit's used rect excludes the extra fragment after a trailing newline.
-		const extra = view.layoutManager.extraLineFragmentRect
+		const extra = manager.extraLineFragmentRect
 		const content = Math.max(
 			line,
 			Math.ceil(Number(used.origin?.y ?? 0) + Number(used.size.height)),
@@ -6476,6 +6487,7 @@ function fitTextView(node: ElementNode | undefined) {
 		const height =
 			(node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line) + padding
 
+		if (!current()) return
 		if (
 			effectiveStyle(node).height == null &&
 			node.sizeConstraintSpecs?.height?.points !== height
@@ -6483,10 +6495,15 @@ function fitTextView(node: ElementNode | undefined) {
 			setSizeConstraint(node, 'height', height)
 		}
 
-		const visibleHeight = Number(viewport.contentView.bounds.size.height) || height
+		if (!current()) return
+		const visibleHeight = Number(clip.bounds.size.height) || height
+		if (!current()) return
 		view.minSize = { width: 0, height: visibleHeight }
+		if (!current()) return
+		const frameWidth = width || Number(view.frame.size.width)
+		if (!current()) return
 		view.setFrameSize({
-			width: width || Number(view.frame.size.width),
+			width: frameWidth,
 			height: Math.max(visibleHeight, content + padding),
 		})
 	} finally {
@@ -8446,6 +8463,7 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 }
 
 function destroy(node: ElementNode) {
+	if (node.type === 'textview') retireTextViewLayout(node)
 	if (node.view && (typeof node.props.onFocus === 'function' || typeof node.props.onBlur === 'function')) {
 		focusWithinDispatcher.set(node.view)
 	}
@@ -8595,10 +8613,6 @@ function destroy(node: ElementNode) {
 
 	if (node.panGestureRecognizer) {
 		node.panGestureRecognizer.enabled = false
-	}
-
-	if (node.textLayoutObserver) {
-		NSNotificationCenter.defaultCenter.removeObserver(node.textLayoutObserver)
 	}
 
 	if (['textfield', 'textview', 'searchbar'].includes(node.type) && node.view) {

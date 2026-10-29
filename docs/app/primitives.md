@@ -2527,6 +2527,24 @@ export function Composer() {
 The [input probe](../../packages/app/src/Home.tsrx) includes controlled and
 uncontrolled composers.
 
+### Keep AppKit growth with its editor
+
+An experimental AppKit TextArea keeps resize callbacks with its current editor.
+Removing the field retires the observer; a callback or sizing pass that loses its
+editor stops before later frame writes. Keep the draft in parent state when
+hiding or remounting a field, as in the controlled example above. Eleven new
+source cases remain unrun; actual native resizing, scrolling, IME, focus and
+accessibility are unqualified.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function NoteEditor(props: { shown: boolean; value: string; change(value: string): void }) {
+	return props.shown ? <TextArea label="Note" value={props.value} onChange={props.change}
+		autoGrow rows={2} maxRows={4} /> : null
+}
+```
+
 ### Logical scroll offsets on AppKit
 
 ScrollableArea now reads direction from InternationalizationProvider. In RTL,

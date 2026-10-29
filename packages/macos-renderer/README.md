@@ -983,6 +983,32 @@ native should-change check leaves the text unchanged. It is not a general
 text-validation or grapheme-count API.
 
 
+### Own multiline resize observation
+
+AppKit textview already measures wrapped content, honors fixed/growing rows and
+caps its viewport while retaining the scrollable document. Its resize observer
+now belongs to one editor/viewport/clip/document scope. Retire it before renderer
+teardown; old callbacks and sizing that loses its owner stop before later frame
+writes. Initial fitting still follows final prop application.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+<textview value={'First line\nSecond line\nThird line\nFourth line'} autoGrow rows={2} maxRows={3} />
+```
+
+The private lease captures its notification center, remover and returned token,
+claims before setup/old cleanup, suppresses incomplete acquisition callbacks and
+attempts late-handle release once. Observer setup uses fixed errors; observer
+delivery/removal faults use fixed diagnostics without native error/text payloads.
+Direct sizing keeps its existing synchronous error path. A native add that throws without returning a handle cannot
+be recovered from JS; failed native removal does not prove release. Automatic
+migration after externally replacing the clip/document is unqualified.
+
+Eleven authored source/VM cases and the extended manual ownership fixture remain
+UNRUN. Native notification timing, TextKit measurement/selection/undo, resize/
+scrolling, cleanup/memory, supported OS versions, accessibility and installed
+consumers remain unqualified. See [AppKit growth](../../docs/app/primitives.md#keep-appkit-growth-with-its-editor).
+
 ### Controlled text during composition
 
 The textfield/textview `value` path reads the live native editor and skips equal

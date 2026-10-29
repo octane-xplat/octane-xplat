@@ -804,6 +804,33 @@ export function ShortNote() {
 ```
 
 
+## AppKit multiline sizing ownership
+
+TextArea rows/autoGrow/maxRows and its scrollable document already have native
+source paths; do not infer their absence from prop-loop continue branches.
+Own resize observation before cleanup/registration, capture the center/remover/
+token and exact editor/viewport/clip/document, and suppress setup/retired callbacks.
+Retire before other destroy effects; fitting rechecks scope after native layout/
+constraint effects before later editor/frame writes. Preserve current geometry,
+text limits, submit/composition and editing behavior. Do not restore shared frame-
+notification flags during cleanup. Initial applyProps performs the initial fit.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+export function NoteEditor(props: { shown: boolean; value: string; change(value: string): void }) {
+	return props.shown ? <TextArea label="Note" value={props.value} onChange={props.change}
+		autoGrow rows={2} maxRows={4} /> : null
+}
+```
+
+Eleven new source/VM cases and added width/cap/growth/removal controls in the
+existing text-entry ownership fixture are UNRUN. Native add throwing without a
+returned handle and failed removal cannot prove resource recovery; automatic
+external clip/document migration is unqualified. No native measurement/scroll/
+IME/undo/focus/AX/memory/installed or visual claim follows from these guards.
+See [growth ownership](../../../../docs/app/primitives.md#keep-appkit-growth-with-its-editor)
+and [renderer contract](../../../../packages/macos-renderer/README.md#own-multiline-resize-observation).
+
 ## Controlled AppKit text during composition
 
 TextInput/TextArea (and delegated SearchInput) keep a differing value pending

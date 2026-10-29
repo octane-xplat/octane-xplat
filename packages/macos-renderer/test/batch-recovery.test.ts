@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { retireTextViewLayout } from '../src/text-view-layout.ts'
 import { runSlice } from './mock-globals.ts'
 import { validateTextStyle } from '../src/formatted-text.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
@@ -79,6 +80,7 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		registerElementType: () => {},
 
 		validateTextStyle,
+		retireTextViewLayout,
 		nextMockActionId: 500,
 		actionHandlers,
 		accessibilityLabels,
@@ -542,4 +544,14 @@ test('failed contentview creation releases its geometry observer', () => {
 	assert.deepEqual(fx.removedObservers, [fx.geometryObservers[0]])
 	fx.geometryObservers[0].block()
 	assert.equal(fx.geometryReconciles.length, 0)
+})
+
+// Actual destroy path with a partial node; no Objective-C operations run here.
+test('textview destruction retires sizing before hooks even after partial construction', () => {
+	const fx = fixture(), node = fx.makeNode(fx.container, 99, 'label', {}), events: string[] = []
+	node.type = 'textview'; node.view = null
+	node.textLayoutDetach = () => { assert.equal(node.textLayoutRetired, true); events.push('observer') }
+	node.destroyHooks = [() => { assert.equal(node.textLayoutRetired, true); assert.equal(node.textLayoutDetach, undefined); events.push('hook') }]
+	fx.destroy(node)
+	assert.deepEqual(events, ['observer', 'hook'])
 })

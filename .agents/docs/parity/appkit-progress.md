@@ -9117,3 +9117,103 @@ visual analysis, shared snapshot regeneration or new task/agent ran. The UI has
 no own typecheck script in this snapshot; the touched-package/dependents filter
 remains the pre-merge gate. check:docs/check:doc-examples are absent here; do not
 copy other tasks' in-flight tooling or claim those commands passed.
+
+## AppKit multiline layout observation ownership
+
+Continue common input/layout demand: Home's bounded controlled/uncontrolled
+composers request autoGrow/maxRows. Current source already implements TextKit
+measurement, row caps and an internal NSScrollView; prop-loop continue branches
+are not absence evidence. Review at e8445eaef found direct resize registration
+assigned its token after acquisition, used a later global center for removal,
+left its token live during teardown and did not guard callbacks or sizing against
+retired/replaced native scope. These are source findings, not observed OS bugs.
+
+A private renderer leaf now claims one current editor/viewport/clip/document lease
+before old cleanup or native setup. It captures center/remover/receiver, ignores
+incomplete setup callbacks, owns returned handles before scope getters can fail,
+releases late handles after retirement and preserves a newer lease during old
+cleanup. Delivery rechecks scope and stops an old lease on replacement. Cleanup
+retires/tombstones before native removal and is idempotent; setup/delivery/removal
+failures use fixed errors/diagnostics without native error/text payloads. Direct
+fit errors retain their existing synchronous path. Shared frame-notification
+flags stay enabled; resetting them could disrupt another reader.
+
+Textview destroy retires this lease before focus dispatch, hooks and other native
+cleanup, including partial construction. fitTextView skips retired nodes and
+rechecks the editor/viewport/clip/document after native layout, paragraph/storage,
+container and constraint effects before later editor/frame writes. Initial sizing
+still follows final applyProps, so ignored setup notifications do not require a
+new timer/poll. Existing geometry/rows/caps/scroll document, maxLength, composition,
+selection and submit behavior are preserved. No public prop/type, dependency,
+manifest, shared CLI/UI/GTK or audit snapshot changed.
+
+Apple documents [block-observer tokens and nil-queue delivery](https://developer.apple.com/documentation/Foundation/NotificationCenter/addObserver%28forName%3Aobject%3Aqueue%3Ausing%3A%29)
+and [frame notification enablement](https://developer.apple.com/documentation/appkit/nsview/postsframechangednotifications).
+These support retaining/removing the returned token and guarding synchronous
+notification effects; they do not prove our JS/ObjC bridge, resource release or
+native layout. A native add that installs a callback then throws without returning
+a handle cannot be recovered from JS. Failed native removal is reported and does
+not prove release. Automatic migration after externally replacing clip/document,
+prop/record changes during measurement, native process aborts and actual callback
+thread/lifetime behavior remain unqualified.
+
+Eleven new cases are authored, all UNRUN: seven actual helper/bridge models for
+setup suppression, captured cleanup, late handles, replacement during old cleanup,
+view/viewport/clip/document drift, setup/callback/removal faults and post-acquisition
+scope getter failure; three actual sizing VM cases for retired reads, retirement/
+scope replacement during native layout and retirement during constraint writes;
+one actual destroy-path partial-node case proving early retirement before hooks.
+The existing growth model now supplies its documentView identity. The partial-
+creation harness imports the real retirement helper. None of these test modules,
+compiler transforms or native operations was executed.
+
+The maintained text-entry ownership fixture adds human-operated width/cap/growth
+controls to controlled/uncontrolled multiline fields. Existing removal/remount
+and composition/external-value controls remain. Its run hook only waits/records
+mounting, and no probe ran. The public growth guide keeps the draft parent-owned
+when hiding a field; renderer README, Octane reference and textarea-growth AC3
+reconcile this source boundary. The existing native text-controls script lacked
+a registered task in both root and macOS-local Turbo configurations. A target-
+local uncached task now orders dependency typegen/build and @xplat/app generation;
+root/other-target task files and package scripts are untouched. This follows
+[Turborepo package configuration](https://turborepo.dev/docs/reference/package-configurations)
+and existing local task patterns. Source/JSON registration does not prove the
+Turbo graph or any native run. Precise line blame identified f12221c9f as the
+original observer implementation; local stable tags v0.15.0 through v0.18.0
+contain it, so a focused .changelog/fixes note records the correction. This is
+local Git evidence, not a registry publication audit or native qualification.
+
+Lightweight checks: six source/test/fixture files parsed (five TypeScript and
+one TSRX); four scoped TSX fences parsed; twelve distinct new/changed local
+targets/anchors resolved; two manifests and the local task config parsed as JSON,
+with script/cache/prerequisite metadata inspected; focused staged semantic and
+whitespace review passed. No Turbo graph, test case or compiler transform ran. Native TextKit
+measurement, bounds/frame notification ordering, wrapping/resize/scroll, focus/
+selection/IME/undo, actual release/memory, OS versions, VoiceOver, installed
+consumers and visual/pixel behavior remain unqualified. The goal and all issue
+checkboxes remain open.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human verification
+authorization; native resource authorization is not visual-analysis approval):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/text-entry-ownership.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit text-controls fixture"}' -- pnpm exec turbo run test:text-controls --filter=@xplat/macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit multiline layout ownership package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+The native fixture task is registered in apps/macos/turbo.json without changing
+shared task configuration. Do not bypass Turbo with the former raw script command;
+its graph/prerequisites and execution remain deferred. check:docs and
+check:doc-examples and documentation-quality.md are absent from this worktree;
+the latter was read from the original checkout without edits. No tests, typegen,
+typechecks, builds, installs, native/OS automation, packaging, visual analysis,
+shared audit regeneration or new task/agent ran.
