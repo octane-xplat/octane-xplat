@@ -6775,7 +6775,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 			// describes the host without changing its text or scroll position.
 			node.view!.accessibilityValueDescription = (value == null ? null : String(value)) as string
 		} else if (name === 'accessible') {
-			node.view!.setAccessibilityElement(value !== false)
+			node.view!.accessibilityElement = value !== false
 		}
 	}
 

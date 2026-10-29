@@ -10,7 +10,7 @@ test('real scroll prop branch applies and clears native descriptions/visibility 
 	let element = true, label = ''
 	const document = { content: 'All 24 notes' }, clip = { bounds: { origin: { x: 20, y: 120 } } }
 	const view = { documentView: document, contentView: clip, accessibilityRole: 'AXScrollArea', accessibilityValue: 'native value',
-		accessibilityHelp: null, accessibilityValueDescription: null, setAccessibilityLabel(value: string) { label = value }, setAccessibilityElement(value: boolean) { element = value } }
+		accessibilityHelp: null, accessibilityValueDescription: null, setAccessibilityLabel(value: string) { label = value }, set accessibilityElement(value: boolean) { element = value } }
 	const node = { type: 'scrollview', view, props: {} }
 	update(node, { accessibilityLabel: 'Trip notes', accessibilityHint: 'Scroll to review.', accessibilityValue: '24 notes', accessible: false })
 	assert.equal(label, 'Trip notes'); assert.equal(view.accessibilityHelp, 'Scroll to review.'); assert.equal(view.accessibilityValueDescription, '24 notes'); assert.equal(element, false)

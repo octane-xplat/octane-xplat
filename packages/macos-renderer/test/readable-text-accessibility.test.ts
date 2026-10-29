@@ -9,7 +9,7 @@ test('readable native hosts apply and clear help/value descriptions and element 
 	for (const type of ['label', 'htmlview']) {
 		let element = true, label = ''
 		const view = { stringValue: '12', accessibilityHelp: null, accessibilityValueDescription: null,
-			setAccessibilityElement: (value: boolean) => { element = value }, setAccessibilityLabel: (value: string) => { label = value } }
+			set accessibilityElement(value: boolean) { element = value }, setAccessibilityLabel: (value: string) => { label = value } }
 		const node = { type, view, props: {} }
 		apply(node, 'accessibilityLabel', 'Items'); apply(node, 'accessibilityHint', 'Open the collection.'); apply(node, 'accessibilityValue', '12 items'); apply(node, 'accessible', false)
 		assert.equal(label, 'Items'); assert.equal(view.accessibilityHelp, 'Open the collection.'); assert.equal(view.accessibilityValueDescription, '12 items'); assert.equal(element, false); assert.equal(view.stringValue, '12')
