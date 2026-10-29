@@ -117,7 +117,8 @@ qualify every menu or tooltip that uses layers.
 
 Put a Windows `Dialog` inside a `Screen`, which supplies its overlay host.
 An explicit `finalFocusRef` identifies the control that should regain focus
-when the dialog closes.
+after the backdrop finishes closing, so the next background click can reach its
+control.
 
 ```tsx
 import { useRef, useState } from 'octane'

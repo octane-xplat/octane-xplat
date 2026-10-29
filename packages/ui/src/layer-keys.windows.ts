@@ -1,5 +1,6 @@
 import { Application } from '@nativescript/core'
 import { Microsoft } from '@octane-xplat/platform/windows'
+import { afterWindowsOverlayExit } from './windows-overlay-exit'
 
 const model = (value: any) => value?.native ?? value
 const element = (value: any) => model(value)?.nativeViewProtected ?? model(value)
@@ -48,34 +49,39 @@ export function captureLayerFocus(getTarget?: () => any, host?: any): () => void
 
 	return () =>
 		queueMicrotask(() => {
-			try {
-				if (!owner || !active(owner)) {
-					return
-				}
-
-				const currentOwner = element(host)?.XamlRoot
-				if (currentOwner && currentOwner !== owner) {
-					return
-				}
-
-				const target = getTarget?.()
-				if (model(target)?.isLoaded === false || model(target)?.isEnabled === false) {
-					return
-				}
-
-				const native = target ? element(target) : initial
-				const programmatic = Microsoft?.UI?.Xaml?.FocusState?.Programmatic
-				if (
-					native?.XamlRoot === owner &&
-					native.IsLoaded !== false &&
-					native.IsEnabled !== false &&
-					typeof native.Focus === 'function' &&
-					programmatic != null
-				) {
-					native.Focus(programmatic)
-				}
-			} catch {
-				// Removed windows, missing projection and failed focus remain best effort.
+			if (!owner) {
+				return
 			}
+			afterWindowsOverlayExit(owner, () => {
+				try {
+					if (!owner || !active(owner)) {
+						return
+					}
+
+					const currentOwner = element(host)?.XamlRoot
+					if (currentOwner && currentOwner !== owner) {
+						return
+					}
+
+					const target = getTarget?.()
+					if (model(target)?.isLoaded === false || model(target)?.isEnabled === false) {
+						return
+					}
+
+					const native = target ? element(target) : initial
+					const programmatic = Microsoft?.UI?.Xaml?.FocusState?.Programmatic
+					if (
+						native?.XamlRoot === owner &&
+						native.IsLoaded !== false &&
+						native.IsEnabled !== false &&
+						typeof native.Focus === 'function' &&
+						programmatic != null
+					) {
+						native.Focus(programmatic)
+					}
+				} catch {
+					// Removed windows, missing projection and failed focus remain best effort.
+				}
+			})
 		})
 }

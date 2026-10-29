@@ -1,5 +1,6 @@
 import { Microsoft, NSWinRT } from '@octane-xplat/platform/windows'
 import { dispatchLayerKey } from './layer-stack'
+import { trackWindowsOverlayExit } from './windows-overlay-exit'
 import { createOverlayLifetime as createRootLifetime } from './overlay-lifetime-common'
 
 type Background = {
@@ -119,15 +120,43 @@ export function createOverlayLifetime(
 	...args: Parameters<typeof createRootLifetime>
 ): ReturnType<typeof createRootLifetime> {
 	const [owner, host, , label] = args
-	const lifetime = createRootLifetime(...args)
 	if (label !== 'Dialog') {
-		return lifetime
+		return createRootLifetime(...args)
 	}
 
 	const root = owner as any
+	let closingNative = false
+	const scopedOwner = {
+		open: (target: any, options?: any) => owner.open(target, options),
+		close: (target: any) => {
+			closingNative = true
+			try {
+				const result = owner.close(target).finally(releaseBackground)
+				trackWindowsOverlayExit(root.nativeViewProtected?.XamlRoot, result)
+				return result
+			} catch (error) {
+				releaseBackground()
+				throw error
+			}
+		},
+		removeChild: (target: any) => owner.removeChild(target),
+		hasChild: (target: any) => root.hasChild(target),
+		getPopupIndex: (target: any) => root.getPopupIndex(target),
+	}
+	const lifetime = createRootLifetime(scopedOwner, host, args[2], label, args[4])
 	const view = host as any
 	const token = {}
 	const releases: (() => void)[] = []
+	function releaseBackground(): void {
+		for (const release of releases.reverse()) {
+			try {
+				release()
+			} catch (error) {
+				console.error('[Dialog] Windows modal cleanup failed', error)
+			}
+		}
+		releases.length = 0
+	}
 	let retired = false
 	let opened = false
 	let native: any
@@ -169,14 +198,12 @@ export function createOverlayLifetime(
 		} catch (error) {
 			errors.push(error)
 		}
-		for (const release of releases.reverse()) {
-			try {
-				release()
-			} catch (error) {
-				errors.push(error)
+		// If setup failed before owner.close, there is no native exit to wait for.
+		void Promise.resolve().then(() => {
+			if (!closingNative) {
+				releaseBackground()
 			}
-		}
-		releases.length = 0
+		})
 		if (hasTabMode && native && view.nativeViewProtected === native) {
 			try {
 				native.TabFocusNavigation = tabMode

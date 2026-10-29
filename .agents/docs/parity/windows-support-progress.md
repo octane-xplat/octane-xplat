@@ -1939,3 +1939,135 @@ exact installed artifact was inspected). A controlled native measurement is
 needed before choosing a lifecycle repair; do not disable animation or bypass
 ownership to make the driver pass. The instrumented15-group pass remains
 bounded evidence and does not resolve this lead.
+
+## Controlled post-modal transition reproduction and candidate
+
+The same packaged v8 binary, boot mvswv12r, reproduced lost background clicks
+without the added FromPoint inspection. Three immediate trials failed at97,
+59 and64ms from Escape to the click after default-trigger focus returned.
+Alternating trials with350ms extra wait passed at415,432 and422ms. Six trials,
+three failures, exit1. The delay is an experimental control, not a workaround
+or weakened gate. A recovered command-channel WinRT read error is present in
+this boot; no blanket error-free claim is made. Source/measurements support an
+exit-lifecycle race, beyond the earlier unclassified navigation timing concern.
+Logs: research/windows61/windy-os-modal-transition-v8.log,
+windy-v8-transition-os-results.json and windy-v8-transition-full-console.log.
+
+A Windows-only candidate tracks actual owner.close completion by XamlRoot and
+waits before returning layer focus. It rechecks window activation, host ownership
+and current target eligibility after the wait. Other roots and non-dialog
+lifetimes retain their paths. No animation is disabled and no delay is added to
+the immediate-click criterion. The existing VM fixtures now load the real exit
+barrier: delayed native close holds focus, another root remains independent,
+multiple exits must all settle and a target disabled during exit is skipped.
+All31focused modal/focus contracts passed through the owned Windows Turbo task
+in3.592s (uncached, exit0). Local test:modal was unavailable in the canonical
+app task configuration; no local pass is claimed. Targeted formatter/lint and
+whitespace checks passed. Sem source impact/diff was reviewed; dynamic VM test
+edges are not resolved by its static graph.
+
+The candidate remains uncommitted until native qualification. Version1.0.0.9
+started the same sequential native graph in the owned checkout with the same
+adopted3be9208cCore. The v8 filesystem repair remains committed/qualified in its
+bounded cases. Do not present v8's instrumented15-group pass as qualification
+of this new focus barrier. Broad package/dependent checks, visual/multiwindow
+and generic-layer gates remain deferred.
+
+### V9 runtime rejected the focus-only candidate
+
+V9 native graph passed38/38tasks (28cached), exit0,6m18.281s; standalone
+Windows checker emitted no diagnostics and delegated checker retained the same
+12diagnostics. Its first timing run stopped before input because the UIA
+maximize pattern was unavailable. This setup failure is preserved separately.
+The driver now maximizes only its verified PID-owned HWND with Win32 ShowWindow
+and verifies IsZoomed, retaining all foreground/process/point guards.
+
+Retry boot mvsxdwq3 reproduced all three immediate failures at200,65 and60ms;
+three delayed controls passed at421,568 and411ms. Focus-only deferral is therefore
+insufficient and remains uncommitted. Logs: research/windows61/windy-native-v9.log,
+windy-v9-native-exit.json, windy-v9-typecheck.log,
+windy-os-modal-transition-v9.log (setup),
+windy-os-modal-transition-v9-retry.log, windy-v9-transition-os-results.json and
+windy-v9-transition-full-console.log. Filesystem7cases still passed in this boot.
+
+The follow-up retains background input guards through actual native close.
+The close promise restores those guards in finally before settling the root's
+focus barrier. Setup failure without a native close releases guards on the next
+microtask; synchronous/rejected close still releases guards and leaves the
+original error-reporting/removal path intact. Guards preserve overlapping owner
+tokens and application-disabled controls. This keeps background controls unavailable while the exiting shade can still
+intercept pointer input; its actual focus behavior remains a native test gate.
+
+All32focused contracts passed in2.7s (uncached), including delayed native close
+ordering and both thrown/rejected-close cleanup. The earlier31-case attempt
+failed its isolated ES-only type-resolution contract because queueMicrotask was
+not declared there; source now uses Promise microtasks without adding ambient
+DOM declarations or weakening that contract. Targeted formatter/lint and
+whitespace checks passed. Log: research/windows61/windy-modal-exit-guard-contracts-32.log.
+V10 native graph is running; neither new native success nor a completed repair
+is claimed. The v8 explicit filesystem bridge repair remains committed.
+
+## V10 native modal teardown repair qualified in bounded common flows
+
+The final guard-plus-focus candidate passed the v10 graph:38/38tasks,
+28cached, exit0,6m2.993s. Standalone Windows tsrx-tsc emitted no diagnostics;
+the delegated native checker retains the same12diagnostics in11otherfiles and
+MSBuild retains the same three warnings. Records:
+research/windows61/windy-native-v10.log, windy-v10-native-exit.json,
+windy-v10-native-task.log and windy-v10-typecheck.log. Existing certificate
+signing/trust and explicit identity/version1.0.0.10 were checked again.
+
+Paired native regression boot mvsxr5we passed6/6trials, exit0. All three
+immediate clicks after default focus return navigated, without an added test
+sleep: Escape-to-click442,421 and450ms. The alternating350ms delayed controls
+passed at834,800 and795ms. The unchanged wait for returned trigger focus now
+ends after native teardown; the source has no fixed timeout workaround. Native
+background IsEnabled remainedfalse in the existing250ms diagnostic while the
+backdrop was still exiting. This directly contrasts with the failed v8/v9
+immediate trials. Records: research/windows61/windy-os-modal-transition-v10.log,
+windy-v10-transition-os-results.json and windy-v10-transition-current-boot-console.log.
+
+Full common-flow boot mvsxs6vd passed15/15groups, exit0: seven native app-temp
+filesystem cases as one prerequisite group, six physical-input groups, four
+modal groups, physical pointer navigation after dismissal, two physical wheel
+groups and headless overflow/start-edge state. Pointer FromPoint instrumentation
+was removed; command navigation fallback was not used. Both native scroll
+offsets advanced0to72 (content816, viewport160). Records:
+research/windows61/windy-os-common-v10.log, windy-v10-os-results.json,
+windy-v10-full-console.log and windy-v10-current-boot-console.log. The wrapper
+stopped only its owned app after each run and released its device/input phase.
+
+The repair retains background guards through owner.close.finally, releases
+those guards before settling the owning XamlRoot's focus barrier, and checks
+activation/target eligibility again before focus. Failed setup and thrown or
+rejected native close retain cleanup/error paths. The Windows skill reference
+and modal setup guide now explain that focus returns after backdrop exit.
+No new public API, dependency, supported recipe target or stable-release bug
+note is introduced; this repairs the unreleased experimental Windows path.
+
+Remaining gates stay open: full package/dependent typechecks, packed consumers,
+full public files/Core CRUD, native permission/error matrices, generic useLayer,
+required/nested dialogs, multiple windows, IME, other architectures/unpackaged
+runs, visual/layout parity and broad component/optional-service coverage.
+Exact before-merge commands remain deferred, including:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/cli
+pnpm exec turbo run typecheck --filter=...@octane-xplat/patches
+```
+
+No push/merge or full native-platform qualification is claimed. Historical
+uncommitted/pending v9/v10 paragraphs above describe their phase at that time;
+the final repair and bounded native results supersede those candidate boundaries.
+
+Final focused source rerun on the installed candidate passed84contracts:
+11filesystem,31keyboard/pointer,32modal/focus and10scroll. Four uncached Turbo
+tasks,7.694s,exit0. Logs: research/windows61/windy-final-common-contracts.log
+and windy-final-{filesystem,keyboard,modal,scroll-load}-detail.log.
+The run warned: node_modules is out of sync with the lockfile because the
+value of enableGlobalVirtualStore changed. The explicit effective setting read
+undefined; no install or global configuration change was made to repair this
+metadata warning. verifyDepsBeforeRun=warn remained asserted. A read-only final
+audit reconfirmed the installed Core filesystem SHA256ef4e9080… and zero owned
+app processes. Environment metadata reproducibility remains a recorded limitation.

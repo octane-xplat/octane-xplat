@@ -22,10 +22,11 @@ const settle = async () => {
 	}
 }
 
-function fixture() {
-	const state = { focus: [], errors: [], opened: 0, closed: 0, dismissed: 0 }
+function fixture({ deferClose = false } = {}) {
+	const state = { focus: [], errors: [], opened: 0, closed: 0, dismissed: 0, closers: [] }
 	const console = { error: (...args) => state.errors.push(args) }
 	const base = load('../src/overlay-lifetime-common.ts', undefined, console)
+	const exits = load('../src/windows-overlay-exit.ts', undefined, console)
 	const layers = load('../src/layer-stack.ts', undefined, console)
 	const xamlRoot = {}
 	const child = (enabled = true) => ({
@@ -63,6 +64,14 @@ function fixture() {
 		},
 		close(view) {
 			state.closed++
+			if (deferClose) {
+				return new Promise((resolve) =>
+					state.closers.push(() => {
+						root.removeChild(view)
+						resolve()
+					}),
+				)
+			}
 			root.removeChild(view)
 			return Promise.resolve()
 		},
@@ -108,6 +117,9 @@ function fixture() {
 			if (name === './overlay-lifetime-common') {
 				return base
 			}
+			if (name === './windows-overlay-exit') {
+				return exits
+			}
 			if (name === './layer-stack') {
 				return layers
 			}
@@ -122,7 +134,20 @@ function fixture() {
 		view,
 		lifetime: api.createOverlayLifetime(root, view, null, label, () => {}),
 	})
-	return { state, main, disabled, shade, children, root, host, create, layers, Microsoft }
+	return {
+		state,
+		main,
+		disabled,
+		shade,
+		children,
+		root,
+		host,
+		create,
+		layers,
+		Microsoft,
+		exits,
+		xamlRoot,
+	}
 }
 
 test('Windows dialogs disable background, preserve shade, cycle Tab and focus inside after opening', async () => {
@@ -136,6 +161,7 @@ test('Windows dialogs disable background, preserve shade, cycle Tab and focus in
 	assert.equal(view.nativeViewProtected.TabFocusNavigation, 1)
 	assert.deepEqual(state.focus, [[view.nativeViewProtected, 3]])
 	lifetime.close()
+	await settle()
 	assert.equal(main.nativeViewProtected.IsEnabled, true)
 	assert.equal(disabled.nativeViewProtected.IsEnabled, false)
 	assert.equal(view.nativeViewProtected.TabFocusNavigation, 0)
@@ -210,6 +236,7 @@ test('Windows nested/out-of-order modal cleanup keeps shared background disabled
 	a.lifetime.close()
 	assert.equal(main.nativeViewProtected.IsEnabled, false)
 	b.lifetime.close()
+	await settle()
 	assert.equal(main.nativeViewProtected.IsEnabled, true)
 })
 
@@ -220,10 +247,11 @@ test('Windows modal cleanup preserves an application-disabled background model',
 	await settle()
 	main.isEnabled = false
 	lifetime.close()
+	await settle()
 	assert.equal(main.nativeViewProtected.IsEnabled, false)
 })
 
-test('Windows modal partial setup failure releases every acquired background', () => {
+test('Windows modal partial setup failure releases every acquired background', async () => {
 	const { create, children, main, state } = fixture()
 	children.push({
 		nativeViewProtected: {
@@ -237,6 +265,7 @@ test('Windows modal partial setup failure releases every acquired background', (
 	})
 	const { lifetime } = create()
 	lifetime.open()
+	await settle()
 	assert.equal(main.nativeViewProtected.IsEnabled, true)
 	assert.equal(state.opened, 0)
 	assert.equal(state.errors.length, 1)
@@ -265,6 +294,7 @@ test('Windows modal cleanup attempts sibling restoration after a retired proxy t
 		},
 	})
 	assert.doesNotThrow(() => lifetime.close())
+	await settle()
 	assert.equal(main.nativeViewProtected.IsEnabled, true)
 	assert.equal(state.errors.length, 1)
 })
@@ -284,6 +314,7 @@ test('Windows modal guards panel hit tests and descendant control focus separate
 	assert.equal(panel.nativeViewProtected.IsHitTestVisible, false)
 	assert.equal(main.nativeViewProtected.IsEnabled, false)
 	lifetime.close()
+	await settle()
 	assert.equal(panel.nativeViewProtected.IsHitTestVisible, true)
 	assert.equal(main.nativeViewProtected.IsEnabled, true)
 })
@@ -447,4 +478,53 @@ test('Portable layer key adapters without a scope retain global ownership and li
 	})
 	assert.equal(claimed, 2)
 	assert.equal(selected, 2)
+})
+
+test('Windows modal focus barrier waits for native backdrop exit and remains scoped to its root', async () => {
+	const { create, state, exits, xamlRoot, main } = fixture({ deferClose: true })
+	const { lifetime } = create()
+	lifetime.open()
+	await settle()
+	lifetime.close()
+	assert.equal(main.nativeViewProtected.IsEnabled, false)
+	let restored = 0
+	exits.afterWindowsOverlayExit(xamlRoot, () => {
+		assert.equal(main.nativeViewProtected.IsEnabled, true)
+		restored++
+	})
+	assert.equal(restored, 0)
+	let otherRoot = 0
+	exits.afterWindowsOverlayExit({}, () => otherRoot++)
+	assert.equal(otherRoot, 1)
+	state.closers[0]()
+	await settle()
+	assert.equal(restored, 1)
+})
+
+test('Windows failed native close releases background guards and does not strand the focus barrier', async () => {
+	for (const failure of ['throws', 'rejects']) {
+		const { create, root, main, state, exits, xamlRoot } = fixture()
+		const { lifetime, view } = create()
+		lifetime.open()
+		await settle()
+		root.close = () => {
+			if (failure === 'throws') {
+				throw new Error('native close failed')
+			}
+			return Promise.reject(new Error('native close failed'))
+		}
+
+		lifetime.close()
+		let restored = false
+		exits.afterWindowsOverlayExit(xamlRoot, () => {
+			assert.equal(main.nativeViewProtected.IsEnabled, true)
+			restored = true
+		})
+
+		await settle()
+		assert.equal(restored, true)
+		assert.equal(main.nativeViewProtected.IsEnabled, true)
+		assert.equal(root.hasChild(view), false)
+		assert.equal(state.errors.length, 1)
+	}
 })

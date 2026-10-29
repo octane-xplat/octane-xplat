@@ -62,11 +62,22 @@ function fixture(options = {}) {
 			return host
 		},
 	}
+	const exits = {}
+	const exitSource = ts.transpileModule(
+		readFileSync(new URL('../src/windows-overlay-exit.ts', import.meta.url), 'utf8'),
+		{
+			compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+		},
+	).outputText
+	vm.runInNewContext(exitSource, { exports: exits })
 	const exports = {}
 	vm.runInNewContext(source, {
 		exports,
 		queueMicrotask: (callback) => pending.push(callback),
 		require(id) {
+			if (id === './windows-overlay-exit') {
+				return exits
+			}
 			if (id === '@nativescript/core') {
 				return { Application }
 			}
@@ -85,7 +96,7 @@ function fixture(options = {}) {
 			}
 		}
 	}
-	return { capture, flush, owner, initial, host, control, state, Microsoft }
+	return { capture, flush, owner, initial, host, control, state, Microsoft, exits }
 }
 
 test('Windows layers restore the captured control only after checking the owning window', () => {
@@ -295,4 +306,40 @@ test('Windows rejects an ambiguous focus overload returning another root', () =>
 	capture(undefined, host)()
 	assert.deepEqual(state.focus, [])
 	assert.equal(state.primaryReads, 0)
+})
+
+test('Windows focus return waits for all native exits and rechecks target eligibility afterward', async () => {
+	for (const disabled of [false, true]) {
+		const { capture, owner, host, initial, state, exits } = fixture()
+		let finishFirst, finishLast
+		exits.trackWindowsOverlayExit(
+			owner,
+			new Promise((resolve) => {
+				finishFirst = resolve
+			}),
+		)
+
+		exits.trackWindowsOverlayExit(
+			owner,
+			new Promise((resolve) => {
+				finishLast = resolve
+			}),
+		)
+
+		capture(undefined, host)()
+		assert.equal(state.focus.length, 0)
+		finishFirst()
+		for (let i = 0; i < 8; i++) {
+			await Promise.resolve()
+		}
+
+		assert.equal(state.focus.length, 0)
+		initial.IsEnabled = !disabled
+		finishLast()
+		for (let i = 0; i < 12; i++) {
+			await Promise.resolve()
+		}
+
+		assert.equal(state.focus.length, disabled ? 0 : 1)
+	}
 })

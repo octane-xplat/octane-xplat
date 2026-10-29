@@ -2760,7 +2760,9 @@ export function ReviewNotice({ isOpen, onOpenChange, finalFocusRef }: DialogProp
 The Windows host can expose the scoped snapshot through the C# overload name
 rather than its WinRT metadata name. Always supply the declaring XamlRoot,
 reject a foreign returned element, and recheck activation/target ownership at
-restoration. Missing snapshots must not discard an explicit target. See the
+restoration. Missing snapshots must not discard an explicit target. Windows
+modal background guards and focus return wait for actual native close completion;
+removed portal content alone does not mean the exiting backdrop has left. See the
 [modal example and current gates](../../../../docs/platform/windows-setup.md#modal-candidate)
 and [Windows evidence](../../../docs/parity/windows-support-progress.md).
 
