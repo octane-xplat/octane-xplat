@@ -101,6 +101,32 @@ export function Caption() {
 See the [AppKit renderer](../../../../../packages/macos-renderer/README.md)
 for overflow and line-limit behavior.
 
+## AppKit target and delegate selectors
+
+In the NAPI binding, ObjCExposedMethods keys are full Objective-C selectors,
+including colons. A one-argument action such as controlChanged: needs that exact
+key; its params array describes the ABI and does not append a colon. The binding
+supports JS-spelled prototype methods through its selector lookup, so keep those
+method bodies while correcting metadata. The renderer uses registerGestureClass
+to make owned prototype methods discoverable in its JSC host before registration.
+
+```ts
+import { NSObject, NSMenuItem, interop } from '@octane-xplat/platform/macos'
+const exposedMethods = {
+	'controlChanged:': { params: [NSObject], returns: interop.types.void },
+	'menuItemSelected:': { params: [NSMenuItem], returns: interop.types.void },
+}
+```
+
+Compare assigned action strings directly to metadata keys; a verifier that
+invents colons from parameter counts conceals this mismatch. Control/menu
+actions and text edit/focus declarations were corrected from source review of
+NativeScript/runtimes 5b697b3, whose objc-node-api package is 1.0.0-alpha.7.
+Installed binding types have the same package version, but this source check
+does not identify the exact installed framework binary or qualify native
+selector/ABI delivery. Keep OS text/IME/keyboard/AX validation separate. See
+[ClassBuilder selector construction](https://github.com/NativeScript/runtimes/blob/5b697b393152f973dd392851fd72dacf03a7a0c9/NativeScript/ffi/napi/ClassBuilder.mm#L665).
+
 ## Root creation
 
 `createNativeScriptRoot(hostView)` creates an

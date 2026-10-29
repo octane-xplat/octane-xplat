@@ -480,17 +480,19 @@ class ButtonActionTarget extends NSObject {
 	static ObjCProtocols = [NSTextViewDelegate, NSTextFieldDelegate]
 
 	static ObjCExposedMethods = {
-		buttonPressed: { params: [NSButton], returns: interop.types.void },
+		// NativeScript's NAPI ClassBuilder uses these keys verbatim as selectors.
+		// The prototype may use its supported JS spelling; metadata needs colons.
+		'buttonPressed:': { params: [NSButton], returns: interop.types.void },
 		'viewPressed:': { params: [NSObject], returns: interop.types.void },
 		'viewPanned:': { params: [NSPanGestureRecognizer], returns: interop.types.void },
-		controlChanged: { params: [NSObject], returns: interop.types.void },
-		controlTextDidChange: { params: [NSNotification], returns: interop.types.void },
-		textFieldSubmitted: { params: [NSObject], returns: interop.types.void },
-		textDidChange: { params: [NSNotification], returns: interop.types.void },
-		controlTextDidBeginEditing: { params: [NSNotification], returns: interop.types.void },
-		controlTextDidEndEditing: { params: [NSNotification], returns: interop.types.void },
-		textDidBeginEditing: { params: [NSNotification], returns: interop.types.void },
-		textDidEndEditing: { params: [NSNotification], returns: interop.types.void },
+		'controlChanged:': { params: [NSObject], returns: interop.types.void },
+		'controlTextDidChange:': { params: [NSNotification], returns: interop.types.void },
+		'textFieldSubmitted:': { params: [NSObject], returns: interop.types.void },
+		'textDidChange:': { params: [NSNotification], returns: interop.types.void },
+		'controlTextDidBeginEditing:': { params: [NSNotification], returns: interop.types.void },
+		'controlTextDidEndEditing:': { params: [NSNotification], returns: interop.types.void },
+		'textDidBeginEditing:': { params: [NSNotification], returns: interop.types.void },
+		'textDidEndEditing:': { params: [NSNotification], returns: interop.types.void },
 	}
 
 	static {
@@ -9996,11 +9998,11 @@ let menuActionTarget: any = null
 try {
 	class MenuActionTarget extends NSObject {
 		static ObjCExposedMethods = {
-			menuItemSelected: { params: [NSMenuItem], returns: interop.types.void },
+			'menuItemSelected:': { params: [NSMenuItem], returns: interop.types.void },
 		}
 
 		static {
-			NativeClass(this)
+			registerGestureClass(this)
 		}
 
 		menuItemSelected(sender: NSMenuItem) {

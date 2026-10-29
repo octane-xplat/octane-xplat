@@ -3,9 +3,9 @@ import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
-// The NAPI runtime registers exposed keys verbatim. Preserve the action-site
-// arity check, but verify gesture registration against exact metadata keys and
-// prototype methods below. Arity alone does not establish native delivery.
+// NAPI registers metadata keys verbatim. Check action-site strings directly;
+// inventing colons from params hides broken declarations. Native delivery and
+// JS-spelled prototype lookup still require actual framework qualification.
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const context = {
@@ -52,19 +52,9 @@ const { MenuActionTarget } = runSlice(
 	context,
 )
 
-// An intended selector's arity follows its declared parameter count. This
-// legacy convention is not the runtime's registration algorithm.
-function intendedSelectors(klass) {
-	return new Set(
-		Object.entries(klass.ObjCExposedMethods).map(([name, method]) =>
-			name.includes(':') ? name : name + ':'.repeat(method.params?.length ?? 0),
-		),
-	)
-}
-
 const selectorsByTarget = {
-	buttonActionTarget: intendedSelectors(ButtonActionTarget),
-	menuActionTarget: intendedSelectors(MenuActionTarget),
+	buttonActionTarget: new Set(Object.keys(ButtonActionTarget.ObjCExposedMethods)),
+	menuActionTarget: new Set(Object.keys(MenuActionTarget.ObjCExposedMethods)),
 }
 
 // Sites whose target is assigned as a property next to the action string
@@ -108,7 +98,7 @@ function* actionSites() {
 	}
 }
 
-test('assigned action strings retain declared arity and gestures use explicit ObjC keys', () => {
+test('every assigned action string has an exact metadata selector, without inferred colons', () => {
 	const sites = [...actionSites()]
 
 	// Guard against a pattern silently matching nothing after a refactor.
@@ -131,4 +121,23 @@ test('assigned action strings retain declared arity and gestures use explicit Ob
 			`'${target}' does not register selector '${selector}' — registered: ${[...registered].join(', ')}`,
 		)
 	}
+})
+
+test('text edit/focus delegates declare the exact one-argument selectors and keep their JS methods', () => {
+	for (const name of ['controlTextDidChange', 'textFieldSubmitted', 'textDidChange', 'controlTextDidBeginEditing', 'controlTextDidEndEditing', 'textDidBeginEditing', 'textDidEndEditing']) {
+		const selector = name + ':'
+		assert.equal(ButtonActionTarget.ObjCExposedMethods[selector]?.params.length, 1, selector)
+		assert.equal(ButtonActionTarget.ObjCExposedMethods[name], undefined, name)
+		assert.equal(typeof ButtonActionTarget.prototype[name], 'function', name)
+	}
+})
+
+test('control/menu action metadata uses full selectors and native registration exposes the menu prototype', () => {
+	for (const [target, name] of [[ButtonActionTarget, 'buttonPressed'], [ButtonActionTarget, 'controlChanged'], [MenuActionTarget, 'menuItemSelected']]) {
+		assert.equal(target.ObjCExposedMethods[name + ':']?.params.length, 1)
+		assert.equal(target.ObjCExposedMethods[name], undefined)
+		assert.equal(typeof target.prototype[name], 'function')
+	}
+	const menuSource = source.slice(source.indexOf('class MenuActionTarget'), source.indexOf('menuActionTarget = MenuActionTarget.new()'))
+	assert.match(menuSource, /registerGestureClass\(this\)/)
 })

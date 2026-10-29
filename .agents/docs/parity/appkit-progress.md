@@ -6857,6 +6857,60 @@ date/constraint bridge behavior, hook/ref/effect/callback timing, teardown and c
 installed consumers remain unqualified. Shared audit snapshots and evidence-gated
 checkboxes unchanged; persistent goal active.
 
+## AppKit control text and menu selector prerequisite
+
+Continuing common native menu support exposed a renderer prerequisite affecting
+buttons, selection/date controls, text input/focus and menu callbacks. The target
+action strings include colons, but metadata declared legacy keys such as
+controlChanged and menuItemSelected without them. The old action-site check
+invented missing colons from parameter counts, so it could not detect the mismatch.
+This is a source finding, not an observed native dispatch failure.
+
+NativeScript/runtimes ClassBuilder at
+`5b697b393152f973dd392851fd72dacf03a7a0c9` constructs SEL directly from each
+ObjCExposedMethods key (ClassBuilder.mm lines 665–736), and records supported
+JS-spelled lookup aliases separately. Its objc-node-api package is 1.0.0-alpha.7,
+matching the installed declaration package; the exact installed framework binary
+has not been identified or run. Source:
+[ClassBuilder](https://github.com/NativeScript/runtimes/blob/5b697b393152f973dd392851fd72dacf03a7a0c9/NativeScript/ffi/napi/ClassBuilder.mm#L665).
+The declared package repository URL returned 404; the existing local source cache
+had no matching runtime, so only bounded upstream directory/file reads were used.
+No source clone, dependency install or native runtime execution occurred.
+
+Corrected exact metadata selectors for buttonPressed:, controlChanged:,
+textFieldSubmitted:, text change and begin/end editing delegates, and
+menuItemSelected:. Keep the supported JS-spelled method bodies; no compatibility
+aliases or upstream patches were added. MenuActionTarget now uses the renderer's
+existing registration helper to expose owned prototype methods in the JSC host.
+Strengthened the existing action-site case to compare exact keys; two additional
+metadata/delegate cases are authored, all UNRUN. Semantic impact identified 17
+related source cases and incomplete callback aliases; none were run. Updated
+driver skill guidance. No public API, dependency or React Aria presence change;
+this internal declaration repair does not change an app-building recipe.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/native-date-picker.macos.tsrx --target macos --watch
+pnpm probe run examples/probes/auth-buttons.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit action and text selectors"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Staged renderer/test syntax and the new skill fence parsed; semantic/source/
+whitespace review only. No tests/compiler transforms/typechecks/builds/probes,
+native/OS/AX/visual analysis or packaging ran. Exact installed-framework selector
+registration, JS method resolution, ABI, actual button/date/menu activation,
+per-edit text/Return/IME/focus delegate delivery and installed consumers remain
+unqualified. The retained probes only mount controls until manual operations are
+performed; they do not qualify those inputs by themselves. Shared audit snapshots
+and evidence-gated checkboxes unchanged; persistent goal active.
+
 ## AppKit PowerSearch absolute-date validation
 
 The config builder exposes date-before/after operators, so single-date editing is
