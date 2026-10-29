@@ -284,3 +284,44 @@ it('IconButton held actions inherit current Button loading, href and action owne
 		press(); expect(events).toEqual(['https://example.com/current', 'current'])
 	} finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
 })
+
+
+it('Button native pointer hints update and clear on the retained host without changing its accessible name', () => {
+	const env = mount(Button, { label: 'Save', tooltip: 'Save this document', accessibilityHint: 'Explicit help' })
+	try {
+		const host = env.host()
+		expect(host.toolTip).toBe('Save this document')
+		expect(host.props.accessibilityHint).toBe('Explicit help')
+		expect(host.props.accessibilityLabel).not.toBe('Save this document')
+		env.render({ label: 'Save', tooltip: 'Save a copy' })
+		expect(env.host()).toBe(host); expect(host.toolTip).toBe('Save a copy')
+		env.render({ label: 'Save', tooltip: '' }); expect(host.toolTip).toBe('')
+		env.render({ label: 'Save' }); expect(host.toolTip).toBeNull()
+	} finally { env.root.unmount() }
+})
+
+it('Button pointer hints remain during busy/disabled/ref handoff and clear on teardown', async () => {
+	const task = deferred(), first = { current: null }, second = { current: null }
+	const base = { label: 'Save', tooltip: 'Save this document', clickAction: () => task.promise }
+	const env = mount(Button, { ...base, ref: first })
+	try {
+		const host = env.host(); host.props.onTap(); flushUniversalSync(() => {})
+		expect(host.toolTip).toBe(base.tooltip)
+		env.render({ ...base, isDisabled: true, ref: second })
+		expect(second.current).toBe(host); expect(first.current).toBeNull()
+		expect(host.toolTip).toBe(base.tooltip)
+		expect(host.props.onTap).toBeUndefined()
+		env.root.unmount(); expect(host.toolTip).toBeNull()
+		task.resolve(); await Promise.resolve(); expect(host.toolTip).toBeNull()
+	} finally { task.resolve(); env.root.unmount() }
+})
+
+it('IconButton forwards current native hints while retaining its required accessible name', () => {
+	const env = mount(IconButton, { label: 'Help', icon: <label text="?" />, tooltip: 'Read the manual' })
+	try {
+		const host = env.host()
+		expect(host.toolTip).toBe('Read the manual'); expect(host.props.accessibilityLabel).toBe('Help')
+		env.render({ label: 'Help', icon: <label text="?" /> })
+		expect(env.host()).toBe(host); expect(host.toolTip).toBeNull(); expect(host.props.accessibilityLabel).toBe('Help')
+	} finally { env.root.unmount() }
+})

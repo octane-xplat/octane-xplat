@@ -9,6 +9,7 @@ export default function ButtonActionsProbe() {
 	const [shown, setShown] = useState(true), [disabled, setDisabled] = useState(false)
 	const [loading, setLoading] = useState(false), [interruptible, setInterruptible] = useState(false)
 	const [revision, setRevision] = useState(1), [linked, setLinked] = useState(false)
+	const [hinted, setHinted] = useState(true)
 	const [history, setHistory] = useState<string[]>([])
 	const pending = useRef<PendingAction[]>([]), alive = useRef(true)
 	const record = (entry: string) => { if (alive.current) setHistory((entries) => [...entries.slice(-11), entry]) }
@@ -18,8 +19,9 @@ export default function ButtonActionsProbe() {
 		tasks.forEach((task) => task.resolve())
 	}, [])
 	return <VStack gap={2}>
-		<label text="Manually press Save, settle or fail pending work, and change props while it is pending. Link mode opens the documentation URL before starting the action. No OS action is automatic." />
+		<label text="Manually press Save, settle or fail pending work, and change props while it is pending. Link mode opens the documentation URL before starting the action. Hover Save to inspect its native hint after revision, loading and disabled changes. No OS action is automatic." />
 		{shown ? <Button id="button-action-owner" label={`Save revision ${revision}`}
+			tooltip={hinted ? `Save document revision ${revision}` : undefined}
 			isDisabled={disabled} isLoading={loading} isInterruptible={interruptible}
 			href={linked ? 'https://octane-xplat.goddardai.org/app/components#appkit-button-actions-and-links' : undefined}
 			clickAction={() => {
@@ -34,6 +36,7 @@ export default function ButtonActionsProbe() {
 		<Button label="Toggle disablement" clickAction={() => setDisabled((value) => !value)} />
 		<Button label="Toggle external loading" clickAction={() => setLoading((value) => !value)} />
 		<Button label="Toggle interruptible overlap" clickAction={() => setInterruptible((value) => !value)} />
+		<Button label="Toggle pointer hint" clickAction={() => setHinted((value) => !value)} />
 		<Button label="Toggle documentation link" clickAction={() => setLinked((value) => !value)} />
 		<Button label="Remove or remount Save" clickAction={() => setShown((value) => !value)} />
 		<label text={`disabled:${disabled}; loading:${loading}; interruptible:${interruptible}; link:${linked}`} />

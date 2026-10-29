@@ -1764,14 +1764,31 @@ export function CurrentSave({ disabled, save, report }: {
 
 These are source implementations with authored, unrun object-driver cases.
 Native click/keyboard delivery, OS URL opening, busy sizing/appearance and
-VoiceOver remain unqualified. Button tooltip presentation remains a separate
-AppKit gap; this change does not implement it.
+VoiceOver remain unqualified. Button tooltip now has the native pointer-hint
+source path described below; focus-triggered tooltip presentation remains a gap.
+
+
+Button `tooltip` now assigns AppKit's native `NSView.toolTip` on the same host,
+updates with props and clears when omitted or on teardown. It stays assigned
+while busy or disabled and does not replace the label or `accessibilityHint`.
+IconButton and ToggleButton inherit this pointer-hint path. AppKit owns hint
+appearance, delay and placement; this adds no focus trigger, custom popup, timing
+API or accessibility relationship. Native hover, disabled/busy hint delivery,
+focus, VoiceOver and appearance remain unqualified.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function SaveHint() {
+	return <Button label="Save" tooltip="Save this document" />
+}
+```
 
 
 AppKit IconButton shares the Button implementation, including group disablement,
 metadata, URL dispatch and busy/action ownership. Its required label remains the
 accessible name while the icon stays mounted under the busy overlay. Native
-input, busy sizing, VoiceOver and tooltip presentation remain unqualified.
+input, busy sizing, VoiceOver and native pointer-hint presentation remain unqualified.
 
 ```tsx
 import { IconButton } from '@octane-xplat/ui'
@@ -1822,6 +1839,6 @@ export function ViewMode({ value, onChange }: { value: string | null; onChange(v
 AppKit exposes a pressed button through its checked-control accessibility role
 and numeric off/on value. Actual VoiceOver, physical key/click delivery, busy
 geometry and packaging remain unqualified. Native toolbar/group roving keys,
-reserved semibold label width and tooltip presentation remain separate gaps.
+reserved semibold label width and focus-triggered tooltip presentation remain separate gaps.
 The maintained [AppKit toggle fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/toggle-button.macos.tsrx)
 is authored but unrun; its scripted path dispatches actions directly.

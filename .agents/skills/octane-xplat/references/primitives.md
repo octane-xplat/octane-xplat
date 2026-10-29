@@ -1267,20 +1267,24 @@ export function Save({ save }: { save(): Promise<void> }) {
 
 Button href is sanitized and handed to the platform opener before clickAction.
 It does not use the router; target has no native browsing-context behavior.
-Native URL opening/input/VoiceOver/busy geometry remain unqualified. Tooltip
-presentation is still missing. See the [source contract](../../../../docs/app/components.md#appkit-button-actions-and-links).
+Native URL opening/input/VoiceOver/busy geometry remain unqualified.
+Focus-triggered tooltip presentation is still missing. Button tooltip now assigns the
+native NSView.toolTip pointer hint, updates/removes on props and clears on
+teardown. Keep it while busy/disabled without changing label/accessibilityHint;
+AppKit owns timing and appearance. IconButton/ToggleButton inherit it. Native
+hover delivery, focus and AX semantics remain unqualified. See the [source contract](../../../../docs/app/components.md#appkit-button-actions-and-links).
 
 ```tsx
 import { Button } from '@octane-xplat/ui'
 
-export function Help() { return <Button href="https://example.com/help">Help</Button> }
+export function Help() { return <Button href="https://example.com/help" tooltip="Read help">Help</Button> }
 ```
 
 
 IconButton.macos is a thin wrapper around Button.macos with isIconOnly, matching
 the shared native shape. Use the Button contract for pending/overlap/errors,
-group defaults, metadata and href. Native tooltip/presentation/input/VoiceOver
-qualification is still open.
+group defaults, metadata and href. Native pointer-hint presentation/input/VoiceOver
+qualification is still open; focus-triggered tooltips remain a gap.
 
 ```tsx
 import { IconButton } from '@octane-xplat/ui'
@@ -1313,7 +1317,7 @@ export function Pin({ save }: { save(value: boolean): Promise<void> }) {
 
 Pressed button state maps to native checked-control role/value and changed-value
 notifications. Source cases/fixture are authored but unrun; native VoiceOver,
-input, busy geometry, tooltip, reserved semibold width and group/toolbar roving
+input, busy geometry, focus-triggered tooltip, reserved semibold width and group/toolbar roving
 remain unqualified or absent. See [toggle saves](../../../../docs/app/components.md#save-a-toggle-button-action-on-appkit).
 
 

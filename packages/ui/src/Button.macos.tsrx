@@ -22,13 +22,23 @@ export function Button(props: ButtonProps) @{
 	const actions = useRef(new Set<symbol>())
 	const attached = useRef(true), host = useRef<NSView | null>(null)
 	const live = useRef({ props, group }); live.current = { props, group }
+	const updateTooltip = useCallback(() => {
+		const view = host.current, text = live.current.props.tooltip ?? null
+		// The generated SDK omits NSView.toolTip's documented nil nullability.
+		if (view && Reflect.get(view, 'toolTip') !== text) Reflect.set(view, 'toolTip', text)
+	}, [])
 	// A caller ref may change during an accepted action; only teardown retires it.
-	const bind = useCallback((view: NSView | null) => { host.current = view }, [])
+	const bind = useCallback((view: NSView | null) => { host.current = view; updateTooltip() }, [updateTooltip])
 	const ref = useMemo(() => refList(bind, props.ref), [bind, props.ref])
 	useLayoutEffect(() => {
 		attached.current = true
-		return () => { attached.current = false; actions.current.clear() }
+		const view = host.current
+		return () => {
+			attached.current = false; actions.current.clear()
+			if (view) Reflect.set(view, 'toolTip', null)
+		}
 	}, [])
+	useLayoutEffect(updateTooltip, [props.tooltip])
 	const busy = Boolean(props.isLoading || pending)
 	const isDisabled = Boolean(props.isDisabled || group?.isDisabled)
 	const disabled = isDisabled || (busy && !props.isInterruptible)

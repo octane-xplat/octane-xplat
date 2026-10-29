@@ -9518,3 +9518,74 @@ pnpm check:changelog
 check:docs/check:doc-examples remain absent from this worktree. No tests, typegen,
 typechecks, builds, installs, probes, native/OS automation, packaging, visual
 analysis or additional task/agent ran. The goal remains active.
+
+## AppKit Button native pointer hints
+
+Demand assumption: Button's documented tooltip and IconButton's named help affordance
+serve ordinary save/help and toolbar actions. At 94459ad66 Button's tooltip prop
+never reached a native host property, and the guide recorded that presentation
+gap. Web Button uses its native title attribute. AppKit's existing generic
+Tooltip/useTooltip popup path is a separate feature, not an absent blanket
+capability; it is unchanged here. This finding is source-only.
+
+The Button leaf now assigns NSView.toolTip on the existing typed host, updates it
+when tooltip changes, clears to nil when omitted and clears the captured host on
+teardown after retiring actions. Its stable binding updates the same native hint
+through public ref handoff without a transient nil write. Equal native values
+skip repeat assignment. Busy/disabled state keeps the hint assigned, while names,
+accessibilityHint, action policy, layout and ref ownership stay unchanged.
+IconButton and ToggleButton inherit the Button property path; no new wrapper,
+tracking area, popup root, timer, dependency, renderer prop, shared intrinsic,
+public API or other-target leaf was added.
+
+[Apple's NSView.toolTip contract](https://developer.apple.com/documentation/appkit/nsview/tooltip?changes=_1)
+defines a nullable string and nil to cancel the hint. The generated SDK in
+packages/platform/src/types/macos/AppKit.d.ts and renderer AppKit.d.ts declares
+it as string without nullability. The target leaf uses Reflect for the native
+property rather than editing generated bindings or substituting empty text for
+nil. This local binding mismatch/workaround is source evidence; actual bridge
+conversion remains unqualified. AppKit owns delay/appearance/placement. This is
+a pointer-hint subset comparable to web's title; it adds no focus-triggered hint,
+custom timing/placement, role/described-by relationship, or AX announcement promise.
+Disabled/busy pointer delivery and coexistence with cursor/custom hover observers
+must be checked on the OS.
+
+Three new authored object-driver cases (nineteen Button cases total), all UNRUN,
+cover initial/update/empty/removal without name/hint replacement, busy/disabled/
+ref handoff and teardown, and IconButton delegation. The existing button-actions
+fixture adds a changing revision hint and human-operated hint removal toggle;
+its run hook still records mounting only. It does not synthesize hover or inspect
+pixels. Guide/Octane reference, Button AC7, the toggle recipe's remaining focus-
+hint limit and the existing unreleased Button feature note reconcile the subset.
+No shared audit snapshot was regenerated.
+
+Lightweight checks: three TSRX source/test/fixture files and ten scoped TSX fences
+parsed; six added/changed local targets/anchors resolved; staged semantic and whitespace
+review completed. Zero tests/compiler transforms/native operations. Actual native
+property dispatch/nil conversion, effect/ref/teardown order, tooltip timing and
+cancellation, disabled/busy delivery, pointer movement/hit testing, focus-only
+reveal, VoiceOver, installed consumers and pixels remain unqualified. Native
+pointer assignment is not visual or runtime proof. All evidence-gated checkboxes
+remain open.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human
+verification authorization; resource admission is not visual-analysis approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/button.macos.mobile.test.tsrx src/toggle-button.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/button-actions.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native Button hints package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+check:docs/check:doc-examples remain absent from this worktree. No tests, typegen,
+typechecks, builds, installs, probes, native/OS automation, packaging, visual
+analysis or additional task/agent ran. Focus-triggered hints remain an implementation
+gap; all native qualification remains open and the goal remains active.
