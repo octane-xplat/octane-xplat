@@ -2792,3 +2792,62 @@ Final evidence: andromeda /tmp/gtk-pr77-lint-{types,native-pack,docs}.log and
 guest /tmp/gtk-pr77-lint-runtime.log. The source-only brace/token verification
 is separate from these executed tests. No visual, Wayland, real IME or
 assistive-client qualification is implied.
+
+
+## GTK Popover session, placement and qualification
+
+bindPopovers installs createPopover and captureLayerFocus on retained widget
+refs; the .gtk leaf creates one session per anchorView, portals live content
+through the original universal root, and owns open state in Octane. The
+Gtk.Popover is nonmodal (autohide false, no arrow), its Gtk.Box child is the
+portal target, and a shared Gtk.CssProvider is refcounted per display. The
+shared popup-events hub binds key/pointer controllers across window, sibling
+and nested popup surfaces; useLayerDismissal keeps dismissal authority with
+layer-stack. dispose unparents the popover, cancels anchor tick/map/closed
+handlers, releases event bindings and returns the display provider.
+
+Placement computes the wanted rect with the shared positionPopover each
+anchor tick, then points the popup at a zero-size Gdk.Rectangle (in anchor
+coordinates) chosen so GTK lands the panel top-left at the wanted position.
+An earlier form measured bounds back and fed gtk_popover_set_offset: when the
+wanted side disagreed with GTK's own flip/clamp decision, the measured
+correction ratcheted the offset (down to -1628) until GTK unmapped the
+surface, deadlocking placement and firing a spurious dismiss. set_pointing_to
+converges in one call, is integer-rounded before comparison, and follows the
+anchor without per-tick offsets.
+
+captureLayerFocus records the window's focused widget on open without
+stealing it, and restores the original (or finalFocusRef) target while the
+owner is mapped; composite handles (TextInputHandle.native) are unwrapped.
+Session dispose notifies the leaf (onDisposed) so external teardown — anchor
+unmount releasing every session through bindPublicInstance — removes the
+portal instead of stranding it; the leaf resolves anchor refs in a passive
+every-render effect because ref attach/detach never produces a render on its
+own.
+
+Qualification: the maintained ui-popover fixture passes 73 assertions
+(properties 38, actual-X11 OS 70 minimums met; Ubuntu 24.04, GJS 1.80.2, GTK
+4.14.5, XplatMason, private Xvfb) including Escape/outside-tap authority,
+nested top-layer dismissal, anchor unmount/remount, focus restoration,
+portal/context retention and native teardown. The shared popup suite passes
+with it: popup-events 61, popup-portal 56, tooltip 50 assertions, no skips.
+Guest log /tmp/gtk-run.log. All 62 affected typecheck tasks pass on andromeda
+and packed exports/declarations validate (6 tasks). Coverage boundary: actual
+X11 input under Xvfb only; no Wayland/xdg-popup constraint, visual/pixel, IME
+or assistive-client evidence. gtk_css_provider_load_from_string requires GTK
+4.12+; the rest of this surface needs GTK 4.14+ (see the Tooltip section).
+
+## TSRX duplicate `_$withSlot` on the universal renderer path
+
+octane 0.16.3's universal compiler emits two `withSlot` imports bound to the
+same `_$withSlot` local when one module-local (non-exported) component both
+calls a slot-compiled hook imported from another module (for example useSize
+from @octane-xplat/ui) and renders another non-exported local component. The
+build fails with `[PARSE_ERROR] Identifier '_$withSlot' has already been
+declared`; the emitted file shows the duplicate import (repro:
+research/repro/src/repro.gtk.tsrx via packages/linux-gtk-renderer/test/_repro-build.mjs
+on @tsrx/core 0.5.5 + rolldown 1.2.9). Not Popover-specific: plain <View>
+children trigger it identically. useContext/useState alone do not.
+Workaround: export one of the components, or hoist the child component to a
+sibling so only one slot-compiled call remains per file. Recheck on octane
+compiler upgrades.

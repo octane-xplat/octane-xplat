@@ -209,6 +209,19 @@ remain unqualified. See the [portal example](../../../../docs/platform/linux-gtk
 
 GTK Tooltip is a curated root export on GTK 4.14+. Use the same shared TooltipProps;
 the .gtk leaf portals live content into a renderer-owned noninteractive GtkPopover.
+
+GTK Popover is a curated root export on GTK 4.14+. Its .gtk leaf holds open
+state in Octane, asks the anchor's public instance for a nonmodal GtkPopover
+session (autohide false, has_arrow false) and portals live children into the
+session's Gtk.Box through the original universal root — context, state and
+effects are preserved. Placement runs positionPopover per anchor tick and
+points the popup at a computed zero-size Gdk.Rectangle; dismissal authority
+(Escape/outside tap, controlled vs uncontrolled) stays in layer-stack through
+the shared popup-events hub, not autohide. Focus is captured on open and
+restored on close (finalFocusRef wins); sessions, tick callbacks and the
+refcounted display CSS provider are released on dispose. See
+[the popover example](../../../../docs/platform/linux-gtk.md#popovers) and
+[upstream record](../../../docs/notes/linux-gtk-renderer.md#gtk-popover-session-placement-and-qualification).
 Focus opens only through a trigger that already accepts focus (for example a
 native button/textfield); the wrapper does not invent an extra tab stop. Use a
 focusable trigger when keyboard access matters. Timers, controllers, popup ticks,

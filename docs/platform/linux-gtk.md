@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption and Popover.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -1103,6 +1103,42 @@ export function SaveHelp(props: { saving: boolean }) {
   )
 }
 ```
+
+## Popovers
+
+On GTK 4.14 or newer, Popover shows interactive content in a native popup
+anchored to an element you own. Escape or a click outside asks for dismissal:
+a controlled popover stays open until `open` becomes false, while
+`defaultOpen` closes itself. Turn each path off with dismissOnEscape or
+dismissOnOutsideTap, and use finalFocusRef to choose where focus returns.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useRef, useState } from 'octane'
+import type { HostElement } from '@octane-xplat/jsx/intrinsics'
+import { Popover, Pressable, Text, TextInput, View } from '@octane-xplat/ui'
+
+export function FilterMenu() {
+  const anchor = useRef<HostElement | null>(null)
+  const [open, setOpen] = useState(false)
+  return (
+    <View>
+      <View ref={anchor}>
+        <Pressable onPress={() => setOpen(true)}><Text>Filters</Text></Pressable>
+      </View>
+      <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" alignment="start">
+        <TextInput defaultValue="Name" />
+        <Pressable onPress={() => setOpen(false)}><Text>Apply</Text></Pressable>
+      </Popover>
+    </View>
+  )
+}
+```
+
+Content keeps its Octane context and updates while open. `placement` picks a
+side, `alignment` lines it up, and `offset` takes a number or px string.
+GTK flips sides and clamps to the window when the popup would not fit.
+Pointer and keyboard dispatch stay with the top layer when popovers nest.
 
 ## Control accessibility state
 

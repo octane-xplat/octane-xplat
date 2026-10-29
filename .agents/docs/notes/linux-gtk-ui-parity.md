@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 68 runtime values and 105 types in index.gtk.ts, including
+Current availability is 69 runtime values and 108 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1213,5 +1213,29 @@ facade build, exact logs and qualification limits.
 The search/token recipe now distinguishes WebKitGTK from GJS/GTK; its selection
 workflows remain unavailable. Text-entry AC3 remains partial/not-run and AC8
 remains complete/runtime-tested. View remains running for other style
-contracts. Popover/finite-list selection, remaining inputs/parts, Image,
+contracts. Finite-list selection, remaining inputs/parts, Image,
 overlays, navigation, theme and services stay under the full goal.
+
+
+### Public GTK popover
+
+Popover and its three prop types reuse a shared GTK leaf: a nonmodal
+Gtk.Popover parented to the anchor, content portalled through the original
+universal root so providers and component state survive the native surface.
+Availability is 69 values and 108 types.
+
+The 73-check Linux fixture passes without skips, covering 4x3
+placement/alignment, flip and viewport clamping, number and px offsets,
+controlled/uncontrolled Escape and outside-tap authority,
+dismissOnEscape/dismissOnOutsideTap shielding, nested top-layer dismissal,
+anchor unmount/remount, focus capture/restore and finalFocusRef, portal
+context and pane retention, and controller/display-CSS teardown; 46 of them
+use actual X11 keys and clicks. All four shared popup tests (popover 73,
+popup-events 61, popup-portal 56, tooltip 50 assertions) pass together. All
+62 affected typecheck tasks and the packed export/declaration validation
+pass. See
+[the renderer evidence](linux-gtk-renderer.md#gtk-popover-session-placement-and-qualification)
+for the set_pointing_to rationale, exact logs and limits.
+
+Placement proven under X11/Xvfb only; Wayland/xdg-popup constraint behavior,
+visual parity and assistive-client output stay unqualified.

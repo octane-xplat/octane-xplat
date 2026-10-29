@@ -43,6 +43,7 @@ import {
 import { physicalView } from './physical-view.js'
 import { makeTextView, takeTextViewControl, type TextViewControl } from './text-view.js'
 import { bindPicture } from './picture.js'
+import { popoverChromeUsers } from './popover-instance.js'
 import { bindPublicInstance } from './public-instance.js'
 
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
@@ -176,6 +177,8 @@ export interface GtkContainer {
 	portalTargets: Map<number, GtkPortalTarget>
 	portalTargetsByObject: Map<unknown, GtkPortalTarget>
 	nextPortalTarget: number
+	/** Qualification aid: shared popover chrome users on the host display. @internal */
+	popoverChromeUsers?: () => number
 	/** Style restyle queue — flushed at batch end, or on one microtask
 	 *  outside a batch (GJS has no queueMicrotask). */
 	cssDirty?: Set<ElementNode>
@@ -4103,6 +4106,7 @@ export function createGtkContainer(host: GtkView): GtkContainer {
 		portalTargets: new Map(),
 		portalTargetsByObject: new Map(),
 		nextPortalTarget: 0,
+		popoverChromeUsers: () => popoverChromeUsers(host.get_display()),
 	}
 	liveGtkContainers.add(container)
 	// Gtk.Settings exists only after Gtk.init — the first container is the

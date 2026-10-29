@@ -340,6 +340,8 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class StyleContext {
+			static add_provider_for_display(display: any, provider: CssProvider, priority: number): void
+			static remove_provider_for_display(display: any, provider: CssProvider): void
 			get_margin(): Border
 			get_border(): Border
 			get_padding(): Border

@@ -97,6 +97,9 @@ export type {
 export { Tooltip } from './Tooltip'
 export type { TooltipProps, PopoverPlacement } from './props'
 
+export { Popover } from './Popover'
+export type { PopoverProps, PopoverAlignment, PopoverAnchorRef } from './props'
+
 export { TextInput } from './TextInput'
 export type {
 	TextInputProps,

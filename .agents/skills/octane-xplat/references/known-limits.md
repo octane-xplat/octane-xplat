@@ -302,7 +302,7 @@ from assistive-client behavior.
 
 ### GTK native popup boundaries
 
-The curated GTK root still excludes Popover, Selector and MultiSelector.
+The curated GTK root still excludes Selector and MultiSelector.
 Raw GTK popup feasibility and renderer portal measurement are separate from
 qualification of those public APIs. Gtk.Window capture does not receive events
 from a native Gtk.Popover surface; bind controllers to each native popup when
@@ -321,5 +321,7 @@ session and release the registration on close. Keep dismissal authority in
 layer-stack: claim outside input before invoking the owner's callback. Escape
 bubbles after the editor's handlers; do not replace that with a capture shortcut
 or infer real IME coverage from a synthetic composing guard. The maintained
-ui-popup-events case owns the routing/lifetime checks; it does not qualify the
-public Popover component or its focus/placement contracts.
+ui-popup-events case owns the routing/lifetime checks; it does not qualify other
+overlay surfaces. Popover is curated separately: the shared leaf portals
+through the original root and placement uses set_pointing_to, not an
+iterative set_offset feedback loop (see the renderer note).

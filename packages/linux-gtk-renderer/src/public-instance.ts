@@ -1,3 +1,4 @@
+import { bindPopovers } from './popover-instance.js'
 import { popupBounds } from './popup-bounds.js'
 import { bindRangeInstance } from './range-instance.js'
 import { bindTooltips } from './tooltip-instance.js'
@@ -168,6 +169,7 @@ export function bindPublicInstance(
 	}
 	const range = bindRangeInstance(view, emit, (name) => !!listeners.get(name as RefEvent)?.size)
 	const disposeTooltips = bindTooltips(view)
+	const disposePopovers = bindPopovers(view, () => host)
 	const disposeScrolling = bindScrolling(view, emit)
 	const mapped = view.connect('map', () => {
 		emit('loaded')
@@ -328,6 +330,7 @@ export function bindPublicInstance(
 		disposeFont = null
 		range.dispose()
 		disposeTooltips()
+		disposePopovers()
 		disposeScrolling()
 		disposed = true
 		host = null
