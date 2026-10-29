@@ -520,6 +520,8 @@ body {
    first section (the sketch hides the between-section rule) */
 
 .side-sec {
+	display: flex;
+	flex-direction: column;
 	gap: 4px;
 	padding-top: 19px;
 	flex-shrink: 0;
@@ -534,7 +536,7 @@ body {
 	font-weight: 450;
 	letter-spacing: 0.001em;
 	padding: 0 5px;
-	margin-bottom: 6px;
+	margin-bottom: 4px;
 }
 
 .side-item {
