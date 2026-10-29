@@ -12,8 +12,12 @@ the suffix chain.
 
 The harness remains experimental. Earlier Windows build and input evidence is
 recorded in the [test-host runbook](../../.agents/docs/windows-test-host.md).
-The October 23 preview upgrade below has host-side verification only; Windows
-build, launch, and input/layout checks must be repeated for this pin.
+A bounded x64 packaged run on this preview passed 13 input, modal and scrolling
+scenario groups; see the [target evidence](../../.agents/docs/parity/windows-support-progress.md#qualified-bounded-common-flow-batch-v6).
+That run used core patch f6bf77c5. The later synchronous-filesystem patch is
+source-contract checked only and still needs native adoption/verification.
+The full shared harness, other architectures and wider support gates remain
+unqualified.
 
 Pins, all deliberate:
 
@@ -84,4 +88,23 @@ generation; the Windows build script starts NativeScript directly.
 
 ```sh
 pnpm exec turbo run build:windows --filter=@xplat/windows --concurrency=1 -- --release
+```
+
+
+## Filesystem source contracts
+
+After adopting the workspace patch set, run the Windows filesystem regressions
+against the installed core package from the repository root:
+
+```sh
+pnpm exec turbo run test:filesystem --filter=@xplat/windows
+```
+
+These Node/VM tests fake the native file backend. They do not open OS files or
+prove actual Windows I/O. For an isolated candidate, set WINDOWS_CORE_ARTIFACT
+to the folder containing file-system/file-system-access.windows.js:
+
+```powershell
+$env:WINDOWS_CORE_ARTIFACT = 'C:\path\to\candidate-core'
+pnpm exec turbo run test:filesystem --filter=@xplat/windows
 ```

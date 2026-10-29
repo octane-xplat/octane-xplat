@@ -8,7 +8,8 @@
 		"windows": "pnpm -w gen:app && xplat dev windows",
 		"build:windows": "ns build windows",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
-		"test:keyboard": "node --test ../../scripts/windows-keyboard-regression.test.mjs ../../scripts/windows-pointer-regression.test.mjs"
+		"test:keyboard": "node --test ../../scripts/windows-keyboard-regression.test.mjs ../../scripts/windows-pointer-regression.test.mjs",
+		"test:filesystem": "node --test ../../scripts/windows-filesystem-regression.test.mjs"
 	},
 	"dependencies": {
 		"@nativescript-community/observable": "2.0.11",

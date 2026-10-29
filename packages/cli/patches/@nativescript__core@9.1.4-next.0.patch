@@ -1722,3 +1722,95 @@ index 0000000000000000000000000000000000000000..b09ea3e510758522b924285c2c057eec
 +/** Raw Windows key events. The UI adapter owns portable key normalization. */
 +export declare function createWindowsKeyEvents(view: any): { sync(): void; release(): void; };
 +export declare function takeWindowsKeyHandled(args: object): boolean;
+diff --git a/file-system/file-system-access.windows.js b/file-system/file-system-access.windows.js
+index 2edc69259a3ed2a645c906a9c126341458b6c174..0e8d546ccf04146957a83851d9c4a3576dfd7919 100644
+--- a/file-system/file-system-access.windows.js
++++ b/file-system/file-system-access.windows.js
+@@ -56,8 +56,17 @@
+     getFile(path, onError) {
+         try {
+             if (!this.fileExists(path)) {
+-                this._ensureParentDir(path);
+-                Windows.Storage.PathIO.WriteTextAsync(path, '');
++                const io = globalThis.System.IO;
++                const parent = this.getParent(path)?.path;
++                if (parent && parent !== path) {
++                    io.Directory.CreateDirectory(parent);
++                }
++                // Another caller can create the file after Exists. OpenOrCreate never truncates it.
++                const stream = io.File.Open(path, io.FileMode.OpenOrCreate, io.FileAccess.ReadWrite, io.FileShare.ReadWrite);
++                if (typeof stream?.Dispose !== 'function') {
++                    throw new Error('Windows file creation returned an invalid stream');
++                }
++                stream.Dispose();
+             }
+             const name = getFileName(path);
+             return { path, name, extension: getExtension(name) };
+@@ -71,7 +80,7 @@
+     getFolder(path, onError) {
+         try {
+             if (!this.folderExists(path)) {
+-                Windows.Storage.StorageFolder.GetFolderFromPathAsync(path);
++                globalThis.System.IO.Directory.CreateDirectory(path);
+             }
+             return { path, name: getFileName(path) };
+         }
+@@ -118,45 +127,22 @@
+     folderExists(path) {
+         return this._itemExists(path, 'folder');
+     }
+-    // Synchronously test existence WITHOUT triggering a rejected WinRT async operation.
+-    // GetFileFromPathAsync / GetFolderFromPathAsync REJECT for a missing path, and forcing a rejected
+-    // async op to complete synchronously (via .done()) aborts the process with a native panic that
+-    // bypasses JS try/catch rather than throwing. So instead resolve the parent folder and call
+-    // TryGetItemAsync, which RESOLVES with null for a missing child rather than rejecting.
++    // Use synchronous .NET I/O instead of relying on WinRT completion timing.
++    // Let bridge/projection failures propagate, so getFile cannot mistake them for absence.
+     _itemExists(path, kind) {
+-        try {
+-            if (!path) {
+-                return false;
+-            }
+-            const parent = this.getParent(path)?.path;
+-            const name = getFileName(path);
+-            if (!parent || !name || parent === path) {
+-                return false;
+-            }
+-            let result = false;
+-            Windows.Storage.StorageFolder.GetFolderFromPathAsync(parent).done((folder) => {
+-                if (!folder || typeof folder.TryGetItemAsync !== 'function') {
+-                    return;
+-                }
+-                folder.TryGetItemAsync(name).done((item) => {
+-                    if (!item) {
+-                        return;
+-                    }
+-                    try {
+-                        const types = Windows.Storage.StorageItemTypes;
+-                        result = kind === 'file' ? item.IsOfType(types.File) : item.IsOfType(types.Folder);
+-                    }
+-                    catch {
+-                        // If the item type can't be determined, treat its presence as a match.
+-                        result = true;
+-                    }
+-                });
+-            });
+-            return result;
+-        }
+-        catch {
++        if (typeof path !== 'string' || path.length === 0) {
+             return false;
+         }
++        const io = globalThis.System?.IO;
++        const type = kind === 'file' ? io?.File : io?.Directory;
++        if (typeof type?.Exists !== 'function') {
++            throw new Error('Windows synchronous file existence requires the .NET bridge');
++        }
++        const result = type.Exists(path);
++        if (typeof result !== 'boolean') {
++            throw new Error('Windows file existence returned a non-boolean result');
++        }
++        return result;
+     }
+     deleteFile(path, onError) {
+         try {

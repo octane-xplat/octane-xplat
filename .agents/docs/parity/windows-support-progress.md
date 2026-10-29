@@ -1641,3 +1641,114 @@ architectures remain unqualified. The synchronous core File.exists mismatch
 also remains open; raw async fixture reads do not qualify the public files
 service. Keep those gates pending and prioritize these common-flow/lifecycle
 and everyday-service gaps before niche integrations.
+
+
+## Windows synchronous filesystem candidate
+
+The next common-flow prerequisite is the existing File.exists mismatch. The
+repository's file-picker probe (packages/app/src/platform/filepick.mobile.ts)
+seeds a document, picks it and reads it; that probe is explicitly iOS-only and
+is not Windows evidence. Treating everyday document/storage flows as higher
+demand than niche integrations is an assumption informed by that existing flow
+and the user priority. The actual v2-v6 Windows fixture additionally observed
+core File.exists=false while async WinRT PathIO read the same existing native
+path. This batch targets the low-level core prerequisite; it does not qualify
+the separate public @octane-xplat/files facade, whose Windows leaf already
+uses async WinRT operations.
+
+Source: the exact owned installed preview file
+file-system/file-system-access.windows.js was copied into
+research/windows61/core-filesystem/preimage/. Its synchronous existence method
+returned an initially false variable populated by WinRT completion callbacks.
+That source relies on completion callbacks supplying its return value. The
+actual runtime false result is separate evidence; exact callback timing/root
+cause was not re-probed. getFile also wrote an empty string when that check returned
+false. The scripted model reproduces existing content being cleared on this
+path; no actual user-file truncation was performed or observed. The missing-
+folder path requested an existing WinRT folder rather than creating one.
+
+The candidate uses the host's existing System.IO File.Exists/Directory.Exists
+for synchronous booleans, OpenOrCreate with a promptly disposed stream for new
+files, and Directory.CreateDirectory for parent/missing folders. Existing-file
+metadata lookup does not open or write the file. OpenOrCreate preserves a file
+that appears after the check; projection failures are not converted to absence
+and do not enter a blank-write fallback. GetFile/getFolder retain their error
+callback/undefined failure shape. The backend boolean still follows .NET's
+permission/error semantics; false is not path validation or proof that a path
+never existed. Relevant Microsoft references:
+[File.Exists](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.exists),
+[Directory.Exists](https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.exists),
+[FileMode.OpenOrCreate](https://learn.microsoft.com/en-us/dotnet/api/system.io.filemode),
+[Directory.CreateDirectory](https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.createdirectory).
+NativeScript Windows alpha.144's runtime/src/js/dotnet.js already provides the
+System namespace and preserves it when Core assigns its SystemJS shim; its
+own test-app uses System.IO. No new dependency or native host source was added.
+
+Ten focused contracts evaluate the full distributed FileSystemAccess artifact
+against fake native I/O: file/folder distinction, missing/invalid paths,
+Unicode/drive-root/relative arguments, existing contents, completed empty-file
+creation/disposal, a competing creator, projection failures, parent/open/close
+failures, folder creation and collision. The original preimage failed9/10;
+the candidate passed10/10 through a single uncached Turbo task with no build
+dependencies. Final runs used existing Turbo2.11.4 and Node26.12.0 on macOS,
+not a Windows runtime. An earlier eight-case run used the global Turbo2.10.11
+fallback and was superseded; no dependency was installed to change versions.
+Logs: research/windows61/filesystem-preimage-final.log,
+filesystem-candidate-final.log and filesystem-candidate-final-detail.log.
+
+The final validation invoked the already-installed repository Turbo binary:
+
+```sh
+WINDOWS_CORE_ARTIFACT="$PWD/research/windows61/core-filesystem/candidate" pnpm exec node /Users/alec/dev/alloc/octane-xplat/node_modules/.pnpm/turbo@2.11.4/node_modules/turbo/bin/turbo run test:filesystem --filter=@xplat/windows --concurrency=1 --output-logs=errors-only
+```
+
+The dry run contained exactly that task and no dependency/build/generation
+work. Effective local pnpm verifyDepsBeforeRun=false prevented an implicit
+install. The maintained task uses the installed patched core by default and
+accepts WINDOWS_CORE_ARTIFACT for private copies. It is registered only in the
+Windows app manifest/Turbo config. Formatter and targeted lint passed.
+
+The canonical preview patch appends only this filesystem section; all prior
+CSS, pointer, input, keyboard and module-cycle sections remain byte-identical.
+The new section applied and reversed exactly against the copied installed
+preimage and reproduced the tested candidate. An independent public tarball
+re-fetch from pkg.pr.new returned HTTP403 on the reading host; fresh archive
+application is not established by this check. The generated patch-package
+copy and manifest/root metadata were synchronized; pnpm check:patches passed.
+The lockfile changes only substitute the preview-core patch hash. New SHA256:
+85519b427a86b56002736f7c5b44eb277e706b209d79cd1e51e23e932e185527.
+Provenance: research/windows61/core-filesystem/patch-provenance.json.
+The sync/check initially could not resolve yaml in this isolated worktree;
+a temporary link to the existing yaml2.9.1 package was used and removed after
+checking. No install or mutation of the original checkout occurred.
+
+**The native-qualified v6 MSIX and installed dependencies still use the old
+f6bf77c5 patch. Its 13 OS passes do not qualify this new filesystem patch.**
+Native BCL projection, real file/folder creation and collision, packaged path/
+permission behavior, handle cleanup, and post-adoption common-flow regression
+checks remain pending. Core read/write/metadata/enumeration and the public files
+facade were not repaired or qualified by these existence/creation contracts.
+No source-audit, issue checkbox or supported recipe target changed.
+
+The following are exact deferred adoption/check commands; do not treat them
+as passed or automatically rerun dependency installation/native builds outside
+the human-authorized phase:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm exec turbo run test:filesystem test:keyboard --filter=@xplat/windows --concurrency=1
+pnpm exec turbo run typecheck --filter=...@octane-xplat/cli
+pnpm exec turbo run typecheck --filter=...@octane-xplat/patches
+pnpm exec turbo run typecheck --filter=...@xplat/windows
+pnpm exec turbo run build:windows --filter=@xplat/windows --concurrency=1 -- --release
+```
+
+After adoption, a separate owned x64 native case must compare core File.exists
+and Folder.exists with actual files/directories; verify that File.fromPath
+preserves existing bytes and synchronously creates a new empty file; verify
+Folder.fromPath creates nested directories; exercise failure/collision and
+cleanup paths; then rerun the bounded modal/input/scroll case. Use only new
+owned temporary paths. This is a pending native requirement, not supplied by
+these Node/VM tests. The earlier UI/dependent/packed commands also remain
+outstanding. No stable-release fix note is added for this unreleased Windows
+preview repair.

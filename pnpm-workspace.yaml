@@ -158,7 +158,7 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   workerd: true
-  '@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=f6bf77c513902a1106ad9d22f8efe024c80f0ae0a5bc3ab6e3e5fec643ef82e2)': true
+  '@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=85519b427a86b56002736f7c5b44eb277e706b209d79cd1e51e23e932e185527)': true
   # firebase (web push) postinstalls: @firebase/util's is a React Native
   # bundling shim, protobufjs's prints a deprecation banner — neither needed.
   '@firebase/util': false
@@ -310,7 +310,9 @@ patchedDependencies:
   # cycle that crashed ESM bundle evaluation at startup. The #11446 frame/tab fixes are now
   # upstream and removed. Preserves upstream transparent-background hit testing and
   # contact-only pointer moves. Registry core 9.1.4-next.0 has no Windows implementation;
-  # this patch targets the commit-pinned preview with that version.
+  # this patch targets the commit-pinned preview with that version. Uses host .NET I/O for
+  # synchronous existence, recursive directory creation, and nontruncating OpenOrCreate file
+  # creation. Existence projection failures are not treated as missing paths.
   "@nativescript/core@9.1.4-next.0": packages/cli/patches/@nativescript__core@9.1.4-next.0.patch
   # Enables `resolveHiddenExtensions` on the language plugin's typescript facet so
   # extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required
