@@ -165,7 +165,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 				{plan.columns.length > 0 && (
 					<masonview className="vx-table-head" style={{ display: 'flex', flexDirection: 'row' }}>
 						{plan.headerCells.map((cell) => {
-							const { before, after, below, content } = cell.render
+							const { before, after, below, content, overlay } = cell.render
 							return (
 								<masonview
 									key={cell.column.key}
@@ -189,6 +189,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 										<TableSlot value={after} />
 									</masonview>
 									<TableSlot value={below} />
+									<TableSlot value={overlay} />
 								</masonview>
 							)
 						})}

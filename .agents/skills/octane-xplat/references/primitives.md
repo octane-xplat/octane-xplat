@@ -592,8 +592,13 @@ column plan, so header/body/minimum scroll sizing share the override. Removing
 it restores the original width; locked columns still accept programmatic
 values. Finite nonnegative values are required; invalid visible values reject
 the transform under existing plugin error isolation. Unknown keys are ignored.
-Native resize gestures, separators, min/max gesture constraints and completion
-callbacks remain unimplemented; native layout/update behavior is unrun.
+AppKit now has source-owned header resize handles with drag preview, mirrored
+RTL arrows/deltas, Home/End, Escape cancellation, min/max constraints and commit
+callbacks. A native splitter role/value/range and AX adjustment source path is
+added. With columnWidths present the parent must acknowledge commits; without
+it the plugin owns committed widths. The web source retains local overrides
+and lacks mirrored RTL deltas; do not claim behavioral parity. Native pan/key/
+AX/hit-testing, sticky composition, layout and cleanup remain unrun.
 
 ```tsx
 import { Table, pixel, useTableColumnResize } from '@octane-xplat/ui'

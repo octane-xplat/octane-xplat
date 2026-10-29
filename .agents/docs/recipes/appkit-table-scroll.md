@@ -17,7 +17,7 @@ before column pinning can work.
 - AC3: Preserve scroll-wrapper classes/styles and before/after slots. Forward wrapper refs to NSScrollView and public Table ref to inner content; do not imply support for DOM handlers/attributes or pinned positioning.
 - AC4: Maintain a manual narrow/wide, auto/bounded-height, empty/refill, mixed-width, plugin-slot/ref metrics fixture. Distinguish syntax/source evidence from native layout, trackpad/wheel/RTL, nested scrolling, ref teardown, accessibility and clean packaged-consumer qualification. Sticky columns remain a gap.
 
-- AC5: Current controlled columnResize widths transform the resolved column definitions before width/header/body planning. Removing overrides restores original proportional/pixel widths; locked columns accept programmatic values without callback echoes. Ignore unknown/inherited keys and reject invalid visible values under plugin isolation. Document missing native gesture/separator/min-max/callback support and keep native updates unqualified.
+- AC5: Current controlled columnResize widths transform the resolved column definitions before width/header/body planning. Removing overrides restores original proportional/pixel widths; locked columns accept programmatic values without callback echoes. Ignore unknown/inherited keys and reject invalid visible values under plugin isolation. Document the separate native gesture/separator/min-max/callback source subset and keep native updates unqualified.
 
 ## Documentation
 

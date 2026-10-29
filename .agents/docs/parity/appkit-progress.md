@@ -6336,3 +6336,74 @@ order/Tab/VoiceOver, backgrounds, scroll/resize/hidden/window/resource lifetime,
 CPU/memory and supported-macOS/clean installed consumers remain unqualified.
 Audit snapshots and evidence gates unchanged; persistent goal active. Native
 interactive column-resize handles remain a separate gap.
+
+## AppKit Table resize-handle source path
+
+Demand evidence: Astryx ColumnResizeHookUsage and TableResizableTable use the
+resize plugin for ordinary data tables. AppKit previously supported controlled
+plan values only; native header overlay content was dropped and no native
+handle existed. Table now renders overlay content alongside before/after/below
+slots. The AppKit plugin appends an in-cell eight-point handle for unlocked
+columns while preserving existing overlay content. No shared web/mobile plugin
+behavior, dependency or public config shape changed.
+
+Native handles reuse the existing cumulative AppKit pan adapter, portable key
+attachment, native focus host and col-resize cursor mapping. Parent-frame and window
+observation coalesces measured width/scope refresh; ref/effect cleanup cancels owned gestures
+and removes its observation. Handles provide Left/Right ten-point steps,
+Home/finite End, Escape cancellation and AX increment/decrement source paths.
+RTL physical deltas/keys are mirrored. Limits normalize finite values to a
+nonnegative minimum and max at least minimum; default minimum is 50 and max
+unbounded. Programmatic values remain outside gesture limits. Fractional points
+are preserved and no-op drags do not freeze proportional widths into pixels.
+
+An owned state machine shares preview/committed widths with the column-plan
+transform. Without columnWidths it keeps commits internally. With a map present,
+it previews during dragging then retires the preview and emits the full map;
+the parent must save that map to accept. Current matching feedback can
+acknowledge a preview; unrelated active-width changes, limits/control-mode
+changes, hidden/detached/window/direction/key owners and cancellation retire it.
+Commit ownership is claimed before callbacks, so callback errors/reentry cannot
+restore a stale drag or cancel a newly started owner. Programmatic changes do
+not echo resize completion. Native control scope/timing remain unqualified.
+
+Source-level parity boundary: web's current implementation merges local gesture
+widths over controlled props indefinitely and uses fixed physical deltas/keys.
+AppKit's controlled acknowledgement and RTL behavior are explicitly different;
+this is not cross-target parity proof. Docs/skill explain the difference and
+parent acceptance. Reconciling the web branch is outside this AppKit-only edit.
+
+The native accessibility mapper now reports separator as AXSplitter, numeric
+value/range and vertical orientation. The local AppKit SDK defines vertical as
+1; other roles defer to the native orientation baseline. Existing native
+increment/decrement delivery is reused. These source selectors do not establish
+VoiceOver behavior, key-view order or OS focus/hit-testing. Six state cases,
+one simulated splitter case and two new handle universal compiler cases are
+authored, all UNRUN. Existing hook compiler cases now include the new overlay
+source. The manual table fixture exposes commit acceptance, uncontrolled mode,
+column locking, counters, bounds, RTL and sticky composition. It still records
+mounting only; it performs no scripted native gestures.
+
+Guide/skill/recipe/feature note reconcile current source behavior and the
+controlled-width recipe removes its obsolete statement that no handle exists.
+Nine TS/TSRX/MJS files syntax parsed; source/SDK/semantic and whitespace
+review only. Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test:macos --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit table resize-handle package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+No tests/compiler transforms/typechecks/builds, probe/native/OS/AX, packaging or
+visual analysis ran. Actual pan translation/cancellation/hit area and sort
+interaction, controlled preview acknowledgement, same-view replacement, RTL,
+keyboard/Tab/key repeat, AX splitter/value/focus, overlay/geometry lifecycle,
+sticky scrolling/performance, supported macOS and clean installed consumers
+remain unqualified. Audit snapshots and evidence gates unchanged; goal active.

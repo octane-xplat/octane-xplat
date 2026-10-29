@@ -12,7 +12,7 @@ function fixture() {
 	const disabledFocus = createDisabledFocusTargets(), tabStops = createTabStopSuppression()
 	const scopeFocus = new WeakMap()
 	const { AccessibleHostView, applyAccessibility } = runSlice(host + '\n' + apply + '\n({AccessibleHostView,applyAccessibility})', {
-		NSView: class { get accessibilityTitle() { return 'native title' } isAccessibilityEnabled() { return true } keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
+		NSView: class { get accessibilityTitle() { return 'native title' } get accessibilityOrientation() { return 2 } isAccessibilityEnabled() { return true } keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
 		NSNumber: { numberWithDouble: (value: number) => value }, actionIdsByView: ids, actionHandlers: handlers,
 		accessibilityRoles: new Map(), accessibilityLabels: new Map(), stackAccessibilityPropsByView: new WeakMap(),
 		scopeFocusTargets: scopeFocus, disabledFocusTargets: disabledFocus, tabStopSuppression: tabStops, inputTransparentViews: new WeakSet(), invokeAction: (id: number) => handlers.get(id)(),
@@ -256,4 +256,20 @@ test('replacement native inputs release old role/expanded overrides and own a fr
 	assert.deepEqual(previous, { accessibilityRole: 'AXTextField', accessibilityExpanded: false })
 	f.applyAccessibility(node, 'accessibilityRole', null); f.applyAccessibility(node, 'accessibilityState', {})
 	assert.deepEqual(next, { accessibilityRole: 'AXSearchField', accessibilityExpanded: true })
+})
+
+
+test('column resize separators expose native splitter role, vertical orientation, numeric range and current adjustment callbacks', () => {
+	const f = fixture(), values: number[] = []
+	f.set('accessibilityRole', 'separator'); f.set('accessibilityValue', '240')
+	f.set('accessibilityMinValue', 80); f.set('accessibilityMaxValue', 500)
+	f.set('accessibilityValueDescription', '240 points wide')
+	f.set('onAccessibilityIncrement', () => { values.push(250); f.set('accessibilityValue', '250') })
+	assert.equal(f.view.accessibilityRole(), 'AXSplitter')
+	assert.equal(f.view.accessibilityOrientation(), 1)
+	assert.equal(f.view.accessibilityValue(), 240)
+	assert.equal(f.view.accessibilityMinValue(), 80); assert.equal(f.view.accessibilityMaxValue(), 500)
+	assert.equal(f.view.accessibilityValueDescription(), '240 points wide')
+	assert.equal(f.view.accessibilityPerformIncrement(), true); assert.deepEqual(values, [250])
+	f.set('accessibilityRole', 'button'); assert.equal(f.view.accessibilityOrientation(), 2)
 })

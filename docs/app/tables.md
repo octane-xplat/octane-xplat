@@ -172,9 +172,9 @@ body and minimum scroll width are calculated. Removing an override restores
 the original definition, including a proportional width. Controlled values
 must be finite and nonnegative; invalid visible-column values reject the
 resize transform through Table's existing plugin-error isolation. Unknown keys
-are ignored. Programmatic writes do not emit onColumnResizeEnd; minWidth,
-maxWidth and resizable govern interactive gestures, which are not implemented
-on AppKit. Actual native alignment and updates remain unqualified.
+are ignored. Programmatic writes do not emit onColumnResizeEnd. AppKit now has experimental
+resize handles governed by minWidth, maxWidth and resizable, described below.
+Actual native alignment and updates remain unqualified.
 
 ```tsx
 import { Table, pixel, useTableColumnResize } from '@octane-xplat/ui'
@@ -228,3 +228,58 @@ anchors, sibling ordering, button hit-testing, text editing/IME, focus/Tab,
 background compositing, scrolling performance, VoiceOver and packaged consumers
 remain unqualified. The fixture includes pinned buttons and text fields for
 those checks; mounting or simulated callbacks cannot prove them.
+
+
+## Resize columns on AppKit
+
+The AppKit plugin now supplies native header handles for unlocked columns.
+Drag horizontally, use Left/Right for ten-point steps, or Home/End for finite
+limits. RTL mirrors physical drag/key directions. Escape cancels a drag;
+locking/removing a handle, replacing its native window or changing the active
+controlled width retires its preview. Native splitter role/value/range and
+increment/decrement actions have source paths. None of these interactions is
+runtime-qualified yet.
+
+```tsx
+import { useState } from 'octane'
+import { Table, pixel, useTableColumnResize } from '@octane-xplat/ui'
+export function ResizablePeople() {
+  const [widths, setWidths] = useState<Record<string, number>>({})
+  const resize = useTableColumnResize({ columnWidths: widths, onColumnResizeEnd: setWidths,
+    minWidth: 80, maxWidth: 520 })
+  return <Table data={[{ name: 'Ada' }]} columns={[{ key: 'name', width: pixel(180) }]}
+    plugins={{ columnResize: resize }} />
+}
+```
+
+Use one plugin instance per data Table. With columnWidths present, drag previews
+retire at commit and the parent must save the returned map to accept changes.
+Without columnWidths, committed widths stay in the plugin. Pointer cancellation
+does not emit a commit; keys and accessibility adjustments commit immediately.
+The current web implementation retains local gesture widths and does not mirror
+RTL deltas, so unacknowledged controlled updates and RTL behavior differ by
+source implementation. Cross-target parity remains unresolved; native proof
+must not be inferred from the web leaf.
+
+```tsx
+import { useTableColumnResize } from '@octane-xplat/ui'
+export function useLocalWidths() {
+  return useTableColumnResize({ minWidth: 80, maxWidth: 520 })
+}
+```
+
+Bounds default to a minimum of 50 points and no maximum. Invalid/nonfinite
+minimums use the default; finite limits are normalized to nonnegative minimum
+and maximum at least minimum. Programmatic widths may lie outside gesture
+limits. Six interaction-state cases, one simulated splitter case and two new
+handle compiler cases are authored but unrun. Native drag delivery/cancellation,
+keyboard focus/Tab, VoiceOver, sorting versus handle hit-testing, sticky-column
+composition, repeated layout, teardown and packaged consumers remain unqualified.
+
+
+```tsx
+import { useTableColumnResize } from '@octane-xplat/ui'
+export function useNarrowName() {
+  return useTableColumnResize({ columnWidths: { name: 40 }, minWidth: 80, maxWidth: 520 })
+}
+```

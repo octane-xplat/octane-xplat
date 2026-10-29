@@ -22,3 +22,12 @@ for (const name of ['row-index', 'row-expansion', 'grouped-rows', 'row-status', 
 		})
 	}
 }
+
+
+for (const hmr of [false, true]) {
+	test(`AppKit column resize handle compiles with HMR ${hmr ? 'on' : 'off'}`, async () => {
+		const filename = 'column-resize-handle.macos.tsrx'
+		const source = await readFile(new URL(`../src/table/${filename}`, import.meta.url), 'utf8')
+		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-renderer', target: 'universal', server: 'unsupported', text: 'host' } })
+	})
+}

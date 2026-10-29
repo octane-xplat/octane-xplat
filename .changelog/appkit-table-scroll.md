@@ -33,3 +33,18 @@ export function usePeoplePins() {
 }
 // Inside a component, pass the returned plugin to Table.
 ```
+
+
+AppKit also has experimental native resize handles with drag previews,
+keyboard limits and splitter accessibility source paths. Accept controlled
+commits in the parent; native interaction and accessibility remain unqualified.
+
+```tsx
+import { useState } from 'octane'
+import { useTableColumnResize } from '@octane-xplat/ui'
+export function useEditableWidths() {
+  const [columnWidths, setWidths] = useState<Record<string, number>>({})
+  return useTableColumnResize({ columnWidths, onColumnResizeEnd: setWidths,
+    minWidth: 80, maxWidth: 520 })
+}
+```

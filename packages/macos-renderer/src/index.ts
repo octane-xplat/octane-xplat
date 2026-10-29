@@ -895,6 +895,7 @@ class AccessibleHostView extends NSView {
 		if (role === 'tablist') return 'AXTabGroup'
 		if (role === 'switch') return 'AXCheckBox'
 		if (role === 'adjustable') return 'AXSlider'
+		if (role === 'separator') return 'AXSplitter'
 		if (role === 'link') return 'AXLink'
 		if (role === 'radiogroup') return 'AXRadioGroup'
 		if (role === 'listbox') return 'AXList'
@@ -913,6 +914,12 @@ class AccessibleHostView extends NSView {
 					: role === 'progressbar'
 						? 'AXProgressIndicator'
 						: 'AXGroup'
+	}
+
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	accessibilityOrientation() {
+		// NSAccessibilityOrientationVertical = 1 (AppKit SDK).
+		return this.accessibilityRole() === 'AXSplitter' ? 1 : super.accessibilityOrientation
 	}
 
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
@@ -950,7 +957,7 @@ class AccessibleHostView extends NSView {
 			)
 		}
 
-		if (role === 'AXLevelIndicator' || role === 'AXProgressIndicator' || role === 'AXSlider') {
+		if (role === 'AXLevelIndicator' || role === 'AXProgressIndicator' || role === 'AXSlider' || role === 'AXSplitter') {
 			return NSNumber.numberWithDouble(Number(props?.accessibilityValue ?? 0))
 		}
 
