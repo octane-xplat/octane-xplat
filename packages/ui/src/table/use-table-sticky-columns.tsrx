@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-// Sticky-columns plugin — universal fallback. AppKit data Table now has a
-// horizontal viewport, but native pinning is still unimplemented. Keep the
-// shared config as a pass-through; offset math lives in ./sticky-column-offsets.
+// Sticky-columns plugin — universal fallback for native hosts without
+// placement support. AppKit selects its dedicated measured-placement leaf.
+// Shared membership/offset math lives in ./sticky-column-offsets.
 
 import type { TablePlugin, UseTableStickyColumnsConfig } from './types'
 

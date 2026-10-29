@@ -569,15 +569,16 @@ function ExampleTable() {
 }
 ```
 
-`useTableStickyColumns` is web-only behavior: native leaves currently return a
-pass-through plugin. AppKit data Table now has an experimental native horizontal
-viewport, measured clip width, fixed pixel widths and proportional minimums;
-child-composed tables retain their existing flow. Scroll-wrapper styles/classes,
-slots and native NSScrollView refs are forwarded; the public Table ref targets
-inner content. Actual height/layout/scroll/RTL/ref lifetime remains unrun. Do
-not claim native pinning or native keyboard/accessibility qualification from
-the shared export. Multiple pinned proportional columns use minimum-width
-offsets; use pixel widths when their offsets must remain exact.
+AppKit useTableStickyColumns now has an experimental native placement source
+path for contiguous start/end runs. Use one instance per data Table. Original
+measured cell/row bounds include expanded proportional widths; renderer-owned
+constraint offsets and sibling order move existing native cells. RTL edge math,
+row clamping, start-side overlap priority and teardown are source paths, not
+native input/AX proof. Missing bridge leaves ordinary scrolling. No web shadows
+or transitions are supplied. Native pin/order timing, backgrounds, button/field
+hit-testing, IME/Tab/VoiceOver and clean packaging remain unrun. Child-composed
+tables and other native fallback leaves have no pinning implementation. Web
+uses declared minimum-width offsets; use pixels there for exact pinned offsets.
 
 ```tsx
 function ExampleTable() {

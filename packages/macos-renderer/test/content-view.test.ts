@@ -75,6 +75,7 @@ function fixture(type = 'contentview') {
 			.map(fn)
 			.join('\n') + '\n({insert,remove,destroy,layoutContentChild})',
 		{
+			stickyPlacements: { position: (_node: unknown, rect: { x: number }) => rect.x, reset() {} },
 			elementBehaviors: new Map(),
 			behaviorOf: () => undefined,
 			isManualLayoutParent: (t: string) =>

@@ -106,6 +106,7 @@ function fixture() {
 			) +
 			'\n;({insert,remove,destroy,layoutRootChildren,rootNaturalSize,validateNodeProps,applyCommand})',
 		{
+			stickyPlacements: { position: (_node: unknown, rect: { x: number }) => rect.x, reset() {} },
 			elementBehaviors: new Map(),
 			behaviorOf: () => undefined,
 			isManualLayoutParent: (t: string) =>

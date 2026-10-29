@@ -31,6 +31,8 @@ declare global {
 		readonly keyboardEventsSupported?: boolean
 		/** CSS hover/focus-within source capability; not native input qualification. */
 		readonly containerRevealSupported?: boolean
+		/** Owned native layout pins and row ordering; OS hit-testing remains unqualified. */
+		retainTableStickyPlacement?: (view: object) => import('./sticky-placement.ts').StickyPlacementLease | undefined
 		readonly focusWithinSupported?: boolean
 		readonly contextMenuEventsSupported?: boolean
 		observeFileDrop?: (view: import('@octane-xplat/platform/macos').NSView, handlers: { enabled(): boolean; receive(uris: string[]): boolean }) => () => void

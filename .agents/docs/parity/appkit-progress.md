@@ -6268,3 +6268,71 @@ visual analysis ran. Native header/body/scroll-range resize geometry, plugin
 ordering/re-render/ref lifetimes, input/RTL/focus/AX and clean installed macOS
 consumers remain unqualified. Source snapshots and evidence checkboxes unchanged;
 persistent goal active. Column pinning and native interactive resizing remain gaps.
+
+## AppKit sticky-column placement source path
+
+After the native viewport and controlled-width plan prerequisites, AppKit
+useTableStickyColumns now has a dedicated source implementation. Shared helper
+logic selects contiguous runs and resolves dual-edge membership to start. The
+plugin composes wrapper refs and Table now forwards header/body cell refs.
+Empty config or a missing placement bridge leaves ordinary scrolling. Use one
+hook instance per data Table; child-composed tables remain outside this subset.
+No mobile/GTK hook behavior, dependency or shared stylesheet changed.
+
+The renderer owns a native placement lease per cell. It retains the original
+Mason rect, adds an owned offset to the leading constraint whenever layout pins
+are applied, and can read unshifted geometry relative to the current document.
+Offsets therefore do not accumulate from already-shifted frames or get erased
+by the next layout pass. Release restores the latest base layout; new leases
+supersede old ones, reparent/pin release clears stale bases, and dead native
+nodes cannot update placement. Sibling order follows template order within
+priority groups: normal, shifted end, shifted start. Releasing restores current
+template order. Existing native views move; no clones, layer-only transform or
+imperative frame-write substitute is used. This is an unrun source mechanism,
+not proof of Auto Layout timing, leading-anchor RTL behavior or native hit tests.
+
+The UI controller uses actual row/cell widths, including expanded proportional
+columns and current controlled plan values. It calculates start/end physical
+edges with direction, clamps to the row and deterministically prioritizes start
+when pinned regions overlap. Clip/document/viewport frame or bounds and window
+updates drive coalesced microtasks; no JS frame timer. Initial windowless
+attachment is observed. Hidden/detached cells, replaced viewport and hook
+teardown release leases/observers; late owners are ignored. Cleanup errors do
+not prevent releasing remaining owners. Native cell backgrounds are opaque,
+with a gradient source path for the existing row-overlay variable; web
+pseudo-element shadows/transitions remain unimplemented. Background/row-state
+compositing and every real native input claim remain unqualified.
+
+Three simulated renderer pin/order cases, six geometry/observer cases and two
+universal compiler cases (HMR off/on) are authored, all UNRUN. Existing layout
+slice fixtures receive no-op placement dependencies; source slice boundaries
+remain intact. The manual Table fixture now has start/end toggles, multiple
+runs, RTL provider, a pinned action button and editable note field, alongside
+controlled widths and native metrics. Its runner still records mounting only.
+Guide, skill, fallback comments, feature note and dedicated recipe reconcile
+current source capabilities and limitations. Earlier target-note sections are
+historical source states, not current claims that this new path is qualified.
+
+Exact deferred commands, requiring this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer --filter=@octane-xplat/ui
+pnpm exec turbo run test:macos --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit sticky data-table package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Fourteen TS/TSRX/MJS/declaration files syntax parsed; source/semantic and
+whitespace review only. No test/compiler transform,
+typecheck/build, probe/native/OS/AX, packaging or visual analysis ran. Native
+constraint/frame timing, leading-anchor RTL and clipping, projected/margined
+cells, row/template restoration, pinned button/field hit-testing, IME, key-view
+order/Tab/VoiceOver, backgrounds, scroll/resize/hidden/window/resource lifetime,
+CPU/memory and supported-macOS/clean installed consumers remain unqualified.
+Audit snapshots and evidence gates unchanged; persistent goal active. Native
+interactive column-resize handles remain a separate gap.

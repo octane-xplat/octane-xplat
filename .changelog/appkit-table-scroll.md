@@ -13,8 +13,8 @@ import { Table, View, pixel } from '@octane-xplat/ui'
 </View>
 ```
 
-Child-composed tables keep their existing flow. Sticky column positioning is
-still unimplemented on AppKit. See the [table guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/tables.md#wide-data-tables-on-appkit).
+Child-composed tables keep their existing flow. AppKit sticky columns now have an experimental measured native placement
+source path; actual positioning, hit-testing and accessibility remain unqualified. See the [table guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/tables.md#wide-data-tables-on-appkit).
 
 
 ```tsx
@@ -23,4 +23,13 @@ export function usePeopleWidths() {
   return useTableColumnResize({ columnWidths: { name: 320 } })
 }
 // Call usePeopleWidths inside a component and pass its plugin to Table.
+```
+
+
+```tsx
+import { useTableStickyColumns } from '@octane-xplat/ui'
+export function usePeoplePins() {
+  return useTableStickyColumns({ startKeys: ['name'], endKeys: ['status'] })
+}
+// Inside a component, pass the returned plugin to Table.
 ```

@@ -4,7 +4,7 @@ import { compile } from 'octane/compiler'
 
 // These hooks return plugin data containing render callbacks. A successful
 // DOM build does not prove that the universal compiler can lower those values.
-for (const name of ['row-index', 'row-expansion', 'grouped-rows', 'row-status', 'tree-data', 'column-resize.macos']) {
+for (const name of ['row-index', 'row-expansion', 'grouped-rows', 'row-status', 'tree-data', 'column-resize.macos', 'sticky-columns.macos']) {
 	for (const hmr of [false, true]) {
 		test(`${name} compiles for AppKit with HMR ${hmr ? 'on' : 'off'}`, async () => {
 			const filename = `use-table-${name}.tsrx`

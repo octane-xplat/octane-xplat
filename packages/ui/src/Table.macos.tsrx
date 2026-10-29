@@ -55,7 +55,7 @@ function cellContent(content: any) {
 /** Table — data-driven + plugin pipeline (Astryx `Table`), AppKit leaf.
  *  Same render plan as web mapped to flex views; DOM-only plugin effects
  *  (resize drag, pointer context menus) degrade to their data effects. Data mode
- *  has a native horizontal viewport; sticky positioning remains unimplemented. */
+ *  has a native horizontal viewport and forwards cell refs to native plugins. */
 export function Table<T extends Record<string, unknown> = Record<string, unknown>>(
 	props: TableProps<T>,
 ) @{
@@ -169,6 +169,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 							return (
 								<masonview
 									key={cell.column.key}
+									ref={cell.render.htmlProps?.ref}
 									className={cx(
 										'vx-table-cell vx-table-th',
 										`vx-table-cell--${density}`,
@@ -215,6 +216,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 								row.cells.map((cell) => (
 									<masonview
 										key={cell.column.key}
+										ref={cell.render.htmlProps?.ref}
 										className={cx(
 											'vx-table-cell',
 											`vx-table-cell--${density}`,

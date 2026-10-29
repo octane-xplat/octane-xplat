@@ -113,10 +113,9 @@ export function Builds() {
 column and from the first `endKeys` column. Synthetic gutter columns in those
 runs are pinned too. Use pixel widths for multiple pinned columns: offsets
 use declared pixel widths or proportional minimums, rather than measuring
-expanded proportional columns. NativeScript and AppKit currently retain the
-data without pinning columns. AppKit data tables now have a horizontal viewport
-source path, but pinned positioning is still unimplemented. Native interaction
-and accessibility remain unqualified.
+expanded proportional columns. NativeScript retains the data without
+pinning columns. AppKit now has a native placement source path described below;
+its measured offsets, interaction and accessibility remain unqualified.
 
 ```tsx
 import { Table, pixel, useTableStickyColumns } from '@octane-xplat/ui'
@@ -157,8 +156,8 @@ export function People() {
 
 AppKit honors scroll-wrapper plugin styles/classes, before/after content and
 native NSScrollView refs. Table's public ref binds to its inner table view;
-Table style remains on that content. DOM handlers/attributes and sticky
-positioning are not supplied by the viewport. The manual fixture can read
+Table style remains on that content. DOM handlers/attributes are not supplied by the viewport. Sticky positioning
+uses the separate AppKit hook source path below. The manual fixture can read
 native metrics after a human action; it has not run. Auto/bounded height,
 header/body sizing, native wheel/trackpad/RTL, nested scrolling, plugin ref
 lifetimes, accessibility and clean packaged consumers remain unqualified.
@@ -185,3 +184,47 @@ export function WideName() {
     plugins={{ columnResize }} />
 }
 ```
+
+
+## Sticky columns on AppKit
+
+The AppKit hook now has an experimental native source path for the same
+contiguous start/end runs. It measures original row/cell bounds, including
+expanded proportional widths, rather than using declared minimums as offsets.
+It modifies native layout constraints and sibling order for the existing cells.
+Use one hook instance per data Table; child-composed tables remain outside this
+subset. Older hosts without the placement bridge keep ordinary scrolling.
+
+```tsx
+import { Table, View, pixel, useTableStickyColumns } from '@octane-xplat/ui'
+export function PinnedPeopleOnAppKit() {
+  const sticky = useTableStickyColumns({ startKeys: ['name'], endKeys: ['status'] })
+  return <View style={{ width: 420 }}><Table
+    data={[{ name: 'Ada', team: 'Platform', status: 'Active' }]}
+    columns={[
+      { key: 'name', width: pixel(180) },
+      { key: 'team', width: pixel(400) },
+      { key: 'status', width: pixel(140) },
+    ]} plugins={{ sticky }}
+  /></View>
+}
+```
+
+Source calculations mirror physical edges for RTL and clamp cells to their row.
+Start cells take priority when pinned regions overlap. Cells retain their native
+views; opaque native backgrounds can composite the row overlay variable.
+Web pseudo-element shadows and transitions are not implemented. Scroll, clip/
+document resize and window updates synchronize placements without a JS frame
+loop. Disabling/removing the hook, hiding/detaching cells or replacing the
+viewport releases owned placement and restores layout/order.
+
+```sh
+pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+```
+
+Three simulated native-pin/order cases, six geometry/observer cases and two compiler
+cases are authored but unrun. Actual Auto Layout timing, RTL/native leading
+anchors, sibling ordering, button hit-testing, text editing/IME, focus/Tab,
+background compositing, scrolling performance, VoiceOver and packaged consumers
+remain unqualified. The fixture includes pinned buttons and text fields for
+those checks; mounting or simulated callbacks cannot prove them.

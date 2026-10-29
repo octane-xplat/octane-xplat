@@ -28,6 +28,7 @@ export function setLayoutProjectionScale(view: object, scale: ProjectionScale | 
 	}
 }
 
+import { createStickyPlacements } from './sticky-placement.ts'
 import { normalizeHostStyleProps } from './inline-style.ts'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 import { readOutlineHeadings } from './outline-headings.ts'
@@ -322,6 +323,33 @@ const nodeContainersByView = new WeakMap<object, RootContainer>()
 const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle>()
 /** Every node view, for firstResponder→node resolution (focus pseudo-classes). */
 const cssNodesByView = new WeakMap<object, ElementNode>()
+function orderStickySiblings(node: ElementNode) {
+	const parent = node.layoutParent ?? node.parent, host = layoutView(node)?.superview
+	if (!parent || !host?.addSubviewPositionedRelativeTo) return
+	const children = (parent.projectedChildren ?? parent.children).filter((child) => child.view && layoutView(child)?.superview === host)
+	const ordered = children.slice().sort((left, right) => stickyPlacements.priority(left) - stickyPlacements.priority(right)).map(layoutView)
+	const native = host.subviews, count = Number(native?.count ?? native?.length ?? 0)
+	const actual = Array.from({ length: count }, (_, i) => native.objectAtIndex ? native.objectAtIndex(i) : native[i]).filter((view) => ordered.includes(view))
+	if (ordered.every((view, i) => view === actual[i])) return
+	let previous: NSView | null = null
+	for (const view of ordered) { host.addSubviewPositionedRelativeTo(view, 1, previous); previous = view }
+}
+const stickyPlacements = createStickyPlacements<ElementNode>({
+	nodeFor: (view) => cssNodesByView.get(view),
+	valid: (node, view) => node.view === view && node.container.nodes.get(node.id) === node,
+	convert: (node, base, document) => {
+		const parent = base.parent as NSView, target = document as NSView
+		if (layoutView(node)?.superview !== parent || !parent.window || parent.window !== target.window || !parent.isDescendantOf(target)) return
+		const rect = parent.convertRectToView({ origin: { x: base.x, y: base.y }, size: { width: base.width, height: base.height } }, target)
+		const row = parent.convertRectToView(parent.bounds, target)
+		const geometry = { x: Number(rect.origin.x), width: Number(rect.size.width), rowX: Number(row.origin.x), rowWidth: Number(row.size.width) }
+		return Object.values(geometry).every(Number.isFinite) && geometry.width >= 0 && geometry.rowWidth > 0 ? geometry : undefined
+	},
+	repin: (node, base) => { if (layoutView(node)?.superview === base.parent) pinLayoutChild(node, base.parent, base.x, base.y, base.width, base.height) },
+	order: orderStickySiblings,
+	invalidate: (node) => { const parent = node.layoutParent ?? node.parent; if (parent) queueLayoutReconcile(node.container, parent) },
+})
+
 const keyboardDispatcher = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
 const contextPointerDispatcher = createAppKitContextPointerDispatcher(
 	(event) => appKitMouseHit(event.window, event.locationInWindow), () => ({ NSEvent }),
@@ -2331,6 +2359,7 @@ function pinLayoutChild(
 	width: number,
 	height: number,
 ) {
+	x = stickyPlacements.position(child, { parent: parentView, x, y: top, width, height })
 	const pins = (child.placementPins ??= {})
 	if (!pins.leading) {
 		pins.leading = layoutView(child).leadingAnchor.constraintEqualToAnchorConstant(
@@ -2380,6 +2409,7 @@ function pinLayoutChild(
 /** Drop the pins a grid/absolute parent installed — a constraint that keeps
  *  referencing the old parent view is invalid once the child reparents. */
 function releasePlacementPins(node: ElementNode) {
+	stickyPlacements.reset(node)
 	const pins = node.placementPins
 	if (!pins) {
 		return
@@ -10443,6 +10473,7 @@ appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.imageMemoryCache = imageMemoryCache
 appKitBridge.imageCache = imageCache
 appKitBridge.observeHover = observeHover
+appKitBridge.retainTableStickyPlacement = stickyPlacements.retain
 Object.defineProperty(appKitBridge, 'containerRevealSupported', {
 	configurable: true,
 	enumerable: true,
