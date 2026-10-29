@@ -4,13 +4,14 @@ import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
 
-function evaluate(file, dependencies = {}) {
+function evaluate(file, dependencies = {}, context = {}) {
 	const exports = {}
 	const code = ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
 		compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 	}).outputText
 	vm.runInNewContext(code, {
 		exports,
+		...context,
 		require(id) {
 			assert.ok(id in dependencies, `Unexpected import: ${id}`)
 			return dependencies[id]
@@ -25,6 +26,7 @@ const refsModule = evaluate('../src/ref-list.ts')
 // Scripted hook slots exercise source logic without claiming an Octane compiler,
 // renderer or WinUI pass. This hook has no conditional or repeated hook calls.
 function fixture() {
+	const microtasks = []
 	const slots = []
 	let cursor = 0
 	let pending = []
@@ -63,11 +65,15 @@ function fixture() {
 			}
 		},
 	}
-	const { useScrollableArea } = evaluate('../src/use-scrollable-area.windows.tsrx', {
-		octane: hooks,
-		'./ref-list': refsModule,
-		'./scrollable-area-state': stateModule,
-	})
+	const { useScrollableArea } = evaluate(
+		'../src/use-scrollable-area.windows.tsrx',
+		{
+			octane: hooks,
+			'./ref-list': refsModule,
+			'./scrollable-area-state': stateModule,
+		},
+		{ queueMicrotask: (callback) => microtasks.push(callback) },
+	)
 	return {
 		render(options = {}) {
 			cursor = 0
@@ -77,6 +83,11 @@ function fixture() {
 			}
 			pending = []
 			return result
+		},
+		flushMicrotasks() {
+			for (const task of microtasks.splice(0)) {
+				task()
+			}
 		},
 		unmount() {
 			for (const slot of slots) {
@@ -324,4 +335,45 @@ test('Windows scroll measures late load and reload while preserving caller lifec
 		['unloaded', unloaded, false],
 		['loaded', loaded, true],
 	])
+})
+
+test('Windows loaded measurement keeps fresh callback state without publishing inside the host event', () => {
+	const f = fixture()
+	const area = f.render()
+	const view = viewport()
+	view.isLoaded = false
+	const seen = []
+	const props = area.getViewportProps({ onLoaded: () => seen.push(area.state.block.isScrollable) })
+	bind(props.ref, view)
+	const writes = f.writes
+	view.isLoaded = true
+	props.onLoaded({ object: view })
+	assert.deepEqual(seen, [true])
+	assert.equal(f.writes, writes)
+	f.flushMicrotasks()
+	assert.equal(f.writes, writes + 1)
+})
+
+test('Windows pending loaded publication ignores detached and unmounted viewports', () => {
+	for (const retired of ['detached', 'unmounted', 'unloaded']) {
+		const f = fixture()
+		const area = f.render()
+		const view = viewport()
+		view.isLoaded = false
+		const props = area.getViewportProps()
+		bind(props.ref, view)
+		view.isLoaded = true
+		props.onLoaded({ object: view })
+		if (retired === 'detached') {
+			bind(props.ref, null)
+		} else if (retired === 'unmounted') {
+			f.unmount()
+		} else {
+			view.isLoaded = false
+		}
+
+		const writes = f.writes
+		f.flushMicrotasks()
+		assert.equal(f.writes, writes, retired)
+	}
 })

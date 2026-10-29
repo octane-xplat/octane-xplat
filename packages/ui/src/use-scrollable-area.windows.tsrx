@@ -50,7 +50,7 @@ export function useScrollableArea<TElement extends object = object>(
 	const [, setState] = useState(INITIAL_SCROLL_STATE)
 	const stateRef = useRef(INITIAL_SCROLL_STATE)
 
-	const measure = useCallback(() => {
+	const measure = useCallback((deferPublication = false) => {
 		let next = INITIAL_SCROLL_STATE
 		const view = viewport.current
 		if (view && view.isLoaded !== false) {
@@ -64,7 +64,17 @@ export function useScrollableArea<TElement extends object = object>(
 
 		if (!sameScrollState(stateRef.current, next)) {
 			stateRef.current = next
-			setState(next)
+			if (deferPublication) {
+				// Publishing inside the driver's loaded event can reenter a committed
+				// universal transaction. Keep the caller's snapshot fresh immediately.
+				queueMicrotask(() => {
+					if (viewport.current === view && view?.isLoaded !== false) {
+						setState(stateRef.current)
+					}
+				})
+			} else {
+				setState(next)
+			}
 		}
 	}, [])
 
@@ -126,7 +136,7 @@ export function useScrollableArea<TElement extends object = object>(
 				return
 			}
 
-			measure()
+			measure(true)
 			caller.current.onLoaded?.(event)
 		},
 		[measure],
