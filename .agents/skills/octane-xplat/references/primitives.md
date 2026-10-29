@@ -2614,20 +2614,34 @@ compiled hooks/marker forwarding, real input/Tab, BOOL, nested focus, scrolling,
 RTL/layout, AX, native cleanup and installed consumers remain unqualified. See
 [custom native cells](../../../../docs/app/components.md#custom-grid-cell-focus-on-appkit).
 
-## AppKit Toolbar role prerequisite
+## AppKit Toolbar action focus
 
-Use Toolbar's label and start/center/end slots for contextual actions. Its
-AppKit host now supplies the toolbar role and the renderer maps it to AXToolbar,
-without adding an action or Tab target to the container. Ordinary child buttons
-retain their activation. ToggleButtonGroup remains an ordinary group, not a
-roving toolbar. AppKit toolbar roving keys and orientation AX metadata are still
-implementation gaps; native input, hierarchy/VoiceOver and installed behavior
-remain unqualified. See [toolbar actions](../../../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow).
+Use Toolbar's label and stable start/center/end slots for contextual actions.
+Its AppKit role maps to AXToolbar without making the container an action or Tab
+target. A private owner discovers discrete native button/link/checkbox/radio
+hosts in current child order and reuses choice focus for roving Tab exclusions.
+Horizontal Left/Right, vertical Up/Down and Home/End move focus manually; keys
+never toggle or press a control. Current window updates refresh hidden/disabled/
+removed/reordered actions, and orientation changes retain slot/component state.
+Modifiers, composition, prevented events and nested key reentry are ignored.
+Editors, adjustable controls and nested composites retain their own keys/Tab
+stops; mixed toolbars can have additional Tab stops. Physical order follows the
+web helper's key direction; native RTL visual behavior remains unqualified.
 
 ```tsx
 import { Button, Toolbar } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <Toolbar label="Page actions" startContent={<Button label="Save" />} />
+	return <Toolbar label="Page actions" orientation="horizontal"
+		startContent={<Button label="Save" />} endContent={<Button label="Share" />} />
 }
 ```
+
+The focus path requires keyboard/Tab-suppression capability and a captured window
+observer; absent capability preserves natural focus. Scope/observer/Tab claims
+retire before teardown effects, late handles release their own owner, removal
+failures log fixed diagnostics and cleanup attempts remaining leases. Native
+release is best effort. This covers self-drawn action hosts; complete mixed-
+control roving, stock native-control Tab suppression and AX orientation remain
+implementation gaps. Native ref/BOOL/window/key/Tab/selection/AX, RTL/pixels and
+installed behavior remain unqualified. See [toolbar actions](../../../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow).

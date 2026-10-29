@@ -9656,3 +9656,97 @@ pnpm check:changelog
 check:docs/check:doc-examples remain absent from this worktree. No tests, typegen,
 typechecks, builds, installs, probes, native/OS automation, packaging, visual
 analysis or additional task/agent ran. Native qualification and the goal remain open.
+
+## AppKit Toolbar discrete action focus and stable slots
+
+Demand assumption: ComponentsDemo Toolbar, TableSelectionToolbar bulk actions
+and ordinary save/share/pin bars need keyboard access before niche integrations.
+At 815ec3acf the role prerequisite existed, but Toolbar still lacked focus/key
+coordination. Its separate grid/flex slot trees also remounted controls when
+orientation changed. Local v0.18.0 source contains that branch structure. These
+are source findings, not native failures or executed reproductions.
+
+The target leaf now keeps one slot tree and changes grid/flex/axis styles rather
+than control identity. Row/column slot direction, centered 1fr/auto/1fr tracks,
+size, gap and slot alignment remain explicit. A private owner discovers discrete
+button/link/checkbox/radio hosts in native child order and reuses choice focus
+for owned action Tab exclusions. It reads acceptsFirstResponder, not
+canBecomeKeyView (which excludes its own leased hosts), with current hidden,
+enabled/accessibility-enabled and same-window guards. Native Boolean/number
+flags are normalized. A window update refreshes changes in order, visibility,
+blocking and attachment; window migration releases previous ownership. It
+repairs entry eligibility without forcing focus after a responder is removed.
+
+Unmodified axis arrows and Home/End move focus with wrap, without activation or
+selection callbacks. Movement is consumed only on accepted native focus; Enter,
+Space, Tab and Escape stay with existing control/layer/native paths. Current
+orientation is read at dispatch. Modified/composing/prevented events, foreign
+responders and nested key reentry are ignored. Editors, adjustable controls,
+nested toolbars/radio/tab/menu/list/outline/table composites and nested endContent
+controls retain their own input and natural Tab stops. Mixed toolbars can have
+additional stops; complete mixed-control roving remains an implementation gap.
+The action path covers self-drawn hosts used by shared Button/IconButton/
+ToggleButton/Switch/checkbox/link controls. Stock NSButton/text-control Tab
+suppression is not established by the AccessibleHostView-only registry and
+remains a separate gap. Physical key order follows the existing web helper;
+RTL visual correspondence and AX orientation metadata remain unqualified or
+unimplemented. This does not complete native toolbar support.
+
+Each root owns its observer, membership map and choice helper. Claim precedes
+old cleanup and native observer setup; captured center/remover/token/receiver
+release that scope once. A ready observer and keyboard/Tab bridge are required
+before exclusions; missing capability preserves natural stops and unconsumed
+keys. Retirement precedes cleanup effects, stale delivery is inert, and late
+observer/Tab handles release only their old scope. Cleanup wrappers attempt
+remaining Tab releases after failures with fixed diagnostics and no native/input
+payload. Refresh diagnostics are fixed; direct key/native-focus failures retain
+the existing synchronous error path. Failed removals or native acquisition that
+throws without returning a handle do not establish actual release/recovery.
+Observation does not retry acquisition until reattachment. No renderer, shared
+coordination hook, public prop, dependency, manifest or other-target leaf changed;
+the removed applyEscapeProps call was the existing AppKit no-op.
+
+Eleven new cases, all UNRUN: nine fake-window/bridge policy cases cover action
+entry/manual movement, axis/guards/refused focus, editor/nested/foreign input,
+current order/disabled/hidden/removal, window migration, captured cleanup/stale
+delivery, capability absence, late acquisition and cleanup-failure/key reentry.
+Two appended UI object-driver cases model actual Toolbar wiring/editor/activation
+and retained slots/toggle/draft across axes. The manual fixture adds an editor,
+local toggle, dynamic disabled/removal and nested toolbar trials; its hook still
+records mounting only. No case, fixture or native operation ran.
+
+Guide/renderer README/Octane reference/resizable-workspace AC6, new feature note
+and existing stable fix note reconcile the implementation subset. The previous
+role note remains historical prerequisite evidence; its keyboard gap is now
+partly implemented by this source path. No shared audit snapshot regenerated.
+
+Lightweight verification: five source/test/fixture files (two TypeScript, three
+TSRX) and five scoped TSX fences parsed; seven added/changed local targets/anchors
+resolved; staged semantic and whitespace review completed. Zero test cases,
+compiler transforms, native operations or visual analysis. Actual native BOOL,
+ref/commit/subviews ordering, focus/selection, observer ordering/window movement,
+Tab stops/OS keys, nested control arbitration, cleanup/memory, RTL, grid/slot
+geometry, VoiceOver, installed consumers and pixels remain unqualified. All
+evidence-gated issue checkboxes remain open.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human
+verification authorization; resource admission is not visual-analysis approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/toolbar-focus.macos.mobile.test.ts src/toolbar.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx src/toggle-button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/toolbar.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit Toolbar action focus package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+At this source worktree revision check:docs/check:doc-examples are absent; their
+availability must be rechecked after integration with main. User-authorized
+rebase/merge does not supply runtime evidence or execute deferred heavy checks.
+The goal remains active with mixed/stock-control and orientation-AX gaps open.

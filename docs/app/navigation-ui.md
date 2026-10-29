@@ -200,9 +200,13 @@ export function Example() {
 `Toolbar` has `startContent`, `centerContent`, and `endContent` slots. Supply a
 required `label`. Web exposes a named toolbar and moves focus among its controls
 with arrow keys; `orientation` sets the layout axis and keyboard direction.
-AppKit now supplies the named native toolbar role while preserving its slot
-layout. AppKit roving arrows, orientation accessibility metadata and native
-VoiceOver/input behavior remain unimplemented or unqualified. `variant` and `dividers` only affect the
+AppKit supplies the named native toolbar role and a focus path for discrete
+actions such as Button, IconButton and ToggleButton. Unmodified Left/Right
+(horizontal) or Up/Down (vertical) and Home/End move focus in native child order
+without activating an action. Hidden and disabled actions are skipped; Enter or
+Space still belongs to the focused control. Slots keep their controls and local
+state when orientation changes. AppKit orientation accessibility metadata and
+actual native VoiceOver/input behavior remain incomplete or unqualified. `variant` and `dividers` only affect the
 painted chrome. `size` sets the row height and the default `size` for controls
 inside the toolbar — a control with its own `size` prop keeps it.
 
@@ -221,6 +225,15 @@ export function Example() {
 	)
 }
 ```
+
+AppKit editors, sliders, nested toolbars and other composite controls keep their
+own keys and natural Tab stops. A toolbar containing these controls can have
+more than one Tab stop; complete mixed-control roving and stock native-control
+Tab suppression remain gaps. The action focus path requires the keyboard,
+Tab-suppression and window-observation bridges. Physical arrows/Tab, native
+focus, layout, VoiceOver and installed behavior remain unqualified. The
+[manual AppKit fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/toolbar.macos.tsrx)
+is authored but unrun.
 
 `OverflowList` accepts one child per item. It measures available space and
 keeps the fitting items visible; provide `overflowRenderer` to render the

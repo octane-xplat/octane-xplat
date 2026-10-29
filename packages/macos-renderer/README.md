@@ -1588,8 +1588,10 @@ unqualified. This is not proof of floating typeahead support.
 The AppKit UI Toolbar supplies `accessibilityRole="toolbar"` and its current
 label on its existing host. AccessibleHostView maps that role to `AXToolbar`;
 the container gains no press action or Tab stop from the role alone. Child
-controls retain their own activation. This does not add roving toolbar keys,
-orientation accessibility metadata or prove a native VoiceOver announcement.
+controls retain their own activation. Role mapping alone adds no keyboard
+behavior or orientation accessibility metadata and proves no native VoiceOver
+announcement. UI Toolbar owns its separate discrete-action focus path; see the
+guide for mixed-control and native evidence limits.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -1598,7 +1600,7 @@ export function NamedActions() {
 }
 ```
 
-The renderer VM case and UI object-driver case are authored but unrun. The
+The renderer VM and UI object-driver cases are authored but unrun. The
 [manual Toolbar fixture](../../examples/probes/toolbar.macos.tsrx) records mounting
 only; actual OS keyboard/focus, hierarchy/VoiceOver and installed behavior remain
 unqualified. See the [toolbar guide](../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow).
