@@ -1,7 +1,7 @@
-import Gtk from 'gi://Gtk?version=4.0'
-import GLib from 'gi://GLib'
-import Gio from 'gi://Gio'
-import Graphene from 'gi://Graphene?version=1.0'
+import GtkRuntime from 'gi://Gtk?version=4.0'
+import GLibRuntime from 'gi://GLib'
+import GioRuntime from 'gi://Gio'
+import GrapheneRuntime from 'gi://Graphene?version=1.0'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import { checkDimensions } from './options'
 import type { CaptureBackend } from './backend-types'
@@ -22,6 +22,46 @@ interface Widget {
 	} | null
 	get_first_child(): Widget | null
 	get_next_sibling(): Widget | null
+}
+// Host SDK contracts stay local: another renderer's ambient GJS declarations
+// may describe only its own subset when a consumer checks several leaves.
+interface Snapshot {
+	to_node(): object | null
+}
+interface TemporaryFile {
+	get_uri(): string
+	delete(cancellable: null): boolean
+	query_exists(cancellable: null): boolean
+}
+const Gtk = GtkRuntime as unknown as {
+	Widget: abstract new (...args: never[]) => Widget
+	Video: abstract new (...args: never[]) => object
+	GLArea: abstract new (...args: never[]) => object
+	Snapshot: new () => Snapshot
+	WidgetPaintable: new (options: { widget: Widget }) => {
+		snapshot(snapshot: Snapshot, width: number, height: number): void
+	}
+}
+const GLib = GLibRuntime as unknown as {
+	base64_encode(bytes: Uint8Array): string
+	get_monotonic_time(): number
+	timeout_add(priority: number, milliseconds: number, callback: () => boolean): number
+	PRIORITY_DEFAULT: number
+	SOURCE_REMOVE: false
+}
+const Gio = GioRuntime as unknown as {
+	File: {
+		new_tmp(template: string): [
+			TemporaryFile,
+			{
+				get_output_stream(): { write_all(bytes: Uint8Array, cancellable: null): unknown }
+				close(cancellable: null): boolean
+			},
+		]
+	}
+}
+const Graphene = GrapheneRuntime as unknown as {
+	Rect: new () => { init(x: number, y: number, width: number, height: number): unknown }
 }
 const owned = new Map<
 	string,

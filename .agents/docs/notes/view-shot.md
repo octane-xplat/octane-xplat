@@ -92,7 +92,10 @@ installed consumer qualification remain open. Android app compilation/runtime
 are explicitly deferred. Run eventual Apple/GTK/Windows checks only on
 skymac.local/andromeda.local/ssh windy respectively. No heavy app build was
 needed for the API checks. Creator catalog-owner and documentation/example/recipe/compatibility checks pass.
-Catalog dependent apps remain batched for goal end. Silo recipe rows can represent
-web/iOS/Android/macOS; its current target constraint cannot represent Linux or
-Windows. Their ten criterion assessments remain unrecordable without a separate
-schema migration; do not mislabel them as another target or claim a complete roll-up.
+The batched dependent check found that another renderer's narrower ambient GJS
+namespace hid capture APIs. The GTK bridge now keeps its SDK contract local to
+this module, using the same APIs checked on andromeda; this changes types only
+and adds no capture execution. Silo recipe_audit represents web/iOS/Android/macOS.
+The shared gtk_recipe_checks table now records Linux assessments separately;
+Windows's five assessments still cannot fit either table. Do not relabel them
+as another target or claim a complete roll-up.
