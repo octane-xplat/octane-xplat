@@ -779,6 +779,25 @@ export async function checkout(paymentIntentClientSecret: string, returnURL: str
 // Verify the order on the app server after a successful client result.
 ```
 
+For printing and PDF reports, use the [print guide](../../../../packages/print/README.md).
+Check `Print.capabilities` per operation. Browser print UI does not return a PDF
+file, and Android dispatch does not prove a job printed or even finished its
+chooser. Keep outputs until all readers finish; external share dispatch alone
+does not end that lifetime. Native printing/export is app-scoped, serialized,
+and uses static HTML. Keep its presenting window alive and handle cancellation
+using the documented platform result. Native GTK/Windows remain unavailable;
+Android runtime is unverified.
+
+```ts
+import { printToFileAsync, releasePrintFile } from '@octane-xplat/print'
+
+export async function withPdf(html: string, consume: (uri: string) => Promise<void>) {
+ const result = await printToFileAsync({ html })
+ try { await consume(result.uri) }
+ finally { releasePrintFile(result) }
+}
+```
+
 For local document workflows, use the [files package guide](../../../../packages/files/README.md).
 Its experimental AppKit leaf implements local reads, Documents writes and
 save-panel export; do not infer sandbox, OS picker or packaged-app qualification

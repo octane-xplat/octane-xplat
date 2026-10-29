@@ -63,6 +63,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Move between screens                            | [Moving between screens](app/navigation.md)            |
 | Load information from a server                  | [Fetching data](app/data.md)                           |
 | Save a setting, attach a photo, or share a link | [Using device features](platform/platform-services.md) |
+| Print a document or export a PDF | [Print and PDF files](../packages/print/README.md) |
 | Collect a payment | [Stripe checkout](../packages/stripe/README.md) |
 | Browse photos and manage albums | [Device media library](../packages/media-library/README.md) |
 | Resize or export a cropped photo | [Transform images](../packages/image-manipulator/README.md) |

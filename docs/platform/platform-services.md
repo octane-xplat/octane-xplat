@@ -704,6 +704,24 @@ const image = await media.capturePhoto({
 // The caller owns image until its preview/upload finishes, then files.release(image).
 ```
 
+## Print a document or export a PDF
+
+Use the [print/PDF guide](../../packages/print/README.md) for HTML receipts,
+reports, or system print UI. Check each operation before offering it: browsers
+can print but cannot return a generated file through this API. Native exports
+remain app-owned until their preview/upload finishes, then need release.
+
+```ts
+import { Print, printToFileAsync, releasePrintFile } from '@octane-xplat/print'
+
+export async function uploadReport(html: string, upload: (uri: string) => Promise<void>) {
+ if (!Print.capabilities.printToFile) throw new Error('PDF export is unavailable')
+ const result = await printToFileAsync({ html })
+ try { await upload(result.uri) }
+ finally { releasePrintFile(result) }
+}
+```
+
 ## Collect a payment
 
 Use the [Stripe checkout guide](../../packages/stripe/README.md) for guest

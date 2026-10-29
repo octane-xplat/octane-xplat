@@ -61,6 +61,7 @@
 		"@octane-xplat/picker",
 		"@octane-xplat/platform",
 		"@octane-xplat/posthog",
+		"@octane-xplat/print",
 		"@octane-xplat/push",
 		"@octane-xplat/recorder",
 		"@octane-xplat/richtext",

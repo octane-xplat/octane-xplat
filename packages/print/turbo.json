@@ -1,0 +1,12 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test:ios-runtime": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_NATIVE_TEST_REPO", "XPLAT_IOS_DEVICE", "XPLAT_IMAGE_LIB_ROOT"]
+		},
+		"test:ios-bridge": { "cache": false },
+		"test:macos-engine": { "cache": false },
+		"test:macos-consumer": { "cache": false, "passThroughEnv": ["XPLAT_NATIVE_TEST_REPO"] }
+	}
+}

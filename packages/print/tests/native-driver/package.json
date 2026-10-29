@@ -1,0 +1,12 @@
+{
+	"name": "@xplat/print-native-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:ios-runtime": "node ../ios-runtime.mjs",
+		"test:macos-consumer": "node ../macos-consumer.mjs",
+		"test:macos-engine": "node ../macos-engine.mjs",
+		"test:ios-bridge": "node ../ios-bridge.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}
