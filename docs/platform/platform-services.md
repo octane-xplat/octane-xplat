@@ -205,6 +205,26 @@ These native leaves avoid the phone `Device` import. Actual JavaScriptCore Intl
 behavior, generated/installed resolution and OS preference/relaunch behavior
 remain unqualified; source models do not establish those runtime results.
 
+## System bars on AppKit
+
+Native AppKit does not expose phone-style status or navigation bars through
+`systemBars`. Both `setStatusBarStyle` and `setColor` are callable from the
+root or direct subpath, but only emit a fixed unsupported warning and return
+void. They do not tint the window title bar, toolbar or macOS menu bar. A
+successful return is not an applied-style confirmation:
+
+```ts
+import { systemBars } from '@octane-xplat/platform'
+import { systemBars as directBars } from '@octane-xplat/platform/system-bars'
+
+systemBars.setStatusBarStyle('light') // AppKit: unsupported warning, no chrome change.
+directBars.setColor('#171717') // AppKit: same unsupported behavior.
+```
+
+The dedicated AppKit leaf avoids importing mobile `Application`/`Color` helpers.
+Generated declarations, installed import selection and actual native startup
+remain unqualified. This import repair does not add desktop chrome styling.
+
 ## Read AppKit window and activity state
 
 In a native macOS screen, use the primary window's content size to choose a

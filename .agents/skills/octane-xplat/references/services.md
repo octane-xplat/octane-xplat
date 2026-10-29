@@ -215,6 +215,26 @@ const region = locale.region
 const same = locale === directLocale && device === directDevice
 ```
 
+## AppKit system-bar import boundary
+
+Root and canonical/existing .ts system-bars imports select the same dedicated
+AppKit object with both shared methods: setStatusBarStyle(light/dark) and
+setColor(string), returning void. Both remain explicitly unsupported, emit only
+a fixed warning and do not touch phone, window/title/toolbar/menu chrome. Console
+failure cannot turn that no-op into an application failure. Keep mobile Color/
+Application helpers out of this leaf; do not add them to the AppKit shim or
+infer a desktop chrome feature from a callable facade. This import/shape repair
+is not an accepted not-applicable decision for issue #62. Source/packed checks
+remain unrun; native startup and installed declarations/resolution are pending.
+See [system bars on AppKit](../../../../docs/platform/platform-services.md#system-bars-on-appkit).
+
+```ts
+import { systemBars } from '@octane-xplat/platform/system-bars'
+
+systemBars.setStatusBarStyle('light') // AppKit: unsupported warning only.
+systemBars.setColor('#171717') // No native chrome changes.
+```
+
 ## Copy text on AppKit
 
 AppKit `clipboard.canCopy` checks write access independently of read access.

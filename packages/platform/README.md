@@ -87,6 +87,18 @@ if (openSettings.supported && await openSettings.isAvailable()) {
 }
 ```
 
+On AppKit, both system-bar methods are explicitly unsupported: they warn and
+return void without changing window or menu chrome. Root and direct imports
+share the same AppKit leaf, avoiding mobile Color helpers; installed/native
+startup qualification remains open. See [system bars on AppKit](../../docs/platform/platform-services.md#system-bars-on-appkit).
+
+```ts
+import { systemBars } from '@octane-xplat/platform/system-bars'
+
+systemBars.setStatusBarStyle('light') // Unsupported on AppKit.
+systemBars.setColor('#171717') // Does not tint AppKit chrome.
+```
+
 Ask your agent for the user outcome and the fallback: “Attach a photo to a
 trip item and explain when capture is unavailable.” Services cover storage,
 permissions, deep links, and more. Services that need a NativeScript

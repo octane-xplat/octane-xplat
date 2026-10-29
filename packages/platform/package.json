@@ -272,6 +272,22 @@
 			},
 			"types": "./types/generated/device.d.ts",
 			"default": "./src/device.ts"
+		},
+		"./system-bars": {
+			"macos": {
+				"types": "./types/generated/system-bars.macos.d.ts",
+				"default": "./src/system-bars.macos.ts"
+			},
+			"types": "./types/generated/system-bars.d.ts",
+			"default": "./src/system-bars"
+		},
+		"./system-bars.ts": {
+			"macos": {
+				"types": "./types/generated/system-bars.macos.d.ts",
+				"default": "./src/system-bars.macos.ts"
+			},
+			"types": "./types/generated/system-bars.d.ts",
+			"default": "./src/system-bars.ts"
 		}
 	},
 	"publishConfig": {

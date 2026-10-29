@@ -167,18 +167,18 @@ try {
 		if (target !== 'macos') subpaths.push('/clipboard', '/keep-awake')
 		else subpaths.push('/use-keep-awake', '/connectivity', '/storage')
 
-		const metadataContents = ['/locale', '/device', '/locale.ts', '/device.ts']
-			.map((subpath, i) => `import * as metadata${i} from '@octane-xplat/platform${subpath}'; console.log(metadata${i});`)
+		const purposeContents = ['/locale', '/device', '/locale.ts', '/device.ts', '/system-bars', '/system-bars.ts']
+			.map((subpath, i) => `import * as purpose${i} from '@octane-xplat/platform${subpath}'; console.log(purpose${i});`)
 			.join('\n')
-		// Keep metadata separate from the root, so root re-exports cannot mask a
+		// Keep purpose imports separate from the root, so root re-exports cannot mask a
 		// broken purpose condition. Includes canonical and existing .ts spellings.
-		const metadata = await compile(metadataContents)
+		const purposes = await compile(purposeContents)
 		if (target === 'macos') {
-			for (const service of ['locale', 'device']) {
-				assert.ok(metadata.files.includes(`${installed}/src/${service}.macos.ts`))
-				assert.ok(!metadata.files.includes(`${installed}/src/${service}.ts`))
+			for (const service of ['locale', 'device', 'system-bars']) {
+				assert.ok(purposes.files.includes(`${installed}/src/${service}.macos.ts`))
+				assert.ok(!purposes.files.includes(`${installed}/src/${service}.ts`))
 			}
-			assert.doesNotMatch(metadata.code, /@nativescript\/core/, 'AppKit metadata avoids the phone Device import')
+			assert.doesNotMatch(purposes.code, /@nativescript\/core/, 'AppKit purpose imports avoid phone Device/Color imports')
 		}
 
 		const contents = subpaths
@@ -264,7 +264,7 @@ try {
 			}
 		}
 
-		writeFileSync(join(temporary, 'consumer.ts'), contents + '\n' + legacyContents + '\n' + metadataContents)
+		writeFileSync(join(temporary, 'consumer.ts'), contents + '\n' + legacyContents + '\n' + purposeContents)
 		for (const mode of [ts.ModuleResolutionKind.Bundler, ts.ModuleResolutionKind.NodeNext]) {
 			const program = ts.createProgram([join(temporary, 'consumer.ts')], {
 				strict: true,

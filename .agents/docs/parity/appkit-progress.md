@@ -8212,3 +8212,60 @@ installed consumer resolution, cold/relaunch behavior, OS preference changes,
 RTL/component output and supported macOS versions remain unqualified. The
 snapshot does not promise live OS changes. Evidence-gated checkboxes stay open;
 persistent goal remains active.
+
+## AppKit system-bar import and method shape
+
+The maintained shared Services demo exposes ordinary system-bar tint/reset
+calls, though its AppKit-specific screen does not exercise phone bars. After
+locale/device imports, the remaining direct system-bars prerequisite still
+selected the phone file requiring Color, absent from the AppKit shim. The root
+had an explicit unsupported setColor stub but omitted the shared setStatusBarStyle
+method. These are source import/shape gaps, not newly observed native failures.
+Fix the common setup/import boundary without inventing a native chrome feature.
+
+A dedicated AppKit leaf now supplies both shared void methods with matching
+argument types. Root and direct canonical/existing .ts paths share that object;
+two explicit export keys pair native runtime/generated declaration paths and
+retain other-target defaults. Each method emits only the existing fixed
+unsupported warning, never its argument, and a diagnostic failure is contained.
+No native status/navigation/window/title/toolbar/menu bar API is invoked. No
+new dependency, shared type shape or mobile/web behavior is added. This source
+repair is deliberately not an accepted not-applicable decision or closure of
+issue #62's phone-system-bar/desktop-contract gate.
+
+Three source models are authored, all UNRUN: fake-root/leaf identity and both
+method shapes/fixed diagnostics, diagnostic failure containment and export maps.
+The existing isolated packed purpose lane and Bundler/NodeNext/AppKit generated
+consumers add canonical/explicit system-bars imports, valid method shapes and
+invalid-argument type assertions. They remain UNRUN. Fake module/console models
+cannot qualify real root dependencies, generated types or installed resolution.
+The service guide, package README, known limits, Octane reference, target recipe
+and fix note preserve the unsupported boundary; no acceptance checkbox changes.
+The stable v0.18.0 root/generic source and wildcard map retain this released gap.
+Source graph impact has incomplete name/member edges, so exact imports and
+Services calls were inspected. No shared CLI/Vite/UI manifest, shim, generated
+audit/declaration output or React Aria presence-level entry changed.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run typegen --filter=@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit system-bars import package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+check:docs/check:doc-examples remain absent in this isolated revision; shared
+in-flight tooling was not copied. Five source files and five scoped documentation fences syntax parsed. One
+manifest parsed; two AppKit runtime export paths and 14 local documentation
+paths/anchors exist. Staged semantic/whitespace review completes the permitted
+source checks only. No tests, compiler transforms, typechecks, typegen, builds, probes,
+native/OS/AX/visual analysis, native chrome changes or packaging ran. Real root
+startup, generated/installed runtime/declaration resolution and the separate
+accepted desktop system-bar contract remain unqualified/open. Evidence-gated
+checkboxes stay open; persistent goal remains active.

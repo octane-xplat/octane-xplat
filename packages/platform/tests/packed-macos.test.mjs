@@ -57,7 +57,7 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 	const entry = join(directory, 'consumer.ts')
 	writeFileSync(
 		entry,
-		`import { announce, random, connectivity, keepAwake, useKeepAwake, type KeepAwakeOptions, type ConnectivityState, type WindowSize, device, locale, type DeviceInfo, type Locale } from '@octane-xplat/platform'
+		`import { announce, random, connectivity, keepAwake, useKeepAwake, type KeepAwakeOptions, type ConnectivityState, type WindowSize, device, locale, type DeviceInfo, type Locale, systemBars } from '@octane-xplat/platform'
 import { useWindowSize } from '@octane-xplat/platform/screen'
 import { useAppState, useBackHandler } from '@octane-xplat/platform/lifecycle'
 import { useSafeAreaInsets } from '@octane-xplat/platform/safe-area'
@@ -67,6 +67,13 @@ import { device as directDevice } from '@octane-xplat/platform/device'
 import { locale as directLocale } from '@octane-xplat/platform/locale'
 import { device as explicitDevice } from '@octane-xplat/platform/device.ts'
 import { locale as explicitLocale } from '@octane-xplat/platform/locale.ts'
+import { systemBars as directBars } from '@octane-xplat/platform/system-bars'
+import { systemBars as explicitBars } from '@octane-xplat/platform/system-bars.ts'
+const bars: { setStatusBarStyle: (style: 'light' | 'dark') => void; setColor: (color: string) => void }[] = [systemBars, directBars, explicitBars]
+// @ts-expect-error status styles keep the shared light/dark vocabulary
+systemBars.setStatusBarStyle('automatic')
+// @ts-expect-error color arguments remain strings
+directBars.setColor(42)
 const devices: DeviceInfo[] = [device, directDevice, explicitDevice]
 const locales: Locale[] = [locale, directLocale, explicitLocale]
 const windowHook: () => WindowSize = useWindowSize
@@ -117,7 +124,7 @@ random.fill(16)
 		realpathSync(join(modules, 'types/generated/index.macos.d.ts')),
 	)
 
-	for (const service of ['device', 'locale']) for (const suffix of ['', '.ts']) {
+	for (const service of ['device', 'locale', 'system-bars']) for (const suffix of ['', '.ts']) {
 		const selected = ts.resolveModuleName(`@octane-xplat/platform/${service}${suffix}`, entry, options, ts.sys)
 		assert.equal(selected.resolvedModule?.resolvedFileName, realpathSync(join(modules, `types/generated/${service}.macos.d.ts`)))
 	}

@@ -74,11 +74,7 @@ export { random } from './random.macos'
 export { openUrl, openSettings } from './open-url.macos'
 
 export { permissions } from './permissions'
-export const systemBars = {
-	setColor(_color: string): void {
-		console.warn('[octane-xplat] System bars are unsupported by the AppKit host.')
-	},
-}
+export { systemBars } from './system-bars.macos'
 
 /**
  * Request an accessibility announcement of localized text without moving focus.

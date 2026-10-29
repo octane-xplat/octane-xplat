@@ -314,6 +314,17 @@ sandbox checks remain pending; see [opening settings](../platform/platform-servi
 
 
 
+AppKit `systemBars.setStatusBarStyle` and `setColor` now share an importable
+unsupported leaf across root/direct paths. They warn and return void without
+styling native chrome; generated/installed/native-startup checks are pending.
+See [system-bar limits](../platform/platform-services.md#system-bars-on-appkit).
+
+```ts
+import { systemBars } from '@octane-xplat/platform'
+
+systemBars.setStatusBarStyle('light') // AppKit: no native chrome change.
+```
+
 | Seam                                        | Web                                                                                                                                                                                                    | iOS                                                                                                                | Android                                                                                                                       | Kind                                                                                                                                                                                                              | Verified              |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | `appInfo`                                   | unsupported — no trustworthy bundle identity                                                                                                                                                           | `NSBundle` metadata                                                                                                | package metadata                                                                                                              | `unsupported`                                                                                                                                                                                                     | 0.5.0                 |
