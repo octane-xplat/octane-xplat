@@ -57,7 +57,20 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 	const entry = join(directory, 'consumer.ts')
 	writeFileSync(
 		entry,
-		`import { announce, random, connectivity, keepAwake, useKeepAwake, type KeepAwakeOptions, type ConnectivityState } from '@octane-xplat/platform'
+		`import { announce, random, connectivity, keepAwake, useKeepAwake, type KeepAwakeOptions, type ConnectivityState, type WindowSize } from '@octane-xplat/platform'
+import { useWindowSize } from '@octane-xplat/platform/screen'
+import { useAppState, useBackHandler } from '@octane-xplat/platform/lifecycle'
+import { useSafeAreaInsets } from '@octane-xplat/platform/safe-area'
+import { useBreakpoints$ } from '@octane-xplat/platform/breakpoints'
+import { useWindowSize as explicitWindow } from '@octane-xplat/platform/screen.ts'
+const windowHook: () => WindowSize = useWindowSize
+const explicitWindowHook: typeof useWindowSize = explicitWindow
+const activityHook: () => 'active' | 'inactive' | 'background' = useAppState
+const insetHook: () => { top: number; right: number; bottom: number; left: number } = useSafeAreaInsets
+const breakpoints: { compact: boolean; wide: boolean } = useBreakpoints$({ compact: 0, wide: 900 })
+const neutralBack: void = useBackHandler(() => false)
+// @ts-expect-error the Android-only hook does not return a cleanup function
+const backCleanup: () => void = useBackHandler(() => false)
 const keepOptions: KeepAwakeOptions = { suppressDeactivateWarnings: true, onRelease: tag => console.log(tag) }
 const hook: (tag?: string, options?: KeepAwakeOptions) => void = useKeepAwake
 const active: Promise<boolean> = keepAwake.activate('reading')

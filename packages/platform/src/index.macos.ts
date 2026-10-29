@@ -1,15 +1,11 @@
-import { useSyncExternalStore } from 'octane'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { Service } from '@octane-xplat/lib/capability'
 import { host } from './appkit-host'
 import type {
 	AppInfo,
-	AppState,
 	DeviceInfo,
-	Insets,
 	Locale,
 	WebAuthnImpl,
-	WindowSize,
 } from './types'
 
 export type {
@@ -112,24 +108,10 @@ export function announce(text: string): void {
 	}
 }
 
-export function useAppState(): AppState {
-	return useSyncExternalStore(
-		(listener) => host().onAppStateChange?.(listener) ?? (() => {}),
-		() => host().appState ?? 'active',
-	)
-}
-
-const fallbackWindowSize: WindowSize = { width: 0, height: 0, orientation: 'landscape' }
-export function useWindowSize(): WindowSize {
-	return useSyncExternalStore(
-		(listener) => host().onWindowResize?.(listener) ?? (() => {}),
-		() => host().windowSize ?? fallbackWindowSize,
-	)
-}
-
-export function useSafeAreaInsets(): Insets {
-	return { top: 0, right: 0, bottom: 0, left: 0 }
-}
+export { useAppState, useBackHandler } from './lifecycle.macos'
+export { useWindowSize } from './screen.macos'
+export { useSafeAreaInsets } from './safe-area.macos'
+export { useBreakpoints$ } from './breakpoints.macos'
 
 export function onDeepLink(listener: (url: string) => void): () => void {
 	return host().onDeepLink?.(listener) ?? (() => {})
@@ -137,21 +119,6 @@ export function onDeepLink(listener: (url: string) => void): () => void {
 
 export function consumeInitialUrl(): string | null {
 	return host().consumeInitialUrl?.() ?? null
-}
-
-export function useBackHandler(_listener: () => boolean): () => void {
-	return () => {}
-}
-
-export function useBreakpoints$<T extends Record<string, number>>(
-	thresholds: T,
-): { [K in keyof T]: boolean } {
-	const width = useWindowSize().width
-	return Object.fromEntries(
-		Object.entries(thresholds).map(([name, threshold]) => [name, width >= threshold]),
-	) as {
-		[K in keyof T]: boolean
-	}
 }
 
 export { keepAwake, KeepAwakeDefaultTag } from './keep-awake.macos'

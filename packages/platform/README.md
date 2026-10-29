@@ -84,6 +84,7 @@ The full capability map lives in the docs:
 
 - [Using device features](https://octane-xplat.goddardai.org/platform-services) — guide
 - [Known limits](https://octane-xplat.goddardai.org/known-limits) — availability and platform differences
+- [AppKit window and activity state](../../docs/platform/platform-services.md#read-appkit-window-and-activity-state)
 
 For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs; `llms-full.txt` inlines every guide.
 

@@ -169,6 +169,65 @@ export function ReadingScreen() {
 }
 ```
 
+## Read AppKit window and activity state
+
+In a native macOS screen, use the primary window's content size to choose a
+layout. `useWindowSize()` returns an immutable snapshot in points;
+`useBreakpoints$` compares its width with named thresholds. The platform root and
+its screen, lifecycle, safe-area and breakpoint subpaths select the same AppKit
+implementations. Keep reads inside a screen component:
+
+```tsx
+import { useWindowSize, useBreakpoints$ } from '@octane-xplat/platform'
+import { Text, View } from '@octane-xplat/ui'
+
+const thresholds = { wide: 900 }
+export function ResponsiveScreen() {
+	const size = useWindowSize()
+	const matches = useBreakpoints$(thresholds)
+	return <View><Text>{`${size.width}×${size.height}: ${matches.wide ? 'Wide' : 'Compact'}`}</Text></View>
+}
+```
+
+The subpaths also expose app activity and desktop insets. AppKit retains zero
+safe-area insets; missing or invalid host size is `0×0`, and missing activity
+retains the existing `active` fallback. Use the environment service when unknown
+activity must remain distinct from active. Install the host before rendering;
+replacement is picked up on a later render, without polling the global. This
+API describes the primary window rather than the window containing each view:
+
+```tsx
+import { useAppState } from '@octane-xplat/platform/lifecycle'
+import { useSafeAreaInsets } from '@octane-xplat/platform/safe-area'
+import { Text, View } from '@octane-xplat/ui'
+
+export function ActivityStatus() {
+	const state = useAppState()
+	const insets = useSafeAreaInsets()
+	return <View style={{ paddingTop: insets.top }}><Text>{state}</Text></View>
+}
+```
+
+**AppKit migration:** `useBackHandler` now returns `void`, matching the shared
+contract. Remove code that saves and calls its former no-op cleanup function.
+The hook intercepts Android hardware back only; it creates no AppKit listener.
+Existing shared components can keep the call without a cleanup assignment:
+
+```tsx
+import { useBackHandler } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function EditorScreen() {
+	useBackHandler(() => false)
+	return <Text>Editor</Text>
+}
+```
+
+The [manual AppKit readers](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/platform-state.macos.tsrx)
+compare root and subpath values and allow readers to unmount/remount. Authored
+source and packed-consumer cases remain unrun; actual native resize/activity,
+Octane effects, focus/IME, memory and installed-app behavior remain unqualified.
+
 ## Announce a status
 
 Keep a status such as “Settings saved” visible, and call `announce` after the

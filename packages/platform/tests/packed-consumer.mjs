@@ -122,7 +122,7 @@ try {
 														}
 													: nativeScriptRenderer,
 										},
-										rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer }],
+										rules: [{ include: target === 'macos' ? '**/*.{tsx,tsrx}' : '**/*.{ts,tsx,tsrx}', renderer }],
 									},
 								}
 							: {},
@@ -161,15 +161,11 @@ try {
 			subpaths.push('/testing')
 		}
 
-		if (target !== 'macos') {
-			for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
-				subpaths.push(`/${service}`)
-			}
-
-			subpaths.push('/clipboard', '/keep-awake')
-		} else {
-			subpaths.push('/use-keep-awake', '/connectivity', '/storage')
+		for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
+			subpaths.push(`/${service}`)
 		}
+		if (target !== 'macos') subpaths.push('/clipboard', '/keep-awake')
+		else subpaths.push('/use-keep-awake', '/connectivity', '/storage')
 
 		const contents = subpaths
 			.map(
@@ -184,11 +180,12 @@ try {
 			'consumer compiles installed source',
 		)
 
-		if (target !== 'macos') {
-			assert.ok(
-				result.files.some((file) => file.endsWith('.tsrx')),
-				'hook sources enter the compiler',
-			)
+		assert.ok(result.files.some((file) => file.endsWith('.tsrx')), 'hook sources enter the compiler')
+		if (target === 'macos') {
+			for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
+				assert.ok(result.files.includes(`${installed}/src/${service}.macos.tsrx`), `${service} selects AppKit`)
+				assert.ok(!result.files.includes(`${installed}/src/${service}.tsrx`), `${service} excludes the phone hook`)
+			}
 		}
 
 		if (native) {
@@ -222,11 +219,12 @@ try {
 			'selects platform service',
 		)
 
-		// Explicit extension aliases preserve their original native/default meaning.
+		// Existing explicit spellings select AppKit under its condition; other targets
+		// preserve their original native/default meaning.
 		// Check them separately so they cannot mask a canonical subpath regression.
 		const legacy =
 			target === 'macos'
-				? []
+				? ['screen', 'safe-area', 'lifecycle', 'breakpoints'].flatMap(service => [`/${service}.ts`, `/${service}.tsrx`])
 				: ['screen', 'safe-area', 'lifecycle', 'breakpoints'].flatMap((service) => [
 						`/${service}.ts`,
 						`/${service}.tsrx`,
@@ -243,7 +241,13 @@ try {
 			.join('\n')
 
 		if (legacy.length) {
-			await compile(legacyContents)
+			const selected = await compile(legacyContents)
+			if (target === 'macos') {
+				for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
+					assert.ok(selected.files.includes(`${installed}/src/${service}.macos.tsrx`))
+					assert.ok(!selected.files.includes(`${installed}/src/${service}.tsrx`))
+				}
+			}
 		}
 
 		writeFileSync(join(temporary, 'consumer.ts'), contents + '\n' + legacyContents)

@@ -77,7 +77,27 @@
 			"types": "./types/generated/*.d.ts",
 			"default": "./src/*.ts"
 		},
+		"./breakpoints": {
+			"macos": {
+				"types": "./types/generated/breakpoints.macos.d.ts",
+				"default": "./src/breakpoints.macos.tsrx"
+			},
+			"types": "./types/generated/breakpoints.d.ts",
+			"default": "./src/breakpoints"
+		},
+		"./breakpoints.tsrx": {
+			"macos": {
+				"types": "./types/generated/breakpoints.macos.d.ts",
+				"default": "./src/breakpoints.macos.tsrx"
+			},
+			"types": "./types/generated/breakpoints.d.ts",
+			"default": "./src/breakpoints.tsrx"
+		},
 		"./breakpoints.ts": {
+			"macos": {
+				"types": "./types/generated/breakpoints.macos.d.ts",
+				"default": "./src/breakpoints.macos.tsrx"
+			},
 			"types": "./types/generated/breakpoints.d.ts",
 			"default": "./src/breakpoints.tsrx"
 		},
@@ -85,7 +105,27 @@
 			"types": "./types/generated/breakpoints.web.d.ts",
 			"default": "./src/breakpoints.web.tsrx"
 		},
+		"./lifecycle": {
+			"macos": {
+				"types": "./types/generated/lifecycle.macos.d.ts",
+				"default": "./src/lifecycle.macos.tsrx"
+			},
+			"types": "./types/generated/lifecycle.d.ts",
+			"default": "./src/lifecycle"
+		},
+		"./lifecycle.tsrx": {
+			"macos": {
+				"types": "./types/generated/lifecycle.macos.d.ts",
+				"default": "./src/lifecycle.macos.tsrx"
+			},
+			"types": "./types/generated/lifecycle.d.ts",
+			"default": "./src/lifecycle.tsrx"
+		},
 		"./lifecycle.ts": {
+			"macos": {
+				"types": "./types/generated/lifecycle.macos.d.ts",
+				"default": "./src/lifecycle.macos.tsrx"
+			},
 			"types": "./types/generated/lifecycle.d.ts",
 			"default": "./src/lifecycle.tsrx"
 		},
@@ -93,7 +133,27 @@
 			"types": "./types/generated/lifecycle.web.d.ts",
 			"default": "./src/lifecycle.web.tsrx"
 		},
+		"./safe-area": {
+			"macos": {
+				"types": "./types/generated/safe-area.macos.d.ts",
+				"default": "./src/safe-area.macos.tsrx"
+			},
+			"types": "./types/generated/safe-area.d.ts",
+			"default": "./src/safe-area"
+		},
+		"./safe-area.tsrx": {
+			"macos": {
+				"types": "./types/generated/safe-area.macos.d.ts",
+				"default": "./src/safe-area.macos.tsrx"
+			},
+			"types": "./types/generated/safe-area.d.ts",
+			"default": "./src/safe-area.tsrx"
+		},
 		"./safe-area.ts": {
+			"macos": {
+				"types": "./types/generated/safe-area.macos.d.ts",
+				"default": "./src/safe-area.macos.tsrx"
+			},
 			"types": "./types/generated/safe-area.d.ts",
 			"default": "./src/safe-area.tsrx"
 		},
@@ -101,7 +161,27 @@
 			"types": "./types/generated/safe-area.web.d.ts",
 			"default": "./src/safe-area.web.tsrx"
 		},
+		"./screen": {
+			"macos": {
+				"types": "./types/generated/screen.macos.d.ts",
+				"default": "./src/screen.macos.tsrx"
+			},
+			"types": "./types/generated/screen.d.ts",
+			"default": "./src/screen"
+		},
+		"./screen.tsrx": {
+			"macos": {
+				"types": "./types/generated/screen.macos.d.ts",
+				"default": "./src/screen.macos.tsrx"
+			},
+			"types": "./types/generated/screen.d.ts",
+			"default": "./src/screen.tsrx"
+		},
 		"./screen.ts": {
+			"macos": {
+				"types": "./types/generated/screen.macos.d.ts",
+				"default": "./src/screen.macos.tsrx"
+			},
 			"types": "./types/generated/screen.d.ts",
 			"default": "./src/screen.tsrx"
 		},

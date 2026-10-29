@@ -102,6 +102,47 @@ export async function finishReading(): Promise<boolean> {
 See [native AppKit request ownership](../../../../docs/platform/keep-awake.md#native-appkit-request-ownership)
 and the idle manual fixture there.
 
+## AppKit screen and lifecycle entries
+
+Root and canonical screen/lifecycle/safe-area/breakpoints subpaths select AppKit
+TSRX leaves, including existing explicit .ts/.tsrx spellings. The AppKit preset's
+hook include is TSX/TSRX; keep hook calls out of the plain-TS barrel. Canonical
+non-AppKit fallback paths retain extension resolution; do not hardwire the phone
+leaf there and bypass browser/GTK selection. Native conditions must select both
+runtime leaves and generated declarations. Packed source/type checks are authored,
+not proof until run through Turbo after authorization.
+
+```tsx
+import { useAppState, useWindowSize } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function HostStatus() {
+	const size = useWindowSize(), state = useAppState()
+	return <Text>{`${state}: ${size.width}×${size.height}`}</Text>
+}
+```
+
+AppKit window snapshots are stable, copied/frozen, validated content-point sizes;
+missing/invalid sizes return zero and activity retains the existing active
+fallback. Insets stay zero. Unknown activity uses the separate environment API.
+Subscriptions are stable by host/method, preserve receivers and retire callbacks
+before cleanup; host/method replacement requires another render to select the new
+source. No global-property observation, secondary-window ownership or native
+input/layout/effect/AX/memory/package qualification is implied. AppKit's Android-only
+back hook is neutral and now returns void instead of a fake cleanup function:
+
+```tsx
+import { useBackHandler } from '@octane-xplat/platform/lifecycle'
+import { Text } from '@octane-xplat/ui'
+
+export function SharedScreen() {
+	useBackHandler(() => false)
+	return <Text>Screen</Text>
+}
+```
+
+See [AppKit window and activity state](../../../../docs/platform/platform-services.md#read-appkit-window-and-activity-state).
+
 ## `random` — OS CSPRNG
 
 `random.bytes(length)` returns a `Uint8Array` of secure random bytes;

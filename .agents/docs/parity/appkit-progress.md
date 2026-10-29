@@ -4,6 +4,105 @@ Target: native AppKit, issue #62. The immutable audit at `720c9ef93`
 remains a source snapshot; do not regenerate shared snapshots while the
 three desktop tasks share this checkout.
 
+## AppKit responsive and lifecycle purpose entries
+
+Demand assumption: the maintained responsive-layout probe, Services environment
+status, common safe-area layouts and shared screen components need window/activity
+hooks before niche integrations. Source review found the AppKit root defined
+useAppState/useWindowSize/useBreakpoints$ in index.macos.ts, outside the actual
+AppKit preset's **/*.{tsx,tsrx} hook include. The mobile preset's broader TS rule
+is different and must not be mistaken for AppKit's. Canonical screen/lifecycle/
+safe-area/breakpoints subpaths still selected phone leaves, including Android
+safe-area imports. The packed source lane skipped those macOS entries and used a
+broader compiler include than the real preset. This is source evidence, not a
+newly observed compile failure or runtime proof.
+
+The root now reexports matching dedicated AppKit TSRX leaves for window size,
+activity, zero insets and named width thresholds. Canonical and existing explicit
+.ts/.tsrx spellings have macos runtime and generated-declaration conditions. Their
+non-AppKit fallback paths retain existing extension/default selection; no shared
+CLI/Vite files, dependencies, lockfile, other-target leaves or audit snapshots
+were changed. Generated types remain deferred. No replacement API alias/shim.
+
+A target-only source adapter caches sources by actual host and subscription
+method identity. Snapshots copy/freeze valid finite nonnegative content dimensions,
+derive orientation and retain identity until dimensions change, including native
+in-place mutation. Invalid/throwing/missing reads preserve stable 0x0 fallback;
+activity retains the existing active fallback and validates active/inactive/
+background. This is primary-host-window scope, not per-view secondary-window scope.
+No global-property polling/observation is introduced. A later render selects late
+or replaced hosts/methods and retries a failed registration. Unknown capability
+reporting remains the separate environment API; default active is not proof of
+native activity support.
+
+Independent native registrations preserve the host receiver, coalesce synchronous
+acquisition notifications, retire held callbacks before cleanup, ignore stale
+owners/methods and isolate event-time reader errors. Throwing native cleanup
+cannot revive JS readers. A custom native hook that throws before returning its
+cleanup cannot provide a handle for physical native removal; retired callbacks
+are inert, but actual resource release remains a qualification boundary.
+
+**Breaking alpha correction:** root useBackHandler now shares the lifecycle
+leaf's void return, matching the existing mobile/web contract, instead of giving
+a meaningless cleanup function. It remains Android-only interception with a
+neutral AppKit body. Remove saved/called AppKit cleanup assignments. Window
+snapshots are now frozen read values; copy them before modifying local data.
+Public exported names and other hook signatures stay the same. Feature note,
+platform guide/README, styling path and Octane services reference explain the
+cutover, native scope, imports and defaults.
+
+Eight source models and two expanded existing packed lanes are authored, all
+**UNRUN**. Models isolate cache identity/immutability, invalid/getter failure,
+current activity, receiver/duplicate reader ownership, cleanup/delivery failure,
+synchronous registration/failure retry, stale host/method callbacks and exact
+root-to-leaf identity including neutral contracts. They use TypeScript transpile
+and fake useSyncExternalStore only when eventually run; no real Octane hook/
+compiler/render/OS evidence. Packed source now includes all four canonical and
+existing explicit entries, asserts selected AppKit/excluded phone paths and uses
+the real TSX/TSRX include. Existing Bundler/NodeNext declaration lanes include
+those imports; the macOS declaration fixture adds typed hook/back-return checks.
+None has run. Static impact found no resolved hook test coverage and incomplete
+callback edges; authored wiring checks do not retroactively prove old coverage.
+
+The manual platform-state fixture compares root/purpose sizes, object identity,
+activity, insets and width matches; a button mounts/unmounts readers and a text
+field retains a draft during later manual resize. Mounting reads/subscribes the
+hooks; its run method only waits for status, with no resize/activation/input
+commands. Existing programmatic responsive-layout probe remains separately
+unrun. Original appkit-responsive-layout AC1–AC3 are preserved; AC4–AC6 cover this
+source import/lifetime/cutover path without weakening native evidence criteria.
+
+Exact deferred commands; run only after this human's explicit go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+pnpm probe doctor
+pnpm probe run examples/probes/platform-state.macos.tsrx --target macos --watch
+pnpm probe run examples/probes/responsive-layout.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit responsive hook package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Platform has no standalone typecheck; Turbo may prepare generated declarations,
+dependencies and vendor checkouts. Packed checks install isolated consumers and
+compile source/types, so remain deferred as heavy verification. Docs scripts
+remain absent here; no shared in-flight tooling was copied. Permitted checks:
+ten source/model/probe files and eight scoped documentation fences syntax parsed,
+one manifest JSON parsed with twelve conditional source paths checked, nineteen
+local documentation paths, source/semantic and whitespace review. Generated type
+paths were checked as mappings only; their existence/shape is not verified.
+No tests, compiler transforms, builds, typechecks, native probe/OS/input/IME/
+focus/AX/subscription memory, visual analysis, installs or packaging ran. Actual
+native resize/activity, root/purpose rerender, browser/phone regression, generated
+public types and clean installed consumers remain unqualified. Coverage stays
+separate from not-run verification; all qualification checkboxes stay open and
+the persistent goal remains active.
+
 ## AppKit keep-awake token and hook ownership
 
 Demand assumption: the maintained reading/presentation example, existing public

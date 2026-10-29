@@ -587,6 +587,23 @@ export function Example() {
 }
 ```
 
+### Native AppKit window width
+
+For an experimental AppKit screen, choose the layout from primary-window content
+points with the platform hook. Treat the returned snapshot as read-only. See
+[window and activity state](../platform/platform-services.md#read-appkit-window-and-activity-state)
+for subpaths, fallbacks and qualification limits:
+
+```tsx
+import { useWindowSize } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function WindowStatus() {
+	const size = useWindowSize()
+	return <Text>{size.width >= 900 ? 'Wide layout' : 'Compact layout'}</Text>
+}
+```
+
 ## Wrap text on native
 
 NativeScript uses `white-space: wrap` to let `Text`/`Label` content flow onto
