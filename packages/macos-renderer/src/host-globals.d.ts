@@ -66,7 +66,10 @@ declare global {
 			options: any,
 			onChange: any,
 		) => { update(options: any): void; detach(): void } | null
-		presentSheet?: (view: import('@octane-xplat/platform/macos').NSView, options: any) => any
+		presentSheet?: (
+			view: import('@octane-xplat/platform/macos').NSView,
+			options: { onDismissed?(): void; onUnavailable?(): void },
+		) => import('./sheet.macos').NativeSheetHandle | null
 		presentSurface?: (options: any) => any
 		setSurfaceAppearance?: (
 			view: import('@octane-xplat/platform/macos').NSView,

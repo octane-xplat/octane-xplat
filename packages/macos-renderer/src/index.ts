@@ -61,6 +61,7 @@ import {
 } from './tab-view'
 
 import { installPresentationBridge } from './presentation'
+import { createNativeSheet } from './sheet.macos'
 import { installAppearanceBridge } from './appearance'
 import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
 import { installMasonElement, makeMasonHostView } from './mason'
@@ -189,7 +190,6 @@ import {
 	NSVisualEffectMaterial,
 	NSVisualEffectView,
 	NSWindow,
-	NSWindowDelegate,
 	NSWindowDidResizeNotification,
 	NSWindowDidUpdateNotification,
 	NSWindowOrderingMode,
@@ -10238,162 +10238,66 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 	} catch { detach(); return null }
 }
 
-const openSheets = new Set<any>()
+const sheetWindowCancels = new WeakMap<NSWindow, () => void>()
+const sheetAnchorChanges = new WeakMap<NSView, () => void>()
 
-let sheetDelegateTarget: any = null
-try {
-	class SheetDelegateTarget extends NSObject {
-		static ObjCProtocols = [NSWindowDelegate]
-
-		static ObjCExposedMethods = {
-			windowWillClose: { params: [NSNotification], returns: interop.types.void },
-			windowDidEndSheet: { params: [NSNotification], returns: interop.types.void },
-		}
-
-		static {
-			NativeClass(this)
-		}
-
-		windowWillClose(notification: NSNotification) {
-			finishSheetDismissal(notification?.object)
-		}
-
-		windowDidEndSheet(notification: NSNotification) {
-			finishSheetDismissal(notification?.object)
-		}
+class AppKitSheetWindow extends NSWindow {
+	static ObjCExposedMethods = {
+		'cancelOperation:': { params: [NSObject], returns: interop.types.void },
 	}
-
-	sheetDelegateTarget = SheetDelegateTarget.new()
-} catch (error) {
-	console.error(
-		'[macos-leaf] sheet delegate registration failed — window close reporting disabled',
-		error,
-	)
+	static { registerGestureClass(this) }
+	cancelOperation(_sender: NSObject) { sheetWindowCancels.get(this)?.() }
 }
 
-function finishSheetDismissal(sheetWindow: any) {
-	for (const entry of openSheets) {
-		if (entry.sheetWindow !== sheetWindow) {
-			continue
-		}
-
-		openSheets.delete(entry)
-		const wasClosed = entry.closed
-		entry.closed = true
-
-		if (!wasClosed) {
-			try {
-				entry.onDismissed?.()
-			} catch (error) {
-				console.error('[macos-leaf] sheet dismissal failed', error)
-			}
-		}
+// Observe attachment directly, including an initially-open sheet mounted before
+// its anchor reaches a window. A hidden zero-size child adds no layout surface.
+class AppKitSheetAnchorObserver extends NSView {
+	static ObjCExposedMethods = {
+		viewDidMoveToWindow: { params: [], returns: interop.types.void },
+	}
+	static { registerGestureClass(this) }
+	viewDidMoveToWindow() {
+		super.viewDidMoveToWindow()
+		sheetAnchorChanges.get(this)?.()
 	}
 }
 
-/** Creates a native window sheet target (beginSheet on the leaf's window),
- *  with a floating window when no parent is attached. The caller portals its
- *  own Octane subtree into `target` before calling `present()`. */
 function presentSheet(view: NSView, options: PropBag) {
-	if (
-		typeof (globalThis as any).NSWindow?.alloc !== 'function' ||
-		typeof (globalThis as any).NSViewController?.alloc !== 'function'
-	) {
-		return null
-	}
-
-	const parentWindow = view?.window ?? null
-	const contentView = NSView.alloc().initWithFrame({
-		origin: { x: 0, y: 0 },
-		size: { width: 480, height: 1 },
-	})
-
-	const entry = {
-		target: contentView,
-		parentWindow,
-		sheetWindow: null as any,
-		closed: false,
-		presented: false,
-		onDismissed: options?.onDismissed,
-	}
-
-	const close = () => {
-		if (entry.closed) {
-			return
-		}
-
-		entry.closed = true
-		openSheets.delete(entry)
-		try {
-			if (parentWindow && entry.sheetWindow) {
-				parentWindow.endSheet(entry.sheetWindow)
-			} else if (entry.sheetWindow) {
-				entry.sheetWindow.orderOut(null)
-			}
-		} catch (error) {
-			console.error('[macos-leaf] sheet close failed', error)
-		}
-	}
-
-	return {
-		target: contentView,
-		present() {
-			if (entry.closed) {
-				return false
-			}
-
-			if (entry.presented) {
-				return true
-			}
-
+	return createNativeSheet(view, options ?? {}, {
+		makeContent: () => NSView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 480, height: 1 } }),
+		makeWindow(content, size, cancel) {
 			const controller = NSViewController.alloc().init()
-			controller.view = contentView
-			const fit = popupFittingSize(contentView)
-			const width = Math.max(fit?.width ?? 0, options?.minWidth ?? 360)
-			const height = Math.max(fit?.height ?? 0, options?.minHeight ?? 160)
-
-			const SM = (
-				typeof NSWindowStyleMask === 'object' && NSWindowStyleMask ? NSWindowStyleMask : {}
-			) as { [key: string]: number }
-
-			const BT = (
-				typeof NSBackingStoreType === 'object' && NSBackingStoreType ? NSBackingStoreType : {}
-			) as { [key: string]: number }
-
-			const sheet = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-				{ origin: { x: 0, y: 0 }, size: { width, height } },
-				(SM.Titled ?? 1) | (SM.Closable ?? 2),
-				BT.Buffered ?? 2,
-				false,
+			controller.view = content
+			const sheet = AppKitSheetWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+				{ origin: { x: 0, y: 0 }, size },
+				NSWindowStyleMask.Titled | NSWindowStyleMask.Closable,
+				NSBackingStoreType.Buffered, false,
 			)
-
-			sheet.contentViewController = controller
-			sheet.releasedWhenClosed = false
-			if (sheetDelegateTarget) {
-				sheet.delegate = sheetDelegateTarget
-			}
-
-			entry.sheetWindow = sheet
-			openSheets.add(entry)
-
 			try {
-				if (parentWindow && typeof parentWindow.beginSheetCompletionHandler === 'function') {
-					parentWindow.beginSheetCompletionHandler(sheet, () => finishSheetDismissal(sheet))
-				} else {
-					sheet.center?.()
-					sheet.makeKeyAndOrderFront(null)
-				}
-
-				entry.presented = true
-				return true
-			} catch (error) {
-				console.error('[macos-leaf] sheet presentation failed', error)
-				close()
-				return false
+				sheet.releasedWhenClosed = false
+				sheet.contentViewController = controller
+				sheetWindowCancels.set(sheet, cancel)
+				return sheet
+			} catch {
+				try { sheet.close() } catch {}
+				throw Error('Sheet construction failed')
 			}
 		},
-		close,
-	}
+		releaseWindow: (sheet) => { sheetWindowCancels.delete(sheet) },
+		watchWindow(anchor, notify) {
+			const observer = AppKitSheetAnchorObserver.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } })
+			observer.hidden = true
+			sheetAnchorChanges.set(observer, notify)
+			const cleanup = () => { sheetAnchorChanges.delete(observer); observer.removeFromSuperview() }
+			try { anchor.addSubview(observer); return cleanup } catch { cleanup(); throw Error('Sheet anchor unavailable') }
+		},
+		observeClose(window, notify) {
+			const center = NSNotificationCenter.defaultCenter
+			const token = center.addObserverForNameObjectQueueUsingBlock('NSWindowWillCloseNotification', window, null, notify)
+			return () => center.removeObserver(token)
+		},
+		fittingSize: popupFittingSize,
+	})
 }
 
 const appKitBridge = (globalThis.__xplatAppKit ??= {})

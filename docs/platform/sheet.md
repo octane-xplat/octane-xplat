@@ -289,38 +289,95 @@ export function AndroidEditorSheet({ open, close, editing }: {
   `sheetGesturesEnabled`. The web leaf applies `id`, `className`, `style`, and
   the container/content/scrim colors. Its height budget is 60vh by default and
   90vh when `skipPartiallyExpanded` is true.
-- **macOS** — a real AppKit window sheet (`beginSheet` on the leaf's
-  window), falling back to a floating window without a parent. There are
-  no detents or drag handles on macOS — the window sizes to the
-  content's fitting size and `onDismissed` fires when the sheet ends
-  (close button, Esc, or `open`→false). The content subtree portals into the
-  sheet's `NSView` host, preserving provider values and live updates. The
-  sheet presents after portal commit so its fitting size includes the current
-  content:
+- **macOS** — use `AppKitSheet` for a document-modal window sheet. Its
+  source implementation waits for the anchor's window and portals content from
+  the declaring tree. Native execution and packaged consumers are still unqualified.
 
   ```tsx
-  /** @jsxImportSource @octane-xplat/jsx */
-  // AccountSheet.macos.tsrx
+  // Details.macos.tsx
   import { AppKitSheet } from '@octane-xplat/sheet/macos'
   import { Text } from '@octane-xplat/ui'
-  import { createContext, useContext } from 'octane'
 
-  const AccountName = createContext('Guest')
-  const AccountNameProvider: any = AccountName
-
-function AccountLabel() {
-return <Text>{useContext(AccountName)}</Text>
-}
-
-export function AccountPage() {
-return (
-<AccountNameProvider value="Avery">
-<AppKitSheet open content={() => <AccountLabel />} />
-</AccountNameProvider>
-)
-}
-
+  export function Details({ open }: { open: boolean }) {
+      return <AppKitSheet open={open} content={() => <Text>Trip details</Text>} />
+  }
   ```
+
+## Native macOS window sheets
+
+Open a sheet from a button and close it after saving. Keep its anchor mounted
+inside the intended window. `open` controls the request; `onDismissed` resets
+that request after native dismissal. The content portals from the declaring
+Octane tree, retaining its providers and live updates.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// TripSheet.macos.tsx
+import { createContext, useContext, useState } from 'octane'
+import { AppKitSheet } from '@octane-xplat/sheet/macos'
+import { Button, Text, View } from '@octane-xplat/ui'
+
+const TripName = createContext('Weekend trip')
+const TripNameProvider: any = TripName
+function TripLabel() {
+	return <Text>{useContext(TripName)}</Text>
+}
+export function TripSheet() {
+	const [open, setOpen] = useState(false)
+	return <TripNameProvider value="Oslo trip">
+		<Button label="Edit trip" clickAction={() => setOpen(true)} />
+		<AppKitSheet open={open} className="gap-3 p-4"
+			onDismissed={() => setOpen(false)}
+			content={() => <View className="gap-3">
+				<TripLabel />
+				<Button label="Save and close" clickAction={() => setOpen(false)} />
+			</View>} />
+	</TripNameProvider>
+}
+```
+
+Use `id` as the record's ownership key when a retained sheet switches records.
+Changing the id or native anchor retires the old session before creating a new
+one. Unmounting also cleans up silently. Callback-only and content updates keep
+that session; dismissal uses the current callback. `className` and `style` apply
+to the sheet content host; the anchor carries `id`.
+
+```tsx
+// RecordSheet.macos.tsx
+import { AppKitSheet } from '@octane-xplat/sheet/macos'
+import { Text } from '@octane-xplat/ui'
+export function RecordSheet({ trip, open, close }: {
+	trip: { id: string; name: string }; open: boolean; close: () => void
+}) {
+	return <AppKitSheet id={`trip-${trip.id}`} open={open}
+		className="gap-3 p-4" style={{ minWidth: 420 }}
+		onDismissed={close} content={() => <Text>{trip.name}</Text>} />
+}
+```
+
+The source lifecycle has these boundaries. No parentless floating window is
+created. AppKit's [native sheet API](https://developer.apple.com/documentation/appkit/nswindow/beginsheet%28_%3Acompletionhandler%3A%29)
+presents or queues the request on the anchor's actual parent window.
+
+| State or action | Source behavior |
+| --- | --- |
+| `open` before window attachment | Prepare portal content; wait for native anchor attachment |
+| Portal commit and attached parent | Measure fitting size, with a 360 × 160 point minimum, then call `beginSheet` |
+| Another sheet on the same window | Let AppKit queue this request; closing it calls `endSheet` for this owned window |
+| Native end, parent close/loss, or `open` → false after presentation/queueing | Clean up and call the current `onDismissed` once |
+| Close before native presentation, unmount, id/anchor replacement | Cancel resources without a dismissal callback |
+| Native end while `open` remains true | Stay closed until `open` resets to false then true |
+| Missing bridge or native construction/presentation failure | Show a generic unavailable message; close and reopen to retry |
+
+The native window exposes `cancelOperation:` through the responder chain,
+leaving text responders first opportunity to consume their key binding. Actual
+Escape delivery, IME, Tab order, native close controls, nested sheets, queued
+cancellation, fit/layout, focus restoration, VoiceOver and memory behavior still
+need AppKit qualification. There are no detents or drag handles in this API.
+The [maintained demo](../../packages/demos/src/NativeSheetDemo.macos.tsrx) includes
+text entry, provider changes, nested/queued requests, callback/scope changes and
+an explicit delayed owner removal. Its idle probe has not run.
+
 
 ## Port notes — what carried over
 

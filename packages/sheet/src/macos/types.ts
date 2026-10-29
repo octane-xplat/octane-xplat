@@ -1,12 +1,14 @@
 export interface AppKitSheetProps {
 	id?: string
+	/** Classes for the sheet content host. */
 	className?: any
+	/** Styles for the sheet content host. */
 	style?: any
 	/** Controls sheet presentation. */
 	open?: boolean
-	/** Called when the sheet window closes (close button or `open`→false). */
+	/** Called once when a presented/queued sheet ends, including `open`→false.
+	 * Unmounting or replacing the anchor/id cleans up without notifying. */
 	onDismissed?: () => void
-	/** Render fn producing the sheet content — hosted in the sheet's own
-	 *  octane root inside the presented window. */
+	/** Content portals from the declaring tree, retaining its providers. */
 	content?: () => any
 }

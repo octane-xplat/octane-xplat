@@ -47,10 +47,11 @@ export function Details() {
 }
 ```
 
-Sheet content mounts into a detached root — the same embedding mechanism as
-`@octane-xplat/context-menu`'s trigger. On iOS the registered view resolves
-through `NativeScriptViewFactory`; on Android through the leaf's
-`XplatViewRegistry` + `AndroidView` inside the sheet's dialog window.
+On iOS the registered content view resolves through
+`NativeScriptViewFactory`; on Android through `XplatViewRegistry` and
+`AndroidView` inside the sheet's dialog window. The macOS content uses a portal
+from its declaring tree, preserving providers. See the controlled AppKit example
+below.
 
 Web apps must also import the sheet stylesheet from their app entry:
 
@@ -81,5 +82,37 @@ The native implementations are adapted from `@expo/ui` (MIT,
 `packages/expo-ui` sdk-57): `ios/BottomSheetView.swift` and
 `android/.../ui/ModalBottomSheetView.kt`. Attribution headers sit on the
 ported files.
+
+## Native macOS window sheets
+
+Keep the sheet anchor mounted in the intended window. The AppKit source waits
+for attachment and portal commit, measures its content and presents or queues a
+native document-modal sheet. `onDismissed` uses the current callback once for
+native dismissal or a presented/queued `open` → false request. Unmounting or
+changing the id/anchor cleans up silently. `className`/`style` apply to content.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// TripDetails.macos.tsx
+import { useState } from 'octane'
+import { AppKitSheet } from '@octane-xplat/sheet/macos'
+import { Button, Text, View } from '@octane-xplat/ui'
+export function TripDetails() {
+	const [open, setOpen] = useState(false)
+	return <View>
+		<Button label="Edit trip" clickAction={() => setOpen(true)} />
+		<AppKitSheet id="trip-details" open={open} className="gap-3 p-4"
+			onDismissed={() => setOpen(false)}
+			content={() => <Button label="Save and close" clickAction={() => setOpen(false)} />} />
+		<Text>Trip details</Text>
+	</View>
+}
+```
+
+Native execution remains unqualified: Escape/close, input/IME/Tab, focus,
+queueing/cancellation, nested sheets, layout, VoiceOver, teardown and packaged
+consumers have not been exercised. The former parentless floating-window fallback
+is removed; a request waits for its anchor's window. See the
+[full lifecycle contract and manual demo](../../docs/platform/sheet.md#native-macos-window-sheets).
 
 Continue with [Platform sheet setup and lifecycle](https://octane-xplat.goddardai.org/sheet).

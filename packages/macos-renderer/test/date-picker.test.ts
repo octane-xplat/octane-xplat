@@ -8,7 +8,7 @@ const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slice = source.slice(
 	source.indexOf('function attachDatePicker('),
-	source.indexOf('const openSheets'),
+	source.indexOf('const sheetWindowCancels ='),
 )
 
 const dateFromMillis = source.slice(

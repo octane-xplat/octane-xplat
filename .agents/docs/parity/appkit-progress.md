@@ -4,6 +4,90 @@ Target: native AppKit, issue #62. The immutable audit at `720c9ef93`
 remains a source snapshot; do not regenerate shared snapshots while the
 three desktop tasks share this checkout.
 
+## AppKit native window-sheet ownership
+
+Record editing and confirmation are ordinary app flows. The maintained
+`NativeSheetDemo.macos.tsrx` was a placeholder although `@octane-xplat/sheet/macos`
+already portaled to a native window. Source review found captured dismissal
+callbacks, no controlled-close reporting, wrong/ambiguous close-delegate
+ownership and a parentless floating-window fallback. The shared presentation
+engine explicitly renders inside an existing window, so it does not replace
+authentic `NSWindow.beginSheet` modality. This is source evidence, not an
+observed native failure.
+
+The sheet owner now prepares the portal, waits for commit, uses current content
+and handlers, and reports accepted/queued dismissal once. A still-true request
+stays closed after native completion until reset. Record id/native-anchor
+replacement and unmount retire callbacks before silent cleanup. Missing or
+failed native setup drops the portal and shows a generic close/reopen message.
+Existing `className`/`style` now apply to the content host; public types explain
+the portal/provider and lifetime contract. No dependencies or props were added.
+
+The renderer reuses AppKit window sheets with a separate resource controller.
+An owned hidden zero-size NSView observes actual anchor window attachment;
+initially-open requests wait rather than becoming floating windows. The parent
+is pinned once attached. Parent/sheet close and anchor loss end the owned
+session. Native queueing is retained. Cleanup retires observers and cancellation
+callbacks before end/orderOut/close, releases content-controller ownership and
+handles partial failure. A window subclass exposes exact `cancelOperation:`
+metadata through the existing registration helper, retaining the native
+responder chain; its attachment observer calls the superclass lifecycle method.
+The former ambiguous SheetDelegateTarget/openSheets registry is removed.
+
+Primary API references are Apple's [beginSheet queueing contract](https://developer.apple.com/documentation/appkit/nswindow/beginsheet%28_%3Acompletionhandler%3A%29),
+[endSheet](https://developer.apple.com/documentation/appkit/nswindow/endsheet%28_%3Areturncode%3A%29),
+[viewDidMoveToWindow](https://developer.apple.com/documentation/appkit/nsview/viewdidmovetowindow%28%29)
+and [cancelOperation](https://developer.apple.com/documentation/appkit/nsstandardkeybindingresponding/canceloperation%28_%3A%29).
+They establish API shape, not custom-host dispatch or runtime behavior. Exact
+selector registration still has the objc-node-api alpha.7 source-versus-binary
+qualification boundary recorded below. No upstream dependency is patched.
+
+Seven owner-model, eight native-controller-model and two actual-renderer-factory
+cases were authored, all **unrun**. The factory cases execute the actual bridge
+classes against fakes; they do not exercise NativeClass/ObjC. The maintained
+demo covers editable/provider content, callback/id replacement, queued request
+cancellation, nested sheets, initially-open mounting and explicit delayed
+unmount. Its probe waits only for the idle demo status; no sheet or input action
+runs automatically. All native behavior remains unqualified: Escape and close
+delivery, IME, Tab/focus entry/restoration, provider/hook/effect timing, nested
+presentation, queue cancellation, content fitting, parent-close ordering,
+VoiceOver, native memory/observer lifetime and packaged consumers.
+
+The `appkit-native-sheet` recipe, package README, public sheet guide, Octane
+overlays reference and breaking feature note describe the source contract.
+The removal of parentless floating presentation is an intentional alpha
+cutover. No evidence-gated tracker item or broader platform claim is closed.
+
+Deferred commands; run only after explicit human authorization for this task:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/sheet
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/sheet --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/sheet --filter=@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/native-sheet.macos.tsrx --target macos --watch
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The sheet and demos packages have no standalone typecheck script in this
+snapshot; review actual selected dependent checks and compile the edited demo
+with the authorized native probe/consumer path. The two docs scripts and
+`.agents/docs/documentation-quality.md` are absent from this isolated snapshot;
+the current guide was read from the original checkout, whose in-flight tools
+were left intact. Public examples and reader paths were manually reviewed;
+no docs-quality or examples task ran. Lightweight syntax/JSON and whitespace
+checks alone do not verify imports, types, hook transforms or native behavior.
+The reviewed source change also moves the date-picker model's extraction
+boundary to the new sheet section; its existing cases remain unrun.
+Source-only review parsed 13 staged TS/TSRX/MJS/declaration files, one package
+JSON and eight scoped documentation fences. Eleven scoped local Markdown
+targets exist; anchors and remote links were not mechanically checked. Semantic
+diff and whitespace review passed. No source transformation, import resolution,
+typecheck, unit test, probe, OS automation or image inspection ran.
+
 ## Priorities and evidence boundary
 
 Assume everyday document workflows, settings, inbox filters and view switches

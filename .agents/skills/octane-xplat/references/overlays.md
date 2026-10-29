@@ -99,6 +99,33 @@ export function Details() {
 
 ## Preserve providers with scoped services
 
+For a native AppKit window sheet, import `AppKitSheet` from
+`@octane-xplat/sheet/macos` in a macOS leaf and keep its anchor mounted inside
+the intended window. Its content portals from the declaring tree. Preparation
+waits for anchor attachment and portal commit; AppKit then presents or queues
+the request. `className`/`style` apply to content. Use the record id as `id` when
+retaining the owner across records; id/anchor replacement and unmount retire
+silently. Native dismissal or a presented/queued `open`→false calls the current
+handler once; reset `open` before reopening after native dismissal. No floating
+fallback, detents or drag handles. Missing/failed presentation shows an
+unavailable message, retried by closing/reopening. Source only: actual input,
+queueing, fitting, provider/hook behavior, nested sheets, focus, AX and consumer
+qualification remain open. See the [native lifecycle](../../../../docs/platform/sheet.md#native-macos-window-sheets)
+and maintained `NativeSheetDemo.macos.tsrx` before claiming support.
+
+```tsx
+// Details.macos.tsx
+import { AppKitSheet } from '@octane-xplat/sheet/macos'
+import { Text } from '@octane-xplat/ui'
+export function Details({ record, open, close }: {
+	record: { id: string; title: string }; open: boolean; close: () => void
+}) {
+	return <AppKitSheet id={`details-${record.id}`} open={open}
+		className="p-4" onDismissed={close}
+		content={() => <Text>{record.title}</Text>} />
+}
+```
+
 On iOS/Android, declarative `Dialog`, `BottomSheet`, `Overlay`, `Popover`,
 and OS modal content portal from their declaring tree. For imperative sheets,
 use `useImperativeBottomSheet` and keep its returned `element` mounted below
