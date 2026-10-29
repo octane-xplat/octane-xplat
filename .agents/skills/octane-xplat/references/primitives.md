@@ -2088,3 +2088,31 @@ animation-completion guarantee. Seven controller/mounted cases and the expanded
 manual fixture are authored but unrun. Native seeks/coordinate conversion,
 scroll spy/animation, interruption/threading, real keyboard/AX and clean packaged
 consumers remain unqualified; see the content-display guide.
+
+
+## AppKit Lightbox image gestures
+
+Lightbox now has source paths for immediate double-click 1×/2× image zoom and
+unzoomed pointer/recognized-AppKit-swipe navigation. hasZoom=false disables image
+magnification; current source/index/viewport/policy changes reset to 1×. Pinch
+bounds remain 1×–4×. Swipes clamp at gallery edges and skip vertical/cancelled/incomplete
+recognized gestures and navigation while zoomed. Native panning still needs
+qualification. Native Swipe
+events use +deltaX for left; renderer pointer swipes already use direction 2 for
+left. The local monitor owns only the open media stage, checks native window/hit
+ownership, leaves ordinary scroll-wheel events alone and retires on replacement
+or disposal. It requires native monitor support. Seven policy/mounted cases and
+a manual fixture are authored but unrun; actual input/gesture arbitration,
+hit/zoom coordinates, cleanup, VoiceOver and packaging remain unqualified.
+Lightbox video is still unsupported, including when the separate Video package
+is used; no optional player handoff is implemented.
+
+```tsx
+import { Lightbox } from '@octane-xplat/ui'
+export function Gallery({ open, setOpen, first, second }: {
+	open: boolean; setOpen: (open: boolean) => void; first: string; second: string
+}) {
+	return <Lightbox isOpen={open} onOpenChange={setOpen} hasZoom
+		media={[{ src: first, alt: 'First photo' }, { src: second, alt: 'Second photo' }]} />
+}
+```

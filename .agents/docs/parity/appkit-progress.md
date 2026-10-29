@@ -5747,3 +5747,77 @@ and quiet timing, user interruption, scroll spy, cleanup, OS keyboard/hit testin
 VoiceOver state/navigation and clean packaged consumers remain unqualified.
 Source implementations do not close these gates. Audit snapshots and checkboxes
 remain unchanged; persistent goal active.
+
+## AppKit Lightbox image zoom and swipe ownership
+
+An embedded video source path now exists, but core Lightbox still
+has no optional player handoff. Core UI importing the video leaf would introduce
+a dependency cycle (the player composes UI). No engine cost or registry API is
+added here; video/hasAutoPlay remain unsupported in native Lightbox. Demand
+assumption: inspecting images and moving through a media gallery are common
+flows that can use the existing native host before a new video integration seam.
+
+Source review found existing AppKit pinch configuration (1×–4×) and pointer
+swipe classification, but no Lightbox double-click or swipe handlers. The media
+stage now has double-click and pointer-swipe handlers. A target-only controller
+reads current panel props/refs: image double-click toggles 1×/2× at the current
+clip center, media index/source/viewport/zoom-policy changes reset to 1×, and
+hasZoom=false disables magnification. Programmatic zoom is immediate, avoiding
+queued zoom animation crossing a media replacement. The stage is separate from
+the toolbar and caption. Neither video fallback nor invalid/hidden/detached or
+foreign-window viewports magnify. Swipe navigation clamps at gallery edges and
+does not change selection while zoomed; actual native panning is unqualified.
+
+A panel-owned optional local monitor handles recognized NSEvent Swipe events
+only, with current native window and actual hit-test ownership inside the media
+stage. It uses the content view's superview coordinates for hitTest, matching
+the existing renderer primary-click algorithm. Horizontal discrete or ended
+recognized gestures request current Previous/Next; vertical, cancelled,
+incomplete, invalid, outside and foreign-window events pass through. Ordinary
+scroll-wheel events are never monitored. A single item does not install a swipe
+monitor. Source versions retire old callbacks after stage replacement/disposal,
+and registration-time disposal removes the returned token. Consumer selection
+faults are reported separately instead of escaping the native monitor. Current
+props and bindings are read for every action; no new dependency, public type,
+CLI, native class or shared gesture-engine behavior changed.
+
+Apple's [trackpad event guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/HandlingTouchEvents/HandlingTouchEvents.html)
+distinguishes recognized Swipe events from scroll-wheel gestures and defines
+positive deltaX as swipe-left. The installed SDK declares Swipe type 31/mask
+2147483648 and [setMagnification:centeredAtPoint:](https://developer.apple.com/documentation/appkit/nsscrollview/setmagnification(_:centeredat:)?language=objc).
+Its NSScrollView.h comment identifies content-view coordinates, supporting the
+clip bounds origin plus half-size center calculation. These API/SDK reads are
+source evidence, not native gesture/magnification proof.
+
+Seven cases are authored but UNRUN: six policy cases cover center/toggle/reset,
+pointer directions/bounds/zoom/visibility, recognized-event direction/phase and
+window/hit filtering, monitor replacement/disposal, single/video/invalid geometry,
+and consumer callback faults. One mounted panel case covers live zoom/swipe
+wiring, media replacement, current callbacks and inert late handlers; it mocks
+presentation, layer and buttons, so it does not qualify those host boundaries.
+The manual fixture stays closed until sources are entered and explicitly opened;
+its runner records controls mounting only. Guide/limits/skill/recipe AC13 and
+feature note distinguish source paths from native qualification.
+
+Source/semantic review, five-file TS/TSRX syntax parsing and whitespace checks
+passed. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/lightbox-gestures.macos.test.ts src/lightbox-gestures.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/lightbox-gestures.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Actual native click/pinch/recognized-trackpad input,
+recognizer/scroll arbitration, hit-test routing/occlusion, magnification and reset
+coordinates, zoomed panning, controlled updates, monitor cleanup, focus/VoiceOver,
+native presentation and clean packaged consumers remain unqualified. This does
+not claim fluid two-finger scroll-wheel paging or system-gesture interception.
+Lightbox video remains a source gap; audit snapshots and evidence checkboxes are
+unchanged. Persistent goal active.

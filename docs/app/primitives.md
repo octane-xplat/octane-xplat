@@ -2242,9 +2242,25 @@ export function ScreenNotice() {
 
 Lightbox Previous/Next buttons and Left/Right keys change the media index.
 Image magnification uses AppKit's scroll view (pinch zoom, 1×–4×, controlled
-by `hasZoom`); double-click zoom and touch swipe navigation are not implemented
-on macOS. Shared lightbox video playback remains unavailable and shows an
-explicit message with the media description; `hasAutoPlay` remains web-only.
+by `hasZoom`). Double-click now has a source path toggling 1×/2× around the
+current clip center. It resets on media or zoom-policy changes and applies
+immediately. Pointer swipes and recognized AppKit swipe events can request
+Previous/Next while unzoomed. Gallery edges, vertical/cancelled gestures and
+zoomed images do not navigate. The trackpad path requires native event-monitor
+support and a current hit inside the media stage; ordinary scroll-wheel events
+remain with AppKit. Actual double-click/pinch/swipe delivery, hit testing,
+coordinate behavior and cleanup remain unqualified. Shared lightbox video
+playback still shows an explicit unsupported message; `hasAutoPlay` is web-only.
+
+```tsx
+import { Lightbox } from '@octane-xplat/ui'
+export function Gallery({ open, setOpen, first, second }: {
+	open: boolean; setOpen: (open: boolean) => void; first: string; second: string
+}) {
+	return <Lightbox isOpen={open} onOpenChange={setOpen} hasZoom
+		media={[{ src: first, alt: 'First photo' }, { src: second, alt: 'Second photo' }]} />
+}
+```
 
 Try the maintained [shared presentation example](../../examples/probes/shared-presentations.tsrx).
 Supply your own image source before using its lightbox buttons. The

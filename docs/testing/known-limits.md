@@ -69,8 +69,10 @@ export function Help() {
 
 macOS support is experimental. Shared dialogs, alert dialogs, bottom sheets,
 lightboxes, and toast stacks have dedicated presentation and cleanup, but OS
-input delivery and VoiceOver behavior remain unverified. Lightbox video
-playback, double-click zoom, and touch swipe navigation are unavailable.
+input delivery and VoiceOver behavior remain unverified. Lightbox image
+magnification/double-click and pointer/recognized-swipe navigation now have
+source implementations; actual native gesture delivery, hit testing and cleanup
+remain unqualified. Lightbox video playback is still unavailable.
 See [shared presentations](../app/primitives.md#macos-shared-presentations)
 for app guidance and the [AppKit verification record](../../.agents/docs/appkit-verification.md)
 for contributor checks and evidence boundaries.
