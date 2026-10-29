@@ -8350,3 +8350,46 @@ builds, probes, native/OS/AX/visual analysis or packaging ran. Real native layou
 notification/attachment/reentry/scroll/elasticity, memory and installed consumers
 remain unqualified. Pull-to-refresh and all evidence-gated checkboxes stay open;
 persistent goal remains active.
+
+## AppKit idle pull-refresh phase and docking diagnostic
+
+The scroll geometry repair did not resolve the missing pull gesture. A dedicated
+idle fixture now makes the next native experiment concrete: numeric viewport,
+clip/document, logical top offset, current-event phase/momentum and notification
+snapshots, paired with microtask samples. It records at most 256 rows without
+rerendering on every event. Current-event association can be absent or unrelated;
+no release semantics are inferred from a notification name or a mounted control.
+
+Manual controls switch artificial short/long content, reserve a 64-point header,
+try a local top inset with auto-adjustment disabled, toggle allowed elasticity,
+record/clear snapshots and unmount/remount the reader. These affect only the
+fixture's own scroll view after user activation. Setup owns native observation,
+cleanup retires queued samples before releasing handles and restoring copied
+local insets/auto-adjustment/elasticity. Logs contain fixed diagnostic messages
+and numeric test geometry, never native objects, user text or screenshots.
+
+The fixture is maintained as the diagnostic for the outstanding AppKit scroll
+phase/docking contract. It is not a refresh controller or product implementation,
+and has no automatic OS input, Refresh-button substitute or qualification
+assertions. Its run hook records mounting only. No feature, API, recipe criterion
+or release promise is added by this internal fixture; no release note is needed.
+Silo experiment b9171383-2e4d-46b9-90bf-0aa3a6b18295 is queued with NULL outcome, not running/passed.
+It does not grant resource or visual authorization.
+
+Exact deferred commands, pending this human's task-specific go-ahead:
+
+```sh
+pnpm probe doctor
+pnpm probe run examples/probes/pull-refresh-geometry.macos.tsrx --target macos --watch
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+```
+
+After authorization, record actual macOS/JSC/input-device versions, pull/retreat/
+release traces, short-content elasticity, inset-vs-reserved-header geometry and
+unmount/remount effects. If phases cannot be associated with notifications, a
+renderer event seam still needs investigation. Raw/bounded/RTL/nested scrollers,
+cancellation, asynchronous refresh ownership and presentation remain separate
+implementation/qualification work. Source/TSRX syntax and semantic/whitespace
+review only; no compiler, tests, typechecks, probe doctor/runner, native build,
+OS/AX/visual analysis, local native-property changes or packaging ran. The fixture
+and the full pull-to-refresh feature are UNRUN/unqualified. Goal remains active.
