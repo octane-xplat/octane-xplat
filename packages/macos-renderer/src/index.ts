@@ -5506,6 +5506,29 @@ function clearMarginStyle(node: ElementNode, name: string) {
 	}
 }
 
+function syncLabelAlignment(node: ElementNode, style: PropBag) {
+	const view = node.view
+	if (!view) return
+	const rtl = style.direction === 'rtl'
+	if (style.direction != null && style.direction !== 'ltr' && !rtl) warnUnsupportedCssProp(node, 'direction')
+	const start = rtl ? NSTextAlignment.Right : NSTextAlignment.Left
+	const end = rtl ? NSTextAlignment.Left : NSTextAlignment.Right
+	let alignment = nodeClasses(node).includes('vx-sheet-grabber') ? NSTextAlignment.Center : start
+	switch (style.textAlign) {
+		case null: case undefined: break
+		case 'start': alignment = start; break
+		case 'end': alignment = end; break
+		case 'left': alignment = NSTextAlignment.Left; break
+		case 'right': alignment = NSTextAlignment.Right; break
+		case 'center': alignment = NSTextAlignment.Center; break
+		case 'justify': alignment = NSTextAlignment.Justified; break
+		default: warnUnsupportedCssProp(node, 'textAlign')
+	}
+	// Alignment writes can affect native text editing/selection. Leave an
+	// unchanged value alone; attributed values are recomposed by the caller.
+	if (view.alignment !== alignment) view.alignment = alignment
+}
+
 // A style key present in the last bag but absent or nulled in the new one must
 // put back the native state it installed: constraints deactivate, hit-testing
 // reverts, and shared properties resolve their class/default source again.
@@ -5630,10 +5653,6 @@ function resetStyle(node: ElementNode, name: string) {
 		}
 	} else if (name === 'opacity') {
 		view.alphaValue = 1
-	} else if (name === 'textAlign' && node.type === 'label') {
-		view.alignment = nodeClasses(node).includes('vx-sheet-grabber')
-			? NSTextAlignment.Center
-			: NSTextAlignment.Left
 	} else if (MARGIN_SIDES[name] || name === 'margin') {
 		clearMarginStyle(node, name)
 	}
@@ -5807,15 +5826,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			syncOutline(node)
 		} else if (name === 'textDecoration' && node.type === 'label' && node.view) {
 			setLabelText(node, String(node.view.stringValue ?? ''))
-		} else if (name === 'textAlign' && node.type === 'label') {
-			node.view!.alignment =
-				value === 'left'
-					? NSTextAlignment.Left
-					: value === 'right'
-						? NSTextAlignment.Right
-						: NSTextAlignment.Center
-		} else if ((name === 'whiteSpace' || name === 'textOverflow') && node.type === 'label') {
-			// Apply the final pair after all styles (including font/height) settle.
+		} else if (['textAlign', 'direction', 'whiteSpace', 'textOverflow'].includes(name) && node.type === 'label') {
+			// Apply paragraph settings after all declarations settle.
 			continue
 		} else if (BORDER_WIDTH_KEYS[name] != null && node.view) {
 			setBorderSlot(node, 'widths', BORDER_WIDTH_KEYS[name], value)
@@ -5894,10 +5906,13 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	}
 
 	node.appliedStyle = next
-	if (node.type === 'label' && ['whiteSpace', 'textOverflow'].some(key => prev[key] != null || next[key] != null)) {
-		syncLabelOverflow(node, next)
-		// Attributed paragraphs capture the cell's mode when composed.
-		syncText(node)
+	if (node.type === 'label') {
+		const needsAlignment = ['textAlign', 'direction'].some(key => prev[key] != null || next[key] != null)
+		const needsOverflow = ['whiteSpace', 'textOverflow'].some(key => prev[key] != null || next[key] != null)
+		if (needsAlignment) syncLabelAlignment(node, next)
+		if (needsOverflow) syncLabelOverflow(node, next)
+		// Attributed paragraphs capture the cell's mode/alignment when composed.
+		if (needsAlignment || needsOverflow) syncText(node)
 	}
 	if (behaviorOf(node.type)?.layout) {
 		queueLayoutReconcile(node.container, node)

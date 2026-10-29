@@ -8612,3 +8612,73 @@ transforms, probes, native/OS/AX automation, builds, installs, packaging or visu
 analysis ran. Native-resource authorization would not authorize visual analysis.
 The persistent goal remains active; this is one common table-flow repair, not
 fully qualified Table or desktop support.
+
+## AppKit label alignment source path
+
+Demand comes from the maintained invoice table-page template's end-aligned
+quantity/rate/amount columns. The shared table plan supplies textAlign: end in
+cell styles and CSS inherits it to text labels. Source review found the AppKit
+label branch mapped everything except left/right to center, including start,
+end, justify and unsupported values. Correct label alignment is a renderer
+prerequisite for those ordinary table rows; this was not a captured OS failure.
+
+The target-only helper now maps left/right/center/justify explicitly and resolves
+start/end from effective CSS direction (ltr fallback). The final pair settles
+after all style declarations and removals, independent of key order. CSS
+inheritance and local overrides use the existing cascade. Unknown values warn
+by property and default without coercing supplied style values. Removal returns
+to the remaining cascade/start edge, retaining the existing sheet-grabber center
+baseline. Unchanged native alignment is not rewritten. Cell alignment updates
+precede the existing syncText paragraph recomposition, including attributed
+plain/spacing/decorated and formatted text paths. No text is shortened.
+
+Apple's [NSTextAlignment](https://developer.apple.com/documentation/appkit/nstextalignment)
+and [paragraph alignment](https://developer.apple.com/documentation/appkit/nsparagraphstyle/alignment)
+references distinguish explicit alignment from native Natural's script/localization
+semantics; CSS start/end uses the [CSS Text alignment contract](https://drafts.csswg.org/css-text/#text-align-property).
+The helper therefore maps to physical native edges using the CSS direction input.
+[NSControl alignment](https://developer.apple.com/documentation/appkit/nscontrol/alignment)
+also documents that setting alignment can affect an active edit, motivating the
+unchanged-value guard. These are API/source reasons, not native behavior proof.
+
+Five cases are authored, all UNRUN: three actual-helper models for physical/
+logical/justify/defaults, unsupported non-coercion/fixed property diagnostics,
+and unchanged native writes/grabber/view absence; two real CSS/inline cascade
+models for inheritance/overrides/removal, direction-only changes and declaration
+order. An existing letter-spacing assertion now checks copied paragraph
+alignment. The idle text-overflow-css fixture adds start/end/physical/justify/
+removed modes and inherited CSS direction controls for plain/formatted labels;
+its mounting-only run hook is unchanged. Nothing has run natively.
+
+The guide, renderer README, Octane styling reference, feature note and recipe
+AC4 state the same source subset. CSS direction here selects label alignment;
+it does not implement CSS bidi overrides, vertical writing, per-span paragraph
+alignment or a UI-provider-to-CSS direction bridge. Global Table alignment,
+editable controls, script shaping, native justification/line metrics, selection,
+VoiceOver, resize, memory, supported-version installed consumers and pixels need
+separate qualification. No other-target renderer, shared types/exports,
+dependencies, manifests or audit snapshots changed. Existing recipe assessments
+and React Aria presence rows are not rewritten as passes.
+
+Exact deferred commands, requiring this task's explicit human authorization:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/text-overflow-css.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit logical text alignment package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+check:docs/check:doc-examples remain absent in this isolated snapshot; no shared
+in-flight tooling is copied. Five source/test/fixture files, the fixture CSS,
+four scoped CSS and three TSX documentation fences syntax parsed; eight AC4
+local paths/anchors exist. Focused semantic/source and whitespace review
+completes the permitted checks. No tests, typechecks, compiler
+transforms, probes, native builds/OS/AX automation, packaging or visual analysis
+ran. Native-resource authorization would not authorize visual analysis. All
+evidence gates remain open and the persistent goal stays active.

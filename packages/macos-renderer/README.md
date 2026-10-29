@@ -713,6 +713,34 @@ export function CssTitle(props: { title: string }) {
 }
 ```
 
+### Align AppKit labels
+
+The label source path resolves CSS left/right/center/justify and logical
+start/end to explicit NSTextAlignment values. Logical edges use inherited CSS
+direction (ltr fallback), rather than AppKit's script-dependent natural value.
+Alignment/direction changes and removals refresh attributed paragraphs after
+the final style pair settles. Identical native alignment is not written again;
+the existing sheet-grabber center fallback is retained.
+
+```css
+.amount { text-align: end; }
+.rtl-copy { direction: rtl; }
+.caption { text-align: center; }
+```
+
+Unknown values warn by property and default to the CSS start edge. This direction
+input selects label alignment only; it does not implement CSS bidi overrides,
+vertical writing, per-span alignment or a UI-provider-to-CSS direction bridge.
+Five source cases plus an existing paragraph assertion and idle fixture controls
+are authored, all unrun. Native justification, line metrics, selection, VoiceOver,
+resize, installed consumers and pixels remain unqualified.
+
+```tsx
+export function NumericLabel(props: { amount: string; rtl: boolean }) {
+  return <label text={props.amount} style={{ textAlign: 'end', direction: props.rtl ? 'rtl' : 'ltr' }} />
+}
+```
+
 ## Container layout channels
 
 A container can arrange its content through direct props or an inline style

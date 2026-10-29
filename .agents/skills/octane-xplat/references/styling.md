@@ -277,6 +277,35 @@ import { Text } from '@octane-xplat/ui'
 export function LimitedTitle() { return <Text maxLines={1}>Complete title</Text> }
 ```
 
+## AppKit label alignment
+
+AppKit labels now resolve CSS left/right/center/justify and start/end after all
+style declarations settle. Logical edges use inherited CSS direction, default
+ltr; they do not map to native Natural, which follows native script/localization
+semantics. Direction-only changes and removal refresh the paragraph alignment
+and retain the sheet-grabber default. Unchanged native alignment is not rewritten.
+Unsupported values warn by property and default. See [the guide](../../../../docs/app/styling.md#appkit-text-alignment).
+
+```css
+.amount { text-align: end; }
+.rtl-copy { direction: rtl; }
+```
+
+This is a renderer prerequisite for table columns using logical alignment,
+including the maintained invoice example. CSS direction controls this label
+alignment subset only: do not claim a UI-provider-to-CSS bridge, CSS bidi
+overrides, vertical writing or per-span paragraph alignment. Five source cases,
+an existing spacing paragraph assertion and idle fixture controls are authored
+but unrun; native shaping/justification/measurement/selection/AX/installed/pixels
+remain unqualified. Keep native/visual authorization boundaries separate.
+
+```tsx
+// Dynamic host example; static app alignment belongs in classes.
+export function Amount(props: { value: string; rtl: boolean }) {
+  return <label text={props.value} style={{ textAlign: 'end', direction: props.rtl ? 'rtl' : 'ltr' }} />
+}
+```
+
 ## AppKit patterned borders
 
 Native border-style now paints dashed/dotted through CAShapeLayer with NSNumber

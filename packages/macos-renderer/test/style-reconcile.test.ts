@@ -193,7 +193,7 @@ const sandbox = {
 
 	console,
 	inputTransparentViews,
-	NSTextAlignment: { Left: 0, Center: 1, Right: 2 },
+	NSTextAlignment: { Left: 0, Center: 1, Right: 2, Justified: 3 },
 	NSLineBreakMode: { WordWrapping: 0, Clipping: 2, TruncatingTail: 4 },
 	DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
 	NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
@@ -497,6 +497,39 @@ test('grabber class removal returns label alignment to textAlign or left', () =>
 	setClass(item, 'vx-sheet-grabber')
 	setClass(item, '')
 	assert.equal(item.view.alignment, 2)
+})
+
+test('logical label alignment follows inherited CSS direction and local physical overrides', () => {
+	registerStylesheet('sr-label-alignment', '.sr-label-end { text-align: end } .sr-label-rtl { direction: rtl }')
+	const parent = node('masonview'), item = node('label', { parent })
+	setClass(parent, 'sr-label-end')
+	assert.equal(item.view.alignment, 2)
+	setClass(parent, 'sr-label-end sr-label-rtl')
+	assert.equal(item.view.alignment, 0)
+	setStyle(item, { textAlign: 'right' })
+	assert.equal(item.view.alignment, 2, 'physical right is independent of RTL')
+	setStyle(item, undefined)
+	assert.equal(item.view.alignment, 0)
+	setClass(parent, 'sr-label-end')
+	assert.equal(item.view.alignment, 2)
+	setClass(parent, '')
+	assert.equal(item.view.alignment, 0)
+})
+
+test('label alignment uses the final style pair independent of declaration order and clears on removal', () => {
+	const item = node('label')
+	setStyle(item, { direction: 'rtl', textAlign: 'end' })
+	assert.equal(item.view.alignment, 0)
+	setStyle(item, { textAlign: 'end', direction: 'rtl' })
+	assert.equal(item.view.alignment, 0)
+	setStyle(item, { textAlign: 'end', direction: 'ltr' })
+	assert.equal(item.view.alignment, 2)
+	setStyle(item, { direction: 'rtl' })
+	assert.equal(item.view.alignment, 2, 'removed text-align defaults to the CSS start edge')
+	setStyle(item, { textAlign: 'justify' })
+	assert.equal(item.view.alignment, 3)
+	setStyle(item, {})
+	assert.equal(item.view.alignment, 0)
 })
 
 // Test the real prop dispatch alongside style/class reconciliation. These

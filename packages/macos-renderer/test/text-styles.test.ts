@@ -176,9 +176,11 @@ test('letterSpacing bakes NSKern into the attributed string', () => {
 	node.view.font = { name: 'font' }
 	node.view.textColor = { name: 'color' }
 	node.view.cell = { lineBreakMode: 0 }
+	node.view.alignment = 2
 	node.style = { letterSpacing: 0.5 }
 	setLabelText(node, 'Tracked')
 	assert.equal(node.view.attributedStringValue.attrs.NSKern, 0.5)
+	assert.equal(node.view.attributedStringValue.attrs.NSParagraph.alignment, 2)
 	assert.equal(node.view.stringValue, undefined)
 
 	node.style = {}

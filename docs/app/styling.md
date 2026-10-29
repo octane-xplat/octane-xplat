@@ -210,6 +210,34 @@ export function CompactTitle() {
 }
 ```
 
+## AppKit text alignment
+
+For experimental native macOS labels, `text-align` accepts `left`, `right`,
+`center`, `justify`, `start` and `end`. Start/end follow the inherited CSS
+`direction`, with left-to-right as the fallback. Physical left/right keep their
+edge in either direction. This source path also refreshes alignment in
+attributed text; native text measurement, justification and painting remain
+unqualified.
+
+```css
+.amount { text-align: end; }
+.rtl-copy { direction: rtl; }
+.physical-left { text-align: left; }
+```
+
+Removing alignment or direction restores the remaining cascade, then the start
+edge. Unsupported alignment/direction values warn and use those defaults.
+Here, direction chooses the alignment edge; this does not add CSS bidi
+overrides, vertical writing or per-span paragraph alignment.
+
+```tsx
+import { Text, View } from '@octane-xplat/ui'
+
+export function Amount() {
+  return <View className="rtl-copy"><Text className="amount">123.45</Text></View>
+}
+```
+
 ## AppKit borders
 
 This is an experimental source path; native painting and installed-app checks
