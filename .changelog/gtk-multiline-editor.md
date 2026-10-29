@@ -5,7 +5,8 @@ multiline text, placeholder hints, read-only editing, focus and change events. L
 inside its assigned height, including read-only editors. Explicit width and
 height stay fixed as text wraps; clearing them restores automatic sizing.
 Replacing selected text reports one completed change. Use maxLength to limit
-newly typed or pasted text. Return adds a line;
+newly typed or pasted text. Text and placeholder alignment follow textAlign.
+Return adds a line;
 done/send can submit instead. Tab moves to the next control.
 
 ```tsx
@@ -18,12 +19,12 @@ export function NotesEditor() {
       maxLength={200}
       accessibilityLabel="Notes"
       onTextChange={(event) => console.log(event.value)}
-      style={{ width: 260, height: 120 }}
+      style={{ width: 260, height: 120, textAlign: 'start' }}
     />
   )
 }
 ```
 
-The public TextArea component still needs text alignment and
-full field qualification. [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry)
+The public TextArea component still needs its remaining shared-prop
+qualification. [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry)
 describes the current scope.

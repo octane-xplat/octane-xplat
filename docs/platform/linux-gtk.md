@@ -457,7 +457,7 @@ export function ShortNote() {
 ```
 
 This is renderer support; TextArea remains outside the GTK UI root.
-Text alignment, custom line spacing and remaining shared props are unqualified.
+The remaining shared TextArea props still need qualification.
 Direct-source field ownership and label-click checks do not yet promote TextArea.
 Source-harness row, growth and X11 keyboard/wheel checks are recorded in the
 [renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
@@ -742,3 +742,17 @@ Maintainer qualification now includes the [field-chrome runtime fixture](https:/
 The fixture also checks editor retention while labels or validation messages change.
 TextInput is available from the curated root. Field remains a source-only
 fixture; its complete contract is not established by this qualification.
+
+
+Multiline text and placeholder hints support textAlign. Use a numeric or pixel
+lineHeight for a fixed logical-pixel row spacing; TextArea row fitting also
+reads that value from ancestor CSS. Relative line-height units are not yet
+qualified for row fitting.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function AlignedNotes() {
+  return <textview text="Notes" hint="Write a note"
+    style={{ width: 280, height: 96, textAlign: 'center', lineHeight: 48 }} />
+}
+```

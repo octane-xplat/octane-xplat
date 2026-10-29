@@ -89,8 +89,8 @@ for hover/focus tooltips. Field and TextArea remain outside the root.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 as renderer foundation evidence. Before exporting TextArea, qualify
-text alignment, custom line spacing and the shared field/width/handle
-ownership contract. Font-based rows/maxRows/autoGrow and constraint transitions have
+the remaining shared control props; persistent field/width/handle ownership
+has direct-source runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have
 a maintained direct-source GTK fixture, now including X11 internal wheel input
 and native host/recreation cases; that evidence does not yet qualify public TextArea. Preserve the fitting effect's cleanup and defer GTK metric
 reads after fontChanged until native CSS validation has run. GTK textview refs
@@ -147,6 +147,19 @@ resolve the id inside the logical field subtree, including viewless parents;
 testID is an independent automation name. GTK getViewById becomes inert on
 disposal. Do not fabricate a Page or search outside the receiver subtree.
 
-The direct-source TextArea field checks pass on Linux, but text alignment,
-custom line spacing and remaining shared props still need qualification before
-adding it to the GTK root.
+Direct-source TextArea field checks pass on Linux. The remaining shared props
+still need qualification before adding it to the GTK root.
+
+
+### GTK multiline alignment and pixel line spacing
+
+Multiline text and its placeholder share left/center/right/justify alignment.
+Logical start/end resolve against the widget direction. Keep direction writes
+before alignment resolution so removing RTL restores start in the same update.
+Do not assign xalign to Gtk.TextView; it uses justification.
+
+GTK create_pango_layout copies the font but excludes CSS line-height. For
+TextArea row fitting, prefer resolved positive numeric/px/dip lineHeight over
+that font-only fallback. This includes ancestor CSS and shorter-than-font line
+spacing. Keep the bounded frame refits and cleanup. Relative line-height units
+remain unqualified for row fitting; do not claim support from CSS forwarding.

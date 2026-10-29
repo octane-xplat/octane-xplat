@@ -895,3 +895,19 @@ native58 Node/7 Vitest tests pass. TextArea remains unexported pending text
 alignment, custom line spacing and remaining shared props; curated root
 availability stays38 values/64 types. See the
 [renderer evidence](linux-gtk-renderer.md#stable-multiline-fields-and-native-label-activation).
+
+
+### Multiline alignment and pixel row spacing
+
+GTK textview now applies text alignment to its native editor and private hint.
+TextArea fitting uses resolved numeric/pixel lineHeight instead of a font-only
+metric when spacing is authored, including ancestor CSS and removal. The
+baseline48px native line/32px font metric mismatch is preserved in the
+[renderer evidence](linux-gtk-renderer.md#multiline-alignment-and-resolved-pixel-rows).
+Relative line-height row fitting and full bidirectional text remain unqualified.
+No TextArea root export is added by this slice.
+
+
+Final verification passes all42 real-Linux renderer tests without skips,
+including TextArea232;58 affected/dependent typechecks and six package
+validation tasks pass. Root availability remains38 values/64 types.

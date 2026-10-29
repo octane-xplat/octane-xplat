@@ -1419,3 +1419,53 @@ Wayland, HiDPI or visual qualification. TextArea remains outside the GTK root.
 Logs: guest /tmp/gtk-textarea-field-final-focused.log and
 /tmp/gtk-textarea-field-full.log; andromeda /tmp/gtk-textarea-field-types.log,
 /tmp/gtk-textarea-field-native-final.log and /tmp/gtk-textarea-field-pack.log.
+
+
+## Multiline alignment and resolved pixel rows
+
+The GTK alignment adapter previously skipped textview. It now writes native
+TextView justification and the private hint's alignment together, accepting
+style textAlign and low-level textAlignment/xalign props. Direction is applied
+before alignment so removing RTL can restore logical start in the same update.
+Existing label and single-line alignment behavior stays covered by regression.
+
+The spacing probe rendered a native 48px line but Pango's independent font-only
+layout measured32px, leaving two rows allocated64px. The GTK fitting helper
+now prefers a resolved positive numeric/px/dip lineHeight and retains Pango for
+normal font spacing. Resolved ancestor CSS participates; removal restores the
+font fallback. The bounded CSS-frame refit and owned cleanup remain intact.
+Relative line-height units are not qualified for row fitting.
+
+The initial focused run passed227 assertions. The subsequent full run exposed
+an incorrect placeholder geometry assertion: Gtk.Label can keep a full-width
+justified Pango layout, so its layout origin alone is not the first glyph's
+position. The corrected check includes index_to_pos(0) within that layout;
+it preserves the original physical left/right expectation. This is test
+measurement correction, not evidence of a renderer alignment defect.
+An earlier escaped-newline typo in the CSS fixture prevented one build and was
+corrected before runtime; it was not an upstream parser limitation.
+
+All58 affected/dependent typecheck tasks and six UI package validation tasks
+pass. Final geometry/full-runtime results are recorded below when complete.
+No new dependency or GTK root export. TextArea remains outside the root pending
+remaining shared props; IME/OSK/AT, full bidirectional text, Wayland, touchpad,
+HiDPI and visual parity remain unqualified.
+Logs: guest /tmp/gtk-textarea-spacing-before.log,
+/tmp/gtk-textarea-alignment-first.log, /tmp/gtk-textarea-alignment-second.log,
+/tmp/gtk-textarea-alignment-full.log and /tmp/gtk-textarea-alignment-geometry.log;
+andromeda /tmp/gtk-textarea-alignment-types.log and
+/tmp/gtk-textarea-alignment-pack.log.
+
+
+The corrected focused test passes all232 assertions on Linux with actual X11
+input. The added geometry cases cover the placeholder's first glyph under
+LTR/RTL start/end plus same-update RTL removal. This does not establish full
+bidirectional paragraph/cursor behavior or image parity.
+
+
+Final regression: all42 maintained Linux renderer tests pass with no skips,
+including TextArea232, entry92, raw multiline83 and field chrome61. All58
+affected/dependent typecheck tasks, six UI packaging tasks, recipes, barrel
+checks, 23 release notes, formatting and whitespace pass. No shared native
+leaf changed, so the earlier58 Node/7 selected native tests were not rerun.
+Final log: guest /tmp/gtk-textarea-alignment-full-final.log.

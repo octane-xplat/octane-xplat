@@ -331,6 +331,99 @@ async function run() {
 	check('ancestor CSS updates the row floor', close(view.style.minHeight, inherited * 2))
 	await render({ frameClass: undefined })
 	check('ancestor font reset restores row floor', close(view.style.minHeight, small * 2))
+	await render({ style: { ...style, lineHeight: 48 }, rows: 2, autoGrow: false, value: 'One\nTwo' })
+	const spacedLine = view.get_line_yrange(buffer.get_start_iter())[1]
+	print(
+		'GTK_TEXT_AREA_SPACING ' +
+			JSON.stringify({
+				line: spacedLine,
+				pango: view.create_pango_layout('Mg').get_pixel_size()[1],
+				min: view.style.minHeight,
+				height: view.get_height(),
+			}),
+	)
+	check('custom line spacing reaches native text', close(spacedLine, 48))
+	check(
+		'row sizing includes custom line spacing',
+		close(view.style.minHeight, spacedLine * 2) && close(view.get_height(), spacedLine * 2),
+	)
+	await render({ style, rows: 3, value: 'One' })
+	await render({ style: { ...style, lineHeight: 24 }, rows: 2 })
+	check(
+		'compact spacing controls row height',
+		close(view.get_line_yrange(buffer.get_start_iter())[1], 24) && close(view.get_height(), 48),
+	)
+	await render({ style, frameClass: 'area-line-spaced', rows: 2 })
+	check(
+		'ancestor line spacing controls row height',
+		close(view.get_line_yrange(buffer.get_start_iter())[1], 42) &&
+			close(view.style.minHeight, 84) &&
+			close(view.get_height(), 84),
+	)
+	await render({ frameClass: undefined })
+	check('removing ancestor spacing restores native font rows', close(view.get_height(), line * 2))
+	for (const [align, expected, x] of [
+		['left', Gtk.Justification.LEFT, 0],
+		['center', Gtk.Justification.CENTER, 0.5],
+		['right', Gtk.Justification.RIGHT, 1],
+		['justify', Gtk.Justification.FILL, 0],
+	] as const) {
+		await render({
+			style: { ...style, textAlign: align },
+			value: 'Aligned',
+			placeholder: 'Aligned',
+		})
+		check('multiline alignment ' + align, view.get_justification() === expected)
+		check('hint alignment ' + align, hint.get_xalign() === x && hint.get_justify() === expected)
+		if (align === 'center' || align === 'right') {
+			const location = view.get_iter_location(buffer.get_start_iter())
+			check(
+				'native text geometry ' + align,
+				location.x > view.get_width() / (align === 'center' ? 5 : 2),
+			)
+		}
+		await render({ value: '' })
+		check('aligned hint is visible ' + align, hint.get_visible())
+	}
+	for (const direction of ['ltr', 'rtl'] as const) {
+		for (const align of ['start', 'end'] as const) {
+			const right = (direction === 'rtl') === (align === 'start')
+			await render({ style: { ...style, direction, textAlign: align }, value: 'Aligned' })
+			check(
+				direction + ' logical alignment ' + align,
+				view.get_justification() === (right ? Gtk.Justification.RIGHT : Gtk.Justification.LEFT),
+			)
+			check(direction + ' hint alignment ' + align, hint.get_xalign() === (right ? 1 : 0))
+			const logicalLocation = view.get_iter_location(buffer.get_start_iter())
+			check(
+				direction + ' native geometry ' + align,
+				right ? logicalLocation.x > view.get_width() / 2 : logicalLocation.x < 2,
+			)
+			await render({ value: '' })
+			const [hintPositioned, logicalHintBounds] = hint.compute_bounds(view)
+			const [logicalHintX] = hint.get_layout_offsets()
+			// A justified Gtk.Label can keep a full-width Pango layout; include
+			// the first glyph's offset inside it, not only the layout-box origin.
+			const glyph = hint.get_layout().index_to_pos(0)
+			const hintStart = logicalHintBounds.origin.x + logicalHintX + glyph.x / 1024
+			check(
+				direction + ' native hint geometry ' + align,
+				hintPositioned && (right ? hintStart > view.get_width() / 2 : hintStart < 2),
+			)
+		}
+	}
+	await render({ style: { ...style, textAlign: 'start' }, value: 'Aligned' })
+	check(
+		'removing RTL restores logical start immediately',
+		view.get_direction() === Gtk.TextDirection.LTR &&
+			view.get_justification() === Gtk.Justification.LEFT &&
+			view.get_iter_location(buffer.get_start_iter()).x < 2,
+	)
+	await render({ style, value: 'One', placeholder: undefined })
+	check(
+		'removing alignment restores native default',
+		view.get_justification() === Gtk.Justification.LEFT && hint.get_xalign() === 0,
+	)
 	view.off('fontChanged', fontChanged)
 	check('same editor survives sizing updates', areaRef.current!.native === view)
 	await render({ value: '', placeholder: 'Retired hint' })

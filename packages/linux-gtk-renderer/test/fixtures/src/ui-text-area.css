@@ -1,1 +1,7 @@
-.area-font-large .vx-textarea { font-size: 34px; }
+.area-font-large .vx-textarea {
+	font-size: 34px;
+}
+
+.area-line-spaced .vx-textarea {
+	line-height: 42px;
+}

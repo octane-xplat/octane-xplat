@@ -1177,9 +1177,32 @@ function unwireStateFlags(node: ElementNode) {
 }
 
 /** textAlign maps to widget props, not GTK CSS — labels take xalign plus
- *  Gtk.Justification; textfields take xalign. When the key leaves the
+ *  Gtk.Justification; textfields take xalign; textviews share justification
+ *  with their private hint. When the key leaves the
  *  effective style the prop-level value (or the widget default) returns. */
 function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
+	if (node.type === 'textview') {
+		const value = style?.textAlign ?? node.props.textAlignment ?? node.props.xalign ?? 'left'
+		const rtl =
+			style?.direction === 'rtl' ||
+			(style?.direction == null && view.get_direction() === Gtk.TextDirection.RTL)
+		const right =
+			value === 'right' || value === 1 || (value === 'end' && !rtl) || (value === 'start' && rtl)
+		const center = value === 'center' || value === 0.5
+		const justification =
+			value === 'justify'
+				? Gtk.Justification.FILL
+				: center
+					? Gtk.Justification.CENTER
+					: right
+						? Gtk.Justification.RIGHT
+						: Gtk.Justification.LEFT
+		view.set_justification(justification)
+		const hint = node.textView!.placeholder
+		hint.set_xalign(center ? 0.5 : right ? 1 : 0)
+		hint.set_justify(justification)
+		return
+	}
 	if (node.type !== 'label' && node.type !== 'textfield') {
 		return
 	}
@@ -1233,8 +1256,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	}
 	syncCss(node, next)
 	applyStyleExtras(node, physicalView(node)!, next)
-	syncTextAlign(node, view, next)
 	applyStyleViewProps(node, view, next)
+	syncTextAlign(node, view, next)
 	warnUnsupportedCssProps(node, next)
 	if (
 		node.fontObservers?.size &&
@@ -2218,7 +2241,9 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 
 			return
 		case 'textview':
-			if (name === 'value' || name === 'text') {
+			if (name === 'textAlignment' || name === 'xalign') {
+				syncTextAlign(node, view, node.appliedStyle ?? {})
+			} else if (name === 'value' || name === 'text') {
 				writeEntryText(node, view, value)
 			} else if (name === 'hint' || name === 'placeholder') {
 				node.textView!.setPlaceholder(value)

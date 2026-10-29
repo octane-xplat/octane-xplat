@@ -12,7 +12,17 @@ export function fitTextArea(
 		const style = styleRecord(props.style)
 		const explicitHeight = style?.height != null
 		// Buffer line ranges may still be invalid during loaded/text updates.
-		const line = view.create_pango_layout('Mg').get_pixel_size()[1]
+		const fontLine = view.create_pango_layout('Mg').get_pixel_size()[1]
+		// create_pango_layout copies the font, but not GTK CSS line-height.
+		// Read the resolved style so ancestor selectors participate too.
+		const spacing = view.style.lineHeight
+		const pixels =
+			typeof spacing === 'number'
+				? spacing
+				: typeof spacing === 'string' && /^\d+(?:\.\d+)?(?:px|dip)?$/.test(spacing.trim())
+					? Number.parseFloat(spacing)
+					: undefined
+		const line = pixels != null && pixels > 0 ? Math.ceil(pixels) : fontLine
 		const rows = props.rows ?? (props.autoGrow ? 1 : 3)
 		view.style.minHeight = explicitHeight || style?.minHeight != null ? undefined : rows * line
 		view.style.maxHeight =
