@@ -1752,3 +1752,59 @@ owned temporary paths. This is a pending native requirement, not supplied by
 these Node/VM tests. The earlier UI/dependent/packed commands also remain
 outstanding. No stable-release fix note is added for this unreleased Windows
 preview repair.
+
+
+## Repaired-core adoption resumed
+
+The earlier human go-ahead covers repaired-core adoption and the bounded
+Windows harness phase, including its necessary prerequisites. This continuation
+therefore resumed adoption rather than requesting the same permission again.
+The earlier filesystem deferral above is historical. Broader package/dependent
+checks and visual analysis remain outside this phase.
+
+In the existing owned C:/Users/alecs/dev/win61-c905842a3 checkout, the 85519b42
+patch and lock metadata were transferred without replacing the qualification
+identity/resources or unrelated source overlays. The old owned configuration
+was saved as qualification/core-fs-config-before.tar before applying it.
+Effective pnpm verifyDepsBeforeRun=warn was retained. Frozen installation with
+lifecycle scripts disabled succeeded (pnpm11.24.0, 2m7.1s): lock resolution was
+skipped, three packages were reused, none downloaded, +3/-2 peer-context links.
+The installed filesystem SHA256 is
+21ca2214a146fac1c1de51c41fe46c5e984016bc8f6de671642d7ca8a870b23f,
+matching the candidate. This establishes cached-package patch application;
+it does not establish a successful fresh network download after the earlier
+HTTP403. The installer warned that packages/create/dist/index.js.EXE was absent
+while creating a create-octane-xplat bin link. That generated creator entry
+was not used by the qualification tasks; no broad creator build was run.
+
+Four focused uncached Turbo tasks passed against the installed source:
+filesystem10, keyboard/pointer31, modal/focus29 and scroll10 (80 contracts),
+4/4 tasks, 14.262s, exit0. These still use fake host/I/O objects. Log:
+research/windows61/windy-fs-adoption.log. The maintained default filesystem
+contract task now passes against the installed patched package, separately
+from the earlier private artifact tests.
+
+A temporary app helper adds seven real owned-temp prerequisite checks: public
+Core file/folder existence and wrong-kind/missing results, existing File.fromPath
+bytes, immediate new empty-file creation, immediate nested-folder creation,
+exclusive reopen after stream disposal, rejection of a folder/file collision,
+and owner-marker-guarded cleanup. It uses only a new uniquely named directory
+under this app's temporary folder. Its System.IO reads are an independent
+contents oracle; it does not qualify Core read/write methods. The existing
+13 input/modal/scroll groups remain in the driver, plus one group checking all
+seven prerequisite results and Core/async command-file agreement (14 groups).
+The helper/driver are temporary research fixtures, not supported API evidence
+until actually run. The old deliberate missing-metadata-name diagnostic now
+uses the scoped C# spelling instead. No product source changed for the probe.
+
+Version1.0.0.7 started the existing sequential Turbo typecheck/build:windows
+graph under a device/native-build reservation. That original local SSH session
+is still attached, but new source-log-copy and audit SSH connections repeatedly
+timed out on port22. Remote process/exit/artifact state is currently unknown.
+Do not start another graph from a timeout or from the presence of a lock file.
+The current phase log is research/windows61/windy-native-v7.log; its remote
+terminal record is qualification/core-v7-build-exit.json if the phase finishes.
+Inspect the same owned process tree and the .turbo logs after reconnection.
+A wake/reconnect request was sent; this is availability recovery, not new test
+permission. No v7 native build, standalone typecheck, prerequisite or OS-input
+pass is claimed yet. The last completed OS run remains v6 on the earlier core.
