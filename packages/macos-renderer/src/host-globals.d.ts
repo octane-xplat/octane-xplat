@@ -61,6 +61,11 @@ declare global {
 			options: any,
 			onSelect: any,
 		) => (() => void) | null
+		attachPicker?: (
+			view: import('@octane-xplat/platform/macos').NSView,
+			options: { options: readonly { id: string; title: string; disabled?: boolean }[]; selection?: string; enabled: boolean; accessibilityLabel?: string },
+			onSelect: (id: string) => void,
+		) => { update(options: any): void; detach(): void } | null
 		attachDatePicker?: (
 			view: import('@octane-xplat/platform/macos').NSView,
 			options: any,

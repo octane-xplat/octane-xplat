@@ -1,9 +1,9 @@
 # `@octane-xplat/picker`
 
 Platform-native selection controls: a SwiftUI `Picker` on iOS, a Material 3
-dropdown built with Jetpack Compose on Android, an HTML `<select>` on web, and
-an AppKit `NSPopUpButton` on macOS. Use it when you want the OS-authentic
-control rather than a shared look.
+dropdown built with Jetpack Compose on Android, an HTML `<select>` on web,
+and an experimental native `NSPopUpButton` on macOS.
+Use it when you want the OS-authentic control rather than a shared look.
 
 ```sh
 pnpm add @octane-xplat/picker
@@ -18,7 +18,7 @@ platform-suffixed file:
 | `*.ios.tsx`     | `@octane-xplat/picker/ios`     | `SwiftUIPicker`    |
 | `*.android.tsx` | `@octane-xplat/picker/android` | `MaterialDropdown` |
 | `*.web.tsx`     | `@octane-xplat/picker/web`     | `Select`           |
-| `*.macos.tsrx`  | `@octane-xplat/picker/macos`   | `Select`           |
+| `*.macos.tsx`   | `@octane-xplat/picker/macos`   | `AppKitPicker`     |
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -41,26 +41,8 @@ export function BagPicker() {
 
 Each entry's props follow its own platform's selection vocabulary and option
 shapes: iOS uses SwiftUI selection IDs, Android uses Material dropdown keys and
-enabled states, and web follows browser select values. macOS reuses the web
-entry's `Select` API — the `NSPopUpButton` maps onto the same `value`,
-`defaultValue`, `onChange`, and `options` contract.
-
-```tsx
-/** @jsxImportSource @octane-xplat/jsx */
-// SelectExample.macos.tsrx
-import { Select } from '@octane-xplat/picker/macos'
-
-export function Picker() {
-	return (
-		<Select
-			label="Bag"
-			options={[{ value: 'carry', label: 'Carry-on' }]}
-			defaultValue="carry"
-			onChange={console.log}
-		/>
-	)
-}
-```
+enabled states, web follows browser select values, and AppKit uses stable
+string selection IDs.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -97,3 +79,28 @@ export function Picker() {
 
 See the framework guide for details and maintained examples:
 [`docs/platform/native-picker.md`](https://octane-xplat.goddardai.org/native-picker).
+
+## Native macOS picker
+
+In a configured native AppKit app, put this field in a `.macos.tsx` file. The
+source implementation embeds a noneditable native pop-up button with a visible
+label. Accept a choice by updating `selection`; leaving it unchanged restores
+the current controlled value. No additional plugin is required on macOS.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// BagPicker.macos.tsx
+import { useState } from 'octane'
+import { AppKitPicker } from '@octane-xplat/picker/macos'
+export function BagPicker() {
+	const [selection, setSelection] = useState('carry')
+	return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
+		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+}
+```
+
+Native pointer/keyboard, menu tracking, focus, layout, VoiceOver and packaged
+consumer qualification remain pending. Invalid choices or a missing controlled
+ID show a generic message; repair those props to retry. See the
+[AppKit lifecycle and selection contract](../../docs/platform/native-picker.md#native-macos-selection)
+for asynchronous options, record ownership and the maintained manual demo.

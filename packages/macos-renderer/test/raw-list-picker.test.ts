@@ -46,6 +46,7 @@ function fixture() {
 				'parentReference',
 				'resolveParentNode',
 				'canContainView',
+				'makePopUpControl',
 				'makeListPicker',
 				'notifyListPickerChange',
 				'syncListPicker',

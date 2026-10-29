@@ -85,6 +85,18 @@ void android
 void badIos
 void badAndroid
 `,
+	macos: `import { AppKitPicker, type AppKitPickerProps, type AppKitPickerOption } from '@octane-xplat/picker/macos'
+const options: readonly AppKitPickerOption[] = [{ id: 'carry', title: 'Carry-on', disabled: false }]
+const props: AppKitPickerProps = { label: 'Bag', options, selection: 'carry', onSelectionChange: (id) => void id }
+const picker = <AppKitPicker {...props} />
+// @ts-expect-error options is required
+const missing = <AppKitPicker label="Bag" />
+// @ts-expect-error IDs are strings
+const wrongID: AppKitPickerOption = { id: 1, title: 'Carry-on' }
+void picker
+void missing
+void wrongID
+`,
 }
 
 const extraFiles = {}

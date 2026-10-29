@@ -2342,3 +2342,48 @@ actions, custom responder routing, timer progress while tracking, cancellation,
 native BOOL, actual hook/ref/effect timing and installed consumers remain
 unqualified. No dependency/public prop/React Aria presence change. See
 [native menu workflow](../../../../docs/platform/context-menu.md#native-macos-menus).
+
+## Native AppKit ID picker
+
+For a native noneditable pop-up button, use `AppKitPicker` from
+`@octane-xplat/picker/macos` in a macOS leaf. The renderer-installed bridge
+reuses the raw list-picker's NSPopUpButton allocation; it does not import mobile
+adapters. Supply unique string option IDs and string titles; repeated/empty
+titles and an empty ID are valid. Controlled `selection` must match a nonempty
+list; callbacks report enabled user choices and a rejected value is restored.
+Missing controlled IDs/invalid choices show a generic message, repaired through
+props. Empty/all-disabled lists are nonselectable. Disabled saved values can
+still display. Classes/styles apply to the outer labeled field.
+
+```tsx
+// BagPicker.macos.tsx
+import { useState } from 'octane'
+import { AppKitPicker } from '@octane-xplat/picker/macos'
+export function BagPicker() {
+	const [selection, setSelection] = useState('carry')
+	return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
+		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+}
+```
+
+Uncontrolled `defaultSelection` seeds once per record id, including across an
+initially empty list. Later defaults do not reset selection; reorder/rename/view
+replacement preserves IDs. A missing/removed uncontrolled ID silently falls back
+to the first enabled choice. Change `id` when a retained field changes records
+to retire callbacks and reseed. Primitive snapshots catch in-place mutations;
+equal options preserve the native menu, while changes/teardown cancel owned
+tracking and retire old epochs/actions. Programmatic, stale, disabled, duplicate
+and reentrant events do not emit. Source implementation only: eight owner/seven
+actual renderer-branch cases, idle probe, packed-consumer lane and native demo
+are unrun. Keyboard/pointer, menu-loop timers, BOOL, focus/Tab, AX, layout,
+native lifecycle and installed consumers remain unqualified. See
+[native selection](../../../../docs/platform/native-picker.md#native-macos-selection).
+
+```tsx
+// RecordPicker.macos.tsx
+import { AppKitPicker } from '@octane-xplat/picker/macos'
+export function RecordPicker({ recordID }: { recordID: string }) {
+	return <AppKitPicker id={`bag-${recordID}`} label="Bag" defaultSelection="carry"
+		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+}
+```

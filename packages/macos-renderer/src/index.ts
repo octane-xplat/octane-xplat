@@ -1817,8 +1817,8 @@ function makeSwitch(props: PropBag) {
 	return { view: button, actionId }
 }
 
-/** A noneditable AppKit picker for the shared NativeScript item/index API. */
-function makeListPicker(node: ElementNode) {
+/** Native control/action allocation shared by raw indices and authentic ID pickers. */
+function makePopUpControl() {
 	const view = NSPopUpButton.alloc().initWithFramePullsDown(
 		{
 			origin: { x: 0, y: 0 },
@@ -1833,9 +1833,15 @@ function makeListPicker(node: ElementNode) {
 	const actionId = nextActionId++
 	view.tag = actionId
 	actionHandlers.set(actionId, null)
+	return { view, actionId }
+}
+
+/** A noneditable AppKit picker for the shared NativeScript item/index API. */
+function makeListPicker(node: ElementNode) {
+	const control = makePopUpControl()
 	node.listPickerIndex = -1
 	node.listPickerRequested = -1
-	return { view, actionId }
+	return control
 }
 
 function notifyListPickerChange(node: ElementNode, value: number) {
@@ -10123,6 +10129,92 @@ function dateFromMillis(millis: number | undefined) {
 	return NSDate.dateWithTimeIntervalSince1970(millis / 1000)
 }
 
+/** Native ID picker. Keep the raw NativeScript index API on its separate path. */
+function attachPicker(view: NSView, initial: PropBag, onSelect: (id: string) => void) {
+	if (!view || typeof view.addSubview !== 'function' || !buttonActionTarget) return null
+	let control: ReturnType<typeof makePopUpControl>
+	try { control = makePopUpControl() } catch { return null }
+	const picker = control.view, actionId = control.actionId
+	let active = true, attached = false, selecting = false, writing = 0, enabled = false, version = 0
+	let options: { id: string; title: string; disabled: boolean }[] = [], items: NSMenuItem[] = []
+	let label: string | undefined, initialized = false
+	const constraints: { active: boolean }[] = []
+	const detach = () => {
+		if (!active) return
+		active = false; attached = false; version++; actionHandlers.delete(actionId)
+		try { picker.menu?.cancelTracking() } catch {}
+		try { picker.target = null; picker.action = null as unknown as string } catch {}
+		for (const constraint of constraints) { try { constraint.active = false } catch {} }
+		try { picker.removeAllItems() } catch {}
+		items = []; options = []
+		try { picker.removeFromSuperview() } catch {}
+	}
+	const apply = (next: PropBag) => {
+		const ids = new Set<string>()
+		if (!Array.isArray(next.options)) throw Error('Invalid picker choices')
+		const nextOptions = next.options.map((item: any) => {
+			if (typeof item.id !== 'string' || typeof item.title !== 'string' || ids.has(item.id)) throw Error('Invalid picker choices')
+			ids.add(item.id); return { id: item.id, title: item.title, disabled: !!item.disabled }
+		})
+		if (next.selection !== undefined && (typeof next.selection !== 'string' || !ids.has(next.selection))) throw Error('Invalid picker selection')
+		const nextEnabled = next.enabled !== false && nextOptions.some((item: any) => !item.disabled)
+		const changed = !initialized || options.length !== nextOptions.length || options.some((item, i) => item.id !== nextOptions[i].id || item.title !== nextOptions[i].title || item.disabled !== nextOptions[i].disabled)
+		enabled = nextEnabled
+		picker.enabled = enabled
+		if (changed) {
+			version++; actionHandlers.delete(actionId)
+			picker.menu?.cancelTracking()
+			picker.autoenablesItems = false
+			picker.menu.autoenablesItems = false
+			picker.removeAllItems(); items = []
+			for (const option of nextOptions) {
+				// Explicit items preserve duplicate/empty titles; IDs never depend on labels.
+				const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(option.title, null, '')
+				item.enabled = !option.disabled
+				picker.menu.addItem(item); items.push(item)
+			}
+			options = nextOptions; initialized = true
+			picker.invalidateIntrinsicContentSize()
+		} else if (!enabled) picker.menu?.cancelTracking()
+		const nextLabel = String(next.accessibilityLabel ?? '')
+		if (label !== nextLabel) { picker.setAccessibilityLabel?.(nextLabel); label = nextLabel }
+		const index = options.findIndex((item) => item.id === next.selection)
+		if (Number(picker.indexOfSelectedItem) !== index) picker.selectItemAtIndex(index)
+		const ownedVersion = version
+		actionHandlers.set(actionId, () => {
+			if (!active || !attached || selecting || writing || !enabled || version !== ownedVersion || picker.superview !== view || !view.window) return
+			const nativeEnabled = (picker as any).isEnabled
+			const nativeState = typeof nativeEnabled === 'function' ? nativeEnabled.call(picker) : nativeEnabled ?? picker.enabled
+			if (nativeState === false || nativeState === 0) return
+			const index = Number(picker.indexOfSelectedItem), item = items[index], option = options[index]
+			if (!Number.isSafeInteger(index) || index < 0 || !item || !option || option.disabled) return
+			const selected = picker.selectedItem
+			if (!(selected === item || selected?.isEqual?.(item))) return
+			const nativeItemEnabled = (item as any).isEnabled
+			const itemState = typeof nativeItemEnabled === 'function' ? nativeItemEnabled.call(item) : nativeItemEnabled ?? item.enabled
+			if (itemState === false || itemState === 0) return
+			selecting = true
+			try { onSelect(option.id) } catch { console.error('[macos-leaf] picker change failed') } finally { selecting = false }
+		})
+	}
+	try {
+		writing++; try { apply(initial) } finally { writing-- }
+		view.addSubview(picker)
+		for (const edge of ['leadingAnchor', 'trailingAnchor', 'topAnchor', 'bottomAnchor'] as const) {
+			const constraint = picker[edge].constraintEqualToAnchor(view[edge])
+			constraints.push(constraint); constraint.active = true
+		}
+		attached = true
+		return {
+			update(next: PropBag) {
+				if (!active) return
+				writing++; try { apply(next) } catch (error) { detach(); throw error } finally { writing-- }
+			},
+			detach,
+		}
+	} catch { detach(); return null }
+}
+
 /** Embeds a real NSDatePicker inside the leaf's backing view, pinned to its
  *  edges — the leaf gives the host element an explicit size. mode 'date'
  *  uses YearMonthDay (text field by default, `style: 'graphical'` for the
@@ -10456,6 +10548,7 @@ appKitBridge.showLayer = (options: PropBag) =>
 	})
 
 appKitBridge.attachContextMenu = attachContextMenu
+appKitBridge.attachPicker = attachPicker
 appKitBridge.attachDatePicker = attachDatePicker
 appKitBridge.presentSheet = presentSheet
 installPresentationBridge(appKitBridge, createMacOSRoot, fontFamilyForView)

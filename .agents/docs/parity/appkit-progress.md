@@ -88,6 +88,94 @@ targets exist; anchors and remote links were not mechanically checked. Semantic
 diff and whitespace review passed. No source transformation, import resolution,
 typecheck, unit test, probe, OS automation or image inspection ran.
 
+## AppKit native ID picker
+
+Assumption: finite-choice settings and record forms have higher demand than
+niche rendering integrations. `NativePickerDemo` is an existing maintained
+platform workflow; its AppKit leaf was unsupported, and `picker` had no macOS
+entry. The renderer already used NSPopUpButton for the raw NativeScript
+ListPicker index API. The new `@octane-xplat/picker/macos` entry reuses that
+native allocation/action engine, exposing AppKitPicker and standalone option/
+prop declarations. The root stays empty and no dependency is added. Native
+menu items preserve duplicate/empty titles and use unique string IDs, including
+the empty ID. No snapshot regeneration was performed; the immutable audit has
+no macOS picker entry and therefore predates this addition.
+
+The owner retains uncontrolled IDs across reorder/rename, later defaults,
+initially empty options and native-view replacement. Missing/removed IDs fall
+back silently to the first enabled choice; controlled IDs missing from a
+nonempty list are invalid. Controlled changes use current handlers and restore
+the current value when rejected; releasing control retains the displayed ID.
+Record-id changes retire old callbacks and reseed uncontrolled state. Empty or
+all-disabled choices cannot select; disabled saved values may still display.
+Primitive snapshots reject duplicate/non-string IDs or non-string titles and
+detect in-place mutation. Invalid/missing native setup shows a generic message,
+with repair/retry on current props. Programmatic, stale, disabled, unknown,
+duplicate and reentrant actions do not emit. Classes/styles reach the outer
+labeled field and native accessibility labels default to the visible label.
+
+The native bridge creates explicit NSMenuItems with automatic enablement off,
+keeps equal choices/menus, skips unchanged selection/label writes, and cancels
+owned tracking before replacing choices or removing the control. Versioned
+callbacks plus native control/item enablement, actual item identity, window,
+superview and setup readiness guard dispatch. Programmatic writes and consumer
+reentry are blocked. Partial setup/update failures deregister actions, clear
+targets/items, deactivate owned constraints and remove the view. The existing
+raw ListPicker API keeps its separate index/programmatic-event contract; its
+model extraction now includes the shared allocation helper.
+
+Apple's [NSPopUpButton](https://developer.apple.com/documentation/appkit/nspopupbutton),
+[automatic enablement](https://developer.apple.com/documentation/appkit/nspopupbutton/autoenablesitems)
+and [selection/deselection](https://developer.apple.com/documentation/appkit/nspopupbutton/selectitem%28at%3A%29)
+references support the API choices, not native host execution. The existing
+exact controlChanged selector prerequisite and objc-node-api alpha.7 binary
+qualification boundary remain applicable; no upstream code is patched.
+
+Eight owner-model and seven actual-renderer-branch cases are authored, all
+**unrun**. The packed-consumer fixture now includes macOS declarations in both
+Bundler/NodeNext modes with required-prop/ID checks; it is also unrun and does
+not compile the native implementation. The maintained native demo now covers
+controlled acceptance/rejection, empty/invalid/disabled/duplicate/reordered/
+in-place renamed choices, current callbacks, record changes and remounting.
+Timed replacement starts only from an explicit action. The idle probe imports
+that demo and never opens or selects the native menu automatically.
+
+The `appkit-native-picker` recipe, README, public guide/types, Octane primitives
+reference and feature note reconcile this source addition. No new React Aria
+equivalent is counted; this is an OS-authentic alternative to the existing
+selection APIs. Keyboard/pointer selection, menu tracking/loop timers, native
+BOOL/selector delivery, hook/ref/effect timing, disabled/duplicate rendering,
+focus/Tab, VoiceOver, layout, native lifecycle/memory and installed consumers
+remain unqualified. No evidence-gated checkbox or broader platform claim closes.
+
+Deferred commands, only after this task receives the human's go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/picker
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/picker --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/picker
+pnpm probe doctor
+pnpm probe run examples/probes/native-picker.macos.tsrx --target macos --watch
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Picker and demos have no standalone typecheck scripts here; inspect selected
+dependent checks and compile the native component/demo through the authorized
+probe or installed-consumer path. The docs scripts/current quality guide are
+absent from this isolated snapshot; the guide was read from the shared checkout
+without changing its in-flight tools. Source parsing, local link-path and
+semantic/whitespace review are the only checks performed; no tests, compiler
+transforms, typechecks, builds, package execution, probe, OS automation or image
+inspection ran. Shared audit snapshots and other targets' files remain intact.
+Source review parsed 13 changed TS/TSRX/MJS/declaration files, one package JSON
+and 18 scoped documentation fences; 12 scoped local Markdown target paths exist.
+Manual declaration shape matches source types. These are syntax/path checks;
+anchors, remote contents, imports, compiled hooks, types and behavior were not
+verified. Semantic and whitespace review completed without broad checks.
+
 ## Priorities and evidence boundary
 
 Assume everyday document workflows, settings, inbox filters and view switches
