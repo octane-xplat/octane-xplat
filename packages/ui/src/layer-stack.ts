@@ -7,6 +7,8 @@ export interface LayerEntry {
 	dismiss(): void
 	contains?(target: any): boolean
 	isPresent?(): boolean
+	/** Opaque declaring host, used only by an owner-scoped key adapter. */
+	keyScope?(): unknown
 }
 
 export interface LayerKeyEvent {
@@ -14,6 +16,7 @@ export interface LayerKeyEvent {
 	isComposing?: boolean
 	keyCode?: number
 	defaultPrevented?: boolean
+	acceptScope?(scope: unknown): boolean
 	preventDefault(): void
 }
 
@@ -32,11 +35,24 @@ export function setLayerComposing(value: boolean): void {
 	composing = value
 }
 
-function topLayer(retiringToken?: object) {
+function topLayer(retiringToken?: object, acceptScope?: (scope: unknown) => boolean) {
 	let top: (typeof entries)[number] | undefined
 	for (const entry of entries) {
 		if (entry.token !== retiringToken && entry.isPresent?.() === false) {
 			continue
+		}
+
+		if (acceptScope) {
+			let accepted = false
+			try {
+				accepted = acceptScope(entry.keyScope?.())
+			} catch {
+				/* Retired hosts cannot claim keys. */
+			}
+
+			if (!accepted) {
+				continue
+			}
 		}
 
 		if (
@@ -66,7 +82,11 @@ export function shouldCloseLayer(token: object, retiring = false): boolean {
 /** Claim before invoking user code, so synchronous unmount cannot give the
  * same event to the next layer. IME Escape suppresses platform close watchers. */
 export function dispatchLayerKey(event: LayerKeyEvent): void {
-	if (event.key !== 'Escape' || event.defaultPrevented || !topLayer()) {
+	if (event.key !== 'Escape' || event.defaultPrevented) {
+		return
+	}
+	const top = topLayer(undefined, event.acceptScope)
+	if (!top) {
 		return
 	}
 
@@ -75,7 +95,6 @@ export function dispatchLayerKey(event: LayerKeyEvent): void {
 		return
 	}
 
-	const top = topLayer()!
 	if (top.behavior === 'close') {
 		top.dismiss()
 	}

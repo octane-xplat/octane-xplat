@@ -9,7 +9,13 @@ const source = ts.transpileModule(
 	{ compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
 ).outputText
 
-function fixture() {
+function fixture(options = {}) {
+	const pending = []
+	const flush = () => {
+		for (const callback of pending.splice(0)) {
+			callback()
+		}
+	}
 	const owner = { IsHostVisible: true, ContentIslandEnvironment: { AppWindowId: { Value: 7 } } }
 	const state = { focus: [], captures: [], activationReads: [], primaryReads: 0, active: true }
 	const control = (root = owner) => ({
@@ -59,6 +65,7 @@ function fixture() {
 	const exports = {}
 	vm.runInNewContext(source, {
 		exports,
+		queueMicrotask: (callback) => pending.push(callback),
 		require(id) {
 			if (id === '@nativescript/core') {
 				return { Application }
@@ -69,7 +76,16 @@ function fixture() {
 			throw new Error(`Unexpected import: ${id}`)
 		},
 	})
-	return { capture: exports.captureLayerFocus, owner, initial, host, control, state, Microsoft }
+	const capture = (...args) => {
+		const restore = exports.captureLayerFocus(...args)
+		return () => {
+			restore()
+			if (options.flush !== false) {
+				flush()
+			}
+		}
+	}
+	return { capture, flush, owner, initial, host, control, state, Microsoft }
 }
 
 test('Windows layers restore the captured control only after checking the owning window', () => {
@@ -224,5 +240,59 @@ test('Windows layers tolerate retired proxies and failing target getters without
 		throw new Error('closed')
 	}
 	assert.doesNotThrow(capture(undefined, host))
+	assert.equal(state.primaryReads, 0)
+})
+
+test('Windows focus return waits for modal background cleanup', () => {
+	const { capture, flush, host, initial, state } = fixture({ flush: false })
+	const restore = capture(undefined, host)
+	initial.IsEnabled = false
+	restore()
+	assert.deepEqual(state.focus, [])
+	initial.IsEnabled = true
+	flush()
+	assert.deepEqual(state.focus, [[initial, 3]])
+})
+
+test('Windows focus return rechecks activation when deferred restoration runs', () => {
+	const { capture, flush, host, state } = fixture({ flush: false })
+	capture(undefined, host)()
+	state.active = false
+	flush()
+	assert.deepEqual(state.focus, [])
+})
+
+test('Windows explicit focus return survives a missing scoped snapshot projection', () => {
+	const { capture, host, control, Microsoft, state } = fixture()
+	Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElementWithRoot = () => {
+		throw new Error('snapshot projection absent')
+	}
+	const target = control()
+	capture(() => ({ native: { nativeViewProtected: target } }), host)()
+	assert.deepEqual(state.focus, [[target, 3]])
+	state.focus.length = 0
+	capture(undefined, host)()
+	assert.deepEqual(state.focus, [])
+	assert.equal(state.primaryReads, 0)
+})
+
+test('Windows .NET focus capture supplies the owner to the scoped overload', () => {
+	const { capture, owner, initial, host, Microsoft, state } = fixture()
+	delete Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElementWithRoot
+	Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement = (...args) => {
+		assert.deepEqual(args, [owner])
+		return initial
+	}
+	capture(undefined, host)()
+	assert.deepEqual(state.focus, [[initial, 3]])
+	assert.equal(state.primaryReads, 0)
+})
+
+test('Windows rejects an ambiguous focus overload returning another root', () => {
+	const { capture, control, host, Microsoft, state } = fixture()
+	delete Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElementWithRoot
+	Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement = () => control({})
+	capture(undefined, host)()
+	assert.deepEqual(state.focus, [])
 	assert.equal(state.primaryReads, 0)
 })

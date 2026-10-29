@@ -50,6 +50,7 @@ export function useLayerDismissal(options: {
 			dismiss: () => latest.current.dismiss(),
 			contains: (target) => latest.current.contains?.(target) ?? false,
 			isPresent: () => latest.current.active && (latest.current.isPresent?.() ?? true),
+			keyScope: () => latest.current.getHost?.(),
 		})
 
 		return () => {

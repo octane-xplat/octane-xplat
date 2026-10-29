@@ -26,44 +26,56 @@ export function captureLayerFocus(getTarget?: () => any, host?: any): () => void
 		// A supplied but unattached host must not fall back to the primary window.
 		const source = host ?? getTarget?.() ?? Application.getRootView?.()
 		owner = element(source)?.XamlRoot
-		if (owner) {
-			// Use the explicit metadata overload: older projections can bind the
-			// zero-argument GetFocusedElement even when a root argument is supplied.
-			initial = Microsoft?.UI?.Xaml?.Input?.FocusManager.GetFocusedElementWithRoot(owner)
-		}
 	} catch {
 		return () => {}
 	}
-
-	return () => {
+	if (owner) {
 		try {
-			if (!owner || !active(owner)) {
-				return
-			}
+			// WinRT names this overload GetFocusedElementWithRoot; the .NET
+			// projection keeps GetFocusedElement(XamlRoot). Always supply the owner
+			// and reject a foreign result if an older projection drops the argument.
+			const manager = Microsoft?.UI?.Xaml?.Input?.FocusManager
+			const focused =
+				typeof manager?.GetFocusedElementWithRoot === 'function'
+					? manager.GetFocusedElementWithRoot(owner)
+					: manager?.GetFocusedElement(owner)
 
-			const currentOwner = element(host)?.XamlRoot
-			if (currentOwner && currentOwner !== owner) {
-				return
-			}
-
-			const target = getTarget?.()
-			if (model(target)?.isLoaded === false || model(target)?.isEnabled === false) {
-				return
-			}
-
-			const native = target ? element(target) : initial
-			const programmatic = Microsoft?.UI?.Xaml?.FocusState?.Programmatic
-			if (
-				native?.XamlRoot === owner &&
-				native.IsLoaded !== false &&
-				native.IsEnabled !== false &&
-				typeof native.Focus === 'function' &&
-				programmatic != null
-			) {
-				native.Focus(programmatic)
-			}
+			initial = focused?.XamlRoot === owner ? focused : undefined
 		} catch {
-			// Removed windows, missing projection and failed focus remain best effort.
+			initial = undefined
 		}
 	}
+
+	return () =>
+		queueMicrotask(() => {
+			try {
+				if (!owner || !active(owner)) {
+					return
+				}
+
+				const currentOwner = element(host)?.XamlRoot
+				if (currentOwner && currentOwner !== owner) {
+					return
+				}
+
+				const target = getTarget?.()
+				if (model(target)?.isLoaded === false || model(target)?.isEnabled === false) {
+					return
+				}
+
+				const native = target ? element(target) : initial
+				const programmatic = Microsoft?.UI?.Xaml?.FocusState?.Programmatic
+				if (
+					native?.XamlRoot === owner &&
+					native.IsLoaded !== false &&
+					native.IsEnabled !== false &&
+					typeof native.Focus === 'function' &&
+					programmatic != null
+				) {
+					native.Focus(programmatic)
+				}
+			} catch {
+				// Removed windows, missing projection and failed focus remain best effort.
+			}
+		})
 }
