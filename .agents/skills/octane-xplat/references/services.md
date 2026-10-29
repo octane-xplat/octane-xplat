@@ -519,3 +519,34 @@ excluded. MIME hints remain filename-based; missing sizes skip maxSize. Nine
 source cases and the maintained fixture remain unrun. Native ABI/registration,
 hit routing/drag, grants, hover/AX/focus and packaging require qualification;
 custom hover/autoscroll and promised-file support remain gaps. See [AppKit file drops](../../../../packages/files/README.md#appkit-local-file-drops).
+
+## AppKit in-app browser
+
+webBrowser from @octane-xplat/web-browser now has an owned WebKit/NSWindow source
+path. Add the package to the app and rebuild for packaged Swift class discovery;
+supported checks the accepts/create bridge methods, and missing/invalid/failed
+opens cancel without an external fallback. Foundation validates HTTP(S)/host,
+so packaged JavaScriptCore does not need a JS URL global. The macOS external
+opener behavior is a hard cutover; use platform.openUrl explicitly for that flow.
+Opened means presented, not loaded. Current native chrome owns history, reload/
+stop/address/close; replacement/dismiss/user close retire views, KVO and delegates.
+Generic failure text omits NSError/URL details. The app's default WebKit data
+store is used; there is no app-shell JS bridge or Safari-profile promise.
+
+```ts
+import { webBrowser } from '@octane-xplat/web-browser'
+export async function openHelp(address: string) {
+	return webBrowser.openBrowser(address)
+}
+export const closeHelp = () => webBrowser.dismissBrowser()
+```
+
+Native actions require the main UI thread. Mobile style/title/collapsing options
+and Android warmup hints stay platform specific. Advanced downloads/uploads,
+web dialogs/HTTP-auth/permission UI and OAuth interception are not implemented.
+Five JS ownership cases and a manual harness fixture are authored, all unrun.
+Swift/class discovery, native UI/navigation/error/redirect/popup/cookie behavior,
+ATS/sandbox, threading/KVO/cleanup/AX and clean packaging remain unqualified.
+AppKit harness dependency/lock link and scoped package task are source changes;
+no dependency install or native qualification ran. See the package README and
+[AppKit navigation guide](../../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window).

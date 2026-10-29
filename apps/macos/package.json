@@ -34,6 +34,7 @@
 		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
+		"@octane-xplat/web-browser": "workspace:*",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
 		"octane": "catalog:"

@@ -460,3 +460,23 @@ WebKit load callbacks, reload, HTML replacement, local-file history and errors,
 content measurement and unmount cleanup without screenshots. Delegate tests run with
 `pnpm --filter @octane-xplat/macos-renderer test`. Those simulated callbacks do
 not establish OS input or hit-testing.
+
+## In-app browser source fixture
+
+The AppKit harness declares `@octane-xplat/web-browser` so its native package
+collector includes the owned Swift/WebKit browser bridge. The manual fixture
+starts with an empty address and opens only after an explicit action. Its runner
+records controls mounting, not browser presentation or network behavior.
+
+```sh
+pnpm probe run apps/macos/test/fixtures/browser-service.macos.tsrx --target macos --watch
+```
+
+A scoped Turbo package task orders app and CLI build prerequisites before the
+existing native packaging script. This is an expensive native build/package
+operation, separate from ordinary PR checks. Swift/class discovery, actual
+navigation/close/AX and clean packaged consumers remain unqualified.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+```

@@ -26,14 +26,15 @@ export interface OpenBrowserOptions {
 }
 
 export interface WebBrowser {
-	/** Synchronous fast check — an in-app browser controller exists
-	 *  (iOS/Android/web). macOS reports false: it delegates to the external
-	 *  browser, which is not the in-app contract. */
+	/** Synchronous fast check — an in-app browser controller exists.
+	 *  AppKit checks the package-owned native bridge; availability is not
+	 *  a successful presentation, network load or runtime qualification. */
 	readonly supported: boolean
 	/** Open `url` in the platform in-app browser. Resolves 'opened' once the
-	 *  browser presents; on macOS delegates to the external browser. */
+	 *  browser presents. AppKit accepts HTTP(S) only and cancels when its
+	 *  bridge cannot present; it never falls back to another application. */
 	openBrowser(url: string, options?: OpenBrowserOptions): Promise<WebBrowserResult>
-	/** iOS only: programmatically close a presented browser. No-op elsewhere. */
+	/** Close the owned browser on iOS, web and AppKit. Android is a no-op. */
 	dismissBrowser(): void
 	/** Android only: pre-warm the Custom Tabs service connection. */
 	warmUp(packageName?: string): Promise<void>

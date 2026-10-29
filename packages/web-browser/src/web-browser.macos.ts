@@ -1,19 +1,6 @@
-// Web browser — macOS leaf. macOS has no in-app browser controller
-// (SFSafariViewController is iOS-only), so openBrowser delegates to the
-// external browser through the platform host. `supported` stays false — the
-// delegate path is convenience, not the in-app contract.
-import { openUrl } from '@octane-xplat/platform'
-import type { OpenBrowserOptions, WebBrowser, WebBrowserResult } from './types'
+import { createAppKitWebBrowser, type AppKitBrowserFactory } from './browser-owner.macos.ts'
 
-export const webBrowser: WebBrowser = {
-	supported: false,
+declare const XplatInAppBrowser: AppKitBrowserFactory
 
-	openBrowser(url: string, _options?: OpenBrowserOptions): Promise<WebBrowserResult> {
-		return Promise.resolve({ type: openUrl(url) ? 'opened' : 'cancel' })
-	},
-
-	dismissBrowser(): void {},
-	warmUp: () => Promise.resolve(),
-	coolDown: () => Promise.resolve(),
-	mayInitWithUrl: () => Promise.resolve(),
-}
+/** Package-owned WebKit window; unavailable bridges never launch another app. */
+export const webBrowser = createAppKitWebBrowser(() => typeof XplatInAppBrowser === 'undefined' ? undefined : XplatInAppBrowser)

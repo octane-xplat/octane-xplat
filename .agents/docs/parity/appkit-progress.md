@@ -5832,3 +5832,86 @@ solely on handler guards. The mounted source case asserts binding removal and
 an inert retained zoom handler. Targeted two-file TSRX syntax/whitespace review
 passed; the case and all prior deferred checks remain unrun, with no new native
 input or cleanup proof.
+
+## AppKit owned in-app browser source path
+
+Demand assumption: opening ordinary help/account/document links inside the app
+is more useful than niche integrations after the core control/content work.
+The repository exposes the optional browser service and an external URL-link
+flow, but no existing browser demo was found. Current AppKit source only opened
+another application and deliberately reported supported=false. This change
+adds an owned browsing window; it does not replace the AppKit app backend with
+a WebView shell or implement callback-based authentication.
+
+The package now ships XplatInAppBrowser.swift plus AppKit/WebKit framework and
+header configuration through the existing native-package collector. The public
+JS leaf has no platform/NativeScript/Node runtime import. A create/accepts bridge
+is required; supported checks its presence and missing/invalid/failed opens
+cancel. Foundation validates HTTP(S)/host, removing the initial JS URL-global
+prerequisite for packaged JavaScriptCore. This validation itself is unrun in
+native code. JS tests use a simulated validator and do not prove Foundation's
+URL handling. The prior macOS external-browser delegation is removed as an
+explicit breaking cutover; platform.openUrl remains the external-launch API.
+
+A pure JS owner serializes replacement/dismissal through revisions and retires
+native candidates before cleanup can reenter. Only true/1 confirm native BOOL
+success. Opened means presentation, not network load. Native Swift owns an
+NSWindow/WKWebView with Back/Forward, Reload/Stop, address and Close controls.
+It follows HTTP(S) navigation/redirects, keeps HTTP(S) new-window requests inside
+the current window, permits about/data child documents, and cancels non-web app
+schemes. Current view/navigation identity guards generic failure feedback;
+NSError/source details do not enter logs/results. KVO chrome updates return to
+the main queue and ignore replaced views. Close/user close release observations,
+delegates, loading and content. Main-thread native open is required; close
+marshals to the main queue before changing owned state. WebKit uses the app's
+default data store, with no app-shell service script injection.
+
+Mobile browser options and Android warmup hints remain platform specific. Web
+dialog/download/upload/auth/permission UI is not implemented by this AppKit
+service, and Safari-profile/session or OAuth interception is not promised.
+Network, ATS and sandbox policy remain app-owned; no entitlements/ATS exceptions
+were changed. [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview)
+is the rendering engine; AppKit header reads confirmed the control APIs used.
+These source/SDK reads do not establish native behavior or OS-version support.
+
+The AppKit harness now directly declares this package so native discovery can
+include the Swift class. Only its workspace lock importer link was manually
+updated; no dependency resolution/install ran. A scoped Turbo package task
+orders existing app/CLI build prerequisites before the native packaging script,
+with caching disabled; no root task/CLI or other target manifest changed.
+[Package-level task configuration](https://turborepo.dev/docs/reference/package-configurations)
+supports this arrangement, but the actual graph/task is unrun. The manual source
+fixture lives under the declaring AppKit harness and stays idle until a URL is
+entered and Open is pressed. Its runner records controls mounting only.
+
+Five ownership cases are authored but UNRUN: capability/invalid URLs/no-op hints,
+presentation/replacement/idempotent dismissal, accepted BOOL forms/failure cleanup,
+reentrant old close and dismissal during open/recovery. Package README, navigation
+guide, public comments, Octane service reference, a dedicated recipe and breaking
+feature note reconcile the new source subset. Static TS/TSRX/JSON syntax and
+lockfile YAML parsing plus source/semantic/whitespace review are the only checks.
+Eight TS/TSRX/JSON files parsed. No Swift compiler or native code ran.
+
+Exact deferred commands:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm exec turbo run test --filter=@octane-xplat/web-browser
+pnpm exec turbo run typecheck --filter=...@octane-xplat/web-browser --filter=...@xplat/macos
+pnpm probe doctor
+pnpm probe run apps/macos/test/fixtures/browser-service.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/web-browser
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit in-app browser package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No
+install, tests, typechecks/builds, probes, native/OS/browser automation, packaging
+or visual analysis ran. pack:check is not a clean installed native-consumer
+qualification, and no new relocated leaf-consumer automation is supplied here.
+Actual frozen installation/task graph, Swift compilation/class/header discovery,
+Foundation parsing/BOOL bridge/thread behavior, native window/page/history/error/
+redirect/popup/cookie behavior, network/TLS/ATS/sandbox, close/KVO/resource lifetime,
+OS input/focus/VoiceOver, packaged consumers/signing and supported macOS versions
+remain unqualified. Audit snapshots and evidence checkboxes are unchanged;
+persistent goal active.

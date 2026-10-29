@@ -2416,3 +2416,36 @@ These paths have authored source cases, not a native verification run. AppKit
 other than the default `a` sentinel are not implemented. Tooltip presentation,
 actual URL launch, keyboard/VoiceOver activation, inline wrapping and native
 link appearance remain unqualified.
+
+## Open a page inside an AppKit browser window
+
+Add `@octane-xplat/web-browser` to the app and rebuild its native host. The
+experimental AppKit service now has a package-owned WebKit window with history,
+reload/stop, address and close controls. Availability is conditional on its
+native bridge. `opened` reports window presentation, while invalid HTTP(S)
+input, missing bridges or presentation failure return `cancel`. It does not
+report whether the page loaded; network errors have native feedback.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+import { webBrowser } from '@octane-xplat/web-browser'
+export function Help({ address }: { address: string }) {
+	return <Button label="Open help" isDisabled={!webBrowser.supported}
+		clickAction={async () => { await webBrowser.openBrowser(address) }} />
+}
+```
+
+Opening another page replaces the owned browser; dismissBrowser closes it.
+The previous macOS external-browser fallback has been removed. Use openUrl
+for destinations another application should open. Native compilation, actual
+presentation/navigation, cookies, sandbox/ATS, close cleanup and VoiceOver
+remain unqualified. Mobile-only browser options and Android warmup hints do
+not change the AppKit window; advanced web dialogs/downloads/auth flows remain
+outside this source subset. See the [package contract](../../packages/web-browser/README.md#experimental-appkit-subset).
+
+```ts
+import { webBrowser } from '@octane-xplat/web-browser'
+import { openUrl } from '@octane-xplat/platform'
+export const closeHelp = () => webBrowser.dismissBrowser()
+export const openExternalPage = (address: string) => openUrl(address)
+```

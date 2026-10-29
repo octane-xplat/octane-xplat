@@ -355,6 +355,9 @@ importers:
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@octane-xplat/web-browser':
+        specifier: workspace:*
+        version: link:../../packages/web-browser
       '@xplat/app':
         specifier: workspace:*
         version: link:../../packages/app

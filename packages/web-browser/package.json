@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/web-browser",
 	"version": "0.18.0",
-	"description": "In-app browser for Octane xplat \u2014 SFSafariViewController on iOS, Chrome Custom Tabs on Android",
+	"description": "In-app browser for Octane xplat \u2014 Safari on iOS, Custom Tabs on Android, experimental WebKit window on macOS",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -60,7 +60,8 @@
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "node ../../scripts/typecheck.ts"
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "node --experimental-strip-types --test tests/*.test.ts"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
@@ -92,5 +93,17 @@
 	},
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*"
+	},
+	"xplat": {
+		"macos": {
+			"swiftHeaderImports": [
+				"AppKit/AppKit.h",
+				"WebKit/WebKit.h"
+			],
+			"frameworks": [
+				"AppKit",
+				"WebKit"
+			]
+		}
 	}
 }

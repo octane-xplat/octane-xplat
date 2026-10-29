@@ -29,6 +29,10 @@
 			],
 			"cache": false
 		},
+		"package": {
+			"dependsOn": ["build", "@octane-xplat/cli#build"],
+			"cache": false
+		},
 		"build": {
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
 			"inputs": [
