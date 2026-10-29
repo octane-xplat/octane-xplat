@@ -1902,3 +1902,26 @@ pass. A follow-up driver records the actual UIA element at the pointer location
 and retains a separate failing pointer-navigation group. Explicit command setup
 may then exercise scrolling independently; that setup is not OS-navigation
 proof and cannot erase a failed group. This requires no rebuild of v8.
+
+### V8 instrumented OS rerun
+
+The same v8 binary, boot mvswn2av, passed15/15groups and exited0: filesystem
+prerequisites (all7cases), six input groups, four modal groups, explicit physical
+pointer navigation to the scrolling page and three scroll groups. The driver
+added UIA FromPoint metadata before sending input, retained all process,
+foreground and pointer-bounds guards, and kept a distinct navigation-failure
+result with independent command setup available afterward. That fallback was
+not used in this passing run. Both scroll offsets advanced0to72, with content816
+and viewport160; the headless block state changed atStarttrue tofalse.
+
+The earlier two maximized navigation failures remain recorded. This one pass
+does not establish their cause or deterministic navigation reliability; the
+instrumentation may affect timing. No product navigation fix is claimed and no
+full API/UIA/presentation/permission/architecture checkbox is closed. Records:
+research/windows61/windy-os-common-v8-navigation.log,
+windy-v8-navigation-os-results.json, windy-v8-navigation-full-console.log and
+windy-v8-navigation-current-boot-console.log. Existing signing trust was used,
+only the owned app ran, and its process stopped in wrapper cleanup. No visual
+analysis was performed. Skill platform-leaf/primitive guidance was reviewed;
+no existing advice relies on global System.IO or claims full filesystem support.
+No recipe target is promoted by these bounded prerequisite repairs.
