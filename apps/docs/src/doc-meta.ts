@@ -72,6 +72,7 @@ export const GROUPS = [
 		label: 'Check your app',
 		slugs: [
 			'testing',
+			'component-workshop',
 			'test-identifiers',
 			'maestro',
 			'argent',

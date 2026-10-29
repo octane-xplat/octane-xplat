@@ -87,6 +87,9 @@ To let a connected agent run named setup actions in a dev build (test logins,
 fixture data, performance scenarios), see
 [Declare development actions](testing/development-actions.md).
 
+[Develop a component in the workshop](testing/component-workshop.md) to edit
+props and reset fixtures in a separate development preview.
+
 [Diagnose production errors](testing/production-errors.md) for release identity,
 source maps and separate native crash checks.
 

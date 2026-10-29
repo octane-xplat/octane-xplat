@@ -36,6 +36,20 @@ covers app-owned registration, bridge setup, and supported targets; the
 invocation. Check rendered state separately after setup; action completion alone
 does not establish UI behavior or user input.
 
+## Component workshop
+
+Use the [workshop guide](../../../../docs/testing/component-workshop.md) to develop
+one component outside the production app entry. Control edits preserve healthy
+state; Reset/source revisions create a fresh owned generation. Register fixture
+cleanup promptly, use fresh factories, and restart after failed cleanup. The
+browser path is separate from actual-host/OS-input qualification; a target name
+or compiled story does not qualify a native workshop.
+
+```sh
+pnpm exec xplat workshop doctor
+pnpm exec xplat workshop dev --target web --story counter/basic
+```
+
 ## Framework investigations
 
 Use an isolated probe for a single case. Research probes are temporary;
