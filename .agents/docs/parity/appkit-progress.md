@@ -6851,3 +6851,75 @@ analysis, packaging or real filter operations ran. Actual text/segmented/keyboar
 IME/focus/AX, readonly/attachment/reentry timing, popover sizing/scrolling, date/
 clock semantics and clean installed consumers remain unqualified. Evidence-gated
 checkboxes unchanged; persistent goal active.
+
+## AppKit PowerSearch entity form
+
+The retained PowerSearch demo exercises strings/numbers; assignee/customer
+selection is an explicit common-application demand assumption beyond that demo.
+The source gap was concrete: the AppKit default editor rejected entity_list
+despite its shared searchSource/tokenization contract. Reused existing AppKit
+Tokenizer for source lookup, custom rows, selected tokens, optional arbitrary
+strings and removal/clear. No new dependency, public type or shared renderer
+change. Saved filters contain only stable id/label/optional top-level string photo;
+source auxiliary data/renderable nodes remain draft-only. applyFilters still
+passes entity values through; app/backend matching is required.
+
+Configured tokenization uses a separate paste field and explicit Add entries
+because Tokenizer has no public paste splitter/query-clear API. This timing is
+an explicit subset, not automatic tokenization parity. Trim/deduplicate entries,
+optionally sort by JS string order, default to comma/newline; regex captures and
+zero-width matches never become entries. Reuse selected exact IDs, otherwise
+resolve serially with a fresh request signal. Exact IDs win over unique
+case-sensitive labels; fuzzy/ambiguous results require a search-row pick. Arbitrary
+creation applies only to missing matches when enabled. Invalid separators,
+unmatched/ambiguous entries and source failure preserve the entire prior draft;
+error text does not expose source exception details.
+
+Immediate component-local records preserve rapid edits. Current filter/field/
+operator/source/tokenization revisions, read-only, Cancel and unmount retire
+pending bulk work and ignore late results, including ignored-signal sources.
+Block repeats, selection edits and Apply while pending. Apply requires adding or
+clearing unprocessed text; attached marked text in the bulk field blocks Add and
+Apply. One draft submits once, consumer throw permits retry. Cancel closes its
+editor session without saving; replace/remount to reopen it. Source errors retain
+text for correction/retry; lookup makes no automatic fuzzy choice or partial save.
+
+Seven model and five mocked-control compiler cases and an idle manual fixture
+are authored, all UNRUN. The old range-editor case now mocks the newly imported
+Tokenizer so unrelated native children do not weaken editor isolation. Public
+guide, Octane primitive reference, feature note and recipe reconcile limits. No
+React Aria presence-level equivalent changes are involved. Source graph tools
+could not resolve the target editor; target imports and semantic diff were
+reviewed instead of claiming complete graph edges. Shared audit snapshots stay
+unchanged. Web/mobile entity built-ins and full nested/custom parity remain open.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/power-search-entities.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit PowerSearch entity package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The new documentation-quality guide was read from the shared checkout because
+it is absent from this isolated revision. check:docs/check:doc-examples are also
+absent from this revision's package scripts; no shared in-flight tooling was
+copied across. The public reader path, actual exported types, configuration,
+draft/cancel behavior and source-vs-runtime claims were manually reviewed.
+Seven target TS/TSRX and five new documentation fences syntax parsed. An initial
+whole-reference fence parse stopped at the pre-existing primitives.md fence
+starting on line 35 (adjacent JSX, "JSX expressions must have one parent element");
+only the new entity fences were then parsed successfully. This is not a pass
+for the entire reference or either deferred documentation checker. Semantic/
+whitespace review completes the permitted checks. No tests/compiler transforms/
+typechecks/builds/probes, native/OS/AX/visual analysis or packaging ran. Actual
+Tokenizer/paste/keyboard/IME/focus/VoiceOver, read-only/attachment/effect timing,
+source cancellation timing, popover sizing/scrolling and clean installed consumers
+remain unqualified. Evidence-gated checkboxes stay open; persistent goal active.

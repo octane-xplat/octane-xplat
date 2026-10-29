@@ -123,9 +123,10 @@ suggestions, add/edit/remove flows, clear-all, and a text value editor. English
 catalog strings are built in; there is no provider hook for app localization
 at this time. The built-in editor handles text, numeric, list, enum, relative
 date text, and absolute dates (ISO date input on web, text entry on native).
-Entity lists, nested values, and app-specific custom values need an override in
-`components`. Date ranges also need an override on web/mobile; the experimental
-AppKit built-in range form is described [below](#edit-native-appkit-date-ranges).
+Nested values and app-specific custom values need an override in `components`.
+Entity lists and date ranges also need an override on web/mobile. Experimental
+AppKit built-ins are described below for [ranges](#edit-native-appkit-date-ranges)
+and [entity selection](#edit-native-appkit-entity-filters).
 
 ```tsx
 import { useState } from 'octane'
@@ -287,7 +288,7 @@ The form displays UTC regardless of `timezoneID`; use a custom editor for
 zone-specific display or expression-string `relativeDatePresets`. Interval presets
 are supported. Existing absolute precision and expanded years are preserved on
 unchanged saves; typed replacements accept four-digit-year dates/date-times.
-Web/mobile date-range built-ins, native entity/nested/custom editors, localization,
+Web/mobile date-range built-ins, complete native entity/nested/custom parity, localization,
 and complete cross-target parity remain open. Seven value-model and three editor
 compiler cases with mock child controls plus an idle manual fixture are authored,
 all unrun. No actual native control, popover sizing, keyboard, IME, VoiceOver,
@@ -295,4 +296,87 @@ clock/calendar semantics or clean installed-consumer behavior is qualified.
 
 ```sh
 pnpm probe run examples/probes/power-search-range.macos.tsrx --target macos --watch
+```
+
+## Edit native AppKit entity filters
+
+In a configured native macOS app, use an `entity_list` operator to select people,
+customers or other records from a search source. This example opens an owner form,
+keeps changes as a draft and displays the saved selection after Apply. Cancel
+closes the form without changing the saved filter. Put the component in a screen
+in your app; replace the local people source with your app's lookup when ready.
+
+```tsx
+import { useState } from 'octane'
+import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
+import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
+
+const people = [{ id: '1', label: 'Ada' }, { id: '2', label: 'Grace' }]
+const config: PowerSearchConfig = { name: 'owners', fields: [{
+	key: 'owner', label: 'Owner', operators: [{ key: 'is', label: 'Is', value: {
+		type: 'entity_list',
+		searchSource: {
+			bootstrap: () => people,
+			search: (query) => people.filter((person) => person.id === query ||
+				person.label.toLowerCase().includes(query.toLowerCase())),
+		},
+		tokenization: { regex: '[,;\\r\\n]+', sort: true },
+	} }],
+}] }
+export function OwnerForm() {
+	const [filter, setFilter] = useState<PartialFilter>({ field: 'owner', operator: 'is' })
+	const [editing, setEditing] = useState(true)
+	return <VStack gap={2}>
+		<Button label="Edit owners" clickAction={() => setEditing(true)} />
+		{editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+			onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
+			onCancel={() => setEditing(false)} /> : null}
+		<Text>{JSON.stringify(filter.value)}</Text>
+	</VStack>
+}
+```
+
+Search and choose rows, remove a token, or clear the selection. With the example's
+tokenization config, paste `Ada; Grace` into the separate entry field and choose
+**Add entries**, then Apply. Splitting happens on that action, rather than
+automatically inside Tokenizer. Entries are trimmed, deduplicated and optionally
+sorted by JavaScript string order; without a regex, comma/newline separates them.
+Separator capturing groups and zero-width matches do not become entries. The
+batch looks up entries serially, preferring exact IDs then unique case-sensitive
+labels; fuzzy or ambiguous results require selecting a search row. A failure
+leaves the selection and pasted text available for correction or retry.
+
+```ts
+// Continuation of the config above: the batch resolves these labels to IDs.
+const savedOwnerValue = {
+	type: 'entity_list', value: [{ id: '1', label: 'Ada' }, { id: '2', label: 'Grace' }],
+} as const
+```
+
+Allow free entries only when your domain accepts strings as identities. Without
+a search source, existing selections can still be removed or cleared; adding new
+ones requires this option. Custom search rows receive their original source data,
+but saved filters keep only `id`, `label` and an optional top-level string `photo`.
+Auxiliary data and rendered nodes are not stored. Entity values still require
+app/backend matching: `applyFilters` does not evaluate them.
+
+```ts
+import type { EntityListOperatorValue } from '@octane-xplat/ui'
+const tags: EntityListOperatorValue = {
+	type: 'entity_list', isArbitraryStringAllowed: true, tokenization: {},
+}
+```
+
+Bulk work blocks repeat actions, selection edits and Apply. Cancel, replacement,
+read-only state or unmount abort it and discard late results, including results
+from sources that ignore cancellation. Each lookup receives a fresh request
+signal. Pasted input must be added or cleared before Apply, and marked text in
+that field blocks submission. A source exception shows a generic retry message.
+These paths have seven model and five mocked-control editor cases plus a manual
+fixture, all unrun. Native Tokenizer/paste/keyboard/IME/focus/VoiceOver, popover
+layout, host cancellation timing and installed consumers remain unqualified.
+Web/mobile entity built-ins and complete nested/custom parity remain open.
+
+```sh
+pnpm probe run examples/probes/power-search-entities.macos.tsrx --target macos --watch
 ```

@@ -2190,7 +2190,37 @@ Current filter/field/operator identity retires drafts; use immediate local recor
 for rapid edits and guard stale, readonly, loading/disabled and composing inputs.
 Cancel remains available; one draft submits once, with consumer-error retry. Apply
 stays available to revalidate moving Now; no clock timer is introduced. Web/mobile
-range built-ins and native entity/nested/custom editors remain gaps. Seven model
+range built-ins and complete native entity/nested/custom parity remain gaps. Seven model
 and three mocked-control compiler cases plus fixture are authored, unrun; native
 input/IME/focus/AX/layout/popover and installed-consumer behavior are unqualified.
 See [native range form](../../../../docs/app/power-search.md#edit-native-appkit-date-ranges).
+
+## AppKit PowerSearch entity form
+
+Native entity_list now routes to Tokenizer for source search, selected tokens,
+removal/clear, renderItem and optional arbitrary string creation. Preserve source
+row data in drafts; save only id/label/top-level string photo, deduplicated by ID.
+Client-side applyFilters still passes entity values through; apps own matching.
+
+```ts
+import type { EntityListOperatorValue } from '@octane-xplat/ui'
+const tags: EntityListOperatorValue = {
+	type: 'entity_list', isArbitraryStringAllowed: true, tokenization: {},
+}
+```
+
+Configured tokenization uses a separate paste field and explicit Add entries,
+not Tokenizer's automatic paste. Resolve serially with fresh cancellable request
+signals; exact ID wins, then unique case-sensitive label. Sort trimmed/deduplicated
+tokens by JS string order if requested; default separators are comma/newline.
+Regex captures and zero-width matches are not entries. Reject ambiguous/unmatched
+values unless a missing match permits arbitrary creation; failures publish no
+partial draft and show generic errors. Apply requires adding or clearing pending
+text. Revision/readonly/Cancel/unmount aborts retire old work even if sources ignore
+signals. One draft submits once, consumer throw allows retry. Search state/source
+selection ownership remains with the existing Tokenizer, not a duplicated engine.
+Seven model/five mocked-control editor cases and an idle fixture are unrun. No
+native input/IME/AX/popover/cancellation/installed-consumer qualification, no new
+public API/dependency and no React Aria presence change. Web/mobile entity editors
+and full nested/custom parity remain gaps.
+See [entity workflow and source example](../../../../docs/app/power-search.md#edit-native-appkit-entity-filters).

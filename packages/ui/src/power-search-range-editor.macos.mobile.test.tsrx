@@ -8,6 +8,7 @@ import type { PowerSearchConfig } from './props'
 vi.mock('./text-controls.macos.tsrx', () => ({ TextInput: (props: any) => <textfield ref={(view: any) => props.ref?.(view ? { native: view, focus() {}, blur() {} } : null)} text={props.value} onTextChange={props.onChange} /> }))
 vi.mock('./controls.macos.tsrx', () => ({ Button: (props: any) => <button text={props.label} onPress={props.clickAction} isEnabled={!props.isDisabled} /> }))
 vi.mock('./SegmentedControl.macos.tsrx', () => ({ SegmentedControl: () => <masonview /> }))
+vi.mock('./Tokenizer.macos.tsrx', () => ({ Tokenizer: () => <masonview /> }))
 const config: PowerSearchConfig = { name: 'range', fields: [{ key: 'created', label: 'Created', operators: [
 	{ key: 'between', label: 'Between', value: { type: 'date_range', intervalDatePresets: [{ label: 'Last week', value: { start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' } } }] } },
 ] }] }
