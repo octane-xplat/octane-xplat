@@ -22,6 +22,20 @@ pnpm exec xplat updates init
 
 ## Choose a useful feature
 
+For a phone app's first launch, use
+[launch-screen control](../../packages/splash-screen/README.md). Import its hold
+before Application.run(), then dismiss after the root Page and required data
+are ready. Use the capability check in shared code; browser and desktop hosts
+do not expose this phone startup controller.
+
+```ts
+import { SplashScreen, hide } from '@octane-xplat/splash-screen'
+
+export function revealReadyPhonePage() {
+ if (SplashScreen.capabilities.hold) hide()
+}
+```
+
 Give your agent an outcome with a fallback: “Let me attach a photo to a trip
 item; explain when capture is unavailable.” Use the shared `media` service
 for still capture; a live [camera preview](../app/primitives.md#when-a-screen-needs-more) is a

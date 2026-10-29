@@ -75,6 +75,7 @@
 		"@octane-xplat/sheet",
 		"@octane-xplat/smooth-corners",
 		"@octane-xplat/sounds",
+		"@octane-xplat/splash-screen",
 		"@octane-xplat/sqlite",
 		"@octane-xplat/store-review",
 		"@octane-xplat/stripe",

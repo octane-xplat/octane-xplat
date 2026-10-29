@@ -712,6 +712,27 @@ export function PackedLabel() {
 
 ## Choose a capability and handle availability
 
+For phone startup, use the
+[launch-screen guide](../../../../packages/splash-screen/README.md). Arm the
+process-scoped hold in a module imported before Application.run(); a component
+effect is too late. Reveal after the root Page loads and required data is ready.
+Repeated prevention shares one native deadline, and a dismissed startup cannot
+be re-shown. The native timeout does not call Updates.markHealthy. Do not infer
+OS input/pixel parity or Android qualification from source checks; Android
+runtime remains deferred, and browser/desktop hosts report unavailable.
+
+```ts
+import { SplashScreen, hide, preventAutoHideAsync } from '@octane-xplat/splash-screen'
+
+// In the native startup module, before Application.run():
+if (SplashScreen.capabilities.hold) {
+ void preventAutoHideAsync().catch(() => console.warn('Launch screen could not be held'))
+}
+export function revealReadyPage() {
+ if (SplashScreen.capabilities.hold) hide()
+}
+```
+
 For OTA compatibility, use the Node-only
 [fingerprint tool](../../../../packages/fingerprint/README.md) as an app development
 dependency, alongside the Updates runtime. Never import it into app code.

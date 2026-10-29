@@ -70,6 +70,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Resize or export a cropped photo | [Transform images](../packages/image-manipulator/README.md) |
 | Update an installed phone app between releases  | [Phone app updates](app/updates.md)                    |
 | Compare native build inputs before an update | [Native fingerprints](../packages/fingerprint/README.md) |
+| Keep the phone launch screen until startup is ready | [Launch-screen control](../packages/splash-screen/README.md) |
 
 For more pieces to use on your screens, browse the [component index](app/components.md).
 When a feature is ready to try, use [Checking an Xplat app](testing/testing.md) and

@@ -1,0 +1,73 @@
+{
+	"name": "@octane-xplat/splash-screen",
+	"version": "0.18.0",
+	"description": "Expo-shaped native launch-screen hold and dismissal for Octane Xplat",
+	"keywords": [
+		"cross-platform",
+		"launch-screen",
+		"nativescript",
+		"octane",
+		"splash-screen"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/splash-screen",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/splash-screen"
+	},
+	"files": [
+		"src",
+		"types",
+		"platforms",
+		"!src/**/*.test.*",
+		"examples"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.linux.ts",
+			"windows": "./src/index.windows.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typegen": "tsc -p tsconfig.types.json",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"prepack": "pnpm typegen",
+		"test:ios-bridge": "node tests/ios-bridge.mjs",
+		"test:ios-runtime": "node tests/ios-runtime.mjs",
+		"test:packed": "node tests/packed-consumer.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/lib": "workspace:*"
+	},
+	"devDependencies": {
+		"@nativescript/core": "catalog:",
+		"@nativescript/types": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.0 <10"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"ios": "9.1.0",
+			"android": "9.1.0"
+		}
+	}
+}

@@ -40,6 +40,7 @@ source before relying on them.
 - [OTA process](ota-process.md)
 - [OTA update gate](ota-updates.md)
 - [Native compatibility fingerprints](fingerprint.md) — collected inputs, build records and exact OTA matching
+- [Launch-screen control](splash-screen.md) — native startup ownership and qualification
 - [UI primitives](primitive-notes.md)
 - [SQLite](sqlite-notes.md)
 

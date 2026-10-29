@@ -1,0 +1,11 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test:ios-bridge": { "cache": false },
+		"test:ios-runtime": {
+			"dependsOn": ["^typegen"],
+			"cache": false,
+			"passThroughEnv": ["XPLAT_NATIVE_TEST_HOST", "XPLAT_NATIVE_TEST_REPO", "XPLAT_IOS_DEVICE"]
+		}
+	}
+}

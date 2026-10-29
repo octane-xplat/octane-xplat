@@ -1,0 +1,10 @@
+{
+	"name": "@xplat/splash-screen-native-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:ios-bridge": "node ../ios-bridge.mjs",
+		"test:ios-runtime": "node ../ios-runtime.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}
