@@ -5613,3 +5613,65 @@ branch. The scroll prop dispatch now reaches that branch as intended. This was
 caught by source/diff review; the authored source case has not run and no test
 pass is claimed. Final targeted TS syntax and whitespace checks passed; every
 deferred command and native qualification limit above still applies.
+
+## AppKit renderer-backed Outline snapshots
+
+Demand assumption: automatic tables of contents for document/content screens
+are more useful than niche native integrations. ContentDisplayDemo already
+uses portable Markdown-derived items; native-view discovery was explicitly
+unsupported. The new Heading role/level source path makes a renderer-owned
+snapshot feasible. Portable document data and explicit items remain supported;
+this change does not implement Outline scrolling or scroll spy.
+
+The renderer now publishes a private readOutlineHeadings bridge. It traverses
+native subviews in order, including NSArray count/objectAtIndex collections,
+and recognizes only renderer-owned label headings whose current native view
+matches the node. It reads the actual current stringValue for plain/composed
+rich text plus authored ID and semantic level. Blank headings, foreign native
+roles and replaced views are ignored; a visited set prevents repeated/cyclic
+visits, and each heading remains one owner. Reading neither scrolls nor focuses.
+No native subclass, dependency, CLI or other target implementation changes.
+
+ui/macos reports snapshot capability only when that bridge method is installed;
+older/missing hosts retain unsupported mode. The hook accepts native roots,
+ref-style objects and portable ScrollableArea handles. It snapshots once per
+actual root/reader and only publishes a changed array, avoiding a render loop.
+A render exposing a new root/reader recollects; a null root clears. Same-root
+heading mutations are intentionally not observed. Unnamed headings get unique
+slugs avoiding authored IDs; duplicate authored IDs keep the first item.
+Generated IDs are snapshot data and are not written onto native views. Failed
+reads do not overwrite the previous successful snapshot cache.
+
+Six cases are authored but UNRUN: two renderer cases cover native collections,
+current rich/plain strings, metadata/default level, foreign/replaced/blank views
+and repeat/cycle handling; three UI cases cover capability presence, input
+unwrapping and stable snapshots/root/reader/ID collisions; one mounted hook case
+covers same-root rerenders, root replacement and null clearing. The manual
+fixture displays snapshot items from a bounded Heading subtree and explicitly
+disables click scrolling; its runner records mounting only. Guide/limits,
+public comment, skill, renderer README, display-content recipe AC3/AC5 and
+feature note reconcile the new conditional snapshot subset. ContentDisplayDemo
+remains the portable document-derived composition; it does not prove discovery.
+
+Source/semantic review, ten-file TS/TSRX syntax parsing and whitespace checks
+passed. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/outline-view.macos.test.ts src/outline-view.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/outline-snapshot.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Actual native collection/wrapper identity and tree ordering,
+ref/effect attachment timing, rich contents/levels, renderer bridge/subpath
+availability and clean packaged consumers remain unqualified. Method presence
+is not a native discovery pass. Outline click-to-heading scrolling, scroll spy,
+OS input and VoiceOver remain separate gates/gaps. Source audit snapshots and
+all checkboxes are unchanged; persistent goal active.

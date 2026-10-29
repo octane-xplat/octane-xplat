@@ -155,6 +155,24 @@ VoiceOver heading navigation/announcements and update/removal remain unqualified
 <label accessibilityRole="heading" accessibilityHeadingLevel={3} text="Account" />
 ```
 
+## Heading snapshots for Outline
+
+The private readOutlineHeadings bridge walks native subviews in document order,
+including NSArray collections, and returns renderer-owned label headings as
+{id, label, level}. It reads the current native string for composed rich text,
+ignores unowned/replaced views and stops at each heading owner. This is a
+snapshot without mutation tracking, focus or scrolling. ui/macos checks bridge
+presence before advertising discovery; actual native traversal and packaging
+are unqualified. Use the public hook rather than calling this private channel.
+
+```tsx
+import { useOutlineFromView } from '@octane-xplat/ui/macos'
+export function HeadingCount({ root }: { root: object }) {
+	const items = useOutlineFromView(root)
+	return <label text={`${items.length} headings`} />
+}
+```
+
 ## Apply stylesheets
 
 Inline style declaration strings now normalize before native prop validation,

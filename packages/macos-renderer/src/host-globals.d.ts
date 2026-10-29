@@ -10,6 +10,8 @@ declare global {
 	// Cross-package bridge published by this renderer for AppKit-specific leaves
 	// (hover, popups, menus, sheets) and the VirtualList offset channel.
 	var __xplatAppKit: {
+		/** Renderer-owned heading snapshot; no mutation tracking or navigation proof. */
+		readOutlineHeadings?: (view: object) => { id: string; label: string; level: number }[]
 		/** Image-owned encoded disk bytes plus decoded memory, separate from shared HTTP caching. */
 		imageCache?: {
 			readonly supportsCachePolicy?: boolean

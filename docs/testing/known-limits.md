@@ -425,8 +425,9 @@ if (result === 'unavailable') console.log('Sharing unavailable')
 - **Outline discovery is target-specific** — `useOutlineFromDOM` under
   `@octane-xplat/ui/web` observes live DOM headings; NativeScript's
   `useOutlineFromView` under `@octane-xplat/ui/nativescript` takes a snapshot.
-  The macOS `useOutlineFromView` path currently returns no items because the
-  AppKit bridge does not expose Heading role/level metadata. Check
+  AppKit's `useOutlineFromView` now has a renderer-backed snapshot source path;
+  same-root mutations are not observed, and native/packed qualification is pending.
+  Missing/older renderer bridges still report unsupported. Check
   `getOutlineFromViewCapabilities().isSupported`; use `useOutlineFromMarkdown`,
   `useOutlineFromDoc`, or explicit `items` when it is false. The portable
   derivations are unchanged. — post-0.14.0·desk.

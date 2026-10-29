@@ -30,6 +30,7 @@ export function setLayoutProjectionScale(view: object, scale: ProjectionScale | 
 
 import { normalizeHostStyleProps } from './inline-style.ts'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
+import { readOutlineHeadings } from './outline-headings.ts'
 import {
 	configureGesture,
 	setPressGesture,
@@ -10336,6 +10337,7 @@ function presentSheet(view: NSView, options: PropBag) {
 }
 
 const appKitBridge = (globalThis.__xplatAppKit ??= {})
+appKitBridge.readOutlineHeadings = (view) => readOutlineHeadings(view, (child) => cssNodesByView.get(child as NSView))
 installAppearanceBridge(appKitBridge)
 
 // Stylesheet and appearance changes restyle every live container.

@@ -2026,3 +2026,31 @@ Generic Popover/useLayer standalone roots and Tokenizer's outer unfocusedLayer
 editor remain separate limitations. Native portal/context/commit/geometry,
 scroll/RTL, input/IME/blur/click, nested dismissal/AX and packaging are unqualified.
 See [floating suggestions](../../../../docs/app/search-selection.md#float-appkit-search-suggestions).
+
+
+## AppKit heading snapshots
+
+useOutlineFromView on ui/macos now uses the installed renderer heading reader.
+Check getOutlineFromViewCapabilities: missing/older hosts report unsupported;
+method presence reports snapshot capability without a native runtime pass.
+Pass a native root/ref or ScrollableArea handle. Discovery reads owned Heading
+IDs, current plain/rich labels and levels once per root/reader, recollecting
+only when a render exposes a different root/reader. It does not observe mutable
+contents. Generated unique slugs avoid authored IDs but are not written onto
+views; duplicate authored IDs keep the first. Prefer document-derived items for
+dynamic content. Outline click-to-scroll/scroll spy and native/packed discovery
+remain unqualified or unimplemented; see the content-display guide.
+
+```tsx
+import { useRef } from 'octane'
+import { Heading, Outline, ScrollableArea, type ScrollableAreaHandle } from '@octane-xplat/ui'
+import { useOutlineFromView } from '@octane-xplat/ui/macos'
+export function Guide() {
+	const content = useRef<ScrollableAreaHandle | null>(null)
+	const items = useOutlineFromView(content)
+	return <>
+		<ScrollableArea ref={content} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+		<Outline items={items} hasScrollOnClick={false} />
+	</>
+}
+```

@@ -302,21 +302,39 @@ export function Example() {
 }
 ```
 
-The macOS hook remains available for import consistency, but its capability
-currently reports `isSupported: false` and the hook returns an empty list.
-The AppKit bridge exposes a `Heading` as text without the role and level that
-view discovery needs. Keep the outline data portable by deriving it from the
-same document or by passing explicit items:
+AppKit now has a renderer-backed heading snapshot path. Check its capability:
+older or missing hosts still report unsupported. The hook accepts a native
+root, a ref object, or a ScrollableArea handle. It reads heading IDs, current
+plain/rich text and levels in native view order once after the root is bound,
+and recollects when a render exposes a different root. It does not observe
+later heading mutations. Native discovery and packaged consumers remain
+unqualified; capability presence is not a runtime pass.
 
-```ts
-import { getOutlineFromViewCapabilities } from '@octane-xplat/ui/macos'
-
-export function supportsViewDiscovery() {
-	const { isSupported, mode } = getOutlineFromViewCapabilities()
-
-	return isSupported && mode === 'snapshot'
+```tsx
+import { useRef } from 'octane'
+import { Heading, Outline, ScrollableArea, type ScrollableAreaHandle } from '@octane-xplat/ui'
+import { getOutlineFromViewCapabilities, useOutlineFromView } from '@octane-xplat/ui/macos'
+export function Guide() {
+	const content = useRef<ScrollableAreaHandle | null>(null)
+	const items = useOutlineFromView(content)
+	return <>
+		<ScrollableArea ref={content} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+		{getOutlineFromViewCapabilities().isSupported ? <Outline items={items} hasScrollOnClick={false} /> : null}
+	</>
 }
-// macOS returns false.
+```
+
+Explicit heading IDs are retained. Unnamed headings receive unique slugs;
+generated IDs avoid authored IDs, and repeated authored IDs keep the first
+entry. Generated IDs describe this snapshot and are not written onto native
+views. Use portable document data when content changes independently of the
+root. Outline click-to-scroll and scroll spy are still gaps on AppKit.
+
+```tsx
+import { Heading } from '@octane-xplat/ui'
+export function GuideHeadings() {
+	return <><Heading id="intro" level={1}>Introduction</Heading><Heading id="setup" level={2}>Setup</Heading></>
+}
 ```
 
 Use the same document as the rendered content to keep the portable outline in

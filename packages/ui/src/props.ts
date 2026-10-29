@@ -12412,7 +12412,7 @@ export interface OutlineFromViewCapabilities {
  *  observation) is web-only under `@octane-xplat/ui/web`; `useOutlineFromView`
  *  ships under NativeScript and macOS subpaths. Check
  *  `getOutlineFromViewCapabilities()` before using native-view discovery;
- *  macOS currently reports it unsupported.
+ *  macOS snapshots require the renderer heading-reader bridge.
  *
  * @example
  * ```tsx
