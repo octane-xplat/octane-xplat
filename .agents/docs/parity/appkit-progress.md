@@ -8969,3 +8969,79 @@ the touched-package/dependents filter remains the pre-merge gate. check:docs and
 check:doc-examples are absent here; do not copy shared in-flight tooling or claim
 passes. No dependency/manifest change, native code edit, shared CLI/UI/GTK work,
 audit regeneration, native input, image inspection, new task or subagent occurred.
+
+## AppKit checkbox current activation ownership
+
+Demand remains ordinary forms: maintained sandbox CheckboxInputBasic/Showcase and
+indeterminate examples, plus CheckboxList preferences. Source review at 98d3817b9
+found that Checkbox.macos captured its last-rendered value/blocking/callbacks,
+had no callback claim and no attachment retirement. Rapid local requests before
+render could repeat the same request; held callbacks could use old Field gates
+or act after unmount. This is source evidence, not observed physical input.
+The root CheckboxInput alias already reaches this target leaf via controls.macos;
+no import or renderer prerequisite change was needed.
+
+Checkbox now stores current effective props, separately retains accepted local
+intent before state/application callbacks, and claims each synchronous callback
+before consumer reentry. Held handlers recheck inherited disabled/read-only props
+and attachment. Mixed requests true; later local requests advance from the last
+accepted intent. Controlled requests use the parent's current value, including
+repeated requests when rejected, without replacing the original uncontrolled
+seed. Callback throw propagates and releases the claim without undoing local
+intent, matching the previous write-before-callback behavior. Stable typed host
+ref teardown retires attachment/claim; finally only releases its matching claim.
+The native row and metadata/tooltip/style/accessibility shape are retained.
+
+Six object-driver cases are newly authored, all UNRUN (nine in the leaf case
+file): rapid mixed/local requests before render; callback reentry and independent
+next request; throwing callback release with retained local state; held handlers
+with current inherited gates/controlled callbacks; callback-driven detach and
+retired handlers; controlled rejection and original seed on controlled release.
+These models invoke the actual leaf but cannot prove native ref/event timing.
+No test module/compiler transform was executed.
+
+The existing checkbox-list fixture adds human-operated standalone local/controlled
+choices, disabled/read-only/parent-acceptance gates, attachment/removal controls
+and request history. The original run hook remains direct list-child selection
+only; it does not operate the new controls or prove OS input. No probe was run.
+Guide, Octane reference, recipe appkit-checkbox-metadata AC3 and the existing
+unreleased metadata feature note reconcile the current subset. Local stable tags
+do not contain the target leaf's introducing commit b3620ff, and only the current
+origin branch contains it; no separate stable-fix note or registry audit is claimed.
+The UI README has no checkbox-specific claim to reconcile.
+
+The documented async changeAction/mixed rollback conflict is still open: no
+shared callback type, rollback semantics, other platform leaf, provider context,
+dependency, manifest or React Aria presence entry was changed. The full native
+support goal and all evidence-gated issue checkboxes remain open; this does not
+silently label async saves or broader checkbox parity complete.
+
+Lightweight checks: three TSRX source/test/fixture files and five scoped TSX
+documentation fences parsed; six distinct new/changed local targets/anchors
+resolved; the UI manifest parsed as JSON; focused staged semantic and whitespace
+review passed. Zero tests/compiler transforms were executed. Native tap/key/
+hit testing, ref/teardown/reparent/HMR timing, nested tooltip/control arbitration,
+focus/Tab/VoiceOver/mixed announcements, layout, OS versions, installed consumers
+and visual/pixel behavior remain unqualified.
+
+Exact deferred commands (DO NOT RUN until explicit human verification authorization
+for this task; native resource authorization is not visual-analysis approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/checkbox.macos.mobile.test.tsrx src/checkbox-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/checkbox-list.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit checkbox activation package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+No tests/typegen/typechecks/builds/installs, native operations, OS automation,
+packaging, images/visual analysis, audit regeneration or new task/agent ran.
+check:docs and check:doc-examples remain absent in this worktree snapshot; do not
+copy another task's in-flight tooling or claim those gates passed.

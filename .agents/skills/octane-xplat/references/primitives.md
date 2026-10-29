@@ -957,6 +957,26 @@ export function IncludeArchived() {
 ```
 
 
+AppKit Checkbox now owns current props, latest uncontrolled intent and a
+per-callback claim. Held callbacks recheck current inherited blocking/attachment;
+local requests before render use the previous accepted intent, while controlled
+requests continue from the parent's value. Suppress callback reentry, retire on
+host detach and release claims on consumer throw without undoing local state.
+Do not infer async save support: the boolean callback/mixed rollback conflict
+remains open. Six new object-driver cases and human-operated controls in the
+existing checkbox-list fixture are UNRUN; its run hook still dispatches only the
+original list-child selection. Native events/refs/focus/AX/layout/installed
+qualification remains separate.
+
+```tsx
+import { useState } from 'octane'
+import { CheckboxInput } from '@octane-xplat/ui'
+export function ArchiveFilter() {
+	const [include, setInclude] = useState(false)
+	return <CheckboxInput label="Include archived" value={include} onChange={setInclude} />
+}
+```
+
 ## AppKit busy feedback
 
 Spinner now forwards named sizes, text/node labels, contrast, accessible names,

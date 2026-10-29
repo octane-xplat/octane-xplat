@@ -530,6 +530,24 @@ export function IncludeArchived() {
 }
 ```
 
+AppKit checkbox actions read current inherited disabled/read-only state and
+callbacks. Uncontrolled requests advance from the latest local choice even
+before a render; mixed requests true first. Reentrant calls during onChange and
+held handlers after detachment are ignored. A throwing callback propagates and
+releases ownership; it does not undo the local choice. Controlled parents retain
+authority, including when they reject a request. The six new source cases remain
+unrun; actual native event/ref timing and input are unqualified.
+
+```tsx
+import { useState } from 'octane'
+import { CheckboxInput } from '@octane-xplat/ui'
+
+export function ArchiveFilter() {
+	const [include, setInclude] = useState(false)
+	return <CheckboxInput label="Include archived" value={include} onChange={setInclude} />
+}
+```
+
 ### Save a switch setting on AppKit
 
 Supply `changeAction` to save a toggle after `onChange`. While the action runs,

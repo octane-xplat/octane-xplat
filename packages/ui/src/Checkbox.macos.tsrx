@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useId, useState } from 'octane'
+import { useCallback, useId, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import type { CheckboxProps } from './props'
 import { mergeStyle } from './style-merge'
@@ -16,19 +16,36 @@ export function Checkbox(inputProps: CheckboxProps) @{
 	const indeterminate = resolved === 'indeterminate'
 	const checked = resolved === true
 	const isBlocked = props.isDisabled || props.isReadOnly
+	const localValue = useRef(internal)
+	const latest = useRef(props)
+	latest.current = props
+	const attached = useRef(false), active = useRef<symbol | null>(null)
+	const bind = useCallback((view: NSView | null) => {
+		attached.current = Boolean(view)
+		if (!view) active.current = null
+	}, [])
 	const toggle = () => {
-		if (isBlocked) return
-		const next = indeterminate ? true : !checked
-		if (props.value === undefined) {
-			setInternal(next)
+		const props = latest.current
+		if (!attached.current || props.isDisabled || props.isReadOnly || active.current) return
+		const previous = props.value ?? localValue.current
+		const next = previous === 'indeterminate' ? true : !previous
+		const token = Symbol('checkbox-change')
+		active.current = token
+		try {
+			if (props.value === undefined) {
+				// Retain accepted local intent before callbacks or a later render.
+				localValue.current = next
+				setInternal(next)
+			}
+			props.onChange?.(next)
+		} finally {
+			if (active.current === token) active.current = null
 		}
-
-		props.onChange?.(next)
 	}
 
 	<masonview className={cx('vx-checkbox-field--appkit', props.className)}
 		style={mergeStyle(props.width != null ? { width: props.width } : {}, props.style)}>
-		<masonview id={controlID} testID={props.testID}
+		<masonview id={controlID} ref={bind} testID={props.testID}
 			className={cx('vx-checkbox-row--appkit', checked && 'vx-checkbox--on',
 				props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly',
 				props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`)}

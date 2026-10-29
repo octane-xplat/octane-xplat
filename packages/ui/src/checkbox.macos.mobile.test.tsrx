@@ -73,3 +73,90 @@ it('keeps the controlled display until the parent accepts the requested value', 
 		expect(env.control().props.accessibilityState.checked).toBe(false)
 	} finally { env.root.unmount() }
 })
+
+// Authored object-driver models only; native input and ref timing remain unqualified.
+it('advances rapid held-handler local requests from mixed before a render', () => {
+	const changes: boolean[] = []
+	const env = mount(Checkbox, { defaultValue: 'indeterminate', onChange: (value: boolean) => changes.push(value) })
+	try {
+		const tap = env.control().props.onTap
+		tap(); tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, false, true])
+		expect(env.control().props.accessibilityState.checked).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('claims callbacks before reentry and releases for a later independent request', () => {
+	const changes: boolean[] = []
+	let tap: () => void = () => {}
+	const env = mount(Checkbox, { onChange: (value: boolean) => { changes.push(value); if (changes.length === 1) tap() } })
+	try {
+		tap = env.control().props.onTap
+		tap(); expect(changes).toEqual([true])
+		tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, false])
+		expect(env.control().props.accessibilityState.checked).toBe(false)
+	} finally { env.root.unmount() }
+})
+
+it('propagates consumer failure while retaining local intent and releasing ownership', () => {
+	const changes: boolean[] = []
+	let fail = true
+	const env = mount(Checkbox, { onChange: (value: boolean) => { changes.push(value); if (fail) throw Error('consumer failure') } })
+	try {
+		const tap = env.control().props.onTap
+		expect(tap).toThrow('consumer failure')
+		fail = false; tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, false])
+		expect(env.control().props.accessibilityState.checked).toBe(false)
+	} finally { env.root.unmount() }
+})
+
+it('held callbacks read current inherited gates and the current controlled callback', () => {
+	const old: boolean[] = [], current: boolean[] = []
+	function Parent(props: any) {
+		return <FormField inputID="current-check" isDisabled={props.disabled} isReadOnly={props.readonly}>
+			<Checkbox value={props.value} onChange={props.change} />
+		</FormField>
+	}
+	const env = mount(Parent, { value: false, change: (value: boolean) => old.push(value) })
+	try {
+		const host = env.control(), tap = host.props.onTap
+		for (const blocked of [{ disabled: true }, { readonly: true }]) {
+			env.render({ ...blocked, value: true, change: (value: boolean) => current.push(value) })
+			tap()
+		}
+		expect(old).toEqual([]); expect(current).toEqual([])
+		env.render({ value: true, change: (value: boolean) => current.push(value) })
+		tap(); flushUniversalSync(() => {})
+		expect(env.control()).toBe(host); expect(current).toEqual([false]); expect(old).toEqual([])
+		expect(host.props.accessibilityState.checked).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('retires held callbacks when a consumer detaches the control', () => {
+	const changes: boolean[] = []
+	let remove = () => {}
+	const env = mount(Checkbox, { onChange: (value: boolean) => { changes.push(value); remove() } })
+	try {
+		const tap = env.control().props.onTap
+		remove = () => env.root.unmount()
+		tap(); tap()
+		expect(changes).toEqual([true])
+	} finally { env.root.unmount() }
+})
+
+it('keeps controlled rejection authoritative and retains the original local seed on release', () => {
+	const changes: boolean[] = [], change = (value: boolean) => changes.push(value)
+	const env = mount(Checkbox, { value: false, defaultValue: 'indeterminate', onChange: change })
+	try {
+		const tap = env.control().props.onTap
+		tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, true]); expect(env.control().props.accessibilityState.checked).toBe(false)
+		env.render({ defaultValue: false, onChange: change })
+		expect(env.control().props.accessibilityState.checked).toBe('mixed')
+		tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, true, true, false])
+		expect(env.control().props.accessibilityState.checked).toBe(false)
+	} finally { env.root.unmount() }
+})
