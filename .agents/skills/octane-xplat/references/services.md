@@ -640,6 +640,22 @@ export function GestureArea() {
 }
 ```
 
+Windows pan uses the pinned Core pointer owner: one initiating contact,
+cumulative logical-DIP deltas, capture-loss cancellation and zero velocity.
+Packaged x64 mouse checks cover the shared Slider's numeric pointer path; they
+do not qualify touch, pen, swipe or the full Slider contract. Keep pointer
+subscriptions in Core's shared event owner; the preview's direct routed
+`AddHandler` projection still rejects with `E_NOINTERFACE`. See the
+[Windows mouse-dragging boundary](../../../../docs/platform/windows-setup.md#mouse-dragging).
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+export function MouseDrag() {
+  return <View onPan={({ state, dx, dy }) => console.log(state, dx, dy)} />
+}
+```
+
 ## Locate the owning package
 
 Read [navigation](navigation.md) and [overlays](overlays.md) for UI ownership. App-owned twins include `nav`,

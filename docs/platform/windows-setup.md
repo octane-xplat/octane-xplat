@@ -168,6 +168,31 @@ The complete field/prop contract, grouping announcements, screen-reader and
 visual parity, other Windows versions/architectures and downstream consumers
 remain unqualified.
 
+## Mouse dragging
+
+The experimental Windows target delivers `onPan` while a mouse button is held.
+`dx` and `dy` measure the total movement since the press in logical pixels;
+`state` identifies the start, movement, end or cancellation. Try dragging across
+this area and watch the values in the console:
+
+```tsx
+import { View, Text } from '@octane-xplat/ui'
+
+export function DragArea() {
+  return <View onPan={({ state, dx, dy }) => console.log(state, dx, dy)}>
+    <Text>Drag here</Text>
+  </View>
+}
+```
+
+Bounded packaged x64 checks cover mouse movement beyond the control's bounds,
+release, loss of pointer capture, recovery on the next drag, and the existing
+Slider's controlled numeric drag. Windows reports zero pan velocity. Hardware
+touch, pen, multiple contacts, swipe, screen-reader and visual parity remain
+unqualified. Slider keyboard, range, field-state and full prop support require
+separate qualification; the native-engine probe does not establish those
+public Slider capabilities.
+
 ## Floating-layer candidate
 
 Windows `useLayer` selects the NativeScript popup implementation. Put its trigger

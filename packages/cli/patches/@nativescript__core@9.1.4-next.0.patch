@@ -671,10 +671,10 @@ index bf1d68d4b7c014d2bc129ca6cea0bc26c722ea9f..cbb3c5109305730bc3ad82513be86794
      private _onPointerPressed;
      private _onPointerMoved;
 diff --git a/ui/gestures/index.windows.js b/ui/gestures/index.windows.js
-index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3b6ebf93e 100644
+index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..a67e1174b1b7ed9dcc1f970e69d56db42e254693 100644
 --- a/ui/gestures/index.windows.js
 +++ b/ui/gestures/index.windows.js
-@@ -3,6 +3,7 @@ export * from './gestures-types';
+@@ -3,6 +3,7 @@
  export * from './touch-manager';
  import { GesturesObserverBase, GestureTypes, GestureEvents, GestureStateTypes, toString } from './gestures-common';
  import * as timer from '../../timer';
@@ -682,7 +682,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
  // Per-view hover tracking to enable CSS :hover pseudo-class.
  const _hoverViews = new WeakSet();
  let _routedEvents;
-@@ -19,8 +20,10 @@ function routedEvents() {
+@@ -19,8 +20,10 @@
                  rightTapped: UIElement.RightTappedEvent,
                  entered: UIElement.PointerEnteredEvent,
                  exited: UIElement.PointerExitedEvent,
@@ -694,7 +694,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
          }
          catch (_e) {
              _routedEvents = null;
-@@ -28,82 +31,62 @@ function routedEvents() {
+@@ -28,82 +31,62 @@
      }
      return _routedEvents;
  }
@@ -704,9 +704,6 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -        return;
 -    const onEnter = () => {
 -        if (_hoverViews.has(view))
--            return;
--        _hoverViews.add(view);
--        try {
 +// Hover belongs to the view, not whichever observer happened to attach last.
 +const hoverOwners = new WeakMap();
 +function _attachHoverHandlers(view, native) {
@@ -721,36 +718,68 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 +            if (_hoverViews.has(view) || view.isEnabled === false)
 +                return;
 +            _hoverViews.add(view);
-             view._addVisualState?.('hover');
--        }
--        catch (_e) { }
--        try {
--            view.notify?.({ eventName: 'mouseEnter', object: view });
--        }
--        catch (_e) { }
--    };
--    const onLeave = () => {
--        if (!_hoverViews.has(view))
--            return;
--        _hoverViews.delete(view);
--        try {
++            view._addVisualState?.('hover');
 +            view.notify({ eventName: 'mouseEnter', object: view });
 +        };
 +        const onLeave = () => {
 +            if (!_hoverViews.has(view))
 +                return;
 +            _hoverViews.delete(view);
-             view._removeVisualState?.('hover');
--        }
--        catch (_e) { }
++            view._removeVisualState?.('hover');
 +            view.notify({ eventName: 'mouseLeave', object: view });
 +        };
 +        const entered = subscribeNativeEvent(native, 'PointerEntered', onEnter, routedEvents()?.entered, _wrapPointerHandler);
 +        let exited;
-         try {
--            view.notify?.({ eventName: 'mouseLeave', object: view });
++        try {
 +            exited = subscribeNativeEvent(native, 'PointerExited', onLeave, routedEvents()?.exited, _wrapPointerHandler);
-         }
++        }
++        catch (error) {
++            entered();
++            throw error;
++        }
++        owner = { count: 0, native, dispose: () => {
++                try {
++                    entered();
++                }
++                finally {
++                    exited();
++                }
++                onLeave();
++            } };
++        hoverOwners.set(view, owner);
++    }
++    owner.count++;
++    const retained = owner;
++    let disposed = false;
++    return () => {
++        if (disposed)
+             return;
+-        _hoverViews.add(view);
+-        try {
+-            view._addVisualState?.('hover');
+-        }
+-        catch (_e) { }
+-        try {
+-            view.notify?.({ eventName: 'mouseEnter', object: view });
+-        }
+-        catch (_e) { }
++        disposed = true;
++        if (--retained.count === 0 && hoverOwners.get(view) === retained) {
++            hoverOwners.delete(view);
++            retained.dispose();
++        }
+     };
+-    const onLeave = () => {
+-        if (!_hoverViews.has(view))
+-            return;
+-        _hoverViews.delete(view);
+-        try {
+-            view._removeVisualState?.('hover');
+-        }
+-        catch (_e) { }
+-        try {
+-            view.notify?.({ eventName: 'mouseLeave', object: view });
+-        }
 -        catch (_e) { }
 -    };
 -    const enterDelegate = _wrapPointerHandler(onEnter);
@@ -768,22 +797,9 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -        try {
 -            _assignPointerHandler(native, 'PointerEntered', enterDelegate);
 -            _assignPointerHandler(native, 'PointerExited', leaveDelegate);
-+        catch (error) {
-+            entered();
-+            throw error;
-         }
+-        }
 -        catch (_e2) { }
-+        owner = { count: 0, native, dispose: () => {
-+                try {
-+                    entered();
-+                }
-+                finally {
-+                    exited();
-+                }
-+                onLeave();
-+            } };
-+        hoverOwners.set(view, owner);
-     }
+-    }
 -    native.__ns_hover_attached = true;
 -    native.__ns_hover_using_add_handler = usingAddHandler;
 -    native.__ns_hover_enter_fn = onEnter;
@@ -802,17 +818,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -                native.RemoveHandler(events.entered, native.__ns_hover_enter_delegate);
 -            if (native.__ns_hover_leave_delegate)
 -                native.RemoveHandler(events.exited, native.__ns_hover_leave_delegate);
-+    owner.count++;
-+    const retained = owner;
-+    let disposed = false;
-+    return () => {
-+        if (disposed)
-+            return;
-+        disposed = true;
-+        if (--retained.count === 0 && hoverOwners.get(view) === retained) {
-+            hoverOwners.delete(view);
-+            retained.dispose();
-         }
+-        }
 -        catch (_e) { }
 -    }
 -    native.__ns_hover_attached = false;
@@ -822,33 +828,35 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -    native.__ns_hover_enter_delegate = null;
 -    native.__ns_hover_leave_delegate = null;
 -    _hoverViews.delete(view);
-+    };
  }
  /** Returns true if the view is currently in a hover state (mouse over). */
  export function isHovered(view) {
-@@ -118,12 +101,6 @@ function _wrapPointerHandler(fn) {
+@@ -117,12 +100,6 @@
+ }
  function _wrapRightTappedHandler(fn) {
      return NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.RightTappedEventHandler', fn);
- }
+-}
 -function _assignPointerHandler(native, prop, del) {
 -    native[prop] = del;
 -}
 -function _assignRightTappedHandler(native, del) {
 -    native.RightTapped = del;
--}
+ }
  function _executeCallback(observer, args) {
      if (observer && observer.callback) {
-         observer.callback.call(observer.context, args);
-@@ -176,7 +153,7 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -176,8 +153,10 @@
          super(...arguments);
          this._onTargetLoaded = null;
          this._onTargetUnloaded = null;
 -        this._usingAddHandler = false;
 +        this._disposers = [];
          this._pointerDownMap = new Map();
++        this._panPointerId = null;
++        this._panCapture = null;
          this._lastUpTime = 0;
          this._longPressTimeouts = new Map();
-@@ -196,14 +173,6 @@ export class GesturesObserver extends GesturesObserverBase {
+     }
+@@ -196,14 +175,6 @@
      }
      disconnect() {
          this._detach();
@@ -863,7 +871,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
          if (this.target) {
              if (this._onTargetLoaded) {
                  this.target.off('loaded', this._onTargetLoaded);
-@@ -217,40 +186,17 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -217,40 +188,19 @@
          super.disconnect();
      }
      _detach() {
@@ -890,18 +898,22 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -                    native.PointerReleased = null;
 -                    native.RightTapped = null;
 -                }
-+        for (const dispose of this._disposers.splice(0).reverse()) {
-+            try {
-+                dispose();
-             }
-+            catch (_) { }
-         }
+-            }
+-        }
 -        catch (_e) { }
 -        if (this.target) {
 -            _detachHoverHandlers(this.target);
 -        }
 -        this._usingAddHandler = false;
++        for (const dispose of this._disposers.splice(0).reverse()) {
++            try {
++                dispose();
++            }
++            catch (_) { }
++        }
          this._pointerDownMap.clear();
++        this._panPointerId = null;
++        this._releasePanCapture();
 +        this._lastUpTime = 0;
          this._longPressTimeouts.forEach((id) => timer.clearTimeout(id));
          this._longPressTimeouts.clear();
@@ -910,7 +922,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
              timer.clearTimeout(this._tapTimeoutId);
              this._tapTimeoutId = null;
          }
-@@ -258,73 +204,59 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -258,73 +208,87 @@
      _attach(target, type) {
          this._detach();
          const native = target.nativeViewProtected;
@@ -934,11 +946,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -        // Use AddHandler with handledEventsToo=true so events fire even when Button (and other
 -        // controls) mark pointer events as handled internally.
 -        this._usingAddHandler = false;
-+        const events = routedEvents();
-+        const subscribe = (name, event, callback, wrap = _wrapPointerHandler) => {
-+            this._disposers.push(subscribeNativeEvent(native, name, (sender, args) => callback(args || sender), event, wrap));
-+        };
-         try {
+-        try {
 -            const events = routedEvents();
 -            if (!events)
 -                throw new Error('RoutedEvent statics unavailable');
@@ -947,22 +955,33 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -                native.AddHandler(events.moved, this._pointerMovedDelegate, true);
 -            native.AddHandler(events.released, this._pointerReleasedDelegate, true);
 -            this._usingAddHandler = true;
-+            subscribe('PointerPressed', events?.pressed, (args) => this._onPointerPressed(args));
-+            subscribe('PointerMoved', events?.moved, (args) => this._onPointerMoved(args));
-+            subscribe('PointerReleased', events?.released, (args) => this._onPointerReleased(args));
-+            subscribe('PointerCanceled', events?.canceled, (args) => this._onPointerCanceled(args));
-+            subscribe('PointerCaptureLost', events?.captureLost, (args) => this._onPointerCanceled(args));
-+            if (type === GestureTypes.longPress) {
-+                subscribe('RightTapped', events?.rightTapped, (args) => this._onRightTapped(args), _wrapRightTappedHandler);
-+            }
-+            this._disposers.push(_attachHoverHandlers(target, native));
-         }
+-        }
 -        catch (_e) {
 -            // Fallback: plain property assignment (only one handler per event, can be overwritten).
 -            _assignPointerHandler(native, 'PointerPressed', this._pointerPressedDelegate);
 -            if (wantsMoves)
 -                _assignPointerHandler(native, 'PointerMoved', this._pointerMovedDelegate);
 -            _assignPointerHandler(native, 'PointerReleased', this._pointerReleasedDelegate);
++        const events = routedEvents();
++        const subscribe = (name, event, callback, wrap = _wrapPointerHandler) => {
++            this._disposers.push(subscribeNativeEvent(native, name, (sender, args) => callback(args || sender), event, wrap));
++        };
++        try {
++            subscribe('PointerPressed', events?.pressed, (args) => this._onPointerPressed(args));
++            subscribe('PointerMoved', events?.moved, (args) => this._onPointerMoved(args));
++            subscribe('PointerReleased', events?.released, (args) => this._onPointerReleased(args));
++            subscribe('PointerCanceled', events?.canceled, (args) => this._onPointerCanceled(args));
++            subscribe('PointerCaptureLost', events?.captureLost, (args) => this._onPointerCanceled(args));
++            if (type === GestureTypes.pan) {
++                subscribe('PointerExited', events?.exited, (args) => {
++                    if (!this._panCapture) this._onPointerCanceled(args);
++                });
++            }
++            if (type === GestureTypes.longPress) {
++                subscribe('RightTapped', events?.rightTapped, (args) => this._onRightTapped(args), _wrapRightTappedHandler);
++            }
++            this._disposers.push(_attachHoverHandlers(target, native));
++        }
 +        catch (error) {
 +            this._detach();
 +            throw error;
@@ -983,11 +1002,40 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 -                else {
 -                    _assignRightTappedHandler(native, this._rightTappedDelegate);
 -                }
+-            }
+-            catch (_e) { }
+-        }
+-        // Always attach hover handlers for CSS :hover and mouseEnter/mouseLeave events.
+-        _attachHoverHandlers(target);
+-        target.notify({
+-            eventName: GestureEvents.gestureAttached,
+-            object: target,
+-            type: type,
+-            view: target,
+-            windows: native,
 +        target.notify({ eventName: GestureEvents.gestureAttached, object: target, type, view: target, windows: native });
++    }
++    _releasePanCapture() {
++        const capture = this._panCapture;
++        this._panCapture = null;
++        try {
++            capture?.native.ReleasePointerCapture(capture.pointer);
++        }
++        catch (_e) { }
++    }
++    _emitPan(e, state, point, start) {
++        start.lastX = point.x;
++        start.lastY = point.y;
++        _executeCallback(this, {
++            type: GestureTypes.pan, view: this.target, object: this.target, windows: e,
++            eventName: toString(GestureTypes.pan), state,
++            deltaX: point.x - start.x, deltaY: point.y - start.y,
+         });
 +    }
 +    _onPointerCanceled(e) {
 +        try {
 +            const id = extractPointerId(e);
++            const start = this._pointerDownMap.get(id);
 +            if (!this._pointerDownMap.delete(id))
 +                return;
 +            const timeout = this._longPressTimeouts.get(id);
@@ -995,6 +1043,11 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 +                timer.clearTimeout(timeout);
 +            this._longPressTimeouts.delete(id);
 +            this._lastUpTime = 0;
++            if (this.type === GestureTypes.pan && this._panPointerId === id) {
++                this._panPointerId = null;
++                this._releasePanCapture();
++                this._emitPan(e, GestureStateTypes.cancelled, { x: start.lastX, y: start.lastY }, start);
++            }
 +            if (this.type === GestureTypes.touch) {
 +                const relativeTo = this.target?.nativeViewProtected;
 +                const point = extractPoint(e, relativeTo);
@@ -1004,18 +1057,8 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 +                    getPointerCount: () => 1, getActivePointers: () => [new WindowsPointer(id, e, relativeTo)],
 +                    getAllPointers: () => [new WindowsPointer(id, e, relativeTo)], getX: () => point.x, getY: () => point.y,
 +                });
-             }
--            catch (_e) { }
-         }
--        // Always attach hover handlers for CSS :hover and mouseEnter/mouseLeave events.
--        _attachHoverHandlers(target);
--        target.notify({
--            eventName: GestureEvents.gestureAttached,
--            object: target,
--            type: type,
--            view: target,
--            windows: native,
--        });
++            }
++        }
 +        catch (_e) { }
      }
      androidOnTouchEvent(_motionEvent) { }
@@ -1025,8 +1068,25 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
          try {
              const relativeTo = this.target?.nativeViewProtected ?? null;
              const id = extractPointerId(e);
-@@ -336,6 +268,9 @@ export class GesturesObserver extends GesturesObserverBase {
-             this._pointerDownMap.set(id, { x: pt.x, y: pt.y, t: Date.now(), nativeTs });
+@@ -333,9 +297,25 @@
+             // If V8 is busy when PointerReleased arrives, Date.now() will be inflated by the
+             // scheduling delay: the WinRT timestamp is immune to this and gives the real gesture duration.
+             const nativeTs = typeof e?.Timestamp === 'number' ? e.Timestamp : null;
+-            this._pointerDownMap.set(id, { x: pt.x, y: pt.y, t: Date.now(), nativeTs });
++            if (this.type === GestureTypes.pan && this._panPointerId != null)
++                return; // Keep one initiating contact; other gesture observers retain their pointers.
++            const start = { x: pt.x, y: pt.y, lastX: pt.x, lastY: pt.y, t: Date.now(), nativeTs };
++            this._pointerDownMap.set(id, start);
++            if (this.type === GestureTypes.pan) {
++                this._panPointerId = id;
++                try {
++                    if (relativeTo?.CapturePointer(e.Pointer))
++                        this._panCapture = { native: relativeTo, pointer: e.Pointer };
++                }
++                catch (_e) { }
++                this._emitPan(e, GestureStateTypes.began, pt, start);
++                return;
++            }
              if (this.type === GestureTypes.longPress) {
                  const timeoutId = timer.setTimeout(() => {
 +                    this._longPressTimeouts.delete(id);
@@ -1035,7 +1095,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
                      const args = {
                          type: GestureTypes.longPress,
                          view: this.target,
-@@ -352,6 +287,7 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -352,6 +332,7 @@
                  const args = {
                      type: GestureTypes.touch,
                      view: this.target,
@@ -1043,13 +1103,28 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
                      ios: undefined,
                      android: undefined,
                      object: this.target,
-@@ -376,10 +312,20 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -370,16 +351,35 @@
+     }
+     _onPointerMoved(e) {
+         try {
++            if (this.type === GestureTypes.pan && this.target?.isEnabled === false) {
++                this._onPointerCanceled(e);
++                return;
++            }
+             if (!e?.Pointer?.IsInContact) {
+                 return;
+             }
              const relativeTo = this.target?.nativeViewProtected ?? null;
              const id = extractPointerId(e);
              const pt = extractPoint(e, relativeTo);
 +            const start = this._pointerDownMap.get(id);
 +            if (!start)
 +                return;
++            if (this.type === GestureTypes.pan) {
++                if (this._panPointerId === id && (pt.x !== start.lastX || pt.y !== start.lastY))
++                    this._emitPan(e, GestureStateTypes.changed, pt, start);
++                return;
++            }
 +            if (Math.hypot(pt.x - start.x, pt.y - start.y) >= TAP_SLOP) {
 +                const timeout = this._longPressTimeouts.get(id);
 +                if (timeout != null)
@@ -1064,7 +1139,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
                      ios: undefined,
                      android: undefined,
                      object: this.target,
-@@ -402,6 +348,12 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -402,6 +402,23 @@
              const id = extractPointerId(e);
              const pt = extractPoint(e, relativeTo);
              const start = this._pointerDownMap.get(id);
@@ -1074,10 +1149,21 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 +                this._onPointerCanceled(e);
 +                return;
 +            }
++            if (this.type === GestureTypes.pan && this._panPointerId === id) {
++                this._pointerDownMap.delete(id);
++                this._panPointerId = null;
++                // WinUI releases capture after PointerReleased. Let sibling touch observers
++                // receive their up event before the platform's ensuing CaptureLost event.
++                this._panCapture = null;
++                if (pt.x !== start.lastX || pt.y !== start.lastY)
++                    this._emitPan(e, GestureStateTypes.changed, pt, start);
++                this._emitPan(e, GestureStateTypes.ended, pt, start);
++                return;
++            }
              const now = Date.now();
              // Use WinRT hardware timestamps when available so the tap-duration check reflects the actual
              // gesture time, not V8 scheduling latency. When JS is busy (e.g. processing a navigation),
-@@ -432,56 +384,39 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -432,56 +449,39 @@
                  };
                  _executeCallback(this, args);
              }
@@ -1162,7 +1248,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
                      }
                  }
              }
-@@ -490,6 +425,8 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -490,6 +490,8 @@
          catch (_e) { }
      }
      _onRightTapped(e) {
@@ -1171,7 +1257,7 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
          try {
              const relativeTo = this.target?.nativeViewProtected ?? null;
              const pt = extractPoint(e, relativeTo);
-@@ -513,4 +450,3 @@ export function observe(target, type, callback, context) {
+@@ -513,4 +515,3 @@
      observer.observe(type);
      return observer;
  }

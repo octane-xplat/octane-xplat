@@ -15,7 +15,7 @@ const gestureFile = coreFile('ui/gestures/index.windows.js')
 const pointerFile = coreFile('ui/gestures/pointer-events.windows.js')
 const pointerSource = readFileSync(pointerFile, 'utf8').replace(/^export /gm, '')
 const subscribeNativeEvent = vm.runInNewContext(pointerSource + '\nsubscribeNativeEvent;')
-const types = { tap: 1, doubleTap: 2, longPress: 64, touch: 128 }
+const types = { tap: 1, doubleTap: 2, longPress: 64, touch: 128, pan: 8 }
 function setup() {
 	const timers = new Map()
 	let nextTimer = 0
@@ -31,6 +31,19 @@ function setup() {
 
 	const native = {
 		Background: null,
+		captures: 0,
+		releases: 0,
+		captured: null,
+		CapturePointer(pointer) {
+			this.captures++
+			this.captured = pointer
+			return true
+		},
+		ReleasePointerCapture(pointer) {
+			this.releases++
+			this.captured = null
+			this.PointerCaptureLost?.(this, { Pointer: pointer })
+		},
 		AddHandler() {
 			throw new Error('E_NOINTERFACE')
 		},
@@ -77,7 +90,7 @@ function setup() {
 		GesturesObserverBase: Base,
 		GestureTypes: types,
 		GestureEvents: { gestureAttached: 'attached' },
-		GestureStateTypes: { began: 1, ended: 3 },
+		GestureStateTypes: { cancelled: 0, began: 1, changed: 2, ended: 3 },
 		toString: (t) => String(t),
 		timer: {
 			setTimeout(fn) {
@@ -125,12 +138,17 @@ function setup() {
 		return observer
 	}
 
-	const emit = (name, x = 0, inContact = true) => {
-		native[name]?.(native, {
-			Pointer: { PointerId: 1, IsInContact: inContact },
+	const emit = (name, x = 0, inContact = true, options = {}) => {
+		const event = {
+			Pointer: { PointerId: options.id ?? 1, IsInContact: inContact },
 			Timestamp: name === 'PointerReleased' ? 110000 : 100000,
-			GetCurrentPoint: () => ({ Position: { X: x, Y: 0 } }),
-		})
+			GetCurrentPoint: () => ({ Position: { X: x, Y: options.y ?? 0 } }),
+		}
+		native[name]?.(native, event)
+		if (name === 'PointerReleased' && native.captured?.PointerId === event.Pointer.PointerId) {
+			native.captured = null
+			native.PointerCaptureLost?.(native, event)
+		}
 	}
 
 	const lifecycle = (name) => (events.get(name) || []).slice().forEach((fn) => fn())
@@ -484,4 +502,146 @@ test('known E_NOINTERFACE rejection safely uses fallback even when RemoveHandler
 	native.PointerPressed()
 	assert.deepEqual(calls, [1])
 	dispose()
+})
+
+test('pan emits cumulative DIP deltas through the installed pointer owner without replacing touch', () => {
+	const s = setup()
+	const pan = []
+	const touch = []
+	s.add(types.pan, (args) => pan.push([args.state, args.deltaX, args.deltaY, args.eventName]))
+	s.add(types.touch, (args) => touch.push([args.action, args.getX(), args.getY()]))
+	s.emit('PointerPressed', 40, true, { y: 20 })
+	s.emit('PointerMoved', 55, true, { y: 24 })
+	s.emit('PointerMoved', 55, true, { y: 24 })
+	s.emit('PointerReleased', 60, false, { y: 30 })
+	assert.deepEqual(pan, [
+		[1, 0, 0, '8'],
+		[2, 15, 4, '8'],
+		[2, 20, 10, '8'],
+		[3, 20, 10, '8'],
+	])
+	assert.deepEqual(touch, [
+		['down', 40, 20],
+		['move', 55, 24],
+		['move', 55, 24],
+		['up', 60, 30],
+	])
+	assert.equal(s.native.captures, 1)
+	assert.equal(s.native.releases, 0)
+	assert.equal(s.native.captured, null)
+})
+
+test('pan hover and stationary press do not manufacture a changed delta', () => {
+	const s = setup()
+	const calls = []
+	s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
+	s.emit('PointerMoved', 50, false)
+	s.emit('PointerPressed', 30)
+	s.emit('PointerMoved', 30)
+	s.emit('PointerReleased', 30, false)
+	assert.deepEqual(calls, [
+		[1, 0],
+		[3, 0],
+	])
+})
+
+test('pan capture loss and cancellation terminate once with the last delivered delta', () => {
+	for (const terminal of ['PointerCanceled', 'PointerCaptureLost']) {
+		const s = setup()
+		const calls = []
+		s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
+		s.emit('PointerPressed', 10)
+		s.emit('PointerMoved', 25)
+		s.emit(terminal, 25, false)
+		s.emit('PointerReleased', 30, false)
+		assert.deepEqual(calls, [
+			[1, 0],
+			[2, 15],
+			[0, 15],
+		])
+
+		assert.equal(s.native.releases, 1)
+		assert.equal(s.native.captured, null)
+	}
+})
+
+test('pan disabled during contact cancels before forwarding another move', () => {
+	const s = setup()
+	const calls = []
+	s.add(types.pan, (args) => calls.push(args.state))
+	s.emit('PointerPressed', 10)
+	s.target.isEnabled = false
+	s.emit('PointerMoved', 30)
+	s.emit('PointerReleased', 30, false)
+	assert.deepEqual(calls, [1, 0])
+	assert.equal(s.native.captured, null)
+	s.target.isEnabled = true
+	s.emit('PointerPressed', 50)
+	s.emit('PointerReleased', 50, false)
+	assert.deepEqual(calls, [1, 0, 1, 3])
+})
+
+test('pan disconnect and native unload release owned capture and leave no stale callbacks', () => {
+	for (const action of ['disconnect', 'unloaded']) {
+		const s = setup()
+		const calls = []
+		const observer = s.add(types.pan, (args) => calls.push(args.state))
+		s.emit('PointerPressed', 10)
+		if (action === 'disconnect') {
+			observer.disconnect()
+		} else {
+			s.lifecycle('unloaded')
+		}
+
+		assert.equal(s.native.captured, null)
+		assert.equal(s.native.releases, 1)
+		s.emit('PointerMoved', 30)
+		s.emit('PointerReleased', 30, false)
+		assert.deepEqual(calls, [1])
+		if (action === 'unloaded') {
+			s.lifecycle('loaded')
+			s.emit('PointerPressed', 50)
+			s.emit('PointerReleased', 50, false)
+			assert.deepEqual(calls, [1, 1, 3])
+		}
+	}
+})
+
+test('pan keeps the initiating contact until its terminal event', () => {
+	const s = setup()
+	const calls = []
+	s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
+	s.emit('PointerPressed', 10, true, { id: 1 })
+	s.emit('PointerPressed', 100, true, { id: 2 })
+	s.emit('PointerMoved', 130, true, { id: 2 })
+	s.emit('PointerReleased', 140, false, { id: 2 })
+	s.emit('PointerMoved', 30, true, { id: 1 })
+	s.emit('PointerReleased', 30, false, { id: 1 })
+	assert.deepEqual(calls, [
+		[1, 0],
+		[2, 20],
+		[3, 20],
+	])
+	assert.equal(s.native.captures, 1)
+})
+
+test('pan without capture cancels on exit and permits the next contact', () => {
+	const s = setup()
+	const calls = []
+	s.native.CapturePointer = () => false
+	s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
+	s.emit('PointerPressed', 10)
+	s.emit('PointerMoved', 25)
+	s.emit('PointerExited', 40)
+	s.emit('PointerReleased', 40, false)
+	s.emit('PointerPressed', 50)
+	s.emit('PointerReleased', 50, false)
+	assert.deepEqual(calls, [
+		[1, 0],
+		[2, 15],
+		[0, 15],
+		[1, 0],
+		[3, 0],
+	])
+	assert.equal(s.native.releases, 0)
 })

@@ -313,7 +313,9 @@ patchedDependencies:
   # this patch targets the commit-pinned preview with that version. Uses the explicit
   # NSWinRT.dotnet.invoke bridge for synchronous existence, recursive directory creation,
   # and nontruncating OpenOrCreate file creation, preserving Core's System import shim.
-  # Existence projection failures are not treated as missing paths.
+  # Existence projection failures are not treated as missing paths. Adds Windows
+  # single-contact pan with cumulative logical-DIP deltas, owned pointer capture,
+  # cancellation, and cleanup while retaining sibling touch delivery.
   "@nativescript/core@9.1.4-next.0": packages/cli/patches/@nativescript__core@9.1.4-next.0.patch
   # Enables `resolveHiddenExtensions` on the language plugin's typescript facet so
   # extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required

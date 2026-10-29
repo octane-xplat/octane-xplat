@@ -14,7 +14,7 @@ tests are retained in [the source patch](../patches/windows-pointer-core.patch).
 There is no remote fork, push, or upstream PR.
 
 The compiled runtime/declaration changes extend the existing canonical
-`@nativescript/core@9.1.3-next.2` patch. Its prior CSS, frame/tab, and measurement
+Windows preview Core patch (now `@nativescript/core@9.1.4-next.0`). Its prior CSS, frame/tab, and measurement
 fixes remain included. The config package copy and lockfile must stay in sync.
 Shared UI code has no workaround or new dependency.
 
@@ -114,3 +114,36 @@ helper, prepares the stable public smoke bundle, and checks the live process.
 Both restorations verified the original gesture SHA256. After the final batch,
 stable smoke prepared successfully and the public-root process remained
 responsive.
+
+## Cumulative Windows pan and owned capture
+
+The current canonical Windows preview patch adds single-contact pan. The
+initiating press emits `began`; changed coordinates emit cumulative logical-DIP
+translation; release emits a final changed sample if needed, then `ended`.
+Capture loss or cancellation terminates once with the last delivered delta.
+Disconnect and unload release owned capture and detach callbacks. A failed
+capture cancels on pointer exit instead of retaining a stuck gesture. Sibling
+touch observers retain their coordinates and release event.
+
+WinUI normally releases capture after `PointerReleased`. The pan observer leaves
+that release to WinUI so a synchronous capture-loss callback cannot consume a
+sibling observer's pending touch-up. This follows Microsoft's
+[pointer capture lifecycle](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.uielement.capturepointer?view=windows-app-sdk-1.6).
+
+Twenty-six maintained mocked-bridge contracts pass through an uncached focused
+Turbo task. The owned installed source built into MSIX `1.0.0.26` passes13/13
+nonvisual OS-input groups on Windows `10.0.26200.0`, WinAppSDK
+`1.6.250205002`, x64. That includes cumulative mouse deltas, out-of-bounds
+capture, cancellation/recovery and the real shared Slider's controlled numeric
+pointer path. Native Slider keyboard and RangeValue checks are separate engine
+feasibility evidence, not public Slider support. Detailed artifacts, prior
+failures, package-patch round-trip checks and deferred commands are in the
+[target progress note](parity/windows-support-progress.md#v26-qualifies-windows-mouse-pan-and-slider-engine-prerequisites).
+
+The three earlier source commits and source patch above remain historical.
+The current distributed repair lives in
+`packages/cli/patches/@nativescript__core@9.1.4-next.0.patch`; its generated copy,
+manifest and lock hash are synchronized. No native runtime DLL changed.
+Hardware touch/pen, multitouch, velocity, swipe, successful routed AddHandler
+projection, downstream installation and the wider component matrix remain
+unqualified.

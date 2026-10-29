@@ -15,6 +15,9 @@ CheckboxInput15/15 regression groups. The latest
 [CheckboxInput](#v20-qualifies-common-checkboxinput-flows) sections retain exact
 artifacts, failed predecessors and limits. Full Windows support and the broader
 component rows remain unqualified.
+V26 additionally passes13/13 bounded mouse-pan and native Slider engine groups;
+see the [pan prerequisite qualification](#v26-qualifies-windows-mouse-pan-and-slider-engine-prerequisites).
+The public Slider numeric pointer path passed; its broader API remains pending.
 
 ## Priorities and evidence boundary
 
@@ -2725,3 +2728,131 @@ pnpm check:changelog
 The persistent Windows goal remains active; bounded common-flow support is not
 full platform qualification. All owned build/input/source reservations were released. No push or merge is
 authorized or performed.
+
+## V26 qualifies Windows mouse pan and Slider engine prerequisites
+
+Demand assumption: `packages/demos/src/ControlsDemo.tsrx` uses a controlled
+numeric Slider in the ordinary controls flow. Sandbox examples add range,
+marks, formatted values and field states. Repair the renderer prerequisite
+before adding a Windows Slider leaf; do not classify the full component from
+engine construction or a source export.
+
+The pinned Windows gesture implementation had no pan branch. The current
+canonical Core patch adds one initiating contact, cumulative logical-DIP
+translation, owned pointer capture and terminal-state cleanup. Existing
+pointer ownership and touch/hover/tap behavior remain in the same helper.
+Only the gesture JavaScript section changes; all other canonical patch sections
+are byte-for-byte preserved, including the prior filesystem and input repairs.
+The manifest, generated patch and seven lock-hash references are synchronized.
+
+| Evidence | Result |
+| --- | --- |
+| Maintained pointer contracts |26/26 pass through the actual owned installed Core; uncached focused Turbo task,1.358s,exit0 |
+| Bounded v26 graph |38/38 tasks,28cached,6m32.079s,exit0; generated and packaged vendor bundles contain the pan implementation |
+| Native input |MSIX1.0.0.26,Windows10.0.26200.0,WinAppSDK1.6.250205002,x64; boot`mvteecr5`,13/13 groups,exit0 |
+| Pan coordinates |300-DIP target at200% DPI; touch local start75,16; four cumulative deltas15,30,45,60; one end60 |
+| Out-of-bounds capture |Start270DIP, move to330DIP; same four deltas and one end beyond the300-DIP control |
+| Cancellation |Native capture release during a real held mouse drag yields one cancelled60, no ended; next contact yields-7.5,-15,-22.5,-30 and one end |
+| Shared public Slider |Real Mason/usePan path submits47,52,57,62 and retains controlled62 |
+| Native Slider engine |Physical Tab/arrows/Home/End and RangeValue acceptance/rejection; disabled focus/value rejection; fractional values; hit-test-excluded peer remains keyboard/automation usable; remount has one handler |
+| Cleanup |Owned app processes0; task reservations released; native runtime/Mason/Widgets DLL hashes unchanged |
+
+The26 mocked-bridge tests extend the existing suite with seven pan cases:
+cumulative x/y and sibling touch, stationary input, cancellation/capture loss,
+disabled mid-contact, disconnect/unload/reload, initiating-contact ownership,
+and capture-unavailable exit/recovery. They do not prove OS input by themselves.
+The additional seven contracts fail against the old source where applicable;
+the earlier baseline with six new cases recorded19pass/6fail. The seventh test
+was added before the final candidate and installed-source runs.
+
+The first v26 OS run (`mvteazy1`) recorded9/13 groups passing and four movement
+failures. It used `SetCursorPos` between button events: down coordinates and
+capture were valid, but the run did not deliver intermediate pan changes.
+The same binary then passed13/13 when the driver used injected mouse MOVE with
+absolute virtual-desktop coordinates. No app/Core change or delay workaround
+separates those runs. Retain both artifacts; the first is not a Core runtime
+pass and must not be counted as evidence that the candidate required another
+source repair.
+
+V25 native-engine feasibility recorded8/10 groups: keyboard/RangeValue and
+remount worked; an explicit pixel-row fixture clipped UIA height to20DIP, and
+direct routed `AddHandler` rejected the delegate with`E_NOINTERFACE`.
+V26 uses auto rows and matches300x32DIP peers; no product GridLayout repair was
+made. Direct routed registration still rejects. Core's shared event-property
+fallback supplies the passing mouse-pan route. Do not replace its pointer
+property from a component or claim successful routed projection.
+
+The native build used a hash-checked installed-source overlay within the owned
+checkout, replacing its directory entry to avoid writing a shared pnpm inode.
+The old source hash was
+`7e367cb3c95535e5e6fcbcdffec815a7c088fc3b04362dea288048caf6e7a5ee`;
+the qualified gesture source hash is
+`24109be29e948015cbd55ccc0941924f7365a5bf6341d45ed5f60911a4b32a36`.
+After qualification, reversing the historical canonical gesture section into
+an ignored copy and applying the new section reproduced that exact source.
+The final canonical patch SHA256 is
+`9b6a2a9a26eab2ef7cb6ed0e9deaf00b24a2f0bb753d5ad468b587ed5d7235db`.
+This is patch round-trip/source evidence, not a frozen install or downstream
+consumer qualification.
+
+Exact authorized commands in the owned Windows checkout:
+
+```sh
+pnpm exec turbo run test:pan-core --filter=@octane-xplat/ui --concurrency=1 --output-logs=errors-only
+pnpm exec turbo run typecheck build:windows --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful --output-logs=errors-only
+```
+
+The temporary `test:pan-core` task has no dependencies and disables caching;
+it runs only `scripts/windows-pointer-regression.test.mjs`. It is not a new
+published package command. OS replay:
+
+```sh
+python3 research/windows61/native-common-flows/run-ssh-phase.py os-slider-pan-v26-injected research/windows61/native-common-flows/windows61-os-slider-pan-v26-injected.ps1 '{"exclusive":["device:windy"],"desktop_input":1}'
+```
+
+Retained ignored artifacts under `research/windows61/`: `core-pan/`,
+`windy-pan-core-baseline.log`, `windy-pan-core-candidate-final-contracts.log`,
+`windy-pan-core-installed-contracts.log`, `windy-native-v26-pan-prerequisite.log`,
+`windy-v26-native-exit.json`, `windy-os-slider-pan-v26.log`,
+`windy-v26-slider-pan-setcursor-*`, `windy-os-slider-pan-v26-injected.log`,
+and `windy-v26-slider-pan-injected-*`.
+
+Local integration checks pass: patch-section round trip reproduces the
+qualified source; only the Windows gesture section differs; generated copy
+matches; focused test lint/format, `git diff --check`, `pnpm check:recipes`,
+and30supported documentation fences pass (fences are syntax-only).
+`xplat fmt` accepts source files, not JSON/Markdown; those documents were
+reviewed directly. With no dependency install, these exact supplemental
+commands use a process-local loader for the existing primary checkout's
+read-only `yaml` dependency while executing the isolated worktree's scripts:
+
+```sh
+node --import ./research/windows61/yaml-loader.mjs scripts/sync-patches.ts --check
+node --import ./research/windows61/yaml-loader.mjs scripts/release-notes.ts check
+```
+
+They report `patch set in sync` and21valid release notes. The loader path is an
+ignored local aid, not a public command. No recipe criterion or broad support
+row was promoted; existing app-building APIs and maintained examples keep
+their shape. Default broad/package commands below were not run.
+
+Broad qualification remains deferred:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/cli
+pnpm exec turbo run typecheck --filter=...@octane-xplat/patches
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+No dependency install, native DLL rebuild, screenshots, visual inspection,
+hardware touch/pen/multitouch, swipe, velocity, Narrator, alternate Windows
+version/architecture or downstream consumer run is included. Windows pan
+velocity remains zero. Public Slider keyboard/range/marks/readout/field guards
+are still pending; the default native leaf ignores modern disabled/read-only
+field guards in source (feedback`7d94b77b-1400-4496-9abb-46c5b80407dc`).
+The issue's broader gesture and component checkboxes remain open.
