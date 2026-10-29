@@ -6787,6 +6787,62 @@ Apple target/attachment replacement/failure/HMR, disabled/layout/focus behavior,
 controller/browser lifetime and clean signed/installed consumers remain unqualified.
 Shared audit snapshots and evidence-gated checkboxes unchanged; goal active.
 
+## AppKit PowerSearch absolute-date validation
+
+The config builder exposes date-before/after operators, so single-date editing is
+a common record-filtering follow-on to range/numeric work. The retained demo
+shows titles/years; date demand is an explicit assumption beyond those fields.
+Source review found the absolute form sliced stored timestamps to a date and
+reparsed midnight with unchecked Date.parse, losing no-op time/precision and
+allowing invalid/NaN/calendar-rollover saves. No OS failure was observed.
+
+The absolute AppKit editor now reuses the range form's strict UTC parser, exported
+only from its internal leaf module; the range parser's behavior is unchanged.
+Source graph identified partValue as its prior caller. Preserve unchanged stored
+timestamp precision/time/expanded years; typed four-digit-year date/time text
+accepts optional seconds/milliseconds and rejects calendar rollover, partial,
+ambiguous or offset text. Plain dates and date-times without Z are explicitly UTC.
+Invalid stored dates stay editable errors rather than render exceptions or NaN.
+isDateOnly intentionally drops the time to midnight UTC and rejects typed time;
+unchanged stored expanded-year days are retained. Millisecond formatting floors
+pre-epoch fractional timestamps so date-only uses the correct previous UTC day.
+
+Date-only mode participates in draft ownership; existing scalar readonly,
+replacement, composition, Cancel, unmount and submit/retry guards apply. Labels
+and placeholders explicitly say UTC. timezoneID-specific display, calendar widgets,
+broader language parsing, full target parity and native qualification remain gaps.
+No new dependency/public prop or React Aria presence-level equivalent change.
+
+Six date-model and two additional mocked-control scalar cases are authored, all
+UNRUN; the shared scalar case file now has seven cases (five prior plus two date
+cases). Expanded idle scalar fixture offers timestamp/date-only controls and
+applies no filter automatically. Public/skill/feature/recipe guidance reconciles
+stored precision, deliberate midnight conversion and remaining limits.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit absolute-date filter package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Six changed TS/TSRX and four new documentation fences syntax parsed; source,
+semantic and whitespace review only. Documentation checker scripts remain absent
+from this isolated revision, and the prior whole-primitives fence issue remains
+recorded above. No tests/compiler transforms/typechecks/builds/probes, native/OS/
+AX/visual analysis, packaging or actual filter operations ran. Native text/IME/Tab/
+focus/VoiceOver, hook/effect/attachment timing, UTC/calendar semantics in an
+installed app, popover layout and clean consumers remain unqualified. Shared
+audit snapshots and evidence-gated checkboxes unchanged; persistent goal active.
+
 ## AppKit PowerSearch date-range form
 
 Demand is grounded in the config builder's date/between operator and common

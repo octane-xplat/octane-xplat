@@ -2246,7 +2246,31 @@ const year: IntegerOperatorValue = {
 
 Five model/five mocked-control editor cases and an idle scalar fixture are unrun.
 This does not complete string-source/list/time/relative/custom/enum/date behavior
-or native text/IME/focus/AX/popover/consumer qualification. Invalid stored absolute
-dates render as empty rather than throwing, but scalar calendar validation/time
-precision remain separate gaps. No public type/dependency or React Aria presence
+or native text/IME/focus/AX/popover/consumer qualification. Absolute UTC date/time
+validation and precision retention are described below; calendar widgets and
+timezone display remain separate gaps. No public type/dependency or React Aria presence
 change. See [numeric draft workflow](../../../../docs/app/power-search.md#validate-native-appkit-numeric-filters).
+
+## AppKit PowerSearch absolute UTC dates
+
+Native date_absolute now reuses the range form's strict UTC parser instead of
+unchecked date coercion. Preserve unchanged stored precision/expanded years; new
+four-digit-year date/time text keeps seconds/milliseconds and rejects calendar
+rollover, partial/ambiguous/offset text. Date-only deliberately saves midnight UTC,
+rejects typed time and handles the pre-epoch sub-millisecond UTC day. Invalid
+stored instants are editable errors, not render exceptions or saved NaN. Source
+revision includes date-only mode; reuse scalar readonly/composition/stale/Cancel/
+submit guards. UTC labels are explicit; timezoneID-specific display, calendar
+widgets and broader parsing need custom editors.
+
+```ts
+import type { DateAbsoluteOperatorValue } from '@octane-xplat/ui'
+const dateTime: DateAbsoluteOperatorValue = { type: 'date_absolute' }
+const calendarDay: DateAbsoluteOperatorValue = { type: 'date_absolute', isDateOnly: true }
+```
+
+Six date-model and two additional mocked-control scalar cases plus the expanded
+idle scalar fixture are unrun. The scalar case file now contains seven cases;
+these do not qualify native text/IME/focus/AX/calendar/installed-consumer behavior.
+No public type/dependency/React Aria presence change. See
+[absolute UTC workflow](../../../../docs/app/power-search.md#edit-native-appkit-absolute-dates).

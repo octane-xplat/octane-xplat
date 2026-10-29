@@ -84,3 +84,29 @@ it('Cancel closes the scalar session without saving and a replacement can open a
 		f.render({ ...f.base, filter: f.filter() }); f.button('Apply')(); expect(f.base.onSave).toHaveBeenCalledTimes(1)
 	} finally { f.root.unmount() }
 })
+it('absolute date dispatch preserves unchanged instants and rejects invalid calendar drafts', () => {
+	const f = mount()
+	try {
+		const operator = { key: 'before', label: 'Before', value: { type: 'date_absolute' } }
+		const dateConfig = { name: 'dates', fields: [{ key: 'created', label: 'Created', operators: [operator] }] }
+		const unixSeconds = 1234567890.12345
+		f.render({ ...f.base, config: dateConfig, filter: { field: 'created', value: { type: 'date_absolute', unixSeconds } } })
+		expect(f.input().props.text).toBe('2009-02-13T23:31:30.123Z')
+		f.button('Apply')(); expect(f.base.onSave.mock.calls[0][0].value.unixSeconds).toBe(unixSeconds)
+		const change = f.input().props.onTextChange
+		change('2023-02-29'); f.button('Apply')(); expect(f.base.onSave).toHaveBeenCalledTimes(1)
+		change('2024-02-29T12:30:01.12Z'); f.button('Apply')()
+		expect(f.base.onSave.mock.calls[1][0].value.unixSeconds).toBe(Date.parse('2024-02-29T12:30:01.120Z') / 1000)
+	} finally { f.root.unmount() }
+})
+it('absolute date-only reconfiguration retires old callbacks and normalizes the current UTC day', () => {
+	const f = mount()
+	try {
+		const dateConfig = (dateOnly: boolean) => ({ name: 'dates', fields: [{ key: 'created', label: 'Created', operators: [{ key: 'before', label: 'Before', value: { type: 'date_absolute', isDateOnly: dateOnly } }] }] })
+		const filter = { field: 'created', value: { type: 'date_absolute', unixSeconds: Date.parse('2026-10-29T12:30:00Z') / 1000 } }
+		f.render({ ...f.base, config: dateConfig(false), filter }); const apply = f.button('Apply'), change = f.input().props.onTextChange
+		f.render({ ...f.base, config: dateConfig(true), filter }); change('invalid'); apply()
+		expect(f.base.onSave).not.toHaveBeenCalled(); expect(f.input().props.text).toBe('2026-10-29')
+		f.button('Apply')(); expect(f.base.onSave.mock.calls[0][0].value.unixSeconds).toBe(Date.parse('2026-10-29T00:00:00Z') / 1000)
+	} finally { f.root.unmount() }
+})

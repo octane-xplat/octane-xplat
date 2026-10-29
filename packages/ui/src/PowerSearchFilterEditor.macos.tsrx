@@ -9,6 +9,7 @@ import { PowerSearchDateRangeEditor } from './PowerSearchDateRangeEditor.macos.t
 import { PowerSearchEntityEditor } from './PowerSearchEntityEditor.macos.tsrx'
 import { powerSearchNumber } from './power-search-number.macos'
 import { hasDateComposition } from './date-composition.macos'
+import { absoluteFilterText, absoluteFilterValue } from './power-search-absolute-date.macos'
 
 function initialValue(type: FilterValue['type']): FilterValue {
 	switch (type) {
@@ -42,10 +43,10 @@ function initialValue(type: FilterValue['type']): FilterValue {
 	}
 }
 
-function editorText(value?: FilterValue): string {
+function editorText(value?: FilterValue, dateOnly = false): string {
 	if (!value || !('value' in value)) {
 		if (value?.type !== 'date_absolute') return ''
-		try { return new Date(value.unixSeconds * 1000).toISOString().slice(0, 10) } catch { return '' }
+		return absoluteFilterText(value.unixSeconds, dateOnly)
 	}
 
 	return Array.isArray(value.value) ? value.value.join(', ') : String(value.value)
@@ -57,14 +58,15 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 	const operator = props.filter.operator !== undefined
 		? field?.operators.find((x) => x.key === operatorKey)
 		: field?.operators.find((x) => x.key === operatorKey) ?? field?.operators[0]
+	const dateOnly = operator?.value.type === 'date_absolute' && !!operator.value.isDateOnly
 	const live = useRef(props); live.current = props
-	const source = useRef({ filter: props.filter, field: field?.key, operator, revision: 0 })
+	const source = useRef({ filter: props.filter, field: field?.key, operator, dateOnly, revision: 0 })
 	const closed = useRef(false)
-	if (source.current.filter !== props.filter || source.current.field !== field?.key || source.current.operator !== operator) {
-		source.current = { filter: props.filter, field: field?.key, operator, revision: source.current.revision + 1 }; closed.current = false
+	if (source.current.filter !== props.filter || source.current.field !== field?.key || source.current.operator !== operator || source.current.dateOnly !== dateOnly) {
+		source.current = { filter: props.filter, field: field?.key, operator, dateOnly, revision: source.current.revision + 1 }; closed.current = false
 	}
 	const revision = source.current.revision
-	const seed = () => ({ revision, text: props.filter.value?.type === operator?.value.type ? editorText(props.filter.value) : '', error: '' })
+	const seed = () => ({ revision, text: props.filter.value?.type === operator?.value.type ? editorText(props.filter.value, dateOnly) : '', error: '' })
 	const draft = useRef(seed())
 	if (draft.current.revision !== revision) draft.current = seed()
 	const [, rerender] = useState(0)
@@ -122,7 +124,12 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 					.filter(Boolean),
 			} as FilterValue
 		} else if (value.type === 'date_absolute') {
-			next = { ...value, unixSeconds: Math.floor(Date.parse(`${valueText}T00:00:00Z`) / 1000) }
+			if (operator.value.type !== 'date_absolute') return
+			const checked = absoluteFilterValue(valueText, operator.value, value)
+			if (!checked.value) {
+				draft.current = { ...draft.current, error: checked.error ?? 'Enter a valid UTC date.' }; rerender((n) => n + 1); return
+			}
+			next = checked.value
 		}
 
 		const saved = draft.current
@@ -157,7 +164,8 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 			<TextInput
 				ref={bindInput}
 				className="vx-power-search-editor-value"
-				label="Value"
+				label={operator.value.type === 'date_absolute' ? (dateOnly ? 'UTC date' : 'UTC date/time') : 'Value'}
+				placeholder={operator.value.type === 'date_absolute' ? (dateOnly ? '2026-10-29' : '2026-10-29T12:30:00Z') : undefined}
 				value={draft.current.text}
 				onChange={setValueText}
 				keyboardType={
@@ -168,6 +176,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 				isDisabled={readOnly}
 			/>
 		) : null}
+		@if (operator?.value.type === 'date_absolute') { <label text={dateOnly ? 'Date-only values use midnight UTC.' : 'Dates use UTC. A plain date means midnight; include a time to keep hours and minutes.'} /> }
 		@if (number) { <label text={[number.units, number.minValue !== undefined ? `Minimum: ${number.minValue}` : '', number.maxValue !== undefined ? `Maximum: ${number.maxValue}` : ''].filter(Boolean).join(' · ')} /> }
 		@if (draft.current.error) { <label text={draft.current.error} accessibilityLiveRegion="polite" /> }
 		<masonview className="vx-power-search-editor-actions" style={{ display: 'flex' }}>

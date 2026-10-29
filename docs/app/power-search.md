@@ -128,6 +128,7 @@ Entity lists and date ranges also need an override on web/mobile. Experimental
 AppKit built-ins are described below for [ranges](#edit-native-appkit-date-ranges)
 and [entity selection](#edit-native-appkit-entity-filters). For plain text and
 bounded numbers, see [AppKit scalar drafts](#validate-native-appkit-numeric-filters).
+For a single date or timestamp, see [AppKit absolute dates](#edit-native-appkit-absolute-dates).
 
 ```tsx
 import { useState } from 'octane'
@@ -437,7 +438,7 @@ first operator if no matching default exists. Apply waits for the attached input
 marked text, and a draft submits once; a throwing save callback permits retry.
 Cancel retires the session; remount or replace the filter to reopen it. These
 ownership paths also cover ordinary text filters; string completions, list/time/
-relative/custom validation and richer enum/date editors still need separate
+relative/custom validation and richer enum/calendar controls still need separate
 coverage or custom editors.
 
 ```tsx
@@ -451,6 +452,69 @@ authored, all unrun. Source/syntax review does not prove actual text/keyboard/IM
 focus, VoiceOver, popover layout or installed-consumer behavior. The fixture also
 lets a maintainer replace text/number filters and try missing keys; run it only
 when native verification is authorized.
+
+```sh
+pnpm probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
+```
+
+## Edit native AppKit absolute dates
+
+The AppKit `date_absolute` form accepts a UTC date or date/time. An unchanged
+timestamp retains its stored time and numeric precision; it no longer becomes
+midnight just because Apply was pressed. Set `isDateOnly: true` for a calendar-day
+operator that deliberately saves midnight UTC. In a running macOS app, put this
+component in a screen, choose an editor and Apply to display the stored seconds:
+
+```tsx
+import { useState } from 'octane'
+import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
+import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
+
+const config: PowerSearchConfig = { name: 'dates', fields: [{
+	key: 'created', label: 'Created', operators: [
+		{ key: 'before', label: 'Before', value: { type: 'date_absolute' } },
+		{ key: 'on_day', label: 'On day', value: { type: 'date_absolute', isDateOnly: true } },
+	],
+}] }
+const original = { type: 'date_absolute', unixSeconds: 1234567890.12345 } as const
+export function DateFilter() {
+	const [filter, setFilter] = useState<PartialFilter>({ field: 'created', operator: 'before', value: original })
+	const [editing, setEditing] = useState(true)
+	const open = (operator: string) => { setFilter({ field: 'created', operator, value: original }); setEditing(true) }
+	return <VStack gap={2}>
+		<Button label="Edit timestamp" clickAction={() => open('before')} />
+		<Button label="Edit calendar day" clickAction={() => open('on_day')} />
+		{editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+			onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
+			onCancel={() => setEditing(false)} /> : null}
+		<Text>{JSON.stringify(filter.value)}</Text>
+	</VStack>
+}
+```
+
+Typed replacements use four-digit-year dates such as `2024-02-29`, or UTC
+date/times such as `2026-10-29T12:30:01.120Z`. A plain date means midnight UTC;
+a time without a trailing `Z` is also interpreted as UTC. Invalid leap days,
+calendar rollover, incomplete text and timezone offsets do not save. A date-only
+operator rejects time components. Seconds/milliseconds are kept on replacement;
+unchanged stored precision and expanded years are retained. Date-only conversion
+uses the UTC day even for negative timestamps just before the Unix epoch.
+
+```ts
+import type { FilterValueDateAbsolute } from '@octane-xplat/ui'
+const timestamp: FilterValueDateAbsolute = { type: 'date_absolute', unixSeconds: 1234567890.12345 }
+// Unchanged timestamp Apply retains 1234567890.12345.
+// Date-only Apply for that value saves 2009-02-13T00:00:00Z: 1234483200.
+```
+
+The existing scalar read-only, replacement, composition, Cancel and submit guards
+apply here too. The form labels UTC explicitly; `timezoneID` does not change its
+display or parsing. Use a custom editor for zone-specific display, a calendar
+picker or broader date-language parsing. Six date-model cases and two additional
+mocked-control scalar cases are authored, all unrun. Actual native text/IME/focus/
+VoiceOver, calendar interpretation in an installed app and consumer behavior
+remain unqualified. The scalar fixture now offers timestamp and date-only buttons;
+its automated entry only mounts controls.
 
 ```sh
 pnpm probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch

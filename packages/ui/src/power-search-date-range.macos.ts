@@ -22,7 +22,7 @@ export function rangePartDraft(part: DateTimeRangePart): RangePartDraft {
 export function rangeDraft(value?: DateTimeRange): RangeDraft {
 	return { start: rangePartDraft(value?.start ?? { type: 'NOW' }), end: rangePartDraft(value?.end ?? { type: 'NOW' }) }
 }
-function parseInstant(text: string): number | null {
+export function parseInstant(text: string): number | null {
 	// UTC date or date-time, with optional seconds/milliseconds; reject rollover.
 	const match = /^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?Z?)?$/.exec(text.trim())
 	if (!match) return null

@@ -11,6 +11,8 @@ const config: PowerSearchConfig = { name: 'scalar-fixture', fields: [
 		{ key: 'at_least', label: 'At least', value: { type: 'integer', minValue: 1800, maxValue: 2100, units: 'publication year' } },
 	] },
 	{ key: 'price', label: 'Price', operators: [{ key: 'is', label: 'Is', value: { type: 'float', minValue: 0, maxValue: 100 } }] },
+	{ key: 'created', label: 'Created', operators: [{ key: 'before', label: 'Before', value: { type: 'date_absolute' } }] },
+	{ key: 'day', label: 'Day', operators: [{ key: 'before', label: 'Before', value: { type: 'date_absolute', isDateOnly: true } }] },
 ] }
 export default function PowerSearchScalarsProbe() {
 	const [filter, setFilter] = useState<PartialFilter>({ field: 'year' })
@@ -19,6 +21,8 @@ export default function PowerSearchScalarsProbe() {
 		<Button label="Edit title" clickAction={() => setFilter({ field: 'title', value: { type: 'string', value: 'Earthsea' } })} />
 		<Button label="Edit year" clickAction={() => setFilter({ field: 'year' })} />
 		<Button label="Edit price" clickAction={() => setFilter({ field: 'price' })} />
+		<Button label="Edit timestamp" clickAction={() => setFilter({ field: 'created', value: { type: 'date_absolute', unixSeconds: 1234567890.12345 } })} />
+		<Button label="Edit date-only" clickAction={() => setFilter({ field: 'day', value: { type: 'date_absolute', unixSeconds: 1234567890.12345 } })} />
 		<Button label="Unknown field" clickAction={() => setFilter({ field: 'missing' })} />
 		<Button label="Toggle read-only" clickAction={() => setReadonly(!readonly)} />
 		<Button label="Mount/unmount editor" clickAction={() => setMounted(!mounted)} />
@@ -26,7 +30,7 @@ export default function PowerSearchScalarsProbe() {
 			onSave={(next) => { if (next) { setFilter(next); setResult(JSON.stringify(next)) } }}
 			onCancel={() => { setMounted(false); setResult('Cancelled without saving') }} /> : <Text>Editor unmounted</Text>}
 		<Text>{result}</Text>
-		<Text>Manual qualification only. Try empty, NaN, Infinity, hex, decimals, scientific notation and bounds; year requires an exact safe whole integer. Test filter replacement, default operator, read-only, rapid edits, Cancel, Tab/IME/VoiceOver. Other scalar editors are outside this fixture.</Text>
+		<Text>Manual qualification only. Try empty, NaN, Infinity, hex, decimals, scientific notation and bounds; year requires an exact safe whole integer. Test timestamp no-op precision, UTC dates/leap-day validation and date-only midnight. Try replacement, default operator, read-only, rapid edits, Cancel, Tab/IME/VoiceOver. Other scalar editors are outside this fixture.</Text>
 	</VStack>
 }
 export async function run(ctx: ProbeContext) {
