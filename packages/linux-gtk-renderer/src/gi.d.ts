@@ -457,6 +457,8 @@ declare module 'gi://Gdk?version=4.0' {
 		const KEY_Down: number
 		const KEY_Left: number
 		const KEY_Right: number
+		const KEY_Home: number
+		const KEY_End: number
 		const ModifierType: {
 			SHIFT_MASK: number
 			LOCK_MASK: number
@@ -491,6 +493,7 @@ declare module 'gi://GObject' {
 	namespace GObject {
 		const Value: any
 		const TYPE_INT: any
+		const TYPE_DOUBLE: any
 		function signal_stop_emission_by_name(instance: any, signal: string): void
 		/** GJS type registration — returns a constructible GObject class. */
 		function registerClass(meta: any, klass?: any): any

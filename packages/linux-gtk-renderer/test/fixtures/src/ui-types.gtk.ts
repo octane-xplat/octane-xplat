@@ -124,3 +124,6 @@ type SegmentedControlItemPropsContract = Assert<
 >
 
 type PinInputPropsContract = Assert<Equal<GtkUI.PinInputProps, NativeUI.PinInputProps>>
+
+type SliderPropsContract = Assert<Equal<GtkUI.SliderProps, NativeUI.SliderProps>>
+type SliderMarkContract = Assert<Equal<GtkUI.SliderMark, NativeUI.SliderMark>>

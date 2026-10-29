@@ -811,7 +811,6 @@
 	}
 	/* xplat-web-only:end */
 
-
 	@platform macos {
 		.vx-checkbox-group--appkit { display: flex; flex-direction: column; }
 		.vx-checkbox-group--appkit.vx-checkbox-group--row { flex-direction: row; }
@@ -857,7 +856,8 @@
 	}
 
 	/* Self-drawn slider — host is a grid (native) / relative div (web);
-   track + fill + thumb overlay the same box. */
+   track + fill + thumb overlay the same box. Track, fill and thumbs share
+   one control frame. */
 	.vx-slider {
 		height: 28px;
 	}

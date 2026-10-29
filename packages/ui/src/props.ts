@@ -2910,7 +2910,10 @@ export interface SliderMark {
  *  labeled stops. Web, AppKit and experimental Windows leaves render ranges,
  *  marks and formatted readouts; other native leaves retain their
  *  single-value widget subset. AppKit and Windows runtime qualification
- *  remains open; see the platform guides. */
+ *  remains open; see the platform guides. The shared native and web leaves
+ *  draw scalar/range tracks, marks and readouts; GTK and web have maintained
+ *  runtime checks. Tooltip readouts follow Tooltip's hover/focus contract on
+ *  desktop hosts. */
 export interface SliderProps extends FieldControlProps {
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue

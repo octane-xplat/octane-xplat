@@ -2419,3 +2419,90 @@ and actual-input evidence while remaining partial/not-run for its complete
 assistive-client criterion; AC8 keeps complete/runtime-tested status.
 No phone runtime, images/pixels, IME, Wayland or AT-client output was qualified.
 Other exports remain under the full goal; no partial-surface PR is opened.
+
+
+## GTK slider qualification
+
+At 055a9f395 the direct-source baseline completed 38 checks with 24 failures:
+field owner/label/width/name, slider role/focus and required/busy/invalid/
+read-only metadata, disabled sensitivity, range thumbs/fill, marks/readout,
+inherited field name/state/size and local defaults were missing. Scalar
+geometry, updates, native identity and cleanup passed. Feedback
+7d6e1c5d-30d5-4a02-8ffc-5e70c2ff011f preserves the expectation; guest
+/tmp/gtk-slider-first.log records the metadata/geometry/lifecycle run.
+
+The shared native leaf now owns one retained field and scalar/range state.
+It clamps values, anchors positive steps to min, seeds defaultValue once,
+draws marks/readouts and keeps controlled values authoritative during input.
+GTK maps adjustable to SLIDER with native focus, increment/decrement ref
+events and Home/End actions. A private file-boundary helper keeps NativeScript
+value text separate from GTK's typed numeric range properties. The facade
+adds only a fixed-signature double-property test helper; its pinned Mason
+engine remains 1f101ca3c6454895af4e4608d46756010bdeab67.
+
+[GTK's property definitions](https://docs.gtk.org/gtk4/enum.AccessibleProperty.html)
+require doubles for minimum, maximum and current value. The renderer boxes
+these as GObject values; the facade compares their actual native values.
+
+The corrected foundation passes 38 checks. An expanded real X11 run completed
+89 checks with three range-drag failures (feedback
+dfe0df17-8988-49ac-90b3-1a8fbbdbdb5f). Trace output showed GTK pan begin before
+touch down, so selecting on begin used the previous press. Native Slider now
+chooses the nearest thumb on first movement; PanEvent x/y remain deltas.
+Web captures the pointer origin in a capture listener. Shared local state,
+minimum-relative stepping and controlled rejection also have web regressions.
+
+The corrected input case passes 107 checks, including actual keys/clicks/
+drags, both thumbs, non-crossing, typed numeric metadata, changed/equal bounds,
+clamped values, class/readout transitions and native retention. Six focused
+typecheck tasks pass. Logs: guest /tmp/gtk-slider-{foundation,input,drag-trace,contracts}.log;
+andromeda /tmp/gtk-slider-{input,contracts}-types.log.
+
+Value hints use the existing native portal/popover machinery with separate
+interaction and position views. Hover/focus belong to the slider, geometry
+belongs to the upper thumb, and description relations belong to the interaction
+owner. A private GTK use-tooltip leaf enables this internal path; the public
+useTooltip root export remains absent until its remaining options have their
+own proof. The direct-source slider case passes 126 actual X11 checks for
+hover, focus, formatted live content, dismissal and retained thumb anchoring.
+Its initial hover assertion moved within an already-hovered control; the
+fixture now leaves and re-enters to generate actual native pointer entry.
+The web case passes 13 tests, including live formatted tooltips.
+
+The C facade rebuilt with an explicit
+XPLAT_MASON_CORE_TARGET=x86_64-unknown-linux-gnu against the existing Linux
+archive; /tmp/gtk-slider-native-build.log and
+/tmp/gtk-slider-native-artifacts.sha256 record the new test-helper artifacts.
+Native build target discovery needs the explicit target in this guest when
+rustc is absent from its shell path. This is a task-environment workaround,
+not an installed Rust or system change.
+
+Public-root Slider, SliderProps and SliderMark are now curated, giving
+66 values and 103 types. All 57 registered Linux renderer tests pass without
+skips, including the public slider case. A subsequent 141-check public-root
+run verifies upper-endpoint range keys, description relations, lazy tooltip
+allocation, mode disposal/reuse and unmount while open. Typed range metadata
+and the native surface remain consistent with their owners.
+
+All 62 affected/dependent typecheck tasks pass. The subsequent 12-task focused
+type/native/package run covers the lazy-tooltip refinement and exact native
+value/prop/mark type equality, with 58 Node checks and 464 native object-driver
+tests. Selected web tests pass 77 across five files; all 28 docs build/test
+tasks pass. Static checks cover 141 pages/links, 1141 parsing examples,
+63 release notes, recipes, UI barrels, focused formatting and whitespace.
+Native-only disabled chrome avoids changing the AppKit override. The final
+web case also keeps read-only sliders focusable with read-only metadata,
+matching the native field behavior instead of presenting them as disabled.
+Logs: guest /tmp/gtk-slider-root-{full,input}.log; andromeda
+/tmp/gtk-slider-root-{types,regression,web,doc-site}.log and
+/tmp/gtk-slider-doc-checks.log.
+
+The GTK availability note covers scalar/range values, marks and formatted
+text/thumb hints. A fix note covers controlled drag authority already present
+in the stable v0.17.1 scalar contract. The newer range/default/step API had not
+shipped in that stable tag, so corrections to it get no separate fix note.
+No phone runtime, images/pixels, IME, Wayland or AT-client set-value/speech
+proof is claimed. Range keyboard input controls the upper endpoint, matching
+the web leaf; independent lower-thumb keyboard access remains a shared UI
+gap. Text-entry AC3 remains partial/not-run for its complete criterion; AC8
+retains complete/runtime-tested status. No partial-surface PR is opened.

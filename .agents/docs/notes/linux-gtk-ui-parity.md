@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 65 runtime values and 101 types in index.gtk.ts, including
+Current availability is 66 runtime values and 103 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem and PinInput. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput and Slider. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1151,3 +1151,27 @@ and 28 docs build/test tasks pass. See
 baseline, exact logs and qualification limits. Text-entry AC3 remains partial
 and AC8 remains complete/runtime-tested. Remaining inputs/parts, Image,
 overlays, navigation, theme and services stay under the full goal.
+
+
+### Public GTK sliders
+
+Slider and its existing prop/mark types use the shared native field and
+scalar/range owner. The renderer supplies adjustable focus/ref events and
+typed numeric metadata. A private helper separates NativeScript value text
+from GTK bounds/current/text metadata; no dependency was added.
+Availability is 66 values and 103 types.
+
+The 57-case Linux sweep passes without skips, including public-root Slider.
+A subsequent public case passes 141 actual X11/native metadata/geometry/
+lifecycle checks, including range keys and lazy tooltip disposal/reuse.
+All 62 affected typecheck tasks, a subsequent 12-task focused type/native/
+package run, 77 selected web tests and 28 docs build/test tasks pass. See
+[the slider evidence](linux-gtk-renderer.md#gtk-slider-qualification) for
+baselines, typed-facade build, exact logs and limits.
+
+Keyboard range input currently adjusts the upper endpoint, matching web;
+lower-endpoint keyboard access is a shared UI gap. The internal GTK
+use-tooltip leaf is not a public root export until its other options have
+independent proof. Text-entry AC3 remains partial and AC8 remains
+complete/runtime-tested. Remaining inputs/parts, Image, overlays, navigation,
+theme, services and View contracts stay under the full goal.

@@ -1753,6 +1753,7 @@ const A11Y_ROLES: Record<string, number> = {
 	text: Gtk.AccessibleRole.LABEL,
 	label: Gtk.AccessibleRole.LABEL,
 	slider: Gtk.AccessibleRole.SLIDER,
+	adjustable: Gtk.AccessibleRole.SLIDER,
 	progressbar: Gtk.AccessibleRole.PROGRESS_BAR,
 	checkbox: Gtk.AccessibleRole.CHECKBOX,
 	switch: Gtk.AccessibleRole.SWITCH,
@@ -1777,6 +1778,7 @@ function setAccessibleRole(node: ElementNode, value: unknown) {
 					Gtk.AccessibleRole.CHECKBOX,
 					Gtk.AccessibleRole.SWITCH,
 					Gtk.AccessibleRole.RADIO,
+					Gtk.AccessibleRole.SLIDER,
 				].includes(role),
 		)
 	node.pressKeys?.refresh()

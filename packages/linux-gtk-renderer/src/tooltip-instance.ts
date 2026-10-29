@@ -2,6 +2,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 
 type Options = {
+	interactionTarget?: any
 	disabled?: boolean
 	openDelay?: number
 	closeDelay?: number
@@ -15,6 +16,7 @@ type Options = {
 function createTooltip(anchor: any, initial: Options) {
 	if (!Gtk.AccessibleList)
 		throw new Error('GTK Tooltip requires GTK 4.14 or newer for accessible description references.')
+	const interaction = initial.interactionTarget ?? anchor
 	let options = initial
 	let disposed = false
 	let opening: number | null = null
@@ -95,12 +97,13 @@ function createTooltip(anchor: any, initial: Options) {
 	const motion = new Gtk.EventControllerMotion()
 	connect(motion, 'enter', enter)
 	connect(motion, 'leave', leave)
-	anchor.add_controller(motion)
+	interaction.add_controller(motion)
 	const focus = new Gtk.EventControllerFocus()
 	connect(focus, 'enter', open)
 	connect(focus, 'leave', close)
-	anchor.add_controller(focus)
+	interaction.add_controller(focus)
 	connect(anchor, 'unmap', close)
+	if (interaction !== anchor) connect(interaction, 'unmap', close)
 	connect(popover, 'closed', () => {
 		if (!visible || disposed) return
 		visible = false
@@ -162,7 +165,7 @@ function createTooltip(anchor: any, initial: Options) {
 				}
 				return null
 			}
-			described = recipient(anchor) ?? anchor
+			described = recipient(interaction) ?? interaction
 			described.update_relation(
 				[Gtk.AccessibleRelation.DESCRIBED_BY],
 				[Gtk.AccessibleList.new_from_list([target])],
@@ -191,8 +194,8 @@ function createTooltip(anchor: any, initial: Options) {
 			disposed = true
 			hide()
 			for (const [object, id] of connections) object.disconnect(id)
-			anchor.remove_controller(motion)
-			anchor.remove_controller(focus)
+			interaction.remove_controller(motion)
+			interaction.remove_controller(focus)
 			window?.remove_controller(keys)
 			popover.unparent()
 		},

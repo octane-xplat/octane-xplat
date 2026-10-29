@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem and PinInput.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput and Slider.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -382,6 +382,40 @@ export function Quantity() {
         hasNumberSteppers={false} hasClear onClear={() => console.log('Cleared')} />
     </Field>
   )
+}
+```
+
+## Sliders
+
+Use Slider to adjust a number by dragging or with the arrow keys. defaultValue
+seeds a local value once; step sets the increment, while Home and End reach
+the bounds. valueDisplay="text" shows the current number.
+
+```tsx
+import { Slider } from '@octane-xplat/ui'
+
+export function Volume() {
+  return <Slider label="Volume" width={280} min={0} max={100}
+    defaultValue={25} step={5} valueDisplay="text" />
+}
+```
+
+Use a pair of numbers for a range. Dragging adjusts the nearest thumb; keyboard
+input adjusts the upper endpoint. marks label stops, formatValue formats the
+readout, and valueDisplay="tooltip" shows it at the upper thumb on hover or
+focus with GTK 4.14 or newer. A controlled parent can reject changes by keeping value unchanged.
+
+```tsx
+import { useState } from 'octane'
+import { Slider } from '@octane-xplat/ui'
+
+export function ComfortRange() {
+  const [range, setRange] = useState<[number, number]>([20, 80])
+  return <Slider label="Comfort" width={280} min={0} max={100} step={5}
+    value={range}
+    onValueChange={(next) => { if (Array.isArray(next)) setRange(next) }}
+    marks={[{ value: 0, label: 'Low' }, { value: 100, label: 'High' }]}
+    valueDisplay="tooltip" formatValue={(value) => value + '%'} />
 }
 ```
 

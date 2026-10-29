@@ -269,6 +269,13 @@ PinInput also shares the native TextInput path. Its group owns one field frame;
 numbered editors retain their own names and ids. Native-only shell sizing and
 gap classes fit the existing 40px cells without changing the web/AppKit trees.
 
+Slider uses the shared native leaf and a private slider-accessibility.gtk
+helper for typed GTK range metadata. NativeScript keeps its string value
+readout. Gtk ref events provide increment/decrement plus Home/End actions;
+leave the shared PanEvent delta contract intact. Tooltip positioning can use
+a different native view from its hover/focus owner, so keep description
+relations on the interaction owner and popup geometry on the thumb.
+
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property

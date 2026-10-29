@@ -67,9 +67,28 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 			send('windowfocus', id)
 			if (phase.type != null) send('type', '--clearmodifiers', '--delay', '35', '--', phase.type)
 			else if (phase.key) send('key', '--clearmodifiers', phase.key)
-			else {
+			else if (phase.drag) {
+				const x = Math.round(phase.x),
+					y = Math.round(phase.y)
+				send('mousemove', '--window', id, String(x), String(y))
+				send('mousedown', '1')
+				try {
+					for (let step = 1; step <= 10; step++) {
+						send(
+							'mousemove',
+							'--window',
+							id,
+							String(Math.round(x + (Number(phase.drag.dx ?? 0) * step) / 10)),
+							String(Math.round(y + (Number(phase.drag.dy ?? 0) * step) / 10)),
+						)
+						send('sleep', '0.02')
+					}
+				} finally {
+					send('mouseup', '1')
+				}
+			} else {
 				send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
-				send('click', '1')
+				if (!phase.hover) send('click', '1')
 			}
 			send('key', 'F12')
 		} catch (error) {

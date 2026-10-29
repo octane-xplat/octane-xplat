@@ -427,3 +427,10 @@ gchar *xplat_mason_test_accessible_string_property(GtkAccessible *accessible,
                                                   const gchar *expected) {
   return gtk_test_accessible_check_property(accessible, property, expected);
 }
+
+
+gchar *xplat_mason_test_accessible_double_property(GtkAccessible *accessible,
+                                                  GtkAccessibleProperty property,
+                                                  gdouble expected) {
+  return gtk_test_accessible_check_property(accessible, property, expected);
+}

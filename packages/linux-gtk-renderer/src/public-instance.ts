@@ -1,3 +1,4 @@
+import { bindRangeInstance } from './range-instance.js'
 import { bindTooltips } from './tooltip-instance.js'
 import { bindMotion } from './motion-instance.js'
 import { bindScrolling } from './scroll-instance.js'
@@ -10,7 +11,15 @@ export interface GtkBounds {
 	height: number
 }
 
-type RefEvent = 'loaded' | 'unloaded' | 'layoutChanged' | 'scroll' | 'pan' | 'fontChanged'
+type RefEvent =
+	| 'loaded'
+	| 'unloaded'
+	| 'layoutChanged'
+	| 'scroll'
+	| 'pan'
+	| 'fontChanged'
+	| 'accessibilityIncrement'
+	| 'accessibilityDecrement'
 type Listener = (event: { eventName: RefEvent; object: unknown; [key: string]: unknown }) => void
 
 const NUMERIC_STYLE_KEYS = new Set([
@@ -134,6 +143,7 @@ export function bindPublicInstance(
 			return !disposed && !!listeners.get('layoutChanged')?.size
 		})
 	}
+	const range = bindRangeInstance(view, emit, (name) => !!listeners.get(name as RefEvent)?.size)
 	const disposeTooltips = bindTooltips(view)
 	const disposeScrolling = bindScrolling(view, emit)
 	const mapped = view.connect('map', () => {
@@ -214,12 +224,24 @@ export function bindPublicInstance(
 	view.getBounds = bounds
 	view.on = (name: RefEvent, listener: Listener) => {
 		if (disposed) return
-		if (!['loaded', 'unloaded', 'layoutChanged', 'scroll', 'pan', 'fontChanged'].includes(name)) {
+		if (
+			![
+				'loaded',
+				'unloaded',
+				'layoutChanged',
+				'scroll',
+				'pan',
+				'fontChanged',
+				'accessibilityIncrement',
+				'accessibilityDecrement',
+			].includes(name)
+		) {
 			throw new Error(`linux-gtk ref: unsupported subscription ${name}`)
 		}
 		let set = listeners.get(name)
 		if (!set) listeners.set(name, (set = new Set()))
 		set.add(listener)
+		if (name === 'accessibilityIncrement' || name === 'accessibilityDecrement') range.refresh()
 		if (name === 'fontChanged' && !disposeFont && styleHost)
 			disposeFont = styleHost.watchFont(() => emit('fontChanged'))
 		if (name === 'pan' && !disposePan && panHost) {
@@ -258,6 +280,7 @@ export function bindPublicInstance(
 		motion = null
 		disposeFont?.()
 		disposeFont = null
+		range.dispose()
 		disposeTooltips()
 		disposeScrolling()
 		disposed = true

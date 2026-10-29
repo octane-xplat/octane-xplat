@@ -189,6 +189,18 @@ gchar *xplat_mason_test_accessible_string_property(GtkAccessible *accessible,
                                                   GtkAccessibleProperty property,
                                                   const gchar *expected);
 
+/**
+ * xplat_mason_test_accessible_double_property:
+ * @accessible: widget whose stored accessibility metadata is checked
+ * @property: double property to compare
+ * @expected: expected value
+ *
+ * Returns: (nullable) (transfer full): mismatch message, or NULL on match
+ */
+gchar *xplat_mason_test_accessible_double_property(GtkAccessible *accessible,
+                                                  GtkAccessibleProperty property,
+                                                  gdouble expected);
+
 G_END_DECLS
 
 #endif

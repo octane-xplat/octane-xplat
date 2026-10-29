@@ -199,6 +199,13 @@ X11 input exercises sequential focus, controlled acceptance/rejection, suffix
 clearing, completion, secure mode and disabled/read-only behavior. Length,
 metadata and geometry updates are separate from assistive-client output.
 
+The public-root [slider fixture](../../../packages/linux-gtk-renderer/test/ui-slider.test.mjs)
+adds AC3 field and adjustable-value evidence for scalar/range owners, typed
+bounds/current/text metadata, actual keyboard/pointer changes, controlled
+authority and thumb-anchored value hints. Keyboard range input adjusts the
+upper endpoint. This does not establish independent lower-thumb keyboard
+access or assistive-client set-value behavior.
+
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
 recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance

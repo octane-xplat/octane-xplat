@@ -164,6 +164,21 @@ prefix, clearing truncates the suffix, and focus advances after the next cell
 becomes editable. Keep controlled rejection and completion checks alongside
 secure and length updates. Numeric purpose is a keyboard hint, not validation.
 
+Slider keeps one field and local/controlled scalar or range owner. GTK
+adjustable roles use the renderer's slider focus and ref increment/decrement
+events; the private accessibility helper publishes typed min/max/current/text
+properties without importing GI into UI. Keep controlled rejection, step
+anchoring and endpoint checks. PanEvent x/y remain movement deltas: capture
+native touch position and defer thumb selection until the first movement,
+because GTK can dispatch pan begin before touch down.
+
+Slider value tooltips split interaction (the control) from position (the
+upper thumb). The GTK use-tooltip leaf supports this internal path through
+the existing portal/popover machinery. Do not export useTooltip from the GTK
+root yet: its broader alignment, trigger, controlled-state and callback options
+still need their own qualification. Numeric metadata and actual keys/drags
+do not establish an AT-client set-value or speech pass.
+
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
 handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have

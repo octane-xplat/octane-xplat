@@ -318,8 +318,9 @@
 	/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
 	/* xplat-web-only:end */
 
-	/* Self-drawn slider — host is a grid (native) / relative div (web);
-   track + fill + thumb overlay the same box. */
+	/* Self-drawn slider — track, fill and thumbs share one control frame. */
+	.vx-slider--native .vx-slider-mark-label { width: 100%; text-align: center; font-size: 0.75em; color: var(--color-text-secondary); }
+	.vx-slider--native.vx-slider--disabled { opacity: 0.5; }
 	.vx-slider-track {
 		border-radius: 2px;
 		background-color: var(--color-border);
