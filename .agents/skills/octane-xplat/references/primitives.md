@@ -2116,3 +2116,21 @@ export function Gallery({ open, setOpen, first, second }: {
 		media={[{ src: first, alt: 'First photo' }, { src: second, alt: 'Second photo' }]} />
 }
 ```
+
+
+## Animated images on AppKit
+
+Use the optional GIF package and rebuild the app's native host to include its
+NSImageView bridge. The AppKit leaf now has source loading/animation and four
+centered fit paths instead of a placeholder; actual native compilation,
+GIF timing/looping and WebP decoding remain unqualified. Give it an explicit
+size. Source replacement drops stale work, hidden/detached views and reduced
+motion stop progression, and unmount releases the request/image/observer.
+There is no shared GIF prefetch cache (`prefetch` remains false), custom header
+or mobile escape-bag support. Do not infer animated-image support from the core
+static Image cache. See the [package subset](../../../../packages/gif/README.md#experimental-appkit-subset).
+
+```tsx
+import { AnimatedImage } from '@octane-xplat/gif'
+<AnimatedImage src="~/loading.gif" alt="Loading illustration" width={160} height={120} />
+```

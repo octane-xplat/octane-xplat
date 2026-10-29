@@ -6019,3 +6019,73 @@ does not prove upload transport; that requires an authorized test endpoint and
 actual byte comparison separately. Frozen install/task graph, Swift actor/API
 compilation, native supported-version and clean installed-consumer checks remain
 deferred. Audit snapshots and evidence-gated checkboxes unchanged; goal active.
+
+## AppKit animated image source path
+
+Current source review found Pager already has an NSScrollView leaf, ownership
+state, live-scroll events and manual fixture; the immutable audit placeholder
+is stale for paging. No new Pager implementation was added. AnimatedImage still
+rendered only an unsupported label. Demand assumption: the shared gallery's
+AnimatedImageDemo is a concrete basic-image flow ahead of niche integrations.
+Its text incorrectly claimed every target animated; that claim was removed.
+
+Added package-owned XplatAnimatedImageView Swift source and AppKit/QuartzCore
+manifest/framework/header wiring. The collector visits transitive dependencies;
+AppKit harness -> @xplat/demos -> GIF is an existing source dependency path, so
+no app manifest/lock/CLI changes were needed. Actual installed graph/class
+collection remains unrun. Explicitly adding the GIF package is required for apps
+using it; Vite JS imports alone do not compile Swift.
+
+NSImage decodes source data and NSImageView.animates owns GIF frame timing.
+HTTP(S) loads use an ephemeral session without cache/cookie/credential storage;
+absolute file/file URL, data and ~/bundle paths have background read paths.
+Remote requests cancel on source change/dispose; generation guards drop stale
+results. Started file/data reads are not interruptible but cannot install after
+source retirement. Failed/invalid loads leave an empty surface; shared props do
+not expose error callbacks. No format support beyond the native decoder is
+claimed, especially animated WebP. No JS frame loop, dependency or shared image
+cache was introduced. GIF prefetch remains false and its stale no-pipeline
+comment/docs were reconciled.
+
+Centered aspectFit/aspectFill/fill/none geometry, clipped fill, intrinsic size,
+explicit prop dimensions, alt-label/decorative accessibility and native
+reduced-motion settings observer have source paths. Hidden/ancestor hide or
+window detach disables progression; reattachment uses current policy. A
+particular paused frame and offscreen/minimized scheduling are not promised.
+Unmount disposes request/image/session/settings observation. Layout, actual
+frame/loop timing, hidden/window lifecycle and accessibility remain unqualified.
+
+The TS owner skips unchanged setters, applies current props on replacement,
+retires old surfaces before dispose and guards setter/disposal reentry. Six
+cases are authored (unchanged/source changes, replacement/disposal/recovery,
+reentrant old disposal, changed/same-prop setter reentry, retry after failure),
+all UNRUN. The idle manual fixture loads nothing until Apply and exposes source,
+clear/mount, fit and unrelated-render controls. It records mounting only.
+Package README, primitive skill guidance, recipe and feature note reconcile the
+experimental subset. The shared public API shape remains unchanged.
+
+Seven TS/TSRX/JSON files syntax parsed. Source/SDK/semantic and whitespace
+review are the only other checks for this increment; no tests, typegen/typechecks/builds, Swift compile,
+probes, OS/browser automation, packaging or visual analysis ran. Exact deferred
+commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/gif
+pnpm exec turbo run typegen --filter=@octane-xplat/gif
+pnpm exec turbo run typecheck --filter=...@octane-xplat/gif
+pnpm probe doctor
+pnpm probe run examples/probes/animated-image.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/gif
+pnpm exec turbo run pack:check --filter=@octane-xplat/gif
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit animated-image package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+The GIF package currently has no dedicated typecheck script; that filter checks
+available dependent tasks, not a claimed full AppKit-leaf typecheck. Typegen and
+packed declaration checks do not prove Swift/native compatibility. Native class/
+header/actor compilation, GIF frame progression/disposal/looping, fit/clipping,
+source/path/data/network/TLS/ATS/sandbox, settings/hidden/window/VoiceOver behavior,
+CPU/memory lifetime and supported macOS/clean installed native consumers remain
+unqualified. Existing frozen install/task graph deferrals remain. Audit snapshots
+and evidence gates unchanged; persistent goal active.
