@@ -18,9 +18,27 @@ private final class BrowserDialog {
 	}
 }
 
+/// Delivers WebKit's selection once; no persistent app bookmark is created.
+private final class BrowserFileSelection {
+	let panel: NSOpenPanel
+	private var completion: (([URL]?) -> Void)?
+	init(_ panel: NSOpenPanel, completion: @escaping ([URL]?) -> Void) {
+		self.panel = panel; self.completion = completion
+	}
+	func finish(_ response: NSApplication.ModalResponse, parent: NSWindow?) {
+		guard let callback = completion else { return }
+		completion = nil
+		let urls: [URL]? = response == .OK ? panel.urls : nil
+		if let parent, panel.sheetParent === parent { parent.endSheet(panel, returnCode: response) }
+		panel.orderOut(nil)
+		DispatchQueue.main.async { callback(urls) }
+	}
+}
+
 /// In-app browsing only. No app-shell scripts, message bridge or external opener.
 @objc(XplatInAppBrowser)
 public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUIDelegate {
+	private var fileSelection: BrowserFileSelection?
 	private var dialog: BrowserDialog?
 	private var window: NSWindow?
 	private var webView: WKWebView?
@@ -105,14 +123,15 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 
 	@objc public func close() {
 		if !Thread.isMainThread { DispatchQueue.main.async { self.close() }; return }
-		let panel = window, browser = webView, tokens = observations, pending = dialog
-		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil; dialog = nil
+		let panel = window, browser = webView, tokens = observations, pending = dialog, selection = fileSelection
+		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil; dialog = nil; fileSelection = nil
 		address = nil; status = nil; backButton = nil; forwardButton = nil; reloadButton = nil
-		Self.cleanup(panel, browser, tokens, pending, close: true)
+		Self.cleanup(panel, browser, tokens, pending, selection, close: true)
 	}
-	private static func cleanup(_ panel: NSWindow?, _ browser: WKWebView?, _ tokens: [NSKeyValueObservation], _ pending: BrowserDialog?, close: Bool) {
+	private static func cleanup(_ panel: NSWindow?, _ browser: WKWebView?, _ tokens: [NSKeyValueObservation], _ pending: BrowserDialog?, _ selection: BrowserFileSelection?, close: Bool) {
 		let work = {
 			pending?.finish(.cancel, parent: panel)
+			selection?.finish(.cancel, parent: panel)
 			for token in tokens { token.invalidate() }
 			browser?.navigationDelegate = nil; browser?.uiDelegate = nil; browser?.stopLoading()
 			panel?.delegate = nil; panel?.contentView = nil
@@ -122,10 +141,10 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 	}
 	public func windowWillClose(_ notification: Notification) {
 		guard let panel = notification.object as? NSWindow, panel === window else { return }
-		let browser = webView, tokens = observations, pending = dialog
-		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil; dialog = nil
+		let browser = webView, tokens = observations, pending = dialog, selection = fileSelection
+		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil; dialog = nil; fileSelection = nil
 		address = nil; status = nil; backButton = nil; forwardButton = nil; reloadButton = nil
-		Self.cleanup(panel, browser, tokens, pending, close: false)
+		Self.cleanup(panel, browser, tokens, pending, selection, close: false)
 	}
 	private func updateChrome(_ browser: WKWebView) {
 		if let title = browser.title, !title.isEmpty { window?.title = title } else { window?.title = "Browser" }
@@ -157,13 +176,14 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 		navigation = browser.load(action.request)
 		return nil
 	}
-	private func cancelDialog() {
-		let pending = dialog
-		dialog = nil
+	private func cancelPanels() {
+		let pending = dialog, selection = fileSelection
+		dialog = nil; fileSelection = nil
 		pending?.finish(.cancel, parent: window)
+		selection?.finish(.cancel, parent: window)
 	}
 	private func presentDialog(_ alert: NSAlert, in browser: WKWebView, completion: @escaping (NSApplication.ModalResponse) -> Void) {
-		guard browser === webView, let panel = window, panel.isVisible, dialog == nil, panel.attachedSheet == nil else {
+		guard browser === webView, let panel = window, panel.isVisible, dialog == nil, fileSelection == nil, panel.attachedSheet == nil else {
 			completion(.cancel); return
 		}
 		let pending = BrowserDialog(alert, completion: completion)
@@ -202,8 +222,29 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 			completionHandler(response == .alertFirstButtonReturn ? input.stringValue : nil)
 		}
 	}
+	public func webView(_ browser: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
+		guard browser === webView, let owner = window, owner.isVisible, dialog == nil, fileSelection == nil, owner.attachedSheet == nil else {
+			completionHandler(nil); return
+		}
+		let panel = NSOpenPanel()
+		let host = frame.securityOrigin.host
+		panel.message = host.isEmpty ? "Choose files for this web page" : "Choose files for web page: \(host)"
+		panel.prompt = "Choose"
+		panel.allowsMultipleSelection = parameters.allowsMultipleSelection
+		panel.canChooseDirectories = parameters.allowsDirectories
+		panel.canChooseFiles = !parameters.allowsDirectories
+		panel.canCreateDirectories = false
+		// WKOpenPanelParameters has no public accepted-content-type property.
+		let selection = BrowserFileSelection(panel, completion: completionHandler)
+		fileSelection = selection
+		panel.beginSheetModal(for: owner) { [weak self, weak browser, weak owner] response in
+			let current = self?.fileSelection === selection && browser != nil && self?.webView === browser && owner != nil && self?.window === owner
+			if current { self?.fileSelection = nil }
+			selection.finish(current ? response : .cancel, parent: owner)
+		}
+	}
 	public func webView(_ browser: WKWebView, didStartProvisionalNavigation value: WKNavigation!) {
-		if browser === webView { cancelDialog(); navigation = value; status?.isHidden = true; status?.stringValue = "" }
+		if browser === webView { cancelPanels(); navigation = value; status?.isHidden = true; status?.stringValue = "" }
 	}
 	public func webView(_ browser: WKWebView, didFinish value: WKNavigation!) {
 		if browser === webView && value === navigation { status?.isHidden = true; updateChrome(browser) }
@@ -211,7 +252,7 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 	public func webView(_ browser: WKWebView, didFailProvisionalNavigation value: WKNavigation!, withError error: Error) { failed(browser, value, error) }
 	public func webView(_ browser: WKWebView, didFail value: WKNavigation!, withError error: Error) { failed(browser, value, error) }
 	public func webViewWebContentProcessDidTerminate(_ browser: WKWebView) {
-		if browser === webView { cancelDialog(); status?.stringValue = "Page stopped. Try Reload."; status?.isHidden = false }
+		if browser === webView { cancelPanels(); status?.stringValue = "Page stopped. Try Reload."; status?.isHidden = false }
 	}
 	private func failed(_ browser: WKWebView, _ value: WKNavigation?, _ error: Error) {
 		guard browser === webView, value === navigation else { return }
@@ -221,5 +262,5 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 		status?.isHidden = false
 	}
 
-	deinit { Self.cleanup(window, webView, observations, dialog, close: true) }
+	deinit { Self.cleanup(window, webView, observations, dialog, fileSelection, close: true) }
 }

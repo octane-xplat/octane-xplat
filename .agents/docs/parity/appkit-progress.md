@@ -5963,3 +5963,59 @@ navigation/process termination, IME/focus, VoiceOver and repeated teardown. Host
 network/ATS policy is unchanged. Frozen install and task-graph checks from the
 previous section also remain deferred, as do native supported-version and clean
 packaged-consumer qualification. Evidence checkboxes remain open; goal active.
+
+## AppKit browser file control source path
+
+Demand assumption: selecting page attachments belongs with common document/help
+and form flows, ahead of niche integrations. The repository FileInputDemo's
+multiple image/PDF attachment flow is supporting source evidence of file demand;
+it is not evidence that WebKit file controls already work. Without a WKUIDelegate
+open-panel handler the SDK documents macOS file controls as cancelled.
+
+Added an NSOpenPanel source path labeled with the initiating frame's security
+origin host. WebKit's public multiple/directory parameters configure selection;
+directory requests choose directories, ordinary requests choose files. Cancel,
+stale owner and overlapping native sheet requests return nil. No selected URLs
+or native errors are logged. A private one-shot lease captures URLs on OK before
+sheet teardown and delivers the WebKit completion after the current Cocoa turn.
+Browser close/replacement retires state first; navigation/process termination
+cancel pending dialog/file panels. Browser/window/selection identity guards late
+callbacks. This does not add a file copy, persistent bookmark, file grant bridge
+or app-shell script injection.
+
+Upstream API limit: local SDK WKOpenPanelParameters exposes only
+allowsMultipleSelection and allowsDirectories, with no public accepted types.
+The local implementation supplies no MIME/extension filter and does not promise
+native HTML accept filtering. Pages must validate attachments. This is a source
+API observation, not a native failed-filter experiment. No private API used.
+Directory recursion, security-scoped WebKit handoff, actual file byte delivery,
+network upload, symlink/package selection, focus/keyboard/VoiceOver and cleanup
+remain unqualified. Downloads, HTTP-auth, permissions and OAuth interception
+remain outside this browser subset.
+
+The idle browser-file-selection.html fixture has single/multiple/image-hint/
+directory controls, metadata-only textContent output and reset. It does not read
+file contents or transmit selections. Its inline script syntax and whitespace,
+SDK headers and semantic ownership review are the only checks. No compiler,
+tests, typechecks, server, page, OS automation or packaging ran. Existing five JS
+owner cases do not exercise native panels; no native completion test is claimed.
+
+Exact deferred commands, still awaiting this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/web-browser
+pnpm exec turbo run typecheck --filter=...@octane-xplat/web-browser --filter=...@xplat/macos
+pnpm probe doctor
+pnpm probe run apps/macos/test/fixtures/browser-service.macos.tsrx --target macos --watch
+python3 -m http.server 8765 --bind 127.0.0.1 --directory apps/macos/test/fixtures
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit browser file-control package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm exec turbo run pack:check --filter=@octane-xplat/web-browser
+pnpm check:recipes
+```
+
+After authorization use http://127.0.0.1:8765/browser-file-selection.html with test
+files only. Local HTTP remains subject to host ATS/network policy. This fixture
+does not prove upload transport; that requires an authorized test endpoint and
+actual byte comparison separately. Frozen install/task graph, Swift actor/API
+compilation, native supported-version and clean installed-consumer checks remain
+deferred. Audit snapshots and evidence-gated checkboxes unchanged; goal active.

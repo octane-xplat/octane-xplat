@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>AppKit browser file selection checks</title>
+<h1>Page file controls</h1>
+<p>Choose test files only. This page displays selection metadata locally and does not submit or read file contents.</p>
+<form id="files">
+  <p><label>Single file <input id="single" type="file"></label></p>
+  <p><label>Multiple files <input id="multiple" type="file" multiple></label></p>
+  <p><label>Image hint (native filter is not guaranteed) <input id="image" type="file" accept="image/*"></label></p>
+  <p><label>Directory <input id="directory" type="file" webkitdirectory multiple></label></p>
+  <button type="reset">Clear selections</button>
+</form>
+<pre id="result" aria-live="polite">Ready</pre>
+<script>
+const result = document.getElementById('result');
+document.getElementById('files').addEventListener('change', event => {
+  const input = event.target;
+  result.textContent = JSON.stringify({
+    control: input.id,
+    files: Array.from(input.files ?? [], file => ({
+      name: file.name, size: file.size, type: file.type,
+      relativePath: file.webkitRelativePath,
+    })),
+  }, null, 2);
+});
+document.getElementById('files').addEventListener('reset', () => {
+  result.textContent = 'Selections cleared';
+});
+</script>
+</html>

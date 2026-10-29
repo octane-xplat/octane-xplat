@@ -542,11 +542,15 @@ export const closeHelp = () => webBrowser.dismissBrowser()
 ```
 
 Native actions require the main UI thread. Mobile style/title/collapsing options
-and Android warmup hints stay platform specific. Advanced downloads/uploads,
+and Android warmup hints stay platform specific. Downloads,
 HTTP-auth/permission UI and OAuth interception are not implemented. Page alert/
 confirm/prompt sheets identify the requesting website; cancelled prompts return
 null and accepted empty input stays empty. Close/replacement/navigation/process
-termination retire outstanding sheets. Native dialog/focus/IME behavior is unrun.
+termination retire outstanding sheets. Native dialog/focus/IME behavior is unrun. Page file controls have website-labeled
+NSOpenPanel source paths respecting multiple/directory parameters, with one-shot
+cancellation on owner teardown/navigation/process termination. Public WebKit
+parameters expose no accepted types; do not promise native HTML accept filtering.
+File delivery, directory enumeration, sandbox grants and actual uploads are unrun.
 Five JS ownership cases and a manual harness fixture are authored, all unrun.
 Swift/class discovery, native UI/navigation/error/redirect/popup/cookie behavior,
 ATS/sandbox, threading/KVO/cleanup/AX and clean packaging remain unqualified.

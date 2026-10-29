@@ -492,3 +492,15 @@ These steps have not run; local HTTP remains subject to the app's network/ATS po
 python3 -m http.server 8765 --bind 127.0.0.1 --directory apps/macos/test/fixtures
 # In the browser-service fixture, open http://127.0.0.1:8765/browser-dialogs.html
 ```
+
+For page attachments, open `/browser-file-selection.html` on that same deferred
+server. Its labeled single/multiple/image-hint/directory inputs display metadata
+only; they do not read contents or send files. Check selection, Cancel, repeated
+selection/reset, close/replacement during picking, directory delivery, keyboard
+and VoiceOver. The public WebKit picker parameters expose no accepted types, so
+HTML accept hints do not guarantee a native filter. Actual file delivery,
+directory enumeration, sandbox grants and upload transport remain unqualified.
+
+```text
+http://127.0.0.1:8765/browser-file-selection.html
+```

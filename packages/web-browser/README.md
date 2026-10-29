@@ -75,7 +75,12 @@ remain Android-only service hints; they do nothing on AppKit. Web uses a new
 browser tab. Page alerts, confirmations and text prompts have native sheet source
 paths labeled with the requesting website. Cancelled prompts return null; an
 accepted empty response remains an empty string. Close/replacement, navigation
-and web-process termination cancel outstanding sheets. Downloads/uploads,
+and web-process termination cancel outstanding sheets. Page file controls have
+an owned NSOpenPanel source path for single/multiple files or directories,
+labeled with the requesting website. Cancel returns no selection. The public
+WebKit parameters expose no accepted-type filter; HTML accept hints are not
+guaranteed native filtering, and pages must validate attachments themselves.
+Actual file delivery/upload and sandbox access are unqualified. Downloads,
 HTTP-auth UI, website permission prompts and OAuth callback interception are not
 implemented by the AppKit service.
 
@@ -92,8 +97,7 @@ await webBrowser.openBrowser('https://docs.example.com', {
 Five owner cases and the manual AppKit fixture are authored but unrun. Swift
 compilation/class discovery, actual presentation, network/TLS/ATS behavior,
 history/reload/error UI, redirects/popups, JavaScript dialogs and prompt focus/IME,
-cookie behavior, main-thread/KVO
-ownership, user close/replacement, VoiceOver, resource lifetime and clean packed
+file selection/directory delivery, cookie behavior, main-thread/KVO ownership, user close/replacement, VoiceOver, resource lifetime and clean packed
 consumers remain unqualified. No build, test, typecheck, native execution or
 packaging pass is claimed by this source implementation.
 
