@@ -1,5 +1,5 @@
 import { setProjectionScale } from '../src/projection-paint.ts'
-import { srgbComponents } from '../src/color-components.ts'
+import { borderBands, borderBandPoints, darkBorderComponents } from '../src/border-styles.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -223,7 +223,15 @@ const sandbox = {
 		colorWithCGColor: (cg) => ({ CGColor: cg }),
 	},
 	NSColorSpace: { sRGBColorSpace: 'srgb' },
-	srgbComponents,
+	srgbComponents: (color: any, appearance: any) => {
+		const c = color?.colorUsingColorSpace?.(appearance ?? 'srgb')
+		return c
+			? { red: c.redComponent, green: c.greenComponent, blue: c.blueComponent, alpha: c.alphaComponent }
+			: null
+	},
+	borderBands,
+	borderBandPoints,
+	darkBorderComponents,
 	NSView: { alloc: () => ({ initWithFrame: () => view() }) },
 	CAShapeLayer: { alloc: () => ({ init: () => fakeCALayer() }) },
 	NSNumber: { numberWithDouble: (value: number) => value },
@@ -295,6 +303,13 @@ const sandbox = {
 	queueLayoutReconcile: (_container: any, parent: any) => reconciles.push(parent),
 	// Margin hosts install/remove a click-through recognizer; irrelevant here.
 	setLayoutAction: () => {},
+	setPanAction: () => {},
+	setScrollAction: () => {},
+	setKeyActions: () => {},
+	setFocusActions: () => {},
+	syncSecureTextField: () => {},
+	stickyPlacements: { priority: () => 0 },
+	shallowEqualStyle: () => false,
 	// Real cascade machinery — the vendored selector engine is importable
 	// directly, so slices exercise actual CSS matching.
 	computeCascade,
