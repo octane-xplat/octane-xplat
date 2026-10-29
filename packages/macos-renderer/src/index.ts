@@ -58,6 +58,7 @@ import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll
 import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { makeListView, updateListView, disposeListView } from './list-view'
+import { makePagerView, updatePagerView, disposePagerView } from './pager'
 import { validateListProps } from './list-template'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
@@ -2508,6 +2509,7 @@ const SUPPORTED_TYPES = new Set([
 	'webview',
 	'image',
 	'animatedimage',
+	'pager',
 	'placeholder',
 	'span',
 	'formattedstring',
@@ -2897,6 +2899,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 					break
 				case 'animatedimage':
 					node.view = makeAnimatedImageView(props)
+					break
+				case 'pager':
+					node.view = makePagerView()
 					break
 				case 'placeholder':
 					node.view = makePlaceholder(node)
@@ -6857,6 +6862,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 		updateListView(node.view!, node.props)
 	}
 
+	if (node.type === 'pager') {
+		updatePagerView(node.view!, node.props)
+	}
+
 	if (node.type === 'datepicker') {
 		syncDatePicker(node, props)
 	}
@@ -7766,6 +7775,10 @@ function destroy(node: ElementNode) {
 
 	if (node.type === 'listview' && node.view) {
 		disposeListView(node.view)
+	}
+
+	if (node.type === 'pager' && node.view) {
+		disposePagerView(node.view)
 	}
 
 	if (node.type === 'tabview') {
