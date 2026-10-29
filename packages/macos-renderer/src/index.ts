@@ -6645,10 +6645,26 @@ function updateNativeTextValue(node: ElementNode, value: string | undefined): vo
 			},
 			observeCommit: (notify) => {
 				const window = view.window
-				if (!window) return () => {}
+				if (!window || node.view !== view) return undefined
 				const center = NSNotificationCenter.defaultCenter
-				const token = center.addObserverForNameObjectQueueUsingBlock(NSWindowDidUpdateNotification, window, null, notify)
-				return () => center.removeObserver(token)
+				const remove = center.removeObserver, add = center.addObserverForNameObjectQueueUsingBlock
+				if (typeof remove !== 'function' || typeof add !== 'function') throw new Error('Text value observation unavailable')
+				if (node.view !== view || view.window !== window) return undefined
+				let active = true, ready = false, token: any
+				const release = () => {
+					active = false; ready = false
+					const previous = token; token = undefined
+					if (previous != null) remove.call(center, previous)
+				}
+				try {
+					token = add.call(center, NSWindowDidUpdateNotification, window, null, () => {
+						if (active && ready && node.view === view && view.window === window) notify()
+					})
+					if (token == null) throw new Error('Text value observation unavailable')
+					if (node.view !== view || view.window !== window) { release(); return undefined }
+					ready = true
+					return release
+				} catch (error) { release(); throw error }
 			},
 		}
 	})

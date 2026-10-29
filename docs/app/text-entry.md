@@ -412,3 +412,39 @@ IME, caret/selection, Return/clear hit-testing, focus/notification ordering,
 accessibility or packaged behavior. Existing `isLoading` behavior remains busy
 announcement without disabling editing. TextInput/TextArea have no public
 `hasAutoFocus` prop; this change adds none.
+
+## Keep pending AppKit values with their field
+
+In the experimental AppKit source path, a controlled value waits while the
+native editor has marked text. A newer value, matching edit echo, removed value
+or removed field supersedes that pending work. Observer/timer cleanup now
+retires the old work before releasing it, so cleanup cannot overwrite a newer
+value or erase its owner. Keep the app value in state as usual:
+
+```tsx
+import { useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+
+export function NameField() {
+  const [name, setName] = useState('Ada')
+  return <TextInput label="Name" value={name} onChange={setName} />
+}
+```
+
+Failed deferred writes keep the pending value for a later prop update or commit
+notification to retry. They use fixed diagnostics without including the native
+error payload or entered text. Immediate native read/setter failures still
+propagate to the caller. This shared path covers TextInput, TextArea and
+SearchInput; real IME candidate timing, caret/selection, window moves, undo/redo,
+VoiceOver and installed apps remain unqualified. Fourteen writer/adapter source
+cases and the extended manual fixture are authored but unrun.
+
+```tsx
+import { useState } from 'octane'
+import { SearchInput } from '@octane-xplat/ui'
+
+export function QueryField() {
+  const [query, setQuery] = useState('recent')
+  return <SearchInput label="Search" value={query} onChange={setQuery} />
+}
+```

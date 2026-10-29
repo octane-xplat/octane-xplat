@@ -8682,3 +8682,92 @@ completes the permitted checks. No tests, typechecks, compiler
 transforms, probes, native builds/OS/AX automation, packaging or visual analysis
 ran. Native-resource authorization would not authorize visual analysis. All
 evidence gates remain open and the persistent goal stays active.
+
+## AppKit controlled composition value ownership
+
+Demand remains ordinary Home name fields and the maintained name/message/search
+examples. An editable-text source review found a prerequisite before extending
+alignment: the marked-value writer assigned observation and schedule handles
+after acquisition, cleaned up before retiring both records, and could let an old
+flush overwrite a reentrant replacement. Registry factory/teardown effects could
+also overwrite/delete a newer writer. Deferred failure diagnostics included the
+native error payload. These are source findings, not observed OS/IME failures.
+
+The target-only writer now owns latest-value intent identity/revision before
+effects, rechecks after native reads/marked-state access, claims observations
+and work before acquisition, suppresses incomplete/retired/held callbacks, and
+attempts release of late returned handles once. Successful/equal writes clear
+the intent and retire both old cleanup records before either effect; newer
+values admitted during cleanup win. Dispose retires both before attempting
+both releases, containing cleanup/diagnostic failures without exposing payloads.
+Nested writes retain the suppression depth until their outer write finishes.
+
+The view registry claims initialization before the adapter factory, coalesces
+reentrant latest/unset values, and removes/marks an owner before disposal. Old
+factory completion/failure/cleanup cannot overwrite/delete a replacement.
+Immediate read/setter failures still propagate and a published writer survives
+for retry. Deferred schedule/read/marked/write failures retain the latest intent
+for a later explicit prop update or commit notification, log fixed diagnostics
+only, and retire observation to avoid repeated window-update retries. There is
+no new polling loop or native input reconstruction.
+
+The native adapter captures the notification center/removal method/receiver,
+guards setup readiness and current view/window identity, and tombstones before
+idempotent removal. Missing/unattached scope returns no false cleanup handle;
+the private adapter type permits undefined for this case. Replaced scope during
+registration attempts token release and returns no acquired subscription.
+Observer migration to a new window and registration throwing after installing
+an unreturned handle remain unqualified; no source model can prove native
+resource release when the OS removal itself fails.
+
+Fourteen new cases are authored, all UNRUN: twelve actual writer/registry models
+for reentrant acquisition/update/factory/getter/cleanup, stale work/late handles,
+captured cancellation, setup/schedule/native-write failures, explicit retry,
+nested owner replacement and fixed diagnostics; two actual native-adapter source
+models for captured cleanup/readiness/view/window/missing-scope retirement.
+The existing adapter case now checks guarded callback delivery and idempotent
+release instead of callback identity. They are source/VM models, not SDK proof.
+
+The maintained ownership fixture adds controlled message/search peers, unset
+and whole-controlled-group removal, plus a user-armed 2.5s external replacement.
+That timer retires by revision/active state before cancellation and ignores held
+callbacks after replacement/unmount. A pointer action can commit composition
+before changing props, so the delayed control permits a future manual marked
+trial; it does not automate input or establish candidate timing. Existing
+uncontrolled peers and the mounting-only run hook remain. Nothing has run.
+
+The public text-entry guide and canonical primitive link, renderer README, Octane primitive reference and
+recipe AC4 reconcile the source contract. No public UI prop/type export,
+dependency, manifest, other-target renderer or audit snapshot changed. No new
+release note is added for this unreleased branch repair: sem history places the
+writer's introduction at 2ca7ae5, and local remote/tag containment lists only
+origin/feat/appkit-native-support and no release tag. This is local Git evidence,
+not a registry publication audit. Existing assessments are not rewritten as
+passes and no React Aria presence-level API changed.
+
+Exact deferred commands, requiring this task's explicit human authorization:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-entry-ownership.macos.mobile.test.tsrx
+pnpm probe doctor
+pnpm probe run examples/probes/text-entry-ownership.macos.tsrx --target macos --watch
+pnpm probe run examples/probes/controlled-text.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit composition value ownership package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+check:docs/check:doc-examples remain absent in this isolated snapshot; no shared
+in-flight tooling is copied. Five source/test/fixture files and five scoped TSX
+documentation fences syntax parsed; eight AC4 local paths/anchors exist. Focused
+semantic/source and whitespace review completes the permitted checks. Tests/typechecks/compiler transforms,
+probe doctor/runner, native/OS/AX automation, builds, packaging and visual analysis
+remain unrun. Real IME/editor identity, candidate/commit/echo timing, reparenting,
+selection/undo, editable alignment, physical cleanup/memory, supported-version
+installed consumers and pixels remain unqualified. Native-resource authorization
+would not authorize visual analysis. All evidence gates stay open and the
+persistent goal remains active.

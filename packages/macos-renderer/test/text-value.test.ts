@@ -121,16 +121,18 @@ test('native adapters read the field editor, clamp selection and scope commit ob
 		updateNativeTextValue({ type, view }, 'next')
 		assert.equal(adapter.read(), 'marked native')
 		assert.equal(adapter.marked(), true)
-		const notify = () => {}
+		let notifications = 0
+		const notify = () => { notifications++ }
 		const detach = adapter.observeCommit(notify)
 		assert.equal(observed[0], 'window-update')
 		assert.equal(observed[1], view.window)
-		assert.equal(observed[3], notify)
-		detach()
+		observed[3](); assert.equal(notifications, 1)
+		detach(); detach()
 		assert.equal(removed, 1)
+		observed[3](); assert.equal(notifications, 1)
 		view.window = null
 		observed = []
-		adapter.observeCommit(notify)()
+		assert.equal(adapter.observeCommit(notify), undefined)
 		assert.equal(observed.length, 0)
 		editor.hasMarkedText = () => false
 		adapter.write('new')

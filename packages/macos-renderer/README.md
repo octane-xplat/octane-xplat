@@ -1014,6 +1014,39 @@ submit paths check marked state before dispatching their submit action. Real fie
 IME candidate/confirmation timing, observer delivery/window moves, secure-mode
 changes, undo/redo, focus and packaging remain unqualified.
 
+#### Own pending value work
+
+The composition writer's source ownership now claims value intents, task records
+and observation records before acquisition/cancellation/cleanup. Reentrant
+factory/update/cleanup effects preserve newer registry owners and pending values.
+Late returned handles receive one release attempt, retired callbacks stay inert, and both cleanup paths
+are attempted even when one fails. The native observer captures its center and
+removal method and suppresses setup, retired, former-view/window callbacks.
+An unattached view returns no false subscription handle, permitting later retry.
+
+```tsx
+export function CurrentValue(props: { value: string; changed(value: string): void }) {
+  return <textfield value={props.value} onTextChange={props.changed} />
+}
+```
+
+Synchronous read/setter failures still propagate and release writing suppression.
+Deferred failures use fixed diagnostics, retain the latest intent, and can retry
+on a later prop update/commit notification; failed task/write attempts retire
+the observer rather than repeatedly retrying from window updates. Fourteen new
+source cases are authored but unrun. The manual ownership fixture now has
+controlled name/message/search fields, unset/removal trials and an owned 2.5s
+external replacement timer. Mounting proves no IME/native lifecycle behavior.
+Automatic observer migration to a new window, native registration throwing after
+installing an unreturned handle, real IME/caret/undo, editable alignment, memory,
+VoiceOver and installed consumers remain unqualified.
+
+```tsx
+export function CurrentQuery(props: { query: string }) {
+  return <searchbar text={props.query} />
+}
+```
+
 ### Self-drawn control accessibility
 
 AppKit container hosts map `switch` to a checkbox role, `tab` to a radio-button

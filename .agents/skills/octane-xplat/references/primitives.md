@@ -831,6 +831,25 @@ export function RawSearch({ query, onQuery }: { query: string; onQuery(value: st
 }
 ```
 
+The writer now owns pending intents, observation/schedule acquisition and registry
+initialization/retirement before side effects. Retired/held callbacks cannot
+overwrite replacement work; cleanup tombstones both records before attempting
+both releases, and late returned handles receive one release attempt. Synchronous read/setter
+errors still propagate; deferred faults use fixed diagnostics without error/input
+payloads and retain explicit later update/commit retry. Failed task/write attempts
+retire window observation to avoid repeated update-driven retries. Missing-window
+observation returns no handle, allowing later acquisition. Fourteen source cases
+and an extended idle fixture remain unrun. Native observer migration, unreturned
+handles on registration throws, actual IME/caret/undo/AX/memory/installed behavior
+remain open. See [pending values](../../../../docs/app/text-entry.md#keep-pending-appkit-values-with-their-field).
+
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+export function CurrentName(props: { name: string; onChange(value: string): void }) {
+  return <TextInput value={props.name} onChange={props.onChange} />
+}
+```
+
 ## AppKit number fields
 
 NumberInput now wires `units`, `formatValue`, `hasNumberSteppers` and `hasClear`
