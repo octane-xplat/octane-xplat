@@ -12,7 +12,7 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'
-import { syncAccessibilityState } from './accessibility.js'
+import { bindAccessibilityMapping, syncAccessibilityState } from './accessibility.js'
 import { bindPressKeys } from './press-keyboard.js'
 import {
 	bindMasonView,
@@ -3450,6 +3450,9 @@ function expect(container: GtkContainer, id: number): ElementNode {
 }
 
 function bindNodePublicInstance(node: ElementNode): () => void {
+	const disposeAccessibility = node.view
+		? bindAccessibilityMapping(node.view, () => node.props)
+		: null
 	const textView = node.textView
 	const pressKeys = node.view && node.type === 'masonview' ? bindPressKeys(node) : null
 	node.pressKeys = pressKeys
@@ -3519,6 +3522,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 		}
 	}
 	return () => {
+		disposeAccessibility?.()
 		textView?.dispose()
 		pressKeys?.dispose()
 		disposeEntryInput?.()

@@ -48,7 +48,7 @@ export function syncAccessibilityState(view: any, props: Bag) {
 		add(
 			'hidden',
 			Gtk.AccessibleState.HIDDEN,
-			state.hidden === true || props.accessible === false || !view.get_visible(),
+			state.hidden === true || props.accessible === false || !view.get_mapped(),
 		)
 	for (const key of ['selected', 'expanded', 'visited'] as const)
 		if (state[key] != null) add(key, Gtk.AccessibleState[key.toUpperCase()], state[key] ? 1 : 0)
@@ -110,4 +110,22 @@ export function syncAccessibilityState(view: any, props: Bag) {
 	if (state.hidden == null && props.accessible == null) next.delete('hidden')
 	if (state.checked == null) next.delete('checked')
 	previous.set(view, next)
+}
+
+/** GTK 4.14 writes HIDDEN=false after emitting map, replacing declarative
+ * exclusions set before first mount. Reapply after that native call returns;
+ * read current props and cancel pending work when the node is disposed. */
+export function bindAccessibilityMapping(view: any, getProps: () => Bag): () => void {
+	let active = true
+	const mapped = () => {
+		Promise.resolve().then(() => {
+			if (active && view.get_mapped()) syncAccessibilityState(view, getProps())
+		})
+	}
+	const connection = view.connect('map', mapped)
+	if (view.get_mapped()) mapped()
+	return () => {
+		active = false
+		view.disconnect(connection)
+	}
 }

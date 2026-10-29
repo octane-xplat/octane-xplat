@@ -60,6 +60,30 @@ async function run() {
 	const box = node('a11y-state').view!,
 		entry = node('a11y-entry').view!,
 		toggle = node('a11y-switch').view!
+	const decorative = node('a11y-decorative').view!
+	state(decorative, 'HIDDEN', true)
+	check('decorative content remains painted', decorative.get_mapped())
+	props = { decorativeAccessible: true }
+	render()
+	await pause()
+	state(decorative, 'HIDDEN', false)
+	props = { decorativeVisible: false }
+	render()
+	await pause()
+	check('decorative content unmaps', !decorative.get_mapped())
+	state(decorative, 'HIDDEN', true)
+	props = { decorativeVisible: true }
+	render()
+	await pause()
+	check(
+		'decorative content remaps without replacement',
+		node('a11y-decorative').view === decorative && decorative.get_mapped(),
+	)
+	state(decorative, 'HIDDEN', true)
+	props = { decorativeAccessible: true, decorativeVisible: true }
+	render()
+	await pause()
+	state(decorative, 'HIDDEN', false)
 	props = {
 		state: {
 			disabled: true,
