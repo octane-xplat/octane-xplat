@@ -1,4 +1,5 @@
 import { setProjectionScale } from '../src/projection-paint.ts'
+import { srgbComponents } from '../src/color-components.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -211,9 +212,18 @@ const sandbox = {
 	NSColor: {
 		labelColor: { semantic: 'label' },
 		placeholderTextColor: { semantic: 'placeholder' },
-		colorWithRedGreenBlueAlpha: (r, g, b, a) => ({ CGColor: { r, g, b, a } }),
+		colorWithRedGreenBlueAlpha: (r, g, b, a) => ({
+			CGColor: { r, g, b, a },
+			colorUsingColorSpace: () => ({ redComponent: r, greenComponent: g, blueComponent: b, alphaComponent: a }),
+		}),
+		colorWithSRGBRedGreenBlueAlpha: (r, g, b, a) => ({
+			CGColor: { r, g, b, a },
+			colorUsingColorSpace: () => ({ redComponent: r, greenComponent: g, blueComponent: b, alphaComponent: a }),
+		}),
 		colorWithCGColor: (cg) => ({ CGColor: cg }),
 	},
+	NSColorSpace: { sRGBColorSpace: 'srgb' },
+	srgbComponents,
 	NSView: { alloc: () => ({ initWithFrame: () => view() }) },
 	CAShapeLayer: { alloc: () => ({ init: () => fakeCALayer() }) },
 	NSNumber: { numberWithDouble: (value: number) => value },
@@ -860,6 +870,82 @@ test('border shorthand feeds width and color slots', () => {
 
 	setStyle(item, { border: 0 })
 	assert.equal(item.view.layer.borderWidth, 0)
+	assert.equal(item.borderLayer, null)
+})
+
+test('inset borders paint shaded fill bands per side without a solid fallback warning', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 40
+	const warnings = []
+	const original = console.warn
+	console.warn = (message) => warnings.push(message)
+	try {
+		setStyle(item, { borderWidth: 3, borderColor: '#ff0000', borderStyle: 'inset' })
+	} finally {
+		console.warn = original
+	}
+
+	assert.ok(!warnings.some((m) => String(m).includes('Unsupported decorative border style')))
+	assert.equal(item.view.layer.borderWidth, 0, 'banded styles still take the layered path')
+	for (const side of ['top', 'right', 'bottom', 'left']) {
+		assert.equal(item.borderSides[side].hidden, false)
+		assert.equal((item.borderBandShapes?.[side] ?? []).length, 0, `no extra band shapes on ${side}`)
+	}
+	assert.deepEqual(item.borderSides.top.path.ops, [['M', 0, 40], ['L', 100, 40], ['L', 97, 37], ['L', 3, 37], ['Z']])
+	assert.ok(Math.abs(item.borderSides.top.fillColor.r - 0.67) < 1e-9 && item.borderSides.top.fillColor.g === 0, 'top shades dark')
+	assert.ok(Math.abs(item.borderSides.left.fillColor.r - 0.67) < 1e-9, 'left shades dark')
+	assert.deepEqual({ ...item.borderSides.bottom.fillColor }, { r: 1, g: 0, b: 0, a: 1 }, 'bottom keeps the base color')
+	assert.deepEqual({ ...item.borderSides.right.fillColor }, { r: 1, g: 0, b: 0, a: 1 }, 'right keeps the base color')
+})
+
+test('double borders paint two bands per side and retire the extras with the style', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 40
+	setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
+	for (const side of ['top', 'right', 'bottom', 'left']) {
+		assert.equal(item.borderBandShapes[side].length, 1, `one extra band on ${side}`)
+		assert.equal(item.borderBandShapes[side][0].hidden, false)
+	}
+
+	setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'solid' })
+	assert.equal(item.borderLayer, null, 'uniform solid restores the fast path')
+	assert.equal(item.borderBandShapes, undefined)
+
+	setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
+	const extras = item.borderBandShapes
+	setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'dashed' })
+	assert.equal(item.borderStroke.hidden, false, 'uniform dashed strokes through borderStroke')
+	for (const side of ['top', 'right', 'bottom', 'left']) assert.equal(extras[side][0].hidden, true)
+})
+
+test('an unknown decorative border style warns once and paints solid', () => {
+	const item = node('masonview', { orientation: 1 })
+	const warnings = []
+	const original = console.warn
+	console.warn = (message) => warnings.push(message)
+	try {
+		setStyle(item, { borderWidth: 2, borderColor: '#0000ff', borderStyle: 'wavy' })
+		setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderStyle: 'wavy' })
+	} finally {
+		console.warn = original
+	}
+
+	assert.equal(warnings.filter((m) => String(m).includes('Unsupported decorative border style')).length, 1)
+	assert.equal(item.view.layer.borderWidth, 2, 'uniform fallback paints through the CALayer slot')
+	assert.equal(item.borderLayer, null)
+	assert.deepEqual({ ...item.view.layer.borderColor }, { r: 1, g: 0, b: 0, a: 1 })
+})
+
+test('clearing a banded border removes the extra band shapes', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 40
+	setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
+	assert.ok(item.borderBandShapes?.top?.length)
+	setStyle(item, {})
+	assert.equal(item.borderBandShapes, undefined)
 	assert.equal(item.borderLayer, null)
 })
 

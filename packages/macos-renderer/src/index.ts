@@ -30,7 +30,7 @@ export function setLayoutProjectionScale(view: object, scale: ProjectionScale | 
 
 import { createStickyPlacements } from './sticky-placement.ts'
 import { normalizeHostStyleProps } from './inline-style.ts'
-import { borderStyleSides, hiddenBorderStyle, borderStrokeStyle } from './border-styles.ts'
+import { borderStyleSides, hiddenBorderStyle, borderStrokeStyle, borderBands, borderBandPoints, darkBorderComponents } from './border-styles.ts'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 import { readOutlineHeadings } from './outline-headings.ts'
 import { readGridCells } from './grid-cells.ts'
@@ -4768,6 +4768,20 @@ function borderStrokeCGPath(w: number, h: number, radii: Record<BorderCorner, nu
 	return roundedBoxCGPath(w - inset * 2, h - inset * 2, scaleBorderRadii(inner, w - inset * 2, h - inset * 2), inset, inset)
 }
 
+function borderBandCGPath(points: [number, number][]): any {
+	if (typeof CGPathCreateMutable !== 'function' || !points.length) {
+		return null
+	}
+	const path = CGPathCreateMutable()
+	const [first, ...rest] = points
+	CGPathMoveToPoint(path, null, first[0], first[1])
+	for (const [x, y] of rest) {
+		CGPathAddLineToPoint(path, null, x, y)
+	}
+	CGPathCloseSubpath(path)
+	return path
+}
+
 // Trapezoid covering one side's border band between the outer rect and the
 // inner border edge — the four sides partition the ring at the miters.
 function borderSideCGPath(
@@ -4776,47 +4790,7 @@ function borderSideCGPath(
 	h: number,
 	widths: Record<BorderSide, number>,
 ): any {
-	if (typeof CGPathCreateMutable !== 'function') {
-		return null
-	}
-	const wt = widths.top
-	const wr = widths.right
-	const wb = widths.bottom
-	const wl = widths.left
-	const points: Record<BorderSide, [number, number][]> = {
-		top: [
-			[0, h],
-			[w, h],
-			[w - wr, h - wt],
-			[wl, h - wt],
-		],
-		right: [
-			[w, h],
-			[w, 0],
-			[w - wr, wb],
-			[w - wr, h - wt],
-		],
-		bottom: [
-			[w, 0],
-			[0, 0],
-			[wl, wb],
-			[w - wr, wb],
-		],
-		left: [
-			[0, 0],
-			[0, h],
-			[wl, h - wt],
-			[wl, wb],
-		],
-	}
-	const path = CGPathCreateMutable()
-	const [first, ...rest] = points[side]
-	CGPathMoveToPoint(path, null, first[0], first[1])
-	for (const [x, y] of rest) {
-		CGPathAddLineToPoint(path, null, x, y)
-	}
-	CGPathCloseSubpath(path)
-	return path
+	return borderBandCGPath(borderBandPoints(side, w, h, widths, 0, 1))
 }
 
 // Unparseable colors (color-mix, unknown functions) read as no color rather
@@ -4904,6 +4878,10 @@ function removeBorderLayers(node: ElementNode) {
 	node.borderOutline = undefined
 	node.borderStroke = undefined
 	node.borderSideMasks = undefined
+	for (const extras of Object.values(node.borderBandShapes ?? {})) {
+		for (const shape of extras as any[]) shape.removeFromSuperlayer()
+	}
+	node.borderBandShapes = undefined
 }
 
 function removeBoxFrameToken(owner: any, token: any) {
@@ -4965,7 +4943,8 @@ function observeBoxFrame(node: ElementNode, view: NSView) {
 // borderRadius styles and per-side border slots resolve on the node and sync
 // here. CALayer takes one borderWidth/borderColor/cornerRadius, so uniform
 // boxes stay on the fast path; anything else draws through masked
-// CAShapeLayer trapezoids clipped to the rounded outline.
+// CAShapeLayer trapezoids clipped to the rounded outline — banded styles
+// (double/groove/ridge/inset/outset) split each side into shaded bands.
 function syncBorderBox(node: ElementNode) {
 	const view = node.view
 	if (!view) {
@@ -4995,7 +4974,7 @@ function syncBorderBox(node: ElementNode) {
 	}
 	for (const side of BORDER_SIDES) {
 		if (hiddenBorderStyle(sideStyles[side])) widths[side] = 0
-		else if (!['solid', 'dashed', 'dotted'].includes(sideStyles[side])) {
+		else if (!['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset'].includes(sideStyles[side])) {
 			const warned = (node.borderStyleWarnings ??= new Set())
 			if (!warned.has(sideStyles[side])) {
 				warned.add(sideStyles[side])
@@ -5018,8 +4997,16 @@ function syncBorderBox(node: ElementNode) {
 	const perCorner = maxRadius > 0 && !uniformRadius && layers && !outsetShadow
 	const patterned = BORDER_SIDES.some(side => borderStrokeStyle(sideStyles[side], widths[side]) != null)
 	const uniformPattern = patterned && uniformWidth && uniformColor && BORDER_SIDES.every(side => sideStyles[side] === sideStyles.top)
-	const layered = maxWidth > 0 && (!(uniformWidth && uniformColor) || patterned) && layers
+	// Decorative styles (double/groove/ridge/inset/outset) paint as filled
+	// bands per side; a single base band collapses back to the solid path.
+	const singleBaseBand = (bands: { from: number; to: number; shade: string }[]) =>
+		bands.length === 1 && bands[0].from === 0 && bands[0].to === 1 && bands[0].shade === 'base'
+	const banded = BORDER_SIDES.some(
+		(side) => widths[side] > 0 && !singleBaseBand(borderBands(sideStyles[side], side, widths[side])),
+	)
+	const layered = maxWidth > 0 && (!(uniformWidth && uniformColor) || patterned || banded) && layers
 	if (patterned && !layers) console.warn('[macos-css] Patterned border layers unavailable; drawing solid')
+	if (banded && !layers) console.warn('[macos-css] Decorative border layers unavailable; drawing solid')
 
 	if (maxRadius > 0 || maxWidth > 0) {
 		view.wantsLayer = true
@@ -5086,6 +5073,17 @@ function syncBorderBox(node: ElementNode) {
 			shape.lineCap = stroke.cap
 			shape.path = borderStrokeCGPath(w, h, scaled, width)
 		}
+		// Chromium Color::Dark() shading for 3D border bands — pattern colors
+		// carry no sRGB components and keep the base fill.
+		const darkBandColor = (base: NSColor | null, fallback: any) => {
+			const components = base && srgbComponents(base, view.effectiveAppearance)
+			if (!components) return fallback
+			const dark = darkBorderComponents(components)
+			return NSColor.colorWithSRGBRedGreenBlueAlpha(dark.red, dark.green, dark.blue, dark.alpha)?.CGColor ?? fallback
+		}
+		const hideBandExtras = (side: BorderSide) => {
+			for (const extra of node.borderBandShapes?.[side] ?? []) extra.hidden = true
+		}
 		if (uniformPattern) {
 			const stroke = (node.borderStroke ??= CAShapeLayer.alloc().init())
 			if (stroke.superlayer !== box) box.addSublayer(stroke)
@@ -5093,6 +5091,7 @@ function syncBorderBox(node: ElementNode) {
 			stroke.hidden = false
 			paintStroke(stroke, sideStyles.top, widths.top, borderNSColor(node, spec?.colors?.top)?.CGColor ?? null)
 			for (const shape of Object.values(node.borderSides ?? {}) as any[]) shape.hidden = true
+			for (const side of BORDER_SIDES) hideBandExtras(side)
 		} else {
 			if (node.borderStroke) node.borderStroke.hidden = true
 			for (const side of BORDER_SIDES) {
@@ -5105,8 +5104,12 @@ function syncBorderBox(node: ElementNode) {
 				shape.lineWidth = 0
 				shape.lineDashPattern = null
 				shape.fillColor = null
-				if (widths[side] === 0) continue
-				const color = borderNSColor(node, spec?.colors?.[side])?.CGColor ?? null
+				if (widths[side] === 0) {
+					hideBandExtras(side)
+					continue
+				}
+				const baseNSColor = borderNSColor(node, spec?.colors?.[side])
+				const color = baseNSColor?.CGColor ?? null
 				if (borderStrokeStyle(sideStyles[side], widths[side])) {
 					paintStroke(shape, sideStyles[side], widths[side], color)
 					const mask = ((node.borderSideMasks ??= {})[side] ??= CAShapeLayer.alloc().init())
@@ -5114,9 +5117,24 @@ function syncBorderBox(node: ElementNode) {
 					mask.path = borderSideCGPath(side, w, h, widths)
 					mask.fillColor = borderNSColor(node, '#000')?.CGColor ?? null
 					shape.mask = mask
+					hideBandExtras(side)
 				} else {
-					shape.path = borderSideCGPath(side, w, h, widths)
-					shape.fillColor = color
+					// Decorative styles paint each band as its own trapezoid — the
+					// first reuses the side's shape layer, extra bands stack on
+					// per-side CAShapeLayers so dark fills stay independent.
+					const bands = borderBands(sideStyles[side], side, widths[side])
+					shape.path = borderBandCGPath(borderBandPoints(side, w, h, widths, bands[0].from, bands[0].to))
+					shape.fillColor = bands[0].shade === 'dark' ? darkBandColor(baseNSColor, color) : color
+					const extras = ((node.borderBandShapes ??= {})[side] ??= [] as any[])
+					for (let i = 1; i < bands.length; i++) {
+						const extra = (extras[i - 1] ??= CAShapeLayer.alloc().init())
+						if (extra.superlayer !== box) box.addSublayer(extra)
+						extra.frame = shape.frame
+						extra.hidden = false
+						extra.path = borderBandCGPath(borderBandPoints(side, w, h, widths, bands[i].from, bands[i].to))
+						extra.fillColor = bands[i].shade === 'dark' ? darkBandColor(baseNSColor, color) : color
+					}
+					for (let i = bands.length - 1; i < extras.length; i++) extras[i].hidden = true
 				}
 			}
 		}
@@ -8716,6 +8734,7 @@ function destroy(node: ElementNode) {
 	node.borderOutline = undefined
 	node.borderStroke = undefined
 	node.borderSideMasks = undefined
+	node.borderBandShapes = undefined
 	node.cornerMask = undefined
 	node.insetShadowLayer = null
 

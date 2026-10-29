@@ -337,9 +337,28 @@ registration/update attempts after failure. Other frame readers retain their
 notification-enable flags. Native stroke/dash/NSNumber bridging, geometry,
 corner/side joins, scale/antialiasing, shadow/clipping interaction, notification
 ordering, memory and installed apps remain unqualified. Twelve source cases and
-an idle fixture are authored, all unrun. Double/groove/ridge/inset/outset still
-warn and paint solid; non-solid outlines keep their existing approximation.
+an idle fixture are authored, all unrun. Non-solid outlines keep their existing
+approximation; see [decorative borders](#decorative-borders) for the other styles.
 This is not full CSS border/outline or pixel parity. See [AppKit borders](../../docs/app/styling.md#appkit-borders).
+
+### Decorative borders
+
+`double`, `groove`, `ridge`, `inset` and `outset` split each side into filled
+bands on the same per-side layers. `double` draws an outer and an inner third
+(widths below 3 points paint solid, as in browsers). `inset`/`outset` shade the
+top-left or bottom-right sides, and `groove`/`ridge` shade opposite halves. The
+shade follows Chromium's darkening rule, so black shades to dark grey. Pattern
+colors without sRGB components keep the base color.
+
+```css
+.well { border-width: 3px; border-style: inset; border-color: #888; }
+.frame { border-width: 6px; border-style: double; border-color: #225588; }
+.raised-left { border-width: 4px; border-style: solid; border-left-style: ridge; }
+```
+
+At rounded corners the outer edge follows the corner, but inner band edges
+stay straight. Band geometry, shading under appearance changes and pixels
+have not been checked on a running Mac.
 
 Current limits:
 
@@ -361,10 +380,11 @@ Current limits:
   it, with workspace display-option notifications queuing media refresh for
   reduced motion. Native playback, notification delivery and frame pacing
   remain unqualified.
-- Border styles support solid, dashed, dotted, none and hidden, including
-  side-specific styles. Double/groove/ridge/inset/outset still approximate to
-  solid with an explicit warning. Non-solid outlines remain a separate gap;
-  see [patterned borders](#patterned-borders).
+- Border styles support solid, dashed, dotted, double, groove, ridge, inset,
+  outset, none and hidden, including side-specific styles; unknown styles warn
+  and paint solid. Non-solid outlines remain a separate gap; see
+  [patterned borders](#patterned-borders) and
+  [decorative borders](#decorative-borders).
 - `box-shadow` paints one outset shadow (first entry; spread grows the
   silhouette) and drops the view's corner clip while it is in effect — the
   same CALayer constraint UIKit has. The first `inset` entry approximates as

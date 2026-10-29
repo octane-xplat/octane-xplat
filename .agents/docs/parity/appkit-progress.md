@@ -10068,3 +10068,49 @@ pnpm check:docs
 pnpm check:doc-examples
 pnpm check:changelog
 ```
+
+## AppKit decorative border bands
+
+Tracked in #78. At 6f30ff7f5 `syncBorderBox` warned and painted solid for
+`double`, `groove`, `ridge`, `inset` and `outset`. These styles now paint as
+per-side filled bands on the existing layered border path.
+
+`border-styles.ts` adds three pure helpers:
+- `borderBands`: double thirds, or one solid band below width 3; inset/outset
+  shade top-left or bottom-right; groove/ridge shade opposite halves.
+- `darkBorderComponents`: Chromium `Color::Dark()`, where black becomes grey
+  84/255.
+- `borderBandPoints`: band trapezoids. `borderSideCGPath` now derives its path
+  from this helper, so solid sides keep identical geometry.
+
+The first band reuses each side's shape layer. Extra bands use per-side
+`borderBandShapes`, which are hidden for stroked, zero-width and uniform-pattern
+states and removed on fast-path return and teardown. Dark fills resolve sRGB
+components under the view's appearance; pattern colors keep the base. Only
+unknown styles still warn. When shape layers are unavailable, banded boxes warn
+and paint solid, like patterned borders. Outlines and box-shadow are unchanged.
+Inner band edges stay straight at rounded corners.
+
+Eight new cases, all UNRUN: four pure border-style cases (band table,
+darkening, geometry identity, double bands) and four style-reconcile paint
+cases (inset shading without warning, double extras and retirement across
+solid/double/dashed, unknown style warning, clearing). The style-reconcile fake
+NSColor gained component conversion and an sRGB factory. The renderer README
+gains a Decorative borders section; the styling guide, Octane styling
+reference, recipe `appkit-patterned-borders` AC5, the border fixture's style
+cycle and release note `.changelog/appkit-decorative-borders.md` are updated.
+Lightweight verification only: four TS files parsed with zero diagnostics,
+whitespace clean. Native band geometry, shading under appearance changes,
+rounded-corner joins, scale/antialiasing and pixels remain unqualified.
+
+Exact deferred commands (DO NOT RUN until explicit human authorization):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer -- test/border-styles.test.ts test/style-reconcile.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/border-styles.macos.tsrx --target macos --watch
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```

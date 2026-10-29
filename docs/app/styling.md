@@ -263,15 +263,26 @@ side-specific styles keep separate widths and colors:
 
 `none` and `hidden` remove a side's paint and its border width from the native
 layout. Removing a style declaration restores the existing native default:
-explicit width without a style paints solid. `double`, `groove`, `ridge`,
-`inset` and `outset` still warn and paint solid on AppKit. Non-solid `outline`
-styles remain a separate limitation:
+explicit width without a style paints solid. Non-solid `outline` styles remain
+a separate limitation:
 
 ```css
 .no-border { border-style: none; }
 .hidden-top { border-width: 2px; border-top-style: hidden; }
 .solid-box { border-width: 2px; border-style: solid; }
 ```
+
+AppKit also draws `double`, `groove`, `ridge`, `inset` and `outset` borders.
+`double` needs at least 3 points of width to show two lines. The 3D styles
+darken some sides to look raised or sunken:
+
+```css
+.sunken-well { border-width: 3px; border-style: inset; border-color: #888; }
+.picture-frame { border-width: 6px; border-style: double; }
+```
+
+On rounded corners the inner edges of these bands stay straight. They have
+not been checked on a running Mac yet.
 
 The FileInput dropzone theme already requests dashed borders. This renderer
 change supplies that source path; native dash/NSNumber bridging, corner joins,

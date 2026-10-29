@@ -1,5 +1,5 @@
 /** AppKit border style resolution shared by painting and Mason edge sizing. */
-type Side = 'top' | 'right' | 'bottom' | 'left'
+export type Side = 'top' | 'right' | 'bottom' | 'left'
 const sides: Side[] = ['top', 'right', 'bottom', 'left']
 const styles = new Set(['none', 'hidden', 'solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset'])
 const sideKeys: Record<string, Side> = Object.assign(Object.create(null), { borderTopStyle: 'top', borderRightStyle: 'right', borderBottomStyle: 'bottom', borderLeftStyle: 'left' })
@@ -32,4 +32,77 @@ export function borderStrokeStyle(style: string, width: number): { pattern: numb
 	if (style === 'dashed') return { pattern: [width * 3, width * 3], cap: 'butt' }
 	if (style === 'dotted') return { pattern: [0, width * 2], cap: 'round' }
 	return null
+}
+
+export type BorderBand = { from: number; to: number; shade: 'base' | 'dark' }
+
+/** Bands across one side's width, as fractions from the outer edge (0) to
+ *  the inner edge (1) — Chromium's double/groove/ridge/inset/outset
+ *  partition: top and left shades face the light. */
+export function borderBands(style: string, side: Side, width: number): BorderBand[] {
+	const topLeft = side === 'top' || side === 'left'
+	switch (style) {
+		case 'double':
+			return width >= 3
+				? [{ from: 0, to: 1 / 3, shade: 'base' }, { from: 2 / 3, to: 1, shade: 'base' }]
+				: [{ from: 0, to: 1, shade: 'base' }]
+		case 'inset':
+			return [{ from: 0, to: 1, shade: topLeft ? 'dark' : 'base' }]
+		case 'outset':
+			return [{ from: 0, to: 1, shade: topLeft ? 'base' : 'dark' }]
+		case 'groove':
+			return [
+				{ from: 0, to: 0.5, shade: topLeft ? 'dark' : 'base' },
+				{ from: 0.5, to: 1, shade: topLeft ? 'base' : 'dark' },
+			]
+		case 'ridge':
+			return [
+				{ from: 0, to: 0.5, shade: topLeft ? 'base' : 'dark' },
+				{ from: 0.5, to: 1, shade: topLeft ? 'dark' : 'base' },
+			]
+		default:
+			return [{ from: 0, to: 1, shade: 'base' }]
+	}
+}
+
+/** Chromium Color::Dark() equivalent (components 0..1) used for 3D border shading. */
+export function darkBorderComponents(c: { red: number; green: number; blue: number; alpha: number }): {
+	red: number
+	green: number
+	blue: number
+	alpha: number
+} {
+	if (c.red === 0 && c.green === 0 && c.blue === 0) {
+		return { red: 84 / 255, green: 84 / 255, blue: 84 / 255, alpha: c.alpha }
+	}
+
+	const v = Math.max(c.red, c.green, c.blue)
+	const m = Math.max(0, (v - 0.33) / v)
+	return { red: c.red * m, green: c.green * m, blue: c.blue * m, alpha: c.alpha }
+}
+
+/** Polygon (y-up layer coordinates, same convention as borderSideCGPath)
+ *  for one band of one side — `from`/`to` are fractions of the side's width
+ *  measured from the outer edge, and each adjacent side's inset follows the
+ *  same fraction so bands still meet at the miters. */
+export function borderBandPoints(
+	side: Side,
+	w: number,
+	h: number,
+	widths: Record<Side, number>,
+	from: number,
+	to: number,
+): [number, number][] {
+	const a = { top: widths.top * from, right: widths.right * from, bottom: widths.bottom * from, left: widths.left * from }
+	const b = { top: widths.top * to, right: widths.right * to, bottom: widths.bottom * to, left: widths.left * to }
+	switch (side) {
+		case 'top':
+			return [[a.left, h - a.top], [w - a.right, h - a.top], [w - b.right, h - b.top], [b.left, h - b.top]]
+		case 'right':
+			return [[w - a.right, h - a.top], [w - a.right, a.bottom], [w - b.right, b.bottom], [w - b.right, h - b.top]]
+		case 'bottom':
+			return [[w - a.right, a.bottom], [a.left, a.bottom], [b.left, b.bottom], [w - b.right, b.bottom]]
+		case 'left':
+			return [[a.left, a.bottom], [a.left, h - a.top], [b.left, h - b.top], [b.left, b.bottom]]
+	}
 }

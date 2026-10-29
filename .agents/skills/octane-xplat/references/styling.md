@@ -319,7 +319,9 @@ is removed. The maintained FileInput dropzone uses this path. Box-frame ownershi
 captures cleanup, guards retired/replaced callbacks and releases late handles;
 failed setup/update remains retryable. Do not equate this source path with native
 pixel/scale/NSNumber/resize/shadow/clipping/memory/installed qualification.
-Double/groove/ridge/inset/outset still warn and draw solid; non-solid outlines
+Double/groove/ridge/inset/outset paint as per-side filled bands (double needs
+width ≥ 3; 3D shades use Chromium's darkening; inner band edges stay straight
+at rounded corners); unknown styles warn and draw solid. Non-solid outlines
 remain outside this implementation. See [border subset](../../../../docs/app/styling.md#appkit-borders).
 
 ```css
