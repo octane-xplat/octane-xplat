@@ -1,17 +1,3 @@
-import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
-import { router } from '@octane-xplat/ui/routing'
-
-let wired = false
-
-export function wireRouteLinks(): void {
-	if (wired) {
-		return
-	}
-
-	wired = true
-	onDeepLink((url) => void router.navigateUrl(url))
-	const initial = consumeInitialUrl()
-	if (initial) {
-		void router.navigateUrl(initial)
-	}
-}
+/** AppKit binds links from its primary root effect after outlet layout setup.
+ *  Generated route import installs definitions without a process-wide listener. */
+export function wireRouteLinks(): void {}

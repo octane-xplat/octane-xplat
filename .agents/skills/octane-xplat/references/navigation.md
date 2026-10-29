@@ -929,6 +929,40 @@ export function CustomHelp() { return <Link as={AppLink} href="https://example.c
 ```
 
 
+## AppKit incoming-link root ownership
+
+Native launch links can arrive before a window or outlet exists. The maintained
+AppKit harness now binds from its primary App.tsx root effect after outlet layout
+setup; route imports only configure the catalog. Keep the binding outside retained
+route layouts so pushed screens do not add competing subscriptions. Its private
+appkit-route-links helper acquires cleanup before a deferred initial flush,
+retains the router's existing admission/cancellation semantics, observes rejection/
+refusal without logging URL/error payloads and retires pending callbacks on root
+replacement/unmount/HMR. This is not a new public router readiness API.
+
+```tsx
+import { useEffect } from 'octane'
+import { App } from '@xplat/app'
+import { bindAppKitRouteLinks } from '@xplat/app/appkit-route-links.macos'
+
+// Private proving host only; app authors use the canonical public example.
+export default function AppKitApp(props: Parameters<typeof App>[0]) {
+	useEffect(() => {
+		try { return bindAppKitRouteLinks() }
+		catch { console.warn('[macos] Incoming link setup failed') }
+	}, [])
+	return <App {...props} />
+}
+```
+
+Already handed-off navigation remains owned by the router; disposing a producer
+binding does not cancel accepted work globally. Missing/blocked target panes use
+the normal router result/recovery policy. No polling, automatic guard bypass,
+forced serialization, persistent launch queue or per-secondary-window support is
+added. The nine source models use fake hooks/router and remain unrun, as do native
+cold/warm launch, real effect ordering, scheme/signing, focus/AX and installed apps.
+See [incoming links](../../../../docs/app/navigation.md#handle-incoming-links).
+
 ## AppKit overflow-tab keyboard ownership
 
 TabMenu registers its current trigger with TabList, using the selected overflow

@@ -16,6 +16,38 @@ const host = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 // host.contentView is the NSView passed to createMacOSRoot below.
 ```
 
+## Incoming route links
+
+The primary AppKit root binds the platform's incoming links from its effect,
+after outlet layout setup, and releases the binding on unmount. Route catalog
+imports install definitions without consuming launch URLs. The private binding
+buffers startup delivery until it has acquired cleanup, forwards through the
+normal router and reports rejection/refusal with fixed messages. It keeps the
+router's admission/cancellation policy; it does not bypass guards or retry blocked
+links automatically. See [incoming-link ownership](../../docs/app/navigation.md#handle-incoming-links).
+
+```tsx
+// apps/macos/src/App.tsx owns the binding for this harness.
+import { useEffect } from 'octane'
+import { App } from '@xplat/app'
+import { bindAppKitRouteLinks } from '@xplat/app/appkit-route-links.macos'
+
+export default function AppKitApp(props: Parameters<typeof App>[0]) {
+	useEffect(() => {
+		try { return bindAppKitRouteLinks() }
+		catch { console.warn('[macos] Incoming link setup failed') }
+	}, [])
+	return <App {...props} />
+}
+```
+
+The actual entry catches setup errors with a fixed message. Nine source models
+are authored, all unrun; they are not Octane effect or native URL-delivery proof.
+Actual cold/warm launch, root/HMR disposal, routing/focus, scheme/signing and
+installed consumers remain unqualified. Host setup precedes rendering; remount or
+bind again after a setup failure. The private helper is harness machinery, not a
+public framework API.
+
 ## Fonts
 
 `@octane-xplat/macos-renderer` owns the AppKit driver and JSX declarations.

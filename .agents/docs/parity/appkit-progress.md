@@ -8006,3 +8006,74 @@ probes, native/OS/AX/visual analysis, packaging or real filter operations ran.
 Actual keyboard/IME/Tab/focus/VoiceOver, hook/effect/attachment/consumer timing,
 popover sizing/scrolling and installed-consumer behavior remain unqualified.
 Shared audit snapshots and evidence-gated checkboxes unchanged; goal active.
+
+## AppKit incoming route-link root ownership
+
+The maintained AppKit host imports the shared route catalog before creating its
+window. Its native route-link leaf previously subscribed during that import,
+set its once flag before successful setup and discarded cleanup/navigation
+promises. The router's outlet mounts in a layout effect; navigation handed to an
+unmounted host can resolve blocked. These are source findings, not observed
+native launch failures. Cold/warm launch and ordinary screen navigation take
+priority over niche integrations. The earlier host-events follow-up considered
+module lifetime intentional; inspecting this actual startup path established a
+primary-root owner for the maintained harness instead.
+
+The AppKit route-import leaf now retains its shared wireRouteLinks signature
+without acquiring a producer. The primary App.tsx root forwards existing props
+and acquires the private binding in its effect, outside retained route layouts.
+The binding claims ownership before replacing/acquiring resources, buffers
+synchronous startup delivery until its cleanup is acquired and defers the first
+flush until the effect can return that cleanup. A cold initial string precedes
+staged live strings. Subsequent URLs go directly to the existing router without
+serializing promises, deduplicating events or retrying blocked/guarded requests.
+Synchronous throws, rejections and refusals use fixed diagnostics without URL or
+error payloads. No public router readiness API or dependency was added.
+
+Replacement, unmount and module HMR disposal retire callbacks and pending strings
+before cleanup; late acquired handles are released after reentrant replacement.
+Old cleanup cannot affect the newer owner. Setup failure retires the attempt and
+permits remount/rebind; no automatic retry timer or durable queue is provided.
+Disposal suppresses late diagnostics but does not cancel navigation already
+handed to the router globally. Per-secondary-window links, exactly-once delivery
+and recovery of URLs consumed by a failed setup are not claimed. Real Octane
+layout/effect/HMR ordering remains unqualified; fake hooks cannot establish it.
+
+Nine helper/root-entry source models are authored, all UNRUN. They cover startup
+buffer/initial ordering, early cleanup, setup retry, throw/rejection/refusal
+privacy, overlapping admission, replacement/cleanup failure, fake HMR, reentrant
+late-handle cleanup and actual entry prop/effect wiring. They use a fake producer,
+router, HMR and hooks rather than the Octane compiler or native SDK. Public guide,
+private host README, Octane navigation reference and appkit-route-links recipe
+reconcile the same ownership/qualification boundary. No generated catalog,
+other-target startup, shared CLI/Vite/UI manifest or audit snapshot was changed.
+This repairs private proving-host/bootstrap behavior without a public API change;
+no release note or React Aria presence-level coverage update is needed.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@xplat/app --filter=...@octane-xplat/platform --filter=@xplat/macos
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run smoke --filter=@xplat/macos
+pnpm exec turbo run verify-hmr --filter=@xplat/macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit incoming route links package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The smoke script launches native automation and checks 30 existing action-dispatch
+assertions; verify-hmr touches App.tsx and checks a retained mounted root. Neither
+alone proves cold/warm OS URL delivery, link ordering or root disposal. These
+runners contain no direct image capture, but any downstream visual phase remains
+unauthorized. No runner was started. check:docs/check:doc-examples remain absent
+from this isolated revision's scripts; shared in-flight tooling was not copied.
+Four source files and three scoped new documentation fences syntax parsed;
+local documentation paths and staged semantic/whitespace review are lightweight
+source checks only. No tests, compiler transforms, typechecks, builds, probes,
+native/OS/AX/visual analysis or packaging ran. Actual cold/warm launch, effect/
+attachment/focus/VoiceOver/memory behavior, scheme registration/signing, installed
+consumers and native HMR remain unqualified. Evidence-gated checkboxes stay open;
+persistent goal remains active.

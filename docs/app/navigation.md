@@ -1865,9 +1865,12 @@ export async function openIncoming(url: string) {
 
 ## Handle incoming links
 
-Subscribe to the platform link producer after the route outlet mounts. Consume
-the cold-launch URL once; subsequent events use the same validation, guards,
-and loaders. Native URL-scheme registration belongs to the app's OS resources.
+Subscribe once for the app root after its route outlet is ready, and release
+the subscription when that owner ends. Consume the cold-launch URL once;
+subsequent events use the same validation, guards and loaders. Defer initial
+navigation until the effect has returned its cleanup, and handle rejected or
+refused navigation without logging private URL or error data. Native URL-scheme
+registration belongs to the app's OS resources:
 
 ```tsx
 import { useEffect } from 'octane'
@@ -1876,16 +1879,45 @@ import { router } from '@octane-xplat/ui/routing'
 
 export function IncomingLinks() {
 	useEffect(() => {
-		const unsubscribe = onDeepLink(url => { void router.navigateUrl(url) })
-		const initial = consumeInitialUrl()
-		if (initial) void router.navigateUrl(initial)
-
-		return unsubscribe
+		let active = true
+		let unsubscribe = () => {}
+		const stop = () => {
+			if (!active) return
+			active = false
+			try { unsubscribe() }
+			catch { console.warn('Incoming link cleanup failed') }
+		}
+		const open = (url: string) => {
+			void Promise.resolve().then(async () => {
+				if (!active) return
+				const result = await router.navigateUrl(url)
+				if (active && result.status !== 'committed' && result.status !== 'cancelled') {
+					console.warn('Incoming link did not open')
+				}
+			}).catch(() => { if (active) console.warn('Incoming link navigation failed') })
+		}
+		try {
+			unsubscribe = onDeepLink(open)
+			const initial = consumeInitialUrl()
+			if (initial !== null) open(initial)
+		} catch {
+			stop()
+			console.warn('Incoming link setup failed')
+		}
+		return stop
 	}, [])
-
 	return null
 }
 ```
+
+The native AppKit harness binds from its primary root effect, following outlet
+layout setup; importing its route catalog no longer consumes launch URLs. It
+buffers synchronous startup callbacks until acquisition completes and retains
+the router's existing admission/cancellation policy. Closing or replacing that
+root stops future delivery; an already handed-off navigation remains router
+owned. See the [root binding](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/appkit-route-links.macos.ts)
+for the maintained harness implementation. Native cold/warm launch, effect
+ordering, URL-scheme/signing, focus and installed-app qualification remain pending.
 
 Generate addresses with the same destination contract. Static names, including
 Unicode names such as `café`, and path values are encoded,
