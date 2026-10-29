@@ -5602,3 +5602,14 @@ visual analysis ran. Actual native property/BOOL behavior, VoiceOver viewport
 and descendant hierarchy/navigation, metadata update/removal, native test
 identity, sustained scrolling/elasticity and clean packed consumers remain
 unqualified. Audit snapshots and all evidence gates are unchanged; goal active.
+
+
+### Scroll mapping edit correction
+
+The post-commit semantic diff exposed a misplaced first-match condition edit in
+resetStyle instead of applyAccessibility. A follow-up restores the original
+style-reset condition and includes scrollview in the actual native description
+branch. The scroll prop dispatch now reaches that branch as intended. This was
+caught by source/diff review; the authored source case has not run and no test
+pass is claimed. Final targeted TS syntax and whitespace checks passed; every
+deferred command and native qualification limit above still applies.

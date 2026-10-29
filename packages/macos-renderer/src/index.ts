@@ -5399,7 +5399,7 @@ function resetStyle(node: ElementNode, name: string) {
 		syncCursor(node)
 	} else if (name === 'userSelect') {
 		node.styleUserSelect = undefined
-		if (['label', 'htmlview', 'scrollview'].includes(node.type)) {
+		if (['label', 'htmlview'].includes(node.type)) {
 			syncUserSelect(node)
 		}
 	} else if (OUTLINE_PROPS.has(name)) {
@@ -6508,7 +6508,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		syncHeadingAccessibility(node.view!, { ...node.props, [name]: value })
 	}
 
-	if (['label', 'htmlview'].includes(node.type)) {
+	if (['label', 'htmlview', 'scrollview'].includes(node.type)) {
 		if (name === 'accessibilityLabel') {
 			node.view!.setAccessibilityLabel?.(String(value ?? ''))
 		} else if (name === 'accessibilityHint') {
