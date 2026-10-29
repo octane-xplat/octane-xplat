@@ -2784,7 +2784,40 @@ Direct nullable IsChecked writes failed mixed-state checks in the preview;
 write null through DependencyObject.SetValue(IsCheckedProperty,null). The
 packaged x64 input/state/mixed/geometry/remount checks pass. Keep the
 [Windows qualification boundary](../../../../docs/platform/windows-setup.md#checkbox-input)
-and the separate CheckboxList/CheckboxListItem gates.
+and the separate [list qualification](#experimental-windows-checkbox-lists).
+
+## Experimental Windows checkbox lists
+
+Use the public group and child-part APIs for native Windows checkbox lists;
+selected string values belong to the group:
+
+```tsx
+import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
+
+export function Channels() {
+  return <CheckboxList ariaLabel="Channels" defaultValue={['email']}>
+    <CheckboxListItem value="email" label="Email" />
+    <CheckboxListItem value="sms" label="Text message" />
+  </CheckboxList>
+}
+```
+
+The Windows group imports Checkbox through its unsuffixed basename, so option
+rows select the native input leaf. Child items use the same input and observe
+context changes. For standalone isChecked/onCheck and select-all, use the
+[complete group example](../../../../docs/platform/windows-setup.md#checkbox-lists).
+Windows useMeasure waits for native LayoutUpdated after same-size reattachment.
+NativeScript load can report transient zero bounds without a later SizeChanged. A timer queued
+only by load failed repeated native pointer trials. Keep the typed WinRT
+delegate, deferred reads and shared-reader cleanup. The preview has one JS
+handler slot per native event; useMeasure owns LayoutUpdated on measured views
+and rejects an existing unmanaged JS handler instead of replacing it.
+
+Packaged x64 pointer/Tab/Space, TogglePattern, group/default/mixed select-all,
+guards, context updates and remount checks are bounded evidence. Keep full
+Field/props, group announcements, Narrator/visual and consumer qualification
+open; see [Windows list limits](../../../../docs/platform/windows-setup.md#checkbox-lists)
+and the [timing evidence](../../../docs/parity/windows-support-progress.md#measurement-timing-qualification).
 
 ## Experimental Windows Dialog
 

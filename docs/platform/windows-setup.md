@@ -130,8 +130,43 @@ acceptance/rejection, readonly/disabled guards, hidden labels, label async
 rollback and remount. Native input bounds matched the measured rows.
 The complete field prop contract, resizing, mixed-state async rejection,
 concurrent actions/disposal, screen-reader and visual parity, and downstream
-consumer packaging remain unqualified. CheckboxList and CheckboxListItem need
-separate keyboard and group qualification.
+consumer packaging remain unqualified. See the separate
+[checkbox-list input boundary](#checkbox-lists) for group and child items.
+
+## Checkbox lists
+
+On Windows, `CheckboxList` options and `CheckboxListItem` children use the shared
+checkbox appearance with a native checkbox for keyboard and toggle automation.
+Keep selected values in the group. Omit an item's `value` to give it its own
+`isChecked` and `onCheck`, as with the select-all control below:
+
+```tsx
+import { useState } from 'octane'
+import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
+
+const channels = ['email', 'sms']
+
+export function DeliveryChoices() {
+  const [selected, setSelected] = useState<string[]>(['email'])
+  const all = selected.length === channels.length
+  return <CheckboxList ariaLabel="Delivery channels" value={selected} onValueChange={setSelected}>
+    <CheckboxListItem
+      label="Select all"
+      isChecked={all ? true : selected.length ? 'indeterminate' : false}
+      onCheck={checked => setSelected(checked ? channels : [])}
+    />
+    <CheckboxListItem value="email" label="Email" />
+    <CheckboxListItem value="sms" label="Text message" />
+  </CheckboxList>
+}
+```
+
+Bounded packaged x64 checks cover option and child-item input, controlled and
+uncontrolled selection, compact rows, disabled/read-only guards, select-all,
+prop updates, remount and pointer targets after keyed option reorder.
+The complete field/prop contract, grouping announcements, screen-reader and
+visual parity, other Windows versions/architectures and downstream consumers
+remain unqualified.
 
 ## Floating-layer candidate
 

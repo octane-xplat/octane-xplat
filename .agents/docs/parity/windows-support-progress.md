@@ -7,10 +7,14 @@ its TSVs, findings and hashes have not been regenerated during parallel work.
 
 Current bounded native results: Switch passed10common-input groups plus6
 repeated async rollback trials; CheckboxInput passed15input/state groups.
-The latest [Switch](#v17-qualifies-common-shared-switch-input-flows) and
+V24 adds17CheckboxList/CheckboxListItem groups and3rapid reorder pointer pairs
+plus a UIA/Space control. The same v24 package also passes Switch10/10 and
+CheckboxInput15/15 regression groups. The latest
+[checkbox-list qualification](#v24-qualifies-common-windows-checkbox-list-input),
+[Switch](#v17-qualifies-common-shared-switch-input-flows) and
 [CheckboxInput](#v20-qualifies-common-checkboxinput-flows) sections retain exact
-artifacts, failed predecessors and qualification limits. Full Windows support
-and the broader component rows remain unqualified.
+artifacts, failed predecessors and limits. Full Windows support and the broader
+component rows remain unqualified.
 
 ## Priorities and evidence boundary
 
@@ -2486,3 +2490,238 @@ pnpm check:changelog
 
 The persistent Windows task remains active. Bounded input evidence does not
 close the full component or platform-support checkboxes.
+
+## Windows CheckboxList and CheckboxListItem candidate
+
+Demand: the maintained Astryx sandbox CheckboxListItemBasic and
+CheckboxListSelectAllPattern examples exercise controlled membership and
+standalone mixed select-all items. The candidate Windows group imports Checkbox
+without the explicit default .tsrx suffix and passes compact size, disabled
+state and accessible names to its options. The Windows child item keeps shared
+indicator/label/description/endContent markup and uses the existing qualified
+native checkbox input. Group membership is guarded and idempotent; both APIs
+retain their shared props/exports. No other target or renderer was edited.
+
+Ten compiled-component Node universal-runtime contracts passed via one uncached
+Turbo task,2.307s,exit0. Compiler/runtime/state/context are real; visual hosts,
+measurement and field resolution are stubbed. These do not prove WinUI input.
+The bounded v21 native graph passed38/38tasks,28cached,6m15.002s,exit0. Standalone
+checker emitted no diagnostics; delegated checker retains the same12diagnostics
+in11otherfiles and three MSBuild warnings.
+
+Owned x64 WinUI MSIX1.0.0.21,bootmvt74181,passed16/17native groups. Nine option
+peers and eleven child/standalone peers have expected CheckBox/TogglePattern
+state and aligned measured row bounds. Tab/Space, controlled acceptance and
+rejection, prop reset without echo, defaults, compact key-only names,
+readonly/disabled guards, context updates/select-all, standalone callbacks and
+remount passed. A second pointer click after keyed option reorder emitted no
+callback. Source remains an uncommitted candidate while this is unresolved.
+
+Same-binary isolated trials reproduced the second-pointer miss3/3, while UIA
+and physical Space still invoked the reordered control correctly. A first
+ancestor diagnostic stopped before reorder because its setup controls were
+outside the owned viewport; that startup failure is separate. A viewport-ready
+trace still reproduced the miss. Native source inspection is read-only; no
+key-index workaround or renderer repair has been applied.
+
+A DPI-aware client changed its thread from awareness0to2 and reconfirmed exact
+physical cursor positions for every requested point, but all3pointer pairs
+still failed. Serialized SendInput move/down/up also failed all three pairs.
+No visual analysis or screenshots were used.
+
+The v22 diagnostic graph passed38/38tasks,34cached,4m51.225s,exit0. The first
+interactive run stopped at viewport setup. A retry explicitly fitted the owned
+window to its monitor work area, confirmed Win32/UIA bounds and exact physical
+cursor coordinates, and still failed3/3pointer pairs while UIA/Space passed.
+Bootmvt97m8h native hierarchy and model captures show the moved Bravo and disabled
+inputs at0x0, with style width/height0, inside400x24rows. Renamed Alpha retains a
+400x24native input. Native hit enumeration omits the zero-size Bravo input. This
+establishes a geometry failure; UIA-reported CheckBox bounds alone did not prove
+the actual pointer surface.
+
+A Windows-only useMeasure candidate now queues one post-attach/load read and
+cancels it on rebind/unmount. The first v23 graph stopped at UI declaration emit
+with three new hook type errors; no new package was produced. Those types were
+corrected before retry. Six isolated measurement event/timer contracts and the
+ten real compiler/runtime list contracts pass together through an uncached
+Turbo task,2.293s,exit0. An initial test-fixture listener-count assertion failed
+because Object.assign evaluated its getter once; the fixture now preserves the
+getter and the assertions pass. These tests do not prove native layout. The
+corrected v23 native graph and the reordered pointer rerun remain in progress.
+Core's Windows SizeChanged-driven layout notifications and Mason's reuse are
+source leads; no core/native-binary repair or key-index workaround was applied.
+
+Records under research/windows61/:windy-checkbox-list-source-final.log,
+windy-checkbox-list-source-detail.log, windy-native-v21-checkbox-lists.log,
+windy-v21-native-exit.json, windy-v21-typecheck.log, windy-v21-native-task.log,
+windy-os-checkbox-lists-v21.log, windy-v21-lists-os-results.json,
+windy-v21-lists-full-console.log, windy-v21-lists-current-boot-console.json,
+windy-os-list-reorder-v21.log, windy-os-list-geometry-v21.log,
+windy-os-list-geometry-v21-ready.log and windy-os-list-dpi-v21.log.
+ui:CheckboxList and the newly inventoried ui:CheckboxListItem remain pending.
+Full API/Field, grouping announcements, layout/visual/Narrator, version/arch,
+consumer and broad UI/dependent/native/packed gates remain open under the exact
+commands already recorded above. Shared audit snapshots were not regenerated.
+
+Additional retained evidence: windy-os-list-sendinput-v21.log,
+windy-os-list-baselines-v21.log (three setup failures; only the unreordered
+upward pointer pair ran and passed), windy-native-v22-list-diagnostics.log,
+windy-os-list-native-tree-v22.log (viewport setup failures),
+windy-os-list-viewport-v22.log, windy-v22-viewport-os-results.json,
+windy-v22-viewport-full-console.log, windy-v22-viewport-current-boot-console.json,
+windy-native-v23-list-attach-measure.log (failed declaration emit),
+windy-list-measure-source-contracts.log (initial fixture failure) and
+windy-list-measure-source-final.log (16passed). Implementation stays uncommitted
+until the native pointer regression is resolved or explicitly left unsupported.
+
+
+### Measurement timing qualification
+
+The corrected v23 graph passed38/38tasks,28cached,7m43.166s,exit0. Standalone
+checker emitted no diagnostics. ANSI-stripped delegated diagnostic lines match
+v21 exactly:12errors in11files, plus the same3MSBuildwarnings. The v23
+post-attach timer candidate is **not sufficient**: owned MSIX1.0.0.23,
+bootmvt9z7f8,passed two rapid reorder pointer pairs but failed the third; UIA/Space
+passed. Captures after each pair correlate successful Bravo/disabled native
+inputs at400x24 with the failed trial's0x0inside400x24rows. All original failures
+remain retained. No arbitrary test delay was added and this timer-only candidate
+will not be committed as a complete repair.
+
+The next Windows measurement candidate observes WinUI LayoutUpdated with an
+explicit Windows.Foundation.EventHandler`1<Object> delegate and coalesces reads
+outside the native layout callback. A per-view registry shares one JS event slot
+among hook readers, rebinds native replacements and releases the last reader.
+One-shot observe:false detaches after its first layout notification and rearms
+on load. Cleanup preserves a subsequently replaced handler; attaching over an
+unmanaged JS LayoutUpdated handler is rejected because the current Windows
+bridge event-property projection replaces that slot. This is a visible host
+constraint, not general event multiplexing support. SizeChanged-driven Core
+layout notifications remain in place; no shared Core/Mason or native binary was
+modified.
+
+Twenty-one focused contracts (10real compiler/runtime list contracts and11
+isolated measurement lifecycle contracts) pass through one uncached Turbo task,
+2.399s,exit0. The first observer run caught an undefined-native cleanup guard;
+the guard was corrected before rerunning. Formatter/lint and whitespace checks
+pass for the candidate. Native v24 qualification is in progress, so all broad
+list/item/useMeasure support gates remain open.
+
+Retained records: windy-v23-native-exit.json, windy-v23-typecheck.log,
+windy-v23-native-task.log, windy-native-v23-corrected-list-measure.log,
+windy-os-list-viewport-v23.log, windy-v23-viewport-os-results.json,
+windy-v23-viewport-full-console.log, windy-v23-viewport-current-boot-console.json,
+windy-list-layout-source-contracts.log (failed initialization guard) and
+windy-list-layout-source-corrected.log (21passed).
+
+
+## V24 qualifies common Windows checkbox-list input
+
+This supersedes the in-progress/uncommitted dispositions in the preceding
+candidate/timing sections; their failed runs remain historical evidence.
+The Windows group imports the selected Checkbox leaf and preserves shared
+value/defaultValue/options/children contracts. Native child items retain
+indicator/label/description/endContent, group membership and standalone
+isChecked/onCheck behavior. Compact sizing, key-only option names and group
+mutation guards are forwarded explicitly. Shared/default and other target
+leaves are unchanged.
+
+The Windows-only useMeasure observer keeps previous bounds during NativeScript
+load, then revalidates after native WinUI LayoutUpdated. A typed
+Windows.Foundation.EventHandler`1<Object> delegate feeds coalesced deferred reads;
+bounds equality avoids a render/layout feedback loop. Reader sharing, native
+replacement, one-shot observation and cleanup are covered by isolated contracts.
+The preview's event-property projection has one JS handler slot per native
+event: this observer multiplexes its readers, rejects an unmanaged preexisting
+LayoutUpdated handler and preserves one installed later during cleanup. This
+host constraint is also documented in the Octane skill. General event
+multiplexing and the full public measurement contract are not qualified here.
+The pinned Core Windows SizeChanged notification source and the bridge event
+registry were inspected; no shared Core/Mason or native DLL change was made.
+
+Owned x64 WinUI MSIX1.0.0.24 / OS10.0.26200.0 / WinAppSDK1.6.250205002:
+
+- Bootmvtanv66:17/17list groups pass,exit0. Nine option and11child/standalone
+  CheckBox/TogglePattern peers expose expected names/states/enabled/focusable
+  flags. Pointer, Tab/Space, UIA, controlled acceptance/rejection, no-echo prop
+  writes, defaults, compact rows, readonly/disabled guards, mixed select-all,
+  context updates, independent standalone callbacks and remount pass. Keyed
+  reorder/label replacement requests the correct values exactly once.
+- Bootmvtamo2f:3/3fresh rapid reorder pointer pairs plus the separate UIA/Space
+  control pass,4/4groups,exit0. No pointer inspection or fixed delay was added
+  between the paired clicks. All36input/row snapshots match nonzero size and
+  position; the formerly zero-size Bravo/disabled inputs are400x24DIP.
+- Bootmvtarkz4:10/10existing Switch groups pass,exit0; all21input/track size and
+  position snapshots match, including normal40x24 and small32x20DIP.
+- Bootmvtaxisg:15/15existing CheckboxInput groups pass,exit0; all36input/row
+  size/position snapshots match, including Boolean/mixed/hidden/async/remount
+  cases. A preceding bootmvtat48g stopped at owned viewport setup before any
+  semantic group; it is retained separately and is not a passed check. The
+  retry confirmed current/startup HWND identity and Win32/UIA work-area bounds.
+
+All31list snapshots in the full run also match input/row nonzero sizes and
+positions. The trailing-content assertion establishes UIA existence only;
+trailing-content interaction and visual layout are not qualified. Scripts
+required the owned foreground process, hit PID and viewport; window setup is
+separate from feature assertions. Existing certificate/trust was reused. No
+screenshots or visual analysis were performed.
+
+V24 bounded graph:38/38tasks,28cached,6m19.813s,exit0. The standalone Windows
+checker emitted no diagnostics. ANSI-stripped delegated diagnostic lines match
+v21/v23 exactly (12errors in11otherfiles); the same3MSBuildwarnings remain.
+Final focused source task:22/22contracts,uncached,2.939s,exit0 (10real
+compiler/Node universal-runtime list tests;12isolated event/timer measurement
+lifecycle tests). The last test specifically preserves prior bounds across a
+transient zero-size load until native layout completes. It was added after the
+native build; runtime implementation source did not change. Six runtime source files match this worktree byte-for-byte (the three new
+Windows leaves, CheckboxInput and both private controllers). The final audit
+found Switch.windows.tsrx differs only by two ordinary explanatory comments;
+removing those exact comments makes its source identical. No operative code
+difference was found, so the regression applies without another build. These are distinct source,
+build and OS assertions, not a broad package/dependent typecheck.
+
+Targeted formatter/lint/whitespace and pnpm check:recipes pass. Thirty supported
+code fences across the changed guide, skill and two release notes parse using
+the shared checkout's checker functions against these exact worktree files;
+this is syntax-only evidence. The full check:docs and check:doc-examples scripts
+remain absent from this revision. check:changelog still fails because yaml is
+not installed; no dependency was installed or check reported as passing.
+Relevant platform-leaves/shared-layout/keyboard-clipboard recipes exclude
+Windows, so no recipe target or runtime coverage was promoted.
+
+Retained records under research/windows61/:windy-native-v24-list-layout-completion.log,
+windy-v24-native-exit.json, windy-v24-typecheck.log, windy-v24-native-task.log,
+windy-v24-source-contracts-final-22.log, windy-list-layout-source-final.log,
+windy-os-list-viewport-v24.log, windy-v24-viewport-{os-results.json,full-console.log,current-boot-console.json},
+windy-os-checkbox-lists-v24.log, windy-v24-lists-{os-results.json,full-console.log,current-boot-console.json},
+windy-os-shared-switch-v24.log, windy-v24-switch-{os-results.json,full-console.log,current-boot-console.json},
+windy-os-shared-checkbox-v24.log (setup failure),
+windy-v24-checkbox-setup-failure-{os-results.json,full-console.log,current-boot-console.json},
+windy-os-shared-checkbox-viewport-v24.log,
+windy-v24-checkbox-{os-results.json,full-console.log,current-boot-console.json},
+windy-v24-source-provenance.json and windy-v24-final-package-audit.log.
+Final audit found zero owned app processes and unchanged native runtime/Mason
+DLL hashes. Probe drivers/cases remain ignored research;
+maintained contracts are included in ui test:native.
+
+Full Field/prop behavior, horizontal/divider/layout matrices, group announcements,
+resizing, concurrent actions/disposal, Narrator/visual parity, other Windows
+versions/architectures, unpackaged and downstream consumers remain unqualified.
+Broad ui:CheckboxList,ui:CheckboxListItem and ui:useMeasure stay pending. Earlier
+Switch/CheckboxInput component gates remain pending too. Shared audit snapshots
+were not regenerated; no evidence-gated GitHub checkbox is closed. Exact broader
+checks remain deferred:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/cli
+pnpm exec turbo run typecheck --filter=...@octane-xplat/patches
+pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+The persistent Windows goal remains active; bounded common-flow support is not
+full platform qualification. All owned build/input/source reservations were released. No push or merge is
+authorized or performed.

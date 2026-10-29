@@ -12,5 +12,5 @@ export function SelectItems() {
 }
 ```
 
-Packaged x64 checks cover common input and state flows. List/group behavior,
-screen-reader and visual parity remain open. See the [Windows qualification boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#checkbox-input).
+Packaged x64 checks cover common input and state flows. The complete field
+contract, screen-reader and visual parity remain open. See the [Windows qualification boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#checkbox-input).
