@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, and `InputGroupText`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, and `useFieldControl`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -866,3 +866,40 @@ The maintained Linux fixture checks native group metadata, member state,
 widths, prefixes, updates and cleanup. GTK's group role uses the existing
 role adapter; iOS and Android retain NativeScript's narrower role mapping.
 This evidence does not establish screen-reader output or pixel parity.
+
+## Group related fields
+
+FieldGroup gives related fields a heading while each editor keeps its own
+label. Changing or removing the heading retains the editors, their local text
+and focus.
+
+```tsx
+import { FieldGroup, TextInput } from '@octane-xplat/ui'
+
+export function Address() {
+  return (
+    <FieldGroup label="Address">
+      <TextInput label="Street" />
+      <TextInput label="City" />
+    </FieldGroup>
+  )
+}
+```
+
+Custom field parts can read inherited required/optional, size and state defaults
+with useFieldControl. This example displays the effective required state inside
+Field or FormLayout.
+
+```tsx
+import { Text, useFieldControl } from '@octane-xplat/ui'
+import type { FieldControlProps } from '@octane-xplat/ui'
+
+export function RequiredHint(props: FieldControlProps) {
+  const { props: control } = useFieldControl(props)
+  return <Text>{control.isRequired ? 'Required' : 'Optional'}</Text>
+}
+```
+
+Maintained Linux tests cover native group metadata, editor ownership, inherited
+and explicit hook defaults, updates and disposal. They do not establish
+screen-reader output or pixel parity.

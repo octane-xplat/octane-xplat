@@ -1774,8 +1774,55 @@ format/whitespace checks pass. Logs on andromeda:
  /tmp/gtk-input-group-web-final.log, /tmp/gtk-input-group-pack.log and
  /tmp/gtk-input-group-declarations.log. The first web attempt was canceled to
 avoid concurrent declaration writers; -web-final.log is authoritative.
-Maintained ComponentsDemo/ComponentsDemo InputGroup compositions retain the
+Maintained ComponentsDemo InputGroup compositions retain the
 same API and pick up the shared theme correction. The text-entry recipe's
 GTK discussion now links public forms and groups; remaining composition,
 AT-client, OSK/overlay/inset, modal/Presence and NumberInput gaps are unchanged.
 No new upstream limitation or UI dependency is introduced.
+
+
+### Public GTK related-field groups and custom control defaults
+
+FieldGroup and useFieldControl reuse the native leaves. The direct-source
+baseline failed the combined editor/text/focus retention assertion when the
+group label was removed. A persistent heading host now hides its label without
+changing the editor siblings. The fix adds no GTK UI fork or dependency.
+
+The maintained ui-field-group fixture checks native group role/name, separate
+member names, authored geometry, label updates/removal, editor/local-text/focus
+retention, field/default ownership, explicit size/name overrides, required and
+optional precedence, help/status/disabled-message composition, reset and
+disposal. The direct-source fixed run passes 34 checks on Ubuntu 24.04.5,
+GJS 1.80.2 and GTK 4.14.5; public-root and final checks are recorded below.
+
+The fixture typecheck formerly listed individual UI files and omitted six
+maintained cases, including the new group case. It now includes every
+ui-*.gtk.tsrx fixture. This exposed missing shared JSX TextView keyboardType,
+returnKeyType and onReturnPress declarations for behavior already implemented
+and exercised by the multiline GTK fixture. The declarations reuse the
+TextField keyboard/Return types; the fixture keeps its real props and strict
+checking.
+
+Logs: guest /tmp/gtk-field-group-first.log and
+/tmp/gtk-field-group-second.log; andromeda /tmp/gtk-field-group-types.log.
+Feedback: aaf61cd9-0a7d-4329-b8c6-eff7ad4a4b36. These property/context checks do
+not qualify OS input, IME, AT-client output, phone behavior or pixels.
+
+Final public-root qualification passes all 46 maintained Linux renderer tests
+without skips, including 34 group/context assertions and the corrected joined
+group geometry case. All 75 affected/dependent typecheck tasks pass, including
+the JSX facade and every maintained UI .gtk.tsrx fixture. The TypeScript checker
+resolves FieldGroup, useFieldControl and FieldGroupProps to the same declarations
+in both generated barrels. The GTK root has 121 exports: 46 values and 75 types.
+
+Logs: guest /tmp/gtk-field-group-full.log; andromeda
+/tmp/gtk-field-group-types-final.log and /tmp/gtk-field-group-declarations.log.
+Fixture-check feedback: a5ff46d0-8495-4b84-903f-c6807aee2f6a.
+
+Selected native regression passes 58 Node checks and 37 Vitest tests; web
+forms/size regression passes 44 tests. All six UI package validation tasks,
+recipes, barrel checks, 32 release notes, focused formatting and whitespace
+checks pass. Logs: andromeda /tmp/gtk-field-group-native.log,
+/tmp/gtk-field-group-web.log and /tmp/gtk-field-group-pack.log. Text-entry
+recipe criteria and target lists remain unchanged; its unresolved IME, AT,
+keyboard/overlay, inset and NumberInput requirements remain open.

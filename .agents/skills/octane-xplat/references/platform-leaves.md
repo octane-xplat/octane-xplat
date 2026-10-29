@@ -181,7 +181,11 @@ suppress a shared control ID for group labels, and normalize primitive addon
 children through TextSlot. Grouped shells shrink within the row and the group
 owns their shared border. GTK group roles remain nonfocusable; renderer role
 recreation must retain child editors and their exact focus delegate. Remaining
-form families still need qualification.
+form families still need qualification. FieldGroup and useFieldControl are
+curated: keep the heading host stable when its text is removed, so conditional
+labels do not move editor ownership. Custom controls inherit Field/FormLayout
+defaults through the existing hook; preserve explicit size/name overrides and
+native help composition.
 
 For GTK descriptor events, call the universal root's dispatchEvent directly.
 It opens or inherits the proper scope; wrapping each listener's priority can

@@ -971,3 +971,22 @@ Logs: guest /tmp/gtk-search-full.log; andromeda /tmp/gtk-search-types.log,
 /tmp/gtk-search-pack.log, /tmp/gtk-search-declarations.log and
 /tmp/gtk-search-native-final.log. No phone, AT-client, IME or pixel
 qualification, and no full PowerSearch GTK claim.
+
+
+### Public GTK field ownership and related groups
+
+Field, FormLayout, InputGroup/InputGroupText, FieldGroup and useFieldControl
+are curated through the shared native leaves. Form direction, joined-group
+width/state and changing group labels preserve existing editors. See the
+[form](linux-gtk-renderer.md#gtk-field-and-form-layout-qualification),
+[joined-group](linux-gtk-renderer.md#gtk-joined-input-groups) and
+[related-group evidence](linux-gtk-renderer.md#public-gtk-related-field-groups-and-custom-control-defaults)
+for the individual baseline failures, fixes and qualified scope.
+
+The final related-group run passes all 46 maintained Linux renderer tests with
+no skips, including 34 new group/context checks. All 75 affected/dependent
+typecheck tasks pass; the fixture configuration now includes every maintained
+UI .gtk.tsrx case instead of an incomplete manual list. All three new aliases
+resolve to the same generated GTK/native declarations. Availability is now
+46 values and 75 types. Other inputs and field parts, Image, overlays,
+navigation, theme and services remain under the full parity goal.

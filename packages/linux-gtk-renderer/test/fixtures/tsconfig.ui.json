@@ -1,20 +1,5 @@
 {
 	"extends": "./tsconfig.routing.json",
-	"files": [
-		"../../src/gi.d.ts",
-		"src/ui-primitives.gtk.tsrx",
-		"src/ui-input.gtk.tsrx",
-		"src/ui-types.gtk.ts",
-		"src/ui-measure.gtk.tsrx",
-		"src/ui-animation.gtk.tsrx",
-		"src/ui-scroll.gtk.tsrx",
-		"src/ui-area.gtk.tsrx",
-		"src/ui-icon.gtk.tsrx",
-		"src/ui-text-entry.gtk.tsrx",
-		"src/ui-portal.gtk.tsrx",
-		"src/ui-tooltip.gtk.tsrx",
-		"src/ui-accessibility.gtk.tsrx",
-		"src/ui-press-keys.gtk.tsrx",
-		"src/ui-field-chrome.gtk.tsrx"
-	]
+	"files": ["../../src/gi.d.ts", "src/ui-types.gtk.ts"],
+	"include": ["src/ui-*.gtk.tsrx"]
 }

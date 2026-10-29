@@ -126,3 +126,7 @@ export type {
 
 export { InputGroup, InputGroupText } from './InputGroup'
 export type { InputGroupProps, InputGroupTextProps, InputGroupSize } from './props'
+
+export { FieldGroup } from './FieldGroup'
+export { useFieldControl } from './field-context'
+export type { FieldGroupProps } from './props'

@@ -85,9 +85,10 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
 Use TextInput, TextArea and SearchInput from the curated GTK root. They have maintained
 Linux checks. TextInput clear/help/status affordances retain its editor.
 Keep width on the outer field owner and use the GTK status-variant policy
-for hover/focus tooltips. Field, FormLayout, InputGroup and InputGroupText are
-curated too; their native metadata, geometry and lifecycle checks do not qualify
-AT-client output or a complete keyboard/overlay workflow.
+for hover/focus tooltips. Field, FormLayout, InputGroup, InputGroupText,
+FieldGroup and useFieldControl are curated too. Their native metadata, geometry
+and lifecycle checks do not qualify AT-client output or a complete
+keyboard/overlay workflow.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/

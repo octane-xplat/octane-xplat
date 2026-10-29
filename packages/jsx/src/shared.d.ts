@@ -340,11 +340,14 @@ export interface TextViewProps<TElement> {
 	hint?: string
 	editable?: boolean
 	maxLength?: number
+	keyboardType?: TextFieldProps<TElement>['keyboardType']
+	returnKeyType?: TextFieldProps<TElement>['returnKeyType']
 	autocorrect?: boolean
 	autoGrow?: boolean
 	maxRows?: number
 	rows?: number
 	onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
+	onReturnPress?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface SearchBarProps<TElement> {
