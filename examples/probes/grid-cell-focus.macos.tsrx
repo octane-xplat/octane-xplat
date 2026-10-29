@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './grid-cell-focus.macos.css'
 import { useState } from 'octane'
 import { Button, Text, TextInput, View, useGridFocus } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
@@ -39,11 +40,6 @@ export default function GridCellFocusProbe() @{
 		<Text id="grid-cell-focus-status">{`Hook index ${grid.focusIndex} · handler ${last} · chosen ${chosen} · ${grid.onFocusCell ? 'method available' : 'method unavailable'}`}</Text>
 	</View>
 }
-<style>
-	.cell-focus-grid { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8; max-width: 520; }
-	.cell-focus-inner { display: flex; flex-direction: row; gap: 8; }
-	.cell-focus-cell { display: flex; width: 160; min-height: 40; padding: 8; border-width: 1; border-color: #888; }
-</style>
 
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('grid-cell-focus-status'))
