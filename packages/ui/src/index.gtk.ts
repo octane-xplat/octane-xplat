@@ -166,3 +166,7 @@ export type { RadioGroupProps, RadioListProps, RadioListItemProps, RadioOption }
 
 export { InputNumber as NumberInput } from './InputNumber'
 export type { InputNumberProps, NumberInputProps } from './props'
+
+export { CheckboxGroup as CheckboxList } from './CheckboxGroup'
+export { CheckboxListItem } from './CheckboxListItem'
+export type { CheckboxGroupProps, CheckboxListProps, CheckboxListItemProps } from './props'

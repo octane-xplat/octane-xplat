@@ -3219,6 +3219,9 @@
    flex alignment owns end placement there. */
 .vx-radio-end, .vx-checkbox-end { margin-inline-start: auto; }
 /* xplat-web-only:end */
+.vx-checkbox-group--native { display: flex; flex-direction: column; width: 100%; min-width: 0; }
+.vx-checkbox-group--native.vx-checkbox-group--row { flex-direction: row; }
+.vx-checkboxlist-item--native .vx-checkbox-label-col { display: flex; flex-direction: column; flex-grow: 1; flex-shrink: 1; min-width: 0; }
 .vx-checkbox-group--divided .vx-checkbox-row + .vx-checkbox-row,
 .vx-checkbox-group--divided .vx-checkboxlist-item + .vx-checkboxlist-item {
 	border-top-width: 1px;

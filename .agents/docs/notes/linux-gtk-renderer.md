@@ -2224,3 +2224,81 @@ open. v0.17.1 already declared field width/state and decimal numbers, so their
 native correction gets a fix note; the later units/clear/format additions are
 included in GTK's availability note. No phone runtime, images, pixel parity,
 IME, Wayland or AT-client speech/navigation was qualified.
+
+## GTK checkbox-list investigation
+
+At56f18667b the direct-source CheckboxList/CheckboxListItem baseline completed42
+checks with27 failures. Option data created multiple field frames while child
+parts had none. Group role/required/readOnly/busy/invalid/sensitivity, child
+checkbox names/roles/focus/sensitivity and standalone mixed semantics were
+missing; option end content was ignored. Guest /tmp/gtk-checkbox-list-first.log;
+feedbacka0152945-c7f6-4562-b697-1d0a23111848. This baseline uses native properties,
+geometry and lifecycle reads, without OS input or images.
+
+The shared native group now has one persistent field frame. Options and child
+parts use the same checked-set provider and CheckboxListItem implementation.
+The part publishes checkbox/name/help/checked/readOnly metadata and native
+sensitivity; standalone isChecked/onCheck remains controlled, including mixed
+state. Native-only layout classes scope the group direction and label-column
+growth to this leaf. The focused run passes42 list checks and the existing
+toggle-fields86 actual X11 checks;6 focused typegen/renderer tasks pass.
+Logs: guest /tmp/gtk-checkbox-list-foundation.log and andromeda
+/tmp/gtk-checkbox-list-foundation-types.log.
+
+
+
+The real X11 expansion first passed85/86 checks, with pointer focus still left
+on the previous checkbox after a label click. The renderer now applies its
+existing radio focus-on-press behavior to custom checkboxes and switches, even
+when read-only selection handlers are absent; native focus-on-click opt-out
+and disabled sensitivity still apply. The expanded98 checks pass alongside
+radio107 Mason/59 Gtk.Box and toggle-keyboard34. Feedback
+e30df0d2-447d-4d31-af5f-4e2896b7241c preserves the initial observation.
+
+The broader121-check case then failed one divider-height check. Native style
+reads showed borderTopWidth1 and GTK border1, but an outer24/content23 row held
+a24-unit indicator extending one unit beyond its bounds. The selector and
+border styling worked; Mason's recursive container walk omitted the GTK border
+from nested intrinsic sizing. Feedback6f001c83-5d98-4b10-b524-5ca115ac0807 records
+the initial expectation before this diagnosis.
+
+The renderer now includes resolved GTK borders in nested Mason sizing. During
+allocation, GTK has already removed the current host's border, so that root's
+engine border is cleared for its content-box compute. Measurement keeps the
+authored engine border box and returns only the content contribution GTK adds
+its border around. The independent raw probe caught a prototype that allocated
+a fixed70-unit box correctly but measured it at78; that also passes after
+correcting the measure contribution
+(feedback48a87ecf-b4d6-48d4-b9ea-76e3f5239419).
+See GTK's [coordinate model](https://docs.gtk.org/gtk4/coordinates.html) and
+[content-height API](https://docs.gtk.org/gtk4/method.Widget.get_height.html);
+the referenced docs are4.24.1, while runtime evidence here is4.14.5.
+
+The raw Mason probe verifies asymmetric borders: automatic48x26 around40x20
+content at5,2; dropped borders restore40x20; fixed70x50 allocates and measures
+at70x50 without a second inset. CheckboxList now passes122 actual X11/
+native-property/geometry/lifecycle checks, retaining the divider-height
+assertion and adding child containment. Field chrome61, indicators38 and
+6 focused typegen/renderer tasks pass. Logs: guest
+/tmp/gtk-checkbox-list-{border-fix,mason-border,mason-border-measure-first,border-final}.log
+and andromeda /tmp/gtk-checkbox-list-border-final-types.log.
+
+Public-root CheckboxList/Item and three existing prop types are qualified,
+giving62 values/98 types. The full Linux run passes54 maintained renderer tests
+with no skips, including the public122-check case. All62 affected/dependent
+typecheck tasks pass with exact native declaration equality. Native tests pass
+58 Node checks and464 object-driver tests; selected web field/role tests pass48
+across two files. Six packed-export/declaration tasks and28 docs build/test
+tasks pass. Docs141 pages/links,1135 parsing examples,57 release notes,
+recipes/UI barrels, focused TS/JSON/test formatting and whitespace pass.
+Logs: guest /tmp/gtk-checkbox-list-root-full.log; andromeda
+/tmp/gtk-checkbox-list-root-{types,native,web,pack,doc-site}.log.
+
+Text-entry AC3 gains checkbox-list field and input evidence while remaining
+partial/not-run for the complete criterion; AC8's earlier complete/runtime
+qualification is retained. The stable v0.17.1 native group already declared
+field width but ignored it, so that correction gets a fix note. The GTK
+availability note covers the newly curated controls and later child-part
+features. No dependency was added; no phone runtime, images/pixels, IME,
+Wayland or AT-client speech/navigation was qualified. Remaining UI exports
+stay under the full parity goal, with no partial-surface PR.

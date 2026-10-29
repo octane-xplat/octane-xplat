@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem and NumberInput.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList and CheckboxListItem.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -258,6 +258,51 @@ export function Payment() {
         <RadioListItem value="cash" label="Cash" isDisabled />
       </RadioList>
     </Field>
+  )
+}
+```
+
+## Multiple-choice fields
+
+Use CheckboxList when several options can be checked. Its value is an array
+of option values; defaultValue seeds a local selection. Click a label or use
+Tab and Space. Set density="compact" for smaller indicators and hasDividers
+for lines between rows.
+
+```tsx
+import { CheckboxList } from '@octane-xplat/ui'
+
+export function Features() {
+  return <CheckboxList label="Features" width={280} density="compact" hasDividers
+    defaultValue={['calendar']} options={[
+      { value: 'calendar', label: 'Calendar', description: 'Plan upcoming work' },
+      { value: 'backup', label: 'Backup', isDisabled: true },
+    ]} />
+}
+```
+
+CheckboxListItem children read their checked state from the list. Outside a
+list, use isChecked and onCheck to own the item state; indeterminate shows a
+partially selected checkbox. This lets one separate row select the whole set.
+
+```tsx
+import { useState } from 'octane'
+import { CheckboxList, CheckboxListItem, Text, View } from '@octane-xplat/ui'
+
+export function FeaturePicker() {
+  const [selected, setSelected] = useState<string[]>([])
+  const all = ['calendar', 'backup']
+  const checked = selected.length === 0 ? false
+    : selected.length === all.length ? true : 'indeterminate'
+  return (
+    <View>
+      <CheckboxListItem label="Select all" isChecked={checked}
+        onCheck={on => setSelected(on ? all : [])} />
+      <CheckboxList label="Features" width={280} value={selected} onValueChange={setSelected}>
+        <CheckboxListItem value="calendar" label="Calendar" endContent={<Text>Included</Text>} />
+        <CheckboxListItem value="backup" label="Backup" />
+      </CheckboxList>
+    </View>
   )
 }
 ```

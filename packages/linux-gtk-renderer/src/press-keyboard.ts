@@ -42,23 +42,27 @@ export function bindPressKeys(node: ElementNode) {
 		Gdk.ModifierType.META_MASK
 	let keys: any = null,
 		focus: any = null,
-		radioPointer: any = null
+		togglePointer: any = null
+	const pointerRole = () =>
+		[Gtk.AccessibleRole.CHECKBOX, Gtk.AccessibleRole.SWITCH, Gtk.AccessibleRole.RADIO].includes(
+			view.get_accessible_role(),
+		)
 	const ensure = () => {
 		if (disposed || !view.get_focusable()) return
-		if (!radioPointer && view.get_accessible_role() === Gtk.AccessibleRole.RADIO) {
-			radioPointer = new Gtk.GestureClick()
-			radioPointer.set_button(1)
-			connect(radioPointer, 'pressed', () => {
+		if (!togglePointer && pointerRole()) {
+			togglePointer = new Gtk.GestureClick()
+			togglePointer.set_button(1)
+			connect(togglePointer, 'pressed', () => {
 				if (
 					!disposed &&
 					view.get_focusable() &&
 					view.get_focus_on_click() &&
 					view.is_sensitive() &&
-					view.get_accessible_role() === Gtk.AccessibleRole.RADIO
+					pointerRole()
 				)
 					view.grab_focus()
 			})
-			view.add_controller(radioPointer)
+			view.add_controller(togglePointer)
 		}
 		if (
 			disposed ||
@@ -137,7 +141,7 @@ export function bindPressKeys(node: ElementNode) {
 			for (const [object, id] of connections) object.disconnect(id)
 			if (keys) view.remove_controller(keys)
 			if (focus) view.remove_controller(focus)
-			if (radioPointer) view.remove_controller(radioPointer)
+			if (togglePointer) view.remove_controller(togglePointer)
 		},
 	}
 }

@@ -228,12 +228,23 @@ const MASON_CONTAINERS = new Set(['masonview'])
  *  padding are
  *  deliberately absent — GTK CSS owns them inside the measure/allocate
  *  channel. */
-function styleDict(node: NodeLike): Record<string, any> {
+function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 	const props = node.props ?? {}
 	// The cascade's computed bag already folds the inline style prop in;
 	// the keyframe overlay (animated width/height) sits on top.
 	const style = paintStyle(node)
 	const out: Record<string, any> = {}
+
+	// GTK measures foreign leaves, but Mason descends through its own
+	// containers without asking GTK for their CSS border box. Include that
+	// border for nested sizing. The current GTK allocation root already
+	// receives a content box and must not consume its own border again.
+	if (MASON_CONTAINERS.has(node.type)) {
+		const border = contentBox ? null : node.view.get_style_context().get_border()
+		out.border = Object.fromEntries(
+			['left', 'right', 'top', 'bottom'].map((edge) => [edge, [0, border?.[edge] ?? 0]]),
+		)
+	}
 
 	for (const key of ENUM_STYLE_KEYS) {
 		const value = style[key]
@@ -420,7 +431,7 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
 	mason.node_set_style(
 		engine,
 		root,
-		JSON.stringify({ ...authored, width: [1, width], height: [1, height] }),
+		JSON.stringify({ ...styleDict(node, true), width: [1, width], height: [1, height] }),
 	)
 	let flat: ReturnType<typeof records>
 	try {
@@ -652,14 +663,21 @@ function measureNode(node: NodeLike, horizontal: boolean, forSize: number): [num
 	if (!root) {
 		return [0, 0]
 	}
-	const offer = forSize >= 0 ? forSize : MAX_CONTENT
+	// The engine computes border boxes, including authored fixed dimensions.
+	// GTK asks this vfunc for content dimensions and adds its CSS border.
+	// Keep the authored box semantics in the engine, then remove only the
+	// border GTK will add; the cross-axis offer likewise arrives as content.
+	const border = node.view.get_style_context().get_border()
+	const own = horizontal ? border.left + border.right : border.top + border.bottom
+	const cross = horizontal ? border.top + border.bottom : border.left + border.right
+	const offer = forSize >= 0 ? forSize + cross : MAX_CONTENT
 	const nat = horizontal
 		? computeRootSize(root, MAX_CONTENT, offer)[0]
 		: computeRootSize(root, offer, MAX_CONTENT)[1]
 	const min = horizontal
 		? computeRootSize(root, MIN_CONTENT, offer)[0]
 		: computeRootSize(root, offer, MIN_CONTENT)[1]
-	return [min, nat]
+	return [Math.max(0, min - own), Math.max(0, nat - own)]
 }
 
 /** Frees the engine-side nodes under `node` — call from the driver's

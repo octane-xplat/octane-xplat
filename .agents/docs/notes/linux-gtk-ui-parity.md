@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 60 runtime values and 95 types in index.gtk.ts, including
+Current availability is 62 runtime values and 98 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList, RadioListItem and NumberInput. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList and CheckboxListItem. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1086,3 +1086,28 @@ coverage and runtime proof; the other partial/missing criteria are preserved.
 CheckboxList/Item and remaining inputs/parts, Image, overlays, navigation,
 theme and services remain under the full parity goal. No partial-surface PR
 has been opened.
+
+
+### Public GTK checkbox lists
+
+CheckboxList and CheckboxListItem, plus three existing prop types, reuse the
+shared native group/part leaves. Options and children share one field owner
+and checked-set provider; standalone mixed state remains controlled.
+Availability is62 values/98 types. GTK now focuses custom checkbox/switch rows
+on primary pointer press, independently of selection, while respecting native
+focus-on-click opt-out and disabled sensitivity.
+
+The group probe also found a nested Mason border omission. The renderer now
+counts resolved GTK borders in nested sizing and separates border-box measure
+results from GTK content-box allocation. Independent raw checks cover
+asymmetric borders, removal, automatic sizing and fixed sizing/measurement.
+
+The public-root case passes122 actual X11/native metadata/layout/lifecycle
+checks. All54 Linux renderer tests pass without skips;62 affected/dependent
+typecheck tasks,58 Node checks,464 native object-driver tests,48 selected web
+tests,6 package validation and28 docs build/test tasks pass. See
+[the checkbox-list evidence](linux-gtk-renderer.md#gtk-checkbox-list-investigation)
+for baseline failures, fixes and limits. Text-entry AC3 remains partial; AC8
+keeps its earlier complete/runtime-tested assessment. Remaining inputs/parts,
+Image, overlays, navigation, theme and services stay under the full goal.
+No partial-surface PR has been opened.

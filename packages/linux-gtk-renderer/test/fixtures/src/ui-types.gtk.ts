@@ -107,3 +107,11 @@ type RadioOptionContract = Assert<Equal<GtkUI.RadioOption, NativeUI.RadioOption>
 
 type InputNumberPropsContract = Assert<Equal<GtkUI.InputNumberProps, NativeUI.InputNumberProps>>
 type NumberInputPropsContract = Assert<Equal<GtkUI.NumberInputProps, NativeUI.NumberInputProps>>
+
+type CheckboxGroupPropsContract = Assert<
+	Equal<GtkUI.CheckboxGroupProps, NativeUI.CheckboxGroupProps>
+>
+type CheckboxListPropsContract = Assert<Equal<GtkUI.CheckboxListProps, NativeUI.CheckboxListProps>>
+type CheckboxListItemPropsContract = Assert<
+	Equal<GtkUI.CheckboxListItemProps, NativeUI.CheckboxListItemProps>
+>

@@ -254,6 +254,12 @@ field frame. Put the control id on the editor, retain keyed optional actions,
 and publish native sensitivity plus field metadata. Keep a number draft only
 while it matches the owning numeric value; format the committed value on blur.
 
+CheckboxList options and child parts use the same native checkbox row and
+group field owner. The existing group role adapter uses NativeScript's inert
+fallback while preserving group on GTK. Native-only layout classes describe
+this leaf's tree. Keep pointer focus in the renderer's custom-toggle controller
+so read-only checkboxes and switches can focus without selection handlers.
+
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property

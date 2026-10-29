@@ -181,6 +181,12 @@ clear action report null, and omitted values retain a local owner seeded once
 by defaultValue. Actual X11 editing, stepping and clear input exercise these
 contracts alongside controlled rejection and field ownership.
 
+The public-root [checkbox list fixture](../../../packages/linux-gtk-renderer/test/ui-checkbox-list.test.mjs)
+extends AC3 field evidence to option data, child parts and controlled standalone
+mixed checkboxes. It covers group names/state/width, actual keyboard/pointer
+ownership, selection authority, density/dividers, wrapping and retained updates.
+This is separate from assistive-client speech or navigation.
+
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
 recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance

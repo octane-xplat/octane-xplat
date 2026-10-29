@@ -135,6 +135,20 @@ row class describes this host structure; the web leaf owns a different tree.
 GTK checks include real X11 input and field metadata; phone, IME and AT-client
 behavior are separate qualification.
 
+CheckboxList option data and CheckboxListItem children share a native field
+owner and checked-set context. Keep standalone isChecked/onCheck controlled,
+including indeterminate state. Use the role adapter for group: GTK retains
+group semantics while NativeScript uses its existing inert fallback. Custom
+GTK checkbox/switch/radio rows focus on primary pointer press independently of
+selection, including read-only rows; preserve focus-on-click opt-out and native
+disabled sensitivity. Named GJS checks cover input and metadata, not AT speech.
+
+Nested Mason containers need their resolved GTK border in the engine's sizing
+dict. The current GTK allocation root already receives content dimensions, so
+clear its own engine border for that compute. Natural measurement instead
+computes the authored border box and returns the content contribution GTK
+expects. Preserve both fixed-size and automatic measure/allocate checks.
+
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
 handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have
