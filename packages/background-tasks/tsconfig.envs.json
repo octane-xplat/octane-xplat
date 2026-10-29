@@ -6,10 +6,10 @@
 	},
 	"environments": {
 		"native": {
-			"files": ["src/index.ts"],
+			"files": ["src/index.ts", "examples/refresh.ts"],
 			"compilerOptions": { "types": ["@nativescript/types"] }
 		},
-		"web": { "files": ["src/index.web.ts"] },
-		"macos": { "files": ["src/index.macos.ts"] }
+		"web": { "files": ["src/index.web.ts", "examples/refresh.ts"] },
+		"macos": { "files": ["src/index.macos.ts", "examples/refresh.ts"] }
 	}
 }

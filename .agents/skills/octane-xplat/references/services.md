@@ -509,6 +509,16 @@ StoreKit 2 receiptToken is transaction JSON, not signed server proof; use the
 store's verification API. The wrapper cannot await readiness (#70) and currently
 re-fetches purchase requests as inapp (#69); do not claim subscription checkout.
 
+## Background refresh
+
+Use the [background guide](../../../../docs/platform/background-work.md) for a
+maintained task, distinct foreground/background execution evidence and startup
+configuration. Registration is not execution. The current Android worker does
+not bootstrap a dead runtime or correctly await JS completion (#71); iOS loses
+task outcomes, lacks expiration handling and does not resubmit requests (#72).
+Do not claim production periodic delivery. Register each iOS handler once before
+launch completes, keep a foreground action, and report device evidence separately.
+
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.

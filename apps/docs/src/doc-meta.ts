@@ -49,6 +49,7 @@ export const GROUPS = [
 			'module-resolution',
 			'platform-services',
 			'in-app-purchases',
+			'background-work',
 			'media-services',
 			'keep-awake',
 			'local-notifications',

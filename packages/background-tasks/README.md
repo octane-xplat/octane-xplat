@@ -1,54 +1,52 @@
 # @octane-xplat/background-tasks
 
-Schedule periodic background work on iOS and Android. The operating system
-chooses when it runs; use this for deferrable refreshes, not exact timers.
-Web and desktop report `supported: false`.
+Define deferrable work for iOS/Android scheduler experiments. The OS chooses
+when work runs; this is not an exact timer. The current Android cold-start/
+completion bridge and iOS outcome/expiration/recurrence lifecycle have open
+gaps ([#71](https://github.com/octane-xplat/octane-xplat/issues/71),
+[#72](https://github.com/octane-xplat/octane-xplat/issues/72)). Do not treat
+registration as a production delivery guarantee. Web/desktop are unsupported.
 
-## Register a task
+Follow [Run a background refresh](https://octane-xplat.goddardai.org/background-work)
+for a maintained timestamp job, foreground recovery screen, native configuration,
+launch-time registration, disable and execution checks.
 
-From an existing Xplat app:
+## Define a small task
+
+Install in an existing Xplat app:
 
 ```sh
 pnpm add @octane-xplat/background-tasks @octane-xplat/platform
 ```
 
-On iOS, the app's Info.plist needs `UIBackgroundModes` with `fetch` and
-`BGTaskSchedulerPermittedIdentifiers` with the full identifier. The task named
-`record-refresh` below uses `com.octanexplat.tasks.record-refresh`. Android uses
-the package's WorkManager bridge. Rebuild after changing native configuration.
-
-Import this module during startup so the task is defined before registration.
-The example records a timestamp locally, which you can inspect from the app:
+Define tasks at module scope in a module imported at native startup. Keep their
+results outside mounted screens, and confirm durable writes. This definition
+records an execution attempt; it does not itself schedule or prove OS delivery:
 
 ```ts
 import { backgroundTasks } from '@octane-xplat/background-tasks'
 import { storage } from '@octane-xplat/platform'
 
 backgroundTasks.defineTask('record-refresh', async () => {
-	storage.setString('last-background-refresh', new Date().toISOString())
-	storage.flush()
-	return 'success'
+	try {
+		storage.setString('refresh.background-at', new Date().toISOString())
+		return storage.flush() ? 'success' : 'failed'
+	} catch {
+		return 'failed'
+	}
 })
-
-export async function enableRefresh() {
-	if (!backgroundTasks.supported) return false
-	if ((await backgroundTasks.getStatus()) !== 'available') return false
-	await backgroundTasks.register('record-refresh', { minimumInterval: 3600 })
-	return backgroundTasks.isRegistered('record-refresh')
-}
-
-export async function disableRefresh() {
-	if (backgroundTasks.supported) await backgroundTasks.unregister('record-refresh')
-}
 ```
 
-Call `enableRefresh` when the feature is enabled and `disableRefresh` when it is
-disabled. Registration success does not prove the OS executed the task. Verify
-that the stored timestamp changes in a background run on each target.
-The interval is in seconds; Android has a 15-minute minimum. OS restrictions
-may delay or prevent delivery.
+Use the guide's [native configuration](https://octane-xplat.goddardai.org/background-work#configure-the-native-experiment)
+and [startup request](https://octane-xplat.goddardai.org/background-work#request-once-at-startup)
+before scheduling. On iOS, the task requires a permitted full identifier and a
+handler registered once before app launch finishes. Repeated registration can
+terminate the app; do not register from a button or hot-reloaded component.
+Android carries a WorkManager bridge with a 15-minute interval floor, but its
+current worker does not bootstrap a dead JS runtime.
 
-See the [task contract](https://github.com/octane-xplat/octane-xplat/blob/main/packages/background-tasks/src/types.ts)
-and [device feature guidance](https://octane-xplat.goddardai.org/platform-services)
-for service availability. Cold-start and suspended execution require device
-qualification; an imported module or a successful build is insufficient.
+Keep the [foreground fallback](https://octane-xplat.goddardai.org/background-work#disable-retry-and-fall-back).
+The interval is in seconds and is a scheduling hint. `isRegistered` only checks
+the current JS map, not the OS queue. Qualify a persisted execution timestamp,
+actual task outcome and subsequent delivery using the guide's
+[device procedure](https://octane-xplat.goddardai.org/background-work#prove-execution-separately).

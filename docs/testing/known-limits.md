@@ -13,6 +13,11 @@ but that does not mean every control works; see
 [Windows status](../platform/windows-setup.md) and [Windows limits](../../.agents/design/windows-notes.md).
 The [target guide](../start/spec.md#choose-your-targets) explains desktop setup.
 
+Before relying on native scheduled refresh, read the
+[background-work guide](../platform/background-work.md). It tracks current
+Android cold-start/completion and iOS lifecycle gaps and keeps foreground
+refresh available while native delivery remains unqualified.
+
 OTA bundle updates are optional and available only in iOS/Android release
 binaries with the startup hook. They activate on cold launch and recover
 unconfirmed startup failures before JavaScript runs. iOS simulator and Android
