@@ -2462,6 +2462,16 @@ function makeImageView(props: PropBag) {
 	return image
 }
 
+/** `animatedimage` — the shared animation extension element. Same decode
+ *  path as `image` (an NSImage decoded from GIF data carries its frames);
+ *  `animates` is the only difference. The property is deprecated in macOS 14
+ *  but still drives GIF playback — AppKit has no replacement animation view. */
+function makeAnimatedImageView(props: PropBag) {
+	const image = makeImageView(props)
+	image.animates = true
+	return image
+}
+
 /** Types whose views arrange child views; mirrors the check in insert(). */
 const VIEW_PARENT_TYPES = new Set([
 	'rootlayout',
@@ -2497,6 +2507,7 @@ const SUPPORTED_TYPES = new Set([
 	'segmentedbaritem',
 	'webview',
 	'image',
+	'animatedimage',
 	'placeholder',
 	'span',
 	'formattedstring',
@@ -2883,6 +2894,9 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 					break
 				case 'image':
 					node.view = makeImageView(props)
+					break
+				case 'animatedimage':
+					node.view = makeAnimatedImageView(props)
 					break
 				case 'placeholder':
 					node.view = makePlaceholder(node)
@@ -6730,10 +6744,27 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				break
 			case 'image':
+			case 'animatedimage':
 				if (name === 'src') {
 					updateImage(node.view as NSImageView, value, node.props.placeholder)
 				} else if (name === 'placeholder') {
 					updateImage(node.view as NSImageView, node.props.src, value)
+				} else if (name === 'stretch' && node.type === 'animatedimage') {
+					// NSImageScaling — same constants as the objectFit writer.
+					// 'aspectFill' degrades to scale-down: AppKit has no crop
+					// mode (documented on the shared 'cover' mapping too).
+					const scaling: Record<string, number> = {
+						aspectFit: 3,
+						aspectFill: 0,
+						fill: 1,
+						none: 2,
+					}
+					node.view!.imageScaling = scaling[String(value)] ?? 0
+				} else if (name === 'autoPlayAnimations' && node.type === 'animatedimage') {
+					node.view!.animates = value !== false
+				} else if (name === 'animatedImageView' && node.type === 'animatedimage') {
+					// The AppKit host is always the animated view.
+					continue
 				} else if (name === 'style') {
 					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
@@ -6744,7 +6775,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					node.view!.accessibilityLabel = String(value ?? '')
 					node.view!.accessibilityElement = !!value
 				} else if (value !== undefined) {
-					console.warn('[macos-host] ignored image prop ' + name)
+					console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
 				}
 
 				break
@@ -7915,7 +7946,7 @@ function destroy(node: ElementNode) {
 		node.view.hidden = true
 	}
 
-	if (node.type === 'image' && node.view) {
+	if ((node.type === 'image' || node.type === 'animatedimage') && node.view) {
 		disposeImage(node.view as NSImageView)
 	}
 

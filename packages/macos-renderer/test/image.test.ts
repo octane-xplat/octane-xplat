@@ -121,6 +121,12 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 			}),
 		},
 		NSURL: { URLWithString: (value) => value },
+		NSURLRequest: { requestWithURL: (url) => ({ url }) },
+		NSURLCache: {
+			sharedURLCache: {
+				cachedResponseForRequest: (request) => staged[request.url] ?? null,
+			},
+		},
 		NSURLSession: {
 			sharedSession: {
 				dataTaskWithURLCompletionHandler: (url, handler) => {
@@ -139,6 +145,7 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 		},
 	})
 
+	const staged: Record<string, any> = {}
 	const placeholder = 'data:image/png;base64,YQ=='
 	const placeholderImage = { data: { value: 'YQ==', options: 0 } }
 	try {
@@ -186,6 +193,15 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 		const empty = { image: null }
 		updateImage(empty, '', placeholder)
 		assert.deepEqual(empty.image, placeholderImage)
+
+		// A response staged in the shared URL cache (prefetch warm) decodes
+		// without opening a session task.
+		staged['https://x/warm.png'] = { data: { remote: 'warm-bytes' } }
+		const warmed = { image: null }
+		updateImage(warmed, 'https://x/warm.png')
+		assert.equal(tasks.length, 4)
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		assert.deepEqual(warmed.image, { data: { remote: 'warm-bytes' } })
 	} finally {
 		restore()
 	}

@@ -6,6 +6,8 @@ import {
 	NSImage,
 	NSImageView,
 	NSURL,
+	NSURLCache,
+	NSURLRequest,
 	NSURLSession,
 } from '@octane-xplat/platform/macos'
 
@@ -94,8 +96,35 @@ function decodeImage(source: string) {
 /** Remote sources fetch through NSURLSession and settle through the same
  *  cache/waiter path as local decodes. The task is keyed by source, not view —
  *  a superseded request is generation-guarded, and letting the fetch finish
- *  still populates the cache for the next view asking for it. */
+ *  still populates the cache for the next view asking for it. A response
+ *  already staged in the shared URL cache — by an earlier session fetch or an
+ *  explicit prefetch warm — decodes without hitting the network. */
 function fetchImage(source: string) {
+	let staged: NSData | null = null
+	try {
+		const request = NSURLRequest.requestWithURL(NSURL.URLWithString(source))
+		staged = (NSURLCache.sharedURLCache.cachedResponseForRequest(request)?.data ??
+			null) as NSData | null
+	} catch {
+		staged = null
+	}
+
+	if (staged) {
+		// Same deferred settle as decodeImage — updateImage registers its
+		// waiter after fetchImage returns.
+		setTimeout(() => {
+			let image: NSImage | null = null
+			try {
+				image = NSImage.alloc().initWithData(staged)
+			} catch (error) {
+				console.error('[macos-image] cached decode failed', error)
+			}
+
+			settleImage(source, image)
+		}, 0)
+		return
+	}
+
 	NSURLSession.sharedSession
 		.dataTaskWithURLCompletionHandler(
 			NSURL.URLWithString(source),
