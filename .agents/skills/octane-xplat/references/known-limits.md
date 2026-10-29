@@ -333,3 +333,13 @@ ui-popup-events case owns the routing/lifetime checks; it does not qualify other
 overlay surfaces. Popover is curated separately: the shared leaf portals
 through the original root and placement uses set_pointing_to, not an
 iterative set_offset feedback loop (see the renderer note).
+
+Button/IconButton/ButtonGroup/ClickableCard/Card/Link/ToggleButton(Group) and
+the text/display leaves (Kbd through FieldStatus) are public GTK exports
+proven by ui-buttons (real input) + ui-display (mounts/folded text).
+`styled` resolves via `styled.gtk.tsrx` — the nativescript leaf stamps a
+nativescript universal-component marker the GTK owner rejects. The GTK
+vite config includes `xplat-gtk-slot-dedupe`, a local workaround for a
+rolldown limitation that fails to dedupe `withSlot`/`hookSlots` import
+bindings across slot-compiled modules in single-file bundles — required
+for any barrel including hook-heavy leaves.

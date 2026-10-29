@@ -2925,3 +2925,25 @@ pure-function and hook evidence needs no OS input).
 Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-utilities.test.mjs`).
 Limits: GJS function-level evidence only; hook lifecycle covered via its
 consumer component slice, not standalone.
+
+## GTK button and display-primitive qualification
+
+`ui-buttons.test.mjs` drives `fixtures/src/ui-buttons-main.ts` through the
+public barrel: 33 checks, all passing with real X11 input — button
+`clickAction` fires, `isDisabled` (own prop and ButtonGroup context) blocks
+activation, `ToggleButton` reports pressed/unpressed, `ClickableCard`
+activates, `grab_focus`+Return activates the focused Button, unmount frees
+the node registry.
+
+`ui-display.test.mjs` (`input:false`): 49 checks mount every B1 display
+leaf through `createGtkRoot` and assert folded children/props text reaches
+`container.nodes` — Heading/Kbd/Code/CodeBlock/Blockquote/Chip/Alert/
+Banner/EmptyState/ListItem/MetadataListItem/Link/Card text plus all mount
+ids. Notes: container.nodes is keyed by numeric id (scan `n.props.id`);
+bare text children fold into element node props, so text assertions read
+`JSON.stringify(props)`, not `get_label()`.
+
+
+
+Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only — no Wayland,
+visual/pixel, IME or assistive-client evidence.

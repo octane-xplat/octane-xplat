@@ -90,7 +90,14 @@ isNative, createStaticSource, calendar core helpers (isSameDay/
 isDateInRange/getWeekNumber), i18n (InternationalizationProvider,
 useLocale/useDirection/useTranslator, getLocaleDirection, frFR), link
 context (LinkProvider, useLinkComponent, LinkContext) and
-power-search config (createPowerSearchConfig, resolveOperatorLabel) —
+power-search config (createPowerSearchConfig, resolveOperatorLabel),
+buttons and display primitives (Button, IconButton, ToggleButton(Group),
+ButtonGroup, ClickableCard, Card, Link, styled, Kbd, Heading, Code,
+CodeBlock, ProgressBar, StatusDot, Citation, Outline, Blockquote,
+Timestamp, Timer, Skeleton, VisuallyHidden, Chip, Alert, Banner,
+EmptyState, Meter, ProgressGroup, MetadataList(+Item), Timeline, Item,
+List, ListItem, Toolbar, Step, Stepper, Pagination, FieldLabel,
+FieldStatus) —
 behave identically to native; slot-bearing hooks (useCalendarDays,
 useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
 are not yet exposed.

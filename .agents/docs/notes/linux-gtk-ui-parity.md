@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 113 runtime values and 138 types in index.gtk.ts, including
+Current availability is 153 runtime values and 180 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1299,3 +1299,32 @@ limitation found: any fixture .tsrx/.tsx component calling a slot-compiled
 hook emits `withSlot as _$withSlot`, which collides with ui-source emissions
 in the merged chunk (rolldown does not dedupe the binding). Hook probes
 belong in plain .ts files wrapped with defineUniversalComponent.
+
+### Public GTK buttons and display primitives
+
+Button-family and text/display leaves are now public GTK exports: Button,
+IconButton, ToggleButton, ToggleButtonGroup, ButtonGroup, ClickableCard,
+Card, Link, styled, Kbd, Heading, Code, CodeBlock, ProgressBar, StatusDot,
+Citation, Outline, Blockquote, Timestamp, Timer, Skeleton, VisuallyHidden,
+Chip, Alert, Banner, EmptyState, Meter, ProgressGroup, MetadataList,
+MetadataListItem, Timeline, Item, List, ListItem, Toolbar, Step, Stepper,
+Pagination, FieldLabel and FieldStatus (~40 types beside). Availability is
+153 values and 180 types.
+
+Two maintained fixtures pass without skips. `ui-buttons.test.mjs` (33
+checks, real X11 input) proves clickAction press, isDisabled suppression
+(own and group-inherited), ToggleButton pressed-toggle round trips,
+ClickableCard press, keyboard Enter activation and teardown. `ui-display.test.mjs`
+(49 checks, property-only) mounts every display leaf and asserts folded
+text and metadata reach the node graph.
+
+`styled` needed a `.gtk.tsrx` leaf — the nativescript leaf hardcodes
+`universalComponent('nativescript', …)`, which the GTK owner rejects. The
+GTK leaf is identical except it stamps 'gtk'. The new
+`xplat-gtk-slot-dedupe` transform in the GTK vite config works around a
+rolldown limitation: slot-compiled modules all emit `withSlot as _$withSlot`
+import bindings that rolldown merges into the single-file bundle without
+deduping the local name (and a single module can emit the same binding in
+two import statements — e.g. Button.tsrx). The plugin strips every emitted
+withSlot/hookSlots binding, restores one canonical import per module, and
+normalizes usages. X11/Xvfb evidence only.

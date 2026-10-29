@@ -323,3 +323,12 @@ their shared leaves on GTK — no .gtk variants were needed. isNative
 resolves to platform.ts (true — GTK is a native widget platform).
 thumbHashUri's shared leaf imports @nativescript/core; it stays out until
 the Image slice supplies a host decode path.
+
+`styled` resolves its universal target via `universal-target.ts`/`.gtk.ts`
+('nativescript' / 'gtk') — the nativescript leaf stamps a foreign marker the
+GTK owner rejects; the shared leaf now stamps the resolved target. All other
+B1 leaves reuse their shared `.tsrx` — Button-family and display
+components compose qualified Pressable/View/Text/masonview paths. `xplatGtkSlotDedupe` in the GTK vite config is a build-level workaround
+for an octane 0.16.3 emission bug (`withSlot` emitted twice intra-module;
+rolldown dedupes cross-module but not intra-file) — applies to every GTK
+bundle, not per-leaf. macOS shares the path.

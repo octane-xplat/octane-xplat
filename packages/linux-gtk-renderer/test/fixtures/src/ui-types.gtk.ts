@@ -163,3 +163,54 @@ type DefinedThemeContract = Assert<Equal<GtkUI.DefinedTheme, NativeUI.DefinedThe
 type DefineThemeInputContract = Assert<Equal<GtkUI.DefineThemeInput, NativeUI.DefineThemeInput>>
 type TokenValueContract = Assert<Equal<GtkUI.TokenValue, NativeUI.TokenValue>>
 type FlatRefContract = Assert<Equal<GtkUI.FlatRef<unknown>, NativeUI.FlatRef<unknown>>>
+
+type ButtonPropsContract = Assert<Equal<GtkUI.ButtonProps, NativeUI.ButtonProps>>
+type ButtonVariantContract = Assert<Equal<GtkUI.ButtonVariant, NativeUI.ButtonVariant>>
+type IconButtonPropsContract = Assert<Equal<GtkUI.IconButtonProps, NativeUI.IconButtonProps>>
+type ToggleButtonPropsContract = Assert<Equal<GtkUI.ToggleButtonProps, NativeUI.ToggleButtonProps>>
+type ToggleButtonGroupPropsContract = Assert<
+	Equal<GtkUI.ToggleButtonGroupProps, NativeUI.ToggleButtonGroupProps>
+>
+type ButtonGroupPropsContract = Assert<Equal<GtkUI.ButtonGroupProps, NativeUI.ButtonGroupProps>>
+type ClickableCardPropsContract = Assert<Equal<GtkUI.ClickableCardProps, NativeUI.ClickableCardProps>>
+type CardPropsContract = Assert<Equal<GtkUI.CardProps, NativeUI.CardProps>>
+type LinkPropsContract = Assert<Equal<GtkUI.LinkProps, NativeUI.LinkProps>>
+type KbdPropsContract = Assert<Equal<GtkUI.KbdProps, NativeUI.KbdProps>>
+type HeadingPropsContract = Assert<Equal<GtkUI.HeadingProps, NativeUI.HeadingProps>>
+type CodePropsContract = Assert<Equal<GtkUI.CodeProps, NativeUI.CodeProps>>
+type CodeBlockPropsContract = Assert<Equal<GtkUI.CodeBlockProps, NativeUI.CodeBlockProps>>
+type ProgressBarPropsContract = Assert<Equal<GtkUI.ProgressBarProps, NativeUI.ProgressBarProps>>
+type StatusDotPropsContract = Assert<Equal<GtkUI.StatusDotProps, NativeUI.StatusDotProps>>
+type CitationPropsContract = Assert<Equal<GtkUI.CitationProps, NativeUI.CitationProps>>
+type OutlinePropsContract = Assert<Equal<GtkUI.OutlineProps, NativeUI.OutlineProps>>
+type BlockquotePropsContract = Assert<Equal<GtkUI.BlockquoteProps, NativeUI.BlockquoteProps>>
+type TimestampPropsContract = Assert<Equal<GtkUI.TimestampProps, NativeUI.TimestampProps>>
+type TimerPropsContract = Assert<Equal<GtkUI.TimerProps, NativeUI.TimerProps>>
+type SkeletonPropsContract = Assert<Equal<GtkUI.SkeletonProps, NativeUI.SkeletonProps>>
+type VisuallyHiddenPropsContract = Assert<
+	Equal<GtkUI.VisuallyHiddenProps, NativeUI.VisuallyHiddenProps>
+>
+type ChipPropsContract = Assert<Equal<GtkUI.ChipProps, NativeUI.ChipProps>>
+type AlertPropsContract = Assert<Equal<GtkUI.AlertProps, NativeUI.AlertProps>>
+type BannerPropsContract = Assert<Equal<GtkUI.BannerProps, NativeUI.BannerProps>>
+type EmptyStatePropsContract = Assert<Equal<GtkUI.EmptyStateProps, NativeUI.EmptyStateProps>>
+type MeterPropsContract = Assert<Equal<GtkUI.MeterProps, NativeUI.MeterProps>>
+type ProgressGroupPropsContract = Assert<
+	Equal<GtkUI.ProgressGroupProps, NativeUI.ProgressGroupProps>
+>
+type MetadataListPropsContract = Assert<Equal<GtkUI.MetadataListProps, NativeUI.MetadataListProps>>
+type MetadataListItemPropsContract = Assert<
+	Equal<GtkUI.MetadataListItemProps, NativeUI.MetadataListItemProps>
+>
+type TimelinePropsContract = Assert<Equal<GtkUI.TimelineProps, NativeUI.TimelineProps>>
+type ItemPropsContract = Assert<Equal<GtkUI.ItemProps, NativeUI.ItemProps>>
+type ListItemPropsContract = Assert<Equal<GtkUI.ListItemProps, NativeUI.ListItemProps>>
+type ListPropsContract = Assert<Equal<GtkUI.ListProps, NativeUI.ListProps>>
+type ToolbarPropsContract = Assert<Equal<GtkUI.ToolbarProps, NativeUI.ToolbarProps>>
+type StepPropsContract = Assert<Equal<GtkUI.StepProps, NativeUI.StepProps>>
+type StepperPropsContract = Assert<Equal<GtkUI.StepperProps, NativeUI.StepperProps>>
+type PaginationPropsContract = Assert<Equal<GtkUI.PaginationProps, NativeUI.PaginationProps>>
+type FieldLabelPropsContract = Assert<Equal<GtkUI.FieldLabelProps, NativeUI.FieldLabelProps>>
+type FieldStatusComponentPropsContract = Assert<
+	Equal<GtkUI.FieldStatusComponentProps, NativeUI.FieldStatusComponentProps>
+>

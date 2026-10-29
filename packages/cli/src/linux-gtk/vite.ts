@@ -8,6 +8,59 @@ import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
+/** Slot-compiled TSRX modules can emit the same `withSlot`/`hookSlots`
+ *  import binding in two import statements of a single module (octane's
+ *  universal compiler dedupes `hookSlots` intra-file but not `withSlot` —
+ *  e.g. `Button.tsrx`). Rolldown only dedupes bindings across modules, so
+ *  the duplicate survives to a `_$withSlot` redeclaration error in the
+ *  merged chunk. Keep the first binding per export and fold later local
+ *  names into it. Different specifiers are a real conflict — bail. */
+export function xplatGtkSlotDedupe() {
+	return {
+		name: 'xplat-gtk-slot-dedupe',
+		transform(code, id) {
+			if (!/\.(tsrx|tsx)$/.test(id)) { return }
+			if (!code.includes('withSlot as _') && !code.includes('hookSlots as _')) { return }
+			const firstLocal = new Map()
+			const firstSpec = new Map()
+			const fold = new Map()
+			let changed = false
+			let out = code.replace(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?/g,
+				(stmt, names, spec) => {
+					const kept = []
+					for (const raw of names.split(',')) {
+						const part = raw.trim()
+						const m = part.match(/^(withSlot|hookSlots) as (_\$[A-Za-z0-9_$]+)$/)
+						if (!m) {
+							if (part) { kept.push(part) }
+							continue
+						}
+						const [, kind, local] = m
+						const prev = firstSpec.get(kind)
+						if (prev !== undefined && prev !== spec) {
+							throw new Error(`xplat-gtk-slot-dedupe: ${kind} imported from '${prev}' and '${spec}' in ${id}`)
+						}
+						if (firstLocal.has(kind)) {
+							if (local !== firstLocal.get(kind)) { fold.set(local, firstLocal.get(kind)) }
+							changed = true
+							continue
+						}
+						firstLocal.set(kind, local)
+						firstSpec.set(kind, spec)
+						kept.push(part)
+					}
+					if (!kept.length) { changed = true; return '' }
+					return `import { ${kept.join(', ')} } from '${spec}';`
+				})
+			for (const [from, to] of fold) {
+				const rx = new RegExp(from.replace(/\$/g, '\\$') + '\\b', 'g')
+				if (rx.test(out)) { changed = true; out = out.replace(rx, to) }
+			}
+			return changed ? { code: out } : undefined
+		},
+	}
+}
+
 /** GTK4/GJS compiler and bundle setup; the consuming app owns the toolchain.
  *  Produces a single ESM file `gjs -m` executes — the Octane universal
  *  runtime and the app's components are bundled; `gi://` introspection
@@ -29,6 +82,7 @@ export async function xplatLinuxGtk(env, options = {}) {
 		root,
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
+			xplatGtkSlotDedupe(),
 			xplatCss('gtk'),
 			xplatInlineStylesheets(),
 			xplatBoundary('gtk'),
