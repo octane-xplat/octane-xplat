@@ -248,3 +248,70 @@ it('cached switch handlers read current blocking props and callbacks', async () 
 		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(env.control().props.accessibilityState.busy).toBe(false) })
 	} finally { env.root.unmount() }
 })
+
+// Authored object-driver models only; native input/ref timing remains unqualified.
+it('advances local switch requests before render without a save', () => {
+	const changes: boolean[] = []
+	const env = mount(Switch, { defaultValue: false, onChange: (value: boolean) => changes.push(value) })
+	try {
+		const tap = env.control().props.onTap
+		tap(); tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, false, true])
+		expect(env.control().props.accessibilityState.checked).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('restores local switch intent before synchronous rollback callbacks and the next request', () => {
+	const changes: boolean[] = [], saved: boolean[] = []
+	let tap = () => {}
+	const env = mount(Switch, { onChange: (value: boolean) => { changes.push(value); if (!value) tap() },
+		changeAction: (value: boolean) => { saved.push(value); throw Error('save failed') } })
+	try {
+		tap = env.control().props.onTap
+		tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, false, true, false])
+		expect(saved).toEqual([true, true])
+		expect(env.control().props.accessibilityState).toMatchObject({ checked: false, busy: false })
+	} finally { env.root.unmount() }
+})
+
+it('restores local switch intent after async failure and preserves it for rapid no-save requests', async () => {
+	const task = deferred(), changes: boolean[] = [], change = (value: boolean) => changes.push(value)
+	const env = mount(Switch, { onChange: change, changeAction: () => task.promise })
+	try {
+		const tap = env.control().props.onTap
+		tap(); tap(); expect(changes).toEqual([true])
+		task.reject(Error('save failed'))
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(changes).toEqual([true, false]) })
+		env.render({ onChange: change })
+		tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, false, true, false])
+		expect(env.control().props.accessibilityState).toMatchObject({ checked: false, busy: false })
+	} finally { env.root.unmount() }
+})
+
+it('keeps switch controlled requests parent-owned and retains the original local seed', () => {
+	const changes: boolean[] = [], change = (value: boolean) => changes.push(value)
+	const env = mount(Switch, { value: false, defaultValue: true, onChange: change })
+	try {
+		const tap = env.control().props.onTap
+		tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, true]); expect(env.control().props.accessibilityState.checked).toBe(false)
+		env.render({ defaultValue: false, onChange: change })
+		expect(env.control().props.accessibilityState.checked).toBe(true)
+		tap(); tap(); flushUniversalSync(() => {})
+		expect(changes).toEqual([true, true, false, true])
+		expect(env.control().props.accessibilityState.checked).toBe(true)
+	} finally { env.root.unmount() }
+})
+
+it('retains local switch intent when a forward callback throws before rendering', () => {
+	const changes: boolean[] = [], save = vi.fn()
+	let fail = true
+	const env = mount(Switch, { onChange: (value: boolean) => { changes.push(value); if (fail) throw Error('consumer failure') }, changeAction: save })
+	try {
+		const tap = env.control().props.onTap
+		expect(tap).toThrow('consumer failure'); expect(save).not.toHaveBeenCalled()
+		fail = false; tap(); expect(changes).toEqual([true, false]); expect(save).toHaveBeenCalledWith(false)
+	} finally { env.root.unmount() }
+})

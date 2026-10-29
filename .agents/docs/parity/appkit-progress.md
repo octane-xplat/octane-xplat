@@ -9045,3 +9045,75 @@ No tests/typegen/typechecks/builds/installs, native operations, OS automation,
 packaging, images/visual analysis, audit regeneration or new task/agent ran.
 check:docs and check:doc-examples remain absent in this worktree snapshot; do not
 copy another task's in-flight tooling or claim those gates passed.
+
+## AppKit switch latest local intent
+
+After checkbox ownership, continued the same high-demand settings flow: the
+maintained ComponentsDemo and switch fixture use local/default choices as well
+as controlled saves. Source at 1cf15e4a4 read latest rendered checked state, so
+separate no-save activations before a render could repeat the same request.
+Current props/reentry/pending/detach ownership already existed. This is source
+evidence, not observed native event delivery or a failing executed model.
+
+The AppKit Switch leaf now retains accepted uncontrolled intent separately from
+rendered state, updating it before the state setter and consumer callback. Each
+activation reads current props and chooses the parent value or that local intent.
+Sync/async failure restores the captured prior local intent before rollback state/
+callback writes. A throwing forward callback retains its already-applied intent
+while releasing ownership without starting the save. Controlled requests do not
+rewrite the original local seed; repeated rejected requests remain parent-owned.
+The existing save claim, current blocking, captured event action/rollback callback,
+label/focus path and detached settlement policy remain unchanged. No new public
+API, context, renderer/import prerequisite, other-target leaf, dependency,
+manifest, React Aria presence entry or shared audit change was needed.
+
+Five new object-driver cases are authored, all UNRUN (eighteen total): rapid local
+no-save requests; synchronous failure restoring intent before rollback reentry/
+next request; async failure followed by rapid no-save requests; controlled
+rejection and original seed on controlled release; forward callback throw before
+render. Existing cases still cover save order, pending blocking, reentry, label
+lease, metadata and detach, but none were executed for this task.
+
+The maintained switch fixture retains its original metadata run hook and adds
+human-operated local, async save/failure and accepted/rejected controlled choices,
+blocking controls and request history. Save failure settles in a microtask; there
+is no timer or simulated slow-save qualification. The runner still checks only
+initial metadata and direct layout-button dispatch, not the new flows or OS
+input. Guide, Octane reference, appkit-switch-actions AC7 and the existing
+unreleased feature note reconcile the subset. The UI README has no switch-specific
+claim to update. Local stable tags do not contain the target leaf's introducing
+commit 7680744; only this origin branch contains it, so the existing feature note
+is updated without a separate stable-fix note or registry publication claim.
+
+Lightweight checks: three TSRX source/test/fixture files and six scoped TSX
+fences parsed; six distinct new/changed local targets/anchors resolved; the UI
+manifest parsed as JSON; focused staged semantic and whitespace review passed.
+Zero tests/compiler transforms/native operations were run. Native event/ref/field/layout timing,
+physical track/label/key input, pending ownership and record/mode changes under
+real interaction, focus/Tab/VoiceOver, actual busy paint, memory/OS versions,
+installed consumers and visual/pixel behavior remain unqualified. No new record
+identity/cancellation API or change to captured-event rollback policy is claimed.
+The full support goal and all evidence checkboxes remain open.
+
+Exact deferred commands (DO NOT RUN until this task receives explicit human
+verification authorization; native resource authorization is not visual approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/switch.macos.mobile.test.tsrx src/checkbox.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/switch.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit switch local intent package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+No tests/typegen/typechecks/builds/installs, OS automation, packaging, images or
+visual analysis, shared snapshot regeneration or new task/agent ran. The UI has
+no own typecheck script in this snapshot; the touched-package/dependents filter
+remains the pre-merge gate. check:docs/check:doc-examples are absent here; do not
+copy other tasks' in-flight tooling or claim those commands passed.

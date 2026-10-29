@@ -20,6 +20,8 @@ A settings toggle whose changeAction saves the requested value asynchronously.
 
 - AC6: Claim toggle ownership before onChange reentry and read current props from cached native handlers. Preserve event save dispatch after onChange detaches UI without publishing pending/rollback to that UI. Release ownership on forward callback failure and log/release rollback callback faults without an unhandled settlement rejection. Keep native lifecycle evidence separate.
 
+- AC7: Retain latest uncontrolled intent before forward state/callback writes and restore it before sync/async rollback callbacks. Rapid no-save requests before render alternate correctly; controlled requests remain parent-owned and controlled release retains the original local seed. Forward callback throw retains applied local intent and releases ownership without starting its save. Reconcile five authored cases and human-operated fixture controls while preserving current save/reentry/detach policy and explicit native/installed/visual gates.
+
 ## Documentation
 
 - AC1: [Switch save guide](../../../docs/app/components.md#save-a-switch-setting-on-appkit) and [authored pending/order tests](../../../packages/ui/src/switch.macos.mobile.test.tsrx). Tests are unrun.
@@ -31,3 +33,5 @@ A settings toggle whose changeAction saves the requested value asynchronously.
 - AC5: [Shared label action and limits](../../../docs/app/components.md#save-a-switch-setting-on-appkit), [lease/activation source](../../../packages/ui/src/label-press.macos.tsrx) and [authored dispatch/cleanup cases](../../../packages/ui/src/switch.macos.mobile.test.tsrx). Native hit testing, focus/Tab, tooltip arbitration and accessibility remain unqualified.
 
 - AC6: [Switch save guide](../../../docs/app/components.md#save-a-switch-setting-on-appkit), four added source cases and [target note](../parity/appkit-progress.md#appkit-switch-callback-ownership). All added cases and native checks remain unrun.
+
+- AC7: [Latest local switch choices](../../../docs/app/components.md#save-a-switch-setting-on-appkit), [five added object-driver cases](../../../packages/ui/src/switch.macos.mobile.test.tsrx), [extended fixture](../../../examples/probes/switch.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives.md#appkit-switch-saves), [unreleased feature note](../../../.changelog/appkit-switch-actions.md) and [target note](../parity/appkit-progress.md#appkit-switch-latest-local-intent). All cases/probes remain UNRUN; the original fixture run hook still covers metadata/direct button dispatch only.

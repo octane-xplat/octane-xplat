@@ -916,6 +916,23 @@ export function Preference({ save }: { save(next: boolean): Promise<void> }) {
 ```
 
 
+AppKit Switch retains a separate latest uncontrolled intent before forward
+state/callback writes, and restores it before rollback callbacks. Held no-save
+requests before render use that intent; controlled requests use the parent's
+current value and never replace the original local seed. Forward callback throw
+retains its already-applied intent while releasing the claim. Pending claims,
+current blocking/callbacks, event save ownership and detach guards remain in force.
+Five new object-driver cases and extended human-operated fixture controls are
+UNRUN. The fixture's run hook still covers only original metadata/direct button
+dispatch, not the new local/save/controlled flows or physical input.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+export function ArchiveFlag({ change }: { change(enabled: boolean): void }) {
+	return <Switch label="Include archived" defaultValue={false} onChange={change} />
+}
+```
+
 ## AppKit switch metadata
 
 Standalone Switch renders its label, description and detached status; parent

@@ -19,6 +19,7 @@ export function Switch(inputProps: SwitchProps) @{
 	const hasText = ownChrome && !props.isLabelHidden && (props.label != null || props.description != null)
 	const [internal, setInternal] = useState(props.defaultValue ?? false)
 	const checked = props.value ?? internal
+	const localValue = useRef(internal)
 	const [pending, setPending] = useState(false)
 	const active = useRef<symbol | null>(null)
 	const attached = useRef(true)
@@ -31,18 +32,21 @@ export function Switch(inputProps: SwitchProps) @{
 	}, [])
 	const loading = Boolean(props.isLoading || pending)
 	const isBlocked = props.isDisabled || props.isReadOnly || pending
-	const latest = useRef({ props, checked })
-	latest.current = { props, checked }
+	const latest = useRef(props)
+	latest.current = props
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const toggle = () => {
-		const { props, checked } = latest.current
+		const props = latest.current
 		if (!attached.current || props.isDisabled || props.isReadOnly || active.current) return
-		const previous = checked, next = !previous
+		const previous = props.value ?? localValue.current, next = !previous
 		const uncontrolled = props.value === undefined
 		const token = Symbol('switch-action')
 		active.current = token // Claim before application callbacks can reenter.
 		try {
-			if (uncontrolled) setInternal(next)
+			if (uncontrolled) {
+				localValue.current = next
+				setInternal(next)
+			}
 			props.onChange?.(next)
 		} catch (error) {
 			if (active.current === token) active.current = null
@@ -58,7 +62,10 @@ export function Switch(inputProps: SwitchProps) @{
 			if (!attached.current || active.current !== token) return
 			try {
 				if (failed) {
-					if (uncontrolled) setInternal(previous)
+					if (uncontrolled) {
+						localValue.current = previous
+						setInternal(previous)
+					}
 					props.onChange?.(previous)
 				}
 			} catch (error) {

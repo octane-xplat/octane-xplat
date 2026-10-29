@@ -571,6 +571,21 @@ export function Notifications({ save }: { save(enabled: boolean): Promise<void> 
 }
 ```
 
+Without a save action, rapid AppKit switch requests still alternate from the
+latest local choice before the screen updates. Save failure restores that choice
+before the rollback callback. A throwing forward callback retains the local
+choice it already applied. Controlled requests continue from the parent's value;
+changing defaultValue later does not replace the initial local seed. Five new
+source cases remain unrun; native event/ref timing is still unqualified.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function ArchiveFlag({ change }: { change(enabled: boolean): void }) {
+	return <Switch label="Include archived" defaultValue={false} onChange={change} />
+}
+```
+
 Standalone AppKit switches render a label/description column beside the track
 and a detached status below. Use `labelPosition="start"` to put text first,
 `labelSpacing="spread"` to separate text and track, or `size="sm"` for the
