@@ -8543,3 +8543,72 @@ checks. No tests, typechecks, compiler
 transforms, probes, native builds, OS/AX automation, packaging or visual analysis
 ran. Native-resource authorization would not authorize visual analysis. All
 evidence-gated checkboxes remain open and the persistent goal stays active.
+
+## AppKit data Table body text overflow
+
+Demand is grounded in the maintained Astryx table-page template, which requests
+textOverflow="truncate" for an invoice table, and the existing bounded native
+table fixture. TableTextOverflow is documented for default-rendered body text.
+The AppKit leaf previously passed the setting to context/plan, but created bare
+body labels without any native mode props. The shared plan does not assign
+overflow behavior and CSS text-overflow does not inherit from a container. The
+renderer CSS repair alone therefore did not fulfill this Table contract. This
+is source evidence, not a captured native failure.
+
+A private component now renders each scalar body value through a named props
+boundary (rather than a JSX helper called with a bare scalar). Only the shared
+plan's isDefaultRenderer entries receive table-owned normal/clip/unlimited or
+nowrap/ellipsis/one-line modes. Mode removal returns to the wrap default. Full
+strings remain in the native label. A target-only CSS sibling gives those
+labels minimum width zero, maximum width 100 percent and flex grow/shrink so
+the bounded cell can constrain the text. The source file is already covered by
+the UI package's published src glob; no manifest/dependency change was needed.
+
+Custom renderer strings/numbers keep the existing primitive label path without
+table-owned modes or sizing class; descriptors/other renderables still pass
+through TableSlot. Headers and child-composed cells are outside this default
+body-text setting. No opaque child inspection or descendant property copying
+was introduced. Column alignment, custom rich-text clipping, global Table
+accessibility/keyboard and large-list performance are separate open contracts.
+
+Four object-driver source cases are authored, all UNRUN: wrap/truncate/removal
+with full text and retained label, header/custom-primitive separation, custom
+slot state/owner retention during peer mode changes, and default/custom numeric
+text transitions clearing/restoring owned props. Two AppKit universal compiler
+cases with HMR off/on are also authored and UNRUN. The manual table-scroll
+fixture now toggles default body wrap/truncate and artificial long/short team
+text alongside its existing viewport/column/width/sticky/RTL controls. Its run
+hook remains mounting-only. No compiler/test/fixture/native behavior has run.
+
+The public table guide, UI README link, Octane primitive reference, feature note
+and table-scroll recipe AC6 reconcile this subset. Existing ACs/qualification
+rows are not rewritten as passes; no React Aria presence-level export changed.
+Native Mason column/row measurement, long unbroken words, ellipsis/painting,
+resize/sticky composition, input/copy/selection/AX, memory and clean installed
+supported-macOS consumers/pixels remain unqualified. The source audit snapshots
+and evidence-gated issue checkboxes stay unchanged.
+
+Exact deferred commands, requiring this task's explicit human authorization:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/table-text-overflow.macos.mobile.test.tsrx
+pnpm exec turbo run test:macos --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit table body text package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+check:docs/check:doc-examples remain absent in this isolated snapshot; no shared
+in-flight tooling is copied. Four source/test/fixture files, one CSS source and
+four scoped TSX documentation fences syntax parsed; six AC6 local paths/anchors
+exist. Focused semantic/source and whitespace review completes the permitted
+checks. No tests, typechecks, compiler
+transforms, probes, native/OS/AX automation, builds, installs, packaging or visual
+analysis ran. Native-resource authorization would not authorize visual analysis.
+The persistent goal remains active; this is one common table-flow repair, not
+fully qualified Table or desktop support.

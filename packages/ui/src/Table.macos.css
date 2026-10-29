@@ -1,0 +1,7 @@
+/* Only labels created by the native table's default body renderer. */
+.vx-table-cell-text--appkit {
+	min-width: 0;
+	max-width: 100%;
+	flex-grow: 1;
+	flex-shrink: 1;
+}

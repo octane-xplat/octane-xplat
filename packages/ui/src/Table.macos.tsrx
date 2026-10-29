@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './Table.macos.css'
 import { useCallback, useRef, useState } from 'octane'
 import { mergeStyle } from './style-merge'
 import type {
@@ -10,6 +11,7 @@ import type {
 	TableRowProps,
 	TableCellProps,
 	TableHeaderCellProps,
+	TableTextOverflow,
 } from './props'
 
 import { cx } from '@octane-xplat/lib'
@@ -44,18 +46,24 @@ function cellStyle(col: TableColumn<any>, extra?: Record<string, any>) {
 	}
 }
 
-function cellContent(content: any) {
-	return typeof content === 'string' || typeof content === 'number' ? (
-		<label text={String(content)} />
+function AppKitTableCellContent(props: { value: unknown; overflow?: TableTextOverflow }) {
+	return typeof props.value === 'string' || typeof props.value === 'number' ? (
+		<label
+			text={String(props.value)}
+			className={props.overflow != null ? 'vx-table-cell-text--appkit' : undefined}
+			maxLines={props.overflow === 'truncate' ? 1 : undefined}
+			whiteSpace={props.overflow === 'truncate' ? 'nowrap' : props.overflow === 'wrap' ? 'normal' : undefined}
+			textOverflow={props.overflow === 'truncate' ? 'ellipsis' : props.overflow === 'wrap' ? 'clip' : undefined}
+		/>
 	) : (
-		<TableSlot value={content} />
+		<TableSlot value={props.value} />
 	)
 }
 
 /** Table — data-driven + plugin pipeline (Astryx `Table`), AppKit leaf.
- *  Same render plan as web mapped to flex views; DOM-only plugin effects
- *  (resize drag, pointer context menus) degrade to their data effects. Data mode
- *  has a native horizontal viewport and forwards cell refs to native plugins. */
+ *  Shared render plan mapped to flex views. Data mode owns a native horizontal
+ *  viewport and default body text modes, and forwards cell refs to native
+ *  plugins; their DOM-only props are outside the native safe subset. */
 export function Table<T extends Record<string, unknown> = Record<string, unknown>>(
 	props: TableProps<T>,
 ) @{
@@ -228,7 +236,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 											cell.render.htmlProps?.style ?? {},
 										)}
 									>
-										{cellContent(cell.content)}
+										<AppKitTableCellContent value={cell.content} overflow={cell.isDefaultRenderer ? textOverflow : undefined} />
 									</masonview>
 								))
 							)}

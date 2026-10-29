@@ -186,6 +186,43 @@ export function WideName() {
 ```
 
 
+## Choose body text wrapping on AppKit
+
+In an experimental native macOS data table, use `textOverflow="truncate"` to
+keep default-rendered body text on one line and request a tail ellipsis. Use
+`"wrap"`, or omit the prop, to allow word wrapping. The complete value stays in
+the native label. Keep a bounded column width so the text has an edge to reach.
+Native measurement, painting and installed-app checks for this source path are
+still pending.
+
+```tsx
+import { Table, pixel } from '@octane-xplat/ui'
+
+export function TripTable(props: { compact: boolean }) {
+  return <Table data={[{ id: '1', name: 'A long weekend in the mountains' }]}
+    idKey="id" columns={[{ key: 'name', header: 'Trip', width: pixel(180) }]}
+    textOverflow={props.compact ? 'truncate' : 'wrap'} />
+}
+```
+
+This setting owns the text that the default body renderer creates. Custom
+`renderCell` content, headers and child-composed cells keep their own text
+behavior. For example, a custom `Text` cell can choose its own `maxLines`.
+Changing the table setting preserves those custom owners; it does not inspect
+or rewrite their children. Long unbroken words, variable row height, resize,
+sticky columns, copying/selection and VoiceOver still need native checks.
+
+```tsx
+import { Table, Text, pixel } from '@octane-xplat/ui'
+
+export function CustomTripTable() {
+  return <Table data={[{ name: 'A long weekend in the mountains' }]}
+    columns={[{ key: 'name', width: pixel(180),
+      renderCell: trip => <Text maxLines={2}>{trip.name}</Text> }]}
+    textOverflow="truncate" />
+}
+```
+
 ## Sticky columns on AppKit
 
 The AppKit hook now has an experimental native source path for the same

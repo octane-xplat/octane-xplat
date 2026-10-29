@@ -8,14 +8,15 @@ const rows: Person[] = [
 	{ name: 'Ada', team: 'Platform', location: 'London', status: 'Active' },
 	{ name: 'Grace', team: 'Product', location: 'New York', status: 'Away' },
 ]
-function StickyTable(props: { data: Person[]; columns: TableColumn<Person>[]; plugins: Record<string, TablePlugin<Person>>; pinned: boolean; multiple: boolean; resizeConfig: UseTableColumnResizeConfig }) @{
+function StickyTable(props: { data: Person[]; columns: TableColumn<Person>[]; plugins: Record<string, TablePlugin<Person>>; pinned: boolean; multiple: boolean; resizeConfig: UseTableColumnResizeConfig; textOverflow: 'wrap' | 'truncate' }) @{
 	const resize = useTableColumnResize<Person>(props.resizeConfig)
 	const sticky = useTableStickyColumns<Person>({ startKeys: props.pinned ? [props.multiple ? 'team' : 'name'] : [], endKeys: props.pinned ? ['status'] : [] })
-	<Table id="table-scroll-preview" data={props.data} columns={props.columns} plugins={{ ...props.plugins, columnResize: resize, sticky }} />
+	<Table id="table-scroll-preview" data={props.data} columns={props.columns} textOverflow={props.textOverflow} plugins={{ ...props.plugins, columnResize: resize, sticky }} />
 }
 export default function TableScrollProbe() @{
 	const [wide, setWide] = useState(false), [empty, setEmpty] = useState(false), [bounded, setBounded] = useState(false), [metrics, setMetrics] = useState('Not measured')
 	const [pinned, setPinned] = useState(true), [multiple, setMultiple] = useState(false), [rtl, setRTL] = useState(false)
+	const [truncate, setTruncate] = useState(true), [longText, setLongText] = useState(true)
 	const [action, setAction] = useState('None'), [notes, setNotes] = useState<Record<string, string>>({})
 	const [widths, setWidths] = useState<Record<string, number>>({}), [accept, setAccept] = useState(true), [uncontrolled, setUncontrolled] = useState(false), [locked, setLocked] = useState(false), [commits, setCommits] = useState(0)
 	const resizeConfig: UseTableColumnResizeConfig = { ...(uncontrolled ? {} : { columnWidths: widths }), minWidth: 80, maxWidth: 520, onColumnResizeEnd: (next) => { setCommits((n) => n + 1); if (accept && !uncontrolled) setWidths(next) } }
@@ -38,6 +39,9 @@ export default function TableScrollProbe() @{
 		<Button label="Toggle viewport width" clickAction={() => setWide(!wide)} />
 		<Button label="Toggle empty data" clickAction={() => setEmpty(!empty)} />
 		<Button label="Toggle bounded height" clickAction={() => setBounded(!bounded)} />
+		<Button label="Toggle default body wrap/truncate" clickAction={() => setTruncate(!truncate)} />
+		<Button label="Toggle long body text" clickAction={() => setLongText(!longText)} />
+		<Text>{`Default text ${truncate ? 'truncate' : 'wrap'}; long content ${longText}. Custom buttons and fields keep their own text behavior. Native truncation, row measurement, resize and VoiceOver remain unqualified; mounting is not a pass.`}</Text>
 		<Button label="Toggle controlled column widths" clickAction={() => setWidths(widths.name === 320 ? {} : { name: 320, team: 420 })} />
 		<Button label="Toggle accepting resize commits" clickAction={() => setAccept(!accept)} />
 		<Button label="Toggle uncontrolled resize" clickAction={() => setUncontrolled(!uncontrolled)} />
@@ -50,7 +54,7 @@ export default function TableScrollProbe() @{
 		<Button label="Read native metrics" clickAction={measure} />
 		<Text>{metrics}</Text>
 		<VStack style={{ width: wide ? 960 : 360, maxWidth: '100%' }}>
-			<StickyTable data={empty ? [] : rows} columns={columns} plugins={{ wrapper }} pinned={pinned} multiple={multiple} resizeConfig={resizeConfig} />
+			<StickyTable data={empty ? [] : longText ? rows.map(row => ({ ...row, team: `${row.team}: artificial long team description `.repeat(4) })) : rows} columns={columns} textOverflow={truncate ? 'truncate' : 'wrap'} plugins={{ wrapper }} pinned={pinned} multiple={multiple} resizeConfig={resizeConfig} />
 		</VStack>
 	</VStack></InternationalizationProvider>
 }

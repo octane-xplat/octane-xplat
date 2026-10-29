@@ -57,6 +57,7 @@ Reloading resets it to zero. To keep data between sessions, follow
 | Find a component                          | [Component index](https://octane-xplat.goddardai.org/components)       |
 | Change colors, spacing, and fonts         | [Styling screens](https://octane-xplat.goddardai.org/styling)          |
 | Connect screens with typed routes         | [Move between screens](https://octane-xplat.goddardai.org/navigation)  |
+| Show bounded records and configure table text | [Tables](https://octane-xplat.goddardai.org/tables) |
 | Load and share server data                | [Fetching data](https://octane-xplat.goddardai.org/data)               |
 | Choose a platform-specific implementation | [Platform files](https://octane-xplat.goddardai.org/module-resolution) |
 

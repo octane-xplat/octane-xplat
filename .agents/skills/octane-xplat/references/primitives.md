@@ -616,6 +616,24 @@ export function ResizedTable() {
 }
 ```
 
+AppKit data Table now wires textOverflow wrap/truncate to the labels produced
+by the shared plan's default body renderer, including mode removal and full-text
+retention. A target-only CSS class allows those labels to shrink within their
+cell. Keep this owned subset: custom renderCell strings/slots, headers and
+children-mode content retain their own behavior. Do not copy non-inherited
+text-overflow from the container or rewrite opaque children. Four object-driver
+cases and two HMR compiler cases are authored but unrun; actual Mason row/column
+sizing, ellipsis/paint, resize/sticky/input/AX and installed consumers remain
+unqualified. See [the table guide](../../../../docs/tables.md#choose-body-text-wrapping-on-appkit).
+
+```tsx
+import { Table, pixel } from '@octane-xplat/ui'
+export function CompactTrips() {
+  return <Table data={[{ name: 'A long weekend in the mountains' }]}
+    columns={[{ key: 'name', width: pixel(180) }]} textOverflow="truncate" />
+}
+```
+
 ## Rich and streamed text
 
 Use `@octane-xplat/ui/markdown` for `Markdown` and `useStreamingText`; chat
