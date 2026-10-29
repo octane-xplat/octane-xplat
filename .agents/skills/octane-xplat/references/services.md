@@ -498,6 +498,17 @@ try {
 }
 ```
 
+## In-app purchases
+
+Follow the [purchase guide](../../../../docs/platform/in-app-purchases.md) for
+store setup, a maintained non-consumable controller, backend contracts and
+qualification. Keep one billing owner per account. Never grant from a purchase
+request or pending event; finish only after verified durable server grant, and
+retain the native transaction object. Restore through the same idempotent path.
+StoreKit 2 receiptToken is transaction JSON, not signed server proof; use the
+store's verification API. The wrapper cannot await readiness (#70) and currently
+re-fetches purchase requests as inapp (#69); do not claim subscription checkout.
+
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.

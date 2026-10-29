@@ -18,6 +18,7 @@
 		"@lexical/list": "0.52.0",
 		"@lexical/rich-text": "0.52.0",
 		"@octane-xplat/auth": "workspace:*",
+		"@octane-xplat/billing": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/canvas": "workspace:*",
 		"@octane-xplat/context-menu": "workspace:*",

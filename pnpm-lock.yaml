@@ -1749,6 +1749,9 @@ importers:
       '@octane-xplat/auth':
         specifier: workspace:*
         version: link:../auth
+      '@octane-xplat/billing':
+        specifier: workspace:*
+        version: link:../billing
       '@octane-xplat/camera':
         specifier: workspace:*
         version: link:../camera

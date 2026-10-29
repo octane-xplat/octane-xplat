@@ -48,6 +48,7 @@ export const GROUPS = [
 		slugs: [
 			'module-resolution',
 			'platform-services',
+			'in-app-purchases',
 			'media-services',
 			'keep-awake',
 			'local-notifications',

@@ -1,0 +1,8 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test": {
+			"inputs": ["$TURBO_DEFAULT$", "../demos/src/billing-guide/**", "../ui/src/store.ts"]
+		}
+	}
+}
