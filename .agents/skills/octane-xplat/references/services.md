@@ -57,6 +57,28 @@ export async function purgeAccount(account: QueryClient): Promise<boolean> {
 }
 ```
 
+## AppKit network route updates
+
+Use `connectivity.subscribe` for live UI and always release its independent
+registration. Active readers use the monitor's latest sample; unobserved reads
+retain the native bounded one-second first-sample probe. Route availability is
+not internet reachability. An unknown/unsupported probe is not measured offline.
+The AppKit environment adapter forwards callback samples instead of re-probing,
+acquires both cleanup handles before its initial notification, and attempts both
+teardowns after retiring callbacks, preserving the first cleanup failure. Initial
+listener failure unwinds acquisition; later native listener errors are isolated.
+No native runtime behavior is qualified by the source/fake-host models.
+
+```ts
+import { connectivity } from '@octane-xplat/platform'
+
+export function watchRoute(onOnline: (online: boolean | undefined) => void) {
+	return connectivity.subscribe(state => onOnline(state.supported === false ? undefined : state.online))
+}
+```
+
+See [AppKit route updates](../../../../docs/platform/platform-services.md#appkit-route-updates).
+
 ## `random` — OS CSPRNG
 
 `random.bytes(length)` returns a `Uint8Array` of secure random bytes;

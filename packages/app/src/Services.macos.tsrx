@@ -16,6 +16,7 @@ import {
 	openSettings,
 	useAppState,
 	useWindowSize,
+	type ConnectivityState,
 } from '@octane-xplat/platform'
 
 export function Services() @{
@@ -50,7 +51,8 @@ export function Services() @{
 		const preview = picked
 		return () => { if (preview) files.release(preview) }
 	}, [picked])
-	const conn = connectivity.getState()
+	const [conn, setConn] = useState<ConnectivityState>({ supported: false, online: false, type: 'unknown' })
+	useEffect(() => connectivity.subscribe(setConn), [])
 	const appState = useAppState()
 	const size = useWindowSize()
 	async function shareAction(kind: 'text' | 'url') {
@@ -246,7 +248,10 @@ export function Services() @{
 		<View className="sink-section">
 			<Text className="section-label">Connectivity</Text>
 			<Text className="text-sm text-muted">
-				{conn.supported === false ? 'Connectivity: unsupported' : 'Connectivity: available'}
+				{conn.supported === false ? 'Network route: unknown' : `Network route: ${conn.online ? 'available' : 'unavailable'} · ${conn.type}`}
+			</Text>
+			<Text className="text-sm text-muted">
+				A route does not guarantee internet access or a successful request.
 			</Text>
 		</View>
 	</View>

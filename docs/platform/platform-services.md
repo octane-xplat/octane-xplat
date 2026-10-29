@@ -1183,6 +1183,34 @@ const unsubscribe = connectivity.subscribe((state) => console.log(state.online, 
 unsubscribe()
 ```
 
+### AppKit route updates
+
+Use a subscription for a native macOS network-status label. It receives an
+initial sample and subsequent route changes; keep its cleanup function with the
+screen owner. While subscribed, `getState()` reuses the latest monitored sample.
+Without a subscriber, a native read can wait up to one second for its first
+sample. Unknown status is not measured offline, and an available route does not
+guarantee internet access or a successful request:
+
+```ts
+import { connectivity } from '@octane-xplat/platform'
+
+export function watchRoute(showStatus: (text: string) => void): () => void {
+	return connectivity.subscribe((state) => {
+		showStatus(state.supported === false ? 'Network status unknown'
+			: state.online ? `Route available: ${state.type}` : 'No usable route')
+	})
+}
+// A screen calls watchRoute when mounted and its returned cleanup on unmount.
+```
+
+The AppKit service gives registrations independent lifetimes. An exception from
+the initial callback releases that registration and reaches its caller; an
+exception during later native delivery cannot block other subscribers. The
+service retires its last monitor before native cleanup, even when cleanup fails.
+These are source contracts; physical disconnect/reconnect, callback delivery,
+native monitor memory and installed-app behavior remain unqualified.
+
 ## Keep platform code at the edge
 
 Do not import `navigator`, `document`, NativeScript classes, or OS-specific

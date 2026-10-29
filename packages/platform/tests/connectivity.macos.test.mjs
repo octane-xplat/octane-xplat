@@ -12,11 +12,13 @@ const source = ts.transpile(
 const sample = (online = true, type = 'wifi') => ({ supported: true, online, type })
 const unavailable = { supported: false, online: false, type: 'unknown' }
 const plain = (value) => JSON.parse(JSON.stringify(value))
-function load({ available = true, start = true, fail } = {}) {
+function load({ available = true, start = true, fail, onStart, onStop } = {}) {
 	const monitors = []
 	let state = sample()
+	let reads = 0
 	const native = {
 		readState() {
+			reads++
 			if (fail === 'read') {
 				throw Error('read failed')
 			}
@@ -36,10 +38,12 @@ function load({ available = true, start = true, fail } = {}) {
 						throw Error('start failed')
 					}
 
+					onStart?.(callback)
 					return start
 				},
 				stop() {
 					this.stops++
+					onStop?.(this)
 				},
 			}
 
@@ -56,6 +60,8 @@ function load({ available = true, start = true, fail } = {}) {
 	vm.runInNewContext(source, context)
 	return {
 		api: context.exports.connectivity,
+		context,
+		reads: () => reads,
 		monitors,
 		set: (value) => {
 			state = value
@@ -144,5 +150,83 @@ test('a throwing initial listener does not leak a monitor', () => {
 	assert.equal(h.monitors[0].stops, 1)
 	const stop = h.api.subscribe(() => {})
 	assert.equal(h.monitors.length, 2)
+	stop()
+})
+
+
+test('a live monitor reuses its latest sample and isolates listener errors and mutations', () => {
+	const h = load()
+	let initial = true
+	const first = h.api.subscribe((state) => {
+		if (initial) return
+		state.online = true
+		throw new Error('consumer failed')
+	})
+	const received = []
+	const second = h.api.subscribe((state) => received.push(plain(state)))
+	assert.equal(h.reads(), 1)
+	initial = false
+	assert.doesNotThrow(() => h.monitors[0].callback(JSON.stringify(sample(false, 'none'))))
+	assert.deepEqual(received.at(-1), sample(false, 'none'))
+	const read = h.api.getState()
+	read.online = true
+	assert.deepEqual(plain(h.api.getState()), sample(false, 'none'))
+	assert.equal(h.reads(), 1)
+	first(); second()
+	h.api.getState()
+	assert.equal(h.reads(), 2) // An unobserved read is still a fresh bounded native probe.
+})
+
+test('throwing native stop retires once and cannot poison later subscriptions', () => {
+	const h = load({ onStop(monitor) {
+		monitor.callback(JSON.stringify(sample(false, 'none')))
+		throw new Error('stop failed')
+	} })
+	const received = []
+	const stop = h.api.subscribe((state) => received.push(plain(state)))
+	assert.doesNotThrow(stop)
+	assert.doesNotThrow(stop)
+	assert.equal(h.monitors[0].stops, 1)
+	assert.equal(received.length, 1)
+	const next = h.api.subscribe((state) => received.push(plain(state)))
+	assert.equal(h.monitors.length, 2)
+	const count = received.length
+	h.monitors[0].callback(JSON.stringify(sample(false, 'none')))
+	assert.equal(received.length, count)
+	next()
+})
+
+test('failed start with throwing cleanup stays unsupported and can retry', () => {
+	const h = load({ start: false, onStop() { throw new Error('stop failed') } })
+	const received = []
+	const stop = h.api.subscribe((state) => received.push(plain(state)))
+	assert.deepEqual(received, [unavailable])
+	assert.equal(h.monitors[0].stops, 1)
+	stop()
+	assert.doesNotThrow(() => h.api.subscribe(() => {})())
+	assert.equal(h.monitors.length, 2)
+})
+
+test('synchronous start samples emit once after acquisition and failed start never publishes them', () => {
+	for (const started of [true, false]) {
+		const h = load({ start: started, onStart(callback) { callback(JSON.stringify(sample(false, 'none'))) } })
+		const received = []
+		const stop = h.api.subscribe((state) => received.push(plain(state)))
+		assert.deepEqual(received, [started ? sample(false, 'none') : unavailable])
+		assert.equal(h.reads(), 0)
+		stop()
+	}
+})
+
+test('late bridge replacement retires the old monitor before accepting new events', () => {
+	const h = load()
+	const received = []
+	const stop = h.api.subscribe((state) => received.push(plain(state)))
+	h.context.XplatConnectivity = {} // An incomplete bridge is unknown, not measured offline.
+	assert.deepEqual(plain(h.api.getState()), unavailable)
+	assert.equal(h.monitors[0].stops, 1)
+	const count = received.length
+	h.monitors[0].callback(JSON.stringify(sample(false, 'none')))
+	assert.equal(received.length, count)
 	stop()
 })

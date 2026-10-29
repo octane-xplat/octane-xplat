@@ -4,6 +4,85 @@ Target: native AppKit, issue #62. The immutable audit at `720c9ef93`
 remains a source snapshot; do not regenerate shared snapshots while the
 three desktop tasks share this checkout.
 
+## AppKit network and environment subscription ownership
+
+Demand assumption: the maintained Services screen and query scheduler depend on
+live network/activity state for status, offline pause and reconnect retry. These
+ordinary request flows take priority over niche integrations. Source review found
+one consumer throw could block the other network listeners, native stop failure
+could leave a stale global monitor, and the AppKit environment did not unwind
+app/network subscriptions after acquisition or initial listener failure. Its
+cleanup also stopped at the first error. Services read network state only during
+render and never subscribed. These are source findings, not observed OS failures.
+
+The AppKit connectivity leaf keeps a bridge-owned starting/ready/retired monitor,
+independent listener leases, current sample copies and bounded startup delivery.
+Synchronous startup samples publish only after success; a failed start cannot
+advertise its sample. Native callbacks validate owner/bridge before fanout and
+between listeners. Each consumer receives a fresh object, event-time exceptions
+are isolated, and unsubscribe retires before native stop. Failed stop cannot
+poison later subscriptions or revive stale callbacks; cleanup is idempotent.
+
+Active getState readers reuse the monitor's latest sample, including unknown
+status while waiting for a usable probe. Without subscribers, reads retain the
+existing bounded one-shot native read. The native source creates/waits up to one
+second for that sample. No timing/performance measurements were made. The new
+wrapper avoids additional one-shot calls for already monitored state; the
+Network.framework implementation and public state/interface types are unchanged.
+
+The AppKit environment now acquires app/network cleanup before one initial
+notification, forwards network callback samples without re-probing, binds the
+app method receiver, and preserves unknown capability semantics. Acquisition or
+initial listener failure unwinds acquired resources while preserving that error.
+Teardown retires held callbacks, attempts both releases once and then throws the
+first failure. Later native activity listener errors cannot block unrelated app
+readers. Retired/replaced activity hooks are ignored; global host replacement
+still requires the owner to dispose/re-subscribe to observe that new host's app
+activity. No automatic global-property observation is claimed.
+
+Services subscribes for its mounted lifetime, starts with unknown status and
+shows route availability/transport plus request-reachability limits. Five native
+monitor models and five environment models are authored, all **UNRUN**. They
+cover event consumer errors/mutation isolation, live cached reads, stop/start
+failure, synchronous startup, stale bridge callbacks, initial acquisition/error
+unwinding, every cleanup attempt, current receiver/sample use and held callbacks.
+These models use fakes, not the actual native callback bridge.
+
+Public route guidance, Octane services reference, appkit-connectivity recipe and
+fix note reconcile the source contract. Static impact reports the AppKit root
+export and environment/query scheduler uses but marks callback edges incomplete;
+those sources and target cases were reviewed without claiming a complete graph.
+Existing shared scheduler, mobile/web leaves, native bridge sources, package
+manifests and immutable desktop audit snapshots are unchanged. No React Aria
+presence-level API was added. This corrects behavior shipped through v0.18.0
+(tag containment for 45ba8ed8156ab3d8048ec3d44b98782a51ccdafa), so it has a fix note.
+
+Exact deferred commands; run only after this human's explicit go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run test:connectivity:macos --filter=@octane-xplat/platform
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit connectivity package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The native connectivity task compiles/runs the existing Objective-C verifier and
+therefore remains deferred. Platform/@xplat/app have no standalone typecheck;
+Turbo may prepare dependencies, generated declarations and vendor checkouts.
+The docs checker scripts remain absent from this isolated snapshot; shared
+in-flight tooling was not copied. Five source/test files and three scoped doc
+fences syntax parsed; ten local doc paths, semantic and whitespace review only.
+All ten added tests are unrun. No transforms, tests, builds, typechecks, native
+verification, route changes, OS input/IME/AX, visual analysis, dependency installs
+or packaging ran. Actual offline/reconnect, native initial/current state delivery,
+thread/BOOL bridge, scheduler retry, activity/input/focus, native memory and
+installed consumers remain unqualified. Recipe coverage is separate from not-run
+verification, evidence-gated checkboxes remain open, and the goal stays active.
+
 ## AppKit settings handoff and query purge
 
 Demand assumption: localization's app-locale setting, ordinary preferences and
