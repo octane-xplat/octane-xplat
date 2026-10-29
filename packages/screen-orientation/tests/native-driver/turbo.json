@@ -1,0 +1,8 @@
+{
+	"tasks": {
+		"test:ios-runtime": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_NATIVE_TEST_REPO", "XPLAT_IOS_DEVICE"]
+		}
+	}
+}

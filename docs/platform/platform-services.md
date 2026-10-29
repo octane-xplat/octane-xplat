@@ -36,6 +36,26 @@ export function revealReadyPhonePage() {
 }
 ```
 
+For a phone screen that benefits from landscape, follow the
+[screen-orientation setup](../../packages/screen-orientation/README.md).
+Configure the iOS delegate and plist first. Check support and handle refusal;
+resizable windows and browser restrictions can prevent a lock. Keep an adaptive
+layout available when the request fails.
+
+```ts
+import { OrientationLock, lockAsync, supportsOrientationLockAsync } from '@octane-xplat/screen-orientation'
+
+export async function chooseLandscape(): Promise<string> {
+ if (!await supportsOrientationLockAsync(OrientationLock.LANDSCAPE)) return 'Keep the flexible layout.'
+ try {
+  await lockAsync(OrientationLock.LANDSCAPE)
+  return 'Landscape policy applied.'
+ } catch (error) {
+  return `Keep the flexible layout: ${String(error)}`
+ }
+}
+```
+
 Give your agent an outcome with a fallback: “Let me attach a photo to a trip
 item; explain when capture is unavailable.” Use the shared `media` service
 for still capture; a live [camera preview](../app/primitives.md#when-a-screen-needs-more) is a

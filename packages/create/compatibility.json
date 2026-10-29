@@ -68,6 +68,7 @@
 		"@octane-xplat/recorder",
 		"@octane-xplat/richtext",
 		"@octane-xplat/rolling-text",
+		"@octane-xplat/screen-orientation",
 		"@octane-xplat/secure-storage",
 		"@octane-xplat/sentry",
 		"@octane-xplat/shaders",

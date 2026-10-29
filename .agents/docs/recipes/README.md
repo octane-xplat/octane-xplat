@@ -174,6 +174,8 @@ At handoff, identify affected recipes, doc changes, checks, and remaining gaps.
 If no recipe is affected, briefly say why. Explicit gaps allow incremental work;
 they never count as complete coverage.
 
+- [Observe and choose the primary window's screen orientation](screen-orientation.md)
+
 ## Audit state in Silo
 
 Run `silo context`, then inspect `silo table show recipe_audit` before writing.

@@ -733,6 +733,26 @@ export function revealReadyPage() {
 }
 ```
 
+For interface orientation, use the [screen-orientation guide](../../../../packages/screen-orientation/README.md).
+Phone requests own the primary window, run in order, and reject OS refusals.
+Forward the iOS delegate callback before Application.run(); retain an existing
+delegate's other methods. Keep the maintained example's native class before its
+imports: the qualified host's NativeScript decorator transform otherwise drops
+the preceding statement separator. Remove subscriptions at the owning reader's cleanup.
+Do not infer physical rotation from window dimensions, desktop support from a
+browser entry, or Android runtime from TypeScript checks. Browser policy queries
+remember only this module's last accepted request; the OS exposes no getter.
+
+```ts
+import { OrientationLock, lockAsync, supportsOrientationLockAsync } from '@octane-xplat/screen-orientation'
+
+export async function requestLandscape() {
+ if (await supportsOrientationLockAsync(OrientationLock.LANDSCAPE)) {
+  await lockAsync(OrientationLock.LANDSCAPE)
+ }
+}
+```
+
 For OTA compatibility, use the Node-only
 [fingerprint tool](../../../../packages/fingerprint/README.md) as an app development
 dependency, alongside the Updates runtime. Never import it into app code.

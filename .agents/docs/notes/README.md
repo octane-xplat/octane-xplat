@@ -52,3 +52,4 @@ source before relying on them.
 - [Linux GTK renderer](linux-gtk-renderer.md) — v1 package status, `.gtk` seam, evidence split
 - [Linux WebKit baseline](linux-webkit-baseline.md)
 - [Current status](status.md)
+- [Screen orientation](screen-orientation.md) — primary-window policy, subscriptions and qualification

@@ -1,0 +1,67 @@
+{
+	"name": "@octane-xplat/screen-orientation",
+	"version": "0.18.0",
+	"description": "Expo-shaped screen orientation queries, policies and subscriptions for Octane Xplat",
+	"keywords": [
+		"cross-platform",
+		"nativescript",
+		"octane",
+		"screen-orientation"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/screen-orientation",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/screen-orientation"
+	},
+	"files": [
+		"src",
+		"types",
+		"!src/**/*.test.*",
+		"examples"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.linux.ts",
+			"windows": "./src/index.windows.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typegen": "tsc -p tsconfig.types.json",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"prepack": "pnpm typegen",
+		"test:ios-runtime": "node tests/ios-runtime.mjs",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test:web": "node tests/runtime.web.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/lib": "workspace:*"
+	},
+	"devDependencies": {
+		"@nativescript/core": "catalog:",
+		"@nativescript/types": "catalog:",
+		"playwright": "1.63.0",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.3 <10"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": {
+			"optional": true
+		}
+	}
+}

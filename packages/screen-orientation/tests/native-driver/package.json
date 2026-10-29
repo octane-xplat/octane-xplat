@@ -1,0 +1,9 @@
+{
+	"name": "@xplat/screen-orientation-native-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:ios-runtime": "node ../ios-runtime.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}
