@@ -27,6 +27,9 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 ## Working records
 
+- [Image manipulation](notes/image-manipulator.md) — frame/output ownership,
+  platform boundaries, and programmatic pixel evidence.
+
 - [October 2026 documentation audit](documentation-audit.md) — recurring reader
   problems, the maintenance system, and refinement boundaries.
 

@@ -1,0 +1,16 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"noEmit": false,
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"rootDir": "src",
+		"outDir": "types/generated",
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["@nativescript/types"]
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx"]
+}

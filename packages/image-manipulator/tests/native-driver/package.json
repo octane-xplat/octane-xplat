@@ -1,0 +1,10 @@
+{
+	"name": "@xplat/image-manipulator-native-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:macos-runtime": "node ../macos-runtime.mjs",
+		"test:ios-runtime": "node ../ios-runtime.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}

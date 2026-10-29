@@ -52,6 +52,7 @@ Workflows:
 - [Keep an illustration when Canvas drawing is unavailable](canvas-fallback.md)
 
 - [Select an image crop inline](inline-image-crop.md)
+- [Produce a transformed image file](image-manipulation.md)
 - [Pick and capture images](pick-and-capture-images.md)
 - [Build a chat conversation](chat-conversation.md)
 - [Show a live camera preview](camera-preview.md)

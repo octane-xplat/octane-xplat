@@ -712,6 +712,31 @@ export function PackedLabel() {
 
 ## Choose a capability and handle availability
 
+For image pixels, use the [image-manipulator guide](../../../../packages/image-manipulator/README.md).
+`image-crop` provides geometry; `ImageManipulator` creates a file from it. Keep
+the original normalized dimensions for selection, and pass whole-pixel natural
+coordinates to crop. Contexts, rendered refs, and encoded results have separate
+owners; the hook releases only its context. Initial bounds do not cap peak
+decoder memory, and native operations currently run on the calling JS thread.
+
+```ts
+import { ImageManipulator } from '@octane-xplat/image-manipulator'
+
+export async function resizePhoto(sourceUri: string) {
+	const context = ImageManipulator.manipulate(sourceUri)
+	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+	try {
+		context.resize({ width: 800 })
+		image = await context.renderAsync()
+		return await image.saveAsync({ format: 'jpeg', compress: 0.8 })
+	} finally {
+		image?.release()
+		context.release()
+	}
+}
+// The caller owns the returned result until releaseImage(result).
+```
+
 For local document workflows, use the [files package guide](../../../../packages/files/README.md).
 Its experimental AppKit leaf implements local reads, Documents writes and
 save-panel export; do not infer sandbox, OS picker or packaged-app qualification

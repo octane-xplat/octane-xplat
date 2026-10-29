@@ -97,9 +97,24 @@ keyboard nudging, drawing a new rectangle outside the selection, circular
 crops, or the full react-image-crop API. Small selections can have overlapping
 24-pixel handle hit regions; choose minimum dimensions suitable for your UI.
 
-Producing pixels is a separate concern: use canvas on web or ImageSource
-operations on native, with the natural coordinates from `toNaturalCrop`.
-Neither output path is implemented by this leaf.
+To produce the selected file, use
+[`@octane-xplat/image-manipulator`](../image-manipulator/README.md#crop-a-selection).
+Copy its maintained [exportCrop helper](../image-manipulator/examples/crop.ts)
+into your app as `export-crop.ts`. Pass the natural rectangle from
+`toNaturalCrop`; the helper rounds it to whole pixels and clips it to the image
+bounds. The action receiving the result owns its preview/upload lifetime and
+calls `releaseImage(result)` afterward.
+
+```ts
+import { exportCrop } from './export-crop'
+
+export function saveSelection(
+	sourceUri: string,
+	natural: { x: number; y: number; width: number; height: number },
+) {
+	return exportCrop(sourceUri, natural)
+}
+```
 
 From the monorepo root:
 

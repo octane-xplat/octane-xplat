@@ -26,5 +26,5 @@ image source with known decoded, oriented natural dimensions.
 
 - AC1: [Install and use](../../../packages/image-crop/README.md#install-and-use) and [maintained example](../../../packages/image-crop/examples/selection.tsrx).
 - AC2: [Coordinates and control](../../../packages/image-crop/README.md#coordinates-and-control).
-- AC3: [Coordinates and control](../../../packages/image-crop/README.md#coordinates-and-control) and [boundaries](../../../packages/image-crop/README.md#boundaries-and-verification).
+- AC3: [Coordinates and control](../../../packages/image-crop/README.md#coordinates-and-control), [file output](../../../packages/image-crop/README.md#boundaries-and-verification), and [image manipulation](../../../packages/image-manipulator/README.md#crop-a-selection).
 - AC4: [Verification](../../../packages/image-crop/README.md#boundaries-and-verification) and [maintained example](../../../packages/image-crop/examples/selection.tsrx).

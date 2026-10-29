@@ -706,6 +706,27 @@ const image = await media.capturePhoto({
 
 ## Pick and capture images
 
+For a smaller upload or an exported crop after picking a photo, follow
+[Transform images](../../packages/image-manipulator/README.md). The returned
+file is owned separately from the picked image and the editing context.
+
+```ts
+import { ImageManipulator } from '@octane-xplat/image-manipulator'
+
+export async function smallerPhoto(sourceUri: string) {
+	const context = ImageManipulator.manipulate(sourceUri)
+	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+	try {
+		context.resize({ width: 800 })
+		image = await context.renderAsync()
+		return await image.saveAsync({ format: 'jpeg', compress: 0.8 })
+	} finally {
+		image?.release()
+		context.release()
+	}
+}
+```
+
 On macOS AppKit, offer the normal file picker directly from a button. It reads
 only selected files and returns app-owned temporary JPEGs with the original
 pixel dimensions and aspect ratio. No Photos browsing
