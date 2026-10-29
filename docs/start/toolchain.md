@@ -369,11 +369,16 @@ for feature-specific release checks.
 
 ### Prepare phone releases
 
-Before release, run `pnpm xplat build --release` and try the resulting app.
-Phone signing must be configured for signed builds. Signing identifies your
-app's publisher; app-store uploads and signing credentials stay with your
-project. [Known limits](../testing/known-limits.md#same-edge-on-every-target) lists
-current release-build issues.
+Follow [Release an iOS or Android app](native-release.md) to set app identity,
+produce a signed distribution artifact, and deliver it to store testers. Choose
+the target explicitly for an ordinary release build:
+
+```sh
+pnpm exec xplat build --targets android --release
+```
+
+The release guide explains the additional NativeScript signing/artifact steps
+and why a successful build still needs testing through the distribution channel.
 
 Some native features require a **plugin**, a package that connects to device
 code. The starter includes common UI plugins. If your app imports a platform

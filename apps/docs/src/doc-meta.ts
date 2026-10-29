@@ -8,7 +8,7 @@ export const GROUPS = [
 	{
 		dir: 'start',
 		label: 'Start here',
-		slugs: ['README', 'spec', 'toolchain', 'architecture'],
+		slugs: ['README', 'spec', 'toolchain', 'native-release', 'architecture'],
 	},
 	{ dir: 'demos', label: 'Demos', slugs: ['browser-demos', 'goal-counter', 'packing-list'] },
 	{

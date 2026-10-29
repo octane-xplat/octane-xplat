@@ -23,6 +23,7 @@ Workflows:
 - [Try a shared docs demo](docs-demos.md)
 
 - [Publish a Web app](web-deployment.md)
+- [Release an iOS or Android app](native-release.md)
 - [Serve Web routes as HTML](web-rendering.md)
 
 - [Access and compose component refs](component-refs.md)

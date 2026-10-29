@@ -40,6 +40,16 @@ App starters carry their selected platforms' test scripts; follow
 setup, device selection, signing, and experimental desktop hosts are covered
 by the [toolchain guide](../../../../docs/start/toolchain.md).
 
+For signed phone artifacts and store testing, follow the [native release
+guide](../../../../docs/start/native-release.md). `xplat build` accepts target
+selection and `--release`; artifact/signing/output options currently require
+regenerating routes and invoking the app's NativeScript CLI directly.
+
+```sh
+pnpm exec xplat routes
+pnpm exec xplat build --targets android --release
+```
+
 ## Framework repository
 
 These commands are for this monorepo, not a generated consumer app. Run them
