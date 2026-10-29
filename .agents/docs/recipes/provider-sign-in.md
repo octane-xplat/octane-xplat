@@ -32,3 +32,7 @@ session storage and refresh stay app-owned.
 - AC2: [Provider SDK sign-in](../../../docs/platform/platform-services.md#provider-sdk-sign-in-apple--google) and [macOS setup/hosted adapter](../../../docs/platform/platform-services.md#macos-provider-sign-in). Gap: per-provider portal steps (Services ID creation, Google Cloud client setup) are summarized, not walked through.
 - AC3: [Provider SDK sign-in](../../../docs/platform/platform-services.md#provider-sdk-sign-in-apple--google) and `@octane-xplat/auth` type declarations (`AuthCredential`, `SignInResult`). [Server exchange boundary](../../../examples/auth/README.md). Gap: the example requires a configured cryptographic verifier, attempt store, and session issuer; no real provider verification has run.
 - AC4: [Provider SDK sign-in](../../../docs/platform/platform-services.md#provider-sdk-sign-in-apple--google) covers `cancelled`/`error`/`supported` and links the hosted `authSession` alternative in [Passkeys and auth ceremonies](../../../docs/platform/platform-services.md#passkeys-and-auth-ceremonies). Runtime verification: configured OS-sheet/browser cancel reproduction remains unverified; isolated AppKit action/delegate dispatch and mocked lifecycle regressions are narrower evidence, separately from documentation coverage.
+
+For an alternative that runs Google or Apple on a hosted page rather than
+through these SDK buttons, use the [native sign-in walkthrough](../../../docs/app/authentication.md).
+Its Auth0 registration does not replace the direct SDK requirements above.

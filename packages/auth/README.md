@@ -179,6 +179,8 @@ No sign-in occurs when the fixture mounts:
 pnpm probe run examples/probes/apple-auth.macos.tsrx --target macos --watch
 ```
 
+For a complete configured path, follow [Add sign-in and maintain a session](https://octane-xplat.goddardai.org/authentication), including the maintained Auth0 adapter and verified API example.
+
 ## Hosted sign-in ceremonies
 
 `createHostedAuth` authenticates a native app through a hosted sign-in page:

@@ -1,5 +1,9 @@
 # Server sign-in exchange boundaries
 
+For a complete native provider path with a JWT-verifying API, follow
+[Add sign-in and maintain a session](../../docs/app/authentication.md).
+This directory retains the lower-level ceremony and backend contracts.
+
 Use `providerVerification` or `hostedVerification` from
 [server-verification.mjs](server-verification.mjs) in your app-owned backend.
 The exported functions return a Fetch request handler. They are transport and

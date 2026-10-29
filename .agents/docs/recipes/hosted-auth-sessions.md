@@ -6,8 +6,9 @@ Related APIs: createHostedAuth, HostedAuth.signOut, HostedAuth.restore, authSess
 
 ## Starting point
 
-An app-owned hosted sign-in flow with attempt/exchange/refresh/revoke endpoints,
-a registered callback scheme, and secure credential storage.
+A running app and a hosted identity provider. The guide supplies one concrete
+provider adapter and token-verifying API; the application owns their deployment,
+provider registration and account state.
 
 ## Requirements
 
@@ -22,9 +23,9 @@ retired in-memory credentials from successful durable deletion.
 
 ## Documentation
 
-- AC1: [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies). Gap: packaged real-provider and OS callback delivery qualification remains pending.
-- AC2: [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies) and [hosted-client regressions](../../../packages/auth/tests/hosted.test.mjs).
-- AC3: [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies) and [deletion-failure regressions](../../../packages/auth/tests/hosted.test.mjs).
+- AC1: [Sign-in walkthrough](../../../docs/app/authentication.md), [Auth0 adapter](../../../packages/auth/examples/auth0-flow.ts), and [token-verifying API](../../../tools/auth-guide/src/api.ts) cover iOS/Android setup and the first verified account. Gap: experimental macOS host setup still requires separate composition. Packaged real-provider/OS callback execution is unqualified.
+- AC2: [Restore, refresh and sign out](../../../docs/app/authentication.md#restore-refresh-and-sign-out), [account-state controller](../../../packages/demos/src/auth-guide/session.ts), [account races](../../../tools/auth-guide/src/session.test.mjs), [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies) and [hosted-client regressions](../../../packages/auth/tests/hosted.test.mjs).
+- AC3: [Restore, refresh and sign out](../../../docs/app/authentication.md#restore-refresh-and-sign-out), [account-state controller](../../../packages/demos/src/auth-guide/session.ts), [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies) and [deletion-failure regressions](../../../packages/auth/tests/hosted.test.mjs).
 
 The [packed listening/settings check](../../../tools/native-readiness/README.md)
 combines these services in an external mobile consumer. Its synthetic auth and

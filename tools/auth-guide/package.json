@@ -1,0 +1,17 @@
+{
+	"name": "@xplat/auth-guide",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "node --env-file=.env src/serve.ts",
+		"test": "node --test src/*.test.mjs",
+		"typecheck": "tsc --noEmit -p tsconfig.json"
+	},
+	"dependencies": {
+		"jose": "6.2.12"
+	},
+	"devDependencies": {
+		"@types/node": "24.10.1",
+		"typescript": "catalog:"
+	}
+}

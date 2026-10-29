@@ -8,7 +8,8 @@
 	"environments": {
 		"native": {
 			"files": [
-				"src/index.ts"
+				"src/index.ts",
+				"examples/auth0-flow.ts"
 			],
 			"compilerOptions": {
 				"types": [
@@ -18,14 +19,16 @@
 		},
 		"web": {
 			"files": [
-				"src/index.web.ts"
+				"src/index.web.ts",
+				"examples/auth0-flow.ts"
 			]
 		},
 		"macos": {
 			"include": [
 				"src/*.macos.ts",
 				"src/*.macos.tsrx",
-				"src/types.ts"
+				"src/types.ts",
+				"examples/auth0-flow.ts"
 			]
 		}
 	}

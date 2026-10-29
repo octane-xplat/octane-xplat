@@ -1,0 +1,12 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test": {
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../packages/demos/src/auth-guide/**",
+				"../../packages/ui/src/store.ts"
+			]
+		}
+	}
+}

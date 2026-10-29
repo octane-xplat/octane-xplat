@@ -24,6 +24,7 @@ export const GROUPS = [
 			'content-display',
 			'navigation',
 			'navigation-ui',
+			'authentication',
 			'search-selection',
 			'command-palette',
 			'power-search',

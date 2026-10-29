@@ -38,7 +38,7 @@ guards remain separate from server authorization and application cache cleanup.
 - AC2: [Return after sign-in](../../../docs/app/navigation.md#return-after-sign-in),
   root-context declarations and the synchronous snapshot regressions distinguish
   top-level snapshots from application-owned mutable services.
-- AC3: [Preserve providers](../../../docs/app/navigation.md#preserve-providers-across-native-pages)
+- AC3: [Account controller integration](../../../docs/app/authentication.md#retire-protected-routes-when-the-account-changes), [preserve providers](../../../docs/app/navigation.md#preserve-providers-across-native-pages)
   and [return after sign-in](../../../docs/app/navigation.md#return-after-sign-in)
   explain the authority token and resumeUrl/onResume handoff consumed once by
   the replacement owner. Work started by the retiring owner can be cancelled. Maintained browser,

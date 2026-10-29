@@ -425,6 +425,14 @@ export async function readImages() {
 
 ## Hosted authentication
 
+Use the [sign-in guide](../../../../docs/app/authentication.md) for a concrete
+iOS/Android Auth0 path, provider registration, API verification and account UI.
+The copied adapter is application code. Browser clients need a cookie flow or
+a browser SDK in a web platform file. Do not infer a verified identity from
+credential restoration alone: call the protected API before exposing private
+content. Keep the account owner outside outlets replaced by its authority;
+clear separate account-owned stores when replacing accounts.
+
 Use the [hosted auth client](../../../../packages/auth/README.md#hosted-sign-in-ceremonies)
 for app-owned credential persistence and refresh. Windows currently reports
 `authSession.supported === false`; a desktop callback/activation adapter is still

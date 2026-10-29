@@ -1043,6 +1043,10 @@ export async function takeProfilePhoto() {
 
 ## Passkeys and auth ceremonies
 
+For a complete hosted phone sign-in, session restoration and sign-out workflow,
+start with [Add sign-in and maintain a session](../app/authentication.md). This
+section covers the lower-level capabilities and other provider choices.
+
 A **passkey** lets someone sign in using their device instead of a password.
 An **auth ceremony** is the exchange that verifies that sign-in. This is an
 advanced integration: it needs a backend (your server) that verifies the
