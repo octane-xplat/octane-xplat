@@ -6662,3 +6662,65 @@ execution, consent/browser presentation/cancellation/window/termination/HMR
 lifetime, HTTPS provider/backend registration, credential security, VoiceOver and
 clean signed/installed consumers remain unqualified. Shared audit snapshots and
 all evidence-gated checkboxes unchanged; persistent goal active.
+
+## AppKit Apple authorization presenter ownership
+
+Demand is grounded in AuthDemo's official Apple sign-in button and the retained
+provider guide. Apple authorization is a separate native controller from the
+previous authSession fix. Source inspection found a dynamically changing anchor,
+no initiating-window close cleanup and a partial class-registration cache that
+blocked retry if only the delegate registered. No OS consent/sign-in or credential
+failure was observed. Audit/TSV native-service qualification remains unchanged.
+
+The leaf now captures scopes/nonce before native provider work and retains its
+initiating visible key/main window without an attached sheet. No arbitrary first
+window or window activation is used. Anchor and result methods check owned native
+controller plus provider/delegate identity, allowing equivalent native wrappers.
+Stale/foreign callbacks return before credential decoding. If conversion already
+started and reenters teardown, its result cannot settle the retired attempt.
+Delegate and anchor classes cache independently, so an anchor registration failure
+can retry without discarding the successful delegate class.
+
+Main-queue close/termination observers must attach before controller setup.
+Terminal paths retire JS ownership, remove acquired observers and clear owned
+native delegate/provider references before optional controller cancel. Window/app
+teardown resolves cancelled; setup/perform failures cancel acquired state.
+Partial/synchronous observation, class/delegate/provider/request/scope/nonce/
+anchor/allocation/controller/delegate-setter reentry cannot perform retired work.
+Late callbacks cannot release or cancel a replacement. SDK ASAuthorizationController
+cancel is macOS 13+; older hosts or throwing cancel can leave OS UI active after
+JS retirement. Observer removal errors can retain inert native observers. No
+synthetic timeout is added; absent callbacks remain pending until presenter/app
+teardown. Screen unmount/hiding is not window close.
+
+Eleven Apple model cases (eight new; Google cases retained) and an idle official-
+button fixture are authored, all UNRUN. The model suite compiles VM copies only
+when eventually executed; none ran here. The fixture displays status only, opens
+no sign-in on mount and does not display/log tokens, credentials, user identity
+or native error text. A signed Apple App ID, Sign in with Apple entitlement and
+matching provisioning profile remain necessary. Backend identity-token/audience/
+per-attempt nonce verification and app-session creation remain outside facade
+acquisition. Credential-state behavior is unchanged and unqualified. README,
+public guide, services skill, recipe and fix note reconcile the experimental
+subset. The existing Apple leaf shipped in v0.18.0.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/auth
+pnpm exec turbo run typecheck --filter=...@octane-xplat/auth
+pnpm probe doctor
+pnpm probe run examples/probes/apple-auth.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/auth
+pnpm exec turbo run pack:check --filter=@octane-xplat/auth
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit Apple authorization package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Three TS/TSRX/MJS files syntax parsed; source/semantic/SDK and whitespace
+review only. No tests/compiler transforms/typechecks/builds, probes, native/OS/AX or visual
+analysis, packaging, real account callback or credential exchange ran. Actual
+native registration/wrapper identity/callback/thread/consent, observer/window/
+termination/HMR lifetime, real credential-state/nonce/security, entitlement/profile/
+signing, VoiceOver and clean installed consumers remain unqualified. No shared
+audit regeneration or evidence-gated checkbox changes; persistent goal active.

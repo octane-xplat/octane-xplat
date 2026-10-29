@@ -632,3 +632,31 @@ never log callback URLs or credentials. Eleven model cases and the manual
 cancellation fixture are authored, unrun. OS browser/callback/cancellation,
 window/observer/HMR lifetime, VoiceOver and installed consumers remain unqualified.
 See [AppKit sign-in ownership](../../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership).
+
+
+## AppKit Sign in with Apple ownership
+
+Apple authorization is a separate controller from authSession. The native leaf
+captures scopes/nonce, retains its initiating visible key/main window without an
+attached sheet and accepts anchor/results only from its own controller and
+provider/delegate wrappers. Independent class caches allow an anchor-registration
+failure to retry. Close/termination observers must attach before constructing UI;
+terminal paths retire JS ownership and owned native delegate/provider references
+before optional cancel (macOS 13+). Late/foreign callbacks do not decode credentials
+or release replacement attempts. A conversion already underway can reenter teardown;
+its result is ignored. Backend identity-token/audience/nonce verification is still
+required before establishing an app session.
+
+```ts
+import { appleAuth } from '@octane-xplat/auth'
+export async function beginAppleSignIn(backendAttemptNonce: string) {
+	return appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
+}
+```
+
+Screen unmount/hiding does not cancel the controller. Missing or throwing cancel
+may leave native UI open; failed observer removal can retain inert native observers.
+No timeout fabricates a result. Eleven Apple model cases and an idle official-button
+fixture are authored, unrun; native registration/wrapper/thread/UI/callback/window/
+HMR/credential-state/nonce, signing/provisioning/entitlement, VoiceOver and consumer
+qualification remain open in #62. See [Apple presenter ownership](../../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window).

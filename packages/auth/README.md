@@ -81,6 +81,55 @@ and verify them.
 See [macOS provider setup](https://octane-xplat.goddardai.org/platform-services#macos-provider-sign-in)
 and the [maintained hosted adapter](https://github.com/octane-xplat/octane-xplat/blob/main/examples/auth/google-hosted.macos.ts).
 
+### Keep Apple sign-in with its initiating window
+
+Native Apple sign-in captures scopes/nonce and keeps the initiating visible key
+or main window as its presentation anchor. A window with an attached sheet is
+ineligible; it never borrows an arbitrary first window. Closing that window or
+terminating the app retires the attempt as cancelled and asks the controller to
+cancel when that selector exists (macOS 13+). Screen unmount/hiding alone is not
+window close. Missing lifecycle-observer metadata produces an error before the
+controller starts; partial class registration can retry.
+
+```ts
+import { appleAuth } from '@octane-xplat/auth'
+
+export async function signInWithApple(backendAttemptNonce: string) {
+	const result = await appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
+	if (result.status === 'cancelled') console.log('Apple sign-in cancelled')
+	return result
+}
+```
+
+Only the owned controller and delegate can deliver results; stale/foreign callbacks
+are ignored before credential decoding. Teardown retires JS state before native
+cancellation, so late callbacks cannot release a replacement. Cancellation failure
+or older hosts without cancel can leave native UI open despite a retired JS result;
+observer removal errors can retain inert native observers. A controller without a
+terminal callback stays pending until its presenter/app closes; no timer invents
+success. Framework availability does not prove entitlements or a working consent UI.
+
+```ts
+const result = await appleAuth.signIn()
+if (result.status === 'success') {
+	// Send result.credential to your backend; validate the identity token,
+	// expected audience and per-attempt nonce before creating an app session.
+}
+```
+
+Eleven Apple model cases (eight new) and a manual official-button fixture are
+authored, unrun. Native method registration/wrapper identity, UI/callbacks/thread/
+window/termination/HMR lifetime, real credential-state/nonce behavior, entitlement/
+provisioning/signing, VoiceOver and installed consumers remain unqualified.
+Source follows the installed SDK and Apple's
+[authorization controller](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller)
+and [cancel contract](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller/cancel()).
+No sign-in occurs when the fixture mounts:
+
+```sh
+pnpm probe run examples/probes/apple-auth.macos.tsrx --target macos --watch
+```
+
 ## Hosted sign-in ceremonies
 
 `createHostedAuth` authenticates a native app through a hosted sign-in page:

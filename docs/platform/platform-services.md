@@ -1002,6 +1002,23 @@ dependencies such as the video plugin, which travel with their leaf package. Run
 declarations. `connectivity` comes from `@nativescript/core` and needs no
 plugin.
 
+Native Apple sign-in keeps the initiating visible key/main window and captures
+its request options per attempt. Closing that window or the app retires the
+controller as cancelled; native dismissal requires the cancel selector (macOS
+13+) and remains unqualified. The same lifecycle is separate from browser
+`authSession`. See [Apple presenter ownership](../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window)
+for observer, retry and verification limits.
+
+```ts
+import { appleAuth } from '@octane-xplat/auth'
+
+export async function signInWithApple(backendAttemptNonce: string) {
+	const result = await appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
+	if (result.status === 'cancelled') console.log('Apple sign-in cancelled')
+	return result
+}
+```
+
 ## Optional capabilities
 
 Some features are not available everywhere. Check support and ask for access
