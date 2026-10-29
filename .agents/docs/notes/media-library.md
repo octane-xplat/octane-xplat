@@ -103,3 +103,14 @@ upstream decorator or BigInt defect. The maintained implementation uses neither.
 The [AppKit feasibility script](../../../packages/media-library/tests/macos-feasibility.mjs)
 and private Turbo driver provide the narrow host checks above. Runtime
 qualification must stay separate from source and declaration success.
+
+
+## Immediate permission actions
+
+The final ten-package qualification found two hook races: get:false plus an
+immediate explicit getter resolved without updating its reader, and the passive
+mount read could overwrite an early explicit request. Commit d8833c51a moves
+ownership to the commit layout effect and makes automatic work yield to manual
+actions. Both regression cases failed before the change; all eleven package
+tests and combined source checks pass after it. Existing option-change and
+unmount guards remain covered. Native hook runtime qualification is unchanged.
