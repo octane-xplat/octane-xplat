@@ -317,3 +317,9 @@ per mount — controlled↔uncontrolled switches on the same element keep prior
 state, matching React semantics. Escape/outside-tap authority, focus return
 and session teardown come from the shared Popover path. Arrow-key listbox
 navigation is a web-only SelectView feature.
+
+The pure-utility, i18n, theme-registry and link-context exports reuse
+their shared leaves on GTK — no .gtk variants were needed. isNative
+resolves to platform.ts (true — GTK is a native widget platform).
+thumbHashUri's shared leaf imports @nativescript/core; it stays out until
+the Image slice supplies a host decode path.

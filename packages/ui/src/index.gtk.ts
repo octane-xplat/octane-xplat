@@ -114,6 +114,69 @@ export type {
 	SelectVariant,
 } from './props'
 
+export { pixel, percent } from './resize-math'
+export { isNative } from './platform'
+export { mergeProps } from './merge-props'
+export { useObjectRef } from './use-object-ref'
+export { refList, mergedRef } from './ref-list'
+export { createStaticSource } from './typeahead-source'
+export { rgbaToThumbHash, rgbaToThumbHashUri } from './hash-image'
+export {
+	proportional,
+	generateColumns,
+	resolveColumnWidths,
+	defaultCellRenderer,
+	capitalize,
+	DEFAULT_MIN_COLUMN_WIDTH,
+} from './table/column-utils'
+export { paginateData } from './table/paginate-data'
+export { sortTableData } from './table/use-table-sortable-state'
+export { toSearchFilters } from './table/to-search-filters'
+export {
+	defineTheme,
+	isDefinedTheme,
+	registerTheme,
+	getRegisteredTheme,
+	getRegisteredThemes,
+	resolveThemeToken,
+	resolveThemeTokens,
+	defaultThemeTokens,
+} from './theme/defined-theme'
+export { generateThemeCss } from './theme/theme-css'
+export { InternationalizationProvider } from './InternationalizationProvider.tsrx'
+export {
+	useLocale,
+	useDirection,
+	useTranslator,
+	getLocaleDirection,
+	frFR,
+} from './internationalization'
+export { LinkProvider } from './LinkProvider'
+export { useLinkComponent } from './use-link-component'
+export { LinkContext } from './link-context'
+export { createPowerSearchConfig, resolveOperatorLabel } from './power-search-config'
+export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'
+export type {
+	SearchableItem,
+	SearchRequest,
+	SearchSource,
+	CreateStaticSourceOptions,
+	TableColumn,
+	ColumnWidth,
+	ProportionalWidth,
+	PixelWidth,
+	TableSortableColumnConfig,
+	LinkProviderProps,
+	InternationalizationProviderProps,
+	InternationalizationMessages,
+	PowerSearchConfig,
+	DateRange,
+	ISODateString,
+} from './props'
+export type { CalendarDay, CalendarMonthGrid } from './calendar-core'
+export type { DefinedTheme, DefineThemeInput, TokenValue } from './theme/defined-theme'
+export type { FlatRef } from './ref-list'
+
 export { TextInput } from './TextInput'
 export type {
 	TextInputProps,

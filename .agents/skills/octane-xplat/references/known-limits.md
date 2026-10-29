@@ -291,7 +291,15 @@ sibling; it is not full PowerSearch GTK qualification.
 SelectorOption presents an icon, label and description; it has no selection
 or press owner. isDisabled adds the same modifier class as web. Selector and
 MultiSelector are public root exports sharing the Popover-backed finite-list
-menu; arrow-key listbox navigation is a web-only SelectView feature. Do not substitute the presentation part for a selection field.
+menu; arrow-key listbox navigation is a web-only SelectView feature.
+
+Pure-utility/i18n/theme/link exports are qualified on GTK (113 values/
+138 types in the root). Slot/state-bearing hooks — useCalendarDays/
+Constraints/Navigation, useTableSortableState, usePowerSearchConfig,
+styled — remain deferred to their consumer-component slices because
+fixtures cannot host slot-compiled hooks (rolldown merges a fixture's
+`withSlot as _$withSlot` emission with ui-source emissions as a duplicate
+binding). Do not substitute the presentation part for a selection field.
 
 GTK Mason owns border-box sizes and CSS margin spacing; keep margins outside
 authored width/height. The renderer bridge consumes GTK margin/padding/border

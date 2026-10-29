@@ -80,7 +80,20 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption, Popover, Selector and MultiSelector.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption, Popover, Selector and MultiSelector. Pure-utility exports — pixel/percent/proportional,
+table helpers (generateColumns, resolveColumnWidths, defaultCellRenderer,
+capitalize, paginateData, sortTableData, toSearchFilters), ThumbHash
+encoders (rgbaToThumbHash/rgbaToThumbHashUri), the theme registry
+(defineTheme/registerTheme/resolveThemeToken(s)/defaultThemeTokens/
+generateThemeCss and friends), mergeProps/refList/mergedRef/useObjectRef,
+isNative, createStaticSource, calendar core helpers (isSameDay/
+isDateInRange/getWeekNumber), i18n (InternationalizationProvider,
+useLocale/useDirection/useTranslator, getLocaleDirection, frFR), link
+context (LinkProvider, useLinkComponent, LinkContext) and
+power-search config (createPowerSearchConfig, resolveOperatorLabel) —
+behave identically to native; slot-bearing hooks (useCalendarDays,
+useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
+are not yet exposed.
 For example, place a label and
 status badge in a horizontal row:
 

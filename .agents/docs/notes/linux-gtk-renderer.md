@@ -2891,3 +2891,37 @@ Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-selector.test.mjs`).
 Limits: X11/Xvfb evidence only — no Wayland/xdg-popup constraint, visual or
 AT-client qualification. Arrow-key navigation inside the listbox is not in
 the shared SelectView contract (web-only leaf), so it is out of scope here.
+
+## GTK utilities, i18n, theme-registry and link-context qualification
+
+`ui-utilities.test.mjs` drives `fixtures/src/ui-utilities-main.ts` through
+the public barrel: 47 checks, all passing with no skips (`input:false` —
+pure-function and hook evidence needs no OS input).
+
+- Pure exports asserted directly in GJS with concrete values matching the
+  web/native unit tests: pixel/percent shapes, capitalize,
+  DEFAULT_MIN_COLUMN_WIDTH, generateColumns/resolveColumnWidths/
+  defaultCellRenderer, paginateData, sortTableData (numeric-aware natural
+  order), toSearchFilters, rgbaToThumbHash/Uri, theme registry
+  (defineTheme/isDefinedTheme/register/get/setRegisteredTheme(s),
+  resolveThemeToken(s) light/dark token resolution, defaultThemeTokens,
+  generateThemeCss), mergeProps merge/precedence rules, refList/mergedRef,
+  createStaticSource search/bootstrap semantics, isSameDay/isDateInRange/
+  getWeekNumber, getLocaleDirection ltr/rtl, frFR dictionary, LinkContext,
+  createPowerSearchConfig, resolveOperatorLabel, isNative=true.
+- Hook/provider evidence: context hooks run inside a
+  `defineUniversalComponent('gtk', fn)` mounted by `createGtkRoot` —
+  useLocale/useDirection ('en'/'ltr'), useTranslator default and
+  InternationalizationProvider('fr', messages={fr: frFR}) scope ('Sélectionner…'),
+  useObjectRef shape, LinkProvider+useLinkComponent injection.
+- Fixture constraint (upstream bundler dedupe bug): fixture .tsrx/.tsx
+  components calling slot-compiled ui hooks emit `withSlot as _$withSlot`
+  and collide with ui-source emissions in the merged chunk. Fixture hook
+  probes must use `.ts` files + defineUniversalComponent; hooks needing
+  useState/useMemo slot state (calendar, table-sortable, power-search) can
+  only run inside compiler-built components, so they qualify through their
+  consumer components in later slices.
+
+Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-utilities.test.mjs`).
+Limits: GJS function-level evidence only; hook lifecycle covered via its
+consumer component slice, not standalone.

@@ -134,3 +134,32 @@ type SelectorOptionContract = Assert<Equal<GtkUI.SelectorOptionProps, NativeUI.S
 type PopoverContract = Assert<Equal<GtkUI.PopoverProps, NativeUI.PopoverProps>>
 type SelectorContract = Assert<Equal<GtkUI.SelectorProps, NativeUI.SelectorProps>>
 type MultiSelectorContract = Assert<Equal<GtkUI.MultiSelectorProps, NativeUI.MultiSelectorProps>>
+
+type SearchableItemContract = Assert<Equal<GtkUI.SearchableItem, NativeUI.SearchableItem>>
+type SearchRequestContract = Assert<Equal<GtkUI.SearchRequest, NativeUI.SearchRequest>>
+type SearchSourceContract = Assert<Equal<GtkUI.SearchSource, NativeUI.SearchSource>>
+type CreateStaticSourceOptionsContract = Assert<
+	Equal<GtkUI.CreateStaticSourceOptions, NativeUI.CreateStaticSourceOptions>
+>
+type TableColumnContract = Assert<Equal<GtkUI.TableColumn, NativeUI.TableColumn>>
+type ColumnWidthContract = Assert<Equal<GtkUI.ColumnWidth, NativeUI.ColumnWidth>>
+type ProportionalWidthContract = Assert<Equal<GtkUI.ProportionalWidth, NativeUI.ProportionalWidth>>
+type PixelWidthContract = Assert<Equal<GtkUI.PixelWidth, NativeUI.PixelWidth>>
+type TableSortableColumnConfigContract = Assert<
+	Equal<GtkUI.TableSortableColumnConfig, NativeUI.TableSortableColumnConfig>
+>
+type LinkProviderPropsContract = Assert<Equal<GtkUI.LinkProviderProps, NativeUI.LinkProviderProps>>
+type InternationalizationProviderPropsContract = Assert<
+	Equal<GtkUI.InternationalizationProviderProps, NativeUI.InternationalizationProviderProps>
+>
+type InternationalizationMessagesContract = Assert<
+	Equal<GtkUI.InternationalizationMessages, NativeUI.InternationalizationMessages>
+>
+type PowerSearchConfigContract = Assert<Equal<GtkUI.PowerSearchConfig, NativeUI.PowerSearchConfig>>
+type DateRangeContract = Assert<Equal<GtkUI.DateRange, NativeUI.DateRange>>
+type CalendarDayContract = Assert<Equal<GtkUI.CalendarDay, NativeUI.CalendarDay>>
+type CalendarMonthGridContract = Assert<Equal<GtkUI.CalendarMonthGrid, NativeUI.CalendarMonthGrid>>
+type DefinedThemeContract = Assert<Equal<GtkUI.DefinedTheme, NativeUI.DefinedTheme>>
+type DefineThemeInputContract = Assert<Equal<GtkUI.DefineThemeInput, NativeUI.DefineThemeInput>>
+type TokenValueContract = Assert<Equal<GtkUI.TokenValue, NativeUI.TokenValue>>
+type FlatRefContract = Assert<Equal<GtkUI.FlatRef<unknown>, NativeUI.FlatRef<unknown>>>

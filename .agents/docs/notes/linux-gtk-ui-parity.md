@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 71 runtime values and 117 types in index.gtk.ts, including
+Current availability is 113 runtime values and 138 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1266,3 +1266,36 @@ Arrow-key navigation inside the listbox is a web-only SelectView feature
 (no key handling exists in the shared leaf), so GTK lists pointer and key
 dismissal only. Placement/behavior proven under X11/Xvfb only; Wayland,
 visual parity and assistive-client output stay unqualified.
+
+### Public GTK utilities, i18n, theme and link exports
+
+The pure-function and context-hook exports now resolve on the GTK root:
+unit constructors (pixel/percent/proportional), table helpers
+(generateColumns, resolveColumnWidths, defaultCellRenderer, capitalize,
+DEFAULT_MIN_COLUMN_WIDTH, paginateData, sortTableData, toSearchFilters),
+ThumbHash encoders (rgbaToThumbHash/rgbaToThumbHashUri), the theme
+registry (defineTheme/isDefinedTheme/registerTheme/getRegisteredTheme(s)/
+resolveThemeToken(s)/defaultThemeTokens/generateThemeCss), mergeProps,
+refList/mergedRef/useObjectRef, isNative, createStaticSource, calendar core
+(isSameDay/isDateInRange/getWeekNumber), i18n
+(InternationalizationProvider, useLocale/useDirection/useTranslator,
+getLocaleDirection, frFR), the link context (LinkProvider/useLinkComponent/
+LinkContext) and power-search config (createPowerSearchConfig/
+resolveOperatorLabel). 21 sibling types export beside them. Availability is
+113 values and 138 types.
+
+The 47-check GJS fixture passes without skips: pure functions are asserted
+directly with concrete expected values matching the web/native unit tests,
+and the context hooks run inside a hand-registered `defineUniversalComponent`
+('gtk') under `createGtkRoot` — InternationalizationProvider supplies an
+frFR locale scope and LinkProvider injects its component. No OS input is
+required for pure/hook qualification.
+
+Deferred to consumer slices: slot/state-bearing hooks
+(useCalendarDays/Constraints/Navigation -> Calendar, useTableSortableState ->
+Table, usePowerSearchConfig -> PowerSearch), styled (Button) and
+thumbHashUri (Image decode needs host GdkPixbuf plumbing). Fixture
+limitation found: any fixture .tsrx/.tsx component calling a slot-compiled
+hook emits `withSlot as _$withSlot`, which collides with ui-source emissions
+in the merged chunk (rolldown does not dedupe the binding). Hook probes
+belong in plain .ts files wrapped with defineUniversalComponent.
