@@ -704,6 +704,24 @@ const image = await media.capturePhoto({
 // The caller owns image until its preview/upload finishes, then files.release(image).
 ```
 
+## Hash or encrypt app data
+
+Use the [crypto guide](../../packages/crypto/README.md) for secure random bytes,
+checksums and authenticated AES encryption. AES keys are separate secrets;
+keep them in supported secure storage and save ciphertext with app data. The
+portable AES subset uses fresh 12-byte nonces and 16-byte tags. Browsers require
+Web Crypto on a secure origin; Android runtime remains unverified.
+
+```ts
+import { AESEncryptionKey, aesEncryptAsync } from '@octane-xplat/crypto'
+
+export async function encryptDraft(bytes: Uint8Array) {
+ const key = await AESEncryptionKey.generate()
+ const sealed = await aesEncryptAsync(bytes, key)
+ return { key, encrypted: await sealed.combined() }
+}
+```
+
 ## Print a document or export a PDF
 
 Use the [print/PDF guide](../../packages/print/README.md) for HTML receipts,

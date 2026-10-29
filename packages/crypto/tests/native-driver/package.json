@@ -1,0 +1,11 @@
+{
+	"name": "@xplat/crypto-native-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:ios-runtime": "node ../ios-runtime.mjs",
+		"test:ios-bridge": "node ../ios-bridge.mjs",
+		"test:macos-consumer": "node ../macos-consumer.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}

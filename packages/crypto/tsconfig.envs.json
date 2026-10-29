@@ -1,0 +1,26 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"types": ["@nativescript/types"]
+	},
+	"environments": {
+		"web": {
+			"include": ["src/**/*.ts", "examples/**/*.ts"],
+			"exclude": ["src/**/*.ios.ts", "src/**/*.android.ts", "src/**/*.macos.ts"]
+		},
+		"native": {
+			"include": ["src/**/*.ts", "tests/conformance.ts"],
+			"exclude": ["src/**/*.web.ts", "src/**/*.macos.ts"]
+		},
+		"macos": {
+			"include": ["src/index.macos.ts", "src/**/*.macos.ts"]
+		},
+		"linux": {
+			"include": ["src/index.linux.ts"]
+		},
+		"windows": {
+			"include": ["src/index.windows.ts"]
+		}
+	}
+}

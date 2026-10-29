@@ -28,6 +28,7 @@ source before relying on them.
 - [AppKit native intrinsics](appkit-native-intrinsics.md)
 - [Editor capabilities](editor-capabilities.md)
 - [SVG icons](icon-svg-notes.md)
+- [Crypto](crypto.md) — engines, byte/key ownership and qualification
 - [Print/PDF](print.md) — native engines, output ownership and qualification
 - [Stripe checkout](stripe.md) — official SDK bridges, ownership and qualification
 - [Media library](media-library.md) — PhotoKit/MediaStore implementation and qualification limits

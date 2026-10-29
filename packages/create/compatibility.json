@@ -22,6 +22,7 @@
 		"@octane-xplat/cli",
 		"@octane-xplat/contacts",
 		"@octane-xplat/context-menu",
+		"@octane-xplat/crypto",
 		"@octane-xplat/css-engine",
 		"@octane-xplat/date-picker",
 		"@octane-xplat/desktop-webview",

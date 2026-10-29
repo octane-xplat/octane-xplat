@@ -1186,3 +1186,21 @@ persistence, roaming/access policies and full app integration remain unqualified
 The alpha.144 projection exposes missing-item HRESULT 0x80070490 only as a
 message suffix; preserve that distinction and never return null for every native
 exception or forward native error text. This does not enable Windows hosted auth.
+
+For hashes or encryption, use the [crypto guide](../../../../packages/crypto/README.md).
+Mirror its current Expo-shaped API; strings passed to AES are base64, while
+string digests use UTF-8. Default AES uses a fresh 12-byte secure nonce and a
+16-byte tag. Never reuse a caller-supplied nonce with a key. Persist keys through
+supported secure storage separately from ciphertext; exportable key objects
+are not hardware-backed handles. Use per-operation capabilities. Android runtime
+remains unverified; native GTK/Windows backends are unavailable.
+
+```ts
+import { AESEncryptionKey, aesEncryptAsync } from '@octane-xplat/crypto'
+
+export async function encryptPayload(bytes: Uint8Array) {
+ const key = await AESEncryptionKey.generate()
+ const sealed = await aesEncryptAsync(bytes, key)
+ return { key, bytes: await sealed.combined() }
+}
+```

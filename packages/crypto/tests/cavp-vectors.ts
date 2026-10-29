@@ -1,0 +1,58 @@
+// NIST CAVS 14.0, GCM Encrypt ExtIV, Count 0 in each selected parameter group.
+// https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/mac/gcmtestvectors.zip
+export const vectors = [
+	{
+		bits: 128,
+		key: '11754cd72aec309bf52f7687212e8957',
+		iv: '3c819d9a9bed087615030b65',
+		plaintext: '',
+		aad: '',
+		ciphertext: '',
+		tag: '250327c674aaf477aef2675748cf6971',
+	},
+	{
+		bits: 128,
+		key: 'c939cc13397c1d37de6ae0e1cb7c423c',
+		iv: 'b3d8cc017cbb89b39e0f67e2',
+		plaintext: 'c3b3c41f113a31b73d9a5cd432103069',
+		aad: '24825602bd12a984e0092d3e448eda5f',
+		ciphertext: '93fe7d9e9bfd10348a5606e5cafa7354',
+		tag: '0032a1dc85f1c9786925a2e71d8272dd',
+	},
+	{
+		bits: 192,
+		key: 'aa740abfadcda779220d3b406c5d7ec09a77fe9d94104539',
+		iv: 'ab2265b4c168955561f04315',
+		plaintext: '',
+		aad: '',
+		ciphertext: '',
+		tag: 'f149e2b5f0adaa9842ca5f45b768a8fc',
+	},
+	{
+		bits: 192,
+		key: '6f44f52c2f62dae4e8684bd2bc7d16ee7c557330305a790d',
+		iv: '9ae35825d7c7edc9a39a0732',
+		plaintext: '37222d30895eb95884bbbbaee4d9cae1',
+		aad: '1b4236b846fc2a0f782881ba48a067e9',
+		ciphertext: 'a54b5da33fc1196a8ef31a5321bfcaeb',
+		tag: '1c198086450ae1834dd6c2636796bce2',
+	},
+	{
+		bits: 256,
+		key: 'b52c505a37d78eda5dd34f20c22540ea1b58963cf8e5bf8ffa85f9f2492505b4',
+		iv: '516c33929df5a3284ff463d7',
+		plaintext: '',
+		aad: '',
+		ciphertext: '',
+		tag: 'bdc1ac884d332457a1d2664f168c76f0',
+	},
+	{
+		bits: 256,
+		key: '92e11dcdaa866f5ce790fd24501f92509aacf4cb8b1339d50c9c1240935dd08b',
+		iv: 'ac93a1a6145299bde902f21a',
+		plaintext: '2d71bcfa914e4ac045b2aa60955fad24',
+		aad: '1e0889016f67601c8ebea4943bc23ad6',
+		ciphertext: '8995ae2e6df3dbf96fac7b7137bae67f',
+		tag: 'eca5aa77d51d4a0a14d9c51e1da474ab',
+	},
+] as const
