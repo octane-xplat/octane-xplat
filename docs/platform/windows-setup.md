@@ -189,9 +189,60 @@ Bounded packaged x64 checks cover mouse movement beyond the control's bounds,
 release, loss of pointer capture, recovery on the next drag, and the existing
 Slider's controlled numeric drag. Windows reports zero pan velocity. Hardware
 touch, pen, multiple contacts, swipe, screen-reader and visual parity remain
-unqualified. Slider keyboard, range, field-state and full prop support require
-separate qualification; the native-engine probe does not establish those
-public Slider capabilities.
+unqualified. The [Slider section](#slider-input) records its separate public
+component boundary.
+
+## Slider input
+
+The experimental Windows `Slider` uses the shared track and thumb design.
+It accepts a number or a two-number range. `defaultValue` keeps local state;
+with `value`, the caller must accept changes through `onValueChange`. Dragging
+moves from the current value, so pressing the track does not jump the thumb.
+Use `label` to name the control; range thumbs add “lower value” and “upper value”
+to that name.
+
+```tsx
+import { Slider } from '@octane-xplat/ui'
+
+export function SoundSettings() {
+  return <>
+    <Slider label="Volume" defaultValue={50} step={5} valueDisplay="text" />
+    <Slider
+      label="Playback range"
+      defaultValue={[20, 80]}
+      step={5}
+      marks={[{ value: 0, label: 'Start' }, { value: 100, label: 'End' }]}
+      valueDisplay="tooltip"
+      formatValue={(value) => `${value}%`}
+    />
+  </>
+}
+```
+
+Tab focuses each enabled thumb. Arrow keys change the value by `step`, or 1%
+of the full range when no positive step is set; Home and End choose that thumb's
+bounds. The range thumbs cannot cross. `isReadOnly` keeps the control focusable
+and rejects changes; `isDisabled` also excludes it from input. These states
+can be inherited from `Field`.
+
+```tsx
+import { Field, Slider } from '@octane-xplat/ui'
+
+export function SavedVolume() {
+  return <Field label="Saved volume" isReadOnly>
+    <Slider defaultValue={50} valueDisplay="text" />
+  </Field>
+}
+```
+
+Bounded packaged x64 checks cover Tab/arrows/Home/End, value automation,
+controlled acceptance/rejection, local defaults, disabled/read-only guards,
+scalar and nearest-thumb range dragging, release focus, fractional steps,
+marks/readouts, inline width and remount.
+The preview's native RangeValue pattern still reports `IsReadOnly=false` for
+read-only sliders even though changes are rejected. Complete Field/prop
+coverage, Narrator and visual parity, hardware touch/pen, other Windows
+versions/architectures and downstream consumers remain unqualified.
 
 ## Floating-layer candidate
 

@@ -145,7 +145,9 @@ export function Controls() {
 	return (
 		<>
 			<Switch value={packed} onChange={setPacked} />
-			<Slider value={volume} onValueChange={setVolume} />
+			<Slider value={volume} onValueChange={(next) => {
+				if (typeof next === 'number') setVolume(next)
+			}} />
 			<Spinner />
 			<TextInput label="Bag name" />
 			<Drawer
@@ -2818,6 +2820,38 @@ guards, context updates and remount checks are bounded evidence. Keep full
 Field/props, group announcements, Narrator/visual and consumer qualification
 open; see [Windows list limits](../../../../docs/platform/windows-setup.md#checkbox-lists)
 and the [timing evidence](../../../docs/parity/windows-support-progress.md#measurement-timing-qualification).
+
+## Experimental Windows Slider
+
+Use the shared root Slider with `label` for a scalar or two-thumb range.
+The Windows leaf preserves controlled ownership, resolves inherited Field guards,
+and snaps positive steps relative to the full-domain minimum. Marks and readouts
+are shared drawing; transparent WinUI Slider peers supply keyboard/RangeValue
+behavior. `SliderProps` has no `testID` or `accessibilityLabel` prop.
+
+```tsx
+import { Slider } from '@octane-xplat/ui'
+
+export function RangeSettings() {
+  return <Slider label="Playback range" defaultValue={[20, 80]} step={5}
+    valueDisplay="tooltip" formatValue={(value) => `${value}%`} />
+}
+```
+
+Contributors: keep cumulative pan on the measured parent and use raw touch X
+for nearest-thumb selection. Native input peers are excluded from hit-testing;
+focus the selected peer on press and restore it in a cancellable native zero-delay
+task after release. Core UI dispatch executes inline there. The preview rejects
+JS `DispatcherQueueHandler` delegates for missing IAgileObject; do not replace
+the native timer with that unqualified projection. SDK focus readers return null
+in the bounded probe, so the restoration guard also checks same-root native
+FocusState throughout the declaring View tree. Cancel on another press,
+configuration changes and unmount; reject disabled/unloaded/replaced/root-changed
+peers. Packaged x64 checks pass the bounded keyboard, automation, drag, release-focus,
+marks/readout and remount flows. Read-only guards reject
+changes, but native RangeValue still reports IsReadOnly=false. Keep the complete
+Field/props, hosted-focus races, Narrator/visual and consumer matrices open;
+see [Windows Slider limits](../../../../docs/platform/windows-setup.md#slider-input).
 
 ## Experimental Windows Dialog
 

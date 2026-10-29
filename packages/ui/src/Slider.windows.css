@@ -1,0 +1,40 @@
+.vx-slider-input-windows {
+	left: 0;
+	top: 0;
+}
+
+.vx-slider-body-windows {
+	display: flex;
+	flex-direction: column;
+}
+
+.vx-slider-row-windows {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+}
+
+.vx-slider-track-windows {
+	display: flex;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0;
+}
+
+.vx-slider-marks-windows {
+	display: flex;
+	height: 24px;
+}
+
+.vx-slider-tooltip-windows {
+	font-size: 12px;
+}
+
+.vx-slider-mark-tick-windows {
+	display: flex;
+	position: absolute;
+	width: 2px;
+	height: 8px;
+	background-color: var(--color-border);
+}

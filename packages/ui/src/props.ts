@@ -2338,9 +2338,10 @@ export interface SliderMark {
 /** Slider — self-drawn track + thumb(s) with the shared field vocabulary.
  *  `value` is one number or a `[low, high]` range (two thumbs; upstream
  *  `SliderRangeSlider`). `formatValue` renders the readout and `marks` draw
- *  labeled stops. Web and AppKit leaves render
- *  ranges, marks, and formatted readouts; other native leaves retain their
- *  single-value widget subset. AppKit runtime qualification remains open. */
+ *  labeled stops. Web, AppKit and experimental Windows leaves render ranges,
+ *  marks and formatted readouts; other native leaves retain their
+ *  single-value widget subset. AppKit and Windows runtime qualification
+ *  remains open; see the platform guides. */
 export interface SliderProps extends FieldControlProps {
 	className?: ClassValue
 	style?: StyleProp
@@ -2363,7 +2364,7 @@ export interface SliderProps extends FieldControlProps {
 	 *  `'tooltip'` shows it on the thumb, `'none'` hides it.
 	 *  @default 'none' */
 	valueDisplay?: 'text' | 'tooltip' | 'none'
-	/** Format the readout — receives the value (number or range). */
+	/** Format each numeric readout; ranges format both endpoints separately. */
 	formatValue?: (value: number) => string
 	/** Called while the user drags/keys — receives the new value. */
 	onValueChange?: (value: number | [number, number]) => void

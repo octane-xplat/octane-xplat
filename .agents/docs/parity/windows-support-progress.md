@@ -17,7 +17,9 @@ artifacts, failed predecessors and limits. Full Windows support and the broader
 component rows remain unqualified.
 V26 additionally passes13/13 bounded mouse-pan and native Slider engine groups;
 see the [pan prerequisite qualification](#v26-qualifies-windows-mouse-pan-and-slider-engine-prerequisites).
-The public Slider numeric pointer path passed; its broader API remains pending.
+V33 adds19/19 public Slider input groups; see the
+[Slider qualification](#v33-qualifies-common-windows-slider-input). Full Field,
+automation semantics and platform matrices remain pending.
 
 ## Priorities and evidence boundary
 
@@ -2856,3 +2858,232 @@ velocity remains zero. Public Slider keyboard/range/marks/readout/field guards
 are still pending; the default native leaf ignores modern disabled/read-only
 field guards in source (feedback`7d94b77b-1400-4496-9abb-46c5b80407dc`).
 The issue's broader gesture and component checkboxes remain open.
+
+## Windows Slider candidate after the pan prerequisite
+
+The Windows-only candidate uses transparent WinUI Slider peers for keyboard
+and RangeValue behavior, with shared Mason drawing and cumulative pan on the
+parent. It resolves Field guards, seeds uncontrolled defaults once, preserves
+controlled ownership, supports independent constrained range thumbs and
+min-relative steps, and draws marks/formatted readouts. No new dependency or
+public prop is added. `SliderProps` has neither `testID` nor
+`accessibilityLabel`; use the field `label` vocabulary. Runtime-only fixture
+props must not be treated as a consumer API.
+
+The first v27 prerequisite graph stopped at UI declaration generation because
+the candidate used an undeclared `testID` prop. After removing it, the v27
+graph produced the native package but finished37/38,exit2: the temporary app
+fixture passed undeclared `accessibilityLabel` props. The delegated checker
+also reported a new object-valued `Property.setNative` symbol-index type error.
+These failures are retained and are not qualified builds. The next candidate
+uses public `label`/`isLabelHidden` props and the Core Property value-change
+lifecycle, applying settings only to its current initialized native peer.
+
+MSIX1.0.0.27 on the same x64 Windows/WinAppSDK versions recorded15/16 native
+input groups, boot`mvtfgnmq`. Scalar and range keyboard/RangeValue changes,
+controlled acceptance/rejection, defaults, direct disabled/read-only and inherited read-only guards, min-relative
+fractional steps, numeric mouse drag, outside capture, nearest range-thumb
+selection, prop reset, marks/readouts and remount passed. All150 native input
+snapshots matched the parent size and position. Mouse dragging failed to move
+keyboard focus to the selected native peer. That failed group is retained;
+the next candidate explicitly focuses the selected peer with WinUI's pointer
+focus state, including focusable read-only controls.
+
+The updated focused source run passes15tests through an uncached Turbo task,
+6.273s,exit0:8real compiler/Node universal-runtime component tests with real
+Field context resolution and7mocked native-peer lifecycle/focus contracts.
+Drawing, measurement and OS events are stubbed in those tests. Source tests
+alone do not establish that the pointer-focus repair works on Windows.
+
+Read-only guards suppress keyboard/UIA requests and preserve focus, but native
+RangeValue still reports`IsReadOnly=false` for direct and inherited read-only
+controls (disabled peers report true). Feedback
+`6075ce47-98eb-46eb-954e-13641dee3568` preserves that expectation mismatch.
+Full readonly automation and Narrator semantics remain open; do not describe
+guard rollback as complete native read-only semantics.
+
+V28 adds a successful38/38 graph (28cached,7m10.177s,exit0); the standalone checker has
+no diagnostics. Its OS run is14/18,boot`mvtfvwwb`: readonly mouse focus, scalar
+mouse-to-keyboard continuation and nearest-thumb focus still fail. The range readout
+assertion then fails because that range scenario stopped before moving its upper thumb;
+do not count it as an independent readout diagnosis. All190 input snapshots still match
+parent bounds. The16-test focused source run (4.556s,exit0) additionally checks that
+id/class/style share a host and that the selected lower ref reaches the pointer-focus
+helper. The later id/class forwarding adjustment is source-contract evidence; it is not
+yet a native consumer/class-style qualification. V29 is a temporary focus-result
+diagnostic, not a completed repair. Retained artifacts include
+`windy-native-v27-shared-slider.log`, `windy-native-v27-shared-slider-retry.log`,
+`windy-v27-first-native-exit.json`, `windy-v27-typecheck.log`,
+`windy-v27-native-task.log`, `windy-os-shared-slider-v27.log`,
+`windy-v27-shared-slider-*`, `windy-slider-source-contracts-14.log`,
+`windy-slider-source-contracts-15.log`, and the exact v27 runtime sources in
+`research/windows61/v27-sources/`.
+
+
+V29 is diagnostic-only:38/38 build tasks,28cached,7m45.034s,exit0;
+MSIX1.0.0.29,boot`mvtgmf2b`. Both pointer(1) and programmatic(3) native
+Focus calls succeed outside pointer dispatch and subsequent OS Right changes
+the accepted model. Inside touch-down, the selected peer is loaded/enabled,
+the SDK enum is numeric1, Focus returns booleantrue, and native FocusState is1.
+OS focus stays on that peer through movement, then becomes unnamed with both
+slider focus flags false after release; a real Right key changes neither
+model. A second direct call while held produces the same release loss.
+This proves a release-boundary failure, not a missing ref, wrong enum or
+unavailable Focus method. The diagnostic collection group's exit0 is not a
+component qualification pass.
+
+The v30 candidate attempted to restore focus through WinUI's typed
+`DispatcherQueueHandler` after release processing. It cancels pending work
+on another press, relevant configuration changes and teardown; the callback
+rejects unloaded/disabled/replaced/reparented peers and preserves a newer
+focus target outside its own non-tab-stop containers. It used no timer delay or retry loop. Microsoft documents the queue's serial callback and
+shutdown rejection behavior in
+[TryEnqueue](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.dispatching.dispatcherqueue.tryenqueue?view=windows-app-sdk-1.6).
+Nineteen focused source contracts pass (9compiler/runtime component cases,
+10mocked native lifecycle/focus cases; uncached Turbo26.29s,exit0).
+V30 builds38/38 tasks,28cached,8m19.915s,exit0; the pan and dispatcher markers
+are present in the emitted bundles. The v30 OS run records15/19 groups,boot`mvthfrwa`;11native peers and all220input/parent snapshots match. The320-DIP inline width/class/id host case passes. Release focus still fails for readonly/scalar/range, with the range readout assertion dependent on the interrupted lower-thumb scenario. The queued candidate is not a completed repair. An app-only v31 probe retains unchanged UI source and builds38/38 tasks,34cached,6m25.015s,exit0. Its first OS attempt fails viewport setup before semantic assertions; that failure is retained as `windy-v31-viewport-setup-*` and an unchanged-binary retry is pending.
+
+
+V31's unchanged-binary retry collects the queue diagnostic successfully,
+boot`mvtilsil` (collection only, not a feature pass). Touch-up reaches the
+component and creates the typed dispatcher delegate, but native TryEnqueue
+rejects it with`0x8000001C`: the object must support`IAgileObject`. Neither
+callback runs. Thus the queued candidate's failed native focus restoration
+cannot be diagnosed from its passing mocked scheduler tests. The same probe
+also sees no focused element from the scoped FocusManager reader while UIA
+and native FocusState prove focus; that reader needs separate qualification.
+The next diagnostic compares the existing Core UI dispatcher and native timer
+without changing the native DLL or relaxing ownership guards.
+
+
+V32's app-only diagnostic builds38/38 tasks,34cached,6m24.391s,exit0;
+MSIX1.0.0.32,boot`mvtj73q8`. Core `Utils.dispatchToMainThread` executes inline
+inside touch-up: focus still disappears on release and OS Right leaves47
+unchanged. The native global `setTimeout(callback, 0)` runs after touch-up
+returns, sees native FocusState0, successfully changes it to1, and preserves
+UIA focus; the next real Right changes52→53. Timer-then-Core-dispatch also
+works (58→59), with the callback on the UI thread. This is a diagnostic
+collection, not a clean Slider pass. All three SDK focus readers return no
+element while native FocusState1 and UIA prove focus: the scoped WithRoot,
+legacy no-argument and projected with-root forms. Changing the overload alone
+would therefore not establish a newer-focus guard.
+
+The clean v33 candidate uses that proven zero-delay native task, cancels it
+on a new press/configuration change/unmount, and checks model/native identity,
+load/enabled state and XamlRoot before restoring focus. A same-root NativeScript
+view-tree scan checks native Control.FocusState when the SDK reader returns
+null; it permits the selected peer and its non-tab-stop ancestors and preserves
+another focused control. This guard's broader hosted-control/race matrix remains
+unqualified. No native DLL or shared layer-key implementation is changed.
+
+The first focused run passes12 native-peer contracts but cannot load the
+compiler/runtime suite: repeated PowerShell serialization grew the owned
+remote temporary UI manifest to736,392,631bytes, exceeding Node's package-config
+reader. Restoring the canonical manifest and using Node JSON serialization
+reduces it to10,779bytes. The uncached retry passes the complete21 source
+contracts through Turbo in2.915s,exit0 (9real compiler/runtime component cases,
+12mocked native lifecycle/focus cases). The failed environment run is retained
+as `windy-slider-source-contracts-21.log`; the passing retry is
+`windy-slider-source-contracts-21-retry.log`. The clean v33 native graph and
+OS qualification are pending; passing source mocks do not prove release focus.
+
+
+## V33 qualifies common Windows Slider input
+
+MSIX1.0.0.33 on windy x64, Windows10.0.26200.0 and
+WinAppSDK1.6.250205002 records19/19 real OS-input/UIA groups,exit0,
+boot`mvtk50fc`. The clean component uses the native zero-delay release task;
+there is no diagnostic observer, focus command or delegate monkeypatch.
+All242 input/parent geometry snapshots match, including11 named native peers
+and the320-DIP inline-width override of a360-DIP class on the same id/class/style
+host. Driver DPI awareness is per-monitor, app scale200%, with actual injected
+mouse MOVE and foreground/hit-process ownership checks. No images are captured.
+
+| Bounded public behavior | Native result |
+| --- | --- |
+| Keyboard and native automation | Tab skips disabled peers and visits both range thumbs; Arrow/Home/End and RangeValue changes request once; invalid bounds reject |
+| State ownership | Controlled acceptance/rejection, local defaults and prop reset preserve model ownership without echo |
+| Field guards | Modern/legacy disabled peers reject input; direct/inherited read-only peers remain focusable and reject changes |
+| Mouse/focus | Scalar cumulative pan, stationary no-jump, outside capture, nearest lower/upper selection, release focus and the next real Right key pass |
+| Values and content | Min-relative fractional steps, independent constrained range bounds, marks and formatted scalar/range text pass |
+| Lifetime and sizing | Native peer bounds match parent, id/class/style share a host, remount resets defaults with one live callback |
+
+The v33 prerequisite graph is38/38,28cached,6m27.654s,exit0, with generated pan
+and Slider markers. The standalone checker emits no diagnostics. The delegated
+checker is **not clean**:13diagnostics in12files, including one new Slider
+traversal annotation mismatch (ViewCommon child versus narrower Windows View).
+The correction uses only the native-view/child-iteration structural surface;
+TypeScript output is byte-identical before and after that type-only correction.
+The v33 OS results therefore qualify unchanged emitted behavior, but the corrected
+typing must be checked before the feature commit. V34 combines that check with an
+app-only RadioButton engine probe. The prior12diagnostics in11other files remain
+outside this task; do not treat a successful packaging task as a clean checker.
+
+The native read-only RangeValue flag remains false for direct/inherited
+read-only controls despite guarded rejection. Narrator, visual parity,
+hardware touch/pen/multitouch, hosted-control/newer-focus races, the full
+Field/prop/layout/window matrix, alternate versions/architectures and downstream
+consumers remain unqualified. `ui:Slider` and the broad issue row stay pending;
+a separate bounded scenario may record the19 passing groups. Source mocks of
+scheduling/focus ownership are not proof of broader OS race behavior.
+
+Artifacts: `windy-native-v33-slider-zero-task.log`,
+`windy-v33-native-exit.json`, `windy-v33-typecheck.log`,
+`windy-v33-native-task.log`, `windy-os-shared-slider-v33.log`,
+`windy-v33-shared-slider-os-results.json`,
+`windy-v33-shared-slider-current-boot-console.json`,
+`windy-v33-shared-slider-installed-package.json` and exact runtime sources in
+`research/windows61/v33-sources/`. Source-only behavior contracts are21/21
+(9real compiler/runtime component cases,12mocked native lifecycle/focus cases).
+
+## Next common control: RadioList engine feasibility
+
+`packages/demos/src/ComponentsDemo.tsrx` uses options and a disabled radio;
+sandbox RadioList examples use notification preferences, child rows and validation.
+Assume exclusive settings choices have greater demand than niche integrations.
+The selected native RadioGroup/RadioListItem currently renders tap-only Mason
+rows with no WinUI input peer. Before adopting a new public leaf, the bounded
+v34 app-only probe tests native RadioButton GroupName across distinct row parents,
+Tab/arrows, SelectionItem, group-wide rollback for rejected/read-only input,
+disabled peers, pointer activation, group isolation and remount. This is
+feasibility work, not proof of public RadioList support. No shared audit snapshot
+or AppKit/GTK leaf is changed.
+
+
+After the traversal annotation correction, all21 focused source contracts pass
+again through the uncached Turbo task,3.058s,exit0. The correction emits identical
+JavaScript to the v33 qualified helper. The v33 cleanup audit confirms own app0,
+installed identity/version33 and unchanged nativescript/Mason/Widgets DLL hashes.
+V34's bounded graph is running with the corrected source and the separate radio
+engine fixture; its native driver parses successfully before input. The normal
+UI native suite, package/dependent typechecks, packed consumers and full docs
+checks remain deferred:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/cli
+pnpm exec turbo run typecheck --filter=...@octane-xplat/patches
+pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+The process-local read-only YAML loader validates22release notes and patch sync;
+`pnpm check:recipes` passes structure/local links. Changed public/skill/note
+snippets parse33TS/TSX fences (syntax only). These checks do not substitute for
+the deferred commands, release/frozen-lock adoption or consumer qualification.
+
+
+V34's graph completes38/38,28cached,6m36.276s,exit0. The corrected traversal
+annotation produces no Slider diagnostic; delegated checking returns to the
+prior12diagnostics in11other files, while the standalone checker has no
+diagnostics. No new radio-engine diagnostic is reported. This resolves the
+feature's own typing problem without changing its v33 runtime behavior.
+The independent v34 RadioButton OS run is in progress; public RadioList support
+is still pending. Logs: `windy-native-v34-radio-engine.log`,
+`windy-v34-native-exit.json`, `windy-v34-typecheck.log`,
+`windy-v34-native-task.log`. The Slider feature may now be committed with the
+bounded19-group native evidence,21 source contracts and the stated wider limits.
