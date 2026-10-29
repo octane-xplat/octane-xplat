@@ -126,6 +126,15 @@ behavior on both Mason and Gtk.Box hosts. A standalone item stays
 presentational. Maintained checks cover actual X11 keys/pointer input and
 Mason field/metadata/layout contracts; they do not establish AT-client output.
 
+NumberInput reuses the shared native field and TextInput owners. Keep numeric
+value/null authority separate from editable decimal/exponent text: an accepted
+draft stays while editing, rejected controlled numbers restore the owner, and
+blur applies formatValue. Clear reports null before onClear and focuses the
+retained editor. Units/steppers/clear parts must not replace it. The native-only
+row class describes this host structure; the web leaf owns a different tree.
+GTK checks include real X11 input and field metadata; phone, IME and AT-client
+behavior are separate qualification.
+
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
 handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have

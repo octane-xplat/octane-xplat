@@ -249,6 +249,11 @@ NativeScript's enum has no radio-group role; only that container uses the
 documented inert fallback. The renderer keeps radio focus grouped on both
 Mason and Gtk.Box hosts, with pointer focus independent of activation.
 
+NumberInput uses the same native TextInput implementation through a persistent
+field frame. Put the control id on the editor, retain keyed optional actions,
+and publish native sensitivity plus field metadata. Keep a number draft only
+while it matches the owning numeric value; format the committed value on blur.
+
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property

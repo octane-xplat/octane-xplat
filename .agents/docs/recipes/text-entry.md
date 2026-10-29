@@ -174,10 +174,17 @@ parts, field defaults and native state checks. It runs keyboard/pointer cases
 with both Mason and the Gtk.Box fallback; broader layout/value comparisons use
 Mason.
 
+The [GTK numeric field guide](../../../docs/platform/linux-gtk.md#numeric-fields)
+and public-root [number fixture](../../../packages/linux-gtk-renderer/test/ui-number-input.test.mjs)
+cover AC8: explicit controlled null stays empty, both text clearing and the
+clear action report null, and omitted values retain a local owner seeded once
+by defaultValue. Actual X11 editing, stepping and clear input exercise these
+contracts alongside controlled rejection and field ownership.
+
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
 recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance
-and keyboard insets (AC4/AC7), NumberInput (AC8), modal isolation and Presence
+and keyboard insets (AC4/AC7), modal isolation and Presence
 exit (AC5) remain unqualified. GTK coverage and exact-criterion verification
 are recorded separately in Silo's gtk_recipe_checks; widget fixtures do not
 qualify packaged consumers.

@@ -2176,3 +2176,51 @@ examples, recipes, UI barrels,53 release notes, focused TS/JSON/test formatting
 and whitespace pass. Andromeda logs: /tmp/gtk-radio-root-pack.log and
 /tmp/gtk-radio-root-doc-site.log. The source review includes the semantic diff
 and the new radio traversal/controller/test modules. No dependencies were added.
+
+
+## Public GTK numeric fields
+
+The shared native NumberInput leaf now delegates label/status/defaults/width to
+one persistent field frame. TextInput retains the native editor while keyed
+units, steppers and clear controls change. An explicit Field supplies the same
+defaults without another frame. The editor owns the control id and metadata;
+actions have named button roles and native sensitivity. A native-only row
+class describes this leaf's tree without changing the separate web/AppKit trees.
+
+The baseline at e023bc2af completed29 checks with12 failures in field width/
+name/help/id, stepper semantics, units/stepper/clear/format props, busy/invalid
+metadata and inherited size (guest /tmp/gtk-number-first.log). The first shared
+fix passed29 checks plus SearchInput76. Feedback
+9f479690-d670-48a0-b7b5-a0b66e43fad0 preserves the original expectation.
+
+Real X11 input then found one failure in51 checks: rewriting3. as3 erased the
+decimal point before the next digit (/tmp/gtk-number-editing-first.log;
+feedback0902fa4e-d6f7-4dcc-baa5-51d9feac24b8). Numeric drafts now survive only
+while they describe the owning numeric value, so controlled rejection restores
+the owner. Focus exposes raw numeric text; blur applies formatValue. The broader
+direct-source case passed97 checks, and the final public-root case passes102.
+
+Those102 checks cover signed/leading decimals and exponents, raw editing of a
+formatted value, committed formatting, bounds/steps, number/null, clear callback
+ordering/focus, local/default/controlled acceptance and rejection, horizontal
+geometry, field width/name/help/state/size/optionality, prop/style/class resets,
+external Field ownership, editor retention and retired handlers. The real
+Linux target is Ubuntu24.04.5 amd64, GJS1.80.2 and GTK4.14.5, with Xvfb/xdotool.
+Logs: guest /tmp/gtk-number-{draft,public,root-full}.log.
+
+The final suite passes53 maintained Linux renderer tests with no skips. All62
+affected/dependent typecheck tasks pass, including exact equality for every GTK
+runtime value and both number prop types. Native tests pass58 Node checks and
+464 object-driver tests; selected web number/field/role tests pass50. Six UI
+packed-export/declaration tasks and28 docs build/test tasks pass, alongside
+docs141 pages/links,1133 parsing examples,55 release notes, recipes, UI barrels,
+focused TS/JSON/test formatting and whitespace. Andromeda logs use
+/tmp/gtk-number-{root-types,root-native,web,root-pack,root-doc-site}.log.
+
+Availability is60 runtime values/95 types. Text-entry AC8 now has an explicit
+GTK guide plus runtime proof for empty/control/local ownership; AC3 remains
+partial, and the recipe's IME/AT-client/OSK/inset/modal/Presence criteria stay
+open. v0.17.1 already declared field width/state and decimal numbers, so their
+native correction gets a fix note; the later units/clear/format additions are
+included in GTK's availability note. No phone runtime, images, pixel parity,
+IME, Wayland or AT-client speech/navigation was qualified.

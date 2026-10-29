@@ -950,6 +950,9 @@
 	}
 
 	/* InputNumber — steppers flanking a centered field. */
+	.vx-inputnumber--native { display: flex; flex-direction: row; align-items: center; width: 100%; min-width: 0; }
+	.vx-inputnumber--native > .vx-input-shell { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+	.vx-inputnumber--native > .vx-inputnumber-step, .vx-inputnumber--native > .vx-inputnumber-clear { flex-shrink: 0; }
 	.vx-inputnumber-step {
 		border-width: 1px;
 		border-color: var(--color-border);

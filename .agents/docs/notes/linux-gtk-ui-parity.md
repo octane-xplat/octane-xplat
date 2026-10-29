@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 59 runtime values and 93 types in index.gtk.ts, including
+Current availability is 60 runtime values and 95 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList and RadioListItem. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem and NumberInput. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1066,3 +1066,23 @@ for the baseline, fixes, contracts and explicit limits. Text-entry AC3 gains
 radio evidence while retaining partial coverage and its unexecuted complete
 criterion. Remaining inputs/parts, Image, overlays, navigation, theme and
 services stay under the full parity goal; no partial-surface PR is opened.
+
+
+### Public GTK numeric fields
+
+NumberInput and both existing number prop types reuse the shared native leaf.
+Availability is60 values/95 types. One persistent field frame owns the label,
+status, defaults and width; optional actions retain the editor. Numeric drafts
+preserve signed decimals/exponents while accepted, restore rejected controlled
+owners, and show formatted values after blur.
+
+The public-root case passes102 checks with real X11 keyboard/pointer input.
+All53 Linux renderer tests pass without skips;62 affected/dependent typecheck
+tasks,58 Node checks,464 native object-driver tests,50 selected web tests,
+6 package validation and28 docs build/test tasks pass. See
+[the numeric-field evidence](linux-gtk-renderer.md#public-gtk-numeric-fields)
+for the baselines, fixes and exact limits. Text-entry AC8 now has complete
+coverage and runtime proof; the other partial/missing criteria are preserved.
+CheckboxList/Item and remaining inputs/parts, Image, overlays, navigation,
+theme and services remain under the full parity goal. No partial-surface PR
+has been opened.

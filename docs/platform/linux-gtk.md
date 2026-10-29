@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList and RadioListItem.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem and NumberInput.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -257,6 +257,41 @@ export function Payment() {
         <RadioListItem value="card" label="Card" endContent={<Text>No fee</Text>} />
         <RadioListItem value="cash" label="Cash" isDisabled />
       </RadioList>
+    </Field>
+  )
+}
+```
+
+## Numeric fields
+
+Use NumberInput for a number with optional increment and decrement buttons.
+Set min, max and step to bound changes, and units to show a suffix. A formatted
+value appears after leaving the editor; editing uses the raw number.
+
+```tsx
+import { NumberInput } from '@octane-xplat/ui'
+
+export function Weight() {
+  return <NumberInput label="Weight" width={280} defaultValue={2.5}
+    min={0} max={10} step={0.5} units="kg" hasClear
+    formatValue={value => value.toFixed(2)} />
+}
+```
+
+An empty number is null. Omit value and use defaultValue for local state, or
+pair value with onValueChange to keep state in the parent. The clear action
+reports null before calling onClear; hasNumberSteppers={false} hides the buttons.
+
+```tsx
+import { useState } from 'octane'
+import { Field, NumberInput } from '@octane-xplat/ui'
+
+export function Quantity() {
+  const [quantity, setQuantity] = useState<number | null>(null)
+  return (
+    <Field label="Quantity" width={280}>
+      <NumberInput value={quantity} onValueChange={setQuantity}
+        hasNumberSteppers={false} hasClear onClear={() => console.log('Cleared')} />
     </Field>
   )
 }

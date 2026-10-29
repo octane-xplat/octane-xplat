@@ -104,3 +104,6 @@ type RadioListItemPropsContract = Assert<
 	Equal<GtkUI.RadioListItemProps, NativeUI.RadioListItemProps>
 >
 type RadioOptionContract = Assert<Equal<GtkUI.RadioOption, NativeUI.RadioOption>>
+
+type InputNumberPropsContract = Assert<Equal<GtkUI.InputNumberProps, NativeUI.InputNumberProps>>
+type NumberInputPropsContract = Assert<Equal<GtkUI.NumberInputProps, NativeUI.NumberInputProps>>
