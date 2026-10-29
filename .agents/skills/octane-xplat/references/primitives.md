@@ -127,7 +127,10 @@ when deciding which appearance and behavior must match across targets.
 self-drawn shared components: their shared props produce the same component
 design across targets, rather than exposing OS chrome. Color parts report
 `'#rrggbb'` hex through `onChange`/`onChangeEnd`; `ColorSlider` is hue-only
-and drags are delta-based like `Slider`. `Slider` follows pan
+and drags are delta-based like `Slider`. `ColorArea`/`ColorSlider` are Tab
+stops on web and AppKit (Arrow 1°/1%, Shift 10×) and expose assistive
+increment/decrement on iOS, Android and AppKit (hue 10°, brightness 5%);
+AppKit keyboard/VoiceOver delivery is unqualified. `Slider` follows pan
 deltas and does not jump to a tapped track position. On web it is a Tab stop:
 Arrow keys change 1% of its range, and Home/End choose the bounds. Pair
 `value` with `onValueChange` to display the change. `Drawer` has no edge-swipe

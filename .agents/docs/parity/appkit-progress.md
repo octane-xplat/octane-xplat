@@ -9973,3 +9973,51 @@ pnpm check:docs
 pnpm check:doc-examples
 pnpm check:changelog
 ```
+
+## AppKit color control keyboard and assistive adjustment
+
+Tracked in #78 (successor to #62). Source review at 9665f2b04 found
+`ColorSlider.macos` and `ColorArea.macos` defined an `adjust` function but
+never wired it. They exposed only an adjustable role and label: no value, no
+increment/decrement, no keyboard handling and no responder, so the controls
+(and the pair inside `ColorPicker`) were pointer-only on AppKit. Web leaves
+have Tab focus and arrow keys; mobile leaves have assistive increment/decrement.
+
+Both views now:
+
+- read a `latest` props ref, so retained handlers never replay a stale value;
+- share one committed `move` path (clamp, `onHsb`, `onHsbEnd`);
+- take arrow keys through `useKeyboard` (hue ±1°, saturation/brightness ±1%,
+  Shift ×10), ignoring disabled, prevented, composing and Control/Option/Command
+  events;
+- become first responder on tap and at pan start;
+- expose numeric AXSlider metadata (hue 0–360, brightness 0–100), a text
+  `accessibilityValueDescription`, `disabled`/`accessibilityState`, and assistive
+  increment/decrement (hue 10°, brightness 5%, as on mobile), dropped when
+  disabled.
+
+The renderer returns AXSlider values as NSNumber, so the description carries the
+readable text. Public props, shared/web/mobile leaves and the renderer are
+unchanged.
+
+Five new cases in `color-controls.macos.mobile.test.tsrx`, all UNRUN: slider
+metadata/assistive steps/clamping/callbacks, slider keys, disabled behavior,
+area channels/clamping, and the picker's slider path. The app guide gains a
+Color controls section (and a Date controls heading, separating content that
+sat under Slider on AppKit). Octane primitives reference and release note
+`.changelog/appkit-color-control-input.md` updated. No recipe covers color
+controls. Lightweight verification only: test file parsed with the TypeScript
+parser (zero diagnostics); TSRX view edits parse-checked in isolation;
+whitespace clean. Actual responder/Tab order, key delivery, VoiceOver
+announcements and adjustment, and pan/tap coexistence on one view remain
+unqualified.
+
+Exact deferred commands (DO NOT RUN until explicit human authorization):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/components/forms/color-controls.macos.mobile.test.tsrx src/components/forms/slider.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```

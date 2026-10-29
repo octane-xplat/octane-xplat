@@ -650,6 +650,8 @@ export function LockedVolume() {
 }
 ```
 
+### Color controls
+
 `ColorPicker` renders a fixed layout — a saturation/brightness `ColorArea`, a
 hue `ColorSlider`, then a `ColorSwatch` and `ColorField` row — sharing one
 color state, so dragging brightness to black and back keeps the hue. Color
@@ -672,6 +674,28 @@ export function FavoriteColor() {
 	)
 }
 ```
+
+`ColorArea` and `ColorSlider` also work without a pointer. On web and native
+macOS, each one is a Tab stop. Arrow keys move the hue by 1° or the
+saturation and brightness by 1%; hold Shift to move ten times as far. Screen
+readers on iOS, Android and native macOS can adjust them too: each increment
+moves the hue by 10° or the brightness by 5%. Give a standalone control a
+label so the screen reader can name it.
+
+```tsx
+import { useState } from 'octane'
+import { ColorSlider } from '@octane-xplat/ui'
+
+export function AccentHue() {
+	const [color, setColor] = useState('#4488ff')
+	return <ColorSlider channel="hue" value={color} onChange={setColor} accessibilityLabel="Accent hue" />
+}
+```
+
+On native macOS, keyboard adjustment, VoiceOver adjustment and focus come from
+source that has not yet been checked on a running Mac.
+
+### Date controls
 
 Date controls use portable ISO strings: `YYYY-MM-DD`, `HH:MM[:SS]`, and
 `YYYY-MM-DDTHH:MM[:SS]`. Date-time strings have no timezone suffix; they

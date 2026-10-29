@@ -6,19 +6,24 @@ import type { ColorAreaViewProps } from '../../internal-props'
 import { cx } from '@octane-xplat/lib'
 import { useMeasure } from '../layout/useMeasure'
 import { usePan } from '../layout/pan'
+import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
 import { nativeAccessibilityRole } from '../overlays/escape-props'
 import { LinearGradient } from '../media/LinearGradient'
-import { hsbToHex, type Hsb } from '../../theme/color'
+import { clampHsb, hsbToHex, type Hsb } from '../../theme/color'
 import { useColorState } from '../../theme/color-state'
 
 const THUMB = 16
 
 /** Internal 2D area view — saturation left→right, brightness top→bottom.
- *  Drag is delta-based (no tap-to-position v1); a11y adjust steps brightness. */
+ *  Drag is delta-based (no tap-to-position v1); arrows step 0.01 (Shift 0.1)
+ *  on the matching channel, assistive increment/decrement steps brightness
+ *  by 0.05. */
 export function ColorAreaView(props: ColorAreaViewProps) @{
 	const measure = useMeasure()
 	const drag = useRef<Hsb | null>(null)
 	const host = useRef<any>(null)
+	const latest = useRef(props)
+	latest.current = props
 	// Stable ref identity: a fresh callback each render would rebind
 	// useMeasure (null → el), reset bounds, and re-render forever.
 	const bindHost = useCallback((el: any) => {
@@ -30,6 +35,13 @@ export function ColorAreaView(props: ColorAreaViewProps) @{
 	const h = measure.bounds?.height ?? 0
 	const { s, b } = props.hsb
 
+	const focusHost = () => {
+		const target = host.current
+		if (target && !latest.current.isDisabled) {
+			target.window?.makeFirstResponder(target)
+		}
+	}
+
 	const onPan = usePan((e: PanEvent) => {
 		if (props.isDisabled) {
 			return
@@ -37,6 +49,7 @@ export function ColorAreaView(props: ColorAreaViewProps) @{
 
 		if (e.state === 'began') {
 			drag.current = { ...props.hsb }
+			focusHost()
 			return
 		}
 
@@ -59,14 +72,50 @@ export function ColorAreaView(props: ColorAreaViewProps) @{
 		}
 	})
 
-	const adjust = (dir: number) => {
-		if (props.isDisabled) {
+	// Committed adjustment shared by arrow keys and assistive actions — reads
+	// the latest props so retained handlers never replay a stale hsb.
+	const move = (next: Partial<Hsb>) => {
+		const current = latest.current
+		if (current.isDisabled) {
 			return
 		}
 
-		props.onHsb({ ...props.hsb, b: Math.min(1, Math.max(0, b + dir * 0.05)) })
-		props.onHsbEnd()
+		current.onHsb(clampHsb({ ...current.hsb, ...next }))
+		current.onHsbEnd()
 	}
+	const adjust = (dir: number) => move({ b: latest.current.hsb.b + dir * 0.05 })
+
+	const { keyboardProps } = useKeyboard({
+		onKeyDown: (event) => {
+			const current = latest.current
+			if (current.isDisabled || event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) {
+				return
+			}
+
+			const step = event.shiftKey ? 0.1 : 0.01
+			let ds = 0,
+				db = 0
+			switch (event.key) {
+				case 'ArrowRight':
+					ds = step
+					break
+				case 'ArrowLeft':
+					ds = -step
+					break
+				case 'ArrowUp':
+					db = step
+					break
+				case 'ArrowDown':
+					db = -step
+					break
+				default:
+					return
+			}
+
+			event.preventDefault()
+			move({ s: current.hsb.s + ds, b: current.hsb.b + db })
+		},
+	})
 
 	const thumbX = Math.min(Math.max(s * w - THUMB / 2, 0), Math.max(w - THUMB, 0))
 	const thumbY = Math.min(Math.max((1 - b) * h - THUMB / 2, 0), Math.max(h - THUMB, 0))
@@ -77,6 +126,16 @@ export function ColorAreaView(props: ColorAreaViewProps) @{
 		style={mergeStyle({ display: 'grid', height: 160 }, styleRecord(props.style))}
 		accessibilityRole={nativeAccessibilityRole('adjustable')}
 		accessibilityLabel={props.accessibilityLabel ?? 'color'}
+		accessibilityValue={String(Math.round(b * 100))}
+		accessibilityMinValue={0}
+		accessibilityMaxValue={100}
+		accessibilityValueDescription={`saturation ${Math.round(s * 100)}%, brightness ${Math.round(b * 100)}%`}
+		accessibilityState={{ disabled: Boolean(props.isDisabled) }}
+		disabled={props.isDisabled}
+		{...keyboardProps}
+		onTap={focusHost}
+		onAccessibilityIncrement={props.isDisabled ? undefined : () => adjust(1)}
+		onAccessibilityDecrement={props.isDisabled ? undefined : () => adjust(-1)}
 		onPan={onPan}
 		ref={bindHost}
 	>
