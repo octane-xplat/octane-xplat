@@ -255,7 +255,7 @@ export {
 	useTableColumnSettingsState,
 } from './table/use-table-column-settings'
 
-export { useTableColumnResize } from './table/use-table-column-resize'
+export { useTableColumnResize } from './table/use-table-column-resize.macos.tsrx'
 export { useTableFilterState } from './table/use-table-filter-state'
 export { useTableFiltering } from './table/use-table-filtering'
 export { useTableStickyColumns } from './table/use-table-sticky-columns'

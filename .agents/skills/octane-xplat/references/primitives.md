@@ -586,6 +586,23 @@ function ExampleTable() {
 }
 ```
 
+AppKit useTableColumnResize now applies current controlled widths to the full
+column plan, so header/body/minimum scroll sizing share the override. Removing
+it restores the original width; locked columns still accept programmatic
+values. Finite nonnegative values are required; invalid visible values reject
+the transform under existing plugin error isolation. Unknown keys are ignored.
+Native resize gestures, separators, min/max gesture constraints and completion
+callbacks remain unimplemented; native layout/update behavior is unrun.
+
+```tsx
+import { Table, pixel, useTableColumnResize } from '@octane-xplat/ui'
+export function ResizedTable() {
+  const resize = useTableColumnResize({ columnWidths: { name: 320 } })
+  return <Table data={[{ name: 'Ada' }]} columns={[{ key: 'name', width: pixel(180) }]}
+    plugins={{ columnResize: resize }} />
+}
+```
+
 ## Rich and streamed text
 
 Use `@octane-xplat/ui/markdown` for `Markdown` and `useStreamingText`; chat

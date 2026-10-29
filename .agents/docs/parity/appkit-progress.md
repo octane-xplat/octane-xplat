@@ -6209,3 +6209,62 @@ trackpad/momentum/RTL/nested scrolling, header/body and plugin sizing, empty/
 refill, ref cleanup, accessibility and clean installed supported-macOS consumers
 before qualification. Frozen-install/task-graph deferrals remain. Evidence gates
 and source audit snapshots unchanged; persistent goal active.
+
+## AppKit controlled Table column-width plan
+
+While tracing native sticky placement, source review found the next sizing
+prerequisite: the native columnResize fallback wrote controlled widths only to
+header htmlProps.style. AppKit flex body cells and plan.tableMinWidth still used
+unmodified column definitions, so a controlled width could misalign the header,
+body and scroll range. Shared web HTML table sizing can propagate header widths;
+that is not an AppKit flex-row sizing mechanism. Astryx ColumnResizeHookUsage
+and TableResizableTable provide concrete demand evidence for current controlled
+widths. Sticky placement has not been added by this increment.
+
+An AppKit hook/export now creates a stable plugin whose transformColumns reads
+current config before width/header/body planning. It copies only changed
+columns into pixel widths, preserving original definitions and metadata.
+Removing overrides restores the source pixel/proportional widths. Explicit
+programmatic values apply even to resizable=false columns, matching the web
+controlled-value distinction from gesture locking. There are no programmatic
+callback echoes. Unknown or inherited keys are ignored; visible values must be
+finite nonnegative numbers, including zero. Invalid values throw before any
+caller mutation; existing Table plugin isolation logs and skips the transform,
+rather than applying a partial set. min/max gesture limits, native separators,
+drag/keyboard resize interactions and onColumnResizeEnd dispatch remain gaps.
+No shared hook behavior/public type/API/dependency changed.
+
+Five plan integration cases are authored, UNRUN: header/body/scroll minimum
+alignment; current config/zero/removal/frozen caller preservation/no callback;
+reordered/synthetic columns plus shared sticky offset resolution; inherited and
+absent map keys; invalid values with pipeline isolation. Two universal compiler
+cases (HMR off/on) now include the AppKit hook, also UNRUN. Existing manual
+Table fixture adds controlled-width toggle/removal and a locked column; native
+metrics are read only after a human action. Public table guide, primitive skill,
+existing feature note and recipe AC5 reconcile this source subset.
+
+The native sticky design must account for the renderer's Auto Layout placement
+pins and native sibling ordering: direct frame writes are overwritten and a
+visual-only layer offset would not establish hit-testing. Source graph reads
+located those constraints, but no new placement/stacking mechanism or sticky
+support is claimed. Actual native geometry/focus/interaction remains deferred.
+
+Exact deferred commands, requiring this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+pnpm exec turbo run test:macos --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit controlled table-width package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Six TS/TSRX/MJS files syntax parsed; source/semantic and whitespace checks only.
+No compiler transform execution, tests, typechecks/builds, probe/native/OS/AX, packaging or
+visual analysis ran. Native header/body/scroll-range resize geometry, plugin
+ordering/re-render/ref lifetimes, input/RTL/focus/AX and clean installed macOS
+consumers remain unqualified. Source snapshots and evidence checkboxes unchanged;
+persistent goal active. Column pinning and native interactive resizing remain gaps.

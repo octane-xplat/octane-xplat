@@ -166,3 +166,22 @@ lifetimes, accessibility and clean packaged consumers remain unqualified.
 ```sh
 pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
 ```
+
+
+Controlled column widths on AppKit now update the column plan before header,
+body and minimum scroll width are calculated. Removing an override restores
+the original definition, including a proportional width. Controlled values
+must be finite and nonnegative; invalid visible-column values reject the
+resize transform through Table's existing plugin-error isolation. Unknown keys
+are ignored. Programmatic writes do not emit onColumnResizeEnd; minWidth,
+maxWidth and resizable govern interactive gestures, which are not implemented
+on AppKit. Actual native alignment and updates remain unqualified.
+
+```tsx
+import { Table, pixel, useTableColumnResize } from '@octane-xplat/ui'
+export function WideName() {
+  const columnResize = useTableColumnResize({ columnWidths: { name: 320 } })
+  return <Table data={[{ name: 'Ada' }]} columns={[{ key: 'name', width: pixel(180) }]}
+    plugins={{ columnResize }} />
+}
+```

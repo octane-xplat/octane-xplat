@@ -17,7 +17,11 @@ before column pinning can work.
 - AC3: Preserve scroll-wrapper classes/styles and before/after slots. Forward wrapper refs to NSScrollView and public Table ref to inner content; do not imply support for DOM handlers/attributes or pinned positioning.
 - AC4: Maintain a manual narrow/wide, auto/bounded-height, empty/refill, mixed-width, plugin-slot/ref metrics fixture. Distinguish syntax/source evidence from native layout, trackpad/wheel/RTL, nested scrolling, ref teardown, accessibility and clean packaged-consumer qualification. Sticky columns remain a gap.
 
+- AC5: Current controlled columnResize widths transform the resolved column definitions before width/header/body planning. Removing overrides restores original proportional/pixel widths; locked columns accept programmatic values without callback echoes. Ignore unknown/inherited keys and reject invalid visible values under plugin isolation. Document missing native gesture/separator/min-max/callback support and keep native updates unqualified.
+
 ## Documentation
 
 - AC1–AC4: [AppKit table guide](../../../docs/tables.md#wide-data-tables-on-appkit), Octane primitive reference and [target note](../parity/appkit-progress.md#appkit-data-table-horizontal-viewport-source-path).
 - AC4: [Manual fixture](../../../examples/probes/table-scroll.macos.tsrx), authored but unrun. Existing pipeline/width tests do not prove native viewport layout or scrolling.
+
+- AC5: Five [plan integration cases](../../../packages/ui/src/table/column-resize-plan.macos.test.ts) and the manual fixture width toggle, all unrun; app guide and primitive reference explain controlled widths. See the [width-plan source note](../parity/appkit-progress.md#appkit-controlled-table-column-width-plan).
