@@ -62,6 +62,7 @@ export declare namespace JSX {
 		NativeElements<HostElement>,
 		| 'label'
 		| 'masonview'
+		| 'textfield'
 		| 'proxyviewcontainer'
 		| 'formattedstring'
 		| 'span'
@@ -73,6 +74,8 @@ export declare namespace JSX {
 		masonview: NativeElements<HostElement>['masonview'] & { accessibilityOrientation?: 'horizontal' | 'vertical' }
 		/** AppKit AXHeading metadata; prefer ui's Heading level prop. */
 		label: NativeElements<HostElement>['label'] & { accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6 }
+		/** CSS color string for the AppKit placeholder; prefer ui's TextInput placeholderTextColor prop. */
+		textfield: NativeElements<HostElement>['textfield'] & { placeholderTextColor?: string }
 		proxyviewcontainer: Attributes<LogicalElement>
 		tabview: Attributes<HostElement, TabViewProps<HostElement, TabViewItemHandle>>
 		tabviewitem: Attributes<TabViewItemHandle, TabViewItemProps>

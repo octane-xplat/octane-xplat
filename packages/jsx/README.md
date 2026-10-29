@@ -73,6 +73,16 @@ do not prove native heading behavior.
 const heading = <label accessibilityRole="heading" accessibilityHeadingLevel={2} text="Account" />
 ```
 
+The AppKit textfield declares `placeholderTextColor`, a CSS color string for its
+placeholder text. Application screens should prefer ui's TextInput
+`placeholderTextColor` prop, which forwards to it. This addition applies only
+under macos conditions.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+const search = <textfield placeholder="Search" placeholderTextColor="#8a8a8e" />
+```
+
 ## Augmentation
 
 The shared event vocabulary includes `onKeyDown`/`onKeyUp` and the normalized
