@@ -44,6 +44,10 @@ config continues to select the actual tsrx compiler and platform. `--project`
 selects the target whose project path matches; `--target` selects a named
 target directly.
 
+For a complete component/package/app workflow, start with
+[Publish a reusable component library](../../docs/app/component-libraries.md).
+This page owns generator configuration and checks.
+
 ## What generation writes and checks
 
 Generation writes only TypeScript declaration files under the config's

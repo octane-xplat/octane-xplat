@@ -116,6 +116,31 @@ The generic declaration gate pairs runtime and type exports. Keep separate
 packed-consumer checks for pure type facades or Node tooling with mixed export
 formats; see the [checker boundary](../../../../packages/tsrx-typegen/README.md#publish-checks).
 
+## Build a reusable library
+
+Use the [component-library guide](../../../../docs/app/component-libraries.md)
+and creator's `--template library` for web/iOS/Android source packages. Keep
+public props/exports aligned, declare app runtimes as peers, and regenerate
+ignored declarations before linked consumers check types. A link may resolve
+a second physical Octane copy even at the same version; qualify resolution
+through the app and finish with a real tarball. Do not treat plain TypeScript
+type acceptance as source compilation or native runtime qualification.
+
+```sh
+pnpm create octane-xplat travel-controls --template library --name @acme/travel-controls
+# In the generated package:
+pnpm typegen
+pnpm test:packed
+```
+
+The repository's focused non-browser qualification packs the creator/framework,
+installs an independent library and consuming web app, checks plain TypeScript
+conditions and compiles the installed library into production output:
+
+```sh
+pnpm exec turbo run test:library --filter=create-octane-xplat
+```
+
 ## Linked native source packages
 
 Keep the canonical NativeScript Vite patch set when developing against source

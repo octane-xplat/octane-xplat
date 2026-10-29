@@ -30,6 +30,13 @@ Bamboo's runtime preset/types and `@bamboocss/dev` must also stay aligned at
 1.60.1: mixing the older dev package with the new preset makes mobile and
 Windows configuration typechecks fail on the added `Mask` utility group.
 
+Independent app/library installs do not yet inherit the root's
+`oxlint-tsgolint: 7.0.2005` override. The packed library qualification observed
+7.0.2002 against Oxlint 1.90.0's >=7.0.2005 optional peer requirement; `pnpm peers
+check` exited 1 while ordinary lint passed. Track consumer policy reconciliation
+in [#76](https://github.com/octane-xplat/octane-xplat/issues/76). Do not infer a
+type-aware lint crash or UI runtime defect from this dependency finding.
+
 Keep `regenerate` at one version across `regexpu-core` and
 `regenerate-unicode-properties`. Babel 8 resolved 1.5.0 for the former and
 1.4.2 for the latter; their `instanceof` checks then rejected each other's

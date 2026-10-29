@@ -1,0 +1,19 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"test:library": {
+			"dependsOn": [
+				"build",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/ui#typegen",
+				"@octane-xplat/jsx#typegen",
+				"@octane-xplat/platform#typegen",
+				"@octane-xplat/lib#typegen",
+				"tsrx-typegen#build",
+				"@octane-xplat/lint#build"
+			],
+			"cache": false
+		}
+	}
+}

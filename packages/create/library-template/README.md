@@ -82,3 +82,6 @@ in `package.json`, fill in the year and copyright holder in `LICENSE`, and
 confirm that every runtime import is declared. `pnpm test:packed` checks the
 package tarball's web and native type exports; it does not build or launch a
 consuming app on a device.
+
+Follow [Publish a reusable component library](https://octane-xplat.goddardai.org/component-libraries)
+for a complete app-to-tarball workflow, runtime ownership, assets and publication.

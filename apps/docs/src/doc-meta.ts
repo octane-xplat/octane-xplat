@@ -17,6 +17,7 @@ export const GROUPS = [
 		slugs: [
 			'primitives',
 			'components',
+			'component-libraries',
 			'text-entry',
 			'accessibility',
 			'local-storage',

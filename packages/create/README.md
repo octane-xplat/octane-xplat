@@ -49,6 +49,9 @@ scripts, and a packed-consumer check. Pass `--name @acme/my-controls` to set a
 scoped npm package name; otherwise the folder name becomes the package name.
 Library creation installs dependencies but does not start an app dev server.
 Desktop targets are not included in this starter.
+Follow [Publish a reusable component library](../../docs/app/component-libraries.md)
+for app-based development, generated types, packed consumers, assets and npm
+publication.
 
 The creator asks which platforms to target — web, iOS, and Android are all
 pre-selected. Pass `--targets` to skip the prompt:

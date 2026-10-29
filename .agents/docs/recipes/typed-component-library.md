@@ -30,6 +30,12 @@ The reader knows TypeScript project configs and package export conditions.
 
 ## Documentation
 
+The canonical [component-library guide](../../../docs/app/component-libraries.md)
+composes the creator, platform files, dependencies, declaration refresh, assets,
+packed consumers and publication. Maintained fixtures are the library template
+and [isolated app/library check](../../../packages/create/test/library-guide.mjs).
+The specialized references below retain exact generator and repository contracts.
+
 - AC1: [tsrx-typegen setup and configuration](../../../packages/tsrx-typegen/README.md).
 - AC2: [Generated declaration contract and source-extension mapping](../../../packages/tsrx-typegen/README.md).
 - AC3: [Generation and check mode](../../../packages/tsrx-typegen/README.md).
