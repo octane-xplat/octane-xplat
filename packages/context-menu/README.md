@@ -3,7 +3,9 @@
 Platform-specific context menus for Octane xplat apps: a SwiftUI
 `.contextMenu` on iOS, a Material 3 `DropdownMenu` anchored to a hosted
 trigger on Android, an in-page right-click menu on web, and a real
-`NSMenu` on the backing view on macOS.
+experimental `NSMenu` source path on native macOS. Native macOS activation,
+responder routing, keyboard/VoiceOver and installed-consumer qualification is
+pending.
 
 There is no shared context-menu component. Install the package in the app
 that renders a control, then import `SwiftUIContextMenu` from
@@ -12,7 +14,9 @@ that renders a control, then import `SwiftUIContextMenu` from
 `@octane-xplat/context-menu/web`, or `AppKitContextMenu` from
 `@octane-xplat/context-menu/macos` in the matching platform-suffixed file.
 
-From an existing Xplat app, install the package before using the example:
+Install in your existing app with pnpm. The macOS entry requires a
+[native AppKit app](https://octane-xplat.goddardai.org/macos-native); the renderer supplies
+its native menu attachment.
 
 ```sh
 pnpm add @octane-xplat/context-menu
@@ -72,16 +76,22 @@ export function Menu() {
 
 ```tsx
 // AppKitContextMenuExample.macos.tsx
+import { useState } from 'octane'
 import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
-import { Text } from '@octane-xplat/ui'
+import { Text, VStack } from '@octane-xplat/ui'
 
 export function Menu() {
+	const [last, setLast] = useState('none')
 	return (
-		<AppKitContextMenu
-			trigger={() => <Text>Trip actions</Text>}
-			items={[{ id: 'rename', title: 'Rename' }]}
-			onItemSelected={(id) => console.log(id)}
-		/>
+		<VStack gap={2}>
+			<AppKitContextMenu
+				id="trip-actions"
+				trigger={() => <Text>Trip actions</Text>}
+				items={[{ id: 'rename', title: 'Rename' }]}
+				onItemSelected={setLast}
+			/>
+			<Text>{`Last action: ${last}`}</Text>
+		</VStack>
 	)
 }
 ```
@@ -118,14 +128,35 @@ export function Actions() {
 - macOS: right-click — the NSMenu is the view's `menu`, so AppKit owns
   activation and disabled-item dimming; the trigger renders inline.
 
+On native macOS, item IDs must be unique strings and titles must be strings.
+Changing menu content or its record `id` retires the old session; callback-only
+renders preserve it and use the current handler. Empty items remove this
+wrapper's menu. Invalid data or a missing native attachment shows a generic
+unavailable message while the trigger remains inline. Native child editing menus
+and nested wrappers keep their own menu slots. See the
+[native macOS lifecycle and remaining limits](../../docs/platform/context-menu.md#native-macos-menus).
+
+```tsx
+// NoteActions.macos.tsx — use a record-specific identifier when reusing a row.
+import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
+import { Text } from '@octane-xplat/ui'
+export function NoteActions({ noteID }: { noteID: string }) {
+	return <AppKitContextMenu id={`note-actions-${noteID}`} items={[{ id: 'rename', title: 'Rename' }]}
+		trigger={() => <Text>Right-click this note</Text>} onItemSelected={(id) => console.log(noteID, id)} />
+}
+```
+
 ## How the native menus work
 
-Unlike props-only leaves (picker, date-picker), this leaf exercises subtree
-embedding: `trigger` is a render fn whose octane output mounts into a
+On iOS and Android this leaf exercises subtree embedding: `trigger` is a render
+fn whose octane output mounts into a
 detached root, and the native menu wraps that subtree — SwiftUI resolves it
 through `NativeScriptViewFactory` (the same factory the swift-ui plugin's
 `NativeScriptView` uses), and Android through the leaf's
 `XplatViewRegistry` + `AndroidView`.
+The macOS trigger stays in its original tree, with the menu attached only at
+its wrapper. AppKit's documented unhandled right-click propagation supplies
+ancestor lookup; actual custom-host routing remains unqualified.
 
 The native implementations are adapted from `@expo/ui` (MIT,
 `packages/expo-ui` sdk-57): `ios/ContextMenu/ContextMenu.swift` and

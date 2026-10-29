@@ -284,7 +284,7 @@ interface ContextMenuItem {
 
 /** Options published through `__xplatAppKit.attachContextMenu`. */
 interface ContextMenuOptions {
-	items?: ContextMenuItem[]
+	items?: readonly ContextMenuItem[]
 	[key: string]: any
 }
 
@@ -10015,9 +10015,11 @@ try {
 	console.error('[macos-leaf] menu target registration failed — context menus disabled', error)
 }
 
-/** Builds an NSMenu from serialized items and attaches it as `view.menu` —
- *  AppKit presents it on right-click and drives enablement. Returns a
- *  detach. */
+const contextMenuAttachments = new WeakMap<NSMenu, { active: boolean; previous: NSMenu | null }>()
+
+/** Attach at the wrapper only. Unhandled right-clicks follow AppKit's responder
+ * chain; descendant editing/nested menus retain their own menus, including views
+ * mounted later. Custom native responder behavior still needs OS qualification. */
 function attachContextMenu(
 	view: NSView,
 	options: ContextMenuOptions,
@@ -10029,83 +10031,78 @@ function attachContextMenu(
 		typeof NSMenu !== 'function' ||
 		typeof NSMenuItem !== 'function'
 	) {
-		return () => {}
+		return null
 	}
 
-	const menu = NSMenu.alloc().init()
-	menu.autoenablesItems = false
-	const created: number[] = []
-	for (const item of options?.items ?? []) {
-		// The shared item contract renders the divider AND the item's own row —
-		// a divider marks the row before it, not a separator-only item.
-		if (item?.divider) {
-			menu.addItem(NSMenuItem.separatorItem())
+	let menu: NSMenu
+	try { menu = NSMenu.alloc().init() } catch { return null }
+	if (!menu) return null
+	const state = { active: true, previous: null as NSMenu | null }
+	contextMenuAttachments.set(menu, state)
+	const created: { id: number; item: NSMenuItem }[] = []
+	let selecting = false
+	const detach = () => {
+		if (!state.active) return
+		state.active = false
+		for (const { id, item } of created) {
+			actionHandlers.delete(id)
+			try { item.target = null; item.action = null as unknown as string } catch {}
 		}
-
-		const menuItem = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(
-			String(item?.title ?? ''),
-			'menuItemSelected:',
-			'',
-		)
-
-		menuItem.target = menuActionTarget
-		if (item?.disabled) {
-			menuItem.enabled = false
-		}
-
-		const actionId = nextActionId++
-		menuItem.tag = actionId
-		const id = item?.id
-		actionHandlers.set(actionId, () => {
-			try {
-				onSelect?.(id)
-			} catch (error) {
-				console.error('[macos-leaf] context-menu selection failed', error)
-			}
-		})
-
-		created.push(actionId)
-		menu.addItem(menuItem)
-	}
-
-	// NSView.menu only answers right-clicks that hit *that* view — assign
-	// the menu across the subtree so trigger children don't swallow them.
-	// Children mounted after attach aren't covered (re-attach on items
-	// change re-walks).
-	const tagged: any[] = []
-	const assign = (hostView: any) => {
-		if (!hostView || typeof hostView !== 'object') {
-			return
-		}
-
+		try { menu.cancelTracking() } catch {}
 		try {
-			hostView.menu = menu
-			tagged.push(hostView)
-		} catch {}
-
-		const subviews = hostView.subviews
-		const count = typeof subviews?.count === 'function' ? subviews.count() : (subviews?.count ?? 0)
-
-		for (let i = 0; i < count; i++) {
-			assign(subviews.objectAtIndex(i))
-		}
-	}
-
-	assign(view)
-
-	return () => {
-		for (const hostView of tagged) {
-			try {
-				if (hostView.menu === menu) {
-					hostView.menu = null
+			if (view.menu === menu) {
+				let previous = state.previous
+				while (previous) {
+					const prior = contextMenuAttachments.get(previous)
+					if (!prior || prior.active) break
+					previous = prior.previous
 				}
-			} catch {}
+				view.menu = previous as NSMenu
+			}
+		} catch {}
+	}
+	try {
+		menu.autoenablesItems = false
+		state.previous = view.menu ?? null
+		for (const item of options?.items ?? []) {
+			// The shared item contract renders the divider AND the item's own row —
+			// a divider marks the row before it, not a separator-only item.
+			if (item?.divider) {
+				menu.addItem(NSMenuItem.separatorItem())
+			}
+
+			const menuItem = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(
+				String(item?.title ?? ''),
+				'menuItemSelected:',
+				'',
+			)
+
+			menuItem.target = menuActionTarget
+			const disabled = !!item?.disabled
+			menuItem.enabled = !disabled
+
+			const actionId = nextActionId++
+			menuItem.tag = actionId
+			const id = item?.id
+			created.push({ id: actionId, item: menuItem })
+			actionHandlers.set(actionId, () => {
+				if (!state.active || selecting || disabled || view.menu !== menu || !view.window) return
+				const enabled = (menuItem as any).isEnabled
+				const nativeEnabled = typeof enabled === 'function' ? enabled.call(menuItem) : enabled
+				if (nativeEnabled === false || nativeEnabled === 0) return
+				selecting = true
+				try {
+					onSelect?.(id)
+				} catch { console.error('[macos-leaf] context-menu selection failed') }
+				finally { selecting = false }
+			})
+
+			menu.addItem(menuItem)
 		}
 
-		for (const actionId of created) {
-			actionHandlers.delete(actionId)
-		}
-	}
+		view.menu = menu
+		return detach
+	} catch { detach(); return null }
 }
 
 const DATE_PICKER_STYLES = (

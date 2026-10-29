@@ -168,6 +168,85 @@ export function Actions() {
   gesture props (`longPress`/`singlePress`) don't exist: right-click is
   the only AppKit convention.
 
+## Native macOS menus
+
+In a [native AppKit app](macos-native.md), save this as `NoteActions.macos.tsx`
+and render it in a screen. Right-click the text and choose Rename to display the
+selected action. The experimental macOS source renders the trigger inline and
+uses the renderer's native menu attachment; no separate app bridge is needed.
+Actual pointer/keyboard/VoiceOver behavior remains pending qualification.
+
+```tsx
+import { useState } from 'octane'
+import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
+import { Button, Text, VStack } from '@octane-xplat/ui'
+
+export function NoteActions() {
+	const [note, setNote] = useState('note-a'), [last, setLast] = useState('none')
+	return <VStack gap={2}>
+		<Button label="Switch note" clickAction={() => setNote(note === 'note-a' ? 'note-b' : 'note-a')} />
+		<AppKitContextMenu id={`note-actions-${note}`} accessibilityLabel={`Actions for ${note}`}
+			items={[{ id: 'rename', title: 'Rename' }, { id: 'archive', title: 'Archive', disabled: true }]}
+			trigger={() => <Text>{`Right-click ${note}`}</Text>}
+			onItemSelected={(id) => setLast(`${note}:${id}`)} />
+		<Text>{`Last action: ${last}`}</Text>
+	</VStack>
+}
+```
+
+Item IDs must be unique strings, and titles must be strings. Changes to any item
+content, ordering or record-specific `id` retire the prior menu and request that
+native tracking end. Use a record-specific ID or remount when a row starts
+representing another record. Equal-content arrays and callback-only changes keep
+the native menu; selections reach the current callback. Disabled, removed,
+unknown, retired and reentrant actions are ignored. An empty array removes the
+wrapper's custom menu; invalid item data or unavailable native attachment displays
+a generic message while keeping the trigger content.
+
+```tsx
+// EmptyActions.macos.tsx — the trigger remains present without custom actions.
+import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
+import { Text } from '@octane-xplat/ui'
+export function EmptyActions() {
+	return <AppKitContextMenu items={[]} trigger={() => <Text>No custom actions</Text>} />
+}
+```
+
+The wrapper sets only its own native menu slot and restores an earlier menu on
+cleanup when it still owns that slot. Child controls keep native editing menus;
+nested wrappers keep their own actions. This design relies on AppKit's documented
+[unhandled right-click propagation](https://developer.apple.com/documentation/appkit/nsview?changes=_5_2),
+which also applies when a child is added later. Custom native views that consume
+events can alter routing, so ancestor lookup, Control-click, keyboard and AX menu
+actions still need target-specific input evidence. `destructive` remains a normal
+AppKit row; the flat-item API does not add native submenus or previews.
+
+```tsx
+// NestedActions.macos.tsx
+import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
+import { Text, VStack } from '@octane-xplat/ui'
+export function NestedActions() {
+	return <AppKitContextMenu items={[{ id: 'outer', title: 'Outer action' }]} trigger={() => <VStack gap={2}>
+		<Text>Outer actions</Text>
+		<AppKitContextMenu items={[{ id: 'inner', title: 'Inner action' }]}
+			trigger={() => <Text>Inner actions</Text>} onItemSelected={(id) => console.log(id)} />
+	</VStack>} onItemSelected={(id) => console.log(id)} />
+}
+```
+
+Eight owner-model and seven actual renderer-branch cases are authored, all unrun.
+The maintained demo adds late children, a native text field, nested menus, item/
+scope/callback changes, invalid/empty data and remount controls. For tracking-time
+checks, choose its delayed record change and open the menu before the timer fires;
+host timer progress during native tracking is also unqualified. Its probe only
+mounts that demo. Source/fake dispatch does not qualify native menu selection,
+responder propagation, tracking/cancellation, focus, VoiceOver, lifecycle timing
+or clean installed consumers.
+
+```sh
+pnpm probe run examples/probes/native-context-menu.macos.tsrx --target macos --watch
+```
+
 ## Port notes — what carried over
 
 The remaining sections are implementation notes for contributors. Native

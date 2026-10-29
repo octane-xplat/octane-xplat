@@ -1,6 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useEffect, useRef } from 'octane'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { AppKitContextMenuProps } from './macos/types'
+import { createContextMenuOwner } from './context-menu-owner.macos'
+import type { ContextMenuAttach } from './context-menu-owner.macos'
+import { cx } from '@octane-xplat/lib'
 
 const host = (): any => (globalThis as any).__xplatAppKit ?? {}
 
@@ -9,33 +12,30 @@ const host = (): any => (globalThis as any).__xplatAppKit ?? {}
  *  so AppKit drives right-click activation and disabled items. Items are
  *  serialized data; selection reports through `onItemSelected`. */
 export function AppKitContextMenu(props: AppKitContextMenuProps) @{
-	const anchor = useRef<any>(null)
-	// Selection must reach the latest handler — re-attaching the NSMenu on
-	// every callback change would churn the view's `menu` subtree.
 	const latest = useRef(props)
 	latest.current = props
-
-	useEffect(() => {
-		const view = anchor.current
-		const attach = host().attachContextMenu
-		if (!view || typeof attach !== 'function') {
-			return
-		}
-
-		return attach(view, { items: latest.current.items ?? [] }, (id: string) =>
-			latest.current.onItemSelected?.(id),
-		)
-	}, [props.items])
+	const [, rerender] = useState(0)
+	const owner = useMemo(() => createContextMenuOwner({
+		props: () => latest.current,
+		attach: () => typeof host().attachContextMenu === 'function' ? host().attachContextMenu as ContextMenuAttach : undefined,
+		status: () => rerender((n) => n + 1),
+	}), [])
+	useLayoutEffect(() => owner.update(), null)
+	useEffect(() => () => owner.dispose(), [])
 
 	<masonview
-		ref={(v: any) => {
-			anchor.current = v
-		}}
+		ref={owner.bind}
 		id={props.id}
-		className={props.className}
-		style={{ display: 'flex', ...props.style }}
+		className={cx('xplat-appkit-context-menu', props.className)}
+		style={props.style}
 		accessibilityLabel={props.accessibilityLabel}
 	>
 		{props.trigger()}
+		@if (owner.getStatus() === 'invalid' || owner.getStatus() === 'unavailable') {
+			<label text="Menu actions are unavailable." accessibilityLiveRegion="polite" />
+		}
 	</masonview>
 }
+<style>
+	.xplat-appkit-context-menu { display: flex; }
+</style>

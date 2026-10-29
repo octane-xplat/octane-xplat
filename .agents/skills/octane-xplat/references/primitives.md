@@ -2307,3 +2307,38 @@ actual callback timing and clean installed consumers remain unqualified. Rendere
 bridge returns update/detach (its ambient signature was previously void). No new
 dependency/public prop or React Aria presence-level change. See
 [native date workflow](../../../../docs/platform/date-picker.md#native-macos-selection-lifecycle).
+
+## Native AppKit context-menu ownership
+
+Use AppKitContextMenu from @octane-xplat/context-menu/macos in macOS files for
+the platform's serialized flat menu. It reuses the renderer-installed NSMenu
+attachment; exact native action metadata was repaired in the renderer first.
+Primitive item snapshots detect changes even if an item object is mutated.
+Equal-content arrays and current callback changes preserve tracking; item/scope/
+view changes and unmount retire old callbacks before cleanup. Give reused rows a
+record-specific id or remount for a different record. IDs must be unique strings;
+titles must be strings. Empty lists remove this custom menu, invalid/unavailable attachment
+shows a generic message. Ignore disabled/removed/unknown/stale/reentrant actions.
+
+```tsx
+// NoteActions.macos.tsx
+import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
+import { Text } from '@octane-xplat/ui'
+export function NoteActions({ noteID }: { noteID: string }) {
+	return <AppKitContextMenu id={`actions-${noteID}`} items={[{ id: 'rename', title: 'Rename' }]}
+		trigger={() => <Text>Right-click this note</Text>} onItemSelected={(id) => console.log(noteID, id)} />
+}
+```
+
+Attach only at the wrapper. AppKit documents unhandled right-click propagation;
+inference: native descendants that forward unhandled events can use ancestor menus
+without a one-time subtree overwrite. Preserve child editing/nested menus and
+foreign slots; cancel owned tracking and restore prior active menus, skipping
+retired attachments. Partial failures deregister actions; native enablement and
+window/menu ownership guard dispatch. No public gesture/preview/submenu API or
+destructive-row styling is added. Eight owner/seven renderer branch cases and the
+maintained demo/probe are unrun. Native pointer/Control-click, keyboard/AX menu
+actions, custom responder routing, timer progress while tracking, cancellation,
+native BOOL, actual hook/ref/effect timing and installed consumers remain
+unqualified. No dependency/public prop/React Aria presence change. See
+[native menu workflow](../../../../docs/platform/context-menu.md#native-macos-menus).

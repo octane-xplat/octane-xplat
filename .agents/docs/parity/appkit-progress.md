@@ -6787,6 +6787,78 @@ Apple target/attachment replacement/failure/HMR, disabled/layout/focus behavior,
 controller/browser lifetime and clean signed/installed consumers remain unqualified.
 Shared audit snapshots and evidence-gated checkboxes unchanged; goal active.
 
+## AppKit native context-menu ownership and restoration
+
+Common record/file actions are grounded in the existing serialized AppKit menu
+contract and the retained NativeContextMenuDemo placeholder. The package/renderer
+already supplied NSMenu; source review found one-time descendant-menu overwrite,
+lost prior slots and unguarded stale/disabled/partial-construction actions. First
+repaired exact control/text/menu selector metadata in `6b1b405c9`; that source
+prerequisite remains runtime-unqualified. Current callback forwarding already
+existed and is preserved without native-menu churn on callback-only renders.
+
+Added current view/item/record-scope ownership. Primitive snapshots detect in-place
+item changes, while equal-content arrays keep the mounted menu. Record id, item
+content/order or view replacement and teardown retire old callbacks before
+cleanup. Reject disabled/removed/unknown/reentrant/stale selections; unique string
+IDs and string titles are required. Empty content removes this wrapper's custom
+menu; invalid/missing/failing attachment reports a generic unavailable message
+with the trigger still inline. No native exception details enter that message.
+Record-specific id or remount is required when a row represents another record.
+
+The renderer attaches only at the wrapper and preserves descendant editing/
+nested menus. Apple documents unhandled right-click propagation up the responder
+chain since macOS 10.7:
+[NSView](https://developer.apple.com/documentation/appkit/nsview?changes=_5_2).
+Inference: native descendants that forward unhandled events can use the wrapper's
+menu without overwriting a snapshot of existing children. Custom native responders,
+dynamic children and actual input routing remain qualification work. This source
+design follows the platform contract; no new tree observer or global input monitor
+is installed. Native-enabled/window/current-slot guards reject retired actions.
+Cleanup requests [cancelTracking](https://developer.apple.com/documentation/appkit/nsmenu/canceltracking%28%29),
+retires action entries/targets, restores prior active menu ownership, skips retired
+predecessors and preserves foreign replacement slots. Constructor/item/slot failures
+clean their owned registrations; cleanup is idempotent. Ambient bridge typing now
+reflects the nullable detach return instead of void. Flat menu, normal destructive
+rows and existing public props remain; no dependency/React Aria presence change.
+
+The maintained demo now offers scope/callback/item/disabled/order/empty/invalid/
+remount changes, an independently added child, native text editing, nested menus
+and a user-started delayed scope change for tracking-time qualification. Its timer
+is cancelled on teardown and nothing starts it on mount. An idle probe imports
+that demo and only waits for its status. Eight owner-model and seven actual-
+renderer-branch cases are authored, all UNRUN. Mocks cover ownership/slots/actions,
+not real native responder propagation or tracking. Added the package's model-test
+task without running it. README/public/skill/feature/recipe guidance reconciles
+record ownership, native child menus and remaining limits.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/context-menu --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/context-menu --filter=...@octane-xplat/macos-renderer --filter=...@xplat/demos
+pnpm probe doctor
+pnpm probe run examples/probes/native-context-menu.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/context-menu --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run pack:check --filter=@octane-xplat/context-menu
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native context-menu consumer"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Demos has no standalone typecheck task; consumer/probe compilation must cover
+the changed demo. Documentation check scripts remain absent from this isolated
+snapshot; shared in-flight tooling was preserved. Nine TS/TSRX/MJS source/test
+files, manifest JSON and 11 scoped documentation fences syntax parsed, plus
+semantic/source/whitespace review only. No tests/compiler transforms/typechecks/
+builds/probes, native/OS/AX/visual analysis or packaging ran. Native pointer/
+Control-click, keyboard/AX menu actions, custom responder routing, editable/late/
+nested children, menu tracking/cancellation and timer progress, native BOOL,
+hook/ref/effect/reentry/teardown timing, memory and clean installed consumers remain
+unqualified. Shared audit snapshots and evidence-gated checkboxes unchanged;
+persistent goal active.
+
 ## AppKit native date-picker selection and bridge lifecycle
 
 The retained NativeDatePickerDemo.macos claimed native dates were unsupported,

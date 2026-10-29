@@ -60,7 +60,7 @@ declare global {
 			view: import('@octane-xplat/platform/macos').NSView,
 			options: any,
 			onSelect: any,
-		) => void
+		) => (() => void) | null
 		attachDatePicker?: (
 			view: import('@octane-xplat/platform/macos').NSView,
 			options: any,
