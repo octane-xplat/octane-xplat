@@ -36,6 +36,7 @@
 		"@octane-xplat/richtext": "workspace:*",
 		"@octane-xplat/shaders": "workspace:*",
 		"@octane-xplat/sheet": "workspace:*",
+		"@octane-xplat/sqlite": "workspace:*",
 		"@octane-xplat/tiptap": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",

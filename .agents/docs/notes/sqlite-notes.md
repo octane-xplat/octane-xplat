@@ -1,16 +1,14 @@
 # SQLite notes (`packages/sqlite`)
 
-> Cross-target SQLite seam record — `@octane-xplat/sqlite` is implemented;
-> the backend findings below now carry verification marks.
+> Implementation and historical evidence for `@octane-xplat/sqlite`.
 >
-> **Owns:** cross-target structured persistence seam · **Status:** implemented
-> in `packages/sqlite` — verified on web (full probe round-trip + durable
-> persistence where OPFS is available) and iOS sim (same probe
-> readout through FMDB: rows/count/rollback/userVersion, persistent=true) · **Blocks on:** macOS backend and
-> Windows ship `supported: false` leaves · **Decisions:** see decisions.md ·
-> **Validated by:** harness `Services` probe + production-bundle smoke + maintained
-> `pnpm --filter @xplat/web sqlite:readiness` checks in Chromium, Firefox, and
-> WebKit.
+> The public [local storage guide](../../../docs/app/local-storage.md) owns app
+> setup and composition. Web, iOS/Android and AppKit have source implementations;
+> Windows is unsupported. Historical runtime checks below are target/version
+> specific. This guide pass added real Node SQLite file/reopen and migration
+> checks, not new browser/device qualification. The installed mobile plugin is
+> now 4.1.1; the older Android source concern remains an unexecuted gate rather
+> than a confirmed defect in that version.
 
 ## Candidates assessed
 

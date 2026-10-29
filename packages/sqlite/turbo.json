@@ -13,6 +13,9 @@
 				"ADB_SERVER_SOCKET",
 				"JAVA_HOME"
 			]
+		},
+		"test": {
+			"inputs": ["$TURBO_DEFAULT$", "examples/**"]
 		}
 	}
 }

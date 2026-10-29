@@ -1803,6 +1803,9 @@ importers:
       '@octane-xplat/sheet':
         specifier: workspace:*
         version: link:../sheet
+      '@octane-xplat/sqlite':
+        specifier: workspace:*
+        version: link:../sqlite
       '@octane-xplat/tiptap':
         specifier: workspace:*
         version: link:../tiptap

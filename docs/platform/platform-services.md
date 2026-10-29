@@ -1459,86 +1459,20 @@ the user declines it.
 
 ## Local database
 
-For a few settings, use `storage`. For structured records you need to search,
-such as saved trips and their packing items, use a **database**. SQLite stores
-those records in tables, and SQL is the language used to read and change them.
-This section assumes you know basic SQL or are working with an agent that
-can help create the tables and queries.
-
-Install `@octane-xplat/sqlite` separately. It provides the same asynchronous
-API on web and native: calls use `await` because they can take time to finish.
-The following fragment creates a table and reads its rows:
-
-Inside a transaction, use and await the callback's `tx` handle. Other calls on
-the main `db` handle wait until the transaction ends, so awaiting `db` inside
-the callback would wait on itself. The `tx` handle expires when the callback
-finishes and rejects nested transactions and close calls. A thrown callback
-rolls back its own writes; queued outside writes run afterward.
-
-
-```ts
-import { openDatabase, supported } from '@octane-xplat/sqlite'
-
-const db = await openDatabase('app.db')
-await db.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
-const rows = await db.select<{ id: number; name: string }>('SELECT * FROM items')
-await db.transaction(async (tx) => {
-	await tx.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
-	// A throw here rolls back the insert.
-})
-await db.close()
-```
-
-Check `db.persistent` after open: on web it reports whether the database
-really persists (OPFS via a Worker) or opened transiently because the browser
-denied OPFS access — private windows and locked-down embeds can force the
-transient path, and the flag is how app code finds out instead of losing data
-silently. It is always true on iOS and Android. On macOS the leaf calls
-system libsqlite3 directly — `dlopen` plus `sqlite3_*` entry points are
-resolved from the regenerated host metadata (`metadata.macos.arm64.nsmd`), so
-the database is a real file under `Application Support/octane-sqlite` with
-the same per-statement durability as the mobile plugin. `supported` is
-`false` on Windows for now; `openDatabase` there rejects, so branch on the
-flag first rather than catching.
+Use SQLite for structured records you edit and query. The
+[local storage guide](../app/local-storage.md) builds a complete saved packing
+list with migrations, reactive UI, close/reopen checks and visible persistence
+failures. Ordinary settings and secrets have separate storage owners.
 
 ```ts
 import { openDatabase, supported } from '@octane-xplat/sqlite'
 
 if (supported) {
 	const db = await openDatabase('app.db')
-	try {
-		if (!db.persistent) console.log('Changes will not survive closing this session')
-	} finally {
-		await db.close()
-	}
+	try { console.log(db.persistent ? 'Durable local storage' : 'Session-only storage') }
+	finally { await db.close() }
 }
 ```
-
-`getUserVersion`/`setUserVersion` map to `PRAGMA user_version` — the shared
-migration hook. `deleteDatabase(name)` removes the file. On native, calls
-run on the plugin's worker threads (`threading` option, default on); on web
-everything runs inside a spawned Worker, so no query blocks the UI thread
-either way.
-
-```ts
-import { openDatabase } from '@octane-xplat/sqlite'
-
-const db = await openDatabase('app.db', { threading: true })
-try {
-	if ((await db.getUserVersion()) < 1) {
-		await db.transaction(async (tx) => {
-			await tx.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
-			await tx.setUserVersion(1)
-		})
-	}
-} finally {
-	await db.close()
-}
-// deleteDatabase('app.db') is for deliberate app-data removal, not normal cleanup.
-```
-
-For a handful of flags or strings, `storage` is still the right tool —
-open a database when you need queries, joins, or migrations.
 
 ## Interface shapes
 

@@ -42,16 +42,16 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
 
 ## Documentation
 
-- AC1: [Local database](../../../docs/platform/platform-services.md#local-database) —
+- AC1: [Local database](../../../docs/app/local-storage.md) —
   `supported`/`openDatabase` behavior per target.
-- AC2: [Local database](../../../docs/platform/platform-services.md#local-database) —
+- AC2: [Local database](../../../docs/app/local-storage.md) —
   method surface and transaction semantics.
-- AC3: [Local database](../../../docs/platform/platform-services.md#local-database) —
-  `getUserVersion`/`setUserVersion` as the migration hook; [completion and errors](../../../packages/sqlite/README.md)
+- AC3: [Local database](../../../docs/app/local-storage.md) —
+  `getUserVersion`/`setUserVersion` as the migration hook; [completion and errors](../../../docs/app/local-storage.md#open-a-saved-packing-list)
   and [host regressions](../../../packages/sqlite/tests/transactions.test.mjs)
   cover version writes and queue ordering with modeled native backends.
-- AC4: [Local database](../../../docs/platform/platform-services.md#local-database) —
+- AC4: [Local database](../../../docs/app/local-storage.md) —
   `persistent` flag semantics; [known limits](../../../docs/testing/known-limits.md) —
   transient-fallback conditions.
-- AC5: [Local database](../../../docs/platform/platform-services.md#local-database) —
+- AC5: [Local database](../../../docs/app/local-storage.md) —
   `deleteDatabase`.

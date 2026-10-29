@@ -19,6 +19,7 @@ export const GROUPS = [
 			'components',
 			'text-entry',
 			'accessibility',
+			'local-storage',
 			'interactive-actions',
 			'menus',
 			'tables',

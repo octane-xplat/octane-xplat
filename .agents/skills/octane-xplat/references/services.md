@@ -388,10 +388,15 @@ without first handling unsupported creation. See the
 [audio package boundary](../../../../packages/audio/README.md).
 ## SQLite transactions
 
+Choose settings, secure credentials or structured data by ownership. The guide
+includes a maintained packing-list migration/CRUD screen and strict transient
+refusal; database writes do not automatically update UI readers. Subscribe with
+`useStore`, reload rows after writes, and never claim success before completion.
+
 Use the callback's handle for every awaited transaction operation. Main-handle
 calls queue until it ends; awaiting them inside the callback would deadlock.
 The callback handle expires afterward and rejects nesting and close. See the
-[database guide](../../../../packages/sqlite/README.md).
+[local storage guide](../../../../docs/app/local-storage.md).
 
 ```ts
 await db.transaction(async (tx) => {
