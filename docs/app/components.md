@@ -754,6 +754,23 @@ export function Mass() {
 }
 ```
 
+Typing, stepping and clearing read current values, bounds, blocking and callbacks.
+Rapid local requests use the latest value before render; controlled requests wait
+for parent feedback. Nested requests and detached fields are ignored. Step and
+clear wait while the field editor has marked text; draft edits still report.
+An accepted clear captures its `onValueChange(null)` then `onClear` pair even if
+the first callback replaces props or removes the field. Callback errors release
+the guard; an error in `onValueChange` prevents the following `onClear` call.
+
+```tsx
+import { NumberInput } from '@octane-xplat/ui'
+
+export function LocalQuantity() {
+	return <NumberInput label="Quantity" defaultValue={2} min={0} max={9}
+		step={1} hasClear />
+}
+```
+
 The formatter changes display text; it does not define an inverse locale or
 currency parser. Editing still uses the existing shared `parseFloat` behavior.
 Native layout, formatted/partial edits, IME, pointer and keyboard activation,

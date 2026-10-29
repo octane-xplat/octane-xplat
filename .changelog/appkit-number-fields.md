@@ -2,7 +2,9 @@
 
 AppKit NumberInput now supports units, display formatting, optional steppers
 and clear-to-null. Standalone labels and validation use Field, and inherited
-disabled/read-only state also blocks stepper actions.
+disabled/read-only state also blocks stepper actions. Edit, step and clear
+requests use current props and the latest local value, and reject nested or
+detached actions. Steps and clear wait during marked editor text.
 
 ```tsx
 import { NumberInput } from '@octane-xplat/ui'

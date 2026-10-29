@@ -103,3 +103,140 @@ it('adding numeric validation metadata retains the uncontrolled value and input 
 		expect(env.classNodes('vx-field')).toHaveLength(1)
 	} finally { env.root.unmount() }
 })
+
+
+it('rapid numeric edits, steps and clear share the latest local intent before render', () => {
+	const events: unknown[] = []
+	const env = mount(InputNumber, { defaultValue: 1, step: 2, min: 0, max: 9, hasClear: true,
+		onValueChange: (value: number | null) => events.push(value), onClear: () => events.push('clear') })
+	try {
+		const [down, up] = env.classNodes('vx-inputnumber-step').map((node) => node.props.onTap)
+		const edit = env.input().props.onTextChange, clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap
+		up(); up(); down(); edit('4'); up(); clear(); up()
+		expect(events).toEqual([3, 5, 3, 4, 6, null, 'clear', 2])
+		flushUniversalSync(() => {})
+		expect(env.input().props.value).toBe('2')
+	} finally { env.root.unmount() }
+})
+
+it('controlled numeric requests await parent acceptance and preserve the original local seed', () => {
+	const events: unknown[] = [], onValueChange = (value: number | null) => events.push(value)
+	const env = mount(InputNumber, { value: null, defaultValue: 9, onValueChange })
+	try {
+		const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+		up(); up(); flushUniversalSync(() => {})
+		expect(events).toEqual([1, 1])
+		expect(env.input().props.value).toBe('')
+		env.render({ defaultValue: 42, onValueChange })
+		up(); up(); flushUniversalSync(() => {})
+		expect(events).toEqual([1, 1, 10, 11])
+		expect(env.input().props.value).toBe('11')
+	} finally { env.root.unmount() }
+})
+
+it('held numeric actions read current inherited blocking, bounds and callbacks', () => {
+	const events: unknown[] = []
+	function Parent(props: any) {
+		const { isDisabled, isReadOnly, ...inputProps } = props
+		return <FormField isDisabled={isDisabled} isReadOnly={isReadOnly}>
+			<InputNumber {...inputProps} />
+		</FormField>
+	}
+	const initial = { value: 8, hasClear: true, onValueChange: () => events.push('old') }
+	const env = mount(Parent, initial)
+	try {
+		const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+		const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap, edit = env.input().props.onTextChange
+		for (const state of [{ isDisabled: true }, { isReadOnly: true }]) {
+			env.render({ ...initial, ...state }); up(); clear(); edit('4')
+		}
+		expect(events).toEqual([])
+		env.render({ value: 8, step: 2, max: 9, hasClear: true,
+			onValueChange: (value: number | null) => events.push(value), onClear: () => events.push('current-clear') })
+		up(); clear(); edit('4'); flushUniversalSync(() => {})
+		expect(events).toEqual([9, null, 'current-clear', 4])
+		expect(env.input().props.value).toBe('8')
+	} finally { env.root.unmount() }
+})
+
+it('accepted numeric clear owns its callback pair and rejects cross-action reentry', () => {
+	for (const detach of [false, true]) {
+		const events: unknown[] = []
+		let nested = () => {}, replace = () => {}
+		const env = mount(InputNumber, { defaultValue: 2, hasClear: true,
+			onValueChange: (value: number | null) => { events.push(value); nested(); replace() },
+			onClear: () => { events.push('accepted-clear'); nested() } })
+		try {
+			const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+			const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap, edit = env.input().props.onTextChange
+			nested = () => { up(); edit('7'); clear() }
+			replace = () => detach ? env.root.unmount() : env.render({ defaultValue: 9, hasClear: true,
+				onValueChange: () => events.push('replacement'), onClear: () => events.push('replacement-clear') })
+			clear()
+			expect(events).toEqual([null, 'accepted-clear'])
+		} finally { env.root.unmount() }
+	}
+})
+
+it('numeric callback errors release ownership while preserving accepted local intent', () => {
+	for (const phase of ['change', 'clear']) {
+		const events: unknown[] = [], failure = new Error('consumer callback')
+		let fail = true
+		const env = mount(InputNumber, { defaultValue: 2, hasClear: true,
+			onValueChange: (value: number | null) => { events.push(value); if (fail && phase === 'change') throw failure },
+			onClear: () => { events.push('clear'); if (fail && phase === 'clear') throw failure } })
+		try {
+			const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+			const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap
+			expect(() => clear()).toThrow(failure)
+			fail = false; up(); flushUniversalSync(() => {})
+			expect(events).toEqual(phase === 'change' ? [null, 1] : [null, 'clear', 1])
+			expect(env.input().props.value).toBe('1')
+		} finally { env.root.unmount() }
+	}
+})
+
+it('removed numeric affordances and detached fields reject their held actions', () => {
+	const events: unknown[] = [], onValueChange = (value: number | null) => events.push(value)
+	const env = mount(InputNumber, { defaultValue: 2, hasClear: true, onValueChange })
+	try {
+		const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+		const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap, edit = env.input().props.onTextChange
+		env.render({ hasNumberSteppers: false, hasClear: false, onValueChange })
+		up(); clear(); edit('4'); flushUniversalSync(() => {})
+		expect(events).toEqual([4])
+		env.root.unmount(); up(); clear(); edit('7')
+		expect(events).toEqual([4])
+	} finally { env.root.unmount() }
+})
+
+it('numeric parsing, formatting and descriptive loading keep their existing policy', () => {
+	const events: unknown[] = []
+	const env = mount(InputNumber, { defaultValue: 2, isLoading: true, formatValue: (value: number) => value.toFixed(1),
+		onValueChange: (value: number | null) => events.push(value) })
+	try {
+		const edit = env.input().props.onTextChange, up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+		edit('3.5kg'); edit('invalid'); up(); flushUniversalSync(() => {})
+		expect(events).toEqual([3.5, 4.5]); expect(env.input().props.value).toBe('4.5')
+		edit(''); flushUniversalSync(() => {})
+		expect(events).toEqual([3.5, 4.5, null]); expect(env.input().props.value).toBe('')
+	} finally { env.root.unmount() }
+})
+
+it('marked numeric editors block steps and clear while retaining draft edit notifications', () => {
+	for (const method of [false, true]) {
+		const events: unknown[] = []
+		const env = mount(InputNumber, { defaultValue: 2, hasClear: true,
+			onValueChange: (value: number | null) => events.push(value), onClear: () => events.push('clear') })
+		try {
+			let marked = true
+			const editor = { get hasMarkedText() { return method ? () => marked : marked } }
+			env.input().currentEditor = method ? () => editor : editor
+			const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+			const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap, edit = env.input().props.onTextChange
+			up(); clear(); edit('5'); expect(events).toEqual([5])
+			marked = false; up(); clear()
+			expect(events).toEqual([5, 6, null, 'clear'])
+		} finally { env.root.unmount() }
+	}
+})

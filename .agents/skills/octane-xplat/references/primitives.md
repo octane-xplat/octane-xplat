@@ -882,6 +882,13 @@ export function CurrentName(props: { name: string; onChange(value: string): void
 NumberInput now wires `units`, `formatValue`, `hasNumberSteppers` and `hasClear`
 on AppKit. Clear reports null then onClear. Stable Field ownership supplies
 metadata and inherited disabled/read-only state, including stepper blocking.
+Held edit/step/clear actions read current props; local intent updates before
+render, while controlled values require parent feedback. One claim rejects
+cross-action reentry and detached/blocked requests. Hidden step/clear affordances
+reject held actions. Steps and clear defer during marked editor text; drafts
+still report. Clear captures onValueChange(null) then onClear across replacement
+or detach; consumer errors propagate after releasing the claim and a throwing
+onValueChange skips onClear. No keyboard spinner behavior is added.
 Formatting is display-only; the existing parseFloat edit behavior is unchanged.
 Native layout, formatted edits, IME, focus and accessibility remain unqualified.
 See [AppKit number fields](../../../../docs/app/components.md#number-fields-on-appkit).

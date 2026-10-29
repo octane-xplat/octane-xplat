@@ -6,13 +6,32 @@ import type { ProbeContext } from '../../scripts/probe/context'
 export default function NumberInputProbe() {
 	const [value, setValue] = useState<number | null>(2)
 	const [steppers, setSteppers] = useState(true)
+	const [mode, setMode] = useState<'accept' | 'hold' | 'local'>('accept')
+	const [blocked, setBlocked] = useState<'enabled' | 'disabled' | 'readonly'>('enabled')
+	const [shown, setShown] = useState(true)
+	const [tight, setTight] = useState(false)
+	const [history, setHistory] = useState<string[]>([])
+	const record = (entry: string) => setHistory((entries) => [...entries.slice(-11), entry])
 	return <VStack gap={2}>
-		<Field label="Mass" description="Between zero and nine" inputID="mass-field" width={280}>
-			<NumberInput id="mass" value={value} onValueChange={setValue} min={0} max={9} step={0.5}
+		{shown ? <Field label="Mass" description="Try edit, step and clear in each mode" inputID="mass-field" width={280}
+			isDisabled={blocked === 'disabled'} isReadOnly={blocked === 'readonly'}>
+			<NumberInput id="mass" defaultValue={2} value={mode === 'local' ? undefined : value}
+				onValueChange={(next) => { record(`request:${next}`); if (mode === 'accept') setValue(next) }}
+				onClear={() => record('clear')} min={0} max={tight ? 3 : 9} step={tight ? 1 : 0.5}
 				units="kg" formatValue={(number) => number.toFixed(1)} hasClear hasNumberSteppers={steppers} />
-		</Field>
+		</Field> : <Text>Number field removed</Text>}
+		<Button label="Accept controlled requests" clickAction={() => setMode('accept')} />
+		<Button label="Hold controlled requests" clickAction={() => setMode('hold')} />
+		<Button label="Use local value" clickAction={() => setMode('local')} />
+		<Button label="Enable field" clickAction={() => setBlocked('enabled')} />
+		<Button label="Disable field" clickAction={() => setBlocked('disabled')} />
+		<Button label="Make field read-only" clickAction={() => setBlocked('readonly')} />
+		<Button label="Toggle numeric bounds and step" clickAction={() => setTight((next) => !next)} />
+		<Button label="Remove or remount numeric field" clickAction={() => setShown((next) => !next)} />
 		<Button id="toggle-steppers" label="Toggle number steppers" clickAction={() => setSteppers((shown) => !shown)} />
 		<Text id="number-state">{value === null ? 'empty' : String(value)}</Text>
+		<Text>{`Mode: ${mode}; state: ${blocked}; bounds: 0..${tight ? 3 : 9}`}</Text>
+		<Text>{history.join(' → ')}</Text>
 	</VStack>
 }
 

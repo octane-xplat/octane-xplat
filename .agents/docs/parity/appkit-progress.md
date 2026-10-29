@@ -9217,3 +9217,81 @@ check:doc-examples and documentation-quality.md are absent from this worktree;
 the latter was read from the original checkout without edits. No tests, typegen,
 typechecks, builds, installs, native/OS automation, packaging, visual analysis,
 shared audit regeneration or new task/agent ran.
+
+## AppKit numeric current request ownership
+
+Demand assumption: ComponentsDemo's bounded 0..9 NumberInput and the sandbox's
+Team Size, clearable percentage and unit examples represent common quantity
+forms. They rank ahead of niche integrations. At 2db67fe55 the AppKit leaf
+calculated repeated steps from its last rendered value; edit, step and clear
+had separate paths without a shared current owner. A held clear could call its
+old onClear after setValue rejected a now-blocked request. These are source
+findings, not an observed native failure or executed test result.
+
+The target leaf now retains current inherited props, local numeric intent and
+a stable typed root attachment, with one request claim across edits, steps and
+clear. Local intent changes before state/callback work; controlled null remains
+explicitly empty and controlled requests await parent feedback. Leaving controlled
+mode retains the original local seed rather than a changed defaultValue. Held
+actions recheck current bounds, step, callbacks, blocking and whether their
+step/clear affordance still exists. Retired and nested actions are ignored.
+A private existing TextInputHandle supplies the current editor; steps and clear
+wait during marked text, while draft edits retain their existing notification
+path. Native getter effects are followed by a final current-owner check. An
+accepted clear captures onValueChange(null) then onClear across replacement or
+detach. Consumer errors propagate after releasing the claim; a throwing first
+callback skips onClear, and accepted local intent is retained.
+
+The removed applyEscapeProps ref called the existing AppKit no-op. No platform
+bag implementation, public type, dependency, manifest or other-target leaf
+changed. Existing parseFloat/NaN/empty-string/clamping, display formatting,
+null/default seed, descriptive loading and fractional-step arithmetic policies
+are preserved. This adds no locale/inverse parser, finite-number policy,
+rounding, keyboard spinner handler, focus reconstruction or async action API.
+
+Eight new object-driver cases (thirteen numeric cases total), all UNRUN, cover
+rapid edit/step/clear before render, controlled rejection/local seed, current
+inherited blocking/bounds/callbacks, accepted clear/reentry/replacement/detach,
+consumer exceptions, removed affordances/teardown, parser/loading preservation
+and editor method/property marked state. The existing number-input fixture now
+has human-operated controlled acceptance/hold/local modes, blocking, bounds/step,
+removal/remount and request history. Its unchanged run hook checks initial
+metadata and directly dispatches the stepper-visibility toggle only. It does not
+prove OS input, hit testing, field-editor lifecycle or any numeric trial.
+
+The components guide, Octane primitive reference, appkit-text-ownership AC5 and
+existing unreleased number-field feature note reconcile this boundary. Entity
+history identifies adc01d1 as the leaf introduction; no local stable v-tag
+contains it, so the existing feature note was extended. This is local Git
+evidence, not a registry audit. No shared audit snapshot was regenerated.
+
+Lightweight verification: three TSRX source/test/fixture files and four scoped
+TSX fences parsed; six added/changed local targets/anchors resolved; staged semantic
+and whitespace review completed. These are syntax/source checks only. No test,
+compiler transform or native operation ran. Native inner-handle timing, editor
+composition/commit ordering, partial/formatted/pasted/locale input, decimal
+precision, controlled rejection writeback, focus/selection/undo, pointer/key
+activation, VoiceOver, installed consumers and pixels remain unqualified.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human
+verification authorization; resource admission is not visual-analysis approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx src/text-entry-ownership.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/number-input.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit numeric request ownership package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+check:docs and check:doc-examples remain absent in this worktree, and the
+newer documentation-quality reference was read from the original checkout.
+No tests, typegen, typechecks, builds, installs, probes, native/OS automation,
+packaging, visual analysis or additional task/agent ran. All evidence-gated
+issue checkboxes and native qualification remain open.
