@@ -155,3 +155,7 @@ export type {
 	IndicatorSize,
 	IndicatorState,
 } from './props'
+
+export { Checkbox as CheckboxInput } from './Checkbox'
+export { Switch } from './Switch'
+export type { CheckboxProps, CheckboxInputProps, SwitchProps } from './props'

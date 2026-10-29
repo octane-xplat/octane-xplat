@@ -7966,7 +7966,7 @@ export interface CheckboxProps extends FieldControlProps, TestIDProps {
 	 *  partial-selection state (parent-of-a-tree semantics): it renders the
 	 *  indicator's `indeterminate` mark and the DOM `indeterminate` property
 	 *  on web; NativeScript reports `Partially selected` (no mixed state
-	 *  enum); AppKit exposes the semantic mixed checkbox value. */
+	 *  enum); GTK and AppKit expose a semantic mixed checkbox value. */
 	value?: boolean | 'indeterminate'
 	/** Initial state for uncontrolled use; `value` wins when both are set. */
 	defaultValue?: boolean | 'indeterminate'

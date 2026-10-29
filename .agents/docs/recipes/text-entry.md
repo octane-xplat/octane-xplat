@@ -163,6 +163,12 @@ disabled/read-only/busy metadata, widths, native border ownership and lifecycle.
 Its role-transition checks retain child editors and focus. These are native
 geometry/property checks, not OS input or AT-client output.
 
+The public-root [toggle field fixture](../../../packages/linux-gtk-renderer/test/ui-toggle-fields.test.mjs)
+checks CheckboxInput and Switch field defaults, labels, width, disabled/read-only/busy
+state and async rollback with actual X11 label clicks. It also checks inherited
+Field ownership and mixed checkbox state. These add AC3 field evidence; they
+do not establish assistive-client speech or navigation.
+
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
 recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance

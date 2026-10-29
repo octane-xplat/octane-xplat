@@ -91,3 +91,9 @@ sourceContainer.root?.render(App, {})
 declare const compilerRoot: UniversalRoot
 // @ts-expect-error The upstream root requires compiler-owned metadata, absent from source declarations.
 compilerRoot.render(App, mountProps)
+
+type CheckboxPropsContract = Assert<Equal<GtkUI.CheckboxProps, NativeUI.CheckboxProps>>
+type CheckboxInputPropsContract = Assert<
+	Equal<GtkUI.CheckboxInputProps, NativeUI.CheckboxInputProps>
+>
+type SwitchPropsContract = Assert<Equal<GtkUI.SwitchProps, NativeUI.SwitchProps>>

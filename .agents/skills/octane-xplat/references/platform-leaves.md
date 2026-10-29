@@ -233,7 +233,9 @@ collapsing it to NativeScript's strongest enum state. The private native helper
 accepts checked: 'mixed'; GTK preserves it while NativeScript retains its textual
 Checkbox fallback. Custom Mason checkbox/switch roles are keyboard stops and
 activate on Space release; buttons use Return/Space and links use Return.
-This engine support does not qualify the full shared Checkbox/Switch API. The renderer applies flags
+CheckboxInput and Switch now have maintained public-root GTK field/action
+checks as well. Reuse the shared leaves and retain their private NativeToggleField
+owner; keep isEnabled behavior separate from accessibilityState metadata. The renderer applies flags
 after the complete prop bag: sensitivity and GtkEditable editability agree with
 the same generation. Missing flags reset old native metadata; native switch
 checked state is restored when an override is removed. Keep behavior in

@@ -10,65 +10,68 @@ import {
 } from '../overlays/escape-props'
 
 import { FieldContext, useFieldControlProps } from './field-context'
+import { FormLayoutContext } from './form-layout-context'
+import { NativeToggleField } from './NativeToggleField'
 
-/** Self-drawn switch — flexbox track + thumb view, identical pixels across
- *  targets. The `.vx-switch--on` state class flips justify-content, which
- *  slides the thumb. The platform widget (UISwitch/MaterialSwitch) lives
- *  in `ui/ios` + `ui/android`. */
-function SwitchControl(inputProps: SwitchProps) @{
+/** One state/action owner for track, label and keyboard activation. */
+function SwitchControl(inputProps: SwitchProps & { standalone?: boolean }) @{
 	const props = useFieldControlProps(inputProps)
+	const form = useContext(FormLayoutContext)
 	const [internal, setInternal] = useState(props.defaultValue ?? false)
 	const checked = props.value ?? internal
 	const [pending, setPending] = useState(false)
+	const loading = props.isLoading || pending
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const toggle = () => {
+		if (isBlocked) return
 		const next = !checked
-		if (props.value === undefined) {
-			setInternal(next)
-		}
-
+		if (props.value === undefined) setInternal(next)
 		props.onChange?.(next)
-		if (!props.changeAction) {
-			return
-		}
-
+		if (!props.changeAction) return
 		const previous = checked
 		setPending(true)
-		Promise.resolve(props.changeAction(next)).then(
+		Promise.resolve().then(() => props.changeAction!(next)).then(
 			() => setPending(false),
 			() => {
-				if (props.value === undefined) {
-					setInternal(previous)
-				}
-
+				if (props.value === undefined) setInternal(previous)
 				props.onChange?.(previous)
 				setPending(false)
 			},
 		)
 	}
-
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		testID={props.testID ?? ''}
-		className={cx(
-			'vx-switch',
-			checked ? 'vx-switch--on' : undefined,
-			props.isDisabled && 'vx-switch--disabled',
-			props.isReadOnly && 'vx-switch--readonly',
-			(props.isLoading || pending) && 'vx-switch--loading',
-			props.status && `vx-switch--status-${props.status.type}`,
-			props.size && `vx-switch--size-${props.size}`,
-			props.className,
-		)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
+	const showLabel = props.standalone && props.label != null && !props.isLabelHidden
+	const showDescription = props.standalone && props.description != null && !props.isLabelHidden
+	const marker = props.isRequired && form.defaultOptionality !== 'required'
+		? ' *' : props.isOptional && form.defaultOptionality !== 'optional' ? ' (Optional)' : ''
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} testID={props.testID ?? ''}
+		className="vx-switch-row"
+		style={{ display: 'flex', flexDirection: props.labelPosition === 'start' ? 'row-reverse' : 'row',
+			alignItems: 'center', gap: showLabel || showDescription ? 8 : 0,
+			justifyContent: props.labelSpacing === 'spread' ? 'space-between'
+				: props.labelPosition === 'start' ? 'flex-end' : 'flex-start' }}
+		isEnabled={!props.isDisabled}
 		accessibilityRole={nativeAccessibilityRole('switch')}
-		accessibilityLabel={props.ariaLabel ?? props.fieldLabel ?? props.label}
+		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ checked, disabled: props.isDisabled })}
-		onTap={isBlocked ? undefined : toggle}
-	>
-		<masonview className="vx-switch-thumb" style={{ display: 'flex' }} />
+		accessibilityState={nativeAccessibilityState({ checked, disabled: props.isDisabled,
+			readOnly: props.isReadOnly, required: props.isRequired, busy: loading,
+			invalid: props.status?.type === 'error' })}
+		onTap={isBlocked ? undefined : toggle}>
+		<masonview className={cx('vx-switch', checked && 'vx-switch--on',
+			props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly',
+			loading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`,
+			props.size && `vx-switch--size-${props.size}`, props.className)}
+			style={mergeStyle({ display: 'flex' }, props.style)}>
+			<masonview className="vx-switch-thumb" style={{ display: 'flex' }} />
+		</masonview>
+		<masonview style={{ display: showLabel || showDescription ? 'flex' : 'none',
+			flexDirection: 'column', flexShrink: 1 }}>
+			<label className="vx-field-label" text={(props.label ?? '') + marker}
+				accessibilityHint={props.labelTooltip}
+				style={{ display: showLabel ? 'flex' : 'none' }} textWrap />
+			<label className="vx-field-description" text={props.description ?? ''}
+				style={{ display: showDescription ? 'flex' : 'none' }} textWrap />
+		</masonview>
 	</masonview>
 }
 
@@ -78,64 +81,11 @@ function SwitchControl(inputProps: SwitchProps) @{
 export function Switch(inputProps: SwitchProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const inField = useContext(FieldContext) != null
-	const needsChrome =
-		!inField && (props.label != null || props.description != null || props.status != null)
-
-	const [internal, setInternal] = useState(props.defaultValue ?? false)
-	const checked = props.value ?? internal
-	const isBlocked = props.isDisabled || props.isReadOnly
-	// One owner for the state: the wrapped control is driven as controlled so
-	// a tap on the track and a tap on the label stay in sync.
-	const setChecked = (next: boolean) => {
-		if (props.value === undefined) {
-			setInternal(next)
-		}
-
-		props.onChange?.(next)
-	}
-
-	const labelFirst = props.labelPosition === 'start'
-	const labelCol =
-		props.label != null || props.description != null ? (
-			<masonview
-				style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
-				onTap={isBlocked ? undefined : () => setChecked(!checked)}
-			>
-				{props.label != null ? <label className="vx-field-label" text={props.label} /> : null}
-				{props.description != null ? (
-					<label className="vx-field-description" text={props.description} />
-				) : null}
-			</masonview>
-		) : null
-
-	@if (needsChrome) {
-		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
-			<masonview
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					alignItems: 'center',
-					gap: 8,
-					justifyContent: props.labelSpacing === 'spread' ? 'space-between' : 'flex-start',
-				}}
-			>
-				{labelFirst ? labelCol : null}
-				<SwitchControl {...inputProps} value={checked} onChange={setChecked} />
-				{!labelFirst ? labelCol : null}
-			</masonview>
-			{props.status?.message != null ? (
-				<masonview
-					className={cx(
-						'vx-field-status',
-						`vx-field-status--${props.status.type}`,
-						'vx-field-status--detached',
-					)}
-				>
-					<label text={props.status.message} />
-				</masonview>
-			) : null}
-		</masonview>
+	@if (inField) {
+		<SwitchControl {...props} />
 	} @else {
-		<SwitchControl {...inputProps} />
+		<NativeToggleField {...props}>
+			<SwitchControl {...props} standalone />
+		</NativeToggleField>
 	}
 }

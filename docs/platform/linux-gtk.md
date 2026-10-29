@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, and indicator registries.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput and Switch.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -179,6 +179,45 @@ export function Details({ isOpen }: { isOpen: boolean }) {
     <View style={{ display: isOpen ? 'flex' : 'none' }}>
       <Text>Build details</Text>
     </View>
+  )
+}
+```
+
+## Toggle fields
+
+Use CheckboxInput for a choice that can also be partially selected, and Switch
+for an on/off setting. With defaultValue, each control keeps its own state.
+Click the row or its inline label to change it, or use Tab and Space.
+
+```tsx
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
+import { CheckboxInput, Switch, FormLayout } from '@octane-xplat/ui'
+
+export function Preferences() {
+  return (
+    <FormLayout>
+      <CheckboxInput label="Keep receipts" defaultValue="indeterminate" width={280} />
+      <Switch label="Notifications" defaultValue width={280} labelSpacing="spread" />
+    </FormLayout>
+  )
+}
+```
+
+Use value and onChange when your component owns the setting. Put asynchronous
+work in changeAction: label and control clicks share the action, and a
+rejection reports the previous value through onChange. The native control
+exposes its busy state while the action runs.
+
+```tsx
+import { useState } from 'octane'
+import { Switch } from '@octane-xplat/ui'
+
+export function NotificationSetting(props: { save: (enabled: boolean) => Promise<void> }) {
+  const [enabled, setEnabled] = useState(false)
+  return (
+    <Switch label="Notifications" value={enabled}
+      onChange={setEnabled} changeAction={props.save} />
   )
 }
 ```
@@ -833,9 +872,9 @@ export function Selection(props: { selected: boolean; toggle: () => void }) {
 }
 ```
 
-These keyboard checks use actual X11 input. The shared CheckboxInput and Switch
-components still need their remaining public contracts qualified before they
-join the curated GTK root.
+These keyboard checks use actual X11 input. For an ordinary selection field,
+use the curated [CheckboxInput or Switch](#toggle-fields) instead of building
+a custom role host.
 
 
 Multiline text and placeholder hints support textAlign. Use a numeric or pixel

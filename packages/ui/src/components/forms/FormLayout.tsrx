@@ -40,7 +40,7 @@ export function FormLayout(props: FormLayoutProps): unknown @{
 			style={mergeStyle(
 				direction === 'horizontal'
 					? { display: 'grid', gridAutoFlow: 'column', gridAutoColumns: '1fr' }
-					: { display: 'flex', flexDirection: 'column' },
+					: { display: 'flex' },
 				props.style,
 			)}
 			accessible={props.accessible}

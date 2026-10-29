@@ -7,8 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 40 runtime values and 66 types in index.gtk.ts, including
-Tooltip, TextInput, TextArea and SearchInput. Counts in the earlier slice records describe those commits; the JSON
+Current availability is 57 runtime values and 89 types in index.gtk.ts, including
+Tooltip, the text-entry controls, field/group owners, selection indicators,
+CheckboxInput and Switch. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1023,3 +1024,26 @@ This establishes the renderer input foundation. CheckboxInput/Switch remain
 outside the curated root until their field and async-action contracts are
 qualified. Root availability remains 55 values and 86 types; the full parity
 goal and later PR remain in progress.
+
+
+### Public GTK checkbox and switch fields
+
+CheckboxInput, Switch and their three native prop types are now curated.
+Availability is57 values/89 types. A private shared native field frame owns
+width/status/defaults without replacing the control when chrome changes;
+Switch label, track and keyboard input share one action owner. Mixed state,
+async success/rejection, synchronous action throws, required/optional defaults,
+read-only/disabled/busy metadata, native sensitivity, label layout and cleanup
+have maintained runtime checks.
+
+The public-root Linux run passes50 tests with no skips. The corrected field
+case passes86 actual X11 pointer/geometry/state/lifecycle assertions, alongside
+the keyboard foundation's34 actual Tab/Space/Return checks. All62 affected/
+dependent typecheck tasks,58 Node tests,464 native object-driver tests,6 package
+validation tasks and docs build/test28 tasks pass. The declaration fixture
+compares all GTK runtime values and the three new types to the native surface.
+See [the toggle evidence](linux-gtk-renderer.md#public-gtk-checkbox-and-switch-fields)
+for baseline failures, source changes, logs and limits. Text-entry's GTK recipe
+gains AC3 evidence while retaining partial coverage and an unexecuted complete
+criterion. Other inputs/parts, Image, overlays, navigation, theme and services
+remain in the full parity goal. No PR has been opened for this partial surface.

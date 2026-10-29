@@ -2028,7 +2028,7 @@ Visibility verification completed: the full working-tree renderer suite passes49
 tests with no skips (/tmp/gtk-visibility-full.log). That integration run includes
 the pending shared native toggle field edits. A separate focused run restores
 the committed Checkbox/Switch sources in the guest, verifies visibility25,
-toggle keyboard34 and field chrome9, then restores the draft sources
+toggle keyboard34 and field chrome61, then restores the draft sources
 (/tmp/gtk-visibility-committed-ui.log); this proves the renderer change does not
 depend on the unfinished UI patch. Andromeda renderer/dependent typecheck passes10
 tasks (/tmp/gtk-visibility-types-final2.log). Documentation checks pass141 pages,
@@ -2037,3 +2037,73 @@ release notes were missing five required titles; a separate formatting-only
 commit restores them and all49 release notes validate. Feedback records:
 ead8254d-7555-4b66-9d94-9bb035a47221 and
 25974be3-1970-4214-851f-32ea57229a92.
+
+## Public GTK checkbox and switch fields
+
+CheckboxInput and Switch reuse the shared native implementations. The GTK
+barrel also exports CheckboxProps, CheckboxInputProps and SwitchProps, bringing
+the available root to57 values/89 types. NativeToggleField is a private frame
+that delegates width, status and field defaults to FormField. An existing Field
+supplies that ownership instead. Each control keeps one selection/action owner
+while its label/description hosts remain mounted through chrome changes.
+
+The initial corrected field probe exposed11 failures: width, required/readOnly/
+busy metadata, hidden labels and Switch label action dispatch. The separate
+visibility repair above closes the renderer boundary. The UI patch forwards
+field metadata, hides retained label hosts, respects optionality/label hints,
+keeps a single Switch row owner and handles synchronous action throws through
+the same rejection path. Checkbox rollback retains an uncontrolled mixed value;
+its boolean onChange reports the previous checked flag. isDisabled also writes
+isEnabled; accessible disabled metadata alone does not change native sensitivity.
+
+The wider direct-source Linux case completed79 checks, with5 failures from
+Switch start/hug and end/spread placement plus the native sensitivity checks.
+Reverse hug rows now align to the logical start, and spread text keeps its
+natural width instead of filling the gap. The corrected case passes86 checks
+with real X11 label/control clicks, including:
+
+- authored numeric/percentage widths, style removal, physical small/default sizes;
+- inherited Field/FormLayout/SizeProvider defaults, overrides and reset;
+- independent IDs/automation names, names/help/label hints and validation state;
+- hidden/restored labels and changed chrome retaining exact control/focus owners;
+- controlled and local values, mixed state, pending success/rejection/sync throw;
+- disabled/read-only guards, external-label focus and disposal of a pending action.
+
+Logs: guest /tmp/gtk-toggle-contracts-first.log and
+/tmp/gtk-toggle-contracts-fixed.log. The latter still used direct component
+imports. Both maintained toggle fixtures now import the curated public root.
+The fixture typecheck caught an authored accessibilityHint on Switch, which is
+absent from SwitchProps; that extra prop was removed rather than broadening the
+public API. Checkbox's explicit hint and both controls' field help remain covered.
+
+The full native object-driver suite now passes58 Node tests and464 Vitest tests
+across86 files (/tmp/gtk-toggle-root-native.log on andromeda). Four existing
+boolean-input tests needed to locate the semantic role beneath the new field
+frame. The first broad run also caught FormLayout's inline static column
+direction, introduced in the earlier GTK form work. Removing that duplicate
+uses the existing vx-formlayout stylesheet, preserves class overrides and passes
+the existing layout-defaults contract. No phone runtime or pixels were tested.
+
+The width fix applies to a contract already present in v0.17.1: its native
+Switch/Checkbox leaves did not forward width to any field owner. The fix gets
+a native field-width release note. The new GTK availability gets a feature note;
+the action API and visibility defects introduced since that stable tag do not
+get separate fix notes. Text-entry's GTK recipe evidence gains these AC3 field
+checks; its full AT-client, IME, OSK/overlay/inset, NumberInput, modal and Presence
+criteria remain open.
+
+
+Final toggle qualification: the public-root renderer suite passes50 tests with
+no skips (/tmp/gtk-toggle-root-full.log). The corrected, type-valid public
+field fixture independently passes86 checks with actual X11 input
+(/tmp/gtk-toggle-root-final.log); the keyboard fixture contributes34 actual
+Tab/Space/Return checks. All62 UI/renderer/dependent typecheck tasks pass,
+including equality checks for every GTK runtime value and the three added
+prop types (/tmp/gtk-toggle-root-types-final.log). UI packed exports and the
+declaration graph pass6 tasks; docs build/test passes28. Docs141 pages/links,
+1129 parsing examples, recipes, UI barrels and51 release notes validate.
+Andromeda logs use the /tmp/gtk-toggle-root-{pack,doc-site,docs-final,
+examples-final,recipes-final,barrels,notes}.log prefix. No visual analysis,
+phone runtime, IME, Wayland or AT-client interaction qualification is implied.
+Feedback:36a0123b-e060-4efa-b5e2-c6f45bdf0583 and
+cb89bd45-678b-49d6-958e-24d7d64bcd01.

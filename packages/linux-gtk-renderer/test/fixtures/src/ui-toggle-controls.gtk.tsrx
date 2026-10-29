@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { View } from '@octane-xplat/ui'
-import { Checkbox } from '../../../../ui/src/Checkbox'
-import { Switch } from '../../../../ui/src/Switch'
+import { CheckboxInput as Checkbox, Switch } from '@octane-xplat/ui'
 export const changes: Array<[string, boolean]> = []
 export function ToggleControls(props: { disabled?: boolean; readOnly?: boolean; loading?: boolean }) @{
 	<View style={{ width: 360, height: 300, gap: 16 }}>

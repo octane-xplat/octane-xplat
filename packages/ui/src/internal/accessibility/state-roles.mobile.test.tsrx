@@ -27,12 +27,13 @@ function LeadingInput(props: { inputRef: any; showLeading?: boolean }) @{
 		startIcon={props.showLeading ? <label text="Prefix" /> : undefined} />
 }
 
-function findNative(node: any, type: string, label?: string): any {
-	if (node.type === type && (label === undefined || node.props?.accessibilityLabel === label)) {
+function findNative(node: any, type: string, label?: string, role?: string): any {
+	if (node.type === type && (label === undefined || node.props?.accessibilityLabel === label) &&
+		(role === undefined || node.props?.accessibilityRole === role)) {
 		return node
 	}
 	for (const child of node.children ?? []) {
-		const found = findNative(child, type, label)
+		const found = findNative(child, type, label, role)
 		if (found) return found
 	}
 	return null
@@ -139,7 +140,8 @@ describe('native boolean inputs', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Switch, { defaultValue: true, onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'switch')
+		expect(host).not.toBeNull()
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(false)
@@ -147,11 +149,11 @@ describe('native boolean inputs', () => {
 		root.unmount()
 	})
 
-	it('Switch controlled checked wins and stays caller-owned', () => {
+	it('Switch controlled value wins and stays caller-owned', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Switch, { value: true, defaultValue: false, onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'switch')
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(false)
@@ -163,7 +165,7 @@ describe('native boolean inputs', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Checkbox, { defaultValue: true, onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'checkbox')
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(false)
@@ -175,7 +177,7 @@ describe('native boolean inputs', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Checkbox, { value: 'indeterminate', onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'checkbox')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(true)
 		root.unmount()

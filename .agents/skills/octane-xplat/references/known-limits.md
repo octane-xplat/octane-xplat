@@ -102,8 +102,17 @@ FieldGroup and useFieldControl are curated too. Their native metadata, geometry
 and lifecycle checks do not qualify AT-client output or a complete
 keyboard/overlay workflow. Decorative indicators and the indicator registry/hook
 also have maintained GTK checks for native geometry, SVG loading, replacement
-and cleanup; their availability does not qualify owning Checkbox/Switch input
-behavior.
+and cleanup. CheckboxInput and Switch are curated too: use their shared value,
+defaultValue, onChange and changeAction contracts. The standalone native frame
+owns width/status/defaults; an explicit Field supplies that ownership instead.
+Keep one state/action owner for row, inline label and keyboard activation.
+Async rejection restores the previous selection; synchronous action throws are
+handled the same way. Hidden labels, changed chrome and size retain the control.
+Set isEnabled from resolved isDisabled as well as removing activation handlers;
+accessibilityState alone changes metadata. The native labelTooltip contract is
+a label hint. Real Linux checks cover these contracts, including mixed
+checkboxes and actual X11 label clicks; AT-client speech/navigation, phone
+runtime and pixel parity remain unqualified.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
