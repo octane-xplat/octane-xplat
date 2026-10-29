@@ -273,3 +273,17 @@ test('column resize separators expose native splitter role, vertical orientation
 	assert.equal(f.view.accessibilityPerformIncrement(), true); assert.deepEqual(values, [250])
 	f.set('accessibilityRole', 'button'); assert.equal(f.view.accessibilityOrientation(), 2)
 })
+
+
+test('named toolbar hosts expose AXToolbar without becoming action or Tab targets', () => {
+	const f = fixture()
+	f.set('accessibilityRole', 'toolbar'); f.set('accessibilityLabel', 'Page actions')
+	assert.equal(f.view.accessibilityRole(), 'AXToolbar')
+	assert.equal(f.view.accessibilityLabel(), 'Page actions')
+	assert.equal(f.view.acceptsFirstResponder(), false)
+	assert.equal(f.view.canBecomeKeyView(), false)
+	assert.equal(f.view.accessibilityPerformPress(), false)
+	f.set('accessibilityLabel', 'Document actions'); assert.equal(f.view.accessibilityLabel(), 'Document actions')
+	f.set('accessible', false); assert.equal(f.view.accessibilityIsIgnored(), true)
+	f.set('accessibilityRole', undefined); assert.equal(f.view.accessibilityRole(), 'AXGroup')
+})

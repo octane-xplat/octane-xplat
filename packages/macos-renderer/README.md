@@ -1582,3 +1582,23 @@ Tokenizer's outer unfocusedLayer editor remains inline; generic native
 Popover/useLayer paths still own standalone roots. Actual portal/ref/commit
 ordering, geometry, focus, dismissal, accessibility and packaging remain
 unqualified. This is not proof of floating typeahead support.
+
+## Named toolbar hosts
+
+The AppKit UI Toolbar supplies `accessibilityRole="toolbar"` and its current
+label on its existing host. AccessibleHostView maps that role to `AXToolbar`;
+the container gains no press action or Tab stop from the role alone. Child
+controls retain their own activation. This does not add roving toolbar keys,
+orientation accessibility metadata or prove a native VoiceOver announcement.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function NamedActions() {
+	return <masonview accessibilityRole="toolbar" accessibilityLabel="Page actions" />
+}
+```
+
+The renderer VM case and UI object-driver case are authored but unrun. The
+[manual Toolbar fixture](../../examples/probes/toolbar.macos.tsrx) records mounting
+only; actual OS keyboard/focus, hierarchy/VoiceOver and installed behavior remain
+unqualified. See the [toolbar guide](../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow).

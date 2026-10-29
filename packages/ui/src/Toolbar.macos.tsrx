@@ -29,6 +29,7 @@ export function Toolbar(props: ToolbarProps) @{
 				props.className,
 			)}
 			style={mergeStyle({ display: 'flex' }, props.style)}
+			accessibilityRole="toolbar"
 			accessibilityLabel={props.label}
 		>
 			@if (hasCenter && !vertical) {

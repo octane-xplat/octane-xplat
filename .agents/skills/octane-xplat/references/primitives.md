@@ -2613,3 +2613,21 @@ after a removal failure. Model cases and the idle manual probe are unrun;
 compiled hooks/marker forwarding, real input/Tab, BOOL, nested focus, scrolling,
 RTL/layout, AX, native cleanup and installed consumers remain unqualified. See
 [custom native cells](../../../../docs/app/components.md#custom-grid-cell-focus-on-appkit).
+
+## AppKit Toolbar role prerequisite
+
+Use Toolbar's label and start/center/end slots for contextual actions. Its
+AppKit host now supplies the toolbar role and the renderer maps it to AXToolbar,
+without adding an action or Tab target to the container. Ordinary child buttons
+retain their activation. ToggleButtonGroup remains an ordinary group, not a
+roving toolbar. AppKit toolbar roving keys and orientation AX metadata are still
+implementation gaps; native input, hierarchy/VoiceOver and installed behavior
+remain unqualified. See [toolbar actions](../../../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow).
+
+```tsx
+import { Button, Toolbar } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <Toolbar label="Page actions" startContent={<Button label="Save" />} />
+}
+```

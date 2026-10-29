@@ -198,9 +198,11 @@ export function Example() {
 ## Add toolbar actions and responsive overflow
 
 `Toolbar` has `startContent`, `centerContent`, and `endContent` slots. Supply a
-required `label`; on web the component exposes the toolbar landmark and moves
-focus among its controls with the arrow keys. `orientation` sets both the
-layout axis and keyboard direction. `variant` and `dividers` only affect the
+required `label`. Web exposes a named toolbar and moves focus among its controls
+with arrow keys; `orientation` sets the layout axis and keyboard direction.
+AppKit now supplies the named native toolbar role while preserving its slot
+layout. AppKit roving arrows, orientation accessibility metadata and native
+VoiceOver/input behavior remain unimplemented or unqualified. `variant` and `dividers` only affect the
 painted chrome. `size` sets the row height and the default `size` for controls
 inside the toolbar — a control with its own `size` prop keeps it.
 

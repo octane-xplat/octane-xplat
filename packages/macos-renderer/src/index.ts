@@ -898,6 +898,7 @@ class AccessibleHostView extends NSView {
 		if (role === 'menuitem' || role === 'menuitemcheckbox' || role === 'menuitemradio') return 'AXMenuItem'
 		if (role === 'radio' || role === 'tab') return 'AXRadioButton'
 		if (role === 'tablist') return 'AXTabGroup'
+		if (role === 'toolbar') return 'AXToolbar'
 		if (role === 'switch') return 'AXCheckBox'
 		if (role === 'adjustable') return 'AXSlider'
 		if (role === 'separator') return 'AXSplitter'

@@ -9589,3 +9589,70 @@ check:docs/check:doc-examples remain absent from this worktree. No tests, typege
 typechecks, builds, installs, probes, native/OS automation, packaging, visual
 analysis or additional task/agent ran. Focus-triggered hints remain an implementation
 gap; all native qualification remains open and the goal remains active.
+
+## AppKit Toolbar role prerequisite
+
+Demand assumption: ComponentsDemo's Toolbar and TableSelectionToolbar's bulk
+application actions represent ordinary contextual commands. ToggleButtonGroup
+uses ordinary group semantics on web; Toolbar is the actual web roving composite.
+At 36704f1c2 the AppKit Toolbar supplied its label but no toolbar role, and the
+renderer fell back to AXGroup even for a supplied toolbar role. This is a source
+prerequisite finding, not an observed VoiceOver or keyboard failure.
+
+The target Toolbar now supplies accessibilityRole=toolbar on its retained outer
+host. The renderer role getter returns AXToolbar, matching
+[Apple's toolbar role](https://developer.apple.com/documentation/applicationservices/kaxtoolbarrole?changes=__11).
+The role alone does not create an activation handler, responder or Tab stop;
+current labels, slots, layout orientation and child Button actions stay owned by
+their existing paths. No new native object, focus registry/lease, public prop,
+dependency, manifest, shared hook or other-target leaf changed. The existing
+ObjC role selector handles the mapping without a new protocol method.
+
+One new renderer VM case and one UI object-driver case, both UNRUN, cover the
+named native role, label updates/role reset/ignored state, non-action/non-Tab
+container and retained leaf/slot/child-action behavior. The new manual Toolbar
+fixture exposes label/orientation changes and ordinary save/share actions; its
+hook records mounting only. No case, fixture, action or OS input ran.
+
+This commit deliberately repairs the host/renderer prerequisite before toolbar
+keyboard implementation. Roving toolbar navigation and orientation AX metadata
+remain implementation gaps. Future traversal must retain disabled/hidden and
+nested-editor/composite ownership, and must not use canBecomeKeyView to discover
+members after applying owned Tab suppression (that would exclude its own leased
+members). The existing AppKit choice helper and physical input pipeline provide
+source machinery, not native toolbar proof. Ordinary ToggleButtonGroup behavior
+is not changed to introduce a different shared contract.
+
+Guide/renderer README/Octane reference/resizable-workspace AC5 and a stable fix
+note reconcile this boundary. Local entity history identifies 72d90e9 as the
+Toolbar leaf introduction; stable tags v0.10.0 through v0.18.0 contain it. This
+is local Git evidence, not a registry audit. No shared audit snapshot regenerated.
+
+Lightweight checks: five source/test/fixture files (two TypeScript, three TSRX)
+and four scoped TSX fences parsed; six added/changed local targets/anchors resolved;
+staged semantic and whitespace review completed. Zero tests/compiler transforms/
+native operations. Native role dispatch/child hierarchy, AX orientation, keyboard/
+Tab/focus/input, VoiceOver, layout/pixels and installed consumers remain unqualified.
+All evidence-gated issue checkboxes remain open.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human
+verification authorization; resource admission is not visual-analysis approval):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/toolbar.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/toolbar.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit Toolbar role package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+check:docs/check:doc-examples remain absent from this worktree. No tests, typegen,
+typechecks, builds, installs, probes, native/OS automation, packaging, visual
+analysis or additional task/agent ran. Native qualification and the goal remain open.
