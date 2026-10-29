@@ -79,16 +79,18 @@ app must recover through server order state. Android runtime is unverified.
   guest preparation, duplicate presentation/reset guards, actual SDK failure on
   invalid fixture credentials, presenter release, disposal and unrelated URL
   rejection. The task-owned simulator was shut down after the run.
-- A separate packed-consumer SPM check on skymac.local now passes: NativeScript
-  consumes nativescript.config.ts from the unpacked archive, attaches all three
-  product declarations and resolves Stripe iOS exactly26.15.1. The maintained
+- The initial packed-consumer SPM check on skymac.local pinned Stripe iOS
+  exactly26.15.1 and attached the three requested product declarations. It did
+  not establish that all three names were valid exported products; the later
+  native build exposed the StripeCore mistake described below. The maintained
   tests/ios-spm.mjs checks the real Xcode pins after NativeScript prepare, which
   already invokes dependency resolution; it avoids a second resolution command.
   Its private Turbo driver uses the existing reference checkout and an archive
   packed locally with scripts disabled. Public dependencies are linked from
   installed copies; no registry publication or new signing setup is needed.
-  This is package preparation/resolution evidence, not SPM SDK compilation,
-  installed checkout, a payment, or a current native hook test. No simulator is
+  This initial result was preparation/resolution evidence only; the corrected
+  source build is recorded below. It was not installed checkout, a payment,
+  or a current native hook test. No simulator is
   launched. The first SDK fetch took4m40; subsequent checks reuse its cache.
   Logs: /tmp/xplat-stripe-spm-first-resolution.log and final fixture output in
   /tmp/xplat-stripe-spm-final.log. The command runner supervises a process group
@@ -109,3 +111,41 @@ compile error. A task-owned Turbo diagnostic captured both streams from the
 cached fixture build. No shared probe code or remote tracked work was changed. Silo observations
 770e4dbe-a09d-4f2e-baca-d2a393524f2a and
 0ad8fe6f-4356-4c95-8cec-d11aa3cae21c preserve these expectations and evidence.
+
+
+## SPM products and modules
+
+The first real packed SPM consumer build exposed a local configuration bug:
+StripeCore was listed as a library product, but SDK26.15.1 publishes it only
+as a transitive target. Xcode package resolution pinned the SDK successfully;
+compilation then failed with Missing package product StripeCore. This was a
+plugin configuration error, not evidence that Stripe or NativeScript cannot
+support PaymentSheet. The earlier resolution-only evidence did not prove
+product linkage.
+
+The leaf now links the public StripePaymentSheet and StripePayments products.
+StripeCore remains available as their transitive Swift module. The private
+fixture rejects a direct StripeCore product and asks Xcode to validate the
+package graph before its optional --build step. It hashes the packed archive
+into the probe resource identity because the older remote probe helper does
+not include root plugin configuration in its native cache key. This prevents
+a stale Xcode project from preserving removed product references.
+
+Local feedback observation d728f351-e8c6-44c2-b0fb-341b1e39d1e6 preserves the
+original expectation and first failure. The corrected broker-owned check passes
+on skymac.local: SDK26.15.1 source and the packed Swift bridge compile/link into
+an unsigned Release simulator app. The product graph check, native target bridge
+reference and actual app executable are asserted. The complete corrected run
+took6m48, including fresh dependency preparation; no second successful build was
+run. Source/packed-consumer checks and docs/examples/recipes pass separately.
+
+Logs: /tmp/xplat-stripe-spm-build.log (initial failure) and
+/tmp/xplat-stripe-spm-build-fixed.log (corrected check). Build-only use runs the
+private driver with test:ios-spm -- --build, setting XPLAT_NATIVE_TEST_REPO and
+XPLAT_STRIPE_CONSUMER_ARCHIVE as for the resolution fixture. The --build option
+is explicit so normal dependency checks remain lighter. No simulator, checkout,
+real payment credentials or signed consumer are involved. This does not change
+the outstanding positive payment/loaded-sheet retry/redirect/wallet evidence.
+
+The authoritative SDK product list is its
+[26.15.1 Package.swift](https://github.com/stripe/stripe-ios/blob/26.15.1/Package.swift).

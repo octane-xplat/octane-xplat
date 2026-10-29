@@ -297,14 +297,16 @@ export function canOfferCheckout() {
 ```
 
 Source typechecks, ten coordinator/dialog tests with a mocked Stripe boundary,
-packed consumer checks and a Swift bridge typecheck against the official iOS
-simulator SDK pass. They do not prove a completed payment. The iOS26.2 smoke on skymac.local passed
-ten assertions for initialization,
-concurrency, invalid-credential SDK failure and presenter cleanup. It uses the
-official binary SDK. A separate packed consumer resolves the plugin’s three
-Swift Package Manager products at SDK26.15.1 on skymac.local without compiling
-the SDK. SPM source compilation, a successful test payment, loaded-sheet
-cancellation, redirects and wallets remain unverified. Android runtime is explicitly unverified. Native AppKit, GTK and Windows exports report unavailable: Stripe's
+packed consumer checks and Swift bridge API checks pass. The iOS26.2 smoke on
+skymac.local passed ten assertions for initialization, concurrency,
+invalid-credential SDK failure and presenter cleanup using the official binary
+SDK. A separate packed consumer now validates the public SPM products and builds
+the SDK26.15.1 source and packaged Swift bridge into an unsigned simulator app.
+It does not launch checkout or prove a completed payment.
+
+A successful test payment, loaded-sheet cancellation/retry, redirects, wallets
+and signed installed consumers remain unverified. Android runtime is explicitly
+unverified. Native AppKit, GTK and Windows exports report unavailable: Stripe's
 PaymentSheet uses UIKit or Android UI, and a native desktop payment backend is
 not wired. A web app can use the web adapter in a supported browser.
 

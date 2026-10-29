@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { cp, mkdir, readFile, readdir, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { parseArgs } from 'node:util'
+
+const { values } = parseArgs({ options: { build: { type: 'boolean', default: false } } })
 
 assert.equal(process.platform, 'darwin', 'Run iOS dependency checks on skymac.local')
 const repo = process.env.XPLAT_NATIVE_TEST_REPO
@@ -14,12 +18,12 @@ const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const consumer = join(packageRoot, 'tests/.runtime/packed-spm-consumer')
 const installed = join(consumer, 'node_modules/@octane-xplat/stripe')
 await mkdir(installed, { recursive: true })
-function command(executable, args, cwd, log) {
+function command(executable, args, cwd, log, timeout = 300000) {
 	const result = spawnSync(executable, args, {
 		cwd,
 		detached: true,
 		encoding: 'utf8',
-		timeout: 300000,
+		timeout,
 		maxBuffer: 16 * 1024 * 1024,
 	})
 	if (result.error && result.pid > 0) {
@@ -69,7 +73,15 @@ const entry = join(consumer, 'entry.ts')
 await writeFile(entry, 'export {}\n')
 const resources = join(consumer, 'App_Resources')
 await cp(join(repo, 'packages/create/template/App_Resources'), resources, { recursive: true })
-await writeFile(join(resources, 'iOS/build.xcconfig'), 'IPHONEOS_DEPLOYMENT_TARGET = 15.0\n')
+// Include the entire packed native input in the probe's resource identity.
+// Old probe hosts do not hash a plugin's root nativescript.config.ts themselves.
+const archiveHash = createHash('sha256')
+	.update(await readFile(archive))
+	.digest('hex')
+await writeFile(
+	join(resources, 'iOS/build.xcconfig'),
+	`IPHONEOS_DEPLOYMENT_TARGET = 15.0\n// Packed Stripe archive: ${archiveHash}\n`,
+)
 const { prepare } = await import(pathToFileURL(join(repo, 'scripts/probe/project.ts')).href)
 const project = await prepare('ios', entry, ['@octane-xplat/stripe'], resources)
 await writeFile(join(project.root, 'src/index.ts'), 'export {}\n')
@@ -92,7 +104,7 @@ assert.ok(
 	'NativeScript must consume the packed plugin SPM declaration',
 )
 assert.ok(pbx.includes('26.15.1'), 'SDK version must remain pinned')
-for (const product of ['StripePaymentSheet', 'StripePayments', 'StripeCore']) {
+for (const product of ['StripePaymentSheet', 'StripePayments']) {
 	assert.ok(pbx.includes(product), `Missing SPM product ${product}`)
 }
 // NativeScript prepare already invokes xcodebuild -resolvePackageDependencies.
@@ -106,12 +118,47 @@ assert.ok(resolved, 'NativeScript must finish SPM resolution and persist its act
 const lock = JSON.parse(await readFile(resolved, 'utf8'))
 const stripe = lock.pins.find((pin) => pin.identity === 'stripe-ios')
 assert.equal(stripe?.state.version, '26.15.1')
+// StripeCore is a transitive target in 26.15.1, not a public SPM product.
+assert.doesNotMatch(pbx, /productName\s*=\s*"?StripeCore"?\s*;/)
+console.log(JSON.stringify({ phase: 'validate-xcode-package-products', sdkCompilation: false }))
+await command(
+	'xcrun',
+	['xcodebuild', '-showBuildSettings', '-project', xcode, '-sdk', 'iphonesimulator'],
+	'/tmp',
+	join(consumer, 'package-products.log'),
+)
+let app
+if (values.build) {
+	assert.ok(
+		pbx.includes('XplatStripePaymentSheet.swift'),
+		'The packed Swift bridge must belong to the native target',
+	)
+	console.log(JSON.stringify({ phase: 'build-unsigned-spm-consumer', sdkCompilation: true }))
+	await command(
+		'ns',
+		['build', 'ios', '--path', project.root, '--release', '--for-device', 'false', '--no-hmr'],
+		'/tmp',
+		join(consumer, 'native-build.log'),
+		600000,
+	)
+	const output = join(ios, 'build/Release-iphonesimulator')
+	const apps = (await readdir(output)).filter((name) => name.endsWith('.app'))
+	assert.equal(apps.length, 1, 'Expected one unsigned simulator app')
+	app = join(output, apps[0])
+	const executable = command(
+		'/usr/libexec/PlistBuddy',
+		['-c', 'Print :CFBundleExecutable', join(app, 'Info.plist')],
+		'/tmp',
+	).stdout.trim()
+	assert.ok(existsSync(join(app, executable)), 'Compiled consumer executable must exist')
+}
 console.log(
 	JSON.stringify({
 		passed: true,
 		version: stripe.state.version,
-		products: ['StripePaymentSheet', 'StripePayments', 'StripeCore'],
-		nativeCompilation: false,
+		products: ['StripePaymentSheet', 'StripePayments'],
+		nativeCompilation: values.build,
+		...(app ? { app } : {}),
 		checkoutPresented: false,
 	}),
 )

@@ -5,7 +5,7 @@ export default {
 		SPMPackages: [
 			{
 				name: 'Stripe',
-				libs: ['StripePaymentSheet', 'StripePayments', 'StripeCore'],
+				libs: ['StripePaymentSheet', 'StripePayments'],
 				repositoryURL: 'https://github.com/stripe/stripe-ios',
 				version: '26.15.1',
 			},

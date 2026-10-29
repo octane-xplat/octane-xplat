@@ -827,6 +827,8 @@ settlement. The current subset is guest PaymentIntents; web requires a card-only
 Intent and its own HTTP(S) return route. Native wallets need merchant setup.
 Do not reconfigure or reset while presentation is active, and never log client
 secrets. Native desktop hosts are unavailable and Android runtime is unverified.
+When changing the iOS SDK setup, use its exported SPM library products, not
+internal module names; see the [Stripe packaging evidence](../../../../.agents/docs/notes/stripe.md#spm-products-and-modules) before editing the leaf's supplied configuration.
 
 ```ts
 import { initPaymentSheet, presentPaymentSheet } from '@octane-xplat/stripe'
