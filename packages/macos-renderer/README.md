@@ -140,6 +140,36 @@ bridging and updates/removal remain unqualified; the source case is unrun.
 	accessibilityValue="24 notes" accessible={true} />
 ```
 
+## Own scroll geometry observation
+
+Scroll view geometry watches its arranged viewport, clip and document frames.
+One node owns one subscription; setup retires a prior owner before acquisition,
+unwinds partial registration and releases late handles after reentrant
+replacement. Cleanup invalidates queued callbacks before attempting each native
+removal once through the captured center/method. Notification-enable flags remain
+on because other renderer readers share these views. Later ownership cannot be
+cleared by a former cleanup. The renderer caller clears its old cleanup field
+before native teardown can install a replacement.
+
+```tsx
+<scrollview orientation="vertical" onLayoutChanged={({ width, height }) => {
+	console.log(width, height)
+}}>
+	<masonview style={{ width: 320, height: 640 }} />
+</scrollview>
+```
+
+Queued layout solves check their current view ownership before clamping or
+notifying. Invalid/nonfinite/negative dimensions never reach native scrolling;
+failed native layout/positioning or consumer notification leaves later frame
+attempts available, and initial-position readiness is committed only after
+geometry/positioning succeeds. A task queued by consumer work keeps its own lease.
+Nine added source cases are authored, all unrun, including the actual caller
+slice. They do not prove ObjC notifications, attachment timing, elasticity,
+resize/scroll output, memory or installed consumers. Pull-to-refresh remains
+unsupported and needs separate native phase/docking evidence.
+See [AppKit scrolling](../../docs/app/primitives.md#macos-scrolling-and-refresh).
+
 ## Readable heading accessibility
 
 A label with accessibilityRole="heading" maps to AXHeading. Its

@@ -16,6 +16,8 @@ An LTR or RTL viewport with inline scrolling and caller-owned direction.
 
 - AC4: ScrollableArea retains declared test identity, accessible visibility, name precedence, hint and portable value metadata on the current native viewport. Route native prop updates/removal to help/value descriptions without rewriting scroll content, native role/value or clip position. Keep unsupported arbitrary roles/state/live announcements and pull-to-refresh explicit; forwarding/source cases do not qualify native hierarchy/navigation or packaged consumers.
 
+- AC5: Keep geometry observation owned by the current viewport across partial setup, replacement and teardown. Release acquired/late native handles and retire queued callbacks without blocking later owners, preserve retry after failed layout/positioning/notification, reject invalid dimensions before native writes and commit initial-position readiness only after geometry/positioning succeeds. Explain source-vs-native evidence and the separate pull-to-refresh gap.
+
 ## Documentation
 
 - AC1: [Logical scroll guide](../../../docs/app/primitives.md#logical-scroll-offsets-on-appkit), [conversion helper](../../../packages/ui/src/scrollable-area-logical.macos.ts) and [authored cases](../../../packages/ui/src/scrollable-area-appkit.mobile.test.tsrx). Tests unrun.
@@ -23,3 +25,5 @@ An LTR or RTL viewport with inline scrolling and caller-owned direction.
 - AC3: The guide and [target note](../parity/appkit-progress.md#logical-appkit-inline-scroll-offsets) record scope, exact deferred commands and remaining native gates.
 
 - AC4: [Viewport metadata guide](../../../docs/app/primitives.md#macos-scrolling-and-refresh), [native description mapping](../../../packages/macos-renderer/README.md#scroll-viewport-accessibility-descriptions), one added [UI source case](../../../packages/ui/src/scrollable-area-appkit.mobile.test.tsrx), one [real native prop-branch case](../../../packages/macos-renderer/test/scroll-accessibility.test.ts), [manual fixture](../../../examples/probes/scroll-metadata.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-scroll-viewport-metadata). All cases/fixture are unrun; native VoiceOver hierarchy/descendant navigation, updates/removal, identity and packing remain unqualified.
+
+- AC5: [AppKit scrolling](../../../docs/app/primitives.md#macos-scrolling-and-refresh), [renderer ownership](../../../packages/macos-renderer/README.md#own-scroll-geometry-observation), [nine additional source/caller cases](../../../packages/macos-renderer/test/scroll-view.test.ts), [skill](../../skills/octane-xplat/references/primitives.md#appkit-scroll-offsets) and [target note](../parity/appkit-progress.md#appkit-scroll-geometry-subscription-ownership). Models, compiler/native notification/attachment/resize/elasticity/memory and installed consumers remain unrun/unqualified; pull-to-refresh is still unsupported.

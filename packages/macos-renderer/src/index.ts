@@ -1631,12 +1631,13 @@ function syncLayoutObserver(node: ElementNode) {
 	layoutHandlers.delete(observed)
 	if (node.layoutObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
+		node.layoutObserver = null
 	}
 
-	node.scrollGeometryDetach?.()
+	const detachGeometry = node.scrollGeometryDetach
 	node.scrollGeometryDetach = null
-	node.layoutObserver = null
 	node.layoutObservedView = null
+	detachGeometry?.()
 }
 
 /** `onLayoutChanged` prop: NSViewFrameDidChangeNotification on the arranged
@@ -1651,18 +1652,19 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 	syncLayoutObserver(node)
 	if (typeof handler !== 'function') {
 		layoutHandlers.delete(target)
-		node.scrollGeometryDetach?.()
+		const detachGeometry = node.scrollGeometryDetach
 		node.scrollGeometryDetach = null
+		detachGeometry?.()
 		return
 	}
 
 	target.postsFrameChangedNotifications = true
 	if (node.type === 'scrollview') {
 		if (!node.scrollGeometryDetach) {
-			node.scrollGeometryDetach = observeScrollGeometry(node, target, () =>
+			const detach = observeScrollGeometry(node, target, () =>
 				layoutHandlers.get(target)?.(),
 			)
-
+			if (node.scrollGeometryDetach !== detach) return
 			node.layoutObservedView = target
 		}
 	} else if (!node.layoutObserver) {
@@ -8515,8 +8517,9 @@ function destroy(node: ElementNode) {
 		node.scrollObserverInstalled = false
 	}
 
-	node.scrollGeometryDetach?.()
+	const detachScrollGeometry = node.scrollGeometryDetach
 	node.scrollGeometryDetach = null
+	detachScrollGeometry?.()
 	for (const constraint of node.scrollAxisConstraints ?? []) {
 		constraint.active = false
 	}

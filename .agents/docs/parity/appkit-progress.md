@@ -8269,3 +8269,84 @@ native/OS/AX/visual analysis, native chrome changes or packaging ran. Real root
 startup, generated/installed runtime/declaration resolution and the separate
 accepted desktop system-bar contract remain unqualified/open. Evidence-gated
 checkboxes stay open; persistent goal remains active.
+
+## AppKit scroll geometry subscription ownership
+
+The next demand area was ordinary bounded scrolling/content resize, before niche
+integrations. ScrollableArea and windowed lists use the renderer's arranged
+viewport onLayoutChanged path. Pull-to-refresh remains missing, but Apple documents
+NSScrollView contentInsets as a tiling inset for scroll-view subviews, not the
+UIScrollView contentInset mechanism used by the existing iOS refresh controller.
+The baseline supports macOS 13.5+; the current NSScrollView docs label a refresh
+controller Beta, so baseline availability cannot be assumed. Live-scroll gesture
+phase, bounce distance at release and docking still require a native probe;
+resource authorization has not been granted. No substitute Refresh button or
+unsupported facade is counted as implementing that pull gesture. Sources:
+[contentInsets](https://developer.apple.com/documentation/appkit/nsscrollview/contentinsets),
+[live-scroll end](https://developer.apple.com/documentation/appkit/nsscrollview/didendlivescrollnotification)
+and [current API](https://developer.apple.com/documentation/appkit/nsscrollview).
+
+Independent source review found the existing geometry prerequisite acquired
+observers through array.map without unwinding partial failure, stopped cleanup
+at the first removal failure and cleared shared node markers after native
+side effects. A thrown layout call left its scheduled bit set. Work could also
+continue clamping/notifying after native layout reentered teardown, and initial
+readiness was consumed before native scroll success. No native failure was
+executed or observed; these are source findings.
+
+The geometry helper now claims the node's schedule/cleanup markers before old
+cleanup or new registration. It captures the notification center and methods,
+unwinds partial setup preserving the setup error, releases late acquired handles
+from retired attempts and invalidates callbacks before attempting every owned
+removal once. Cleanup diagnostics contain no native/error/geometry payloads.
+Notification-enable flags remain enabled because other renderer readers share
+those views. The renderer clears old cleanup fields before calling native
+teardown, so a new binding acquired by cleanup reentry survives.
+
+Queued passes check current scroll/clip/document ownership before and after
+native layout/positioning. View replacement retires the old subscription;
+rebinding remains the renderer caller's job, without a hidden polling/retry loop.
+Finite nonnegative dimensions and finite origins gate native writes. Failures
+leave later frame attempts available, and initial readiness commits only after
+successful scrolling/reflection. Each queued task keeps its own lease, so a
+consumer-triggered next pass is not cleared by the previous task's completion.
+Existing physical/flipped coordinate, axis and public layout-event shapes remain.
+No dependency, manifest, public API/type, other-target renderer or shared audit
+snapshot changed. No React Aria presence-level entry changes are involved.
+
+Nine additional source/caller cases are authored, all UNRUN. They cover partial
+setup/retry, reentrant late handles, all cleanup attempts, layout teardown/view
+replacement, layout/notification failure recovery, invalid geometry/failed initial
+positioning, consumer-queued work, captured center/method ownership and the actual
+renderer unbind caller slice. Existing geometry/dispatch cases remain unrun too.
+Public scrolling guidance, renderer README, Octane primitive reference and
+appkit-logical-scroll AC5 reconcile the scope; the released fix note is justified
+by exact v0.18.0 helper source with the same map/scheduled/readiness behavior.
+Semantic impact resolves the helper and tests, while setLayoutAction member edges
+are incomplete; focused caller and cleanup spans were reviewed directly.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/scroll-metadata.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit scroll geometry package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The existing metadata fixture is not a pull-refresh phase/docking probe and does
+not cover forced native registration/layout/removal failures. That separate native
+feasibility probe remains deferred, not passed. check:docs/check:doc-examples are
+absent from this isolated revision; shared in-flight tooling was not copied.
+Three source files and four scoped documentation fences syntax parsed; seven
+local paths/anchors exist. Staged semantic/whitespace review completes the
+permitted source checks only. No tests, compiler transforms, typechecks,
+builds, probes, native/OS/AX/visual analysis or packaging ran. Real native layout/
+notification/attachment/reentry/scroll/elasticity, memory and installed consumers
+remain unqualified. Pull-to-refresh and all evidence-gated checkboxes stay open;
+persistent goal remains active.

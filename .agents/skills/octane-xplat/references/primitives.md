@@ -730,6 +730,25 @@ export function Notes() {
 ```
 
 
+AppKit renderer geometry subscriptions are node-owned across partial setup,
+replacement and teardown. Native cleanup is captured, all removals are attempted
+once, queued work checks current scroll/clip/document ownership and old cleanup
+cannot clear a newer lease. Invalid dimensions do not reach native scrolling;
+failed layout/positioning can retry on a later frame, and failure does not consume
+initial-position readiness. Shared notification-enable flags stay enabled.
+Nine source/caller cases are authored but unrun. These are source repairs, not
+OS notification, resize/scroll/elasticity/memory or installed proof. Keep pull-to-
+refresh separate; do not apply the iOS contentInset mechanism to AppKit without
+native phase/docking evidence. See [renderer ownership](../../../../packages/macos-renderer/README.md#own-scroll-geometry-observation).
+
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+
+export function Notes(props: { height: number }) {
+	return <ScrollableArea height={props.height}><Text>Trip notes</Text></ScrollableArea>
+}
+```
+
 AppKit ScrollableArea forwards declared testID, accessible, hint and value to
 the native viewport. accessibilityLabel wins over label. The renderer uses
 accessibilityHelp/value descriptions without changing scroll role, contents or
