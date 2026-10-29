@@ -49,5 +49,11 @@ this package's `platforms/ios/src/**/*.swift` to `ios.NativeSource` in
 the app's NativeScript config. Web maps onto the Vibration API, which
 many desktop browsers expose but ignore.
 
+macOS uses `NSHapticFeedbackManager`, which gives discrete trackpad
+feedback on compatible hardware: `presets` reports `true` while
+`patterns` and `realtime` report `false`. `selection` plays an alignment
+tick, `impact-*` presets play a level-change bump, and `success`,
+`warning`, `error` play generic feedback.
+
 Guide: [Media services](https://octane-xplat.goddardai.org/media-services); per-target
 availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).

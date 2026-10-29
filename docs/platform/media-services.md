@@ -68,7 +68,8 @@ when that owner is removed. Check `capabilities()` first. Native builds use
 Pulsar 1.4.0 on iOS and 1.3.0 on Android; Android hardware can fall back to
 reduced timing or amplitude support. Web uses `navigator.vibrate` when
 available. It cannot provide continuous realtime haptics, and iOS Safari does
-not expose Web Vibration.
+not expose Web Vibration. On macOS, `NSHapticFeedbackManager` plays presets as
+discrete trackpad feedback; `patterns` and `realtime` report unsupported.
 
 ```tsx
 import { useEffect, useState } from 'octane'

@@ -63,6 +63,15 @@ const bad = engine.play('buzz')
 void played
 void bad
 `,
+	macos: `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
+const engine: Haptics = createHaptics()
+const played: boolean = engine.play('impact-light')
+haptics.selection()
+// @ts-expect-error preset follows the published union
+const bad = engine.play('buzz')
+void played
+void bad
+`,
 	native: `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
 const engine: Haptics = createHaptics()
 const played: boolean = engine.play('impact-light')
@@ -90,6 +99,11 @@ const targetConfig = {
 		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
 		customConditions: ['native'],
 		types: ['@nativescript/types'],
+	},
+	macos: {
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
 	},
 }
 
