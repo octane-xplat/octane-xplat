@@ -480,3 +480,15 @@ navigation/close/AX and clean packaged consumers remain unqualified.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native package"}' -- pnpm exec turbo run package --filter=@xplat/macos
 ```
+
+The idle dialog page lets a human check website labels, alert/confirm results,
+prompt defaults, empty text versus Cancel, sequential sheets and keyboard/IME/
+VoiceOver. Serve it locally, then enter the printed host and port plus
+`/browser-dialogs.html` in the browser-service fixture. Close or replace the
+browser from the app while a dialog is open and verify completion and teardown.
+These steps have not run; local HTTP remains subject to the app's network/ATS policy.
+
+```sh
+python3 -m http.server 8765 --bind 127.0.0.1 --directory apps/macos/test/fixtures
+# In the browser-service fixture, open http://127.0.0.1:8765/browser-dialogs.html
+```

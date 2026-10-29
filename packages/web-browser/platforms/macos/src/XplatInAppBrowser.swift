@@ -1,9 +1,27 @@
 import AppKit
 import WebKit
 
+/// Claim completion before ending a sheet: AppKit may synchronously call back.
+private final class BrowserDialog {
+	let alert: NSAlert
+	private var completion: ((NSApplication.ModalResponse) -> Void)?
+	init(_ alert: NSAlert, completion: @escaping (NSApplication.ModalResponse) -> Void) {
+		self.alert = alert; self.completion = completion
+	}
+	func finish(_ response: NSApplication.ModalResponse, parent: NSWindow?) {
+		guard let callback = completion else { return }
+		completion = nil
+		if let parent, alert.window.sheetParent === parent { parent.endSheet(alert.window, returnCode: response) }
+		alert.window.orderOut(nil)
+		// Let Cocoa remove the old sheet before JavaScript requests another one.
+		DispatchQueue.main.async { callback(response) }
+	}
+}
+
 /// In-app browsing only. No app-shell scripts, message bridge or external opener.
 @objc(XplatInAppBrowser)
 public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDelegate, WKUIDelegate {
+	private var dialog: BrowserDialog?
 	private var window: NSWindow?
 	private var webView: WKWebView?
 	private var observations: [NSKeyValueObservation] = []
@@ -87,13 +105,14 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 
 	@objc public func close() {
 		if !Thread.isMainThread { DispatchQueue.main.async { self.close() }; return }
-		let panel = window, browser = webView, tokens = observations
-		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil
+		let panel = window, browser = webView, tokens = observations, pending = dialog
+		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil; dialog = nil
 		address = nil; status = nil; backButton = nil; forwardButton = nil; reloadButton = nil
-		Self.cleanup(panel, browser, tokens, close: true)
+		Self.cleanup(panel, browser, tokens, pending, close: true)
 	}
-	private static func cleanup(_ panel: NSWindow?, _ browser: WKWebView?, _ tokens: [NSKeyValueObservation], close: Bool) {
+	private static func cleanup(_ panel: NSWindow?, _ browser: WKWebView?, _ tokens: [NSKeyValueObservation], _ pending: BrowserDialog?, close: Bool) {
 		let work = {
+			pending?.finish(.cancel, parent: panel)
 			for token in tokens { token.invalidate() }
 			browser?.navigationDelegate = nil; browser?.uiDelegate = nil; browser?.stopLoading()
 			panel?.delegate = nil; panel?.contentView = nil
@@ -103,10 +122,10 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 	}
 	public func windowWillClose(_ notification: Notification) {
 		guard let panel = notification.object as? NSWindow, panel === window else { return }
-		let browser = webView, tokens = observations
-		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil
+		let browser = webView, tokens = observations, pending = dialog
+		window = nil; webView = nil; observations = []; initialURL = nil; navigation = nil; dialog = nil
 		address = nil; status = nil; backButton = nil; forwardButton = nil; reloadButton = nil
-		Self.cleanup(panel, browser, tokens, close: false)
+		Self.cleanup(panel, browser, tokens, pending, close: false)
 	}
 	private func updateChrome(_ browser: WKWebView) {
 		if let title = browser.title, !title.isEmpty { window?.title = title } else { window?.title = "Browser" }
@@ -138,14 +157,62 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 		navigation = browser.load(action.request)
 		return nil
 	}
+	private func cancelDialog() {
+		let pending = dialog
+		dialog = nil
+		pending?.finish(.cancel, parent: window)
+	}
+	private func presentDialog(_ alert: NSAlert, in browser: WKWebView, completion: @escaping (NSApplication.ModalResponse) -> Void) {
+		guard browser === webView, let panel = window, panel.isVisible, dialog == nil, panel.attachedSheet == nil else {
+			completion(.cancel); return
+		}
+		let pending = BrowserDialog(alert, completion: completion)
+		dialog = pending
+		alert.beginSheetModal(for: panel) { [weak self, weak browser, weak panel] response in
+			let current = self?.dialog === pending && browser != nil && self?.webView === browser && panel != nil && self?.window === panel
+			if current { self?.dialog = nil }
+			pending.finish(current ? response : .cancel, parent: panel)
+		}
+	}
+	private func pageAlert(_ message: String, frame: WKFrameInfo, cancel: Bool) -> NSAlert {
+		let alert = NSAlert()
+		let host = frame.securityOrigin.host
+		alert.messageText = host.isEmpty ? "Web page" : "Web page: \(host)"
+		alert.informativeText = message
+		alert.addButton(withTitle: "OK")
+		if cancel { alert.addButton(withTitle: "Cancel").keyEquivalent = "\u{1b}" }
+		return alert
+	}
+	public func webView(_ browser: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+		presentDialog(pageAlert(message, frame: frame, cancel: false), in: browser) { _ in completionHandler() }
+	}
+	public func webView(_ browser: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+		presentDialog(pageAlert(message, frame: frame, cancel: true), in: browser) { response in
+			completionHandler(response == .alertFirstButtonReturn)
+		}
+	}
+	public func webView(_ browser: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+		let alert = pageAlert(prompt, frame: frame, cancel: true)
+		let input = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
+		input.stringValue = defaultText ?? ""
+		input.setAccessibilityLabel("Response")
+		alert.accessoryView = input
+		alert.window.initialFirstResponder = input
+		presentDialog(alert, in: browser) { response in
+			completionHandler(response == .alertFirstButtonReturn ? input.stringValue : nil)
+		}
+	}
 	public func webView(_ browser: WKWebView, didStartProvisionalNavigation value: WKNavigation!) {
-		if browser === webView { navigation = value; status?.isHidden = true; status?.stringValue = "" }
+		if browser === webView { cancelDialog(); navigation = value; status?.isHidden = true; status?.stringValue = "" }
 	}
 	public func webView(_ browser: WKWebView, didFinish value: WKNavigation!) {
 		if browser === webView && value === navigation { status?.isHidden = true; updateChrome(browser) }
 	}
 	public func webView(_ browser: WKWebView, didFailProvisionalNavigation value: WKNavigation!, withError error: Error) { failed(browser, value, error) }
 	public func webView(_ browser: WKWebView, didFail value: WKNavigation!, withError error: Error) { failed(browser, value, error) }
+	public func webViewWebContentProcessDidTerminate(_ browser: WKWebView) {
+		if browser === webView { cancelDialog(); status?.stringValue = "Page stopped. Try Reload."; status?.isHidden = false }
+	}
 	private func failed(_ browser: WKWebView, _ value: WKNavigation?, _ error: Error) {
 		guard browser === webView, value === navigation else { return }
 		let failure = error as NSError
@@ -154,5 +221,5 @@ public final class XplatInAppBrowser: NSObject, NSWindowDelegate, WKNavigationDe
 		status?.isHidden = false
 	}
 
-	deinit { Self.cleanup(window, webView, observations, close: true) }
+	deinit { Self.cleanup(window, webView, observations, dialog, close: true) }
 }

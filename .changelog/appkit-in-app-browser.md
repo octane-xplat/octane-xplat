@@ -1,7 +1,7 @@
 ### In-app document browsing on AppKit
 
 Experimental AppKit webBrowser now has an owned WebKit window source path with
-history, reload/stop and close controls. Add the package to the app and rebuild
+history, reload/stop, close controls and native page alert/confirm/prompt sheets. Add the package to the app and rebuild
 the native host. Actual compilation, presentation and packaging remain
 unqualified.
 
@@ -20,6 +20,6 @@ import { openUrl } from '@octane-xplat/platform'
 openUrl('https://docs.example.com')
 ```
 
-Opened reports presentation, not page load; advanced web/auth/dialog/download
+Opened reports presentation, not page load; advanced web/auth/download
 flows remain outside this source subset. See the
 [package guide](https://github.com/octane-xplat/octane-xplat/tree/main/packages/web-browser#experimental-appkit-subset).

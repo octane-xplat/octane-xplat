@@ -543,7 +543,10 @@ export const closeHelp = () => webBrowser.dismissBrowser()
 
 Native actions require the main UI thread. Mobile style/title/collapsing options
 and Android warmup hints stay platform specific. Advanced downloads/uploads,
-web dialogs/HTTP-auth/permission UI and OAuth interception are not implemented.
+HTTP-auth/permission UI and OAuth interception are not implemented. Page alert/
+confirm/prompt sheets identify the requesting website; cancelled prompts return
+null and accepted empty input stays empty. Close/replacement/navigation/process
+termination retire outstanding sheets. Native dialog/focus/IME behavior is unrun.
 Five JS ownership cases and a manual harness fixture are authored, all unrun.
 Swift/class discovery, native UI/navigation/error/redirect/popup/cookie behavior,
 ATS/sandbox, threading/KVO/cleanup/AX and clean packaging remain unqualified.

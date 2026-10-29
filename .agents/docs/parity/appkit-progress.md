@@ -5915,3 +5915,51 @@ redirect/popup/cookie behavior, network/TLS/ATS/sandbox, close/KVO/resource life
 OS input/focus/VoiceOver, packaged consumers/signing and supported macOS versions
 remain unqualified. Audit snapshots and evidence checkboxes are unchanged;
 persistent goal active.
+
+## AppKit browser JavaScript dialog source path
+
+Ordinary document/help pages may use alert, confirm and prompt; these were a
+consequential hole in the initial owned-browser subset. WKUIDelegate now builds
+website-labeled NSAlert sheets. Confirm maps OK/Cancel to true/false; prompt
+preserves accepted empty text and maps cancellation to nil. The prompt field
+has an accessibility label and initial-first-responder source path. These are
+implementation claims, not keyboard/IME/VoiceOver or native behavior evidence.
+
+A private lease claims completion before ending the sheet and dispatches the
+answer after Cocoa's current callback. Native close/replacement retires owner
+references before cleanup, navigation and web-process termination cancel an
+outstanding dialog, and stale/overlapping requests complete cancellation rather
+than leaving JavaScript waiting. The sheet callback checks browser/window/lease
+identity. No web script/app-shell bridge, external opener, permission grant,
+download/upload or HTTP-auth integration is added. Completed user responses are
+not undone; the one-shot guard prevents teardown from answering them twice.
+
+`apps/macos/test/fixtures/browser-dialogs.html` is an idle manual page for
+alerts, confirms, default/empty prompts and sequential dialogs. It uses textContent
+and never requests a dialog on load. No server, page or browser was executed.
+Local WebKit/AppKit SDK header review confirms delegate selectors and sheet APIs;
+Swift compilation, actor checking and actual callback timing remain unqualified.
+Source/semantic review, HTML script syntax parsing and whitespace checks are the
+only intended checks for this increment. Existing five JS ownership cases do not
+exercise native dialog completion. No new automated native dialog test is claimed.
+
+Exact deferred commands (all require this human's verification go-ahead):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/web-browser
+pnpm exec turbo run typecheck --filter=...@octane-xplat/web-browser --filter=...@xplat/macos
+pnpm probe doctor
+pnpm probe run apps/macos/test/fixtures/browser-service.macos.tsrx --target macos --watch
+python3 -m http.server 8765 --bind 127.0.0.1 --directory apps/macos/test/fixtures
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit browser dialogs package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm exec turbo run pack:check --filter=@octane-xplat/web-browser
+pnpm check:recipes
+```
+
+Use the manual page URL `http://127.0.0.1:8765/browser-dialogs.html` only after
+starting the deferred server. Check OK/Cancel/Escape/Return, default and empty
+input, sequential sheets, close/replacement during a sheet, stale requests,
+navigation/process termination, IME/focus, VoiceOver and repeated teardown. Host
+network/ATS policy is unchanged. Frozen install and task-graph checks from the
+previous section also remain deferred, as do native supported-version and clean
+packaged-consumer qualification. Evidence checkboxes remain open; goal active.

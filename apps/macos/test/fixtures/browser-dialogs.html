@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>AppKit browser dialog checks</title>
+<h1>Page dialogs</h1>
+<p>Each button requests a native dialog. Nothing opens automatically. Use test text only.</p>
+<button id="alert">Alert</button>
+<button id="confirm">Confirm</button>
+<button id="prompt">Prompt with default text</button>
+<button id="empty">Prompt with empty default</button>
+<button id="sequence">Sequential dialogs</button>
+<output id="result" aria-live="polite">Ready</output>
+<script>
+const result = document.getElementById('result');
+const show = value => { result.textContent = JSON.stringify(value); };
+document.getElementById('alert').onclick = () => {
+  alert('This message belongs to this website.');
+  show('Alert completed');
+};
+document.getElementById('confirm').onclick = () => show(confirm('Continue?'));
+document.getElementById('prompt').onclick = () => show(prompt('Enter test text', 'Default response'));
+document.getElementById('empty').onclick = () => show(prompt('OK with no text must produce an empty string; Cancel must produce null.', ''));
+document.getElementById('sequence').onclick = () => {
+  alert('First dialog');
+  const accepted = confirm('Second dialog');
+  const response = prompt('Third dialog', '');
+  show({ accepted, response });
+};
+</script>
+</html>
