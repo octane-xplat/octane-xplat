@@ -175,6 +175,7 @@ If no recipe is affected, briefly say why. Explicit gaps allow incremental work;
 they never count as complete coverage.
 
 - [Observe and choose the primary window's screen orientation](screen-orientation.md)
+- [Capture an app-owned view and release the image](view-shot.md)
 
 ## Audit state in Silo
 

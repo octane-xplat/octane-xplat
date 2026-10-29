@@ -1,0 +1,87 @@
+{
+	"name": "@octane-xplat/view-shot",
+	"version": "0.18.0",
+	"description": "View capture and Octane lifecycle ownership with a familiar react-native-view-shot API",
+	"keywords": [
+		"capture",
+		"cross-platform",
+		"nativescript",
+		"octane",
+		"view-shot"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/view-shot",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/view-shot"
+	},
+	"files": [
+		"src",
+		"types",
+		"platforms",
+		"!src/**/*.test.*",
+		"examples"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"gtk": "./src/index.gtk.ts",
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.linux.ts",
+			"windows": "./src/index.windows.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typegen": "tsrx-typegen --project tsconfig.types.json",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"test:ios-api": "node tests/native-api.mjs ios",
+		"test:macos-api": "node tests/native-api.mjs macos",
+		"test:gtk-api": "node tests/gtk-api.mjs",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test:component": "node tests/runtime.web.mjs",
+		"test:web-graph": "node tests/web-graph.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
+		"@octane-xplat/platform": "workspace:*",
+		"html2canvas-pro": "2.4.5"
+	},
+	"devDependencies": {
+		"@nativescript/core": "catalog:",
+		"@nativescript/types": "catalog:",
+		"@octane-xplat/jsx": "workspace:*",
+		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"octane": "catalog:",
+		"playwright": "1.63.0",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.3 <10",
+		"octane": ">=0.16.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"ios": "9.1.0",
+			"android": "9.1.0"
+		}
+	}
+}

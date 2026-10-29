@@ -1,0 +1,37 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"types": ["@nativescript/types"]
+	},
+	"environments": {
+		"web": {
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsx",
+				"examples/**/*.ts",
+				"tests/component-harness.web.ts",
+				"tests/component-backend.ts"
+			],
+			"exclude": ["src/**/*.ios.ts", "src/**/*.android.ts", "src/**/*.macos.ts"]
+		},
+		"native": {
+			"include": ["src/**/*.ts", "src/**/*.tsx"],
+			"exclude": ["src/**/*.web.ts", "src/**/*.macos.ts"]
+		},
+		"macos": {
+			"include": ["src/index.macos.ts", "src/**/*.macos.ts", "src/**/*.macos.tsx"]
+		},
+		"linux": {
+			"include": ["src/index.linux.ts"]
+		},
+		"windows": {
+			"include": ["src/index.windows.ts"]
+		},
+		"gtk": {
+			"include": ["src/index.gtk.ts", "src/**/*.gtk.ts", "src/**/*.gtk.tsx", "src/gi.d.ts"]
+		}
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"tasks": {
+		"test:ios-api": {
+			"cache": false
+		},
+		"test:macos-api": {
+			"cache": false
+		},
+		"test:gtk-api": {
+			"cache": false
+		}
+	}
+}

@@ -85,6 +85,7 @@
 		"@octane-xplat/ui",
 		"@octane-xplat/updates",
 		"@octane-xplat/video",
+		"@octane-xplat/view-shot",
 		"@octane-xplat/web-browser",
 		"@octane-xplat/web-host",
 		"@octane-xplat/workshop",

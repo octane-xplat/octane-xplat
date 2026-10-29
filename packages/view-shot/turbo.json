@@ -1,0 +1,27 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test": {
+			"dependsOn": []
+		},
+		"test:ios-api": {
+			"cache": false
+		},
+		"test:macos-api": {
+			"cache": false
+		},
+		"test:gtk-api": {
+			"cache": false
+		},
+		"test:packed": {
+			"dependsOn": ["typegen"]
+		},
+		"test:component": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		},
+		"test:web-graph": {
+			"dependsOn": ["^typegen"]
+		}
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"name": "@xplat/view-shot-native-api",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:ios-api": "node ../native-api.mjs ios",
+		"test:macos-api": "node ../native-api.mjs macos",
+		"test:gtk-api": "node ../gtk-api.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}
