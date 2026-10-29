@@ -42,7 +42,7 @@ try {
 
 	const leaves = await Promise.all(
 		['hash-image', 'thumbhash.macos'].map(async (base) => {
-			const source = await readFile(new URL(`../src/${base}.ts`, import.meta.url), 'utf8')
+			const source = await readFile(new URL(`../src/components/media/${base}.ts`, import.meta.url), 'utf8')
 			return `registry[${JSON.stringify(`./${base}`)}] = (() => { const exports = {}; ${transpile(
 				source,
 			)}; return exports; })();`

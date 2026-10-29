@@ -35,7 +35,7 @@ for (const hmr of [false, true]) {
 for (const hmr of [false, true]) {
 	test(`AppKit Table body text compiles with HMR ${hmr ? 'on' : 'off'}`, async () => {
 		const filename = 'Table.macos.tsrx'
-		const source = await readFile(new URL(`../src/${filename}`, import.meta.url), 'utf8')
+		const source = await readFile(new URL(`../src/table/${filename}`, import.meta.url), 'utf8')
 		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-renderer', target: 'universal', server: 'unsupported', text: 'host' } })
 	})
 }
