@@ -88,7 +88,10 @@ Keep width on the outer field owner and use the GTK status-variant policy
 for hover/focus tooltips. Field, FormLayout, InputGroup, InputGroupText,
 FieldGroup and useFieldControl are curated too. Their native metadata, geometry
 and lifecycle checks do not qualify AT-client output or a complete
-keyboard/overlay workflow.
+keyboard/overlay workflow. Decorative indicators and the indicator registry/hook
+also have maintained GTK checks for native geometry, SVG loading, replacement
+and cleanup; their availability does not qualify owning Checkbox/Switch input
+behavior.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/

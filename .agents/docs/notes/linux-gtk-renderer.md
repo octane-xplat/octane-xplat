@@ -1826,3 +1826,46 @@ checks pass. Logs: andromeda /tmp/gtk-field-group-native.log,
 /tmp/gtk-field-group-web.log and /tmp/gtk-field-group-pack.log. Text-entry
 recipe criteria and target lists remain unchanged; its unresolved IME, AT,
 keyboard/overlay, inset and NumberInput requirements remain open.
+
+
+## GTK decorative selection indicators
+
+The existing native CheckboxIndicator, CheckIndicator and RadioIndicator need
+no UI or renderer fork. The already qualified svgview driver decodes the
+checkbox mark; Mason draws its box/dash and the radio circle/dot. CheckIndicator
+uses a native label or custom-content slot. The existing registry and subscribed
+hook work without changing their store model.
+
+A maintained direct-source fixture passes 38 checks on Ubuntu 24.04.5,
+GJS 1.80.2 and GTK 4.14.5. It checks unchecked/checked/indeterminate transitions,
+20/24-dip shells and smaller marks, disabled opacity/removal, custom class,
+nonfocusable shells, SVG decode/retired-paintable cleanup, custom children,
+refs and host replacement. It also checks snapshot/default resolution,
+single/batch live registration without a root render, unrelated reader
+retention, empty-batch no-op, restoring defaults and disposal/unsubscription.
+
+The registry is module-scoped, so the test restores defaultIndicators after
+both success and failure. It does not inspect images, compare pixels, inject
+OS input or establish AT-client behavior. The owning control remains responsible
+for focus, events and selection metadata. Direct-source log:
+guest /tmp/gtk-indicators-first.log.
+
+The final public-root fixture also passes all 38 assertions with no skips:
+guest /tmp/gtk-indicators-root.log. All 58 affected/dependent typecheck tasks
+pass, including the 20 maintained UI .gtk.tsrx fixtures at this revision. The
+TypeScript checker resolves all nine value exports and 11 types to identical
+native/GTK declarations. Root availability is now 55 values and 86 types
+(141 total); the maintained test script includes the indicator case.
+
+The preceding full renderer run passed 46 tests at the related-field commit.
+This addition reruns the focused indicator case, not a new full 47-test sweep.
+Existing native/web indicator and registry regression tests already passed in
+the preceding 37-native/44-web runs; their implementations are unchanged.
+Logs: andromeda /tmp/gtk-indicators-types.log and
+/tmp/gtk-indicators-declarations.log. No public recipe criterion or target list
+changes; text-entry workflow gaps retain their previous verdicts.
+
+All six UI package validation tasks, recipes, barrel checks, 33 release notes,
+focused formatting and whitespace pass. Package log: andromeda
+/tmp/gtk-indicators-pack.log. Checkbox/Switch runtime investigation is separate
+and those controls remain outside this curated addition.

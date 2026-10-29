@@ -130,3 +130,28 @@ export type { InputGroupProps, InputGroupTextProps, InputGroupSize } from './pro
 export { FieldGroup } from './FieldGroup'
 export { useFieldControl } from './field-context'
 export type { FieldGroupProps } from './props'
+
+export {
+	CheckboxIndicator,
+	CheckIndicator,
+	RadioIndicator,
+	defaultIndicators,
+	getIndicator,
+	registerIndicator,
+	registerIndicators,
+	indicatorScope,
+} from './indicators'
+export { useIndicator } from './use-indicator'
+export type {
+	IndicatorComponent,
+	IndicatorFamily,
+	IndicatorFamilyMap,
+	IndicatorMap,
+	IndicatorName,
+	IndicatorNameOfFamily,
+	IndicatorPosition,
+	IndicatorProps,
+	IndicatorRegistry,
+	IndicatorSize,
+	IndicatorState,
+} from './props'

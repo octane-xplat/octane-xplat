@@ -990,3 +990,19 @@ UI .gtk.tsrx case instead of an incomplete manual list. All three new aliases
 resolve to the same generated GTK/native declarations. Availability is now
 46 values and 75 types. Other inputs and field parts, Image, overlays,
 navigation, theme and services remain under the full parity goal.
+
+
+### Public GTK selection indicators
+
+CheckboxIndicator, RadioIndicator, CheckIndicator, defaultIndicators,
+getIndicator, registerIndicator, registerIndicators, indicatorScope and
+useIndicator reuse the existing native implementations. Eleven indicator types
+retain the same declarations as the native barrel. Availability is now
+55 values and 86 types.
+
+The maintained direct-source and public-root Linux cases each pass 38
+geometry/state/registry/lifecycle assertions without skips. All 58 affected
+typecheck tasks pass. See [the indicator evidence](linux-gtk-renderer.md#gtk-decorative-selection-indicators)
+for the exact checks and limits. The previous full renderer run passed 46 tests;
+the added case has a focused runtime pass. Owning CheckboxInput/Switch controls,
+other inputs, Image, overlays, navigation, theme and services remain pending.

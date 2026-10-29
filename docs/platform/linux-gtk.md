@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, and `useFieldControl`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, and indicator registries.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -903,3 +903,52 @@ export function RequiredHint(props: FieldControlProps) {
 Maintained Linux tests cover native group metadata, editor ownership, inherited
 and explicit hook defaults, updates and disposal. They do not establish
 screen-reader output or pixel parity.
+
+## Draw selection indicators
+
+CheckboxIndicator, RadioIndicator and CheckIndicator draw a control's selection
+mark. The owning control supplies focus, input and accessibility state; these
+parts are decorative. CheckboxIndicator also accepts the indeterminate state.
+
+```tsx
+import { CheckboxIndicator, RadioIndicator, CheckIndicator } from '@octane-xplat/ui'
+
+export function SelectionMarks() {
+  return (
+    <>
+      <CheckboxIndicator state="indeterminate" size="sm" />
+      <RadioIndicator state="checked" />
+      <CheckIndicator state="checked" />
+    </>
+  )
+}
+```
+
+Use registerIndicator or registerIndicators to replace a named visual.
+useIndicator subscribes a component to later replacements; getIndicator reads
+the current visual once. Pass defaultIndicators to registerIndicators to
+restore the built-in visuals.
+
+```tsx
+import { CheckIndicator, defaultIndicators, getIndicator,
+  registerIndicator, registerIndicators, useIndicator } from '@octane-xplat/ui'
+import type { IndicatorProps } from '@octane-xplat/ui'
+
+function CompactCheck(props: IndicatorProps<'singleSelection'>) {
+  return <CheckIndicator {...props} size="sm" />
+}
+
+export function SelectedMark() {
+  const Mark = useIndicator('check')
+  return Mark ? <Mark state="checked" /> : null
+}
+
+registerIndicator('check', CompactCheck)
+const currentMark = getIndicator('check')
+// Restore built-in visuals when your app no longer needs the overrides:
+registerIndicators(defaultIndicators)
+```
+
+Real Linux checks cover native dimensions, SVG loading, state/size changes,
+custom children, forwarded refs, live registry replacements and cleanup.
+They do not compare pixels or establish assistive-technology output.

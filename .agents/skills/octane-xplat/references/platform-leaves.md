@@ -187,6 +187,13 @@ labels do not move editor ownership. Custom controls inherit Field/FormLayout
 defaults through the existing hook; preserve explicit size/name overrides and
 native help composition.
 
+GTK decorative CheckboxIndicator/CheckIndicator/RadioIndicator and the indicator
+registry/hook are curated. Reuse their native leaves: svgview handles the
+checkbox mark, Mason handles box/dot/dash geometry, and a label handles the
+standalone check. Keep input/focus/state on the owning control. Registry
+replacements must use useIndicator at each live reader; getIndicator is a
+snapshot. Restore defaults with registerIndicators(defaultIndicators).
+
 For GTK descriptor events, call the universal root's dispatchEvent directly.
 It opens or inherits the proper scope; wrapping each listener's priority can
 fail when focus/blur is emitted synchronously inside a discrete press.
