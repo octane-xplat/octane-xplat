@@ -99,6 +99,7 @@ Workflows:
 - [Package a Linux WebKitGTK app](linux-package.md)
 - [Package a Linux GTK4/GJS app](linux-gtk-package.md)
 - [Run a macOS app in the system WKWebView](macos-webview-package.md)
+- [Build and check an accessible screen](accessible-screen.md)
 - [Announce a status without moving focus](accessibility-announcements.md)
 - [Share text and URLs from an app](share-content.md)
 - [Ship native code in a macOS leaf](macos-native-code.md)

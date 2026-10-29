@@ -18,6 +18,7 @@ export const GROUPS = [
 			'primitives',
 			'components',
 			'text-entry',
+			'accessibility',
 			'interactive-actions',
 			'menus',
 			'tables',

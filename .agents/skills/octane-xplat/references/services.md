@@ -529,6 +529,16 @@ Crashlytics is native-only and currently needs an explicit plugin import (#75).
 Do not infer desktop support from a browser re-export or native crash delivery
 from a handled JavaScript report. Keep upload tokens out of runtime config.
 
+## Accessible screens
+
+Use the [accessible-screen guide](../../../../docs/app/accessibility.md) for a
+complete named form, validation/focus/status composition and a bounded manual
+journey. Prefer field label/description/status and typed focus handles; keep a
+visible status alongside announcements. Native urgency/clearing/state mappings
+are narrower than ARIA, and native modal focus restoration remains unqualified.
+Record actual VoiceOver/TalkBack/browser delivery separately from DOM assertions
+or handler dispatch. Do not infer text scaling from a shared font-size value.
+
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.

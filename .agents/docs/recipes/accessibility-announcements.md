@@ -28,7 +28,7 @@ and understand target differences and the limits of delivery evidence.
 
 ## Documentation
 
-- AC1: [Announce a status](../../../docs/platform/platform-services.md#announce-a-status), [maintained example](../../../examples/accessibility/announce-status.ts).
+- AC1: [Accessible form](../../../docs/app/accessibility.md#preserve-useful-focus-and-status), [maintained trip form](../../../packages/demos/src/accessibility-guide/AccessibleTripForm.tsx), [Announce a status](../../../docs/platform/platform-services.md#announce-a-status), [maintained example](../../../examples/accessibility/announce-status.ts).
 - AC2: [Announce a status](../../../docs/platform/platform-services.md#announce-a-status).
 - AC3: [Announce a status](../../../docs/platform/platform-services.md#announce-a-status).
 

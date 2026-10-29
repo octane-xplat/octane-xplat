@@ -6,6 +6,9 @@ Start with [a working app](../start/toolchain.md#create-and-run) and the
 [component example](primitives.md#a-practical-example) if you're new to
 state and callbacks.
 
+For a complete labeled form with validation, focus and announcement checks,
+follow [Build and test an accessible screen](accessibility.md).
+
 ## Control a field
 
 A **controlled field** gets its current text from your app. `value` tells
