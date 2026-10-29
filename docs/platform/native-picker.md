@@ -1,6 +1,7 @@
 # Platform pickers
 
-> Choose an option with an iOS picker, Android dropdown, or browser select.
+> Choose an option with an iOS picker, Android dropdown, browser select, or
+> AppKit pop-up button.
 
 For a shared selection field, start with [Selector](../app/search-selection.md#choose-from-a-finite-list).
 Use `@octane-xplat/picker` when you want a platform's own control. Each version
@@ -29,6 +30,7 @@ platform-specific component from the matching target entry:
 - `SwiftUIPicker` from `@octane-xplat/picker/ios` in `.ios.ts` or `.ios.tsrx`.
 - `MaterialDropdown` from `@octane-xplat/picker/android` in `.android.ts` or `.android.tsrx`.
 - `Select` from `@octane-xplat/picker/web` in `.web.ts` or `.web.tsrx`.
+- `Select` from `@octane-xplat/picker/macos` in `.macos.ts` or `.macos.tsrx`.
 
 Each entry exports its own component and prop types. The package has no shared
 runtime entry or shared `types` subpath. See the maintained target-specific
@@ -121,7 +123,27 @@ export function Region() {
 }
 ```
 
-All three APIs require a visible `label` and accept `accessibilityLabel`,
+The macOS entry exports `Select`, `SelectOption`, and `SelectProps` — the same
+contract as the web entry, rendered as an AppKit `NSPopUpButton`.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// Region.macos.tsrx
+import { Select } from '@octane-xplat/picker/macos'
+
+export function Region() {
+	return (
+		<Select
+			label="Region"
+			options={[{ value: 'sfo', label: 'San Francisco' }]}
+			defaultValue="sfo"
+			onChange={(value) => console.log(value)}
+		/>
+	)
+}
+```
+
+All four APIs require a visible `label` and accept `accessibilityLabel`,
 `disabled` or `enabled` state as appropriate, and the host `id`, `className`,
 and `style` props. These similarities do not imply a shared selection contract.
 

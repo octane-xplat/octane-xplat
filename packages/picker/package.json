@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/picker",
 	"version": "0.18.0",
-	"description": "Select control for Octane xplat — web select + SwiftUI picker (iOS) / Material dropdown (Android)",
+	"description": "Select control for Octane xplat \u2014 web select + SwiftUI picker (iOS) / Material dropdown (Android)",
 	"keywords": [
 		"android",
 		"combobox",
@@ -48,6 +48,10 @@
 		"./web": {
 			"types": "./types/web/index.d.ts",
 			"web": "./src/web/index.ts"
+		},
+		"./macos": {
+			"types": "./types/macos/index.d.ts",
+			"macos": "./src/macos/index.ts"
 		}
 	},
 	"publishConfig": {
@@ -71,12 +75,14 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@octane-xplat/macos-renderer": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"octane": ">=0.6.3 <1"
+		"octane": ">=0.6.3 <1",
+		"@octane-xplat/macos-renderer": ">=0.8.0 <1"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript-community/octane": {
@@ -86,6 +92,9 @@
 			"optional": true
 		},
 		"octane": {
+			"optional": true
+		},
+		"@octane-xplat/macos-renderer": {
 			"optional": true
 		}
 	},

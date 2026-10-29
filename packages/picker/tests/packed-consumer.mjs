@@ -50,10 +50,19 @@ const dependencies = [
 	'@nativescript-community/octane',
 	'@nativescript/core',
 	'@nativescript/types',
+	'@octane-xplat/jsx',
 ]
 
 const consumers = {
 	web: `import { Select, type SelectProps } from '@octane-xplat/picker/web'
+const props: SelectProps = { label: 'Fruit', options: [{ value: 'a', label: 'Apple' }] }
+const select = <Select {...props} />
+// @ts-expect-error options is required
+const missing = <Select label="Fruit" />
+void select
+void missing
+`,
+	macos: `import { Select, type SelectProps } from '@octane-xplat/picker/macos'
 const props: SelectProps = { label: 'Fruit', options: [{ value: 'a', label: 'Apple' }] }
 const select = <Select {...props} />
 // @ts-expect-error options is required
@@ -98,6 +107,13 @@ const targetConfig = {
 		customConditions: ['native'],
 		types: ['@nativescript/types'],
 		subpaths: ['./ios', './android'],
+	},
+	macos: {
+		jsxImportSource: '@octane-xplat/jsx',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+		subpaths: ['./macos'],
 	},
 }
 

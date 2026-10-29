@@ -1,8 +1,9 @@
 # `@octane-xplat/picker`
 
 Platform-native selection controls: a SwiftUI `Picker` on iOS, a Material 3
-dropdown built with Jetpack Compose on Android, and an HTML `<select>` on web.
-Use it when you want the OS-authentic control rather than a shared look.
+dropdown built with Jetpack Compose on Android, an HTML `<select>` on web, and
+an AppKit `NSPopUpButton` on macOS. Use it when you want the OS-authentic
+control rather than a shared look.
 
 ```sh
 pnpm add @octane-xplat/picker
@@ -17,6 +18,7 @@ platform-suffixed file:
 | `*.ios.tsx`     | `@octane-xplat/picker/ios`     | `SwiftUIPicker`    |
 | `*.android.tsx` | `@octane-xplat/picker/android` | `MaterialDropdown` |
 | `*.web.tsx`     | `@octane-xplat/picker/web`     | `Select`           |
+| `*.macos.tsrx`  | `@octane-xplat/picker/macos`   | `Select`           |
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -39,7 +41,26 @@ export function BagPicker() {
 
 Each entry's props follow its own platform's selection vocabulary and option
 shapes: iOS uses SwiftUI selection IDs, Android uses Material dropdown keys and
-enabled states, and web follows browser select values.
+enabled states, and web follows browser select values. macOS reuses the web
+entry's `Select` API — the `NSPopUpButton` maps onto the same `value`,
+`defaultValue`, `onChange`, and `options` contract.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// SelectExample.macos.tsrx
+import { Select } from '@octane-xplat/picker/macos'
+
+export function Picker() {
+	return (
+		<Select
+			label="Bag"
+			options={[{ value: 'carry', label: 'Carry-on' }]}
+			defaultValue="carry"
+			onChange={console.log}
+		/>
+	)
+}
+```
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
