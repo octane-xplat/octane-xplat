@@ -1,97 +1,51 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { appKitHost, hostGlobal } from './host-bridge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
-import { useEffect, useRef, useState } from 'octane'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { PopoverProps } from './props'
 import { cx } from '@octane-xplat/lib'
+import { createPortal } from './native-portal'
 import { useThemeScheme } from './theme/theme-scheme'
+import { createAppKitPopoverOwner, type AppKitPopoverTarget } from './popover-owner.macos'
 
-function PopoverPanel(props: PopoverProps & { dark: boolean; layerDepth: number }) @{
-	<masonview
-		className={cx('vx-popover', props.dark && 'ns-dark', props.className)}
-		style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
-	>
-		<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
-	</masonview>
+function PopoverPortal(props: { target: AppKitPopoverTarget; panel: PopoverProps; dark: boolean; depth: number; committed(token: object): void }) {
+	useLayoutEffect(() => props.committed(props.target.token), null)
+	return createPortal(
+		<masonview className={cx('vx-popover', props.dark && 'ns-dark', props.panel.className)}
+			style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.panel.style))}>
+			<LayerDepthProvider value={props.depth}>{props.panel.children}</LayerDepthProvider>
+		</masonview>, props.target.view,
+	)
 }
 
-/** The AppKit bridge hosts a separate root in an anchored NSPopover. */
+/** Self-drawn, anchored window layer; content portals from its declaring tree. */
 export function Popover(props: PopoverProps) @{
-	const popup = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
-	const open = props.open ?? internal
+	const open = props.open ?? internal, dark = useThemeScheme() === 'dark'
+	const live = useRef({ props, open }); live.current = { props, open }
+	const [target, setTarget] = useState<AppKitPopoverTarget | null>(null)
 	const requestDismiss = () => {
-		if (props.open === undefined) {
-			setInternal(false)
-		}
-
-		props.onDismiss?.()
+		if (!live.current.open) return
+		if (live.current.props.open === undefined) { live.current.open = false; setInternal(false) }
+		live.current.props.onDismiss?.()
 	}
-
 	const dismissal = useLayerDismissal({
-		get active() {
-			return !!open
-		},
-		isPresent: () => !!popup.current && !popup.current.closed,
-		getFocusTarget: () => props.finalFocusRef?.current,
+		active: !!open, isPresent: () => owner.isPresent(),
+		getFocusTarget: () => live.current.props.finalFocusRef?.current,
 		dismiss: requestDismiss,
-		get behavior() {
-			return props.dismissOnEscape === false ? 'block' : 'close'
-		},
+		get behavior() { return live.current.props.dismissOnEscape === false ? 'block' : 'close' },
 	})
+	const owner = useMemo(() => createAppKitPopoverOwner({
+		state() { const current = live.current; return { open: !!current.open, anchor: current.props.anchor?.current,
+			placement: current.props.placement, alignment: current.props.alignment, offset: current.props.offset,
+			lightDismiss: current.props.dismissOnOutsideTap !== false } },
+		publish: (next, retired) => setTarget((current) => next ?? (current?.token === retired ? null : current)),
+		dismiss: requestDismiss, canDismiss: () => dismissal.shouldClose(),
+	}), [])
+	useLayoutEffect(() => owner.update(), null)
+	useEffect(() => () => owner.dispose(), [])
 
-	const closing = useRef(false)
-	const close = () => {
-		closing.current = true
-		popup.current?.close()
-		popup.current = null
-		closing.current = false
+	@if (target && open) {
+		<PopoverPortal target={target} panel={props} dark={dark} depth={dismissal.depth} committed={owner.committed} />
 	}
-
-	const latest = useRef(requestDismiss)
-	latest.current = requestDismiss
-	const dark = useThemeScheme() === 'dark'
-	useEffect(() => {
-		if (!open) {
-			close()
-			return
-		}
-
-		const panelProps = { ...props, dark, layerDepth: dismissal.depth }
-		if (popup.current && !popup.current.closed) {
-			popup.current.update(panelProps)
-			return
-		}
-
-		const bridge = appKitHost() ?? {}
-		popup.current =
-			bridge?.showAnchoredPopup?.({
-				anchor: props.anchor?.current,
-				placement: props.placement ?? 'bottom',
-				// This root owns disposal; close synchronously before unmounting it.
-				animates: false,
-				lightDismiss: props.dismissOnOutsideTap ?? true,
-				component: PopoverPanel,
-				props: panelProps,
-				onClose: () => {
-					popup.current = null
-					if (!closing.current && dismissal.shouldClose(true)) {
-						latest.current()
-					}
-				},
-			}) ?? null
-	}, [
-		open,
-		props.children,
-		props.className,
-		props.style,
-		props.placement,
-		props.dismissOnOutsideTap,
-		dark,
-	])
-
-	useEffect(() => () => close(), [])
-
-	<></>
 }

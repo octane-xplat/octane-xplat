@@ -13,7 +13,6 @@ import { dispatchLayerKey } from './layer-stack'
 // This suite qualifies AppKit monitor ownership using the object driver.
 vi.mock('./layer-keys', () => import('./layer-keys.ts'))
 vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
-import { Popover } from './Popover.macos.tsrx'
 vi.mock('./use-layer', () => import('./use-layer.tsrx'))
 import { useHoverCard } from './use-hover-card.tsrx'
 
@@ -219,37 +218,5 @@ describe('portable cross-root layer ownership', () => {
 		}
 	})
 
-	it('AppKit Popover passes depth into its popup and closes silently on owner removal', async () => {
-		let popupOptions: any
-		const dismiss = vi.fn()
-		const popup = { closed: false, close: vi.fn(() => popupOptions.onClose()), update() {} }
-		const close = popup.close
-		vi.stubGlobal('__xplatAppKit', {
-			showAnchoredPopup: (options: any) => {
-				popupOptions = options
-				return popup
-			},
-		})
 
-		const root = freshRoot()
-		try {
-			root.render(Popover, { open: true, anchor: { current: {} }, onDismiss: dismiss })
-			flushUniversalSync(() => {})
-			await vi.waitFor(() => expect(popupOptions?.props.layerDepth).toBe(1))
-			root.render(Popover, { open: false, anchor: { current: {} }, onDismiss: dismiss })
-			flushUniversalSync(() => {})
-			await vi.waitFor(() => expect(close).toHaveBeenCalledTimes(1))
-			expect(dismiss).not.toHaveBeenCalled()
-			root.render(Popover, { open: true, anchor: { current: {} }, onDismiss: dismiss })
-			flushUniversalSync(() => {})
-			await new Promise((resolve) => setTimeout(resolve, 0))
-			popup.closed = true
-			popupOptions.onClose()
-			expect(dismiss).toHaveBeenCalledTimes(1)
-		} finally {
-			root.unmount()
-			flushUniversalSync(() => {})
-			vi.unstubAllGlobals()
-		}
-	})
 })

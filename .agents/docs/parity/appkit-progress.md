@@ -9838,3 +9838,86 @@ XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xpla
 The resource limit still defers recipe/docs/doc-example/changelog gates, probes,
 builds, packaging and OS automation. No visual analysis is authorized. Clean
 Git integration is not native qualification; the persistent goal remains active.
+
+## AppKit canonical source-owned Popover
+
+Demand assumption: ComponentsDemo token entry, ComplexSelector custom pickers,
+anchored notifications and ordinary details panels are common flows. Source
+review found macOS root Popover and Tokenizer/ComplexSelector imported a second,
+inline implementation in surfaces.macos, while menus/date/navigation used the
+separate Popover.macos leaf. Local stable v0.18.0 contains the root inline export.
+The latter leaf still created an independent NSPopover root, losing declaring
+providers. These are source findings, not executed native reproductions.
+
+The root and both target consumers now select one canonical Popover.macos leaf;
+the duplicate Popover was removed from surfaces.macos. Overlay is unchanged.
+Tokenizer passes its stable wrapper ref rather than a pre-commit current-value
+snapshot. The canonical component uses the existing renderer showLayer source
+outlet, native portal and shared position helper. No renderer, shared hook,
+manifest, dependency or other-target leaf changed. It never renders an inline
+fallback or independently renders children. Content/provider updates and nested
+layer depth remain in the declaring tree; native layout/commit timing remains
+unqualified. Typeahead results retain their own source-owned host.
+
+The private owner claims a scope before bridge acquisition/publication and
+reveals only after that scope's source commit. Current physical placement,
+alignment and finite numeric/px offset flip/clamp through positionPopover; its
+physical alignment matches the public web path. Current outside policy updates
+the existing host. Native frame/scroll/window observers and mouse monitors remain
+owned by the existing renderer layer. A captured window-update observer waits
+for anchor attachment and watches hidden/detached/window-retired owners. Initially
+hidden anchors wait; active hidden/retired owners cancel until close/open rearms
+them. Replacing the anchor retires only the old source. Missing showLayer/source
+outlet/staged handle fails explicitly; declined native presentation requests close.
+
+Controlled outside/Escape dismissal remains a request until accepted; defaultOpen
+owns uncontrolled visibility. The top-layer gate is revalidated after its callback.
+Retirement precedes native close, and stale source/commit/close/notification
+callbacks are inert. Late handles and observer tokens release their captured
+scope/receiver; observer removal failures emit a fixed diagnostic. Native close
+failures/unreturned native acquisitions do not establish complete recovery. The
+existing finalFocusRef/captured native return behavior remains; this adds no
+focus trap, auto-editor focus, app activation, OS popover arrow or animation.
+Generic useLayer/hover and direct Tooltip roots retain separate limitations.
+
+Eleven new cases, all UNRUN: eight fake owner/bridge cases cover staged commit,
+current position/policy, controlled rejection/top gate, attachment/replacement,
+window/hidden cancellation/rearm, captured and late acquisition cleanup, stale
+callbacks and capability absence. Three actual source-portal/object-driver cases
+model declaring provider/depth updates, current controlled Escape/dismissal and
+uncontrolled defaultOpen. The former AppKit NSPopover-specific case was removed
+from the generic mobile layer suite; its current portal/depth/silent-owner-close
+contract is covered in the target suite instead. Tokenizer geometry cases now
+explicitly mock the outer Popover as well as results; they do not qualify native
+hosting. The maintained public-root manual fixture records mounting only.
+
+Guide, renderer README, Octane primitives/overlays references, source-window-layer
+recipe AC4 and stable fix note reconcile the source subset. No shared audit
+snapshots regenerated. Lightweight verification: eleven changed source/test/
+fixture files parsed (three TS/eight TSRX), five scoped TSX fences parsed, and
+changed local links/anchors resolved; staged semantic/current whitespace review
+completed. Exact link count is recorded with the commit's issue progress. Zero
+tests/typechecks/compiler transforms, builds, probes, packaging, OS automation or
+visual analysis ran. Actual renderer source-outlet discovery, provider/ref/commit
+ordering, native sizing/clipping/scroll/RTL/positions, nested blur/dismissal,
+OS input/IME/Tab/focus/return, VoiceOver, cleanup/memory and installed consumers
+remain unqualified. This does not complete any evidence-gated issue checkbox.
+
+Exact deferred commands (DO NOT RUN until explicit human authorization):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/popover-owner.macos.mobile.test.ts src/popover.macos.mobile.test.tsrx src/tokenizer-overflow.macos.mobile.test.tsrx src/typeahead-results.macos.mobile.test.tsrx src/select.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/popover.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit source-owned Popover package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+Clean-worktree rebase/local-main merge and feature-branch publication follow the
+human's Git workflow; they supply no native qualification. Goal remains active.

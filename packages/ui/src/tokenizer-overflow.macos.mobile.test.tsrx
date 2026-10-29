@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { expect, it, vi } from 'vitest'
 // State/key fixtures use an explicit inline test host; floating ownership has separate cases.
+// This geometry fixture isolates the outer editor host too; actual popover portals have separate coverage.
+vi.mock('./Popover.macos.tsrx', () => ({ Popover: (props: any) => props.open ? <masonview>{props.children}</masonview> : null }))
 vi.mock('./TypeaheadResults.macos.tsrx', () => ({ TypeaheadResults: (props: any) => props.open ? props.children ?? null : null }))
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { Tokenizer } from './Tokenizer.macos.tsrx'

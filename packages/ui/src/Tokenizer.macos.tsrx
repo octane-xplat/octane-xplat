@@ -36,7 +36,7 @@ import { Token } from './Token.macos.tsrx'
 import { ActivityIndicator } from './controls.macos.tsrx'
 import { Icon } from './Icon.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
-import { Popover } from './surfaces.macos.tsrx'
+import { Popover } from './Popover.macos.tsrx'
 import { Tooltip } from './Tooltip.tsrx'
 import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane'
 
@@ -441,7 +441,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 					/>
 				</masonview>
 				<Popover
-					anchor={{ current: wrapperRef.current }}
+					anchor={wrapperRef}
 					open={layerOpen}
 					placement="bottom"
 					onDismiss={collapseSoon}

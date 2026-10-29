@@ -2253,7 +2253,7 @@ The returned `ToastHandle` and `onHide(reason)` keep the shared contract.
 `uniqueID`, `collisionBehavior`, `maxVisible`, `renderContent`, edge positions,
 and insets are supported. A toast whose viewport unmounts moves to the
 fallback stack. Toast stacks leave page input and focus available. Anchored
-notifications continue to use `NSPopover`.
+notifications use the shared source-owned Popover window layer.
 
 ```tsx
 import { ToastViewport, Button, useToast } from '@octane-xplat/ui'
@@ -2415,10 +2415,11 @@ export function Example() {
 ```
 
 On iOS and Android, `useLayer` and `Popover` portal layer content from the
-declaring component tree, preserving its context. Calling `render` with
-updated content refreshes an open layer, including on macOS. AppKit uses its
-own layer host; pass data through props or shared state when content mounts in
-an independent host. `Tooltip` and `HoverCard` route positioning through
+declaring component tree, preserving its context. AppKit Popover now does the
+same through its source-owned window layer; see [native custom popovers](search-selection.md#anchor-appkit-custom-popovers).
+Calling `render` with updated content refreshes an open useLayer, including on
+macOS. AppKit useLayer still owns an independent root; pass data through props
+or shared state for that separate path. `Tooltip` and `HoverCard` route positioning through
 `useLayer`.
 macOS layers require the host's `showLayer` bridge; a missing bridge leaves the
 surface absent. Outside dismissal also requires the AppKit local mouse monitor;

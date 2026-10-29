@@ -331,7 +331,8 @@ export {
 } from './power-search-config'
 
 export { WebView } from './WebView.macos.tsrx'
-export { Overlay, Popover } from './surfaces.macos.tsrx'
+export { Overlay } from './surfaces.macos.tsrx'
+export { Popover } from './Popover.macos.tsrx'
 export { Dialog, DialogHeader } from './Dialog.macos.tsrx'
 export { AlertDialog } from './AlertDialog.macos.tsrx'
 export { BottomSheet, BottomSheetSwitcher } from './BottomSheet.macos.tsrx'

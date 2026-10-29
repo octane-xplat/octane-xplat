@@ -334,11 +334,25 @@ layer?.close()
 ```
 
 Eight source cases and the manual fixture are authored, unrun. This engine seam
-does not migrate public Popover/useLayer. Typeahead/Tokenizer suggestions now
-have the separate [source-owned result host](primitives.md#appkit-floating-typeahead-source-subset);
-Tokenizer's outer unfocusedLayer editor remains inline.
+now supports public Popover, ComplexSelector and Tokenizer's outer
+unfocusedLayer editor through the [canonical source-owned Popover](primitives.md#appkit-source-owned-public-popover).
+Typeahead/Tokenizer suggestions keep their separate [source-owned result host](primitives.md#appkit-floating-typeahead-source-subset);
+useLayer/hover roots remain separate.
 Do not swap to native NSPopover just to make results float: its current separate
 root/window changes provider and input-focus ownership. Retain the result host's same-window
 source portal and compound blur/dismissal ownership.
 Native commit/context/geometry/focus/AX and packaging qualification remains deferred.
 See [the host contract](../../../../packages/macos-renderer/README.md#stage-a-source-owned-window-layer).
+
+
+Public AppKit Popover preserves declaring providers through a same-window source
+portal. Keep its anchor ref stable; controlled dismissal still needs parent
+acceptance. It has no OS popover arrow/animation and does not add a focus trap.
+The eleven new owner/portal cases and manual fixture remain unrun; see the
+[AppKit contract and native evidence limits](../../../../docs/app/search-selection.md#anchor-appkit-custom-popovers).
+
+```tsx
+<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}>
+	<Text>Provider-backed content</Text>
+</Popover>
+```

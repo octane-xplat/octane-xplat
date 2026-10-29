@@ -386,9 +386,8 @@ export function Example() {
 `changeAction` marks the surface busy, applies the next value optimistically,
 and restores the previous value if the action rejects. `placement` chooses a
 side and `alignment` (`start`, `center`, or `end`) aligns the surface to its
-anchor on web, iOS, and Android. The experimental macOS Popover uses the
-AppKit anchored popup bridge; typeahead result hosting remains a separate
-contract. Hardware keyboard and assistive-technology behavior require native
+anchor. The experimental macOS Popover now uses a source-owned AppKit
+window layer; typeahead result hosting remains a separate contract. Hardware keyboard and assistive-technology behavior require native
 verification. Use `ref` for the portable
 imperative handle (`open`, `close`, `toggle`, `isOpen`).
 
@@ -774,9 +773,10 @@ all unrun. Missing native geometry preserves the last count. Counter removal
 waits for updated native layout before counting again. These source changes
 require the AppKit renderer's new overflow clipping path; native drawing,
 resizing, text sizing, focus/IME, hit-testing, accessibility and packaging remain
-unqualified. Tokenizer's outer `unfocusedLayer` editor still uses its inline
-surface implementation. Its BaseTypeahead suggestion list now uses the separate
-result host below; neither path has native floating-layer qualification.
+unqualified. Tokenizer's outer `unfocusedLayer` editor now uses the
+[source-owned Popover](#anchor-appkit-custom-popovers). Its BaseTypeahead
+suggestion list uses the separate result host below; neither path has native
+floating-layer qualification.
 
 ## Expose AppKit suggestion roles and relationships
 
@@ -863,5 +863,59 @@ and the [manual fixture](../../examples/probes/typeahead-results.macos.tsrx) are
 authored, all unrun. Existing state/key cases use an explicit test host.
 Actual portal/context/ref/commit ordering, native sizing/clipping/scrolling/RTL,
 editor/IME/focus/blur/click ordering, layer dismissal, VoiceOver and packaging
-remain unqualified. The general native Popover/useLayer still use standalone
-roots, and Tokenizer's outer `unfocusedLayer` editor remains inline.
+remain unqualified. The general native Popover and Tokenizer's outer
+`unfocusedLayer` editor now use the [source-owned Popover](#anchor-appkit-custom-popovers).
+The useLayer/hover paths retain their separate standalone-root contract.
+
+## Anchor AppKit custom popovers
+
+On native macOS, the public `Popover`, ComplexSelector's custom picker and
+Tokenizer's `unfocusedLayer` editor now use the same self-drawn window-layer
+path. Keep a stable anchor ref on a mounted native view. Content portals from
+its declaring tree, so providers and their updates reach the panel; the host
+waits for that content's commit before revealing it.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// Details.macos.tsx
+import { useRef, useState } from 'octane'
+import type { NSView } from '@octane-xplat/platform/macos'
+import { Button, Popover, Text } from '@octane-xplat/ui'
+export function Details() {
+	const anchor = useRef<NSView | null>(null)
+	const [open, setOpen] = useState(false)
+	return <>
+		<Button ref={anchor} label="Details" clickAction={() => setOpen(!open)} />
+		<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}
+			placement="bottom" alignment="center" offset={12}>
+			<Text>Details for the current selection</Text>
+		</Popover>
+	</>
+}
+```
+
+`placement`, physical cross-axis `alignment` and a finite number or px-string
+`offset` update the position; the shared position helper flips and clamps to
+the window. Controlled dismissal requests leave the panel open until the parent
+accepts them. `defaultOpen` owns uncontrolled visibility. Escape respects the
+top layer and `dismissOnEscape`; outside dismissal follows
+`dismissOnOutsideTap`. Hiding, detaching or moving an active anchor to another
+window retires that presentation. A close/open cycle rearms a presentation
+cancelled by its native owner.
+
+```tsx
+<Popover anchor={anchor} defaultOpen dismissOnEscape={false}
+	dismissOnOutsideTap={false} placement="right" offset="8px">
+	<Text>Close this panel through its owning application flow.</Text>
+</Popover>
+```
+
+This requires the renderer's source-outlet/staged `showLayer` contract. There
+is no inline or standalone-root fallback, OS popover arrow or OS popover
+animation. `useLayer`/HoverCard and direct tooltip hosts retain their separate
+contracts. Focus trapping and automatic text-field focus are not added here;
+`finalFocusRef` retains the existing explicit native return path. Eight owner
+cases, three source-portal cases and the [manual fixture](../../examples/probes/popover.macos.tsrx)
+are authored, all unrun. Native provider/ref/commit timing, geometry, nested
+blur/dismissal, OS input/IME/Tab/focus, VoiceOver, cleanup and installed consumers
+remain unqualified.

@@ -1578,8 +1578,9 @@ export function finishLayer(layer: WindowLayer | null) {
 Eight new source cases and the [manual source-portal fixture](../../examples/probes/window-layer-portal.macos.tsrx)
 are authored, all unrun. Typeahead/Tokenizer suggestions now use this contract
 through a [source-owned result portal](../../docs/app/search-selection.md#float-appkit-search-suggestions).
-Tokenizer's outer unfocusedLayer editor remains inline; generic native
-Popover/useLayer paths still own standalone roots. Actual portal/ref/commit
+Generic UI Popover, ComplexSelector and Tokenizer's outer unfocusedLayer editor
+now use the source-outlet path too; useLayer/hover paths retain their separate
+standalone roots. Actual portal/ref/commit
 ordering, geometry, focus, dismissal, accessibility and packaging remain
 unqualified. This is not proof of floating typeahead support.
 

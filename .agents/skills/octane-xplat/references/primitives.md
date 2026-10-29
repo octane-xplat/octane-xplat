@@ -2135,8 +2135,8 @@ count from reserving its own space after resizing.
 Requires the renderer's native overflow clipping path. Eight geometry/five
 object-driver cases and the manual fixture are authored, unrun. Drawing,
 Mason sizing, resize/font/RTL behavior, focus/IME, hit-testing/AX and packaging
-remain unqualified. Tokenizer's outer unfocusedLayer editor remains inline; its result list uses
-the source-owned host below. See the
+remain unqualified. Tokenizer's outer unfocusedLayer editor now uses the
+source-owned generic Popover; its result list retains the separate host below. See the
 [overflow guide](../../../../docs/app/search-selection.md#collapse-appkit-token-rows-with-native-geometry).
 
 ## AppKit plain text edit ownership
@@ -2207,8 +2207,8 @@ Require the matching renderer source-outlet/staged-window-layer contract; do not
 add an inline fallback or replace it with a standalone NSPopover root. Sixteen
 controller/focus, four actual source-portal and three readiness cases plus a manual
 fixture are authored, unrun. State/key fixtures explicitly mock only this host.
-Generic Popover/useLayer standalone roots and Tokenizer's outer unfocusedLayer
-editor remain separate limitations. Native portal/context/commit/geometry,
+Generic Popover and Tokenizer's outer unfocusedLayer editor now portal through
+the same-window source host; useLayer/hover standalone roots remain separate. Native portal/context/commit/geometry,
 scroll/RTL, input/IME/blur/click, nested dismissal/AX and packaging are unqualified.
 See [floating suggestions](../../../../docs/app/search-selection.md#float-appkit-search-suggestions).
 
@@ -2648,3 +2648,30 @@ release is best effort. This covers self-drawn action hosts; complete mixed-
 control roving and stock native-control Tab suppression remain
 implementation gaps. Native ref/BOOL/window/key/Tab/selection/AX, RTL/pixels and
 installed behavior remain unqualified. See [toolbar actions](../../../../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow).
+
+## AppKit source-owned public Popover
+
+The macOS root Popover, ComplexSelector and Tokenizer's outer unfocusedLayer
+editor now select the canonical Popover leaf. It portals from the declaring
+tree into the existing staged same-window layer, preserving providers and their
+updates; no standalone content root or inline fallback is used. Keep a stable
+native anchor ref. Physical placement/alignment and numeric/px offset use the
+shared position helper. Controlled outside/Escape dismissal requests do not close
+until accepted; defaultOpen owns uncontrolled dismissal. Hidden/detached/window-
+retired anchors cancel the current presentation; close/open rearms it.
+
+```tsx
+<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}
+	placement="bottom" alignment="center" offset={12}>
+	<Text>Current provider-backed details</Text>
+</Popover>
+```
+
+Require the source-outlet/staged showLayer bridge; missing capability fails
+explicitly. Scope and observer acquisition are captured, retirement precedes
+cleanup, and stale/late commits/handles cannot reopen a replacement. Eight owner
+and three source-portal cases are authored, unrun. General useLayer/hover roots,
+direct Tooltip NSPopovers and Overlay remain separate contracts. No focus trap
+or automatic editor focus is added. Actual native ref/portal/context/commit,
+geometry/RTL/scroll, nested blur/dismissal, OS input/IME/Tab/focus, VoiceOver and
+installed consumers remain unqualified; see [native custom popovers](../../../../docs/app/search-selection.md#anchor-appkit-custom-popovers).
