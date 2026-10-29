@@ -350,3 +350,32 @@ publication was deferred, the later 13-group run passed without that warning.
 These bounded assertions are not a clean-runtime or full lifecycle verdict.
 Content growth, remount, resize, touch/key scrolling, horizontal/RTL behavior and other architectures remain unqualified. Use the shared
 `ScrollableArea` component when a custom viewport is unnecessary.
+
+## Radio choices
+
+The experimental Windows `RadioList` uses the shared indicator and row content
+with a native radio input for each option. Choose `options` for a simple list
+or `RadioListItem` children for rows with supporting text and trailing content.
+With `value`, keep the selected option in the caller and accept changes through
+`onValueChange`; `defaultValue` seeds local selection.
+
+```tsx
+import { useState } from 'octane'
+import { RadioList, RadioListItem } from '@octane-xplat/ui'
+
+export function NotificationPreference() {
+  const [channel, setChannel] = useState('email')
+  return <RadioList ariaLabel="Notifications" value={channel} onValueChange={setChannel}>
+    <RadioListItem value="email" label="Email" description="Send a daily digest" />
+    <RadioListItem value="sms" label="Text message" />
+    <RadioListItem value="push" label="Push notification" isDisabled />
+  </RadioList>
+}
+```
+
+Arrow keys move between enabled options and stop at the ends. Tab visits one
+option per group. Read-only groups retain focus navigation and reject changes;
+disabled options reject input. The complete Field/props contract, Narrator and
+visual parity, other Windows versions/architectures and downstream consumers
+remain unqualified. See the [Windows progress record](../../.agents/docs/parity/windows-support-progress.md)
+for the bounded evidence and remaining gaps.

@@ -3087,3 +3087,221 @@ is still pending. Logs: `windy-native-v34-radio-engine.log`,
 `windy-v34-native-exit.json`, `windy-v34-typecheck.log`,
 `windy-v34-native-task.log`. The Slider feature may now be committed with the
 bounded19-group native evidence,21 source contracts and the stated wider limits.
+
+
+## V34 RadioButton engine: automation works; geometry/navigation pending
+
+The app-only engine run is5/10,exit1,boot`mvtklyu3`,MSIX1.0.0.34 on the same
+x64 OS/WinAppSDK. Native SelectionItem acceptance and GroupName isolation,
+selected-item no-echo, rejected/read-only group-wide rollback, and remount pass.
+All27 diagnostic peer snapshots show loaded0×0 native inputs inside the sized
+ContentViews. Thus pointer checks cannot run and the empty/offscreen-bound
+assertion fails. Tab visits the next unselected peer and Right does not select
+its neighbor; do not attribute navigation failure solely to grouping until the
+geometry is corrected. No public RadioList implementation is promoted.
+
+V35 explicitly sizes each input peer240×24DIP, as the earlier qualified Slider
+engine did, and adds a same-parent group reference beside distinct-parent rows.
+That isolates the parent-hierarchy/navigation question from control sizing.
+The bounded build is running; the same native DLLs remain in use. Artifacts:
+`windy-os-radio-engine-v34.log`, `windy-v34-radio-engine-os-results.json`,
+`windy-v34-radio-engine-current-boot-console.json`,
+`windy-native-v35-radio-geometry.log`. Silo keeps `ui:RadioList` pending.
+
+The public Slider feature is committed locally as`1d57245da1`; its separate
+bounded scenario is passed and `ui:Slider` remains pending. Issue progress is
+updated at comment`6484817046`. No push, merge, shared-snapshot regeneration,
+branch change or visual analysis was performed.
+
+
+The v35 driver tests Down for logical navigation in vertical rows. V34 used
+Right and its failed result remains retained; Microsoft documents single-column
+RadioButtons as using Up/Down while Left/Right do nothing. That guidance does
+not establish primitive RadioButton behavior, which is what this probe must
+measure. The updated driver retains all pointer, ownership, group isolation,
+rollback and remount requirements and adds separate same-parent reference
+assertions. See the [Microsoft radio-button guidance](https://learn.microsoft.com/en-us/windows/apps/develop/ui/controls/radio-button).
+
+
+## V35 separates RadioButton geometry from group navigation
+
+The explicit-peer-size candidate builds38/38,34cached,4m52.273s,exit0.
+Standalone checking has no diagnostics; delegated checking retains the prior12
+in11other files. MSIX1.0.0.35,boot`mvtl0l0h`,records9/12 native groups,exit1.
+All60 snapshots now have nonzero peer geometry. Physical pointer activation,
+disabled focus/automation/pointer rejection, native SelectionItem acceptance,
+group isolation, controlled/read-only rollback, no-echo and remount pass.
+
+Down still does not select the next item in either the same-parent or
+separate-row-parent minimal RadioButton configuration. The separate-row group
+also gives unselected b its own Tab stop. The same-parent Tab check starts at b
+with the last item disabled, so that pass alone does not establish roving Tab.
+These are limits of this tested minimal-peer configuration, not evidence that
+all WinUI RadioButton configurations fail navigation. No public leaf or
+full RadioList support is promoted.
+
+V36 tests the native RadioButtons container, which Microsoft's guidance
+recommends for group keyboard/accessibility behavior. The container owns its
+Items/SelectedIndex and SelectionChanged lifecycle; the probe rolls back the
+model before requesting changes and suppresses its own listener during writes.
+It tests logical Down/Up movement and the existing ownership, pointer, guards,
+isolation and remount requirements. Native RadioButtons documents no wrapping;
+its boundary behavior and any difference from the shared API remain separate
+qualification work. This is app-only engine feasibility; shared Mason-content
+integration and the public Field/props contract are not implemented by it.
+
+Artifacts: `windy-native-v35-radio-geometry.log`,
+`windy-v35-native-exit.json`, `windy-v35-native-task.log`,
+`windy-os-radio-engine-v35.log`, `windy-v35-radio-geometry-*`.
+V36 build: `windy-native-v36-radio-buttons-engine.log`. The corrected v35 driver
+is preserved separately from failed v34, and no native DLL changes are adopted.
+
+
+## V36 RadioButtons container does not mount yet
+
+The app-only container candidate builds38/38,34cached,4m49.725s,exit0,
+with the prior12delegated diagnostics in11other files and no standalone
+diagnostics. MSIX1.0.0.36,boot`mvtldops`,fails setup before semantic input:
+the named RadioButton page never appears. The current boot logs readiness and
+page acknowledgement but no engine mount/snapshot record. An unchanged-package
+owned-tree collection,boot`mvtljezt`,confirms only the header panes, text and three
+existing buttons; no radio items appear. Its one engine snapshot contains only
+the first model with null native selectedIndex and zero size, showing incomplete
+native initialization. Its collection exit0 is not a feature pass.
+Do not attribute this to Items projection or constructor support without a
+construction-stage diagnostic.
+
+V37 adds mount/guard, constructor/configuration/item-append and ready/error
+records. If direct native item construction throws, an explicitly logged
+XamlReader alternative populates the native Items collection, retaining both
+the original failure and selected construction path. That is a probe comparison,
+not an adopted silent fallback. A keyed private host makes ref ownership
+explicit. No production RadioList leaf, native DLL or shared audit is changed.
+
+Artifacts: `windy-native-v36-radio-buttons-engine.log`,
+`windy-v36-native-task.log`, `windy-os-radio-buttons-engine-v36.log`,
+`windy-v36-radio-buttons-engine-*`,
+`windy-os-radio-buttons-collection-v36.log`,
+`windy-v36-radio-buttons-collection-*`,
+`windy-native-v37-radio-buttons-construction.log`.
+
+
+## V37 identifies activation and container-state limits
+
+The diagnostic builds38/38,34cached,5m3.664s,exit0. Owned MSIX1.0.0.37,
+boot`mvtm1mvt`,records6/11 native groups. Every direct RadioButtons constructor
+fails before configuration: ActivateInstance reports Not implemented. The
+explicit XamlReader alternative succeeds for all6 initial/remounted controls;
+Tab skips unselected/disabled items, logical Down/Up and SelectionItem input,
+named nonempty bounds and selected-item no-echo pass. The constructor failure
+is Silo feedback`32b4567b-5456-498b-9d35-f13be9f0faab`; this does not mean the
+native control is absent or its Items vector is unsupported.
+
+The native container still fails the no-wrap/disabled-last boundary assertion,
+rejected controlled rollback and read-only rollback. Its SelectedIndex getter
+returns the model0 while the child selection pattern remains on b, so a matching
+index alone is not proof of native peer state. The later pointer/isolation
+assertion depends on those already-corrupted rejected/read-only groups; it is
+not independent cross-group leakage evidence. Remount logs include index-1
+selection-cleared notifications, which the fixture incorrectly calls requests.
+These observations require lifecycle/valid-index guards and investigation of
+restoration after native selection dispatch completes. The full public component
+is still unimplemented. Artifacts: `windy-os-radio-buttons-engine-v37.log`,
+`windy-v37-radio-buttons-engine-*`, `windy-v37-native-task.log`.
+
+V38 adds a task-only fixed-file probe runner to the owned private harness so
+plain Core/WinRT engine changes can be loaded without repackaging for each trial.
+The source descriptor lives only at the owned qualification path, has a bounded
+size/id, records compiler-provided source SHA-256 and case identity, and owns
+mount/snapshot/disposal. It has no server, public framework API or shipped
+workflow. Source compilation/syntax checks use the existing read-only TypeScript
+tool, and Native input remains resource-scoped. A pending candidate ignores
+unloaded/invalid-index events, retains accepted native input without rewriting
+it inside SelectionChanged, and restores rejected/read-only child state in a
+cancellable native zero-delay task with a forced index transition. This is a
+hypothesis under native qualification, not an established repair. Full package,
+consumer, Narrator, visual and alternate-platform verification remains deferred.
+
+## V38 peer keyboard engine established; public RadioList qualification underway
+
+The native RadioButtons container's deferred restore candidate reaches9/11,
+including repaired rejected/read-only native child selection. It still wraps at
+the last enabled option. Items.GetAt(0) fails E_FAIL0x80004005; a callable
+projected vector member is not evidence that this generic return projection
+works. The public implementation instead retains shared Mason layout and uses
+individual native RadioButton peers with a group-owned keyboard adapter.
+
+The peer prototype uses typed PreviewKeyDown; ordinary KeyDown never reached
+JS for native arrows. V38b records7/11, v38c10/11, and v38d11/11. V38d updates
+the Tab anchor when the caller accepts a changed selection. MSIX1.0.0.38,
+boot mvtom3li, source descriptor SHA256
+8536440db9045cea82392b6470b44e13832b555a67418d478ec635ba374288eb.
+This is imperative engine evidence, not public RadioList qualification.
+Artifacts: windy-v38d-radio-peer-current-boot-console.json,
+windy-v38d-radio-peer-os-results.json, windy-os-radio-peer-keyboard-v38d.log.
+
+Windows-only public leaves now reuse the shared row indicator and content with
+measured transparent native peers, a per-group selection/focus owner and native
+model restoration before change requests. Options and child parts share one
+context; keyboard order reads the live Core view tree rather than registration
+order. The public parent retains controlled-value ownership and inherited Field
+guards. Seven focused mocked controller contracts pass. Public compiler/runtime
+contracts and packaged public OS-input checks remain in progress. No broad
+tracker checkbox is promoted from prototype evidence.
+
+## V39 public RadioList build and source contracts
+
+The bounded graph completes38/38,28cached,17m46.03s,exit0. Packaged x64
+MSIX1.0.0.39 contains xplatwindowsradio, the Slider peer and the pan candidate.
+The standalone Windows checker has no diagnostics. Vite's delegated check still
+reports the prior12diagnostics in11other files; none names the new radio leaves.
+This does not qualify the deferred general package/dependent checks.
+
+The focused Turbo test:radio-core task passes11/11,uncached,10.636s: seven mocked
+controller/lifecycle checks plus four actual compiler/universal-runtime checks
+for options/default seeding, controlled child ownership, real Field guards and
+standalone presentation. RTL, Home/End and Ctrl-arrow here are mocked source
+contracts until separately covered with OS input. No new dependency is installed.
+
+The first public OS run fails setup only: a private driver still required a
+1500px-wide window. The current display reports a1024x768 work area (WinDisc),
+so no radio feature scenarios ran. Boot mvtqxgu4 and its failed result are retained
+under windy-v39-radio-viewport-setup-*. The driver now records the current owned
+monitor work area and waits for the window to fit it, preserving nonempty bounds,
+on-screen pointer and owned foreground guards. It does not change system display
+settings or relax radio behavior checks. The same unchanged MSIX is being rerun.
+
+V39b fits the interactive work area2256x1504, then all11 checks fail against
+name-only UIA matches with the wrong role or unsupported pattern. Public rows
+contain both visible text and native inputs with the same accessible name.
+V39c requires both the name and native RadioButton role and records every matching
+name candidate's role/bounds before testing. The package and framework source
+are unchanged. The failed v39b result is retained under
+windy-v39b-radio-name-query-*. A noninteractive SSH Screen report of1024x768
+belongs to a different session; it does not establish the cause of the earlier
+interactive viewport failure. That earlier cause remains undetermined.
+
+## V39c qualifies common public Windows RadioList input
+
+The unchanged MSIX1.0.0.39 on windy x64 (boot`mvtrbuh7`) records11/11 real
+OS-input/UIA groups, interactive and phase exit0. The only change from v39b is
+the private driver query: it now requires the accessible name and the native
+RadioButton role. The name matches one Text and one RadioButton element per row.
+The built radio leaves match the committed sources apart from comments; the
+build checkout's package manifest adds only private harness test scripts.
+
+| Bounded public behavior | Native result |
+| --- | --- |
+| Automation shape | Named nonempty RadioButton peers expose SelectionItem; selecting the selected option neither clears it nor repeats the request |
+| Keyboard | Tab visits one peer per group, skipping unselected and disabled peers; logical Down/Up request once and stop before a disabled last option |
+| State ownership | Rejected controlled changes restore both native peers for keyboard and automation; read-only groups stay focusable and restore selection |
+| Field guards and pointer | Disabled peers reject focus, selection and pointer input; pointer selection activates one option without leaking into other groups |
+| Lifetime | Remount restores defaults with one owned event handler |
+
+RTL, Home/End and Ctrl-arrow remain mocked source contracts. Narrator, visual
+parity, hardware touch/pen, the full Field/props/layout matrix, other
+versions/architectures, package/dependent typechecks, packed consumers and
+downstream apps remain unqualified. The delegated checker still reports the
+prior12 diagnostics in11 other files. `ui:RadioList` and the broad issue row
+stay pending. Artifacts: `windy-os-radio-public-v39c.log` and
+`windy-v39c-radio-public-{os-results,current-boot-console,installed-package}.json`.

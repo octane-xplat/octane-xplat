@@ -2915,3 +2915,28 @@ behavior remain unqualified. The initial run logged a loaded-event transaction
 warning; a later run passed after load publication was deferred, without that
 warning. Keep the wider Windows gate pending; use the
 [complete example and boundary](../../../../docs/platform/windows-setup.md#custom-scroll-viewport-candidate).
+
+## Experimental Windows RadioList
+
+Use the shared root exports for exclusive settings choices. Options and child
+parts share one Windows group; keep controlled selection in the parent. Do not
+attach a second tap handler to emulate radio activation: the measured native
+peer owns keyboard, pointer and selection automation input.
+
+```tsx
+import { RadioList, RadioListItem } from '@octane-xplat/ui'
+
+export function DeliveryMethod() {
+  return <RadioList ariaLabel="Delivery" defaultValue="email">
+    <RadioListItem value="email" label="Email" />
+    <RadioListItem value="sms" label="Text message" />
+  </RadioList>
+}
+```
+
+Windows uses shared Mason row layout and native RadioButton peers with a
+framework group keyboard adapter. Registration order does not define navigation;
+the live Core view tree does. This is experimental support, and the complete
+Field/props, Narrator/visual and consumer matrices remain open. Read the
+[Windows radio boundary](../../../../docs/platform/windows-setup.md#radio-choices)
+before broadening platform claims.
