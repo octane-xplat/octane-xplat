@@ -182,7 +182,7 @@ help text; the portable value uses a native value description so visible text
 stays intact. Removing those descriptions clears them to nil; removing an
 explicit accessibility visibility override restores element participation.
 Inner runs still belong to their outer owner. Text state/live announcements and
-heading-role/level mapping remain separate gaps; actual VoiceOver behavior
+other arbitrary role mappings remain separate gaps; actual VoiceOver behavior
 and native update/removal still need qualification.
 
 ```tsx
@@ -192,6 +192,20 @@ export function Count({ count }: { count: number }) {
 		accessibilityHint="Review the collection." accessibilityValue={`${count} items`}>
 		{count}
 	</Text>
+}
+```
+
+AppKit Heading now passes its level to the readable host. The renderer maps it
+to a native heading role, uses the numeric level for the accessibility value,
+and keeps its accessible title current with plain or rich contents. The default
+level is 2; a display `type` changes appearance while `level` keeps its semantic
+meaning. Visible text is preserved. Actual VoiceOver heading navigation, level
+announcements and dynamic updates remain unqualified.
+
+```tsx
+import { Heading, Text } from '@octane-xplat/ui'
+export function AccountTitle({ title }: { title: string }) {
+	return <Heading level={2} type="display-2">Your <Text>{title}</Text></Heading>
 }
 ```
 

@@ -25,7 +25,7 @@ pnpm add -D @octane-xplat/jsx
 ## Export conditions
 
 `./jsx-runtime` and `./jsx-dev-runtime` resolve the same shared contract on
-every target; a `customConditions` setting binds the host element type only:
+every target; a `customConditions` setting binds the host element type:
 
 | `customConditions`    | `HostElement` in refs and host events       |
 | --------------------- | ------------------------------------------- |
@@ -50,7 +50,7 @@ export function NativeLabel() {
 }
 ```
 
-Conditions change host element value types only — never intrinsic
+Conditions change host element value types while preserving intrinsic
 membership. The shared map carries the 39 NativeScript-baseline tags, the
 compiler-produced `#text` node, and the nine maintained cross-platform
 extension tags (`cachedimage`, `svgview`, `xplatvideo`, `nscanvas`,
@@ -61,6 +61,17 @@ The `native` condition resolves `@nativescript/core` for the `View` ref type —
 it is an optional peer; the default and `macos` declarations never reference
 it. The `./dom*` subpaths re-export `octane`'s DOM JSX types, so `octane`
 stays a required peer.
+
+The AppKit label also declares accessibilityHeadingLevel for its native heading
+metadata. Use 1–6 with accessibilityRole="heading"; application screens should
+prefer ui's Heading level prop. This addition applies only under macos
+conditions. Packed positive/range assertions are authored but unrun, and types
+do not prove native heading behavior.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+const heading = <label accessibilityRole="heading" accessibilityHeadingLevel={2} text="Account" />
+```
 
 ## Augmentation
 

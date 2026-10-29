@@ -38,9 +38,9 @@ it('AppKit Heading uses one exported leaf and preserves level/classes/truncation
 	const env = mount(BarrelHeading, { id: 'title', level: 3, maxLines: 1, className: ['title', { compact: true }], style: 'width:180px', children: 'Title' })
 	try {
 		const host = env.host()
-		expect(host.props.id).toBe('title'); expect(host.props.className).toContain('vx-h3'); expect(host.props.className).toContain('title compact'); expect(host.props.accessibilityRole).toBe('heading')
+		expect(host.props.id).toBe('title'); expect(host.props.className).toContain('vx-h3'); expect(host.props.className).toContain('title compact'); expect(host.props.accessibilityRole).toBe('heading'); expect(host.props.accessibilityHeadingLevel).toBe(3)
 		expect(host.props.maxLines).toBe(1); expect(host.props.whiteSpace).toBe('nowrap'); expect(host.props.textOverflow).toBe('ellipsis')
-		env.render({ level: 2, children: 'Title' }); expect(env.host()).toBe(host); expect(host.props.className).toContain('vx-h2'); expect(host.props.maxLines).toBeUndefined(); expect(host.props.whiteSpace).toBeUndefined(); expect(host.props.textOverflow).toBeUndefined()
+		env.render({ level: 2, children: 'Title' }); expect(env.host()).toBe(host); expect(host.props.className).toContain('vx-h2'); expect(host.props.accessibilityHeadingLevel).toBe(2); expect(host.props.maxLines).toBeUndefined(); expect(host.props.whiteSpace).toBeUndefined(); expect(host.props.textOverflow).toBeUndefined()
 	} finally { env.root.unmount() }
 })
 

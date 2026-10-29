@@ -115,12 +115,27 @@ participation. The native static-text value stays tied to visible content;
 setting a description does not write stringValue. Empty descriptions remain
 explicit empty strings; unset/null clears to nil. Removing accessible restores
 participation. This does not implement live regions, arbitrary Text roles/states,
-heading levels or per-run actions. Source cases are authored but unrun; actual
+per-run actions. Heading has a separate mapping below. Source cases are authored but unrun; actual
 VoiceOver output, navigation and native reset behavior remain unqualified.
 
 ```tsx
 <label text="12" accessibilityLabel="Items" accessibilityHint="Review the collection."
 	accessibilityValue="12 items" accessible={true} />
+```
+
+## Readable heading accessibility
+
+A label with accessibilityRole="heading" maps to AXHeading. Its
+accessibilityHeadingLevel (1–6, default 2) becomes the numeric native value;
+current visible text becomes the accessible title. Plain, decorated and
+composed rich-text writes refresh that title without rewriting displayed text.
+Removing the role restores captured role/title metadata and a text-following
+value to current content; custom original values are preserved. Application
+code should use ui's Heading level prop. Actual native setters/NSNumber bridging,
+VoiceOver heading navigation/announcements and update/removal remain unqualified.
+
+```tsx
+<label accessibilityRole="heading" accessibilityHeadingLevel={3} text="Account" />
 ```
 
 ## Apply stylesheets

@@ -4,8 +4,9 @@
  * The same shared contract as the default entry, with `HostElement` bound to
  * the bridged AppKit `NSView` the macOS driver hands to refs and host
  * events. Viewless intrinsics bind to `LogicalElement` instead. Intrinsic
- * membership and prop names are unchanged — only the host element value type
- * is conditioned. This entry never references
+ * membership is shared. The label additionally accepts a heading level for
+ * AppKit accessibility; the host element value type is conditioned.
+ * This entry never references
  * `@nativescript/core`: it resolves for macOS consumers without any
  * NativeScript dependency, and wins over `native` when both conditions are
  * enabled.
@@ -59,6 +60,7 @@ export declare namespace JSX {
 	type ElementType = ElementTypeOf
 	interface IntrinsicElements extends Omit<
 		NativeElements<HostElement>,
+		| 'label'
 		| 'proxyviewcontainer'
 		| 'formattedstring'
 		| 'span'
@@ -66,6 +68,8 @@ export declare namespace JSX {
 		| 'tabview'
 		| 'tabviewitem'
 	> {
+		/** AppKit AXHeading metadata; prefer ui's Heading level prop. */
+		label: NativeElements<HostElement>['label'] & { accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6 }
 		proxyviewcontainer: Attributes<LogicalElement>
 		tabview: Attributes<HostElement, TabViewProps<HostElement, TabViewItemHandle>>
 		tabviewitem: Attributes<TabViewItemHandle, TabViewItemProps>

@@ -5490,3 +5490,64 @@ documents @objcMembers inference and @nonobjc exclusion. This is a source-level
 interop precaution, not a reproduced compiler failure or compiler pass. Only
 source/semantic and whitespace review ran. The exact Video deferred commands
 above and every native/packaged qualification limitation remain unchanged.
+
+## AppKit Heading role level and current title
+
+Demand assumption: section titles in ContentDisplayDemo, Outline, Markdown and
+ordinary content/settings screens need useful heading metadata before niche
+visual work. Current source review found Heading emitting accessibilityRole but
+the readable renderer ignoring it, and the declared level never reaching native
+metadata. This is source evidence, not an observed VoiceOver failure.
+
+Heading now emits accessibilityHeadingLevel separately from its display type.
+The macos-only JSX label declares levels 1–6; shared/native/GTK declarations and
+public HeadingProps remain unchanged. A small renderer helper owns captured
+native role/title/value metadata in a WeakMap. The heading role maps to AXHeading,
+its numeric level to accessibilityValue, and current visible contents to
+accessibilityTitle. Missing/invalid raw host levels default to 2. The helper
+never writes stringValue or attributedStringValue. Plain, decorated and composed
+rich-text writers refresh the title on the existing owner. Removing the role
+restores captured role/title; an originally text-following value follows the
+current text on restoration, while custom original values remain intact.
+
+Apple documents the [heading role](https://developer.apple.com/documentation/appkit/nsaccessibility-swift.struct/role/headingrole).
+The [Core AAM 1.2 candidate draft's heading mapping](https://www.w3.org/TR/2026/CRD-core-aam-1.2-20261021/#role-map-heading)
+and [heading-level mapping](https://www.w3.org/TR/2026/CRD-core-aam-1.2-20261021/#ariaLevelHeading)
+specify AXHeading and AXValue respectively. These inform the native field
+mapping; they are not proof of this framework's native setters or VoiceOver.
+No native subclass, external dependency or framework/build configuration was
+added. A separate native owner for each inline run and arbitrary Text role/state
+or live announcements remain outside this change.
+
+Four renderer cases are authored but UNRUN: levels/default/visible-content
+preservation, metadata restoration/current text/custom values, real dispatcher
+role/level/removal, and real plain/decorated/rich writer title refresh. The UI
+Heading root/purpose case now checks level forwarding/update on the same host.
+Packed JSX macos positive/range assertions are authored but UNRUN; they do not
+establish packed runtime behavior. The idle manual fixture cycles heading levels
+and changes nested text; its runner records mounting only. Guide, skill,
+renderer/JSX READMEs, recipe AC6 and feature note describe the implementation and
+qualification boundary. Recipe coverage and execution verification stay separate.
+
+Source/semantic review, eight-file TS/TSRX/JS syntax parsing and whitespace
+checks passed. No tests, typechecks, builds, native/OS/browser automation,
+probes, packing, dependency installs or visual analysis ran. Exact deferred
+commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-style.macos.mobile.test.tsrx src/text-composition.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/jsx
+pnpm probe doctor
+pnpm probe run examples/probes/text-styles.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer --filter=@octane-xplat/jsx
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. Actual
+native role/title/value setters and NSNumber bridging, title/level change and
+removal behavior, heading navigation/announcements/hierarchy, rich text shaping,
+layout/truncation and clean root/purpose/conditioned packed consumers remain
+unqualified. Audit snapshots and evidence-gated checkboxes are unchanged;
+persistent goal active.

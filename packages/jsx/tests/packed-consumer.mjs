@@ -299,6 +299,11 @@ const lane = <>
 void lane
 `,
 	macos: `
+const heading = <label text="Account" accessibilityRole="heading" accessibilityHeadingLevel={3} />
+// @ts-expect-error AppKit heading levels stay within the public Heading range
+const invalidHeading = <label accessibilityHeadingLevel={7} />
+void heading
+void invalidHeading
 const item = <segmentedbar><segmentedbaritem title="Day" ref={(element) => {
  if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView;
  // @ts-expect-error Logical items do not allocate an NSView

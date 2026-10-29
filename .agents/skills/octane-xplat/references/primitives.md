@@ -78,7 +78,7 @@ name. Native label/htmlview hints use accessibilityHelp; portable value text
 uses accessibilityValueDescription without rewriting displayed text. Dropping
 descriptions clears them to nil; dropping accessible restores participation.
 Inline runs have no separate native owner. This does not add Text state/live
-announcements or heading-role/level mappings, nor establish VoiceOver behavior.
+announcements or arbitrary role mappings, nor establish VoiceOver behavior.
 
 ```tsx
 import { Text } from '@octane-xplat/ui'
@@ -93,6 +93,22 @@ export function Count({ count }: { count: number }) {
 **For UI contributors**, shared component prop contracts live in
 `packages/ui/src/props.ts` and feed published declarations. Consumer app
 components own their own props; do not edit framework internals to define them.
+
+AppKit Heading forwards level (default 2) independently of its visual `type`.
+The readable label maps heading to AXHeading, numeric level to accessibilityValue
+and current plain/rich contents to accessibilityTitle; it retains visible text
+and restores captured native metadata when the heading role is removed. The
+AppKit-only label intrinsic declares accessibilityHeadingLevel (1–6); prefer
+Heading for application code. Source cases and packed type assertions are unrun;
+actual VoiceOver navigation/updates, native setter behavior and packing remain
+unqualified. This does not add per-span owners, actions or live announcements.
+
+```tsx
+import { Heading, Text } from '@octane-xplat/ui'
+export function AccountTitle({ title }: { title: string }) {
+	return <Heading level={2} type="display-2">Your <Text>{title}</Text></Heading>
+}
+```
 
 ## Shared surface
 

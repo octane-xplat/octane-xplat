@@ -29,6 +29,7 @@ export function setLayoutProjectionScale(view: object, scale: ProjectionScale | 
 }
 
 import { normalizeHostStyleProps } from './inline-style.ts'
+import { syncHeadingAccessibility } from './heading-accessibility.ts'
 import {
 	configureGesture,
 	setPressGesture,
@@ -5863,6 +5864,7 @@ function setLabelText(node: ElementNode, text: any) {
 		(!Number.isFinite(kern) || kern === 0)
 	) {
 		node.view!.stringValue = text
+		if (node.props.accessibilityRole === 'heading') syncHeadingAccessibility(node.view!, node.props)
 		return
 	}
 
@@ -5897,6 +5899,7 @@ function setLabelText(node: ElementNode, text: any) {
 		text,
 		attributes,
 	)
+	if (node.props.accessibilityRole === 'heading') syncHeadingAccessibility(node.view!, node.props)
 }
 
 function syncText(parent: ElementNode | null | undefined) {
@@ -5937,6 +5940,8 @@ function syncText(parent: ElementNode | null | undefined) {
 		} else {
 			view.attributedStringValue = attributed
 		}
+
+		if (parent.type === 'label' && parent.props.accessibilityRole === 'heading') syncHeadingAccessibility(view, parent.props)
 
 		parent.formattedTextActive = true
 		view.invalidateIntrinsicContentSize()
@@ -6497,6 +6502,10 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		if (name === 'accessibilityRole') {
 			accessibilityRoles.set(node.actionId!, String(value ?? ''))
 		}
+	}
+
+	if (node.type === 'label' && (name === 'accessibilityRole' || name === 'accessibilityHeadingLevel')) {
+		syncHeadingAccessibility(node.view!, { ...node.props, [name]: value })
 	}
 
 	if (['label', 'htmlview'].includes(node.type)) {

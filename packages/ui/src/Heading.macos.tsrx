@@ -31,6 +31,7 @@ export function Heading(props: HeadingProps) @{
 		whiteSpace={maxLines === 1 ? 'nowrap' : undefined}
 		textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
 		accessibilityRole="heading"
+		accessibilityHeadingLevel={level}
 	>
 		<AppKitTextScope>{props.children}</AppKitTextScope>
 	</label>
