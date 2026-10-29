@@ -47,10 +47,12 @@ test('real plain and formatted text writers refresh heading titles on the existi
 	assert.ok(start >= 0 && end > start)
 	const { setLabelText, syncText } = runSlice(source.slice(start, end) + '\n;({setLabelText,syncText})', {
 		syncHeadingAccessibility, NSFontAttributeName: 'font', NSForegroundColorAttributeName: 'color', NSUnderlineStyleAttributeName: 'underline', NSKernAttributeName: 'kern',
+		NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) }, NSParagraphStyleAttributeName: 'paragraph',
 		NSAttributedString: { alloc: () => ({ initWithStringAttributes: (text: string) => ({ string: text }) }) },
 		composeAttributedText: () => ({ string: 'Rich account' }), fontForFamilyStyle() {}, nativeColor() {}, queueLayoutReconcile() {},
 	})
 	const field = view(), node = { type: 'label', view: field, props: { accessibilityRole: 'heading', accessibilityHeadingLevel: 3 }, children: [] as any[], container: {}, parent: null }
+	;(field as any).cell = { lineBreakMode: 0 }
 	Object.defineProperty(field, 'attributedStringValue', { set(value) { field.stringValue = value.string } })
 	setLabelText(node, 'Plain account'); assert.equal(field.accessibilityTitle, 'Plain account'); assert.equal(field.accessibilityValue, 3)
 	Object.assign(node.props, { style: { textDecoration: 'underline' } }); setLabelText(node, 'Decorated account'); assert.equal(field.accessibilityTitle, 'Decorated account')

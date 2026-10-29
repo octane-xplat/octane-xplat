@@ -1,0 +1,28 @@
+# Choose native AppKit label overflow with CSS
+
+ID: appkit-text-overflow-css
+Targets: macos
+Related APIs: Text, white-space, text-overflow, maxLines, NSTextField
+
+## Starting point
+
+An experimental native macOS app has a bounded Text/label title. Shared sandbox
+examples already request nowrap through styles; table classes request inherited
+whitespace. These sources do not establish native drawing or table ellipsis.
+
+## Requirements
+
+Honor the supported label CSS modes without changing explicit host-prop limits,
+truncating source text or claiming broader browser typography semantics.
+
+## Acceptance criteria
+
+- AC1: Consume normal/nowrap and clip/ellipsis CSS on labels when explicit mode props are absent; preserve maxLines and direct-prop validation. Reconcile cascade replacement/removal, inherited white-space and non-inherited text-overflow. Unsupported CSS modes warn by property and default without retaining stale native modes.
+- AC2: Recompose current paragraph mode/alignment for attributed labels, including decoration/spacing without line-height. Retain the full source string, respect explicit height/line-height, and release an implicit one-line pin when wrapping returns.
+- AC3: Reconcile public guide, renderer README, Octane reference, feature note and target note with seven authored source cases and an idle CSS/width/content/line-limit fixture. Keep measurement, native painting/resize, copy/selection, VoiceOver/lifetime/installed/pixel verification pending; distinguish the Table whitespace prerequisite from complete table ellipsis.
+
+## Documentation
+
+- AC1: [Guide](../../../docs/app/styling.md#appkit-text-wrapping), [host subset](../../../packages/macos-renderer/README.md#choose-label-overflow-with-css), [mode models](../../../packages/macos-renderer/test/text-overflow.test.ts) and [maintained table CSS cascade models](../../../packages/macos-renderer/test/style-reconcile.test.ts).
+- AC2: [Renderer contract](../../../packages/macos-renderer/README.md#choose-label-overflow-with-css), [source helper](../../../packages/macos-renderer/src/index.ts) and [paragraph/sizing models](../../../packages/macos-renderer/test/text-overflow.test.ts).
+- AC3: [Idle fixture](../../../examples/probes/text-overflow-css.macos.tsrx), [fixture CSS](../../../examples/probes/text-overflow-css.macos.css), [skill](../../skills/octane-xplat/references/styling.md#appkit-label-overflow-css), [feature note](../../../.changelog/appkit-text-overflow-css.md) and [target note](../parity/appkit-progress.md#appkit-label-overflow-css-source-path). All tests/compiler/native/installed/visual checks remain unrun.

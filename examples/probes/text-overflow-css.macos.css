@@ -1,0 +1,4 @@
+.text-overflow-frame { display: flex; flex-direction: column; gap: 8px; }
+.text-overflow-sample { white-space: normal; text-overflow: clip; }
+.text-overflow-sample--single { white-space: nowrap; }
+.text-overflow-sample--ellipsis { text-overflow: ellipsis; }

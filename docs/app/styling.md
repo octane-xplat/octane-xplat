@@ -170,6 +170,46 @@ selector.
 }
 ```
 
+## AppKit text wrapping
+
+In an experimental native macOS app, a label can use CSS to choose word wrapping
+or one line, then clip the text or request an ellipsis when it exceeds its frame.
+For example, put this class on a `Text` title. The complete string stays in the
+native value. Native measurement, painting and installed-app checks for this CSS
+path remain pending.
+
+```css
+.trip-title {
+  width: 180px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+```
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+
+export function TripTitle() {
+  return <Text className="trip-title">A long weekend in the mountains</Text>
+}
+```
+
+The supported CSS modes are `white-space: normal | nowrap` and
+`text-overflow: clip | ellipsis`. An explicit `Text` line limit still controls
+the label; `maxLines={1}` forces one line. Whitespace mode can inherit from a
+parent, while ellipsis must be requested on the text label itself. Removing
+classes or styles restores the remaining cascade, then normal wrapping/clipping.
+Other CSS modes warn and fall back to those defaults. Preserved whitespace,
+balanced wrapping and CSS line-clamp are outside this subset.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+
+export function CompactTitle() {
+  return <Text maxLines={1}>Keep this complete title on one line</Text>
+}
+```
+
 ## AppKit borders
 
 This is an experimental source path; native painting and installed-app checks

@@ -248,6 +248,35 @@ app imports `chrome.css` or defines that variable itself; otherwise the
 generated declaration has no effect. The starter defines only `primary`,
 `onprimary`, `surface`, and `text`.
 
+## AppKit label overflow CSS
+
+For ordinary native macOS labels, CSS normal/nowrap and clip/ellipsis now reach
+the existing AppKit cell path when the corresponding explicit host prop is
+absent. maxLines remains a host prop; one forces one line. Preserve cascade
+inheritance: white-space inherits, text-overflow does not. Do not forward a
+container's ellipsis to all descendants or describe the Table container rule
+as complete table ellipsis support. Shared Text forwards these style values;
+its explicit maxLines-derived modes stay authoritative.
+
+```css
+.compact-title { width: 180px; white-space: nowrap; text-overflow: ellipsis; }
+```
+
+Removal refreshes the native mode and releases an implicit one-line height.
+Attributed paragraphs must retain mode/alignment even when only decoration or
+letter spacing caused attribution. Unsupported CSS modes warn and default;
+unsupported direct host props keep their existing validation error. This is
+source coverage, not native measurement/painting/VoiceOver/installed evidence.
+The idle fixture and seven source cases remain unrun. Keep CSS preservation,
+text-wrap balance/pretty, per-span whitespace and CSS line-clamp outside claims.
+See [the guide](../../../../docs/app/styling.md#appkit-text-wrapping).
+
+```tsx
+// maxLines is a public Text prop; this explicit limit keeps one line.
+import { Text } from '@octane-xplat/ui'
+export function LimitedTitle() { return <Text maxLines={1}>Complete title</Text> }
+```
+
 ## AppKit patterned borders
 
 Native border-style now paints dashed/dotted through CAShapeLayer with NSNumber

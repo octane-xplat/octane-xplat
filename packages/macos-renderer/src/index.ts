@@ -5814,6 +5814,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 					: value === 'right'
 						? NSTextAlignment.Right
 						: NSTextAlignment.Center
+		} else if ((name === 'whiteSpace' || name === 'textOverflow') && node.type === 'label') {
+			// Apply the final pair after all styles (including font/height) settle.
+			continue
 		} else if (BORDER_WIDTH_KEYS[name] != null && node.view) {
 			setBorderSlot(node, 'widths', BORDER_WIDTH_KEYS[name], value)
 		} else if (BORDER_COLOR_KEYS[name] != null && node.view) {
@@ -5891,6 +5894,11 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	}
 
 	node.appliedStyle = next
+	if (node.type === 'label' && ['whiteSpace', 'textOverflow'].some(key => prev[key] != null || next[key] != null)) {
+		syncLabelOverflow(node, next)
+		// Attributed paragraphs capture the cell's mode when composed.
+		syncText(node)
+	}
 	if (behaviorOf(node.type)?.layout) {
 		queueLayoutReconcile(node.container, node)
 	}
@@ -5959,8 +5967,9 @@ function textContent(node: ElementNode): string {
 }
 
 // Keep the native value intact: AppKit truncates only when drawing in the frame.
-function syncLabelOverflow(node: ElementNode) {
-	const { maxLines, whiteSpace, textOverflow } = node.props
+function syncLabelOverflow(node: ElementNode, style = effectiveStyle(node)) {
+	const { maxLines } = node.props
+	let { whiteSpace, textOverflow } = node.props
 	if (whiteSpace != null && !['normal', 'nowrap'].includes(whiteSpace)) {
 		throw new Error('[macos-host] label whiteSpace supports only normal and nowrap')
 	}
@@ -5971,6 +5980,17 @@ function syncLabelOverflow(node: ElementNode) {
 
 	if (maxLines != null && (!Number.isInteger(maxLines) || maxLines < 0)) {
 		throw new Error('[macos-host] label maxLines must be a non-negative integer')
+	}
+
+	// Explicit host props keep their existing contract. CSS supplies modes
+	// when those props are absent, including inherited white-space.
+	if (whiteSpace == null && style.whiteSpace != null) {
+		if (['normal', 'nowrap'].includes(style.whiteSpace)) whiteSpace = style.whiteSpace
+		else warnUnsupportedCssProp(node, 'whiteSpace')
+	}
+	if (textOverflow == null && style.textOverflow != null) {
+		if (['clip', 'ellipsis'].includes(style.textOverflow)) textOverflow = style.textOverflow
+		else warnUnsupportedCssProp(node, 'textOverflow')
 	}
 
 	const singleLine = whiteSpace === 'nowrap' || maxLines === 1
@@ -5988,6 +6008,16 @@ function syncLabelOverflow(node: ElementNode) {
 
 	view.cell.truncatesLastVisibleLine = !singleLine && textOverflow === 'ellipsis'
 	view.invalidateIntrinsicContentSize()
+	if (style.height == null) {
+		if (singleLine && style.lineHeight == null) {
+			const size = Number(view.font?.pointSize ?? 16)
+			setSizeConstraint(node, 'height', Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
+		} else {
+			// Wrapping text measures at Mason's available width; release an old
+			// single-line pin after either prop or CSS mode removal.
+			setSizeConstraint(node, 'height', undefined)
+		}
+	}
 }
 
 function syncHtmlView(node: ElementNode) {
@@ -6025,15 +6055,15 @@ function setLabelText(node: ElementNode, text: any) {
 		[NSFontAttributeName]: node.view!.font,
 		[NSForegroundColorAttributeName]: node.view!.textColor,
 	}
+	// AppKit ignores the control's paragraph properties for attributed values,
+	// including strings attributed only for decoration or letter spacing.
+	const paragraphStyle = NSMutableParagraphStyle.alloc().init()
+	paragraphStyle.lineBreakMode = (node.view as NSTextField).cell.lineBreakMode
+	paragraphStyle.alignment = node.view!.alignment
+	attributes[NSParagraphStyleAttributeName] = paragraphStyle
 	if (Number.isFinite(lineHeight) && lineHeight > 0) {
-		const paragraphStyle = NSMutableParagraphStyle.alloc().init()
-		paragraphStyle.lineBreakMode = (node.view as NSTextField).cell.lineBreakMode
-		// An attributed string's own paragraph style governs rendering — carry
-		// the control's alignment or textAlign silently renders left.
-		paragraphStyle.alignment = node.view!.alignment
 		paragraphStyle.minimumLineHeight = lineHeight
 		paragraphStyle.maximumLineHeight = lineHeight
-		attributes[NSParagraphStyleAttributeName] = paragraphStyle
 	}
 	// macos-node-api publishes the AppKit attribute keys as globals (the same
 	// lookup formatted-text.ts uses); the literals match AppKit's own values.
@@ -7459,20 +7489,6 @@ function applyProps(node: ElementNode, props: PropBag) {
 	if (node.type === 'label') {
 		syncLabelOverflow(node)
 		syncText(node)
-		const style = effectiveStyle(node)
-		if (style.height == null) {
-			if (
-				(node.props.maxLines === 1 || node.props.whiteSpace === 'nowrap') &&
-				style.lineHeight == null
-			) {
-				const size = Number(node.view!.font?.pointSize ?? 16)
-				setSizeConstraint(node, 'height', Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
-			} else {
-				// Wrapping text has an intrinsic height at Mason's available width.
-				// Clear an earlier single-line pin when overflow props change.
-				setSizeConstraint(node, 'height', undefined)
-			}
-		}
 	}
 
 	if (node.type === 'tabview') {

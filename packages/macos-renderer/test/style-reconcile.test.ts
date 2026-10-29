@@ -27,6 +27,7 @@ const slices = [
 	source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
 	source.slice(source.indexOf('function nodeClasses'), source.indexOf('function colorValue')),
 	source.slice(source.indexOf('function setLabelText'), source.indexOf('function syncText')),
+	source.slice(source.indexOf('function syncLabelOverflow'), source.indexOf('function syncHtmlView')),
 ]
 
 function anchor() {
@@ -193,6 +194,8 @@ const sandbox = {
 	console,
 	inputTransparentViews,
 	NSTextAlignment: { Left: 0, Center: 1, Right: 2 },
+	NSLineBreakMode: { WordWrapping: 0, Clipping: 2, TruncatingTail: 4 },
+	DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
 	NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 	NSStackViewGravity: { Top: 1, Leading: 1, Center: 2, Bottom: 3, Trailing: 3 },
 	NSStackViewDistribution: { GravityAreas: -1, Fill: 0, EqualSpacing: 3 },
@@ -1072,4 +1075,42 @@ test('the maintained FileInput dropzone CSS reaches native dash painting and cle
 	setClass(item, '')
 	assert.equal(item.borderLayer, null)
 	assert.equal(item.boxFrameObserver, null)
+})
+
+test('the maintained table truncation rule reaches a label and releases its native mode with its class', () => {
+	const css = readFileSync(new URL('../../ui/src/theme/chrome.css', import.meta.url), 'utf8')
+	registerStylesheet('sr-label-table-overflow', css.match(/\.vx-table-cell--truncate\s*\{[^}]+\}/)![0])
+	const item = node('label', { props: { text: 'A complete long table title' } })
+	item.view.stringValue = item.props.text
+	setClass(item, 'vx-table-cell--truncate')
+	assert.equal(item.view.maximumNumberOfLines, 1)
+	assert.equal(item.view.cell.wraps, false)
+	assert.equal(item.view.cell.lineBreakMode, 4)
+	assert.equal(item.sizeConstraintSpecs.height.points, 21)
+	setClass(item, '')
+	assert.equal(item.view.maximumNumberOfLines, 0)
+	assert.equal(item.view.cell.wraps, true)
+	assert.equal(item.view.cell.lineBreakMode, 0)
+	assert.equal(item.sizeConstraintSpecs.height, undefined)
+	assert.equal(item.view.stringValue, item.props.text)
+})
+
+test('table descendants inherit whitespace without inheriting non-inherited text-overflow', () => {
+	const css = readFileSync(new URL('../../ui/src/theme/chrome.css', import.meta.url), 'utf8')
+	registerStylesheet('sr-table-overflow-inherited', css.match(/\.vx-table-cell--truncate\s*\{[^}]+\}/)![0])
+	const parent = node('masonview'), item = node('label', { parent })
+	setClass(parent, 'vx-table-cell--truncate')
+	assert.equal(item.computedStyle.whiteSpace, 'nowrap')
+	assert.equal(item.computedStyle.textOverflow, undefined)
+	assert.equal(item.view.maximumNumberOfLines, 1)
+	assert.equal(item.view.cell.lineBreakMode, 2, 'ellipsis requires a declaration or host prop on the label')
+	setStyle(item, { whiteSpace: 'normal', textOverflow: 'ellipsis' })
+	assert.equal(item.view.maximumNumberOfLines, 0)
+	assert.equal(item.view.cell.truncatesLastVisibleLine, true)
+	setStyle(item, undefined)
+	assert.equal(item.view.maximumNumberOfLines, 1)
+	assert.equal(item.view.cell.lineBreakMode, 2)
+	setClass(parent, '')
+	assert.equal(item.view.cell.wraps, true)
+	assert.equal(item.sizeConstraintSpecs.height, undefined)
 })

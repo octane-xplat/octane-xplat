@@ -8475,3 +8475,71 @@ resizing/input/AX, corner/side geometry, memory, installed consumers and pixels
 remain unqualified. Native-resource authorization does not grant visual analysis;
 that boundary stays explicit without requesting it. The general non-solid
 border/outline checkbox and all evidence gates remain open; goal stays active.
+
+## AppKit label overflow CSS source path
+
+Demand is grounded in the maintained TextWrap sandbox's nowrap style and
+ScrollableAreaStickyPassthrough's nowrap rows, plus the shared table CSS. The
+AppKit Text leaf forwards styles to label, but syncLabelOverflow read only
+direct props and applyStyle treated these CSS keys as unsupported. This is
+source evidence, not an observed OS text/layout failure. Ordinary readable
+titles and rows take priority over niche integrations.
+
+The label helper now reads normal/nowrap and clip/ellipsis from effective CSS
+when the corresponding explicit host prop is absent. maxLines and direct-prop
+validation remain unchanged; a one-line limit still forces one line. Style
+application and removal refresh cell modes after all declarations settle,
+recompose text paragraphs and reconcile the existing implicit one-line height.
+Explicit height/line-height stays in control. Unsupported CSS values use the
+existing once-per-property fixed diagnostic and default mode; no supplied style
+value or text appears in that warning.
+
+Attributed plain strings now always carry the current paragraph mode/alignment
+when decoration or letter spacing requires attribution, even without line-height.
+Apple documents that attributed text ignores the control's paragraph settings:
+[line-break strategy](https://developer.apple.com/documentation/appkit/nstextfield/linebreakstrategy).
+The existing native line count/truncation mapping is retained; see
+[maximum lines](https://developer.apple.com/documentation/appkit/nstextfield/maximumnumberoflines)
+and [last-line truncation](https://developer.apple.com/documentation/appkit/nscell/truncateslastvisibleline).
+These primary references explain the source repair, not native proof.
+
+Seven new cases are authored, all UNRUN: five mode/prop/paragraph/sizing models
+and two real-cascade models using the maintained table truncation CSS. The latter
+distinguish a rule on the label from a rule on its ancestor. White-space inherits;
+text-overflow does not, so this is only a Table whitespace prerequisite and is
+not a claim of complete table ellipsis. An existing heading source model gains
+paragraph/cell fakes for the changed attributed writer. The idle text-overflow-css
+fixture exercises plain/formatted titles, CSS modes, width/content and explicit
+line limits manually; its run hook records mounting only. Static fixture styles
+stay in the CSS sibling. No fixture or compiler transform has run.
+
+Public styling guide, renderer README, Octane reference, feature note and target
+recipe describe the same subset. No shared types/exports, theme, other-target
+renderer, dependencies or audit snapshots changed. CSS whitespace preservation/
+collapse, text-wrap balance/pretty, per-span whitespace and line-clamp remain
+outside claims. Full text is never shortened by this source path; actual native
+measurement, truncation, resizing, copying/selection, VoiceOver, lifetime/memory,
+installed consumers and pixels remain unqualified.
+
+Exact deferred commands, requiring this task's explicit human authorization:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/text-overflow-css.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit CSS text overflow package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+check:docs/check:doc-examples remain absent in this isolated snapshot; no shared
+in-flight tooling is copied. Five source/TSRX files, one CSS source, four scoped
+CSS and four TSX documentation fences syntax parsed; twelve local paths/anchors
+exist. Focused semantic/source and whitespace review are the other permitted
+checks. No tests, typechecks, compiler
+transforms, probes, native builds, OS/AX automation, packaging or visual analysis
+ran. Native-resource authorization would not authorize visual analysis. All
+evidence-gated checkboxes remain open and the persistent goal stays active.

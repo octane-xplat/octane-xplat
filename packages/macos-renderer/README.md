@@ -663,8 +663,9 @@ export function Suggestion(props: { title: string }) {
 }
 ```
 
-Updating or removing these props reapplies the native settings. Removed props
-restore normal wrapping, unlimited lines, and clipping. Labels without an
+Updating or removing these props reapplies the native settings. Removed mode
+props reveal the current CSS mode, then normal wrapping/clipping if absent;
+removed maxLines restores unlimited lines unless nowrap still applies. Labels without an
 assigned `style.height` measure their height at the available layout width.
 An assigned height still controls the frame; `whiteSpace="nowrap"` or
 `maxLines={1}` keeps the text on one line.
@@ -679,6 +680,36 @@ export function UpdatingTitle(props: { title: string; compact: boolean }) {
 			style={{ width: 240 }}
 		/>
 	)
+}
+```
+
+### Choose label overflow with CSS
+
+The AppKit label source path also consumes CSS `white-space: normal | nowrap`
+and `text-overflow: clip | ellipsis` when the corresponding explicit host prop
+is absent. `maxLines={1}` still forces one line. The cascade supplies inherited
+white-space; text-overflow does not inherit, so a container declaration alone
+does not give every descendant label an ellipsis. Other CSS values warn by
+property and use the default mode. CSS preservation/balance/line-clamp modes
+remain outside the subset.
+
+```css
+.compact-title { width: 180px; white-space: nowrap; text-overflow: ellipsis; }
+.wrapping-title { white-space: normal; text-overflow: clip; }
+```
+
+CSS application/removal resynchronizes cell modes, attributed paragraphs and
+implicit one-line height. Explicit height or line-height remains in control.
+Decoration/spacing-only attributed strings now carry the current paragraph
+mode and alignment, as line-height and formatted strings already do. The full
+text remains intact. Seven authored source cases and the idle text-overflow-css
+fixture are unrun; actual measurement, resize, drawing, selection/copying,
+VoiceOver, native lifetime and installed behavior remain unqualified.
+
+```tsx
+// The class is defined above; this raw label keeps an explicit two-line limit.
+export function CssTitle(props: { title: string }) {
+  return <label className="wrapping-title" text={props.title} maxLines={2} />
 }
 ```
 
