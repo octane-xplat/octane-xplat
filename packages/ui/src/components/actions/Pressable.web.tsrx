@@ -90,6 +90,7 @@ export function Pressable(props: PressableProps) @{
 		aria-selected={props.accessibilityState?.selected}
 		aria-checked={props.accessibilityState?.checked}
 		aria-pressed={props.accessibilityState?.pressed}
+		aria-expanded={props.accessibilityState?.expanded}
 		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
 		aria-hidden={props.accessible === false ? true : undefined}
 		tabIndex={

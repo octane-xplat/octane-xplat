@@ -34,6 +34,15 @@ afterEach(() => {
 	vi.useRealTimers()
 })
 
+it('updates and removes the shared expanded accessibility state', () => {
+	const { el, render } = mount({ accessibilityState: { expanded: false } })
+	expect(el.firstElementChild!.getAttribute('aria-expanded')).toBe('false')
+	render({ accessibilityState: { expanded: true } })
+	expect(el.firstElementChild!.getAttribute('aria-expanded')).toBe('true')
+	render({ accessibilityState: undefined })
+	expect(el.firstElementChild!.hasAttribute('aria-expanded')).toBe(false)
+})
+
 it.each(['pointerup', 'pointerleave', 'pointercancel'])(
 	'cancels on %s after a rerender',
 	(event) => {
