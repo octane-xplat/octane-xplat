@@ -12,7 +12,7 @@ export interface AppKitDatePickerProps {
 	pickerStyle?: AppKitDatePickerStyle
 	/** Controlled selection. Pair with `onSelectionChange`. */
 	selection?: Date
-	/** Initial selection when `selection` is not provided. */
+	/** Initial uncontrolled seed. Later defaults do not reset the mounted picker. */
 	defaultSelection?: Date
 	/** Earliest selectable date. */
 	minimumDate?: Date
@@ -20,5 +20,6 @@ export interface AppKitDatePickerProps {
 	maximumDate?: Date
 	disabled?: boolean
 	accessibilityLabel?: string
+	/** User selection changes; programmatic updates and retired controls do not emit. */
 	onSelectionChange?: (date: Date) => void
 }

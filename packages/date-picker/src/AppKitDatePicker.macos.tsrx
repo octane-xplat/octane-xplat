@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useEffect, useRef } from 'octane'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { AppKitDatePickerProps } from './macos/types'
+import { createDatePickerOwner } from './date-picker-owner.macos'
+import type { DatePickerAttach } from './date-picker-owner.macos'
 
 const host = (): any => (globalThis as any).__xplatAppKit ?? {}
 
@@ -11,58 +13,27 @@ const host = (): any => (globalThis as any).__xplatAppKit ?? {}
  *  The host element carries an explicit size — the picker is pinned to
  *  its edges. */
 export function AppKitDatePicker(props: AppKitDatePickerProps) @{
-	const anchor = useRef<any>(null)
-	const handle = useRef<any>(null)
-
-	const options = () => ({
-		mode: props.components,
-		style: props.pickerStyle,
-		selectionMillis: props.selection?.getTime?.(),
-		minimumMillis: props.minimumDate?.getTime?.(),
-		maximumMillis: props.maximumDate?.getTime?.(),
-		enabled: !props.disabled,
-	})
-
-	useEffect(() => {
-		const view = anchor.current
-		const attach = host().attachDatePicker
-		if (!view || typeof attach !== 'function') {
-			return
-		}
-
-		// defaultSelection seeds the initial date; after that the user's
-		// pick owns the value — only the controlled `selection` is pushed.
-		handle.current = attach(
-			view,
-			{ ...options(), selectionMillis: (props.selection ?? props.defaultSelection)?.getTime?.() },
-			(millis: number) => {
-				props.onSelectionChange?.(new Date(millis))
-			},
-		)
-
-		return () => {
-			handle.current?.detach()
-			handle.current = null
-		}
-	}, [props.components, props.pickerStyle])
-
-	// Push controlled selection/range updates into the mounted picker; the
-	// bridge update is echo-suppressed by comparing against dateValue.
-	useEffect(() => {
-		handle.current?.update(options())
-	})
+	const live = useRef(props); live.current = props
+	const [, rerender] = useState(0)
+	const owner = useMemo(() => createDatePickerOwner({
+		props: () => live.current,
+		attach: () => typeof host().attachDatePicker === 'function' ? host().attachDatePicker as DatePickerAttach : undefined,
+		status: () => rerender((n) => n + 1),
+	}), [])
+	useLayoutEffect(() => owner.update(), null)
+	useEffect(() => () => owner.dispose(), [])
+	const graphical = props.components === 'time' || ((props.components ?? 'date') === 'date' && props.pickerStyle === 'graphical')
 
 	<masonview
-		ref={(v: any) => {
-			anchor.current = v
-		}}
+		ref={owner.bind}
 		id={props.id}
-		className={props.className}
-		style={{
-			display: 'flex',
-			minWidth: 240,
-			minHeight: props.pickerStyle === 'graphical' ? 300 : 26,
-			...props.style,
-		}}
-	/>
+		className={['xplat-appkit-date-picker', props.className]}
+		style={[{ minHeight: graphical ? 300 : 26 }, props.style]}
+	>
+		@if (owner.getStatus() === 'invalid') { <label text="Choose a valid date and date range." accessibilityLiveRegion="polite" /> }
+		@if (owner.getStatus() === 'unavailable') { <label text="Date selection is unavailable in this app." accessibilityLiveRegion="polite" /> }
+	</masonview>
 }
+<style>
+	.xplat-appkit-date-picker { display: flex; min-width: 240; }
+</style>

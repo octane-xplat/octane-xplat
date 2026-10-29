@@ -416,14 +416,18 @@ Runtime constraints on Android, learned on-device:
   M3's UTC-day storage is converted back before the callback, so
   `date?.toDateString()` shows the selected day.
 
-The macOS entry exports `AppKitDatePicker` — a real `NSDatePicker`
-embedded in the leaf's backing view through the `__xplatAppKit` bridge.
+The macOS entry exports the experimental `AppKitDatePicker`, backed by
+[`NSDatePicker`](https://developer.apple.com/documentation/appkit/nsdatepicker)
+in a [native AppKit app](macos-native.md). Native input, layout and VoiceOver
+qualification remains pending. The renderer supplies its attachment; the app
+does not install a separate bridge.
 `components` selects `'date'` (text field, or the inline graphical
 calendar with `pickerStyle: 'graphical'`), `'time'`
 (clock-and-calendar field), or `'dateAndTime'`. `selection` is a
 controlled `Date` with `onSelectionChange`; `minimumDate`/`maximumDate`
 map to `minDate`/`maxDate`, `disabled` to `enabled`. The host element
-needs an explicit size — the picker is pinned to its edges.
+pins the picker to its edges. It provides minimum room for text or clock/calendar
+content; use `className`/`style` to fit your screen and qualify actual sizing.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -443,6 +447,77 @@ export function TravelDate() {
 		/>
 	)
 }
+```
+
+### Native macOS selection lifecycle
+
+In a configured AppKit app, save this as `Departure.macos.tsx` and render
+`Departure` in a screen. Pick a closing date/time to update the text. Switching
+date, time or combined components keeps the accepted selection; date-only
+graphical style uses a calendar and time mode uses the native clock. The
+combined mode uses a text field. These platform controls use `Date` instants
+and AppKit's calendar settings; there is no public timezone override.
+
+```tsx
+import { useState } from 'octane'
+import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+import { Text, VStack } from '@octane-xplat/ui'
+
+const minimum = new Date(2026, 0, 1)
+const maximum = new Date(2026, 11, 31, 23, 59, 59, 999)
+export function Departure() {
+	const [selection, setSelection] = useState(new Date(2026, 9, 29, 12, 30))
+	return <VStack gap={2}>
+		<AppKitDatePicker components="dateAndTime" selection={selection}
+			minimumDate={minimum} maximumDate={maximum} onSelectionChange={setSelection}
+			accessibilityLabel="Departure time" />
+		<Text>{selection.toLocaleString()}</Text>
+	</VStack>
+}
+```
+
+A controlled picker displays `selection`; if its callback does not accept a new
+value, the current selection is restored. `defaultSelection` instead seeds an
+uncontrolled picker once (current time when omitted). Its last accepted value
+survives mode/style/backing-view replacement and later defaults are ignored.
+Changing bounds clamps an uncontrolled value without calling the change handler.
+Removing bounds clears them. `disabled`, programmatic writes, duplicate values
+and callbacks from replaced/unmounted controls do not report user changes.
+
+```tsx
+// UncontrolledDeparture.macos.tsx
+import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+const initial = new Date(2026, 9, 29)
+export function UncontrolledDeparture() {
+	return <AppKitDatePicker defaultSelection={initial} components="date"
+		pickerStyle="graphical" accessibilityLabel="Departure day"
+		onSelectionChange={(date) => console.log(date.toDateString())} />
+}
+```
+
+Dates and inclusive bounds must be valid, with minimum no later than maximum.
+An out-of-bounds controlled date also shows a generic validation message in place
+of the picker. Repair the props to restore it; the app's controlled value is never
+silently clamped. An unavailable native attachment shows a generic unavailable
+message. The current accessibility label reaches the native picker and clears
+when removed. These messages do not expose native exception details.
+
+```tsx
+// Inside Departure: keep a controlled value within its current bounds.
+<AppKitDatePicker selection={selection} minimumDate={minimum} maximumDate={maximum}
+	onSelectionChange={setSelection} disabled accessibilityLabel="Departure time" />
+```
+
+Seven owner-model and six new renderer-branch cases are authored, all unrun.
+The maintained macOS native-date demo offers controlled/uncontrolled, bounds,
+mode/style, disabled, invalid-date, callback replacement and remount controls.
+Its probe only mounts the demo. Source/fake dispatch does not qualify actual
+text/calendar/clock input, IME, Tab/VoiceOver, focus, layout, date/calendar settings
+or a clean installed consumer. Repository maintainers can open this fixture for
+later target qualification:
+
+```sh
+pnpm probe run examples/probes/native-date-picker.macos.tsrx --target macos --watch
 ```
 
 The web entry was removed because its browser-specific `DateInput` value and

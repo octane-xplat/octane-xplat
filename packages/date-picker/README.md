@@ -2,8 +2,9 @@
 
 Platform-specific date and time pickers for Octane xplat apps: a SwiftUI
 `DatePicker` on iOS, Material 3 `DatePicker`/`TimePicker` built with Jetpack
-Compose on Android, and a real `NSDatePicker` on macOS. For portable form
-controls that work on every target, use `Calendar`, `DateInput`,
+Compose on Android, and an experimental `NSDatePicker` source implementation
+on native macOS. Native macOS editing, layout and VoiceOver qualification is
+pending. For a shared form API, use `Calendar`, `DateInput`,
 `TimeInput`, `DateTimeInput`, and `DateRangeInput` from `@octane-xplat/ui`.
 
 From an existing Xplat app, install the package before using the example:
@@ -30,6 +31,14 @@ renders a control, then import `SwiftUIDatePicker` from
 These native entries have platform-specific contracts.
 The old `@octane-xplat/date-picker/web` `DateInput` subpath was removed because
 its browser-only string contract conflicted with the shared `DateInput` API.
+
+In an existing app, install the package with pnpm. The macOS entry needs a
+[native AppKit app](../../docs/platform/macos-native.md); the renderer supplies
+its native attachment automatically.
+
+```sh
+pnpm add @octane-xplat/date-picker
+```
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -69,16 +78,23 @@ export function Picker() {
 
 ```tsx
 // AppKitDatePickerExample.macos.tsx
+import { useState } from 'octane'
 import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+import { Text } from '@octane-xplat/ui'
 
 export function Picker() {
+	const [selection, setSelection] = useState(new Date(2026, 9, 29))
 	return (
-		<AppKitDatePicker
-			components="date"
-			pickerStyle="graphical"
-			defaultSelection={new Date(2026, 9, 2)}
-			onSelectionChange={console.log}
-		/>
+		<>
+			<AppKitDatePicker
+				components="date"
+				pickerStyle="graphical"
+				selection={selection}
+				onSelectionChange={setSelection}
+				accessibilityLabel="Departure date"
+			/>
+			<Text>{selection.toLocaleString()}</Text>
+		</>
 	)
 }
 ```
@@ -89,7 +105,7 @@ and `pickerStyle`; the Android entry follows the uncontrolled
 `initialDate`/`onDateSelected` model of the Material 3 pickers with
 `selectableDates` range bounds; the macOS entry takes
 `components`/`pickerStyle` (`'graphical'` embeds the
-inline calendar) with a controlled `selection` `Date`.
+inline date calendar) with a controlled `selection` `Date`.
 
 ```tsx
 // Departure.macos.tsx
@@ -106,6 +122,26 @@ export function Departure() {
 			onSelectionChange={setSelection}
 		/>
 	)
+}
+```
+
+On native macOS, `defaultSelection` seeds an uncontrolled picker once. Its
+accepted date survives component/style changes and replacement of the backing
+view; later defaults do not reset it. Bounds are inclusive. Invalid dates,
+reversed bounds or an out-of-bounds controlled selection show a generic message
+until the props are repaired. Uncontrolled selection clamps to new bounds without
+emitting a change. Disabled, retired and programmatic changes do not call
+`onSelectionChange`; the current callback receives user changes. See the
+[native macOS workflow and remaining limits](../../docs/platform/date-picker.md#native-macos-selection-lifecycle).
+
+```tsx
+// BoundedDate.macos.tsx — defaultSelection is only the initial seed.
+import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+const initial = new Date(2026, 9, 29)
+const minimum = new Date(2026, 0, 1)
+export function BoundedDate() {
+	return <AppKitDatePicker defaultSelection={initial} minimumDate={minimum}
+		accessibilityLabel="Departure date" onSelectionChange={(date) => console.log(date)} />
 }
 ```
 

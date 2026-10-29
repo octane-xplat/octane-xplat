@@ -65,7 +65,7 @@ declare global {
 			view: import('@octane-xplat/platform/macos').NSView,
 			options: any,
 			onChange: any,
-		) => void
+		) => { update(options: any): void; detach(): void } | null
 		presentSheet?: (view: import('@octane-xplat/platform/macos').NSView, options: any) => any
 		presentSurface?: (options: any) => any
 		setSurfaceAppearance?: (

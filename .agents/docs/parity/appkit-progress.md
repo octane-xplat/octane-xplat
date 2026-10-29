@@ -6787,6 +6787,76 @@ Apple target/attachment replacement/failure/HMR, disabled/layout/focus behavior,
 controller/browser lifetime and clean signed/installed consumers remain unqualified.
 Shared audit snapshots and evidence-gated checkboxes unchanged; goal active.
 
+## AppKit native date-picker selection and bridge lifecycle
+
+The retained NativeDatePickerDemo.macos claimed native dates were unsupported,
+but the package already exported AppKitDatePicker and the AppKit renderer already
+registered attachDatePicker. Reused that workspace engine; no app-only installer
+or replacement native dependency is needed. The demo is now an actual source
+consumer. Date/time entry is a common form/scheduling flow; the stale demo is
+source adoption evidence, not an observed native failure or a runtime pass.
+
+Added a pure attachment owner with current props/callbacks. Default/current-time
+seed is retained across mode/style/backing-view changes, later defaults are
+ignored and controlled values restore when rejected. Clamp uncontrolled selection
+to new inclusive bounds without emitting, clear removed bounds and native labels,
+and reject invalid Date/range or out-of-bounds controlled props with a generic
+message until repaired. Missing/failing attachment reports generic unavailability.
+Retire sessions before native cleanup; drop disabled/stale/unmounted/duplicate/
+programmatic changes and suppress attach/update echoes. Consumer throw still
+restores the current controlled source. Dates use Date instants and native
+calendar settings; no timezone override or broader parsing API is added.
+
+Renderer attachment now owns/deactivates four pinning constraints and its action
+registration, cleans partial construction/update failure and makes detach inert
+after its first call. Guard actual native enabled state, attached view/window and
+write depth. Validate raw option dates/ranges, clear old bounds before disjoint
+replacement, skip unchanged date/range writes, forward/clear the native AX label
+and normalize NSDate callback precision to milliseconds. Consumer errors log a
+generic message without exception details. The ambient bridge return signature
+now reflects its update/detach handle; native modes/styles and public props stay
+the same. Apple documents the native date/elements/style/range APIs used here:
+[NSDatePicker](https://developer.apple.com/documentation/appkit/nsdatepicker).
+That SDK reference establishes API shape, not runtime behavior through this bridge.
+
+The maintained AppKit demo now offers date/time/combined components, text/calendar
+style, controlled/uncontrolled, disabled, bounds, invalid controlled values, reset,
+current callback and remount controls. The clock/calendar gets default minimum
+room; native layout is unqualified. An idle probe imports this same demo and only
+waits for its status node. Seven owner-model and six additional actual-renderer-
+branch cases are authored, all UNRUN. The renderer file now has nine cases (three
+prior plus six new); fake native objects do not qualify OS input or constraints.
+Added the package's small model-test task without running it or adding a dependency.
+README, public guide, Octane primitive reference, feature note and recipe reconcile
+the source subset. No React Aria presence-level equivalent changes are involved.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/date-picker --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/date-picker --filter=...@octane-xplat/macos-renderer --filter=...@xplat/demos
+pnpm probe doctor
+pnpm probe run examples/probes/native-date-picker.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/date-picker --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run pack:check --filter=@octane-xplat/date-picker
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native date-picker consumer"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The demos package has no standalone typecheck task at this revision; AppKit
+consumer/probe compilation must cover that edited demo. Documentation checker
+scripts remain absent from this isolated snapshot; no shared in-flight tooling
+was copied. Nine TS/TSRX/MJS source/test files, manifest JSON and 29 scoped
+existing/new documentation fences syntax parsed, plus source/semantic/whitespace
+review only. No tests/compiler transforms/typechecks/builds/probes, native/OS/AX/
+visual analysis, packaging or actual native date operations ran. Actual native
+text/calendar/clock editing, IME, Tab/VoiceOver, focus/layout/sizing, native BOOL/
+date/constraint bridge behavior, hook/ref/effect/callback timing, teardown and clean
+installed consumers remain unqualified. Shared audit snapshots and evidence-gated
+checkboxes unchanged; persistent goal active.
+
 ## AppKit PowerSearch absolute-date validation
 
 The config builder exposes date-before/after operators, so single-date editing is

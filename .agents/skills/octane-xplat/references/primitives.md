@@ -2274,3 +2274,36 @@ idle scalar fixture are unrun. The scalar case file now contains seven cases;
 these do not qualify native text/IME/focus/AX/calendar/installed-consumer behavior.
 No public type/dependency/React Aria presence change. See
 [absolute UTC workflow](../../../../docs/app/power-search.md#edit-native-appkit-absolute-dates).
+
+## Native AppKit date-picker ownership
+
+Use AppKitDatePicker from @octane-xplat/date-picker/macos only in native macOS
+files; its renderer-installed attachDatePicker bridge already creates NSDatePicker.
+Do not replace that workspace bridge with an app-only installer or infer support
+absence from the old demo placeholder. The default seed is retained across mode/
+style/view changes; controlled values restore when rejected. Clamp uncontrolled
+values to new inclusive bounds without callbacks; invalid dates/reversed bounds/
+out-of-range controlled values show a generic error until props are repaired.
+Current callbacks/labels update, removed bounds/labels clear, and disabled/stale/
+programmatic/duplicate actions do not emit. Retire sessions before native detach,
+suppress construction/update echoes and clean up partial constraints/actions.
+The renderer skips unchanged date/range writes to avoid disturbing native edits.
+
+```tsx
+// ClosingTime.macos.tsx
+import { useState } from 'octane'
+import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+export function ClosingTime() {
+	const [selection, setSelection] = useState(new Date(2026, 9, 29, 12, 30))
+	return <AppKitDatePicker components="dateAndTime" selection={selection}
+		onSelectionChange={setSelection} accessibilityLabel="Poll closing time" />
+}
+```
+
+The maintained native-date demo replaces its placeholder; an idle probe mounts
+that same demo. Seven owner-model and six new renderer-branch cases are unrun.
+Native NSDatePicker editing/IME/Tab/VoiceOver, focus/layout, calendar/clock settings,
+actual callback timing and clean installed consumers remain unqualified. Renderer
+bridge returns update/detach (its ambient signature was previously void). No new
+dependency/public prop or React Aria presence-level change. See
+[native date workflow](../../../../docs/platform/date-picker.md#native-macos-selection-lifecycle).

@@ -10116,8 +10116,8 @@ const DATE_PICKER_ELEMENTS = (
 		: {}
 ) as { [key: string]: number }
 
-function dateFromMillis(millis: number) {
-	if (typeof NSDate !== 'function' || !Number.isFinite(millis)) {
+function dateFromMillis(millis: number | undefined) {
+	if (typeof NSDate !== 'function' || typeof millis !== 'number' || !Number.isFinite(millis) || !Number.isFinite(new Date(millis).getTime())) {
 		return null
 	}
 
@@ -10141,79 +10141,102 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 
 	const isTime = options?.mode === 'time'
 	const isBoth = options?.mode === 'dateAndTime'
-	const picker = NSDatePicker.alloc().init()
-	picker.datePickerElements = isTime
-		? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
-		: isBoth
-			? (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0) | (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
-			: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
-
-	picker.datePickerStyle =
-		!isTime && !isBoth && options?.style === 'graphical'
-			? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
-			: isTime
-				? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
-				: (DATE_PICKER_STYLES.TextField ?? 0)
-
-	const applyRange = (opts: PropBag | undefined) => {
-		const min = dateFromMillis(opts?.minimumMillis)
-		const max = dateFromMillis(opts?.maximumMillis)
-		picker.minDate = min as NSDate
-		picker.maxDate = max as NSDate
-	}
-
-	applyRange(options)
-	picker.enabled = options?.enabled !== false
-
-	const initial = dateFromMillis(options?.selectionMillis)
-	if (initial) {
-		picker.dateValue = initial
-	}
-
-	picker.translatesAutoresizingMaskIntoConstraints = false
-	view.addSubview(picker)
-	picker.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
-	picker.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
-	picker.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
-	picker.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
-
+	let picker: NSDatePicker
+	try { picker = NSDatePicker.alloc().init() } catch { return null }
 	const actionId = nextActionId++
-	picker.tag = actionId
-	picker.target = buttonActionTarget
-	picker.action = 'controlChanged:'
-	actionHandlers.set(actionId, () => {
-		const date = picker.dateValue
-		const millis =
-			typeof date?.timeIntervalSince1970 === 'number' ? date.timeIntervalSince1970 * 1000 : null
+	let active = true, writing = 0, enabled = false
+	let minimum: number | undefined, maximum: number | undefined
+	let rangeInitialized = false, accessibilityLabel: string | undefined
+	const constraints: { active: boolean }[] = []
+	const detach = () => {
+		if (!active) return
+		active = false; actionHandlers.delete(actionId)
+		try { picker.target = null; picker.action = null as unknown as string } catch {}
+		for (const constraint of constraints) { try { constraint.active = false } catch {} }
+		try { picker.removeFromSuperview() } catch {}
+	}
+	try {
+		picker.datePickerElements = isTime
+			? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
+			: isBoth
+				? (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0) | (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
+				: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
 
-		if (millis === null) {
-			return
+		picker.datePickerStyle =
+			!isTime && !isBoth && options?.style === 'graphical'
+				? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
+				: isTime
+					? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
+					: (DATE_PICKER_STYLES.TextField ?? 2)
+
+		const apply = (next: PropBag) => {
+			const min = next?.minimumMillis ?? undefined, max = next?.maximumMillis ?? undefined
+			const selected = next?.selectionMillis ?? undefined
+			const valid = (value: number | undefined) => value === undefined || (Number.isFinite(value) && Number.isFinite(new Date(value).getTime()))
+			const validInput = valid(min) && valid(max) && valid(selected) &&
+				!(min !== undefined && max !== undefined && min > max) &&
+				!(selected !== undefined && ((min !== undefined && selected < min) || (max !== undefined && selected > max)))
+			enabled = next?.enabled !== false && validInput
+			picker.enabled = enabled
+			const label = String(next?.accessibilityLabel ?? '')
+			if (label !== accessibilityLabel) { picker.setAccessibilityLabel?.(label); accessibilityLabel = label }
+			if (!validInput) return
+			// Clear old bounds before a disjoint replacement. Range/selection writes
+			// are programmatic and must never publish controlChanged echoes.
+			if (!rangeInitialized || minimum !== min || maximum !== max) {
+				picker.minDate = null as unknown as NSDate; picker.maxDate = null as unknown as NSDate
+				picker.minDate = dateFromMillis(min) as NSDate; picker.maxDate = dateFromMillis(max) as NSDate
+				minimum = min; maximum = max; rangeInitialized = true
+			}
+			const date = dateFromMillis(selected)
+			const seconds = picker.dateValue?.timeIntervalSince1970
+			if (date && (typeof seconds !== 'number' || Math.round(seconds * 1000) !== selected)) picker.dateValue = date
 		}
 
-		try {
-			onChange?.(millis)
-		} catch (error) {
-			console.error('[macos-leaf] date-picker change failed', error)
-		}
-	})
+		writing++
+		try { apply(options) } finally { writing-- }
 
-	return {
-		update(next: PropBag) {
-			const date = dateFromMillis(next?.selectionMillis)
-			if (date && picker.dateValue?.timeIntervalSince1970 !== date.timeIntervalSince1970) {
-				picker.dateValue = date
+		picker.translatesAutoresizingMaskIntoConstraints = false
+		view.addSubview(picker)
+		for (const edge of ['leadingAnchor', 'trailingAnchor', 'topAnchor', 'bottomAnchor'] as const) {
+			const constraint = picker[edge].constraintEqualToAnchor(view[edge])
+			constraints.push(constraint); constraint.active = true
+		}
+
+		picker.tag = actionId
+		picker.target = buttonActionTarget
+		picker.action = 'controlChanged:'
+		actionHandlers.set(actionId, () => {
+			if (!active || writing || !enabled || picker.superview !== view || !view.window) return
+			const nativeEnabled = (picker as any).isEnabled
+			const nativeState = typeof nativeEnabled === 'function' ? nativeEnabled.call(picker) : nativeEnabled
+			if (nativeState === false || nativeState === 0) return
+			const date = picker.dateValue
+			const rawMillis =
+				typeof date?.timeIntervalSince1970 === 'number' ? date.timeIntervalSince1970 * 1000 : null
+			const millis = rawMillis === null ? null : Math.round(rawMillis)
+
+			if (millis === null || !Number.isFinite(millis) || !Number.isFinite(new Date(millis).getTime()) ||
+				(minimum !== undefined && millis < minimum) || (maximum !== undefined && millis > maximum)) {
+				return
 			}
 
-			applyRange(next)
-			picker.enabled = next?.enabled !== false
-		},
-		detach() {
-			picker.target = null
-			picker.action = null as unknown as string
-			actionHandlers.delete(actionId)
-			picker.removeFromSuperview()
-		},
-	}
+			try {
+				onChange?.(millis)
+			} catch {
+				console.error('[macos-leaf] date-picker change failed')
+			}
+		})
+
+		return {
+			update(next: PropBag) {
+				if (!active) return
+				writing++
+				try { apply(next) } catch (error) { detach(); throw error } finally { writing-- }
+			},
+			detach,
+		}
+	} catch { detach(); return null }
 }
 
 const openSheets = new Set<any>()
