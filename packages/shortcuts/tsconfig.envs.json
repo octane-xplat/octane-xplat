@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": {
+			"include": ["src/**/*.ts", "examples/**/*.ts"]
+		},
+		"macos": {
+			"files": ["src/index.macos.ts"]
+		},
+		"gtk": {
+			"files": ["src/index.gtk.ts"]
+		},
+		"windows": {
+			"files": ["src/index.windows.ts"]
+		}
+	}
+}

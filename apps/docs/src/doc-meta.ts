@@ -38,6 +38,7 @@ export const GROUPS = [
 			'localization',
 			'animation-gestures',
 			'keyboard-clipboard',
+			'keyboard-shortcuts',
 			'software-keyboard',
 			'movie-capture',
 			'virtual-list',

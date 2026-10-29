@@ -2,6 +2,9 @@
 
 > Show which key was pressed, or tell someone whether their text was copied.
 
+For scoped commands, multi-step sequences, recording and user-configurable
+bindings, use the separate [keyboard shortcuts package](keyboard-shortcuts.md).
+
 ## Copy text with feedback
 
 Spread `clipboardProps` onto a shared `Pressable`. `getItems` produces fresh

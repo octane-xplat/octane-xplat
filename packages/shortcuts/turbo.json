@@ -1,0 +1,23 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typegen": {
+			"outputs": ["dist/**/*.d.ts"]
+		},
+		"build": {
+			"outputs": ["dist/**/*.js"]
+		},
+		"typecheck": {
+			"dependsOn": ["typegen", "^typegen"]
+		},
+		"test:e2e": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false
+		},
+		"test:gtk-runtime": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false,
+			"env": ["SHORTCUTS_GTK_HOST", "SHORTCUTS_GTK_VM"]
+		}
+	}
+}

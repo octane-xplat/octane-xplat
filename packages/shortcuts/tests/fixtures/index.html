@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+	<meta charset="utf-8" />
+	<title>Shortcut input checks</title>
+	<button id="outside">Outside workspace</button>
+	<section id="workspace">
+		<button id="inside">Workspace action</button>
+		<input id="editor" aria-label="Editor" />
+	</section>
+	<script type="module">
+		import { createShortcuts } from '../../src/index.web.ts'
+		const calls = []
+		const root = document.querySelector('#workspace')
+		const shortcuts = createShortcuts({ target: root })
+		shortcuts.bind({
+			combo: 'Mod+k',
+			preventDefault: true,
+			editablePolicy: 'allow-if-meta',
+			handler: () => calls.push('palette'),
+		})
+		shortcuts.bind({
+			combo: 'b',
+			preventDefault: true,
+			editablePolicy: 'allow-in-editable',
+			handler: () => calls.push('blocked-text'),
+		})
+		shortcuts.bind({ sequence: 'g i', handler: () => calls.push('inbox') })
+		window.fixture = { calls, shortcuts }
+	</script>
+</html>

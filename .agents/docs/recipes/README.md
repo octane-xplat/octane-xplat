@@ -90,6 +90,7 @@ Workflows:
 - [Render a bounded content list](content-list.md)
 - [Compose a shared screen layout](shared-layout.md)
 - [Handle keys and copy text](keyboard-clipboard.md)
+- [Add configurable workspace shortcuts](keyboard-shortcuts.md)
 - [Enter and submit text reliably](text-entry.md)
 - [Search and enter selected values](search-and-token-entry.md)
 - [Build a structured search field](power-search.md)

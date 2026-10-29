@@ -1,0 +1,54 @@
+{
+	"name": "@octane-xplat/shortcuts",
+	"version": "0.18.0",
+	"description": "Scoped keyboard shortcuts, sequences and recording for web and native desktop apps",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/shortcuts"
+	},
+	"files": [
+		"dist",
+		"POWERKEYS-LICENSE",
+		"UPSTREAM.md"
+	],
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"macos": "./dist/index.macos.js",
+			"gtk": "./dist/index.gtk.js",
+			"windows": "./dist/index.windows.js",
+			"web": "./dist/index.web.js",
+			"browser": "./dist/index.web.js",
+			"default": "./dist/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json --declaration false",
+		"typegen": "tsc -p tsconfig.build.json --emitDeclarationOnly",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"pack:check": "tsrx-typegen --pack-check",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"test:e2e": "node tests/browser.web.mjs",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test:gtk-runtime": "node tests/gtk-runtime.mjs"
+	},
+	"dependencies": {
+		"@casbin/expression-eval": "5.3.0"
+	},
+	"devDependencies": {
+		"jsdom": "catalog:",
+		"playwright": "1.63.0",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	}
+}

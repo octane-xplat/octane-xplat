@@ -75,6 +75,7 @@
 		"@octane-xplat/shaders",
 		"@octane-xplat/share",
 		"@octane-xplat/sheet",
+		"@octane-xplat/shortcuts",
 		"@octane-xplat/smooth-corners",
 		"@octane-xplat/sounds",
 		"@octane-xplat/splash-screen",
