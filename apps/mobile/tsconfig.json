@@ -58,6 +58,7 @@
 		"../../packages/*/src/build",
 		"../../packages/mcp",
 		"../../packages/cli",
+		"../../packages/fingerprint",
 		"../../packages/lint",
 		"../../packages/create",
 		"../../packages/tsrx-typegen",
