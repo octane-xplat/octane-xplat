@@ -114,6 +114,18 @@ a label hint. Real Linux checks cover these contracts, including mixed
 checkboxes and actual X11 label clicks; AT-client speech/navigation, phone
 runtime and pixel parity remain unqualified.
 
+RadioList and RadioListItem also reuse the native leaves. An explicit Field
+owns group chrome; otherwise the private native selection frame supplies it.
+The private radiogroup role stays intact on GTK; NativeScript9.1.3 has only
+radioButton, so its container retains an inert-role fallback. GTK uses its
+focus virtual method for one Tab entry per group while each row stays
+imperatively focusable. Logical arrow navigation skips disabled/hidden rows
+and nested groups; RTL reverses horizontal arrows. Pointer focus is separate
+from selection so read-only radios can focus without editing. Keep that
+behavior on both Mason and Gtk.Box hosts. A standalone item stays
+presentational. Maintained checks cover actual X11 keys/pointer input and
+Mason field/metadata/layout contracts; they do not establish AT-client output.
+
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
 handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have

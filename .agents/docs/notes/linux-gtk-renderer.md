@@ -2107,3 +2107,72 @@ examples-final,recipes-final,barrels,notes}.log prefix. No visual analysis,
 phone runtime, IME, Wayland or AT-client interaction qualification is implied.
 Feedback:36a0123b-e060-4efa-b5e2-c6f45bdf0583 and
 cb89bd45-678b-49d6-958e-24d7d64bcd01.
+
+## Public GTK radio fields
+
+At2c188c53e the new direct-source RadioList/RadioListItem case completed26
+checks and failed22 on real Linux GTK4.14.5/GJS1.80.2. Both options and child parts
+lacked native group/option roles, checked state, names, field label/width,
+required/read-only/busy metadata, disabled sensitivity and keyboard focus.
+Rendering three rows and cleanup/no-effect checks passed. The baseline used
+native property/geometry/focus reads, with no OS input or images:
+guest /tmp/gtk-radio-first.log.
+
+The first shared-native patch delegates group labels/defaults/status/width to
+the existing private field owner, publishes row radio/checked/name/help state
+and native sensitivity, and guards duplicate/blocked selection. It leaves a
+standalone RadioListItem presentational. GTK now maps radio/radiogroup and the
+custom rows can receive focus/Space. The focused run passes all26 radio checks,
+the existing toggle keyboard34 and toggle fields86 checks
+(/tmp/gtk-radio-foundation.log). Focused typegen/renderer checks pass6 tasks
+(/tmp/gtk-radio-foundation-types.log); dependent qualification is still required.
+
+NativeScript9.1.3 at45b3b99afd89f19e799da84203aa19d673f7b20a has
+[radioButton but no radio-group enum](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/accessibility/accessibility-common.ts#L285-L372).
+The private role helper accepts a composite radiogroup token: the GTK alias
+retains it, while NativeScript uses its existing inert-container fallback.
+This is source evidence of the enum limit, not phone AT qualification. Revisit
+the fallback if NativeScript adds a container role; option radios use its
+existing radioButton role and checked state.
+
+GTK delegates Tab traversal to its [Widget focus virtual method](https://docs.gtk.org/gtk4/vfunc.Widget.focus.html),
+keeping each option imperatively focusable and using the selected/first enabled
+option when entering the group. Arrow handling uses logical group ownership,
+skips disabled/hidden rows and nested groups, and reverses horizontal arrows
+under RTL. The [WAI radio-group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/)
+is the fallback behavior reference. Both Mason and Gtk.Box fallback hosts have
+the focus override. Pointer focus is independent of selection, so read-only
+rows focus without editing and respect native focus-on-click opt-out.
+
+The expanded case first found a pointer-focus failure on Gtk.Box (55 checks,
+one failure) and then trailing-content/wrapping failures on Mason (105 checks,
+two failures). A radio-only pointer controller fixes focus; shared label-column
+flex sizing and wrapping fix the layout without a GTK leaf. Feedback records
+fe3d182e-02d1-4aca-aefa-55fff26ac6e5 and
+72df0ac4-1685-405d-b618-3825832d731e preserve the original expectations.
+
+The public-root cases pass107 Mason checks and59 Gtk.Box checks with actual
+X11 Tab/Shift-Tab/arrows/Space and label clicks. Mason also covers local and
+controlled values, rejected changes, default updates, keyed reorder/identity,
+disabled/read-only state, empty/repopulated groups, RTL, horizontal geometry,
+label hiding, field width/status/required/optional/size/reset, description
+wrapping/end placement, external Field ownership, presentational standalone
+items and retired handlers. Fallback checks qualify grouped input; typed Mason
+style values and the full field geometry contract are not asserted there.
+
+All52 maintained Linux renderer tests pass without skips. All62 affected UI/
+renderer/dependent typecheck tasks pass, including exact declaration checks for
+all GTK runtime values and the four radio types. The native regression suite
+passes58 Node checks and464 object-driver tests; the focused web field/role/
+size suite passes62 tests. Root availability is59 values and93 types.
+Logs: guest /tmp/gtk-radio-root-full.log; andromeda
+/tmp/gtk-radio-root-{types,native,web}.log. No images, phone runtime, IME,
+Wayland, AT-client speech/navigation or pixel qualification is implied.
+
+
+Final radio packaging and documentation checks pass:6 UI packed-export/
+declaration tasks and28 docs build/test tasks. Docs141 pages/links,1131 parsing
+examples, recipes, UI barrels,53 release notes, focused TS/JSON/test formatting
+and whitespace pass. Andromeda logs: /tmp/gtk-radio-root-pack.log and
+/tmp/gtk-radio-root-doc-site.log. The source review includes the semantic diff
+and the new radio traversal/controller/test modules. No dependencies were added.

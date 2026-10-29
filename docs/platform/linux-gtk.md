@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput and Switch.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList and RadioListItem.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -218,6 +218,46 @@ export function NotificationSetting(props: { save: (enabled: boolean) => Promise
   return (
     <Switch label="Notifications" value={enabled}
       onChange={setEnabled} changeAction={props.save} />
+  )
+}
+```
+
+## Single-choice fields
+
+Use RadioList when exactly one option can be selected. Supply options for a
+simple list, and use defaultValue to let the control keep its own selection.
+Click a label or use Tab, arrow keys and Space; disabled options are skipped.
+
+```tsx
+import { RadioList } from '@octane-xplat/ui'
+
+export function Delivery() {
+  return (
+    <RadioList label="Delivery" width={280} defaultValue="standard"
+      options={[
+        { value: 'standard', label: 'Standard', description: 'Arrives this week' },
+        { value: 'express', label: 'Express' },
+      ]} />
+  )
+}
+```
+
+Use RadioListItem children when each option needs its own markup. A surrounding
+Field can own the label and shared field state. Set isGroupLabel because the
+label names a group; each option keeps its own name. Outside RadioList, the
+child part is a presentation row.
+
+```tsx
+import { Field, RadioList, RadioListItem, Text } from '@octane-xplat/ui'
+
+export function Payment() {
+  return (
+    <Field label="Payment" isGroupLabel width={280}>
+      <RadioList defaultValue="card">
+        <RadioListItem value="card" label="Card" endContent={<Text>No fee</Text>} />
+        <RadioListItem value="cash" label="Cash" isDisabled />
+      </RadioList>
+    </Field>
   )
 }
 ```

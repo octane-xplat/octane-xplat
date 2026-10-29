@@ -80,7 +80,10 @@ const NATIVE_ACCESSIBILITY_ROLES: Record<Role, string> = {
 }
 
 /** Translate the shared/ARIA spelling to NativeScript's narrower role enum. */
-export function nativeAccessibilityRole(role?: Role): string | undefined {
+export function nativeAccessibilityRole(role?: Role | 'radiogroup'): string | undefined {
+	// NativeScript9.1.3 exposes radioButton, but no radio-group container role.
+	// GTK's renderer alias preserves this private composite role.
+	if (role === 'radiogroup') return 'none'
 	return role ? NATIVE_ACCESSIBILITY_ROLES[role] : undefined
 }
 

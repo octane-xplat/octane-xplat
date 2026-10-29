@@ -19,6 +19,7 @@ import {
 	isMasonHostView,
 	isMasonView,
 	makeMasonView,
+	makeMasonFallbackView,
 	masonAvailable,
 	queueMasonLayout,
 	releaseMasonNodes,
@@ -316,9 +317,7 @@ function instantiate(type: string): GtkView {
 		// Gtk.Box fallback keeps the shim's emulation for builds without
 		// the native artifact (see src/mason.ts module note).
 		case 'masonview':
-			return masonAvailable()
-				? makeMasonView()
-				: new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
+			return masonAvailable() ? makeMasonView() : makeMasonFallbackView()
 		case 'label':
 			return new Gtk.Label({ label: '', xalign: 0 })
 		case 'button':
@@ -1757,6 +1756,8 @@ const A11Y_ROLES: Record<string, number> = {
 	progressbar: Gtk.AccessibleRole.PROGRESS_BAR,
 	checkbox: Gtk.AccessibleRole.CHECKBOX,
 	switch: Gtk.AccessibleRole.SWITCH,
+	radio: Gtk.AccessibleRole.RADIO,
+	radiogroup: Gtk.AccessibleRole.RADIO_GROUP,
 }
 
 function setAccessibleRole(node: ElementNode, value: unknown) {
@@ -1775,6 +1776,7 @@ function setAccessibleRole(node: ElementNode, value: unknown) {
 					Gtk.AccessibleRole.LINK,
 					Gtk.AccessibleRole.CHECKBOX,
 					Gtk.AccessibleRole.SWITCH,
+					Gtk.AccessibleRole.RADIO,
 				].includes(role),
 		)
 	node.pressKeys?.refresh()

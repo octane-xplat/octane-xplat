@@ -3209,7 +3209,7 @@
 }
 
 /* Unit-5 form/selection additions */
-.vx-radio-label-col { display: inline-flex; flex-direction: column; }
+.vx-radio-label-col { display: inline-flex; flex-direction: column; flex-grow: 1; flex-shrink: 1; min-width: 0; }
 .vx-radio-description, .vx-checkbox-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
 .vx-radio-row, .vx-checkbox-row { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 /* xplat-web-only:start — auto margins are ignored on native; the row's own

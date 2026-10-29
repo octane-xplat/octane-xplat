@@ -12,6 +12,7 @@ declare module 'gi://Gtk?version=4.0' {
 		function get_micro_version(): number
 		function test_accessible_has_property(widget: Widget, property: number): boolean
 		const AccessibleRelation: { LABELLED_BY: number; DESCRIBED_BY: number; [key: string]: number }
+		const DirectionType: { TAB_FORWARD: number; TAB_BACKWARD: number }
 		const MAJOR_VERSION: number
 		const MINOR_VERSION: number
 		const MICRO_VERSION: number
@@ -452,6 +453,10 @@ declare module 'gi://Gdk?version=4.0' {
 			[key: string]: number
 		}
 
+		const KEY_Up: number
+		const KEY_Down: number
+		const KEY_Left: number
+		const KEY_Right: number
 		const ModifierType: {
 			SHIFT_MASK: number
 			LOCK_MASK: number

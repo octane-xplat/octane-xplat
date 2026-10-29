@@ -667,8 +667,11 @@ export function PointerAction(props: { disabled: boolean; save: () => void }) {
 
 Maintainer qualification now includes the [field-chrome runtime fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx).
 The fixture also checks editor retention while labels or validation messages change.
-TextInput is available from the curated root. Field remains a source-only
-fixture; its complete contract is not established by this qualification.
+TextInput and Field are available from the curated root. The current
+[field and selection guide](https://octane-xplat.goddardai.org/linux-gtk#single-choice-fields)
+also covers FormLayout, InputGroup, FieldGroup, CheckboxInput, Switch, RadioList
+and RadioListItem; maintained fixtures qualify named behavior rather than the
+complete assistive-client or visual contract.
 
 
 GTK field labels now resolve their associated control by its logical id and

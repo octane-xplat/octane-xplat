@@ -243,6 +243,12 @@ isEnabled/editable/checked and use accessibilityState for metadata. The current
 shared TextInput forwards disabled/readOnly/required/busy/invalid fields without
 a GTK copy. Its curated GTK field behavior is covered by maintained entry and chrome fixtures.
 
+RadioList/RadioListItem add private radio/radiogroup semantics through this
+adapter. Keep the GTK composite role rather than mapping it to generic group.
+NativeScript's enum has no radio-group role; only that container uses the
+documented inert fallback. The renderer keeps radio focus grouped on both
+Mason and Gtk.Box hosts, with pointer focus independent of activation.
+
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property

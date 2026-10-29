@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 57 runtime values and 89 types in index.gtk.ts, including
+Current availability is 59 runtime values and 93 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput and Switch. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList and RadioListItem. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1047,3 +1047,22 @@ for baseline failures, source changes, logs and limits. Text-entry's GTK recipe
 gains AC3 evidence while retaining partial coverage and an unexecuted complete
 criterion. Other inputs/parts, Image, overlays, navigation, theme and services
 remain in the full parity goal. No PR has been opened for this partial surface.
+
+
+### Public GTK radio fields
+
+RadioList/RadioListItem and four existing radio types are curated through the
+shared native leaves. Availability is59 values/93 types. The private field
+owner now supplies group width, label, status and defaults; each option carries
+radio semantics and checked/name/help state. GTK provides one Tab entry per
+group, logical arrow navigation and separate pointer focus, on Mason and the
+Gtk.Box fallback.
+
+The public-root Linux suite passes52 cases without skips, including107 Mason
+and59 fallback radio checks with actual X11 keys/pointer input. All62 affected/
+dependent typecheck tasks,58 Node checks,464 native object-driver tests and62
+focused web tests pass. See [the radio evidence](linux-gtk-renderer.md#public-gtk-radio-fields)
+for the baseline, fixes, contracts and explicit limits. Text-entry AC3 gains
+radio evidence while retaining partial coverage and its unexecuted complete
+criterion. Remaining inputs/parts, Image, overlays, navigation, theme and
+services stay under the full parity goal; no partial-surface PR is opened.

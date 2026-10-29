@@ -167,7 +167,12 @@ The public-root [toggle field fixture](../../../packages/linux-gtk-renderer/test
 checks CheckboxInput and Switch field defaults, labels, width, disabled/read-only/busy
 state and async rollback with actual X11 label clicks. It also checks inherited
 Field ownership and mixed checkbox state. These add AC3 field evidence; they
-do not establish assistive-client speech or navigation.
+do not establish assistive-client speech or navigation. The public-root
+[radio fixture](../../../packages/linux-gtk-renderer/test/ui-radio-list.test.mjs)
+adds grouped Tab/arrow/Space and pointer ownership, controlled values, child
+parts, field defaults and native state checks. It runs keyboard/pointer cases
+with both Mason and the Gtk.Box fallback; broader layout/value comparisons use
+Mason.
 
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete

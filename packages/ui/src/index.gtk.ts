@@ -159,3 +159,7 @@ export type {
 export { Checkbox as CheckboxInput } from './Checkbox'
 export { Switch } from './Switch'
 export type { CheckboxProps, CheckboxInputProps, SwitchProps } from './props'
+
+export { RadioGroup as RadioList } from './RadioGroup'
+export { RadioListItem } from './RadioListItem'
+export type { RadioGroupProps, RadioListProps, RadioListItemProps, RadioOption } from './props'

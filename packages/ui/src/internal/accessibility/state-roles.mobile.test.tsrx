@@ -27,13 +27,14 @@ function LeadingInput(props: { inputRef: any; showLeading?: boolean }) @{
 		startIcon={props.showLeading ? <label text="Prefix" /> : undefined} />
 }
 
-function findNative(node: any, type: string, label?: string, role?: string): any {
+function findNative(node: any, type: string, label?: string, role?: string, className?: string): any {
 	if (node.type === type && (label === undefined || node.props?.accessibilityLabel === label) &&
-		(role === undefined || node.props?.accessibilityRole === role)) {
+		(role === undefined || node.props?.accessibilityRole === role) &&
+		(className === undefined || String(node.props?.className).split(' ').includes(className))) {
 		return node
 	}
 	for (const child of node.children ?? []) {
-		const found = findNative(child, type, label, role)
+		const found = findNative(child, type, label, role, className)
 		if (found) return found
 	}
 	return null
@@ -194,7 +195,7 @@ describe('native choices', () => {
 		]
 
 		root.render(RadioGroup, { defaultValue: 'b', options, onValueChange: change })
-		const group = container.children[0]
+		const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
 		expect(String(group.children[1].props.className)).toContain('vx-radio--on')
 		container.dispatchEvent(group.children[0], 'tap', {})
 		expect(change).toHaveBeenLastCalledWith('a')
@@ -212,7 +213,7 @@ describe('native choices', () => {
 		]
 
 		root.render(RadioGroup, { value: 'b', defaultValue: 'a', options, onValueChange: change })
-		const group = container.children[0]
+		const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
 		expect(String(group.children[1].props.className)).toContain('vx-radio--on')
 		container.dispatchEvent(group.children[0], 'tap', {})
 		expect(change).toHaveBeenLastCalledWith('a')
