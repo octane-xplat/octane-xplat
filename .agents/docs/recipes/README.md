@@ -204,8 +204,10 @@ old rows remain historical evidence, not a current green status. Insert a new
 assessment for a new revision; use Silo's optimistic revision when correcting
 an existing row. Never claim a roll-up is complete with missing applicable target rows.
 The Silo `recipe_audit.target` constraint accepts `web`, `ios`, `android`, and
-`macos`. Use the shared `gtk_recipe_checks` table for GTK criterion assessments, with
-its own schema inspection before writes. Windows assessments remain outside
-both tables; preserve their findings without relabeling them as another target. If Silo is unavailable, report the
+`macos`. Use `gtk_recipe_checks` for GTK assessments and `windows_recipe_checks`
+for native Windows assessments. These tables keep the same recipe/criterion/commit
+identity and separate documentation coverage from execution evidence; their target
+is implicit in the table name. Inspect the relevant table before writing, and
+never relabel desktop evidence as a phone or AppKit target. If Silo is unavailable, report the
 unrecorded findings at handoff and leave the audit pending rather than
 claiming completion.

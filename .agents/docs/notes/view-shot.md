@@ -96,6 +96,7 @@ The batched dependent check found that another renderer's narrower ambient GJS
 namespace hid capture APIs. The GTK bridge now keeps its SDK contract local to
 this module, using the same APIs checked on andromeda; this changes types only
 and adds no capture execution. Silo recipe_audit represents web/iOS/Android/macOS.
-The shared gtk_recipe_checks table now records Linux assessments separately;
-Windows's five assessments still cannot fit either table. Do not relabel them
-as another target or claim a complete roll-up.
+The shared gtk_recipe_checks and windows_recipe_checks tables record the five
+Linux and five Windows assessments separately at their reviewed revisions.
+These are documentation/source assessments, not capture-output qualification;
+no desktop evidence is relabeled as another target.

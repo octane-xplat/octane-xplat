@@ -44,6 +44,8 @@ here are visible to parallel agents immediately. Tables:
 | `experiments`           | a validation to run                               | `queued` → `running` → `passed` / `failed` / `parked`  |
 | `docs_audit`            | an audited user-facing docs page                  | `queued` → `auditing` → `clean` / `fixed` / `verified` |
 | `recipe_audit`          | a per-criterion recipe assessment                 | per-recipe state; `optimistic_revision` enforced       |
+| `gtk_recipe_checks`     | a GTK per-criterion recipe assessment              | per reviewed commit; `optimistic_revision` enforced    |
+| `windows_recipe_checks` | a native Windows per-criterion recipe assessment   | per reviewed commit; `optimistic_revision` enforced    |
 | `feedback_observations` | one local agent report of an expectation mismatch | append-only; no triage status                          |
 
 - Natural keys: topic `slug`, decision `num`. Update rows in place; don't

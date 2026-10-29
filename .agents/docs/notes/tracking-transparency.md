@@ -59,7 +59,11 @@ pending writes. Only in-flight promises are shared; completed IDs are not cached
 Logs for this work session: /tmp/xplat-tracking-final-checks.log,
 /tmp/xplat-tracking-ios-final.log, the remote native build/API logs. Windows
 contract output is in the tool transcript; maintained fixtures live in tests/.
-No screenshots or visual analysis were used.
+No screenshots or visual analysis were used. Twenty recipe_audit rows cover
+web/iOS/Android/macOS at the implementation commit, with five GTK and five
+Windows assessments in their separate desktop recipe tables. Windows remains
+typechecked evidence despite the narrow synthetic adapter fixture; live native
+identifier access and installed-consumer behavior remain unqualified.
 
 ## Fixture corrections and expectation mismatches
 
