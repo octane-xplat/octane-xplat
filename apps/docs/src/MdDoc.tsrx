@@ -1,7 +1,25 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
-import { useMemo, useState, useEffect, useRef } from 'octane'
-import { View, Text } from '@octane-xplat/ui'
-import { router } from '@octane-xplat/ui/routing'
+import { useMemo, useRef } from 'octane'
+import {
+	View,
+	Text,
+	Heading,
+	Link,
+	NavLink,
+	Pressable,
+	Icon,
+	DropdownMenu,
+	DropdownMenuItem,
+	useClipboard,
+	ScrollableArea,
+	Table,
+	TableHeader,
+	TableBody,
+	TableRow,
+	TableCell,
+	TableHeaderCell,
+	type ScrollableAreaHandle,
+} from '@octane-xplat/ui'
+
 import { createHighlighterCoreSync } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import langTs from 'shiki/langs/typescript.mjs'
@@ -10,12 +28,13 @@ import langJsonc from 'shiki/langs/jsonc.mjs'
 import langSh from 'shiki/langs/shellscript.mjs'
 import langCss from 'shiki/langs/css.mjs'
 import { DOCS, routeForDoc } from './docs'
-import { docPath, docSlugFor, repoPathFor } from './doc-meta'
+import { docSlugFor, repoPathFor } from './doc-meta'
 import { inlineSpans, parseMd, type Block, type Span } from './md'
-import { resetDocScroll } from './scroll'
+import { usePageActions, useTableScrollEdges } from './docs-host'
 import { nbDark } from './nb-theme'
-import { DemoPreview } from './DemoPreview.web.tsrx'
-import { AgentPrompt } from './AgentPrompt.web.tsrx'
+import { DemoPreview } from './DemoPreview.tsrx'
+import { AgentPrompt } from './AgentPrompt.tsrx'
+import { docsIcons } from './icons'
 
 // JS regex engine — no wasm fetch, fully sync. Code slabs are always black,
 // so the one nb-dark theme works in both color modes.
@@ -66,58 +85,41 @@ function CodeBlock(props: { code: string; lang: string }) @{
 }
 
 function TableBlock(props: { rows: string[][]; dir: string }) @{
-	const scroll = useRef<HTMLDivElement | null>(null)
+	const scroll = useRef<ScrollableAreaHandle | null>(null)
 
-	useEffect(() => {
-		const element = scroll.current
-		if (!element) {
-			return
-		}
-
-		const block = element.parentElement
-		if (!block) {
-			return
-		}
-
-		const updateEdges = () => {
-			const maxScroll = element.scrollWidth - element.clientWidth
-			block.classList.toggle('has-overflow', maxScroll > 1)
-			block.classList.toggle('clips-left', element.scrollLeft > 1)
-			block.classList.toggle('clips-right', element.scrollLeft < maxScroll - 1)
-		}
-
-		updateEdges()
-		element.addEventListener('scroll', updateEdges, { passive: true })
-		const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(updateEdges) : null
-		observer?.observe(element)
-		if (element.firstElementChild) {
-			observer?.observe(element.firstElementChild)
-		}
-
-		return () => {
-			element.removeEventListener('scroll', updateEdges)
-			observer?.disconnect()
-		}
-	}, [props.rows])
+	useTableScrollEdges(scroll, props.rows)
 
 	<View className="table-block">
-		<View
+		<ScrollableArea
 			className="table-scroll"
 			ref={scroll}
-			web={{ role: 'region', 'aria-label': 'Scrollable table', tabIndex: 0 }}
+			axis="inline"
+			role="region"
+			label="Scrollable table"
 		>
-			<View className="table">
-				@for (const r of props.rows; index ri; key ri) {
-					<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
-						@for (const c of r; index ci; key ci) {
-							<Text className="td">
+			<Table className="table" dividers="none" verticalAlign="top">
+				<TableHeader>
+					<TableRow className="tr tr-head" isHeaderRow>
+						@for (const c of props.rows[0] ?? []; index ci; key ci) {
+							<TableHeaderCell className="td" scope="col">
 								<Spans spans={inlineSpans(c)} dir={props.dir} />
-							</Text>
+							</TableHeaderCell>
 						}
-					</View>
-				}
-			</View>
-		</View>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					@for (const r of props.rows.slice(1); index ri; key ri) {
+						<TableRow className="tr">
+							@for (const c of r; index ci; key ci) {
+								<TableCell className="td">
+									<Spans spans={inlineSpans(c)} dir={props.dir} />
+								</TableCell>
+							}
+						</TableRow>
+					}
+				</TableBody>
+			</Table>
+		</ScrollableArea>
 	</View>
 }
 
@@ -156,39 +158,24 @@ function SpanText(props: { s: Span; dir: string }) @{
 		if (doc) {
 			const hash = s.href.includes('#') ? s.href.slice(s.href.indexOf('#')) : ''
 			return (
-				<a
-					className={cls}
-					href={docPath(doc.slug) + hash}
-					onClick={(e: MouseEvent) => {
-						if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-							return
-						}
-
-						e.preventDefault()
-						void router.push({ ...routeForDoc(doc), hash: hash.slice(1) }).then((result) => {
-							if (result.status === 'committed') {
-								resetDocScroll()
-							}
-						})
-					}}
-				>
+				<NavLink {...routeForDoc(doc)} hash={hash.slice(1)} className={cls}>
 					{s.text}
-				</a>
+				</NavLink>
 			)
 		}
 
 		if (s.href.startsWith('#')) {
 			return (
-				<a className={cls} href={s.href}>
+				<Link className={cls} href={s.href}>
 					{s.text}
-				</a>
+				</Link>
 			)
 		}
 
 		return (
-			<a className={cls} href={extUrl(s.href, props.dir)} target="_blank" rel="noopener">
+			<Link className={cls} href={extUrl(s.href, props.dir)} target="_blank">
 				{s.text}
-			</a>
+			</Link>
 		)
 	}
 
@@ -210,11 +197,11 @@ function Spans(props: { spans: Span[]; dir: string }) @{
 	<>
 		@for (const run of runs; index runIndex; key runIndex) {
 			@if (run[0].highlight) {
-				<mark className="highlight">
+				<Text className="highlight">
 					@for (const s of run; index spanIndex; key spanIndex) {
 						<SpanText s={s} dir={props.dir} />
 					}
-				</mark>
+				</Text>
 			} @else {
 				<>
 					@for (const s of run; index spanIndex; key spanIndex) {
@@ -234,11 +221,10 @@ function BlockView(props: {
 }) @{
 	const b = props.b
 	if (b.kind === 'h') {
-		const Tag = `h${b.level}` as 'h1' | 'h2' | 'h3' | 'h4'
 		return (
-			<Tag id={b.id} className={`h${b.level}`}>
+			<Heading level={b.level as 1 | 2 | 3 | 4} id={b.id} className={`h${b.level}`} color="inherit">
 				{b.text}
-			</Tag>
+			</Heading>
 		)
 	}
 
@@ -268,34 +254,18 @@ function BlockView(props: {
 					<Spans spans={b.spans} dir={props.dir} />
 				</Text>
 				{props.homeActions && (
-					<div className="home-actions" aria-label="Get started">
-						<a
+					<View className="home-actions" accessibilityLabel="Get started">
+						<NavLink
+							{...routeForDoc(DOCS.find((d) => d.slug === 'toolchain'))}
+							hash="create-and-run"
 							className="home-action home-action-primary"
-							href="/toolchain#create-and-run"
-							onClick={(e: MouseEvent) => {
-								if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-									return
-								}
-
-								e.preventDefault()
-								void router
-									.push({
-										...routeForDoc(DOCS.find((d) => d.slug === 'toolchain')),
-										hash: 'create-and-run',
-									})
-									.then((result) => {
-										if (result.status === 'committed') {
-											resetDocScroll()
-										}
-									})
-							}}
 						>
 							Get Started
-						</a>
-						<a className="home-action home-action-secondary" href="#agent-prompt">
+						</NavLink>
+						<Link className="home-action home-action-secondary" href="#agent-prompt">
 							Set up your agent
-						</a>
-					</div>
+						</Link>
+					</View>
 				)}
 			</View>
 		)
@@ -342,156 +312,67 @@ export function MdDoc(props: {
 	// Positions identify nodes within this fixed document; the shell remounts
 	// MdDoc when its slug changes, so keys never cross document boundaries.
 	const blocks = useMemo(() => parseMd(props.md), [props.md])
-	const [actionsOpen, setActionsOpen] = useState(false)
-	const [copied, setCopied] = useState(false)
-
-	useEffect(() => {
-		if (!actionsOpen) {
-			return
-		}
-
-		const onPointerDown = (e: PointerEvent) => {
-			const target = e.target as Node | null
-			if (target && !document.getElementById('doc-actions')?.contains(target)) {
-				setActionsOpen(false)
-			}
-		}
-
-		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') {
-				setActionsOpen(false)
-			}
-		}
-
-		document.addEventListener('pointerdown', onPointerDown)
-		document.addEventListener('keydown', onKeyDown)
-		return () => {
-			document.removeEventListener('pointerdown', onPointerDown)
-			document.removeEventListener('keydown', onKeyDown)
-		}
-	}, [actionsOpen])
-
+	const clipboard = useClipboard({ getItems: () => props.md, resetAfterMs: 1600 })
 	const copyPage = async () => {
-		try {
-			await navigator.clipboard.writeText(props.md)
-			setCopied(true)
-			setTimeout(() => setCopied(false), 1600)
-		} catch {
-			setCopied(false)
-		}
-
-		setActionsOpen(false)
+		await clipboard.copy()
 	}
 
-	const viewMarkdown = () => {
-		const url = URL.createObjectURL(new Blob([props.md], { type: 'text/plain;charset=utf-8' }))
-		window.open(url, '_blank', 'noopener,noreferrer')
-		setTimeout(() => URL.revokeObjectURL(url), 60_000)
-		setActionsOpen(false)
-	}
-
-	const openCodex = () => {
-		const prompt = `Help me apply the guidance from this documentation page: ${window.location.href}`
-		const url = `codex://new?prompt=${encodeURIComponent(prompt)}`
-		window.open(url, '_blank', 'noopener,noreferrer')
-		setActionsOpen(false)
-	}
-
-	const askAI = () => {
-		const prompt = `Explain this documentation page: ${window.location.href}`
-		window.open(
-			`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`,
-			'_blank',
-			'noopener,noreferrer',
-		)
-
-		setActionsOpen(false)
-	}
+	const { viewMarkdown, openCodex, askAI } = usePageActions(props.md)
 
 	<View className="doc">
 		{props.showPageActions !== false && (
-			<div className="doc-actions" id="doc-actions">
-				<div className="doc-actions-bar">
-					<svg
-						className="doc-copy-surface"
-						viewBox="0 0 162 30"
-						preserveAspectRatio="none"
-						aria-hidden="true"
+			<View className="doc-actions" id="doc-actions">
+				<View className="doc-actions-bar">
+					<Icon className="doc-copy-surface" name="docs-copy-surface" registry={docsIcons} />
+					<Pressable className="doc-copy" onPress={copyPage}>
+						<Icon name="xplat-copy" size={16} />
+						<Text>{clipboard.isCopied ? 'Copied' : 'Copy page'}</Text>
+					</Pressable>
+					<DropdownMenu
+						button={{
+							label: 'More page actions',
+							isIconOnly: true,
+							icon: 'xplat-chevron-down',
+							className: 'doc-copy-toggle',
+							variant: 'ghost',
+						}}
+						hasChevron={false}
+						label="Page actions"
+						alignment="end"
+						menuWidth={360}
+						menuClassName="doc-actions-menu"
 					>
-						<path d="M147.176777,-0.176776695 L162.176777,14.8232233 L162.25,15 L162.25,30.25 L9,30.25 L8.8232233,30.1767767 L-0.176776695,21.1767767 L-0.25,21 L-0.25,-0.25 L147,-0.25 Z" />
-					</svg>
-					<button className="doc-copy" type="button" onClick={copyPage}>
-						<svg className="doc-copy-icon" viewBox="0 0 16 16" aria-hidden="true">
-							<g transform="translate(1.3333, 1.3333)">
-								<rect
-									x="4.66666667"
-									y="4.66666667"
-									width="8.66666667"
-									height="8.66666667"
-									rx="1.33333333"
-								/>
-								<path d="M2,8.66666667 L1.33333333,8.66666667 C0.596953667,8.66666667 0,8.069713 0,7.33333333 L0,1.33333333 C0,0.596953667 0.596953667,0 1.33333333,0 L7.33333333,0 C8.069713,0 8.66666667,0.596953667 8.66666667,1.33333333 L8.66666667,2" />
-							</g>
-						</svg>
-						<span>{copied ? 'Copied' : 'Copy page'}</span>
-					</button>
-					<button
-						className="doc-copy-toggle"
-						type="button"
-						aria-label="More page actions"
-						aria-haspopup="menu"
-						aria-expanded={actionsOpen}
-						onClick={() => setActionsOpen(!actionsOpen)}
-					>
-						<svg className="doc-copy-chevron" viewBox="0 0 22 22" aria-hidden="true">
-							<polyline points="5.5 8.70833333 11 14.2083333 16.5 8.70833333" />
-						</svg>
-					</button>
-				</div>
-				<div
-					className={actionsOpen ? 'doc-actions-menu is-open' : 'doc-actions-menu'}
-					role="menu"
-					aria-hidden={!actionsOpen}
-				>
-					<button className="doc-action" role="menuitem" type="button" onClick={copyPage}>
-						<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-							<rect x="8" y="8" width="13" height="13" rx="2" />
-							<path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
-						</svg>
-						<span>
-							<span className="doc-action-title">Copy page</span>
-							<span className="doc-action-desc">Copy page as Markdown for LLMs</span>
-						</span>
-					</button>
-					<button className="doc-action" role="menuitem" type="button" onClick={viewMarkdown}>
-						<span className="doc-action-glyph" aria-hidden="true">
-							M↓
-						</span>
-						<span>
-							<span className="doc-action-title">View as Markdown</span>
-							<span className="doc-action-desc">Open this page as plain text</span>
-						</span>
-					</button>
-					<button className="doc-action" role="menuitem" type="button" onClick={openCodex}>
-						<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-							<path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" />
-						</svg>
-						<span>
-							<span className="doc-action-title">Open in Codex</span>
-							<span className="doc-action-desc">Ask Codex to help apply this page</span>
-						</span>
-					</button>
-					<button className="doc-action" role="menuitem" type="button" onClick={askAI}>
-						<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-							<path d="M20.5 11.5a8.4 8.4 0 0 1-8.5 8.3 9.2 9.2 0 0 1-4-.9L3 20l1.2-4.1a8 8 0 0 1-1.2-4.4 8.5 8.5 0 0 1 17.5 0Z" />
-						</svg>
-						<span>
-							<span className="doc-action-title">Ask AI about this page</span>
-							<span className="doc-action-desc">Chat with this page as context</span>
-						</span>
-					</button>
-				</div>
-			</div>
+						<DropdownMenuItem
+							className="doc-action"
+							label="Copy page"
+							description="Copy page as Markdown for LLMs"
+							icon="xplat-copy"
+							onSelect={copyPage}
+						/>
+						<DropdownMenuItem
+							className="doc-action"
+							label="View as Markdown"
+							description="Open this page as plain text"
+							icon="docs-markdown"
+							onSelect={viewMarkdown}
+						/>
+						<DropdownMenuItem
+							className="doc-action"
+							label="Open in Codex"
+							description="Ask Codex to help apply this page"
+							icon="docs-code"
+							onSelect={openCodex}
+						/>
+						<DropdownMenuItem
+							className="doc-action"
+							label="Ask AI about this page"
+							description="Chat with this page as context"
+							icon="docs-chat"
+							onSelect={askAI}
+						/>
+					</DropdownMenu>
+				</View>
+			</View>
 		)}
 		@for (const b of blocks; index i; key i) {
 			const prev = blocks[i - 1]

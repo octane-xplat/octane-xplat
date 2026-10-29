@@ -1,5 +1,5 @@
 /** Random, bounded twinkling while the card is at its scroll origin. */
-export function animateConstellation(host: HTMLElement, content: HTMLElement) {
+export function animateConstellation(host: Element, content: HTMLElement) {
 	const elements = [...host.querySelectorAll('polygon')]
 	const limit = Math.floor(elements.length * 0.8)
 	const minimum = Math.min(limit, Math.ceil(elements.length * 0.5))

@@ -22,6 +22,6 @@ A reader completes a small task, finds its shared source, and chooses an honest 
 ## Documentation
 
 - AC1: [Demo gallery](../../../docs/demos/browser-demos.md), [goal task and source](../../../docs/demos/goal-counter.md), [packing task and source](../../../docs/demos/packing-list.md).
-- AC2: [Preview instructions](../../../docs/demos/goal-counter.md#try-it), [preview host](../../../apps/docs/src/DemoPreview.web.tsrx), [browser checks](../../../apps/docs/demos.browser.mjs).
+- AC2: [Preview instructions](../../../docs/demos/goal-counter.md#try-it), [preview host](../../../apps/docs/src/DemoPreview.tsrx), [browser checks](../../../apps/docs/demos.browser.mjs).
 - AC3: [Packing task](../../../docs/demos/packing-list.md#try-it), [browser checks](../../../apps/docs/demos.browser.mjs).
 - AC4: [Native run instructions](../../../docs/demos/packing-list.md#run-locally), [native entry](../../../apps/mobile/src/docs-demos.mobile.tsrx), [native task checks](../../../apps/mobile/src/tests/docs-demos.spec.ts).

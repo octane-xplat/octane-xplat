@@ -1,7 +1,13 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState, useEffect, useRef } from 'octane'
 import {
 	View,
+	Image,
+	Icon,
+	Link,
+	Theme,
+	IconRegistryProvider,
+	useMediaQuery,
+	setThemePreference,
 	HStack,
 	Text,
 	Pressable,
@@ -20,10 +26,13 @@ import { docPath, GROUPS } from './doc-meta'
 import { DocNavigationProvider } from './DocPage.tsrx'
 import { searchDocs, type SearchHit } from './search'
 import { resetDocScroll } from './scroll'
-import { animateConstellation } from './constellation'
+import { readThemePreference, saveThemePreference } from './docs-preferences'
+import { useConstellation, useDocsKeyboard, restoreMenu, animateMenuDismiss } from './docs-host'
+
 import logoMark from './assets/logo-mark.svg'
 import wordmark from './assets/wordmark.svg'
-import constellation from './assets/constellation.svg?raw'
+import { docsIcons } from './icons'
+import { docsTheme, compactDocsTheme } from './docs-theme'
 
 const HIT_GROUP: Partial<Record<SearchHit['kind'], string>> = {
 	api: 'API',
@@ -62,25 +71,6 @@ const DOC_SEARCH: SearchSource<CommandPaletteItem> = {
 	},
 }
 
-const THEME_PREFERENCE_KEY = 'xplat-docs-theme'
-
-function readThemePreference(): boolean | null {
-	try {
-		const saved = localStorage.getItem(THEME_PREFERENCE_KEY)
-		return saved === 'dark' ? true : saved === 'light' ? false : null
-	} catch {
-		return null
-	}
-}
-
-function saveThemePreference(dark: boolean): void {
-	try {
-		localStorage.setItem(THEME_PREFERENCE_KEY, dark ? 'dark' : 'light')
-	} catch {
-		// Keep the toggle usable when browser storage is unavailable.
-	}
-}
-
 export function App() @{
 	const [override, setOverride] = useState<boolean | null>(readThemePreference)
 	const [paletteOpen, setPaletteOpen] = useState(false)
@@ -90,6 +80,11 @@ export function App() @{
 	const menuTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const scheme = useColorScheme()
 	const dark = override ?? scheme === 'dark'
+	const compact = useMediaQuery('(max-width: 1100px)')
+	useEffect(() => {
+		setThemePreference(override === null ? 'system' : override ? 'dark' : 'light')
+	}, [override])
+
 	const openPalette = () => {
 		if (menuOpen) {
 			closeMenu()
@@ -103,19 +98,7 @@ export function App() @{
 			clearTimeout(menuTimer.current)
 			menuTimer.current = null
 
-			// Reopen during the slide-out: the panel is still mounted
-			// holding the close transform — park it back at the detent.
-			const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu')
-			const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop')
-			if (panel) {
-				panel.style.transition = 'transform 200ms ease-out'
-				panel.style.transform = 'translateY(0px)'
-			}
-
-			if (shade) {
-				shade.style.transition = 'opacity 200ms ease-out'
-				shade.style.opacity = '0.4' // BASE_SCRIM
-			}
+			restoreMenu()
 		}
 
 		setMenuOpen(true)
@@ -126,20 +109,9 @@ export function App() @{
 			return
 		}
 
-		const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu')
-		if (!panel) {
+		if (!animateMenuDismiss()) {
 			setMenuOpen(false)
 			return
-		}
-
-		// open=false unmounts instantly; the detent slide-out only runs on
-		// drag/shade dismiss. Drive the drop here, then unmount.
-		const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop')
-		panel.style.transition = 'transform 200ms ease-in'
-		panel.style.transform = 'translateY(102%)'
-		if (shade) {
-			shade.style.transition = 'opacity 200ms ease-in'
-			shade.style.opacity = '0'
 		}
 
 		menuTimer.current = setTimeout(() => {
@@ -187,11 +159,11 @@ export function App() @{
 		}, 200)
 	}
 
-	// Safety net for navs that flow through octane's commit path.
+	// Includes same-page section links activated through NavLink.
 	useEffect(() => {
 		setLeaving(false)
 		resetDocScroll()
-	}, [doc.slug])
+	}, [route?.href])
 
 	useEffect(
 		() => () => {
@@ -206,57 +178,8 @@ export function App() @{
 		[],
 	)
 
-	useEffect(() => {
-		const host = document.querySelector<HTMLElement>('.constellation')
-		const content = document.getElementById('doc-content')
-		if (!host || !content) {
-			return
-		}
-
-		// Trusted local asset: inline it so each polygon can animate independently.
-		host.innerHTML = constellation
-		return animateConstellation(host, content)
-	}, [])
-
-	// ⌘K/Ctrl+K opens the palette (or re-arms its query when already open);
-	// '/' opens it from anywhere outside a text field. The palette owns
-	// Escape, row navigation, and dismissal.
-	useEffect(() => {
-		const onKey = (e: KeyboardEvent) => {
-			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-				e.preventDefault()
-				if (paletteOpen) {
-					// The palette's own clear action resets the query and refocuses the input.
-					const clear = window.document.querySelector<HTMLButtonElement>(
-						'.vx-cmdk-layer .vx-input-clear:not(:disabled)',
-					)
-
-					if (clear) {
-						clear.click()
-					} else {
-						;(window.document.getElementById('palette-query') as HTMLInputElement | null)?.focus()
-					}
-				} else {
-					openPalette()
-				}
-
-				return
-			}
-
-			if (e.key === '/' && !paletteOpen) {
-				const t = e.target as HTMLElement | null
-				if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) {
-					return
-				}
-
-				e.preventDefault()
-				openPalette()
-			}
-		}
-
-		window.addEventListener('keydown', onKey)
-		return () => window.removeEventListener('keydown', onKey)
-	}, [paletteOpen])
+	useConstellation()
+	useDocsKeyboard({ isOpen: paletteOpen, open: openPalette })
 
 	const renderDoc = (d: DocPage) => (
 		<Pressable
@@ -274,8 +197,8 @@ export function App() @{
 			<View className="side-header">
 				<HStack className="brand-row">
 					<View className="logo-cluster">
-						<img className="logo-mark" src={logoMark} alt="" />
-						<img className="wordmark" src={wordmark} alt="Octane Xplat" />
+						<Image className="logo-mark" src={logoMark} alt="" />
+						<Image className="wordmark" src={wordmark} alt="Octane Xplat" />
 					</View>
 					<Pressable
 						className="mode-toggle"
@@ -295,23 +218,22 @@ export function App() @{
 						<Text className="nav-label">Search</Text>
 						<Text className="nav-hint">{'⌘K'}</Text>
 					</Pressable>
-					<a
+					<Link
 						className="nav-row"
 						href="https://github.com/octane-xplat/octane-xplat"
 						target="_blank"
-						rel="noopener"
 					>
 						<View className="nav-icon ic-github" />
 						<Text className="nav-label">Github</Text>
-					</a>
+					</Link>
 					<Pressable className="nav-row" onPress={() => open(DOCS[0].slug)}>
 						<View className="nav-icon ic-start" />
 						<Text className="nav-label">Get Started</Text>
 					</Pressable>
-					<a className="nav-row" href="/llms.txt" target="_blank" rel="noopener">
+					<Link className="nav-row" href="/llms.txt" target="_blank">
 						<View className="nav-icon ic-doc" />
 						<Text className="nav-label">llms.txt</Text>
-					</a>
+					</Link>
 				</View>
 				<View className="side-divider" />
 			</View>
@@ -326,85 +248,89 @@ export function App() @{
 		</View>
 	)
 
-	<View className={['shell', dark ? 'dark' : 'light']}>
-		<HStack className="mobile-header">
-			<Pressable
-				className="logo-cluster mh-brand"
-				accessibilityLabel="Go to the introduction"
-				onPress={() => open(DOCS[0].slug)}
-			>
-				<img className="logo-mark" src={logoMark} alt="" />
-				<img className="wordmark" src={wordmark} alt="Octane Xplat" />
-			</Pressable>
-			<HStack className="mh-actions">
-				<Pressable className="icon-btn" accessibilityLabel="Search docs" onPress={openPalette}>
-					<View className="nav-icon ic-search" />
-				</Pressable>
-				<Pressable className="icon-btn" accessibilityLabel="Open menu" onPress={openMenu}>
-					<View className="nav-icon ic-menu" />
-				</Pressable>
-			</HStack>
-		</HStack>
-		<HStack className="body">
-			<View className="side">{navTree()}</View>
-			<View className="card">
-				<div className="constellation" aria-hidden="true" />
-				<ScrollableArea id="doc-content" className="content">
-					<DocNavigationProvider value={{ leaving, selectDoc }}>
-						<RouteOutlet />
-					</DocNavigationProvider>
-				</ScrollableArea>
+	<Theme theme={compact ? compactDocsTheme : docsTheme} mode={dark ? 'dark' : 'light'}>
+		<IconRegistryProvider value={docsIcons}>
+			<View className={['shell', dark ? 'dark' : 'light']}>
+				<HStack className="mobile-header">
+					<Pressable
+						className="logo-cluster mh-brand"
+						accessibilityLabel="Go to the introduction"
+						onPress={() => open(DOCS[0].slug)}
+					>
+						<Image className="logo-mark" src={logoMark} alt="" />
+						<Image className="wordmark" src={wordmark} alt="Octane Xplat" />
+					</Pressable>
+					<HStack className="mh-actions">
+						<Pressable className="icon-btn" accessibilityLabel="Search docs" onPress={openPalette}>
+							<View className="nav-icon ic-search" />
+						</Pressable>
+						<Pressable className="icon-btn" accessibilityLabel="Open menu" onPress={openMenu}>
+							<View className="nav-icon ic-menu" />
+						</Pressable>
+					</HStack>
+				</HStack>
+				<HStack className="body">
+					<View className="side">{navTree()}</View>
+					<View className="card">
+						<Icon name="docs-constellation" registry={docsIcons} className="constellation" />
+						<ScrollableArea id="doc-content" className="content">
+							<DocNavigationProvider value={{ leaving, selectDoc }}>
+								<RouteOutlet />
+							</DocNavigationProvider>
+						</ScrollableArea>
+					</View>
+				</HStack>
+				{/* Mobile nav sheet — portals to document.body, so it doesn't
+		    inherit .dark from .shell; pass the scheme via className. */}
+				<BottomSheet
+					isOpen={menuOpen}
+					label="Documentation menu"
+					onOpenChange={(o) => {
+						if (!o) {
+							setMenuOpen(false)
+						}
+					}}
+					snapPoints={[0.85]}
+					className={dark ? 'docs-menu dark' : 'docs-menu'}
+				>
+					{navTree()}
+				</BottomSheet>
+				{/* Search palette — the layer portals to document.body, so it doesn't
+		    inherit .dark from .shell; pass the scheme via className. */}
+				<CommandPalette
+					id="palette"
+					className={dark ? 'palette dark' : 'palette'}
+					open={paletteOpen}
+					onOpenChange={(open) => {
+						if (!open) {
+							setPaletteOpen(false)
+						}
+					}}
+					searchSource={DOC_SEARCH}
+					onValueChange={(id) => {
+						const hit = paletteHits.get(id)
+						if (hit) {
+							selectDoc(hit.slug, hit.anchor)
+						}
+					}}
+					label="Search docs"
+					placeholder="Search docs…"
+					emptySearchText="No matches"
+					maxHeight={520}
+					renderItem={(item) => {
+						const hit = (item.auxiliaryData as { hit?: SearchHit } | undefined)?.hit
+						return (
+							<>
+								<Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>
+									{item.label}
+								</Text>
+								{hit?.context ? <Text className="hit-sub">{hit.context}</Text> : null}
+								{hit?.snippet ? <Text className="hit-sub hit-snip">{hit.snippet}</Text> : null}
+							</>
+						)
+					}}
+				/>
 			</View>
-		</HStack>
-		{/* Mobile nav sheet — portals to document.body, so it doesn't
-		    inherit .dark from .shell; pass the scheme via className. */}
-		<BottomSheet
-			isOpen={menuOpen}
-			label="Documentation menu"
-			onOpenChange={(o) => {
-				if (!o) {
-					setMenuOpen(false)
-				}
-			}}
-			snapPoints={[0.85]}
-			className={dark ? 'docs-menu dark' : 'docs-menu'}
-		>
-			{navTree()}
-		</BottomSheet>
-		{/* Search palette — the layer portals to document.body, so it doesn't
-		    inherit .dark from .shell; pass the scheme via className. */}
-		<CommandPalette
-			id="palette"
-			className={dark ? 'palette dark' : 'palette'}
-			open={paletteOpen}
-			onOpenChange={(open) => {
-				if (!open) {
-					setPaletteOpen(false)
-				}
-			}}
-			searchSource={DOC_SEARCH}
-			onValueChange={(id) => {
-				const hit = paletteHits.get(id)
-				if (hit) {
-					selectDoc(hit.slug, hit.anchor)
-				}
-			}}
-			label="Search docs"
-			placeholder="Search docs…"
-			emptySearchText="No matches"
-			maxHeight={520}
-			renderItem={(item) => {
-				const hit = (item.auxiliaryData as { hit?: SearchHit } | undefined)?.hit
-				return (
-					<>
-						<Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>
-							{item.label}
-						</Text>
-						{hit?.context ? <Text className="hit-sub">{hit.context}</Text> : null}
-						{hit?.snippet ? <Text className="hit-sub hit-snip">{hit.snippet}</Text> : null}
-					</>
-				)
-			}}
-		/>
-	</View>
+		</IconRegistryProvider>
+	</Theme>
 }

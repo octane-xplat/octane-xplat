@@ -27,6 +27,9 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 ## Working records
 
+- [Docs UI and host boundaries](docs-site.md) — shared presentation components
+  and the remaining browser integrations.
+
 - [Image manipulation](notes/image-manipulator.md) — frame/output ownership,
   platform boundaries, and programmatic pixel evidence.
 

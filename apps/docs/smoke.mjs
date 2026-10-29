@@ -118,7 +118,7 @@ assert(
 		promptCard?.previousElementSibling?.classList.contains('lede'),
 )
 
-const promptText = promptCard?.querySelector('p')?.textContent
+const promptText = promptCard?.querySelector('.agent-prompt-copy')?.textContent
 const expandPrompt = promptCard?.querySelector('.agent-prompt-expand')
 expandPrompt?.click()
 await new Promise((r) => setTimeout(r, 30))
@@ -147,18 +147,21 @@ assert(
 	'copy includes the complete setup prompt and announces success',
 	copiedPrompt === promptText &&
 		promptText?.includes('/llms-full.txt') &&
-		promptCard?.querySelector('[role="status"]')?.textContent === 'Prompt copied',
+		promptCard?.querySelector('.agent-prompt-status')?.textContent === 'Prompt copied',
 )
 
-const promptActions = promptCard?.querySelector('details')
-promptActions.open = true
-window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-assert('Escape dismisses prompt actions', !promptActions.open)
+const promptActions = promptCard?.querySelector('[aria-label="Open prompt actions"]')
+promptActions.click()
+await waitFor('prompt actions open', () => window.document.querySelector('.agent-prompt-menu a'))
 assert(
 	'ChatGPT action includes the full prompt',
-	new URL(promptCard.querySelector('.agent-prompt-menu a').href).searchParams.get('q') ===
+	new URL(window.document.querySelector('.agent-prompt-menu a').href).searchParams.get('q') ===
 		promptText,
 )
+
+window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+await waitFor('prompt actions close', () => !window.document.querySelector('.agent-prompt-menu'))
+assert('Escape dismisses prompt actions', promptActions.getAttribute('aria-expanded') === 'false')
 
 window.navigator.clipboard.writeText = async () => {
 	throw new Error('Clipboard unavailable')
@@ -174,7 +177,7 @@ assert(
 		expandPrompt?.getAttribute('aria-expanded') === 'true',
 )
 
-const highlights = [...root.querySelectorAll('.doc mark.highlight')]
+const highlights = [...root.querySelectorAll('.doc .highlight')]
 const promptHighlight = highlights.find((h) => h.textContent === 'Create your first app')
 assert(
 	'Xplat page renders its highlights',
@@ -297,6 +300,7 @@ for (const path of walkDocs('../../docs')) {
 		window.location.pathname === docPath(slug) &&
 			root.querySelector('.doc .h1')?.textContent === title,
 	)
+
 	const headings = parseMd(readFileSync(path, 'utf8')).filter((block) => block.kind === 'h')
 	assert(
 		`page ${slug} uses semantic headings with section anchors`,

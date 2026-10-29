@@ -16,6 +16,7 @@
 		"gen": "xplat routes"
 	},
 	"dependencies": {
+		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@xplat/demos": "workspace:*",
 		"octane": "catalog:",

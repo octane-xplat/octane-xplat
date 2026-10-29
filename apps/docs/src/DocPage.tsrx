@@ -1,6 +1,5 @@
-/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createContext, useContext } from 'octane'
-import { View, Text, Pressable } from '@octane-xplat/ui'
+import { View, Text, Pressable, Image } from '@octane-xplat/ui'
 import { DOCS, type DocPage } from './docs'
 import { MdDoc } from './MdDoc.tsrx'
 import orbitUser from './assets/orbit-user.webp'
@@ -33,20 +32,20 @@ export function DocPageContent(props: { doc: DocPage }) @{
 
 	<View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
 		{doc.slug === DOCS[0].slug && (
-			<div className="orbit" aria-hidden="true">
-				<div className="orbit-ring">
+			<View className="orbit" accessible={false}>
+				<View className="orbit-ring">
 					{ORBIT_BADGES.map((src) => (
-						<div key={src} className="orbit-pos">
-							<div className="orbit-spin">
-								<div className="orbit-tilt">
-									<img className="orbit-badge" src={src} alt="" />
-								</div>
-							</div>
-						</div>
+						<View key={src} className="orbit-pos">
+							<View className="orbit-spin">
+								<View className="orbit-tilt">
+									<Image className="orbit-badge" src={src} alt="" />
+								</View>
+							</View>
+						</View>
 					))}
-				</div>
-				<img className="orbit-user" src={orbitUser} alt="" />
-			</div>
+				</View>
+				<Image className="orbit-user" src={orbitUser} alt="" />
+			</View>
 		)}
 		<MdDoc
 			demo={doc.slug === 'goal-counter' || doc.slug === 'packing-list' ? doc.slug : undefined}

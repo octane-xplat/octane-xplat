@@ -155,34 +155,15 @@ body {
 	list-style: none;
 }
 
-.agent-prompt-icon-button::-webkit-details-marker {
-	display: none;
-}
 .agent-prompt-icon-button:hover {
 	background: var(--doc-hover);
 	color: var(--doc-ink);
-}
-.agent-prompt-icon {
-	opacity: 0;
-	transform: scale(0.5);
-	transform-origin: center;
-	transition:
-		opacity 0.2s,
-		transform 0.2s;
-}
-.agent-prompt-icon.is-visible {
-	opacity: 1;
-	transform: scale(1);
 }
 .agent-prompt-actions {
 	position: relative;
 }
 
 .agent-prompt-menu {
-	position: absolute;
-	top: 36px;
-	right: 0;
-	z-index: 2;
 	min-width: 170px;
 	padding: 8px;
 	border: 0;
@@ -193,8 +174,8 @@ body {
 	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
 }
 
-.agent-prompt-menu button,
-.agent-prompt-menu a {
+.agent-prompt-menu [role="menuitem"],
+.agent-prompt-menu .vx-menu-link {
 	box-sizing: border-box;
 	display: block;
 	width: 100%;
@@ -211,8 +192,8 @@ body {
 	cursor: pointer;
 }
 
-.agent-prompt-menu button:hover,
-.agent-prompt-menu a:hover {
+.agent-prompt-menu [role="menuitem"]:hover,
+.agent-prompt-menu .vx-menu-link:hover {
 	background: var(--doc-hover);
 }
 .agent-prompt-body {
@@ -224,7 +205,8 @@ body {
 	max-height: 52px;
 	overflow: hidden;
 }
-.agent-prompt-text p {
+.agent-prompt-copy {
+	display: block;
 	margin: 0;
 	font-size: 16px;
 	font-weight: 300;
@@ -1250,31 +1232,7 @@ body {
 	flex: 0 0 auto;
 }
 
-.doc-copy-icon,
-.doc-copy-chevron {
-	fill: none;
-	stroke: currentColor;
-	stroke-linecap: round;
-	stroke-linejoin: round;
-	flex: 0 0 auto;
-}
-
-.doc-copy-icon {
-	width: 16px;
-	height: 16px;
-	stroke-width: 1.4;
-}
-
-.doc-copy-chevron {
-	width: 22px;
-	height: 22px;
-	stroke-width: 1.6;
-}
-
 .doc-actions-menu {
-	position: absolute;
-	top: calc(100% + 10px);
-	right: 0;
 	width: 360px;
 	max-width: calc(100vw - 32px);
 	padding: 8px;
@@ -1284,25 +1242,14 @@ body {
 	corner-shape: squircle;
 	background: var(--doc-card);
 	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
-	opacity: 0;
-	visibility: hidden;
-	transform: translateY(-8px);
-	transition:
-		opacity 180ms ease,
-		transform 180ms ease,
-		visibility 180ms;
-}
-
-.doc-actions-menu.is-open {
-	opacity: 1;
-	visibility: visible;
-	transform: translateY(0);
 }
 
 .doc-action {
-	display: flex;
+	display: grid;
+	grid-template-columns: 24px minmax(0, 1fr);
+	column-gap: 12px;
+	row-gap: 3px;
 	align-items: center;
-	gap: 12px;
 	width: 100%;
 	min-height: 62px;
 	padding: 10px 12px;
@@ -1320,41 +1267,20 @@ body {
 	background: var(--doc-hover);
 }
 
-.doc-action-icon,
-.doc-action-glyph {
-	width: 24px;
-	height: 24px;
-	flex: 0 0 24px;
+.doc-action > .vx-icon {
+	grid-row: 1 / 3;
 	color: var(--doc-dim);
 }
 
-.doc-action-glyph {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 16px;
-	font-weight: 550;
-}
-
-.chat-glyph {
-	border: 2px solid currentColor;
-	border-radius: 50%;
-	font-size: 0;
-}
-
-.doc-action > span:last-child {
-	display: flex;
-	flex-direction: column;
-	gap: 3px;
-}
-
-.doc-action-title {
+.doc-action > .vx-menu-item-label {
+	grid-column: 2;
 	font-size: 14px;
 	line-height: 1.25;
 }
 
-.doc-action-desc {
-	color: var(--doc-dim) !important;
+.doc-action > .vx-menu-item-label + .vx-text {
+	grid-column: 2;
+	color: var(--doc-dim);
 	font-size: 12px;
 	line-height: 1.35;
 }
@@ -1374,10 +1300,7 @@ body {
 
 .h1 {
 	font-family: 'Onest', 'Outfit', system-ui, sans-serif;
-	font-size: 33px;
-	font-weight: 600;
 	letter-spacing: 0.001em;
-	line-height: 1.27;
 	margin-bottom: 18px;
 	color: var(--doc-navy);
 	background: var(--doc-h1-grad);
@@ -1491,8 +1414,6 @@ body {
 
 .h2 {
 	position: relative;
-	font-size: 24px;
-	font-weight: 400;
 	letter-spacing: 0.001em;
 	padding-bottom: 12px;
 	margin-top: 36px;
@@ -1519,8 +1440,6 @@ body {
 
 .h3,
 .h4 {
-	font-size: 16px;
-	font-weight: 500;
 	letter-spacing: 0.007em;
 	margin-top: 26px;
 	margin-bottom: 10px;
@@ -1778,6 +1697,10 @@ body {
 	-webkit-overflow-scrolling: touch;
 }
 
+.table-scroll .vx-table-scroll {
+	overflow: visible;
+}
+
 .table-scroll:focus-visible {
 	outline: 2px solid var(--doc-link);
 	outline-offset: 3px;
@@ -1910,26 +1833,12 @@ body {
 		margin-bottom: 32px;
 	}
 
-	.h1 {
-		font-size: 2rem;
-	}
-
-	.h2 {
-		font-size: 1.625rem;
-		margin-top: 36px;
-	}
-
-	.h3,
-	.h4 {
-		font-size: 1.25rem;
-	}
-
 	.p,
 	.li,
 	.quote span,
 	.doc > .h1 + .quote span,
 	.callout-line,
-	.agent-prompt-text p {
+	.agent-prompt-copy {
 		font-size: 1.125rem;
 		font-weight: 400;
 		line-height: 1.65;
@@ -1963,12 +1872,12 @@ body {
 
 	.home-action,
 	.doc-copy,
-	.doc-action-title,
+	.doc-action > .vx-menu-item-label,
 	.doc-next-title,
 	.agent-prompt-label,
 	.agent-prompt-expand,
-	.agent-prompt-menu button,
-	.agent-prompt-menu a,
+	.agent-prompt-menu [role="menuitem"],
+	.agent-prompt-menu .vx-menu-link,
 	.docs-menu .nav-label,
 	.docs-menu .sec-head,
 	.docs-menu .side-text,
@@ -1978,7 +1887,7 @@ body {
 		font-weight: 400;
 	}
 
-	.doc-action-desc,
+	.doc-action > .vx-menu-item-label + .vx-text,
 	.palette .hit-sub {
 		font-size: 0.9375rem;
 		font-weight: 400;
@@ -1986,8 +1895,8 @@ body {
 
 	.home-action,
 	.agent-prompt-expand,
-	.agent-prompt-menu button,
-	.agent-prompt-menu a,
+	.agent-prompt-menu [role="menuitem"],
+	.agent-prompt-menu .vx-menu-link,
 	.docs-menu .nav-row,
 	.docs-menu .side-item,
 	.palette .vx-menu-item {
@@ -1998,10 +1907,6 @@ body {
 	.agent-prompt-icon-button {
 		width: 44px;
 		height: 44px;
-	}
-
-	.agent-prompt-menu {
-		top: 48px;
 	}
 
 	.agent-prompt-text {
@@ -2075,24 +1980,28 @@ body {
 	overflow-wrap: anywhere;
 	padding: 1rem;
 }
-.demo-preview button,
-.demo-preview a {
+.demo-control {
 	display: inline-block;
 	min-height: 44px;
 	margin: 0.25rem;
 	padding: 0.5rem 0.75rem;
 	white-space: normal;
 }
-.demo-preview button:focus-visible,
-.demo-preview a:focus-visible {
+.demo-control:focus-visible {
 	outline: 3px solid currentColor;
 	outline-offset: 3px;
 }
-.demo-preview iframe {
+.demo-frame {
 	display: block;
 	box-sizing: border-box;
 	width: 100%;
 	height: 36rem;
 	border: 1px solid #778;
 	background: white;
+}
+
+.demo-description,
+.demo-status {
+	display: block;
+	margin: 1em 0;
 }

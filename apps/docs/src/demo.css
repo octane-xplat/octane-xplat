@@ -18,6 +18,11 @@ body {
 	min-height: 44px;
 	white-space: normal;
 }
+
+.demo-description {
+	display: block;
+	margin: 1em 0;
+}
 .demo-standalone input {
 	box-sizing: border-box;
 	min-width: 0;
