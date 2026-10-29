@@ -8883,3 +8883,89 @@ dependents filter is still recorded for the pre-merge gate. check:docs and
 check:doc-examples are absent here; do not copy another task's in-flight tooling
 or claim those checks passed. Issue #62 must remain open with evidence gates
 unchanged; implementation coverage and verification are separate.
+
+## AppKit secure-storage binding and read failure boundary
+
+Continue everyday services after attachment filtering. The maintained Services
+screen uses secureStorage for a private roundtrip; session restore must distinguish
+an absent token from a failed read. Source review at d308bc456 found that the
+facade checked the native global repeatedly (including typeof plus a second read),
+reported any class-shaped binding as supported, allowed lookup errors outside
+sanitization, and mapped a missing native get result to null. These are source
+findings, not observed Keychain failures or evidence of exposed user secrets.
+
+The AppKit-only facade now captures the global once and all three callable
+methods with their receiver per operation. Missing/incomplete/throwing discovery
+reports unavailable, with asynchronous UnavailabilityError from operations.
+A complete snapshot survives later global/method replacement for that operation;
+future operations discover the current bridge. Availability is a complete bridge
+check, not an OS unlock/access probe or a promise that a future operation works.
+No native method executes during supported/isAvailable checks.
+
+Read captures the dictionary reader/receiver and status once. Only the explicit
+item-not-found status returns null. Missing/malformed responses, invalid status/
+value and exceptions become fixed Keychain read failed without native error text,
+keys or values; do not read a value on a failing status. Empty strings remain
+valid. Write/remove require a true native BOOL result; malformed truthy results
+cannot report success. Native failures still return false. The Objective-C
+Keychain implementation, queries, service/bundle/directory namespaces, no-prompt
+policy, access control, update-race handling, data and native loader are unchanged.
+A JavaScript guard cannot catch a native process abort: CLI leaf loading remains
+a prerequisite. The existing generic native-service audit gate stays open.
+
+Apple's [Keychain search guide](https://developer.apple.com/documentation/security/searching-for-keychain-items)
+and [item-not-found status](https://developer.apple.com/documentation/security/errsecitemnotfound)
+distinguish the search status from returned data. They support the source error
+classification, not bridge/runtime evidence. Initial markdown endpoints failed
+to render in the web tool; indexed official Apple text was consulted instead.
+
+Six new source/VM cases are authored, all UNRUN (nine total): incomplete bridge
+rejection without dispatch; throwing global/method lookup with sanitized async
+errors; one binding/method capture and correct receiver for each operation;
+missing/malformed read packets; one dictionary/status read with failed-value
+suppression; and strict write/remove success. Existing model fixtures now supply
+complete bridges when testing native access failure. The test module would
+transpile and execute the real facade, but was only syntax-parsed here; no test
+module was imported or compiler transform run.
+
+The maintained macOS Services screen catches cleanup rejection and retains fixed
+status-only output. Public restore examples keep missing/unavailable states
+separate and contain write/delete failure after preflight; no plaintext fallback.
+The README now uses Turbo verification commands and distinguishes complete-bridge
+availability from Keychain access. Recipe secure-storage AC3/AC5 and the Octane
+service reference reconcile the same boundary. The original native facade commit
+f378c53 is contained by local stable tags v0.10.0 through v0.18.0, so a focused
+.changelog/fixes note records this correction; this is local Git tag evidence,
+not a registry publication audit or native pass.
+
+Lightweight checks: three source/example files parsed (TypeScript, test-module
+JavaScript and maintained TSRX); seven scoped TS documentation fences parsed;
+nine distinct new/changed local targets/anchors resolved; two manifests parsed as
+JSON; focused staged semantic and whitespace review passed. Zero test modules,
+compiler transforms or native operations executed. All tests/typegen/typechecks,
+packed/native builds, actual class/method/dictionary/BOOL bridging, Keychain
+permissions/locked/signing/sandbox policy, persistence/identity isolation, host
+replacement, runtime cleanup, installed consumers, UI/VoiceOver and visual checks
+remain unqualified. No native storage operation or native fixture was run.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human verification
+authorization; native resource authorization is not visual-analysis approval):
+
+```sh
+pnpm exec turbo run test:macos --filter=@octane-xplat/secure-storage
+pnpm exec turbo run typecheck --filter=...@octane-xplat/secure-storage --filter=...@xplat/app
+pnpm exec turbo run test:packed --filter=@octane-xplat/secure-storage
+pnpm exec turbo run pack:check --filter=@octane-xplat/secure-storage
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit secure-storage bridge qualification"}' -- pnpm exec turbo run test:macos-runtime --filter=@octane-xplat/secure-storage
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit secure-storage app package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+The secure-storage/app manifests have no own typecheck scripts in this snapshot;
+the touched-package/dependents filter remains the pre-merge gate. check:docs and
+check:doc-examples are absent here; do not copy shared in-flight tooling or claim
+passes. No dependency/manifest change, native code edit, shared CLI/UI/GTK work,
+audit regeneration, native input, image inspection, new task or subagent occurred.

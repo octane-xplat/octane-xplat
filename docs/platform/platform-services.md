@@ -362,42 +362,40 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 async function rememberSession(token: string): Promise<boolean> {
 	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
 
-	return secureStorage.set('session-token', token)
+	try { return await secureStorage.set('session-token', token) }
+	catch { return false }
 }
 
-async function restoreSession(): Promise<string | null> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return null
+type Session = { status: 'restored'; token: string } | { status: 'missing' | 'unavailable' }
+async function restoreSession(): Promise<Session> {
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
 	try {
-		return await secureStorage.get('session-token')
-	} catch {
-		// Tell the user that restoring the session failed; do not log the error.
-
-		return null
-	}
+		const token = await secureStorage.get('session-token')
+		return token === null ? { status: 'missing' } : { status: 'restored', token }
+	} catch { return { status: 'unavailable' } }
 }
 
 async function forgetSession(): Promise<boolean> {
 	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
 
-	return secureStorage.remove('session-token')
+	try { return await secureStorage.remove('session-token') }
+	catch { return false }
 }
 ```
 
 Use the restored value privately in your sign-in flow. Display only a status such
 as “session restored”; never put keys, tokens, or native errors in UI or logs.
-Check the boolean returned by saving or deleting before reporting success. A
-missing item reads as `null`, including after successful deletion. Ordinary
+Check the boolean returned by saving or deleting before reporting success. Keep
+the missing and unavailable states separate: only a missing item reads as null,
+including after successful deletion. Ordinary
 preferences (`storage`) are not a fallback for secrets. Plain browsers report
 unsupported; keep the session in memory or require sign-in again.
 
-On macOS AppKit, the existing [native leaf workflow](macos-native.md#prepare-the-app)
-compiles and loads this package's Keychain implementation. Keep the packaged app's
-bundle identifier stable. Development entries are scoped to the app's working
-directory and separate from packaged entries. `isAvailable()` reports implementation
-availability; locked Keychains or access policies can still make operations fail.
-The leaf does not open authentication prompts. See the
-[leaf's macOS contract](../../packages/secure-storage/README.md#macos-appkit) for return
-values, storage scope, and non-visual verification commands.
+For macOS setup, packaged bundle identity and the separate development namespace,
+follow the [native prerequisites](macos-native.md#prepare-the-app) and
+[AppKit secure-storage contract](../../packages/secure-storage/README.md#macos-appkit).
+The new bridge cases remain unrun; real Keychain, signing/sandbox and installed-app
+qualification are still pending. Availability checks do not establish those results.
 
 ## Generate secure random bytes
 

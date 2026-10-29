@@ -57,6 +57,39 @@ export async function purgeAccount(account: QueryClient): Promise<boolean> {
 }
 ```
 
+## AppKit secure-storage bridge and read failures
+
+Keep session tokens in secureStorage, never ordinary storage. AppKit supported/
+isAvailable validate a complete callable get/set/remove bridge; they do not
+unlock Keychain or authorize the next operation. Capture the global binding and
+all methods once per operation with their native receiver. Absent/incomplete/
+throwing lookup rejects asynchronously with UnavailabilityError, without native
+payloads. Only item-not-found returns null; missing/malformed dictionaries,
+invalid status/value or native errors reject with fixed Keychain read failed.
+Read dictionary status once, skip values on failure and require a native true
+for write/remove success. Preserve empty strings and existing native namespace/
+no-prompt/update policy. Never infer OS qualification from these source guards.
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+type Session = { status: 'restored'; token: string } | { status: 'missing' | 'unavailable' }
+export async function restoreSession(): Promise<Session> {
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
+	try {
+		const token = await secureStorage.get('session-token')
+		return token === null ? { status: 'missing' } : { status: 'restored', token }
+	} catch { return { status: 'unavailable' } }
+}
+```
+
+Six new VM/model cases (nine total) are UNRUN. The maintained Services example
+catches cleanup rejection and prints only status. Native ObjC code is unchanged;
+real class/method/dictionary/BOOL bridging, Keychain persistence/access, signing/
+sandbox/locked-policy behavior and installed consumers remain unqualified. JS
+try/catch cannot contain a native process abort; the CLI must load leaf metadata
+first. See [session workflow](../../../../docs/platform/platform-services.md#store-a-session-token)
+and [AppKit contract](../../../../packages/secure-storage/README.md#macos-appkit).
+
 ## AppKit network route updates
 
 Use `connectivity.subscribe` for live UI and always release its independent

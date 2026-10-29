@@ -9,20 +9,44 @@ interface NativeSecureStorage {
 	remove(key: string): boolean
 }
 
-declare const XplatSecureStorage: NativeSecureStorage | undefined
-const native = () => (typeof XplatSecureStorage === 'undefined' ? null : XplatSecureStorage)
+/** Capture one complete bridge and its receivers; lookup can itself throw. */
+function native(): NativeSecureStorage | null {
+	try {
+		const bridge = (globalThis as any).XplatSecureStorage
+		if (!bridge) return null
+		const get = bridge.get, set = bridge.set, remove = bridge.remove
+		if (typeof get !== 'function' || typeof set !== 'function' || typeof remove !== 'function') return null
+		return {
+			get: key => get.call(bridge, key),
+			set: options => set.call(bridge, options),
+			remove: key => remove.call(bridge, key),
+		}
+	} catch {
+		// Lookup exceptions can contain arguments too. Never forward them.
+		return null
+	}
+}
 
-const store: SecureStore = {
+function requireNative(): NativeSecureStorage {
+	const store = native()
+	if (!store) throw new UnavailabilityError('secureStorage')
+	return store
+}
+
+export const secureStorage: Service<SecureStore> = {
+	get supported() { return native() !== null },
+	isAvailable: async () => native() !== null,
 	async get(key) {
+		const store = requireNative()
 		try {
-			const result = native()?.get(key)
-			if (!result || result.objectForKey('status') === -25300) {
-				return null
-			} // errSecItemNotFound
-
-			const value = result.objectForKey('value')
-			if (result.objectForKey('status') === 0 && typeof value === 'string') {
-				return value
+			const result = store.get(key), read = result?.objectForKey
+			if (typeof read === 'function') {
+				const status = read.call(result, 'status')
+				if (status === -25300) return null // errSecItemNotFound only
+				if (status === 0) {
+					const value = read.call(result, 'value')
+					if (typeof value === 'string') return value
+				}
 			}
 		} catch {
 			// Native exceptions may contain arguments. Never forward them.
@@ -31,29 +55,13 @@ const store: SecureStore = {
 		throw new Error('Keychain read failed')
 	},
 	async set(key, value) {
-		try {
-			return native()?.set({ key, value }) ?? false
-		} catch {
-			return false
-		}
+		const store = requireNative()
+		try { return store.set({ key, value }) === true }
+		catch { return false }
 	},
 	async remove(key) {
-		try {
-			return native()?.remove(key) ?? false
-		} catch {
-			return false
-		}
+		const store = requireNative()
+		try { return store.remove(key) === true }
+		catch { return false }
 	},
-}
-
-const unavailable = () => Promise.reject(new UnavailabilityError('secureStorage'))
-
-export const secureStorage: Service<SecureStore> = {
-	get supported() {
-		return native() !== null
-	},
-	isAvailable: async () => native() !== null,
-	get: (key) => (native() ? store.get(key) : unavailable()),
-	set: (key, value) => (native() ? store.set(key, value) : unavailable()),
-	remove: (key) => (native() ? store.remove(key) : unavailable()),
 }

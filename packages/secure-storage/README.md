@@ -14,9 +14,10 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 // Call with a token issued by your app's backend; never log its value.
 async function saveSession(token: string) {
 	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return null
-	const store = secureStorage
-	if (!(await store.set('session-token', token))) return null
-	return await store.get('session-token')
+	try {
+		if (!(await secureStorage.set('session-token', token))) return null
+		return await secureStorage.get('session-token')
+	} catch { return null }
 }
 ```
 
@@ -45,28 +46,76 @@ Install the leaf as an app runtime dependency. Use the CLI-owned
 it compiles the bundled Foundation/Security sources and loads their metadata
 before your JavaScript. See [native prerequisites](https://octane-xplat.goddardai.org/macos-native#prepare-the-app).
 No new UI dependency, host adapter, or runtime permission request is needed.
-A custom host without the native leaf reports unsupported.
+A custom host without the complete callable get/set/remove bridge reports unsupported.
 
-Keychain generic-password items use a service namespace owned by this leaf.
-Packaged apps are scoped by bundle identifier; keep that identifier stable
-across releases. CLI development hosts are scoped by the app's working directory.
-Moving that directory changes the development namespace, and development entries
-are separate from packaged entries. Items stay on this Mac and do not use iCloud
-synchronization. `remove()` deletes only the named item in that namespace.
+```sh
+pnpm add @octane-xplat/secure-storage
+pnpm xplat dev macos
+```
 
-`isAvailable()` reports that the native implementation exists; it does not unlock the
-Keychain or guarantee the next operation succeeds. No authentication prompt is
-opened by the leaf. A missing key returns `null`; a failed read rejects with
-`Keychain read failed`, without keys, values, or native exception text. Writing the
-same key overwrites its value, and empty strings are preserved. Writes
-return `false` when Keychain access fails. Removal returns `true` for an already
-missing key and `false` for access failures. Handle these results in your sign-in
-flow rather than falling back to preferences or browser storage.
+Keychain generic-password items use this leaf's service namespace. Packaged apps
+are scoped by bundle identifier; keep that identifier stable across releases.
+Development entries are scoped to the app's working directory and separate from
+packaged entries. Moving the directory changes that development namespace. Items
+stay on this Mac and do not use iCloud synchronization.
 
-From the repository root, `pnpm exec turbo run test:macos --filter=@octane-xplat/secure-storage`
-checks the adapter and sanitized failures. `test:packed` checks package types;
-`test:macos-runtime` compiles a packed leaf and exercises real Keychain operations
-in an isolated host, including persistence across launches, bundle identity isolation,
-and a Vite build of its public import. That fixture creates
-random payloads in memory, prints only status markers, and removes its test items.
+Availability checks confirm a complete callable bridge, not an unlocked Keychain
+or permission to read an item. Operations capture one binding, so a later
+availability check cannot guarantee success. An absent, incomplete or throwing
+binding rejects operations with UnavailabilityError. Handle failures without
+logging keys, values or native errors, and keep a missing item distinct from a
+failed read:
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+
+type Session = { status: 'restored'; token: string } | { status: 'missing' | 'unavailable' }
+export async function restoreSession(): Promise<Session> {
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
+	try {
+		const token = await secureStorage.get('session-token')
+		return token === null ? { status: 'missing' } : { status: 'restored', token }
+	} catch { return { status: 'unavailable' } }
+}
+```
+
+Only the native item-not-found status returns null. Missing/malformed native
+responses and access failures reject with `Keychain read failed`; empty strings
+are preserved. Writes and removals require a native true result to report success,
+and return false for native failures. Removal succeeds for an already missing
+item and deletes only the named item in the current namespace. No authentication
+prompt opens. Use these results rather than a plaintext fallback:
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+
+export async function saveSession(token: string): Promise<boolean> {
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+	try { return await secureStorage.set('session-token', token) }
+	catch { return false }
+}
+export async function forgetSession(): Promise<boolean> {
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+	try { return await secureStorage.remove('session-token') }
+	catch { return false }
+}
+```
+
+Repository verification commands below exercise different boundaries. The adapter
+suite models bridge failures; the packed suite checks package types. The runtime
+fixture compiles an isolated native host, creates random in-memory payloads,
+prints status markers and removes its items. It is intended to check persistence
+across launches and bundle identity isolation, plus a Vite public-import build.
 It does not test UI input or locked-Keychain/signing policies.
+
+```sh
+pnpm exec turbo run test:macos --filter=@octane-xplat/secure-storage
+pnpm exec turbo run test:packed --filter=@octane-xplat/secure-storage
+pnpm exec turbo run test:macos-runtime --filter=@octane-xplat/secure-storage
+```
+
+The six newly authored bridge cases (nine total) remain UNRUN for the current
+AppKit task. Only source/syntax checks ran; native class/method/dictionary/BOOL
+bridging, Keychain access, host replacement, signing/sandbox and installed
+consumers remain unqualified. A JavaScript exception guard cannot contain a
+native process abort; the CLI's leaf-loading prerequisite still applies.

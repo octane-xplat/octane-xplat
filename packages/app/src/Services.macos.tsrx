@@ -215,9 +215,9 @@ export function Services() @{
 					} catch {
 						setKeychainResult('Keychain unavailable')
 					} finally {
-						if (!(await store.remove(key))) {
-							setKeychainResult('cleanup failed')
-						}
+						try {
+							if (!(await store.remove(key))) setKeychainResult('cleanup failed')
+						} catch { setKeychainResult('cleanup failed') }
 					}
 				}}
 			>
