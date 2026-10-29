@@ -375,20 +375,22 @@ body {
 }
 
 .logo-cluster {
-	flex-direction: row;
+	display: grid;
+	grid-template-columns: minmax(0, 32fr) minmax(0, 148fr);
 	align-items: center;
-	gap: 11px;
+	/* Scale the original 32px mark, 11px gap and 148px wordmark together. */
+	column-gap: calc(100% * 11 / 191);
+	width: 191px;
+	max-width: 100%;
+	min-width: 0;
+	flex: 0 1 191px;
 }
 
-.logo-mark {
-	width: 32px;
-	height: 34px;
-	display: block;
-}
-
+.logo-mark,
 .wordmark {
-	width: 148px;
-	height: 20px;
+	width: 100%;
+	height: auto;
+	min-width: 0;
 	display: block;
 }
 
