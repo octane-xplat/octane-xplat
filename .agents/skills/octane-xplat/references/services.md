@@ -760,6 +760,25 @@ export function photoPage(offset: number) {
 }
 ```
 
+For payments, use the [Stripe checkout guide](../../../../packages/stripe/README.md).
+Initialize the app-scoped SDK once with a publishable key; the backend owns
+amounts, Intents and webhook fulfilment. Client completion is not payment
+settlement. The current subset is guest PaymentIntents; web requires a card-only
+Intent and its own HTTP(S) return route. Native wallets need merchant setup.
+Do not reconfigure or reset while presentation is active, and never log client
+secrets. Native desktop hosts are unavailable and Android runtime is unverified.
+
+```ts
+import { initPaymentSheet, presentPaymentSheet } from '@octane-xplat/stripe'
+
+export async function checkout(paymentIntentClientSecret: string, returnURL: string) {
+ const initialized = await initPaymentSheet({ merchantDisplayName: 'Example store',
+  paymentIntentClientSecret, returnURL })
+ return initialized.error ? initialized : presentPaymentSheet()
+}
+// Verify the order on the app server after a successful client result.
+```
+
 For local document workflows, use the [files package guide](../../../../packages/files/README.md).
 Its experimental AppKit leaf implements local reads, Documents writes and
 save-panel export; do not infer sandbox, OS picker or packaged-app qualification

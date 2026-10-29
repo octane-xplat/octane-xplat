@@ -1,0 +1,6 @@
+android {
+    defaultConfig { minSdkVersion 23 }
+}
+dependencies {
+    implementation 'com.stripe:stripe-android:23.25.1'
+}

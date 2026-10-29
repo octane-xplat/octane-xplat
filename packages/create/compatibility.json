@@ -74,6 +74,7 @@
 		"@octane-xplat/sounds",
 		"@octane-xplat/sqlite",
 		"@octane-xplat/store-review",
+		"@octane-xplat/stripe",
 		"@octane-xplat/table",
 		"@octane-xplat/tiptap",
 		"@octane-xplat/ui",

@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application>
+        <activity android:name="com.octanexplat.stripe.PaymentSheetActivity" android:exported="false" android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+        <meta-data android:name="com.google.android.gms.wallet.api.enabled" android:value="true" />
+    </application>
+</manifest>

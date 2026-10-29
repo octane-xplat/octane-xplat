@@ -1,0 +1,17 @@
+{
+	"tasks": {
+		"test:ios-bridge": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_NATIVE_TEST_REPO", "XPLAT_STRIPE_IOS_SDK"]
+		},
+		"test:ios-runtime": {
+			"cache": false,
+			"passThroughEnv": [
+				"XPLAT_NATIVE_TEST_REPO",
+				"XPLAT_STRIPE_IOS_SDK",
+				"XPLAT_IOS_DEVICE",
+				"XPLAT_IMAGE_LIB_ROOT"
+			]
+		}
+	}
+}

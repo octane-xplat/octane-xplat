@@ -704,6 +704,26 @@ const image = await media.capturePhoto({
 // The caller owns image until its preview/upload finishes, then files.release(image).
 ```
 
+## Collect a payment
+
+Use the [Stripe checkout guide](../../packages/stripe/README.md) for guest
+PaymentIntent checkout. Your app server owns order prices, Intent creation and
+payment verification. The client uses a publishable key and Stripe's secure UI.
+Native SDK installation needs a rebuild; merchant wallets and successful payments
+still need app-specific qualification. Native desktop hosts report unavailable.
+
+```ts
+import { initPaymentSheet, presentPaymentSheet } from '@octane-xplat/stripe'
+
+// Call after SDK initialization, with an Intent authorized by the app backend.
+export async function pay(paymentIntentClientSecret: string, returnURL: string) {
+ const initialized = await initPaymentSheet({ merchantDisplayName: 'Example store',
+  paymentIntentClientSecret, returnURL })
+ return initialized.error ? initialized : presentPaymentSheet()
+}
+// Client completion still requires order verification on the server.
+```
+
 ## Browse the device media library
 
 For a custom gallery or album editor, use the
