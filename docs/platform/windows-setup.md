@@ -78,10 +78,11 @@ export function DisplayName() {
 }
 ```
 
-Projected-host tests cover selection, synchronous event echoes and native-view
-replacement. Real WinUI selection, IME composition, secure fields and focus
-transitions still need native app checks. This does not supply hardware-key
-events, keyboard navigation or modal focus containment.
+A bounded x64 packaged WinUI run passed physical typing/submit, public isolated
+blur/focus, an OS-selected range retained across a controlled value write,
+readonly/disabled rejection, multiline Enter and consumed raw Return. IME,
+editable secure fields, remount and multiple-window behavior remain unqualified.
+Raw native key events do not supply the portable hardware-key contract.
 
 ## Floating-layer candidate
 
@@ -111,6 +112,38 @@ return tests use mocked Windows objects. Actual WinUI mounting, positioning,
 context updates, dismissal and focus still need native app checks. Initial
 focus, Tab containment and Escape/IME behavior remain unqualified. This does not
 qualify every menu or tooltip that uses layers.
+
+## Modal candidate
+
+Put a Windows `Dialog` inside a `Screen`, which supplies its overlay host.
+An explicit `finalFocusRef` identifies the control that should regain focus
+when the dialog closes.
+
+```tsx
+import { useRef, useState } from 'octane'
+import { Button, Dialog, Screen, Text, TextInput, type TextInputHandle } from '@octane-xplat/ui'
+
+export function ReviewName() {
+  const [name, setName] = useState('Ruby')
+  const [open, setOpen] = useState(false)
+  const returnTo = useRef<TextInputHandle | null>(null)
+  return <Screen>
+    <TextInput label="Name" value={name} onChange={setName} ref={returnTo} />
+    <Button label="Review name" clickAction={() => setOpen(true)} />
+    <Dialog isOpen={open} onOpenChange={setOpen} finalFocusRef={returnTo}>
+      <Text>{name}</Text>
+      <Button label="Keep editing" clickAction={() => setOpen(false)} />
+    </Dialog>
+  </Screen>
+}
+```
+
+A bounded x64 packaged WinUI run passed pointer opening, initial focus,
+repeated Tab containment, rejection of background focus, physical Escape
+and explicit target return and default trigger return. Required dialogs, nested overlays, multiple windows, IME and visual/layout
+parity remain unqualified. This evidence does not qualify `useLayer`, every
+menu, or the portable keyboard API. Track the remaining gates in
+[Windows #61](https://github.com/octane-xplat/octane-xplat/issues/61).
 
 ## Custom scroll viewport candidate
 
@@ -148,7 +181,11 @@ export function NotesViewport() {
 .notes-content { display: flex; flex-direction: column; gap: 12px; }
 ```
 
-Eight source-logic tests use scripted hooks and fake view metrics. Actual
-Windows event delivery, renderer updates, Mason measurements, wheel/touch/key
-scrolling, RTL and resize still need native app checks. Use the shared
+A bounded x64 packaged WinUI run advanced both component and headless viewports
+from offset 0 to 72 with physical wheel input. It measured content height 816
+and viewport height 160; the hook reported overflow and leaving the start edge.
+An earlier run logged a dropped loaded-event transaction warning. After load
+publication was deferred, the later 13-group run passed without that warning.
+These bounded assertions are not a clean-runtime or full lifecycle verdict.
+Content growth, remount, resize, touch/key scrolling, horizontal/RTL behavior and other architectures remain unqualified. Use the shared
 `ScrollableArea` component when a custom viewport is unnecessary.

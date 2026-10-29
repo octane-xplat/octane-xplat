@@ -2737,6 +2737,33 @@ export function LayerTrigger() {
 }
 ```
 
+## Experimental Windows Dialog
+
+Keep Dialog's Windows lifetime separate from generic `useLayer` qualification.
+A bounded packaged run passed initial focus, repeated Tab containment,
+background focus exclusion, raw Escape dismissal, explicit `finalFocusRef`
+return and default trigger return. Required dialogs, nesting, multiple windows,
+IME and visual/layout parity remain unqualified. These assertions do not enable the
+portable keyboard API. Render the declaration beneath `Screen` and pass an
+explicit return ref when a specific control should regain focus:
+
+```tsx
+import { Dialog, Text, type DialogProps } from '@octane-xplat/ui'
+
+export function ReviewNotice({ isOpen, onOpenChange, finalFocusRef }: DialogProps) {
+  return <Dialog isOpen={isOpen} onOpenChange={onOpenChange} finalFocusRef={finalFocusRef}>
+    <Text>Close this notice to continue editing.</Text>
+  </Dialog>
+}
+```
+
+The Windows host can expose the scoped snapshot through the C# overload name
+rather than its WinRT metadata name. Always supply the declaring XamlRoot,
+reject a foreign returned element, and recheck activation/target ownership at
+restoration. Missing snapshots must not discard an explicit target. See the
+[modal example and current gates](../../../../docs/platform/windows-setup.md#modal-candidate)
+and [Windows evidence](../../../docs/parity/windows-support-progress.md).
+
 ## Experimental Windows scroll observation
 
 Windows useScrollableArea composes scroll, viewport/content layout and
@@ -2766,6 +2793,7 @@ run passed physical wheel input for ScrollableArea and this headless observer:
 actual offsets advanced from 0 to 72 with content/viewport metrics 816/160,
 and the hook reported overflow with atStart becoming false. Resize/content
 mutation, unsubscribe/remount, horizontal/RTL and broader compiler/lifecycle
-behavior remain unqualified; that run also logged a loaded-event transaction
+behavior remain unqualified. The initial run logged a loaded-event transaction
+warning; a later run passed after load publication was deferred, without that
 warning. Keep the wider Windows gate pending; use the
 [complete example and boundary](../../../../docs/platform/windows-setup.md#custom-scroll-viewport-candidate).

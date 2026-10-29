@@ -1473,8 +1473,9 @@ default leaf removed that resolver cycle. The copied implementation matches
 HEAD's original overlay-lifetime.ts byte for byte. A maintained TypeScript
 semantic test now exercises Windows moduleSuffixes resolution.
 
-The version 1.0.0.4 native graph completed 37/37 tasks (28 cached), exit0,
-in 9m57.701s. Its delegated checker returned to the same 12 diagnostics in
+The version 1.0.0.4 native graph reported 37/37 successful tasks (28 cached)
+in 9m57.701s. The outer phase exited 0; see the later child-exit capture
+limitation below. Its delegated checker returned to the same 12 diagnostics in
 11 files; no changed modal file was diagnosed. These remaining errors mean
 the delegated check is not clean despite successful native compilation.
 Logs: research/windows61/windy-modal-native-fixed.log and
@@ -1507,3 +1508,136 @@ focus diagnostics; neither that source's native result nor focus-return
 behavior is established yet. Full UI/dependent/packed checks remain deferred
 at the earlier exact commands; no audit snapshot, checkbox or recipe support
 claim changed.
+
+
+## Modal candidate: explicit return passes on the OS
+
+The v5 native graph reported 37/37 successful tasks (28 cached) in 9m24.919s;
+the native task log reports Build succeeded and the same 12 delegated-checker
+diagnostics in 11 unrelated files. Its Start-Process child-exit JSON contained
+null, despite the outer SSH phase exiting0. Treat the task summary, native
+log and resulting package as build evidence; the outer status is not a captured
+numeric child exit. The v6 helper now invokes pnpm.cmd directly and records
+LASTEXITCODE, failing if that value is absent. No delegated-checker pass is
+inferred from native compilation.
+
+The first v5 OS attempt, boot mvss0sqs, stopped before typing because foreground
+ownership was lost. The guard prevented input outside the owned process. The
+retry moved the single activation request after the fresh app-ready marker;
+it never reactivates after input begins. That same installed v1.0.0.5 package,
+boot mvss2pgn, passed all 12 bounded scenario groups, including physical Escape
+dismissal and explicit finalFocusRef return. The six input and three scroll
+groups passed again. Log: research/windows61/windy-os-modal-v5-ready.log;
+the rejected setup is retained as windy-os-modal-v5.log.
+
+The temporary diagnostics establish the return failure: this runtime exposes
+no GetFocusedElementWithRoot function. InputActivationListener reported
+actual=expected=2, and the explicit target was loaded/enabled. Preserving the
+explicit target when snapshot capture throws fixed the OS scenario. An opaque
+WindowId-to-string diagnostic itself threw a caught Symbol-conversion error;
+that probe was changed to a boolean presence check. No user data was read.
+The dropped loaded-event transaction warning still occurred in this passing
+scenario run, so this is not a clean-runtime verdict or full Dialog support.
+
+The v6 candidate additionally tries the C# GetFocusedElement(XamlRoot) spelling
+when the WinRT metadata spelling is absent, always passes its captured owner,
+and rejects a returned element from a different root. Microsoft documents the
+[scoped overload and its metadata name](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.input.focusmanager.getfocusedelement).
+The declaring-window activation check is retained; the
+[activation lookup](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.input.inputactivationlistener.getforwindowid)
+is separate from visibility and focus-target ownership. The fixture adds a
+second physical dialog opening/closing scenario without finalFocusRef; its
+result is pending. A 250ms setup delay between the dialogs allows the declared
+140ms exit animation to release its shade; that delay is not dismissal proof.
+
+For the loaded-event warning, the Windows scroll hook now updates its measured
+snapshot immediately, then defers only its load-event state publication by one
+microtask. It checks that the same loaded viewport still owns the queued
+publication and skips detached/unmounted hosts. Caller lifecycle callbacks and
+scroll/layout publication retain their existing behavior. This is a candidate
+local workaround for the observed Octane universal/NativeScript event-scope
+failure, not an upstream renderer fix or established root cause. Upstream
+versions examined: octane0.14.0 and @nativescript-community/octane0.2.5 with the
+repository patches. The latter driver already defers events arriving during
+native batch application; the extra deferral tests publication after the loaded
+event scope itself. The actual warning-free result remains pending.
+
+Focused Turbo tasks passed 29 modal/focus contracts (4.984s) and 10 scroll
+contracts (3.501s), including scoped .NET capture, foreign-return rejection,
+fresh load snapshots without synchronous publication, and skipped publication
+after retirement. Logs: research/windows61/windy-modal-default-contracts-detail.log
+and windy-scroll-load-contracts-detail.log. V6 native compilation and its
+13-scenario OS run are pending. No broad typecheck, packed consumer, multiple-
+window, IME, visual, resize/remount or alternate-architecture pass is claimed.
+
+
+## Qualified bounded common-flow batch (v6)
+
+Local source commits: 350aa9295 (Windows modal containment/focus and internal
+owner-scoped Escape), 0ada8c971 (Windows loaded scroll publication). The
+unchanged common lifetime was extracted mechanically; no AppKit/GTK leaf or
+service changed. The native v1.0.0.6 graph completed 37/37 tasks (28 cached)
+in 9m26.654s, with numeric LASTEXITCODE=0 recorded. The native task log says
+Build succeeded; its delegated checker still reports the same 12 diagnostics
+in 11 other files. It is not a clean whole-program typecheck. Logs:
+research/windows61/windy-native-v6.log, windy-v6-native-task.log and
+windy-v6-native-exit.json.
+
+The actual x64 packaged WinUI run (boot mvssk5yj, owned family
+org.octanexplat.windows61_8w7k1f04p0kxp) passed all 13 bounded scenario groups:
+the six input groups, four modal groups and three scroll groups. The new modal
+group used a second physical button to open the dialog without finalFocusRef;
+physical Escape dismissed it and focus returned to that declaring trigger.
+Both the explicit and default cases passed with the final owner-scoped key
+selection. The two scroll viewports advanced from 0 to72 under physical wheel
+input and the hook reported overflow/leaving the start edge. This is actual
+OS input/focus evidence, separate from the 29 modal/focus and 10 scroll mocked
+contracts. Logs: research/windows61/windy-os-common-v6.log and
+windy-v6-os-results.json.
+
+The full current-boot console contains no dropped loaded-event warning. That
+observation supports this local Windows load-publication workaround; it does
+not establish a general upstream transaction fix. The fixture recorded one
+WinRT command-channel read failure and recovered on a later poll; every
+required command acknowledgement and scenario passed. Its root cause is not
+established. The fixture's deliberate old-metadata-name probes still record
+caught missing-function errors; the implementation uses the other scoped
+spelling. Do not call the complete console error-free or infer public files
+API qualification. Full and isolated logs: windy-v6-full-console.log and
+windy-v6-current-boot-console.log under research/windows61/.
+
+Seven runtime source SHA256 values were compared with the remote owned source
+and all matched the local candidate; installed version was 1.0.0.6. The mapping
+is retained in research/windows61/windy-v6-provenance.json. The remote root
+remains C:/Users/alecs/dev/win61-c905842a3, detached at c905842a3 with the recorded
+source overlays and qualification-only package identity/version, pnpm policy,
+temporary app entry and Turbo helper tasks. Original Windows app data and the
+shared checkout were preserved. The owned app was stopped after the run and
+build/input reservations ended. No screenshots or visual analysis were used.
+
+Formatter, targeted lint, whitespace and pnpm check:recipes passed. The recipe
+check covers structure/local links, not runtime support. Public Windows input,
+modal and scroll guidance and the Octane skill now reflect the bounded evidence.
+No public API signature or recipe invocation changed, so maintained app/example
+call sites need no migration. No recipe supported-target list, shared audit
+snapshot or evidence-gated issue checkbox changed. Windows remains experimental;
+there is no new stable Windows release/support claim or release note.
+
+The following wider checks remain deferred under the human's resource boundary;
+the bounded authorization did not run them or establish their results:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+```
+
+Earlier exact commands for other affected packages remain outstanding as
+recorded above. Required dialogs, nested/out-of-order overlays on the OS,
+dynamic background enabled/interaction changes while modal, multiple-window
+activation/focus, IME, visual/layout/accessibility parity, public normalized
+hardware keys, scroll content mutation/remount/resize/RTL and alternate
+architectures remain unqualified. The synchronous core File.exists mismatch
+also remains open; raw async fixture reads do not qualify the public files
+service. Keep those gates pending and prioritize these common-flow/lifecycle
+and everyday-service gaps before niche integrations.
