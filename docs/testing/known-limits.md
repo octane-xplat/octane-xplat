@@ -72,7 +72,7 @@ lightboxes, and toast stacks have dedicated presentation and cleanup, but OS
 input delivery and VoiceOver behavior remain unverified. Lightbox image
 magnification/double-click and pointer/recognized-swipe navigation now have
 source implementations; actual native gesture delivery, hit testing and cleanup
-remain unqualified. Lightbox video playback is still unavailable.
+remain unqualified. Lightbox retains the renderer's AVPlayerView path; actual video playback remains unqualified.
 See [shared presentations](../app/primitives.md#macos-shared-presentations)
 for app guidance and the [AppKit verification record](../../.agents/docs/appkit-verification.md)
 for contributor checks and evidence boundaries.
@@ -212,7 +212,7 @@ Experimental AppKit Video now has an AVPlayerLayer/Swift source path, shared
 transport, millisecond commands and generic onError callbacks. The package must
 be rebuilt into the AppKit host. This is not a runtime pass: native compilation,
 bridge discovery, actual playback/audio/seek/loop, fit/input/AX, resource lifetime
-and packaged consumers remain unqualified. Lightbox video and advanced engine
+and packaged consumers remain unqualified. The separate renderer-owned Lightbox video path and advanced engine
 features remain separate. See the [source subset](../../packages/video/README.md#experimental-appkit-playback).
 
 ```tsx

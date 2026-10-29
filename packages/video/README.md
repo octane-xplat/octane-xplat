@@ -123,5 +123,5 @@ source/configuration to ship, but packing has not run. Actual bridge discovery,
 Swift compilation, frame/audio playback, seeking/looping, notification/thread
 behavior, input/AX, fit/resize, memory/power and packaged consumers remain
 unqualified. DRM, subtitles, background playback and full streaming support are
-not established by this source implementation. Lightbox video integration is
-still separate; this leaf does not qualify it.
+not established by this source implementation. Lightbox retains its separate renderer-owned AVPlayerView path; this leaf does
+not qualify its playback or lifecycle.

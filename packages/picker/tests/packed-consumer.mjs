@@ -86,6 +86,10 @@ void badIos
 void badAndroid
 `,
 	macos: `import { AppKitPicker, type AppKitPickerProps, type AppKitPickerOption } from '@octane-xplat/picker/macos'
+import { Select, type SelectProps } from '@octane-xplat/picker/macos'
+const selectProps: SelectProps = { label: 'Region', options: [{ value: 'sfo', label: 'San Francisco' }] }
+const select = <Select {...selectProps} />
+void select
 const options: readonly AppKitPickerOption[] = [{ id: 'carry', title: 'Carry-on', disabled: false }]
 const props: AppKitPickerProps = { label: 'Bag', options, selection: 'carry', onSelectionChange: (id) => void id }
 const picker = <AppKitPicker {...props} />

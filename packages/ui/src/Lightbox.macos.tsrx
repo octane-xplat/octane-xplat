@@ -58,13 +58,13 @@ function LightboxPanel(
 				onDoubleTap={item && item.type !== 'video' && props.hasZoom !== false ? () => gestures.toggleZoom() : undefined}
 				onSwipe={props.media.length > 1 ? (event) => gestures.swipe(event.direction) : undefined}>
 				{item?.type === 'video' ? (
-				<xplatvideo
-					className="vx-lightbox-media"
-					src={item?.src}
-					controls={true}
-					autoplay={props.hasAutoPlay ?? false}
-					accessibilityLabel={item?.alt}
-				/>
+					<xplatvideo
+						className="vx-lightbox-media"
+						src={item?.src}
+						controls={true}
+						autoplay={props.hasAutoPlay ?? false}
+						accessibilityLabel={item?.alt}
+					/>
 				) : (
 					<scrollview ref={viewport} className="vx-lightbox-scroll" style={{ flexGrow: 1, minHeight: 0 }}>
 						<image src={item?.src} accessibilityLabel={item?.alt} />

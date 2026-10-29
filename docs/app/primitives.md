@@ -2283,7 +2283,9 @@ zoomed images do not navigate. The trackpad path requires native event-monitor
 support and a current hit inside the media stage; ordinary scroll-wheel events
 remain with AppKit. Actual double-click/pinch/swipe delivery, hit testing,
 coordinate behavior and cleanup remain unqualified. Shared lightbox video
-playback still shows an explicit unsupported message; `hasAutoPlay` is web-only.
+retains the renderer's native AVPlayerView path, including `hasAutoPlay`. This
+is separate from the optional Video package; actual playback, transport input
+and cleanup remain unqualified.
 
 ```tsx
 import { Lightbox } from '@octane-xplat/ui'

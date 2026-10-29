@@ -18,7 +18,7 @@ platform-suffixed file:
 | `*.ios.tsx`     | `@octane-xplat/picker/ios`     | `SwiftUIPicker`    |
 | `*.android.tsx` | `@octane-xplat/picker/android` | `MaterialDropdown` |
 | `*.web.tsx`     | `@octane-xplat/picker/web`     | `Select`           |
-| `*.macos.tsx`   | `@octane-xplat/picker/macos`   | `AppKitPicker`     |
+| `*.macos.tsx`   | `@octane-xplat/picker/macos`   | `AppKitPicker`, `Select` |
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -104,3 +104,18 @@ consumer qualification remain pending. Invalid choices or a missing controlled
 ID show a generic message; repair those props to retry. See the
 [AppKit lifecycle and selection contract](../../docs/platform/native-picker.md#native-macos-selection)
 for asynchronous options, record ownership and the maintained manual demo.
+
+The macOS entry also exports the existing `Select` component, with the web
+entry's `value`/`defaultValue`/`onChange` and `value`/`label` option shape. It
+renders through the renderer's native list-picker host. `AppKitPicker` owns a
+separate native pop-up lifetime and uses `selection` and `id`/`title` options;
+choose one contract consistently for a field. Neither path is runtime-qualified
+by this integration.
+
+```tsx
+import { Select } from '@octane-xplat/picker/macos'
+export function Region() {
+	return <Select label="Region" defaultValue="sfo"
+		options={[{ value: 'sfo', label: 'San Francisco' }]} />
+}
+```

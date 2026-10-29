@@ -2289,8 +2289,9 @@ ownership, leaves ordinary scroll-wheel events alone and retires on replacement
 or disposal. It requires native monitor support. Seven policy/mounted cases and
 a manual fixture are authored but unrun; actual input/gesture arbitration,
 hit/zoom coordinates, cleanup, VoiceOver and packaging remain unqualified.
-Lightbox video is still unsupported, including when the separate Video package
-is used; no optional player handoff is implemented.
+Lightbox retains the renderer's native AVPlayerView video path, including
+`hasAutoPlay`. It is separate from the optional Video package's owned Swift
+surface; decoding, playback, transport input and cleanup remain unqualified.
 
 ```tsx
 import { Lightbox } from '@octane-xplat/ui'

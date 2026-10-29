@@ -9750,3 +9750,43 @@ At this source worktree revision check:docs/check:doc-examples are absent; their
 availability must be rechecked after integration with main. User-authorized
 rebase/merge does not supply runtime evidence or execute deferred heavy checks.
 The goal remains active with mixed/stock-control and orientation-AX gaps open.
+
+## Integration with local main after Toolbar focus
+
+Human authorization now requires rebasing each clean worktree onto local main,
+merging it, then continuing implementation. The Toolbar feature was completed as
+008192916 before replay. Rebased onto local main
+26ce8da2784bee7e4aa308bbab53eb83be92e1e1 (not origin/main), producing Toolbar
+commit 1f51545bdcc39a40a8adbcf2006e4306f4652e53. Git skipped four equivalent
+commits and dropped one already-upstream patch; 193 commits replayed. Historical
+issue/Silo SHAs remain historical evidence, not revised qualification claims.
+
+Conflicts preserved main's layout observers/projection paint, renderer intrinsic
+video/pager/animated-image hosts, JSX facade in the picker consumer lane, current
+documentation paths, guide restructuring and unrelated target work. The later
+AppKit image-owned cache cutover supersedes the shared URL-cache implementation;
+owned Swift Video/AnimatedImage and ScrollableArea Pager leaves retain their
+source lifecycle contracts. This is source integration, not runtime proof.
+
+Final reconciliation retains main's existing renderer-backed macOS Select and
+its public types alongside the independently implemented AppKitPicker; these are
+distinct native components and selection contracts, not forwarding aliases.
+The packed-consumer source includes both. Lightbox retains main's renderer-owned
+AVPlayerView video path inside the new stable media stage, separate from the
+optional Video package's Swift surface. Guides, skill guidance, release note and
+known limits now describe that path as implemented but unqualified, instead of
+claiming an unsupported message. The existing authored lightbox object-driver
+case also models video branch/autoPlay wiring; it remains unrun.
+
+After replay, the five Toolbar source/test/fixture syntax parses, five scoped
+TSX fences and seven changed local link targets/anchors passed again. Fifteen
+integration source/declaration/fixture files parsed without compiler transforms;
+two package JSON files parsed. Current unstaged whitespace checks passed. The
+full historical range whitespace check additionally reports existing trailing
+blank lines in files/src/file-types.macos.ts and ui/src/{Checkbox.macos.tsrx,
+Switch.macos.tsrx,control-colors.macos.ts}; these are not test failures and were
+left outside this integration correction. No tests/typechecks/builds/packaging,
+OS input, probe execution or visual analysis ran. Main's check:docs and
+check:doc-examples scripts are now present; the previously recorded exact
+commands remain deferred along with check:recipes/check:changelog. Native
+verification and the persistent goal remain open after the authorized Git merge.

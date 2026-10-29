@@ -22,6 +22,7 @@ it('AppKit panel wires current zoom/swipe policy and media replacement while lat
 		const retainedToggle = stage.props.onDoubleTap; retainedToggle(); expect(zooms).toEqual([2]); stage.props.onSwipe({ direction: 2 }); expect(changes).toEqual([])
 		stage.props.onDoubleTap(); stage.props.onSwipe({ direction: 2 }); flushUniversalSync(() => {}); expect(changes).toEqual([1]); expect(scroll.magnification).toBe(1)
 		render({ index: 0, hasZoom: false, onIndexChange: (index: number) => current.push(index) }); stage.props.onSwipe({ direction: 2 }); expect(current).toEqual([1]); expect(stage.props.onDoubleTap).toBeUndefined(); retainedToggle(); expect(zooms).toEqual([2, 1])
+		render({ media: [{ type: 'video', src: 'clip.mp4', alt: 'Clip' }], index: 0, hasAutoPlay: true }); const video = all().find((node) => node.type === 'xplatvideo'); expect(video.props.src).toBe('clip.mp4'); expect(video.props.autoplay).toBe(true); expect(all().some((node) => node.type === 'scrollview')).toBe(false)
 		root.unmount(); stage.props.onSwipe({ direction: 1 }); expect(current).toEqual([1])
 	} finally { root.unmount() }
 })

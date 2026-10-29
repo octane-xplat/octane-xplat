@@ -122,6 +122,18 @@ export function Region() {
 }
 ```
 
+The macOS entry also retains `Select`, `SelectOption` and `SelectProps` from
+its existing renderer-backed implementation. Its option and selection contract
+matches the web entry; it is separate from `AppKitPicker`'s owned pop-up path.
+
+```tsx
+import { Select } from '@octane-xplat/picker/macos'
+export function Region() {
+	return <Select label="Region" defaultValue="sfo"
+		options={[{ value: 'sfo', label: 'San Francisco' }]} />
+}
+```
+
 All four APIs require a visible `label` and accept `accessibilityLabel`,
 `disabled` or `enabled` state as appropriate, and the host `id`, `className`,
 and `style` props. These similarities do not imply a shared selection contract.

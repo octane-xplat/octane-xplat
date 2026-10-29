@@ -14,5 +14,5 @@ export function Photos({ open, setOpen, source }: {
 }
 ```
 
-Lightbox video remains unsupported. See the
+Lightbox retains its separate renderer-owned native video path; playback remains unqualified. See the
 [AppKit presentation guide](https://octane-xplat.goddardai.org/app/primitives#macos-shared-presentations).
