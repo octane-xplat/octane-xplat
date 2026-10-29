@@ -228,3 +228,13 @@ it('retains native disabled-but-focusable views while excluding ordinary disable
 		env.key(); expect(env.window.firstResponder).toBe(disabledCard)
 	} finally { off() }
 })
+
+it('exposes only the current eligible containment root to composed native navigation', () => {
+	const s = fixture(), inner = s.view('inner'), outer = s.view('outer', false, [inner])
+	const offOuter = s.manager.bind(outer, () => ({ contain: true }))
+	const offInner = s.manager.bind(inner, () => ({ contain: true }))
+	expect(s.manager.boundary(s.window)).toBe(inner)
+	inner.hidden = true; expect(s.manager.boundary(s.window)).toBe(outer)
+	inner.hidden = false; offInner(); expect(s.manager.boundary(s.window)).toBe(outer)
+	offOuter(); expect(s.manager.boundary(s.window)).toBeUndefined()
+})

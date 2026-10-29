@@ -394,7 +394,7 @@ export { useFocusVisible, isFocusVisible } from './use-focus-visible'
 export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible'
 export { useFocusWithin } from './use-focus-within.macos'
 export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within.macos'
-export { useLandmark } from './use-landmark'
+export { useLandmark } from './use-landmark.macos.tsrx'
 export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.

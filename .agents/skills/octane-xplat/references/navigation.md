@@ -956,3 +956,26 @@ radio mark announcements. The reused MenuSurface now has scoped focused-row
 repair source ownership; see the [dynamic menu guide](../../../../docs/menus.md#keep-focus-owned-when-appkit-menu-rows-change). That implementation is not native
 input or dynamic-menu qualification.
 See [AppKit overflow tabs](../../../../docs/app/components.md#overflow-tabs-on-appkit).
+
+## AppKit landmark cycling
+
+useLandmark now selects a dedicated AppKit source leaf. Spread landmarkProps
+on native containers; source F6/Shift+F6 routes within the event window and
+current containing FocusScope, following native view order and innermost
+current regions. Field editors resolve to their input; empty regions retain
+programmatic focus without Tab stops. Hidden/disabled/detached regions are
+skipped, and native reveal is requested after accepted focus. Ctrl/Option/
+Command F6, composing text and handler-cancelled keys are not taken over.
+Missing bridge support leaves role/label forwarding. Registration leases and
+one monitor retire on unmount/HMR disposal. Web uses mount order; native
+ordering, empty-region and nested behavior must not be inferred from it.
+Native F6/focus/containment/scroll/VoiceOver and HMR/packed lifetime remain unrun;
+role/label forwarding is not proof of native AX landmark semantics.
+
+```tsx
+import { TextInput, VStack, useLandmark } from '@octane-xplat/ui'
+export function SearchRegion() {
+  const { landmarkProps } = useLandmark({ role: 'search', label: 'Document search' })
+  return <VStack {...landmarkProps}><TextInput label="Search" /></VStack>
+}
+```

@@ -1,12 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { Octane } from 'octane/jsx-runtime'
 
-/**
- * Native counterpart of use-landmark.web.tsrx. Region cycling (F6) is a
- * web/screen-reader keyboard convention with no native analogue, so this
- * leaf only forwards the accessibility role and label — the semantic part
- * of the contract that does port. Same public types as the web leaf.
- */
+/** Semantic native fallback. Hosts without region-key routing forward role
+ * and label only; AppKit selects its dedicated F6/Shift+F6 leaf. */
 
 export interface UseLandmarkOptions {
 	role:

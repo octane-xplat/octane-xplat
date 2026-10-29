@@ -6407,3 +6407,64 @@ interaction, controlled preview acknowledgement, same-view replacement, RTL,
 keyboard/Tab/key repeat, AX splitter/value/focus, overlay/geometry lifecycle,
 sticky scrolling/performance, supported macOS and clean installed consumers
 remain unqualified. Audit snapshots and evidence gates unchanged; goal active.
+
+## AppKit landmark region-navigation source path
+
+The native audit names missing F6 landmark cycling. No direct useLandmark
+callers were found in repository apps/demos, so expected demand is explicitly
+inferred from the retained public hook and common multi-region navigation, not
+claimed as a currently failing app flow. Basic controls/text/layout/file flows
+were prioritized first. Existing native fallback forwarded role/label only and
+its comment/parity note incorrectly ruled out a native analogue categorically.
+
+Added a dedicated AppKit hook/export preserving public types. Owned native refs
+register roots with programmatic focus-target leases and one local key monitor.
+F6/Shift+F6 uses key-code 97 from the existing AppKit key map, resolves field
+editors and cycles eligible roots in current native view order. The innermost
+registered ancestor identifies the current region. A region chooses its own
+eligible controls, skipping nested registered regions; otherwise its retained
+root receives focus without a Tab stop. Native reveal is requested only while
+registration/window/boundary/actual focus ownership still matches. No window
+activation or synthesized key input is introduced.
+
+The FocusScope manager exposes an internal current-boundary query to its AppKit
+module; it is not a new root public export. Cycling stays inside that active
+containing root and event window. Modified F6, marked text, handler cancellation
+and propagation stops preserve native/application ownership. Focus rejection can
+try remaining valid targets; focus callback reentry is guarded. Duplicate refs
+hold independent claims but share one monitor; failed attachment rolls back,
+last-root removal and HMR disposal retire ownership, and stale callbacks after
+removal do not dispatch keys. Missing monitor/dispatch/focus bridge keeps
+semantic forwarding. Native roles still follow existing mapping; no proof of
+AX landmark subroles or announcements is claimed.
+
+Six model, one containment-query and two universal compiler cases are authored,
+all UNRUN. They cover ordering/direction, editor/nesting/empty fallback,
+containment/hidden/disabled/windows, modifiers/IME/cancellation, duplicate/failure/
+cleanup and native rejection/reentry. The manual fixture contains standalone,
+nested, empty, hidden/unmounted and contained regions; its runner records mount
+only. Public guide, skill, recipe and feature note reconcile the experimental
+subset. Web source uses mount order and differs in nested/current selection;
+AppKit native-order behavior is explicit, not cross-target parity proof. HMR
+cleanup source is present; actual rebind/lifetime is unqualified.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/landmark.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit landmark-navigation package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Nine TS/TSRX files syntax parsed; source/semantic/whitespace review only.
+No tests/compiler transforms,
+typechecks/builds, probes/native/OS/AX, packaging or visual analysis ran. Hardware
+function-key delivery, app/system shortcut ownership, responder/editor/IME,
+containment/native focus rejection/reveal, hidden/reparent/window and HMR cleanup,
+Tab/VoiceOver/AX semantics and supported-macOS/clean installed consumers remain
+unqualified. Audit snapshots and evidence gates unchanged; persistent goal active.

@@ -167,6 +167,8 @@ export function createAppKitFocusScopeManager(
 		}
 	}
 	return {
+		/** Current native containment boundary for other owned focus navigation. */
+		boundary(window: NSWindow): NSView | undefined { return top(window)?.root },
 		capabilities(): FocusScopeCapabilities {
 			const supported = !failed && capable()
 			return { contain: supported, autoFocus: supported, restoreFocus: supported, nestedScopes: supported }

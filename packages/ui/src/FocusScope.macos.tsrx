@@ -7,6 +7,8 @@ import { applyEscapeProps } from './escape-props'
 import { createAppKitFocusScopeManager } from './focus-scope-state.macos'
 
 const scopes = createAppKitFocusScopeManager()
+/** @internal Current containment root; does not activate or move focus. */
+export function appKitFocusBoundary(window: NSWindow): NSView | undefined { return scopes.boundary(window) }
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
 hot?.dispose(() => scopes.dispose())
 

@@ -383,3 +383,52 @@ props. Linux and Windows resolve the web implementations. Web-only hover,
 focus, resize observation, and DOM link semantics are documented where they
 are used; native controls use press/layout callbacks and native accessibility
 properties.
+
+## Move between AppKit screen regions
+
+Use useLandmark to label navigation, main content, search or supporting regions.
+Spread landmarkProps on the region's native container. AppKit now has an
+experimental F6/Shift+F6 source path that moves to the next/previous region in
+native view order and requests reveal through native scrolling. The web source
+registers regions in mount order, so ordering can differ after reordering.
+Native key delivery, focus and accessibility remain unqualified.
+
+```tsx
+import { TextInput, VStack, useLandmark } from '@octane-xplat/ui'
+export function SearchRegion() {
+  const { landmarkProps } = useLandmark({ role: 'search', label: 'Search documents' })
+  return <VStack {...landmarkProps}><TextInput label="Find a document" /></VStack>
+}
+```
+
+The AppKit source uses the innermost registered ancestor of the current native
+responder. It handles field editors, skips native hidden/disabled/detached
+regions and restricts cycling to the current containing FocusScope. An empty
+region can take programmatic focus without becoming a Tab stop. Nested regions
+own their descendants; the outer region uses its own first eligible control
+or its own fallback. Use separate hook instances for separate regions.
+
+```tsx
+import { Button, FocusScope, VStack, useLandmark } from '@octane-xplat/ui'
+function EmptyDetailsRegion() {
+  const { landmarkProps } = useLandmark({ role: 'complementary', label: 'Details' })
+  return <VStack {...landmarkProps} style={{ minHeight: 40 }} />
+}
+export function DetailsDialog() {
+  return <FocusScope contain restoreFocus><VStack>
+    <Button label="Details action" /><EmptyDetailsRegion />
+  </VStack></FocusScope>
+}
+```
+
+Ctrl/Option/Command-modified F6 and composing text stay outside this routing;
+focused key handlers can prevent it. AppKit hosts without the key dispatcher,
+monitor or programmatic focus-target bridge keep role/label forwarding only.
+The local monitor and focus claims retire when their regions unmount. This does
+not establish native landmark subroles, VoiceOver announcements or system
+function-key delivery. Six model cases, one containment-query case and two
+compiler cases plus a manual fixture are authored but unrun.
+
+```sh
+pnpm probe run examples/probes/landmark.macos.tsrx --target macos --watch
+```
