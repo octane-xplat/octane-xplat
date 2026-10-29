@@ -96,6 +96,16 @@ pnpm exec turbo run test:packed --filter=@octane-xplat/updates
 pnpm check:consumer --no-build --quick
 ```
 
+For native patch delivery, run the dedicated tarball and registry-style install
+checks. They preserve pnpm's config-dependency fetch and verify every generated
+native patch reference. A checkout's version may still name the previous release;
+after local dependency upgrades, registry consumers need the next published
+lockstep set rather than that checkout's unchanged version number.
+
+```sh
+pnpm exec turbo run pack:check test:packed --filter=@octane-xplat/patches
+```
+
 `--no-build` skips package builds and packing lifecycle hooks; prepare and
 check packages first, as shown above. The quick consumer gate uses isolated
 tarballs and compilation. Full consumer journeys and browser checks have

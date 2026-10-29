@@ -52,6 +52,28 @@ The Updates consumer check validates its bootstrap payload and six target
 conditions. Its Node hook is outside the generic checker's paired
 runtime/declaration contract, so fast CI keeps this test explicit.
 
+The patches package has a dedicated `pack:check` in the normal packed-artifact
+gate. It packs without lifecycle hooks, compares every file with the CLI's
+canonical manifest, and checks both starter configurations and generated default
+native references. Release jobs repeat it after aligning versions, before tagging
+or publishing. Its `test:packed` also serves that tarball through an isolated local
+registry, keeps pnpm `configDependencies` enabled, and installs the starter's
+upstream dependencies plus optional patched packages with scripts disabled. It
+checks locked patch hashes and installed snapshots; it does not qualify devices
+or the framework runtime tarballs covered by the full consumer gate.
+
+```sh
+pnpm exec turbo run pack:check test:packed --filter=@octane-xplat/patches
+```
+
+Checkout manifests retain the previous release number until the release workflow
+aligns them. A dependency upgrade after a release can therefore require patches
+absent from that same numbered registry package. Compare the published creator's
+compatibility manifest and patch tarball with the checkout before diagnosing
+packaging drift. Registry consumers need a newly published lockstep version and
+matching framework/catalog/config-dependency pins, followed by a regenerated
+lockfile. Synchronizing local files does not update an existing registry version.
+
 The release gate verifies `ci-evidence-<track>-<sha>` against GitHub's workflow
 identity and latest job results. Stable evidence also records the originating
 nightly run ID: `workflow_run` itself can reference a newer default-branch

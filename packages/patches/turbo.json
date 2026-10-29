@@ -1,0 +1,20 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"pack:check": {
+			"dependsOn": [],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../../scripts/check-packed-patches.mjs",
+				"../create/compatibility.*",
+				"../create/scaffold.ts",
+				"../create/template/**",
+				"../create/library-template/pnpm-workspace.yaml"
+			]
+		},
+		"test:packed": {
+			"dependsOn": ["pack:check"],
+			"cache": false
+		}
+	}
+}
