@@ -10114,3 +10114,55 @@ pnpm check:docs
 pnpm check:doc-examples
 pnpm check:changelog
 ```
+
+## Desktop applicability decisions
+
+Decision #134 (approved 2026-10-29) records which phone-oriented services stay
+unsupported on native macOS. No leaf changes: each listed leaf already reports
+`supported: false` or warns, and its public docs already say so.
+
+| Area | macOS outcome |
+| --- | --- |
+| Geofencing | `supported: false`; use `@octane-xplat/geolocation` for one-time positions |
+| Haptics | Presets play through `NSHapticFeedbackManager`; `patterns` and `realtime` stay unsupported |
+| Firebase Analytics, Crashlytics | `supported: false`; route product analytics to PostHog and crashes to Sentry |
+| System bars, software keyboard | Desktop-neutral; calls warn or no-op |
+| Pull-to-refresh | Unsupported; put a visible refresh action in the toolbar or content |
+| Rich-text editing | WKWebView-hosted editors are the accepted AppKit path; a native editor is not planned |
+
+Barcode scanning is excluded. Issue #78 called it hardware-bound, but
+`barcodeScanner.scanImage` decodes still images, and Vision's
+`VNDetectBarcodesRequest` can do that on any Mac. It stays an implementation
+gap. The haptics row in #78 was also stale: presets were already wired.
+
+## Intel x86_64 support
+
+Decision #135 (2026-10-29): the AppKit target supports Intel Macs as well as
+Apple Silicon. Nothing is implemented yet. Every native artifact is currently
+arm64-only:
+
+| Artifact | Built by | Ships as |
+| --- | --- | --- |
+| JSC host, `NativeScript.framework` | `packages/cli/src/macos/jsc-host/build-runtime.sh` | `prebuilt/macos-arm64/` |
+| SDK metadata | `build-metadata.sh` | `metadata.nsmd`, loaded by `host.m` as `metadata.macos.arm64.nsmd` |
+| Metadata generator | `build-generator.sh` | `objc-metadata-generator` (also runs on the build Mac) |
+| Mason layout engine | `packages/macos-renderer/native/xplatmason/build.sh` (Rust `aarch64-apple-darwin`) | `libxplatmason.dylib` |
+| App native leaves | `packages/cli/src/macos/native.ts` (`arm64-apple-macos`, Zig `aarch64-macos`) | per-app dylibs |
+
+Packaging and tooling reject other architectures: `package.ts`, `native.ts`,
+`doctor.ts`, `inspectMachO` in `jsc-host/runtime.ts`, `workshop` build
+checks, `scripts/probe/doctor.ts` and the macOS verification scripts.
+
+Feasibility evidence, source-read only: pinned NativeScript runtimes
+`5b697b39` carry x86_64 `objc_msgSend_stret` dispatch in
+`ffi/napi/ClassMember.mm`, a `macosx-universal` libffi and an x86_64 metadata
+target in `scripts/metagen.js`. Its macOS CMake branch, however, forces
+`CMAKE_OSX_ARCHITECTURES` to `arm64`, so our runtimes patch must lift that.
+Whether the host, framework, Mason and generator cross-compile and run under
+x86_64 is unproven. Proving it needs native builds, which are not yet
+authorized.
+
+Planned shape, pending that probe: universal (arm64 + x86_64) binaries and one
+`.app`/`.dmg`, with per-architecture metadata files selected by the host at
+compile time. The prebuilt manifest declares its architectures, and packaging
+builds exactly the declared set.
