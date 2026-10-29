@@ -1,0 +1,6 @@
+android {
+    defaultConfig { minSdkVersion 23 }
+}
+dependencies {
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.3.0'
+}

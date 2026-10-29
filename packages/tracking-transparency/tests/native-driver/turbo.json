@@ -1,0 +1,18 @@
+{
+	"tasks": {
+		"test:ios-api": {
+			"cache": false
+		},
+		"test:ios": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_NATIVE_TEST_REPO", "XPLAT_IOS_DEVICE"]
+		},
+		"build:windows-contract": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_TRACKING_PACKAGE", "XPLAT_TRACKING_CONTRACT_OUTPUT"]
+		},
+		"test:windows-contract": {
+			"cache": false
+		}
+	}
+}

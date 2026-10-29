@@ -53,3 +53,5 @@ source before relying on them.
 - [Linux WebKit baseline](linux-webkit-baseline.md)
 - [Current status](status.md)
 - [Screen orientation](screen-orientation.md) — primary-window policy, subscriptions and qualification
+
+- [Tracking transparency](tracking-transparency.md) — explicit requests, identifier threading and qualification

@@ -19,7 +19,10 @@ an ad placement. Follow the [NativeScript plugin setup](https://docs.nativescrip
 for the remaining platform and consent configuration. Installing the package
 does not complete that setup.
 
-Initialize once during startup, after the app's consent flow:
+Finish the app's consent flow before initializing ads. For iOS tracking, see
+[tracking authorization](../tracking-transparency/README.md) and request from an
+explicit app action. An unavailable ATT gate on another platform is not app
+consent. Initialize once after that flow:
 
 ```ts
 import { ads } from '@octane-xplat/ads'

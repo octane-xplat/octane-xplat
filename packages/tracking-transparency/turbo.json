@@ -1,0 +1,25 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"test": {
+			"dependsOn": []
+		},
+		"test:ios-api": {
+			"cache": false
+		},
+		"test:ios": {
+			"cache": false,
+			"passThroughEnv": [
+				"XPLAT_NATIVE_TEST_REPO",
+				"XPLAT_IOS_DEVICE"
+			]
+		},
+		"test:packed": {
+			"dependsOn": [
+				"typegen"
+			]
+		}
+	}
+}

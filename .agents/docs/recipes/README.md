@@ -177,6 +177,8 @@ they never count as complete coverage.
 - [Observe and choose the primary window's screen orientation](screen-orientation.md)
 - [Capture an app-owned view and release the image](view-shot.md)
 
+- [Request tracking authorization from an app action](tracking-transparency.md)
+
 ## Audit state in Silo
 
 Run `silo context`, then inspect `silo table show recipe_audit` before writing.

@@ -71,6 +71,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Update an installed phone app between releases  | [Phone app updates](app/updates.md)                    |
 | Compare native build inputs before an update | [Native fingerprints](../packages/fingerprint/README.md) |
 | Keep the phone launch screen until startup is ready | [Launch-screen control](../packages/splash-screen/README.md) |
+| Ask for tracking authorization | [Tracking authorization](../packages/tracking-transparency/README.md) |
 | Capture a card as an image | [View capture](../packages/view-shot/README.md) |
 | Observe or choose the phone interface orientation | [Screen orientation](../packages/screen-orientation/README.md) |
 

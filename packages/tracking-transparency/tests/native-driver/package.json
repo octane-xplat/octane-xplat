@@ -1,0 +1,12 @@
+{
+	"name": "@xplat/tracking-transparency-native-api",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:ios-api": "node ../native-api.mjs ios",
+		"test:ios": "node ../ios-runtime.mjs",
+		"build:windows-contract": "node ../build-windows-contract.mjs",
+		"test:windows-contract": "node ../windows-contract.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}

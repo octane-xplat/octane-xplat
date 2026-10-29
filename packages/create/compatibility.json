@@ -82,6 +82,7 @@
 		"@octane-xplat/stripe",
 		"@octane-xplat/table",
 		"@octane-xplat/tiptap",
+		"@octane-xplat/tracking-transparency",
 		"@octane-xplat/ui",
 		"@octane-xplat/updates",
 		"@octane-xplat/video",
