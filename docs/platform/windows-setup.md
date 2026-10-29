@@ -84,6 +84,29 @@ readonly/disabled rejection, multiline Enter and consumed raw Return. IME,
 editable secure fields, remount and multiple-window behavior remain unqualified.
 Raw native key events do not supply the portable hardware-key contract.
 
+## Switch input
+
+The Windows `Switch` keeps the shared track and thumb, with a
+transparent native input for focus, Space activation and Windows automation.
+Use the same controlled or uncontrolled props as on other targets:
+
+```tsx
+import { useState } from 'octane'
+import { Switch } from '@octane-xplat/ui'
+
+export function Notifications() {
+  const [enabled, setEnabled] = useState(false)
+  return <Switch label="Notifications" value={enabled} onChange={setEnabled} />
+}
+```
+
+Bounded checks in a packaged x64 WinUI app passed physical pointer input,
+Tab/Space, Windows TogglePattern automation, accessible names, controlled and
+uncontrolled state, read-only/disabled guards, async rejection rollback and
+remount. Normal and small inputs matched their tracks' measured bounds.
+Screen-reader announcements, visual parity, dynamic resizing, the full field
+prop contract, other architectures and downstream packaging remain unqualified.
+
 ## Floating-layer candidate
 
 Windows `useLayer` selects the NativeScript popup implementation. Put its trigger

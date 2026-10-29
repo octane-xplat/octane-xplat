@@ -33,8 +33,10 @@ shared text host every other component composes. `Heading` sizes from
 display scale plus `color`/`weight`/`maxLines`.
 
 ```tsx
-<Text type="body" size="sm" color="secondary" maxLines={2}>{summary}</Text>
-<Heading level={3}>Card title</Heading>
+<>
+  <Text type="body" size="sm" color="secondary" maxLines={2}>{summary}</Text>
+  <Heading level={3}>Card title</Heading>
+</>
 ```
 
 AppKit Text/Heading now merge authored styles over typography defaults without
@@ -2736,6 +2738,30 @@ export function LayerTrigger() {
   </>
 }
 ```
+
+## Experimental Windows Switch
+
+The Windows leaf preserves the shared track and thumb and uses a transparent
+WinUI ToggleButton for focus, Space and TogglePattern. Keep the shared API;
+do not replace it with a stock Windows widget to add keyboard input.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Notifications() {
+	return <Switch label="Notifications" defaultValue={false} />
+}
+```
+
+The preview projects `IsChecked` as `IReference<Boolean>`, not a JS boolean.
+The adapter uses native Checked/Unchecked events and pauses its own delegates
+during model writes. It keeps rejected/read-only requests under the model's
+control. The input uses measured track dimensions: auto/stretch produced empty
+bounds, and the renderer's local position default overrides CSS. Keep these
+workarounds visible in the [Windows progress note](../../../docs/parity/windows-support-progress.md).
+Shared-component pointer, Tab/Space, TogglePattern, state, async rollback and
+remount checks passed in packaged x64 WinUI. Keep the wider
+[Windows qualification boundary](../../../../docs/platform/windows-setup.md#switch-input).
 
 ## Experimental Windows Dialog
 

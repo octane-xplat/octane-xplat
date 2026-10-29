@@ -2186,3 +2186,116 @@ V16 adds a Mason overlay container with the plain native control as a flex
 child, plus temporary core/native layout/model snapshots and three layout
 probe variants. Its graph is running. These are candidates, not a claimed
 layout or rollback repair. No implementation commit is made while unresolved.
+
+### V17 qualifies common shared Switch input flows
+
+V16 completed38/38tasks,28cached,6m14.683s,exit0. Shared OS checks passed3/10:
+Tab order, controlled prop reset without callback echo, and blocked states.
+Input bounds remained empty. The async label request emitted true,false and
+one action, but Core checked=true and on/loading classes remained after
+rejection. These are retained failures, not passes inferred from callbacks.
+
+An independent v16 layout probe found finite40x24-DIP native children had
+80x48 physical-pixel bounds at200% DPI; the nested stretch child stayed empty.
+That probe did not independently prove absolute positioning. Source inspection
+of MasonKit1.0.0-beta.126 and the pinned @nativescript-community/octane0.2.5
+patch found two relevant constraints: Windows foreign layout does not mirror
+width/height, and applyMasonDefaults assigns local style.position='relative',
+which overrides author CSS. The latter remains a shared-renderer defect; no
+global renderer patch was changed by this Windows leaf.
+
+The final leaf uses the existing useMeasure helper for finite input dimensions
+and sets position locally. The native ToggleButton is a direct track child.
+The adapter also temporarily detaches only its own Checked/Unchecked delegates
+around IsChecked writes and restores them unless that native instance was
+disposed/replaced. A counter alone avoided callback echoes but still entered
+JS synchronously from a host prop write. The combined v17 changes pass below;
+the exact cause of the earlier native async failure was not separately isolated.
+These workarounds must be reassessed when the renderer/runtime changes.
+
+Focused contracts now pass11/11 through one uncached Turbo task,2.373s,exit0.
+They execute the actual controller source with a nullable-Boolean read trap,
+and cover programmatic delegate suppression/restoration, accepted/rejected
+model state, readonly/model/native disabled gates, callback replacement,
+native recreation/stale callbacks, disposal during a write and write-error
+cleanup. They do not establish native geometry or OS interaction. A temporary
+Node universal-runtime isolate also passed4/4 direct/nested compiled async
+cases; that is not WinUI runtime evidence.
+
+V17's bounded native graph passed38/38tasks,28cached,6m8.167s,exit0:
+
+```sh
+pnpm exec turbo run typecheck build:windows --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful --output-logs=errors-only
+```
+
+The standalone Windows checker emitted no diagnostics. The delegated native
+checker still emitted the same12diagnostics in11otherfiles; the three recorded
+MSBuild warnings remain. This graph does not replace UI/dependent typechecks.
+The source overlays used the existing pinned core filesystem artifact
+SHA256ef4e9080313fab6b0680c24a0380cc3ef06f0136c29cb96fc3cf674a2afa8c36
+and unchanged native DLL
+SHA256748D95864AC032DE2D1BB69FEC1E5B2CDD393BAA1671E349AA670160AA66D47C.
+No dependency install, new native binary, certificate or trust change occurred.
+The pnpm verifyDepsBeforeRun=warn override remains owned-checkout-only;
+enableGlobalVirtualStore metadata drift remains an environment limitation.
+
+Owned packaged x64 WinUI MSIX1.0.0.17, bootmvt3yuph, passed10/10groups,
+interactive/resource phase exit0:
+
+- Seven named TogglePattern peers with expected state, enabled/focusable flags
+  and finite on-screen geometry.
+- Physical Tab visits enabled and readonly inputs and skips disabled.
+- Controlled physical pointer, Space and UIA toggling produce true,false,true.
+- A controlled prop reset updates the native peer without a callback echo.
+- Rejected pointer, Space and UIA requests leave the controlled model Off.
+- Readonly remains focusable but rejects changes; disabled rejects focus and
+  automation.
+- Uncontrolled Space/pointer state and small-size pointer input work.
+- Label activation runs one async action and rolls back to Off on rejection.
+- Remount restores defaults and leaves one live event subscription.
+
+The normal input and track both measured40x24DIP; small measured32x20DIP.
+All21recorded input/track snapshots matched in size and position. Physical
+pointer assertions required the owned foreground window and owned hit target;
+these were not direct handler calls. The peer reports Button with TogglePattern;
+this is not full Switch role or screen-reader qualification.
+
+The same binary then passed6/6repeated async rejection trials, bootmvt45a52,
+exit0: three interleaved physical track/label pairs, each with exactly one
+action, true,false callbacks and native Off. No pre-input model snapshot was
+used to trigger rendering. Final read-only snapshots found checked=false and
+no loading class; all14input/track geometry snapshots matched. The wrapper
+stopped its owned app and released the device/input reservation.
+
+Retained records under research/windows61/:
+windy-native-v16-shared-switch.log, windy-v16-shared-os-results.json,
+windy-v16-layouts-os-results.json, windy-native-v17-shared-switch.log,
+windy-v17-native-exit.json, windy-v17-typecheck.log,
+windy-v17-native-task.log, windy-toggle-source-contracts-11-detail.log,
+windy-node-compiled-async-state-repro-detail.log,
+windy-os-shared-switch-v17.log, windy-v17-shared-os-results.json,
+windy-v17-shared-full-console.log, windy-v17-shared-installed-package.json,
+windy-os-switch-async-v17.log, windy-v17-async-os-results.json,
+windy-v17-async-full-console.log and windy-v17-async-current-boot-console.json.
+Temporary drivers are in research/windows61/native-common-flows/. Records are
+local ignored evidence; they have not been pushed or published as artifacts.
+
+Public Windows setup, the Octane primitives reference and the release note
+describe the bounded input improvement. No recipe or broad component row is
+promoted: existing Switch examples informed demand but do not qualify a
+Windows consumer workflow. ui:Switch remains pending for full props/Field,
+dynamic resize, concurrent actions/disposal, Narrator, visual parity and wider
+packaging/version/architecture evidence. No screenshots or visual analysis
+were used. Full native/packed tests and package/dependent typechecks remain
+deferred under the earlier exact commands; CLI/patches dependent checks also
+remain deferred from their prior changes. The persistent task stays active.
+
+Final lightweight review: targeted source formatter/lint and git diff --check
+pass; pnpm check:recipes passes. pnpm check:changelog could not run because
+this isolated checkout lacks the yaml dependency; it exited1, not a pass. Its
+exact command remains deferred until dependencies are available. A syntax-only
+supplement using the shared checkout's checker functions parsed27fences across
+the two changed guides and release note, using these worktree files explicitly.
+It does not replace the unavailable full docs/changelog checks. Semantic impact
+inspection cannot resolve the string-registered input or all TSRX export users;
+the actual native fixture and VM test evidence above cover the bounded claims.
