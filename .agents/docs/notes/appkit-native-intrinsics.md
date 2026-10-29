@@ -25,7 +25,7 @@ All conditioned native declarations derive from that same map.
 | Collections       | `listview`, `tabview`, `tabviewitem`                                                                                                          | —                                                                                                                                      |
 | Navigation        | `actionbar`                                                                                                                                   | `actionitem`, `frame`, `navigationbutton`, `page`                                                                                      |
 | Other             | `image`, `scrollview`, `webview`, `placeholder`, `liquidglass`                                                                                  | —                                                                                                                                      |
-| Shared extensions | —                                                                                                                                             | `animatedimage`, `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `pager`, `svgview`, `xplatlottie`, `xplatvideo` |
+| Shared extensions | `animatedimage`, `pager`, `xplatvideo`                                                                                                          | `applesigninbutton`, `cachedimage`, `googlesigninbutton`, `nscanvas`, `svgview`, `xplatlottie` |
 
 There are now 35 core factories and 4 missing core hosts. `span` and
 `formattedstring` are viewless; their composition checks are described below. The renderer
