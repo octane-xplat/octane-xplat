@@ -76,7 +76,7 @@ function CheckboxControl(inputProps: CheckboxProps) @{
 		accessibilityValue={indeterminate ? 'Partially selected' : undefined}
 		accessibilityState={nativeAccessibilityState({
 			disabled: props.isDisabled,
-			checked: indeterminate ? undefined : checked,
+			checked: indeterminate ? 'mixed' : checked,
 		})}
 		onTap={isBlocked ? undefined : toggle}
 	>

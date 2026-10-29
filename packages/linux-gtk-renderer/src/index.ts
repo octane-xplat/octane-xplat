@@ -1768,7 +1768,12 @@ function setAccessibleRole(node: ElementNode, value: unknown) {
 	if (node.type === 'masonview')
 		view.set_focusable(
 			node.props.accessible !== false &&
-				(role === Gtk.AccessibleRole.BUTTON || role === Gtk.AccessibleRole.LINK),
+				[
+					Gtk.AccessibleRole.BUTTON,
+					Gtk.AccessibleRole.LINK,
+					Gtk.AccessibleRole.CHECKBOX,
+					Gtk.AccessibleRole.SWITCH,
+				].includes(role),
 		)
 	node.pressKeys?.refresh()
 }

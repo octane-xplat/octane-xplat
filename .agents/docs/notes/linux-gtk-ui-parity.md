@@ -1006,3 +1006,20 @@ typecheck tasks pass. See [the indicator evidence](linux-gtk-renderer.md#gtk-dec
 for the exact checks and limits. The previous full renderer run passed 46 tests;
 the added case has a focused runtime pass. Owning CheckboxInput/Switch controls,
 other inputs, Image, overlays, navigation, theme and services remain pending.
+
+
+### Custom toggle keyboard foundation
+
+GTK's custom Mason checkbox/switch roles now accept focus and Space activation.
+Native Checkbox's mixed checked metadata reaches GTK without claiming false;
+the narrower NativeScript enum retains its existing textual fallback. The new
+fixture passes 34 checks with actual X11 Tab/Space/Return. The full maintained
+renderer run passes all 48 cases with no skips; 58 affected/dependent typecheck
+tasks, 58 Node checks, 38 selected native Vitest tests and six package validation
+tasks pass. See [the exact scope](linux-gtk-renderer.md#gtk-custom-toggle-keyboard-foundation)
+for the test-helper correction and upstream state limitation.
+
+This establishes the renderer input foundation. CheckboxInput/Switch remain
+outside the curated root until their field and async-action contracts are
+qualified. Root availability remains 55 values and 86 types; the full parity
+goal and later PR remain in progress.

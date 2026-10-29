@@ -2,7 +2,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
 import type { ElementNode } from './index.js'
 
-/** Keyboard press gestures for semantic Mason buttons/links. A single native
+/** Keyboard press gestures for semantic Mason buttons, links and toggles. A single native
  * controller sends touch down/up/cancel before tap through the same registered
  * event callbacks as pointer gestures. Native Gtk.Button keeps its own bindings. */
 export function bindPressKeys(node: ElementNode) {
@@ -17,6 +17,8 @@ export function bindPressKeys(node: ElementNode) {
 	const accepts = (key: number) => {
 		const role = view.get_accessible_role()
 		if (role === Gtk.AccessibleRole.LINK) return key === Gdk.KEY_Return || key === Gdk.KEY_KP_Enter
+		if (role === Gtk.AccessibleRole.CHECKBOX || role === Gtk.AccessibleRole.SWITCH)
+			return key === Gdk.KEY_space
 		return (
 			role === Gtk.AccessibleRole.BUTTON &&
 			[Gdk.KEY_Return, Gdk.KEY_KP_Enter, Gdk.KEY_space].includes(key)

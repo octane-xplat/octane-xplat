@@ -778,7 +778,7 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
 }
 ```
 
-A Pressable without a button or link role keeps its existing pointer behavior
+A Pressable without an interactive role keeps its existing pointer behavior
 and adds no keyboard stop. Keyboard events from a focused child textfield do
 not activate its parent Pressable.
 
@@ -795,10 +795,28 @@ export function PointerAction(props: { disabled: boolean; save: () => void }) {
 }
 ```
 
-Maintainer qualification now includes the [field-chrome runtime fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx).
-The fixture also checks editor retention while labels or validation messages change.
-TextInput is available from the curated root. Field remains a source-only
-fixture; its complete contract is not established by this qualification.
+Custom Mason controls with checkbox or switch roles accept Tab focus and
+activate on Space release. Return does not toggle them. Keep the checked
+metadata in sync with the owning state; a mixed checkbox uses checked: 'mixed'.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { CheckboxIndicator } from '@octane-xplat/ui'
+
+export function Selection(props: { selected: boolean; toggle: () => void }) {
+  return (
+    <masonview accessibilityRole="checkbox" accessibilityLabel="Keep receipts"
+      accessibilityState={{ checked: props.selected }} onTap={props.toggle}
+      style={{ display: 'flex', width: 24, height: 24 }}>
+      <CheckboxIndicator state={props.selected ? 'checked' : 'unchecked'} />
+    </masonview>
+  )
+}
+```
+
+These keyboard checks use actual X11 input. The shared CheckboxInput and Switch
+components still need their remaining public contracts qualified before they
+join the curated GTK root.
 
 
 Multiline text and placeholder hints support textAlign. Use a numeric or pixel

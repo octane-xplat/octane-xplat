@@ -89,11 +89,11 @@ export function nativeAccessibilityRole(role?: Role): string | undefined {
 export function nativeAccessibilityState(state?: {
 	disabled?: boolean
 	selected?: boolean
-	checked?: boolean
+	checked?: boolean | 'mixed'
 	pressed?: boolean
 	/** ARIA keys with no NS counterpart (busy, expanded, invalid, …) are
 	 *  accepted and ignored — the enum reports the strongest mapped state. */
-	[key: string]: boolean | undefined
+	[key: string]: boolean | 'mixed' | undefined
 }): AccessibilityStateName | undefined {
 	if (state?.disabled) {
 		return 'disabled'
@@ -103,6 +103,7 @@ export function nativeAccessibilityState(state?: {
 		return 'selected'
 	}
 
+	// NS has no mixed state; Checkbox supplies its textual value fallback.
 	// NS has no 'pressed' state — a pressed toggle reports as checked.
 	const checked = state?.checked ?? state?.pressed
 	if (checked === true) {

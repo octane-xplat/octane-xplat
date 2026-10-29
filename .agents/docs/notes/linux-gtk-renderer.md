@@ -1869,3 +1869,70 @@ All six UI package validation tasks, recipes, barrel checks, 33 release notes,
 focused formatting and whitespace pass. Package log: andromeda
 /tmp/gtk-indicators-pack.log. Checkbox/Switch runtime investigation is separate
 and those controls remain outside this curated addition.
+
+
+## GTK custom toggle keyboard foundation
+
+The native Checkbox/Switch direct-source baseline reports both roles as
+nonfocusable and no mixed checked state; it fails the first focus assertion.
+The role map existed, but custom Mason focus and keyboard handling allowed only
+button/link. They now also focus checkbox/switch and activate them once on Space
+release. Return remains unconsumed for these toggle roles. Existing held-key
+cancellation, modifier handling, listener ownership and disposal paths are reused.
+
+Checkbox passes checked: 'mixed' instead of omitting metadata when indeterminate.
+The private native state helper accepts that value without mapping it to a false
+checked/unchecked state. GTK's existing record adapter/synchronizer retains the
+tristate. No new UI GTK leaf, intrinsic or dependency is introduced. This does
+not yet qualify the entire CheckboxInput/Switch public contract or curate them.
+
+### NativeScript mixed-state scope
+
+The [published NativeScript accessibility guide](https://docs.nativescript.org/guide/accessibility#accessibilitystate)
+lists one enum state: selected, checked, unchecked or disabled. The same
+four-value enum is present in the [examined @nativescript/core 9.1.3 source](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/accessibility/accessibility-common.ts#L374-L379).
+This is source/documentation evidence inspected on 2026-10-29, alongside Xplat's
+private compatibility helper and shared JSX enum declaration; it is not phone
+or screen-reader runtime evidence. The helper keeps its previous enum
+priority, and a mixed Checkbox retains the existing "Partially selected"
+accessibilityValue fallback. Do not mistake that fallback for a first-class
+NativeScript mixed checked state. Revisit the helper if the upstream contract
+adds a mixed state or independent state record.
+
+GTK has a checked tristate; its [state contract](https://docs.gtk.org/gtk4/enum.AccessibleState.html)
+and [value-text property](https://docs.gtk.org/gtk4/enum.AccessibleProperty.html)
+are separate. Value text describes range values, so it is not substituted for
+a checkbox's checked state. GTK still warns about the NativeScript textual
+accessibilityValue fallback; the new checked metadata supplies GTK semantics.
+The legacy string-value adapter remains a recorded gap, with no AT-client
+output claim.
+
+Baseline log: guest /tmp/gtk-toggle-controls-first.log. Feedback:
+307fc2ea-0d8d-4456-8cf5-ab9af642c959. The maintained fixture now checks native
+focus, Space down/repeat/release, uncontrolled/controlled mixed state, Return
+nonactivation, read-only listener removal, retained hosts and disposal, plus
+actual X11 Tab/Space/Return phases.
+
+The focused run passes all three cases: accessibility58, existing press-keys51
+with actual X11 input, and toggle34 with actual X11 Tab/Space/Return. The final
+full run passes all 48 maintained renderer tests without skips, including the
+new indicator case. Runtime remains Ubuntu 24.04.5 amd64, GJS 1.80.2 and
+GTK 4.14.5. No AT client, phone runtime or images were exercised.
+
+All 58 affected/dependent typecheck tasks pass, including all 21 maintained UI
+.gtk.tsrx fixtures. This precedes a test-only correction: findByClass in the
+native forms suite returned undefined while several assertions used
+not.toBeNull, allowing missing classes to pass. It now returns null on a miss;
+the checked Checkbox case supplies value:true instead of legacy checked:true.
+The final native rerun passes 58 Node checks and 38 selected Vitest tests,
+including the existing NativeScript mixed-state textual-fallback case.
+Feedback: 26e4c94d-3377-4348-8be2-a33f3f8bb92e.
+
+Six UI package validation tasks, recipes, 34 release notes, barrel checks,
+focused formatting and whitespace pass. Logs: guest
+/tmp/gtk-toggle-controls-fixed.log and /tmp/gtk-toggle-controls-full.log;
+andromeda /tmp/gtk-toggle-controls-types.log,
+/tmp/gtk-toggle-controls-native-final.log and /tmp/gtk-toggle-controls-pack.log.
+The curated root remains 55 values and 86 types. CheckboxInput/Switch field
+width, hidden labels, state/defaults, status variants and async actions still
+need full component qualification before export.

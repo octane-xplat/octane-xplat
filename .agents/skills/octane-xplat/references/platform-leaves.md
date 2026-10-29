@@ -229,7 +229,11 @@ export function Help() {
 ```
 
 GTK's nativeAccessibilityState adapter preserves the full record instead of
-collapsing it to NativeScript's strongest enum state. The renderer applies flags
+collapsing it to NativeScript's strongest enum state. The private native helper
+accepts checked: 'mixed'; GTK preserves it while NativeScript retains its textual
+Checkbox fallback. Custom Mason checkbox/switch roles are keyboard stops and
+activate on Space release; buttons use Return/Space and links use Return.
+This engine support does not qualify the full shared Checkbox/Switch API. The renderer applies flags
 after the complete prop bag: sensitivity and GtkEditable editability agree with
 the same generation. Missing flags reset old native metadata; native switch
 checked state is restored when an override is removed. Keep behavior in
