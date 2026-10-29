@@ -535,7 +535,7 @@ export type { ImperativeBottomSheetReturn, RouteOutletProps, RouteHeadArgs } fro
 // Registry interfaces must share the props symbol for generated augmentation.
 export type { AppRouteContracts, AppRouteStacks, AppRouteTransitions } from './props'
 
-export { useContainerReveal } from './use-container-reveal.tsrx'
+export { useContainerReveal } from './use-container-reveal.macos.tsrx'
 export type { UseContainerRevealOptions, UseContainerRevealReturn } from './props'
 export { useImageMode } from './use-image-mode.tsrx'
 export type { UseImageModeOptions, ImageSampleRegion } from './props'

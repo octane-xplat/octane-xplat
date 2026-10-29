@@ -1,7 +1,7 @@
 import type { UseContainerRevealOptions, UseContainerRevealReturn } from './props'
 
-/** Touch-host equivalent: secondary actions stay visible. Desktop native
- * hover/focus reveal is not implemented; never hide an unavailable action. */
+/** Fallback for native hosts without hover/focus reveal: secondary actions
+ * stay visible. AppKit selects its dedicated CSS-state leaf. */
 export function useContainerReveal(
 	_options: UseContainerRevealOptions = {},
 ): UseContainerRevealReturn {

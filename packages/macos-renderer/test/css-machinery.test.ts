@@ -5,6 +5,7 @@
 //
 // ---- machinery-slice tests -------------------------------------------------
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
@@ -346,4 +347,60 @@ test('(l) a used pseudo-class restyles; an unused one only updates the set', asy
 	await tick()
 	assert.equal(applyCalls.length, 1, 'unused pseudo-classes must not flush a subtree')
 	assert.ok(n.cssPseudoClasses.has('bogusstate'), 'the set still records the state')
+})
+
+
+test('AppKit reveal cascades hover/focus into actions while nested containers reset their own state', async () => {
+	const source = readFileSync(new URL('../../ui/src/use-container-reveal.macos.tsrx', import.meta.url), 'utf8')
+	const css = source.match(/<style>([\s\S]*?)<\/style>/)?.[1]
+	assert.ok(css)
+	registerStylesheet('t-appkit-container-reveal', css)
+	const { api } = machineryApi()
+	const outer = sliceNode('masonview'), container = outer.container
+	const action = sliceNode('masonview', { parent: outer, container })
+	const inner = sliceNode('masonview', { parent: outer, container })
+	const innerAction = sliceNode('masonview', { parent: inner, container })
+	for (const view of [outer, inner]) api.applyClassName(view, 'vx-appkit-reveal-container')
+	for (const view of [action, innerAction]) api.applyClassName(view, 'vx-appkit-reveal-content')
+	await tick()
+	assert.equal(action.computedStyle.opacity, 0)
+	assert.equal(innerAction.computedStyle.opacity, 0)
+	api.setPseudoClass(outer, 'hover', true); await tick()
+	assert.equal(action.computedStyle.opacity, 1)
+	assert.equal(innerAction.computedStyle.opacity, 0, 'outer hover must not reveal an inactive nested row')
+	api.setPseudoClass(inner, 'focus-within', true); api.setPseudoClass(outer, 'focus-within', true); await tick()
+	assert.equal(innerAction.computedStyle.opacity, 1)
+	api.setPseudoClass(outer, 'hover', false); await tick()
+	assert.equal(action.computedStyle.opacity, 1, 'ancestor focus-within also reveals outer actions')
+	assert.equal(innerAction.computedStyle.opacity, 1, 'focus keeps nested actions visible after pointer exit')
+	api.setPseudoClass(inner, 'focus-within', false); await tick()
+	assert.equal(innerAction.computedStyle.opacity, 0)
+	assert.equal(action.computedStyle.opacity, 1, 'focus moved from nested row to outer row')
+	api.setPseudoClass(outer, 'focus-within', false); await tick()
+	assert.equal(action.computedStyle.opacity, 0)
+	api.applyClassName(action, ''); await tick()
+	assert.equal(action.computedStyle.opacity ?? 1, 1, 'disabling reveal drops the opacity override')
+	assert.equal(action.computedStyle.display, undefined)
+	assert.equal(action.computedStyle.visibility, undefined)
+	assert.equal(action.computedStyle.position, undefined, 'native reveal retains its layout slot')
+})
+
+test('CSS focus observer capability requires a token, retries failure and scopes updates to the matching window', () => {
+	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('let focusObserverInstalled = false'), FULL_SOURCE.indexOf("/** Wire a container's live nodes"))
+	let attempts = 0, callback: (note: unknown) => void = () => {}, mode = 'nil'
+	const first = { hostView: { window: {} } }, second = { hostView: { window: {} } }, updated: unknown[] = []
+	const api = runSlice(code + '\n({ installFocusObserver, available: () => focusObserverInstalled })', {
+		NSNotificationCenter: { defaultCenter: { addObserverForNameObjectQueueUsingBlock: (_name: unknown, _object: unknown, _queue: unknown, next: typeof callback) => {
+			attempts++; callback = next
+			if (mode === 'throw') throw Error('simulated registration failure')
+			return mode === 'nil' ? null : {}
+		} } },
+		NSWindowDidUpdateNotification: 'window-update', appKitContainers: new Set([first, second]),
+		syncContainerFocus: (container: unknown) => updated.push(container), console: { warn() {} },
+	})
+	api.installFocusObserver(); assert.equal(api.available(), false)
+	mode = 'throw'; api.installFocusObserver(); assert.equal(api.available(), false)
+	mode = 'ok'; api.installFocusObserver(); assert.equal(api.available(), true)
+	api.installFocusObserver(); assert.equal(attempts, 3, 'successful observation installs once')
+	callback({ object: second.hostView.window }); assert.deepEqual(updated, [second])
 })

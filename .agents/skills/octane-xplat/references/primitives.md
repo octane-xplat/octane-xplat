@@ -533,8 +533,13 @@ export function Caption(props: { src: string }) {
 
 `useContainerReveal` exposes only `isEnabled` and the two default prop getters.
 Spread container props on the row and content props on its secondary actions.
-Web uses scoped CSS hover/focus-within; touch/native defaults keep actions
-visible. Native desktop hover, force/delay and inverted reveal remain gaps.
+Web uses scoped CSS hover/focus-within. AppKit now has a capability-gated CSS
+hover/focus-within source path: nested containers reset their inherited opacity,
+actions keep layout space and remain mounted, and missing native tracking keeps
+them visible. There is no transition or new hook-owned observer; the renderer
+owns tracking and focus updates. Native hover/Tab/focus/AX/packed behavior is
+unrun. Touch/other native defaults remain visible; force/delay and inverted
+reveal remain gaps.
 See [the media guide](../../../../docs/app/components.md#media-contrast-and-row-actions).
 
 ```tsx

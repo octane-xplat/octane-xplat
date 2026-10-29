@@ -9728,19 +9728,19 @@ function installFocusObserver() {
 	if (!center || typeof center.addObserverForNameObjectQueueUsingBlock !== 'function') {
 		return
 	}
-	focusObserverInstalled = true
-	center.addObserverForNameObjectQueueUsingBlock(
-		NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
-		null,
-		null,
-		(notification: NSNotification) => {
-			for (const container of appKitContainers) {
-				if (container.hostView?.window === notification?.object) {
-					syncContainerFocus(container)
+	try {
+		const token = center.addObserverForNameObjectQueueUsingBlock(
+			NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
+			null,
+			null,
+			(notification: NSNotification) => {
+				for (const container of appKitContainers) {
+					if (container.hostView?.window === notification?.object) syncContainerFocus(container)
 				}
-			}
-		},
-	)
+			},
+		)
+		focusObserverInstalled = token != null
+	} catch (error) { console.warn('[macos-css] focus observation unavailable', error) }
 }
 
 /** Wire a container's live nodes for the used pseudo-classes and resync
@@ -10443,6 +10443,11 @@ appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.imageMemoryCache = imageMemoryCache
 appKitBridge.imageCache = imageCache
 appKitBridge.observeHover = observeHover
+Object.defineProperty(appKitBridge, 'containerRevealSupported', {
+	configurable: true,
+	enumerable: true,
+	get: () => { installFocusObserver(); return Boolean(hoverTrackingTarget && focusObserverInstalled) },
+})
 Object.defineProperty(appKitBridge, 'keyboardEventsSupported', {
 	configurable: true,
 	enumerable: true,

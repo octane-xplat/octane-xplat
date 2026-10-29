@@ -6089,3 +6089,65 @@ source/path/data/network/TLS/ATS/sandbox, settings/hidden/window/VoiceOver behav
 CPU/memory lifetime and supported macOS/clean installed native consumers remain
 unqualified. Existing frozen install/task graph deferrals remain. Audit snapshots
 and evidence gates unchanged; persistent goal active.
+
+## AppKit container reveal source path
+
+Demand evidence: Astryx sandbox useContainerRevealHookUsage presents file rows
+with Edit/Delete actions and instructs users to hover or Tab into the row. The
+AppKit export explicitly selected the always-visible native fallback despite
+existing renderer CSS hover/focus-within support. The native audit's reveal gap
+therefore remains actionable independent of its obsolete media placeholders.
+Sticky columns and landmark cycling were inspected as backlog leads, not fixed
+or qualified by this change.
+
+Added an AppKit-specific hook leaf/export with embedded native CSS markers.
+Container-local inherited opacity resets at nested boundaries; hover and
+focus-within reveal actions. Disabled reveal/missing tracking return empty
+props, leaving controls visible. Actions stay mounted without hiding from the
+accessibility tree, altering Tab stops or pointer-event flags. Native actions
+keep their layout slot and change opacity immediately, an explicit subset
+compared with web's position/transition rules. No public type/API expansion,
+new dependency, per-hook native observer or shared stylesheet change.
+
+The renderer capability getter requires its hover target and successfully
+registered CSS focus observer. The existing focus installer set installed=true
+before registration, even if the native call returned nil/threw. It now claims
+installation only after a non-null token and catches registration failures so
+they remain retryable. The getter uses this actual CSS observer instead of
+assuming an unrelated focus hook's support means CSS focus observation works.
+Existing first-responder/field-editor mapping, ancestor chain diff, top-down
+subtree restyle/custom-property inheritance and tracking-area disposal are
+reused. Opacity maps to alphaValue; native key-view eligibility source checks
+hidden state, not alpha. These are source observations, not proof of native Tab
+reachability or VoiceOver behavior at zero alpha.
+
+Two cases are authored and UNRUN in the existing renderer machinery suite:
+actual leaf CSS against real cascade/subtree restyle with hover/focus/nested
+reset/disabled-marker removal, and focus-observer nil/throw/retry/single-token/
+window scope. They simulate states and notifications, not actual OS input.
+The idle manual fixture includes separate and nested file rows, notes, actions
+and an isEnabled toggle; its runner records mounting only. Public app guide,
+primitive skill, recipe and feature note reconcile the source subset. No React
+Aria parity row exists for this Astryx-only hook, and no RA export was added.
+
+Seven TS/TSRX/declaration files syntax parsed; source/semantic and whitespace
+review are the only other checks. Exact deferred commands, still pending this
+human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/container-reveal.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit row-action reveal package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+No tests/typechecks/builds, probe/native/OS automation, packing or visual analysis
+ran. Actual CSS registration/tracking-area lifecycle, nested hover, field-editor
+and descendant focus, Tab/Shift-Tab, opacity/hit-testing/VoiceOver behavior,
+hidden/reparented/removed rows and supported macOS/clean installed native
+consumers remain unqualified. Evidence gates/audit snapshots unchanged; goal
+active. F6 landmark cycling and native sticky-column behavior remain gaps.

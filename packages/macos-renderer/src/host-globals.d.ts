@@ -29,6 +29,8 @@ declare global {
 			clear(): void
 		}
 		readonly keyboardEventsSupported?: boolean
+		/** CSS hover/focus-within source capability; not native input qualification. */
+		readonly containerRevealSupported?: boolean
 		readonly focusWithinSupported?: boolean
 		readonly contextMenuEventsSupported?: boolean
 		observeFileDrop?: (view: import('@octane-xplat/platform/macos').NSView, handlers: { enabled(): boolean; receive(uris: string[]): boolean }) => () => void

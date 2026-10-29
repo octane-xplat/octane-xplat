@@ -1558,10 +1558,13 @@ export function PhotoCaption(props: { src: string }) {
 ```
 
 `useContainerReveal` reveals secondary actions on web when the row is hovered
-or receives keyboard focus. Actions remain mounted and tabbable. Touch hosts
-keep them visible; native desktop hover reveal is not implemented. This subset
+or receives keyboard focus. AppKit now has an experimental native CSS-state
+path for the same interaction; its actions keep their layout space and change
+opacity immediately. Actions remain mounted and tabbable. Touch hosts and
+native hosts without tracking capability keep actions visible. This subset
 supports `isEnabled`, `getContainerProps()` and `getContentRevealProps()`;
-Astryx's delay, inversion and force-state options are not supported.
+Astryx's delay, inversion and force-state options are not supported. Native
+hover, focus/Tab, nested-row behavior and accessibility remain unqualified.
 
 ```tsx
 import { Button, HStack, Text, useContainerReveal } from '@octane-xplat/ui'
