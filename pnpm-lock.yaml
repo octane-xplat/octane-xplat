@@ -3641,6 +3641,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@octane-xplat/camera':
+        specifier: workspace:*
+        version: link:../camera
       '@octane-xplat/jsx':
         specifier: workspace:*
         version: link:../jsx

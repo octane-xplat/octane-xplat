@@ -236,6 +236,7 @@
 		"test:intl": "node --test tests/intl-bundle.test.mjs"
 	},
 	"dependencies": {
+		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/platform": "workspace:*"

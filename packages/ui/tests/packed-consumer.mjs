@@ -67,7 +67,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 	// NativeScript peers must stay out of the web type graph.
 	const dependencies =
 		target === 'macos'
-			? ['octane', '@octanejs/vite-plugin']
+			? ['octane', '@octanejs/vite-plugin', '@octane-xplat/camera']
 			: peers === 'required'
 				? ['octane']
 				: [
