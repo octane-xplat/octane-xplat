@@ -1,5 +1,6 @@
 import { correctProjectionRadii, correctProjectionShadows } from '../src/projection-paint.ts'
 import { normalizeHostStyleProps } from '../src/inline-style.ts'
+import { borderStyleSides, hiddenBorderStyle, borderStrokeStyle } from '../src/border-styles.ts'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
@@ -51,7 +52,7 @@ export function sourceWithoutImports(url: URL) {
 /** `runInNewContext` for src/index.ts slices: prepends CSS_SLICE_STUBS so
  *  slices that reference cascade helpers they don't include still run. */
 export function runSlice(code: string, context?: Record<string, any>) {
-	return runInNewContext(CSS_SLICE_STUBS + code, Object.assign({ normalizeHostStyleProps }, context ?? {}, { correctProjectionRadii, correctProjectionShadows }))
+	return runInNewContext(CSS_SLICE_STUBS + code, { normalizeHostStyleProps, borderStyleSides, hiddenBorderStyle, borderStrokeStyle, ...context, correctProjectionRadii, correctProjectionShadows })
 }
 
 // Slices eval fragments of src/index.ts without the CSS cascade module —

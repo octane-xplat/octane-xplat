@@ -314,6 +314,31 @@ has not been qualified against native multiline measurement.
 .multiline-caption { line-height: 24px; }
 ```
 
+### Patterned borders
+
+AppKit paints dashed and dotted borders through CAShapeLayer strokes with native
+NSNumber dash arrays. Uniform patterns use one rounded closed path; mixed sides
+retain independent widths/colors/styles and clip each stroke to its side. Paths
+rescale with frame changes. None/hidden sides paint nothing and contribute zero
+border width to Mason; removing the style restores the existing width-only native
+solid default. This supports the maintained FileInput dropzone's dashed theme rule.
+
+```css
+.attachment-target { border-width: 2px; border-color: #225588; border-style: dashed; border-radius: 8px; }
+.mixed-edges { border-width: 2px; border-style: dotted solid; border-right-width: 4px; }
+.no-border { border-style: none; }
+```
+
+Box-frame observation now owns one native registration, retires callbacks before
+captured cleanup, releases late handles after replacement and permits later
+registration/update attempts after failure. Other frame readers retain their
+notification-enable flags. Native stroke/dash/NSNumber bridging, geometry,
+corner/side joins, scale/antialiasing, shadow/clipping interaction, notification
+ordering, memory and installed apps remain unqualified. Twelve source cases and
+an idle fixture are authored, all unrun. Double/groove/ridge/inset/outset still
+warn and paint solid; non-solid outlines keep their existing approximation.
+This is not full CSS border/outline or pixel parity. See [AppKit borders](../../docs/app/styling.md#appkit-borders).
+
 Current limits:
 
 - Only `:disabled` responds to state. `:hover`, `:active`, `:pressed`, and
@@ -326,8 +351,10 @@ Current limits:
   it, with workspace display-option notifications queuing media refresh for
   reduced motion. Native playback, notification delivery and frame pacing
   remain unqualified.
-- Per-side borders and per-corner radii draw through a
-  masked shape layer; `border-style` values paint solid.
+- Border styles support solid, dashed, dotted, none and hidden, including
+  side-specific styles. Double/groove/ridge/inset/outset still approximate to
+  solid with an explicit warning. Non-solid outlines remain a separate gap;
+  see [patterned borders](#patterned-borders).
 - `box-shadow` paints one outset shadow (first entry; spread grows the
   silhouette) and drops the view's corner clip while it is in effect — the
   same CALayer constraint UIKit has. The first `inset` entry approximates as

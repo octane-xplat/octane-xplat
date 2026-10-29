@@ -170,6 +170,46 @@ selector.
 }
 ```
 
+## AppKit borders
+
+This is an experimental source path; native painting and installed-app checks
+have not run. For native macOS attachment targets and other outlined boxes, use `border-style:
+dashed` or `dotted`. AppKit draws these through native shape-layer strokes and
+updates them when the box resizes. A uniform pattern uses one rounded path;
+side-specific styles keep separate widths and colors:
+
+```css
+.attachment-target {
+	border-width: 2px;
+	border-color: #225588;
+	border-style: dashed;
+	border-radius: 8px;
+}
+.mixed-edges {
+	border-width: 2px;
+	border-style: dotted solid;
+	border-right-width: 4px;
+	border-right-color: #b3261e;
+}
+```
+
+`none` and `hidden` remove a side's paint and its border width from the native
+layout. Removing a style declaration restores the existing native default:
+explicit width without a style paints solid. `double`, `groove`, `ridge`,
+`inset` and `outset` still warn and paint solid on AppKit. Non-solid `outline`
+styles remain a separate limitation:
+
+```css
+.no-border { border-style: none; }
+.hidden-top { border-width: 2px; border-top-style: hidden; }
+.solid-box { border-width: 2px; border-style: solid; }
+```
+
+The FileInput dropzone theme already requests dashed borders. This renderer
+change supplies that source path; native dash/NSNumber bridging, corner joins,
+resize/scale/antialiasing, shadow/clipping, input and installed-app qualification
+remain pending. Source models do not establish pixel parity.
+
 ## Style one platform
 
 Keep small differences beside the shared rules with a `@platform` block. This

@@ -1,0 +1,8 @@
+.border-style-preview {
+	display: flex;
+	height: 80px;
+	padding: 12px;
+	border-color: #225588;
+	background-color: #ffffff;
+	color: #112244;
+}

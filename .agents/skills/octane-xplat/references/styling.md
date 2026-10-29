@@ -248,6 +248,31 @@ app imports `chrome.css` or defines that variable itself; otherwise the
 generated declaration has no effect. The starter defines only `primary`,
 `onprimary`, `surface`, and `text`.
 
+## AppKit patterned borders
+
+Native border-style now paints dashed/dotted through CAShapeLayer with NSNumber
+dash arrays: one closed rounded path for uniform patterns, clipped side strokes
+for mixed widths/colors/styles. None/hidden sides paint and consume zero border
+width in Mason; width-only native styling still defaults solid when the style
+is removed. The maintained FileInput dropzone uses this path. Box-frame ownership
+captures cleanup, guards retired/replaced callbacks and releases late handles;
+failed setup/update remains retryable. Do not equate this source path with native
+pixel/scale/NSNumber/resize/shadow/clipping/memory/installed qualification.
+Double/groove/ridge/inset/outset still warn and draw solid; non-solid outlines
+remain outside this implementation. See [border subset](../../../../docs/app/styling.md#appkit-borders).
+
+```css
+.attachment-target { border-width: 2px; border-style: dashed; border-radius: 8px; }
+.mixed-edges { border-width: 2px; border-style: dotted solid; border-right-width: 4px; }
+.no-border { border-style: none; }
+```
+
+Twelve source cases and an idle AppKit fixture are authored but unrun. Static
+fixture styles stay in its CSS sibling; dynamic width/radius/style controls use
+style objects. Running it requires this task's native verification authorization,
+and visual comparison requires separate visual authorization. Mounting alone
+qualifies no native layer or presentation behavior.
+
 ## Experimental AppKit overflow clipping
 
 The renderer now sets NSView.clipsToBounds for two clipped axes (`hidden` or

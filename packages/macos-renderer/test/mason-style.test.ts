@@ -193,3 +193,13 @@ test('CSS borders consume space in the Mason box model', () => {
 		bottom: [0, 1],
 	})
 })
+
+
+test('none and hidden border styles consume zero edges while visible sides retain their widths', () => {
+	assert.deepEqual(styleDict(node('masonview', { style: { borderWidth: 4, borderStyle: 'none solid hidden dotted' } })).border, {
+		top: [0, 0], right: [0, 4], bottom: [0, 0], left: [0, 4],
+	})
+	assert.deepEqual(styleDict(node('masonview', { style: { borderWidth: 2, borderStyle: 'none', borderLeftStyle: 'dashed' } })).border, {
+		top: [0, 0], right: [0, 0], bottom: [0, 0], left: [0, 2],
+	})
+})

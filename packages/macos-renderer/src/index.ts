@@ -30,6 +30,7 @@ export function setLayoutProjectionScale(view: object, scale: ProjectionScale | 
 
 import { createStickyPlacements } from './sticky-placement.ts'
 import { normalizeHostStyleProps } from './inline-style.ts'
+import { borderStyleSides, hiddenBorderStyle, borderStrokeStyle } from './border-styles.ts'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 import { readOutlineHeadings } from './outline-headings.ts'
 import { readGridCells } from './grid-cells.ts'
@@ -4579,7 +4580,7 @@ const BORDER_EDGE_KEYS: Record<string, BorderSide | 'all'> = {
 	borderLeft: 'left',
 }
 
-// Borders paint solid regardless — consume the declarations so they don't warn.
+// Border style declarations repaint the resolved side geometry.
 const BORDER_STYLE_KEYS = new Set([
 	'borderStyle',
 	'borderTopStyle',
@@ -4758,6 +4759,13 @@ function roundedBoxCGPath(
 	return path
 }
 
+// Center a stroke inside the outer border box while retaining rounded corners.
+function borderStrokeCGPath(w: number, h: number, radii: Record<BorderCorner, number>, width: number) {
+	const inset = Math.min(width / 2, w / 2, h / 2)
+	const inner = Object.fromEntries(BORDER_CORNERS.map(corner => [corner, Math.max(0, radii[corner] - inset)])) as Record<BorderCorner, number>
+	return roundedBoxCGPath(w - inset * 2, h - inset * 2, scaleBorderRadii(inner, w - inset * 2, h - inset * 2), inset, inset)
+}
+
 // Trapezoid covering one side's border band between the outer rect and the
 // inner border edge — the four sides partition the ring at the miters.
 function borderSideCGPath(
@@ -4892,6 +4900,64 @@ function removeBorderLayers(node: ElementNode) {
 	node.borderLayer = null
 	node.borderSides = undefined
 	node.borderOutline = undefined
+	node.borderStroke = undefined
+	node.borderSideMasks = undefined
+}
+
+function removeBoxFrameToken(owner: any, token: any) {
+	try { owner.remove.call(owner.center, token) }
+	catch { try { console.warn('[macos-css] Box frame cleanup failed') } catch {} }
+}
+
+function retireBoxFrameOwner(node: ElementNode, owner: any) {
+	if (!owner?.active) return
+	owner.active = false
+	if (node.boxFrameOwner === owner) {
+		node.boxFrameOwner = null
+		node.boxFrameObserver = null
+	}
+	const token = owner.token
+	owner.token = null
+	if (token != null) removeBoxFrameToken(owner, token)
+}
+
+function clearBoxFrameObserver(node: ElementNode) { retireBoxFrameOwner(node, node.boxFrameOwner) }
+
+function observeBoxFrame(node: ElementNode, view: NSView) {
+	const previous = node.boxFrameOwner
+	const owner = { center: null as any, remove: null as any, token: null as any, active: true, ready: false, view }
+	const current = () => owner.active && node.boxFrameOwner === owner && node.view === view
+	node.boxFrameOwner = owner
+	node.boxFrameObserver = null
+	retireBoxFrameOwner(node, previous)
+	try {
+		if (!current()) { retireBoxFrameOwner(node, owner); return }
+		owner.center = NSNotificationCenter.defaultCenter
+		owner.remove = owner.center.removeObserver
+		const add = owner.center.addObserverForNameObjectQueueUsingBlock
+		if (typeof add !== 'function' || typeof owner.remove !== 'function') throw new Error('Box frame observation unavailable')
+		if (!current()) { retireBoxFrameOwner(node, owner); return }
+		view.postsFrameChangedNotifications = true
+		if (!current()) { retireBoxFrameOwner(node, owner); return }
+		const token = add.call(owner.center, NSViewFrameDidChangeNotification, view, null, () => {
+			if (!owner.active || !owner.ready || node.boxFrameOwner !== owner) return
+			if (node.view !== view) { retireBoxFrameOwner(node, owner); return }
+			try { syncBoxGeometry(node) }
+			catch { try { console.warn('[macos-css] Box geometry update failed') } catch {} }
+		})
+		if (!current()) {
+			if (token != null) removeBoxFrameToken(owner, token)
+			retireBoxFrameOwner(node, owner)
+			return
+		}
+		if (token == null) throw new Error('Box frame observation unavailable')
+		owner.token = token
+		node.boxFrameObserver = token
+		owner.ready = true
+	} catch {
+		retireBoxFrameOwner(node, owner)
+		try { console.warn('[macos-css] Box frame observation unavailable') } catch {}
+	}
 }
 
 // borderRadius styles and per-side border slots resolve on the node and sync
@@ -4905,9 +4971,11 @@ function syncBorderBox(node: ElementNode) {
 	}
 
 	const size = view.frame?.size ?? { width: 0, height: 0 }
-	const w = Math.max(0, Number(size.width) || 0)
-	const h = Math.max(0, Number(size.height) || 0)
+	const w = Number.isFinite(Number(size.width)) ? Math.max(0, Number(size.width)) : 0
+	const h = Number.isFinite(Number(size.height)) ? Math.max(0, Number(size.height)) : 0
 	const spec = node.borderSpec
+	const resolvedStyle = effectiveStyle(node)
+	const sideStyles = borderStyleSides(resolvedStyle)
 
 	const radii = correctProjectionRadii(view, resolveBorderRadii(spec?.radii, w, h), spec?.radii)
 	const maxRadius = Math.max(radii.topLeft, radii.topRight, radii.bottomRight, radii.bottomLeft)
@@ -4923,10 +4991,20 @@ function syncBorderBox(node: ElementNode) {
 		bottom: borderLength(spec?.widths?.bottom),
 		left: borderLength(spec?.widths?.left),
 	}
+	for (const side of BORDER_SIDES) {
+		if (hiddenBorderStyle(sideStyles[side])) widths[side] = 0
+		else if (!['solid', 'dashed', 'dotted'].includes(sideStyles[side])) {
+			const warned = (node.borderStyleWarnings ??= new Set())
+			if (!warned.has(sideStyles[side])) {
+				warned.add(sideStyles[side])
+				console.warn('[macos-css] Unsupported decorative border style; drawing solid')
+			}
+		}
+	}
 	const maxWidth = Math.max(widths.top, widths.right, widths.bottom, widths.left)
 	const uniformWidth =
 		widths.top === widths.right && widths.right === widths.bottom && widths.bottom === widths.left
-	const normColor = (c: any) => (c == null ? '' : String(c).trim().toLowerCase())
+	const normColor = (c: any) => (c == null ? '' : typeof c === 'string' ? c.trim().toLowerCase() : c)
 	const uniformColor = BORDER_SIDES.every(
 		(side) => normColor(spec?.colors?.[side]) === normColor(spec?.colors?.top),
 	)
@@ -4936,7 +5014,10 @@ function syncBorderBox(node: ElementNode) {
 	// clip loses to the shadow (same CALayer constraint UIKit has).
 	const outsetShadow = node.boxShadowSpec?.some((s: any) => !s.inset) === true
 	const perCorner = maxRadius > 0 && !uniformRadius && layers && !outsetShadow
-	const layered = maxWidth > 0 && !(uniformWidth && uniformColor) && layers
+	const patterned = BORDER_SIDES.some(side => borderStrokeStyle(sideStyles[side], widths[side]) != null)
+	const uniformPattern = patterned && uniformWidth && uniformColor && BORDER_SIDES.every(side => sideStyles[side] === sideStyles.top)
+	const layered = maxWidth > 0 && (!(uniformWidth && uniformColor) || patterned) && layers
+	if (patterned && !layers) console.warn('[macos-css] Patterned border layers unavailable; drawing solid')
 
 	if (maxRadius > 0 || maxWidth > 0) {
 		view.wantsLayer = true
@@ -4986,24 +5067,55 @@ function syncBorderBox(node: ElementNode) {
 		box.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
 		if (maxRadius > 0) {
 			const outline = (node.borderOutline ??= CAShapeLayer.alloc().init())
+			outline.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
 			outline.path = roundedBoxCGPath(w, h, scaled)
 			box.mask = outline
 		} else {
 			box.mask = null as any
 		}
 
-		for (const side of BORDER_SIDES) {
-			const shape = ((node.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
-			if (shape.superlayer !== box) {
-				box.addSublayer(shape)
-			}
-
-			if (widths[side] > 0) {
-				shape.hidden = false
-				shape.path = borderSideCGPath(side, w, h, widths)
-				shape.fillColor = borderNSColor(node, spec?.colors?.[side])?.CGColor ?? null
-			} else {
-				shape.hidden = true
+		const paintStroke = (shape: any, style: string, width: number, color: any) => {
+			const stroke = borderStrokeStyle(style, width)!
+			shape.fillColor = null
+			shape.strokeColor = color
+			shape.lineWidth = width
+			shape.lineDashPattern = stroke.pattern.map(value => NSNumber.numberWithDouble(value))
+			shape.lineDashPhase = 0
+			shape.lineCap = stroke.cap
+			shape.path = borderStrokeCGPath(w, h, scaled, width)
+		}
+		if (uniformPattern) {
+			const stroke = (node.borderStroke ??= CAShapeLayer.alloc().init())
+			if (stroke.superlayer !== box) box.addSublayer(stroke)
+			stroke.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
+			stroke.hidden = false
+			paintStroke(stroke, sideStyles.top, widths.top, borderNSColor(node, spec?.colors?.top)?.CGColor ?? null)
+			for (const shape of Object.values(node.borderSides ?? {}) as any[]) shape.hidden = true
+		} else {
+			if (node.borderStroke) node.borderStroke.hidden = true
+			for (const side of BORDER_SIDES) {
+				const shape = ((node.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
+				if (shape.superlayer !== box) box.addSublayer(shape)
+				shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
+				shape.hidden = widths[side] === 0
+				shape.mask = null
+				shape.strokeColor = null
+				shape.lineWidth = 0
+				shape.lineDashPattern = null
+				shape.fillColor = null
+				if (widths[side] === 0) continue
+				const color = borderNSColor(node, spec?.colors?.[side])?.CGColor ?? null
+				if (borderStrokeStyle(sideStyles[side], widths[side])) {
+					paintStroke(shape, sideStyles[side], widths[side], color)
+					const mask = ((node.borderSideMasks ??= {})[side] ??= CAShapeLayer.alloc().init())
+					mask.frame = shape.frame
+					mask.path = borderSideCGPath(side, w, h, widths)
+					mask.fillColor = borderNSColor(node, '#000')?.CGColor ?? null
+					shape.mask = mask
+				} else {
+					shape.path = borderSideCGPath(side, w, h, widths)
+					shape.fillColor = color
+				}
 			}
 		}
 	} else {
@@ -5032,19 +5144,10 @@ function syncBorderBox(node: ElementNode) {
 		layered ||
 		(node.boxShadowSpec?.length ?? 0) > 0 ||
 		hasPercentTranslate(node)
-	if (needsSync && !node.boxFrameObserver) {
-		view.postsFrameChangedNotifications = true
-		node.boxFrameObserver =
-			NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-				NSViewFrameDidChangeNotification,
-				view,
-				null,
-				() => syncBoxGeometry(node),
-			)
-	} else if (!needsSync && node.boxFrameObserver) {
-		NSNotificationCenter.defaultCenter.removeObserver(node.boxFrameObserver)
-		node.boxFrameObserver = null
-	}
+	if (node.boxFrameOwner && node.boxFrameOwner.view !== view) clearBoxFrameObserver(node)
+	if (node.view !== view || effectiveStyle(node) !== resolvedStyle) return
+	if (needsSync && !node.boxFrameOwner) observeBoxFrame(node, view)
+	else if (!needsSync) clearBoxFrameObserver(node)
 }
 
 // ---- box-shadow --------------------------------------------------------------
@@ -5490,6 +5593,8 @@ function resetStyle(node: ElementNode, name: string) {
 		clearBorderSlot(node, 'colors', BORDER_COLOR_KEYS[name])
 	} else if (BORDER_EDGE_KEYS[name] != null) {
 		clearBorderEdge(node, BORDER_EDGE_KEYS[name])
+	} else if (BORDER_STYLE_KEYS.has(name)) {
+		syncBorderBox(node)
 	} else if (name === 'boxShadow') {
 		node.boxShadowSpec = undefined
 		syncBoxGeometry(node)
@@ -5719,8 +5824,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			node.boxShadowSpec = parseBoxShadow(value)
 			syncBoxGeometry(node)
 		} else if (BORDER_STYLE_KEYS.has(name) && node.view) {
-			// Borders paint solid regardless — consume the style declaration.
-			continue
+			syncBorderBox(node)
 		} else if (MARGIN_SIDES[name] || name === 'margin') {
 			setMarginStyle(node, name, value)
 		} else if (
@@ -8537,13 +8641,12 @@ function destroy(node: ElementNode) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
 		node.outlineObserver = null
 	}
-	if (node.boxFrameObserver) {
-		NSNotificationCenter.defaultCenter.removeObserver(node.boxFrameObserver)
-		node.boxFrameObserver = null
-	}
+	if (node.boxFrameOwner) clearBoxFrameObserver(node)
 	node.borderLayer = null
 	node.borderSides = undefined
 	node.borderOutline = undefined
+	node.borderStroke = undefined
+	node.borderSideMasks = undefined
 	node.cornerMask = undefined
 	node.insetShadowLayer = null
 

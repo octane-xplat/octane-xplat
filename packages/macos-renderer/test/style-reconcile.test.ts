@@ -1,6 +1,7 @@
 import { setProjectionScale } from '../src/projection-paint.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { readFileSync } from 'node:fs'
 import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 import {
@@ -212,6 +213,7 @@ const sandbox = {
 	},
 	NSView: { alloc: () => ({ initWithFrame: () => view() }) },
 	CAShapeLayer: { alloc: () => ({ init: () => fakeCALayer() }) },
+	NSNumber: { numberWithDouble: (value: number) => value },
 	CALayer: { alloc: () => ({ init: () => fakeCALayer() }) },
 	CGPathCreateMutable: () => ({ ops: [] as any[] }),
 	CGPathMoveToPoint: (p: any, _t: any, x: number, y: number) => p.ops.push(['M', x, y]),
@@ -809,14 +811,16 @@ test('border shorthand feeds width and color slots', () => {
 	setStyle(item, { border: '1px solid #00ff00', borderRight: '2px dashed #0000ff' })
 	assert.equal(item.view.layer.borderWidth, 0, 'non-uniform sides go through layers')
 	const right = item.borderSides.right
-	assert.deepEqual(right.path.ops, [
+	assert.deepEqual(right.mask.path.ops, [
 		['M', 100, 50],
 		['L', 100, 0],
 		['L', 98, 1],
 		['L', 98, 49],
 		['Z'],
 	])
-	assert.deepEqual({ ...right.fillColor }, { r: 0, g: 0, b: 1, a: 1 })
+	assert.equal(right.fillColor, null)
+	assert.deepEqual({ ...right.strokeColor }, { r: 0, g: 0, b: 1, a: 1 })
+	assert.deepEqual([...right.lineDashPattern], [6, 6])
 
 	setStyle(item, { border: 0 })
 	assert.equal(item.view.layer.borderWidth, 0)
@@ -994,4 +998,78 @@ test('unowned native clipping survives unrelated style application', () => {
 	assert.equal(item.view.clipsToBounds, true)
 	setStyle(item, {})
 	assert.equal(item.view.clipsToBounds, true)
+})
+
+
+test('uniform dashed borders use one rounded stroke, resize and release back to the solid fast path', () => {
+	const item = node('masonview')
+	item.view.frame.size = { width: 120, height: 60 }
+	setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderRadius: 8, borderStyle: 'dashed' })
+	const shape = item.borderStroke, box = item.borderLayer, frame = item.boxFrameObserver
+	assert.equal(item.view.layer.borderWidth, 0)
+	assert.equal(item.borderSides, undefined)
+	assert.equal(shape.lineWidth, 2)
+	assert.deepEqual([...shape.lineDashPattern], [6, 6])
+	assert.equal(shape.lineCap, 'butt')
+	assert.deepEqual(shape.path.ops[0], ['M', 8, 59])
+	item.view.frame.size = { width: 240, height: 80 }
+	frame()
+	assert.deepEqual({ ...shape.frame.size }, { width: 240, height: 80 })
+	setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderRadius: 8 })
+	assert.equal(item.view.layer.borderWidth, 2)
+	assert.equal(item.borderLayer, null)
+	assert.equal(item.borderStroke, undefined)
+	assert.equal(item.boxFrameObserver, null)
+	assert.equal(box.superlayer, null)
+	frame()
+	assert.equal(item.borderLayer, null, 'retired callback cannot revive the pattern')
+	setStyle(item, {})
+})
+
+test('mixed dotted/solid edges keep separate colors, width-scaled caps and side clipping', () => {
+	const item = node('masonview')
+	item.view.frame.size = { width: 100, height: 60 }
+	setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderStyle: 'dotted solid', borderRightWidth: 4, borderRightColor: '#0000ff' })
+	const top = item.borderSides.top, right = item.borderSides.right
+	assert.deepEqual([...top.lineDashPattern], [0, 4])
+	assert.equal(top.lineCap, 'round')
+	assert.ok(top.mask)
+	assert.equal(right.mask, null)
+	assert.equal(right.strokeColor, null)
+	assert.deepEqual({ ...right.fillColor }, { r: 0, g: 0, b: 1, a: 1 })
+	setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderStyle: 'solid', borderRightWidth: 4 })
+	assert.equal(top.lineDashPattern, null)
+	assert.equal(top.strokeColor, null)
+	assert.equal(top.mask, null)
+	setStyle(item, {})
+})
+
+test('explicit none/hidden styles hide sides and restore width-only native borders on removal', () => {
+	const item = node('masonview')
+	item.view.frame.size = { width: 100, height: 60 }
+	setStyle(item, { borderWidth: 2, borderStyle: 'none' })
+	assert.equal(item.view.layer.borderWidth, 0)
+	setStyle(item, { borderWidth: 2, borderStyle: 'hidden solid' })
+	assert.equal(item.borderSides.top.hidden, true)
+	assert.equal(item.borderSides.right.hidden, false)
+	setStyle(item, { borderWidth: 2 })
+	assert.equal(item.view.layer.borderWidth, 2)
+	assert.equal(item.borderLayer, null)
+	setStyle(item, {})
+})
+
+test('the maintained FileInput dropzone CSS reaches native dash painting and clears with its class', () => {
+	const css = readFileSync(new URL('../../ui/src/theme/chrome.css', import.meta.url), 'utf8')
+	const rule = css.match(/\.vx-fileinput--dropzone\s*\{[^}]+\}/)![0]
+	registerStylesheet('sr-fileinput-dash', rule)
+	const item = node('masonview')
+	item.view.frame.size = { width: 200, height: 80 }
+	setStyle(item, { '--color-border': '#334455', '--radius-sm': '6px' })
+	setClass(item, 'vx-fileinput--dropzone')
+	assert.equal(item.borderStroke.lineWidth, 1)
+	assert.deepEqual([...item.borderStroke.lineDashPattern], [3, 3])
+	assert.equal(item.borderStroke.lineCap, 'butt')
+	setClass(item, '')
+	assert.equal(item.borderLayer, null)
+	assert.equal(item.boxFrameObserver, null)
 })

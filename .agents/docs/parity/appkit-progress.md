@@ -8393,3 +8393,85 @@ implementation/qualification work. Source/TSRX syntax and semantic/whitespace
 review only; no compiler, tests, typechecks, probe doctor/runner, native build,
 OS/AX/visual analysis, local native-property changes or packaging ran. The fixture
 and the full pull-to-refresh feature are UNRUN/unqualified. Goal remains active.
+
+## AppKit patterned border source path
+
+Demand is grounded in the maintained native FileInput leaf's vx-fileinput--dropzone
+class and the shared chrome.css dropzone/browse rules, which request dashed
+borders. The renderer previously consumed border-style without painting its
+pattern. Ordinary attachment affordances take priority over decorative charts or
+new service integrations. This is source demand/evidence, not a captured visual
+failure or native presentation result.
+
+A target-only pure resolver now handles border-style side shorthand, per-side
+longhands and border edge shorthand ordering without coercing unrelated style
+objects or inherited dictionary keys. The renderer paints dashed/dotted with
+native CAShapeLayer strokes and explicit NSNumber dash arrays. A uniform
+pattern uses one closed rounded path; mixed sides retain independent widths,
+colors and styles with the existing side/outer-round clipping paths. Paths and
+masks resize with the frame. None/hidden sides paint nothing and pass zero border
+width to Mason. Removing the style preserves the existing width-only native solid
+default. Obsolete pattern/mask/cache state releases back to the solid fast path.
+Existing radius/width/color normalization and implicit-width/shorthand limits
+outside this style repair are not a claim of full CSS box-model equivalence.
+
+The resize prerequisite now owns the box-frame observer record before acquisition
+or former cleanup. It captures the center/removal method, suppresses incomplete,
+retired/replaced callbacks, releases late handles and retains retry after setup
+or callback failure. Teardown retires before removal and contains cleanup errors
+with fixed diagnostics. Shared frame-enable flags stay on for other readers.
+Native view/style replacement revalidates before installing observation; no new
+polling loop is added. This also serves existing rounded borders, shadows and
+percent transforms; their separate semantic/presentation limits are unchanged.
+
+Twelve new source cases are authored, all UNRUN: three resolver/pattern models,
+four real CSS/paint state cases (including the maintained FileInput rule), four
+actual-helper observer ownership cases and one Mason edge-sizing case. The old
+mixed dashed-edge model now checks a clipped stroke rather than solid fill.
+AppKit test helpers supply the pure resolver to existing source slices and box
+pattern models fake NSNumber boxing; no actual native array/number bridge is
+exercised. The idle border-styles fixture and CSS sibling provide width/radius/
+style/mixed-side/resize controls, with mounting-only run metadata. No fixture,
+compiler or native behavior has run.
+
+Public styling guide, renderer README, Octane styling reference, target recipe
+and feature note document the same subset. Double/groove/ridge/inset/outset still
+warn once per node/style and approximate solid. Non-solid outlines retain their
+existing solid approximation and are not implemented by this border change.
+Corner joins, fractional widths, per-side dash distribution, scale/antialiasing,
+shadow/clipping and full CSS parity remain native qualification work. No public
+API/type export, dependency, package manifest, shared theme, other-target renderer
+or shared audit snapshot changed; no React Aria presence-level row changes.
+
+Primary native API references: [CAShapeLayer dash pattern](https://developer.apple.com/documentation/quartzcore/cashapelayer/linedashpattern),
+[line caps](https://developer.apple.com/documentation/quartzcore/cashapelayer/linecap)
+and [Quartz path stroking](https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_paths/dq_paths.html).
+Apple's markdown dash-property reference was read as text after the web reader
+rejected its markdown content type; its embedded image link was not fetched or
+analyzed. API documentation and the local macOS SDK declarations are source
+feasibility evidence, not a native bridge/drawing pass.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/border-styles.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit patterned border package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+check:docs/check:doc-examples remain absent in this isolated revision; no shared
+in-flight tooling is copied. Nine source/TSRX files, one CSS source and five
+scoped CSS examples syntax parsed; 17 local paths/anchors exist. Semantic and
+whitespace review complete the permitted source checks only. No tests, compiler
+transforms, typechecks, builds, probe doctor/runner, native/OS/AX/visual analysis
+or packaging ran. Native NSNumber/CAShapeLayer/path/notification behavior, real
+resizing/input/AX, corner/side geometry, memory, installed consumers and pixels
+remain unqualified. Native-resource authorization does not grant visual analysis;
+that boundary stays explicit without requesting it. The general non-solid
+border/outline checkbox and all evidence gates remain open; goal stays active.

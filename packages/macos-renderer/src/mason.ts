@@ -23,6 +23,7 @@ import {
 } from '@octane-xplat/platform/macos'
 
 import { scrollAxes } from './scroll-view'
+import { borderStyleSides, hiddenBorderStyle } from './border-styles.ts'
 
 // Element nodes carry open-ended fields; the bridge only needs the shape
 // below. Loose `any` matches the renderer's PropBag style.
@@ -274,8 +275,10 @@ function styleDict(node: NodeLike): Record<string, any> {
 	// Layer borders also consume space in the CSS box model. Per-side
 	// longhands win over the collapsed borderWidth slot.
 	const collapsedBorder = edgeBox(style.borderWidth)
+	const sideStyles = borderStyleSides(style)
 	const borderEdge = (key: string, side: 'top' | 'right' | 'bottom' | 'left') =>
-		lenDim(style[key]) ?? (collapsedBorder?.[side] != null ? [0, collapsedBorder[side]] : undefined)
+		hiddenBorderStyle(sideStyles[side]) ? [0, 0] :
+			lenDim(style[key]) ?? (collapsedBorder?.[side] != null ? [0, collapsedBorder[side]] : undefined)
 	const border = {
 		left: borderEdge('borderLeftWidth', 'left'),
 		right: borderEdge('borderRightWidth', 'right'),
