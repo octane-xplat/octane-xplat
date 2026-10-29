@@ -1866,3 +1866,39 @@ Broad package/dependent typechecks, packed-consumer tests, visual checks,
 IME/multiwindow and generic layer qualification remain deferred. Required future
 package checks include turbo run typecheck --filter=...@octane-xplat/cli and
 --filter=...@octane-xplat/patches; no merge or full support claim is made.
+
+## V8 packaged filesystem result
+
+Frozen follow-up adoption completed in36.8s with lifecycle scripts disabled,
+three cached packages reused and zero downloads. Installed filesystem SHA256
+is ef4e9080313fab6b0680c24a0380cc3ef06f0136c29cb96fc3cf674a2afa8c36.
+All81 installed-source contracts passed:11filesystem,31keyboard/pointer,
+29modal/focus and10scroll, four uncached tasks in7.315s. The same missing
+creator-bin warning remains unrelated to the exercised tasks. Logs:
+research/windows61/windy-fs-explicit-adoption.log and its four detail logs.
+
+The v8 sequential native graph passed38/38tasks (zero cached), exit0,
+8m52.859s. Standalone Windows tsrx-tsc emitted no diagnostics. The delegated
+native checker still reported the previously recorded12diagnostics in11other
+files; MSBuild retains duplicate FontManager and missing symbols-tool warnings.
+Logs: research/windows61/windy-native-v8.log, windy-v8-native-exit.json,
+windy-v8-native-task.log and windy-v8-typecheck.log. Verified package version
+1.0.0.8 and existing certificate signing/trust; no system trust was changed.
+
+Actual packaged boot mvswlb9v passed all seven real owned-temp filesystem
+checks, with Core.exists and asyncRead bothtrue for the command file. Existing
+Unicode contents were preserved, new files and nested folders existed before
+return, exclusive reopen proved creation-stream disposal, wrong-kind folder
+collision rejected without changing bytes, and marker-guarded cleanup passed.
+All six physical input and four modal groups passed too. This is bounded
+native prerequisite evidence, not full Core CRUD, public files facade, permission,
+other architecture/unpackaged or complete platform qualification.
+
+The run still exited1: after modal dismissal, clicking the scrolling-page
+button did not expose its viewport. Records:
+research/windows61/windy-v8-os-results.json and
+windy-v8-current-boot-console.log. The existing14-group gate therefore did not
+pass. A follow-up driver records the actual UIA element at the pointer location
+and retains a separate failing pointer-navigation group. Explicit command setup
+may then exercise scrolling independently; that setup is not OS-navigation
+proof and cannot erase a failed group. This requires no rebuild of v8.
