@@ -14,8 +14,12 @@ An LTR or RTL viewport with inline scrolling and caller-owned direction.
 - AC2: Direction changes remeasure start/end state without requiring a scroll event or replacing the handle. Inline-start/end padding maps to the appropriate physical edges.
 - AC3: Keep source/fake geometry separate from actual RTL layout, initial clip position, OS scrolling/elasticity, animation and packaging qualification.
 
+- AC4: ScrollableArea retains declared test identity, accessible visibility, name precedence, hint and portable value metadata on the current native viewport. Route native prop updates/removal to help/value descriptions without rewriting scroll content, native role/value or clip position. Keep unsupported arbitrary roles/state/live announcements and pull-to-refresh explicit; forwarding/source cases do not qualify native hierarchy/navigation or packaged consumers.
+
 ## Documentation
 
 - AC1: [Logical scroll guide](../../../docs/app/primitives.md#logical-scroll-offsets-on-appkit), [conversion helper](../../../packages/ui/src/scrollable-area-logical.macos.ts) and [authored cases](../../../packages/ui/src/scrollable-area-appkit.mobile.test.tsrx). Tests unrun.
 - AC2: The same guide/tests cover direction changes, stable handles and padding.
 - AC3: The guide and [target note](../parity/appkit-progress.md#logical-appkit-inline-scroll-offsets) record scope, exact deferred commands and remaining native gates.
+
+- AC4: [Viewport metadata guide](../../../docs/app/primitives.md#macos-scrolling-and-refresh), [native description mapping](../../../packages/macos-renderer/README.md#scroll-viewport-accessibility-descriptions), one added [UI source case](../../../packages/ui/src/scrollable-area-appkit.mobile.test.tsrx), one [real native prop-branch case](../../../packages/macos-renderer/test/scroll-accessibility.test.ts), [manual fixture](../../../examples/probes/scroll-metadata.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-scroll-viewport-metadata). All cases/fixture are unrun; native VoiceOver hierarchy/descendant navigation, updates/removal, identity and packing remain unqualified.

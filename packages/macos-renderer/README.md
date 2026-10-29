@@ -123,6 +123,23 @@ VoiceOver output, navigation and native reset behavior remain unqualified.
 	accessibilityValue="12 items" accessible={true} />
 ```
 
+## Scroll viewport accessibility descriptions
+
+The scrollview prop path applies accessible/name/hint/value metadata through
+the same native description mapping. Names retain the existing native label
+setter; hints use accessibilityHelp and value text uses
+accessibilityValueDescription. Empty strings remain explicit, unset/null clears
+descriptions to nil and removed accessible restores participation. Native
+AXScrollArea role/value, document ownership and clip position are preserved.
+Arbitrary roles, state/live announcements and pull-to-refresh are not implemented
+by this mapping. Actual VoiceOver hierarchy/descendant navigation, property
+bridging and updates/removal remain unqualified; the source case is unrun.
+
+```tsx
+<scrollview accessibilityLabel="Notes" accessibilityHint="Scroll to review."
+	accessibilityValue="24 notes" accessible={true} />
+```
+
 ## Readable heading accessibility
 
 A label with accessibilityRole="heading" maps to AXHeading. Its

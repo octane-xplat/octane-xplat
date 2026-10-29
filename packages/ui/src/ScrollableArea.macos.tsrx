@@ -61,8 +61,12 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 			),
 		)}
 		id={props.id}
+		testID={props.testID}
 		className={cx(props.className)}
+		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
 	>
 		<masonview
 			ref={contentProps.ref}

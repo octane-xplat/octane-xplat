@@ -5551,3 +5551,54 @@ removal behavior, heading navigation/announcements/hierarchy, rich text shaping,
 layout/truncation and clean root/purpose/conditioned packed consumers remain
 unqualified. Audit snapshots and evidence-gated checkboxes are unchanged;
 persistent goal active.
+
+## AppKit scroll viewport metadata
+
+Demand assumption: the bounded list/form/content viewports in Todo,
+ScrollBoxDemo, Markdown and ordinary settings screens need names, descriptions
+and test identity before advanced scroll effects. Current source showed the
+AppKit ScrollableArea leaf forwarding its name but dropping declared testID,
+accessible, hint and value. The native scrollview branch applied the name only.
+This was a source mismatch, not an observed VoiceOver or OS-scrolling failure.
+
+ScrollableArea now forwards those existing fields, retaining accessibilityLabel
+precedence over label. The renderer routes scrollview accessible/accessibility
+props to its existing native description mapping: hint becomes accessibilityHelp,
+portable value becomes accessibilityValueDescription and accessible controls
+element participation. Explicit empty strings remain; unset/null clears help
+and value descriptions, and removing accessible restores participation. This
+leaves the native scroll role/value, document and clip position intact. TestID
+uses the existing common native accessibilityIdentifier path. The native name
+setter already existed and is retained. No public types, dependency, manifest,
+native class or other target leaf changed. Arbitrary scroll roles/state/live
+announcements and pull-to-refresh remain separate gaps.
+
+Two cases are authored but UNRUN: UI current-host forwarding/name fallback and
+removal, and the actual renderer scroll prop branch plus actual accessibility
+function applying/resetting metadata while native role/value/content/geometry
+stay unchanged. The new manual fixture toggles descriptions/visibility and
+renames a bounded viewport; its runner records mounting only. Guide, skill,
+renderer README and logical-scroll recipe AC4 describe this subset separately
+from native qualification. This repairs an unreleased AppKit omission; no
+release note is added.
+
+Source/semantic review, five-file TS/TSRX syntax parsing and whitespace checks
+passed. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/scrollable-area-appkit.mobile.test.tsrx src/appkit-scroll-geometry.mobile.test.ts
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/scroll-metadata.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Actual native property/BOOL behavior, VoiceOver viewport
+and descendant hierarchy/navigation, metadata update/removal, native test
+identity, sustained scrolling/elasticity and clean packed consumers remain
+unqualified. Audit snapshots and all evidence gates are unchanged; goal active.

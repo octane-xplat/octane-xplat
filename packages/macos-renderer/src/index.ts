@@ -5399,7 +5399,7 @@ function resetStyle(node: ElementNode, name: string) {
 		syncCursor(node)
 	} else if (name === 'userSelect') {
 		node.styleUserSelect = undefined
-		if (['label', 'htmlview'].includes(node.type)) {
+		if (['label', 'htmlview', 'scrollview'].includes(node.type)) {
 			syncUserSelect(node)
 		}
 	} else if (OUTLINE_PROPS.has(name)) {
@@ -6514,8 +6514,8 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		} else if (name === 'accessibilityHint') {
 			node.view!.accessibilityHelp = (value == null ? null : String(value)) as string
 		} else if (name === 'accessibilityValue') {
-			// Keep the native static-text value tied to visible content; the
-			// authored portable value describes it without writing stringValue.
+			// Keep the native content/value intact; portable value text
+			// describes the host without changing its text or scroll position.
 			node.view!.accessibilityValueDescription = (value == null ? null : String(value)) as string
 		} else if (name === 'accessible') {
 			node.view!.setAccessibilityElement(value !== false)
@@ -7071,8 +7071,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
-				} else if (name === 'accessibilityLabel') {
-					node.view!.setAccessibilityLabel?.(String(value ?? ''))
+				} else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
 				} else if (name === 'scrollBarIndicatorVisible') {
 					configureScrollAxes(node)
 				} else if (

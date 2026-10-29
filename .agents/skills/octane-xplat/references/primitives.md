@@ -691,6 +691,25 @@ export function Notes() {
 ```
 
 
+AppKit ScrollableArea forwards declared testID, accessible, hint and value to
+the native viewport. accessibilityLabel wins over label. The renderer uses
+accessibilityHelp/value descriptions without changing scroll role, contents or
+position; empty strings remain explicit, removed descriptions clear to nil and
+removed accessible restores participation. Source cases and the manual fixture
+are unrun. VoiceOver hierarchy/descendant navigation, native setters/updates,
+identity and packing remain unqualified; arbitrary role/state/live behavior and
+pull-to-refresh are still separate gaps.
+
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+export function Notes({ count }: { count: number }) {
+	return <ScrollableArea label="Notes" height={200} testID="notes"
+		accessibilityHint="Scroll to review." accessibilityValue={`${count} notes`}>
+		<Text>Trip details</Text>
+	</ScrollableArea>
+}
+```
+
 ## AppKit multiline length limits
 
 `TextArea.maxLength` bounds committed user edits in UTF-16 units, preserving

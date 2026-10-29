@@ -1647,6 +1647,24 @@ export function WideDetails() {
 // Later: viewport.current?.scrollToOffset({ block: 0 }, { animated: true })
 ```
 
+AppKit ScrollableArea forwards its testID, accessible visibility, hint and value
+alongside the viewport name. accessibilityLabel takes precedence over label.
+Hints use native help text; portable value text describes the viewport without
+changing its native content or position. Dropping descriptions clears them;
+dropping accessible restores element participation. Native VoiceOver hierarchy,
+descendant navigation and metadata updates remain unqualified. Arbitrary roles,
+state/live announcements and pull-to-refresh remain separate gaps.
+
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+export function Notes({ count }: { count: number }) {
+	return <ScrollableArea height={200} label="Trip notes" testID="trip-notes"
+		accessibilityHint="Scroll to review." accessibilityValue={`${count} notes`}>
+		<Text>Trip details</Text>
+	</ScrollableArea>
+}
+```
+
 For a custom macOS viewport, `useScrollableArea` supplies refs and handlers
 through its two prop getters. Its per-axis `state` reports overflow and the
 start/end edges after layout, resizing, content changes, axis changes, and

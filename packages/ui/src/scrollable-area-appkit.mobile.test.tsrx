@@ -41,6 +41,19 @@ function fixture(Component: any, props: any, peer = geometry()) {
 }
 
 describe('AppKit ScrollableArea viewport contract (object driver)', () => {
+	it('forwards declared identity/name/description/visibility metadata and removes it on the same viewport', () => {
+		const fx = fixture(ScrollableArea, { id: 'notes', testID: 'notes-test', label: 'Fallback', accessible: false,
+			accessibilityLabel: 'Trip notes', accessibilityHint: 'Scroll to review.', accessibilityValue: '24 notes', children: 'Notes' })
+		try {
+			const host = fx.host
+			expect(host.props.testID).toBe('notes-test'); expect(host.props.accessible).toBe(false)
+			expect(host.props.accessibilityLabel).toBe('Trip notes'); expect(host.props.accessibilityHint).toBe('Scroll to review.'); expect(host.props.accessibilityValue).toBe('24 notes')
+			fx.render({ id: 'notes', label: 'Fallback', children: 'Notes' }); expect(fx.container.children[0]).toBe(host); expect(host.props.accessibilityLabel).toBe('Fallback')
+			for (const key of ['testID', 'accessible', 'accessibilityHint', 'accessibilityValue']) expect(host.props[key]).toBeUndefined()
+			fx.render({ id: 'notes', children: 'Notes' }); expect(host.props.accessibilityLabel).toBeUndefined()
+		} finally { fx.root.unmount() }
+	})
+
 	it('replaces object and callback refs without replacing the viewport, and clears them', () => {
 		const object = { current: null as any }
 		const callback = vi.fn()
