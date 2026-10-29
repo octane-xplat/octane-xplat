@@ -1,3 +1,4 @@
+import type { NSView } from '@octane-xplat/platform/macos'
 function flag(view: NSView, name: string, fallback = false): boolean {
 	const value = Reflect.get(view, name)
 	return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)

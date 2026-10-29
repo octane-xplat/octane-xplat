@@ -41,7 +41,7 @@ import { Tooltip } from '../overlays/Tooltip.tsrx'
 import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from '../../internal/rendering/busy-lane'
 
 const CREATABLE_ID_PREFIX = '__xds_create__'
-const nativeValue = (view: object | null | undefined, key: string) => {
+const nativeValue = (view: unknown, key: string) => {
 	const value = view && Reflect.get(view, key)
 	return typeof value === 'function' ? value.call(view) : value
 }

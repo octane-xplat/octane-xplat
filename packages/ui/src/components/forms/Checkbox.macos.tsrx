@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import { useCallback, useId, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import type { CheckboxProps } from '../../props'

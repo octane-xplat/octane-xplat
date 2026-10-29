@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type { NavigationMenuImplementation } from '../navigation/nav-link'
 import { mergeStyle } from '../../internal/layout/style-merge'
@@ -105,7 +106,6 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 		onLongPress={props.isDisabled ? undefined : () => openPointer()}
 		accessibilityRole="group"
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
-		accessibilityHint={props.accessibilityHint}
 		accessibilityState={{ disabled: props.isDisabled, expanded: open }}
 	>
 		{props.children}

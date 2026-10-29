@@ -1,6 +1,7 @@
 import { useCallback, useContext, useId, useLayoutEffect, useRef } from 'octane'
 import { AppKitMenuRowsContext } from './menu-rows.macos'
 import type { AppKitMenuRow } from './menu-rows.macos'
+import type { NSView } from '@octane-xplat/platform/macos'
 
 /** Current row intents are shared by pointer and menu keyboard activation. */
 export function useAppKitMenuRow(row: AppKitMenuRow) {
@@ -14,7 +15,7 @@ export function useAppKitMenuRow(row: AppKitMenuRow) {
 		if (own.current && !latest.current.disabled) latest.current.openSubmenu?.()
 	}, [])
 	const ref = useCallback((view: NSView | null) => {
-		if (own.current && registry?.views.get(key) === own.current) {
+		if (own.current && registry && registry.views.get(key) === own.current) {
 			registry.willRemove?.(key, own.current)
 			registry.views.delete(key); registry.rows.delete(key)
 		}

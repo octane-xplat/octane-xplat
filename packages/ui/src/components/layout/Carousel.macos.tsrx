@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSScrollView, NSView, NSWindow } from '@octane-xplat/platform/macos'
 import './Carousel.macos.css'
 import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { CarouselProps } from '../../props'

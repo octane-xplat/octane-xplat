@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type {
 	NavigationItemImplementation,

@@ -2,6 +2,7 @@ import { useCallback, useLayoutEffect, useRef } from 'octane'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import type { UseKeyboardOptions } from '../../internal/keyboard/use-keyboard.types'
 import { appKitHost } from '../../internal/platform/host-bridge'
+import type { NSView } from '@octane-xplat/platform/macos'
 
 /** Private composed-control attachment to an existing concrete host, without a wrapper. */
 export function useAppKitViewKeys(options: UseKeyboardOptions) {

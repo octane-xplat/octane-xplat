@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSScrollView } from '@octane-xplat/platform/macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useImperativeHandle, useMemo, useRef } from 'octane'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from '../../props'

@@ -1,5 +1,6 @@
 import type { KeyboardEvent } from '../../internal/keyboard/use-keyboard.types'
 import { appKitHost } from '../../internal/platform/host-bridge'
+import type { NSView } from '@octane-xplat/platform/macos'
 
 interface Options {
 	root(): NSView | null

@@ -1,4 +1,5 @@
 import { createContext } from 'octane'
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 export interface AppKitMenuReturnOwner {
 	isOpen(): boolean

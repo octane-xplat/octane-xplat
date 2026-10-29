@@ -19,8 +19,8 @@ import { cx } from '@octane-xplat/lib'
 
 // The public handle uses a platform-neutral native type. Inspect the AppKit
 // control boundary before passing it to the native request owner.
-function appKitInput(view: object | null | undefined): view is NSView {
-	return !!view && 'window' in view && typeof Reflect.get(view, 'currentEditor') === 'function'
+function appKitInput(view: unknown): view is NSView {
+	return typeof view === 'object' && view !== null && 'window' in view && typeof Reflect.get(view, 'currentEditor') === 'function'
 }
 
 export function PowerSearchView(inProps: PowerSearchViewProps) @{

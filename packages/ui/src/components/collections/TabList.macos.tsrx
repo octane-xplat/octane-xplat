@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSScrollView, NSView, NSWindow } from '@octane-xplat/platform/macos'
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type { NavigationItemImplementation } from '../navigation/nav-link'
 import { useNavigationItem } from '../navigation/use-navigation-item.shared.tsrx'

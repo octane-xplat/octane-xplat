@@ -2,6 +2,7 @@ import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import type { GridFocusOptions } from './use-grid-focus'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { createAppKitGridNavigation } from './grid-navigation.macos'
+import type { NSView } from '@octane-xplat/platform/macos'
 
 // Imperative query boundaries, not rendered state. Every mounted hook owns a lease.
 const roots = new Map<NSView, number>()

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSTextField, NSView, NSWindow } from '@octane-xplat/platform/macos'
 import './SelectView.macos.css'
 import { appKitTextChange } from '../../internal/platform/appkit-events.macos'
 import { useTranslator } from '../../internal/platform/internationalization'

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import './PresetTimeList.macos.css'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
@@ -19,7 +20,7 @@ interface RowProps {
 	selected: boolean
 	highlighted: boolean
 	blocked: boolean
-	register(time: string, view: NSView): () => void
+	register(time: ISOTimeString, view: NSView): () => void
 	choose(time: ISOTimeString): void
 }
 function TimeRow(props: RowProps) @{

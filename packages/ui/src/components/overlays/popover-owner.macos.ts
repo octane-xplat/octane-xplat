@@ -6,7 +6,7 @@ import { positionPopover, type PopoverRect } from './popover-position'
 export interface AppKitPopoverTarget { token: object; view: NSView }
 interface Layer { readonly closed: boolean; show(): void; update(props: object, options?: object): void; close(): void }
 interface State {
-	open: boolean; anchor: object | null | undefined; placement?: PopoverPlacement
+	open: boolean; anchor: unknown; placement?: PopoverPlacement
 	alignment?: PopoverAlignment; offset?: number | string; lightDismiss: boolean
 }
 interface Scope {
@@ -72,7 +72,7 @@ export function createAppKitPopoverOwner(options: {
 			canceled = true; try { retire() } finally { stop() }; options.dismiss(); return
 		}
 		const anchor = state.anchor
-		if (!anchor || !('window' in anchor) || typeof Reflect.get(anchor, 'convertRectToView') !== 'function') { retire(); return }
+		if (!anchor || typeof anchor !== 'object' || !('window' in anchor) || typeof Reflect.get(anchor, 'convertRectToView') !== 'function') { retire(); return }
 		const view = anchor as NSView
 		if (!view.window || !visible(view)) { retire(); return }
 		if (current && current.anchor !== view) retire()
@@ -108,7 +108,7 @@ export function createAppKitPopoverOwner(options: {
 				canceled = true; try { retire(scope) } finally { stop() }; options.dismiss(); return
 			}
 			if (!valid(scope)) { if (current === scope) retire(scope); else handle?.close(); return }
-			if (!scope.target || typeof handle.show !== 'function' || typeof handle.update !== 'function' || typeof handle.close !== 'function') {
+			if (!handle || !scope.target || typeof handle.show !== 'function' || typeof handle.update !== 'function' || typeof handle.close !== 'function') {
 				throw new TypeError('AppKit Popover requires a source outlet and staged window-layer handle')
 			}
 			if (scope.committed) { handle.update({}); if (valid(scope)) { handle.show(); scope.shown = true } }

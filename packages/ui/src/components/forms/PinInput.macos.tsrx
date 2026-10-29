@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import { useEffect, useId, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from '../../props'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'

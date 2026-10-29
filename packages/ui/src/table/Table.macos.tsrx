@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSScrollView } from '@octane-xplat/platform/macos'
 import './Table.macos.css'
 import { useCallback, useRef, useState } from 'octane'
 import { mergeStyle } from '../internal/layout/style-merge'
@@ -166,8 +167,8 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 				ref={ref}
 				className={cx(tableClasses, plan.table.classes)}
 				style={mergeStyle(
-					mergeStyle({ display: 'flex', flexDirection: 'column', width: Math.max(viewportWidth, plan.tableMinWidth) || '100%', flexShrink: 0 }, mergeStyle(plan.table.htmlProps?.style ?? {}, style)),
-					plan.tableMinWidth > 0 ? { minWidth: plan.tableMinWidth } : {},
+					{ display: 'flex', flexDirection: 'column', width: Math.max(viewportWidth, plan.tableMinWidth) || '100%', flexShrink: 0 },
+					[plan.table.htmlProps?.style, style, plan.tableMinWidth > 0 ? { minWidth: plan.tableMinWidth } : {}],
 				)}
 			>
 				{plan.columns.length > 0 && (

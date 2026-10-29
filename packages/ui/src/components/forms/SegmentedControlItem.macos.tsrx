@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import { useContext, useEffect, useRef } from 'octane'
 import type { SegmentedControlItemProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'

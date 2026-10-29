@@ -2,6 +2,7 @@ import type { CarouselHandle } from '../../props'
 import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 import { scrollableAreaOffset } from './scrollable-area-offset.macos'
 import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
+import type { NSScrollView, NSView } from '@octane-xplat/platform/macos'
 
 const EPS = 1
 function hidden(view: NSView) {
@@ -88,7 +89,7 @@ export function createAppKitCarouselScroll(options: {
 		},
 		initialize() {
 			const geometry = read()
-			if (!geometry || !options.count() || (initialized?.view === geometry.view && initialized.direction === geometry.direction)) return
+			if (!geometry || !options.count() || (initialized && initialized.view === geometry.view && initialized.direction === geometry.direction)) { return }
 			// Preserve a pre-existing/programmatic or unbracketed user offset.
 			if (convertAppKitInlineOffset(geometry.position, geometry.maximum, geometry.direction) > EPS) {
 				initialized = { view: geometry.view, direction: geometry.direction }; return

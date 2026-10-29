@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSScrollView } from '@octane-xplat/platform/macos'
 import { useCallback, useLayoutEffect, useRef, useState } from 'octane'
 import type {
 	HostElement,

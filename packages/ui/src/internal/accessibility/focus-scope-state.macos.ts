@@ -1,5 +1,6 @@
 import { appKitHost } from '../platform/host-bridge'
 import type { FocusScopeCapabilities } from '../../props'
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 /** @internal Live behavior flags read by the native scope owner. */
 export interface AppKitFocusScopeOptions {

@@ -1,4 +1,5 @@
 import { createContext } from 'octane'
+import type { NSView } from '@octane-xplat/platform/macos'
 
 export interface AppKitMenuRow {
 	label: string

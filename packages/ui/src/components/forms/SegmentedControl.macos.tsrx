@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import { useEffect, useRef, useState } from 'octane'
 import type { SegmentedControlProps } from '../../props'
 import { cx } from '@octane-xplat/lib'

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import './SelectableCard.macos.css'
 import type { SelectableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'

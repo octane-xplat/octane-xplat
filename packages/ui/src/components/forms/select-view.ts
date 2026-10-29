@@ -23,6 +23,7 @@ import type { SelectOptionGroup } from './select-options'
  *  mount this same boundary for the resolved visual-state matrix without
  *  a public export. */
 export interface SelectViewProps extends ResolvedFieldControlProps {
+	testID?: string
 	className?: any
 	style?: any
 	options: SelectOption[]

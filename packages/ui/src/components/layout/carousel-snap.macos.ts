@@ -1,3 +1,4 @@
+import type { NSScrollView, NSView, NSWindow } from '@octane-xplat/platform/macos'
 export interface CarouselSnapClock { set(callback: () => void, delay: number): unknown; clear(handle: unknown): void }
 const clock: CarouselSnapClock = {
 	set: (callback, delay) => setTimeout(callback, delay),

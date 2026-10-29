@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import './column-resize-handle.macos.css'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { useKeyboard } from '../internal/keyboard/use-keyboard.macos'

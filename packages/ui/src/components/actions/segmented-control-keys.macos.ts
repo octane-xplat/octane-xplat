@@ -1,3 +1,4 @@
+import type { NSView } from '@octane-xplat/platform/macos'
 /** A registered self-drawn segment. Read live state when a key arrives. */
 export interface AppKitSegment {
 	view: NSView

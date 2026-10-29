@@ -1,6 +1,7 @@
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import type { Key } from '../../data/list-data'
 import { appKitHost } from '../../internal/platform/host-bridge'
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 export interface AppKitGridRow {
 	key: Key

@@ -1,4 +1,5 @@
 import { appKitHost } from '../platform/host-bridge'
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 const flag = (view: any, name: string, fallback = false): boolean => {
 	const value = view?.[name]
 	return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)

@@ -1,4 +1,5 @@
 import { scrollableAreaOffset } from '../layout/scrollable-area-offset.macos'
+import type { NSScrollView, NSView } from '@octane-xplat/platform/macos'
 
 /** Reveal a selected tab horizontally without moving the enclosing page. */
 export function revealAppKitTab(scroll: NSScrollView | null, tab: NSView | undefined): boolean {

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import { useCallback, useRef } from 'octane'
 import type { Renderable } from '../../props'
 import { appKitHost } from '../../internal/platform/host-bridge'

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 import { useEffect, useMemo, useRef } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { refList } from '../../internal/accessibility/ref-list'

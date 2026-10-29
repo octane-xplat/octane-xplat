@@ -29,7 +29,7 @@ export function createAppKitTypeaheadKeys<T>(options: {
 		try {
 			options.notify(event) // Consumer cancellation precedes built-in navigation.
 			if (!owns() || event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey ||
-				read(window.firstResponder, 'hasMarkedText') || read(read(input, 'currentEditor'), 'hasMarkedText')) return
+				read(window?.firstResponder, 'hasMarkedText') || read(read(input, 'currentEditor'), 'hasMarkedText')) { return }
 			const state = options.state()
 			if (state.blocked || (event.shiftKey && event.key !== 'Tab')) return
 			const consume = () => { event.preventDefault(); event.stopPropagation() }

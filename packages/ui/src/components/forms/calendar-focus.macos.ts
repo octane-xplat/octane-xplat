@@ -6,6 +6,7 @@ import { plainDateFromISO, plainDateToISO, type PlainDate } from './datetime'
 import { calendarKeyTarget } from './date-keyboard'
 import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { appKitHost } from '../../internal/platform/host-bridge'
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 export interface AppKitCalendarState {
 	months: readonly CalendarMonthGrid[]
@@ -24,7 +25,7 @@ export function createAppKitCalendarFocus(options: {
 	pick(iso: ISODateString): void
 	cancelRange(): void
 }, bridge = appKitHost, native: () => Record<string, any> = () => globalThis) {
-	const views = new Map<string, NSView>()
+	const views = new Map<ISODateString, NSView>()
 	let root: NSView | null = null, owner: NSWindow | null = null, focused: string | undefined
 	let pending: { iso: string; window: NSWindow } | null = null, queued = false, stopObserver: (() => void) | undefined
 	const cells = () => options.current().months.flatMap((month) => month.weeks.flat()).filter((day) => !day.isOutsideMonth && !options.current().isDisabled(day.date))
@@ -86,7 +87,7 @@ export function createAppKitCalendarFocus(options: {
 
 	return {
 		bind, update, activate,
-		register(iso: string, view: NSView): () => void {
+		register(iso: ISODateString, view: NSView): () => void {
 			views.set(iso, view); update()
 			return () => { if (views.get(iso) === view) views.delete(iso); update() }
 		},

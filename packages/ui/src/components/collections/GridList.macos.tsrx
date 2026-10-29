@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'

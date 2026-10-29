@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView } from '@octane-xplat/platform/macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useImperativeHandle, useEffect, useLayoutEffect, useCallback, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from '../../props'
@@ -41,7 +42,7 @@ interface AppKitCalendarDayProps {
 	className: string
 	disabled: boolean
 	selected: boolean
-	register(iso: string, view: NSView): () => void
+	register(iso: ISODateString, view: NSView): () => void
 	pick(iso: ISODateString): void
 }
 function AppKitCalendarDay(props: AppKitCalendarDayProps) @{

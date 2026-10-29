@@ -12,7 +12,7 @@ export interface TypeaheadLayerTarget { token: object; view: NSView }
 export interface TypeaheadLayerSize { width: number; maxHeight: number }
 interface State {
 	open: boolean
-	anchor: object | null | undefined
+	anchor: unknown
 	input: NSView | null
 	width?: number
 	placement?: PopoverPlacement
@@ -31,8 +31,8 @@ interface Session {
 	revealed: boolean
 	waiters: Array<() => void>
 }
-function nativeAnchor(view: object | null | undefined): view is NSView {
-	return !!view && 'window' in view && typeof Reflect.get(view, 'convertRectToView') === 'function'
+function nativeAnchor(view: unknown): view is NSView {
+	return typeof view === 'object' && view !== null && 'window' in view && typeof Reflect.get(view, 'convertRectToView') === 'function'
 }
 function sizeFor(bounds: PopoverRect, viewport: PopoverRect, state: State): TypeaheadLayerSize {
 	const explicit = state.width

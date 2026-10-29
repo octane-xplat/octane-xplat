@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 import './MenuSurface.macos.css'
 import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'octane'
 import type { MenuSurfaceProps } from '../../props'

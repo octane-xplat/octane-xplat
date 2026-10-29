@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'octane'
 import type { UseLandmarkOptions, LandmarkProps } from './use-landmark.tsrx'
 import { createAppKitLandmarks } from './landmark-state.macos'
 import { appKitFocusBoundary } from '../../components/overlays/FocusScope.macos.tsrx'
+import type { NSView } from '@octane-xplat/platform/macos'
 export type { UseLandmarkOptions, LandmarkProps } from './use-landmark.tsrx'
 const landmarks = createAppKitLandmarks(appKitFocusBoundary)
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot

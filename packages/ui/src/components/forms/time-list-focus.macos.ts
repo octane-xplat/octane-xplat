@@ -3,6 +3,7 @@ import type { ISOTimeString } from '../../props'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { timeOptionIndex } from './date-keyboard'
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 export interface AppKitTimeOption { time: ISOTimeString; label: string }
 /** Native option focus only. Parent date/time validation and accepted closure stay outside. */
@@ -14,7 +15,7 @@ export function createAppKitTimeListFocus(options: {
 	tab(backward: boolean): boolean
 	highlight(time: ISOTimeString): void
 }, bridge = appKitHost, native: () => Record<string, any> = () => globalThis) {
-	const views = new Map<string, NSView>()
+	const views = new Map<ISOTimeString, NSView>()
 	let root: NSView | null = null, owner: NSWindow | null = null, pending = true, queued = false, refreshing = false
 	let lastFocused: NSView | null = null
 	let highlighted: string | undefined, stopObserver: (() => void) | undefined
@@ -25,9 +26,9 @@ export function createAppKitTimeListFocus(options: {
 	const navigation = createAppKitChoiceFocus({ root: () => root, views, selected: seed,
 		orientation: () => 'both', direction: () => 'ltr', reveal: (view) => { view.scrollRectToVisible(view.bounds) },
 	}, bridge)
-	const keys = () => navigation.orderedKeys().filter((key) => options.rows().some((row) => row.time === key))
-	const publish = (time: string) => { if (root && highlighted !== time) { highlighted = time; options.highlight(time) } }
-	const focus = (time: string) => { if (keys().includes(time) && navigation.focus(time)) { lastFocused = views.get(time) ?? null; publish(time); return true } return false }
+	const keys = () => navigation.orderedKeys().filter((key): key is ISOTimeString => options.rows().some((row) => row.time === key))
+	const publish = (time: ISOTimeString) => { if (root && highlighted !== time) { highlighted = time; options.highlight(time) } }
+	const focus = (time: ISOTimeString) => { if (keys().includes(time) && navigation.focus(time)) { lastFocused = views.get(time) ?? null; publish(time); return true } return false }
 	const refresh = () => {
 		const window = root?.window
 		const flag = (name: string) => { const value = root ? Reflect.get(root, name) : false; return Boolean(typeof value === 'function' ? value.call(root) : value) }
@@ -74,7 +75,7 @@ export function createAppKitTimeListFocus(options: {
 	}
 	return {
 		bind, update, activate, dispose: () => bind(null),
-		register(time: string, view: NSView): () => void {
+		register(time: ISOTimeString, view: NSView): () => void {
 			views.set(time, view); update()
 			return () => {
 				if (views.get(time) === view) views.delete(time)

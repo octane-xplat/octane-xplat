@@ -1,4 +1,5 @@
 import type { createAppKitChoiceFocus } from '../forms/choice-focus.macos'
+import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 interface OwnedRow { key: string; view: NSView; index: number; window: NSWindow }
 function hidden(view: NSView): boolean {
@@ -43,7 +44,7 @@ export function createAppKitMenuFocus(options: {
 		removed(key: string, view: NSView) {
 			const root = options.root(), window = root?.window, responder = window?.firstResponder
 			if (resetting || !root || !window || hidden(root) || !options.supported() || options.views.get(key) !== view) return
-			if (responder === view || (last?.view === view && last.window === window && fallback(responder, root, window))) {
+			if (responder === view || (last && last.view === view && last.window === window && fallback(responder, root, window))) {
 				const index = order.findIndex((row) => row.view === view)
 				repair = { key, view, window, index: index < 0 ? last?.index ?? 0 : index }
 			}

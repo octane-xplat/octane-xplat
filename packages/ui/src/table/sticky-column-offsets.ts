@@ -12,7 +12,7 @@ import { DEFAULT_MIN_COLUMN_WIDTH } from './column-utils'
  * pixel columns use their value; proportional columns use their declared
  * minWidth (or the default); unknown widths use the default.
  */
-export function getStickyColumnWidth(col: TableColumn<Record<string, unknown>>): number {
+export function getStickyColumnWidth<T extends Record<string, unknown>>(col: TableColumn<T>): number {
 	const w = col.width
 	if (!w) {
 		return DEFAULT_MIN_COLUMN_WIDTH
@@ -28,8 +28,8 @@ export function getStickyColumnWidth(col: TableColumn<Record<string, unknown>>):
  * block is the contiguous run from column 0 through the last key in `startKeys`
  * (inclusive of any synthetic columns before it). `null` if none / no context.
  */
-export function computeStickyStartOffsets(
-	columns: ReadonlyArray<TableColumn<Record<string, unknown>>> | undefined,
+export function computeStickyStartOffsets<T extends Record<string, unknown>>(
+	columns: ReadonlyArray<TableColumn<T>> | undefined,
 	startKeys: string[],
 ): Map<string, number> | null {
 	if (!columns || columns.length === 0 || startKeys.length === 0) {
@@ -58,8 +58,8 @@ export function computeStickyStartOffsets(
  * from the first key in `endKeys` through the last column, offsets accumulating
  * from the end (last column = 0). `null` if none.
  */
-export function computeStickyEndOffsets(
-	columns: ReadonlyArray<TableColumn<Record<string, unknown>>> | undefined,
+export function computeStickyEndOffsets<T extends Record<string, unknown>>(
+	columns: ReadonlyArray<TableColumn<T>> | undefined,
 	endKeys: string[],
 ): Map<string, number> | null {
 	if (!columns || columns.length === 0 || endKeys.length === 0) {
@@ -91,8 +91,8 @@ export type StickySide = { edge: 'start' | 'end'; offset: number }
  * the full column list. A key (mis)configured on both edges resolves to start.
  * Returns `null` for columns that should not be pinned.
  */
-export function resolveStickySide(
-	columns: ReadonlyArray<TableColumn<Record<string, unknown>>> | undefined,
+export function resolveStickySide<T extends Record<string, unknown>>(
+	columns: ReadonlyArray<TableColumn<T>> | undefined,
 	columnKey: string,
 	startKeys: string[],
 	endKeys: string[],
