@@ -330,6 +330,7 @@ export {
 } from './components/forms/power-search-config'
 
 export { WebView } from './components/media/WebView.macos.tsrx'
+export { postToHost } from './components/media/webview-post'
 export { Overlay } from './components/overlays/surfaces.macos.tsrx'
 export { Popover } from './components/overlays/Popover.macos.tsrx'
 export { Dialog, DialogHeader } from './components/overlays/Dialog.macos.tsrx'

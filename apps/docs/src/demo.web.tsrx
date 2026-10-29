@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
-import { View, Text, Link } from '@octane-xplat/ui'
+import { View, Text, Link, postToHost } from '@octane-xplat/ui'
 import { GoalCounter } from '@xplat/demos/GoalCounter.tsrx'
 import { PackingList } from '@xplat/demos/PackingList.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
@@ -18,14 +18,11 @@ createRoot(document.getElementById('root')!).render(
 	</View>,
 )
 
-// The parent treats a document load without this rendered-app handshake as failure.
+// The host treats a document load without this rendered-app handshake as failure.
 requestAnimationFrame(() =>
-	parent.postMessage(
-		{
-			type: 'xplat-demo-ready',
-			demo: packing ? 'packing-list' : 'goal-counter',
-			token: new URLSearchParams(location.search).get('token'),
-		},
-		location.origin,
-	),
+	postToHost({
+		type: 'xplat-demo-ready',
+		demo: packing ? 'packing-list' : 'goal-counter',
+		token: new URLSearchParams(location.search).get('token'),
+	}),
 )

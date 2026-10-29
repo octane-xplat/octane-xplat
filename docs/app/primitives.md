@@ -1290,9 +1290,25 @@ under system safe areas. On web it is a sandboxed `<iframe>`
 (default `allow-scripts allow-same-origin allow-forms allow-modals`, tunable
 via the `sandbox` prop); on native it is the OS web view. The document itself
 renders in each platform's engine, so parity applies to the frame's chrome,
-not the page's pixels. There is deliberately no script-injection or
-`postMessage` bridge — the three engines expose different page-side APIs, so
-use the `ios:`/`android:`/`web:` escape bags for that.
+not the page's pixels.
+
+The embedded document can signal the host through `onMessage`: it calls
+`postToHost` (exported from `@octane-xplat/ui`) with a JSON-serializable
+value, and the host's `onMessage` receives `{ data, url?, origin? }` —
+ordered, at-least-once, with no reply. This is a bounded page→host event
+channel, not a general script bridge; delivery is instant over `postMessage`
+on web and poll-drained (~200 ms) on native, and origin/payload validation
+stays with the app. Richer seams (host→page evaluation, replies) still go
+through the `native` handle or the `ios:`/`android:`/`web:` escape bags.
+
+```tsx
+import { WebView } from '@octane-xplat/ui'
+
+;<WebView
+	src="https://example.com/widget"
+	onMessage={(e) => console.log('document says', e.data)}
+/>
+```
 
 ```tsx
 import { useRef } from 'octane'

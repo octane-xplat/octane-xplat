@@ -6,6 +6,30 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child'
 import { android } from '@octane-xplat/platform/android'
+import { WEBVIEW_DRAIN_SCRIPT, parseMessageBatch } from './webview-post'
+
+/** `postToHost` queues `window.__xplatWebViewOutbox`; the leaf drains it on
+ *  a poll because the NS WebView leaves no JS-reachable push channel —
+ *  a JS-defined WKScriptMessageHandler crashes the iOS host at dispatch
+ *  (see .agents/docs/parity/hosted-engine-editor.md). */
+const MESSAGE_POLL_MS = 200
+
+function evaluateScript(view: any, script: string, onValue: (value: any) => void) {
+	if (isIOS) {
+		view?.ios?.evaluateJavaScriptCompletionHandler?.(script, (value: any, error: any) => {
+			if (!error) {
+				onValue(value)
+			}
+		})
+	} else if (isAndroid) {
+		view?.android?.evaluateJavascript?.(
+			script,
+			new android.webkit.ValueCallback({
+				onReceiveValue: (value: any) => onValue(value),
+			}),
+		)
+	}
+}
 
 function reportContentLayout(view: any, props: WebViewProps) {
 	let width = Number(view?.getActualSize?.()?.width ?? 0)
@@ -65,6 +89,50 @@ function applyNativeScrollEnabled(view: any, enabled: boolean | undefined) {
 export function WebView(props: WebViewProps) @{
 	const el = useRef<any>(null)
 	const loaded = useRef(false)
+	const currentProps = useRef(props)
+	currentProps.current = props
+	// Bumped on each main-frame navigation so in-flight drains from a dead
+	// document never emit into the new session.
+	const generation = useRef(0)
+	const lastUrl = useRef<string | undefined>(undefined)
+
+	const drainOutbox = () => {
+		const view = el.current
+		const atGeneration = generation.current
+		if (!view || !loaded.current) {
+			return
+		}
+
+		evaluateScript(view, WEBVIEW_DRAIN_SCRIPT, (value) => {
+			if (generation.current !== atGeneration || value == null) {
+				return
+			}
+
+			// Android's ValueCallback carries the result JSON-encoded;
+			// iOS hands the evaluated value through directly.
+			const batch = parseMessageBatch(value, isAndroid)
+			if (!batch?.length) {
+				return
+			}
+
+			const latest = currentProps.current
+			const url = latest.html === undefined ? lastUrl.current : undefined
+			for (const data of batch) {
+				latest.onMessage?.({ data, url })
+			}
+		})
+	}
+
+	const wantsMessages = props.onMessage !== undefined
+	useEffect(() => {
+		if (!wantsMessages) {
+			return
+		}
+
+		const timer = setInterval(drainOutbox, MESSAGE_POLL_MS)
+		return () => clearInterval(timer)
+	}, [wantsMessages])
+
 	useEffect(() => {
 		const v = el.current
 		if (!v) {
@@ -103,14 +171,21 @@ export function WebView(props: WebViewProps) @{
 		className={cx('vx-webview', props.className)}
 		src={props.html !== undefined ? props.html : props.src}
 		onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)}
+		onLoadStarted={() => {
+			generation.current++
+			loaded.current = false
+			lastUrl.current = undefined
+		}}
 		onLoadFinished={(e: any) => {
 			applyNativeScrollEnabled(e.object ?? el.current, props.scrollEnabled)
 			if (e.error) {
 				props.onError?.({ url: e.url, error: e.error })
 			} else {
 				loaded.current = true
+				lastUrl.current = e.url
 				reportContentLayout(e.object ?? el.current, props)
 				props.onLoad?.({ url: e.url })
+				drainOutbox()
 			}
 		}}
 		accessible={props.accessible}

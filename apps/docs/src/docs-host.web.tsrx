@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'octane'
 import { openUrl } from '@octane-xplat/platform'
-import type { ScrollableAreaHandle } from '@octane-xplat/ui'
+import type { ScrollableAreaHandle, WebViewMessageEvent } from '@octane-xplat/ui'
 import { animateConstellation } from './constellation'
 
 // The docs currently have a browser host. These integrations have no shared
@@ -157,24 +157,21 @@ export function useDemoPreview(demo: string) {
 			return
 		}
 
-		const ready = (event: MessageEvent) => {
-			if (
-				event.origin === location.origin &&
-				event.data?.token === token.current &&
-				event.data?.type === 'xplat-demo-ready' &&
-				event.data.demo === demo
-			) {
-				setState('ready')
-			}
-		}
-
-		window.addEventListener('message', ready)
 		const timeout = setTimeout(() => setState('error'), 15000)
-		return () => {
-			clearTimeout(timeout)
-			window.removeEventListener('message', ready)
-		}
+		return () => clearTimeout(timeout)
 	}, [state, attempt])
+
+	const ready = (event: WebViewMessageEvent) => {
+		const data = event.data as { demo?: string; token?: string; type?: string } | null
+		if (
+			(event.origin === undefined || event.origin === location.origin) &&
+			data?.token === token.current &&
+			data?.type === 'xplat-demo-ready' &&
+			data.demo === demo
+		) {
+			setState('ready')
+		}
+	}
 
 	const start = () => {
 		token.current = crypto.randomUUID()
@@ -199,6 +196,7 @@ export function useDemoPreview(demo: string) {
 		frameProps: {
 			sandbox:
 				'allow-scripts allow-same-origin allow-forms allow-modals allow-top-navigation-by-user-activation',
+			onMessage: ready,
 		},
 	}
 }

@@ -3,6 +3,7 @@ import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewHandle, WebViewProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
+import { isWebViewMessage } from './webview-post'
 
 /** Matches what NS WebView content can already do — scripts, forms, modal
  *  dialogs, its own origin — while top navigation, popups, and downloads
@@ -91,6 +92,32 @@ export function WebView(props: WebViewProps) @{
 	}, [props.matchContents, props.onLayoutContent])
 
 	useImperativeHandle(props.ref, () => handle(frame.current), [])
+
+	useEffect(() => {
+		const el = frame.current
+		const onMessage = props.onMessage
+		if (!el || !onMessage) {
+			return
+		}
+
+		const receive = (event: MessageEvent) => {
+			// `source` binds the sender to this frame's content window —
+			// only that frame can produce it. `origin` still surfaces so the
+			// app can keep its own validation (e.g. a session token).
+			if (event.source !== el.contentWindow || !isWebViewMessage(event.data)) {
+				return
+			}
+
+			onMessage({
+				data: event.data.data,
+				url: props.html === undefined ? el.src || undefined : undefined,
+				origin: event.origin,
+			})
+		}
+
+		window.addEventListener('message', receive)
+		return () => window.removeEventListener('message', receive)
+	}, [props.onMessage, props.html])
 
 	<iframe
 		ref={(el: any) => {

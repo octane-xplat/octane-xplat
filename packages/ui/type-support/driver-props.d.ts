@@ -12,9 +12,9 @@ import type { HostHandler, NativeEvent } from '@octane-xplat/jsx/intrinsics'
  *
  * AppKit-only (consumed by macos-renderer, not by the NativeScript drivers):
  * scrollview `horizontal` (index.ts ~4882/5164 — NS uses `orientation`);
- * webview `scrollEnabled`/`matchContents`/`onLayoutContent`
- * (macos-renderer/src/webview.ts ~179/214/271); textfield/textview `value` and
- * `placeholder` (index.ts ~4925–5039 — NS uses `text`/`hint`).
+ * webview `scrollEnabled`/`matchContents`/`onLayoutContent`/`onMessage`
+ * (macos-renderer/src/webview.ts ~179/214/236/271); textfield/textview `value`
+ * and `placeholder` (index.ts ~4925–5039 — NS uses `text`/`hint`).
  */
 declare module '@octane-xplat/jsx/intrinsics' {
 	// ---- NativeScript-only ----
@@ -62,6 +62,7 @@ declare module '@octane-xplat/jsx/intrinsics' {
 		html?: string
 		onLoad?: HostHandler<NativeEvent<TElement> & { url?: string; error?: string }>
 		onError?: HostHandler<NativeEvent<TElement> & { url?: string; error?: string }>
+		onMessage?: HostHandler<NativeEvent<TElement> & { data?: unknown; url?: string }>
 	}
 
 	interface TextFieldProps<TElement> {

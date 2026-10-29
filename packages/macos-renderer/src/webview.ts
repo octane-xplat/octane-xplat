@@ -27,8 +27,11 @@ interface WebViewState {
 	delegate: any
 	inline?: boolean
 	source?: any
+	messageTimer?: any
 	emit(name: string, payload: any): void
 	measure(): void
+	drainMessages(): void
+	scheduleMessageDrain(): void
 }
 
 const states = new WeakMap<object, WebViewState>()
@@ -54,6 +57,8 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 
 			state.loaded = true
 			state.measure()
+			state.drainMessages()
+			state.scheduleMessageDrain()
 			state.emit('onLoad', { url: state.inline ? undefined : view.URL?.absoluteString })
 		},
 
@@ -138,6 +143,18 @@ const measureScript = `(() => {
 	return JSON.stringify({width: Math.max(body.scrollWidth, root.scrollWidth), height: Math.max(body.scrollHeight, root.scrollHeight)});
 })()`
 
+/** Page→host messages queue on `window.__xplatWebViewOutbox` (posted by the
+ *  shared `postToHost` helper); the drain keeps the pull semantics the NS
+ *  leaves use rather than a WKScriptMessageHandler subclass — JS-defined
+ *  handler classes are the dispatch-crash shape recorded in
+ *  .agents/docs/parity/hosted-engine-editor.md. */
+const drainScript = `(() => {
+	const o = globalThis.__xplatWebViewOutbox;
+	return o && o.length ? JSON.stringify(o.splice(0, o.length)) : null;
+})()`
+
+const MESSAGE_POLL_MS = 200
+
 export function makeWebView(): WKWebView {
 	const view = WKWebView.alloc().initWithFrameConfiguration(
 		{ origin: { x: 0, y: 0 }, size: { width: 320, height: 150 } },
@@ -218,6 +235,57 @@ export function updateWebView(
 					created.emit('onLayoutContent', size)
 				})
 			},
+			drainMessages() {
+				const generation = created.generation
+				view.evaluateJavaScriptCompletionHandler(drainScript, (result: any, error: any) => {
+					if (
+						states.get(view) !== created ||
+						generation !== created.generation ||
+						error ||
+						!result
+					) {
+						return
+					}
+
+					let batch: any
+					try {
+						batch = JSON.parse(String(result))
+					} catch {
+						return
+					}
+
+					if (!Array.isArray(batch)) {
+						return
+					}
+
+					const url = created.inline ? undefined : view.URL?.absoluteString
+					for (const data of batch) {
+						created.emit('onMessage', { data, url })
+					}
+				})
+			},
+			scheduleMessageDrain() {
+				if (created.messageTimer !== undefined) {
+					clearTimeout(created.messageTimer)
+					created.messageTimer = undefined
+				}
+
+				if (!created.props.onMessage || !created.loaded) {
+					return
+				}
+
+				const tick = () => {
+					created.messageTimer = undefined
+					if (states.get(view) !== created || !created.props.onMessage || !created.loaded) {
+						return
+					}
+
+					created.drainMessages()
+					created.messageTimer = setTimeout(tick, MESSAGE_POLL_MS)
+				}
+
+				created.messageTimer = setTimeout(tick, MESSAGE_POLL_MS)
+			},
 		}
 
 		states.set(view, created) // WKWebView holds its delegate weakly.
@@ -272,9 +340,18 @@ export function updateWebView(
 	) {
 		state.measure()
 	}
+
+	if ('onMessage' in changed) {
+		state.scheduleMessageDrain()
+	}
 }
 
 export function disposeWebView(view: WKWebView) {
+	const state = states.get(view)
+	if (state?.messageTimer !== undefined) {
+		clearTimeout(state.messageTimer)
+	}
+
 	states.delete(view)
 	view.navigationDelegate = null as any
 	view.stopLoading()

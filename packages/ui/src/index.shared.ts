@@ -661,7 +661,14 @@ export {
  *  time and store beside the image. */
 export { thumbHashUri } from './components/media/thumbhash'
 export { WebView } from './components/media/WebView'
-export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
+export { postToHost } from './components/media/webview-post'
+export type {
+	WebViewContentSize,
+	WebViewHandle,
+	WebViewLoadEvent,
+	WebViewMessageEvent,
+	WebViewProps,
+} from './props'
 export { Overlay } from './components/overlays/Overlay'
 export { Popover } from './components/overlays/Popover'
 /** Anchored-layer primitive — anchor-relative (context) or fixed x/y

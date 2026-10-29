@@ -40,6 +40,7 @@ export function WebView(props: WebViewProps) @{
 		onLoad={props.onLoad}
 		onError={props.onError}
 		onLayoutContent={props.onLayoutContent}
+		onMessage={props.onMessage}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole}

@@ -18,7 +18,7 @@ host implementations, with no native fallback.
 
 | Integration | Current boundary and remaining work |
 | --- | --- |
-| Demo readiness and retry | `WebView` owns embedding, loading errors, and the frame. Its contract explicitly has no shared script-message bridge. The browser host validates the preview's origin, token, demo name, and ready message through `postMessage`; a native host needs its own supported bridge. |
+| Demo readiness and retry | `WebView` owns embedding, loading errors, and the frame. Readiness travels over the shared `onMessage`/`postToHost` channel; the host validates the token, demo name, and ready type (origin check where the platform reports one). Native delivery is the poll-drained path (~200 ms) — same contract, no app change needed. |
 | Section navigation and focus return | `ScrollableAreaHandle` supports logical offsets, but no named-descendant seek. `Pressable` has a host ref, but no portable focus handle. The host still resolves heading IDs and focuses the preview launch control. |
 | Table edge fades | `useScrollableArea` exposes overflow state when owning the viewport, but `ScrollableArea` does not publish that state to a caller. The host observes the rendered viewport to preserve the existing fades. |
 | Global search shortcuts | `useKeyboard` attaches to focusable platform hosts; shared `View`/`Pressable` do not forward those hardware-key props. The docs still need a window-level shortcut listener and palette focus/reset integration. |

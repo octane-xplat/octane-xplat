@@ -1827,6 +1827,21 @@ export interface WebViewContentSize {
 	height: number
 }
 
+/** Payload for `WebView`'s `onMessage` — `data` is the JSON-serializable
+ *  value the embedded document passed to `postToHost`; `url`/`origin`
+ *  report the sender where the platform exposes them.
+ */
+export interface WebViewMessageEvent {
+	/** The value the embedded document posted — a JSON-serializable value. */
+	data: unknown
+	/** The document URL where the platform reports one — absent for `html`
+	 *  documents. */
+	url?: string
+	/** Sender origin — the browser `message` event's `event.origin`
+	 *  (`'null'` for opaque origins); unavailable on native transports. */
+	origin?: string
+}
+
 interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
 	className?: ClassValue
 	style?: StyleProp
@@ -1844,6 +1859,14 @@ interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
 	 *  web maps the iframe `error` event, which does not fire reliably
 	 *  cross-browser — treat as best-effort there. */
 	onError?: (e: WebViewLoadEvent) => void
+	/** Embedded document → host events. The page posts with `postToHost`
+	 *  from `@octane-xplat/ui`; payloads are JSON-serializable values —
+	 *  ordered, at-least-once, no reply. Intended for trusted/app-embedded
+	 *  content: `origin`/`data` validation stays with the app. Native
+	 *  delivery is poll-drained (~200 ms) since WKScriptMessageHandler
+	 *  cannot be registered from JS on the NS WKWebView; browser frames
+	 *  deliver through `postMessage`. */
+	onMessage?: (e: WebViewMessageEvent) => void
 	/** Default true. `false` freezes inner scrolling: web writes
 	 *  `scrolling="no"`, iOS clears the WKWebView scrollView's
 	 *  `scrollEnabled`, AppKit uses hidden document overflow,
@@ -1870,9 +1893,9 @@ interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
  *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
  *  android.webkit.WebView). The *frame* is normalized; the document's
  *  pixels belong to each platform's engine, same as TextInput's IME.
- *  No JS bridge: iframe `postMessage`, WKScriptMessageHandler, and
- *  `addJavascriptInterface` have different page-side contracts, so a
- *  shared one would be fake parity — reach it through the escape bags.
+ *  Page→host messaging is the bounded `onMessage`/`postToHost` contract —
+ *  one page-side function over per-engine transports — not a general JS
+ *  bridge; richer seams still go through the escape bags.
  *
  *  Exactly one source is required: `src` or `html`.
  *
