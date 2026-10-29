@@ -326,6 +326,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		timeReturn.reset(); setOpen(null)
 	})
 
+	const timeLabelText =
+		props.timeLabel ?? `${props.fieldLabel ?? props.label ?? 'Date and time'} time`
+
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
