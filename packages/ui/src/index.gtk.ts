@@ -123,3 +123,6 @@ export type {
 	FormLayoutDirection,
 	FormOptionality,
 } from './props'
+
+export { InputGroup, InputGroupText } from './InputGroup'
+export type { InputGroupProps, InputGroupTextProps, InputGroupSize } from './props'

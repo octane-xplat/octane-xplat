@@ -140,27 +140,33 @@ painting/theme/layout requires separate target qualification. This small leaf re
 renderer style application/removal and adds no native selector or public API.
 ## GTK partial qualification
 
-The full target list above is unchanged. The experimental GTK subset now
-exports TextInput from the UI root; see [GTK text entry](../../../docs/platform/linux-gtk.md#text-entry).
+The full target list above is unchanged. The GTK root exports TextInput,
+TextArea, SearchInput, Field, FormLayout, InputGroup and InputGroupText;
+see [GTK text entry](../../../docs/platform/linux-gtk.md#text-entry).
 The maintained [text-entry fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
 checks controlled writes/rejection, native cursor/selection, leading content,
 focus/blur, submission and disposal with actual X11 input. The
 [field fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx)
 checks width, automatic labels/status, inherited sizing and keyboard clear/help.
 
-The maintained [multiline renderer fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-view.gtk.tsrx)
-also exercises actual X11 selection replacement, newline/action Return and Tab
-on the low-level textview intrinsic. It does not qualify the public TextArea.
-The [direct-source sizing fixture](../../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
-checks rows, growth caps, authored bounds, direct/ancestor CSS font updates and
-cleanup. It now also exercises actual X11 keyboard/wheel scrolling, read-only
-and disabled states, nested app scrolling, and native host/recreation behavior.
-These cases do not complete the composition, field or software-keyboard criteria.
+The public-root [multiline fixture](../../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
+checks rows/growth caps, authored bounds, CSS typography and cleanup, including
+actual X11 editing and internal wheel input. The [search fixture](../../../packages/linux-gtk-renderer/test/ui-search-input.test.mjs)
+checks native editor retention, controlled reconciliation, shared field state
+and actual keyboard/click clear/submit behavior. These do not qualify composition.
 
-These checks contribute to AC1, Return behavior within AC2, and the TextInput
-portions of AC3/AC4. They do not establish the complete recipe:
-composition/marked text (AC2), the public Field and group contracts (AC3/AC6), OSK/overlay
-avoidance and keyboard insets (AC4/AC7), NumberInput (AC8), modal isolation and
-Presence exit (AC5), and assistive-technology clients remain unqualified.
-GTK coverage and exact-criterion verification are recorded separately in Silo's
-gtk_recipe_checks; widget fixtures do not qualify packaged consumers.
+The [form fixture](../../../packages/linux-gtk-renderer/test/ui-form-layout.test.mjs)
+checks native directions/counts/optionality and editor/text/focus retention.
+The public-root [group fixture](../../../packages/linux-gtk-renderer/test/ui-input-group.test.mjs)
+checks shared labels/help/status, prefix content, member size overrides,
+disabled/read-only/busy metadata, widths, native border ownership and lifecycle.
+Its role-transition checks retain child editors and focus. These are native
+geometry/property checks, not OS input or AT-client output.
+
+These checks contribute to AC1, Return behavior within AC2, Field portions of
+AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
+recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance
+and keyboard insets (AC4/AC7), NumberInput (AC8), modal isolation and Presence
+exit (AC5) remain unqualified. GTK coverage and exact-criterion verification
+are recorded separately in Silo's gtk_recipe_checks; widget fixtures do not
+qualify packaged consumers.

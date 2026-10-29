@@ -11,9 +11,11 @@ follow [Build and test an accessible screen](accessibility.md).
 For the experimental GTK target, use the platform examples for
 [TextInput](../platform/linux-gtk.md#text-entry),
 [TextArea](../platform/linux-gtk.md#multiline-fields) and
-[SearchInput](../platform/linux-gtk.md#search-fields). These controls have
-separate Linux qualification; the form, keyboard and overlay pieces below
-are not a complete GTK workflow.
+[SearchInput](../platform/linux-gtk.md#search-fields),
+[Field/FormLayout](../platform/linux-gtk.md#arrange-labeled-fields), and
+[InputGroup](../platform/linux-gtk.md#join-inputs-with-a-prefix-or-suffix).
+These have separate Linux qualification; the keyboard and overlay pieces
+below are not a complete GTK workflow.
 
 ## Control a field
 

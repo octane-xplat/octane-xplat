@@ -1744,6 +1744,7 @@ const INPUT_PURPOSES: Record<string, number> = {
 }
 
 const A11Y_ROLES: Record<string, number> = {
+	group: Gtk.AccessibleRole.GROUP,
 	button: Gtk.AccessibleRole.BUTTON,
 	link: Gtk.AccessibleRole.LINK,
 	image: Gtk.AccessibleRole.IMG,

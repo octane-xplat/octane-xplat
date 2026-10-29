@@ -1693,3 +1693,89 @@ partial for composition, full Field/AT/OSK workflows, overlays, Presence,
 InputGroup, insets and NumberInput; narrow form tests do not complete those
 journeys. No new upstream limitation was found: legacy placement and unstable
 ownership were local UI issues.
+
+## GTK joined input groups
+
+The baseline native InputGroup omitted width, read-only, loading, status
+presentation and disabled-reason forwarding to its FormField. On real Linux,
+an authored80% of400px stayed400px, both anonymous editors inherited the same
+generated controlId, and the row retained generic role15. The shared native
+wrapper now resolves field defaults, forwards those props and gives the row
+its label/help and disabled/busy/invalid metadata. Native group sensitivity
+also covers suffix actions; read-only blocks editor changes while loading
+remains metadata. Group labels do not assign one controlId to every member
+or act as single-control focus labels.
+
+The first fixed wrapper produced320px and no duplicate IDs, but group role
+was still ignored. The GTK role map lacked group, despite the role adapter
+preserving its spelling. Adding Gtk.AccessibleRole.GROUP uses the existing
+role recreation/ref-rebinding path. Tests cover group-to-button-to-group
+and default-role removal, retaining the child editor, local text and exact
+native focus delegate without adding a group tab stop.
+
+InputGroupText's string-only test also missed text delivered through JSX's
+children collection. The native addon had no label. It now uses the existing
+TextSlot helper to normalize primitive runs while retaining supplied nodes.
+The fixture covers a dollar prefix, replacement with a supplied USD label,
+addon ref ownership and editor/focus retention.
+
+A broader geometry check then found two150px editors and a37px suffix
+extending to345px in a320px row; the group had no border. Shared theme rules
+now let grouped input shells and editors shrink with a zero minimum
+width, give the group one border, remove member borders/backgrounds/radii,
+and inset prefix/suffix text. Native bounds and GTK style properties qualify
+containment and border ownership without images. These structural rules also
+apply to existing web/native InputGroup examples; no dependency or GTK UI
+fork is needed. They do not establish pixel parity or full theme coverage.
+
+The maintained fixture uses the GTK root for InputGroup/InputGroupText and
+their shared types. It covers name/help/status, hidden visual labels, member
+size override, read-only/required/busy/invalid state and resets, width changes,
+disabled member/action sensitivity, content updates, refs and disposal.
+Native signal/buffer writes and metadata are distinguished from OS input:
+this group fixture does not drive an OS keyboard, IME or AT client.
+
+Logs: guest /tmp/gtk-input-group-before.log, -first.log, -second.log, -third.log,
+-geometry-before.log and -geometry-fixed.log. The first27 checks passed after
+TextSlot; the expanded38 checks add width/border and role-transition proof.
+Final public-root/dependent/package results are recorded separately below.
+v0.17.1 source confirms the native wrapper already omitted the inherited
+field props. Phone behavior remains source/adapter evidence rather than
+device execution. Existing NativeScript role mapping is preserved; the GTK
+group-role omission, primitive normalization and sizing gaps are local
+issues, not new upstream limitations. Text-entry recipe criteria stay intact.
+
+
+The first full run passes44 of45 renderer tests and fails only the newly
+added200px group-containment case. At320px the shells shrink but the nested
+entries remain150px wide and overlap. Shared normalization defaults every
+flex child to shrink0, so both grouped shells and their editable children
+must opt into shrinking. GTK itself does not impose a150px minimum here:
+[GTK4.14.5 GtkText measurement](https://github.com/GNOME/gtk/blob/4.14.5/gtk/gtktext.c#L2259-L2302)
+uses a zero default minimum and a separate natural width. This is a local
+theme correction, not an upstream GTK width limit. The focused rerun passes
+45 checks including non-overlap at320px and200px. Explicit flex-basis is
+unnecessary and is omitted, respecting NativeScript's existing CSS registry
+limit. GTK focus warnings during disable/enable are distinct from Gjs/GTK
+critical failures; focus retention and role recreation remain tested.
+
+Final portable-style verification passes45 public-root group checks with no
+skips: /tmp/gtk-input-group-final-source.log. Together with the44 unchanged
+Linux cases that passed in /tmp/gtk-input-group-full.log, this resolves the
+sole failure from that full run; the full45-case command was not rerun after
+the CSS-only correction. The58 affected/dependent typecheck tasks passed
+before that CSS correction. Final native regression passes58 Node checks
+plus37 selected native Vitest tests; web forms/size regression passes44.
+Six UI package tasks validate exports/declarations; all five new exports
+resolve to the exact same GTK/native declarations. The root now has118
+exports:44 values and74 types. Recipes/barrels,30 release notes and focused
+format/whitespace checks pass. Logs on andromeda:
+ /tmp/gtk-input-group-types.log, /tmp/gtk-input-group-native-final.log,
+ /tmp/gtk-input-group-web-final.log, /tmp/gtk-input-group-pack.log and
+ /tmp/gtk-input-group-declarations.log. The first web attempt was canceled to
+avoid concurrent declaration writers; -web-final.log is authoritative.
+Maintained ComponentsDemo/ComponentsDemo InputGroup compositions retain the
+same API and pick up the shared theme correction. The text-entry recipe's
+GTK discussion now links public forms and groups; remaining composition,
+AT-client, OSK/overlay/inset, modal/Presence and NumberInput gaps are unchanged.
+No new upstream limitation or UI dependency is introduced.

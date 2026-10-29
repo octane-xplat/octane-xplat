@@ -176,7 +176,12 @@ Field and FormLayout also use the shared native leaves. Keep their hosts and
 FieldProvider position stable across direction changes; use Mason implicit
 grid columns rather than NativeScript eachChildView/columns/col. Set the form
 gap explicitly. Horizontal labels use per-field rows, without a shared label
-column. InputGroup and the remaining form family still need qualification.
+column. InputGroup/InputGroupText are curated too: keep one width/state owner,
+suppress a shared control ID for group labels, and normalize primitive addon
+children through TextSlot. Grouped shells shrink within the row and the group
+owns their shared border. GTK group roles remain nonfocusable; renderer role
+recreation must retain child editors and their exact focus delegate. Remaining
+form families still need qualification.
 
 For GTK descriptor events, call the universal root's dispatchEvent directly.
 It opens or inherits the proper scope; wrapping each listener's priority can

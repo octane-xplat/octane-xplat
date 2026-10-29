@@ -5024,7 +5024,32 @@
 	.vx-listitem {
 		align-items: center;
 	}
+	.vx-inputgroup {
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+		border-width: 1px;
+		border-style: solid;
+		border-color: var(--color-border-strong);
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface);
+	}
+	.vx-input-shell--ingroup {
+		flex-grow: 1;
+		flex-shrink: 1;
+		min-width: 0;
+		border-width: 0;
+		border-radius: 0;
+		background-color: transparent;
+	}
+	.vx-input--ingroup {
+		flex-shrink: 1;
+		border-width: 0;
+		border-radius: 0;
+		background-color: transparent;
+	}
 	.vx-inputgroup-text {
+		padding: 0 8px;
 		justify-content: center;
 		align-items: center;
 	}

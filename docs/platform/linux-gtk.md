@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, and `FormLayout`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, and `InputGroupText`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -839,3 +839,30 @@ Real Linux tests cover native geometry, changing child counts, direction
 changes, required/optional defaults and disposal. Existing field tests cover
 labels, widths, descriptions, status tooltips and state. These checks do not
 qualify screen-reader output, IME, phone runtime or pixel parity.
+
+## Join inputs with a prefix or suffix
+
+InputGroup owns one label, description, status and width for its members.
+Use InputGroupText for a prefix such as a currency symbol. Read-only and
+loading state reach the editors; disabling the group also disables actions
+inside it. Individual editors can override the group's size.
+
+```tsx
+import { InputGroup, InputGroupText, TextInput } from '@octane-xplat/ui'
+
+export function Price(props: { locked: boolean; saving: boolean; disabled: boolean }) {
+  return (
+    <InputGroup label="Amount" description="Before tax" width="100%"
+      size="lg" isRequired isDisabled={props.disabled}
+      isReadOnly={props.locked} isLoading={props.saving}>
+      <InputGroupText>$</InputGroupText>
+      <TextInput defaultValue="12" size="sm" />
+    </InputGroup>
+  )
+}
+```
+
+The maintained Linux fixture checks native group metadata, member state,
+widths, prefixes, updates and cleanup. GTK's group role uses the existing
+role adapter; iOS and Android retain NativeScript's narrower role mapping.
+This evidence does not establish screen-reader output or pixel parity.

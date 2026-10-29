@@ -43,7 +43,7 @@ export function FormField(props: FormFieldProps): unknown @{
 
 	const fieldContext = {
 		...props,
-		controlId,
+		controlId: props.isGroupLabel ? undefined : controlId,
 		labelId,
 		descriptionId,
 		statusId,
@@ -57,7 +57,7 @@ export function FormField(props: FormFieldProps): unknown @{
 			>
 				<label id={labelId} className="vx-field-label" text={labelText}
 					onTap={() => {
-						if (!props.isDisabled) fieldRef.current?.getViewById?.(controlId)?.focus?.()
+						if (!props.isDisabled && !props.isGroupLabel) fieldRef.current?.getViewById?.(controlId)?.focus?.()
 					}} />
 				{props.labelTooltip != null ? (
 					<Tooltip
