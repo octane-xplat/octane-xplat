@@ -7078,15 +7078,16 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'accessibilityLabel') {
 					accessibilityLabels.set(node.actionId!, String(value ?? ''))
 					node.view!.setAccessibilityLabel?.(String(value ?? ''))
-				} else if (name === 'enabled') {
-					node.view!.enabled = value !== false
+				} else if (name === 'isEnabled' || name === 'enabled') {
+					node.view!.enabled = node.props.isEnabled !== false && node.props.enabled !== false
 				} else if (name === 'onPress' || name === 'onTap') {
 					actionHandlers.set(
 						node.actionId!,
 						typeof value === 'function'
 							? () => {
+									if (!node.container.root || node.props.isEnabled === false || node.props.enabled === false) return
 									try {
-										node.container.root!.eventScope('discrete', value)
+										node.container.root.eventScope('discrete', value)
 									} catch (error) {
 										console.error('[macos-event] button handler failed', error)
 									}

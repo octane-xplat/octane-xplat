@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'octane'
 import { appleAuth } from './apple.macos'
 import { attachAppleButton } from './apple-button.macos'
+import { createSignInButtonAction } from './sign-in-button-action.macos'
 import type { AppleSignInButtonProps } from './types'
 
 /** Official ASAuthorizationAppleIDButton, embedded in the leaf's host view. */
@@ -10,25 +11,23 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
 	const handle = useRef<ReturnType<typeof attachAppleButton> | null>(null)
 	const current = useRef(props)
 	current.current = props
+	const action = useRef(createSignInButtonAction(() => current.current, () => appleAuth.signIn()))
+	useEffect(() => action.current.mount(), [])
 
 	useEffect(() => {
 		if (!anchor.current) {
 			return
 		}
 
-		handle.current = attachAppleButton(anchor.current, current.current, () => {
-			const latest = current.current
-			if (latest.disabled) {
-				return
-			}
-
-			latest.onPress?.()
-			void appleAuth.signIn().then((result) => current.current.onResult?.(result))
+		let attached = true
+		const attachment = attachAppleButton(anchor.current, current.current, () => {
+			if (attached) action.current.press()
 		})
-
+		handle.current = attachment
 		return () => {
-			handle.current?.detach()
-			handle.current = null
+			attached = false
+			attachment.detach()
+			if (handle.current === attachment) handle.current = null
 		}
 	}, [props.type, props.theme])
 

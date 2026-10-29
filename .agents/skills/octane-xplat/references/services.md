@@ -660,3 +660,30 @@ No timeout fabricates a result. Eleven Apple model cases and an idle official-bu
 fixture are authored, unrun; native registration/wrapper/thread/UI/callback/window/
 HMR/credential-state/nonce, signing/provisioning/entitlement, VoiceOver and consumer
 qualification remain open in #62. See [Apple presenter ownership](../../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window).
+
+
+## AppKit provider-button actions
+
+Native Apple/Google buttons own one pending action per mounted instance. Disabled
+and repeat pending presses are ignored; onPress remains a notification (return
+values do not gate). Recheck currently committed owner/disabled props after the
+hook. Queued state may commit after provider work has begun. Deliver to the latest
+mounted onResult even if props become disabled, and drop results after unmount or
+owner replacement. This does not cancel already-started provider work. Apple
+style/type attachment changes keep the component's pending result ownership.
+
+```tsx
+import { GoogleSignInButton } from '@octane-xplat/auth'
+export function Entry() {
+	return <GoogleSignInButton onResult={(result) => console.log(result.status)} />
+}
+```
+
+Google now uses the existing native NSButton intrinsic (text/isEnabled/onPress),
+not an official Google SDK button. Renderer isEnabled updates native state and
+protects disabled/retired handler dispatch. Theme/variant remain unimplemented;
+no pixel or OS input/AX parity is claimed. Unexpected provider failure yields a
+generic owned error; consumer callbacks keep their own errors. No busy indicator
+is added. Six action-model/three renderer cases and a manual fixture are unrun;
+hook timing, actual native action/focus/Tab/keyboard/AX, attachment/layout/lifetime
+and installed consumers remain open. See [button ownership](../../../../packages/auth/README.md#appkit-button-action-ownership).

@@ -6724,3 +6724,65 @@ native registration/wrapper identity/callback/thread/consent, observer/window/
 termination/HMR lifetime, real credential-state/nonce/security, entitlement/profile/
 signing, VoiceOver and clean installed consumers remain unqualified. No shared
 audit regeneration or evidence-gated checkbox changes; persistent goal active.
+
+## AppKit provider-button action ownership
+
+Demand is grounded in AuthDemo's Apple/Google buttons and the retained provider
+button guide. Source inspection found results could reach unmounted owners,
+repeat activation could deliver overlap errors while the original attempt was
+still pending, and Google used a gesture container instead of native button
+actions. The existing NSButton branch also ignored shared JSX isEnabled (it
+accepted enabled only). These are source findings; no actual native input or
+sign-in failure was observed. v0.18.0 source contains both old button paths.
+
+A target-specific action owner now claims one pending attempt per mounted button.
+It reads current props, ignores disabled/pending/reentrant presses, invokes the
+notification onPress hook and rechecks observed owner/disabled state before calling
+the provider. Return values do not gate sign-in. Queued screen/disabled state may
+commit after provider work starts. Results use the latest mounted callback even
+if props become disabled during work; unmount/replacement retires the old claim.
+Old settlement cannot clear a new lease, and result callbacks can initiate a fresh
+attempt. Unexpected provider throws/rejections become one generic owned error;
+consumer onPress errors propagate while releasing the claim, and onResult errors
+are not reclassified as provider failures. No busy indicator or provider cancel
+API is introduced; other instances/imperative calls retain provider overlap guards.
+
+Google selects the renderer's native NSButton via text/isEnabled/onPress, with no
+new dependency. Its existing theme/variant props remain unimplemented; this is
+not Google-official styling or shared pixel parity. The renderer maps isEnabled
+to native state, preserves an independent enabled=false alias and guards disabled
+or retired-root action dispatch. Apple keeps its official button. Old style/type
+attachments retire their own callback/handle rather than consulting a possibly
+replaced handle; a theme change does not retire the mounted component's pending
+result. Native provider work already started is not cancelled by screen unmount.
+
+Six action-model and three renderer branch cases plus an idle lifecycle fixture
+are authored, all UNRUN. The renderer fixture uses the actual source prop/action
+branch with fake native objects; that is not OS keyboard/AX evidence. The manual
+fixture supports disabled, theme and unmount/remount controls, shows status only
+and does not configure or start authentication on mount. Google needs an app-owned
+hostedFlow and Apple needs its signed entitlement/profile setup. README, skill,
+recipe and fix note reconcile limits. No public API or dependency changes and no
+React Aria presence-level coverage change are involved.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/auth
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/auth --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/auth-buttons.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/auth --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run pack:check --filter=@octane-xplat/auth
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit provider-button package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Seven TS/TSRX/MJS files syntax parsed; source/semantic/JSX-contract/whitespace
+review only. No tests/compiler transforms/typechecks/builds, probes, native/OS/AX
+or visual analysis, packaging, provider callbacks or credential exchange ran.
+Actual hook/effect/queued-state timing, native NSButton pointer/Tab/keyboard/AX,
+Apple target/attachment replacement/failure/HMR, disabled/layout/focus behavior,
+controller/browser lifetime and clean signed/installed consumers remain unqualified.
+Shared audit snapshots and evidence-gated checkboxes unchanged; goal active.

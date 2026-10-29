@@ -66,6 +66,55 @@ Android needs `google-services.json` and a `serverClientId` for
 features](https://octane-xplat.goddardai.org/platform-services). Exercised by
 [`AuthDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/AuthDemo.tsrx).
 
+### AppKit button action ownership
+
+AppKit provider buttons read current props when activated, ignore disabled or
+repeated pending presses, and recheck committed lifetime/disabled state after
+`onPress`. The hook's return value is ignored; it remains a notification rather
+than a gate. A queued screen update may commit after provider work starts.
+Pending results use the latest mounted `onResult`, including when props become
+disabled while work is underway. Unmount/replacement suppresses the old button's
+result; it does not cancel an already-started native controller/browser.
+
+```tsx
+import { GoogleSignInButton } from '@octane-xplat/auth'
+
+export function GoogleEntry() {
+	return <GoogleSignInButton onPress={() => console.log('Sign-in requested')}
+		onResult={(result) => console.log(result.status)} />
+}
+```
+
+The Google AppKit trigger now uses the renderer's native NSButton action path;
+it is not an official Google SDK button. The existing native intrinsic supports
+`text`/`isEnabled` and native action dispatch, with no new dependency. Apple keeps
+its official button; theme/type replacement detaches only the old attachment and
+does not retire a pending result while the component remains mounted. AppKit
+Google theme/variant props remain unimplemented; this is not shared pixel parity.
+
+```tsx
+import { AppleSignInButton, GoogleSignInButton } from '@octane-xplat/auth'
+
+export function UnavailableEntries() {
+	return <><AppleSignInButton disabled /><GoogleSignInButton disabled /></>
+}
+```
+
+Unexpected provider throws/rejections become one generic error result for the
+current mounted owner, without exposing exception text. Consumer `onPress` errors
+propagate and release the action claim; consumer `onResult` errors are not
+reclassified as provider failures. There is no automatic busy indicator; repeated
+activation is suppressed while the provider promise is pending. Other button
+instances and imperative calls remain subject to each provider's active-flow guard.
+Six action-model and three native-renderer branch cases plus a manual lifecycle
+fixture are authored, all unrun. Actual hook/effect timing, target/action/NSButton
+Tab/keyboard/VoiceOver, Apple attachment replacement, native layout/disabled state,
+controller/browser lifetime and clean consumers remain unqualified.
+
+```sh
+pnpm probe run examples/probes/auth-buttons.macos.tsrx --target macos --watch
+```
+
 ## macOS provider setup
 
 On macOS, `supported` reports AuthenticationServices availability, not

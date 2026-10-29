@@ -1,25 +1,23 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { useEffect, useRef } from 'octane'
 import { googleAuth } from './google.macos'
+import { createSignInButtonAction } from './sign-in-button-action.macos'
 import type { GoogleSignInButtonProps } from './types'
 
-/** Hosted Google sign-in trigger; Google does not provide an AppKit button. */
+/** Native NSButton trigger for hosted Google sign-in; no official AppKit Google button. */
 export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
-	<masonview
+	const current = useRef(props)
+	current.current = props
+	const action = useRef(createSignInButtonAction(() => current.current, () => googleAuth.signIn()))
+	useEffect(() => action.current.mount(), [])
+
+	<button
 		id={props.id}
 		className={['vx-button', props.className]}
 		style={{ display: 'flex', ...props.style }}
-		accessibilityRole="button"
+		text="Sign in with Google"
 		accessibilityLabel="Sign in with Google"
-		accessibilityState={{ disabled: !!props.disabled }}
-		onTap={
-			props.disabled
-				? undefined
-				: () => {
-						props.onPress?.()
-						void googleAuth.signIn().then((result) => props.onResult?.(result))
-					}
-		}
-	>
-		<label text="Sign in with Google" />
-	</masonview>
+		isEnabled={!props.disabled}
+		onPress={() => action.current.press()}
+	/>
 }
