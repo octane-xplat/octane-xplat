@@ -10216,10 +10216,40 @@ Evidence, 2026-10-29:
 | Native-leaf consumer | `verify-macos-native-consumer.mjs` stops at its `xplat doctor` step on fixture checks unrelated to macOS (`packageManager`, `@tsrx/oxc` peer; all macOS rows pass). Running `xplat build --targets macos` in that scratch app compiles 4 universal leaves (C, ObjC, Swift, Zig), passes `codesign --verify --deep --strict`, and prints `NATIVE_VALUES c=40 objc=42 swift=43 zig=44` with exit 0, both locally and on andromeda |
 
 Not run: the `@octane-xplat/platform#typegen`-blocked turbo typechecks and
-`macos-renderer` turbo tests (that typegen failure also happens on `main`), and
-any AppKit renderer or Mason layout app on Intel. Mason only has a `dlopen`
-proof on Intel. Packaged-consumer qualification and notarization of universal
-builds also remain open.
+`macos-renderer` turbo tests (that typegen failure also happens on `main`).
+Packaged-consumer qualification and notarization of universal builds remain
+open.
+
+**AppKit renderer on Intel (2026-10-29).** Two `main` regressions blocked every
+renderer bundle and are fixed:
+- `43e25bb8e`: octane 0.16.3 (`cf5e0c68b`, @tsrx/core 0.5.5) rejects
+  module-scope `<style>` blocks. The 17 AppKit leaves that used them now
+  import sibling `.macos.css` files.
+- `9de8129b4`: the readable-host `accessible` branch called a nonexistent
+  `setAccessibilityElement` method.
+
+After those fixes:
+
+| Check | Result |
+| --- | --- |
+| `packages/motion/tests/macos-runtime.mjs` (renderer + Mason layout, shared layout, drag and container assertions) | Passes locally |
+| The same bundle on `andromeda.local`, run by the universal host with x86_64 metadata and the universal `libxplatmason.dylib` | Passes: all five `MOTION_*_OK` markers, exit 0 |
+| `apps/macos` packaged (`pnpm package`) | Host, framework, Mason and 13 leaf dylibs all `arm64 x86_64`, with both metadata files. The packaged harness mounts without render errors on both Macs |
+
+Two harness findings, not specific to architecture:
+- **Output only through a pseudo-terminal:** packaged stdout is
+  block-buffered, so `[assert]` lines appear only under a pseudo-terminal
+  (`script -q`); `[harness]` lines on stderr appear without one.
+- **The sweep stalls:** after `Apps tab mounted shared gallery: OK`, it stops
+  making progress before the Counter demo assertion, and no
+  `[macos-smoke]` summary appears within 240 s. One rerun printed no
+  assertions in 75 s. Not yet diagnosed, and not compared with dev-mode
+  `pnpm --filter @xplat/macos smoke`.
+
+Building the packaged app also needed each rich-text package's
+`build:assets` step (`dist/macos/browser.js` in `richtext`, `tiptap` and
+`lexical`), which `turbo run build` normally runs but which the
+`platform#typegen` failure blocks.
 
 ### Upstream limitation: NativeScript runtimes force arm64 on macOS
 
