@@ -299,3 +299,18 @@ once and restores Mason order when direction clears. Rebuild the native C
 facade after pulling this change. Decorative accessible=false content must
 stay excluded after first map and remap; check native metadata separately
 from assistive-client behavior.
+
+### GTK native popup boundaries
+
+The curated GTK root still excludes Popover, Selector and MultiSelector.
+Raw GTK popup feasibility and renderer portal measurement are separate from
+qualification of those public APIs. Gtk.Window capture does not receive events
+from a native Gtk.Popover surface; bind controllers to each native popup when
+implementing shared layer dismissal. Keep independent outside/Escape policies
+and controlled-owner authority rather than delegating them to autohide.
+
+GTK ref getBounds() and layoutChanged keep coordinates relative to the original
+app host for same-root portals in native popup surfaces, including nested
+popups. Unrelated top-level windows have no bounds in that coordinate space.
+Use the maintained ui-popup-portal case when changing this conversion; preserve
+native surface transforms and the original host's coordinate system.

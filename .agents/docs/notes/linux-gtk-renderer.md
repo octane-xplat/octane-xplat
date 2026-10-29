@@ -2634,3 +2634,64 @@ token-entry recipe criteria remain unexecuted on GTK. Text-entry AC3 remains
 partial/not-run, and AC8 remains complete/runtime-tested. View stays running
 for its remaining style contracts; these checks do not qualify every margin
 unit, auto/negative margin or pixel/assistive-client behavior.
+
+## Native popup surface boundaries and portal measurement
+
+GTK 4.14.5/GJS 1.80.2 on Ubuntu 24.04.5 exposes a distinct Gdk.Popup surface
+for each Gtk.Popover. A raw nonmodal probe passes 30 checks with actual X11
+input: entry editing and focus, clicks, independent Escape/outside blocking
+and dismissal requests, controlled rejection, close/reopen and unparenting.
+This is feasibility evidence; Popover is still absent from the curated UI root.
+
+Capture controllers on the Gtk.Window do not receive popup-native events.
+The first 29-check run failed its two window-routing expectations. Adding a
+capture controller on the popup itself receives 14 key events and 3 actual
+pointer presses; the window receives 2 background key events and 2 background
+presses, with no popup presses. A future overlay owner must bind each native
+surface and retain the shared layer's controlled-close authority. GtkPopover
+autohide is not an equivalent implementation of independent dismissal flags.
+Raw logs: guest /tmp/gtk-popover-raw-coordinates.log and
+/tmp/gtk-popover-raw-native-boundary.log. The ignored research case is not a
+maintained public Popover test.
+
+The renderer's original getBounds() delegated to
+[Gtk.Widget.compute_bounds](https://docs.gtk.org/gtk4/method.Widget.compute_bounds.html)
+against the original root host. That call returns false across the native
+popup boundary. The maintained ui-popup-portal baseline completed 37 checks,
+with 15 bounds failures, a missed movement notification, and two keyboard
+fixture failures. The fixture now declares its action's button role explicitly;
+the generic Pressable's focus policy was not changed.
+
+The local renderer fallback joins Gdk.Popup parent positions and subtracts
+each [native surface-to-widget translation](https://docs.gtk.org/gtk4/method.Native.get_surface_transform.html).
+It converts the widget's border-box corners through its own native coordinate
+space into the original host. Bounds remain relative to app content; unrelated
+top-level surfaces return null. Ordinary same-native measurement still uses
+GTK directly. Revisit this fallback if GTK gains direct cross-native transforms.
+The GTK documentation linked above currently describes 4.24.1; runtime evidence
+here is 4.14.5. No global desktop coordinates or new UI dependencies are required.
+
+The initial repaired fixture passes 37 checks, including actual parent/nested
+popup clicks and Return activation after reopening. It preserves original
+context, local state, native widget identity and effect ownership while
+retargeting between surfaces. The final case passes 56 checks in three consecutive Linux runs, adding
+translate/scale/rotate, moved original host, unrelated realized top-level,
+return-to-popup and disposed-ref checks. One earlier expanded run had two input
+mismatches; pointer entry now round-trips through the OS/F12 protocol before
+pressing on a different surface. This readiness barrier does not relax the
+state-update assertions. Logs are /tmp/gtk-popup-portal-{baseline,fixed,contracts,trace}.log
+and /tmp/gtk-popup-portal-input-{1,2,3}.log on the guest.
+
+The existing measurement (19 assertions), same-root portal (48), Tooltip
+(50 with actual pointer/Tab/Escape) and box-model (54) cases pass on the same
+production fallback. All 10 renderer/dependent typecheck tasks pass on the
+final fixture. Documentation checks pass for 141 pages, 1146 parsing examples,
+recipes, UI barrels and 66 release notes. The full registered renderer sweep
+was not rerun for this change; the prior 60-test sweep predates this fallback.
+The new case is registered in the regular renderer test task.
+
+No public exports or workflow qualification changed. The existing app-content
+measurement example remains valid, so no recipe acceptance state is promoted.
+This fixes the unreleased ref implementation introduced in this task and needs
+no separate release note. Public overlay policies, Wayland, HiDPI, pixels and
+assistive clients remain unqualified.

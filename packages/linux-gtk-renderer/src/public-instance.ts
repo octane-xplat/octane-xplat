@@ -1,3 +1,4 @@
+import { popupBounds } from './popup-bounds.js'
 import { bindRangeInstance } from './range-instance.js'
 import { bindTooltips } from './tooltip-instance.js'
 import { bindMotion } from './motion-instance.js'
@@ -119,7 +120,7 @@ export function bindPublicInstance(
 		const [ok, rect] = view.compute_bounds(host) as [boolean, any]
 		return ok
 			? { x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height }
-			: null
+			: popupBounds(view, host)
 	}
 	const emit = (eventName: RefEvent, detail: Record<string, unknown> = {}) => {
 		for (const listener of [...(listeners.get(eventName) ?? [])]) {

@@ -621,7 +621,9 @@ export function SearchEntry(props: { search: () => void }) {
 Use `AspectRatio` to derive a container's height from its allocated width.
 `useMeasure` reports a widget's position and size relative to the app content
 surface, including movement when an ancestor scrolls. Set `observe: false`
-when you only need a snapshot.
+when you only need a snapshot. Same-root portal content in native GTK popups
+keeps these app-relative coordinates, including nested popup surfaces. An
+unrelated top-level window has no bounds in this coordinate space.
 
 ```tsx
 import { AspectRatio, Text, View, useMeasure } from '@octane-xplat/ui'

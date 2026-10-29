@@ -14,7 +14,7 @@ function Panel(props: { name: string }) @{
  useEffect(() => { lifetime.mounts++; return () => { lifetime.unmounts++ } }, [])
  <proxyviewcontainer>
   <label id={'portal-label-' + props.name} ref={capture('label-' + props.name)} text={value + ':' + props.name + ':' + count} />
-  <Pressable id={'portal-action-' + props.name} ref={capture('action-' + props.name)} onPress={() => setCount(count + 1)} style={{ width: 90, height: 30 }}>
+  <Pressable accessibilityRole="button" id={'portal-action-' + props.name} ref={capture('action-' + props.name)} onPress={() => setCount(count + 1)} style={{ width: 90, height: 30 }}>
    <Text>Increment</Text>
   </Pressable>
  </proxyviewcontainer>
