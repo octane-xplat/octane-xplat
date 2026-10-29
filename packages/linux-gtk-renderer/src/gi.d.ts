@@ -6,7 +6,12 @@
 // starter surface; the inventory note lists this as a tracked limitation.
 declare module 'gi://Gtk?version=4.0' {
 	namespace Gtk {
-		const AccessibleRelation: { LABELLED_BY: number; [key: string]: number }
+		function init(): void
+		function get_major_version(): number
+		function get_minor_version(): number
+		function get_micro_version(): number
+		function test_accessible_has_property(widget: Widget, property: number): boolean
+		const AccessibleRelation: { LABELLED_BY: number; DESCRIBED_BY: number; [key: string]: number }
 		const MAJOR_VERSION: number
 		const MINOR_VERSION: number
 		const MICRO_VERSION: number
@@ -77,7 +82,6 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		const AccessibleList: any
-		const AccessibleRelation: { DESCRIBED_BY: number }
 		const Overlay: any
 		const TextWindowType: { WIDGET: number }
 		const Popover: any
@@ -379,6 +383,7 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class Window extends Widget {
+			constructor(props?: Record<string, unknown>)
 			set_child(child: Widget | null): void
 			present(): void
 			close(): void
@@ -409,6 +414,12 @@ declare module 'gi://Gtk?version=4.0' {
 
 declare module 'gi://GLib' {
 	namespace GLib {
+		class MainLoop {
+			constructor(context: unknown, isRunning: boolean)
+			static new(context: unknown, isRunning: boolean): MainLoop
+			run(): void
+			quit(): void
+		}
 		const Bytes: any
 		function base64_decode(value: string): Uint8Array
 		const MAJOR_VERSION: number

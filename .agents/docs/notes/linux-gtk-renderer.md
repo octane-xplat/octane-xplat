@@ -1936,3 +1936,104 @@ andromeda /tmp/gtk-toggle-controls-types.log,
 The curated root remains 55 values and 86 types. CheckboxInput/Switch field
 width, hidden labels, state/defaults, status variants and async actions still
 need full component qualification before export.
+
+
+## Integration with current main and packaged renderer entries
+
+The task integrates origin/main at 429ca1d87b4b4c2593726ba65eb16025b088add4
+without rewriting its earlier qualification commits. Main publishes compiled
+dist entries, introduces the independent AT-SPI name fixture and upgrades the
+workspace to Octane 0.16.3 / OXC 0.20.0. Earlier component evidence remains tied
+to its recorded commits until the integrated Linux suite is rerun.
+
+The merge retains the complete-prop state synchronizer, role recreation,
+identifier priority and all maintained UI fixtures. Identifier priority now
+also preserves main's accessible-label fallback, while skipping empty testID
+or automationText values before an explicit ID. The raw accessibility smoke
+adds that empty-identifier case. Name synchronization also preserves main's
+button mnemonic-relation reset and natural-label restoration. Runtime tasks
+depend on the renderer's own build so dist exports cannot lag source changes.
+
+The affected/dependent typecheck run passes all 81 tasks. Documentation
+structure/links pass for 141 files, 1126 code examples parse, recipes pass,
+the docs build/test run passes 28 tasks, and the documentation-checker tests
+pass all eight cases. The former docs-build parser failure does not recur
+with the integrated compiler.
+
+The accessibility bundles were built on Andromeda through Turbo; its GJS
+runtime case skips because GJS is absent on that Mac. The emitted bundles
+then run on the reserved Ubuntu guest: strict GTK property/name assertions
+pass, including empty automation identifiers, and the maintained independent
+Python AT-SPI client passes initial, updated and removed button/label names
+plus cleanup diagnostics. This is actual AT-SPI name evidence, not complete
+screen-reader navigation/speech or UI-family qualification. The missing Atspi
+typelib is extracted under task-local ignored research/gtk-main-atspi;
+system packages and the shared VM are retained.
+
+Logs: andromeda /tmp/gtk-main-integration-{types,docs,doc-examples,recipes,
+doc-site,doc-checker-tests,a11y-build}.log; guest
+/tmp/gtk-main-integration-property.log and
+/tmp/gtk-main-integration-atspi.log. Full integrated renderer runtime and
+packed validation remain the next checks. Root availability stays 55 values
+and 86 types; the uncommitted ui-toggle-fields probe records the next native
+field/action gaps and is excluded from this integration commit.
+
+## Retained visibility and native layout participation
+
+A hidden-label probe found display:none on both the label and its Mason parent,
+with a zero-size parent rectangle, while GTK still mapped the label at its old
+allocation. The renderer now applies effective display/visibility to the
+physical native host as well as Mason's style dictionary. A private TextView
+host receives the same treatment. Removing the hiding value retains the
+widget/editor and local text; native focus is released when its subtree hides.
+Unmanaged imperative native visibility is left alone.
+
+A maintained raw-driver regression exposed a second boundary mismatch:
+dropping display:none/visible=false left the leaf's Mason node collapsed,
+even after GTK remapped it. The adapter previously omitted display when
+returning to the default. MasonCore at
+1f101ca3c6454895af4e4608d46756010bdeab67 intentionally treats unknown/omitted
+display enums as an unchanged value:
+[update_from_ffi](https://github.com/triniwiz/nativescript-mason/blob/1f101ca3c6454895af4e4608d46756010bdeab67/crates/mason-core/src/style/utils.rs#L342-L344).
+Our facade maps an absent enum to -1. This is a patch-style upstream contract,
+not proof that a complete-bag removal resets it. The GTK adapter now sends
+the default flex display explicitly. Keep that normalization while this FFI
+contract remains in use; revisit it if Mason introduces a replacement-style
+setter. Other enum removal behavior is outside this finding.
+
+Style visibility overrides direct visibility consistently in GTK and Mason.
+Hidden keeps flow space; collapse, visible=false and display:none remove it.
+Invisible native children stay in Mason's record order but are not allocated
+at zero size, avoiding GtkText negative inner allocations.
+
+Real Linux evidence: Ubuntu24.04.5 amd64, GJS1.80.2, GTK4.14.5, X11/Xvfb,
+task-local XDG runtime and D-Bus session, the existing beta5 Mason archive and
+XplatMason typelib. test/visibility.test.mjs passes25 geometry, native mapping,
+focus release, editor identity/text, prop precedence, removal and cleanup
+assertions. The direct-source toggle-fields probe also passes17 assertions
+including real X11 label clicks and rejected-action rollback. Those field
+checks do not yet qualify the full CheckboxInput/Switch exports.
+Logs: guest /tmp/gtk-visibility-ffi.log. The prior failing reproduction is
+/tmp/gtk-visibility-diagnostic.log (restored multiline y116 versus initial154).
+
+The renderer fixture typecheck now includes the raw visibility, accessibility
+property and independent AT-SPI producer sources. Their batches carry the
+Octane0.16.3 version/context fields, and local GI declarations cover the
+methods actually used. It still does not typecheck every raw fixture main.
+No new release note is required for this fix: the GTK implementation and
+curated exports being repaired have not reached a tagged stable release.
+
+
+Visibility verification completed: the full working-tree renderer suite passes49
+tests with no skips (/tmp/gtk-visibility-full.log). That integration run includes
+the pending shared native toggle field edits. A separate focused run restores
+the committed Checkbox/Switch sources in the guest, verifies visibility25,
+toggle keyboard34 and field chrome9, then restores the draft sources
+(/tmp/gtk-visibility-committed-ui.log); this proves the renderer change does not
+depend on the unfinished UI patch. Andromeda renderer/dependent typecheck passes10
+tasks (/tmp/gtk-visibility-types-final2.log). Documentation checks pass141 pages,
+1127 parsing examples, recipes and docs build/test28 tasks. The imported main
+release notes were missing five required titles; a separate formatting-only
+commit restores them and all49 release notes validate. Feedback records:
+ead8254d-7555-4b66-9d94-9bb035a47221 and
+25974be3-1970-4214-851f-32ea57229a92.

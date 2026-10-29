@@ -1,5 +1,12 @@
 {
 	"extends": "./tsconfig.routing.json",
-	"files": ["../../src/gi.d.ts", "src/ui-types.gtk.ts"],
+	"files": [
+		"../../src/gi.d.ts",
+		"../../src/host-globals.d.ts",
+		"src/ui-types.gtk.ts",
+		"src/visibility-smoke.ts",
+		"src/a11y-smoke.ts",
+		"src/atspi-probe.ts"
+	],
 	"include": ["src/ui-*.gtk.tsrx"]
 }

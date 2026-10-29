@@ -164,6 +164,25 @@ export function FocusableField() {
 }
 ```
 
+## Show and hide retained content
+
+Set a View's display to 'none' to hide its subtree and remove its layout
+space. Returning to 'flex' shows the same native controls with their local
+text retained. A hidden editor releases keyboard focus; showing it does not
+restore focus automatically.
+
+```tsx
+import { View, Text } from '@octane-xplat/ui'
+
+export function Details({ isOpen }: { isOpen: boolean }) {
+  return (
+    <View style={{ display: isOpen ? 'flex' : 'none' }}>
+      <Text>Build details</Text>
+    </View>
+  )
+}
+```
+
 ## Text entry
 
 TextInput is available from the GTK UI root. Use value with onChange to keep

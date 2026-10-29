@@ -1555,6 +1555,26 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 	}
 }
 
+/** Layout exclusion also needs native visibility: a zero-size Mason parent
+ * can otherwise keep mapped descendants at their previous GTK allocation. */
+function syncVisibility(node: ElementNode, force = false) {
+	const layout = physicalView(node)
+	if (!layout) return
+	const source = node.appliedStyle ?? {}
+	const managed =
+		source.display === 'none' ||
+		source.visibility != null ||
+		node.props.visible != null ||
+		node.props.visibility != null
+	if (!managed && !node.styleVisibility && !force) return
+	node.styleVisibility = managed
+	const visibility = source.visibility ?? node.props.visibility
+	const visible =
+		source.display !== 'none' && node.props.visible !== false && visibility !== 'collapse'
+	layout.set_visible(visible)
+	layout.set_child_visible(visibility !== 'hidden')
+}
+
 /** CSS-driven widget writes that GTK CSS cannot express — direction,
  *  child-visibility, label wrapping/ellipsize/lines, and alignment outside
  *  Mason subtrees. Each key restores the prop value or widget default when
@@ -1580,26 +1600,8 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 		if (layout !== view) layout.set_direction(Gtk.TextDirection.NONE)
 	}
 
-	// NS visibility: 'hidden' keeps layout space (child-invisible), only
-	// 'collapse' removes it — styleDict keeps the same split for Mason.
-	const vis = source.visibility
-	if (vis != null) {
-		node.styleVisibility = true
-		if (vis === 'collapse') {
-			layout.set_visible(false)
-		} else {
-			layout.set_visible(true)
-			layout.set_child_visible(vis !== 'hidden')
-		}
-	} else if (node.styleVisibility) {
-		node.styleVisibility = false
-		layout.set_visible(
-			node.props.visible !== false &&
-				(node.props.visibility == null || node.props.visibility === 'visible'),
-		)
-
-		layout.set_child_visible(true)
-	}
+	// Preserve hidden space, collapse/display:none remove it; also unmap widgets.
+	syncVisibility(node)
 
 	// Label text behaviour — buttons reach their Gtk.Label child; keys reset
 	// to the prop value or the widget default.
@@ -2055,18 +2057,8 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 	const layout = physicalView(node)!
 	switch (name) {
 		case 'visible':
-			layout.set_visible(value !== false)
-			return
 		case 'visibility':
-			// 'hidden' keeps layout space (child-invisible); 'collapse'
-			// unmaps entirely — the same split the style path applies.
-			if (value === 'collapse') {
-				layout.set_visible(false)
-			} else {
-				layout.set_visible(true)
-				layout.set_child_visible(value !== 'hidden')
-			}
-
+			syncVisibility(node, true)
 			return
 		case 'opacity':
 			layout.set_opacity(Number(value))
@@ -2403,6 +2395,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	for (const name of Object.keys(props)) {
 		setProp(node, name, props[name])
 	}
+	syncVisibility(node)
 	if (node.view) syncAccessibilityState(node.view, props)
 	syncAccessibleName(node)
 }
@@ -2453,7 +2446,7 @@ function resetProp(node: ElementNode, name: string) {
 			layout.set_opacity(1)
 			return
 		case 'visible':
-			layout.set_visible(true)
+			syncVisibility(node, true)
 			return
 		case 'enabled':
 		case 'isEnabled':
@@ -2465,8 +2458,7 @@ function resetProp(node: ElementNode, name: string) {
 			)
 			return
 		case 'visibility':
-			layout.set_visible(true)
-			layout.set_child_visible(true)
+			syncVisibility(node, true)
 			return
 		case 'alignSelf':
 			layout.set_halign(Gtk.Align.FILL)

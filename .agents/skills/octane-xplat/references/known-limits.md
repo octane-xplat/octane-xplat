@@ -80,6 +80,18 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
 }
 ```
 
+### GTK retained visibility
+
+Use display:none to remove a retained subtree from native mapping and layout.
+Dropping it restores the default flex display. Native visibility:hidden keeps
+layout space; collapse removes it. Style visibility overrides the direct
+visibility prop, while visible=false or display:none still hides the widget.
+The renderer owns the private TextView host for these writes. Preserve this
+synchronization when changing layout: computed zero-size Mason bounds alone
+can leave native descendants mapped at their old allocation. Maintained
+visibility checks cover geometry, editor identity/text and focus release;
+they do not establish OS input or screen-reader navigation.
+
 ### GTK text input
 
 Use TextInput, TextArea and SearchInput from the curated GTK root. They have maintained

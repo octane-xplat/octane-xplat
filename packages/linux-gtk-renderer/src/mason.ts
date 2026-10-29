@@ -244,13 +244,12 @@ function styleDict(node: NodeLike): Record<string, any> {
 	// Only collapse removes layout space — NS `hidden` keeps it, so it maps
 	// to child-invisible on the widget, never display:none. The computed
 	// style carries the CSS value alongside the prop.
-	if (
-		props.visible === false ||
-		props.visibility === 'collapse' ||
-		style.visibility === 'collapse'
-	) {
+	if (props.visible === false || (style.visibility ?? props.visibility) === 'collapse') {
 		out.display = 'none'
 	}
+	// The native FFI treats an omitted enum as "keep the previous value".
+	// Always send the default so dropping display/visible/collapse restores flow.
+	out.display ??= 'flex'
 
 	for (const [from, to] of DIM_AUTO_KEYS) {
 		const value = from === 'flexBasis' ? style[from] : (style[from] ?? props[from])
@@ -445,6 +444,10 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
 		if (off + 5 > flat.length) {
 			break
 		}
+
+		// Mason keeps hidden nodes in record order, but GTK must not allocate
+		// an invisible editor at its zero-size display:none rectangle.
+		if (!child.get_visible()) continue
 
 		allocation.x = Math.round(flat[off + 1])
 		allocation.y = Math.round(flat[off + 2])
