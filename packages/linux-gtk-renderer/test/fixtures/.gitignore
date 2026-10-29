@@ -1,13 +1,3 @@
-/dist-ui-primitives/
-/dist-ui-input/
-/dist-ui-measure/
-/dist-ui-animation/
-/dist-ui-scroll/
-/dist-ui-area/
-/dist-ui-icon/
-/dist-ui-text-entry/
-/dist-ui-portal/
-/dist-ui-tooltip/
-/dist-ui-accessibility/
-/dist-ui-press-keys/
-dist-ui-field-chrome/
+# Maintained GTK tests emit standalone bundles beside these sources.
+/dist-ui-*/
+/dist-visibility/
