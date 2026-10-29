@@ -214,3 +214,34 @@ type FieldLabelPropsContract = Assert<Equal<GtkUI.FieldLabelProps, NativeUI.Fiel
 type FieldStatusComponentPropsContract = Assert<
 	Equal<GtkUI.FieldStatusComponentProps, NativeUI.FieldStatusComponentProps>
 >
+
+type ImagePropsContract = Assert<Equal<GtkUI.ImageProps, NativeUI.ImageProps>>
+type ImageContentFitContract = Assert<Equal<GtkUI.ImageContentFit, NativeUI.ImageContentFit>>
+type ImageContentPositionContract = Assert<
+	Equal<GtkUI.ImageContentPosition, NativeUI.ImageContentPosition>
+>
+type ImageContentPositionObjectContract = Assert<
+	Equal<GtkUI.ImageContentPositionObject, NativeUI.ImageContentPositionObject>
+>
+type ImageContentPositionStringContract = Assert<
+	Equal<GtkUI.ImageContentPositionString, NativeUI.ImageContentPositionString>
+>
+type ImageContentPositionValueContract = Assert<
+	Equal<GtkUI.ImageContentPositionValue, NativeUI.ImageContentPositionValue>
+>
+type ImageDecodingContract = Assert<Equal<GtkUI.ImageDecoding, NativeUI.ImageDecoding>>
+type ImageSourceLikeContract = Assert<Equal<GtkUI.ImageSourceLike, NativeUI.ImageSourceLike>>
+type ThumbnailPropsContract = Assert<Equal<GtkUI.ThumbnailProps, NativeUI.ThumbnailProps>>
+type AvatarPropsContract = Assert<Equal<GtkUI.AvatarProps, NativeUI.AvatarProps>>
+type AvatarGroupPropsContract = Assert<Equal<GtkUI.AvatarGroupProps, NativeUI.AvatarGroupProps>>
+type AvatarGroupOverflowPropsContract = Assert<
+	Equal<GtkUI.AvatarGroupOverflowProps, NativeUI.AvatarGroupOverflowProps>
+>
+type AvatarSizeContract = Assert<Equal<GtkUI.AvatarSize, NativeUI.AvatarSize>>
+type AvatarStatusDotPropsContract = Assert<
+	Equal<GtkUI.AvatarStatusDotProps, NativeUI.AvatarStatusDotProps>
+>
+type AvatarStatusDotVariantContract = Assert<
+	Equal<GtkUI.AvatarStatusDotVariant, NativeUI.AvatarStatusDotVariant>
+>
+type UserPropsContract = Assert<Equal<GtkUI.UserProps, NativeUI.UserProps>>

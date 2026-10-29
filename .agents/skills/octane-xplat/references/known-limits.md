@@ -343,3 +343,12 @@ vite config includes `xplat-gtk-slot-dedupe`, a local workaround for a
 rolldown limitation that fails to dedupe `withSlot`/`hookSlots` import
 bindings across slot-compiled modules in single-file bundles — required
 for any barrel including hook-heavy leaves.
+
+Image/Thumbnail/thumbHashUri/Avatar(+StatusDot/Group/Overflow)/User are
+public GTK exports proven by ui-images (21 checks). `Image.gtk.tsrx` and
+`thumbhash.gtk.ts` are real leaves — the nativescript `ImageSource`/`interop`
+paths don't apply; the GTK image host (`image`/`svgview` + `bindPicture`)
+decodes data:/http(Soup)/file/res://~/ natively. `placeholder` and
+`isLoadingChange` are wired in the renderer. `contentPosition` and the
+true 'none'/'scale-down' fits are unsupported (Gtk.Picture centres and
+has no unscaled mode — SCALE_DOWN approximation).

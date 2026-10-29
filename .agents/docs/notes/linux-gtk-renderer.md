@@ -2947,3 +2947,25 @@ bare text children fold into element node props, so text assertions read
 
 Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only — no Wayland,
 visual/pixel, IME or assistive-client evidence.
+
+## GTK image/avatar qualification
+
+`ui-images.test.mjs` drives `fixtures/src/ui-images-main.ts`: 21 checks,
+all passing (`input:false` — the image element's `src`/`stretch`/`placeholder`
+and the picture binding's `isLoading`/`imageSource`/`imageError` carry the
+contract; no OS input needed). A data: PNG decodes through GdkPixbuf to a
+Gdk.Texture with intrinsic 4x4; a corrupt src sets `imageError` and no
+texture; `thumbHashUri` decodes+scales+RGBA-extracts via the same GI stack.
+
+`bindPicture` grew three contract pieces: `placeholder` prop (sourceBytes
+decodes it and paints it under a pending `src`, replaced on success, kept on
+failure), `scaleDown`/`none` stretch mapping to `Gtk.ContentFit.SCALE_DOWN`,
+and `isLoadingChange` ref events routed through `bindPublicInstance`'s emit
+(added to the `view.on` allowlist — Thumbnail subscribes for its load-state
+overlay). `gi://Gio`'s typed surface on windows lacked `MemoryInputStream`
+— the thumbhash leaf casts `(Gio as any)` at that one use site.
+
+Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only; no Wayland,
+visual/pixel, IME or AT-client evidence. `contentPosition` unsupported;
+'none'/'scale-down' both map to SCALE_DOWN (Gtk.Picture has no unscaled or
+true scale-down fit).

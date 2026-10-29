@@ -332,3 +332,13 @@ components compose qualified Pressable/View/Text/masonview paths. `xplatGtkSlotD
 for an octane 0.16.3 emission bug (`withSlot` emitted twice intra-module;
 rolldown dedupes cross-module but not intra-file) — applies to every GTK
 bundle, not per-leaf. macOS shares the path.
+
+`Image` needed `Image.gtk.tsrx` — the nativescript leaf builds on
+`@nativescript/core` `ImageSource`; the GTK leaf renders the host `image`
+element (`src`/`stretch`/`placeholder`), mapping `contentFit` onto stretch
+and `blurhash:`/`thumbhash:` placeholders through `hashToPngBase64`.
+`thumbHashUri` needed `thumbhash.gtk.ts` — GdkPixbuf/Gio/Soup decode,
+scale and RGBA extract feeding the shared pure-JS `rgbaToThumbHashUri`;
+`gi://` imports are ambient-declared in `type-support/gi.d.ts`. Avatar,
+Thumbnail, AvatarGroup(+Overflow), AvatarStatusDot and User need no GTK
+leaf — they resolve through `Image` and the host `image` element.

@@ -349,3 +349,34 @@ export type { InputRatingProps } from './props'
 
 export { SelectorOption } from './SelectorOption'
 export type { SelectorOptionProps } from './props'
+
+export { Image } from './Image'
+export type {
+	ImageProps,
+	ImageContentFit,
+	ImageContentPosition,
+	ImageContentPositionObject,
+	ImageContentPositionString,
+	ImageContentPositionValue,
+	ImageDecoding,
+	ImageSourceLike,
+} from './props'
+
+export { thumbHashUri } from './thumbhash'
+
+export { Thumbnail } from './Thumbnail'
+export type { ThumbnailProps } from './props'
+
+export { Avatar, AvatarStatusDot } from './Avatar'
+export { AvatarGroup, AvatarGroupOverflow } from './AvatarGroup'
+export type {
+	AvatarProps,
+	AvatarGroupProps,
+	AvatarGroupOverflowProps,
+	AvatarSize,
+	AvatarStatusDotProps,
+	AvatarStatusDotVariant,
+} from './props'
+
+export { User } from './User'
+export type { UserProps } from './props'

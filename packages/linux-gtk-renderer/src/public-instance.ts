@@ -270,6 +270,7 @@ export function bindPublicInstance(
 				'fontChanged',
 				'accessibilityIncrement',
 				'accessibilityDecrement',
+				'isLoadingChange',
 			].includes(name)
 		) {
 			throw new Error(`linux-gtk ref: unsupported subscription ${name}`)

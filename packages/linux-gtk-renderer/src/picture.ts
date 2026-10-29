@@ -102,12 +102,22 @@ async function sourceBytes(source: string, cancellable: any, bundleUrl: string):
  * No DOM or process-wide fetch polyfill is needed by a GTK image leaf. */
 export function bindPicture(node: ElementNode, bundleUrl: string) {
 	const view = node.view as GtkView
+	let lastLoading: boolean | undefined
+	const markLoading = (value: boolean) => {
+		view.isLoading = value
+		if (value !== lastLoading) {
+			lastLoading = value
+			node.emitRefEvent?.('isLoadingChange', { value })
+		}
+	}
 	let disposed = false
 	let generation = 0
 	let source: unknown
 	let cancellable: any
 	let markup: string | null = null
 	let rendered: string | null = null
+	let placeholderSource: unknown
+	let placeholderTexture: any = null
 	const renderSvg = () => {
 		if (!markup || disposed) {
 			return
@@ -134,13 +144,25 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
 		cancellable?.cancel()
 		cancellable = new Gio.Cancellable()
 		markup = rendered = null
-		view.set_paintable(null)
-		view.imageSource = null
 		view.imageError = null
-		view.isLoading = next != null && next !== ''
-		if (!view.isLoading) {
+		if (next == null || next === '') {
+			placeholderTexture = null
+			view.set_paintable(null)
+			view.imageSource = null
+			markLoading(false)
 			return
 		}
+		// A decoded placeholder paints under the pending src — replaced by the
+		// real texture on success, kept on failure (contract: visible while
+		// src loads, not a fetch-blocking preview).
+		if (placeholderTexture) {
+			view.set_paintable(placeholderTexture)
+			view.imageSource = placeholderTexture
+		} else {
+			view.set_paintable(null)
+			view.imageSource = null
+		}
+		markLoading(true)
 		const cancellation = cancellable
 		Promise.resolve(next)
 			.then((value) => {
@@ -165,14 +187,14 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
 					view.set_paintable(texture)
 					view.imageSource = texture
 				}
-				view.isLoading = false
+				markLoading(false)
 				view.queue_resize()
 			})
 			.catch((error) => {
 				if (disposed || version !== generation) {
 					return
 				}
-				view.isLoading = false
+				markLoading(false)
 				view.imageError = error
 				console.warn('[linux-gtk] image source could not be loaded')
 			})
@@ -180,11 +202,31 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
 	return {
 		setSource,
 		restyle: renderSvg,
+		setPlaceholder(value: unknown) {
+			if (disposed) { return }
+			placeholderSource = value
+			if (value == null || value === '') {
+				placeholderTexture = null
+				return
+			}
+			sourceBytes(String(value), null, bundleUrl)
+				.then((bytes) => {
+					if (disposed || !bytes) { return }
+					placeholderTexture = Gdk.Texture.new_from_bytes(bytes)
+					if (view.isLoading && !view.imageSource) {
+						view.set_paintable(placeholderTexture)
+						view.imageSource = placeholderTexture
+					}
+				})
+				.catch(() => { placeholderTexture = null })
+		},
 		setStretch(value: unknown) {
 			const modes: Record<string, number> = {
 				aspectFit: Gtk.ContentFit.CONTAIN,
 				aspectFill: Gtk.ContentFit.COVER,
 				fill: Gtk.ContentFit.FILL,
+				scaleDown: Gtk.ContentFit.SCALE_DOWN,
+				none: Gtk.ContentFit.SCALE_DOWN,
 			}
 			const fit = modes[String(value)]
 			if (fit === undefined) {
@@ -197,6 +239,7 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
 			generation++
 			cancellable?.cancel()
 			markup = rendered = null
+			placeholderSource = placeholderTexture = null
 			view.set_paintable(null)
 			view.imageSource = null
 			view.isLoading = false

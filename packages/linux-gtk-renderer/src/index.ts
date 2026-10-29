@@ -78,6 +78,8 @@ export type GtkView = Gtk.Widget & { [key: string]: any }
 
 interface SignalConnection {
 	emitter: any
+	/** Host bindings dispatch leaf-observable ref events (isLoadingChange). */
+	emitRefEvent?: (eventName: string, detail?: Record<string, unknown>) => void
 	signalId: number
 }
 
@@ -2221,6 +2223,8 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'svgview':
 			if (name === 'stretch') {
 				node.picture!.setStretch(value)
+			} else if (name === 'placeholder') {
+				node.picture!.setPlaceholder(value)
 			} else {
 				warn('<' + node.type + '> ignored prop ' + name)
 			}

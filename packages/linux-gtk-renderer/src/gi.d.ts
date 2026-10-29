@@ -526,6 +526,10 @@ declare module 'gi://Gio' {
 			[key: string]: number
 		}
 
+		class MemoryInputStream {
+			static new_from_bytes(bytes: unknown): MemoryInputStream
+			[key: string]: any
+		}
 		class File {
 			static new_for_path(path: string): File
 			static new_for_uri(uri: string): File

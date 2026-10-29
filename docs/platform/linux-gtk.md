@@ -97,7 +97,8 @@ CodeBlock, ProgressBar, StatusDot, Citation, Outline, Blockquote,
 Timestamp, Timer, Skeleton, VisuallyHidden, Chip, Alert, Banner,
 EmptyState, Meter, ProgressGroup, MetadataList(+Item), Timeline, Item,
 List, ListItem, Toolbar, Step, Stepper, Pagination, FieldLabel,
-FieldStatus) —
+FieldStatus, images (Image, Thumbnail, thumbHashUri) and the Avatar family
+(Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, User) —
 behave identically to native; slot-bearing hooks (useCalendarDays,
 useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
 are not yet exposed.

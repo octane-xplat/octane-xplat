@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 153 runtime values and 180 types in index.gtk.ts, including
+Current availability is 161 runtime values and 196 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1328,3 +1328,26 @@ deduping the local name (and a single module can emit the same binding in
 two import statements — e.g. Button.tsrx). The plugin strips every emitted
 withSlot/hookSlots binding, restores one canonical import per module, and
 normalizes usages. X11/Xvfb evidence only.
+
+### Public GTK images and avatars
+
+Image, Thumbnail, thumbHashUri, the Avatar family (Avatar, AvatarStatusDot,
+AvatarGroup, AvatarGroupOverflow) and User are now public GTK exports
+(16 types beside). Availability is 161 values and 196 types.
+
+`ui-images.test.mjs` (21 checks, input:false) mounts them through the
+public root: a data: PNG lands a Gdk.Texture with real intrinsic dims (4x4),
+`contentFit` maps onto the picture's stretch, a bad src surfaces
+`imageError` with no texture, Avatar shows initials on absent src,
+AvatarGroup collapses to a +N overflow, and `thumbHashUri` produces a
+`thumbhash:` URI.
+
+`Image.gtk.tsrx` is a real leaf (the nativescript leaf uses `ImageSource` —
+unusable on GTK); `thumbhash.gtk.ts` decodes through GdkPixbuf+Soup for the
+same src grammar. The renderer's `image`/`svgview` binding grew
+`placeholder` (decoded and painted under a loading src, kept on failure),
+`scaleDown`/`none`→SCALE_DOWN stretch, and `isLoadingChange` ref events
+through the public-instance dispatcher so Thumbnail's load tracking works.
+Limits: `contentPosition` is unsupported (Gtk.Picture centres), 'none' and
+'scale-down' fit both resolve to GTK SCALE_DOWN (no true unscaled mode), and
+remote placeholder URLs are dropped per the shared contract.
