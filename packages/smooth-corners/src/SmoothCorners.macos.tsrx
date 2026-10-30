@@ -166,7 +166,7 @@ function applyOuter(view: any, w: number, h: number, props: SmoothCornersProps):
  *  read positioning metadata (left/top/row/col/…) off the outer wrapper's
  *  props; flex-container props (flexDirection/gap/…) land on the inner
  *  stack that owns the children. */
-export function SmoothCorners(props: SmoothCornersProps) @{
+export function SmoothCorners(props: SmoothCornersProps): unknown @{
 	const state = useRef<{ props: SmoothCornersProps }>({ props })
 	state.current.props = props
 

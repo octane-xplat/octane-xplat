@@ -5,7 +5,7 @@ import type { KeyboardAwareScrollViewProps } from './props'
 import type { KeyboardScrollBinding } from './scroll-types'
 
 /** Desktop/browser focus scrolling; software-keyboard movement remains neutral. */
-export function KeyboardAwareScrollView(props: KeyboardAwareScrollViewProps) @{
+export function KeyboardAwareScrollView(props: KeyboardAwareScrollViewProps): unknown @{
 	const [host, setHost] = useState<any>(null)
 	const attach = useCallback((next: any) => setHost(next?.native ?? null), [])
 	const binding = useRef<KeyboardScrollBinding | null>(null)

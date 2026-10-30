@@ -27,7 +27,7 @@ const formats = [
 ]
 
 /** Internal document transport. Engine handles never cross the WebKit boundary. */
-export function installEditorDocument(render: (props: any) => void) {
+export function installEditorDocument(render: (props: any) => void): void {
 	let handle: any = null
 	const pending: { method: string; args: any[] }[] = []
 	let selection = { start: 0, end: 0, active: [] as string[] }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import type { RollingTextProps } from './props'
 import { useRollingText } from './use-rolling.tsrx'
 import { layoutChildProps } from './layout-child.web'
@@ -19,7 +20,7 @@ const SR_ONLY: Record<string, string> = {
 }
 
 /** Single-line label whose text rolls per unit when `value` changes. */
-export function RollingText(props: RollingTextProps) @{
+export function RollingText(props: RollingTextProps): JSX.Element @{
 	const roll = useRollingText(props)
 	const layout = layoutChildProps(props, { display: 'inline-block', ...props.style })
 

@@ -1,19 +1,41 @@
 {
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"strict": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"target": "es2022",
 		"declaration": true,
+		"isolatedDeclarations": true,
 		"emitDeclarationOnly": true,
+		"noEmit": false,
 		"noEmitOnError": true,
-		"outDir": "types",
 		"rootDir": "src",
-		"skipLibCheck": true
+		"outDir": "types/generated",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"allowImportingTsExtensions": true,
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".gtk",
+			".windows"
+		],
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx"
 	},
 	"include": [
-		"src/types.ts",
-		"src/props.ts",
-		"src/focus-types.ts", "src/scroll-types.ts"
+		"src/**/*.ts",
+		"src/**/*.tsrx",
+		"src/**/*.tsx"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.spec.*"
 	]
 }

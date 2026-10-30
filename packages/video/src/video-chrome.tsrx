@@ -30,7 +30,7 @@ function stamp(ms: number): string {
 	return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`
 }
 
-export function VideoChrome(props: VideoChromeProps) @{
+export function VideoChrome(props: VideoChromeProps): unknown @{
 	const [visible, setVisible] = useState(true)
 
 	// Chrome auto-hides while playing; pausing or tapping brings it back.

@@ -36,7 +36,9 @@ export function useTransform(
 	options?: { clamp?: boolean },
 ): MotionValue
 
+/** Derive a numeric value by mapping ranges or transforming source samples. */
 export function useTransform(source: MotionValue, transform: (value: number) => number): MotionValue
+/** Derive a numeric value by mapping ranges or transforming source samples. */
 export function useTransform(
 	source: MotionValue[],
 	transform: (values: number[]) => number,

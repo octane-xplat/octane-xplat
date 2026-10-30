@@ -5,7 +5,7 @@ import { KeyboardScrollController } from './scroll-controller'
 import type { KeyboardAwareScrollViewProps } from './props'
 import type { KeyboardScrollBinding } from './scroll-types'
 
-export function KeyboardAwareScrollView(props: KeyboardAwareScrollViewProps) @{
+export function KeyboardAwareScrollView(props: KeyboardAwareScrollViewProps): unknown @{
 	const [host, setHost] = useState<any>(null)
 	const attach = useCallback((next: any) => setHost(next), [])
 	const binding = useRef<KeyboardScrollBinding | null>(null)

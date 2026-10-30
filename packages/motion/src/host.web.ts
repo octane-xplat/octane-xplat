@@ -15,7 +15,7 @@ import type { Target } from './types'
 
 /** Every element a motion host has attached to; lets the mutation filter
  *  recognize our own style writes. */
-export const motionHostElements = new WeakSet<Element>()
+export const motionHostElements: WeakSet<Element> = new WeakSet<Element>()
 
 export function attachHost(node: HTMLElement): HostAdapter {
 	const transform = node.style.transform

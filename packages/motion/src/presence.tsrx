@@ -1,13 +1,16 @@
+import type { Context } from 'octane'
 import { createContext, useRef, useLayoutEffect, useState } from 'octane'
 import { View } from '@octane-xplat/ui'
 import type { PresenceProps } from './types'
 import { PresenceState } from './presence-state'
 import { blockInput } from './presence-input'
 
-export const PresenceContext = createContext<PresenceState | null>(null)
+export const PresenceContext: Context<PresenceState | null> = createContext<PresenceState | null>(
+	null,
+)
 
 /** Retain live children until their exits finish. Keep this boundary mounted. */
-export function Presence(props: PresenceProps) @{
+export function Presence(props: PresenceProps): unknown @{
 	const [retained, setRetained] = useState(props.present)
 	const latest = useRef(props)
 	latest.current = props

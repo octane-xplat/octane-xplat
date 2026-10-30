@@ -11,7 +11,7 @@ import { emptyFocus, focusSelection } from './focus-geometry'
 import { focusPublisher } from './focus-publish'
 import { keyboardNativeScope } from './native-scope'
 
-export const focusRechecks = new Map<object, () => void>()
+export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()
 const dip = (value: number) => Utils.layout.toDeviceIndependentPixels(value)
 const location = (view: any) => {
 	const xy = (Array as any).create('int', 2)

@@ -6,7 +6,17 @@ import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
 export function createKeyboardMotion(
 	publish: (state: KeyboardWindowState) => void,
 	capabilities: { interactive: boolean; floating: boolean },
-) {
+): {
+	begin(target: KeyboardRect | null, duration?: number | null): void
+	measure(
+		windowRect: KeyboardRect,
+		currentFrame: KeyboardRect,
+		targetFrame?: KeyboardRect | null,
+		bindingFrame?: KeyboardRect,
+	): void
+	end(confirmed?: boolean): void
+	cancel(): void
+} {
 	let state: KeyboardWindowState | undefined
 	let transitionId = 0
 	let moving = false
@@ -29,7 +39,7 @@ export function createKeyboardMotion(
 		publish(state)
 	}
 	return {
-		begin(target: KeyboardRect | null, duration: number | null = null) {
+		begin(target: KeyboardRect | null, duration: number | null = null): void {
 			if (moving) {
 				emit('cancel')
 			}
@@ -64,14 +74,14 @@ export function createKeyboardMotion(
 			}
 			emit(moving ? 'move' : 'idle')
 		},
-		end(confirmed = false) {
+		end(confirmed = false): void {
 			if (!moving && !confirmed) {
 				return
 			}
 			moving = false
 			emit('end')
 		},
-		cancel() {
+		cancel(): void {
 			if (!moving) {
 				return
 			}

@@ -9,7 +9,7 @@ import { svgDocument } from './svg'
 
 /** Default categorical palette — Tableau 10, embedded so the leaf stays free
  *  of d3-scale-chromatic. */
-export const PALETTE = [
+export const PALETTE: string[] = [
 	'#4e79a7',
 	'#f28e2b',
 	'#e15759',

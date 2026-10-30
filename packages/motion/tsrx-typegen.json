@@ -1,7 +1,22 @@
 {
 	"targets": {
-		"pack": {
-			"emit": false
+		"motion": {
+			"renderer": "@octane-xplat/jsx",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": [
+						"./src/index.web.ts",
+						"./src/index.ts"
+					],
+					"types": [
+						"./types/generated/index.web.d.ts",
+						"./types/generated/index.d.ts"
+					]
+				}
+			}
 		}
 	}
 }

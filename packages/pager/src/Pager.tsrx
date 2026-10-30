@@ -240,7 +240,7 @@ const MemoPager = memo(
  *  per item, no indicator. Pages recycle through `itemTemplates` +
  *  `itemLoading`; active cell hosts are portals from the Pager's declaring
  *  tree, so provider context follows each cell. */
-export function Pager(props: PagerProps) @{
+export function Pager(props: PagerProps): unknown @{
 	@if (props.items.length > 0) {
 		<MemoPager
 			{...pickAccessibilityProps(props)}

@@ -30,7 +30,7 @@ export class PresenceState {
 			this.check()
 		}
 	}
-	setPresent(present: boolean) {
+	setPresent(present: boolean): void {
 		if (this.disposed || present === this.present) {
 			return
 		}
@@ -51,7 +51,7 @@ export class PresenceState {
 			this.check()
 		}
 	}
-	restart(member: PresenceMember) {
+	restart(member: PresenceMember): void {
 		if (this.disposed || this.present || !this.members.has(member)) {
 			return
 		}
@@ -87,7 +87,7 @@ export class PresenceState {
 			}
 		})
 	}
-	destroy() {
+	destroy(): void {
 		this.disposed = true
 		++this.generation
 		this.members.clear()

@@ -5,7 +5,10 @@ export function gridRowPosition(
 	pagination: { pageIndex: number; pageSize: number },
 	headerRows: number,
 	rowCount: number,
-) {
+): {
+	ariaIndex: number
+	label: string
+} {
 	const ordinal = pagination.pageIndex * pagination.pageSize + index + 1
 	return {
 		ariaIndex: headerRows + ordinal,

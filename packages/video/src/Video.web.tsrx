@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { VideoHandle, VideoProps } from './props'
 import { applyEscapeProps } from './escape-props'
@@ -17,7 +18,7 @@ const MEDIA_ERR: Record<number, string> = {
  *  shared `VideoChrome` overlay, identical source on every target. Times
  *  are milliseconds — converted from the element's seconds at the
  *  boundary. */
-export function Video(props: VideoProps) @{
+export function Video(props: VideoProps): JSX.Element @{
 	const el = useRef<HTMLVideoElement | null>(null)
 	const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false)
 	const [started, setStarted] = useState(false)

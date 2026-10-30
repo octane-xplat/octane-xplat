@@ -131,7 +131,15 @@ const mimeForFileUrl = (fileUrl: string): string =>
 
 /** Reserve a host-side movie file. `destinationFileUrl` is validated
  *  host-side: it must be a new file inside the app-private storage root. */
-export const reserveHostMovie = async (
+export const reserveHostMovie: (
+	host: CameraHost,
+	options: {
+		destinationFileUrl?: string
+		container?: string
+	},
+) => Promise<{
+	fileUrl: string
+}> = async (
 	host: CameraHost,
 	options: { destinationFileUrl?: string; container?: string },
 ): Promise<{ fileUrl: string }> => {
@@ -180,7 +188,11 @@ const supportsChunkedMovies = (host: CameraHost): Promise<boolean> => {
 /** Commit finalized movie bytes to host-side app-private storage. Hosts
  *  with the chunked contract stream 4MB slices — a multi-hundred-MB
  *  recording no longer materializes ~3-4x its size across the bridge. */
-export const commitHostMovie = async (
+export const commitHostMovie: (
+	host: CameraHost,
+	fileUrl: string,
+	bytes: Blob,
+) => Promise<MovieOutput> = async (
 	host: CameraHost,
 	fileUrl: string,
 	bytes: Blob,
@@ -220,13 +232,19 @@ export const commitHostMovie = async (
 }
 
 /** Drop an uncommitted host reservation after a failed attempt. */
-export const removeHostReservation = async (host: CameraHost, fileUrl: string): Promise<void> => {
+export const removeHostReservation: (host: CameraHost, fileUrl: string) => Promise<void> = async (
+	host: CameraHost,
+	fileUrl: string,
+): Promise<void> => {
 	await host.call('camera', 'deleteMovieFile', { fileUrl }).catch(() => {})
 }
 
 /** Reopen a host-stored movie as a temporary playback URL. The durable
  *  reference remains `fileUrl`; the returned url lives until `release()`. */
-export const openHostMovie = async (
+export const openHostMovie: (
+	host: CameraHost,
+	output: MovieOutput,
+) => Promise<MovieOutputHandle> = async (
 	host: CameraHost,
 	output: MovieOutput,
 ): Promise<MovieOutputHandle> => {

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/charts",
 	"version": "0.18.0",
-	"description": "Cross-platform SVG charts for Octane xplat — a DOM-free d3 core with web, iOS/Android, and macOS AppKit leaves",
+	"description": "Cross-platform SVG charts for Octane xplat \u2014 a DOM-free d3 core with web, iOS/Android, and macOS AppKit leaves",
 	"keywords": [
 		"android",
 		"charts",
@@ -24,7 +24,7 @@
 		"directory": "packages/charts"
 	},
 	"files": [
-		"types",
+		"types/generated",
 		"src",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
@@ -33,12 +33,18 @@
 	"exports": {
 		".": {
 			"macos": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
-			"types": "./types/index.d.ts",
-			"web": "./src/index.web.ts",
-			"native": "./src/index.ts",
+			"types": "./types/generated/index.d.ts",
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
 			"default": "./src/index.ts"
 		}
 	},
@@ -46,7 +52,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --target charts",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
@@ -92,5 +98,6 @@
 		"@nativescript/core": {
 			"optional": true
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

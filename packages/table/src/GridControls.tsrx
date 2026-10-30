@@ -31,7 +31,7 @@ export function GridControls(props: {
 	id?: string
 	settings?: boolean
 	search?: boolean
-}) {
+}): unknown {
 	const [settingsOpen, setSettingsOpen] = useState(false)
 	void props.state
 	const table = props.table
@@ -112,7 +112,7 @@ export function GridPagination(props: {
 	state: any
 	id?: string
 	sizes?: readonly number[]
-}) {
+}): unknown {
 	void props.state
 	const table = props.table
 	const { pageIndex, pageSize } = props.state.pagination

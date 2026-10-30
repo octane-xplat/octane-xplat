@@ -2,7 +2,7 @@ import type { DelegatedRun } from './host-types'
 
 // Probe-visible counters so retained probes can distinguish a real delegated
 // run from a silent JS-engine fallback without widening the public API.
-export function delegationStats() {
+export function delegationStats(): any {
 	const platform = globalThis as any
 	return (platform.__xplatMotionDelegations ??= {
 		started: 0,

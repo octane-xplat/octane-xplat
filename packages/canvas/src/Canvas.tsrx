@@ -12,7 +12,7 @@ registerElement('nscanvas', NSCanvas)
 /** Canvas — DOM Canvas API surface on native. `onReady` wraps the plugin's
  *  `ready` event: it fires once the GPU surface exists, which is the
  *  earliest `getContext` may be called. */
-export function Canvas(props: CanvasProps) @{
+export function Canvas(props: CanvasProps): unknown @{
 	const ready = (event: any) => {
 		const canvas = event.object
 		props.onReady?.({

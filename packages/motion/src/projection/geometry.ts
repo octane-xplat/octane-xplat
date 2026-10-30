@@ -30,19 +30,19 @@ export {
 	has2DTranslate,
 } from 'motion-dom'
 
-export function mixAxisDeltaLinear(output: AxisDelta, delta: AxisDelta, p: number) {
+export function mixAxisDeltaLinear(output: AxisDelta, delta: AxisDelta, p: number): void {
 	output.translate = mixNumber(delta.translate, 0, p)
 	output.scale = mixNumber(delta.scale, 1, p)
 	output.origin = delta.origin
 	output.originPoint = delta.originPoint
 }
 
-export function mixAxis(output: Axis, from: Axis, to: Axis, p: number) {
+export function mixAxis(output: Axis, from: Axis, to: Axis, p: number): void {
 	output.min = mixNumber(from.min, to.min, p)
 	output.max = mixNumber(from.max, to.max, p)
 }
 
-export function mixBox(output: Box, from: Box, to: Box, p: number) {
+export function mixBox(output: Box, from: Box, to: Box, p: number): void {
 	mixAxis(output.x, from.x, to.x, p)
 	mixAxis(output.y, from.y, to.y, p)
 }

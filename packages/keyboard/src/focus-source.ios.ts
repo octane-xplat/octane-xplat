@@ -37,7 +37,7 @@ const masonScrollsY = (view: any) => {
 	}
 }
 
-export const focusRechecks = new Map<object, () => void>()
+export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()
 let Target: any
 const targetFor = (read: () => void) => {
 	if (!Target) {

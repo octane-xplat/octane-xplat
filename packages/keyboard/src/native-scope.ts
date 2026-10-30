@@ -1,12 +1,15 @@
 /** @internal Release every owned native resource, including failed attachment. */
-export function keyboardNativeScope() {
+export function keyboardNativeScope(): {
+	defer(release: () => void): void
+	release(): void
+} {
 	let active = true
 	const releases: (() => void)[] = []
 	return {
 		defer(release: () => void) {
 			releases.push(release)
 		},
-		release() {
+		release(): void {
 			if (!active) {
 				return
 			}

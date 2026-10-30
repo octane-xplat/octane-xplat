@@ -9,16 +9,31 @@ export function restoreNativeFocus(
 	let cancelled = false
 	let attempts = 0
 	const check = () => {
-		if (cancelled || !isCurrent() || !layer) return
+		if (cancelled || !isCurrent() || !layer) {
+			return
+		}
 		if (layer.parent) {
-			if (++attempts < 100) timer = setTimeout(check, 16)
+			if (++attempts < 100) {
+				timer = setTimeout(check, 16)
+			}
+
 			return
 		}
 		for (const target of targets()) {
-			if (!target?.parent || target.isLoaded === false || typeof target.focus !== 'function') continue
-			if (target.focus()) break
+			if (!target?.parent || target.isLoaded === false || typeof target.focus !== 'function') {
+				continue
+			}
+
+			if (target.focus()) {
+				break
+			}
 		}
 	}
 	timer = setTimeout(check, 0)
-	return () => { cancelled = true; if (timer !== undefined) clearTimeout(timer) }
+	return (): void => {
+		cancelled = true
+		if (timer !== undefined) {
+			clearTimeout(timer)
+		}
+	}
 }

@@ -3,9 +3,10 @@ export type Rect = { x: number; y: number; w: number; h: number }
 /** Everything needed to draw the image at one moment, in screen space. */
 export type Visual = { img: Rect; clip: Rect; radius: number; opacity: number }
 
-export const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
+export const clamp = (v: number, min: number, max: number): number =>
+	Math.min(max, Math.max(min, v))
 
-export const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+export const lerp = (a: number, b: number, t: number): number => a + (b - a) * t
 
 const lerpRect = (a: Rect, b: Rect, t: number): Rect => ({
 	x: lerp(a.x, b.x, t),
@@ -22,7 +23,13 @@ export const lerpVisual = (a: Visual, b: Visual, t: number): Visual => ({
 })
 
 /** Place a box with `aspect` (w/h) inside `box` like CSS object-fit + object-position. */
-export function fit(aspect: number, box: Rect, mode: 'contain' | 'cover' = 'contain', posX = 0.5, posY = 0.5): Rect {
+export function fit(
+	aspect: number,
+	box: Rect,
+	mode: 'contain' | 'cover' = 'contain',
+	posX = 0.5,
+	posY = 0.5,
+): Rect {
 	const byWidth = aspect > box.w / box.h === (mode === 'contain')
 	const w = byWidth ? box.w : box.h * aspect
 	const h = byWidth ? box.w / aspect : box.h
@@ -58,11 +65,11 @@ export const scaleRect = (r: Rect, s: number): Rect => ({
 })
 
 /** iOS-style rubber band: how far content travels when pulled `overflow` px past an edge. */
-export const rubber = (overflow: number, dimension: number, c = 0.55) =>
+export const rubber = (overflow: number, dimension: number, c = 0.55): number =>
 	Math.sign(overflow) * (1 - 1 / ((Math.abs(overflow) * c) / dimension + 1)) * dimension
 
 /** Apply rubber banding to `v` outside [min, max]. */
-export const band = (v: number, min: number, max: number, dimension: number) =>
+export const band = (v: number, min: number, max: number, dimension: number): number =>
 	v < min ? min + rubber(v - min, dimension) : v > max ? max + rubber(v - max, dimension) : v
 
 /**
@@ -82,7 +89,7 @@ export function panRange(pos: number, size: number, s: number, view: number): [n
 }
 
 /** New translate so the point under `focus` stays put when scale goes s0 → s1. */
-export const zoomAt = (pos: number, t: number, s0: number, s1: number, focus: number) =>
+export const zoomAt = (pos: number, t: number, s0: number, s1: number, focus: number): number =>
 	focus - (focus - (pos + t)) * (s1 / s0) - pos
 
 /** Rounded inset clip in the image's local (unscaled) space. */
@@ -94,7 +101,17 @@ export type Inset = { top: number; right: number; bottom: number; left: number }
  * numerically — the web ClipWriter formats `inset(… round …)` itself and the
  * native writers feed them to CALayer / OutlineProvider.
  */
-export function toStyle(v: Visual, base: Rect) {
+export function toStyle(
+	v: Visual,
+	base: Rect,
+): {
+	x: number
+	y: number
+	scale: number
+	inset: { top: number; right: number; bottom: number; left: number }
+	radius: number
+	opacity: number
+} {
 	// Zero-size or unmeasured bases can't produce a meaningful scale — emit a
 	// finite identity rather than NaN/∞ (native layout races hit this).
 	const s = base.w && Number.isFinite(base.w) ? v.img.w / base.w : 1

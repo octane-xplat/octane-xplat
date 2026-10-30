@@ -14,7 +14,7 @@ import type { DragInfo } from './types'
 // shares the registry; applications should reserve this range for motion.
 let tag = 700000000
 
-export function attachPan(node: any, axis: true | 'x' | 'y', callbacks: PanCallbacks) {
+export function attachPan(node: any, axis: true | 'x' | 'y', callbacks: PanCallbacks): () => void {
 	// 2.0.45 config setters take raw Android pixels (their converter is
 	// getter-only); payloads already convert back to DIP.
 	const androidHost = Boolean((globalThis as any).android)

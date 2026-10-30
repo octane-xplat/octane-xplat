@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { useMotionValue } from '@octane-xplat/motion'
 import type { AnimationControls } from '@octane-xplat/motion'
@@ -18,12 +19,15 @@ import type { LightboxImagePartProps } from './props'
 export type LightboxImageProps = LightboxImagePartProps
 
 const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
-const clipPathOf = (inset: { top: number; right: number; bottom: number; left: number }, radius: number) =>
+const clipPathOf = (
+	inset: { top: number; right: number; bottom: number; left: number },
+	radius: number,
+) =>
 	inset.top || inset.right || inset.bottom || inset.left || radius
 		? `inset(${inset.top}px ${inset.right}px ${inset.bottom}px ${inset.left}px round ${radius}px)`
 		: 'none'
 
-export function Image(props: LightboxImageProps) {
+export function Image(props: LightboxImageProps): JSX.Element {
 	const ctx = useLightboxCtx()
 	const slide = useSlideCtx()
 	const { index } = slide
@@ -49,9 +53,15 @@ export function Image(props: LightboxImageProps) {
 
 	const openFrame = useRef<number | null>(null)
 	const stop = () => {
-		if (openFrame.current !== null) cancelAnimationFrame(openFrame.current)
+		if (openFrame.current !== null) {
+			cancelAnimationFrame(openFrame.current)
+		}
+
 		openFrame.current = null
-		for (const a of anims.current) a.stop()
+		for (const a of anims.current) {
+			a.stop()
+		}
+
 		anims.current = []
 	}
 
@@ -60,31 +70,58 @@ export function Image(props: LightboxImageProps) {
 		const el = slideEl()
 		const measure = () => {
 			const cs = getComputedStyle(el)
-			const [pl, pt, pr, pb] = [cs.paddingLeft, cs.paddingTop, cs.paddingRight, cs.paddingBottom].map(parseFloat)
+			const [pl, pt, pr, pb] = [
+				cs.paddingLeft,
+				cs.paddingTop,
+				cs.paddingRight,
+				cs.paddingBottom,
+			].map(parseFloat)
+
 			const next = { x: pl, y: pt, w: el.clientWidth - pl - pr, h: el.clientHeight - pt - pb }
-			setBox((b) => (b && b.x === next.x && b.y === next.y && b.w === next.w && b.h === next.h ? b : next))
+			setBox((b) =>
+				b && b.x === next.x && b.y === next.y && b.w === next.w && b.h === next.h ? b : next,
+			)
 		}
+
 		measure()
 		const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null
 		ro?.observe(el)
 		el.style.touchAction = 'pan-x'
 		const trigger = [...(ctx.triggers.get(index) ?? [])][0]
 		const thumb = trigger && thumbImg(trigger)
-		if (thumb?.currentSrc) setPlaceholder(thumb.currentSrc)
+		if (thumb?.currentSrc) {
+			setPlaceholder(thumb.currentSrc)
+		}
+
 		if (!aspect && trigger) {
 			const r = trigger.getBoundingClientRect()
-			setAspect(thumb?.naturalWidth ? thumb.naturalWidth / thumb.naturalHeight : r.height ? r.width / r.height : 1.5)
+			setAspect(
+				thumb?.naturalWidth
+					? thumb.naturalWidth / thumb.naturalHeight
+					: r.height
+						? r.width / r.height
+						: 1.5,
+			)
 		}
+
 		const media = imgRef.current as (HTMLImageElement & { readyState?: number }) | null
-		if (media && (media.complete ? media.naturalWidth : (media.readyState ?? 0) >= 2)) onLoad()
+		if (media && (media.complete ? media.naturalWidth : (media.readyState ?? 0) >= 2)) {
+			onLoad()
+		}
+
 		return () => ro?.disconnect()
 	}, [])
 
 	const onLoad = () => {
 		const img = imgRef.current
-		if (!img) return
+		if (!img) {
+			return
+		}
+
 		setLoaded(true)
-		if (!(item?.width && item.height) && img.naturalWidth) setAspect(img.naturalWidth / img.naturalHeight)
+		if (!(item?.width && item.height) && img.naturalWidth) {
+			setAspect(img.naturalWidth / img.naturalHeight)
+		}
 	}
 
 	/** Screen rect of the fitted image at rest. */
@@ -94,15 +131,20 @@ export function Image(props: LightboxImageProps) {
 		const f = live.current.F!
 		return { x: r.left + el.clientLeft + f.x, y: r.top + el.clientTop + f.y, w: f.w, h: f.h }
 	}
+
 	const radius = () =>
 		imgRef.current ? radiusOf(imgRef.current, imgRef.current.getBoundingClientRect()) : 0
 
 	// MotionValues drive the transform; the clip only exists during the morph.
 	const sync = () => {
 		const el = wrapRef.current
-		if (!el) return
+		if (!el) {
+			return
+		}
+
 		el.style.transform = `translate(${x.get()}px, ${y.get()}px) scale(${scale.get()})`
 	}
+
 	useLayoutEffect(() => {
 		const offs = [x.on('change', sync), y.on('change', sync), scale.on('change', sync)]
 		return () => offs.forEach((o) => o())
@@ -110,7 +152,10 @@ export function Image(props: LightboxImageProps) {
 
 	const apply = (v: Visual, b: Rect) => {
 		const el = wrapRef.current
-		if (!el) return
+		if (!el) {
+			return
+		}
+
 		const s = toStyle(v, b)
 		x.set(s.x)
 		y.set(s.y)
@@ -120,18 +165,28 @@ export function Image(props: LightboxImageProps) {
 		el.style.opacity = String(s.opacity)
 		morph.current = v
 	}
+
 	const current = (b: Rect): Visual => {
-		if (morph.current) return morph.current
+		if (morph.current) {
+			return morph.current
+		}
+
 		const s = scale.get()
 		const img = { x: b.x + x.get(), y: b.y + y.get(), w: b.w * s, h: b.h * s }
 		return { img, clip: img, radius: radius(), opacity: 1 }
 	}
-	const run = (transition: Parameters<typeof prog.animate>[1] & object, onUpdate: (p: number) => void, velocity = 0) =>
+
+	const run = (
+		transition: Parameters<typeof prog.animate>[1] & object,
+		onUpdate: (p: number) => void,
+		velocity = 0,
+	) =>
 		new Promise<void>((resolve) => {
 			const done = () => {
 				pending.current.delete(done)
 				resolve()
 			}
+
 			pending.current.add(done)
 			// 0→1 progress needs a small restDelta so springs don't idle near the end.
 			prog.jump(0)
@@ -144,6 +199,7 @@ export function Image(props: LightboxImageProps) {
 					velocity,
 				}),
 			)
+
 			void anims.current[anims.current.length - 1]!.finished.then(() => {
 				off()
 				done()
@@ -159,39 +215,62 @@ export function Image(props: LightboxImageProps) {
 				// defer one frame before falling back to the presence fade.
 				openFrame.current = requestAnimationFrame(() => {
 					openFrame.current = null
-					if (!wrapRef.current) return
-					if (!morph.current && (live.current.ctx.phase === 'opening' || live.current.ctx.phase === 'open')) {
+					if (!wrapRef.current) {
+						return
+					}
+
+					if (
+						!morph.current &&
+						(live.current.ctx.phase === 'opening' || live.current.ctx.phase === 'open')
+					) {
 						if (live.current.F && base().w) {
 							this.animateIn?.(trigger)
 						} else {
 							ctx.presence.set(0)
 							const animation = ctx.presence.animate(1, ctx.options.open)
 							anims.current.push(animation)
-							void animation.finished.then(result => {
-								if (result === 'finished' && wrapRef.current && live.current.ctx.phase === 'opening') ctx.onOpened()
+							void animation.finished.then((result) => {
+								if (
+									result === 'finished' &&
+									wrapRef.current &&
+									live.current.ctx.phase === 'opening'
+								) {
+									ctx.onOpened()
+								}
 							})
 						}
 					}
 				})
+
 				return
 			}
+
 			const r = radius()
 			const rest = (b: Rect): Visual => ({ img: b, clip: b, radius: r, opacity: 1 })
 			const thumb = !ctx.reducedMotion && trigger ? thumbVisual(trigger, aspect) : null
 			const from = thumb ?? fadeVisual(rest(base()))
 			apply(from, base())
 			ctx.presence.set(0)
-			if (thumb) ctx.hideTrigger(trigger)
+			if (thumb) {
+				ctx.hideTrigger(trigger)
+			}
+
 			// Endpoints are re-read every frame, so anything still settling underneath can't knock the morph off target.
 			void run(ctx.options.open, (p) => {
 				const b = base()
-				if (!b.w) return
+				if (!b.w) {
+					return
+				}
+
 				apply(lerpVisual(from, rest(b), p), b)
 				ctx.presence.set(clamp(p, 0, 1))
 			}).then(() => {
 				morph.current = null
 				const el = wrapRef.current
-				if (el) el.style.clipPath = 'none'
+				if (el) {
+					el.style.clipPath = 'none'
+				}
+
 				x.set(0)
 				y.set(0)
 				scale.set(1)
@@ -205,35 +284,54 @@ export function Image(props: LightboxImageProps) {
 				await ctx.presence.animate(0, ctx.options.close).finished
 				return
 			}
+
 			const from = current(base())
 			// The gallery may still be settling under us; don't let the slide clip the flight home.
 			slideEl().style.overflow = 'visible'
 			const thumb = !ctx.reducedMotion && trigger ? thumbVisual(trigger, aspect) : null
 			const to = thumb ?? fadeVisual(from)
-			if (thumb) ctx.hideTrigger(trigger)
+			if (thumb) {
+				ctx.hideTrigger(trigger)
+			}
+
 			// Follow the thumbnail if the page is still moving.
 			const t0 = trigger?.getBoundingClientRect()
 			const target = (): Visual => {
-				if (!thumb || !trigger || !t0) return to
+				if (!thumb || !trigger || !t0) {
+					return to
+				}
+
 				const r = trigger.getBoundingClientRect()
 				return shiftVisual(to, r.left - t0.left, r.top - t0.top)
 			}
+
 			// Carry release velocity into the morph so a flick flows straight home.
 			const c0 = center(from.img)
 			const pv = velocity ? center(to.img) : c0
 			void velocity // velocity projection lives in the spring's `velocity` below
-			await run(ctx.options.close, (p) => {
-				const b = base()
-				if (!b.w) return
-				apply(lerpVisual(from, target(), p), b)
-				ctx.presence.set(1 - clamp(p, 0, 1))
-			}, velocity && pv ? Math.hypot(velocity.x, velocity.y) * 0.001 : 0)
+			await run(
+				ctx.options.close,
+				(p) => {
+					const b = base()
+					if (!b.w) {
+						return
+					}
+
+					apply(lerpVisual(from, target(), p), b)
+					ctx.presence.set(1 - clamp(p, 0, 1))
+				},
+				velocity && pv ? Math.hypot(velocity.x, velocity.y) * 0.001 : 0,
+			)
 		},
 		zoomBy(factor) {
-			for (const c of machine.send({ kind: 'zoomBy', factor })) exec(c)
+			for (const c of machine.send({ kind: 'zoomBy', factor })) {
+				exec(c)
+			}
 		},
 		resetZoom() {
-			for (const c of machine.send({ kind: 'resetZoom' })) exec(c)
+			for (const c of machine.send({ kind: 'resetZoom' })) {
+				exec(c)
+			}
 		},
 	}
 
@@ -257,6 +355,7 @@ export function Image(props: LightboxImageProps) {
 					y.animate(c.t.y, SETTLE),
 					scale.animate(c.t.scale, SETTLE),
 				)
+
 				break
 			case 'inertia':
 				anims.current.push(
@@ -275,6 +374,7 @@ export function Image(props: LightboxImageProps) {
 						...INERTIA,
 					}),
 				)
+
 				break
 			case 'presence':
 				ctx.presence.set(c.value)
@@ -300,13 +400,20 @@ export function Image(props: LightboxImageProps) {
 						this.prevented = true
 					},
 				}
+
 				live.current.slide.onTap?.(event as never)
-				if (event.prevented) break
+				if (event.prevented) {
+					break
+				}
+
 				if (c.target === 'backdrop') {
-					if (live.current.ctx.options.closeOnBackdropClick) live.current.ctx.close()
+					if (live.current.ctx.options.closeOnBackdropClick) {
+						live.current.ctx.close()
+					}
 				} else if (c.pointer !== 'mouse') {
 					live.current.ctx.toggleUi()
 				}
+
 				break
 			}
 			case 'track':
@@ -322,15 +429,31 @@ export function Image(props: LightboxImageProps) {
 		maxZoom: () => ctx.options.maxZoom,
 		itemCount: () => ctx.items.length,
 		interactive: () =>
-			live.current.ctx.phase === 'open' && live.current.ctx.index === index && live.current.F !== null,
+			live.current.ctx.phase === 'open' &&
+			live.current.ctx.index === index &&
+			live.current.F !== null,
 	}
+
 	const machine = useMemo(() => createGestureMachine(env), [])
-	const detector = useMemo(() => createTapDetector({ now: () => performance.now(), schedule: (fn, ms) => { const id = setTimeout(fn, ms); return () => clearTimeout(id) } }), [])
+	const detector = useMemo(
+		() =>
+			createTapDetector({
+				now: () => performance.now(),
+				schedule: (fn, ms) => {
+					const id = setTimeout(fn, ms)
+					return () => clearTimeout(id)
+				},
+			}),
+		[],
+	)
 
 	// Gesture DOM adapter: pointer pan/pinch, wheel zoom/pull, taps via the detector.
 	useEffect(() => {
 		const el = wrapRef.current
-		if (!el) return
+		if (!el) {
+			return
+		}
+
 		const pointers = new Map<number, XY>()
 		const moves: { t: number; p: XY }[] = []
 		let moved = false
@@ -340,18 +463,28 @@ export function Image(props: LightboxImageProps) {
 		const send = (i: Intent) => {
 			for (const c of machine.send(i)) {
 				// Touch and trackpad paging retain the browser's native scroll-snap.
-				if (c.kind !== 'track' || downPointer === 'mouse') exec(c)
+				if (c.kind !== 'track' || downPointer === 'mouse') {
+					exec(c)
+				}
 			}
 		}
+
 		const velocity = (): XY => {
 			const now = performance.now()
-			while (moves.length && now - moves[0]!.t > 100) moves.shift()
-			if (moves.length < 2) return { x: 0, y: 0 }
+			while (moves.length && now - moves[0]!.t > 100) {
+				moves.shift()
+			}
+
+			if (moves.length < 2) {
+				return { x: 0, y: 0 }
+			}
+
 			const a = moves[0]!
 			const b = moves[moves.length - 1]!
 			const dt = Math.max(1, b.t - a.t)
 			return { x: ((b.p.x - a.p.x) / dt) * 1000, y: ((b.p.y - a.p.y) / dt) * 1000 }
 		}
+
 		const firstTwo = () => [...pointers.values()].slice(0, 2) as [XY, XY]
 		const pairOf = (id: number): [XY, XY] | null => {
 			const other = [...pointers.entries()].find(([k]) => k !== id)
@@ -360,14 +493,24 @@ export function Image(props: LightboxImageProps) {
 		}
 
 		const ignoreTarget = (t: EventTarget | null) =>
-			t instanceof HTMLElement && t.closest('button, a, input, textarea, select, video, [data-lightbox-ignore]')
+			t instanceof HTMLElement &&
+			t.closest('button, a, input, textarea, select, video, [data-lightbox-ignore]')
 
 		const onPointerDown = (e: PointerEvent) => {
-			if (e.pointerType === 'mouse' && e.button !== 0) return
-			if (ignoreTarget(e.target)) return
+			if (e.pointerType === 'mouse' && e.button !== 0) {
+				return
+			}
+
+			if (ignoreTarget(e.target)) {
+				return
+			}
+
 			pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
 			// Synthesized pointer events have no active pointer to capture.
-			try { el.setPointerCapture?.(e.pointerId) } catch {}
+			try {
+				el.setPointerCapture?.(e.pointerId)
+			} catch {}
+
 			if (pointers.size === 1) {
 				down = { x: e.clientX, y: e.clientY }
 				downPointer = e.pointerType || 'touch'
@@ -382,50 +525,74 @@ export function Image(props: LightboxImageProps) {
 				send({ kind: 'pinchStart', a: toSlide(a.x, a.y), b: toSlide(b.x, b.y) })
 			}
 		}
+
 		const onPointerMove = (e: PointerEvent) => {
 			const prev = pointers.get(e.pointerId)
-			if (!prev) return
+			if (!prev) {
+				return
+			}
+
 			pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
 			moves.push({ t: performance.now(), p: { x: e.clientX, y: e.clientY } })
-			if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) >= 6) moved = true
+			if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) >= 6) {
+				moved = true
+			}
+
 			if (pointers.size >= 2) {
 				const pair = pairOf(e.pointerId)
-				if (pair) send({ kind: 'pinchMove', a: toSlide(pair[0].x, pair[0].y), b: toSlide(pair[1].x, pair[1].y) })
+				if (pair) {
+					send({
+						kind: 'pinchMove',
+						a: toSlide(pair[0].x, pair[0].y),
+						b: toSlide(pair[1].x, pair[1].y),
+					})
+				}
 			} else {
 				send({ kind: 'panMove', at: toSlide(e.clientX, e.clientY) })
 			}
 		}
+
 		const onPointerUp = (e: PointerEvent) => {
 			const wasPinch = pointers.size >= 2
 			const at = pointers.get(e.pointerId) ?? { x: e.clientX, y: e.clientY }
 			pointers.delete(e.pointerId)
 			const cancelled = e.type === 'pointercancel'
 			if (wasPinch) {
-				if (pointers.size < 2) send({ kind: 'pinchEnd', cancelled })
+				if (pointers.size < 2) {
+					send({ kind: 'pinchEnd', cancelled })
+				}
+
 				return
 			}
+
 			const v = velocity()
 			send({ kind: 'panEnd', at: toSlide(at.x, at.y), velocity: v, cancelled })
 			if (!cancelled && down && !moved) {
 				// Tap: fire through the detector — it delays for the double-tap window when zoom can apply.
 				const onImage = insideImage(e.clientX, e.clientY)
-				const waitForDouble = live.current.ctx.options.maxZoom > 1 && !(downPointer === 'mouse' && !onImage)
+				const waitForDouble =
+					live.current.ctx.options.maxZoom > 1 && !(downPointer === 'mouse' && !onImage)
+
 				const atSlide = toSlide(e.clientX, e.clientY)
 				const pointer = (e.pointerType || 'touch') as never
 				detector.up(atSlide, pointer, waitForDouble, (i) => send(i))
 			}
+
 			down = null
 			mouseOrigin = null
 		}
+
 		const insideImage = (cx2: number, cy2: number) => {
 			const r = el.getBoundingClientRect()
 			return cx2 >= r.left && cx2 <= r.right && cy2 >= r.top && cy2 <= r.bottom
 		}
+
 		const slideOrigin = () => {
 			const r = slideEl().getBoundingClientRect()
 			const s = slideEl()
 			return { x: r.left + s.clientLeft, y: r.top + s.clientTop }
 		}
+
 		const toSlide = (cx2: number, cy2: number): XY => {
 			// The slide moves under a captured mouse pointer while paging. Keep
 			// its original coordinate space so scroll displacement isn't added twice.
@@ -441,11 +608,15 @@ export function Image(props: LightboxImageProps) {
 			wheel = { dy: 0, t0: 0 }
 			wheelTimer = null
 		}
+
 		const onWheel = (e: WheelEvent) => {
 			const sEl = slideEl()
 			const r = sEl.getBoundingClientRect()
 			const f = live.current.F
-			if (!f || live.current.ctx.phase !== 'open') return
+			if (!f || live.current.ctx.phase !== 'open') {
+				return
+			}
+
 			if (e.ctrlKey || e.metaKey || live.current.ctx.options.wheelToZoom) {
 				e.preventDefault()
 				const p = { x: e.clientX - r.left, y: e.clientY - r.top }
@@ -453,14 +624,19 @@ export function Image(props: LightboxImageProps) {
 				send({ kind: 'zoomNow', scale: scale.get() * factor, focal: p })
 				return
 			}
+
 			// Vertical pull: accumulate and let go after 120ms of quiet.
 			if (wheelTimer == null) {
 				send({ kind: 'panStart', at: { x: f.x + f.w / 2, y: f.y + f.h / 2 }, pointer: 'wheel' })
 				wheel.t0 = performance.now()
 			}
+
 			wheel.dy += e.deltaY
 			send({ kind: 'panMove', at: { x: f.x + f.w / 2, y: f.y + f.h / 2 + wheel.dy } })
-			if (wheelTimer) clearTimeout(wheelTimer)
+			if (wheelTimer) {
+				clearTimeout(wheelTimer)
+			}
+
 			wheelTimer = setTimeout(() => {
 				const dt = Math.max(1, performance.now() - wheel.t0)
 				send({
@@ -469,6 +645,7 @@ export function Image(props: LightboxImageProps) {
 					velocity: { x: 0, y: (wheel.dy / dt) * 1000 },
 					cancelled: false,
 				})
+
 				wheelReset()
 			}, 120)
 		}
@@ -481,14 +658,22 @@ export function Image(props: LightboxImageProps) {
 			g0 = { a: { x: c.x - 50, y: c.y }, b: { x: c.x + 50, y: c.y } }
 			send({ kind: 'pinchStart', a: g0.a, b: g0.b })
 		}
+
 		const onGestureChange = (e: Event) => {
-			if (!g0) return
+			if (!g0) {
+				return
+			}
+
 			const gs = (e as unknown as { scale: number }).scale ?? 1
 			const c = center(live.current.F ?? { x: 0, y: 0, w: 0, h: 0 })
 			send({ kind: 'pinchMove', a: { x: c.x - 50 * gs, y: c.y }, b: { x: c.x + 50 * gs, y: c.y } })
 		}
+
 		const onGestureEnd = (e: Event) => {
-			if (!g0) return
+			if (!g0) {
+				return
+			}
+
 			g0 = null
 			send({ kind: 'pinchEnd', cancelled: e.type === 'gesturecancel' })
 		}
@@ -510,7 +695,10 @@ export function Image(props: LightboxImageProps) {
 			el.removeEventListener('gesturestart', onGestureStart)
 			el.removeEventListener('gesturechange', onGestureChange)
 			el.removeEventListener('gestureend', onGestureEnd)
-			if (wheelTimer) clearTimeout(wheelTimer)
+			if (wheelTimer) {
+				clearTimeout(wheelTimer)
+			}
+
 			detector.cancel()
 			send({ kind: 'reset' })
 		}
@@ -527,35 +715,53 @@ export function Image(props: LightboxImageProps) {
 		ctx.images.set(index, controller)
 		return () => void ctx.images.delete(index)
 	}, [index])
+
 	useLayoutEffect(() => {
 		const off = scale.on('change', (s) => live.current.ctx.setZoomed(s > 1.01))
 		return () => {
 			off()
-			if (live.current.ctx.index === index) live.current.ctx.setZoomed(false)
+			if (live.current.ctx.index === index) {
+				live.current.ctx.setZoomed(false)
+			}
 		}
 	}, [index])
+
 	// Start the open morph once the viewer is opening on this slide.
 	useLayoutEffect(() => {
 		if (ctx.phase === 'opening' && ctx.index === index) {
 			controller.animateIn(ctx.openTrigger.current ?? ctx.pickTrigger(index, false))
 		}
 	}, [ctx.phase])
+
 	// Resize → identity (upstream).
 	useLayoutEffect(() => {
-		if (!F) return
+		if (!F) {
+			return
+		}
+
 		machine.send({ kind: 'reset' })
 		setTransform({ x: 0, y: 0, scale: 1 })
 	}, [F?.x, F?.y, F?.w, F?.h])
+
 	// Unmounting mid-animation still lets the root finish opening/closing.
 	useEffect(
 		() => () => {
 			stop()
-			for (const done of pending.current) done()
+			for (const done of pending.current) {
+				done()
+			}
 		},
 		[],
 	)
 
-	const fill: Record<string, unknown> = { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }
+	const fill: Record<string, unknown> = {
+		position: 'absolute',
+		inset: 0,
+		width: '100%',
+		height: '100%',
+		display: 'block',
+	}
+
 	return (
 		<div
 			ref={wrapRef}
@@ -574,7 +780,9 @@ export function Image(props: LightboxImageProps) {
 				WebkitTouchCallout: 'none',
 			}}
 		>
-			{placeholder && !loaded ? <img src={placeholder} alt="" aria-hidden draggable={false} style={fill} /> : null}
+			{placeholder && !loaded ? (
+				<img src={placeholder} alt="" aria-hidden draggable={false} style={fill} />
+			) : null}
 			<img
 				ref={imgRef as never}
 				src={props.src ?? item?.src}

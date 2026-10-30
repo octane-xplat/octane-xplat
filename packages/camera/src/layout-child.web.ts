@@ -1,6 +1,11 @@
 import type { CameraViewProps } from './props'
 
-export function layoutChildProps(props: CameraViewProps, baseStyle: any = props.style) {
+export function layoutChildProps(
+	props: CameraViewProps,
+	baseStyle: any = props.style,
+): {
+	style: any
+} {
 	const style = { ...baseStyle }
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`

@@ -14,7 +14,11 @@ const now: () => number = Application.ios
 		? () => platform.java.lang.System.nanoTime() / 1e6
 		: () => Date.now()
 
-export const frame = {
+export const frame: {
+	now: () => number
+	request: (callback: () => void) => any
+	cancel: (id: number) => void
+} = {
 	now,
 	request: (callback: () => void) => requestAnimationFrame(callback) as any,
 	cancel: (id: number) => cancelAnimationFrame(id),

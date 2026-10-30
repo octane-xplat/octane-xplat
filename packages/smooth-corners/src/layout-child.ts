@@ -24,7 +24,7 @@ const MARGIN_KEYS = ['margin', 'marginTop', 'marginRight', 'marginBottom', 'marg
  *  element's border box and move out to the wrapper. Width/height stay: the
  *  AppKit inner stack cannot stretch along its parent's main axis, so it
  *  must keep its own size. */
-export function paintedStyle(style: any) {
+export function paintedStyle(style: any): any {
 	if (!style || typeof style !== 'object') {
 		return style
 	}
@@ -42,7 +42,9 @@ export function paintedStyle(style: any) {
  *  same style keys as the shared layout-child helper; the box-geometry
  *  keys (size/margins) mirror out of `style` since parent layouts read the
  *  child's own box. */
-export function outerLayoutProps(props: LayoutChildProps & { style?: any }) {
+export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
+	style: Record<string, any>
+} {
 	const style: Record<string, any> = {}
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
@@ -101,7 +103,9 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }) {
  *  same style keys as on web. */
 export function innerLayoutProps(
 	props: FlexContainerProps & Pick<SmoothCornersProps, 'flexDirection'>,
-) {
+): {
+	style: Record<string, any>
+} {
 	const style: Record<string, any> = {}
 	if (props.flexDirection !== undefined) {
 		style.flexDirection = props.flexDirection

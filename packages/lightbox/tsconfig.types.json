@@ -1,18 +1,19 @@
 {
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"strict": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"target": "es2022",
 		"declaration": true,
+		"isolatedDeclarations": true,
 		"emitDeclarationOnly": true,
+		"noEmit": false,
 		"noEmitOnError": true,
-		"outDir": "types",
-		"skipLibCheck": true,
-		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"],
-			"@octane-xplat/motion": ["../motion/types/index.d.ts"]
-		},
+		"rootDir": "src",
+		"outDir": "types/generated",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"allowImportingTsExtensions": true,
 		"moduleSuffixes": [
 			"",
 			".web",
@@ -24,7 +25,24 @@
 			".linux",
 			".windows"
 		],
-		"allowImportingTsExtensions": true
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			],
+			"@octane-xplat/motion": [
+				"../motion/types/index.d.ts"
+			]
+		}
 	},
-	"include": ["src/props.ts", "types/index.d.ts", "types/index.macos.d.ts"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsrx",
+		"src/**/*.tsx"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.spec.*"
+	]
 }

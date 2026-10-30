@@ -1,7 +1,11 @@
 import type { PanCallbacks } from './host-types'
 import type { DragInfo } from './types'
 
-export function attachPan(node: HTMLElement, axis: true | 'x' | 'y', callbacks: PanCallbacks) {
+export function attachPan(
+	node: HTMLElement,
+	axis: true | 'x' | 'y',
+	callbacks: PanCallbacks,
+): () => void {
 	const touchAction = node.style.touchAction
 	node.style.touchAction = axis === 'x' ? 'pan-y' : axis === 'y' ? 'pan-x' : 'none'
 	let pointer: number | undefined

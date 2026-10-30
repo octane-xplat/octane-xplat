@@ -5,12 +5,12 @@ import type { RichTextEditorHandle } from '@octane-xplat/richtext'
 import type { TiptapEditorHandle, TiptapEditorProps, TiptapJSON } from './types'
 import { ensureJSONBridge, htmlToJSON, jsonBridgeReady, jsonToHTML } from './json-bridge'
 
-export const supported = leafSupported
+export const supported: boolean = leafSupported
 
 /** Unified editor facade, native half. Rendering/editing run through the
  *  Aztec leaf; the tiptap document model (schema, generateJSON,
  *  renderToHTMLString) handles JSON interchange on top of it. */
-export function TiptapEditor(props: TiptapEditorProps) @{
+export function TiptapEditor(props: TiptapEditorProps): unknown @{
 	const inner = useRef<RichTextEditorHandle | null>(null)
 	const [exposedHandle, setHandle] = useState<TiptapEditorHandle | null>(null)
 	useImperativeHandle<TiptapEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])

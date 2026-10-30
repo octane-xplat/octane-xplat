@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/pager",
 	"version": "0.18.0",
-	"description": "Paged swipe container for Octane Xplat — web scroll snap, mobile native paging, experimental AppKit scrolling",
+	"description": "Paged swipe container for Octane Xplat \u2014 web scroll snap, mobile native paging, experimental AppKit scrolling",
 	"keywords": [
 		"android",
 		"carousel",
@@ -24,7 +24,7 @@
 		"directory": "packages/pager"
 	},
 	"files": [
-		"types",
+		"types/generated",
 		"src",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
@@ -33,12 +33,18 @@
 	"exports": {
 		".": {
 			"macos": {
-				"types": "./types/index.macos.d.ts",
+				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
-			"types": "./types/index.d.ts",
-			"web": "./src/index.web.ts",
-			"native": "./src/index.ts",
+			"types": "./types/generated/index.d.ts",
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
 			"default": "./src/index.ts"
 		}
 	},
@@ -47,10 +53,11 @@
 	},
 	"scripts": {
 		"test:native": "vitest run --config vitest.native.config.mts",
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --target pager",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"pack:check": "tsrx-typegen --pack-check"
+		"pack:check": "tsrx-typegen --pack-check",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@nativescript-community/ui-pager": "14.1.42",
@@ -66,7 +73,8 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -81,5 +89,6 @@
 		"@nativescript/core": {
 			"optional": true
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useMemo, useRef } from 'octane'
 import type { CanvasProps } from './props'
 
 /** Canvas — a plain <canvas>. `onReady` fires at mount with the element
  *  and the resolved context. */
-export function Canvas(props: CanvasProps) @{
+export function Canvas(props: CanvasProps): JSX.Element @{
 	// Keep the element callback referentially stable — a fresh closure each
 	// render makes the web renderer detach/reattach it, refiring onReady.
 	const propsRef = useRef(props)

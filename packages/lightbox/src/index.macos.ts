@@ -16,12 +16,13 @@ export type {
 	UseLightboxState,
 } from './props'
 
-const PLACEHOLDER = "support is not implemented yet"
+const PLACEHOLDER = 'support is not implemented yet'
 
 function unsupported(part: string): never {
 	throw new Error(`@octane-xplat/lightbox: ${part} ${PLACEHOLDER}`)
 }
 
+/** The convenience viewer with the headless parts as statics. */
 export const Lightbox = (() => unsupported('Lightbox')) as never
 export const Root = (() => unsupported('Root')) as never
 export const Trigger = (() => unsupported('Trigger')) as never
@@ -35,8 +36,8 @@ export const Prev = (() => unsupported('Prev')) as never
 export const Next = (() => unsupported('Next')) as never
 export const Title = (() => unsupported('Title')) as never
 export const Description = (() => unsupported('Description')) as never
-export const useLightbox = () => unsupported('useLightbox')
-export const useLightboxState = () => unsupported('useLightboxState')
+export const useLightbox = (): never => unsupported('useLightbox')
+export const useLightboxState = (): never => unsupported('useLightboxState')
 
 export const Thumbnails = (() => unsupported('Thumbnails')) as never
 export const Thumbnail = (() => unsupported('Thumbnail')) as never

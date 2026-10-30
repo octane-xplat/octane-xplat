@@ -218,7 +218,7 @@ function DataGridBodyRow<TData extends RowData>(props: {
  *  windowing. One structure on every target; the columns/state contract is
  *  the library's `ColumnDef`s plus `TableState` slices. Large-column or
  *  platform-recycler presentations belong to platform subpaths. */
-export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData>) {
+export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData>): unknown {
 	// Pagination is opt-in chrome AND slicing: with showPagination off and no
 	// consumer-supplied pagination state, upstream's default pageSize=10
 	// would silently hide every row past the first page.

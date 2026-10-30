@@ -477,6 +477,11 @@ function verifyDeclarationClosure(ts, packageRoot, files, manifest, failures) {
 		for (const node of moduleSpecifierNodes(ts, source)) {
 			const specifier = node.text
 			if (specifier.startsWith('.') || specifier.startsWith('#')) {
+				// Asset imports (`./x.css`) preserved verbatim from source are not
+				// declaration references; skip extension-bearing non-code specifiers.
+				if (extname(specifier) && !/\.(?:[cm]?[jt]sx?|tsrx|d\.[cm]?ts|json)$/.test(specifier)) {
+					continue
+				}
 				const resolved = ts.resolveModuleName(specifier, file, options, host).resolvedModule
 				if (!resolved) {
 					failures.push(

@@ -5,8 +5,10 @@ import type { LayoutChildProps } from './props'
  *  zero-based in the shared API, matching NativeScript. */
 export function layoutChildProps(
 	props: LayoutChildProps & { style?: any },
-	baseStyle = props.style,
-) {
+	baseStyle: any = props.style,
+): {
+	style: any
+} {
 	const style = { ...baseStyle }
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`

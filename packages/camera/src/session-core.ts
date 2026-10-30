@@ -321,7 +321,10 @@ export class SharedCameraSession implements CameraSession {
 		}
 	}
 
-	async permissions() {
+	async permissions(): Promise<{
+		camera: CameraPermissionStatus
+		microphone: CameraPermissionStatus
+	}> {
 		const [camera, microphone] = await Promise.all([
 			this.backend.checkPermission('camera'),
 			this.backend.checkPermission('microphone'),

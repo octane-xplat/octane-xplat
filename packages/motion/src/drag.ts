@@ -4,7 +4,7 @@ import type { HostAdapter } from './host-types'
 import type { DragInfo, MotionProps } from './types'
 import type { MotionValue } from './value'
 
-export function validateDrag(props: MotionProps) {
+export function validateDrag(props: MotionProps): void {
 	if (props.drag !== undefined && ![true, false, 'x', 'y'].includes(props.drag)) {
 		throw new Error('motion: drag must be boolean, x, or y')
 	}
@@ -62,7 +62,7 @@ export function attachDrag(
 	reduced: () => boolean,
 	callbacks: () => MotionProps,
 	projectionFor?: () => Pick<ProjectionNode, 'beginDrag' | 'endDrag'> | null,
-) {
+): () => void {
 	if (!props.drag) {
 		return () => {}
 	}

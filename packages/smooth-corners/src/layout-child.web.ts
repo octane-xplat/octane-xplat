@@ -37,7 +37,7 @@ const MARGIN_KEYS = ['margin', 'marginTop', 'marginRight', 'marginBottom', 'marg
 
 /** The inner box's `style` — everything except margins, which belong to the
  *  element's border box and move out to the wrapper. */
-export function paintedStyle(style: any) {
+export function paintedStyle(style: any): any {
 	if (!style || typeof style !== 'object') {
 		return style
 	}
@@ -54,7 +54,9 @@ export function paintedStyle(style: any) {
  *  shadow wrapper when present, the clipped box otherwise. Native's `dock`
  *  has no CSS equivalent and is ignored on web. Grid indices are zero-based
  *  in the shared API, matching NativeScript. */
-export function outerLayoutProps(props: LayoutChildProps & { style?: any }) {
+export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
+	style: Record<string, any>
+} {
 	const style: Record<string, any> = {}
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
@@ -117,7 +119,9 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }) {
  *  renderers' stack default. */
 export function innerLayoutProps(
 	props: FlexContainerProps & Pick<SmoothCornersProps, 'flexDirection'>,
-) {
+): {
+	style: Record<string, any>
+} {
 	const hasFlex =
 		props.flexDirection !== undefined ||
 		props.justifyContent !== undefined ||

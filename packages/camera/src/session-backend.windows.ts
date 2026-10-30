@@ -87,7 +87,9 @@ const issue = (
 
 /** AppCapabilityAccessStatus → portable permission. `notDeclared` is a
  *  setup error, not a status — callers surface `configurationMissing`. */
-export const accessStatusToPermission = (
+export const accessStatusToPermission: (
+	status: number | undefined,
+) => CameraPermissionStatus | 'notDeclared' = (
 	status: number | undefined,
 ): CameraPermissionStatus | 'notDeclared' => {
 	switch (status) {
@@ -107,9 +109,9 @@ export const accessStatusToPermission = (
 }
 
 /** DeviceAccessStatus → portable permission for hosts without AppCapability. */
-export const deviceAccessStatusToPermission = (
+export const deviceAccessStatusToPermission: (
 	status: number | undefined,
-): CameraPermissionStatus => {
+) => CameraPermissionStatus = (status: number | undefined): CameraPermissionStatus => {
 	switch (status) {
 		case deviceAccessAllowed:
 			return 'granted'
@@ -126,12 +128,16 @@ export const deviceAccessStatusToPermission = (
 
 /** Enclosure panel → facing. Desktop cameras often report no panel — an
  *  external webcam never fabricates front/back semantics. */
-export const panelToFacing = (panel: number | undefined): 'front' | 'back' | undefined =>
+export const panelToFacing: (panel: number | undefined) => 'front' | 'back' | undefined = (
+	panel: number | undefined,
+): 'front' | 'back' | undefined =>
 	panel === panelFront ? 'front' : panel === panelBack ? 'back' : undefined
 
 /** Stored display rotation (degrees CW) → cardinal orientation, matching the
  *  iOS transform mapping. Missing or unrecognized values stay `unspecified`. */
-export const videoOrientationToOrientation = (degrees: number | undefined): CameraOrientation => {
+export const videoOrientationToOrientation: (degrees: number | undefined) => CameraOrientation = (
+	degrees: number | undefined,
+): CameraOrientation => {
 	switch (degrees) {
 		case fileOrientation90:
 			return 'portrait'
@@ -146,7 +152,9 @@ export const videoOrientationToOrientation = (degrees: number | undefined): Came
 	}
 }
 
-export const orientationToRotation = (orientation: CameraOrientation): number | undefined =>
+export const orientationToRotation: (orientation: CameraOrientation) => number | undefined = (
+	orientation: CameraOrientation,
+): number | undefined =>
 	orientation === 'portrait'
 		? recordRotation90
 		: orientation === 'portraitUpsideDown'
@@ -165,7 +173,11 @@ export interface WindowsCameraDevice {
 
 /** Camera selection: explicit deviceId wins; front/back match the enclosure
  *  panel; `default` takes the OS-preferred camera then the first device. */
-export const selectCameraDevice = (
+export const selectCameraDevice: (
+	camera: CameraSessionConfig['camera'],
+	devices: WindowsCameraDevice[],
+	defaultId: string | undefined,
+) => WindowsCameraDevice | undefined = (
 	camera: CameraSessionConfig['camera'],
 	devices: WindowsCameraDevice[],
 	defaultId: string | undefined,
@@ -195,7 +207,9 @@ export interface WindowsStreamProfile {
 /** Pick the standard profile: 1280x720 @ 30 fps when the source offers it,
  *  otherwise the smallest stream then lowest frame rate. The selected
  *  combination is disclosed — never an idealized 720p claim. */
-export const chooseStandardProfile = (
+export const chooseStandardProfile: (
+	profiles: WindowsStreamProfile[],
+) => WindowsStreamProfile | undefined = (
 	profiles: WindowsStreamProfile[],
 ): WindowsStreamProfile | undefined => {
 	if (!profiles.length) {
@@ -223,7 +237,9 @@ export const chooseStandardProfile = (
 /** Classify a native failure without depending on projected error shapes.
  *  HRESULTs surface as `number`/`hresult`; MediaCapture failures also carry a
  *  numeric `code`. */
-export const captureFailureKind = (cause: unknown): CaptureIssue['kind'] => {
+export const captureFailureKind: (cause: unknown) => CaptureIssue['kind'] = (
+	cause: unknown,
+): CaptureIssue['kind'] => {
 	const code = Number(
 		(cause as any)?.number ?? (cause as any)?.hresult ?? (cause as any)?.code ?? Number.NaN,
 	)

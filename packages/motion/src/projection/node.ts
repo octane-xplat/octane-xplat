@@ -56,15 +56,15 @@ export class ProjectionNode {
 	root!: ProjectionRoot
 	parent?: ProjectionNode
 	path: ProjectionNode[] = []
-	children = new Set<ProjectionNode>()
-	depth = 0
+	children: Set<ProjectionNode> = new Set<ProjectionNode>()
+	depth: number = 0
 	options: ProjectionNodeOptions = {}
 	shared?: SharedStack
-	sharedHandoff = false
+	sharedHandoff: boolean = false
 	sharedOpacity?: number
 	private hadSharedOpacity = false
-	isPresent = true
-	isAnimationBlocked = false
+	isPresent: boolean = true
+	isAnimationBlocked: boolean = false
 	private dragProjectionHeld = false
 	private onDragLayoutShift?: (shift: Point) => void
 	latestValues: Target = {}
@@ -74,7 +74,7 @@ export class ProjectionNode {
 	/** What is on screen now: the projected target, or layout.layoutBox. */
 	presented?: Box
 	targetLayout?: Box
-	layoutVersion = 0
+	layoutVersion: number = 0
 
 	layoutCorrected: Box = createBox()
 	target?: Box
@@ -82,25 +82,25 @@ export class ProjectionNode {
 	relativeTarget?: Box
 	relativeTargetOrigin?: Box
 	relativeParent?: ProjectionNode
-	linkedParentVersion = 0
-	resolvedRelativeTargetAt = 0
+	linkedParentVersion: number = 0
+	resolvedRelativeTargetAt: number = 0
 	targetDelta?: Delta
 	projectionDelta?: Delta
 	prevProjectionDelta?: Delta
 	projectionDeltaWithTransform?: Delta
 	treeScale = { x: 1, y: 1 }
 
-	isProjectionDirty = false
-	isSharedProjectionDirty = false
-	isTransformDirty = false
-	isTreeAnimating = false
+	isProjectionDirty: boolean = false
+	isSharedProjectionDirty: boolean = false
+	isTransformDirty: boolean = false
+	isTreeAnimating: boolean = false
 	attemptToResolveRelativeTarget?: boolean
 
 	currentAnimation?: AnimationControls
 	mixTargetDelta?: (progress: number) => void
-	animationProgress = 0
-	hasProjected = false
-	needsRender = false
+	animationProgress: number = 0
+	hasProjected: boolean = false
+	needsRender: boolean = false
 	prevLayoutDependency?: unknown
 
 	constructor(parent?: ProjectionNode) {
@@ -110,11 +110,11 @@ export class ProjectionNode {
 		parent?.children.add(this)
 	}
 
-	attach(hooks: ProjectionNodeHooks) {
+	attach(hooks: ProjectionNodeHooks): void {
 		this.hooks = hooks
 	}
 
-	detach() {
+	detach(): void {
 		this.endDrag()
 		this.dragProjectionHeld = false
 		if (this.hadSharedOpacity) {
@@ -132,7 +132,7 @@ export class ProjectionNode {
 	}
 
 	/** Hold the current presentation while channel values take over a drag. */
-	beginDrag(rebase: (shift: Point) => void) {
+	beginDrag(rebase: (shift: Point) => void): void {
 		const shift = { x: 0, y: 0 }
 		if (this.layout && this.presented) {
 			shift.x = this.presented.x.min - this.layout.layoutBox.x.min
@@ -153,7 +153,7 @@ export class ProjectionNode {
 	}
 
 	/** Rebase before rendering the newly measured layout, including ancestor moves. */
-	rebaseDrag(previous: Measurement | undefined) {
+	rebaseDrag(previous: Measurement | undefined): void {
 		if (!this.isAnimationBlocked || !previous || !this.layout) {
 			return
 		}
@@ -163,7 +163,7 @@ export class ProjectionNode {
 		})
 	}
 
-	endDrag() {
+	endDrag(): void {
 		if (!this.isAnimationBlocked) {
 			return
 		}
@@ -174,7 +174,7 @@ export class ProjectionNode {
 		this.root.invalidate('commit')
 	}
 
-	setLatestValues(values: Target) {
+	setLatestValues(values: Target): void {
 		this.latestValues = values
 	}
 
@@ -183,7 +183,7 @@ export class ProjectionNode {
 	 * leaves alone this node's layout animation. Ported from upstream's
 	 * notifyLayoutUpdate + didUpdate handler.
 	 */
-	notifyLayoutUpdate() {
+	notifyLayoutUpdate(): void {
 		if (this.isAnimationBlocked) {
 			return
 		}
@@ -300,13 +300,13 @@ export class ProjectionNode {
 		this.targetLayout = layout
 	}
 
-	setTargetDelta(delta: Delta) {
+	setTargetDelta(delta: Delta): void {
 		this.targetDelta = delta
 		this.root.scheduleUpdateProjection()
 		this.isProjectionDirty = true
 	}
 
-	resolveTargetDelta(forceRecalculation = false) {
+	resolveTargetDelta(forceRecalculation = false): void {
 		this.isSharedProjectionDirty ||= Boolean(
 			this.isProjectionDirty || this.parent?.isProjectionDirty,
 		)
@@ -401,7 +401,7 @@ export class ProjectionNode {
 		}
 	}
 
-	forceRelativeParentToResolveTarget() {
+	forceRelativeParentToResolveTarget(): void {
 		if (!this.relativeParent) {
 			return
 		}
@@ -422,7 +422,7 @@ export class ProjectionNode {
 		return this.parent.isProjecting() ? this.parent : this.parent.getClosestProjectingParent()
 	}
 
-	isProjecting() {
+	isProjecting(): boolean {
 		return Boolean(
 			(this.dragProjectionHeld ||
 				this.isAnimationBlocked ||
@@ -434,7 +434,7 @@ export class ProjectionNode {
 		)
 	}
 
-	createRelativeTarget(relativeParent: ProjectionNode, layout: Box, parentLayout: Box) {
+	createRelativeTarget(relativeParent: ProjectionNode, layout: Box, parentLayout: Box): void {
 		this.relativeParent = relativeParent
 		this.linkedParentVersion = relativeParent.layoutVersion
 		this.forceRelativeParentToResolveTarget()
@@ -449,11 +449,11 @@ export class ProjectionNode {
 		copyBoxInto(this.relativeTarget, this.relativeTargetOrigin)
 	}
 
-	removeRelativeTarget() {
+	removeRelativeTarget(): void {
 		this.relativeParent = this.relativeTarget = undefined
 	}
 
-	calcProjection() {
+	calcProjection(): void {
 		let canSkip = true
 		if (this.isProjectionDirty || this.parent?.isProjectionDirty) {
 			canSkip = false
@@ -524,7 +524,7 @@ export class ProjectionNode {
 		}
 	}
 
-	applyTransformsToTarget() {
+	applyTransformsToTarget(): void {
 		const { targetWithTransforms, target, layout } = this
 		const latestValues = this.shared?.lead?.latestValues ?? this.latestValues
 		if (!targetWithTransforms || !target || !layout) {
@@ -541,11 +541,11 @@ export class ProjectionNode {
 		)
 	}
 
-	scheduleRender() {
+	scheduleRender(): void {
 		this.needsRender = true
 	}
 
-	render() {
+	render(): void {
 		const { target } = this
 		if (!this.projectionDelta || !this.layout || !target) {
 			if (this.hasProjected) {
@@ -584,7 +584,7 @@ export class ProjectionNode {
 		this.needsRender = false
 	}
 
-	refreshPresented() {
+	refreshPresented(): void {
 		if (!this.layout) {
 			return
 		}
@@ -595,7 +595,7 @@ export class ProjectionNode {
 		copyBoxInto(this.presented, projecting ? this.target! : this.layout.layoutBox)
 	}
 
-	renderOpacity() {
+	renderOpacity(): void {
 		if (this.sharedOpacity !== undefined) {
 			this.hooks?.writeOpacity?.(this.sharedOpacity)
 			this.hadSharedOpacity = true
@@ -605,13 +605,13 @@ export class ProjectionNode {
 		}
 	}
 
-	createProjectionDeltas() {
+	createProjectionDeltas(): void {
 		this.prevProjectionDelta = createDelta()
 		this.projectionDelta = createDelta()
 		this.projectionDeltaWithTransform = createDelta()
 	}
 
-	setAnimationOrigin(delta: Delta, hasOnlyRelativeTargetChanged = false) {
+	setAnimationOrigin(delta: Delta, hasOnlyRelativeTargetChanged = false): void {
 		if (!this.relativeParent?.options.layoutRoot) {
 			this.relativeTarget = this.relativeTargetOrigin = undefined
 		}
@@ -664,7 +664,7 @@ export class ProjectionNode {
 		this.mixTargetDelta(0)
 	}
 
-	startAnimation(transition: Transition) {
+	startAnimation(transition: Transition): void {
 		this.currentAnimation?.stop('replaced')
 
 		let started = false
@@ -691,14 +691,14 @@ export class ProjectionNode {
 		this.currentAnimation = completed ? undefined : controls
 	}
 
-	completeAnimation() {
+	completeAnimation(): void {
 		this.currentAnimation = undefined
 		if (this.shared?.lead === this) {
 			this.shared.complete()
 		}
 	}
 
-	finishAnimation() {
+	finishAnimation(): void {
 		if (this.currentAnimation) {
 			this.mixTargetDelta?.(animationTarget)
 			this.currentAnimation.stop()
@@ -708,7 +708,7 @@ export class ProjectionNode {
 	}
 }
 
-export function propagateDirtyNodes(node: ProjectionNode) {
+export function propagateDirtyNodes(node: ProjectionNode): void {
 	if (!node.parent) {
 		return
 	}
@@ -723,7 +723,7 @@ export function propagateDirtyNodes(node: ProjectionNode) {
 	node.isTransformDirty ||= node.parent.isTransformDirty
 }
 
-export function cleanDirtyNodes(node: ProjectionNode) {
+export function cleanDirtyNodes(node: ProjectionNode): void {
 	node.isProjectionDirty = node.isSharedProjectionDirty = node.isTransformDirty = false
 }
 

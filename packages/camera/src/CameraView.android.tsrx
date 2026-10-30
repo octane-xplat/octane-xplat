@@ -32,7 +32,7 @@ declare module '@octane-xplat/jsx/intrinsics' {
 registerElement('camerapreview', CameraPreview)
 
 /** Live Android preview backed by CameraX. */
-export function CameraView(props: CameraViewProps) @{
+export function CameraView(props: CameraViewProps): unknown @{
 	const host = useRef<any>(null)
 	const active = props.active !== false
 	const facing = props.facing ?? 'back'

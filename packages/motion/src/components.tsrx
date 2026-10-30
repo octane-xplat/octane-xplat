@@ -31,7 +31,7 @@ import type {
 const VariantContext = createContext<VariantNode | null>(null)
 
 /** host node → its motion controller; powers `useAnimate` scope lookup. */
-export const controllers = new WeakMap<object, Controller>()
+export const controllers: WeakMap<object, Controller> = new WeakMap<object, Controller>()
 
 const GESTURE_PROPS: Record<
 	GestureKind,
@@ -591,13 +591,13 @@ function MotionLeaf(props: MotionProps & { component?: any; children?: any }) @{
  *  take (props, slotState, extra) — the factory forwards them into MotionLeaf,
  *  whose dynamic <Component> tag renders the wrapped leaf. */
 export function createMotion<P extends Record<string, unknown>>(Component: (props: P) => any) {
-	return function MotionCreated(props: P & MotionProps, __s?: any, __extra?: any) {
+	return function MotionCreated(props: P & MotionProps, __s?: any, __extra?: any): unknown {
 		return (MotionLeaf as any)({ ...props, component: Component }, __s, __extra)
 	}
 }
 
 /** Animated View preserving the shared primitive's layout and accessibility. */
-export function MotionView(props: MotionViewProps) @{
+export function MotionView(props: MotionViewProps): unknown @{
 	const { hostProps, node, projection } = useMotion(props)
 
 	<VariantContext value={node}>
@@ -608,7 +608,7 @@ export function MotionView(props: MotionViewProps) @{
 }
 
 /** Animated horizontal stack. */
-export function MotionRow(props: MotionRowProps) @{
+export function MotionRow(props: MotionRowProps): unknown @{
 	const { hostProps, node, projection } = useMotion(props)
 
 	<VariantContext value={node}>
@@ -619,7 +619,7 @@ export function MotionRow(props: MotionRowProps) @{
 }
 
 /** Animated Pressable preserving its input callbacks and disabled state. */
-export function MotionPressable(props: MotionPressableProps) @{
+export function MotionPressable(props: MotionPressableProps): unknown @{
 	const { hostProps, node, projection } = useMotion(props)
 
 	<VariantContext value={node}>

@@ -28,7 +28,7 @@ const FILLS: Record<string, any> = {
  *  plugin opens the clip when the src property lands). The plugin emits
  *  `finished` even while looping — `onEnded` suppresses it under `loop` to
  *  match the web leaf. */
-export function Video(props: VideoProps) @{
+export function Video(props: VideoProps): unknown @{
 	const host = useRef<any>(null)
 	const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false)
 	const [started, setStarted] = useState(false)

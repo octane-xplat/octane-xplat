@@ -1,4 +1,8 @@
-export const frame = {
+export const frame: {
+	now: () => number
+	request: (callback: () => void) => any
+	cancel: (id: number) => void
+} = {
 	now: () => performance.now(),
 	request: (callback: () => void) => requestAnimationFrame(callback) as any,
 	cancel: (id: number) => cancelAnimationFrame(id),

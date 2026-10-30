@@ -6,7 +6,7 @@ import type { IntersectionObserverConstructor } from './types'
 const NativeObserver = (globalThis as { IntersectionObserver?: unknown }).IntersectionObserver
 
 /** Whether the current web host provides the DOM IntersectionObserver API. */
-export const supported = typeof NativeObserver === 'function'
+export const supported: boolean = typeof NativeObserver === 'function'
 
 /** Non-DOM hosts (test runners, SSR): observe() records nothing and no
  *  entries are ever delivered. Callers can check `supported` first. */
@@ -24,6 +24,6 @@ class UnsupportedObserver {
 }
 
 /** The browser's DOM IntersectionObserver, or an inert non-DOM host stub. */
-export const IntersectionObserver = (
+export const IntersectionObserver: IntersectionObserverConstructor = (
 	supported ? NativeObserver : UnsupportedObserver
 ) as IntersectionObserverConstructor

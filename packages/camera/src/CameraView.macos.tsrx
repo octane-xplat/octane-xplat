@@ -14,7 +14,7 @@ import { observePreviewTap } from './preview-tap'
 /** Live AppKit preview backed by AVFoundation. With `session`, the preview
  *  attaches to the session-owned AVCaptureSession so movie recording can
  *  share it; without one the view owns its session as before. */
-export function CameraView(props: CameraViewProps) @{
+export function CameraView(props: CameraViewProps): unknown @{
 	const host = useRef<any>(null)
 	const active = props.active !== false
 	const facing = props.facing ?? 'back'

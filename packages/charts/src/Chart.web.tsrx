@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import { useMeasure } from '@octane-xplat/ui'
 import type { ChartProps } from './props'
@@ -15,7 +16,7 @@ const TIP_ESTIMATE_CHAR = 6.2
  *  real absolutely-positioned elements in the overlay — never `<text>` in
  *  the markup. Pointer handlers attach to the plot host so chart coords are
  *  client-minus-rect, matching the markup's coordinate space. */
-export function Chart(props: ChartProps) @{
+export function Chart(props: ChartProps): JSX.Element @{
 	const measure = useMeasure()
 	const [cursor, setCursor] = useState<SceneHit | null>(null)
 	const sceneRef = useRef<ChartScene | null>(null)

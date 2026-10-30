@@ -6,7 +6,9 @@ import { mergeStyle } from './style-merge'
 export function layoutChildProps(
 	props: CameraViewProps,
 	baseStyle: Record<string, any> | string | undefined = props.style,
-) {
+): {
+	style: string | Record<string, any>
+} {
 	const style: Record<string, any> = { ...(typeof baseStyle === 'object' ? baseStyle : {}) }
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`

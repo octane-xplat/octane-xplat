@@ -28,7 +28,11 @@ export function createAppKitChartPointer(
 	size: () => { width: number; height: number },
 	bridge: () => AppKitChartPointerBridge | undefined = () =>
 		Reflect.get(globalThis, '__xplatAppKit'),
-) {
+): {
+	pan(event: AppKitPanEvent): void
+	tap(view: unknown): void
+	observe(view: unknown): () => void
+} {
 	let panning = false
 	return {
 		pan(event: AppKitPanEvent): void {
@@ -71,12 +75,12 @@ export function createAppKitChartPointer(
 			// An AppKit exit mid-drag must not reset the scrub — the pan
 			// recognizer keeps delivering while pressed outside the view.
 			return observePointerMotion(view, {
-				move(x, y) {
+				move(x, y): void {
 					if (!panning) {
 						scrub('hover', x, y)
 					}
 				},
-				exit() {
+				exit(): void {
 					if (!panning) {
 						scrub('leave', 0, 0)
 					}

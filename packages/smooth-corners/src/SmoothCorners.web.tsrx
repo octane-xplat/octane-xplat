@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useLayoutEffect, useRef, useState } from 'octane'
 import { innerLayoutProps, outerLayoutProps, paintedStyle } from './layout-child.web'
 import { smoothPathD } from './path'
@@ -7,7 +8,7 @@ import type { SmoothCornersProps } from './props'
 /** SmoothCorners — `clip-path: path(d)` on the inner box + an SVG stroke
  *  overlay for `border`. `shadow` wraps the box in a `drop-shadow` filter so
  *  the shadow follows the clip (spread is not expressible — ignored). */
-export function SmoothCorners(props: SmoothCornersProps) @{
+export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
 	const ref = useRef<HTMLDivElement | null>(null)
 	const [size, setSize] = useState({ w: 0, h: 0 })
 

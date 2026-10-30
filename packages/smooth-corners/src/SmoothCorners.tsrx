@@ -21,7 +21,7 @@ const applyShadow = isIOS ? applyIosShadow : applyAndroidShadow
  *  node the parent reads as its child. The flex-container props are
  *  web/macOS-only here: the inner host is a gridlayout, which has no flex
  *  vocabulary. */
-export function SmoothCorners(props: SmoothCornersProps) @{
+export function SmoothCorners(props: SmoothCornersProps): unknown @{
 	const state = useRef<{ inner: any; outer: any; props: SmoothCornersProps }>({
 		inner: null,
 		outer: null,

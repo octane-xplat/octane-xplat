@@ -9,4 +9,4 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (_wi
 }
 
 /** @internal Active readers install a measurement callback per actual window. */
-export const focusRechecks = new Map<object, () => void>()
+export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()

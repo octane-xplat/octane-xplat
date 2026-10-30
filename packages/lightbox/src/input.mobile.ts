@@ -8,6 +8,7 @@ import {
 	GestureHandlerStateEvent,
 	GestureHandlerTouchEvent,
 } from '@nativescript-community/gesturehandler'
+
 import { Utils } from '@nativescript/core'
 import type { Intent } from './gesture-machine'
 
@@ -23,13 +24,16 @@ const pos = (args: any) => {
 	const e = args.data.extraData ?? {}
 	return { x: e.x ?? e.absoluteX ?? 0, y: e.y ?? e.absoluteY ?? 0 }
 }
+
 // Pinch payloads arrive as { scale, focalX, focalY } (no per-finger points);
 // synthesize a/b around the focal point so the machine's dist ratio and
 // midpoint both behave correctly.
 const touchPoint = (args: any, index: number) => {
 	const e = args.data.extraData ?? {}
 	const p = e.touches?.[index] ?? e.pointers?.[index]
-	if (p) {return { x: p.x ?? 0, y: p.y ?? 0 }}
+	if (p) {
+		return { x: p.x ?? 0, y: p.y ?? 0 }
+	}
 	const fx = e.focalX ?? e.x ?? 0
 	const fy = e.focalY ?? e.y ?? 0
 	const half = ((e.scale ?? 1) * 100) / 2
@@ -72,7 +76,10 @@ export function attachInput(node: any, opts: AttachInputOptions, send: (i: Inten
 			panActive = true
 			const p = pos(args)
 			send({ kind: 'panStart', at: p, pointer: 'touch' })
-		} else if (panActive && [GestureState.END, GestureState.CANCELLED, GestureState.FAILED].includes(next)) {
+		} else if (
+			panActive &&
+			[GestureState.END, GestureState.CANCELLED, GestureState.FAILED].includes(next)
+		) {
 			panActive = false
 			const e = args.data.extraData ?? {}
 			send({
@@ -84,7 +91,9 @@ export function attachInput(node: any, opts: AttachInputOptions, send: (i: Inten
 		}
 	}
 	const panTouch = (args: any) => {
-		if (panActive && args.data.state === GestureState.ACTIVE) {send({ kind: 'panMove', at: pos(args) })}
+		if (panActive && args.data.state === GestureState.ACTIVE) {
+			send({ kind: 'panMove', at: pos(args) })
+		}
 	}
 
 	// --- PINCH → pinchStart/pinchMove/pinchEnd -------------------------------
@@ -94,7 +103,10 @@ export function attachInput(node: any, opts: AttachInputOptions, send: (i: Inten
 		if (next === GestureState.ACTIVE && !pinchActive) {
 			pinchActive = true
 			send({ kind: 'pinchStart', a: touchPoint(args, 0), b: touchPoint(args, 1) })
-		} else if (pinchActive && [GestureState.END, GestureState.CANCELLED, GestureState.FAILED].includes(next)) {
+		} else if (
+			pinchActive &&
+			[GestureState.END, GestureState.CANCELLED, GestureState.FAILED].includes(next)
+		) {
 			pinchActive = false
 			send({ kind: 'pinchEnd', cancelled: next !== GestureState.END })
 		}
@@ -107,10 +119,14 @@ export function attachInput(node: any, opts: AttachInputOptions, send: (i: Inten
 
 	// --- TAP / double TAP ---------------------------------------------------
 	const tapState = (args: any) => {
-		if (args.data.state === GestureState.END) {send({ kind: 'tap', at: pos(args), pointer: 'touch' })}
+		if (args.data.state === GestureState.END) {
+			send({ kind: 'tap', at: pos(args), pointer: 'touch' })
+		}
 	}
 	const doubleState = (args: any) => {
-		if (args.data.state === GestureState.END) {send({ kind: 'doubleTap', at: pos(args) })}
+		if (args.data.state === GestureState.END) {
+			send({ kind: 'doubleTap', at: pos(args) })
+		}
 	}
 
 	pan.on(GestureHandlerStateEvent, panState)
@@ -125,7 +141,7 @@ export function attachInput(node: any, opts: AttachInputOptions, send: (i: Inten
 	tap.attachToView(node)
 	double.attachToView(node)
 
-	return () => {
+	return (): void => {
 		panActive = false
 		pinchActive = false
 		pan.off(GestureHandlerStateEvent, panState)

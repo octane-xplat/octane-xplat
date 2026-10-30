@@ -4,7 +4,12 @@ import { mergeStyle, type StyleProp } from './style-merge'
 /** Parent-layout metadata translated to the CSS style bag on the host view —
  *  the driver drops layout keys passed as props; the style channel routes to
  *  the child's mason leaf (stashed pre-attach, replayed at attach). */
-export function layoutChildProps(props: RichTextEditorProps, baseStyle: StyleProp = props.style) {
+export function layoutChildProps(
+	props: RichTextEditorProps,
+	baseStyle: StyleProp = props.style,
+): {
+	style: string | Record<string, any>
+} {
 	const style: Record<string, any> = {}
 	if (props.row !== undefined) {
 		const row = typeof props.row === 'number' ? props.row + 1 : props.row

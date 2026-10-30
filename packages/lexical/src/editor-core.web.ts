@@ -50,15 +50,14 @@ import type { LexicalEditorHandle, LexicalFormat } from './types'
  *  subclass (click-select portal), the framework-free AppKit document uses
  *  `@lexical/extension`'s DOM-native node. Aztec's capability surface plus
  *  AutoLinkNode (parsing safety for docs produced by fuller editors). */
-export const SHARED_NODES = [
-	HeadingNode,
-	QuoteNode,
-	ListNode,
-	ListItemNode,
-	LinkNode,
-	AutoLinkNode,
-	CodeNode,
-]
+export const SHARED_NODES: (
+	| typeof HeadingNode
+	| typeof QuoteNode
+	| typeof ListNode
+	| typeof ListItemNode
+	| typeof LinkNode
+	| typeof CodeNode
+)[] = [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, AutoLinkNode, CodeNode]
 
 const HEADING_TAG: Partial<Record<LexicalFormat, 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'>> = {
 	heading1: 'h1',

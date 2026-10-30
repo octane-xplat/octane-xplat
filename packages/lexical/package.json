@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lexical",
 	"version": "0.18.0",
-	"description": "Unified rich-text editor facade for Octane xplat — live lexical on web/AppKit, Aztec + lexical document model on iOS/Android",
+	"description": "Unified rich-text editor facade for Octane xplat \u2014 live lexical on web/AppKit, Aztec + lexical document model on iOS/Android",
 	"keywords": [
 		"cross-platform",
 		"editor",
@@ -19,7 +19,7 @@
 		"directory": "packages/lexical"
 	},
 	"files": [
-		"types",
+		"types/generated",
 		"src",
 		"platforms",
 		"dist/macos/browser.js",
@@ -31,18 +31,18 @@
 	"exports": {
 		".": {
 			"macos": {
-				"types": "./types/index.macos.d.ts",
+				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.web.d.ts",
 				"default": "./src/index.web.ts"
 			},
 			"native": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.d.ts",
 				"default": "./src/index.ts"
 			},
-			"types": "./types/index.d.ts",
+			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		}
 	},
@@ -52,9 +52,10 @@
 	"scripts": {
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:native": "vitest run --config vitest.native.config.mts",
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --target lexical",
 		"build:assets": "node ../richtext/build-browser.ts",
-		"prepack": "pnpm build:assets && pnpm typegen && tsrx-typegen --pack-check"
+		"prepack": "pnpm build:assets && pnpm typegen && tsrx-typegen --pack-check",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@lexical/code": "0.52.0",
@@ -80,7 +81,8 @@
 		"octane": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -103,5 +105,6 @@
 			"android": "9.1.0",
 			"ios": "9.1.0"
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

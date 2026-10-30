@@ -2,7 +2,17 @@ import { BlobSource, Input, MP4, WEBM } from 'mediabunny'
 import { CameraCaptureError } from './types'
 
 /** Read packet end timestamps and track metadata, never the wall-clock stop time. */
-export async function inspectMovie(bytes: Blob, audioRequested: boolean) {
+export async function inspectMovie(
+	bytes: Blob,
+	audioRequested: boolean,
+): Promise<{
+	durationMs: number
+	width: number
+	height: number
+	hasAudio: boolean
+	mimeType: string
+	orientation: 'unspecified'
+}> {
 	if (!bytes.size) {
 		throw new CameraCaptureError({
 			kind: 'noMedia',

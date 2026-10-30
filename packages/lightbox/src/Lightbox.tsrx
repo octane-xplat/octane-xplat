@@ -4,7 +4,21 @@
 import { Text } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
 import type { LightboxProps } from './props'
-import { Backdrop, Close, Description, Next, Popup, Prev, Root, Slide, Title, Trigger, useLightboxState, Viewport } from './root.tsrx'
+import {
+	Backdrop,
+	Close,
+	Description,
+	Next,
+	Popup,
+	Prev,
+	Root,
+	Slide,
+	Title,
+	Trigger,
+	useLightboxState,
+	Viewport,
+} from './root.tsrx'
+
 import { Image } from './Image.tsrx'
 import { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.tsrx'
 
@@ -12,24 +26,37 @@ function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) @{
 	const state = useLightboxState()
 	const item = state.items[props.index]
 	// Keep the convenience viewer’s explicit native video fallback.
-	if (item?.type === 'video') return <Text>{item.alt}</Text>
+	if (item?.type === 'video') {
+		return <Text>{item.alt}</Text>
+	}
+
 	return <Image src={item?.src} alt={item?.alt} />
 }
 
 function Counter() @{
 	const state = useLightboxState()
-	if (state.count <= 1) return null
+	if (state.count <= 1) {
+		return null
+	}
+
 	return <label className="vx-lightbox-counter">{`${state.index + 1} of ${state.count}`}</label>
 }
 
 function Caption() @{
 	const state = useLightboxState()
 	const caption = state.item?.caption
-	if (caption == null) return null
-	return <label className="vx-lightbox-caption">{typeof caption === 'string' ? caption : (caption as never)}</label>
+	if (caption == null) {
+		return null
+	}
+
+	return (
+		<label className="vx-lightbox-caption">
+			{typeof caption === 'string' ? caption : (caption as never)}
+		</label>
+	)
 }
 
-function LightboxBase(props: LightboxProps) @{
+function LightboxBase(props: LightboxProps): unknown @{
 	return (
 		<Root
 			media={props.media}
@@ -56,9 +83,15 @@ function LightboxBase(props: LightboxProps) @{
 						</Slide>
 					))}
 				</Viewport>
-				<Close className="vx-lightbox-close"><Text>{'×'}</Text></Close>
-				<Prev className="vx-lightbox-prev"><Text>{'‹'}</Text></Prev>
-				<Next className="vx-lightbox-next"><Text>{'›'}</Text></Next>
+				<Close className="vx-lightbox-close">
+					<Text>{'×'}</Text>
+				</Close>
+				<Prev className="vx-lightbox-prev">
+					<Text>{'‹'}</Text>
+				</Prev>
+				<Next className="vx-lightbox-next">
+					<Text>{'›'}</Text>
+				</Next>
 				<Counter />
 				<Caption />
 			</Popup>
@@ -66,8 +99,23 @@ function LightboxBase(props: LightboxProps) @{
 	)
 }
 
+/** The convenience viewer with the headless parts as statics. */
 export const Lightbox = Object.assign(LightboxBase, {
-	Root, Trigger, Popup, Backdrop, Viewport, Slide, Image, Close, Prev, Next, Title, Description, Thumbnails, Thumbnail, ThumbnailIndicator,
+	Root,
+	Trigger,
+	Popup,
+	Backdrop,
+	Viewport,
+	Slide,
+	Image,
+	Close,
+	Prev,
+	Next,
+	Title,
+	Description,
+	Thumbnails,
+	Thumbnail,
+	ThumbnailIndicator,
 }) as typeof LightboxBase & {
 	Root: typeof Root
 	Trigger: typeof Trigger

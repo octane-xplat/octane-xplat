@@ -11,7 +11,7 @@ export function ColumnDrag(props: {
 	direction?: 'ltr' | 'rtl'
 	id?: string
 	state: any
-}) {
+}): unknown {
 	void props.state
 	const drag = useRef<{
 		size: number

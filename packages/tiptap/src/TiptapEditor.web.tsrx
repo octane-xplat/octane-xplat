@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useImperativeHandle, useEffect, useMemo, useRef } from 'octane'
 import { EditorContent, useEditor } from '@octanejs/tiptap'
 import { activeFormats, bindEditorHandle, resolveExtensions } from './editor-core.web'
@@ -8,7 +9,7 @@ export const supported = true
 
 /** Unified editor facade, web half — a thin adapter over the published
  *  `@octanejs/tiptap` binding (useEditor + EditorContent + StarterKit). */
-export function TiptapEditor(props: TiptapEditorProps) @{
+export function TiptapEditor(props: TiptapEditorProps): JSX.Element @{
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const lastJSON = useRef<string | undefined>(undefined)
 	const lastHTMLInput = useRef(JSON.stringify([props.json !== undefined, props.value]))

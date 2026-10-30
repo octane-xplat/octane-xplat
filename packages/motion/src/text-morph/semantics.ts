@@ -1,7 +1,11 @@
 import '../intl'
 
 /** Renderer-independent exact-text planning. No normalization or boundary guesses. */
-export const TEXT_MORPH_LIMITS = { graphemes: 80, words: 32, operations: 10_000 } as const
+export const TEXT_MORPH_LIMITS: {
+	readonly graphemes: 80
+	readonly words: 32
+	readonly operations: 10000
+} = { graphemes: 80, words: 32, operations: 10_000 } as const
 
 export interface TextMorphSegment {
 	segment: string
@@ -57,7 +61,7 @@ const UNSUPPORTED =
 const SPACE = /^\s+$/u
 
 class Budget {
-	operations = 0
+	operations: number = 0
 	constructor(readonly limit: number) {}
 	spend(count = 1): void {
 		if (count > this.limit - this.operations) {

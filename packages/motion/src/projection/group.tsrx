@@ -1,10 +1,11 @@
+import type { Context } from 'octane'
 import { createContext, useContext, useMemo } from 'octane'
 import type { LayoutGroupProps } from '../types'
 
-export const LayoutGroupContext = createContext<readonly string[]>([])
+export const LayoutGroupContext: Context<readonly string[]> = createContext<readonly string[]>([])
 
 /** Namespace shared layout IDs. Commits already invalidate every registered layout host. */
-export function LayoutGroup(props: LayoutGroupProps) @{
+export function LayoutGroup(props: LayoutGroupProps): unknown @{
 	const parent = useContext(LayoutGroupContext)
 	const namespace = useMemo(() => {
 		const inherited = props.inherit === false ? [] : parent

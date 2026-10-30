@@ -1,18 +1,19 @@
 {
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"strict": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"target": "es2022",
 		"declaration": true,
+		"isolatedDeclarations": true,
 		"emitDeclarationOnly": true,
+		"noEmit": false,
 		"noEmitOnError": true,
-		"outDir": "types",
-		"skipLibCheck": true,
 		"rootDir": "src",
-		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
-		},
+		"outDir": "types/generated",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"allowImportingTsExtensions": true,
 		"moduleSuffixes": [
 			"",
 			".web",
@@ -24,14 +25,21 @@
 			".linux",
 			".windows"
 		],
-		"allowImportingTsExtensions": true
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx",
+		"paths": {
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		}
 	},
 	"include": [
-		"src/types.ts",
-		"src/value.ts",
-		"src/engine.ts",
-		"src/clock-types.ts",
-		"src/text-morph/props.ts",
-		"src/text-morph/semantics.ts"
+		"src/**/*.ts",
+		"src/**/*.tsrx",
+		"src/**/*.tsx"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.spec.*"
 	]
 }

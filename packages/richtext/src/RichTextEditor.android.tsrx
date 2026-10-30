@@ -96,7 +96,7 @@ const activeFormats = (editor: any): RichTextFormat[] => {
 /** WordPress Aztec surface on Android — a true Spannable-backed editor, not
  *  a WebView. Content in/out is HTML (`fromHtml`/`toPlainHtml`); JSON
  *  interchange lives one layer up in @octane-xplat/tiptap. */
-export function RichTextEditor(props: RichTextEditorProps) @{
+export function RichTextEditor(props: RichTextEditorProps): unknown @{
 	const host = useRef<any>(null)
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const applyingValue = useRef(false)

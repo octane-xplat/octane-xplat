@@ -18,9 +18,9 @@ export interface ProjectionRootOptions {
  */
 export class ProjectionRoot {
 	readonly nodes: ProjectionNode[] = []
-	readonly sharedStacks = new Map<string, SharedStack>()
+	readonly sharedStacks: Map<string, SharedStack> = new Map<string, SharedStack>()
 	readonly animationClock: Clock
-	frameTimestamp = 0
+	frameTimestamp: number = 0
 	private frameScheduled = false
 	private passScheduled = false
 	private resizePending = false
@@ -44,11 +44,11 @@ export class ProjectionRoot {
 		}
 	}
 
-	get isMotionHost() {
+	get isMotionHost(): (node: unknown) => boolean {
 		return this.options.barrier.isMotionHost?.bind(this.options.barrier) ?? (() => false)
 	}
 
-	add(node: ProjectionNode) {
+	add(node: ProjectionNode): void {
 		node.root = this
 		let index = this.nodes.length
 		while (index > 0 && this.nodes[index - 1].depth > node.depth) {
@@ -70,7 +70,7 @@ export class ProjectionRoot {
 		}
 	}
 
-	remove(node: ProjectionNode) {
+	remove(node: ProjectionNode): void {
 		const index = this.nodes.indexOf(node)
 		if (index === -1) {
 			return
@@ -85,7 +85,7 @@ export class ProjectionRoot {
 		}
 	}
 
-	invalidate(kind: 'commit' | 'mutation' | 'resize') {
+	invalidate(kind: 'commit' | 'mutation' | 'resize'): void {
 		if (kind === 'resize') {
 			this.resizePending = true
 			this.ensureFrame()
@@ -102,13 +102,13 @@ export class ProjectionRoot {
 		})
 	}
 
-	scheduleUpdateProjection() {
+	scheduleUpdateProjection(): void {
 		this.needsProjectionUpdate = true
 		this.ensureFrame()
 	}
 
 	/** Channel writes while projecting recalc this frame's projected transform. */
-	requestProjectionFrame() {
+	requestProjectionFrame(): void {
 		this.scheduleUpdateProjection()
 	}
 

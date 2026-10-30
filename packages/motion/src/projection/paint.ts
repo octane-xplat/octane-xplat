@@ -2,7 +2,11 @@ import { correctBoxShadow } from 'motion-dom'
 import type { ProjectionWrite } from './types'
 
 /** Total scale includes projecting ancestors. Near-zero scales cannot be inverted. */
-export function paintScale(write: ProjectionWrite) {
+export function paintScale(write: ProjectionWrite): {
+	x: number
+	y: number
+	uniform: number
+} {
 	const delta = write.layoutDelta ?? write.delta
 	const x = Math.max(0.0001, Math.abs(delta.x.scale * write.treeScale.x))
 	const y = Math.max(0.0001, Math.abs(delta.y.scale * write.treeScale.y))
@@ -23,7 +27,12 @@ export function divideLength(value: any, scale: number): any {
 	return value
 }
 
-export const radiusKeys = [
+export const radiusKeys: readonly [
+	'borderTopLeftRadius',
+	'borderTopRightRadius',
+	'borderBottomRightRadius',
+	'borderBottomLeftRadius',
+] = [
 	'borderTopLeftRadius',
 	'borderTopRightRadius',
 	'borderBottomRightRadius',
@@ -31,7 +40,10 @@ export const radiusKeys = [
 ] as const
 
 /** NativeScript radii and blur are scalar; nonuniform correction is approximate. */
-export function correctNativePaint(style: Record<string, any>, write: ProjectionWrite) {
+export function correctNativePaint(
+	style: Record<string, any>,
+	write: ProjectionWrite,
+): Record<string, any> {
 	const scale = paintScale(write)
 	const corrected: Record<string, any> = {}
 	if (

@@ -29,7 +29,7 @@ const safeColor = (value: string | undefined, fallback: string): Color => {
  *  `absolutelayout` overlay — never `<text>` in the markup. Touch input on
  *  the overlay reports view-relative dips (`e.getX()/getY()`), matching the
  *  markup's coordinate space. */
-export function Chart(props: ChartProps) @{
+export function Chart(props: ChartProps): unknown @{
 	const measure = useMeasure()
 	const [cursor, setCursor] = useState<SceneHit | null>(null)
 	const sceneRef = useRef<ChartScene | null>(null)

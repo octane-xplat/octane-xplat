@@ -4,12 +4,20 @@ import type { Rect } from './math'
 /** Interpolate the mounted thumbnails, including sparse strips and overscroll. */
 export function thumbnailBox(boxes: ReadonlyMap<number, Rect>, progress: number): Rect | null {
 	const indices = [...boxes.keys()].sort((a, b) => a - b)
-	if (!indices.length) {return null}
+	if (!indices.length) {
+		return null
+	}
 	let from = indices[0]!
 	let to = indices[indices.length - 1]!
 	for (const index of indices) {
-		if (index <= progress) {from = index}
-		if (index >= progress) {to = index; break}
+		if (index <= progress) {
+			from = index
+		}
+
+		if (index >= progress) {
+			to = index
+			break
+		}
 	}
 	const a = boxes.get(from)!
 	const b = boxes.get(to)!
@@ -21,23 +29,34 @@ export function createThumbnailLayout<Host>(adapter: {
 	measure(host: Host): Rect | null
 	place(host: Host, box: Rect): void
 	center(box: Rect): void
-}) {
+}): {
+	place: (value?: number) => void
+	remeasure: () => void
+	register: (index: number, host: Host) => () => void
+	indicator: (host: Host) => () => void
+} {
 	const hosts = new Map<number, Host>()
 	const boxes = new Map<number, Rect>()
 	const indicators = new Set<Host>()
 	let progress = 0
-	const place = (value = progress) => {
+	const place = (value = progress): void => {
 		progress = value
 		const box = thumbnailBox(boxes, progress)
-		if (!box) {return}
-		for (const host of indicators) {adapter.place(host, box)}
+		if (!box) {
+			return
+		}
+		for (const host of indicators) {
+			adapter.place(host, box)
+		}
 		adapter.center(box)
 	}
-	const remeasure = () => {
+	const remeasure = (): void => {
 		boxes.clear()
 		for (const [index, host] of hosts) {
 			const box = adapter.measure(host)
-			if (box && box.w > 0 && box.h > 0) {boxes.set(index, box)}
+			if (box && box.w > 0 && box.h > 0) {
+				boxes.set(index, box)
+			}
 		}
 		place()
 	}
@@ -48,7 +67,9 @@ export function createThumbnailLayout<Host>(adapter: {
 			hosts.set(index, host)
 			remeasure()
 			return () => {
-				if (hosts.get(index) !== host) {return}
+				if (hosts.get(index) !== host) {
+					return
+				}
 				hosts.delete(index)
 				remeasure()
 			}
@@ -56,7 +77,9 @@ export function createThumbnailLayout<Host>(adapter: {
 		indicator(host: Host) {
 			indicators.add(host)
 			place()
-			return () => { indicators.delete(host) }
+			return (): void => {
+				indicators.delete(host)
+			}
 		},
 	}
 }

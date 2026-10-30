@@ -1,5 +1,9 @@
 // AppKit refs are NSViews; NativeScript view-property writes do not move them.
-export const frame = {
+export const frame: {
+	now: () => number
+	request: (callback: () => void) => any
+	cancel: (id: number) => void
+} = {
 	now: () => Date.now(),
 	request: (callback: () => void) => setTimeout(callback, 16) as any,
 	cancel: (id: number) => clearTimeout(id),

@@ -17,7 +17,15 @@ export function createEditorSession(
 		onJSONChange?: (doc: any) => void
 		onJSONReady?: (ok: boolean) => void
 	},
-) {
+): {
+	handle: RichTextEditorHandle & {
+		getJSON(): any
+		setJSON(doc: any): void
+	}
+	update(props: object): void
+	receive(serialized: string): void
+	dispose(): void
+} {
 	let disposed = false
 	let ready = false
 	let html = ''
@@ -66,10 +74,10 @@ export function createEditorSession(
 
 	return {
 		handle,
-		update(props: object) {
+		update(props: object): void {
 			command('props', props)
 		},
-		receive(serialized: string) {
+		receive(serialized: string): void {
 			if (disposed) {
 				return
 			}
@@ -129,7 +137,7 @@ export function createEditorSession(
 					break
 			}
 		},
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

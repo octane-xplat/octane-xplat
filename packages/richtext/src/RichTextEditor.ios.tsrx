@@ -41,7 +41,7 @@ export const supported = true
 /** WordPress AztecEditor-iOS surface — a UITextView-backed native editor,
  *  not a WebView. Content in/out is HTML (`setHTML`/`getHTML`); JSON
  *  interchange lives one layer up in @octane-xplat/tiptap. */
-export function RichTextEditor(props: RichTextEditorProps) @{
+export function RichTextEditor(props: RichTextEditorProps): unknown @{
 	const host = useRef<any>(null)
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const applyingValue = useRef(false)

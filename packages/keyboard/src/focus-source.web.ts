@@ -9,7 +9,7 @@ import { emptyFocus, focusSelection } from './focus-geometry'
 import { focusPublisher } from './focus-publish'
 import { keyboardNativeScope } from './native-scope'
 
-export const focusRechecks = new Map<object, () => void>()
+export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()
 const parentOf = (view: HTMLElement): HTMLElement | null =>
 	view.assignedSlot ??
 	view.parentElement ??

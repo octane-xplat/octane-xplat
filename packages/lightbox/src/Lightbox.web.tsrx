@@ -1,13 +1,29 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useState } from 'octane'
 import { Icon, Pressable, Text } from '@octane-xplat/ui'
 import type { ClassValue } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
 import type { LightboxMedia, LightboxProps } from './props'
-import { Backdrop, Close, Description, Next, Popup, Prev, Root, Slide, Title, Trigger, useLightboxState, Viewport } from './root.web.tsrx'
+import {
+	Backdrop,
+	Close,
+	Description,
+	Next,
+	Popup,
+	Prev,
+	Root,
+	Slide,
+	Title,
+	Trigger,
+	useLightboxState,
+	Viewport,
+} from './root.web.tsrx'
+
 import { Image } from './Image.web.tsrx'
 
-const clampIndex = (i: number, count: number) => (count <= 0 ? 0 : Math.min(Math.max(i, 0), count - 1))
+const clampIndex = (i: number, count: number) =>
+	count <= 0 ? 0 : Math.min(Math.max(i, 0), count - 1)
 
 /** One slide of the default gallery: a video player for video items, the
  *  zoomable image otherwise. */
@@ -27,12 +43,16 @@ function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) {
 			/>
 		)
 	}
+
 	return <Image />
 }
 
 function Counter() {
 	const state = useLightboxState()
-	if (state.count <= 1) return null
+	if (state.count <= 1) {
+		return null
+	}
+
 	return (
 		<div className="vx-lightbox-counter" aria-live="polite">
 			{state.index + 1} of {state.count}
@@ -43,7 +63,10 @@ function Counter() {
 function Caption() {
 	const state = useLightboxState()
 	const caption = state.item?.caption
-	if (caption == null) return null
+	if (caption == null) {
+		return null
+	}
+
 	return (
 		<div className="vx-lightbox-caption">
 			{typeof caption === 'string' ? <Text>{caption}</Text> : (caption as never)}
@@ -54,7 +77,7 @@ function Caption() {
 /** Full-screen media viewer (Astryx `Lightbox`) — thumbnail morph, swipe
  *  paging, pinch/double-tap zoom, pull to dismiss. Built from the headless
  *  parts also exported as `Lightbox.Root`/`Trigger`/`Popup`/…. */
-export function Lightbox(props: LightboxProps) {
+export function Lightbox(props: LightboxProps): JSX.Element {
 	const [internal, setInternal] = useState(props.defaultIndex ?? 0)
 	const count = props.media.length
 	const index = clampIndex(props.index ?? internal, count)
@@ -66,8 +89,13 @@ export function Lightbox(props: LightboxProps) {
 			defaultIndex={props.defaultIndex}
 			onIndexChange={(i: number) => {
 				const clamped = clampIndex(i, count)
-				if (props.index == null) setInternal(clamped)
-				if (clamped !== index) props.onIndexChange?.(clamped)
+				if (props.index == null) {
+					setInternal(clamped)
+				}
+
+				if (clamped !== index) {
+					props.onIndexChange?.(clamped)
+				}
 			}}
 			onOpenChange={props.onOpenChange}
 			hasZoom={props.hasZoom}
@@ -78,7 +106,10 @@ export function Lightbox(props: LightboxProps) {
 			transition={props.transition}
 			finalFocusRef={props.finalFocusRef}
 		>
-			<Popup className={cx('vx-lightbox-layer', props.className)} style={props.style as Record<string, unknown>}>
+			<Popup
+				className={cx('vx-lightbox-layer', props.className)}
+				style={props.style as Record<string, unknown>}
+			>
 				<Backdrop className="vx-lightbox-backdrop" />
 				<Viewport>
 					{props.media.map((item: LightboxMedia, i: number) => (

@@ -5,7 +5,7 @@ import type { LayoutChildProps, FlexContainerProps } from './props'
  *  `style={{lineHeight: 40}}` would render a 40× multiplier instead of 40px.
  *  lineHeight is the one unitless-in-React prop that is a length in the
  *  shared vocabulary; force the px suffix. */
-export function normStyle(style: any) {
+export function normStyle(style: any): any {
 	if (style && typeof style.lineHeight === 'number') {
 		return { ...style, lineHeight: style.lineHeight + 'px' }
 	}
@@ -29,8 +29,10 @@ const FLEX_ALIGN: Record<string, string> = {
  *  zero-based in the shared API, matching NativeScript. */
 export function layoutChildProps(
 	props: LayoutChildProps & Partial<FlexContainerProps> & { style?: any },
-	baseStyle = props.style,
-) {
+	baseStyle: any = props.style,
+): {
+	style: any
+} {
 	const style = { ...normStyle(baseStyle) }
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`

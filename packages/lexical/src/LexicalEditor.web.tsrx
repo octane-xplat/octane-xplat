@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useState, useImperativeHandle, useEffect, useRef } from 'octane'
 import {
 	AutoFocusPlugin,
@@ -33,7 +34,7 @@ const NODES = [...SHARED_NODES, HorizontalRuleNode]
 
 /** Unified editor facade, web half — a LexicalComposer over the published
  *  `@octanejs/lexical` binding, with optional web-only node and plugin composition. */
-export function LexicalEditor(props: LexicalEditorProps) @{
+export function LexicalEditor(props: LexicalEditorProps): JSX.Element @{
 	const editorRef = useRef<any>(null)
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const lastJSON = useRef<string | undefined>(undefined)

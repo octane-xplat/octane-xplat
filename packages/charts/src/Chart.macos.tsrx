@@ -18,7 +18,7 @@ const TIP_ESTIMATE_CHAR = 6.2
  * recognizer location and the current mouse event; native delivery is
  * unqualified. AppKit does not deliver onTouch, so touch scrubbing is
  * unavailable. */
-export function Chart(props: ChartProps) @{
+export function Chart(props: ChartProps): unknown @{
 	const measure = useMeasure()
 	const [cursor, setCursor] = useState<SceneHit | null>(null)
 	const sceneRef = useRef<ChartScene | null>(null)
@@ -70,6 +70,7 @@ export function Chart(props: ChartProps) @{
 			),
 		[],
 	)
+
 	const [tapView, setTapView] = useState<any>(null)
 	const bindTapView = useCallback((view: any) => setTapView(view), [])
 	useEffect(() => {

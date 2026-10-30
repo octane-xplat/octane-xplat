@@ -5,7 +5,7 @@ export const supported = false
 
 /** Windows bring-up is deferred — renders the placeholder so a shared
  *  screen still mounts. */
-export function RichTextEditor(props: RichTextEditorProps) @{
+export function RichTextEditor(props: RichTextEditorProps): unknown @{
 	<label
 		id={props.id}
 		className={props.className}

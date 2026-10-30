@@ -34,7 +34,7 @@ registerElement('camerapreview', CameraPreview)
 /** Live Windows preview backed by WinUI `CaptureElement` + `MediaCapture`.
  *  With `session`, the preview attaches to the session-owned capture so
  *  movie recording shares it; without one the view owns its capture. */
-export function CameraView(props: CameraViewProps) @{
+export function CameraView(props: CameraViewProps): unknown @{
 	const host = useRef<any>(null)
 	const active = props.active !== false
 	const facing = props.facing ?? 'back'

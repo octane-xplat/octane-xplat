@@ -3,7 +3,7 @@ import { useEffect } from 'octane'
 import type { CanvasContextKind, CanvasProps } from './props'
 
 /** AppKit mounts a neutral frame. No drawing surface or GPU is created. */
-export function Canvas(props: CanvasProps) @{
+export function Canvas(props: CanvasProps): unknown @{
 	useEffect(() => {
 		// Preserve deferred acquisition without pretending this is a native view.
 		const canvas = Object.freeze({

@@ -40,7 +40,7 @@ export class SharedStack {
 	private fromValues: Target = {}
 	private leadFromOpacity = 0
 	private exits = new Map<ProjectionNode, ((result: AnimationResult) => void)[]>()
-	transitioning = false
+	transitioning: boolean = false
 
 	private snapshot(node: ProjectionNode): Snapshot | undefined {
 		if (!node.presented) {
@@ -58,7 +58,7 @@ export class SharedStack {
 		}
 	}
 
-	add(node: ProjectionNode) {
+	add(node: ProjectionNode): void {
 		this.members.push(node)
 		node.shared = this
 		if (node.isPresent) {
@@ -66,7 +66,7 @@ export class SharedStack {
 		}
 	}
 
-	remove(node: ProjectionNode) {
+	remove(node: ProjectionNode): void {
 		if (this.outgoing === node) {
 			this.outgoing = undefined
 		}
@@ -86,7 +86,7 @@ export class SharedStack {
 		node.shared = undefined
 	}
 
-	promote(node: ProjectionNode) {
+	promote(node: ProjectionNode): void {
 		if (node === this.lead) {
 			return
 		}
@@ -137,7 +137,7 @@ export class SharedStack {
 		return result
 	}
 
-	prepare() {
+	prepare(): void {
 		const lead = this.lead
 		if (!lead?.layout) {
 			return
@@ -167,7 +167,7 @@ export class SharedStack {
 		}
 	}
 
-	mix(progress: number) {
+	mix(progress: number): void {
 		const lead = this.lead
 		if (!lead || !this.transitioning) {
 			return
@@ -198,7 +198,7 @@ export class SharedStack {
 		}
 	}
 
-	follow(node: ProjectionNode) {
+	follow(node: ProjectionNode): void {
 		const lead = this.lead
 		if (!lead || lead === node || !node.layout || !lead.layout) {
 			return
@@ -209,7 +209,7 @@ export class SharedStack {
 		node.isProjectionDirty = true
 	}
 
-	complete() {
+	complete(): void {
 		this.transitioning = false
 		this.outgoing = undefined
 		for (const member of this.members) {
@@ -221,7 +221,7 @@ export class SharedStack {
 		}
 	}
 
-	settleExits() {
+	settleExits(): void {
 		if (!this.pending && !this.lead?.currentAnimation) {
 			this.complete()
 		}

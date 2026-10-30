@@ -10,7 +10,7 @@ import { focusPublisher } from './focus-publish'
 import { keyboardNativeScope } from './native-scope'
 import { startFocusClock } from './focus-clock'
 
-export const focusRechecks = new Map<object, () => void>()
+export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()
 const flipped = (view: any): boolean =>
 	typeof view?.isFlipped === 'function' ? view.isFlipped() : !!view?.isFlipped
 

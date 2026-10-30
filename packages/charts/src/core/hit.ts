@@ -16,7 +16,12 @@ export const HIT_SLOP = 24
  *  snap to the nearest x group, then pick the closest point inside it —
  *  scatter gates on pointer distance instead of always snapping. Pie hits
  *  resolve by ring + angle. Coordinates outside the plot (+slop) miss. */
-export function hitTest(scene: ChartScene, x: number, y: number, slop = HIT_SLOP): SceneHit | null {
+export function hitTest(
+	scene: ChartScene,
+	x: number,
+	y: number,
+	slop: number = HIT_SLOP,
+): SceneHit | null {
 	if (scene.pie) {
 		return pieHit(scene, x, y, slop)
 	}

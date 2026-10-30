@@ -1,5 +1,18 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { createContext, createPortal, useContext, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import type { Context } from 'octane'
+import type { JSX } from 'octane/jsx-runtime'
+import {
+	createContext,
+	createPortal,
+	useContext,
+	useEffect,
+	useEffectEvent,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'octane'
+
 import { Overlay } from '@octane-xplat/ui'
 import { useMotionValue, useReducedMotion } from '@octane-xplat/motion'
 import { Image } from './Image.web.tsrx'
@@ -14,7 +27,15 @@ import type { RootAction, RootEffect, RootState } from './state'
 import { CLOSE, FADE, OPEN, REDUCED, SETTLE } from './constants'
 import type { Transition } from '@octane-xplat/motion'
 import { lockScroll, thumbImg, visibleFraction } from './web-dom.web'
-import type { LightboxMedia, LightboxPartProps, LightboxRootProps, LightboxSlidePartProps, LightboxTapEvent, LightboxTriggerPartProps, UseLightboxState } from './props'
+import type {
+	LightboxMedia,
+	LightboxPartProps,
+	LightboxRootProps,
+	LightboxSlidePartProps,
+	LightboxTapEvent,
+	LightboxTriggerPartProps,
+	UseLightboxState,
+} from './props'
 
 export interface ImageController {
 	animateIn(trigger: HTMLElement | null): void
@@ -74,25 +95,29 @@ export interface SlideCtx {
 	onTap?: (event: LightboxTapEvent) => void
 }
 
-export const LightboxContext = createContext<LightboxCtx | null>(null)
+export const LightboxContext: Context<LightboxCtx | null> = createContext<LightboxCtx | null>(null)
 /** Internal: lets `useLightbox` share a trigger registry with the Root it
  *  renders, without exposing a `triggers` prop on the public API. */
-export const InternalTriggersContext = createContext<Map<number, Set<HTMLElement>> | null>(null)
-export const SlideContext = createContext<SlideCtx | null>(null)
+export const InternalTriggersContext: Context<Map<number, Set<HTMLElement>> | null> =
+	createContext<Map<number, Set<HTMLElement>> | null>(null)
 
-export function useLightboxCtx() {
+export const SlideContext: Context<SlideCtx | null> = createContext<SlideCtx | null>(null)
+
+export function useLightboxCtx(): JSX.Element {
 	const ctx = useContext(LightboxContext)
 	if (!ctx) {
 		throw new Error('Lightbox parts must be used inside <Lightbox.Root>.')
 	}
+
 	return ctx
 }
 
-export function useSlideCtx() {
+export function useSlideCtx(): JSX.Element {
 	const slide = useContext(SlideContext)
 	if (!slide) {
 		throw new Error('<Lightbox.Image> must be inside <Lightbox.Slide>.')
 	}
+
 	return slide
 }
 
@@ -105,7 +130,7 @@ const initialState = (): RootState => ({
 	held: null,
 })
 
-export function Root(props: LightboxRootProps) {
+export function Root(props: LightboxRootProps): JSX.Element {
 	const {
 		media: items,
 		children,
@@ -118,6 +143,7 @@ export function Root(props: LightboxRootProps) {
 		onIndexChange,
 		finalFocusRef,
 	} = props
+
 	const dialogText = useDialogText()
 	const maxZoom = props.hasZoom === false ? 1 : requestedMaxZoom
 	const [state, setState] = useState(initialState)
@@ -135,28 +161,39 @@ export function Root(props: LightboxRootProps) {
 	const closeVelocity = useRef<{ x: number; y: number } | undefined>(undefined)
 
 	const hideTrigger = useEffectEvent((trigger: HTMLElement | null) => {
-		for (const el of hidden.current) el.style.visibility = ''
+		for (const el of hidden.current) {
+			el.style.visibility = ''
+		}
+
 		hidden.current = trigger ? [thumbImg(trigger) ?? trigger] : []
-		for (const el of hidden.current) el.style.visibility = 'hidden'
+		for (const el of hidden.current) {
+			el.style.visibility = 'hidden'
+		}
 	})
 
 	const pickTrigger = useEffectEvent(
 		(i: number, scroll: 'auto' | 'instant' | 'smooth' | false): HTMLElement | null => {
 			const list = [...(triggers.get(i) ?? [])].filter((el) => el.isConnected)
-			const opened = list.find(
-				(el) => el === openTrigger.current && visibleFraction(el) > 0,
-			)
+			const opened = list.find((el) => el === openTrigger.current && visibleFraction(el) > 0)
 			let best: HTMLElement | null = null
 			let seen = 0
 			for (const el of list) {
 				const v = visibleFraction(el)
-				if (v > seen + 0.01) [best, seen] = [el, v]
+				if (v > seen + 0.01) {
+					;[best, seen] = [el, v]
+				}
 			}
+
 			const el = opened ?? best ?? list[0] ?? null
 			const v = el ? visibleFraction(el) : 1
 			if (el && scroll && v < 0.99) {
-				el.scrollIntoView?.({ block: v > 0 ? 'nearest' : 'center', inline: 'nearest', behavior: scroll === 'instant' ? 'auto' : scroll })
+				el.scrollIntoView?.({
+					block: v > 0 ? 'nearest' : 'center',
+					inline: 'nearest',
+					behavior: scroll === 'instant' ? 'auto' : scroll,
+				})
 			}
+
 			return el
 		},
 	)
@@ -166,9 +203,15 @@ export function Root(props: LightboxRootProps) {
 
 	// The page behind keeps up: hide the current thumbnail and keep it in view.
 	useEffect(() => {
-		if (state.phase !== 'open') return
+		if (state.phase !== 'open') {
+			return
+		}
+
 		hideTrigger(pickTrigger(state.index, false))
-		if (!scrollTriggerIntoView) return
+		if (!scrollTriggerIntoView) {
+			return
+		}
+
 		const id = setTimeout(() => {
 			const el = pickTrigger(state.index, false)
 			if (el && visibleFraction(el) < 0.99) {
@@ -179,11 +222,14 @@ export function Root(props: LightboxRootProps) {
 				})
 			}
 		}, 150)
+
 		return () => clearTimeout(id)
 	}, [state.index, state.phase])
 
 	useLayoutEffect(() => {
-		if (state.phase === 'closed') hideTrigger(null)
+		if (state.phase === 'closed') {
+			hideTrigger(null)
+		}
 	}, [state.phase])
 
 	const onOpenChangeRef = useRef(onOpenChange)
@@ -197,7 +243,10 @@ export function Root(props: LightboxRootProps) {
 				case 'animateIn': {
 					const index = live.current.index
 					const image = images.get(index)
-					if (!image) break
+					if (!image) {
+						break
+					}
+
 					image.animateIn(openTrigger.current ?? pickTrigger(index, false))
 					break
 				}
@@ -208,22 +257,29 @@ export function Root(props: LightboxRootProps) {
 					if (trigger && scrollTriggerIntoView) {
 						trigger.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
 					}
+
 					const image = images.get(index)
 					const velocity = closeVelocity.current
 					closeVelocity.current = undefined
 					const animation = image
 						? image.animateOut(trigger, velocity)
-						: presence.animate(0, reducedMotion ? REDUCED : (transition ?? CLOSE)).finished.then(() => {})
+						: presence
+								.animate(0, reducedMotion ? REDUCED : (transition ?? CLOSE))
+								.finished.then(() => {})
+
 					// An invisible layer that never unmounts would block the page; never wait forever.
 					void Promise.race([animation, new Promise((r) => setTimeout(r, 1500))]).then(() => {
 						dispatch({ kind: 'closed' })
 						// The modal focus isolation restores focus on unmount; run
 						// ours after it settles so the explicit target wins.
 						setTimeout(() => {
-							const focus = (finalFocusRef?.current as HTMLElement | null) ?? pickTrigger(index, false)
+							const focus =
+								(finalFocusRef?.current as HTMLElement | null) ?? pickTrigger(index, false)
+
 							focus?.focus?.({ preventScroll: true })
 						}, 0)
 					})
+
 					break
 				}
 				case 'slideTo': {
@@ -234,6 +290,7 @@ export function Root(props: LightboxRootProps) {
 					void viewport.current?.fade(effect.from, effect.to).then(() => {
 						dispatch({ kind: 'fadeDone', from: effect.from })
 					})
+
 					break
 				}
 				case 'notifyOpen': {
@@ -306,7 +363,17 @@ export function Root(props: LightboxRootProps) {
 			setDragging: (v) => dispatch({ kind: 'dragging', value: v }),
 			toggleUi: () => dispatch({ kind: 'toggleUi' }),
 		}),
-		[state, dialogText, reducedMotion, items, maxZoom, wheelToZoom, hasBackdropDismiss, scrollTriggerIntoView, transition],
+		[
+			state,
+			dialogText,
+			reducedMotion,
+			items,
+			maxZoom,
+			wheelToZoom,
+			hasBackdropDismiss,
+			scrollTriggerIntoView,
+			transition,
+		],
 	)
 
 	// Controlled/uncontrolled open + index.
@@ -318,18 +385,33 @@ export function Root(props: LightboxRootProps) {
 			// the reducer already reflects it; do nothing.
 			return
 		}
+
 		if (!firstControlled.current) {
 			firstControlled.current = true
 
 			// Honour a controlled open at mount only when the layer isn't open.
 			if (controlledOpen && live.current.phase === 'closed') {
-				dispatch({ kind: 'open', index: props.index ?? props.defaultIndex ?? 0, count: items?.length ?? 0 })
+				dispatch({
+					kind: 'open',
+					index: props.index ?? props.defaultIndex ?? 0,
+					count: items?.length ?? 0,
+				})
 			}
+
 			return
 		}
+
 		if (controlledOpen && live.current.phase === 'closed') {
-			dispatch({ kind: 'open', index: props.index ?? live.current.index, count: items?.length ?? 0 })
-		} else if (!controlledOpen && live.current.phase !== 'closed' && live.current.phase !== 'closing') {
+			dispatch({
+				kind: 'open',
+				index: props.index ?? live.current.index,
+				count: items?.length ?? 0,
+			})
+		} else if (
+			!controlledOpen &&
+			live.current.phase !== 'closed' &&
+			live.current.phase !== 'closing'
+		) {
 			dispatch({ kind: 'requestClose' })
 		}
 	}, [controlledOpen])
@@ -338,12 +420,16 @@ export function Root(props: LightboxRootProps) {
 	const indexProp = props.index ?? props.defaultIndex
 	const prevIndexProp = useRef(indexProp)
 	useEffect(() => {
-		if (indexProp === undefined || indexProp === prevIndexProp.current) return
+		if (indexProp === undefined || indexProp === prevIndexProp.current) {
+			return
+		}
+
 		prevIndexProp.current = indexProp
 		if (indexProp !== live.current.index) {
 			dispatch({ kind: 'goTo', index: indexProp, count: items?.length ?? 0, reducedMotion })
 		}
 	}, [indexProp])
+
 	useEffect(() => {
 		if (props.index == null && indexProp !== undefined) {
 			// defaultIndex: seed once.
@@ -361,33 +447,44 @@ export function Root(props: LightboxRootProps) {
 
 // ---------- parts ----------
 
-export function Trigger(props: LightboxTriggerPartProps) {
+export function Trigger(props: LightboxTriggerPartProps): JSX.Element {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLElement | null>(null)
 	useLayoutEffect(() => {
 		const el = ref.current
-		if (!el) return
+		if (!el) {
+			return
+		}
+
 		let set = ctx.triggers.get(props.index)
 		if (!set) {
 			set = new Set()
 			ctx.triggers.set(props.index, set)
 		}
+
 		set.add(el)
 		return () => void set.delete(el)
 	}, [ctx.triggers, props.index])
+
 	const active = ctx.phase !== 'closed' && ctx.index === props.index
 	return (
 		<button
 			ref={ref as never}
 			type="button"
 			aria-haspopup="dialog"
-			className={cx('vx-lightbox-trigger', active && 'vx-lightbox-trigger--active', props.className)}
+			className={cx(
+				'vx-lightbox-trigger',
+				active && 'vx-lightbox-trigger--active',
+				props.className,
+			)}
 			style={props.style as never}
 			data-testid={props.testID}
 			data-lightbox-trigger={active ? '' : undefined}
 			onClick={(e: MouseEvent) => {
 				props.onPress?.(e)
-				if (!e.defaultPrevented) ctx.openAt(props.index, e.currentTarget as HTMLElement)
+				if (!e.defaultPrevented) {
+					ctx.openAt(props.index, e.currentTarget as HTMLElement)
+				}
 			}}
 		>
 			{props.children as never}
@@ -395,20 +492,28 @@ export function Trigger(props: LightboxTriggerPartProps) {
 	)
 }
 
-export function Backdrop(props: LightboxPartProps) {
+export function Backdrop(props: LightboxPartProps): JSX.Element {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
-	if (ctx.phase === 'closed') return null
+	if (ctx.phase === 'closed') {
+		return null
+	}
+
 	useLayoutEffect(() => {
 		const el = ref.current
-		if (!el) return
+		if (!el) {
+			return
+		}
+
 		const apply = (v: number) => {
 			el.style.setProperty('--lightbox-presence', String(v))
 			el.style.opacity = String(v)
 		}
+
 		apply(ctx.presence.get())
 		return ctx.presence.on('change', apply)
 	}, [ctx.presence])
+
 	// Inline layer inside the popup's stacking context — one modal host.
 	return (
 		<div
@@ -423,15 +528,17 @@ export function Backdrop(props: LightboxPartProps) {
 }
 
 const isEditable = (t: EventTarget | null) =>
-	t instanceof HTMLElement &&
-	(t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))
+	t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))
 
-export function Popup(props: LightboxPartProps) {
+export function Popup(props: LightboxPartProps): JSX.Element {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	useLayoutEffect(() => {
 		const el = ref.current
-		if (!el) return
+		if (!el) {
+			return
+		}
+
 		const apply = (v: number) => el.style.setProperty('--lightbox-presence', String(v))
 		apply(ctx.presence.get())
 		return ctx.presence.on('change', apply)
@@ -439,10 +546,15 @@ export function Popup(props: LightboxPartProps) {
 
 	// Custom slides (no <Image>) still need an open transition.
 	useLayoutEffect(() => {
-		if (ctx.phase !== 'opening' || ctx.images.has(ctx.index)) return
+		if (ctx.phase !== 'opening' || ctx.images.has(ctx.index)) {
+			return
+		}
+
 		ctx.presence.set(0)
 		ctx.presence.animate(1, ctx.options.open).finished.then((r) => {
-			if (r === 'finished') ctx.onOpened()
+			if (r === 'finished') {
+				ctx.onOpened()
+			}
 		})
 	}, [ctx.phase])
 
@@ -450,25 +562,44 @@ export function Popup(props: LightboxPartProps) {
 	useEffect(() => {
 		const el = ref.current
 		const active = document.activeElement
-		if (el && (!active || active === document.body || active.closest('[data-lightbox-slide]:not([data-current])'))) {
+		if (
+			el &&
+			(!active ||
+				active === document.body ||
+				active.closest('[data-lightbox-slide]:not([data-current])'))
+		) {
 			el.focus({ preventScroll: true })
 		}
 	}, [ctx.index])
 
 	const onKeyDown = (e: KeyboardEvent) => {
-		if (e.defaultPrevented || isEditable(e.target)) return
+		if (e.defaultPrevented || isEditable(e.target)) {
+			return
+		}
+
 		const image = ctx.images.get(ctx.index)
-		if (e.key === 'ArrowRight') ctx.goTo(ctx.index + 1)
-		else if (e.key === 'ArrowLeft') ctx.goTo(ctx.index - 1)
-		else if (e.key === '+' || e.key === '=') image?.zoomBy(1.6)
-		else if (e.key === '-') image?.zoomBy(1 / 1.6)
-		else if (e.key === '0') image?.resetZoom()
-		else return
+		if (e.key === 'ArrowRight') {
+			ctx.goTo(ctx.index + 1)
+		} else if (e.key === 'ArrowLeft') {
+			ctx.goTo(ctx.index - 1)
+		} else if (e.key === '+' || e.key === '=') {
+			image?.zoomBy(1.6)
+		} else if (e.key === '-') {
+			image?.zoomBy(1 / 1.6)
+		} else if (e.key === '0') {
+			image?.resetZoom()
+		} else {
+			return
+		}
+
 		e.preventDefault()
 	}
 
 	const mods = `vx-lightbox-popup--${ctx.phase}`
-	if (ctx.phase === 'closed') return null
+	if (ctx.phase === 'closed') {
+		return null
+	}
+
 	return (
 		<Overlay
 			open
@@ -478,25 +609,32 @@ export function Popup(props: LightboxPartProps) {
 			accessibilityLabel={ctx.dialogText.label ?? ctx.items[ctx.index]?.alt ?? 'Media viewer'}
 			onDismiss={() => ctx.close()}
 		>
-		<div
-			ref={ref}
-			tabIndex={-1}
-			className={cx('vx-lightbox-popup', mods, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
-			style={mergeStyle({ position: 'fixed', inset: 0 }, props.style)}
-			data-testid={props.testID}
-			data-phase={ctx.phase}
-			data-zoomed={ctx.zoomed ? '' : undefined}
-			data-dragging={ctx.dragging ? '' : undefined}
-			data-ui-hidden={ctx.uiHidden ? '' : undefined}
-			onKeyDown={onKeyDown as never}
-		>
-			{props.children as never}
-		</div>
+			<div
+				ref={ref}
+				tabIndex={-1}
+				className={cx(
+					'vx-lightbox-popup',
+					mods,
+					ctx.zoomed && 'vx-lightbox-popup--zoomed',
+					ctx.dragging && 'vx-lightbox-popup--dragging',
+					ctx.uiHidden && 'vx-lightbox-popup--ui-hidden',
+					props.className,
+				)}
+				style={mergeStyle({ position: 'fixed', inset: 0 }, props.style)}
+				data-testid={props.testID}
+				data-phase={ctx.phase}
+				data-zoomed={ctx.zoomed ? '' : undefined}
+				data-dragging={ctx.dragging ? '' : undefined}
+				data-ui-hidden={ctx.uiHidden ? '' : undefined}
+				onKeyDown={onKeyDown as never}
+			>
+				{props.children as never}
+			</div>
 		</Overlay>
 	)
 }
 
-export function Viewport(props: LightboxPartProps) {
+export function Viewport(props: LightboxPartProps): JSX.Element {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	const count = ctx.items.length
@@ -511,33 +649,51 @@ export function Viewport(props: LightboxPartProps) {
 
 	useLayoutEffect(() => {
 		const el = ref.current
-		if (!el) return
+		if (!el) {
+			return
+		}
+
 		// Held while a crossfade has moved a slide out of place: measuring then would include its transform.
 		let fixedStride: number | null = null
 		let dragStart: number | null = null
 		let originalSnap: string | null = null
 		let snapping: { stop(): void } | null = null
 		const restoreSnap = () => {
-			if (originalSnap !== null) el.style.scrollSnapType = originalSnap
+			if (originalSnap !== null) {
+				el.style.scrollSnapType = originalSnap
+			}
+
 			originalSnap = null
 		}
+
 		const stopTrack = () => {
 			dragStart = null
 			snapping?.stop()
 			snapping = null
 			restoreSnap()
 		}
+
 		const stride = () => {
-			if (fixedStride !== null) return fixedStride
+			if (fixedStride !== null) {
+				return fixedStride
+			}
+
 			const [a, b] = el.children as unknown as HTMLElement[]
-			return a && b ? b.getBoundingClientRect().left - a.getBoundingClientRect().left : el.clientWidth
+			return a && b
+				? b.getBoundingClientRect().left - a.getBoundingClientRect().left
+				: el.clientWidth
 		}
+
 		const to = (i: number, behavior: 'auto' | 'instant' | 'smooth') => {
 			stopTrack()
 			const left = clamp(i, 0, count - 1) * stride()
-			if (typeof el.scrollTo === 'function') el.scrollTo({ left, behavior })
-			else el.scrollLeft = left
+			if (typeof el.scrollTo === 'function') {
+				el.scrollTo({ left, behavior })
+			} else {
+				el.scrollLeft = left
+			}
 		}
+
 		let fading: { finish(): void } | null = null
 		viewport.current = {
 			goTo: to,
@@ -550,22 +706,44 @@ export function Viewport(props: LightboxPartProps) {
 					el.scrollTo?.({ left: dragStart, behavior: 'instant' })
 				} else if (dragStart !== null) {
 					el.scrollLeft = dragStart - dx
-					if (phase === 'move') return
+					if (phase === 'move') {
+						return
+					}
+
 					dragStart = null
 					const width = stride()
 					const index = clamp(Math.round((el.scrollLeft - 0.2 * vx) / width), 0, count - 1)
 					const target = index * width
 					trackP.jump(el.scrollLeft)
-					const off = trackP.on('change', (left: number) => { el.scrollLeft = left })
-					const animation = trackP.animate(target, reducedMotion ? REDUCED : { ...SETTLE, velocity: -vx })
-					const playback = { stop() { off(); animation.stop() } }
+					const off = trackP.on('change', (left: number) => {
+						el.scrollLeft = left
+					})
+
+					const animation = trackP.animate(
+						target,
+						reducedMotion ? REDUCED : { ...SETTLE, velocity: -vx },
+					)
+
+					const playback = {
+						stop() {
+							off()
+							animation.stop()
+						},
+					}
+
 					snapping = playback
 					void animation.finished.then((result) => {
 						off()
-						if (snapping !== playback) return
+						if (snapping !== playback) {
+							return
+						}
+
 						snapping = null
 						restoreSnap()
-						if (result !== 'finished') return
+						if (result !== 'finished') {
+							return
+						}
+
 						el.scrollLeft = target
 						progress.set(index)
 						onScrollIndex.current(index)
@@ -581,50 +759,73 @@ export function Viewport(props: LightboxPartProps) {
 					const slides = el.querySelectorAll<HTMLElement>(':scope > [data-lightbox-slide]')
 					const [a, b] = [slides[from], slides[target]]
 					to(target, 'auto')
-					if (!a || !b) return resolve()
+					if (!a || !b) {
+						return resolve()
+					}
+
 					fixedStride = stride()
 					const restore = [a, b].map((slide) => {
 						const { transform, zIndex, opacity, scrollSnapAlign } = slide.style
 						return () => Object.assign(slide.style, { transform, zIndex, opacity, scrollSnapAlign })
 					})
+
 					Object.assign(a.style, {
 						transform: `translateX(${(target - from) * stride()}px)`,
 						zIndex: '1',
 						scrollSnapAlign: 'none',
 					})
+
 					b.style.opacity = '0'
 					fadeP.jump(0)
 					const offP = fadeP.on('change', (v: number) => {
 						a.style.opacity = String(1 - v)
 						b.style.opacity = String(v)
 					})
+
 					const p = fadeP.animate(1, FADE)
 					const pAnim = progress.animate(target, FADE)
 					const anims = [p, pAnim]
 					const finish = () => {
-						if (fading !== handle) return
+						if (fading !== handle) {
+							return
+						}
+
 						fading = null
 						offP()
-						for (const anim of anims) anim.stop()
-						for (const undo of restore) undo()
+						for (const anim of anims) {
+							anim.stop()
+						}
+
+						for (const undo of restore) {
+							undo()
+						}
+
 						fixedStride = null
 						progress.set(el.scrollLeft / stride())
 						resolve()
 					}
+
 					const handle = { finish }
 					fading = handle
 					void anims[0]!.finished.then(finish)
 				}),
 		}
+
 		// Land on the requested slide: openAt(index>0) must not leave the
 		// current slide clipped offscreen on mount.
 		to(ctx.index, 'auto')
 		const onScroll = () => {
 			const p = el.scrollLeft / stride()
-			if (!fading) progress.set(p)
+			if (!fading) {
+				progress.set(p)
+			}
+
 			// Keep the originating slide active until its mouse gesture settles.
-			if (dragStart === null && !snapping) onScrollIndex.current(clamp(Math.round(p), 0, count - 1))
+			if (dragStart === null && !snapping) {
+				onScrollIndex.current(clamp(Math.round(p), 0, count - 1))
+			}
 		}
+
 		el.addEventListener('scroll', onScroll, { passive: true })
 		return () => {
 			fading?.finish()
@@ -638,34 +839,47 @@ export function Viewport(props: LightboxPartProps) {
 		<div
 			ref={ref}
 			aria-roledescription="carousel"
-			className={cx('vx-lightbox-viewport', ctx.zoomed && 'vx-lightbox-viewport--zoomed', props.className)}
-			style={mergeStyle({
-				display: 'flex',
-				position: 'relative',
-				height: '100%',
-				overflowX: ctx.zoomed ? 'hidden' : 'auto',
-				overflowY: 'hidden',
-				scrollSnapType: 'x mandatory',
-				overscrollBehavior: 'contain',
-			}, props.style)}
+			className={cx(
+				'vx-lightbox-viewport',
+				ctx.zoomed && 'vx-lightbox-viewport--zoomed',
+				props.className,
+			)}
+			style={mergeStyle(
+				{
+					display: 'flex',
+					position: 'relative',
+					height: '100%',
+					overflowX: ctx.zoomed ? 'hidden' : 'auto',
+					overflowY: 'hidden',
+					scrollSnapType: 'x mandatory',
+					overscrollBehavior: 'contain',
+				},
+				props.style,
+			)}
 			data-testid={props.testID}
 		>
-			{(props.children ??
-				ctx.items.map((item, i) => (
-					<Slide key={item.src + i} index={i}>
-						<Image />
-					</Slide>
-				))) as never}
+			{
+				(props.children ??
+					ctx.items.map((item, i) => (
+						<Slide key={item.src + i} index={i}>
+							<Image />
+						</Slide>
+					))) as never
+			}
 		</div>
 	)
 }
 
-export function Slide(props: LightboxSlidePartProps) {
+export function Slide(props: LightboxSlidePartProps): JSX.Element {
 	const ctx = useLightboxCtx()
 	const current = props.index === ctx.index
 	// Renders index±2 only; a large gallery would want real virtualisation too.
 	const near = Math.abs(props.index - ctx.index) <= 2 || props.index === ctx.held
-	const slide = useMemo(() => ({ index: props.index, onTap: props.onTap }), [props.index, props.onTap])
+	const slide = useMemo(
+		() => ({ index: props.index, onTap: props.onTap }),
+		[props.index, props.onTap],
+	)
+
 	return (
 		<SlideContext value={slide}>
 			<div
@@ -675,14 +889,21 @@ export function Slide(props: LightboxSlidePartProps) {
 				aria-label={`${props.index + 1} of ${ctx.items.length}`}
 				aria-hidden={current ? undefined : true}
 				inert={!current}
-				className={cx('vx-lightbox-slide', current && 'vx-lightbox-slide--current', props.className)}
-				style={mergeStyle({
-					flex: '0 0 100%',
-					position: 'relative',
-					overflow: 'clip',
-					scrollSnapAlign: 'center',
-					scrollSnapStop: 'always',
-				}, props.style)}
+				className={cx(
+					'vx-lightbox-slide',
+					current && 'vx-lightbox-slide--current',
+					props.className,
+				)}
+				style={mergeStyle(
+					{
+						flex: '0 0 100%',
+						position: 'relative',
+						overflow: 'clip',
+						scrollSnapAlign: 'center',
+						scrollSnapStop: 'always',
+					},
+					props.style,
+				)}
 				data-testid={props.testID}
 				{...(current ? { 'data-current': '' } : {})}
 			>
@@ -692,7 +913,9 @@ export function Slide(props: LightboxSlidePartProps) {
 	)
 }
 
-export function Close(props: LightboxPartProps & { onClick?: (e: MouseEvent) => void }) {
+export function Close(
+	props: LightboxPartProps & { onClick?: (e: MouseEvent) => void },
+): JSX.Element {
 	const ctx = useLightboxCtx()
 	return (
 		<button
@@ -703,7 +926,9 @@ export function Close(props: LightboxPartProps & { onClick?: (e: MouseEvent) => 
 			data-testid={props.testID}
 			onClick={(e: MouseEvent) => {
 				props.onClick?.(e)
-				if (!e.defaultPrevented) ctx.close()
+				if (!e.defaultPrevented) {
+					ctx.close()
+				}
 			}}
 		>
 			{(props.children ?? 'Close') as never}
@@ -730,15 +955,15 @@ function NavButton(props: LightboxPartProps & { step: 1 | -1 }) {
 	)
 }
 
-export function Prev(props: LightboxPartProps) {
+export function Prev(props: LightboxPartProps): JSX.Element {
 	return <NavButton step={-1} {...props} />
 }
 
-export function Next(props: LightboxPartProps) {
+export function Next(props: LightboxPartProps): JSX.Element {
 	return <NavButton step={1} {...props} />
 }
 
-export function Title(props: LightboxPartProps & { id?: string }) {
+export function Title(props: LightboxPartProps & { id?: string }): JSX.Element {
 	const ctx = useLightboxCtx()
 	const id = useDialogPart(ctx.dialogText, 'title', props.id, props.children)
 	return (
@@ -748,7 +973,7 @@ export function Title(props: LightboxPartProps & { id?: string }) {
 	)
 }
 
-export function Description(props: LightboxPartProps & { id?: string }) {
+export function Description(props: LightboxPartProps & { id?: string }): JSX.Element {
 	const ctx = useLightboxCtx()
 	const id = useDialogPart(ctx.dialogText, 'description', props.id, props.children)
 	return (

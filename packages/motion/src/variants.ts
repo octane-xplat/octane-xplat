@@ -21,7 +21,10 @@ export function resolveVariant(
 	definition: AnimationDefinition | false | undefined,
 	variants?: Variants,
 	custom?: any,
-) {
+): {
+	target: Partial<Record<MotionKey, number>>
+	transition: TransitionInput | undefined
+} {
 	const target: Target = {}
 	let transition: TransitionInput | undefined
 	if (definition === undefined || definition === false) {
@@ -93,7 +96,7 @@ export function playbackTransition(input: TransitionInput, delay = 0): Transitio
 
 /** Root-local tree of inherited runs. Generations prevent queued work after replacement/disposal. */
 export class VariantNode {
-	readonly children = new Set<VariantNode>()
+	readonly children: Set<VariantNode> = new Set<VariantNode>()
 	private generation = 0
 	private active?: {
 		definition: AnimationDefinition
@@ -110,7 +113,7 @@ export class VariantNode {
 	) => Promise<AnimationResult>
 	stopOwn!: () => void
 
-	register(child: VariantNode) {
+	register(child: VariantNode): () => void {
 		this.children.add(child)
 		const active = this.active
 		if (active && isLabels(active.definition)) {
@@ -139,14 +142,14 @@ export class VariantNode {
 	}
 
 	/** Invalidate queued phases without stopping independently registered Presence exits. */
-	cancelPending() {
+	cancelPending(): void {
 		this.generation++
 		for (const child of this.children) {
 			child.cancelPending()
 		}
 	}
 
-	stop() {
+	stop(): void {
 		this.generation++
 		this.stopOwn?.()
 		for (const child of this.children) {

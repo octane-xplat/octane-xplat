@@ -9,7 +9,7 @@ import { layoutChildProps } from './layout-child'
  *  is a one-line clip; cells are flex children keyed by survivor identity.
  *  The container carries the whole current value as its accessible name, so
  *  readers never see duplicated outgoing/incoming text. */
-export function RollingText(props: RollingTextProps) @{
+export function RollingText(props: RollingTextProps): unknown @{
 	const roll = useRollingText(props)
 
 	<masonview

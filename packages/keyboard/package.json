@@ -21,14 +21,14 @@
 	"type": "module",
 	"files": [
 		"src",
-		"types",
+		"types/generated",
 		"UPSTREAM.md",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
 	],
 	"exports": {
 		".": {
-			"types": "./types/index.d.ts",
+			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		}
 	},
@@ -36,7 +36,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --target keyboard",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
 		"test:motion:ios": "node ../../scripts/probe.ts run tests/fixtures/motion.ios.tsrx --target ios",
@@ -71,7 +71,8 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -85,5 +86,6 @@
 		"@nativescript/core": {
 			"optional": true
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

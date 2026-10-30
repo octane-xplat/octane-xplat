@@ -36,19 +36,19 @@ export class MotionValue {
 		}
 	}
 	/** Read the current sample. */
-	get() {
+	get(): number {
 		return this.current
 	}
 	/** Read the previous sample. */
-	getPrevious() {
+	getPrevious(): number {
 		return this.previous
 	}
 	/** Velocity in units per second; stale samples have zero velocity. */
-	getVelocity() {
+	getVelocity(): number {
 		return this.clock.now() - this.updated > 30 ? 0 : this.velocity
 	}
 	/** Set immediately, or animate when this is a useSpring value. */
-	set(value: number) {
+	set(value: number): void {
 		this.assert(value)
 		if (this.disposed) {
 			return
@@ -62,7 +62,7 @@ export class MotionValue {
 		}
 	}
 	/** Snap and stop current playback, resetting velocity. */
-	jump(value: number) {
+	jump(value: number): void {
 		this.assert(value)
 		this.stop()
 		this.write(value)
@@ -95,7 +95,7 @@ export class MotionValue {
 	}
 	/** Update position bookkeeping without emitting — platform-delegated runs
 	 *  track presentation state so interruption reads fresh value/velocity. */
-	track(value: number) {
+	track(value: number): void {
 		this.assert(value)
 		if (this.disposed) {
 			return
@@ -152,7 +152,7 @@ export class MotionValue {
 		return controls
 	}
 	/** Stop playback at its current value. */
-	stop(reason: 'cancelled' | 'replaced' = 'cancelled') {
+	stop(reason: 'cancelled' | 'replaced' = 'cancelled'): void {
 		++this.generation
 		if (this.controls) {
 			this.controls.stop(reason)
@@ -161,7 +161,7 @@ export class MotionValue {
 		}
 	}
 	/** Release playback and listeners when the owning component unmounts. */
-	destroy() {
+	destroy(): void {
 		this.stop()
 		this.emit('destroy')
 		this.listeners.clear()
@@ -171,7 +171,7 @@ export class MotionValue {
 	/** @internal Install the useSpring setter interception. */
 	attach(setter: (value: number) => void) {
 		this.passive = setter
-		return () => {
+		return (): void => {
 			this.passive = undefined
 			this.stop()
 		}

@@ -1,5 +1,19 @@
 /** Resolve the displayed width without changing flexible legacy columns. */
-export function columnStyle(column: any, fixed: boolean, sizing: Record<string, number>) {
+export function columnStyle(
+	column: any,
+	fixed: boolean,
+	sizing: Record<string, number>,
+):
+	| {
+			width: any
+			flexGrow: number
+			flexShrink: number
+	  }
+	| {
+			flexGrow: number
+			flexShrink: number
+			width?: undefined
+	  } {
 	const explicit = fixed || column.columnDef.size != null || sizing[column.id] != null
 	return explicit
 		? { width: column.getSize(), flexGrow: 0, flexShrink: 0 }
@@ -7,7 +21,7 @@ export function columnStyle(column: any, fixed: boolean, sizing: Record<string, 
 }
 
 /** Move a column within the complete order, preserving hidden columns. */
-export function moveColumn(order: string[], source: string, target: string) {
+export function moveColumn(order: string[], source: string, target: string): string[] {
 	const from = order.indexOf(source)
 	const to = order.indexOf(target)
 	if (from < 0 || to < 0 || from === to) {
@@ -21,7 +35,11 @@ export function moveColumn(order: string[], source: string, target: string) {
 }
 
 /** Find the visible column whose midpoint a horizontal drag has crossed. */
-export function dragTarget(columns: { id: string; getSize(): number }[], id: string, dx: number) {
+export function dragTarget(
+	columns: { id: string; getSize(): number }[],
+	id: string,
+	dx: number,
+): string {
 	const from = columns.findIndex((column) => column.id === id)
 	if (from < 0 || !Number.isFinite(dx)) {
 		return id
@@ -44,7 +62,7 @@ export function dragTarget(columns: { id: string; getSize(): number }[], id: str
 }
 
 /** Clamp interactive widths to the column's configured bounds. */
-export function resizedWidth(column: any, width: number) {
+export function resizedWidth(column: any, width: number): number {
 	return Math.max(
 		column.columnDef.minSize ?? 20,
 		Math.min(column.columnDef.maxSize ?? Number.MAX_SAFE_INTEGER, width),

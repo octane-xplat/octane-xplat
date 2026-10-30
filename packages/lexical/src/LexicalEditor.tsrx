@@ -5,14 +5,14 @@ import type { RichTextEditorHandle } from '@octane-xplat/richtext'
 import type { LexicalEditorHandle, LexicalEditorProps, LexicalJSON } from './types'
 import { ensureJSONBridge, htmlToJSON, jsonBridgeReady, jsonToHTML } from './json-bridge'
 
-export const supported = leafSupported
+export const supported: boolean = leafSupported
 
 /** Unified editor facade, native half. Rendering/editing run through the
  *  Aztec leaf; the lexical document model (headless createEditor +
  *  @lexical/html over zeed-dom) handles serialized-state interchange on top
  *  of it. This is a read/write model, not a live editor — no
  *  dispatchCommand, node transforms, or plugin behavior on native. */
-export function LexicalEditor(props: LexicalEditorProps) @{
+export function LexicalEditor(props: LexicalEditorProps): unknown @{
 	const inner = useRef<RichTextEditorHandle | null>(null)
 	const [exposedHandle, setHandle] = useState<LexicalEditorHandle | null>(null)
 	useImperativeHandle<LexicalEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])

@@ -11,7 +11,7 @@ import { bindKeyboardHost } from './controller'
 import type { KeyboardHostBinding } from './binding-types'
 import type { KeyboardStickyViewProps } from './props'
 
-export function KeyboardStickyView(props: KeyboardStickyViewProps) @{
+export function KeyboardStickyView(props: KeyboardStickyViewProps): unknown @{
 	const [host, setHost] = useState<any>(null)
 	const attach = useCallback((next: any) => setHost(next), [])
 	const forwarded = useMemo(() => [attach, props.ref], [attach, props.ref])

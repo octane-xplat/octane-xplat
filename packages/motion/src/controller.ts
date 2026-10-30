@@ -15,7 +15,7 @@ export const defaults: Required<Target> = {
 	rotate: 0,
 }
 
-export function validateTarget(target?: Target) {
+export function validateTarget(target?: Target): void {
 	for (const [key, value] of Object.entries(target ?? {})) {
 		if (!keys.includes(key as MotionKey) || !Number.isFinite(value)) {
 			throw new Error(`motion: unsupported target ${key}; expected a finite numeric motion channel`)
@@ -24,14 +24,14 @@ export function validateTarget(target?: Target) {
 }
 
 export class Controller {
-	readonly values = new Map<MotionKey, MotionValue>()
+	readonly values: Map<MotionKey, MotionValue> = new Map<MotionKey, MotionValue>()
 	/** Per-write snapshot callback (rAF-rate during delegated and JS runs). */
 	onUpdate?: (snapshot: Target) => void
 	private adapter?: HostAdapter
 	private delegated?: { run: DelegatedRun; frame: number; trackSample: () => void }
 	private generation = 0
 	constructor(private clock: Clock) {}
-	value(key: MotionKey) {
+	value(key: MotionKey): MotionValue {
 		let value = this.values.get(key)
 		if (!value) {
 			value = new MotionValue(defaults[key], this.clock)
@@ -41,7 +41,7 @@ export class Controller {
 
 		return value
 	}
-	attach(adapter: HostAdapter) {
+	attach(adapter: HostAdapter): void {
 		this.adapter = adapter
 		this.flush()
 	}
@@ -58,15 +58,15 @@ export class Controller {
 	snapshot(): Target {
 		return Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()]))
 	}
-	flush() {
+	flush(): void {
 		const snapshot = Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()]))
 		this.adapter?.write(snapshot)
 		this.onUpdate?.(snapshot)
 	}
-	set(key: MotionKey, next: number) {
+	set(key: MotionKey, next: number): void {
 		this.value(key).jump(next)
 	}
-	seed(target: Target) {
+	seed(target: Target): void {
 		validateTarget(target)
 		for (const [key, value] of Object.entries(target)) {
 			this.set(key as MotionKey, value)
@@ -191,14 +191,14 @@ export class Controller {
 
 		return results.every((result) => result === 'finished') ? 'finished' : 'cancelled'
 	}
-	stop() {
+	stop(): void {
 		++this.generation
 		this.cancelDelegated()
 		for (const value of this.values.values()) {
 			value.stop()
 		}
 	}
-	destroy() {
+	destroy(): void {
 		this.stop()
 		for (const value of this.values.values()) {
 			value.destroy()

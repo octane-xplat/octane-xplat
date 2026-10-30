@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useRef } from 'octane'
 import type { PagerProps } from './props'
 import { applyWebProps } from './platformProps.web'
@@ -11,7 +12,7 @@ import { layoutChildProps } from './layout-child.web'
  *  writes are tracked in `current` so their own scroll never echoes back
  *  through `onPageChange` — same contract as the muted property echo on
  *  native. No indicator — compose dots from Row + View outside. */
-export function Pager(props: PagerProps) @{
+export function Pager(props: PagerProps): JSX.Element @{
 	const host = useRef<HTMLElement | null>(null)
 	const latest = useRef(props)
 	// The page the leaf believes it is on: seeded by `page`/`defaultPage`,
