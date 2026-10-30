@@ -20,32 +20,39 @@ function enqueue(operation: () => Promise<void>): Promise<void> {
 	return result
 }
 
+/** Current screen orientation. */
 export async function getOrientationAsync(): Promise<Orientation> {
 	return backend.info().orientation
 }
 
+/** Current lock in portable values. */
 export async function getOrientationLockAsync(): Promise<OrientationLock> {
 	return backend.policy()
 }
 
+/** Current lock in platform-native values. */
 export async function getPlatformOrientationLockAsync(): Promise<PlatformOrientationInfo> {
 	return backend.platformPolicy()
 }
 
+/** Whether a given lock is possible on this device. */
 export async function supportsOrientationLockAsync(lock: OrientationLock): Promise<boolean> {
 	validateLock(lock)
 	return backend.supports(lock)
 }
 
+/** Apply a portable lock. */
 export async function lockAsync(lock: OrientationLock): Promise<void> {
 	validateLock(lock)
 	return enqueue(() => backend.lock(lock))
 }
 
+/** Return to default orientation behavior. */
 export async function unlockAsync(): Promise<void> {
 	return enqueue(() => backend.unlock())
 }
 
+/** Apply a platform-native lock. */
 export async function lockPlatformAsync(options: PlatformOrientationInfo): Promise<void> {
 	if (
 		!options ||
@@ -133,18 +140,29 @@ export function getIOSSupportedInterfaceOrientations(window: object | null): num
 	return backend.iosSupportedOrientations(window)
 }
 
+/** Orientation service — Expo-shaped API. */
+/** Orientation service — Expo-shaped API. */
 export const ScreenOrientation: Readonly<{
 	readonly capabilities: Readonly<import('./types').ScreenOrientationCapabilities>
 	readonly supported: boolean
 	isAvailable(): Promise<boolean>
+	/** Current screen orientation. */
 	getOrientationAsync: typeof getOrientationAsync
+	/** Current lock in portable values. */
 	getOrientationLockAsync: typeof getOrientationLockAsync
+	/** Current lock in platform-native values. */
 	getPlatformOrientationLockAsync: typeof getPlatformOrientationLockAsync
+	/** Whether a given lock is possible on this device. */
 	supportsOrientationLockAsync: typeof supportsOrientationLockAsync
+	/** Apply a portable lock. */
 	lockAsync: typeof lockAsync
+	/** Apply a platform-native lock. */
 	lockPlatformAsync: typeof lockPlatformAsync
+	/** Return to the default orientation behavior. */
 	unlockAsync: typeof unlockAsync
+	/** Observe orientation changes; returns a Subscription. */
 	addOrientationChangeListener: typeof addOrientationChangeListener
+	/** Raw Info.plist orientations (iOS). */
 	getIOSSupportedInterfaceOrientations: typeof getIOSSupportedInterfaceOrientations
 }> = Object.freeze({
 	get capabilities() {

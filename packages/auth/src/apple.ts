@@ -43,6 +43,7 @@ function toCredential(user: any): AuthCredential {
 	}
 }
 
+/** appleAuth service — see the matching interface in types. */
 export const appleAuth: AppleAuth = {
 	supported: SignIn.isSupported(),
 	configure(_config: AppleAuthConfig) {

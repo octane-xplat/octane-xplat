@@ -27,6 +27,7 @@ import type {
  *  partial completions, and failures.
  */
 export interface SyntheticCameraScript {
+	/** Storage access state. */
 	permission: {
 		camera: CameraPermissionStatus
 		microphone: CameraPermissionStatus
@@ -53,8 +54,11 @@ export interface SyntheticCameraScript {
 	focusRequests?: CameraPreviewPoint[]
 }
 
+/** Storage backing for synthetic/test camera clips. */
 export interface SyntheticCameraStorage {
+	/** Write a synthetic clip to storage. */
 	write(path: string, bytes: Uint8Array): void | Promise<void>
+	/** Read a stored clip. */
 	read(path: string): Uint8Array | undefined | Promise<Uint8Array | undefined>
 	delete?(path: string): void | Promise<void>
 	exists?(path: string): boolean | Promise<boolean>

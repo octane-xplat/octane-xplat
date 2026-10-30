@@ -4,6 +4,7 @@ import type { Calendar, PermissionResult } from './types'
 
 const unsupported = () => Promise.reject(new Error('unsupported: no calendar API on web'))
 
+/** Calendar service — EventKit/CalendarContract. */
 export const calendar: Calendar = {
 	supported: false,
 	ensure: async (): Promise<PermissionResult> => 'unsupported',

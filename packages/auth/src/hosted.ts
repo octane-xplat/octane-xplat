@@ -31,6 +31,7 @@ const DEFAULT_STORAGE_KEY = 'hosted-auth'
 // Re-mint the access token this far ahead of its server-side expiry.
 const REFRESH_SKEW_MS = 30_000
 
+/** Create a hosted-auth client (web-based sign-in flow). */
 export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 	const apiOrigin = normalizeOrigin(config.apiOrigin)
 	const authorizePath = config.authorizePath ?? defaultAuthorizePath

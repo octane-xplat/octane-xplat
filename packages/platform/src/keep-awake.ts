@@ -144,6 +144,7 @@ const service = createTaggedKeepAwake({
 	},
 })
 
+/** Screen-awake control. */
 export const keepAwake: KeepAwakeImpl = {
 	...service,
 	isActivated: async () => {

@@ -1,7 +1,10 @@
+/** AppKit picker component slots. */
 export type AppKitDatePickerComponents = 'date' | 'time' | 'dateAndTime'
 
+/** macOS date-picker style. */
 export type AppKitDatePickerStyle = 'textField' | 'graphical'
 
+/** macOS date-picker props (NSDatePicker). */
 export interface AppKitDatePickerProps {
 	id?: string
 	className?: any

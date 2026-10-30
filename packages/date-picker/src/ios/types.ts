@@ -1,7 +1,10 @@
+/** SwiftUI date-picker style. */
 export type SwiftUIDatePickerStyle = 'automatic' | 'compact' | 'graphical' | 'wheel'
 
+/** SwiftUI picker component selector. */
 export type SwiftUIDatePickerComponent = 'date' | 'hourAndMinute'
 
+/** iOS date-picker props (SwiftUI DatePicker). */
 export interface SwiftUIDatePickerProps {
 	id?: string
 	className?: any

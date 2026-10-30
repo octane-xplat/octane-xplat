@@ -40,6 +40,7 @@ function read(): AppInfo {
 // `Application.android.context` doesn't exist while the bundled entry is
 // being evaluated (Application.onCreate), so read() must not run at module
 // scope. Defer until first property access.
+/** Static app metadata service. */
 export const appInfo: AppInfo = {
 	get supported() {
 		return read().supported

@@ -38,4 +38,5 @@ function read(value?: number): ConnectivityState {
 	return { online: type !== 'none', type }
 }
 
+/** Network connectivity service. */
 export const connectivity: ConnectivityImpl = createNativeConnectivity(Connectivity, read)

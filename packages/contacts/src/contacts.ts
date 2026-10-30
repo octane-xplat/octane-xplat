@@ -193,6 +193,7 @@ function applyNewContact(target: any, source: NewContact): void {
 	target.photo = null
 }
 
+/** Contacts service — system address book. */
 export const contacts: Contacts = {
 	supported: true,
 

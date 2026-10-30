@@ -32,6 +32,7 @@ function storyTree(request: MountRequest): any {
 	)
 }
 
+/** Create the web stage host element. */
 export function createWebStageHost(stageElement: HTMLElement): StageHost {
 	return {
 		mount(request: MountRequest): MountedStory {

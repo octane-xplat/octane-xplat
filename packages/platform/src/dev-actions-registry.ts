@@ -31,12 +31,18 @@ import {
 } from './dev-actions-schema'
 
 export type DevActionInfo = {
+	/** Stable action/run identifier. */
 	id: string
+	/** Display title. */
 	title: string
 	description: string
+	/** Current input values. */
 	input: DevActionFields | undefined
+	/** Execution result. */
 	result: DevActionFields | undefined
+	/** Declared side-effect targets. */
 	effects: DevActionEffects
+	/** Whether the action can run now. */
 	availability: {
 		reason?: string | undefined
 		ready: boolean
@@ -53,25 +59,32 @@ export type DevActionInfo = {
 		readyWhen?: string | undefined
 		platforms?: DevPlatform[] | undefined
 	}
+	/** Current/last execution record. */
 	execution: DevActionExecution | undefined
 }[]
 
 export type { DevActionField, DevActionFields } from './dev-actions-schema'
 
+/** Platforms dev actions target. */
 export type DevPlatform = 'web' | 'ios' | 'android' | 'macos' | 'linux' | 'windows'
 
 /** Disclosed effect categories — the agent reads these to judge authorization. */
 export interface DevActionEffects {
 	/** Plain-language summary of what the action changes. */
 	summary: string
+	/** Auth service available to actions. */
 	auth?: boolean
+	/** Navigation service available to actions. */
 	navigation?: boolean
+	/** App-state service. */
 	appState?: boolean
+	/** Test-data injection seam. */
 	testData?: boolean
 	/** Effects outside the app (external test services, destructive resets) — the MCP server requires the external-effects grant. */
 	externalEffects?: boolean
 }
 
+/** Whether a dev action can run. */
 export interface DevActionAvailability {
 	/** Platforms this action applies to; absent = all. */
 	platforms?: DevPlatform[]
@@ -81,6 +94,7 @@ export interface DevActionAvailability {
 	readyWhen?: string
 }
 
+/** One execution of a dev action. */
 export interface DevActionExecution {
 	/** 'serialized' (default) runs one action per app instance at a time; 'overlap' declares safe concurrency. */
 	concurrency?: 'serialized' | 'overlap'
@@ -92,24 +106,33 @@ export interface DevActionExecution {
 	timeoutMs?: number
 }
 
+/** Services a dev action may use. */
 export interface DevActionContext {
 	/** Aborted when the caller requests cancellation (cancellable actions only) or when the running handler's owner detaches. */
 	signal: AbortSignal
+	/** Correlation id for the request. */
 	requestId: string
 	/** Disclose a change the action already made — reported back on failure/cancel. */
 	reportPartialEffect(effect: string): void
 }
 
+/** Registered dev-action spec. */
 export interface DevActionSpec {
 	/** Stable machine identity, e.g. `auth.login-as-test-admin`. */
 	id: string
+	/** Display title. */
 	title: string
 	/** When to use it and what successful completion means. */
 	description: string
+	/** Current input values. */
 	input?: DevActionFields
+	/** Execution result. */
 	result?: DevActionFields
+	/** Declared side-effect targets. */
 	effects: DevActionEffects
+	/** Whether the action can run now. */
 	availability?: DevActionAvailability
+	/** Current/last execution record. */
 	execution?: DevActionExecution
 	/**
 	 * URL (e.g. '/checkout') — or an input-derived URL — the framework
@@ -121,6 +144,7 @@ export interface DevActionSpec {
 	run(input: Record<string, unknown>, context: DevActionContext): unknown
 }
 
+/** Handle for a running dev action. */
 export interface DevActionHandle {
 	dispose(): void
 }
@@ -152,8 +176,11 @@ export interface DevActionFailure {
 	handler: number
 	/** Optional owner label (e.g. component name) supplied at attach time. */
 	label?: string
+	/** Error/action name. */
 	name: string
+	/** Error message. */
 	message: string
+	/** Error stack trace. */
 	stack?: string
 }
 
@@ -211,6 +238,7 @@ interface RegistryState {
  * `navigation_blocked`/`navigation_failed` codes verbatim. @internal
  */
 export class DevNavigationError extends Error {
+	/** Result code. */
 	code: 'navigation_blocked' | 'navigation_failed'
 	constructor(code: 'navigation_blocked' | 'navigation_failed', message: string) {
 		super(message)
@@ -222,9 +250,12 @@ export class DevNavigationError extends Error {
 export type DevNavigationResult =
 	| { ok: true; route: string | null }
 	| {
+			/** Whether the call succeeded. */
 			ok: false
+			/** Result code. */
 			code: 'navigation_blocked' | 'navigation_failed'
 			status: string
+			/** Error message. */
 			message: string
 	  }
 
@@ -293,6 +324,7 @@ interface InvocationRequest {
 	input: Record<string, unknown>
 }
 
+/** Bridge the dev host uses to reach actions. */
 export interface DevActionBridge {
 	readonly instanceId: string
 	readonly state: 'connecting' | 'live' | 'degraded' | 'stopped' | 'unavailable'
@@ -300,6 +332,7 @@ export interface DevActionBridge {
 	stop(): void
 }
 
+/** Options for creating the dev-action bridge. */
 export interface DevActionBridgeOptions {
 	/** Dev-server origin override — normally discovered per platform. */
 	origin?: string

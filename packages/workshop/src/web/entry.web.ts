@@ -22,9 +22,11 @@ export interface ShellState {
 	stageOnly: boolean
 	stageBackground: 'default' | 'light' | 'dark'
 	stageBounds: 'available' | 'small' | 'medium'
+	/** Discovered story catalog. */
 	catalog: CatalogEntry[]
 	catalogError: string | undefined
 	missingId: string | null
+	/** The workshop session. */
 	session: SessionSnapshot
 	drafts: Record<string, string>
 	fieldErrors: Record<string, string>
@@ -32,11 +34,15 @@ export interface ShellState {
 }
 
 export interface WorkshopRuntime {
+	/** Backing store for session state. */
 	store: ReturnType<typeof createStore<ShellState>>
+	/** The workshop session. */
 	session: WorkshopSession
+	/** Mount the stage host element. */
 	mountHost: HTMLElement
 	selectEntry(entry: CatalogEntry): Promise<void>
 	updateCatalog(entries: CatalogEntry[], diagnostics?: readonly { message: string }[]): void
+	/** Bump when a new catalog loads. */
 	loadGeneration: number
 }
 
@@ -51,16 +57,22 @@ export function catalogDidUpdate(
 }
 
 export interface WorkshopBootOptions {
+	/** Discovered story catalog. */
 	catalog: CatalogEntry[]
+	/** Config/catalog diagnostics. */
 	diagnostics?: readonly { message: string }[]
+	/** Render target. */
 	target: WorkshopTarget
+	/** Story to open on load. */
 	initialStoryId?: string | null
+	/** Providers wrapping every story. */
 	globalProviders?: readonly unknown[]
 	/** Vite HMR handle — passed by the generated entry because lib builds
 	 *  fold `import.meta.hot` to undefined. */
 	hot?: { on?: (event: string, cb: (payload?: unknown) => void) => void }
 }
 
+/** Mount the web workshop into a host element. */
 export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 	const mountHost = document.createElement('div')
 	mountHost.className = 'xw-stage-host'

@@ -10,6 +10,7 @@ import type { WebAuthnImpl } from './types'
 
 const unavailable = () => Promise.reject(new UnavailabilityError('webAuthn'))
 
+/** WebAuthn/Passkeys service. */
 export const webAuthn: Service<WebAuthnImpl> = {
 	supported: false,
 	isAvailable: async () => false,

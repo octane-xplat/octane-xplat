@@ -12,6 +12,7 @@ import type { Store } from '@octane-xplat/ui/data'
 /** The six product targets. Only `web` is qualified by the current release. */
 export type WorkshopTarget = 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux'
 
+/** Targets the workshop can render. */
 export const WORKSHOP_TARGETS: readonly WorkshopTarget[] = [
 	'web',
 	'ios',
@@ -24,6 +25,7 @@ export const WORKSHOP_TARGETS: readonly WorkshopTarget[] = [
 /** Version of the authoring contract — bumped on breaking changes. */
 export const WORKSHOP_CONTRACT_VERSION = 1
 
+/** Per-story target filter. */
 export type StoryTargets = 'all' | readonly WorkshopTarget[]
 
 /**
@@ -37,6 +39,7 @@ export interface CancellationSignal {
 	removeEventListener(type: 'abort', listener: () => void): void
 }
 
+/** Teardown callback returned by a story. */
 export type StoryCleanup = () => void | Promise<void>
 
 /** Context handed to the fixture factory for each story generation. */
@@ -66,24 +69,36 @@ export type StoryComponent<P> = (props: P) => unknown
  */
 export type StoryProvider<F> = (props: { fixture: F; children?: unknown }) => unknown
 
+/** Toggle control. */
 export interface BooleanControl {
+	/** Control kind discriminator. */
 	type: 'boolean'
 }
 
+/** Text control. */
 export interface StringControl {
+	/** Control kind discriminator. */
 	type: 'string'
+	/** Empty-state hint text. */
 	placeholder?: string
 }
 
+/** Numeric control. */
 export interface NumberControl {
+	/** Control kind discriminator. */
 	type: 'number'
+	/** Minimum value. */
 	min?: number
+	/** Maximum value. */
 	max?: number
+	/** Increment step. */
 	step?: number
 }
 
 export interface EnumControl<T> {
+	/** Control kind discriminator. */
 	type: 'enum'
+	/** Allowed values. */
 	options: readonly T[]
 }
 
@@ -238,6 +253,7 @@ function assertLiteralAuthoring(definition: StoryDefinition<any, any, any>): voi
 
 /** Consumer workshop configuration, loaded by the dev tooling. */
 export interface WorkshopConfig {
+	/** Discovered story entries. */
 	stories?: {
 		/** Glob(s) matching story modules. Default: '**&#47;*.stories.{ts,tsx,tsrx}' plus platform-suffixed leaves. */
 		include?: string | readonly string[]
@@ -252,6 +268,7 @@ export interface WorkshopConfig {
 	assets?: Record<string, string>
 }
 
+/** Type-checked helper for workshop.config. */
 export function defineWorkshopConfig(config: WorkshopConfig): WorkshopConfig {
 	return config
 }

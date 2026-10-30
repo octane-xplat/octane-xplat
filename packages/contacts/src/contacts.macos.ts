@@ -4,6 +4,7 @@ import type { Contacts, PermissionResult } from './types'
 
 const unsupported = () => Promise.reject(new Error('unsupported: contacts is not wired on macOS'))
 
+/** Contacts service — system address book. */
 export const contacts: Contacts = {
 	supported: false,
 	ensure: async (): Promise<PermissionResult> => 'unsupported',

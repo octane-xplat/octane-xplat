@@ -152,6 +152,7 @@ const WORKSHOP_HTML = `<!doctype html>
  * @param {string} [options.target] - launch target (DOM hosts: 'web' | 'linux')
  * @param {string} [options.story] - initial stable story id
  */
+/** Vite plugin wiring the workshop into a web app. */
 export function xplatWorkshop(options = {}) {
 	const target = options.target ?? 'web'
 	const story = options.story ?? null

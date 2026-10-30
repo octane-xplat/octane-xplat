@@ -6,6 +6,7 @@ import type { GoogleAuth, GoogleAuthConfig, SignInResult } from './types'
 let configuration: GoogleAuthConfig | undefined
 let active = false
 
+/** googleAuth service — see the matching interface in types. */
 export const googleAuth: GoogleAuth = {
 	get supported() {
 		return authSession.supported

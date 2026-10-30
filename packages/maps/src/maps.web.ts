@@ -8,6 +8,7 @@ export function webApiKey(): string | null {
 	return apiKey
 }
 
+/** Maps service — backend/permissions facade. */
 export const maps: Maps = {
 	supported: typeof window !== 'undefined',
 	init(options: { apiKey: string }): void {

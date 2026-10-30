@@ -57,6 +57,7 @@ function fillBytes(target: Uint8Array): void {
 	throw new Error('random: no OS CSPRNG bound on this target')
 }
 
+/** Cryptographic-random source. */
 export const random: RandomImpl = {
 	get supported() {
 		return iosReady() || androidReady()

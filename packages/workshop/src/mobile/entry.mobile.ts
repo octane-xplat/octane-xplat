@@ -14,21 +14,31 @@ import {
 	UIViewController,
 } from '@octane-xplat/platform/ios'
 
+/** Options for mounting the mobile workshop. */
 export interface MobileWorkshopOptions {
+	/** Discovered story catalog. */
 	catalog: readonly CatalogEntry[]
+	/** Config/catalog diagnostics. */
 	diagnostics?: readonly { message: string }[]
+	/** Render target. */
 	target: 'ios' | 'android'
+	/** Story to open on load. */
 	initialStoryId?: string | null
+	/** Providers wrapping every story. */
 	globalProviders?: readonly unknown[]
 }
 
+/** Handle for a running mobile workshop. */
 export interface MobileWorkshopRuntime {
+	/** The workshop controller. */
 	controller: NativeWorkshopController
+	/** Host page/screen. */
 	page: Page
 	dispose(): Promise<void>
 }
 
 let runtime: MobileWorkshopRuntime | undefined
+/** Notifies the runtime that the story catalog changed. */
 export function catalogDidUpdate(
 	catalog: readonly CatalogEntry[],
 	diagnostics: readonly { message: string }[] = [],

@@ -59,6 +59,7 @@ export interface LexicalWebOptions {
 	plugins?: OctaneNode
 }
 
+/** Imperative handle exposed through the editor `ref`. */
 export interface LexicalEditorHandle {
 	/** AppKit: returns the latest WebKit snapshot; commands are asynchronous. */
 	getHTML(): string
@@ -70,29 +71,42 @@ export interface LexicalEditorHandle {
 	 *  reports the outcome). Web is always ready. */
 	/** AppKit: latest live engine JSON snapshot; null before onReady. */
 	getJSON(): LexicalJSON | null
+	/** Replace the document with a serialized JSON string. */
 	setJSON(doc: LexicalJSON): void
 	/** Toggle a format supported by the mounted backend. Unsupported formats
 	 * throw RangeError on web/iOS/Android; use linkTo for links. AppKit
 	 * commands are asynchronous and report engine errors through its transport.
 	 * See the platform subset in docs/app/rich-text.md. */
 	apply(format: LexicalFormat): void
-	linkTo(url: string, anchor?: string): void
-	removeLink(): void
-	isActive(format: LexicalFormat): boolean
-	undo(): void
-	redo(): void
-	focus(): void
-	blur(): void
-	isFocused(): boolean
+	/** Apply a link to the current selection. */
+linkTo(url: string, anchor?: string): void
+	/** Strip the link covering the current selection. */
+removeLink(): void
+	/** Query whether a mark/node type is active at the selection. */
+isActive(format: LexicalFormat): boolean
+	/** Undo the last edit. */
+undo(): void
+	/** Redo the last undone edit. */
+redo(): void
+	/** Programmatically focus the editor. */
+focus(): void
+	/** Programmatically blur the editor. */
+blur(): void
+	/** Whether the editor currently has focus. */
+isFocused(): boolean
 	/** The platform surface — the lexical `LexicalEditor` on web,
 	 *  `AztecText` on Android. */
 	/** AppKit: the XplatEditorHost transport, not the browser engine instance. */
 	native: any
 }
 
+/** Props for the editor element. */
 export interface LexicalEditorProps {
+	/** Element id passed through to the host element. */
 	id?: string
+	/** Class list applied to the editor element. */
 	className?: string
+	/** Inline style (string CSS or object). */
 	style?: any
 	/** Document HTML. Seed at mount; external changes re-push. */
 	value?: string
@@ -101,34 +115,57 @@ export interface LexicalEditorProps {
 	 *  readiness (see `onJSONReady`); a doc that arrives early is applied
 	 *  once both are up rather than dropped. */
 	json?: LexicalJSON
+	/** Empty-state hint text. */
 	placeholder?: string
+	/** Read-write vs read-only. @default true */
 	editable?: boolean
+	/** Focus the editor on mount. @default false */
 	autofocus?: boolean
+	/** Fires once the editor engine is ready for commands. */
 	onReady?: () => void
 	/** Reports when serialized JSON access is available. Web and AppKit report
 	 *  `true` when their live editor handle exists. Native reports whether its
 	 *  lazy DOM-free conversion bridge loaded; unsupported runtimes report
 	 *  `false` and JSON getters return `null`. */
 	onJSONReady?: (ready: boolean) => void
+	/** Fires on each content edit — not on selection moves. */
 	onChange?: (html: string) => void
+	/** Fires with the serialized JSON document on each edit. */
 	onJSONChange?: (doc: LexicalJSON) => void
+	/** Fires when the selection/focus range moves. */
 	onSelectionChange?: (event: { start: number; end: number; active: LexicalFormat[] }) => void
+	/** Editor gained focus. */
 	onFocus?: () => void
+	/** Editor lost focus. */
 	onBlur?: () => void
 	/** Web-only Lexical node and plugin composition. Ignored by native backends. */
 	web?: LexicalWebOptions
+	/** Imperative handle — see the exported *EditorHandle type. */
 	ref?: Octane.Ref<LexicalEditorHandle>
+	/** Platform escape hatch — same bag contract as `ios`. */
 	android?: Record<string, any>
+	/** Platform escape hatch (native editor props). */
 	ios?: Record<string, any>
+	/** Zero-based row index in the parent grid. */
 	row?: number | string
+	/** Zero-based column index in the parent grid. */
 	col?: number | string
+	/** Row tracks to span (>= 1). */
 	rowSpan?: number
+	/** Column tracks to span (>= 1). */
 	colSpan?: number
+	/** Edge of the parent dock layout this child pins to. */
 	dock?: 'left' | 'top' | 'right' | 'bottom'
+	/** Absolute x offset in dips inside an absolute-layout parent. */
 	left?: number
+	/** Absolute y offset in dips inside an absolute-layout parent. */
 	top?: number
+	/** Flex grow factor along the parent main axis. */
 	flexGrow?: number
+	/** Flex shrink factor along the parent main axis. */
 	flexShrink?: number
+	/** Cross-axis alignment override for this child. */
 	alignSelf?: 'auto' | 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'
+	/** Sibling ordering — lower orders lay out first. */
 	order?: number
 }

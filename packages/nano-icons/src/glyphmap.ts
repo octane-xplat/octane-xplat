@@ -18,6 +18,7 @@ export type IconsMap = Record<string, GlyphEntry>
  * `m.w` set when a .woff2 was emitted.
  */
 export type NanoGlyphMap = {
+	/** Codepoint map (name → char). */
 	m: {
 		f: string
 		u: number
@@ -26,11 +27,13 @@ export type NanoGlyphMap = {
 		h?: string
 		w?: true
 	}
+	/** Icon-name index. */
 	i: IconsMap
 }
 
 /** JSON-inferred input where arrays aren't tuples. */
 export type NanoGlyphMapInput = {
+	/** Codepoint map (name → char). */
 	m: {
 		f: string
 		u: number
@@ -39,6 +42,7 @@ export type NanoGlyphMapInput = {
 		h?: string
 		w?: boolean
 	}
+	/** Icon-name index. */
 	i: Record<string, readonly unknown[]>
 }
 

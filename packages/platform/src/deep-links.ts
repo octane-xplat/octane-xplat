@@ -148,12 +148,14 @@ function wire() {
 	}
 }
 
+/** Subscribe to incoming deep links. */
 export function onDeepLink(cb: LinkHandler): () => void {
 	wire()
 	handlers.add(cb)
 	return () => handlers.delete(cb)
 }
 
+/** Read and clear the URL that launched the app. */
 export function consumeInitialUrl(): string | null {
 	const u = initial
 	initial = null

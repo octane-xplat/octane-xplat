@@ -189,6 +189,7 @@ function androidEvent(row: any): CalendarEvent {
 	}
 }
 
+/** Calendar service — EventKit/CalendarContract. */
 export const calendar: Calendar = {
 	supported: isIOS ? typeof EKEventStore !== 'undefined' : true,
 

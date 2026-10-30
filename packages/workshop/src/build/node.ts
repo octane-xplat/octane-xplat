@@ -42,6 +42,7 @@ function consumerRoot(cwd) {
 	return dir
 }
 
+/** Locate the nearest workshop config. */
 export function findConfigFile(root) {
 	for (const name of CONFIG_NAMES) {
 		const file = join(root, name)

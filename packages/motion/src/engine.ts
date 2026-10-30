@@ -12,6 +12,7 @@ import type {
 export type AnimationResult = 'finished' | 'cancelled' | 'replaced'
 /** A cancellable animation whose finished promise always settles. */
 export interface AnimationControls {
+	/** Promise resolving when the animation settles. */
 	finished: Promise<AnimationResult>
 	stop(reason?: Exclude<AnimationResult, 'finished'>): void
 }

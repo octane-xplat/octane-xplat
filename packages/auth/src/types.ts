@@ -5,14 +5,19 @@
 /** The account the provider authenticated. */
 export interface AuthUser {
 	/** Stable subject id — Apple `user`, Google `id` (id-token `sub`). */
+	/** Element id passed through to the host element. */
+
 	id: string
+	/** Email the provider returned; absent when not granted. */
 	email?: string
 	/**
 	 * Best-effort display name. Apple only returns name parts on the first
 	 * authorization for an account — expect `undefined` on repeat sign-ins.
 	 */
 	name?: string
+	/** Given name when the provider returns it. */
 	givenName?: string
+	/** Family name when the provider returns it. */
 	familyName?: string
 	/** Google only. */
 	photoUrl?: string
@@ -20,6 +25,7 @@ export interface AuthUser {
 
 /** The provider credential — hand it to your backend for verification. */
 export interface AuthCredential {
+	/** Identity provider that issued the credential. */
 	provider: 'apple' | 'google'
 	/** OIDC ID token (JWT). Apple `identityToken`; Google `idToken` / GIS `credential`. */
 	idToken?: string
@@ -32,17 +38,21 @@ export interface AuthCredential {
 	accessToken?: string
 	/** Granted scopes where the provider reports them. */
 	scopes: string[]
+	/** Provider user id. */
 	user: AuthUser
 }
 
+/** Sign-in outcome — token/user plus the provider payload. */
 export type SignInResult =
 	| { status: 'success'; credential: AuthCredential }
 	/** The user dismissed the flow, or it ended without a credential. */
 	| { status: 'cancelled' }
 	| { status: 'error'; message: string }
 
+/** Requested Apple sign-in data scopes. */
 export type AppleScope = 'email' | 'name'
 
+/** Options for appleAuth.configure(). */
 export interface AppleAuthConfig {
 	/**
 	 * Web only — the Services ID registered in the Apple developer portal
@@ -56,6 +66,7 @@ export interface AppleAuthConfig {
 	usePopup?: boolean
 }
 
+/** Per-call sign-in options. */
 export interface AppleSignInOptions {
 	/** Apple data to request — maps to `EMAIL`/`FULL_NAME` native scopes. */
 	scopes?: AppleScope[]
@@ -63,6 +74,7 @@ export interface AppleSignInOptions {
 	nonce?: string
 }
 
+/** Credential validity states for an Apple user id. */
 export type AppleCredentialState =
 	| 'authorized'
 	| 'revoked'
@@ -71,6 +83,7 @@ export type AppleCredentialState =
 	/** Anywhere the state check can't run — Android, web. */
 	| 'unknown'
 
+/** Apple Sign-In service facade. */
 export interface AppleAuth {
 	/**
 	 * Whether the provider's native SDK can run here — iOS 13+ and the macOS
@@ -81,7 +94,11 @@ export interface AppleAuth {
 	 */
 	readonly supported: boolean
 	/** Store configuration; the platform SDK loads lazily on first use. */
+	/** One-time setup — call before sign-in. */
+
 	configure(config: AppleAuthConfig): void
+	/** Start the provider sign-in flow. */
+
 	signIn(options?: AppleSignInOptions): Promise<SignInResult>
 	/** iOS and macOS — credential state for a prior `user.id`. */
 	getCredentialState(userId: string): Promise<AppleCredentialState>
@@ -100,6 +117,7 @@ export interface GoogleHostedAuthFlow {
 	signOut?(): Promise<void>
 }
 
+/** Options for googleAuth.configure(). */
 export interface GoogleAuthConfig {
 	/**
 	 * OAuth client id — the web client id on web (required there). On iOS it
@@ -109,6 +127,7 @@ export interface GoogleAuthConfig {
 	clientId?: string
 	/** Your backend's web client id — makes credentials carry `authorizationCode` (server auth code). */
 	serverClientId?: string
+	/** OAuth scopes to request. */
 	scopes?: string[]
 	/** Restrict to a Google Workspace domain. */
 	hostedDomain?: string
@@ -116,6 +135,7 @@ export interface GoogleAuthConfig {
 	hostedFlow?: GoogleHostedAuthFlow
 }
 
+/** Per-call sign-in options. */
 export interface GoogleSignInOptions {
 	/**
 	 * Web/macOS — nonce bound into the id token. Scope requests go through
@@ -124,6 +144,7 @@ export interface GoogleSignInOptions {
 	nonce?: string
 }
 
+/** Google Sign-In service facade. */
 export interface GoogleAuth {
 	/**
 	 * Whether the provider can run here — iOS/Android + browsers, or macOS
@@ -139,8 +160,14 @@ export interface GoogleAuth {
 
 interface SignInButtonBaseProps {
 	id?: string
+	/** Class list applied to the button element. */
+
 	className?: any
+	/** Inline style (string CSS or object). */
+
 	style?: any
+	/** Disables the sign-in button. */
+
 	disabled?: boolean
 	/** Tap hook — fires alongside the sign-in flow (not a gate). */
 	onPress?: () => void
@@ -148,12 +175,17 @@ interface SignInButtonBaseProps {
 	onResult?: (result: SignInResult) => void
 }
 
+/** Props for the AppleSignInButton element. */
 export interface AppleSignInButtonProps extends SignInButtonBaseProps {
 	/** Label variant — 'default' is "Sign in with Apple". */
+	/** Result discriminator. */
+
 	type?: 'default' | 'signUp' | 'continue'
+	/** Presentation theme hint for the sign-in UI. */
 	theme?: 'black' | 'white' | 'whiteOutline'
 }
 
+/** Props for the GoogleSignInButton element. */
 export interface GoogleSignInButtonProps extends SignInButtonBaseProps {
 	/** Native button color scheme — 'dark'/'light'/'auto'. */
 	theme?: 'dark' | 'light' | 'auto'
@@ -170,8 +202,14 @@ export interface GoogleSignInButtonProps extends SignInButtonBaseProps {
  * `@octane-xplat/secure-storage`'s `SecureStore` and any host bridge.
  */
 export interface HostedAuthCredentialStore {
+	/** Read a persisted value; null when absent. */
+
 	get(key: string): Promise<string | null>
+	/** Persist a value. */
+
 	set(key: string, value: string): Promise<unknown>
+	/** Delete a persisted key. */
+
 	remove(key: string): Promise<unknown>
 }
 
@@ -181,9 +219,15 @@ export interface HostedAuthCredentialStore {
  * which both runtimes' `fetch` accept at runtime.
  */
 export interface HostedAuthRequestInit {
+	/** HTTP method. */
 	method?: string
+	/** Request headers. */
+	/** Request headers. */
+
 	headers?: Record<string, string> | Iterable<readonly [string, string]>
+	/** Request body. */
 	body?: unknown
+	/** Abort signal for the request. */
 	signal?: unknown
 }
 
@@ -192,10 +236,15 @@ export interface HostedAuthResponse {
 	readonly status: number
 	readonly ok: boolean
 	readonly headers: { get(name: string): string | null }
+	/** Parse the response body as JSON. */
+
 	json(): Promise<unknown>
+	/** Read the response body as text. */
+
 	text(): Promise<string>
 }
 
+/** Minimal fetch contract the hosted flow needs. */
 export type HostedAuthFetch = (
 	url: string,
 	init?: HostedAuthRequestInit,
@@ -207,8 +256,11 @@ export type HostedAuthSessionResult =
 	| { type: 'cancel' }
 	| { type: 'error'; message: string }
 
+/** An established hosted-auth session. */
 export interface HostedAuthSession {
 	readonly supported: boolean
+	/** Open the hosted sign-in flow. */
+
 	open(url: string, options: { callbackScheme: string }): Promise<HostedAuthSessionResult>
 }
 
@@ -238,6 +290,7 @@ export interface HostedAuthFlowContext {
 	pkce?: HostedAuthPkce
 }
 
+/** One sign-in attempt result (success/cancel/failure). */
 export interface HostedAuthAttempt {
 	/** Absolute URL to open in the system browser. */
 	url: string
@@ -286,6 +339,7 @@ export interface HostedAuthFlow {
 	revoke?(credentials: HostedAuthCredentials, context: HostedAuthFlowContext): Promise<void>
 }
 
+/** Configuration for createHostedAuth(). */
 export interface HostedAuthConfig {
 	/**
 	 * HTTPS origin of the hosted backend; same-origin requests may carry
@@ -312,12 +366,14 @@ export interface HostedAuthConfig {
 	now?: () => number
 }
 
+/** Result of the hosted sign-in attempt. */
 export type HostedAuthSignInResult =
 	| { status: 'success' }
 	/** The user dismissed the hosted ceremony, or it ended without a callback. */
 	| { status: 'cancelled' }
 	| { status: 'error'; message: string }
 
+/** Hosted-auth availability states. */
 export type HostedAuthStatus = 'authenticated' | 'unauthenticated'
 
 /**

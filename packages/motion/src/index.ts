@@ -2,14 +2,22 @@ import { MotionView, MotionRow, MotionPressable, createMotion } from './componen
 /** Bounded motion hosts for shared xplat UI primitives; `motion.create` wraps
  *  any component that accepts `ref`/`style`/`children`. */
 export const motion: {
+	/** Motion-enabled View element. */
 	View: typeof MotionView
+	/** Motion-enabled Row element. */
 	Row: typeof MotionRow
+	/** Motion-enabled Pressable element. */
 	Pressable: typeof MotionPressable
+	/** Wrap a component so its props accept motion values. */
 	create: typeof createMotion
 } = {
+	/** Motion-enabled View element. */
 	View: MotionView,
+	/** Motion-enabled Row element. */
 	Row: MotionRow,
+	/** Motion-enabled Pressable element. */
 	Pressable: MotionPressable,
+	/** Wrap a component so its props accept motion values. */
 	create: createMotion,
 }
 

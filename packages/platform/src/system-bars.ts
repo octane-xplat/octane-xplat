@@ -2,6 +2,7 @@
 // Android status/nav-bar tint via the application window.
 import { Application, Color } from '@nativescript/core'
 
+/** System bar (status/nav bar) service. */
 export const systemBars = {
 	setStatusBarStyle(style: 'light' | 'dark'): void {
 		// 'light'|'dark' name the icon appearance: 'light' = light content

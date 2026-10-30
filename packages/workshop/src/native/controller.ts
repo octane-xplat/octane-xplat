@@ -8,20 +8,31 @@ import { applyControlInput, UNSET, type ControlValueInput } from '../controls'
 export type ShellMode = 'wide' | 'compact' | 'phone'
 
 export interface NativeShellState {
+	/** Discovered story catalog. */
 	catalog: readonly CatalogEntry[]
+	/** Currently selected story id. */
 	selectedId: string | null
+	/** Selected id absent from the catalog. */
 	missingId: string | null
+	/** Active search/filter text. */
 	query: string
 	collapsedGroups: ReadonlySet<string>
+	/** Panel visibility/selection. */
 	panel: 'stories' | 'controls' | null
+	/** Render only the stage, hiding chrome. */
 	stageOnly: boolean
+	/** Controller display mode. */
 	mode: ShellMode
 	catalogCollapsed: boolean
 	controlsCollapsed: boolean
+	/** Unsaved control edits. */
 	drafts: Record<string, string>
+	/** Collected errors. */
 	errors: Record<string, string>
+	/** Catalog load failure. */
 	catalogError: string
 	stage: { background: 'default' | 'dark'; size: 'available' | 'bounded' }
+	/** The workshop session being controlled. */
 	session: SessionSnapshot
 }
 
@@ -49,6 +60,7 @@ export class NativeWorkshopController {
 	constructor(options: {
 		host: StageHost
 		target: WorkshopTarget
+		/** Discovered story catalog. */
 		catalog: readonly CatalogEntry[]
 		globalProviders?: readonly unknown[]
 	}) {
@@ -58,20 +70,31 @@ export class NativeWorkshopController {
 			globalProviders: options.globalProviders,
 		})
 		this.store = createStore<NativeShellState>({
+			/** Discovered story catalog. */
 			catalog: options.catalog,
+			/** Currently selected story id. */
 			selectedId: null,
+			/** Selected id absent from the catalog. */
 			missingId: null,
+			/** Active search/filter text. */
 			query: '',
 			collapsedGroups: new Set(),
+			/** Panel visibility/selection. */
 			panel: null,
+			/** Render only the stage, hiding chrome. */
 			stageOnly: false,
+			/** Controller display mode. */
 			mode: 'wide',
 			catalogCollapsed: false,
 			controlsCollapsed: false,
+			/** Unsaved control edits. */
 			drafts: {},
+			/** Collected errors. */
 			errors: {},
+			/** Catalog load failure. */
 			catalogError: '',
 			stage: { background: 'default', size: 'available' },
+			/** The workshop session being controlled. */
 			session: this.session.state,
 		})
 		this.session.subscribe((snapshot) => this.set({ session: snapshot }))
@@ -154,15 +177,21 @@ export class NativeWorkshopController {
 		const generation = ++this.generation
 		const entry = this.state.catalog.find((item) => item.id === id)
 		this.set({
+			/** Currently selected story id. */
 			selectedId: id,
+			/** Selected id absent from the catalog. */
 			missingId: entry ? null : id,
+			/** Unsaved control edits. */
 			drafts: {},
+			/** Collected errors. */
 			errors: {},
+			/** Panel visibility/selection. */
 			panel: null,
 		})
 		// Filtering is enforced again at the runtime boundary, before load.
 		if (!entry?.applicable || !entry.load) {
 			this.set({
+				/** Catalog load failure. */
 				catalogError: entry?.reason ?? `Story "${id}" is missing; choose from the catalog.`,
 			})
 
@@ -199,6 +228,7 @@ export class NativeWorkshopController {
 	}
 
 	updateCatalog(
+		/** Discovered story catalog. */
 		catalog: readonly CatalogEntry[],
 		diagnostics: readonly { message: string }[] = [],
 	): void {
@@ -292,21 +322,29 @@ export class NativeWorkshopController {
 	inspect(): {
 		phase: SessionPhase
 		storyId: string | null
+		/** Currently selected story id. */
 		selectedId: string | null
 		revision: number
 		mountedGeneration: number
 		stale: boolean
 		failure: string | null
+		/** Catalog load failure. */
 		catalogError: string | null
 		props: Record<string, unknown> | null
+		/** Backing store for controller state. */
 		store: {} | null
 		fixture: {} | null
+		/** Controller display mode. */
 		mode: ShellMode
+		/** Panel visibility/selection. */
 		panel: 'stories' | 'controls' | null
+		/** Render only the stage, hiding chrome. */
 		stageOnly: boolean
+		/** Unsaved control edits. */
 		drafts: {
 			[x: string]: string
 		}
+		/** Collected errors. */
 		errors: {
 			[x: string]: string
 		}
@@ -316,6 +354,7 @@ export class NativeWorkshopController {
 			this.session as unknown as {
 				current?: {
 					fixture: unknown
+					/** Backing store for controller state. */
 					store?: { getSnapshot(): unknown }
 				}
 			}
@@ -331,19 +370,27 @@ export class NativeWorkshopController {
 		return {
 			phase: state.phase,
 			storyId: state.storyId ?? null,
+			/** Currently selected story id. */
 			selectedId: this.state.selectedId,
 			revision: state.revision,
 			mountedGeneration: state.mountedGeneration,
 			stale: state.stale,
 			failure: state.failure ? String(state.failure.message ?? state.failure) : null,
+			/** Catalog load failure. */
 			catalogError: this.state.catalogError || null,
 			props: this.session.currentProps ?? null,
+			/** Backing store for controller state. */
 			store: store ?? null,
 			fixture: generation?.fixture ?? null,
+			/** Controller display mode. */
 			mode: this.state.mode,
+			/** Panel visibility/selection. */
 			panel: this.state.panel,
+			/** Render only the stage, hiding chrome. */
 			stageOnly: this.state.stageOnly,
+			/** Unsaved control edits. */
 			drafts: { ...this.state.drafts },
+			/** Collected errors. */
 			errors: { ...this.state.errors },
 		}
 	}

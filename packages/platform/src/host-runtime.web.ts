@@ -14,6 +14,7 @@ import type {
 
 export { createWebKitTransport } from './host-bridge.web'
 
+/** Handle for the desktop host channel. */
 export type DesktopHost = HostServiceClient<FrameworkHostServices> & {
 	capabilities(): Promise<HostCapabilities<FrameworkHostServices>>
 	supports<Service extends keyof FrameworkHostServices & string>(
@@ -53,6 +54,7 @@ export function desktopHostBootstrap(): HostBootstrapState | null {
 	return window.__xplatHostSnapshot ?? null
 }
 
+/** Whether the desktop host reports a capability. */
 export function desktopHostSupports<Service extends keyof FrameworkHostServices & string>(
 	service: Service,
 	method: keyof FrameworkHostServices[Service] & string,

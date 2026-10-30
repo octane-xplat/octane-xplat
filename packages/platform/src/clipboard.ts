@@ -7,11 +7,15 @@ import { android } from '@octane-xplat/platform/android'
 import { UIPasteboard } from '@octane-xplat/platform/ios'
 
 export type Clipboard = {
+	/** Whether the clipboard accepts writes. */
 	canCopy: boolean
+	/** Copy text to the clipboard. */
 	writeText: typeof writeText
+	/** Read clipboard text; null when empty/non-text. */
 	readText: typeof readText
 	// Keep the original names available for existing consumers.
 	write: typeof writeText
+	/** Read the clipboard payload. */
 	read: typeof readText
 }
 
@@ -70,11 +74,14 @@ async function readText(): Promise<string | null> {
 	}
 }
 
+/** System clipboard service. */
 export const clipboard: Clipboard = {
+	/** Whether the clipboard accepts writes. */
 	canCopy: true,
 	writeText,
 	readText,
 	// Keep the original names available for existing consumers.
 	write: writeText,
+	/** Read the clipboard payload. */
 	read: readText,
 }

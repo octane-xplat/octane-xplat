@@ -52,6 +52,7 @@ function sameMatches(a: Record<string, boolean>, b: Record<string, boolean>): bo
 	return true
 }
 
+/** Signal of matched breakpoints for the window size. */
 export function useBreakpoints$<T extends BreakpointMap>(breakpoints: T): BreakpointMatches<T> {
 	const matches$ = useSignal$<BreakpointMatches<T>>(
 		matchesAt(Screen.mainScreen.widthDIPs, breakpoints),

@@ -169,6 +169,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 	})
 }
 
+/** OAuth/ephemeral auth-session service. */
 export const authSession: Service<AuthSessionImpl> = {
 	supported: true,
 	isAvailable: async () => true,

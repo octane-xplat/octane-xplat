@@ -1,10 +1,15 @@
+/** A WGS-84 point. */
 export interface Coordinate {
+	/** WGS-84 degrees. */
 	latitude: number
+	/** WGS-84 degrees. */
 	longitude: number
 }
 
+/** Basemap rendering style. */
 export type MapType = 'none' | 'normal' | 'satellite' | 'terrain' | 'hybrid'
 
+/** Map service/permissions facade. */
 export interface Maps {
 	readonly supported: boolean
 	/** Web only: inject the Maps JS API key before the first <MapView>

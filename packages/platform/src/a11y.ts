@@ -3,6 +3,7 @@
 import { Application } from '@nativescript/core'
 import { UIAccessibilityPostNotification } from '@octane-xplat/platform/ios'
 
+/** Speak a string through the platform a11y announcer. */
 export function announce(text: string): void {
 	if (Application.ios) {
 		UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, text)

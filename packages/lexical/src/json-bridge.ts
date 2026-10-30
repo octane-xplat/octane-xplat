@@ -241,6 +241,7 @@ function installLexicalDomShim(zeed: any): void {
 		})
 }
 
+/** Load the bundled editor bridge into the host; resolves false when the host rejects it. */
 export async function ensureJSONBridge(): Promise<boolean> {
 	if (bridge !== undefined) {
 		return bridge !== null
@@ -288,6 +289,7 @@ export async function ensureJSONBridge(): Promise<boolean> {
 	}
 }
 
+/** True once ensureJSONBridge succeeded — bridge calls are inert before then. */
 export function jsonBridgeReady(): boolean {
 	return bridge != null
 }

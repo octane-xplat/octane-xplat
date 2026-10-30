@@ -29,29 +29,43 @@ export type Ease =
 export type RepeatType = 'loop' | 'reverse' | 'mirror'
 /** Numeric tree timing in seconds, applied to inherited animate labels. */
 export interface ChildOrchestration {
+	/** Seconds between child entrances. */
 	staggerChildren?: number
+	/** Seconds before the first child entrance. */
 	delayChildren?: number
+	/** Orchestration timing (beforeChildren/afterChildren). */
 	when?: 'beforeChildren' | 'afterChildren'
 }
 
 /** Timing is seconds. Spring velocity is units per second. */
 export interface Transition extends ChildOrchestration {
+	/** Animation kind (spring/tween/inertia). */
 	type?: 'tween' | 'spring' | 'inertia'
 	/** Tween duration; on springs this is the visual duration (combine with bounce). */
 	duration?: number
+	/** Seconds before the animation starts. */
 	delay?: number
+	/** Easing curve for tween animations. */
 	ease?: Ease
 	/** Additional iterations after the first leg; Infinity loops forever. */
 	repeat?: number
+	/** Loop direction for repeated runs. */
 	repeatType?: RepeatType
+	/** Seconds between repeats. */
 	repeatDelay?: number
 	/** Spring bounciness 0–1; pairs with duration instead of stiffness/damping. */
 	bounce?: number
+	/** Spring stiffness (higher = faster). */
 	stiffness?: number
+	/** Spring damping (lower = more oscillation). */
 	damping?: number
+	/** Spring mass. */
 	mass?: number
+	/** Initial velocity (units per second). */
 	velocity?: number
+	/** Speed below which the spring settles. */
 	restSpeed?: number
+	/** Distance below which the spring settles. */
 	restDelta?: number
 	/** Inertia only: how far release velocity travels (default 0.8). */
 	power?: number
@@ -69,6 +83,7 @@ export interface Transition extends ChildOrchestration {
 
 /** Per-channel transition overrides, upstream form: `{x: {…}, default: {…}}`. */
 export type TransitionOrchestration = ChildOrchestration & {
+	/** Transition applied to properties without their own. */
 	default?: Transition
 	/** Timing for layout-projection animations driven by `layout`. */
 	layout?: Transition
@@ -90,25 +105,36 @@ export type Variants = Record<string, VariantTarget | ((custom: any) => VariantT
 export type MotionStyle = Record<string, unknown> & Partial<Record<MotionKey, number | MotionValue>>
 /** Translation limits in CSS pixels/DIP. Omitted edges are unbounded. */
 export interface DragConstraints {
+	/** Left-edge drag constraint (dips). */
 	left?: number
+	/** Right-edge constraint. */
 	right?: number
+	/** Top-edge constraint. */
 	top?: number
+	/** Bottom-edge constraint. */
 	bottom?: number
 }
 
+/** Payload for drag callbacks. */
 export interface DragInfo {
+	/** Current pointer position (dips). */
 	point: { x: number; y: number }
+	/** Change since the last event. */
 	delta: { x: number; y: number }
+	/** Displacement from the drag origin. */
 	offset: { x: number; y: number }
 	/** CSS pixels/DIP per second. */
 	velocity: { x: number; y: number }
+	/** True when the OS cancelled the gesture. */
 	cancelled: boolean
 }
 
+/** Callback receiving the host event plus DragInfo. */
 export type DragCallback = (event: any, info: DragInfo) => void
 
 /** Supported declarative motion controls. */
 export interface MotionProps {
+	/** Enable pointer dragging (true/axis/lock options). */
 	drag?: boolean | 'x' | 'y'
 	/** Numeric translation bounds; measured ref constraints are deferred. */
 	dragConstraints?: DragConstraints
@@ -116,24 +142,33 @@ export interface MotionProps {
 	dragMomentum?: boolean
 	/** Resistance beyond bounds, 0–1 (default 0.35); false = 0, true = 0.35. */
 	dragElastic?: boolean | number
+	/** Drag began. */
 	onDragStart?: DragCallback
+	/** Pointer moved mid-drag. */
 	onDrag?: DragCallback
+	/** Drag ended (release/cancel). */
 	onDragEnd?: DragCallback
 	/** Named numeric targets; array labels merge left to right. */
 	variants?: Variants
 	/** Passed to this host's variant resolvers; not inherited. */
 	custom?: any
+	/** Mount style/values; false disables enter animation. */
 	initial?: AnimationDefinition | false
 	/** Destination while the nearest Presence boundary retains this host for exit. */
 	exit?: AnimationDefinition
+	/** Target values to animate toward. */
 	animate?: AnimationDefinition
+	/** Timing/spring config for the animation. */
 	transition?: TransitionInput
+	/** Base style (may hold animated values). */
 	style?: MotionStyle
 	/** Target while the pointer is down (web: pointerdown; native: touch down). */
 	whileTap?: AnimationDefinition
+	/** Transition used during the pressed state. */
 	whileTapTransition?: Transition
 	/** Target while the host holds focus. */
 	whileFocus?: AnimationDefinition
+	/** Transition used during focus. */
 	whileFocusTransition?: Transition
 	/** Animate layout changes with transforms only; modes restrict the delta. */
 	layout?: boolean | 'position' | 'size' | 'preserve-aspect' | 'x' | 'y'
@@ -147,9 +182,13 @@ export interface MotionProps {
 	layoutCrossfade?: boolean
 	/** When defined, layout animations only run on commits where this changed. */
 	layoutDependency?: unknown
+	/** Layout animation began. */
 	onLayoutAnimationStart?: () => void
+	/** Layout animation finished. */
 	onLayoutAnimationComplete?: () => void
+	/** A value animation began. */
 	onAnimationStart?: (definition: AnimationDefinition) => void
+	/** A value animation settled. */
 	onAnimationComplete?: () => void
 	/** Per-frame snapshot while any channel animates. */
 	onUpdate?: (latest: Target) => void
@@ -163,8 +202,11 @@ export type MotionRowProps = Omit<HStackProps, 'style'> & MotionProps
 export type MotionPressableProps = Omit<PressableProps, 'style'> & MotionProps
 /** Inherited defaults; `user` observes the live system preference. */
 export interface MotionConfigProps {
+	/** Timing/spring config for the animation. */
 	transition?: TransitionInput
+	/** Reduced-motion handling (follows the OS preference live). */
 	reducedMotion?: 'always' | 'never' | 'user'
+	/** Content the provider wraps; `unknown` accepts any renderable. */
 	children?: any
 }
 
@@ -181,11 +223,13 @@ export interface LayoutGroupProps {
 	id?: string
 	/** Inherit the parent ID namespace. `true` and `'id'` are equivalent because all layout hosts observe commits. @default true */
 	inherit?: boolean | 'id'
+	/** Content the provider wraps; `unknown` accepts any renderable. */
 	children?: any
 }
 
 /** Presence renders a View wrapper; use its layout props to size retained content. */
 export interface PresenceProps extends ViewProps {
+	/** Whether the child is currently presented (exit runs on false). */
 	present: boolean
 	/** Called once after all registered exits finish, never after reversal/disposal. */
 	onExitComplete?: () => void

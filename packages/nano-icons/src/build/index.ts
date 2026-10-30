@@ -25,10 +25,14 @@ export { iconifyCollectionToSvgs } from './iconify'
 export { runFontPipeline } from './core/runFontPipeline'
 export { loadPathKit } from './core/pathkit/load'
 
+/** Default units-per-em. */
 export const DEFAULT_UPM = 1024
+/** Default glyph safe-zone inset. */
 export const DEFAULT_SAFE_ZONE = 1020
+/** Default first private-use codepoint. */
 export const DEFAULT_START_UNICODE = 0xe900
 
+/** Options for the icon-font build. */
 export interface NanoIconFontOptions {
 	/** Flat directory of `.svg` files; each file becomes one icon named by its basename. */
 	inputDir?: string
@@ -52,22 +56,29 @@ export interface NanoIconFontOptions {
 	module?: boolean
 	/** Optional app fonts directory (e.g. `app/fonts`) to copy the TTF into for iOS/Android. */
 	appFontsDir?: string
+	/** Progress reporter. */
 	logger?: NanoLogger
 }
 
+/** Artifacts produced by the font build. */
 export interface NanoIconFontResult {
 	/** Configured set name (e.g. `MyIcons`). */
 	fontFamily: string
 	/** Runtime family and emitted file basename (`<fontFamily>-<hash8>`). */
 	family: string
+	/** Emitted TTF path. */
 	ttfPath: string
+	/** Emitted WOFF2 path. */
 	woff2Path?: string
+	/** Emitted glyphmap path. */
 	glyphmapPath: string
+	/** Emitted JS module path. */
 	modulePath?: string
 	/** Icon names included in the font, in glyphmap order. */
 	icons: string[]
 	/** Icons that produced no glyph, with the rejection reason. */
 	skipped: { file: string; reason: string }[]
+	/** name → codepoint map. */
 	glyphMap: NanoGlyphMap
 	/** True when the existing output already matched the input fingerprint. */
 	unchanged: boolean
@@ -259,12 +270,14 @@ export async function buildNanoIconFont(options: NanoIconFontOptions): Promise<N
  * `.nanoicons.json`-compatible config file support: `{ iconSets: [NanoIconFontOptions, …] }`.
  */
 export interface NanoIconsConfig {
+	/** Iconify sets to include. */
 	iconSets?: (Omit<NanoIconFontOptions, 'outputDir' | 'appFontsDir'> & {
 		outputDir?: string
 		appFontsDir?: string
 	})[]
 }
 
+/** Load and normalize nano-icons config. */
 export function loadNanoIconsConfig(configRoot: string): NanoIconsConfig {
 	const configPath = path.join(configRoot, '.nanoicons.json')
 	if (!fs.existsSync(configPath)) {

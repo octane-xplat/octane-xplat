@@ -71,6 +71,7 @@ function isCancel(error: unknown): boolean {
 	return /popup_closed_by_user|cancel/i.test(String(code))
 }
 
+/** appleAuth service — see the matching interface in types. */
 export const appleAuth: AppleAuth = {
 	supported: typeof document !== 'undefined',
 	configure(next: AppleAuthConfig) {

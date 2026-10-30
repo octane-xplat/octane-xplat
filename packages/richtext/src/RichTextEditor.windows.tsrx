@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { RichTextEditorProps } from './types'
 
+/** Whether this leaf has a working editor backend. */
 export const supported: boolean = false
 
 /** Windows bring-up is deferred — renders the placeholder so a shared

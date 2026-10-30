@@ -5,6 +5,7 @@ import type { RichTextEditorHandle } from '@octane-xplat/richtext'
 import type { TiptapEditorHandle, TiptapEditorProps, TiptapJSON } from './types'
 import { ensureJSONBridge, htmlToJSON, jsonBridgeReady, jsonToHTML } from './json-bridge'
 
+/** Whether this leaf has a working editor backend. */
 export const supported: boolean = leafSupported
 
 /** Unified editor facade, native half. Rendering/editing run through the

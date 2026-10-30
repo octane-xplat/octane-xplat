@@ -8,9 +8,13 @@ import { createEditorSession } from './host-session.macos'
 declare const XplatEditorHost: { alloc(): { init(): any } }
 
 type HostProps = RichTextEditorProps & {
+	/** Bundled browser page URL loaded into the WKWebView bridge. */
 	browser: string
+	/** Serialized document pushed into the editor on change. */
 	json?: any
+	/** Fires when the bridge finished loading `json`. */
 	onJSONReady?: (ready: boolean) => void
+	/** Fires with the serialized document on each edit. */
 	onJSONChange?: (doc: any) => void
 }
 

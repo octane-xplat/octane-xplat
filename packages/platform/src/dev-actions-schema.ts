@@ -5,22 +5,32 @@
 // semantics. The MCP server validates again before dispatch; the app
 // re-validates at execution so a hand-rolled call can't skip the contract.
 
+/** One form field in a dev action. */
 export type DevActionFieldType = 'string' | 'number' | 'integer' | 'boolean' | 'object' | 'array'
 
+/** One form field in a dev action. */
 export interface DevActionField {
+	/** Field value kind. */
 	type: DevActionFieldType
+	/** Human-readable field help. */
 	description?: string
 	/** Applied when the caller omits the field. */
 	default?: unknown
 	/** Closed value set. */
 	enum?: readonly unknown[]
+	/** Min string length. */
 	minLength?: number
+	/** Max string length. */
 	maxLength?: number
 	/** Regular expression source (must compile). */
 	pattern?: string
+	/** Min numeric value. */
 	minimum?: number
+	/** Max numeric value. */
 	maximum?: number
+	/** Min array length. */
 	minItems?: number
+	/** Max array length. */
 	maxItems?: number
 	/** For `object`: named nested fields. Defaults apply to top-level fields only. */
 	fields?: Record<string, DevActionField>
@@ -30,6 +40,7 @@ export interface DevActionField {
 
 /** Named typed fields. `{}` (or omitted) means the action takes no arguments. */
 export interface DevActionFields {
+	/** Child fields for object fields. */
 	fields?: Record<string, DevActionField>
 }
 

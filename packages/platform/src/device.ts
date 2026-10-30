@@ -1,6 +1,7 @@
 import { Device } from '@nativescript/core'
 import type { DeviceInfo } from './types'
 
+/** Static device metadata service. */
 export const device: DeviceInfo = {
 	os: Device.os.toLowerCase() === 'ios' ? 'ios' : 'android',
 	osVersion: Device.osVersion,

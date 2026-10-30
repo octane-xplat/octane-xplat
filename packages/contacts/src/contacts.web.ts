@@ -28,6 +28,7 @@ const unsupported = (what: string) => () =>
 		new Error(`unsupported: contact ${what} is not available through the web Contact Picker`),
 	)
 
+/** Contacts service — system address book. */
 export const contacts: Contacts = {
 	supported: picker() !== null,
 

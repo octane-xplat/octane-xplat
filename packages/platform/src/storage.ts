@@ -10,10 +10,13 @@ import { Application, ApplicationSettings } from '@nativescript/core'
  *  automatically on suspend/exit; call flush() after any write that must
  *  survive termination at an arbitrary point. */
 export const storage = {
+	/** Read a stored string; null when absent. */
 	getString: (k: string): string | null => ApplicationSettings.getString(k) ?? null,
+	/** Store a string. */
 	setString: (k: string, v: string): void => {
 		ApplicationSettings.setString(k, v)
 	},
+	/** Delete a key. */
 	remove: (k: string): void => {
 		ApplicationSettings.remove(k)
 	},

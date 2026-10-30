@@ -5,6 +5,7 @@ import type { Service } from '@octane-xplat/lib/capability'
 import type { OpenSettingsImpl } from './types'
 import { android } from '@octane-xplat/platform/android'
 
+/** Open a URL with the platform handler. */
 export function openUrl(url: string): boolean {
 	return Utils.openUrl(url)
 }
@@ -40,6 +41,7 @@ function openSettingsPage(): boolean {
 	return false
 }
 
+/** Open the app's system settings page. */
 export const openSettings: Service<OpenSettingsImpl> = {
 	supported: true,
 	isAvailable: async () => true,

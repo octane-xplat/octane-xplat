@@ -4,10 +4,15 @@ import { runAnimation, validateTransition, type AnimationControls } from './engi
 
 /** Events supported by numeric motion values. */
 export interface MotionValueEvents {
+	/** Subscribe to value changes. */
 	change: (value: number) => void
+	/** Fires when an animation on this value starts. */
 	animationStart: () => void
+	/** Fires when an animation settles. */
 	animationComplete: () => void
+	/** Fires when an animation is interrupted. */
 	animationCancel: () => void
+	/** Release listeners and bindings. */
 	destroy: () => void
 }
 

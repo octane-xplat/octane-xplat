@@ -182,6 +182,7 @@ function cancelController(controller: any) {
 	try { controller?.cancel?.() } catch {}
 }
 
+/** appleAuth service — see the matching interface in types. */
 export const appleAuth: AppleAuth = {
 	get supported() {
 		return frameworkAvailable()

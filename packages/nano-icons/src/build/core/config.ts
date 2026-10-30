@@ -3,10 +3,15 @@
 import fs from 'node:fs'
 
 export type PipelineConfig = {
+	/** Font family name in the emitted font. */
 	fontFamily: string
+	/** Units-per-em for the font. */
 	upm: number
+	/** Glyph safe-zone inset in UPM units. */
 	safeZone: number
+	/** First private-use codepoint assigned. */
 	startUnicode: number
+	/** Web-specific config overrides. */
 	web?: boolean
 }
 

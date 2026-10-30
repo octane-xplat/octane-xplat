@@ -50,12 +50,17 @@ export type CameraCaptureErrorKind =
 
 /** Structured diagnostic carried by failures and non-fatal warnings. */
 export interface CaptureIssue {
+	/** Error category discriminator. */
 	kind: CameraCaptureErrorKind
 	/** Operation being attempted, e.g. 'startRecording', 'finalize'. */
 	operation: string
+	/** Human-readable failure description. */
 	message: string
+	/** Camera/mic authorization state. */
 	permission?: CameraPermissionKind
 	/** Host-specific detail for logging; never required for control flow. */
+	/** The underlying platform error when one exists. */
+
 	cause?: unknown
 }
 
@@ -77,6 +82,7 @@ export class CameraCaptureError extends Error implements CaptureIssue {
 	}
 }
 
+/** Lens direction vocabulary. */
 export type CameraFacing = 'front' | 'back'
 
 /** A normalized position on the live preview as the user sees it:
@@ -85,10 +91,13 @@ export type CameraFacing = 'front' | 'back'
  *  mirroring. The `CameraView` `onTap` event and
  *  `CameraSession.focusAtPoint` share this space. */
 export interface CameraPreviewPoint {
+	/** Focus/exposure point x, normalized 0-1. */
 	x: number
+	/** Focus/exposure point y, normalized 0-1. */
 	y: number
 }
 
+/** Capture orientation vocabulary. */
 export type CameraOrientation =
 	| 'portrait'
 	| 'portraitUpsideDown'
@@ -100,6 +109,7 @@ export type CameraOrientation =
  *  hosts expose device identities instead of front/back semantics. */
 export type CameraSelection = 'default' | 'front' | 'back' | { deviceId: string }
 
+/** Configuration for opening a session. */
 export interface CameraSessionConfig {
 	/** Lens or device identity. Default `'default'`: rear when available. */
 	camera?: CameraSelection
@@ -116,15 +126,25 @@ export interface CameraSessionConfig {
 /** Resolution/frame-rate combination advertised by capability discovery.
  *  Entries are supported combinations, not independent lists. */
 export interface CameraProfileCapability {
+	/** Capture profile (resolution/framerate preset). */
 	profile: 'standard'
+	/** Frame width in pixels. */
 	width: number
+	/** Frame height in pixels. */
 	height: number
+	/** Frames per second. */
 	frameRate: number
 }
 
+/** One usable camera device. */
 export interface CameraDeviceInfo {
+	/** Device-stable camera identifier. */
+	/** Store-assigned id. */
+
 	id: string
+	/** Human-readable device name. */
 	label: string
+	/** Lens direction. */
 	facing?: CameraFacing
 }
 
@@ -132,11 +152,15 @@ export interface CameraDeviceInfo {
  *  adapter or host cannot record (reason explains); `available` reflects
  *  current hardware/permission state and changes over time. */
 export interface CameraSessionCapabilities {
+	/** A camera backend exists on this leaf. */
 	supported: boolean
 	/** Why capture is unsupported or currently unavailable. */
 	reason?: string
+	/** At least one usable camera is present. */
 	available: boolean
+	/** Detected camera devices. */
 	cameras: CameraDeviceInfo[]
+	/** Capture profiles the session can run. */
 	profiles: CameraProfileCapability[]
 	/** The session can add an audio track when permission allows. */
 	audio: boolean
@@ -154,8 +178,11 @@ export interface CameraSessionCapabilities {
 	durationLimit: 'native' | 'bestEffort'
 	/** Where `elapsedMs` comes from while recording. */
 	elapsedTime: 'nativeMedia' | 'estimated'
+	/** Where the clip was written. */
 	output: {
+		/** Output MIME type. */
 		mimeType: string
+		/** File container format. */
 		container: string
 		/** `appPrivateFile` output survives dispose and app restart;
 		 *  `originLocal` is browser storage subject to site-data clearing. */
@@ -165,22 +192,36 @@ export interface CameraSessionCapabilities {
 	}
 }
 
+/** Recorder lifecycle states. */
 export type CameraRecorderState = 'idle' | 'starting' | 'recording' | 'finalizing' | 'disposed'
 
 /** Frozen capture configuration reported once capture actually begins. */
 export interface EffectiveCaptureConfig {
+	/** The CameraDeviceInfo.id in use. */
 	cameraId: string
+	/** Lens direction. */
 	facing?: CameraFacing
+	/** Whether audio capture is enabled for video. */
 	audio: boolean
+	/** Frame width in pixels. */
 	width: number
+	/** Frame height in pixels. */
 	height: number
+	/** Frames per second. */
 	frameRate: number
+	/** Capture orientation. */
 	orientation: CameraOrientation
+	/** Output MIME type. */
 	mimeType: string
+	/** File container format. */
 	container: string
 }
 
+/** Observable session state. */
 export interface CameraSessionSnapshot {
+	/** Current lifecycle state. */
+	/** Current lifecycle state. */
+
 	state: CameraRecorderState
 	/** Non-prompting last-known authorization, refreshed by `permissions()`
 	 *  and `requestPermission()`. */
@@ -189,9 +230,13 @@ export interface CameraSessionSnapshot {
 	cameraAvailable: boolean
 	/** An active preview view is attached to this session. */
 	previewAttached: boolean
+	/** Interrupted by the OS (call, route change, …). */
 	interrupted: boolean
+	/** Retry count for the current operation. */
 	attempt?: {
+		/** Device-stable camera identifier. */
 		id: string
+		/** Current lifecycle state. */
 		state: 'starting' | 'recording' | 'finalizing'
 		elapsedMs: number
 		configuration?: EffectiveCaptureConfig
@@ -216,26 +261,40 @@ export type MovieEndReason =
  *  native output. `synthetic` marks test-seam clips. */
 export type MovieOutput =
 	| {
+			/** Error category discriminator. */
 			kind: 'nativeFile'
+			/** Store handle for the clip (gallery/native ref). */
 			resourceId: string
+			/** Filesystem URL of the written clip. */
+			/** Filesystem URL of the written clip. */
+
 			fileUrl: string
+			/** True for generated/test clips, not real captures. */
 			synthetic?: boolean
 	  }
 	| {
+			/** Error category discriminator. */
 			kind: 'browserStorage'
+			/** Store handle for the clip (gallery/native ref). */
 			resourceId: string
 			retention: 'persistent' | 'bestEffort'
+			/** True for generated/test clips, not real captures. */
 			synthetic?: boolean
 	  }
 
+/** One finished recording. */
 export interface MovieClip {
+	/** Where the clip was written. */
 	output: MovieOutput
+	/** Output MIME type. */
 	mimeType: string
 	/** Authoritative duration read from the finalized movie. */
 	durationMs: number
 	/** Presentation dimensions after the orientation transform. */
 	width: number
+	/** Frame height in pixels. */
 	height: number
+	/** Capture orientation. */
 	orientation: CameraOrientation
 	/** Whether the finalized movie actually contains an audio track.
 	 *  Missing requested audio is a failure, not silent capture. */
@@ -247,14 +306,18 @@ export interface MovieClip {
  *  app review decides whether to keep it. */
 export type MovieOutcome =
 	| {
+			/** Error category discriminator. */
 			kind: 'clip'
 			clip: MovieClip
+			/** Why recording stopped. */
 			endReason: MovieEndReason
 			partial: boolean
 			warning?: CaptureIssue
 	  }
 	| {
+			/** Error category discriminator. */
 			kind: 'failed'
+			/** Why recording stopped. */
 			endReason: MovieEndReason
 			stage: 'preparation' | 'capture' | 'finalization' | 'storage'
 			error: CaptureIssue
@@ -266,12 +329,14 @@ export type CameraSessionEvent =
 	| { type: 'started'; attemptId: string; configuration: EffectiveCaptureConfig }
 	| { type: 'finished'; attemptId: string; outcome: MovieOutcome }
 	| {
+			/** Output kind discriminator. */
 			type: 'interruption'
 			phase: 'began' | 'ended'
 			reason?: CameraInterruptionReason
 	  }
 	| { type: 'availability'; available: boolean }
 
+/** Why the OS interrupted capture. */
 export type CameraInterruptionReason =
 	| 'background'
 	| 'audioInUse'
@@ -280,6 +345,7 @@ export type CameraInterruptionReason =
 	| 'systemPressure'
 	| 'unknown'
 
+/** Options for session.startRecording(). */
 export interface StartRecordingOptions {
 	/** Positive finite milliseconds. Enforcement precision comes from
 	 *  `capabilities().durationLimit`; the final duration is read from
@@ -317,6 +383,7 @@ export interface MovieOutputHandle {
 	release(): void
 }
 
+/** An owned camera session — dispose when done. */
 export interface CameraSession {
 	/** Non-prompting permission inspection; may return `unknown` when the
 	 *  host cannot observe authorization. */

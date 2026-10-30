@@ -78,6 +78,7 @@ function installDomShim(zeed: any): void {
 	g.document = zeed.createHTMLDocument()
 }
 
+/** Load the bundled editor bridge into the host; resolves false when the host rejects it. */
 export async function ensureJSONBridge(): Promise<boolean> {
 	if (bridge !== undefined) {
 		return bridge !== null
@@ -119,6 +120,7 @@ export function jsonToHTML(doc: TiptapJSON): string | null {
 	return bridge?.renderToHTMLString({ extensions: bridge.extensions, content: doc }) ?? null
 }
 
+/** True once ensureJSONBridge succeeded — bridge calls are inert before then. */
 export function jsonBridgeReady(): boolean {
 	return bridge != null
 }

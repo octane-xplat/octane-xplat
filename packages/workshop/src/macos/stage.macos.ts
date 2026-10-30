@@ -56,11 +56,13 @@ const StoryTreeRoot = defineUniversalComponent(
 	{ module: '@octane-xplat/workshop/macos-stage' } as any,
 )
 
+/** Options for the macOS stage host. */
 export interface MacOSStageOptions {
 	/** An isolated native stage view; shell layout may move/resize it without remounting. */
 	view: any
 	/** The shell's window — story-owned windows and sheets anchor to it. */
 	parentWindow: any
+	/** Stage UI font override. */
 	fontFamily?: string
 }
 

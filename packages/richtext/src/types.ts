@@ -30,6 +30,7 @@ export type RichTextFormat =
 	| 'alignRight'
 	| 'link'
 
+/** Imperative handle exposed through the editor `ref`. */
 export interface RichTextEditorHandle {
 	/** Serialized document HTML (Aztec's "plain" HTML — no contenteditable
 	 *  markup). */
@@ -46,6 +47,7 @@ export interface RichTextEditorHandle {
 	apply(format: RichTextFormat): void
 	/** Insert or re-target a link over the current selection. */
 	linkTo(url: string, anchor?: string): void
+	/** Strip the link covering the current selection. */
 	removeLink(): void
 	/** Formats active at the selection — powers toolbar highlight state.
 	 *  iOS always reports false for taskList and the align* formats (no
@@ -56,6 +58,7 @@ export interface RichTextEditorHandle {
 	 *  undoManager covers format toggles and keyboard input; `setHTML` and
 	 *  split/join edits sit outside it. */
 	undo(): void
+	/** Redo the last undone edit. */
 	redo(): void
 	/** Split the block at the caret into two siblings — the Enter-key
 	 *  semantic (a non-collapsed selection is deleted first). Android: a
@@ -89,8 +92,11 @@ export interface RichTextEditorHandle {
 	canIndent(): boolean
 	/** Whether `outdent()` can apply to the current selection. */
 	canOutdent(): boolean
+	/** Programmatically focus the editor. */
 	focus(): void
+	/** Programmatically blur the editor. */
 	blur(): void
+	/** Whether the editor currently has focus. */
 	isFocused(): boolean
 	/** The platform surface — `AztecText` on Android, the
 	 *  `XplatAztecEditorView` facade on iOS. */
@@ -98,45 +104,73 @@ export interface RichTextEditorHandle {
 	native: any
 }
 
+/** Selection range change payload — character offsets. */
 export interface RichTextSelectionChange {
+	/** Selection anchor offset in characters. */
 	start: number
+	/** Selection extent offset in characters. */
 	end: number
 	/** Formats active at the caret/range, in facade spellings. */
 	active: RichTextFormat[]
 }
 
+/** Props for the editor element. */
 export interface RichTextEditorProps {
+	/** Element id passed through to the host element. */
 	id?: string
+	/** Class list applied to the editor element. */
 	className?: string
+	/** Inline style (string CSS or object). */
 	style?: any
 	/** Initial document HTML. Re-applied only when the string changes
 	 *  externally — text the editor emitted back through `onChange` is never
 	 *  re-pushed, so typing doesn't reparse the document. */
 	value?: string
+	/** Empty-state hint text. */
 	placeholder?: string
+	/** Read-write vs read-only. @default true */
 	editable?: boolean
+	/** Focus the editor on mount. @default false */
 	autofocus?: boolean
+	/** Fires once the editor engine is ready for commands. */
 	onReady?: () => void
+	/** Fires on each content edit — not on selection moves. */
 	onChange?: (html: string) => void
+	/** Fires when the selection/focus range moves. */
 	onSelectionChange?: (event: RichTextSelectionChange) => void
+	/** Editor gained focus. */
 	onFocus?: () => void
+	/** Editor lost focus. */
 	onBlur?: () => void
 	/** Imperative handle — fires once when the native editor exists. */
 	ref?: Octane.Ref<RichTextEditorHandle>
 	/** Per-platform escape bag — properties are assigned onto the native
 	 *  `AztecText` after the leaf's own props. */
 	android?: Record<string, any>
+	/** Platform escape hatch (native editor props). */
 	ios?: Record<string, any>
 	// NativeScript layout-child attributes the driver reads on this element.
+	/** Zero-based row index in the parent grid. */
+
 	row?: number | string
+	/** Zero-based column index in the parent grid. */
 	col?: number | string
+	/** Row tracks to span (>= 1). */
 	rowSpan?: number
+	/** Column tracks to span (>= 1). */
 	colSpan?: number
+	/** Edge of the parent dock layout this child pins to. */
 	dock?: 'left' | 'top' | 'right' | 'bottom'
+	/** Absolute x offset in dips inside an absolute-layout parent. */
 	left?: number
+	/** Absolute y offset in dips inside an absolute-layout parent. */
 	top?: number
+	/** Flex grow factor along the parent main axis. */
 	flexGrow?: number
+	/** Flex shrink factor along the parent main axis. */
 	flexShrink?: number
+	/** Cross-axis alignment override for this child. */
 	alignSelf?: 'auto' | 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'
+	/** Sibling ordering — lower orders lay out first. */
 	order?: number
 }

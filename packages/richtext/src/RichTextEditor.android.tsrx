@@ -67,6 +67,7 @@ declare module '@octane-xplat/jsx/intrinsics' {
 
 registerElement('xplatrichtext', AztecEditor)
 
+/** Whether this leaf has a working editor backend. */
 export const supported: boolean = true
 
 /** Active formats at the selection, mapped back to facade spellings. */

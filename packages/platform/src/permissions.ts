@@ -20,6 +20,7 @@ const UNSUPPORTED: PermissionResponse = {
 
 const owners = () => ((globalThis as any).__xplatPermissionOwners ??= {}) as Record<string, Owner>
 
+/** Cross-domain permission registry. */
 export const permissions = {
 	/** Read the permission state without prompting. */
 	getPermissions(kind: PermissionKind): Promise<PermissionResponse> {

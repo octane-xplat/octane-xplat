@@ -18,22 +18,31 @@ export interface NanoIconProps {
 	tintMode?: TintMode
 	/** Quarter turns, same as the Iconify `rotate` customization (0–3 → ×90°). */
 	rotate?: number
+	/** Mirror horizontally. */
 	hFlip?: boolean
+	/** Mirror vertically. */
 	vFlip?: boolean
 	/** Accessible label; omit for decorative icons. */
 	label?: string
+	/** Element id passed through to the host element. */
 	id?: string
+	/** Class list applied to the icon element. */
 	className?: any
+	/** Inline style (string CSS or object). */
 	style?: any
 	/** Explicit icon set; when omitted, `NanoIcon` resolves `name` across registered sets. */
 	set?: NanoIconSet
+	/** Platform escape hatch (native font/icon props). */
 	ios?: Record<string, any>
+	/** Platform escape hatch — same bag contract as `ios`. */
 	android?: Record<string, any>
+	/** Platform escape hatch — same bag contract as `ios`. */
 	web?: Record<string, any>
 }
 
 /** A set-bound `Icon` takes the same props with names typed to the set. */
 export type NanoIconSetProps<Name extends string = string> = Omit<NanoIconProps, 'name' | 'set'> & {
+	/** Icon name within the generated set. */
 	name: Name
 }
 
@@ -56,4 +65,5 @@ export interface NanoFontSource {
 	path?: string
 }
 
+/** Lifecycle states of the generated icon font (loading/ready/error). */
 export type NanoFontStatus = 'ready' | 'missing' | 'unavailable'

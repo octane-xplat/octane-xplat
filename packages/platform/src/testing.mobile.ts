@@ -62,6 +62,7 @@ export type {
 /** The view shape `enterText` accepts — handy as `findByTestId<TextInputView>`. */
 export type TextInputView = Parameters<typeof enterText>[0]
 
+/** Handle for a mounted test component. */
 export interface MountedComponent {
 	/** The ContentView the component rendered into. */
 	view: ContentView
@@ -71,6 +72,7 @@ export interface MountedComponent {
 	unmount(): Promise<void>
 }
 
+/** Options for mountXplat(). */
 export interface MountXplatOptions {
 	/** Unmount automatically when the current test finishes. Default true. */
 	autoUnmount?: boolean

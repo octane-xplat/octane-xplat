@@ -36,6 +36,7 @@ declare module '@octane-xplat/jsx/intrinsics' {
 
 registerElement('xplatrichtext', AztecEditor)
 
+/** Whether this leaf has a working editor backend. */
 export const supported: boolean = true
 
 /** WordPress AztecEditor-iOS surface — a UITextView-backed native editor,

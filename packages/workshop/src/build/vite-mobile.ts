@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { discoverStories } from './discover.ts'
 
+/** Virtual module id for the mobile catalog. */
 export const MOBILE_CATALOG_ID = '\0xplat-workshop-mobile-catalog'
 const fsUrl = (file) => `/@fs/${file.replaceAll('\\', '/')}`
 const CHROME_CSS = resolve(
@@ -11,6 +12,7 @@ const CHROME_CSS = resolve(
 	'../native/chrome.css',
 )
 
+/** Generated module source for the mobile story catalog. */
 export function mobileCatalogCode(root, config, target) {
 	const { entries, diagnostics } = discoverStories(root, { ...config.stories, target })
 	const loaders = entries

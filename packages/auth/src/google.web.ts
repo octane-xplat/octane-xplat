@@ -140,6 +140,7 @@ export async function renderGoogleButton(
 	}
 }
 
+/** googleAuth service — see the matching interface in types. */
 export const googleAuth: GoogleAuth = {
 	supported: typeof document !== 'undefined',
 	async configure(next?: GoogleAuthConfig) {

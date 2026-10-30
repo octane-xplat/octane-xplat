@@ -2,6 +2,7 @@
 import { Device } from '@nativescript/core'
 import type { Locale } from './types'
 
+/** Active locale service. */
 export const locale: Locale = {
 	tag: `${Device.language}-${Device.region}`,
 	language: Device.language.split('-')[0] ?? '',

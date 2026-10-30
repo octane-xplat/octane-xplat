@@ -12,22 +12,33 @@ export type HostCapabilities<Services extends object = HostServiceMap> = {
 	[Service in keyof Services & string]?: (keyof Services[Service] & string)[]
 } & Record<string, string[] | undefined>
 
+/** Service-call request message. */
 export type HostCallRequest = {
+	/** Message discriminator. */
 	type: 'call'
+	/** Request correlation id. */
 	id: number
+	/** Target service name. */
 	service: string
+	/** Target method name. */
 	method: string
+	/** Positional arguments. */
 	args: unknown[]
 }
 
+/** Capabilities query. */
 export type HostCapabilitiesRequest = { type: 'capabilities'; id: number }
+/** Request envelope union. */
 export type HostRequest = HostCallRequest | HostCapabilitiesRequest
 
+/** Service-call reply. */
 export type HostReplyMessage =
 	| { type: 'reply'; id: number; ok: true; value: unknown }
 	| { type: 'reply'; id: number; ok: false; error: string }
 
+/** Host-emitted event. */
 export type HostEventMessage = { type: 'event'; name: string; payload: unknown }
+/** Envelope for host-bound messages. */
 export type HostMessage = HostReplyMessage | HostEventMessage
 
 /** Message transport supplied by a webview's native host. */
@@ -58,12 +69,15 @@ export interface HostClient<
 	Events extends object = HostEventMap,
 > {
 	call<Service extends keyof Services & string, Method extends keyof Services[Service] & string>(
+		/** Target service name. */
 		service: Service,
+		/** Target method name. */
 		method: Method,
 		...args: ArgumentsOf<Services[Service][Method]>
 	): Promise<ResultOf<Services[Service][Method]>>
 	capabilities(): Promise<HostCapabilities<Services>>
 	on<Event extends keyof Events & string>(
+		/** Event name. */
 		name: Event,
 		listener: (payload: Events[Event]) => void,
 	): () => void

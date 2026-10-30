@@ -36,6 +36,7 @@ function toCredential(user: any): AuthCredential {
 	}
 }
 
+/** googleAuth service — see the matching interface in types. */
 export const googleAuth: GoogleAuth = {
 	supported: true,
 	async configure(config?: GoogleAuthConfig) {

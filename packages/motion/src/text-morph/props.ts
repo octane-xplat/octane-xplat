@@ -1,12 +1,17 @@
 import type { TextProps } from '@octane-xplat/ui'
 
+/** One morph operation between two texts. */
 export interface TextMorphRun {
+	/** Unique id per morph run — stale runs are discarded. */
 	runId: number
+	/** The text being replaced. */
 	from: string
+	/** The text morphing in. */
 	to: string
 }
 
 export interface TextMorphCancel extends TextMorphRun {
+	/** Why the morph was cancelled. */
 	reason:
 		| 'superseded'
 		| 'motion-disabled'
