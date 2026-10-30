@@ -136,6 +136,23 @@ inset.
   paint; mixed-axis and scroll containers warn (NSView clipsToBounds is
   a boolean).
 
+## Runtime evidence
+
+- **Local host (arm64, macOS 26.6.2):** `pnpm exec turbo run smoke --filter=@xplat/macos`
+  → **30/30 assertions passed** (mounting, action dispatch, routing, lists)
+  under `XPLAT_MACOS_SMOKE_TIMEOUT_MS=600000` + `goddard-agent resource run`.
+  Proves no regression on covered paths; does NOT exercise the new CSS
+  features' rendering.
+- **css-paint probe:** structural layer assertions added in
+  `examples/probes/css-paint.macos.tsrx` but UNRUN — the probe's isolated
+  host bundle exits `metadata.nsmd not found` (native metadata generation is
+  a separate heavy path the runner doesn't invoke; the smoke task builds it
+  only for the demo app). Runtime qualification for the new paint features
+  remains open.
+- **skymac.local:** reachable, 51Gi free, but **arm64** not Intel, and its
+  checkout is stale (`1fcf6406f`) with a dirty `ui-svg` — remote verification
+  deferred; the dirty checkout was left untouched.
+
 ## Next (demand order)
 
 1. Per-window @media: keep `setStyleEnvironment` but make injected fn read a
