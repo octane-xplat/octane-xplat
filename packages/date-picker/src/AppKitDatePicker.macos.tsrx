@@ -3,6 +3,7 @@ import './AppKitDatePicker.macos.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { AppKitDatePickerProps } from './macos/types'
 import { createDatePickerOwner } from './date-picker-owner.macos'
+import { mergeStyle } from './style-merge'
 import type { DatePickerAttach } from './date-picker-owner.macos'
 
 const host = (): any => (globalThis as any).__xplatAppKit ?? {}
@@ -40,7 +41,7 @@ export function AppKitDatePicker(props: AppKitDatePickerProps): unknown @{
 		ref={owner.bind}
 		id={props.id}
 		className={['xplat-appkit-date-picker', props.className]}
-		style={[{ minHeight: graphical ? 300 : 26 }, props.style]}
+		style={mergeStyle({ minHeight: graphical ? 300 : 26 }, props.style)}
 	>
 		@if (owner.getStatus() === 'invalid') {
 			<label text="Choose a valid date and date range." accessibilityLiveRegion="polite" />
