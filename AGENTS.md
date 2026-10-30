@@ -34,6 +34,21 @@ Guidance carries durable conclusions and lookup instructions, not run histories.
 Repository formatters and linters ignore `.agents/`; documentation and recipe
 checks still validate their respective contracts.
 
+Maintain agent guidance in the same change that alters the behavior it describes.
+When adding or revising material:
+
+- Update the canonical note instead of duplicating guidance or appending dated
+  checkpoints. Keep content that changes a future decision or prevents a
+  consequential mistake; link to declarations and public docs for API detail.
+- Consolidate or remove superseded material, preserving unique conclusions and
+  any needed evidence in the appropriate durable or local store.
+- Organize by task. Keep entry points concise and move conditional detail behind
+  links that explain when to read it. Keep prerequisites and limits beside the
+  guidance they qualify; do not require loading the whole reference tree.
+- Keep every reference reachable from an entry point or relevant parent. Repair
+  indexes and inbound links after moves or pruning, review changed guidance for
+  stale claims and duplication, and run the applicable documentation/recipe checks.
+
 ## Read what applies
 
 Read the relevant reference before acting in that area. These files carry the
