@@ -1,5 +1,10 @@
+/** Outcome of a share call. 'copied' is only returned by clipboard-fallback
+ *  paths; 'unavailable' means no share path exists on this platform — it is
+ *  a resolved result, not a rejection. */
 export type ShareResult = 'shared' | 'copied' | 'cancelled' | 'unavailable'
 
+/** Options for Share.file(). All members are platform hints — iOS/macOS
+ *  type the item from the file itself. */
 export interface ShareFileOptions {
 	/** Title for the Android share chooser; other platforms show their own UI. */
 	subject?: string
@@ -9,6 +14,7 @@ export interface ShareFileOptions {
 	mimeType?: string
 }
 
+/** Platform share-sheet façade for text, URLs, and local files. */
 export interface Share {
 	/** Present the platform share sheet with text. */
 	text(text: string, subject?: string): Promise<ShareResult>

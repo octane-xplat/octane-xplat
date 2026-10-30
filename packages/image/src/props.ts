@@ -21,17 +21,22 @@ export type {
  *  their HTTP cache. */
 export type ImageCachePolicy = 'memory-disk' | 'none'
 
+/** Payload of the Image onLoad callback — reports the decoded bitmap, not
+ *  the laid-out view size. */
 export interface ImageLoadEvent {
 	/** Decoded bitmap size in pixels. AppKit reports the largest positive
 	 * representation, or 0 when pixel metadata is unavailable (never layout points). */
 	width: number
+	/** Decoded bitmap height in pixels — same contract as `width`. */
 	height: number
 	/** Where the engine served the image from. Absent on web — the browser
 	 *  does not report which cache (if any) satisfied an <img>. */
 	source?: 'network' | 'memory' | 'disk' | 'local'
 }
 
+/** Payload of the Image onError callback. */
 export interface ImageErrorEvent {
+	/** The load/decode failure reported by the engine. */
 	error: Error
 }
 
@@ -80,6 +85,7 @@ export interface PrefetchOptions {
 export interface ImageCacheQueryOptions {
 	/** Device-pixel decode bounds — same meaning as the `Image` props. */
 	decodeWidth?: number
+	/** Device-pixel decode height — same meaning as the `Image` prop. */
 	decodeHeight?: number
 }
 
@@ -106,6 +112,7 @@ export interface ImageProps extends CoreImageProps {
 	 *  view's laid-out size (the src is held until first layout so the engine
 	 *  never decodes at full source resolution). */
 	decodeWidth?: number
+	/** Native only — decode height in device pixels; paired with `decodeWidth`. */
 	decodeHeight?: number
 	/** Native only — progressive/interlaced rendering while bytes stream. */
 	progressive?: boolean

@@ -1,6 +1,7 @@
 import { isolateDatabase } from './operation-queue'
 import type { OpenDatabaseOptions, SqliteDb, SqliteParams, SqliteRow } from './types'
 
+/** Whether this platform leaf has a real SQLite backend. */
 export const supported = true
 
 type Pending = { resolve: (value: any) => void; reject: (error: Error) => void }
@@ -173,6 +174,8 @@ class WebSqliteDb implements SqliteDb {
 	}
 }
 
+/** Open (or create) a database by name — a bare name resolves to the
+ *  app's documents directory on native. */
 export const openDatabase = async (
 	name: string,
 	_options?: OpenDatabaseOptions,
@@ -188,6 +191,7 @@ export const openDatabase = async (
 	return isolateDatabase(db)
 }
 
+/** Delete a database file by name; resolves false when nothing matched. */
 export const deleteDatabase = async (name: string): Promise<boolean> => {
 	const result = await call<{ deleted: boolean; databaseIds: number[] }>('delete', name)
 	for (const databaseId of result.databaseIds) {

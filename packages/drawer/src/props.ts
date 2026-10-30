@@ -10,10 +10,15 @@ import type { ClassValue, CSSProperties } from 'octane/jsx-runtime'
  * ```
  */
 export interface DrawerProps {
+	/** clsx-style class list applied to the panel's outer element. */
 	className?: ClassValue
+	/** Inline style on the panel: CSS text or a camelCase style object. */
 	style?: string | CSSProperties
+	/** Element id passed through to the host element. */
 	id?: string
+	/** Content rendered in the main (non-panel) area; `unknown` accepts any renderable. */
 	main?: unknown
+	/** Content rendered inside the slide-over panel; `unknown` accepts any renderable. */
 	drawer?: unknown
 	/** Controlled visibility. User requests are reported through onOpenChange. */
 	open?: boolean
@@ -39,6 +44,8 @@ export interface DrawerProps {
 	onError?: (error: unknown) => void
 	/** Platform host properties, applied after shared configuration. */
 	ios?: Record<string, unknown>
+	/** Platform host properties, applied after shared configuration. */
 	android?: Record<string, unknown>
+	/** Platform host properties, applied after shared configuration. */
 	web?: Record<string, unknown>
 }

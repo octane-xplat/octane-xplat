@@ -95,6 +95,8 @@ function androidRequestReview(): Promise<void> {
 	})
 }
 
+/** Native store-review service: iOS bridges SKStoreReviewController,
+ *  Android uses the Play ReviewManager. */
 export const storeReview: StoreReview = {
 	supported: isIOS ? typeof SKStoreReviewController !== 'undefined' : true,
 

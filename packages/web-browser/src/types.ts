@@ -2,8 +2,15 @@
  *  resolves on open, not on dismiss, matching expo-web-browser), 'cancel'
  *  when nothing could present, 'dismiss' where the platform reports the
  *  user's close instead of an open (Android Custom Tab finish callbacks). */
-export type WebBrowserResult = { type: 'opened' | 'cancel' | 'dismiss' }
+export type WebBrowserResult = {
+	/** 'opened' once the browser presents (not on dismiss), 'cancel' when
+	 *  nothing could present, 'dismiss' where the platform reports the
+	 *  user's close instead (Android Custom Tab finish callbacks). */
+	type: 'opened' | 'cancel' | 'dismiss'
+}
 
+/** iOS `UIModalPresentationStyle` equivalents for the Safari controller;
+ *  ignored on other platforms. */
 export type WebBrowserPresentationStyle =
 	| 'automatic'
 	| 'fullScreen'
@@ -11,6 +18,8 @@ export type WebBrowserPresentationStyle =
 	| 'formSheet'
 	| 'popover'
 
+/** Presentation options for openBrowser; every member is a per-platform
+ *  hint (see each field) and all are optional. */
 export interface OpenBrowserOptions {
 	/** Android Custom Tab toolbar color (CSS hex). iOS maps this to
 	 *  `preferredBarTintColor`. */
@@ -25,6 +34,8 @@ export interface OpenBrowserOptions {
 	presentationStyle?: WebBrowserPresentationStyle
 }
 
+/** In-app browser façade: iOS SFSafariViewController, Android Custom Tabs,
+ *  AppKit package-owned bridge. */
 export interface WebBrowser {
 	/** Synchronous fast check — an in-app browser controller exists.
 	 *  AppKit checks the package-owned native bridge; availability is not

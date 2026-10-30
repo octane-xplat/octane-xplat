@@ -17,6 +17,7 @@ async function toImageSource(image: unknown): Promise<any> {
 	return image
 }
 
+/** Headless barcode service — permission + still-image decode. See BarcodeScannerService. */
 export const barcodeScanner: BarcodeScannerService = {
 	supported: detector() !== null,
 

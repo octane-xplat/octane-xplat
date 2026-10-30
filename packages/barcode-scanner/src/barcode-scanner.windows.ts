@@ -1,6 +1,7 @@
 // Windows leaf — no ML Kit/BarcodeDetector backend; report unsupported.
 import type { BarcodeScannerService, PermissionResult } from './types'
 
+/** Headless barcode service — permission + still-image decode. See BarcodeScannerService. */
 export const barcodeScanner: BarcodeScannerService = {
 	supported: false,
 	ensure: async (): Promise<PermissionResult> => 'unsupported',

@@ -13,8 +13,13 @@ import babelExtractor, { extractFromFileWithBabel } from '@lingui/cli/api/extrac
 
 import { compile } from 'octane/compiler'
 
+/** The Lingui CLI extractor contract (same shape as @lingui/cli's babel extractor). */
 export type Extractor = typeof babelExtractor
 
+/** Lingui extractor for .tsrx sources: compiles component syntax to plain
+ *  TypeScript via octane/compiler, then delegates to the babel extractor.
+ *  Register in lingui.config.ts alongside babelExtractor — the default chain
+ *  skips .tsrx entirely. Node-side only; never bundle into an app target. */
 export const tsrxExtractor: Extractor = {
 	match: (filename) => filename.endsWith('.tsrx'),
 	async extract(filename, code, onMessageExtracted, ctx) {

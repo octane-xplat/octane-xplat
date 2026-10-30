@@ -6,6 +6,7 @@ import type { SecureStore } from './types'
 const store = new SecureStorage()
 
 // No runtime permission needed — Keychain/Keystore is device-owned.
+/** Secure-storage service (Keychain / Keystore-backed). */
 export const secureStorage: Service<SecureStore> = {
 	supported: true,
 	isAvailable: async () => true,

@@ -45,9 +45,14 @@ export function useListFormatter(options?: Intl.ListFormatOptions): Intl.ListFor
 	return useMemo(() => new Intl.ListFormat(locale || FALLBACK_LOCALE, options), [locale, options])
 }
 
+/** Locale-aware substring matchers built on an Intl.Collator — case and
+ *  diacritic handling follows the active locale, not code-unit equality. */
 export interface FilterMatch {
+	/** True when `substring` appears anywhere in `string` under collator rules. */
 	contains: (string: string, substring: string) => boolean
+	/** True when `string` begins with `substring` under collator rules. */
 	startsWith: (string: string, substring: string) => boolean
+	/** True when `string` ends with `substring` under collator rules. */
 	endsWith: (string: string, substring: string) => boolean
 }
 

@@ -25,5 +25,6 @@ const combos = [
 	'Mod+9',
 ]
 
+/** Reserved shortcuts every major browser owns (new tab, reload, address bar, devtools). */
 export const commonBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
 	combos.map((combo) => blocklistEntry(combo, { category: 'browser' }))

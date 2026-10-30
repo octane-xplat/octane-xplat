@@ -31,6 +31,7 @@ declare const com: {
 	}
 }
 
+/** Create an independent player on web/iOS/macOS; Android owns one app playback service. */
 export const createAudioPlayer = (): AudioPlayer => {
 	const actions = com.xplat.audio.AudioBridge
 	// `Utils.android` is a {} stub in the pinned Windows core build.

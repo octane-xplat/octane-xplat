@@ -25,6 +25,8 @@ function notify(): void {
 	}
 }
 
+/** useSyncExternalStore-compatible subscription fired when the active locale
+ *  changes; returns the unsubscribe function. */
 export function subscribeLocale(notify: () => void): () => void {
 	listeners.add(notify)
 	return () => {

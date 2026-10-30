@@ -1,3 +1,4 @@
+/** Result of ensure(): 'unsupported' means the platform has no camera/permission path. */
 export type PermissionResult = 'granted' | 'denied' | 'unsupported'
 
 /** Code symbologies — expo-camera spellings; each platform maps them onto
@@ -17,6 +18,7 @@ export type BarcodeFormat =
 	| 'pdf417'
 	| 'aztec'
 
+/** One decoded barcode/QR value. */
 export interface ScannedCode {
 	/** The symbology, in our BarcodeFormat spelling. */
 	type: string
@@ -29,6 +31,7 @@ export interface ScannedCode {
 /** Headless decode + permission service — the scanning view is
  *  `<BarcodeScanner>` from the same package. */
 export interface BarcodeScannerService {
+	/** Synchronous fast check — a detector backend exists on this platform. */
 	readonly supported: boolean
 	/** Ensure camera permission for live scanning. */
 	ensure(): Promise<PermissionResult>

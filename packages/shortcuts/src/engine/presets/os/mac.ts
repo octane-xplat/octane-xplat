@@ -30,6 +30,7 @@ const combos = [
 	'Control+Meta+Q',
 ]
 
+/** Reserved OS-level shortcuts on macOS (Mission Control, Spotlight, screenshots, quit/hide). */
 export const macOsShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] = combos.map(
 	(combo) => blocklistEntry(combo, { category: 'os', platform: 'mac' }),
 )

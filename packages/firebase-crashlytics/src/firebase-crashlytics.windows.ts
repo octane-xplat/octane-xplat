@@ -4,6 +4,7 @@ import type { CrashlyticsService } from './types'
 
 const reject = () => Promise.reject(new Error('unsupported: no Crashlytics SDK on this platform'))
 
+/** Crashlytics service — see CrashlyticsService. */
 export const crashlytics: CrashlyticsService = {
 	supported: false,
 	log: () => {},

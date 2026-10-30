@@ -67,6 +67,7 @@ const ensure = (): Promise<PermissionResponse> =>
 				)
 			})
 
+/** Geolocation service — single-shot position fixes. */
 export const geolocation: Permissioned<GeolocationImpl> = {
 	get supported() {
 		return available()

@@ -59,6 +59,7 @@ function observations(results: any): any[] {
 	return out
 }
 
+/** Headless barcode service — permission + still-image decode. See BarcodeScannerService. */
 export const barcodeScanner: BarcodeScannerService = {
 	supported: true,
 	ensure: async (): Promise<PermissionResult> => 'unsupported',

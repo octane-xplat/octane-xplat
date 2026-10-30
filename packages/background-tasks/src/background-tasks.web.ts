@@ -4,6 +4,7 @@ import type { BackgroundTasks, TaskStatus } from './types'
 
 const unsupported = () => Promise.reject(new Error('unsupported: no background task API on web'))
 
+/** Background-task scheduler service — see BackgroundTasks for the contract. */
 export const backgroundTasks: BackgroundTasks = {
 	supported: false,
 	defineTask: () => {},

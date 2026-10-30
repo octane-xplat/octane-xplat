@@ -2,6 +2,7 @@ import { copyQueue } from './queue'
 import { bounded } from './settings'
 import type { AudioCapabilities, AudioPlayer, AudioSnapshot, Track } from './types'
 
+/** Create an independent player on web/iOS/macOS; Android owns one app playback service. */
 export const createAudioPlayer = (): AudioPlayer => {
 	const audio = new Audio()
 	const listeners = new Set<(value: AudioSnapshot) => void>()

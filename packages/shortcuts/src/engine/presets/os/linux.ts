@@ -24,5 +24,6 @@ const combos = [
 	'Ctrl+Alt+Shift+R',
 ]
 
+/** Reserved OS-level shortcuts on Linux desktops (window/workspace management). */
 export const linuxOsShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
 	combos.map((combo) => blocklistEntry(combo, { category: 'os', platform: 'linux' }))

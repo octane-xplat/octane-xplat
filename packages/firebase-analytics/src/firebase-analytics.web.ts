@@ -15,6 +15,7 @@ import type { FirebaseAnalyticsService } from './types'
 
 let analytics: any = null
 
+/** Firebase Analytics service — see FirebaseAnalyticsService. */
 export const firebaseAnalytics: FirebaseAnalyticsService = {
 	supported: typeof window !== 'undefined',
 

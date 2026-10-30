@@ -45,6 +45,7 @@ const ensureLib = () => {
 	dlopened = true
 }
 
+/** Whether this platform leaf has a real SQLite backend (runtime-checked on macOS). */
 export const supported: boolean =
 	typeof host.dlopen === 'function' && typeof host.sqlite3_open === 'function'
 
@@ -296,6 +297,8 @@ class MacosSqliteDb implements SqliteDb {
 	}
 }
 
+/** Open (or create) a database by name — a bare name resolves to the
+ *  app's documents directory on native. */
 export const openDatabase = async (
 	name: string,
 	_options?: OpenDatabaseOptions,
@@ -324,6 +327,7 @@ export const openDatabase = async (
 	return isolateDatabase(new MacosSqliteDb(db, path != null))
 }
 
+/** Delete a database file by name; resolves false when nothing matched. */
 export const deleteDatabase = async (name: string): Promise<boolean> => {
 	const path = databasePath(name)
 	if (!path) {

@@ -65,5 +65,6 @@ const combos = [
 	'Ctrl+Alt+Delete',
 ]
 
+/** Reserved OS-level shortcuts on Windows (task switching, Snap, system keys). */
 export const windowsOsShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
 	combos.map((combo) => blocklistEntry(combo, { category: 'os', platform: 'windows' }))

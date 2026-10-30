@@ -111,6 +111,7 @@ const combos = [
 	['Meta+Shift+D', 'mac'],
 ] as const
 
+/** Reserved shortcuts specific to Edge, beyond the common browser set. */
 export const edgeBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
 	combos.map(([combo, platform]) =>
 		blocklistEntry(combo, { category: 'browser', browser: 'edge', platform }),

@@ -8,8 +8,13 @@ let revision = 0
 const identifier = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 // Each component subscribes through ui's useStore, including retained native children.
+/** External-store handle for icon components: bumps a revision counter when
+ *  addCollection() lands so mounted icons re-resolve. Consumed internally
+ *  via useStore; exposed for custom icon hosts. */
 export const registry = {
+	/** Monotonic revision counter — the useSyncExternalStore snapshot. */
 	getSnapshot: (): number => revision,
+	/** Register a change listener; returns the unsubscribe function. */
 	subscribe(notify: () => void) {
 		listeners.add(notify)
 		return (): void => {

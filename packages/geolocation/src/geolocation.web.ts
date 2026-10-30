@@ -74,6 +74,7 @@ async function readState(): Promise<PermissionResponse> {
 	return respond('undetermined')
 }
 
+/** Geolocation service — single-shot position fixes. */
 export const geolocation: Permissioned<GeolocationImpl> = {
 	supported,
 	isAvailable: async () => supported,

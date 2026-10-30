@@ -45,6 +45,7 @@ const respond = (granted: boolean, canAskAgain: boolean): PermissionResponse => 
 	canAskAgain,
 })
 
+/** Geolocation service — single-shot position fixes. */
 export const geolocation: Permissioned<GeolocationImpl> = {
 	supported: true,
 	isAvailable: async () => true,

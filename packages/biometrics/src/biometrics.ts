@@ -30,6 +30,7 @@ const available = async (): Promise<PermissionResponse> => {
 	}
 }
 
+/** Biometrics service backed by @nativescript/biometrics. */
 export const biometrics: Permissioned<BiometricsImpl> = {
 	supported: true,
 	isAvailable: async () => (await available()).granted,

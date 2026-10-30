@@ -4,6 +4,7 @@ import type { Push, PushConfigureOptions, PushMessage, PushPermission } from './
 
 const unsupported = () => new Error('push: remote push is not supported on macOS')
 
+/** Push-messaging service — FCM/APNs. Inert on macOS. */
 export const push: Push = {
 	supported: false,
 	configured: false,

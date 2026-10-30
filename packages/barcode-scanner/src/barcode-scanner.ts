@@ -87,6 +87,7 @@ async function toImageSource(image: unknown): Promise<any> {
 	throw new Error('barcodeScanner.scanImage: expected an ImageSource, file path, or {uri} ref')
 }
 
+/** Headless barcode service — permission + still-image decode. See BarcodeScannerService. */
 export const barcodeScanner: BarcodeScannerService = {
 	supported: true,
 

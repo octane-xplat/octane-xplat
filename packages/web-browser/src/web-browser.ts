@@ -140,6 +140,7 @@ function withTabsClient(
 	})
 }
 
+/** In-app browser service (SFSafariViewController / Custom Tabs). */
 export const webBrowser: WebBrowser = {
 	supported: isIOS
 		? typeof SFSafariViewController !== 'undefined'

@@ -1,19 +1,30 @@
 /** One playable local path or HTTP(S) source with a stable app-owned identity. */
 export type Track = {
+	/** App-owned stable identity — queue operations key on it. */
 	id: string
+	/** Local file path or HTTP(S) URL. */
 	source: string
+	/** Display title for system controls/lock screen. */
 	title?: string
+	/** Display artist for system controls. */
 	artist?: string
+	/** Display album for system controls. */
 	album?: string
 }
 
 /** Availability of playback and OS integration on this host. */
 export type AudioCapabilities = {
+	/** Any playback path exists on this host. */
 	supported: boolean
+	/** Playback can continue when the app is backgrounded/screen-locked. */
 	backgroundPlayback: boolean
+	/** Lock screen / control-center / media-key integration is available. */
 	systemControls: boolean
+	/** The first play() must be called from a user gesture (web autoplay policy). */
 	userGestureRequired: boolean
+	/** The host delivers audio-interruption events (calls, Siri, other apps). */
 	interruptions: boolean
+	/** Why supported is false, when known. */
 	reason?: string
 }
 
@@ -35,12 +46,15 @@ export interface QueueOptions {
 
 /** Current playback position (seconds) and persistent player settings. */
 export type AudioSnapshot = {
+	/** Current observable playback state. */
 	state: PlaybackState
+	/** The queue item being played, undefined in 'idle'. */
 	track?: Track
 	/** Current position in seconds. */
 	currentTime: number
 	/** Track length in seconds, or 0 until known. */
 	duration: number
+	/** The failure behind state === 'error'. */
 	error?: Error
 	/** Requested speed, 0.5–3; defaults to 1. Pitch is preserved. */
 	playbackRate: number

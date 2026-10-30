@@ -12,7 +12,9 @@ export interface IconOptions extends IconifyTransformations {
 export interface IconProps extends IconOptions {
 	/** Registered collection prefix and icon name, such as `heroicons:arrow-right`. */
 	name: string
+	/** Element id passed through to the host element. */
 	id?: string
+	/** Class list applied to the rendered svg element. */
 	className?: string
 	/** Accessible description. Omit for a decorative icon. */
 	label?: string
@@ -20,9 +22,14 @@ export interface IconProps extends IconOptions {
 
 /** DOM-free SVG output, ready for an inline SVG or native SVGView. */
 export interface IconSvg {
+	/** Inner SVG fragment (paths/shapes), after Iconify transforms. */
 	body: string
+	/** `min-x min-y width height` viewBox string for the outer <svg>. */
 	viewBox: string
+	/** Rendered width in px after `size` scaling and aspect preservation. */
 	width: number
+	/** Rendered height in px — equals `size` in IconOptions. */
 	height: number
+	/** Complete serialized `<svg …>…</svg>` string. */
 	markup: string
 }

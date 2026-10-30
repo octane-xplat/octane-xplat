@@ -230,6 +230,7 @@ async function photosStatus(): Promise<PermissionResponse> {
 	return { status: 'undetermined', granted: false, canAskAgain: true }
 }
 
+/** Media service — gallery picking and still capture. See MediaImpl. */
 const media: Service<MediaImpl> = {
 	supported: true,
 	isAvailable: async () => true,

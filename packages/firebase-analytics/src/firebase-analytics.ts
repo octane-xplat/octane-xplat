@@ -14,6 +14,7 @@ const analytics = () => {
 	return a
 }
 
+/** Firebase Analytics service — see FirebaseAnalyticsService. */
 export const firebaseAnalytics: FirebaseAnalyticsService = {
 	supported: true,
 

@@ -8,8 +8,11 @@ export interface ShortcutEvent {
 	readonly code: string
 	/** Modifier states at dispatch time. */
 	readonly altKey: boolean
+	/** Ctrl held at dispatch time. */
 	readonly ctrlKey: boolean
+	/** Meta held at dispatch time (⌘ on macOS, ⊞ on Windows). */
 	readonly metaKey: boolean
+	/** Shift held at dispatch time. */
 	readonly shiftKey: boolean
 	/** Whether the key is being held. */
 	readonly repeat: boolean
@@ -72,13 +75,16 @@ export type ShortcutValidationError =
 	| {
 			/** The expression could not be parsed as a combo. */
 			code: 'invalid-shortcut'
+			/** The expression as supplied by the caller. */
 			combo: string
 			error: Error
 	  }
 	| {
 			/** The expression matched a configured blocklist entry. */
 			code: 'shortcut-blocked'
+			/** The expression as supplied by the caller. */
 			combo: string
+			/** Normalized form used for the blocklist comparison. */
 			canonicalCombo: string
 			category: ShortcutBlocklistCategory
 			browser?: ShortcutBrowser
@@ -88,13 +94,19 @@ export type ShortcutValidationError =
 /** Result returned by {@link ShortcutRuntime.validateShortcut}. */
 export type ShortcutValidationResult =
 	| {
+			/** Parsed and clear of every blocklist entry. */
 			valid: true
+			/** The expression as supplied by the caller. */
 			combo: string
+			/** Normalized form — the spellings `Mod`, `CtrlOrMeta`, etc. resolved. */
 			canonicalCombo: string
 	  }
 	| {
+			/** Failed to parse or matched a blocklist entry; see `errors`. */
 			valid: false
+			/** The expression as supplied by the caller. */
 			combo: string
+			/** Normalized form when parsing got far enough to produce one. */
 			canonicalCombo?: string
 			errors: readonly ShortcutValidationError[]
 	  }

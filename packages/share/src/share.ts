@@ -9,6 +9,8 @@ import type { Share, ShareFileOptions, ShareResult } from './types'
 
 const shareFile = isIOS ? shareFileIos : shareFileAndroid
 
+/** Share service: iOS UIActivityViewController, Android ACTION_SEND,
+ *  macOS NSSharingServicePicker. */
 export const share: Share = {
 	async text(text: string, subject?: string): Promise<ShareResult> {
 		shareText(text, subject)

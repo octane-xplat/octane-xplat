@@ -14,6 +14,7 @@ const respond = (granted: boolean, canAskAgain: boolean): PermissionResponse => 
 	canAskAgain,
 })
 
+/** Local-notifications service backed by @nativescript/local-notifications. */
 export const notifications: Permissioned<NotificationsImpl> = {
 	supported: true,
 	isAvailable: async () => true,

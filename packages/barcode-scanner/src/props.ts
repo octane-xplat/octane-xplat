@@ -1,9 +1,11 @@
 import type { Octane } from 'octane/jsx-runtime'
 import type { BarcodeFormat, ScannedCode } from './types'
 
+/** Imperative handle exposed through the BarcodeScanner `ref`. */
 export interface BarcodeScannerHandle {
 	/** Pause/resume preview processing (not the camera feed itself). */
 	setPaused(paused: boolean): void
+	/** Switch between the front and back cameras while scanning. */
 	toggleCamera(): void
 	/** The underlying MLKitView on native, the <video> element on web. */
 	native: unknown
@@ -13,7 +15,9 @@ export interface BarcodeScannerHandle {
  *  Decoding only: photo capture stays in `@octane-xplat/camera`, gallery
  *  picking in `@octane-xplat/media`. */
 export interface BarcodeScannerProps {
+	/** Class list applied to the preview element. */
 	className?: any
+	/** Inline style applied to the preview element (string CSS or object). */
 	style?: any
 	/** Restrict decoded symbologies — all supported formats by default. */
 	formats?: BarcodeFormat[]
@@ -25,10 +29,15 @@ export interface BarcodeScannerProps {
 	torch?: boolean
 	/** 'back' | 'front'. Default 'back'. */
 	facing?: 'back' | 'front'
+	/** Detector/preview failures (permission is requested separately via the
+	 *  `barcodeScanner` service, not surfaced here). */
 	onError?: (e: { message: string }) => void
+	/** Imperative handle — see BarcodeScannerHandle. */
 	ref?: Octane.Ref<BarcodeScannerHandle>
 	/** Platform escape hatches, applied after the shared props. */
 	ios?: Record<string, any>
+	/** Platform escape hatch — same bag contract as `ios`. */
 	android?: Record<string, any>
+	/** Platform escape hatch — same bag contract as `ios`. */
 	web?: Record<string, any>
 }

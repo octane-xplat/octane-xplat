@@ -8,6 +8,7 @@ import {
 
 import type { OpenDatabaseOptions, SqliteDb, SqliteParams, SqliteRow } from './types'
 
+/** Whether this platform leaf has a real SQLite backend. */
 export const supported = true
 
 const resolvePath = (name: string) =>
@@ -48,6 +49,8 @@ class NativeSqliteDb implements SqliteDb {
 	}
 }
 
+/** Open (or create) a database by name — a bare name resolves to the
+ *  app's documents directory on native. */
 export const openDatabase = async (
 	name: string,
 	options?: OpenDatabaseOptions,
@@ -56,5 +59,6 @@ export const openDatabase = async (
 		new NativeSqliteDb(openOrCreate(resolvePath(name), { threading: options?.threading ?? true })),
 	)
 
+/** Delete a database file by name; resolves false when nothing matched. */
 export const deleteDatabase = async (name: string): Promise<boolean> =>
 	deleteNativeDatabase(resolvePath(name))

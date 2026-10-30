@@ -111,6 +111,7 @@ const combos = [
 	['Meta+Q', 'mac'],
 ] as const
 
+/** Reserved shortcuts specific to Firefox, beyond the common browser set. */
 export const firefoxBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
 	combos.map(([combo, platform]) =>
 		blocklistEntry(combo, { category: 'browser', browser: 'firefox', platform }),

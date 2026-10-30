@@ -7,9 +7,14 @@ export type PushPermission = 'granted' | 'denied' | 'not-determined' | 'provisio
  *  `title`/`body` come from the notification payload; `data` is the
  *  app-defined key/value payload attached to the message. */
 export interface PushMessage {
+	/** Provider message id when the platform reports one (FCM message id);
+	 *  absent for locally synthesized messages. */
 	messageId?: string
+	/** Notification title; absent for data-only messages. */
 	title?: string
+	/** Notification body; absent for data-only messages. */
 	body?: string
+	/** App-defined string payload attached to the message. */
 	data?: Record<string, string>
 }
 
@@ -17,15 +22,26 @@ export interface PushMessage {
  *  All default to true except `criticalAlert` (needs an Apple entitlement)
  *  and `provisional`. */
 export interface PushIOSPermissions {
+	/** Banner/alert presentation. */
 	alert?: boolean
+	/** App-icon badge updates. */
 	badge?: boolean
+	/** Audible notification sounds. */
 	sound?: boolean
+	/** CarPlay notification presentation. */
 	carPlay?: boolean
+	/** Critical alerts that bypass mute/Focus — requires an Apple entitlement. */
 	criticalAlert?: boolean
+	/** Siri announcement of notifications (AirPods etc.). */
 	announcement?: boolean
+	/** Provisional (quiet) delivery without a prompt — notifications go
+	 *  straight to Notification Center. */
 	provisional?: boolean
 }
 
+/** Options for configure(). The `firebaseConfig`/`app`/`vapidKey`/
+ *  `serviceWorkerUrl` fields are web-only; native reads Firebase config from
+ *  the app's bundled google-services files. */
 export interface PushConfigureOptions {
 	/** Web only: Firebase project config (the `firebaseConfig` object from the
 	 *  console). Ignored on iOS/Android — native config comes from
@@ -51,6 +67,8 @@ export interface PushConfigureOptions {
 	iosPermissions?: PushIOSPermissions
 }
 
+/** Push-messaging façade over FCM (web + Android) and FCM→APNs on iOS.
+ *  macOS has no remote push backend — every member is inert or rejects there. */
 export interface Push {
 	/** Whether a push backend can run on this target. Web checks for service
 	 *  worker + PushManager support; iOS/Android are always true (iOS

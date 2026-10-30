@@ -13,6 +13,7 @@ const instance = () => {
 	return c
 }
 
+/** Crashlytics service — see CrashlyticsService. */
 export const crashlytics: CrashlyticsService = {
 	supported: true,
 

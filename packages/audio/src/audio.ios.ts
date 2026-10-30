@@ -24,6 +24,7 @@ type PlayerTime = ReturnType<AVPlayer['currentTime']>
 declare function CMTimeGetSeconds(time: PlayerTime): number
 declare function CMTimeMakeWithSeconds(seconds: number, preferredTimescale: number): PlayerTime
 
+/** Create an independent player on web/iOS/macOS; Android owns one app playback service. */
 export const createAudioPlayer = (): AudioPlayer => {
 	const listeners = new Set<(snapshot: AudioSnapshot) => void>()
 	const session = AVAudioSession.sharedInstance()

@@ -72,6 +72,7 @@ const respond = (): PermissionResponse =>
 		? { status: 'granted', granted: true, canAskAgain: true }
 		: { status: 'unsupported', granted: false, canAskAgain: false }
 
+/** Media service — gallery picking and still capture. See MediaImpl. */
 export const media: Service<MediaImpl> = {
 	supported: typeof document !== 'undefined',
 	isAvailable: async () => typeof document !== 'undefined',

@@ -6,6 +6,9 @@ export interface StoreReviewConfig {
 	androidPackageName?: string
 }
 
+/** Store-review façade: availability probes plus the OS review prompt.
+ *  Both stores throttle actual display and report no outcome, so
+ *  requestReview() success only means the request was handed to the OS. */
 export interface StoreReview {
 	/** Synchronous fast check — the in-app review class exists. */
 	readonly supported: boolean

@@ -20,6 +20,7 @@ const combos = [
 	['Meta+Shift+D', 'mac'],
 ] as const
 
+/** Reserved shortcuts specific to Safari, beyond the common browser set. */
 export const safariBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
 	combos.map(([combo, platform]) =>
 		blocklistEntry(combo, { category: 'browser', browser: 'safari', platform }),

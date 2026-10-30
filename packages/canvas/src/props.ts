@@ -1,5 +1,11 @@
+import type { ClassValue, CSSProperties } from 'octane/jsx-runtime'
+
+/** Canvas context kinds; availability is per platform — 'webgpu' resolves
+ *  through the plugin shim on mobile and `navigator.gpu` on web,
+ *  'bitmaprenderer' is web-only, and AppKit resolves no kind at all. */
 export type CanvasContextKind = '2d' | 'webgl' | 'webgl2' | 'webgpu' | 'bitmaprenderer'
 
+/** Payload passed to onReady once the canvas element exists. */
 export interface CanvasReady {
 	/** HTMLCanvasElement on web, the plugin's Canvas view on iOS/Android.
 	 *  AppKit supplies an unavailable handle whose `getContext()` always
@@ -11,9 +17,13 @@ export interface CanvasReady {
 	context: any
 }
 
+/** Props for the `<Canvas>` element. */
 export interface CanvasProps {
-	className?: any
-	style?: any
+	/** clsx-style class list applied to the canvas element. */
+	className?: ClassValue
+	/** Inline style: CSS text or a camelCase style object. */
+	style?: string | CSSProperties
+	/** Element id passed through to the host element. */
 	id?: string
 	/** Context kind resolved before `onReady` fires. Omit to defer
 	 *  `getContext` to user code (only one kind per canvas — call once). */
@@ -27,5 +37,7 @@ export interface CanvasProps {
 	 *  the canvas *drawing buffer* size (pair with style for display
 	 *  size), on native dip size. */
 	width?: string | number
+	/** Same contract as `width`: numbers set the drawing-buffer height on web
+	 *  and dip height on native. */
 	height?: string | number
 }

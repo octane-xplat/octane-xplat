@@ -16,6 +16,8 @@ export async function hideAsync(): Promise<void> {
 	hide()
 }
 
+/** Configure dismissal animation. Validates eagerly — throws TypeError for
+ *  unknown keys/wrong types and RangeError for duration outside 0–60000 ms. */
 export function setOptions(options: SplashScreenOptions): void {
 	if (
 		!options ||
@@ -40,11 +42,18 @@ export function setOptions(options: SplashScreenOptions): void {
 	backend.configure({ ...options })
 }
 
+/** Expo-shaped namespace object bundling the splash-screen API; frozen at
+ *  module load. Equivalent to calling the module-level functions directly. */
 export const SplashScreen: Readonly<{
+	/** Per-platform feature flags; a fresh frozen snapshot on each read. */
 	readonly capabilities: Readonly<import('./types').SplashScreenCapabilities>
+	/** See {@link preventAutoHideAsync}. */
 	preventAutoHideAsync: typeof preventAutoHideAsync
+	/** See {@link hide}. */
 	hide: typeof hide
+	/** See {@link hideAsync}. */
 	hideAsync: typeof hideAsync
+	/** See {@link setOptions}. */
 	setOptions: typeof setOptions
 }> = Object.freeze({
 	get capabilities() {

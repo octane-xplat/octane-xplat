@@ -112,6 +112,7 @@ const requireMessaging = async (): Promise<Messaging> => {
 	return messaging as Messaging
 }
 
+/** Push-messaging service — FCM/APNs. Inert on macOS. */
 export const push: Push = {
 	get supported() {
 		return hasSw

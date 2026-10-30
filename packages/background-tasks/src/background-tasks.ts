@@ -45,6 +45,7 @@ function iosHandle(task: any): void {
 	})
 }
 
+/** Background-task scheduler service — see BackgroundTasks for the contract. */
 export const backgroundTasks: BackgroundTasks = {
 	supported: isIOS ? typeof BGTaskScheduler !== 'undefined' : true,
 

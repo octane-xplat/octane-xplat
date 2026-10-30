@@ -19,6 +19,7 @@ type NativePlayer = {
 declare const XplatAudioPlayer: { new: () => NativePlayer }
 
 /** The CLI loads the package's AVFoundation leaf before evaluating the app. */
+/** Create an independent player on web/iOS/macOS; Android owns one app playback service. */
 export const createAudioPlayer = (): AudioPlayer => {
 	const native = typeof XplatAudioPlayer === 'undefined' ? undefined : XplatAudioPlayer.new()
 	const listeners = new Set<(snapshot: AudioSnapshot) => void>()

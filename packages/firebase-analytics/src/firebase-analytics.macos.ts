@@ -4,6 +4,7 @@ import type { FirebaseAnalyticsService } from './types'
 const unsupported = () =>
 	Promise.reject(new Error('unsupported: firebase analytics is not available on macOS'))
 
+/** Firebase Analytics service — see FirebaseAnalyticsService. */
 export const firebaseAnalytics: FirebaseAnalyticsService = {
 	supported: false,
 	init: unsupported,

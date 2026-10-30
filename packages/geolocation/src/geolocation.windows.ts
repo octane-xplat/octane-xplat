@@ -10,6 +10,7 @@ const UNSUPPORTED: PermissionResponse = {
 	canAskAgain: false,
 }
 
+/** Geolocation service — single-shot position fixes. */
 export const geolocation: Permissioned<GeolocationImpl> = {
 	supported: false,
 	isAvailable: async () => false,

@@ -108,6 +108,7 @@ const combos = [
 	['F7', 'mac'],
 ] as const
 
+/** Reserved shortcuts specific to Chrome, beyond the common browser set. */
 export const chromeBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
 	combos.map(([combo, platform]) =>
 		blocklistEntry(combo, { category: 'browser', browser: 'chrome', platform }),

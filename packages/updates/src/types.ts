@@ -16,25 +16,40 @@ export interface UpdatesOptions {
 
 /** A verified server descriptor. install() revalidates every field. */
 export interface UpdateManifest {
+	/** Payload version, numeric x.y.z — compared against embeddedVersion. */
 	version: string
+	/** SHA-256 of the archive bytes; verified again at install() time. */
 	sha256: string
+	/** Archive size in bytes; checked against maxDownloadBytes. */
 	size: number
+	/** Fingerprint of the native runtime the payload was built against;
+	 *  a mismatch yields 'native-incompatible' — the payload is never staged. */
 	nativeFingerprint: string
+	/** HTTPS URL the archive is fetched from. */
 	url: string
 }
 
 /** Result of checking a channel, including an update previously rejected at boot. */
 export type UpdateCheck =
-	| { available: true; manifest: UpdateManifest }
 	| {
+			/** True when `manifest` describes a stageable update. */
+			available: true
+			manifest: UpdateManifest
+	  }
+	| {
+			/** False — `reason` explains why no update can be staged. */
 			available: false
 			reason: 'unsupported' | 'no-release' | 'up-to-date' | 'native-incompatible' | 'rejected'
 	  }
 
 /** Local state; downloading or staging never changes the current session's version. */
 export interface UpdatesStatus {
+	/** Version this process is running — never changes mid-session. */
 	currentVersion: string
+	/** Version staged for the next cold launch, or null. */
 	stagedVersion: string | null
+	/** True while a booted update still awaits markHealthy(); an unconfirmed
+	 *  update is rolled back by the OS guard before it can entrench. */
 	needsConfirmation: boolean
 }
 
