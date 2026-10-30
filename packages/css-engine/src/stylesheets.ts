@@ -98,6 +98,31 @@ export function stylesheetsHaveMediaRules(): boolean {
 	return hasMediaRules
 }
 
+/** Distinct media-query strings across every registered sheet and keyframe —
+ *  lets a host diff environments per evaluation context (per-window media on
+ *  AppKit) instead of the single process-wide `refreshMediaQueries` result. */
+export function stylesheetMediaQueries(): string[] {
+	const out = new Set<string>()
+	const visit = (raw: string | string[] | undefined) => {
+		for (const q of Array.isArray(raw) ? raw : [raw]) {
+			if (q) out.add(q)
+		}
+	}
+	for (const id of order) {
+		const entry = sheets.get(id)
+		if (!entry) {
+			continue
+		}
+		for (const r of entry.selectors) {
+			visit(r.mediaQueryString)
+		}
+		for (const k of entry.keyframes) {
+			visit(k.mediaQueryString)
+		}
+	}
+	return [...out]
+}
+
 /** Called after any registration change — the renderer restyles live roots. */
 export function onStylesheetsChanged(fn: () => void): void {
 	restyle = fn

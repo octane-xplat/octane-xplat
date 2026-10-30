@@ -57,6 +57,11 @@ function machineryApi(extra: Record<string, any> = {}) {
 		setStyleEnvironment: (fn: any) => (ctx.mediaEnv = fn),
 		onStylesheetsChanged,
 		appKitContainers: new Set(),
+		restyleContainer: (container: any) => {
+			for (const child of container.children ?? []) ctx.api.markStyleDirty(child, true)
+			for (const entry of container.portalTargets?.values?.() ?? []) ctx.api.markStyleDirty(entry.root, true)
+			ctx.api.flushStyleDirty(container)
+		},
 		// Records + routes warnings the way applyStyle's unsupported branch does.
 		applyStyle(node: any, style: any) {
 			applyCalls.push(node)
@@ -82,7 +87,7 @@ function machineryApi(extra: Record<string, any> = {}) {
 	const code =
 		MACHINERY +
 		RESTYLE_ALL +
-		`\n({ markStyleDirty, flushStyleDirty, restyleNode, setNodeInlineStyle, applyClassName, refreshCssClasses, warnUnsupportedCssProp, restyleAllContainers, setPseudoClass })`
+		`\n({ markStyleDirty, flushStyleDirty, restyleNode, setNodeInlineStyle, applyClassName, refreshCssClasses, warnUnsupportedCssProp, restyleAllContainers, setPseudoClass, envForNode, nodeHostWindow })`
 	ctx.api = runSlice(code, ctx)
 	// Module init registers restyleAllContainers as the sheet-change listener —
 	// done here explicitly (the slice's top-level call is excluded).
@@ -479,13 +484,32 @@ test('CSS :focus-visible follows input modality, keyView direction, and text-ent
 	assert.equal(container.cssFocusVisible, true, 'the field editor resolves to its textfield through delegate')
 })
 
+test('media env resolves per window — portals use their target window, not the largest', () => {
+	const { api, ctx } = machineryApi()
+	const big = { contentLayoutRect: { size: { width: 1200, height: 900 } } }
+	const small = { contentLayoutRect: { size: { width: 320, height: 200 } } }
+	const container: any = { hostView: { window: big } }
+	ctx.appKitContainers.add(container)
+	const direct: any = { parent: null, container, cssType: 'stacklayout', view: {} }
+	assert.equal(api.envForNode(direct).width, 1200)
+	const portalroot: any = { parent: null, container, cssType: 'portalroot', view: { window: small } }
+	const child: any = { parent: portalroot, container, cssType: 'label', view: {} }
+	assert.equal(api.envForNode(child).width, 320, 'portal content sizes to its own window')
+	assert.equal(api.nodeHostWindow(child), small)
+	// A windowless portal root falls back to the container host view.
+	const loose: any = { parent: null, container, cssType: 'portalroot', view: {} }
+	const stray: any = { parent: loose, container, cssType: 'label', view: {} }
+	assert.equal(api.envForNode(stray).width, 1200)
+})
+
 test('CSS media resize observer installs once, scopes to container windows, and coalesces refreshes', () => {
-	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('let resizeQueued = false'), FULL_SOURCE.indexOf('// Accessibility display notifications'))
-	let installs = 0, callback: (note: unknown) => void = () => {}, mediaChanged = true, refreshes = 0, restyles = 0
+	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('// ---- Media queries on resize'), FULL_SOURCE.indexOf('// Accessibility display notifications'))
+	let installs = 0, callback: (note: unknown) => void = () => {}, evals = 0, restyles: any[] = []
 	const microtasks: (() => void)[] = []
 	const win = {}, foreign = {}
-	const container = { hostView: { window: win } }
-	const api = runSlice(code + '\n({ installResizeObserver })', {
+	let width = 100
+	const container = { hostView: { window: win }, portalTargets: new Map() }
+	const api = runSlice(code + '\n({ installResizeObserver, onHostWindowResize, seedContainerMedia, refreshWindowMedia, containerWindowTargets })', {
 		NSNotificationCenter: { defaultCenter: { addObserverForNameObjectQueueUsingBlock: (_name: unknown, _object: unknown, _queue: unknown, next: typeof callback) => {
 			installs++; callback = next
 			return {}
@@ -493,21 +517,34 @@ test('CSS media resize observer installs once, scopes to container windows, and 
 		NSWindowDidResizeNotification: 'resize',
 		appKitContainers: new Set([container]),
 		queueMicrotask: (fn: () => void) => microtasks.push(fn),
-		refreshMediaQueries: () => { refreshes++; return mediaChanged },
-		restyleAllContainers: () => { restyles++ },
+		stylesheetsHaveMediaRules: () => true,
+		stylesheetMediaQueries: () => ['(min-width: 50px)'],
+		evalMediaQuery: (_q: string, env: any) => { evals++; return env.width >= 50 },
+		windowMediaSize: (w: any) => ({ width, height: 40 }),
+		mediaSharedEnv: () => ({ colorScheme: 'light', reducedMotion: false }),
+		restyleContainer: (c: any) => { restyles.push(c) },
 	})
 	api.installResizeObserver(); api.installResizeObserver()
 	assert.equal(installs, 1, 'one observer across repeated installs')
+	const targets = api.containerWindowTargets(container)
+	assert.equal(targets.length, 1)
+	assert.equal(targets[0], win)
 	callback({ object: foreign })
 	assert.equal(microtasks.length, 0, 'a notification for a foreign window does nothing')
 	callback({ object: win }); callback({ object: win })
 	assert.equal(microtasks.length, 1, 'two resizes in one turn coalesce into one queued refresh')
 	microtasks.shift()!()
-	assert.equal(refreshes, 1)
-	assert.equal(restyles, 1, 'restyleAllContainers runs when media queries changed')
-	mediaChanged = false
+	assert.equal(restyles.length, 1, 'first unseeded observation restyles')
+	// Seed, shrink below the query threshold, resize again → one diff, one restyle.
+	container.mediaEnvs.clear()
+	api.seedContainerMedia(container)
+	width = 40
 	callback({ object: win })
 	microtasks.shift()!()
-	assert.equal(refreshes, 2)
-	assert.equal(restyles, 1, 'no restyle when media queries are unchanged')
+	assert.equal(restyles.length, 2, 'a media-result flip restyles the window owner')
+	assert.ok(evals > 0, 'queries diffed under old/new envs')
+	width = 45
+	callback({ object: win })
+	microtasks.shift()!()
+	assert.equal(restyles.length, 2, 'a size change that moves no query skips the restyle')
 })

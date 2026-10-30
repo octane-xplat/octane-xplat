@@ -102,12 +102,13 @@ import {
 	type CssHostNode,
 	registerStylesheet,
 	onStylesheetsChanged,
-	refreshMediaQueries,
+	evalMediaQuery,
 	resolveTranslate,
 	sampleKeyframeAnimation,
 	setStyleEnvironment,
 	type KeyframeAnimationInfo,
 	type SampledValues,
+	stylesheetMediaQueries,
 	stylesheetPseudoClasses,
 	stylesheetScope,
 	stylesheetsHaveMediaRules,
@@ -320,6 +321,9 @@ interface RootContainer {
 	cssFocusVisible?: boolean
 	tabDirty?: Set<ElementNode>
 	tabReleases?: Set<ElementNode>
+	/** Last media environment observed per window this container paints into
+	 *  (host window + portal targets) — resize diffs against it per window. */
+	mediaEnvs?: Map<object, { width: number; height: number }>
 }
 
 interface PortalTargetEntry {
@@ -3682,15 +3686,76 @@ function shallowEqualStyle(a: PropBag, b: PropBag) {
 	return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
 }
 
+// ---- Per-window media environment -------------------------------------------
+// Media queries resolve against the window a node actually paints into:
+// portal roots carry their target view's window, everything else follows its
+// container's host view. `activeMediaNode` is set for the duration of each
+// cascade (restyleNode) so the injected environment fn stays stateless.
+
+let activeMediaNode: ElementNode | null = null
+
+function nodeHostWindow(node: ElementNode): any | null {
+	let root: ElementNode = node
+	while (root.parent) {
+		root = root.parent
+	}
+	if (root.cssType === 'portalroot' && root.view?.window) {
+		return root.view.window
+	}
+	return node.container?.hostView?.window ?? null
+}
+
+function mediaSharedEnv(): { colorScheme: 'light' | 'dark'; reducedMotion: boolean } {
+	return {
+		colorScheme: (appKitBridge as any).getColorScheme?.() === 'dark' ? 'dark' : 'light',
+		reducedMotion: NSWorkspace.sharedWorkspace?.accessibilityDisplayShouldReduceMotion === true,
+	}
+}
+
+function windowMediaSize(win: any, fallbackRect: any): { width: number; height: number } {
+	const rect: any = win?.contentLayoutRect ?? fallbackRect
+	return {
+		width: Number(rect?.size?.width ?? rect?.width ?? 0) || 0,
+		height: Number(rect?.size?.height ?? rect?.height ?? 0) || 0,
+	}
+}
+
+function largestWindowSize(): { width: number; height: number } {
+	let width = 0
+	let height = 0
+	for (const container of appKitContainers) {
+		const size = windowMediaSize(container.hostView?.window, container.hostView?.frame)
+		if (size.width > width || size.height > height) {
+			width = size.width
+			height = size.height
+		}
+	}
+	return { width, height }
+}
+
+function envForNode(node: ElementNode) {
+	const size = windowMediaSize(nodeHostWindow(node), node.container?.hostView?.frame)
+	const { width, height } = size.width || size.height ? size : largestWindowSize()
+	return { width, height, ...mediaSharedEnv() }
+}
+
 /** Recompute one node's effective style and apply it. Caller guarantees the
  *  parent is already styled (top-down flush order). */
 function restyleNode(node: ElementNode) {
 	refreshCssClasses(node)
-	const { style, customProps, cssKeys, inheritedKeys, animations } = computeCascade(
-		node as unknown as CssHostNode,
-		stylesheetScope(),
-		{ borderLonghands: true },
-	)
+	const prevMediaNode = activeMediaNode
+	activeMediaNode = node
+	let cascade: ReturnType<typeof computeCascade>
+	try {
+		cascade = computeCascade(
+			node as unknown as CssHostNode,
+			stylesheetScope(),
+			{ borderLonghands: true },
+		)
+	} finally {
+		activeMediaNode = prevMediaNode
+	}
+	const { style, customProps, cssKeys, inheritedKeys, animations } = cascade
 	node.cssOriginKeys = cssKeys
 	node.inheritedOnlyKeys = inheritedKeys
 	const prevStyle = node.computedStyle ?? {}
@@ -10968,57 +11033,104 @@ appKitBridge.readGridCells = (view, nestedRoots) => readGridCells(view, (child) 
 installAppearanceBridge(appKitBridge)
 
 // Stylesheet and appearance changes restyle every live container.
+function restyleContainer(container: RootContainer) {
+	syncContainerPseudoState(container)
+	for (const child of container.children) {
+		markStyleDirty(child, true)
+	}
+
+	for (const entry of container.portalTargets.values()) {
+		markStyleDirty(entry.root, true)
+	}
+
+	flushStyleDirty(container)
+}
+
 function restyleAllContainers() {
 	for (const container of appKitContainers) {
-		syncContainerPseudoState(container)
-		for (const child of container.children) {
-			markStyleDirty(child, true)
-		}
-
-		for (const entry of container.portalTargets.values()) {
-			markStyleDirty(entry.root, true)
-		}
-
-		flushStyleDirty(container)
+		restyleContainer(container)
 	}
 }
 
 onStylesheetsChanged(restyleAllContainers)
 
-// Media environment: window content size + appearance + reduceMotion.
+// Media environment: each cascade evaluates against the styling node's own
+// window (envForNode); stray evaluation outside a restyle keeps the
+// largest-window default.
 setStyleEnvironment(() => {
-	let width = 0
-	let height = 0
-	for (const container of appKitContainers) {
-		const rect: any = container.hostView?.window?.contentLayoutRect ?? container.hostView?.frame
-		const w = rect?.size?.width ?? rect?.width ?? 0
-		const h = rect?.size?.height ?? rect?.height ?? 0
-		if (w > width || h > height) {
-			width = w
-			height = h
-		}
+	const node = activeMediaNode
+	if (node) {
+		return envForNode(node)
 	}
-	// Same scheme source as the root ns-light/ns-dark classes.
-	const colorScheme = (appKitBridge as any).getColorScheme?.() === 'dark' ? 'dark' : 'light'
-	const reducedMotion = NSWorkspace.sharedWorkspace?.accessibilityDisplayShouldReduceMotion === true
-	return { width, height, colorScheme, reducedMotion }
+	return { ...largestWindowSize(), ...mediaSharedEnv() }
 })
 
 // ---- Media queries on resize ------------------------------------------------
-// Window resizes re-evaluate media-gated rules — the resize diff compares
-// against the primed cache, so createMacOSRoot seeds refreshMediaQueries()
-// before the first resize can land. One observer covers every container
-// window; the notification carries the resizing window as its object.
+// Media results are per window: a resize diffs every registered media-gated
+// query under that window's recorded and current size, then restyles only the
+// containers painting into it. container.mediaEnvs records the last observed
+// size per window; createMacOSRoot seeds it so the first resize can diff —
+// an unseeded window restyles unconditionally when any media rule exists.
+function containerWindowTargets(container: RootContainer): object[] {
+	const windows: object[] = []
+	if (container.hostView?.window) {
+		windows.push(container.hostView.window)
+	}
+	for (const entry of container.portalTargets.values()) {
+		const win = entry.root.view?.window
+		if (win && !windows.includes(win)) {
+			windows.push(win)
+		}
+	}
+	return windows
+}
+
+function refreshWindowMedia(container: RootContainer, win: object): boolean {
+	if (!stylesheetsHaveMediaRules()) {
+		return false
+	}
+	const envs = (container.mediaEnvs ??= new Map())
+	const next = windowMediaSize(win, container.hostView?.frame)
+	const prev = envs.get(win)
+	envs.set(win, next)
+	if (!prev) {
+		return true
+	}
+	const shared = mediaSharedEnv()
+	const before = { ...prev, ...shared }
+	const after = { ...next, ...shared }
+	return stylesheetMediaQueries().some(
+		(q) => evalMediaQuery(q, before) !== evalMediaQuery(q, after),
+	)
+}
+
+function seedContainerMedia(container: RootContainer) {
+	for (const win of containerWindowTargets(container)) {
+		(container.mediaEnvs ??= new Map()).set(win, windowMediaSize(win, container.hostView?.frame))
+	}
+}
+
 let resizeQueued = false
-function onHostWindowResize() {
+function onHostWindowResize(win?: object | null) {
 	if (resizeQueued) {
 		return
 	}
 	resizeQueued = true
 	queueMicrotask(() => {
 		resizeQueued = false
-		if (refreshMediaQueries()) {
-			restyleAllContainers()
+		for (const container of appKitContainers) {
+			if (win != null) {
+				if (
+					containerWindowTargets(container).includes(win) &&
+					refreshWindowMedia(container, win)
+				) {
+					restyleContainer(container)
+				}
+			} else if (stylesheetsHaveMediaRules()) {
+				// Non-size environment change (e.g. reduced motion) — shared
+				// fields aren't window-scoped, so restyle unconditionally.
+				restyleContainer(container)
+			}
 		}
 	})
 }
@@ -11039,8 +11151,8 @@ function installResizeObserver() {
 		null,
 		(notification: NSNotification) => {
 			for (const container of appKitContainers) {
-				if (container.hostView?.window === notification?.object) {
-					onHostWindowResize()
+				if (containerWindowTargets(container).includes(notification?.object)) {
+					onHostWindowResize(notification?.object)
 					return
 				}
 			}
@@ -11187,9 +11299,9 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 	appKitContainers.add(container)
 	installResizeObserver()
 	installAccessibilityDisplayObserver()
-	// Prime the media-query cache so the first resize diff compares against
-	// a baseline instead of an empty cache (GTK wires its window the same way).
-	refreshMediaQueries()
+	// Seed this container's per-window media environments so the first resize
+	// diffs against a baseline instead of an empty cache.
+	seedContainerMedia(container)
 	const unmount = root.unmount.bind(root)
 	root.unmount = () => {
 		appKitContainers.delete(container)
