@@ -72,6 +72,9 @@ try {
 		[
 			['media', 'photo-capture.macos'],
 			['media', 'media.macos'],
+			['files', 'file-types.macos'],
+			['files', 'file-pick-filter.macos'],
+			['files', 'file-bytes'],
 			['files', 'files.macos'],
 		].map(async ([pkg, base]) => {
 			const source = await readFile(new URL(`../../${pkg}/src/${base}.ts`, import.meta.url), 'utf8')

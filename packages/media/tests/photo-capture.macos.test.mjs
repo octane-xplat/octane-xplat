@@ -1,13 +1,29 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 
-const requireShim = (id) => {
+const requireShim = (id, context) => {
 	if (id === '@octane-xplat/lib/capability') {
 		return { UnavailabilityError }
+	}
+	const leaf = /^\.(\/file-pick-filter\.macos|\/file-types\.macos|\/file-bytes)$/.exec(id)
+	if (leaf) {
+		const parentExports = context.exports
+		context.exports = {}
+		try {
+			const source = readFileSync(
+				new URL(`../../files/src${leaf[1]}.ts`, import.meta.url),
+				'utf8',
+			)
+			vm.runInContext(ts.transpile(source, { module: ts.ModuleKind.CommonJS }), context)
+			return context.exports
+		} finally {
+			context.exports = parentExports
+		}
 	}
 	throw new Error(`unexpected require: ${id}`)
 }
@@ -179,7 +195,7 @@ test('successful shots participate in the AppKit files.release ownership registr
 	}
 
 	api.context.exports = {}
-	api.context.require = requireShim
+	api.context.require = (id) => requireShim(id, api.context)
 	const source = await readFile(new URL('../../files/src/files.macos.ts', import.meta.url), 'utf8')
 	vm.runInNewContext(ts.transpile(source, { module: ts.ModuleKind.CommonJS }), api.context)
 	api.context.exports.files.release(result)
