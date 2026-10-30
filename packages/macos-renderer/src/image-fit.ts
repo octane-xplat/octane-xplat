@@ -47,7 +47,7 @@ export function parseImagePosition(value: unknown): ImagePosition | null {
 		let [x, y] = tokens
 		if (vertical(x) || horizontal(y)) {
 			if (length(x) || length(y)) return null
-			[x, y] = [y, x]
+			;[x, y] = [y, x]
 		}
 		const parsedX = axis(x, true), parsedY = axis(y, false)
 		return parsedX && parsedY ? { x: parsedX, y: parsedY } : null
