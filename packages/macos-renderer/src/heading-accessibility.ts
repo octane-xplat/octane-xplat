@@ -1,8 +1,8 @@
 interface HeadingView {
-	stringValue: string
-	accessibilityRole: string
-	accessibilityTitle: string | null
-	accessibilityValue: unknown
+	stringValue?: unknown
+	accessibilityRole?: unknown
+	accessibilityTitle?: unknown
+	accessibilityValue?: unknown
 }
 interface Original {
 	role: string
@@ -26,7 +26,7 @@ export function syncHeadingAccessibility(view: HeadingView, props: Record<string
 	}
 	if (!originals.has(view)) {
 		const value = view.accessibilityValue
-		originals.set(view, { role: view.accessibilityRole, title: view.accessibilityTitle, value,
+		originals.set(view, { role: String(view.accessibilityRole ?? ''), title: view.accessibilityTitle == null ? null : String(view.accessibilityTitle), value,
 			valueFollowsText: value === String(view.stringValue ?? '') })
 	}
 	const level = props.accessibilityHeadingLevel

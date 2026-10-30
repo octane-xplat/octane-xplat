@@ -28,7 +28,7 @@ export function createAppKitContextPointerDispatcher<View extends PointerView>(
 		try { target = hit(event) }
 		catch (error) { console.error('[macos-context] hit-test failed', error); return result }
 		if (!target) return result
-		for (let view: PointerView | null = target; view?.window === event.window; view = view.superview ?? null) {
+		for (let view: PointerView | null = target; view && view.window === event.window; view = view.superview ?? null) {
 			const owned = owners.get(view)
 			for (const handler of [...(owned ?? [])]) {
 				if (owners.get(view) !== owned || !owned?.has(handler)) continue

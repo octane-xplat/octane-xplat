@@ -128,6 +128,7 @@ import {
 	CGPathCloseSubpath,
 	CGPathCreateMutable,
 	CGPathMoveToPoint,
+	NSAccessibilityPostNotification,
 	NSAttributedString,
 	NSAutoresizingMaskOptions,
 	NSBackingStoreType,
@@ -206,7 +207,7 @@ import {
 	interop,
 } from '@octane-xplat/platform/macos'
 
-import type { NSClass, NSControl } from '@octane-xplat/platform/macos'
+import type { NSClass, NSControl, NSGestureRecognizer } from '@octane-xplat/platform/macos'
 
 export { registerFontFamily } from './fonts'
 export { registerStylesheet } from '@octane-xplat/css-engine'
@@ -932,6 +933,7 @@ class AccessibleHostView extends NSView {
 			const axis = stackAccessibilityPropsByView.get(this)?.accessibilityOrientation
 			return axis === 'vertical' ? 1 : axis === 'horizontal' ? 2 : 0
 		}
+		// @ts-ignore super property read on the bridged superclass
 		return super.accessibilityOrientation
 	}
 
@@ -944,6 +946,7 @@ class AccessibleHostView extends NSView {
 	// title behavior for other roles rather than replacing it with the label.
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityTitle() {
+		// @ts-ignore super property read on the bridged superclass
 		return this.accessibilityRole() === 'AXMenuItem' ? this.accessibilityLabel() : super.accessibilityTitle
 	}
 
@@ -5533,7 +5536,7 @@ function syncLabelAlignment(node: ElementNode, style: PropBag) {
 	if (style.direction != null && style.direction !== 'ltr' && !rtl) warnUnsupportedCssProp(node, 'direction')
 	const start = rtl ? NSTextAlignment.Right : NSTextAlignment.Left
 	const end = rtl ? NSTextAlignment.Left : NSTextAlignment.Right
-	let alignment = nodeClasses(node).includes('vx-sheet-grabber') ? NSTextAlignment.Center : start
+	let alignment: interop.Enum<typeof NSTextAlignment> = nodeClasses(node).includes('vx-sheet-grabber') ? NSTextAlignment.Center : start
 	switch (style.textAlign) {
 		case null: case undefined: break
 		case 'start': alignment = start; break
@@ -6249,7 +6252,7 @@ function observeFileDrop(view: NSView, handlers: { enabled(): boolean; receive(u
 	}
 	const leases = owned
 	let active = true
-	const current = () => active && node.view === view && cssNodesByView.get(view) === node && Boolean(node.container.root) &&
+	const current = () => active && Object.is(node.view, view) && cssNodesByView.get(view) === node && Boolean(node.container.root) &&
 		node.props.disabled !== true && node.props.isEnabled !== false && node.props.enabled !== false
 	const release = fileDropRegistry.subscribe(view, {
 		enabled: () => current() && handlers.enabled(),
@@ -10424,7 +10427,7 @@ function attachPicker(view: NSView, initial: PropBag, onSelect: (id: string) => 
 			picker.invalidateIntrinsicContentSize()
 		} else if (!enabled) picker.menu?.cancelTracking()
 		const nextLabel = String(next.accessibilityLabel ?? '')
-		if (label !== nextLabel) { picker.setAccessibilityLabel?.(nextLabel); label = nextLabel }
+		if (label !== nextLabel) { picker.accessibilityLabel = nextLabel; label = nextLabel }
 		const index = options.findIndex((item) => item.id === next.selection)
 		if (Number(picker.indexOfSelectedItem) !== index) picker.selectItemAtIndex(index)
 		const ownedVersion = version
@@ -10517,7 +10520,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 			enabled = next?.enabled !== false && validInput
 			picker.enabled = enabled
 			const label = String(next?.accessibilityLabel ?? '')
-			if (label !== accessibilityLabel) { picker.setAccessibilityLabel?.(label); accessibilityLabel = label }
+			if (label !== accessibilityLabel) { picker.accessibilityLabel = label; accessibilityLabel = label }
 			if (!validInput) return
 			// Clear old bounds before a disjoint replacement. Range/selection writes
 			// are programmatic and must never publish controlChanged echoes.

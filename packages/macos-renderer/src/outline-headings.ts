@@ -9,7 +9,7 @@ export function readOutlineHeadings(root: any, nodeForView: (view: object) => No
 		if (!view || (typeof view !== 'object' && typeof view !== 'function') || seen.has(view)) return
 		seen.add(view)
 		const node = nodeForView(view)
-		if (node?.view === view && node.type === 'label' && node.props.accessibilityRole === 'heading') {
+		if (node && node.view === view && node.type === 'label' && node.props.accessibilityRole === 'heading') {
 			const label = String(view.stringValue ?? '').trim(), level = node.props.accessibilityHeadingLevel
 			if (label) headings.push({ view, id: String(node.props.id ?? ''), label,
 				level: typeof level === 'number' && Number.isInteger(level) && level >= 1 && level <= 6 ? level : 2 })

@@ -93,7 +93,7 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		const editor = typeof target.currentEditor === 'function' ? target.currentEditor() : target.currentEditor
 		const isComposing = dead || marked(raw) || marked(editor)
 		const path: KeyView[] = []
-		for (let view: KeyView | null | undefined = target; view?.window === event.window; view = view.superview) path.push(view)
+		for (let view: KeyView | null | undefined = target; view && view.window === event.window; view = view.superview) path.push(view)
 		const name = Number(event.type) === 10 ? 'onKeyDown' : 'onKeyUp'
 		for (const view of path) {
 			const payload: NativeKeyboardEvent<KeyView> = {
