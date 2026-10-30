@@ -133,6 +133,65 @@ export function renderNotes(
 	}
 }
 
+// Rebuild the GitHub release body for an already-prepared version from the
+// committed logs: locate the heading linking that tag, take lines until the
+// next `## ` heading while respecting fenced code blocks (a fence may contain
+// `## `), and emit the same sections renderNotes produced.
+export function extractNotes(root: string, release: Release, version: string) {
+	version = releaseVersion(version)
+	const { prefix } = RELEASES[release]
+	const url = `${repository}/releases/tag/${prefix}${version}`
+	const github: string[] = []
+	for (const { file, title } of [
+		{ file: 'CHANGELOG.md', title: 'Features and breaking changes' },
+		{ file: 'FIXLOG.md', title: 'Fixes' },
+	] as const) {
+		const path = join(root, file)
+		if (!existsSync(path)) {
+			continue
+		}
+
+		const lines = readFileSync(path, 'utf8').replace(/\r\n/g, '\n').split('\n')
+		const start = lines.findIndex((line) => line.startsWith('## ') && line.includes(`](${url})`))
+		if (start < 0) {
+			continue
+		}
+
+		let fence: string | undefined
+		const body: string[] = []
+		for (const line of lines.slice(start + 1)) {
+			const delimiter = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1]
+			if (fence) {
+				if (
+					delimiter &&
+					delimiter[0] === fence[0] &&
+					delimiter.length >= fence.length &&
+					line.trim() === delimiter
+				) {
+					fence = undefined
+				}
+				body.push(line)
+				continue
+			}
+			if (delimiter) {
+				fence = delimiter
+				body.push(line)
+				continue
+			}
+			if (line.startsWith('## ')) {
+				break
+			}
+			body.push(line)
+		}
+
+		const text = body.join('\n').trim()
+		if (text) {
+			github.push(`## ${title}\n\n${text}`)
+		}
+	}
+	return (github.join('\n\n') || 'No user-facing release notes for this release.') + '\n'
+}
+
 export function prepareNotes(root: string, release: Release, version: string, date?: string) {
 	// Validate and assemble everything before changing either log or consuming
 	// files. The workflow commits these edits together, before publishing.
@@ -152,10 +211,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 		const [command, release, version, ...rest] = process.argv.slice(2)
 		if (command === 'check' && !release) {
 			console.log(`Validated ${readNotes(process.cwd()).length} release notes.`)
+		} else if (command === 'extract' && release && version && !rest.length) {
+			process.stdout.write(extractNotes(process.cwd(), releaseName(release), version))
 		} else {
 			assert.ok(
 				['preview', 'prepare'].includes(command) && version && !rest.length,
-				'usage: node scripts/release-notes.ts check | <preview|prepare> <lockstep|tsrx-typegen> <version>',
+				'usage: node scripts/release-notes.ts check | extract <release> <version> | <preview|prepare> <lockstep|tsrx-typegen> <version>',
 			)
 
 			const run = command === 'prepare' ? prepareNotes : renderNotes

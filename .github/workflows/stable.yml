@@ -1,56 +1,43 @@
 name: Stable CI
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
+  workflow_call:
+    inputs:
+      sha:
+        type: string
+        required: true
 
 permissions:
   contents: read
 
 concurrency:
-  # A cancelled/failed older CI run must not cancel a newer qualification.
-  group: stable-ci-${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch || github.run_id }}
+  # The release PR qualifies only its newest head; called runs qualify the
+  # exact sha release.yml verified.
+  group: >-
+    ${{ github.event_name == 'pull_request' &&
+      format('stable-ci-pr-{0}', github.event.pull_request.number) ||
+      format('stable-ci-{0}', inputs.sha) }}
   cancel-in-progress: true
 
 env:
-  TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+  # Pull requests test their head commit — not the merge ref — so evidence can
+  # bind to the exact tree a later merge publishes.
+  TESTED_SHA: ${{ inputs.sha || github.event.pull_request.head.sha }}
 
 jobs:
-  # A completed fast CI run supplies nightly readiness for this exact SHA.
-  # Never substitute the current main HEAD after workflow_run starts.
-  checks:
-    runs-on: ubuntu-latest
-    if: github.event.workflow_run.head_repository.full_name == github.repository
-    permissions:
-      contents: read
-      actions: read
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ env.TESTED_SHA }}
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          # No pnpm in this job — disable v5's auto package-manager cache,
-          # which would otherwise invoke pnpm for the detected lockfile.
-          package-manager-cache: false
-      - name: Verify nightly readiness
-        id: evidence
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
-        run: >-
-          node scripts/verify-release-evidence.ts verify --track nightly
-          --sha "$TESTED_SHA" --run-id "$SOURCE_RUN_ID"
-      - name: Require successful nightly gates
-        if: steps.evidence.outputs.channel != 'nightly'
-        run: exit 1
-
+  # Heavy lanes exist to qualify the bot-maintained release PR. On ordinary
+  # pull requests every job is skipped; under workflow_call the caller's
+  # event name is not pull_request, so the lanes run unconditionally.
   stable-checks:
     runs-on: ubuntu-latest
-    needs: checks
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.ref == 'release/lockstep' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !github.event.pull_request.draft)
     steps:
       - uses: actions/checkout@v6
         with:
@@ -69,12 +56,16 @@ jobs:
       - name: Verify complete packed app and library starter workflows
         run: pnpm check:consumer --no-build
 
-  # Device qualification runs after nightly readiness for this exact SHA.
-  # Each runs inside the per-target advisory lock so parallel worktree/device
-  # sessions on shared hosts serialize instead of fighting the same simulator.
+  # Device qualification runs inside the per-target advisory lock so parallel
+  # worktree/device sessions on shared hosts serialize instead of fighting
+  # the same simulator.
   native-ios:
     runs-on: macos-latest
-    needs: checks
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.ref == 'release/lockstep' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !github.event.pull_request.draft)
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -110,7 +101,11 @@ jobs:
   # bundle and drives `ns run` inside the per-target advisory lock.
   native-ios-tests:
     runs-on: macos-latest
-    needs: checks
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.ref == 'release/lockstep' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !github.event.pull_request.draft)
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -157,7 +152,11 @@ jobs:
 
   native-android:
     runs-on: ubuntu-latest
-    needs: checks
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.ref == 'release/lockstep' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !github.event.pull_request.draft)
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -199,10 +198,18 @@ jobs:
           # on hosted ubuntu runners. The gradle build itself is the gate.
           NS_SKIP_ENV_CHECK: 'true'
 
+  # Evidence records the tested sha and its tree: a merge commit has a new sha
+  # but an identical tree, so tree-keyed artifacts let a clean merge publish
+  # without re-running these lanes. Recorded on the pull request only —
+  # called runs qualify the release in place and record nothing.
   evidence:
     runs-on: ubuntu-latest
-    needs: [checks, stable-checks, native-ios, native-ios-tests, native-android]
-    if: always() && needs.checks.result == 'success'
+    needs: [stable-checks, native-ios, native-ios-tests, native-android]
+    if: >-
+      always() && github.event_name == 'pull_request' &&
+      github.event.pull_request.head.ref == 'release/lockstep' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !github.event.pull_request.draft
     steps:
       - uses: actions/checkout@v6
         with:
@@ -214,16 +221,18 @@ jobs:
           # which would otherwise invoke pnpm for the detected lockfile.
           package-manager-cache: false
       - name: Record stable qualification
+        id: evidence
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
-          NIGHTLY_RUN_ID: ${{ github.event.workflow_run.id }}
-        run: >-
-          node scripts/verify-release-evidence.ts record --track stable
-          --jobs "$JOB_RESULTS" --sha "$TESTED_SHA" --run-id "$GITHUB_RUN_ID"
-          --nightly-run-id "$NIGHTLY_RUN_ID"
+        run: |
+          tree="$(git rev-parse "$TESTED_SHA^{tree}")"
+          echo "tree=$tree" >> "$GITHUB_OUTPUT"
+          node scripts/verify-release-evidence.ts record --track stable \
+            --jobs "$JOB_RESULTS" --sha "$TESTED_SHA" --tree "$tree" \
+            --run-id "$GITHUB_RUN_ID"
       - uses: actions/upload-artifact@v6
         with:
-          name: ci-evidence-stable-${{ env.TESTED_SHA }}
+          name: ci-evidence-stable-${{ steps.evidence.outputs.tree }}
           path: .ci-evidence/ci-evidence.json
           if-no-files-found: error
           retention-days: 90

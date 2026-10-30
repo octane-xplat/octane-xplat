@@ -160,8 +160,12 @@ vendor exclusions.
 
 ## CI evidence and publishing
 
-Nightly readiness uses `CI`; stable qualification uses `Stable CI` for the same
-revision. The PR `checks` job does not install browser engines or run device
+A green `main` push records `ci` evidence, which gates the docs deploy, the
+tsrx-typegen release, and lockstep publication. Stable qualification runs on
+the bot-maintained `release/lockstep` pull request in `Stable CI`; its
+tree-keyed evidence lets a clean merge publish without rerunning the heavy
+lanes. Nightlies publish on a daily schedule when publishable files changed.
+The PR `checks` job does not install browser engines or run device
 emulation. Browser journeys run locally and are not implied by either release
 track. The PR-only recipe/link hygiene job is separate from release eligibility.
 The [release reference](../../../docs/releases.md) owns the current gate list,

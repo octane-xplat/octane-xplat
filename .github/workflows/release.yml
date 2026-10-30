@@ -4,22 +4,19 @@ on:
   workflow_run:
     workflows:
       - CI
-      - Stable CI
     types:
       - completed
     branches:
       - main
+  schedule:
+    - cron: '0 8 * * *'
   workflow_dispatch:
     inputs:
       track:
-        description: Release qualification to require
+        description: Release channel to attempt
         type: choice
         options: [stable, nightly]
         default: stable
-      version:
-        description: Lockstep version override, e.g. 0.7.0 (blank = Conventional Commit inference)
-        required: false
-        type: string
       typegen_version:
         description: tsrx-typegen version override (blank = Conventional Commit inference)
         required: false
@@ -28,32 +25,22 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  # Stable completion must not replace a newer pending nightly, and failed CI
-  # notifications must not displace any qualified publication.
-  group: >-
-    release-${{ github.event_name == 'workflow_run' &&
-      github.event.workflow_run.conclusion != 'success' && github.run_id ||
-      (github.event_name == 'workflow_run' &&
-        (github.event.workflow_run.name == 'CI' && 'nightly' || 'stable') ||
-        inputs.track || 'stable') }}
-  cancel-in-progress: false
-
 jobs:
-  # Fast CI completion publishes nightly; Stable CI completion publishes stable.
-  # Each event consumes its own evidence for the exact tested SHA. Publishing
-  # stays in this file so npm's trusted-publisher workflow binding stays valid.
+  # A completed main CI run supplies the channel: its evidence gates the docs
+  # deploy, the tsrx-typegen release, and lockstep publication. Lockstep
+  # releases arrive through the release pull request — its merge commit is
+  # "pending" until its tag exists — and publish once the same tree carried
+  # Stable CI evidence, or after this run qualifies it inline.
   gate:
     name: Resolve release channel
     runs-on: ubuntu-latest
-    # Cancelled CI runs are superseded pushes — skip them; the newer run
-    # produces its own release.
     if: >-
       (github.event_name == 'workflow_run' &&
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_branch == 'main' &&
         github.event.workflow_run.head_repository.full_name == github.repository) ||
       (github.event_name == 'workflow_dispatch' &&
+        inputs.track == 'stable' &&
         github.ref == 'refs/heads/main')
     permissions:
       contents: read
@@ -61,6 +48,10 @@ jobs:
     outputs:
       channel: ${{ steps.evidence.outputs.channel }}
       sha: ${{ steps.evidence.outputs.sha }}
+      lockstep_pending: ${{ steps.pending.outputs.pending }}
+      version: ${{ steps.pending.outputs.version }}
+      tag: ${{ steps.pending.outputs.tag }}
+      qualified: ${{ steps.qualification.outputs.channel == 'stable' }}
     # The revision CI actually tested — publish must consume evidence for
     # this sha and build the tested code, not whatever main has moved to.
     env:
@@ -69,335 +60,52 @@ jobs:
             github.event.workflow_run.head_sha ||
             github.sha }}
       CI_RUN_ID: ${{ github.event.workflow_run.id || '' }}
-      RELEASE_TRACK: >-
-        ${{ github.event_name == 'workflow_run' &&
-            (github.event.workflow_run.name == 'CI' && 'nightly' || 'stable') ||
-            inputs.track || 'stable' }}
     steps:
-      - name: Require nightly tag credential
-        if: env.RELEASE_TRACK == 'nightly'
-        env:
-          GH_TOKEN: ${{ secrets.NIGHTLY_RELEASE_TOKEN }}
-        run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::Set NIGHTLY_RELEASE_TOKEN with Contents: write and Workflows: write for this repository; see .agents/docs/releases.md."
-            exit 1
-          fi
-
       - name: Checkout the tested revision
         uses: actions/checkout@v6
         with:
           ref: ${{ env.TESTED_SHA }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          # No pnpm in this job — disable v5's auto package-manager cache,
+          # which would otherwise invoke pnpm for the detected lockfile.
+          package-manager-cache: false
 
       - name: Verify CI release evidence
         id: evidence
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [ "$RELEASE_TRACK" = stable ] && [ -n "$CI_RUN_ID" ]; then
-            # Stable CI records its triggering push SHA, which can differ from
-            # workflow_run's default-branch head_sha when main advances.
-            node scripts/verify-release-evidence.ts verify --track stable --run-id "$CI_RUN_ID"
-          else
-            node scripts/verify-release-evidence.ts verify --track "$RELEASE_TRACK" \
-              --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
-          fi
+        run: >-
+          node scripts/verify-release-evidence.ts verify --track ci
+          --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
 
-  # Lockstep release: every publishable package except tsrx-typegen ships at
-  # the same version. Runs after tsrx-typegen because both jobs commit and
-  # push to main — serializing avoids the non-fast-forward race.
-  packages:
-    name: Publish @octane-xplat/*
-    needs: [gate, tsrx-typegen]
-    runs-on: ubuntu-latest
-    # always() so a failed typegen run doesn't hold the lockstep release
-    # hostage. Stable jobs sync preceding release commits before editing the logs.
-    if: >-
-      always() &&
-      (needs.gate.outputs.channel == 'stable' ||
-        needs.gate.outputs.channel == 'nightly')
-    permissions:
-      contents: write
-      id-token: write
-    env:
-      TESTED_SHA: ${{ needs.gate.outputs.sha }}
-    steps:
-      - name: Checkout the tested revision
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ env.TESTED_SHA }}
-          fetch-depth: 0
-          submodules: true
+      - name: Check for a pending merged release
+        if: steps.evidence.outputs.channel == 'ci'
+        id: pending
+        run: node scripts/release-version.ts pending lockstep >> "$GITHUB_OUTPUT"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
-
-      - name: Sync preceding release commits
-        if: needs.gate.outputs.channel == 'stable'
-        run: |
-          set -euo pipefail
-          git fetch origin main
-          git merge-base --is-ancestor "$TESTED_SHA" origin/main
-          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
-          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
-            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
-            exit 1
-          fi
-          # Both streams prepend to the root logs. Start from the previous
-          # release commit so those insertions never need a content rebase.
-          git merge --ff-only origin/main
-
-      - name: Resolve release version
-        id: version
-        if: needs.gate.outputs.channel == 'stable'
-        env:
-          VERSION_OVERRIDE: ${{ github.event.inputs.version || '' }}
-        run: node scripts/release-version.ts lockstep >> "$GITHUB_OUTPUT"
-
-      # Check before any version bumps or publishes, reusing successful checks
-      # for up to 24 hours. npm still authorizes every actual publish.
-      # Runs for either channel — nightly publishes need the same guarantee.
-      - name: Restore trusted-publisher checks
-        id: trusted-publishers-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ runner.temp }}/trusted-publishers.json
-          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
-
-      - name: Verify npm trusted publishing
-        env:
-          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
-        run: node scripts/check-trusted-publishers.ts
-
-      - name: Save trusted-publisher checks
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ runner.temp }}/trusted-publishers.json
-          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Bump lockstep versions
-        if: steps.version.outputs.should_release == 'true'
-        run: node scripts/bump-versions.ts "${{ steps.version.outputs.version }}"
-
-      - name: Prepare release notes
-        if: steps.version.outputs.should_release == 'true'
-        run: node scripts/release-notes.ts prepare lockstep "${{ steps.version.outputs.version }}"
-
-      - name: Check versioned patch artifact
-        if: steps.version.outputs.should_release == 'true'
-        run: pnpm exec turbo run pack:check --filter=@octane-xplat/patches
-
-      - name: Commit and tag release
-        if: steps.version.outputs.should_release == 'true'
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- \
-            'packages/*/package.json' \
-            packages/create/compatibility.json \
-            packages/create/template/package.json \
-            packages/create/library-template/package.json \
-            packages/create/template/pnpm-workspace.yaml \
-            packages/create/library-template/pnpm-workspace.yaml \
-            CHANGELOG.md FIXLOG.md .changelog
-          git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"
-          # Refuse a concurrent main update; never rebase generated log edits.
-          git tag "${{ steps.version.outputs.tag }}"
-          git push origin HEAD:main
-          git push origin "${{ steps.version.outputs.tag }}"
-
-      # pnpm publish (not npm): publishConfig export remapping and workspace:*
-      # rewriting are pnpm behaviors. No NODE_AUTH_TOKEN/NPM_TOKEN is set —
-      # pnpm mints per-package tokens from the OIDC id token via npm's trusted
-      # publishing exchange and attaches provenance automatically.
-      - name: Publish to npm
-        if: steps.version.outputs.should_release == 'true'
-        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance
-
-      - name: Create GitHub Release
-        if: steps.version.outputs.should_release == 'true'
+      # A merged release tree that already passed Stable CI on the release PR
+      # publishes immediately; `channel=none` here is expected and queues the
+      # qualify job below instead of failing.
+      - name: Verify stable qualification for this tree
+        if: steps.pending.outputs.pending == 'true'
+        id: qualification
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
+        run: >-
+          node scripts/verify-release-evidence.ts verify --track stable
+          --tree "$(git rev-parse "$TESTED_SHA^{tree}")"
 
-      # Nightly channel: every checks-green revision publishes a prerelease,
-      # including fully-green pushes, so `@nightly` always tracks the newest
-      # CI-tested main. Nothing commits to main and the `latest` dist-tag is
-      # untouched. This job alone owns the moving `nightly` git tag and
-      # GitHub prerelease so parallel jobs can't race them.
-      - name: Resolve nightly version
-        id: nightly
-        if: needs.gate.outputs.channel == 'nightly'
-        # `g<sha>` keeps the prerelease identifier alphanumeric — a bare sha
-        # prefix can be all digits with a leading zero, which is invalid semver.
-        run: echo "version=0.0.0-nightly.g${TESTED_SHA:0:7}" >> "$GITHUB_OUTPUT"
-
-      - name: Bump lockstep versions (nightly)
-        if: needs.gate.outputs.channel == 'nightly'
-        run: node scripts/bump-versions.ts "${{ steps.nightly.outputs.version }}"
-
-      - name: Check nightly patch artifact
-        if: needs.gate.outputs.channel == 'nightly'
-        run: pnpm exec turbo run pack:check --filter=@octane-xplat/patches
-
-      - name: Publish nightly to npm
-        if: needs.gate.outputs.channel == 'nightly'
-        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance --tag nightly
-
-      - name: Move the nightly tag and prerelease
-        if: needs.gate.outputs.channel == 'nightly'
-        env:
-          GH_TOKEN: ${{ secrets.NIGHTLY_RELEASE_TOKEN }}
-        run: |
-          set -euo pipefail
-          git tag -f nightly "$TESTED_SHA"
-          # Bypass checkout's GITHUB_TOKEN header and credential helper for
-          # this push: tagging workflow changes requires Workflows: write.
-          git -c http.https://github.com/.extraheader= \
-            -c credential.helper= \
-            -c 'credential.helper=!gh auth git-credential' \
-            push --force origin refs/tags/nightly
-          gh release delete nightly --yes 2>/dev/null || true
-          gh release create nightly --title nightly --prerelease \
-            --notes "Nightly prerelease of ${TESTED_SHA} — install with \`pnpm add @octane-xplat/<pkg>@nightly\` (published as ${{ steps.nightly.outputs.version }})."
-
-  # tsrx-typegen ships on its own cadence — its commits never move the
-  # lockstep version, and its releases don't touch the other packages.
-  tsrx-typegen:
-    name: Publish tsrx-typegen
-    needs: gate
-    runs-on: ubuntu-latest
-    if: >-
-      needs.gate.outputs.channel == 'stable' ||
-      needs.gate.outputs.channel == 'nightly'
-    permissions:
-      contents: write
-      id-token: write
-    env:
-      TESTED_SHA: ${{ needs.gate.outputs.sha }}
-    steps:
-      - name: Checkout the tested revision
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ env.TESTED_SHA }}
-          fetch-depth: 0
-          submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
-
-      - name: Sync preceding release commits
-        if: needs.gate.outputs.channel == 'stable'
-        run: |
-          set -euo pipefail
-          git fetch origin main
-          git merge-base --is-ancestor "$TESTED_SHA" origin/main
-          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
-          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
-            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
-            exit 1
-          fi
-          # Both streams prepend to the root logs. Start from the previous
-          # release commit so those insertions never need a content rebase.
-          git merge --ff-only origin/main
-
-      - name: Resolve release version
-        id: version
-        if: needs.gate.outputs.channel == 'stable'
-        env:
-          VERSION_OVERRIDE: ${{ github.event.inputs.typegen_version || '' }}
-        run: node scripts/release-version.ts tsrx-typegen >> "$GITHUB_OUTPUT"
-
-      - name: Restore trusted-publisher checks
-        id: trusted-publishers-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ runner.temp }}/trusted-publishers.json
-          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
-
-      - name: Verify npm trusted publishing
-        env:
-          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
-        run: node scripts/check-trusted-publishers.ts tsrx-typegen
-
-      - name: Save trusted-publisher checks
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ runner.temp }}/trusted-publishers.json
-          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Bump version
-        if: steps.version.outputs.should_release == 'true'
-        # npm --workspace requires npm workspaces; this is a pnpm workspace, so
-        # run inside the package dir instead.
-        working-directory: packages/tsrx-typegen
-        run: npm pkg set version="${{ steps.version.outputs.version }}"
-
-      - name: Prepare release notes
-        if: steps.version.outputs.should_release == 'true'
-        run: node scripts/release-notes.ts prepare tsrx-typegen "${{ steps.version.outputs.version }}"
-
-      - name: Commit and tag release
-        if: steps.version.outputs.should_release == 'true'
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- packages/tsrx-typegen/package.json CHANGELOG.md FIXLOG.md .changelog
-          git commit -m "chore(release): tsrx-typegen ${{ steps.version.outputs.version }}"
-          # Refuse a concurrent main update; never rebase generated log edits.
-          git tag "${{ steps.version.outputs.tag }}"
-          git push origin HEAD:main
-          git push origin "${{ steps.version.outputs.tag }}"
-
-      - name: Publish to npm
-        if: steps.version.outputs.should_release == 'true'
-        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance
-
-      - name: Create GitHub Release
-        if: steps.version.outputs.should_release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
-
-      # Nightly channel — npm publish only; the packages job owns the moving
-      # `nightly` git tag and GitHub prerelease.
-      - name: Bump version (nightly)
-        if: needs.gate.outputs.channel == 'nightly'
-        working-directory: packages/tsrx-typegen
-        run: npm pkg set version="0.0.0-nightly.g${TESTED_SHA:0:7}"
-
-      - name: Publish nightly to npm
-        if: needs.gate.outputs.channel == 'nightly'
-        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance --tag nightly
-
-  # Docs deploy once per nightly-ready revision, independently of stable lanes.
+  # Docs deploy once per green main revision, independently of release lanes.
   docs:
     name: Deploy docs
     needs: gate
     runs-on: ubuntu-latest
-    if: needs.gate.outputs.channel == 'nightly'
+    if: needs.gate.outputs.channel == 'ci'
     permissions:
       contents: read
     steps:
@@ -429,3 +137,435 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  # tsrx-typegen ships on its own cadence — its commits never move the
+  # lockstep version, and its releases don't touch the other packages. It has
+  # no nightly channel; a green main run releases immediately when
+  # bump-eligible commits exist under packages/tsrx-typegen/**.
+  tsrx-typegen:
+    name: Publish tsrx-typegen
+    needs: gate
+    runs-on: ubuntu-latest
+    if: needs.gate.outputs.channel == 'ci'
+    concurrency:
+      group: release-tsrx-typegen
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TESTED_SHA: ${{ needs.gate.outputs.sha }}
+    steps:
+      - name: Require release credential
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Set RELEASE_TOKEN (fine-grained PAT: Contents, Pull requests, and Workflows read/write) for this repository; see .agents/docs/releases.md."
+            exit 1
+          fi
+
+      - name: Checkout the tested revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          fetch-depth: 0
+          submodules: true
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      # This job commits and pushes its release commit to main. An ordinary
+      # commit landing after the tested revision means a newer CI run owns
+      # the release — skip rather than fail or rebase generated log edits.
+      - name: Sync preceding release commits
+        id: sync
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git merge-base --is-ancestor "$TESTED_SHA" origin/main
+          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
+          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
+            echo "::notice::main advanced past tested revision $TESTED_SHA with non-release commits — a newer CI run will release tsrx-typegen; skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # The release stream prepends to the root logs. Start from the
+          # previous release commit so those insertions never need a rebase.
+          git merge --ff-only origin/main
+
+      - name: Resolve release version
+        id: version
+        if: steps.sync.outputs.skip != 'true'
+        env:
+          VERSION_OVERRIDE: ${{ inputs.typegen_version || '' }}
+        run: node scripts/release-version.ts tsrx-typegen >> "$GITHUB_OUTPUT"
+
+      # Check before any version bump or publish, reusing successful checks
+      # for up to 24 hours. npm still authorizes every actual publish.
+      - name: Restore trusted-publisher checks
+        id: trusted-publishers-cache
+        if: steps.sync.outputs.skip != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
+
+      - name: Verify npm trusted publishing
+        if: steps.sync.outputs.skip != 'true'
+        env:
+          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
+        run: node scripts/check-trusted-publishers.ts tsrx-typegen
+
+      - name: Save trusted-publisher checks
+        if: steps.sync.outputs.skip != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
+
+      - name: Install dependencies
+        if: steps.sync.outputs.skip != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump version
+        if: steps.version.outputs.should_release == 'true'
+        # npm --workspace requires npm workspaces; this is a pnpm workspace, so
+        # run inside the package dir instead.
+        working-directory: packages/tsrx-typegen
+        run: npm pkg set version="${{ steps.version.outputs.version }}"
+
+      - name: Prepare release notes
+        if: steps.version.outputs.should_release == 'true'
+        run: node scripts/release-notes.ts prepare tsrx-typegen "${{ steps.version.outputs.version }}"
+
+      # Checkout persists the RELEASE_TOKEN credential, so this push (which
+      # also triggers CI and release-pr on the new main commit) needs no
+      # credential override.
+      - name: Commit and tag release
+        if: steps.version.outputs.should_release == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- packages/tsrx-typegen/package.json CHANGELOG.md FIXLOG.md .changelog
+          git commit -m "chore(release): tsrx-typegen ${{ steps.version.outputs.version }}"
+          # Refuse a concurrent main update; never rebase generated log edits.
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin HEAD:main
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Publish to npm
+        if: steps.version.outputs.should_release == 'true'
+        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
+
+  # A merged release commit whose tree lacks Stable CI evidence qualifies
+  # inline: the same heavy lanes run through workflow_call on the merged sha.
+  qualify:
+    name: Qualify the merged tree
+    needs: gate
+    if: >-
+      needs.gate.outputs.channel == 'ci' &&
+      needs.gate.outputs.lockstep_pending == 'true' &&
+      needs.gate.outputs.qualified != 'true'
+    concurrency:
+      group: release-qualify-${{ needs.gate.outputs.tag }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    uses: ./.github/workflows/stable.yml
+    with:
+      sha: ${{ needs.gate.outputs.sha }}
+
+  # Lockstep release: every publishable package except tsrx-typegen ships at
+  # the same version. The release commit already bumped versions and consumed
+  # the changelog notes — this job tags the tested revision, publishes, and
+  # rebuilds the release PR for the next version. Nothing commits to main.
+  lockstep:
+    name: Publish @octane-xplat/*
+    needs: [gate, qualify]
+    runs-on: ubuntu-latest
+    if: >-
+      always() &&
+      needs.gate.outputs.channel == 'ci' &&
+      needs.gate.outputs.lockstep_pending == 'true' &&
+      (needs.gate.outputs.qualified == 'true' || needs.qualify.result == 'success')
+    concurrency:
+      group: release-lockstep
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      id-token: write
+      actions: write
+    env:
+      TESTED_SHA: ${{ needs.gate.outputs.sha }}
+      VERSION: ${{ needs.gate.outputs.version }}
+      TAG: ${{ needs.gate.outputs.tag }}
+    steps:
+      - name: Require release credential
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Set RELEASE_TOKEN (fine-grained PAT: Contents, Pull requests, and Workflows read/write) for this repository; see .agents/docs/releases.md."
+            exit 1
+          fi
+
+      - name: Checkout the tested revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          fetch-depth: 0
+          submodules: true
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      # Pending was checked before qualification ran; a parallel run may have
+      # tagged this release in the meantime.
+      - name: Confirm the release is unpublished
+        id: unpublished
+        run: |
+          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q .; then
+            echo "::notice::$TAG already exists on origin — another run published this release; skipping."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Check before publishing, reusing successful checks for up to 24 hours.
+      # npm still authorizes every actual publish.
+      - name: Restore trusted-publisher checks
+        id: trusted-publishers-cache
+        if: steps.unpublished.outputs.exists != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
+
+      - name: Verify npm trusted publishing
+        if: steps.unpublished.outputs.exists != 'true'
+        env:
+          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
+        run: node scripts/check-trusted-publishers.ts
+
+      - name: Save trusted-publisher checks
+        if: steps.unpublished.outputs.exists != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
+
+      - name: Setup pnpm
+        if: steps.unpublished.outputs.exists != 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        if: steps.unpublished.outputs.exists != 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        if: steps.unpublished.outputs.exists != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Check versioned patch artifact
+        if: steps.unpublished.outputs.exists != 'true'
+        run: pnpm exec turbo run pack:check --filter=@octane-xplat/patches
+
+      - name: Tag the release
+        if: steps.unpublished.outputs.exists != 'true'
+        run: |
+          git tag "$TAG" "$TESTED_SHA"
+          git push origin "$TAG"
+
+      # pnpm publish (not npm): publishConfig export remapping and workspace:*
+      # rewriting are pnpm behaviors. No NODE_AUTH_TOKEN/NPM_TOKEN is set —
+      # pnpm mints per-package tokens from the OIDC id token via npm's trusted
+      # publishing exchange and attaches provenance automatically.
+      - name: Publish to npm
+        if: steps.unpublished.outputs.exists != 'true'
+        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance
+
+      # The release commit consumed the pending notes into the root logs;
+      # extract rebuilds the same GitHub body from the recorded heading.
+      - name: Create GitHub Release
+        if: steps.unpublished.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/release-notes.ts extract lockstep "$VERSION" > .release-notes.md
+          gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
+
+      - name: Queue the next release PR
+        if: steps.unpublished.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run release-pr.yml --ref main
+
+  # The scheduled nightly resolves the newest green main CI revision, then
+  # decides whether publishable files changed since the published nightly.
+  nightly-gate:
+    name: Resolve nightly release
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'schedule' ||
+        (github.event_name == 'workflow_dispatch' && inputs.track == 'nightly')) &&
+      github.ref == 'refs/heads/main' &&
+      github.repository == 'octane-xplat/octane-xplat'
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      sha: ${{ steps.ci.outputs.sha }}
+      publish: ${{ steps.decision.outputs.publish }}
+      version: ${{ steps.decision.outputs.version }}
+    steps:
+      - name: Find the newest green main CI run
+        id: ci
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          runs="repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?branch=main&event=push&status=success&per_page=1"
+          id="$(gh api "$runs" --jq '.workflow_runs[0].id // empty')"
+          sha="$(gh api "$runs" --jq '.workflow_runs[0].head_sha // empty')"
+          if [ -z "$id" ] || [ -z "$sha" ]; then
+            echo "::error::no successful push CI run on main — cannot decide a nightly"
+            exit 1
+          fi
+          echo "newest green main CI run: $id at $sha"
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          # No pnpm in this job — disable v5's auto package-manager cache,
+          # which would otherwise invoke pnpm for the detected lockfile.
+          package-manager-cache: false
+
+      - name: Verify CI release evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          node scripts/verify-release-evidence.ts verify --track ci
+          --sha "${{ steps.ci.outputs.sha }}" --run-id "${{ steps.ci.outputs.id }}"
+
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Decide whether to publish a nightly
+        id: decision
+        run: |
+          set -o pipefail
+          node scripts/release-nightly.ts "${{ steps.ci.outputs.sha }}" | tee -a "$GITHUB_OUTPUT"
+
+  # Nightly channel: one prerelease per day when publishable files changed.
+  # Nothing commits to main and the `latest` dist-tag is untouched. This job
+  # alone owns the moving `nightly` git tag and GitHub prerelease.
+  nightly:
+    name: Publish nightly
+    needs: nightly-gate
+    runs-on: ubuntu-latest
+    if: needs.nightly-gate.outputs.publish == 'true'
+    concurrency:
+      group: release-nightly
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TESTED_SHA: ${{ needs.nightly-gate.outputs.sha }}
+      VERSION: ${{ needs.nightly-gate.outputs.version }}
+    steps:
+      - name: Require release credential
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Set RELEASE_TOKEN (fine-grained PAT: Contents, Pull requests, and Workflows read/write) for this repository; see .agents/docs/releases.md."
+            exit 1
+          fi
+
+      - name: Checkout the tested revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          fetch-depth: 0
+          submodules: true
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      # Check before any version bumps or publishes, reusing successful checks
+      # for up to 24 hours. npm still authorizes every actual publish.
+      - name: Restore trusted-publisher checks
+        id: trusted-publishers-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
+
+      - name: Verify npm trusted publishing
+        env:
+          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
+        run: node scripts/check-trusted-publishers.ts
+
+      - name: Save trusted-publisher checks
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # `g<sha>` keeps the prerelease identifier alphanumeric — a bare sha
+      # prefix can be all digits with a leading zero, which is invalid semver.
+      - name: Bump lockstep versions (nightly)
+        run: node scripts/bump-versions.ts "$VERSION"
+
+      - name: Check nightly patch artifact
+        run: pnpm exec turbo run pack:check --filter=@octane-xplat/patches
+
+      - name: Publish nightly to npm
+        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance --tag nightly
+
+      # Checkout persists the RELEASE_TOKEN credential — retagging a workflow
+      # change requires Workflows: write, which GITHUB_TOKEN cannot hold.
+      - name: Move the nightly tag and prerelease
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          set -euo pipefail
+          git tag -f nightly "$TESTED_SHA"
+          git push --force origin refs/tags/nightly
+          gh release delete nightly --yes 2>/dev/null || true
+          gh release create nightly --title nightly --prerelease \
+            --notes "Nightly prerelease of ${TESTED_SHA} — install with \`pnpm add @octane-xplat/<pkg>@nightly\` (published as $VERSION)."

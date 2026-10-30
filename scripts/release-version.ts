@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { resolve } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const RELEASES = {
@@ -120,23 +121,64 @@ export function resolveRelease(root: string, release: Release, override = '') {
 	return { shouldRelease: !git('tag', '--list', tag), version, tag }
 }
 
+// A merged release commit carries the next version in its manifests before
+// the tag exists; between merge and tag the release is pending publication.
+// The tag check asks origin first so a not-yet-fetched tag can't read as
+// pending, and falls back to fetched tags when no remote is reachable.
+export function pendingRelease(root: string, release: Release) {
+	const version =
+		release === 'lockstep'
+			? JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json'), 'utf8'))
+					.frameworkVersion
+			: JSON.parse(
+					readFileSync(join(root, `packages/${release}/package.json`), 'utf8'),
+				).version
+	const tag = `${RELEASES[release].prefix}${version}`
+	let tagged: boolean
+	try {
+		tagged =
+			execFileSync('git', ['ls-remote', '--tags', 'origin', `refs/tags/${tag}`], {
+				cwd: root,
+				encoding: 'utf8',
+				stdio: ['ignore', 'pipe', 'pipe'],
+			}).trim().length > 0
+	} catch {
+		tagged =
+			execFileSync('git', ['tag', '--list', tag], { cwd: root, encoding: 'utf8' }).trim()
+				.length > 0
+	}
+	return { pending: !tagged, version, tag }
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
 	try {
-		assert.equal(
-			process.argv.length,
-			3,
-			'usage: node scripts/release-version.ts <lockstep|tsrx-typegen>',
-		)
+		const [command, name] = process.argv.slice(2)
+		if (command === 'pending') {
+			assert.equal(
+				process.argv.length,
+				4,
+				'usage: node scripts/release-version.ts pending <lockstep|tsrx-typegen>',
+			)
 
-		const result = resolveRelease(
-			process.cwd(),
-			releaseName(process.argv[2]),
-			process.env.VERSION_OVERRIDE,
-		)
+			const result = pendingRelease(process.cwd(), releaseName(name))
+			console.log(`pending=${result.pending}\nversion=${result.version}\ntag=${result.tag}`)
+		} else {
+			assert.equal(
+				process.argv.length,
+				3,
+				'usage: node scripts/release-version.ts <lockstep|tsrx-typegen>',
+			)
 
-		console.log(`should_release=${result.shouldRelease}`)
-		if (result.version) {
-			console.log(`version=${result.version}\ntag=${result.tag}`)
+			const result = resolveRelease(
+				process.cwd(),
+				releaseName(command),
+				process.env.VERSION_OVERRIDE,
+			)
+
+			console.log(`should_release=${result.shouldRelease}`)
+			if (result.version) {
+				console.log(`version=${result.version}\ntag=${result.tag}`)
+			}
 		}
 	} catch (error) {
 		console.error(error.message)

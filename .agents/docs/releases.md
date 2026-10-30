@@ -3,33 +3,55 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
-Releases are automated through `.github/workflows/release.yml`. Nightly
-readiness and stable qualification complete independently:
+Releases are automated through `.github/workflows/release.yml`,
+`.github/workflows/release-pr.yml`, and `.github/workflows/stable.yml`:
 
-| Track   | Evidence workflow                                | Required coverage                                                                                                                                                                                                   | Result                                                                                                                |
-| ------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Nightly | `CI` (`ci.yml`), on PRs and `main` pushes        | Correctness lint, repository integrity, web/mobile types, unit/object-driver and tooling tests, web/package builds, packed exports, adapter types, and one isolated packed web starter                              | A successful `main` run publishes `0.0.0-nightly.g<sha>` under npm's `nightly` tag and updates the GitHub prerelease. |
-| Stable  | `Stable CI` (`stable.yml`), after `CI` on `main` | Verified nightly readiness for the same SHA, declared `test:packed` suites except Workshop's browser suite, the full app/library starter journey, iOS build/simulator smoke, iOS on-device tests, and Android build | A successful qualification permits a versioned release under npm's `latest` tag.                                      |
+| Track  | Evidence workflow                                                | Required coverage                                                                                                                                                                                            | Result                                                                                                                                       |
+| ------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| CI     | `CI` (`ci.yml`), on `main` pushes                                | Correctness lint, repository integrity, web/mobile types, unit/object-driver and tooling tests, web/package builds, packed exports, adapter types, and one isolated packed web starter                       | A successful `main` run gates the docs deploy, the tsrx-typegen release, and lockstep stable publication for that exact revision.            |
+| Stable | `Stable CI` (`stable.yml`), on the `release/lockstep` pull request | Declared `test:packed` suites except Workshop's browser suite, the full app/library starter journey, iOS build/simulator smoke, iOS on-device tests, and Android build                                          | Passing lanes record tree-keyed evidence that qualifies the release PR's exact tree for publication under npm's `latest` tag.                 |
+| Nightly | `release.yml`, daily schedule                                   | The newest successful `main` CI run, plus publishable changes (below) since the published nightly                                                                                                             | Publishes `0.0.0-nightly.g<sha7>` under npm's `nightly` tag and moves the `nightly` git tag and GitHub prerelease to the tested revision. |
 
-Nightly publishes without waiting for stable qualification. It does not commit
-to `main` or change `latest`. Stable completion does not republish nightly.
+The stable release flows through a bot-maintained pull request.
+`release-pr.yml` rebuilds the draft `release/lockstep` PR from `main` after
+every push: it resolves the next version, bumps package manifests, prepares
+the release notes, and force-pushes the branch. Marking the PR ready for
+review runs `Stable CI` on it; merging it lets `main` CI produce the release.
+If the merged commit's tree already carried Stable CI evidence, publishing
+starts immediately; otherwise `release.yml` runs the same lanes through
+`workflow_call` on the merged commit first. Between merge and tag the release
+is *pending* — `release-pr.yml` leaves the PR closed so it cannot re-preview
+a version that is already shipping.
+
+The nightly decision compares the newest green `main` CI revision with the
+published `@octane-xplat/ui` `nightly` dist-tag. It publishes only when no
+published nightly exists, the published commit is unknown, or
+`NIGHTLY_PATHS` — the lockstep publish paths plus `pnpm-workspace.yaml` and
+`pnpm-lock.yaml` — changed since the published commit. An unchanged tree
+publishes nothing. Nightlies do not commit to `main` or change `latest`, and
+`tsrx-typegen` has no nightly channel.
 Recipe structure and documentation links run in the PR-only `repo-hygiene`
 job; they do not determine release eligibility.
 
-Nightly GitHub tagging requires the `NIGHTLY_RELEASE_TOKEN` repository secret.
-Create a fine-grained personal access token limited to
-`octane-xplat/octane-xplat`, with **Contents: write** and **Workflows: write**,
-then store it using GitHub CLI's hidden prompt:
+Release Git operations and PR writes require the `RELEASE_TOKEN` repository
+secret. Create a fine-grained personal access token limited to
+`octane-xplat/octane-xplat`, with **Contents: read/write**, **Pull requests:
+read/write**, and **Workflows: read/write**, then store it using GitHub CLI's
+hidden prompt:
 
 ```sh
-gh secret set NIGHTLY_RELEASE_TOKEN --repo octane-xplat/octane-xplat
+gh secret set RELEASE_TOKEN --repo octane-xplat/octane-xplat
 ```
 
-The release gate checks that the secret is present before either nightly npm
-publisher runs. The token authenticates only the nightly tag/prerelease step;
-its Git push overrides checkout's persisted credential for that command. The
-default `GITHUB_TOKEN` cannot gain `workflows` permission through YAML, and
-GitHub can reject tagging a tested commit that changes workflow files. See
+Every job that uses the token checks that the secret is present first. The
+token maintains the release PR (push, create, edit — `GITHUB_TOKEN`-authored
+events would not trigger the `pull_request` workflows that qualify the
+branch), pushes the `vX.Y.Z` and moving `nightly` tags, updates the nightly
+prerelease, and pushes the tsrx-typegen release commit to `main` so CI and
+`release-pr.yml` run on it. Workflows persist it through checkout's `token:`
+input. The default `GITHUB_TOKEN` cannot gain `workflows` permission through
+YAML, and GitHub can reject tagging a tested commit that changes workflow
+files. See
 [GitHub's additional-permissions guidance](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token#granting-additional-permissions).
 This credential is separate from npm's OIDC trusted publishing below.
 
@@ -66,7 +88,7 @@ or the framework runtime tarballs covered by the full consumer gate.
 pnpm exec turbo run pack:check test:packed --filter=@octane-xplat/patches
 ```
 
-Checkout manifests retain the previous release number until the release workflow
+Checkout manifests retain the previous release number until the release PR
 aligns them. A dependency upgrade after a release can therefore require patches
 absent from that same numbered registry package. Compare the published creator's
 compatibility manifest and patch tarball with the checkout before diagnosing
@@ -75,20 +97,27 @@ matching framework/catalog/config-dependency pins, followed by a regenerated
 lockfile. Synchronizing local files does not update an existing registry version.
 
 The release gate verifies `ci-evidence-<track>-<sha>` against GitHub's workflow
-identity and latest job results. Stable evidence also records the originating
-nightly run ID: `workflow_run` itself can reference a newer default-branch
-commit, so the publisher uses the verified artifact SHA. A failed or missing
+identity and latest job results; stable evidence is keyed by tree instead
+(`ci-evidence-stable-<tree>`), recording both the tested sha and
+`git rev-parse <sha>^{tree}` so a merge commit with an identical tree reuses
+the pull request's qualification. Verifying `stable` by tree searches the
+release PR's completed runs; absent evidence resolves `channel=none` rather
+than failing, which queues the inline `qualify` job. A failed or missing
 required gate cannot promote to that track. Browser journeys remain local and
 are not implied by either release track.
 
 For stable releases, `scripts/release-version.ts` infers the next version from
 Conventional Commits. Separately, `scripts/release-notes.ts` assembles selected
-Markdown notes into the root `CHANGELOG.md` and `FIXLOG.md`. The workflow aligns
-package and starter versions, commits, tags `vX.Y.Z`, publishes, and creates the
-GitHub Release with both kinds of notes. Manual `workflow_dispatch` selects
-`track` (default `stable`) and
-accepts optional version overrides; it still requires evidence for the exact
-revision. Publishing stays in `release.yml` for the existing npm trust binding.
+Markdown notes into the root `CHANGELOG.md` and `FIXLOG.md`. `release-pr.yml`
+aligns package and starter versions and prepares the logs on the release
+branch; after the PR merges, `release.yml` tags `vX.Y.Z` on the tested
+revision, publishes, rebuilds the GitHub Release body from the recorded log
+headings (`release-notes.ts extract`), and queues the next release PR. Manual
+`workflow_dispatch` on `release.yml` selects `track` (default `stable`) and
+accepts an optional tsrx-typegen version override; it still requires evidence
+for the exact revision. The lockstep version override lives on
+`release-pr.yml`'s `version` dispatch input (`auto` returns to inference).
+Publishing stays in `release.yml` for the existing npm trust binding.
 
 Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
 have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a
@@ -170,12 +199,14 @@ surface with `pnpm check:consumer`. Do not hand-publish real releases or bump
 package versions: CI builds, aligns lockstep versions, and publishes them.
 
 `tsrx-typegen` releases on its own cadence with `tsrx-typegen-v*` tags. Only
-`packages/tsrx-typegen/**` commits move its version. Its new release notes use
-the same root logs, under headings labeled `tsrx-typegen` and its version.
-`packages/tsrx-typegen/CHANGELOG.md` preserves its earlier published history.
+`packages/tsrx-typegen/**` commits move its version. A green `main` CI run
+publishes it immediately — it has no release PR and no nightly channel. Its
+new release notes use the same root logs, under headings labeled
+`tsrx-typegen` and its version. `packages/tsrx-typegen/CHANGELOG.md`
+preserves its earlier published history.
 
-The docs site deploys to Cloudflare Pages on every checks-green `main` CI
-run (same workflow, `docs` job) — `llms.txt` regeneration is automatic.
+The docs site deploys to Cloudflare Pages on every green `main` CI run
+(`release.yml`'s `docs` job) — `llms.txt` regeneration is automatic.
 Manual pre-release task that remains: re-verify `docs/testing/known-limits.md`
 entries stamped older than the releasing version.
 
@@ -289,16 +320,18 @@ node scripts/release-notes.ts prepare lockstep 0.18.0
 ```
 
 This writes `.release-notes.md` for GitHub, updates the relevant root logs, and
-deletes only that stream's consumed files. These changes and version updates
-belong to one release commit. Do not run `prepare` during feature/fix work;
+deletes only that stream's consumed files. For the lockstep stream these
+edits happen on the release PR branch; for tsrx-typegen they happen in the
+release job's own commit. Do not run `prepare` during feature/fix work;
 use `preview`. Existing published history stays intact, including fixes in
 older combined changelogs. Nightlies neither consume files nor update the logs.
 
-The independent package releases first. Before editing the shared logs, each
-stable job fast-forwards over preceding release-bot commits only. An intervening
-ordinary commit or a later concurrent push stops the release; qualify the new
-revision rather than rebasing generated notes over untested code. A repeated
-version already recorded in a log is rejected before any file is consumed.
+The tsrx-typegen release commit pushes straight to `main` — it is the only
+release job that still commits there. Before editing the shared logs it
+fast-forwards over preceding release-bot commits only; an intervening
+ordinary commit skips the job instead of failing, because the newer CI run
+will release that revision instead. A repeated version already recorded in a
+log is rejected before any file is consumed.
 
 ## Version policy
 
@@ -320,7 +353,10 @@ The largest applicable bump wins. A stream with no previous version starts at
 `0.1.0` when an eligible commit exists. No eligible commits means no automatic
 versioned release. Editing a pending note alone does not trigger a release.
 Manual version overrides remain available, including prereleases; an existing
-tag is skipped. Nightly version names and qualification requirements are unchanged.
+tag is skipped. Set the lockstep override through `gh workflow run
+release-pr.yml -f version=<x.y.z>` (`-f version=auto` returns to inference);
+set the tsrx-typegen override through `release.yml`'s `typegen_version`
+dispatch input.
 
 Check version selection without publishing, and run the tooling regressions:
 

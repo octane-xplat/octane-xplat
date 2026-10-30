@@ -11,8 +11,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Nightly readiness: deterministic regressions, package integrity, and one
-  # isolated packed web starter. Exhaustive consumers and devices live in stable.yml.
+  # Release readiness: deterministic regressions, package integrity, and one
+  # isolated packed web starter. Exhaustive consumers and devices qualify
+  # stable on the release pull request in stable.yml.
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -113,8 +114,9 @@ jobs:
       - name: Check recipe structure and documentation links
         run: node scripts/check-recipes.ts
 
-  # Completing this workflow releases the nightly and starts stable qualification
-  # independently. Neither path waits for native jobs in this workflow.
+  # Completing this workflow records ci evidence: the release workflow gates
+  # the docs deploy, tsrx-typegen release, and lockstep stable publication on
+  # it. Nightlies publish from this evidence on the release schedule instead.
   evidence:
     runs-on: ubuntu-latest
     needs: checks
@@ -127,15 +129,15 @@ jobs:
           # No pnpm in this job — disable v5's auto package-manager cache,
           # which would otherwise invoke pnpm for the detected lockfile.
           package-manager-cache: false
-      - name: Record nightly evidence
+      - name: Record CI evidence
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
         run: >-
-          node scripts/verify-release-evidence.ts record --track nightly
+          node scripts/verify-release-evidence.ts record --track ci
           --jobs "$JOB_RESULTS" --sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID"
       - uses: actions/upload-artifact@v6
         with:
-          name: ci-evidence-nightly-${{ github.sha }}
+          name: ci-evidence-ci-${{ github.sha }}
           path: .ci-evidence/ci-evidence.json
           if-no-files-found: error
           retention-days: 90

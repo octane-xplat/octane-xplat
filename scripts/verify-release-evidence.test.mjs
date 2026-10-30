@@ -9,25 +9,27 @@ import { RELEASE_TRACKS, releaseChannel, verifyEvidence } from './release-channe
 
 const repository = 'octane-xplat/octane-xplat'
 const sha = 'a'.repeat(40)
+const tree = 'e'.repeat(40)
 
 function fixture(track = 'stable') {
 	const { workflow, event, jobs: required } = RELEASE_TRACKS[track]
 	const jobs = Object.fromEntries(required.map((job) => [job, 'success']))
-	const runId = track === 'nightly' ? 100 : 200
+	const runId = track === 'ci' ? 100 : 200
 	const evidence = {
 		track,
 		sha,
+		...(track === 'stable' ? { tree } : {}),
 		runId,
 		status: 'success',
 		required: [...required],
 		jobs,
-		...(track === 'stable' ? { nightlyRunId: 100 } : {}),
 	}
 	const run = {
 		id: runId,
-		// workflow_run may start after main has advanced past the tested push.
-		head_sha: track === 'stable' ? 'b'.repeat(40) : sha,
-		head_branch: 'main',
+		head_sha: sha,
+		// ci evidence comes from a main push; stable evidence from the
+		// bot-maintained release pull request.
+		head_branch: track === 'stable' ? 'release/lockstep' : 'main',
 		repository: { full_name: repository },
 		head_repository: { full_name: repository },
 		path: `.github/workflows/${workflow}`,
@@ -37,31 +39,28 @@ function fixture(track = 'stable') {
 	}
 	const context = {
 		sha,
+		tree,
 		runId,
 		track,
 		repository,
 		run,
 		jobs: required.map((name) => ({ name, conclusion: 'success' })),
 	}
-	if (track === 'stable') {
-		const source = fixture('nightly')
-		context.nightly = { run: source.context.run, jobs: source.context.jobs }
-	}
 	return { evidence, context }
 }
 
-test('nightly qualification does not depend on any stable job', () => {
+test('ci qualification does not depend on any stable job', () => {
 	const jobs = { checks: 'success' }
-	assert.equal(releaseChannel(jobs, 'nightly'), 'nightly')
-	for (const lane of RELEASE_TRACKS.stable.jobs.filter((job) => job !== 'checks')) {
+	assert.equal(releaseChannel(jobs, 'ci'), 'ci')
+	for (const lane of RELEASE_TRACKS.stable.jobs) {
 		for (const result of ['failure', 'cancelled', 'skipped', 'absent']) {
-			assert.equal(releaseChannel({ ...jobs, [lane]: result }, 'nightly'), 'nightly')
+			assert.equal(releaseChannel({ ...jobs, [lane]: result }, 'ci'), 'ci')
 		}
 	}
 })
 
 test('each track fails closed when any required gate does not pass', () => {
-	for (const track of ['nightly', 'stable']) {
+	for (const track of ['ci', 'stable']) {
 		const { evidence } = fixture(track)
 		assert.equal(releaseChannel(evidence.jobs, track), track)
 		for (const lane of RELEASE_TRACKS[track].jobs) {
@@ -74,14 +73,14 @@ test('each track fails closed when any required gate does not pass', () => {
 			}
 		}
 	}
-	assert.equal(releaseChannel(undefined, 'nightly'), 'none')
+	assert.equal(releaseChannel(undefined, 'ci'), 'none')
 	assert.throws(() => releaseChannel({}, 'unknown'), /unknown release track/)
 })
 
 test('recording evidence covers the complete job set for its track', () => {
 	const out = mkdtempSync(join(tmpdir(), 'release-evidence-test-'))
 	try {
-		for (const track of ['nightly', 'stable']) {
+		for (const track of ['ci', 'stable']) {
 			const { evidence } = fixture(track)
 			for (const result of ['absent', 'failure', 'skipped', 'success']) {
 				const needs = Object.fromEntries(
@@ -106,10 +105,10 @@ test('recording evidence covers the complete job set for its track', () => {
 						JSON.stringify(needs),
 						'--sha',
 						sha,
+						'--tree',
+						tree,
 						'--run-id',
 						'200',
-						'--nightly-run-id',
-						'100',
 						'--out',
 						out,
 					],
@@ -123,13 +122,36 @@ test('recording evidence covers the complete job set for its track', () => {
 				assert.equal(actual.jobs[lane], result)
 				assert.deepEqual(actual.required, RELEASE_TRACKS[track].jobs)
 				if (track === 'stable') {
-					assert.equal(actual.nightlyRunId, 100)
+					assert.equal(actual.tree, tree)
+				} else {
+					assert.equal(actual.tree, undefined)
 				}
 			}
 		}
 	} finally {
 		rmSync(out, { recursive: true, force: true })
 	}
+})
+
+test('recording stable evidence requires its tree', () => {
+	const run = spawnSync(
+		process.execPath,
+		[
+			'scripts/verify-release-evidence.ts',
+			'record',
+			'--track',
+			'stable',
+			'--jobs',
+			'{}',
+			'--sha',
+			sha,
+			'--run-id',
+			'200',
+		],
+		{ encoding: 'utf8' },
+	)
+	assert.notEqual(run.status, 0)
+	assert.match(run.stderr, /--tree required/)
 })
 
 test('release evidence rejects mismatched artifacts, workflows and live job results', () => {
@@ -238,39 +260,57 @@ test('release evidence rejects mismatched artifacts, workflows and live job resu
 		],
 	]
 	for (const [label, mutate] of cases) {
-		const value = fixture('nightly')
+		const value = fixture('ci')
 		mutate(value)
 		assert.throws(() => verifyEvidence(value.evidence, value.context), undefined, label)
 	}
 })
 
-test('stable qualification binds to its nightly push even when main has advanced', () => {
+test('stable evidence binds the release pull request, its tested sha, and its tree', () => {
 	const { evidence, context } = fixture()
-	assert.notEqual(context.run.head_sha, sha)
+	assert.equal(context.run.event, 'pull_request')
 	assert.equal(verifyEvidence(evidence, context), 'stable')
-	for (const mutate of [
-		(value) => {
-			delete value.evidence.nightlyRunId
-		},
-		(value) => {
-			value.context.nightly.run.id = 999
-		},
-		(value) => {
-			value.context.nightly.run.head_sha = 'wrong'
-		},
-		(value) => {
-			value.context.nightly.run.event = 'pull_request'
-		},
-		(value) => {
-			value.context.nightly.run.conclusion = 'cancelled'
-		},
-		(value) => {
-			value.context.nightly.jobs[0].conclusion = 'failure'
-		},
+	for (const [label, mutate] of [
+		[
+			'missing tree',
+			(value) => {
+				delete value.evidence.tree
+			},
+		],
+		[
+			'wrong tree',
+			(value) => {
+				value.evidence.tree = 'f'.repeat(40)
+			},
+		],
+		[
+			'mismatched requested tree',
+			(value) => {
+				value.context.tree = 'f'.repeat(40)
+			},
+		],
+		[
+			'tested revision',
+			(value) => {
+				value.context.run.head_sha = 'b'.repeat(40)
+			},
+		],
+		[
+			'main branch',
+			(value) => {
+				value.context.run.head_branch = 'main'
+			},
+		],
+		[
+			'push event',
+			(value) => {
+				value.context.run.event = 'push'
+			},
+		],
 	]) {
 		const value = fixture()
 		mutate(value)
-		assert.throws(() => verifyEvidence(value.evidence, value.context))
+		assert.throws(() => verifyEvidence(value.evidence, value.context), undefined, label)
 	}
 })
 
@@ -291,15 +331,12 @@ function withGithubFixture(callback) {
 		const base = `repos/${repository}/actions`
 		const responses = {
 			[`${base}/runs/200/artifacts?per_page=100`]: {
-				artifacts: [{ id: 1, name: `ci-evidence-stable-${sha}` }],
+				artifacts: [{ id: 1, name: `ci-evidence-stable-${tree}` }],
 			},
 			[`${base}/runs/200`]: context.run,
 			[`${base}/runs/200/jobs?filter=latest&per_page=100`]: { jobs: context.jobs },
-			[`${base}/runs/100`]: context.nightly.run,
-			[`${base}/runs/100/jobs?filter=latest&per_page=100`]: { jobs: context.nightly.jobs },
-			[`${base}/workflows/stable.yml/runs?status=completed&event=workflow_run&per_page=10`]: {
-				workflow_runs: [{ id: 200 }],
-			},
+			[`${base}/workflows/stable.yml/runs?event=pull_request&branch=release/lockstep&status=completed&per_page=20`]:
+				{ workflow_runs: [{ id: 200 }] },
 		}
 
 		const data = join(directory, 'responses.json')
@@ -348,37 +385,52 @@ else {
 				},
 			)
 
-		callback({ execute, output })
+		callback({ execute, output, responses, data })
 	} finally {
 		rmSync(directory, { recursive: true, force: true })
 	}
 }
 
-test('automatic stable verification publishes the artifact SHA, not the workflow default SHA', () => {
+test('stable verification resolves the artifact by tree and publishes the tested SHA', () => {
 	withGithubFixture(({ execute, output }) => {
-		const run = execute(['--run-id', '200'])
+		const run = execute(['--tree', tree])
 		assert.equal(run.status, 0, run.stderr)
 		assert.equal(readFileSync(output, 'utf8'), `channel=stable\nsha=${sha}\n`)
 	})
 })
 
-test('manual stable lookup uses the qualification workflow and ignores the release run ID', () => {
-	withGithubFixture(({ execute, output }) => {
-		const run = execute(['--sha', sha])
+test('stable verification reports none — not an error — when no run carried the tree', () => {
+	withGithubFixture(({ execute, output, responses, data }) => {
+		responses[
+			`repos/${repository}/actions/workflows/stable.yml/runs?event=pull_request&branch=release/lockstep&status=completed&per_page=20`
+		] = { workflow_runs: [] }
+		writeFileSync(data, JSON.stringify(responses))
+		const run = execute(['--tree', tree])
 		assert.equal(run.status, 0, run.stderr)
-		assert.match(readFileSync(output, 'utf8'), /channel=stable/)
+		assert.equal(readFileSync(output, 'utf8'), 'channel=none\nsha=\n')
 	})
 })
 
-test('workflow dependencies keep nightly independent and stable exhaustive', () => {
+test('stable verification still rejects forged evidence for the searched tree', () => {
+	withGithubFixture(({ execute, responses, data }) => {
+		const run = { ...responses[`repos/${repository}/actions/runs/200`], head_branch: 'main' }
+		responses[`repos/${repository}/actions/runs/200`] = run
+		writeFileSync(data, JSON.stringify(responses))
+		const rejected = execute(['--tree', tree])
+		assert.notEqual(rejected.status, 0)
+	})
+})
+
+test('workflow dependencies keep ci independent and stable bound to the release PR', () => {
 	const ci = parse(readFileSync('.github/workflows/ci.yml', 'utf8'))
 	const stable = parse(readFileSync('.github/workflows/stable.yml', 'utf8'))
 	const release = parse(readFileSync('.github/workflows/release.yml', 'utf8'))
 	const dependencies = (job) => [job.needs ?? []].flat()
-	assert.deepEqual(dependencies(ci.jobs.evidence), RELEASE_TRACKS.nightly.jobs)
+	assert.deepEqual(dependencies(ci.jobs.evidence), RELEASE_TRACKS.ci.jobs)
 	assert.deepEqual(dependencies(stable.jobs.evidence), RELEASE_TRACKS.stable.jobs)
-	assert.deepEqual(stable.on.workflow_run.workflows, [ci.name])
-	assert.deepEqual(release.on.workflow_run.workflows, [ci.name, stable.name])
+	assert.deepEqual(stable.on.pull_request.branches, ['main'])
+	assert.equal(stable.on.workflow_call.inputs.sha.required, true)
+	assert.deepEqual(release.on.workflow_run.workflows, [ci.name])
 	assert.equal(ci.jobs['repo-hygiene'].if, "github.event_name == 'pull_request'")
 	const commands = ci.jobs.checks.steps.map((step) => step.run ?? '')
 	const prepared = commands.indexOf('pnpm build:packages')
@@ -388,20 +440,21 @@ test('workflow dependencies keep nightly independent and stable exhaustive', () 
 		prepared >= 0 && checked > prepared && smoke > checked,
 		'quick packing must follow package preparation and integrity checks',
 	)
-	for (const id of ['stable-checks', 'native-ios', 'native-ios-tests', 'native-android']) {
-		assert.deepEqual(dependencies(stable.jobs[id]), ['checks'])
+	for (const id of RELEASE_TRACKS.stable.jobs) {
+		assert.ok(
+			stable.jobs[id].if.includes("github.event.pull_request.head.ref == 'release/lockstep'"),
+			`${id} must run only for the release pull request`,
+		)
 		const checkout = stable.jobs[id].steps.find((step) =>
 			step.uses?.startsWith('actions/checkout@'),
 		)
 
 		assert.equal(checkout.with.ref, '${{ env.TESTED_SHA }}')
 	}
-	for (const id of ['packages', 'tsrx-typegen']) {
-		const job = release.jobs[id]
-		assert.equal(job.env.TESTED_SHA, '${{ needs.gate.outputs.sha }}')
-		for (const step of job.steps.filter((step) => step.name?.toLowerCase().includes('nightly'))) {
-			assert.equal(step.if, "needs.gate.outputs.channel == 'nightly'", `${id}/${step.name}`)
-		}
-	}
-	assert.equal(release.jobs.docs.if, "needs.gate.outputs.channel == 'nightly'")
+	assert.equal(release.jobs.qualify.uses, './.github/workflows/stable.yml')
+	assert.equal(release.jobs.qualify.with.sha, '${{ needs.gate.outputs.sha }}')
+	assert.deepEqual(dependencies(release.jobs.lockstep), ['gate', 'qualify'])
+	assert.equal(release.jobs.docs.if, "needs.gate.outputs.channel == 'ci'")
+	assert.equal(release.jobs['tsrx-typegen'].if, "needs.gate.outputs.channel == 'ci'")
+	assert.equal(release.jobs.nightly.if, "needs.nightly-gate.outputs.publish == 'true'")
 })

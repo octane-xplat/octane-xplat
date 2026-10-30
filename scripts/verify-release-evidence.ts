@@ -3,24 +3,28 @@
 // Release-evidence gate. Two halves:
 //
 //   record  — records the jobs for one track and revision. Published as the
-//             workflow artifact `ci-evidence-<track>-<sha>`.
+//             workflow artifact `ci-evidence-<track>-<sha>` for the `ci`
+//             track and `ci-evidence-stable-<tree>` for `stable`.
 //
-//   verify  — runs in release.yml's `gate` job before anything publishes.
-//             Locates the completed CI run that tested the exact revision
-//             being released, downloads its evidence artifact, and resolves
-//             requested release track (see scripts/release-channel.mjs), or
-//             'none' when its required jobs did not pass. The
-//             channel is written to GITHUB_OUTPUT; the run only fails when
-//             the evidence itself is missing or mismatched. Publishing may
+//   verify  — runs in release.yml's `gate` and `nightly-gate` jobs before
+//             anything publishes. Locates the completed CI run that tested
+//             the exact revision (or, for stable, the exact tree) being
+//             released, downloads its evidence artifact, and resolves the
+//             requested release track (see scripts/release-channel.ts), or
+//             'none' when its required jobs did not pass. The channel is
+//             written to GITHUB_OUTPUT; the run only fails when the evidence
+//             itself is missing or mismatched — except stable verification,
+//             where absent evidence means "unqualified" and exits cleanly so
+//             the caller can run Stable CI inline instead. Publishing may
 //             never publish source from a different tested revision.
 //
 // Usage:
-//   node scripts/verify-release-evidence.mjs record --track nightly \
+//   node scripts/verify-release-evidence.ts record --track ci \
 //        --jobs '<json of needs context>' --sha <sha> --run-id <id> --out <dir>
-//   node scripts/verify-release-evidence.mjs verify --track stable --sha <sha> [--run-id <id>]
+//   Stable record also requires --tree <tree of sha>.
+//   node scripts/verify-release-evidence.ts verify --track ci --sha <sha> [--run-id <id>]
+//   node scripts/verify-release-evidence.ts verify --track stable --tree <tree>
 //        [--out <dir>]
-//   Stable record also requires --nightly-run-id <originating push run>.
-//   Automatic stable verify can use --run-id alone to resolve the artifact SHA.
 //
 // verify expects GH_TOKEN/GITHUB_TOKEN in env for `gh api` calls.
 import assert from 'node:assert/strict'
@@ -55,13 +59,13 @@ const outDir = value('out') ?? '.ci-evidence'
 const track = value('track') ?? 'stable'
 assert.ok(Object.hasOwn(RELEASE_TRACKS, track), `unknown release track: ${track}`)
 const required = RELEASE_TRACKS[track].jobs
-const nightlyRunId = value('nightly-run-id')
+const tree = value('tree')
 
 if (mode === 'record') {
 	assert.ok(sha, '--sha or GITHUB_SHA required')
 	assert.ok(runId, '--run-id or GITHUB_RUN_ID required')
 	if (track === 'stable') {
-		assert.ok(Number(nightlyRunId) > 0, '--nightly-run-id required for stable evidence')
+		assert.ok(tree, '--tree required for stable evidence')
 	}
 
 	const needs = JSON.parse(value('jobs') ?? '{}')
@@ -76,7 +80,7 @@ if (mode === 'record') {
 		JSON.stringify(
 			{
 				track,
-				...(track === 'stable' ? { nightlyRunId: Number(nightlyRunId) } : {}),
+				...(track === 'stable' ? { tree } : {}),
 				sha,
 				runId: Number(runId),
 				status,
@@ -95,19 +99,21 @@ if (mode === 'record') {
 }
 
 if (mode === 'verify') {
-	assert.ok(sha || (track === 'stable' && runId), '--sha or an explicit stable run ID required')
+	if (track === 'stable') {
+		assert.ok(tree, '--tree required for stable verification')
+	} else {
+		assert.ok(sha, '--sha required')
+	}
 	const repo = process.env.GITHUB_REPOSITORY
 	assert.ok(repo, 'GITHUB_REPOSITORY required')
 	const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
 
-	const artifactPrefix = `ci-evidence-${track}-`
+	const artifactName = `ci-evidence-${track}-${track === 'stable' ? tree : sha}`
 	const findArtifact = (id) => {
 		const { artifacts = [] } = JSON.parse(
 			gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100`),
 		)
-		const matches = artifacts.filter((artifact) =>
-			sha ? artifact.name === `${artifactPrefix}${sha}` : artifact.name.startsWith(artifactPrefix),
-		)
+		const matches = artifacts.filter((artifact) => artifact.name === artifactName)
 		assert.ok(matches.length <= 1, 'ambiguous release evidence artifacts')
 		return matches[0]
 	}
@@ -117,18 +123,19 @@ if (mode === 'verify') {
 	if (evidenceRunId) {
 		assert.ok(
 			artifact,
-			`CI run ${evidenceRunId} produced no ${artifactPrefix}${sha ?? '*'} artifact — ` +
+			`CI run ${evidenceRunId} produced no ${artifactName} artifact — ` +
 				'the tested revision carried no release evidence',
 		)
 	} else {
-		// Manual dispatch: use only this track's workflow, event and exact SHA.
+		// No explicit run: search only this track's workflow and event. Stable
+		// evidence lives on the release pull request's completed runs; a ci
+		// lookup filters to the exact tested SHA.
 		const { workflow, event } = RELEASE_TRACKS[track]
-		const shaFilter = track === 'nightly' ? `head_sha=${sha}&` : ''
-		const runs = JSON.parse(
-			gh(
-				`repos/${repo}/actions/workflows/${workflow}/runs?${shaFilter}status=completed&event=${event}&per_page=10`,
-			),
-		)
+		const query =
+			track === 'stable'
+				? `repos/${repo}/actions/workflows/${workflow}/runs?event=${event}&branch=release/lockstep&status=completed&per_page=20`
+				: `repos/${repo}/actions/workflows/${workflow}/runs?head_sha=${sha}&status=completed&event=${event}&per_page=10`
+		const runs = JSON.parse(gh(query))
 
 		for (const run of runs.workflow_runs ?? []) {
 			artifact = findArtifact(run.id)
@@ -138,11 +145,22 @@ if (mode === 'verify') {
 			}
 		}
 
-		assert.ok(
-			evidenceRunId,
-			`no completed CI run for ${sha} carried release evidence — ` +
-				'publish only revisions CI tested',
-		)
+		if (!evidenceRunId) {
+			if (track === 'stable') {
+				// Not yet qualified is a normal state, not an error — the caller
+				// decides whether to run Stable CI inline for this tree.
+				console.log(`no Stable CI run carried evidence for tree ${tree} — unqualified`)
+				if (process.env.GITHUB_OUTPUT) {
+					appendFileSync(process.env.GITHUB_OUTPUT, 'channel=none\nsha=\n')
+				}
+				process.exit(0)
+			}
+			assert.ok(
+				evidenceRunId,
+				`no completed CI run for ${sha} carried release evidence — ` +
+					'publish only revisions CI tested',
+			)
+		}
 	}
 
 	assert.ok(!artifact.expired, 'CI release evidence has expired')
@@ -167,26 +185,15 @@ if (mode === 'verify') {
 	assert.ok(evidenceFile, 'artifact did not contain ci-evidence.json')
 	const evidence = JSON.parse(readFileSync(join(tmp, evidenceFile), 'utf8'))
 	sha ??= evidence.sha
-	assert.equal(artifact.name, `${artifactPrefix}${sha}`, 'artifact name does not match release SHA')
-	let nightly
-	if (track === 'stable') {
-		assert.ok(Number(evidence.nightlyRunId) > 0, 'stable evidence has no nightly source run')
-		nightly = {
-			run: JSON.parse(gh(`repos/${repo}/actions/runs/${evidence.nightlyRunId}`)),
-			...JSON.parse(
-				gh(`repos/${repo}/actions/runs/${evidence.nightlyRunId}/jobs?filter=latest&per_page=100`),
-			),
-		}
-	}
 
 	const channel = verifyEvidence(evidence, {
 		sha,
+		tree,
 		runId: evidenceRunId,
 		track,
 		repository: repo,
 		run,
 		jobs,
-		nightly,
 	})
 
 	rmSync(tmp, { recursive: true, force: true })
@@ -206,5 +213,5 @@ if (mode === 'verify') {
 	process.exit(0)
 }
 
-console.error('usage: verify-release-evidence.mjs <record|verify> --track <nightly|stable> ...')
+console.error('usage: verify-release-evidence.ts <record|verify> --track <ci|stable> ...')
 process.exit(2)

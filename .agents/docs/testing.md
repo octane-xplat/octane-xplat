@@ -42,7 +42,8 @@ pnpm exec turbo run test --filter=@octane-xplat/ui
 Fast CI runs web builds, typechecks, unit tests, package integrity checks, and
 one packed web consumer smoke without launching desktop browsers. Stable CI
 adds the exhaustive non-browser packed consumers and full app/library starter
-journey. See [release gates](releases.md) for their evidence requirements.
+journey on the `release/lockstep` pull request. See [release gates](releases.md)
+for their evidence requirements.
 The longer Playwright coverage runs locally across
 Chromium, Firefox, and WebKit with:
 
@@ -160,7 +161,7 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   identity, resets only that identity on reuse, and verifies its process stops.
   This is a qualification command; configuration alone does not establish an
   Android pass. The mandatory all-package build/pack gates remain intact.
-- Stable CI: after nightly readiness passes on `main`, `native-ios-tests`
+- Stable CI: on the `release/lockstep` pull request, `native-ios-tests`
   (`stable.yml`, macos-latest) boots an iPhone sim and runs the apps/mobile
   suite inside `with-target-lock ios`. Stable evidence requires it; nightly
   publication does not wait for it.

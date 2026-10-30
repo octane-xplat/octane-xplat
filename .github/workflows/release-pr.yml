@@ -1,0 +1,156 @@
+name: Release PR
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Lockstep version override (blank = keep the PR's override, auto = infer, semver = set)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-pr
+  cancel-in-progress: true
+
+jobs:
+  # Maintains the draft `release/lockstep` pull request: rebuilt from main on
+  # every push, marked ready to run Stable CI, merged to release. RELEASE_TOKEN
+  # (a PAT) performs the push and PR writes — GITHUB_TOKEN-authored events
+  # would not trigger the pull_request workflows that qualify the branch.
+  maintain:
+    name: Maintain the lockstep release PR
+    runs-on: ubuntu-latest
+    if: github.repository == 'octane-xplat/octane-xplat'
+    steps:
+      - name: Require release credential
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Set RELEASE_TOKEN (fine-grained PAT: Contents, Pull requests, and Workflows read/write) for this repository; see .agents/docs/releases.md."
+            exit 1
+          fi
+
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # A merged release commit raises frameworkVersion before its tag exists;
+      # between merge and tag the release is pending and no PR is rebuilt —
+      # reopening would preview the version that is already shipping.
+      - name: Check for a pending merged release
+        id: pending
+        run: node scripts/release-version.ts pending lockstep >> "$GITHUB_OUTPUT"
+
+      - name: Stop while a release awaits publication
+        if: steps.pending.outputs.pending == 'true'
+        run: echo "::notice::${{ steps.pending.outputs.tag }} merged and awaiting publication — the release PR resumes once the tag lands."
+
+      - name: Find the open release PR
+        if: steps.pending.outputs.pending != 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          number="$(gh pr list --head release/lockstep --base main --state open --json number --jq '.[0].number // ""')"
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          if [ -n "$number" ]; then
+            gh pr view "$number" --json body --jq .body > "$RUNNER_TEMP/pr-body.md"
+          else
+            : > "$RUNNER_TEMP/pr-body.md"
+          fi
+
+      - name: Resolve version override
+        if: steps.pending.outputs.pending != 'true'
+        id: override
+        env:
+          INPUT_VERSION: ${{ inputs.version || '' }}
+        run: |
+          resolved="$(node scripts/release-pr.ts override "$INPUT_VERSION" < "$RUNNER_TEMP/pr-body.md")"
+          echo "value=$resolved" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve release version
+        if: steps.pending.outputs.pending != 'true'
+        id: version
+        env:
+          VERSION_OVERRIDE: ${{ steps.override.outputs.value }}
+        run: node scripts/release-version.ts lockstep >> "$GITHUB_OUTPUT"
+
+      - name: Close the release PR when nothing is releasable
+        if: >-
+          steps.pending.outputs.pending != 'true' &&
+          steps.version.outputs.should_release != 'true' &&
+          steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: >-
+          gh pr close "${{ steps.pr.outputs.number }}"
+          --comment "Nothing remains releasable for this version — the release PR reopens on the next qualifying change."
+          --delete-branch
+
+      - name: Delete a stale release branch
+        if: >-
+          steps.pending.outputs.pending != 'true' &&
+          steps.version.outputs.should_release != 'true' &&
+          steps.pr.outputs.number == ''
+        run: git push origin --delete release/lockstep 2>/dev/null || true
+
+      - name: Build the release branch
+        if: steps.version.outputs.should_release == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B release/lockstep
+          node scripts/bump-versions.ts "${{ steps.version.outputs.version }}"
+          node scripts/release-notes.ts prepare lockstep "${{ steps.version.outputs.version }}"
+          git add -A -- \
+            'packages/*/package.json' \
+            packages/create/compatibility.json \
+            packages/create/template/package.json \
+            packages/create/library-template/package.json \
+            packages/create/template/pnpm-workspace.yaml \
+            packages/create/library-template/pnpm-workspace.yaml \
+            CHANGELOG.md FIXLOG.md .changelog
+          git commit -m "chore(release): v${{ steps.version.outputs.version }}"
+          git push --force origin release/lockstep
+
+      - name: Create or update the release PR
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          set -euo pipefail
+          node scripts/release-pr.ts body \
+            "${{ steps.version.outputs.version }}" .release-notes.md \
+            "${{ steps.override.outputs.value }}" > "$RUNNER_TEMP/release-pr-body.md"
+          if [ -n "${{ steps.pr.outputs.number }}" ]; then
+            gh pr edit "${{ steps.pr.outputs.number }}" \
+              --title "chore(release): v${{ steps.version.outputs.version }}" \
+              --body-file "$RUNNER_TEMP/release-pr-body.md"
+          else
+            gh pr create --draft --base main --head release/lockstep \
+              --title "chore(release): v${{ steps.version.outputs.version }}" \
+              --body-file "$RUNNER_TEMP/release-pr-body.md"
+          fi

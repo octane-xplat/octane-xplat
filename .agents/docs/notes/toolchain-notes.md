@@ -679,20 +679,24 @@ simulator/device use across concurrent worktrees and sessions on a shared
 host. Android has no emulator runtime smoke yet.
 
 Each workflow's `evidence` job writes `ci-evidence.json` and uploads it as
-`ci-evidence-<track>-<sha>`. Required jobs live in
-`scripts/release-channel.ts`: nightly requires fast `checks`; stable requires
-verified nightly readiness, exhaustive packed consumers, and all native lanes.
-Stable evidence records the original nightly run ID as well as the tested SHA.
+`ci-evidence-ci-<sha>` for the `ci` track or `ci-evidence-stable-<tree>` for
+`stable`. Required jobs live in
+`scripts/release-channel.ts`: `ci` requires fast `checks`; `stable` requires
+the exhaustive packed consumers and all native lanes on the `release/lockstep`
+pull request. Stable evidence records the tested SHA and its tree so a merge
+commit with an identical tree reuses the PR's qualification.
 
-`release.yml` publishes nightly on fast CI completion and stable on successful
-qualification; neither event republishes the other track. Its gate verifies
-artifact identity, workflow provenance, and latest job results through GitHub.
-Downstream jobs use the verified `sha` and `channel` outputs rather than
-`workflow_run.head_sha`, which can refer to a newer default-branch commit.
+`release-pr.yml` rebuilds the draft release PR on every `main` push; merging
+it makes `release.yml` publish once `main` CI is green — immediately when the
+merged tree already carried stable evidence, otherwise after the inline
+`qualify` run of `stable.yml`. Nightlies publish on a daily schedule when
+`scripts/release-nightly.ts` finds publishable changes since the published
+dist-tag. The gate verifies artifact identity, workflow provenance, and
+latest job results through GitHub.
 See [release gates](../releases.md) for the coverage boundary and local commands.
-The stable tag push still aborts if
+The tsrx-typegen sync step skips when
 `TESTED_SHA..origin/main` contains any non-release-bot commit — a moved main
-ships nothing untested.
+ships nothing untested, and the newer CI run releases instead.
 `pnpm check:consumer` can run the same packed-consumer path locally before
 pushing.
 

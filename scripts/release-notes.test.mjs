@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { parse } from 'yaml'
-import { prepareNotes, readNotes, renderNotes } from './release-notes.ts'
+import { extractNotes, prepareNotes, readNotes, renderNotes } from './release-notes.ts'
 import { commitBump, releaseVersion, resolveRelease } from './release-version.ts'
 
 const workflow = parse(readFileSync('.github/workflows/release.yml', 'utf8'))
@@ -249,27 +249,34 @@ test('invalid fragments fail before logs change or any file is consumed', (t) =>
 	}
 })
 
-test('both workflows sync shared histories before edits and keep nightly non-consuming', () => {
-	assert.ok(workflow.jobs.packages.needs.includes('tsrx-typegen'))
-	for (const id of ['packages', 'tsrx-typegen']) {
-		const steps = workflow.jobs[id].steps
-		const sync = steps.findIndex((step) => step.name === 'Sync preceding release commits')
-		const version = steps.findIndex((step) => step.name === 'Resolve release version')
-		const notes = steps.findIndex((step) => step.name === 'Prepare release notes')
-		assert.ok(sync >= 0 && sync < version && version < notes)
-		assert.equal(steps[sync].if, "needs.gate.outputs.channel == 'stable'")
-		assert.equal(steps[version].if, "needs.gate.outputs.channel == 'stable'")
-		assert.equal(steps[notes].if, "steps.version.outputs.should_release == 'true'")
-		const commitStep = steps.find((step) => step.name === 'Commit and tag release')
-		assert.match(commitStep.run, /CHANGELOG\.md FIXLOG\.md \.changelog/)
-		assert.doesNotMatch(
-			steps.map((step) => step.run ?? step.uses ?? '').join('\n'),
-			/git-cliff|--rebase/,
-		)
-	}
+test('the tsrx-typegen job syncs shared histories before edits; lockstep only tags', () => {
+	const steps = workflow.jobs['tsrx-typegen'].steps
+	const sync = steps.findIndex((step) => step.name === 'Sync preceding release commits')
+	const version = steps.findIndex((step) => step.name === 'Resolve release version')
+	const notes = steps.findIndex((step) => step.name === 'Prepare release notes')
+	assert.ok(sync >= 0 && sync < version && version < notes)
+	assert.equal(steps[version].if, "steps.sync.outputs.skip != 'true'")
+	assert.equal(steps[notes].if, "steps.version.outputs.should_release == 'true'")
+	const commitStep = steps.find((step) => step.name === 'Commit and tag release')
+	assert.match(commitStep.run, /CHANGELOG\.md FIXLOG\.md \.changelog/)
+	assert.match(commitStep.run, /git push origin HEAD:main/)
+	assert.doesNotMatch(
+		steps.map((step) => step.run ?? step.uses ?? '').join('\n'),
+		/git-cliff|--rebase/,
+	)
+	// The lockstep release commit arrives through the release PR — the publish
+	// job tags the tested revision and never commits to main.
+	const lockstep = workflow.jobs.lockstep
+	assert.deepEqual([lockstep.needs ?? []].flat(), ['gate', 'qualify'])
+	assert.doesNotMatch(
+		lockstep.steps.map((step) => step.run ?? step.uses ?? '').join('\n'),
+		/git (commit|push origin HEAD)/,
+	)
+	const tagStep = lockstep.steps.find((step) => step.name === 'Tag the release')
+	assert.match(tagStep.run, /git push origin "\$TAG"/)
 })
 
-test('actual workflow sync preserves the first stream and rejects untested main changes', (t) => {
+test('actual workflow sync preserves the first stream and skips on untested main changes', (t) => {
 	const root = fixture(t)
 	const first = join(root, 'first')
 	const second = join(root, 'second')
@@ -293,17 +300,20 @@ test('actual workflow sync preserves the first stream and rejects untested main 
 	git(first, 'add', '-A')
 	git(first, '-c', `user.email=${bot}`, 'commit', '-qm', 'chore(release): tsrx-typegen 0.3.0')
 	git(first, 'push', '-q', 'origin', 'HEAD:main')
-	const sync = workflow.jobs.packages.steps.find(
+	const sync = workflow.jobs['tsrx-typegen'].steps.find(
 		(step) => step.name === 'Sync preceding release commits',
 	)
+	const output = join(root, 'github-output')
+	writeFileSync(output, '')
 	const runSync = () =>
 		spawnSync('bash', ['-c', sync.run], {
 			cwd: second,
-			env: { ...process.env, TESTED_SHA: tested },
+			env: { ...process.env, TESTED_SHA: tested, GITHUB_OUTPUT: output },
 			encoding: 'utf8',
 		})
 	const result = runSync()
 	assert.equal(result.status, 0, result.stderr)
+	assert.equal(readFileSync(output, 'utf8'), '')
 	prepareNotes(second, 'lockstep', '0.4.0')
 	for (const file of ['CHANGELOG.md', 'FIXLOG.md']) {
 		const history = readFileSync(join(second, file), 'utf8')
@@ -313,7 +323,41 @@ test('actual workflow sync preserves the first stream and rejects untested main 
 	assert.equal(readNotes(second).length, 0)
 	commit(first, 'fix: untested change')
 	git(first, 'push', '-q', 'origin', 'HEAD:main')
-	const rejected = runSync()
-	assert.notEqual(rejected.status, 0)
-	assert.match(rejected.stderr, /non-release commits/)
+	const skipped = runSync()
+	assert.equal(skipped.status, 0, skipped.stderr)
+	assert.match(skipped.stdout, /::notice::.*non-release commits/)
+	assert.match(readFileSync(output, 'utf8'), /skip=true/)
+})
+
+test('extract rebuilds the prepared GitHub notes from the committed logs', (t) => {
+	const root = fixture(t)
+	write(root, 'CHANGELOG.md', '# Changelog\n\n## [0.1.0] - 2026-01-01\n\nOriginal history.\n')
+	write(root, 'FIXLOG.md', '# Fixlog\n')
+	const fenced =
+		'Description.\n\n```md\n## A heading inside a fence\n\nText.\n```\n\nMore.'
+	write(root, '.changelog/fenced.md', note('lockstep', 'Fenced feature', fenced))
+	write(root, '.changelog/fixes/repair.md', note('lockstep', 'A repair'))
+	const prepared = prepareNotes(root, 'lockstep', '0.2.0', '2026-10-23')
+	assert.equal(extractNotes(root, 'lockstep', '0.2.0'), prepared.github)
+	assert.match(extractNotes(root, 'lockstep', '0.2.0'), /## A heading inside a fence/)
+	const cli = spawnSync(process.execPath, [notesScript, 'extract', 'lockstep', '0.2.0'], {
+		cwd: root,
+		encoding: 'utf8',
+	})
+	assert.equal(cli.status, 0, cli.stderr)
+	assert.equal(cli.stdout, prepared.github)
+})
+
+test('extract handles a fixes-only release and a missing heading', (t) => {
+	const root = fixture(t)
+	write(root, 'CHANGELOG.md', '# Changelog\n')
+	write(root, 'FIXLOG.md', '# Fixlog\n')
+	write(root, '.changelog/fixes/repair.md', note('lockstep', 'A repair'))
+	const prepared = prepareNotes(root, 'lockstep', '0.2.0', '2026-10-23')
+	assert.equal(prepared.github, '## Fixes\n\n### A repair\n\nA concise explanation.\n')
+	assert.equal(extractNotes(root, 'lockstep', '0.2.0'), prepared.github)
+	assert.equal(
+		extractNotes(root, 'lockstep', '9.9.9'),
+		'No user-facing release notes for this release.\n',
+	)
 })
