@@ -2,6 +2,7 @@
 import { useState } from 'octane'
 import { SegmentedControl, SegmentedControlItem, Text, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
+import { axAttr } from '../../scripts/probe/appkit-input'
 
 export default function SegmentedControlProbe() {
 	const [mode, setMode] = useState('inbox')
@@ -25,5 +26,5 @@ export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('segment-sent'))
 	await ctx.press('segment-sent')
 	await ctx.waitFor(() => String(ctx.find('segment-value')?.stringValue) === 'sent')
-	ctx.assert('radio accessibility role', String(ctx.find('segment-sent').accessibilityRole), 'AXRadioButton')
+	ctx.assert('radio accessibility role', String(axAttr(ctx.find('segment-sent'), 'accessibilityRole')), 'AXRadioButton')
 }

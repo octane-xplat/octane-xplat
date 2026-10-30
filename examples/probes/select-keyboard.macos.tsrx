@@ -2,6 +2,7 @@
 import { useState } from 'octane'
 import { MultiSelector, Selector, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
+import { axAttr } from '../../scripts/probe/appkit-input'
 
 const options = [
 	{ value: 'apple', label: 'Apple' },
@@ -24,7 +25,7 @@ export default function SelectKeyboardProbe() {
 // Direct trigger dispatch only. Physical keys, popup focus and VoiceOver need separate evidence.
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('select-keys'))
-	ctx.record('initial trigger value', String(ctx.find('select-keys').accessibilityValue))
+	ctx.record('initial trigger value', String(axAttr(ctx.find('select-keys'), 'accessibilityValue')))
 	await ctx.press('select-keys')
 	ctx.record('qualification', 'direct trigger dispatch; no OS key or focus assertion')
 }

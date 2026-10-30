@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import { Button, Field, Slider, Text, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
+import { axAttr } from '../../scripts/probe/appkit-input'
 
 export default function SliderProbe() {
 	const [range, setRange] = useState<number | [number, number]>([20, 80])
@@ -28,6 +29,6 @@ export default function SliderProbe() {
 // Initial metadata only; physical drags, keys, focus and VoiceOver need separate evidence.
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('prices-lower'))
-	ctx.assert('lower initial value', String(ctx.find('prices-lower').accessibilityValue), '20')
-	ctx.assert('upper initial value', String(ctx.find('prices-upper').accessibilityValue), '80')
+	ctx.assert('lower initial value', String(axAttr(ctx.find('prices-lower'), 'accessibilityValue')), '20')
+	ctx.assert('upper initial value', String(axAttr(ctx.find('prices-upper'), 'accessibilityValue')), '80')
 }

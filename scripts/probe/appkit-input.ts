@@ -114,6 +114,13 @@ export function focusedOwner(window) {
 	return responder
 }
 
+/** Read an AppKit accessibility attribute — bridged views expose these as
+ *  methods while stock controls expose them as properties. */
+export function axAttr(view: any, name: string) {
+	const value = view?.[name]
+	return typeof value === 'function' ? value.call(view) : value
+}
+
 /** True when the given view owns first responder, counting field editors. */
 export function hasFocus(view) {
 	const window = view?.window

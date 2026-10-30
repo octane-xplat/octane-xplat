@@ -2,6 +2,7 @@
 import { useRef, useState } from 'octane'
 import { Button, Switch, Text, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
+import { axAttr } from '../../scripts/probe/appkit-input'
 
 export default function SwitchProbe() {
 	const [compact, setCompact] = useState(false)
@@ -37,7 +38,7 @@ export default function SwitchProbe() {
 // Initial metadata and direct handler dispatch only, not OS input/focus or pixels.
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('alerts'))
-	ctx.assert('switch name', String(ctx.find('alerts').accessibilityLabel), 'Alerts')
+	ctx.assert('switch name', String(axAttr(ctx.find('alerts'), 'accessibilityLabel')), 'Alerts')
 	await ctx.press('switch-layout')
-	ctx.record('name after metadata update', String(ctx.find('alerts').accessibilityLabel))
+	ctx.record('name after metadata update', String(axAttr(ctx.find('alerts'), 'accessibilityLabel')))
 }
