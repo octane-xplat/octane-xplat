@@ -12,7 +12,7 @@ const source = readFileSync(
 		'const ImperativeSheetPanel = () => null',
 	)
 	.replace(
-		"import { appKitHost } from './host-bridge'",
+		"import { appKitHost } from '../../internal/platform/host-bridge'",
 		'const appKitHost = () => globalThis.__xplatAppKit',
 	)
 
