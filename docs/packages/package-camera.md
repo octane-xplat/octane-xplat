@@ -112,6 +112,27 @@ if (outcome.kind === 'clip') {
 }
 ```
 
+General configuration is idle-only. For automatic recording, choose the camera
+before arming capture; a rejected change leaves the current take running.
+See [camera selection](https://octane-xplat.goddardai.org/movie-capture#camera-selection-and-orientation)
+for control-state guidance.
+
+```ts
+await session.configure({ camera: 'front' }) // Before starting a take.
+```
+
+During a take, Web and Android can advertise live camera switching: audio
+continues while video holds its last frame, with the original take and output.
+iOS and the separate desktop adapters currently report it unavailable. See
+[live switching](https://octane-xplat.goddardai.org/movie-capture#switch-cameras-during-a-take)
+for state, failure handling and qualification limits.
+
+```ts
+if ((await session.capabilities()).cameraSwitchDuringRecording) {
+	await session.switchCamera('front') // During recording; no stop/restart.
+}
+```
+
 One preview and one recording per session; a second `startRecording` throws
 `CameraCaptureError` with `kind: 'busy'`. Check `session.capabilities()` for
 `supported`/`available` before presenting capture UI, and `session.snapshot()`

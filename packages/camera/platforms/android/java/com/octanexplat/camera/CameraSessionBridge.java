@@ -82,6 +82,12 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	private String cameraId = "";
 	private String facing;
 	private int rotation;
+	private Quality recordingQuality;
+	private boolean switching;
+	private boolean rollingBack;
+	private String switchPrevious;
+	private String switchError;
+	private Runnable switchTimeout;
 
 	public CameraSessionBridge(Context context, Listener listener) {
 		this.context = context.getApplicationContext();
@@ -95,8 +101,18 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	 *  not just that the preview view reports streaming — a stream-state
 	 *  event can lead the first measured frame, and a stale STREAMING
 	 *  replayed by LiveData on rebind can precede the new camera's open. */
-	private void updateReady() { ready(streaming && sourceFrameRate > 0); }
-	public boolean isReady() { return ready && sourceFrameRate > 0 && !detached && !released; }
+	private void updateReady() {
+		boolean value = streaming && sourceFrameRate > 0;
+		ready(value);
+		if (value && switching) {
+			boolean restored = rollingBack;
+			String failure = switchError;
+			clearSwitch();
+			try { emit(restored ? "switchFailed" : "switchFinished", restored ? failure : new JSONObject().put("id", cameraId).put("label", cameraId).put("facing", facing).toString()); }
+			catch (Exception cause) { emit("switchFailed", cause.toString()); }
+		}
+	}
+	public boolean isReady() { return ready && streaming && sourceFrameRate > 0 && !detached && !released; }
 	public long elapsedMs() { return elapsed; }
 	private void failure(String stage, String kind, String message) {
 		try { emit("failed", new JSONObject().put("stage", stage).put("kind", kind).put("message", message).toString()); }
@@ -106,7 +122,16 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	public void attach(CameraPreviewView view, String selected) {
 		if (host == view && !detached && preview != null && selection.equals(selected)) return;
 		if (recording != null || released) throw new IllegalStateException("Camera is finalizing or disposed");
-		unbind();
+		bindCamera(view, selected, false);
+	}
+	private void bindCamera(CameraPreviewView view, String selected, boolean preserveRecording) {
+		if (preserveRecording) {
+			if (camera != null) camera.getCameraInfo().getCameraState().removeObservers(this);
+			if (observedHost != null) { observedHost.getStreamState().removeObservers(this); observedHost = null; }
+			provider.unbind(preview, video);
+			streaming = false; ready(false);
+			if (!switching || recording == null || finalizing || released || detached || backgrounded) return;
+		} else unbind();
 		host = view;
 		detached = false;
 		selection = selected;
@@ -125,24 +150,30 @@ public final class CameraSessionBridge implements LifecycleOwner {
 				java.util.List<Quality> qualities = Recorder.getVideoCapabilities(info).getSupportedQualities(DynamicRange.SDR);
 				if (qualities.isEmpty()) throw new IllegalArgumentException("No SDR recording profile");
 				Quality quality = qualities.contains(Quality.HD) ? Quality.HD : qualities.get(0);
-				Recorder recorder = new Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build();
-				rotation = view.getDisplay() == null ? Surface.ROTATION_0 : view.getDisplay().getRotation();
-				video = new VideoCapture.Builder<>(recorder).setMirrorMode(MirrorMode.MIRROR_MODE_OFF).setTargetRotation(rotation).setTargetFrameRate(new android.util.Range<>(30, 30)).build();
+				if (!preserveRecording) {
+					recordingQuality = quality;
+					Recorder recorder = new Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build();
+					rotation = view.getDisplay() == null ? Surface.ROTATION_0 : view.getDisplay().getRotation();
+					video = new VideoCapture.Builder<>(recorder).setMirrorMode(MirrorMode.MIRROR_MODE_OFF).setTargetRotation(rotation).setTargetFrameRate(new android.util.Range<>(30, 30)).build();
+				}
 				Preview.Builder previewBuilder = new Preview.Builder().setTargetRotation(rotation);
 				sourceFrameRate = 0; lastFrameTime = 0;
 				new androidx.camera.camera2.interop.Camera2Interop.Extender<>(previewBuilder).setSessionCaptureCallback(new android.hardware.camera2.CameraCaptureSession.CaptureCallback() {
 					@Override public void onCaptureCompleted(android.hardware.camera2.CameraCaptureSession session, android.hardware.camera2.CaptureRequest request, android.hardware.camera2.TotalCaptureResult result) {
-						if (released || epoch != generation) return;
 						Long timestamp = result.get(android.hardware.camera2.CaptureResult.SENSOR_TIMESTAMP);
-						if (timestamp != null && timestamp > lastFrameTime) {
-							if (lastFrameTime > 0) {
-								boolean firstRate = sourceFrameRate == 0;
-								sourceFrameRate = 1_000_000_000.0 / (timestamp - lastFrameTime);
-								// Runs on the camera executor; readiness is emitted on main.
-								if (firstRate) handler.post(() -> updateReady());
+						// Retire callbacks on main alongside rebind/cancellation. An old
+						// camera-executor callback must not seed the new source's timing.
+						handler.post(() -> {
+							if (released || detached || epoch != generation) return;
+							if (timestamp != null && timestamp > lastFrameTime) {
+								if (lastFrameTime > 0) {
+									boolean firstRate = sourceFrameRate == 0;
+									sourceFrameRate = 1_000_000_000.0 / (timestamp - lastFrameTime);
+									if (firstRate) updateReady();
+								}
+								lastFrameTime = timestamp;
 							}
-							lastFrameTime = timestamp;
-						}
+						});
 					}
 				});
 				preview = previewBuilder.build();
@@ -151,16 +182,17 @@ public final class CameraSessionBridge implements LifecycleOwner {
 				camera.getCameraInfo().getCameraState().observe(this, state -> {
 					if (released || epoch != generation) return;
 					if (state.getError() != null) {
+						if (switching) { failSwitch("Camera reported an error during switching"); return; }
 						emit("availability", "false");
 						ready(false);
-						if (recording != null) { emit("interruption", "cameraInUse"); stop(); }
+						if (recording != null && !switching) { emit("interruption", "cameraInUse"); stop(); }
 					} else if (state.getType() == CameraState.Type.CLOSED) {
 						// Plain CLOSED is the camera's normal resting state —
 						// every bind starts here and it can be delivered late
 						// relative to stream state — so it must not flip
 						// availability while a live preview keeps streaming.
 						ready(false);
-						if (recording != null) { emit("interruption", "cameraInUse"); stop(); }
+						if (recording != null && !switching) { emit("interruption", "cameraInUse"); stop(); }
 					} else if (state.getType() == CameraState.Type.OPEN) {
 						// An open recovers availability without waiting for a
 						// stream-state cycle, which never re-fires while
@@ -179,8 +211,57 @@ public final class CameraSessionBridge implements LifecycleOwner {
 					if (streaming) { emit("availability", "true"); emit("recovered", "unknown"); }
 					updateReady();
 				});
-			} catch (Exception cause) { ready(false); emit("previewError", cause.toString()); unbind(); }
+			} catch (Exception cause) {
+				if (switching) failSwitch(cause.toString());
+				else { ready(false); emit("previewError", cause.toString()); unbind(); }
+			}
 		}, ContextCompat.getMainExecutor(context));
+	}
+	/** Rebind the existing recorder; never pause audio or create a second file. */
+	public void switchCamera(String selected) {
+		if (recording == null || !started || finalizing || switching || released || detached || backgrounded) throw new IllegalStateException("Camera cannot switch now");
+		try {
+			CameraSelector selector = selectCamera(selected);
+			CameraInfo info = provider.getAvailableCameraInfos().stream().filter(i -> !selector.filter(Collections.singletonList(i)).isEmpty()).findFirst().orElseThrow(() -> new IllegalArgumentException("Selected camera unavailable"));
+			if (!Recorder.getVideoCapabilities(info).getSupportedQualities(DynamicRange.SDR).contains(recordingQuality)) throw new IllegalArgumentException("Camera cannot retain this recording profile");
+		} catch (Exception cause) { emit("switchFailed", cause.toString()); return; }
+		if (!host.holdPreview()) { emit("switchFailed", "The last preview frame is unavailable"); return; }
+		switching = true; rollingBack = false; switchPrevious = selection;
+		armSwitchTimeout();
+		try { bindCamera(host, selected, true); } catch (Exception cause) { failSwitch(cause.toString()); }
+	}
+	private void armSwitchTimeout() {
+		if (switchTimeout != null) handler.removeCallbacks(switchTimeout);
+		switchTimeout = () -> { if (switching) failSwitch("Camera did not become ready before timeout"); };
+		handler.postDelayed(switchTimeout, 5000);
+	}
+	private void clearSwitch() {
+		if (host != null) host.releaseHeldPreview();
+		if (switchTimeout != null) handler.removeCallbacks(switchTimeout);
+		switchTimeout = null; switching = false; rollingBack = false;
+	}
+	private void failSwitch(String message) {
+		if (!switching) return;
+		if (rollingBack || host == null || released || detached || backgrounded) {
+			resumeAfterFinalization = host != null && !released && !detached && !backgrounded;
+			clearSwitch();
+			emit("switchFailed", message);
+			emit("finishing", "cameraUnavailable");
+			stop();
+			return;
+		}
+		rollingBack = true; switchError = message;
+		armSwitchTimeout();
+		try { bindCamera(host, switchPrevious, true); } catch (Exception cause) { failSwitch(cause.toString()); }
+	}
+	public void cancelCameraSwitch() {
+		if (!switching) return;
+		// Cancellation accompanies stop/lifecycle teardown. Restore the selected
+		// preview after finalization; never rebind underneath finalizing output.
+		selection = switchPrevious;
+		resumeAfterFinalization = host != null && !detached && !released && !backgrounded;
+		clearSwitch();
+		emit("switchFailed", "Camera switching was cancelled");
 	}
 	private CameraSelector selectCamera(String selected) throws androidx.camera.core.CameraInfoUnavailableException {
 		if (selected.startsWith("id:")) return new CameraSelector.Builder().addCameraFilter(infos -> {
@@ -204,6 +285,7 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	public void foreground() { backgrounded = false; emit("recovered", "background"); if (recording != null) { resumeAfterFinalization = true; } else if (host != null && !detached) { unbind(); attach(host, selection); } }
 	private void unbind() {
 		streaming = false;
+		sourceFrameRate = 0; lastFrameTime = 0; ready(false);
 		if (camera != null) camera.getCameraInfo().getCameraState().removeObservers(this);
 		if (observedHost != null) { observedHost.getStreamState().removeObservers(this); observedHost = null; }
 		if (provider != null) {
@@ -289,7 +371,7 @@ public final class CameraSessionBridge implements LifecycleOwner {
 			staging = new File(directory, UUID.randomUUID() + ".recording.mp4");
 			FileOutputOptions.Builder options = new FileOutputOptions.Builder(staging);
 			if (maximumDurationMs > 0) options.setDurationLimitMillis(maximumDurationMs);
-			PendingRecording pending = video.getOutput().prepareRecording(context, options.build());
+			PendingRecording pending = video.getOutput().prepareRecording(context, options.build()).asPersistentRecording();
 			if (audio) pending = pending.withAudioEnabled();
 			recording = pending.start(ContextCompat.getMainExecutor(context), event -> {
 				if (take != takeGeneration || recording == null) return;
@@ -313,6 +395,7 @@ public final class CameraSessionBridge implements LifecycleOwner {
 		}
 	}
 	public void stop() {
+		cancelCameraSwitch();
 		if (recording == null || watchdog != null || finalizing) return;
 		try { recording.stop(); } catch (Exception cause) { cleanup(); failure("capture", "captureFailed", cause.toString()); return; }
 		// A lost native terminal callback cannot leave completion dangling.
@@ -320,6 +403,7 @@ public final class CameraSessionBridge implements LifecycleOwner {
 		handler.postDelayed(watchdog, 30_000);
 	}
 	private void finish(VideoRecordEvent.Finalize event) {
+		cancelCameraSwitch();
 		if (recording == null || finalizing) return;
 		finalizing = true;
 		if (watchdog != null) handler.removeCallbacks(watchdog);
@@ -356,8 +440,10 @@ public final class CameraSessionBridge implements LifecycleOwner {
 			handler.post(() -> {
 				staging.delete(); staging = null; destination = null; ownsDestination = false; recording = null; finalizing = false;
 				if (detached || released || backgrounded) unbind();
-				emit("finished", result);
+				// Completion listeners can admit the next take synchronously.
+				// Retract readiness and restore the selected preview first.
 				resumePreviewIfNeeded();
+				emit("finished", result);
 			});
 		} catch (Exception cause) {
 			final boolean noMedia = staging == null || !staging.isFile() || staging.length() == 0 || !started;
@@ -366,8 +452,8 @@ public final class CameraSessionBridge implements LifecycleOwner {
 			handler.post(() -> {
 				cleanup();
 				if (detached || released || backgrounded) unbind();
-				failure(failedStage, kind, cause.toString());
 				resumePreviewIfNeeded();
+				failure(failedStage, kind, cause.toString());
 			});
 		}
 	}

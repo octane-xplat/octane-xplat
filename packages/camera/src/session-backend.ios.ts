@@ -798,6 +798,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				focusPointOfInterest: selected?.focusPointOfInterestSupported === true,
 				exposurePointOfInterest: selected?.exposurePointOfInterestSupported === true,
 				orientations: ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight'],
+				cameraSwitchDuringRecording: false,
 				durationLimit: 'native',
 				elapsedTime: 'nativeMedia',
 				output: {

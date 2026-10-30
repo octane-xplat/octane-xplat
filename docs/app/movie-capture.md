@@ -255,28 +255,105 @@ if (capabilities.output.destinationFileUrl) {
 }
 ```
 
-## Camera selection and orientation
+## Switch cameras during a take
 
-Camera selection is idle-only on every target. Changing cameras during a take
-is unsupported. A configuration rejected with `invalidState` leaves the take
-running; it does not request stop or create a new clip. Choose the camera before
-arming automatic recording. Keep a selection control disabled while record
-admission, recording, saving, or another selection is pending. The handler
-should also check the current session state and report configuration errors.
+On supported hosts, a live camera switch keeps the same take, microphone,
+elapsed-time clock, duration limit and completion promise. Recorded video holds
+its last frame during acquisition, then resumes from the new camera in one
+output file. Check the capability after preview activation; a usable camera
+pair and compatible recording profile are still required.
 
 ```ts
-// Continue with the session created above. Call before arming auto-record.
-async function chooseFrontCamera() {
-	if (session.snapshot().state !== 'idle') {
+// Continue with the session created above; call during recording.
+const capabilities = await session.capabilities()
+if (capabilities.cameraSwitchDuringRecording) {
+	await session.switchCamera('front')
+}
+```
+
+| Host                  | Live switching                                                                                                                                                                                                                                                                          |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web                   | Available when canvas recording and manual frame submission are supported. Preview and recording share the held video source. Chromium timing is qualified with generated video and a mock microphone; other browser engines, physical browser cameras, and timing under severe host load remain unqualified.           |
+| Android               | Uses one persistent CameraX recorder while rebinding video. Audio stays active; the preview retains its last frame until the new source is ready. Physical front/back recording and packet timing have been exercised; image orientation and mirroring have not been visually verified. |
+| iOS                   | Unavailable with the current movie-file recorder. Tracked in [#86](https://github.com/octane-xplat/octane-xplat/issues/86).                                                                                                                                                             |
+| macOS, Windows, Linux | Unavailable in their current native/host adapters. Web support does not imply support in a separate desktop camera adapter.                                                                                                                                                             |
+
+The session remains `recording` while `switchingCamera` is true. Disable repeated
+Flip presses during that interval and while saving, starting or finalizing.
+Keep Stop available. `activeCamera` describes the latest confirmed recording
+source; `attempt.configuration` remains the take's starting configuration.
+Subscribe to state changes so the controls update as the switch progresses.
+
+```ts
+const unsubscribe = session.subscribe((event) => {
+	if (event.type === 'stateChanged') {
+		console.log(event.snapshot.switchingCamera, event.snapshot.activeCamera)
+	}
+})
+// Call unsubscribe when this screen's subscription is no longer needed.
+```
+
+The output keeps its starting dimensions and rotation. Web crops replacement
+video around its center to fill those dimensions; Android keeps its recording
+profile. Front-camera preview may be mirrored; recorded video is unmirrored.
+Use the attempt's configuration to inspect the starting format.
+
+```ts
+console.log(session.snapshot().attempt?.configuration)
+```
+
+A switch resolves when the replacement camera is producing frames and is
+connected to the existing recording path. This confirms source readiness;
+it does not acknowledge that a particular frame has been encoded.
+It rejects overlapping requests with `busy`, calls outside recording with
+`invalidState`, and unavailable host support with `unsupportedConfiguration`.
+A failed acquisition attempts to restore the previous camera while keeping the
+take running. If recovery fails, the original completion delivers a usable
+partial clip when possible. Stop, interruption, disposal and duration limits
+cancel switching and retain their normal completion ownership.
+
+```ts
+import type { CameraSelection } from '@octane-xplat/camera'
+
+// Continue with session. Connect this function to your selection control.
+async function changeRecordingCamera(camera: CameraSelection) {
+	const state = session.snapshot()
+	if (state.state !== 'recording' || state.switchingCamera) {
 		return
 	}
 	try {
-		await session.configure({ camera: 'front' })
-		// Persist the choice only after configuration succeeds.
+		await session.switchCamera(camera)
+		// Persist the selection here, after success.
 	} catch (error) {
-		console.error('Could not select the front camera', error)
+		console.error('Could not switch cameras', error)
 	}
 }
+// Keep saving and playback on the original take.completion handler.
+```
+
+Browser device lists may omit front/back labels. Use a camera picker with
+capability-listed device IDs when direction is unknown; do not guess another
+camera from its label or array position. A facing request also rejects if the
+browser cannot select and confirm that direction; listed device IDs remain usable.
+
+```ts
+const devices = (await session.capabilities()).cameras
+// Call from the picker with the device the person selected:
+async function selectRecordingDevice(deviceId: string) {
+	await changeRecordingCamera({ deviceId })
+}
+console.log(devices)
+```
+
+## Camera selection and orientation
+
+Use `configure` only while idle, before arming automatic recording. It rejects
+changes during a take and leaves that take running. Use the dedicated live
+operation above when its capability is available.
+
+```ts
+// Continue with the session created above, before arming automatic recording.
+await session.configure({ camera: 'front' })
 ```
 
 Use capability-listed camera IDs when selecting a particular device. Browser

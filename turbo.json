@@ -8,6 +8,10 @@
 			"cache": false,
 			"passThroughEnv": ["XPLAT_DOCS_MODEL_CACHE"]
 		},
+		"@octane-xplat/camera#test:web": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		},
 		"//#check:native-readiness": {
 			"cache": false,
 			"passThroughEnv": [

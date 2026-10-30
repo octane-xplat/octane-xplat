@@ -65,6 +65,8 @@ class FakeBridge {
 	attachArgs: { host: unknown; selected: string }[] = []
 	start = vi.fn()
 	stop = vi.fn()
+	switchCamera = vi.fn()
+	cancelCameraSwitch = vi.fn()
 
 	constructor(_context: unknown, listener: FakeBridge['listener']) {
 		this.listener = listener
@@ -86,7 +88,10 @@ class FakeBridge {
 
 	capabilities() {
 		return JSON.stringify({
-			cameras: [{ id: '0', label: 'Back camera', facing: 'back' }],
+			cameras: [
+				{ id: '0', label: 'Back camera', facing: 'back' },
+				{ id: '1', label: 'Front camera', facing: 'front' },
+			],
 			profiles: [{ profile: 'standard', width: 1280, height: 720, frameRate: 30 }],
 		})
 	}
@@ -182,6 +187,71 @@ afterEach(() => {
 })
 
 describe('android adapter onReady admission', () => {
+	it('joins a native camera swap without admitting another take', async () => {
+		const { session, bridge, takes, detach } = await attachReadySession()
+		bridge.readyValue = true
+		bridge.emit('ready', 'true')
+		bridge.emit(
+			'started',
+			JSON.stringify({
+				cameraId: '0',
+				facing: 'back',
+				audio: false,
+				width: 1280,
+				height: 720,
+				frameRate: 30,
+				orientation: 'unspecified',
+				mimeType: 'video/mp4',
+				container: 'mp4',
+			}),
+		)
+		const flip = session.switchCamera('front')
+		await flush()
+		expect(bridge.switchCamera).toHaveBeenCalledWith('front')
+		bridge.emit('ready', 'true')
+		expect(takes).toHaveLength(1)
+		bridge.emit('switchFinished', JSON.stringify({ id: '1', label: 'Front', facing: 'front' }))
+		await flip
+		expect(session.snapshot().activeCamera?.facing).toBe('front')
+		expect(bridge.start).toHaveBeenCalledTimes(1)
+		expect(bridge.stop).not.toHaveBeenCalled()
+		settleTake(bridge, clip)
+		detach()
+		await session.dispose()
+	})
+
+	it('cancels a native swap on stop and ignores late native selection', async () => {
+		const { session, bridge, takes, detach } = await attachReadySession()
+		bridge.readyValue = true
+		bridge.emit('ready', 'true')
+		bridge.emit(
+			'started',
+			JSON.stringify({
+				cameraId: '0',
+				facing: 'back',
+				audio: false,
+				width: 1280,
+				height: 720,
+				frameRate: 30,
+				orientation: 'unspecified',
+				mimeType: 'video/mp4',
+				container: 'mp4',
+			}),
+		)
+		const flip = session.switchCamera('front')
+		const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+		await flush()
+		takes[0]!.stop()
+		await rejected
+		expect(bridge.cancelCameraSwitch).toHaveBeenCalledTimes(1)
+		bridge.emit('switchFinished', JSON.stringify({ id: '1', label: 'Front', facing: 'front' }))
+		await flush()
+		expect(session.snapshot().activeCamera?.facing).toBe('back')
+		settleTake(bridge, clip)
+		detach()
+		await session.dispose()
+	})
+
 	it('does not rebind the native source when auto-recording overtakes configure', async () => {
 		const { session, bridge, takes, events, detach } = await attachReadySession()
 		const configuring = session.configure({ audio: true })

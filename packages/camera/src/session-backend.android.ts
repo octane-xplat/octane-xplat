@@ -12,6 +12,7 @@ import type {
 	CameraPermissionKind,
 	CameraPermissionStatus,
 	CameraSessionConfig,
+	CameraDeviceInfo,
 	CaptureIssue,
 } from './types'
 
@@ -109,6 +110,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	let listener: BackendPreviewListener | undefined
 	let sink: BackendCaptureSink | undefined
 	let released = false
+	let cameraSwitch:
+		| { resolve: (camera: CameraDeviceInfo) => void; reject: (issue: Error) => void }
+		| undefined
 	const lease = {}
 	const selected = () =>
 		typeof currentConfig.camera === 'object'
@@ -141,7 +145,21 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			context(),
 			new Bridge.Listener({
 				event(type: string, payload: string) {
-					if (type === 'ready') {
+					if (type === 'switchFinished' || type === 'switchFailed') {
+						const pending = cameraSwitch
+						cameraSwitch = undefined
+						if (type === 'switchFinished') {
+							try {
+								pending?.resolve(JSON.parse(payload))
+							} catch (cause) {
+								pending?.reject(
+									error('captureFailed', 'switchCamera', 'Invalid native camera selection', cause),
+								)
+							}
+						} else {
+							pending?.reject(error('unavailable', 'switchCamera', payload))
+						}
+					} else if (type === 'ready') {
 						observer?.previewReady(payload === 'true')
 						if (payload === 'true') {
 							listener?.onReady?.()
@@ -242,6 +260,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				focusPointOfInterest: value.focusPointOfInterest === true,
 				exposurePointOfInterest: value.exposurePointOfInterest === true,
 				orientations: [],
+				cameraSwitchDuringRecording: typeof bridge?.switchCamera === 'function',
 				durationLimit: 'native',
 				elapsedTime: 'nativeMedia',
 				output: {
@@ -350,6 +369,37 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				bridge?.focusAtPoint?.(point.x, point.y)
 			} catch {
 				// A missed metering pass must not fault the session.
+			}
+		},
+		switchCamera: (camera) => {
+			if (!sink || cameraSwitch || typeof bridge?.switchCamera !== 'function') {
+				throw error('invalidState', 'switchCamera', 'The native recording cannot switch now')
+			}
+			let cancelled = false
+			const completion = new Promise<CameraDeviceInfo>((resolve, reject) => {
+				cameraSwitch = { resolve, reject }
+				try {
+					bridge.switchCamera(typeof camera === 'object' ? `id:${camera.deviceId}` : camera)
+				} catch (cause) {
+					cameraSwitch = undefined
+					reject(error('unavailable', 'switchCamera', 'CameraX could not change camera', cause))
+				}
+			}).then((selected) => {
+				if (cancelled) {
+					throw error('invalidState', 'switchCamera', 'Camera switching was cancelled')
+				}
+				currentConfig = { ...currentConfig, camera }
+				return selected
+			})
+			return {
+				completion,
+				cancel: () => {
+					cancelled = true
+					const pending = cameraSwitch
+					cameraSwitch = undefined
+					pending?.reject(error('invalidState', 'switchCamera', 'Camera switching was cancelled'))
+					bridge?.cancelCameraSwitch?.()
+				},
 			}
 		},
 		startCapture: (request, target) => {

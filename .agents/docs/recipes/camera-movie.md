@@ -28,9 +28,13 @@ its real-host qualification remains open alongside the desktop gaps below.
 - AC3: The reader can persist an output reference and reopen media after disposal and app restart or page reload, without treating a temporary URL as durable output.
 - AC4: The reader can discover actual profiles and output format, avoid unsupported orientation/destination requests, and understand duration-limit and retention precision on every target.
 
+- AC5: The reader can switch cameras during one take with continuous requested audio, held video, one completion and durable output; handle overlapping requests, stop during a switch and failed acquisition without silently dropping recorded content.
+
 ## Documentation
 
 - AC1: [Permission and preview setup](../../../docs/app/movie-capture.md#ask-for-access-from-a-button). Gap: The interactive Linux GTK prompt is unqualified under a compositor; Windows prompts await a real host.
 - AC2: [Recording and completion](../../../docs/app/movie-capture.md#record-then-wait-for-the-finished-movie). Gap: macOS capture, interruption, and lifecycle proof require a camera-equipped host; Windows runtime conformance awaits a real host; Linux is qualified on WebKitGTK mock devices — physical camera/audio hardware remains unproven.
 - AC3: [Reopening saved output](../../../docs/app/movie-capture.md#reopen-for-playback). Gap: Native player playback after restart and browser persistence approval require separate target qualification on every desktop; macOS and Windows reopen-after-restart proofs require hardware hosts.
-- AC4: [Camera selection and orientation](../../../docs/app/movie-capture.md#camera-selection-and-orientation), including the idle-only selection boundary for automatic recording. Gap: Same-take camera switching is unsupported; fixed Android/Web orientation, physical-device rotation, MP4-only browser hosts, macOS 13 orientation, Windows real-host capabilities, and physical Linux camera selection require separate target qualification.
+- AC4: [Camera selection and orientation](../../../docs/app/movie-capture.md#camera-selection-and-orientation), including the idle-only selection boundary for automatic recording. Gap: Fixed Android/Web orientation, physical-device rotation, MP4-only browser hosts, macOS 13 orientation, Windows real-host capabilities, and physical Linux camera selection require separate target qualification.
+
+- AC5: [Live switching](../../../docs/app/movie-capture.md#switch-cameras-during-a-take), [browser conformance](../../../packages/camera/tests/browser-switch.web.mjs), and [Android switching case](../../../packages/camera/tests/movie-switch.android.tsrx). Gap: iOS, macOS, Windows and Linux adapters do not implement same-take switching; iOS is tracked in [#86](https://github.com/octane-xplat/octane-xplat/issues/86). Physical browser camera input and visual orientation/mirroring remain unqualified.

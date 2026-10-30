@@ -28,6 +28,7 @@ export function createSessionBackend(_config: CameraSessionConfig): CameraSessio
 			focusPointOfInterest: false,
 			exposurePointOfInterest: false,
 			orientations: [],
+			cameraSwitchDuringRecording: false,
 			durationLimit: 'bestEffort',
 			elapsedTime: 'estimated',
 			output: {

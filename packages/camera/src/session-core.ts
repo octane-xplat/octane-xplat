@@ -1,6 +1,7 @@
 import { CameraCaptureError } from './types'
 import type {
 	CameraInterruptionReason,
+	CameraDeviceInfo,
 	CameraPermissionKind,
 	CameraPermissionStatus,
 	CameraPreviewPoint,
@@ -87,6 +88,9 @@ export interface CameraSessionBackend {
 	attachPreview(host: unknown, listener?: BackendPreviewListener): () => void
 	/** Replace configuration while idle; throws CameraCaptureError. */
 	configure?(config: CameraSessionConfig): void
+	/** Live camera-only swap. The adapter holds recorded video and keeps
+	 *  audio/output alive. Cancellation must retire late hardware callbacks. */
+	switchCamera?(camera: CameraSelection): BackendCameraSwitch
 	/** Meter one autofocus/auto-exposure pass at a normalized preview-space
 	 *  point — the tap-to-focus primitive. Absent means the adapter cannot
 	 *  meter at a point; the core turns it into a no-op. */
@@ -110,6 +114,11 @@ export interface CameraSessionBackend {
 	onPreviewDetached?(): void
 	/** Lifecycle observations the adapter emits at any time. */
 	setObserver(observer: BackendObserver | undefined): void
+}
+
+export interface BackendCameraSwitch {
+	completion: Promise<CameraDeviceInfo>
+	cancel(): void
 }
 
 export interface BackendObserver {
@@ -175,6 +184,8 @@ export class SharedCameraSession implements CameraSession {
 	private disposed = false
 	private lastCapabilities: CameraSessionCapabilities | undefined
 	private requestChains = new Map<CameraPermissionKind, Promise<CameraPermissionStatus>>()
+	private activeCamera: CameraDeviceInfo | undefined
+	private cameraSwitch: { cancelled: boolean; cancel?: () => void; abort: () => void } | undefined
 
 	private attempt:
 		| {
@@ -222,6 +233,9 @@ export class SharedCameraSession implements CameraSession {
 		const detach = this.backend.attachPreview(host, {
 			onReady: listener?.onReady
 				? () => {
+						if (this.state !== 'idle' || this.cameraSwitch) {
+							return
+						}
 						this.pendingOnReady = listener.onReady
 						this.flushPendingReady()
 					}
@@ -297,6 +311,8 @@ export class SharedCameraSession implements CameraSession {
 	snapshot(): CameraSessionSnapshot {
 		const attempt = this.attempt
 		return {
+			switchingCamera: this.cameraSwitch !== undefined,
+			activeCamera: this.activeCamera ? { ...this.activeCamera } : undefined,
 			state: this.state,
 			permission: { ...this.permission },
 			cameraAvailable: this.cameraAvailable,
@@ -382,12 +398,91 @@ export class SharedCameraSession implements CameraSession {
 	}
 
 	private assertConfigurable() {
+		if (this.cameraSwitch) {
+			throw issue('busy', 'configure', 'A camera switch is still settling')
+		}
 		if (this.disposed || this.disposeRequested) {
 			throw issue('invalidState', 'configure', 'CameraSession is disposed')
 		}
 
 		if (this.state !== 'idle') {
 			throw issue('invalidState', 'configure', `CameraSession cannot configure while ${this.state}`)
+		}
+	}
+
+	async switchCamera(camera: CameraSelection): Promise<void> {
+		const attempt = this.attempt
+		if (this.disposeRequested || this.disposed || this.state !== 'recording' || !attempt) {
+			throw issue('invalidState', 'switchCamera', 'Camera switching requires an active recording')
+		}
+
+		if (this.cameraSwitch) {
+			throw issue('busy', 'switchCamera', 'A camera switch is already pending')
+		}
+
+		const pending = {
+			cancelled: false,
+			cancel: undefined as (() => void) | undefined,
+			abort: () => {},
+		}
+		const aborted = new Promise<never>((_resolve, reject) => {
+			pending.abort = () => {
+				if (pending.cancelled) {
+					return
+				}
+				pending.cancelled = true
+				try {
+					pending.cancel?.()
+				} catch {
+					// Cancellation cannot prevent stop/finalization ownership.
+				}
+				reject(issue('invalidState', 'switchCamera', 'Camera switching was cancelled'))
+			}
+		})
+		this.cameraSwitch = pending
+		this.emit({ type: 'stateChanged', snapshot: this.snapshot() })
+		const check = () => {
+			if (pending.cancelled || this.attempt !== attempt || this.state !== 'recording') {
+				throw issue('invalidState', 'switchCamera', 'The recording is no longer active')
+			}
+		}
+		try {
+			await Promise.race([
+				(async () => {
+					const capabilities = await this.capabilities()
+					check()
+					if (!capabilities.cameraSwitchDuringRecording || !this.backend.switchCamera) {
+						throw issue(
+							'unsupportedConfiguration',
+							'switchCamera',
+							'Live camera switching is unavailable on this host',
+						)
+					}
+					this.validateCameraSelection(camera, capabilities, 'switchCamera')
+					if (
+						(typeof camera === 'object' && camera.deviceId === this.activeCamera?.id) ||
+						(camera !== 'default' && camera === this.activeCamera?.facing)
+					) {
+						return
+					}
+
+					const operation = this.backend.switchCamera(camera)
+					pending.cancel = () => operation.cancel()
+					if (pending.cancelled) {
+						operation.cancel()
+					}
+					const selected = await operation.completion
+					check()
+					this.config = { ...this.config, camera }
+					this.activeCamera = selected
+				})(),
+				aborted,
+			])
+		} finally {
+			if (this.cameraSwitch === pending) {
+				this.cameraSwitch = undefined
+				this.emit({ type: 'stateChanged', snapshot: this.snapshot() })
+			}
 		}
 	}
 
@@ -407,22 +502,23 @@ export class SharedCameraSession implements CameraSession {
 	private validateCameraSelection(
 		camera: CameraSelection | undefined,
 		capabilities: CameraSessionCapabilities,
+		operation = 'configure',
 	) {
 		if (camera && typeof camera === 'object' && 'deviceId' in camera) {
 			const known = capabilities.cameras.some((entry) => entry.id === camera.deviceId)
 			if (!known) {
 				throw issue(
 					'unsupportedConfiguration',
-					'configure',
+					operation,
 					`Camera device '${camera.deviceId}' is not available`,
 				)
 			}
 		} else if (camera === 'front' || camera === 'back') {
 			const known = capabilities.cameras.some((entry) => entry.facing === camera)
-			if (!known && capabilities.cameras.length > 0) {
+			if (!known && capabilities.cameras.some((entry) => entry.facing !== undefined)) {
 				throw issue(
 					'unsupportedConfiguration',
-					'configure',
+					operation,
 					`No ${camera}-facing camera is available`,
 				)
 			}
@@ -430,6 +526,7 @@ export class SharedCameraSession implements CameraSession {
 	}
 
 	private requestStop(cause: MovieEndReason) {
+		this.cameraSwitch?.abort()
 		const attempt = this.attempt
 		if (!attempt || attempt.state === 'finalizing' || attempt.state === 'settled') {
 			return
@@ -496,7 +593,7 @@ export class SharedCameraSession implements CameraSession {
 			)
 		}
 
-		if (this.state !== 'idle' || this.attempt) {
+		if (this.state !== 'idle' || this.attempt || this.cameraSwitch) {
 			throw issue('busy', operation, `CameraSession is ${this.state}`)
 		}
 
@@ -593,6 +690,13 @@ export class SharedCameraSession implements CameraSession {
 				}
 
 				current.configuration = configuration
+				this.activeCamera = {
+					id: configuration.cameraId,
+					label:
+						this.lastCapabilities?.cameras.find((camera) => camera.id === configuration.cameraId)
+							?.label ?? configuration.cameraId,
+					facing: configuration.facing,
+				}
 				current.startedAt = Date.now()
 				if (current.state === 'starting') {
 					current.state = 'recording'
@@ -630,6 +734,7 @@ export class SharedCameraSession implements CameraSession {
 					return
 				}
 
+				this.cameraSwitch?.abort()
 				current.cause ??= reason
 				current.state = 'finalizing'
 				this.setState('finalizing')
@@ -639,6 +744,7 @@ export class SharedCameraSession implements CameraSession {
 				if (!current || current.id !== id || current.state === 'settled') {
 					return
 				}
+				this.cameraSwitch?.abort()
 
 				if (current.limitTimer) {
 					clearTimeout(current.limitTimer)

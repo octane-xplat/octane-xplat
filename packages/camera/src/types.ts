@@ -163,6 +163,10 @@ export interface CameraSessionCapabilities {
 	profiles: CameraProfileCapability[]
 	/** The session can add an audio track when permission allows. */
 	audio: boolean
+	/** Live `switchCamera` preserves the take, continuous requested audio,
+	 *  held video during acquisition, and one output file. False means
+	 *  camera selection is available only through idle `configure`. */
+	cameraSwitchDuringRecording: boolean
 	/** `focusAtPoint` can move autofocus metering on the active camera —
 	 *  false on fixed-focus devices (common for front cameras) and on
 	 *  platforms without point-of-interest metering. */
@@ -218,6 +222,11 @@ export interface EffectiveCaptureConfig {
 
 /** Observable session state. */
 export interface CameraSessionSnapshot {
+	/** A live switch is pending. Recorder state remains `recording`. */
+	switchingCamera: boolean
+	/** Latest camera confirmed by a started take or successful live switch.
+	 *  The attempt configuration remains the immutable starting config. */
+	activeCamera?: CameraDeviceInfo
 	/** Current lifecycle state. */
 	state: CameraRecorderState
 	/** Non-prompting last-known authorization, refreshed by `permissions()`
@@ -416,9 +425,24 @@ export interface CameraSession {
 	/** Replaces configuration while idle. Validates against current
 	 *  capabilities and rejects with `invalidState` during an attempt,
 	 *  including one admitted while capability discovery was pending.
-	 *  Camera changes during recording are unsupported; rejection leaves
-	 *  the take running and does not request stop. */
+	 *  Live camera changes use `switchCamera` when advertised; rejection
+	 *  leaves the take running and does not request stop. */
 	configure(config: Partial<CameraSessionConfig>): Promise<void>
+	/** Change only the camera during `recording`. Audio and elapsed time
+	 *  continue while video holds its last frame. Resolves when the replacement
+	 *  camera is producing frames on the existing recording path; this is source
+	 *  readiness, not an encoded-frame acknowledgement. Completion still belongs
+	 *  to the original take. Rejects `busy` for overlapping switches,
+	 *  `invalidState` outside recording, and `unsupportedConfiguration`
+	 *  when the host cannot preserve this contract. Use idle `configure`
+	 *  before starting a take. Cancellation never restarts recording.
+	 *  @example
+	 *  import type { CameraSession } from '@octane-xplat/camera'
+	 *  async function faceFront(session: CameraSession): Promise<void> {
+	 *    await session.switchCamera('front')
+	 *  }
+	 */
+	switchCamera(camera: CameraSelection): Promise<void>
 	/** Admits one capture attempt. Throws `CameraCaptureError` before
 	 *  admission for invalid arguments, busy, invalid state, or
 	 *  unavailable camera — no attempt is created. */

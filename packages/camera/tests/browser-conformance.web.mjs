@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { liveSwitchConformance } from './browser-switch.web.mjs'
 
 const requireWeb = createRequire(new URL('../../../apps/web/package.json', import.meta.url))
 const { chromium } = requireWeb('playwright')
@@ -8,7 +9,7 @@ const { createServer } = await import(requireWeb.resolve('vite'))
 const root = fileURLToPath(new URL('..', import.meta.url))
 const server = await createServer({
 	root,
-	configFile: `${root}/vite.config.ts`,
+	configFile: false,
 	server: { host: '127.0.0.1', port: 0 },
 })
 
@@ -275,6 +276,7 @@ try {
 	console.log(
 		'camera web conformance: real Chromium MediaRecorder/WebM VP8+Opus, silent/audio, repeated and early stop, limit overshoot, hidden-page notification, quota failure, retention rejection, disposal, IndexedDB reopening after reload passed; persistent grant and visibility are injected seams',
 	)
+	await liveSwitchConformance(page)
 } finally {
 	await browser.close()
 	await server.close()

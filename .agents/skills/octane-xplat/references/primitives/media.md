@@ -22,18 +22,22 @@ export function Person() {
 
 ## Camera selection and recording
 
-Keep camera selection idle-only, including for apps that auto-record from
-preview readiness. Do not remove the recording guard, replace the preview
-session or stop/restart the take to imitate a live flip. No current adapter
-exports same-take switching. Await configuration before arming recording and
-persist selection only after success. See the [consumer guide](../../../../../docs/app/movie-capture.md#camera-selection-and-orientation)
-and [recorder investigation](../../../../docs/camera-recording-switch.md)
-when assessing a live-switch implementation.
+Use idle `configure` before arming automatic recording. During a take, use
+`switchCamera` only when `cameraSwitchDuringRecording` is advertised. Web uses
+a stable canvas video track; Android retains one persistent recorder. iOS and
+the separate desktop adapters currently report false. Keep one session/take and
+one completion handler; never imitate a flip by stopping/restarting capture.
+Use `switchingCamera` for overlapping-control suppression while Stop stays
+available. See the [consumer guide](../../../../../docs/app/movie-capture.md#switch-cameras-during-a-take)
+and [recorder constraints](../../../../docs/camera-recording-switch.md).
 
 ```ts
-import { createCameraSession } from '@octane-xplat/camera'
-const session = createCameraSession({ camera: 'back' })
-await session.configure({ camera: 'front' }) // Before enabling auto-record.
+import type { CameraSession } from '@octane-xplat/camera'
+async function faceFront(session: CameraSession): Promise<void> {
+	if ((await session.capabilities()).cameraSwitchDuringRecording) {
+		await session.switchCamera('front') // Requires recording state.
+	}
+}
 ```
 
 ## Native macOS images
