@@ -67,7 +67,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 	// NativeScript peers must stay out of the web type graph.
 	const dependencies =
 		target === 'macos'
-			? ['octane', '@octanejs/vite-plugin', '@octane-xplat/camera']
+			? ['octane', '@octanejs/vite-plugin', '@octane-xplat/camera', '@octane-xplat/jsx']
 			: peers === 'required'
 				? ['octane']
 				: [
@@ -562,7 +562,7 @@ if (import.meta.env.DEV) {
 
 	assert.ok(keyboardGuide, 'keyboard inset guide exists')
 	const keyboardExamples = [...keyboardGuide.matchAll(/```tsx\n([\s\S]*?)```/g)]
-	assert.equal(keyboardExamples.length, 3, 'all keyboard inset examples are checked')
+	assert.equal(keyboardExamples.length, 7, 'all keyboard inset examples are checked')
 	const exampleFiles = keyboardExamples.map((match, index) => {
 		const name = `keyboard-example-${index}.tsx`
 		writeFileSync(join(consumerRoot, name), match[1])
@@ -633,7 +633,7 @@ if (import.meta.env.DEV) {
 						target === 'native'
 							? '@nativescript-community/octane'
 							: target === 'macos'
-								? '@octane-xplat/macos-renderer'
+								? '@octane-xplat/jsx'
 								: 'octane',
 					moduleSuffixes: suffixes,
 					customConditions: [target],
