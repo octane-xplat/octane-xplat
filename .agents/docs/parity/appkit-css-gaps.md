@@ -55,24 +55,38 @@ now paint on AppKit through a `bgHost` CALayer at view.layer sublayer 0
   semantics, pattern composite orientation for flipped views, scale,
   sublayer-vs-subview ordering).
 
+### Non-solid outlines (`c2269ee35` + `66df2276f` test) — source + unit evidence
+
+`outline`/`outline-*` keeps the solid CALayer fast path; dashed/dotted stroke
+the centered rounded path via CAShapeLayer (`borderStrokeCGPath` on the
+expanded box, radii = scaled + offset + width); double/groove/ridge/inset/
+outset paint per-side shaded bands (`borderBands`/`borderBandPoints`) on the
+expanded box under an outer rounded mask. `none`/`hidden` clear; `auto` maps
+to solid; unknown styles warn once and paint solid. Resize repaints through
+the existing frame observer. Runtime qualification pending (band geometry at
+nonzero offsets, rounded outline corners).
+
+### Full box-shadow (`b1661b376`) — source + unit evidence
+
+`parseBoxShadow` already parsed lists; the painter now uses all entries.
+- Outset: sibling `node.outsetShadowHosts` CALayers inserted below view.layer
+  (`insertSublayerBelow`; superview forced `wantsLayer` when needed) so
+  masksToBounds/per-corner masks stay on. `outsetShadowOnSelf` gates the old
+  no-clip behavior to the no-superview/superlayer fallback only.
+- Inset: `node.insetShadowHost` container sublayer between bgHost and
+  borderLayer; per-shadow CAShapeLayer "wall" = even-odd path (huge rect minus
+  hole = box inset by spread, radii - spread) carrying its own
+  shadowColor/Offset/Radius, `masksToBounds` clips to the interior — real
+  blur. Positive spread paints the solid inner ring (hard core) correctly.
+- First-CSS-on-top ordering: outset hosts below view.layer in order; inset
+  children zPosition descending.
+- Tests: `test/box-shadow.test.ts` (4 cases, all pass; avoids the cross-realm
+  deepStrictEqual trap). Runtime qualification pending (does an empty sibling
+  layer's shadowPath render? wall/hole semantics on real CA).
+
 ## Next (demand order)
 
-1. Non-solid outlines: rewrite `syncOutline` — dashed/dotted via CAShapeLayer
-   stroke of `borderStrokeCGPath` on the expanded box (W=w+2*(offset+width),
-   radii=scaled+offset+width); double/groove/ridge/inset/outset via per-side
-   `borderBandPoints`/`borderBands` trapezoids on that box + host mask =
-   roundedBox(outer radii). Solid/auto keeps the CALayer.border fast path.
-2. Full box-shadow: `parseBoxShadow` already parses lists. Plan: outset
-   shadows become sibling `node.outsetShadowHosts` CALayers inserted below
-   `view.layer` in `view.layer.superlayer` (force `superview.wantsLayer=true`
-   when needed) so masksToBounds corner clipping can coexist (drop the
-   `outsetShadow` clip-disable once siblings work; keep it only as
-   no-superlayer fallback). Inset shadows: `node.insetShadowHost` container
-   sublayer above bgHost/below border, mask = inner rounded box (padding
-   box), per-shadow CAShapeLayer with even-odd ring (huge outer rect +
-   inner hole inset by spread) + own shadowColor/Offset/Radius/Opacity —
-   real inset blur.
-3. Per-window @media: keep `setStyleEnvironment` but make injected fn read a
+1. Per-window @media: keep `setStyleEnvironment` but make injected fn read a
    module-level `activeMediaNode` set inside `restyleNode` around
    `computeCascade` (covers attachKeyframes too). `envForNode` walks to the
    root: portalroot → `root.view.window`; else `container.hostView.window`;
@@ -80,10 +94,18 @@ now paint on AppKit through a `bgHost` CALayer at view.layer sublayer 0
    Add css-engine export `stylesheetMediaQueries(): string[]` (GTK-safe,
    additive). Renderer tracks `container.mediaEnvs: Map<NSWindow, env>`;
    resize → per-window diff via evalMediaQuery on each gated query, restyle
-   only containers whose results moved (first-seen window: seed, no restyle
-   — nodes were styled with that env at mount). Replace `refreshMediaQueries`
-   usage on macOS; GTK keeps it. Rewrite the resize-observer test in
-   css-machinery.test.ts (it mocks refreshMediaQueries).
+   only containers whose results moved (first-seen window: seed + restyle if
+   any media rules exist — can't diff). Replace `refreshMediaQueries` usage
+   on macOS; GTK keeps it. Rewrite the resize-observer test in
+   css-machinery.test.ts (it mocks refreshMediaQueries at line ~496).
+   Relevant code: setStyleEnvironment ~10971, onHostWindowResize ~10995,
+   installResizeObserver ~11009, restyleAllContainers ~10953, restyleNode
+   ~3672 (inside the css-machinery slice — env helpers belong inside it too:
+   `// ---- CSS cascade` at ~3561 to `function syncNativeColors` ~3993).
+   RootContainer at ~300 needs `mediaEnvs` field; container literal ~11146.
+   css-engine stylesheets.ts: mediaResults map ~29, refreshMediaQueries
+   ~271-312 (pattern for enumerating queries: r.mediaQueryString on
+   selectors + keyframes).
 4. Audit remaining style/layout props vs the shared normalization contract
    (React.CSSProperties vocabulary on web, NS props on mobile, GTK CSS_PROPS)
    — file precise gaps here.
