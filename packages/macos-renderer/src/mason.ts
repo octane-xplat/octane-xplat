@@ -352,12 +352,29 @@ function styleDict(node: NodeLike): Record<string, any> {
 	return out
 }
 
+const appliedMasonStyles = new WeakMap<object, string>()
+
+// Nested native layout passes revisit the same subtree. Avoid reapplying an
+// unchanged style across the native bridge. Track root sizing through this
+// same path so a later ancestor pass restores authored dimensions.
+function applyMasonStyle(node: NodeLike, dict: Record<string, any>) {
+	const key = JSON.stringify(dict)
+	if (appliedMasonStyles.get(node) === key) {
+		return
+	}
+
+	appliedMasonStyles.delete(node)
+	invoke('style', [node.masonNode, dict])
+	appliedMasonStyles.set(node, key)
+}
+
 function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
 	if (!masonHost()) {
 		return null
 	}
 
 	if (!node.masonNode) {
+		appliedMasonStyles.delete(node)
 		// Leaf nodes get a live measure callback — the shim retains the AppKit
 		// view and reads intrinsic/fitting size on every engine pass.
 		node.masonNode = MASON_CONTAINERS.has(node.type)
@@ -396,7 +413,7 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
 			'className=' + node.props?.className,
 		)
 	}
-	invoke('style', [node.masonNode, dict])
+	applyMasonStyle(node, dict)
 	return node.masonNode
 }
 
@@ -554,7 +571,7 @@ export function layoutMasonChildren(
 		delete dict.maxHeight
 		delete dict.minWidth
 		delete dict.maxWidth
-		invoke('style', [root, dict])
+		applyMasonStyle(parent, dict)
 		// Free the scroll axis — -2 is mason's max-content sentinel; the
 		// pinned axis stays at the clip view's size.
 		invoke('compute', [root, horizontal ? -2 : width, horizontal ? height : -2])
@@ -572,7 +589,7 @@ export function layoutMasonChildren(
 				dict.height = [1, height]
 			}
 
-			invoke('style', [root, dict])
+			applyMasonStyle(parent, dict)
 		}
 
 		invoke('compute', [root, width, height])
@@ -666,6 +683,7 @@ export function releaseMasonNodes(node: NodeLike) {
 		invoke('free', [node.masonNode])
 		node.masonNode = undefined
 	}
+	appliedMasonStyles.delete(node)
 
 	node.masonChildren = undefined
 }

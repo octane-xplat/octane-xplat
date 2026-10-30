@@ -1,6 +1,7 @@
 {
 	"extends": ["//"],
 	"tasks": {
+		"test:mason": { "dependsOn": [], "outputs": [] },
 		"test:keyboard": { "dependsOn": [], "outputs": [] }
 	}
 }
