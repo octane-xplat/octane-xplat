@@ -34,6 +34,8 @@ const common = {
 	onTouch: 'value',
 	onChange: 'value',
 	onSubmit: 'value',
+	onKeyDown: 'value',
+	onKeyUp: 'value',
 	onFocus: 'value',
 	onBlur: 'value',
 	onLoaded: 'value',
