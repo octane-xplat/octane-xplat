@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 161 runtime values and 196 types in index.gtk.ts, including
+Current availability is 193 runtime values and 252 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1351,3 +1351,25 @@ through the public-instance dispatcher so Thumbnail's load tracking works.
 Limits: `contentPosition` is unsupported (Gtk.Picture centres), 'none' and
 'scale-down' fit both resolve to GTK SCALE_DOWN (no true unscaled mode), and
 remote placeholder URLs are dropped per the shared contract.
+
+### Public GTK menus
+
+DropdownMenu, ContextMenu, MoreMenu, DropdownMenuContext and
+useDropdownMenuContext are now public GTK exports (15 menu types beside).
+Availability is 193 values and 252 types.
+
+`ui-menus.test.mjs` (31 checks, real X11 input) mounts them through the
+public root: the trigger press opens the anchored listbox, item/checkbox/
+radio/submenu/section/separator/disabled rows all render, item select fires
+and closes the menu, checkbox items keep it open (`hasCloseOnSelect`
+default), ContextMenu opens on a real long-press, outside-click and Escape
+dismiss, submenu opens and closes the whole menu on select, focus returns to the
+trigger, keyboard Enter opens, a DropdownMenuLink fires, and `presentation="bottom-sheet"` throws the clear slice-D error while
+`adaptive` resolves to the popover.
+
+Two GTK leaves landed: `menu-sheet.gtk.tsrx` (sheet presentation is
+unqualified until BottomSheet — slice D — and throws rather than importing
+it) and `MoreMenu.gtk.tsrx` (the same minus the BottomSheet branch).
+`keyboard-overlay-host.gtk.ts` is an honest inert stub — X11 has no
+software-keyboard overlay. ContextMenu opens on long-press like the shared
+native leaf — right-click/Menu-key/Shift+F10 are web-only.

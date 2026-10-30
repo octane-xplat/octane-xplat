@@ -352,3 +352,9 @@ decodes data:/http(Soup)/file/res://~/ natively. `placeholder` and
 `isLoadingChange` are wired in the renderer. `contentPosition` and the
 true 'none'/'scale-down' fits are unsupported (Gtk.Picture centres and
 has no unscaled mode — SCALE_DOWN approximation).
+
+DropdownMenu/ContextMenu/MoreMenu/menu-context are public GTK exports
+(ui-menus, 20 checks, real input). ContextMenu triggers on long-press
+(shared contract) — right-click/Menu-key/Shift+F10 are web-only. Menu
+keyboard navigation is web-only (not in the shared leaf). `presentation="bottom-sheet"`/`"adaptive"` throws until BottomSheet is
+qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.

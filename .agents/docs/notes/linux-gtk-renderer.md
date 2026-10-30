@@ -2969,3 +2969,27 @@ Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only; no Wayland,
 visual/pixel, IME or AT-client evidence. `contentPosition` unsupported;
 'none'/'scale-down' both map to SCALE_DOWN (Gtk.Picture has no unscaled or
 true scale-down fit).
+
+## GTK menu qualification
+
+`ui-menus.test.mjs` drives `fixtures/src/ui-menus-main.ts`: 31 checks, all
+passing, real X11 input. The fixture covers the shared anchored-menu
+contract end to end — Button-trigger open, every MenuOption kind rendering,
+select semantics (item closes, checkbox stays open by default,
+radio closes), disabled rows inert, ContextMenu long-press, outside/Escape
+dismiss, MoreMenu, and the bottom-sheet presentation error.
+
+Two renderer-side pieces: a `hold`/`holdMs` action in `gjs-ui-fixture.mjs`
+(mousedown + sleep + mouseup) so GestureLongPress gets a real OS gesture,
+and the popup `point()` coordinate walk (surface parent chain +
+`get_surface_transform`) that popup content needs. No renderer runtime
+changes — the shared leaves ride Popover.
+
+Leaves: `menu-sheet.gtk.tsrx`/`MoreMenu.gtk.tsrx` keep BottomSheet out of
+the GTK bundle (sheet presentation throws
+`presentation="bottom-sheet" requires slice D`). ContextMenu trigger:
+long-press like the shared/macOS leaves — right-click, the Menu key and
+Shift+F10 are web-only (shared native-desktop gap, also on macOS).
+
+Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only; no Wayland,
+visual/pixel, IME or AT-client evidence.

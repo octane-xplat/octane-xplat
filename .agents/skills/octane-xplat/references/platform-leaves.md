@@ -342,3 +342,11 @@ scale and RGBA extract feeding the shared pure-JS `rgbaToThumbHashUri`;
 `gi://` imports are ambient-declared in `type-support/gi.d.ts`. Avatar,
 Thumbnail, AvatarGroup(+Overflow), AvatarStatusDot and User need no GTK
 leaf — they resolve through `Image` and the host `image` element.
+
+`menu-sheet` and `MoreMenu` needed `.gtk` leaves because the shared leaves
+import `BottomSheet` statically — BottomSheet is unqualified on GTK and
+its nativescript host deps cannot resolve. The GTK leaves keep identical
+exports, route everything through the popover path, and throw a clear
+`presentation="bottom-sheet" requires slice D` error for the sheet
+presentation. `keyboard-overlay-host.gtk.ts` is an inert stub — X11 has no
+software-keyboard overlay to host.

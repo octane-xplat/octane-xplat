@@ -92,7 +92,11 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 				}
 			} else {
 				send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
-				if (!phase.hover) {
+				if (phase.hold) {
+					send('mousedown', '1')
+					send('sleep', String((phase.holdMs ?? 800) / 1000))
+					send('mouseup', '1')
+				} else if (!phase.hover) {
 					send('click', '1')
 				}
 			}

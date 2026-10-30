@@ -245,3 +245,60 @@ type AvatarStatusDotVariantContract = Assert<
 	Equal<GtkUI.AvatarStatusDotVariant, NativeUI.AvatarStatusDotVariant>
 >
 type UserPropsContract = Assert<Equal<GtkUI.UserProps, NativeUI.UserProps>>
+
+type DropdownMenuPropsContract = Assert<Equal<GtkUI.DropdownMenuProps, NativeUI.DropdownMenuProps>>
+type ContextMenuPropsContract = Assert<Equal<GtkUI.ContextMenuProps, NativeUI.ContextMenuProps>>
+type MoreMenuPropsContract = Assert<Equal<GtkUI.MoreMenuProps, NativeUI.MoreMenuProps>>
+type MoreMenuPlacementContract = Assert<Equal<GtkUI.MoreMenuPlacement, NativeUI.MoreMenuPlacement>>
+type MenuOptionContract = Assert<Equal<GtkUI.MenuOption, NativeUI.MenuOption>>
+type MenuItemPropsContract = Assert<Equal<GtkUI.MenuItemProps, NativeUI.MenuItemProps>>
+type MenuCheckboxItemPropsContract = Assert<
+	Equal<GtkUI.MenuCheckboxItemProps, NativeUI.MenuCheckboxItemProps>
+>
+type MenuRadioGroupPropsContract = Assert<
+	Equal<GtkUI.MenuRadioGroupProps, NativeUI.MenuRadioGroupProps>
+>
+type MenuRadioItemPropsContract = Assert<
+	Equal<GtkUI.MenuRadioItemProps, NativeUI.MenuRadioItemProps>
+>
+type MenuSeparatorPropsContract = Assert<
+	Equal<GtkUI.MenuSeparatorProps, NativeUI.MenuSeparatorProps>
+>
+type MenuSectionPropsContract = Assert<Equal<GtkUI.MenuSectionProps, NativeUI.MenuSectionProps>>
+type MenuLinkPropsContract = Assert<Equal<GtkUI.MenuLinkProps, NativeUI.MenuLinkProps>>
+type MenuSubMenuPropsContract = Assert<Equal<GtkUI.MenuSubMenuProps, NativeUI.MenuSubMenuProps>>
+type MenuContextValueContract = Assert<Equal<GtkUI.MenuContextValue, NativeUI.MenuContextValue>>
+type DropdownMenuButtonPropsContract = Assert<
+	Equal<GtkUI.DropdownMenuButtonProps, NativeUI.DropdownMenuButtonProps>
+>
+type MoreMenuAlignmentContract = Assert<
+	Equal<GtkUI.MoreMenuAlignment, NativeUI.MoreMenuAlignment>
+>
+type MoreMenuPresentationContract = Assert<
+	Equal<GtkUI.MoreMenuPresentation, NativeUI.MoreMenuPresentation>
+>
+type MenuItemDataContract = Assert<Equal<GtkUI.MenuItemData, NativeUI.MenuItemData>>
+type MenuActionDataContract = Assert<Equal<GtkUI.MenuActionData, NativeUI.MenuActionData>>
+type MenuLinkDataContract = Assert<Equal<GtkUI.MenuLinkData, NativeUI.MenuLinkData>>
+type MenuSectionDataContract = Assert<Equal<GtkUI.MenuSectionData, NativeUI.MenuSectionData>>
+type MenuSeparatorDataContract = Assert<Equal<GtkUI.MenuSeparatorData, NativeUI.MenuSeparatorData>>
+type MenuSubMenuDataContract = Assert<Equal<GtkUI.MenuSubMenuData, NativeUI.MenuSubMenuData>>
+type MenuDividerDataContract = Assert<Equal<GtkUI.MenuDividerData, NativeUI.MenuDividerData>>
+type MenuCheckboxDataContract = Assert<Equal<GtkUI.MenuCheckboxData, NativeUI.MenuCheckboxData>>
+type MenuRadioOptionDataContract = Assert<
+	Equal<GtkUI.MenuRadioOptionData, NativeUI.MenuRadioOptionData>
+>
+type MenuRadioGroupDataContract = Assert<
+	Equal<GtkUI.MenuRadioGroupData, NativeUI.MenuRadioGroupData>
+>
+type MenuItemContract = Assert<Equal<GtkUI.MenuItem, NativeUI.MenuItem>>
+type MenuDividerPropsContract = Assert<Equal<GtkUI.MenuDividerProps, NativeUI.MenuDividerProps>>
+type DropdownMenuItemPropsContract = Assert<
+	Equal<GtkUI.DropdownMenuItemProps, NativeUI.DropdownMenuItemProps>
+>
+type ContextMenuItemPropsContract = Assert<
+	Equal<GtkUI.ContextMenuItemProps, NativeUI.ContextMenuItemProps>
+>
+type BreadcrumbMenuItemPropsContract = Assert<
+	Equal<GtkUI.BreadcrumbMenuItemProps, NativeUI.BreadcrumbMenuItemProps>
+>

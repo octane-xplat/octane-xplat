@@ -98,7 +98,9 @@ Timestamp, Timer, Skeleton, VisuallyHidden, Chip, Alert, Banner,
 EmptyState, Meter, ProgressGroup, MetadataList(+Item), Timeline, Item,
 List, ListItem, Toolbar, Step, Stepper, Pagination, FieldLabel,
 FieldStatus, images (Image, Thumbnail, thumbHashUri) and the Avatar family
-(Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, User) —
+(Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, User), menus
+(DropdownMenu, ContextMenu, MoreMenu, DropdownMenuContext,
+useDropdownMenuContext) —
 behave identically to native; slot-bearing hooks (useCalendarDays,
 useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
 are not yet exposed.
