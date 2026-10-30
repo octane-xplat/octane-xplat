@@ -34,7 +34,17 @@ export interface FocusEventPayload {
  *
  * @see useFocusWithin, useFocusRing.
  */
-export function useFocus(options: UseFocusOptions = {}) {
+export function useFocus(options: UseFocusOptions = {}): {
+	focusProps:
+		| {
+				onFocus?: undefined
+				onBlur?: undefined
+		  }
+		| {
+				onFocus: (event?: FocusEventPayload) => void
+				onBlur: (event?: FocusEventPayload) => void
+		  }
+} {
 	const latest = useRef(options)
 	latest.current = options
 	return {

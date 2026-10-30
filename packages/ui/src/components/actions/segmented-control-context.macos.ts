@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 import type { OptionListContextValue } from '../forms/option-list-contexts'
 import type { AppKitSegment } from './segmented-control-keys.macos'
 import type { NSView } from '@octane-xplat/platform/macos'
@@ -7,5 +7,8 @@ import type { NSView } from '@octane-xplat/platform/macos'
 export interface AppKitSegmentedContext extends OptionListContextValue {
 	segments: Map<NSView, () => AppKitSegment>
 }
-export const AppKitSegmentedContext = createContext<AppKitSegmentedContext | null>(null)
+
+export const AppKitSegmentedContext: Context<AppKitSegmentedContext | null> =
+	createContext<AppKitSegmentedContext | null>(null)
+
 export const AppKitSegmentedProvider: any = AppKitSegmentedContext

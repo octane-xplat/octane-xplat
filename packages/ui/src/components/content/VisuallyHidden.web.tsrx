@@ -4,12 +4,13 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { VisuallyHiddenProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** VisuallyHidden — content stays in the a11y tree / DOM flow but renders
  *  at a clipped 1px box. No style/className: restyling a hidden node is a
  *  bug waiting to ship. `as` picks the tag ('span' inline default; 'div'
  *  for live regions / block announcements). */
-export function VisuallyHidden(props: VisuallyHiddenProps) @{
+export function VisuallyHidden(props: VisuallyHiddenProps): JSX.Element @{
 	const Tag: any = props.as ?? 'span'
 
 	const forwardedRef = useMemo(

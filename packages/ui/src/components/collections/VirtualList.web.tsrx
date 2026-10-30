@@ -17,6 +17,7 @@ import { VirtualListCellPool } from './virtual-list-cell-pool'
 
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 type NodeMeta =
 	| { kind: 'viewport' }
@@ -30,7 +31,7 @@ function sameSize(a: number, b: number) {
 
 /** Shared vertical virtualization over a DOM scroll container. Rows outside
  *  the viewport plus one viewport of overscan are unmounted. */
-export function VirtualList<T = any>(props: VirtualListProps<T>) @{
+export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
 	const entries = useMemo(
 		() =>
 			createVirtualListEntries(

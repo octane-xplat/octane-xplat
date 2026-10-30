@@ -15,7 +15,7 @@ const TONE_BORDER: Record<string, string> = {
 	success: '#2e9e5b',
 }
 
-export function Alert(props: AlertProps) @{
+export function Alert(props: AlertProps): unknown @{
 	const tone = props.tone ?? 'info'
 	const toneColor = TONE_BORDER[tone] ?? '#171717'
 

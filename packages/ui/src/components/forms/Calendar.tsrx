@@ -36,7 +36,7 @@ import {
 /** Self-drawn month calendar — `single` or `range` selection, ISO values.
  *  Touch target: cells are Pressable rows; the visible month announces via
  *  `accessibilityLiveRegion`. `ref` exposes `{navigateTo}`. */
-export function Calendar(props: CalendarProps) @{
+export function Calendar(props: CalendarProps): unknown @{
 	const mode = props.mode ?? 'single'
 	const numberOfMonths = props.numberOfMonths === 2 ? 2 : 1
 	const weekStartsOn = normalizeDayOfWeek(props.weekStartsOn)

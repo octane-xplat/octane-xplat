@@ -6,7 +6,7 @@ import { glyphSvgMarkup } from './svg-glyph'
 import { getIcon } from './icons'
 import { useIconRegistry } from './icon-registry-context'
 
-export function Icon(props: IconProps) @{
+export function Icon(props: IconProps): unknown @{
 	const size = props.size ?? 24
 	const inheritedRegistry = useIconRegistry()
 	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry)

@@ -10,7 +10,7 @@ export interface AppKitMediaQueryHost {
  * window-size object on each read, which is not a stable external snapshot. */
 export function createAppKitMediaQuerySource(query: string, host?: AppKitMediaQueryHost) {
 	return {
-		subscribe: (notify: () => void) => host?.onWindowResize?.(notify) ?? (() => {}),
+		subscribe: (notify: () => void): (() => void) => host?.onWindowResize?.(notify) ?? (() => {}),
 		getSnapshot: (): boolean => {
 			const size = host?.windowSize
 			if (!size) {

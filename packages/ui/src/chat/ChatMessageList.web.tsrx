@@ -7,6 +7,7 @@ import { ActivityIndicator } from '../components/feedback/ActivityIndicator.web.
 import { ChatMessage as ChatMessageView } from './ChatMessage.web.tsrx'
 import { ChatMessageBubble } from './ChatMessageBubble.web.tsrx'
 
+import type { JSX } from 'octane/jsx-runtime'
 const renderable = (v: any) => v != null && v !== false && v !== true
 
 const DENSITY_GAP: Record<string, number> = { compact: 8, balanced: 16, spacious: 24 }
@@ -29,7 +30,7 @@ function DefaultMessageRender(props: { message: ChatMessageData }) @{
  *
  *  Provide either `children` for full JSX control or `messages` + `renderMessage`
  *  for a data-driven list. */
-export function ChatMessageList(props: ChatMessageListProps) @{
+export function ChatMessageList(props: ChatMessageListProps): JSX.Element @{
 	const layoutContext = useChatLayoutContext()
 	const sentinelRef = useRef<HTMLDivElement | null>(null)
 	const innerRef = useRef<HTMLDivElement | null>(null)

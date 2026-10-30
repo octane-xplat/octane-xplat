@@ -174,7 +174,7 @@ function PopoverLayer(
 
 /** Positions popover content in a portal hosted on the RootLayout enclosing
  *  the anchor. PopoverLayer positions itself over the anchor's rect. */
-export function Popover(props: PopoverProps) @{
+export function Popover(props: PopoverProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
 	const open = props.open ?? internal

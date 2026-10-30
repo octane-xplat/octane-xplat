@@ -19,7 +19,18 @@ function flag(view: NSView, name: string, fallback = false): boolean {
 
 /** Registered choices follow native child order. Tabs omit onNavigate for
  * manual activation; radios use it to request selection after native focus. */
-export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
+export function createAppKitChoiceFocus(
+	options: Options,
+	bridge: typeof appKitHost = appKitHost,
+): {
+	synchronize: () => void
+	focusedView: () => NSView | undefined
+	orderedKeys: () => string[]
+	/** Programmatic/manual focus never requests a selection change. */
+	focus(key?: string, edge?: 'first' | 'last'): boolean
+	keyDown(event: KeyboardEvent): void
+	dispose(): void
+} {
 	const leases = new Map<NSView, () => void>()
 	const ordered = () => {
 		const byView = new Map([...options.views].map(([key, view]) => [view, key]))
@@ -54,7 +65,7 @@ export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 		return view?.window === window ? items.find((item) => item.view === view) : undefined
 	}
 	const recalculate = () => options.root()?.window?.recalculateKeyViewLoop()
-	const synchronize = () => {
+	const synchronize = (): void => {
 		const items = ordered()
 		const current =
 			focused(items) ?? items.find((item) => item.key === options.selected()) ?? items[0]
@@ -90,8 +101,8 @@ export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 	}
 	return {
 		synchronize,
-		focusedView: () => focused(ordered())?.view,
-		orderedKeys: () => ordered().map((item) => item.key),
+		focusedView: (): NSView | undefined => focused(ordered())?.view,
+		orderedKeys: (): string[] => ordered().map((item) => item.key),
 		/** Programmatic/manual focus never requests a selection change. */
 		focus(key?: string, edge: 'first' | 'last' = 'first'): boolean {
 			const items = ordered(),
@@ -108,7 +119,7 @@ export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 			synchronize()
 			return true
 		},
-		keyDown(event: KeyboardEvent) {
+		keyDown(event: KeyboardEvent): void {
 			if (
 				event.defaultPrevented ||
 				event.isComposing ||
@@ -164,7 +175,7 @@ export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 			options.onNavigate?.(items[next].key)
 			synchronize()
 		},
-		dispose() {
+		dispose(): void {
 			const changed = leases.size > 0
 			for (const release of leases.values()) {
 				release()

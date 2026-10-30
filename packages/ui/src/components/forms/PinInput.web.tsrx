@@ -4,10 +4,11 @@ import type { PinInputProps, TextInputHandle } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldProvider, useFieldControlProps } from './field-context'
 import { TextInput } from './TextInput.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when every cell is filled. `secure` masks each cell. */
-export function PinInput(props: PinInputProps) @{
+export function PinInput(props: PinInputProps): JSX.Element @{
 	const fieldProps = useFieldControlProps(props)
 	const length = props.length ?? 4
 	const [internal, setInternal] = useState('')

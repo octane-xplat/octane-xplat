@@ -4,9 +4,10 @@ import type { SelectProps } from '../../props'
 import { useFieldControlProps } from './field-context'
 import { useSelect } from './useSelect'
 import { SelectView } from './SelectView.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Finite-list selection. Async entity search belongs to Typeahead. */
-export function Select(inputProps: SelectProps) @{
+export function Select(inputProps: SelectProps): JSX.Element @{
 	const props = useFieldControlProps(inputProps)
 	const state = useSelect(props)
 	const [highlight, setHighlight] = useState<string | null>(null)

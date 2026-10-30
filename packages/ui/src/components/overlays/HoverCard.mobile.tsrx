@@ -8,7 +8,7 @@ import { cx } from '@octane-xplat/lib'
  *  (`touchTrigger` 'auto'/'tap'; 'none' disables it). There is no hover
  *  or focus traversal on iOS/Android, so `delay`/`hideDelay`/
  *  `focusTrigger` are inert — documented deviations. */
-export function HoverCard(props: HoverCardProps) @{
+export function HoverCard(props: HoverCardProps): unknown @{
 	const card = useHoverCard({
 		placement: props.placement,
 		alignment: props.alignment,

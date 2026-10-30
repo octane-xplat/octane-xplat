@@ -1,7 +1,7 @@
 import type { QueryFetchDirection, QueryState } from './query-cache'
 
 /** @internal Metadata boundary shared by the cache and the opt-in development entrypoint. */
-export const QUERY_INSPECTION = Symbol('query-inspection')
+export const QUERY_INSPECTION: unique symbol = Symbol('query-inspection')
 
 export type QueryTrigger =
 	| 'observe'

@@ -23,6 +23,7 @@ import { useLinkComponent } from './use-link-component.web.tsrx'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { toChildArray } from '../../internal/rendering/child-array'
 import { mergeStyle } from '../../internal/layout/style-merge'
+import type { JSX } from 'octane/jsx-runtime'
 
 function menuOptions(menu: BreadcrumbMenuOption[]): MenuOptionImplementation[] {
 	return menu.map((opt, i) =>
@@ -95,7 +96,7 @@ function BreadcrumbCrumb(props: {
 /** BreadcrumbItem part — one trail entry inside `Breadcrumbs` (Astryx
  *  composition). `children` are the label; navigation comes from
  *  `href`/`to`/`onPress`; `isCurrent` marks the current location. */
-export function BreadcrumbItem(props: BreadcrumbItemProps) @{
+export function BreadcrumbItem(props: BreadcrumbItemProps): JSX.Element @{
 	const label = props.children
 	const menu = props.menu ? menuOptions(props.menu) : null
 	const href = props.href ?? props.to

@@ -24,6 +24,14 @@ import type {
 
 import { powerSearchTranslate, type PowerSearchTranslate } from './power-search-strings'
 
+export type PowerSearchResolvedConfig<D extends ReadonlyArray<FieldDefinition>> = {
+	config: PowerSearchConfig & PowerSearchDefInfo<D>
+	applyFilters: <T extends InferData<D>>(
+		filters: ReadonlyArray<PowerSearchFilterFor<D>>,
+		data: ReadonlyArray<T>,
+	) => T[]
+}
+
 // =============================================================================
 // Operator label resolution
 // =============================================================================
@@ -59,7 +67,7 @@ const SECONDS_BY_UNIT = {
 /** Resolves a range part against one caller-supplied instant. */
 export function resolveDateTimeRangePart(
 	part: DateTimeRangePart,
-	nowSeconds = Date.now() / 1000,
+	nowSeconds: number = Date.now() / 1000,
 ): number {
 	switch (part.type) {
 		case 'NOW':
@@ -858,13 +866,7 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
 export function createPowerSearchConfig<const D extends ReadonlyArray<FieldDefinition>>(
 	definitions: D,
 	configName?: string,
-): {
-	config: PowerSearchConfig & PowerSearchDefInfo<D>
-	applyFilters: <T extends InferData<D>>(
-		filters: ReadonlyArray<PowerSearchFilterFor<D>>,
-		data: ReadonlyArray<T>,
-	) => T[]
-} {
+): PowerSearchResolvedConfig<D> {
 	const config: PowerSearchConfig & PowerSearchDefInfo<D> = {
 		name: configName ?? 'PowerSearchConfig',
 		fields: definitions.map(buildField),
@@ -890,6 +892,6 @@ export function createPowerSearchConfig<const D extends ReadonlyArray<FieldDefin
 export function usePowerSearchConfig<const D extends ReadonlyArray<FieldDefinition>>(
 	definitions: D,
 	configName?: string,
-) {
+): PowerSearchResolvedConfig<D> {
 	return useMemo(() => createPowerSearchConfig(definitions, configName), [definitions, configName])
 }

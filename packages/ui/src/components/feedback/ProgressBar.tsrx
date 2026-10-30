@@ -18,7 +18,7 @@ const INDETERMINATE_MS = 1200
  *  Marks are positioned by star-column split (left of the mark is `pct*`).
  *  Indeterminate mode loops a 40%-wide fill via `view.animate` (the NS CSS
  *  engine has no keyframes), measured from the track's laid-out width. */
-export function ProgressBar(props: ProgressBarProps) @{
+export function ProgressBar(props: ProgressBarProps): unknown @{
 	const scheme = useColorScheme()
 	const max = Math.max(props.max ?? 100, 1e-9)
 	const isIndeterminate = props.isIndeterminate ?? false

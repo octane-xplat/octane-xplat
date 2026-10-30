@@ -5,7 +5,7 @@ import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** SeekBar — the platform widget (Android SeekBar via NativeScript
  *  `slider`). The self-drawn shared `Slider` lives in the root export. */
-export function SeekBar(props: SeekBarProps) @{
+export function SeekBar(props: SeekBarProps): unknown @{
 	<slider
 		id={props.id}
 		className={cx(props.className)}

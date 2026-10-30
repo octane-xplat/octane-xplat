@@ -20,6 +20,7 @@ import { TableSlot } from './table-slot'
 import { Empty as EmptyState } from '../components/feedback/Empty'
 import { ContextMenu } from '../components/overlays/ContextMenu'
 import { useContext } from 'octane'
+import type { JSX } from 'octane/jsx-runtime'
 
 function resolveContextActions(actions: TableContextActions | undefined) {
 	if (!actions) {
@@ -83,7 +84,7 @@ function ctxClasses(ctx: any, isHeaderRow: boolean) {
 /** Table — data-driven + plugin pipeline (Astryx `Table`), semantic DOM leaf. */
 export function Table<T extends Record<string, unknown> = Record<string, unknown>>(
 	props: TableProps<T>,
-) @{
+): JSX.Element @{
 	const {
 		data,
 		columns,
@@ -306,25 +307,25 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 // Parts — children-mode composition (semantic table elements on web)
 // =============================================================================
 
-export function TableHeader(props: TableHeaderProps) @{
+export function TableHeader(props: TableHeaderProps): JSX.Element @{
 	<thead {...props.web} class={cx('vx-table-header', props.className)} style={props.style}>
 		{props.children as any}
 	</thead>
 }
 
-export function TableBody(props: TableBodyProps) @{
+export function TableBody(props: TableBodyProps): JSX.Element @{
 	<tbody {...props.web} class={cx('vx-table-body', props.className)} style={props.style}>
 		{props.children as any}
 	</tbody>
 }
 
-export function TableFooter(props: TableFooterProps) @{
+export function TableFooter(props: TableFooterProps): JSX.Element @{
 	<tfoot {...props.web} class={cx('vx-table-footer', props.className)} style={props.style}>
 		{props.children as any}
 	</tfoot>
 }
 
-export function TableRow(props: TableRowProps) @{
+export function TableRow(props: TableRowProps): JSX.Element @{
 	const ctx = useContext(TableContext as any) as any
 	const { isHeaderRow, contextMenuActions, children, className, style, web, ...rest } = props
 
@@ -338,7 +339,7 @@ export function TableRow(props: TableRowProps) @{
 	</tr>
 }
 
-export function TableCell(props: TableCellProps) @{
+export function TableCell(props: TableCellProps): JSX.Element @{
 	const ctx = useContext(TableContext as any) as any
 	const {
 		contextMenuActions,
@@ -377,7 +378,7 @@ export function TableCell(props: TableCellProps) @{
 	</td>
 }
 
-export function TableHeaderCell(props: TableHeaderCellProps) @{
+export function TableHeaderCell(props: TableHeaderCellProps): JSX.Element @{
 	const ctx = useContext(TableContext as any) as any
 	const {
 		contextMenuActions,

@@ -16,6 +16,7 @@ import type {
 	RouteTransitionResult,
 	RouteTransitionContext,
 	TransitionDefinition,
+	Store,
 } from '../props'
 
 /** Native/window surface owns transport; the shared host owns routed history. */
@@ -60,7 +61,15 @@ export function createModalRouterHost(options: {
 	base: ClientRouterHost
 	createSurface(request: RouterModalSurfaceRequest): RouterModalSurface | undefined
 	onCleanupError?(error: unknown): void
-}) {
+}): ClientRouterHost & {
+	modals: Store<
+		readonly {
+			flow: string
+			presenterFlow: string
+		}[]
+	>
+	getSurface(flow: string): RouterModalSurface | undefined
+} {
 	const base = options.base
 	if (base.host.history !== 'independent') {
 		throw new TypeError('Modal surfaces require independent presentation histories')

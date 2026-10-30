@@ -2,11 +2,12 @@
 import type { NavIconProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Circular icon container for navigation headers (TopNavHeading,
  *  SideNavHeading). Display-only — the `icon` prop takes an element or a
  *  registered icon name. */
-export function NavIcon(props: NavIconProps) @{
+export function NavIcon(props: NavIconProps): JSX.Element @{
 	<span
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

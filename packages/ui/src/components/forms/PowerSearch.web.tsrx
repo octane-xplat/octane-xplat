@@ -11,10 +11,11 @@ import type {
 
 import { createInternalConfig, createPowerSearchSource } from './power-search-config'
 import { PowerSearchView } from './PowerSearchView.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(
 	props: PowerSearchProps<C>,
-) @{
+): JSX.Element @{
 	const [query, setQuery] = useState('')
 	const [editing, setEditing] = useState<{ filter: PartialFilter; index: number } | null>(null)
 	const [open, setOpen] = useState(false)

@@ -2,12 +2,13 @@
 import { useId, useState } from 'octane'
 import type { ChatComposerDrawerProps } from '../props'
 import { Badge } from '../components/feedback/Badge.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Collapsible drawer panel for a chat composer — attachments, context
  *  chips, previews. With `count`, a toggle row renders a collapsed summary
  *  (badge + label) and the content crossfades/collapses via grid rows.
  *  Without `count` the drawer is always expanded. */
-export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
+export function ChatComposerDrawer(props: ChatComposerDrawerProps): JSX.Element @{
 	const isControlled = props.isCollapsed !== undefined
 	const [internalCollapsed, setInternalCollapsed] = useState(props.defaultIsCollapsed ?? false)
 	const isCollapsed = isControlled ? props.isCollapsed : internalCollapsed

@@ -25,6 +25,7 @@ import { setRootThemeScope } from './theme-scope'
 import { ensureThemeCss, syncDocumentRootTheme } from './theme-css-inject'
 import { useThemeScheme } from './theme-scheme'
 
+import type { JSX } from 'octane/jsx-runtime'
 export interface ThemeProps {
 	/** Theme built by `defineTheme`. */
 	theme: DefinedTheme
@@ -33,7 +34,7 @@ export interface ThemeProps {
 	children?: any
 }
 
-export function Theme(props: ThemeProps) @{
+export function Theme(props: ThemeProps): JSX.Element @{
 	const parent = useContext(ThemeContext)
 	const isNested = useContext(ThemeNestingContext)
 	const scheme = useThemeScheme()

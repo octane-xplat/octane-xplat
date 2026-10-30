@@ -5,7 +5,7 @@ import { Pressable } from './Pressable'
 
 /** Chip — small action/filter element with a selected state and an
  *  optional ✕ remove affordance. */
-export function Chip(props: ChipProps) @{
+export function Chip(props: ChipProps): unknown @{
 	<Pressable
 		id={props.id}
 		className={cx(

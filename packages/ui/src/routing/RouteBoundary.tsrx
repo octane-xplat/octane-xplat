@@ -8,7 +8,7 @@ import type { RouteBoundaryProps } from '../props'
  *  component receives `{ error, reset, route }`; `reset` clears the
  *  caught error and remounts the subtree. Without a declared boundary
  *  the children render bare and errors propagate as they always have. */
-export function RouteBoundary(props: RouteBoundaryProps) @{
+export function RouteBoundary(props: RouteBoundaryProps): unknown @{
 	const Boundary = props.boundary
 	if (!Boundary) {
 		return <>{props.children}</>

@@ -1,8 +1,14 @@
 import { createContext, useContext, useEffect, useRef } from 'octane'
 import { captureLayerFocus } from './layer-keys'
 import { isTopLayer, registerLayer, shouldCloseLayer } from './layer-stack'
+import type { Context } from 'octane'
 
-export const LayerDepthContext = createContext(0)
+export type LayerDismissal = {
+	depth: number
+	shouldClose: (retiring?: boolean) => boolean
+}
+
+export const LayerDepthContext: Context<number> = createContext(0)
 export const LayerDepthProvider: any = LayerDepthContext
 
 /** Internal depth is passed explicitly into separately mounted native roots. */
@@ -17,7 +23,7 @@ export function useLayerDismissal(options: {
 	getHost?(): any
 	/** Internal portal ownership can cross a separately mounted service root. */
 	minimumDepth?: number
-}) {
+}): LayerDismissal {
 	const depth = Math.max(useContext(LayerDepthContext), options.minimumDepth ?? 0)
 	const latest = useRef(options)
 	latest.current = options

@@ -7,7 +7,7 @@ import { Avatar } from '../media/Avatar'
 
 /** User — avatar + name/description row. `onSelect` makes the row
  *  tappable. */
-export function User(props: UserProps) @{
+export function User(props: UserProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

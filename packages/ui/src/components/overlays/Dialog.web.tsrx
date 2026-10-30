@@ -11,6 +11,7 @@ import { spacingStep } from '../layout/spacing'
 import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const toPx = (v: number | string | undefined) =>
 	v == null ? undefined : typeof v === 'number' ? `${v}px` : v
@@ -213,7 +214,7 @@ function DialogInline(props: DialogProps) @{
  *  `::backdrop` come from the platform. `purpose` gates dismissal —
  *  'info' allows backdrop tap + Escape, 'form' keeps Escape only,
  *  'required' blocks both and carries `role="alertdialog"`. */
-export function Dialog(props: DialogProps) @{
+export function Dialog(props: DialogProps): JSX.Element | null @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {
@@ -236,7 +237,7 @@ export function Dialog(props: DialogProps) @{
 /** Dialog title row (Astryx `DialogHeader`). The title carries the
  *  dialog's label id and the modal autofocus marker; `onOpenChange`
  *  supplies the close affordance. */
-export function DialogHeader(props: DialogHeaderProps) @{
+export function DialogHeader(props: DialogHeaderProps): JSX.Element @{
 	const ctx = useContext(DialogContext)
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 	const pad = spacingStep(5) ?? 20

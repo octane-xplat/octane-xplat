@@ -7,8 +7,9 @@ import {
 } from './power-search-config'
 
 import { Button } from '../actions/Button.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function PowerSearchToken(props: PowerSearchTokenProps) @{
+export function PowerSearchToken(props: PowerSearchTokenProps): JSX.Element @{
 	const value = formatFilterValue(
 		createInternalConfig(props.config),
 		props.operator.value,

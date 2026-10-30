@@ -2,6 +2,18 @@
 import { dispatchLayerKey } from '../overlays/layer-stack'
 import { useCallback, useEffect, useRef } from 'octane'
 
+export type ListFocusResult<T> = {
+	listRef: {
+		current: T | null
+	}
+	handleKeyDown: (e: KeyboardEvent) => void
+	handleFocus: (e: FocusEvent) => void
+	focusItem: (item: HTMLElement | null) => void
+	focusAt: (index: number) => void
+	focusFirst: () => void
+	focusLast: () => void
+}
+
 /** Options for the web roving-tabindex helper shared by Toolbar, TabList
  *  and NavHeadingMenu — the Astryx `useListFocus` equivalent scoped to what
  *  these components need. */
@@ -25,7 +37,9 @@ function enabledStops(root: HTMLElement, selector: string): HTMLElement[] {
 
 /** Roving tabindex + arrow/Home/End navigation for a strip of stops.
  *  Web-only — pointer platforms have no composite-widget keyboard model. */
-export function useListFocus<T extends HTMLElement = HTMLElement>(options: ListFocusOptions) {
+export function useListFocus<T extends HTMLElement = HTMLElement>(
+	options: ListFocusOptions,
+): ListFocusResult<T> {
 	const ref = useRef<T | null>(null)
 	const opts = useRef(options)
 	opts.current = options

@@ -29,7 +29,10 @@ interface State {
 export function createAppKitTypeaheadAccessibility(
 	state: () => State,
 	native: () => Record<string, any> = () => globalThis,
-) {
+): {
+	update: () => void
+	dispose(): void
+} {
 	let owned: {
 		input: NSView
 		list: NSView
@@ -182,7 +185,7 @@ export function createAppKitTypeaheadAccessibility(
 			list.accessibilitySelectedChildren = []
 		}
 	}
-	const update = () => {
+	const update = (): void => {
 		if (disposed || queued) {
 			return
 		}
@@ -200,7 +203,7 @@ export function createAppKitTypeaheadAccessibility(
 	}
 	return {
 		update,
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

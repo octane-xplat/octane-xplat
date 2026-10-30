@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { Meter } from './Meter.macos.tsrx'
 
 /** ProgressGroup — stacked labeled Meter rows. */
-export function ProgressGroup(props: ProgressGroupProps) @{
+export function ProgressGroup(props: ProgressGroupProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

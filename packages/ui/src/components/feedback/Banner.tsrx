@@ -13,7 +13,7 @@ const statusIcon: Record<string, string> = {
 	error: 'xplat-error',
 }
 
-export function Banner(props: BannerProps) @{
+export function Banner(props: BannerProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

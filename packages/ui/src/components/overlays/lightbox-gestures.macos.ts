@@ -1,3 +1,10 @@
+export type AppKitLightboxGestures = {
+	swipe: (direction: number) => boolean
+	toggleZoom(): boolean
+	sync(): void
+	dispose(): void
+}
+
 interface State {
 	open: boolean
 	index: number
@@ -23,7 +30,7 @@ export function createAppKitLightboxGestures(
 		select(index: number): void
 	},
 	native: () => Record<string, any> = () => globalThis,
-) {
+): AppKitLightboxGestures {
 	let disposed = false,
 		token: unknown,
 		events: any,
@@ -56,7 +63,7 @@ export function createAppKitLightboxGestures(
 			: null
 	}
 	const zoomed = () => Number(options.viewport()?.magnification ?? 1) > 1.01
-	const swipe = (direction: number) => {
+	const swipe = (direction: number): boolean => {
 		const current = scope()
 		if (
 			!current ||
@@ -92,7 +99,7 @@ export function createAppKitLightboxGestures(
 	}
 	return {
 		swipe,
-		toggleZoom() {
+		toggleZoom(): boolean {
 			const current = scope()
 			if (!current) {
 				return false
@@ -125,7 +132,7 @@ export function createAppKitLightboxGestures(
 			})
 			return true
 		},
-		sync() {
+		sync(): void {
 			if (disposed) {
 				return
 			}
@@ -230,7 +237,7 @@ export function createAppKitLightboxGestures(
 				console.error('[macos-lightbox] swipe observation unavailable', error)
 			}
 		},
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

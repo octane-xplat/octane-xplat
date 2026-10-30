@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Skeleton — placeholder block while content loads. Sizing via
  *  `width`/`height` or the app's `vx-skeleton` styling. */
-export function Skeleton(props: SkeletonProps) @{
+export function Skeleton(props: SkeletonProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

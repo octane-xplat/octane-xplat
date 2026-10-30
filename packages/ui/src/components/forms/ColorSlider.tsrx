@@ -18,7 +18,7 @@ const HUE_STOPS = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00
 
 /** Internal hue slider view — 7-stop rainbow track, thumb filled with the
  *  current hue. Drag adjusts hue by delta (no tap-to-position v1). */
-export function ColorSliderView(props: ColorSliderViewProps) @{
+export function ColorSliderView(props: ColorSliderViewProps): unknown @{
 	const measure = useMeasure()
 	const drag = useRef<number | null>(null)
 	const host = useRef<any>(null)
@@ -135,7 +135,7 @@ export function ColorSliderView(props: ColorSliderViewProps) @{
 	</masonview>
 }
 
-export function ColorSlider(props: ColorSliderProps) @{
+export function ColorSlider(props: ColorSliderProps): unknown @{
 	const color = useColorState(props, '#ff0000')
 
 	<ColorSliderView

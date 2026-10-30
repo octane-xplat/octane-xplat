@@ -10,7 +10,11 @@ export function useRouteOutletScope(
 		hasStack(stack: string): boolean
 		getClient(): { platform: ClientRouterHost }
 	},
-) {
+): {
+	host: ClientRouterHost
+	flow: string
+	defaultClient: boolean
+} {
 	const scope = useContext(RouterScopeContext)
 	if (scope?.host) {
 		if (stack !== undefined) {

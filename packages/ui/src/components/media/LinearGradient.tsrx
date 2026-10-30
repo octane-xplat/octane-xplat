@@ -6,7 +6,7 @@ import { applyLinearGradient } from './linear-gradient-apply'
 /** Internal gradient surface — native gradient layer on iOS (CAGradientLayer
  *  inserted at sublayer 0), GradientDrawable background on Android. Colors may
  *  carry alpha ('#rrggbbaa'/'rgba(…)') — both platform color classes parse it. */
-export function LinearGradient(props: LinearGradientProps) @{
+export function LinearGradient(props: LinearGradientProps): unknown @{
 	const state = useRef({ props, view: null as any })
 	state.current.props = props
 

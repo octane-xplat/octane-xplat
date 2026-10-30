@@ -13,7 +13,7 @@ import { useKeyboard, type KeyboardEvent } from '../../internal/keyboard/use-key
 import { useDirection } from '../../internal/platform/internationalization'
 
 /** Options and child parts share selection and Field ownership on AppKit. */
-export function RadioGroup(inputProps: RadioGroupProps) @{
+export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 	const { props, inField } = useFieldControl(inputProps)
 	const generatedID = useId()
 	const controlID = props.id ?? generatedID

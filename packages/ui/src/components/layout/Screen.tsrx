@@ -20,7 +20,7 @@ import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
  *
  * @see ScreenProps, SafeAreaProps.
  */
-export function Screen(props: ScreenProps) @{
+export function Screen(props: ScreenProps): unknown @{
 	<rootlayout
 		iosIgnoreSafeArea={true}
 		className="vx-screen-shell"

@@ -7,9 +7,18 @@ import type {
 
 /** One transition coordinator per document host. The update is memoized because
  * skipTransition never cancels the browser's deferred update callback. */
-export function createBrowserRouteTransitions(browser: Window) {
+export function createBrowserRouteTransitions(browser: Window): {
+	interrupt: () => void
+	run(
+		context: RouteTransitionContext,
+		name: string | undefined,
+		definition: TransitionDefinition | undefined,
+		update: () => Promise<RouterHostResult>,
+		cancellation?: Promise<Extract<RouterHostResult, { status: 'cancelled' }>>,
+	): Promise<RouterHostResult>
+} {
 	let active: { skip(): void } | undefined
-	const interrupt = () => {
+	const interrupt = (): void => {
 		active?.skip()
 		active = undefined
 	}

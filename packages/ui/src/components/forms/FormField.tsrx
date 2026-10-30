@@ -13,7 +13,7 @@ import { Pressable } from '../actions/Pressable'
  *  Under `FormLayout direction="horizontal-labels"` it renders a row; the
  *  native label width is per field because the web grid's shared auto column
  *  has no native analog. Form-wide optionality suppresses redundant markers. */
-export function FormField(props: FormFieldProps) @{
+export function FormField(props: FormFieldProps): unknown @{
 	const generatedControlId = useId()
 	const form = useContext(FormLayoutContext)
 	const isHorizontalLabels = form.direction === 'horizontal-labels'

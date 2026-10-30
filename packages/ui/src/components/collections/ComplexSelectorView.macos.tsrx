@@ -10,7 +10,9 @@ import { Icon } from '../media/Icon.macos.tsrx'
 import { ActivityIndicator } from '../actions/controls.macos.tsrx'
 
 /** Internal resolved presentation, sharing the handle’s host anchor. */
-export function ComplexSelectorView<Value>(props: ComplexSelectorViewProps<Value>) @{
+export function ComplexSelectorView<Value>(
+	props: ComplexSelectorViewProps<Value>,
+): unknown @{
 	const { open, pending } = props.state
 	const size = useSize(props.size, 'md')
 	const { triggerId, contentId, anchor } = props

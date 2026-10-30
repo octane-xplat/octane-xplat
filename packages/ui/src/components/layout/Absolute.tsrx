@@ -12,7 +12,7 @@ import {
  *
  * @see AbsoluteProps.
  */
-export function Absolute(props: AbsoluteProps) @{
+export function Absolute(props: AbsoluteProps): unknown @{
 	<masonview
 		id={props.id}
 		ref={(view: any) => applyEscapeProps(view, props)}

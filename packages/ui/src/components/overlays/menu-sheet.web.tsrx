@@ -4,6 +4,7 @@ import type { MoreMenuPresentation } from '../../props'
 import { BottomSheet } from './BottomSheet.web.tsrx'
 import { MenuProvider } from './menu-context'
 import { MenuData } from './MenuParts.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Resolve `presentation` for this host: 'adaptive' tracks a compact
  *  coarse-pointer media query (same predicate as MoreMenu). */
@@ -34,7 +35,7 @@ export function MenuSheet(props: {
 	label?: string
 	items?: any
 	children?: any
-}) @{
+}): JSX.Element @{
 	const close = () => props.onOpenChange(false)
 
 	<BottomSheet

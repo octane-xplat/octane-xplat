@@ -1,6 +1,14 @@
 import type { createAppKitChoiceFocus } from '../forms/choice-focus.macos'
 import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
+export type AppKitMenuFocus = {
+	focus: (key: string) => boolean
+	reset: () => void
+	observes(window: NSWindow): boolean
+	removed(key: string, view: NSView): void
+	refresh(): void
+}
+
 interface OwnedRow {
 	key: string
 	view: NSView
@@ -24,7 +32,7 @@ export function createAppKitMenuFocus(options: {
 	supported(): boolean
 	navigation: Pick<ReturnType<typeof createAppKitChoiceFocus>, 'focus' | 'synchronize' | 'dispose'>
 	resetKeyboard(): void
-}) {
+}): AppKitMenuFocus {
 	let owner: NSWindow | null = null,
 		initial = true,
 		refreshing = false,
@@ -33,7 +41,7 @@ export function createAppKitMenuFocus(options: {
 	let order: { key: string; view: NSView }[] = [],
 		last: OwnedRow | null = null,
 		repair: OwnedRow | null = null
-	const reset = () => {
+	const reset = (): void => {
 		epoch++
 		owner = null
 		initial = true
@@ -91,10 +99,10 @@ export function createAppKitMenuFocus(options: {
 	return {
 		focus,
 		reset,
-		observes(window: NSWindow) {
+		observes(window: NSWindow): boolean {
 			return window === owner || window === options.root()?.window
 		},
-		removed(key: string, view: NSView) {
+		removed(key: string, view: NSView): void {
 			const root = options.root(),
 				window = root?.window,
 				responder = window?.firstResponder
@@ -119,7 +127,7 @@ export function createAppKitMenuFocus(options: {
 				last = null
 			}
 		},
-		refresh() {
+		refresh(): void {
 			if (refreshing || resetting) {
 				return
 			}

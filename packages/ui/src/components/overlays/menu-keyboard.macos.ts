@@ -19,16 +19,22 @@ interface Options {
 }
 
 /** Menu intent only: native row ordering/focus and layer closure stay with owners. */
-export function createAppKitMenuKeyboard(options: Options, now = Date.now) {
+export function createAppKitMenuKeyboard(
+	options: Options,
+	now: () => number = Date.now,
+): {
+	reset: () => void
+	keyDown(event: KeyboardEvent): void
+} {
 	let text = '',
 		at = 0
-	const reset = () => {
+	const reset = (): void => {
 		text = ''
 		at = 0
 	}
 	return {
 		reset,
-		keyDown(event: KeyboardEvent) {
+		keyDown(event: KeyboardEvent): void {
 			if (
 				event.defaultPrevented ||
 				event.isComposing ||

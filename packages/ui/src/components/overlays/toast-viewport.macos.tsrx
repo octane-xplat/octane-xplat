@@ -61,7 +61,9 @@ function ToastGroup(props: {
 	<masonview ref={owner} style={mergeStyle({ display: 'flex' }, { width: 0, height: 0 })} />
 }
 
-export function ToastViewportSurface(props: ToastViewportProps & { viewportId: string }) @{
+export function ToastViewportSurface(
+	props: ToastViewportProps & { viewportId: string },
+): unknown @{
 	const entries = useStore(toastStore)
 	const mine = entries.filter((entry) => toastOnViewport(entry, props.viewportId))
 	const max = Math.max(1, props.maxVisible ?? 5)
@@ -109,7 +111,7 @@ export function ToastViewportSurface(props: ToastViewportProps & { viewportId: s
 	</>
 }
 
-export function ToastViewport(props: ToastViewportProps) @{
+export function ToastViewport(props: ToastViewportProps): unknown @{
 	const id = useId()
 	const ctx = useMemo<ToastViewportContextValue>(
 		() => ({ id, position: props.position ?? 'bottomEnd', maxVisible: props.maxVisible ?? 5 }),

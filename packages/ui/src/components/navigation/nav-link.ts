@@ -119,7 +119,7 @@ export function navLinkIsActive(
 export function navLinkActivation() {
 	return {
 		defaultPrevented: false,
-		preventDefault() {
+		preventDefault(): void {
 			this.defaultPrevented = true
 		},
 	}

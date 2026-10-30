@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 import type { BottomSheetProps } from '../../props'
 
 /** One `BottomSheet` child's registration inside a `BottomSheetSwitcher`.
@@ -22,7 +22,8 @@ export interface BottomSheetSwitcherHandle {
 	activeSheet(): string | null
 }
 
-export const BottomSheetSwitcherContext = createContext<BottomSheetSwitcherHandle | null>(null)
+export const BottomSheetSwitcherContext: Context<BottomSheetSwitcherHandle | null> =
+	createContext<BottomSheetSwitcherHandle | null>(null)
 
 /** JSX-provider form — universal-renderer contexts are callables, not
  *  `.Provider` members (same aliasing as FieldProvider/DialogProvider). */

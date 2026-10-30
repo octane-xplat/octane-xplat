@@ -20,7 +20,7 @@ interface Props extends PowerSearchFilterEditorProps {
 	operator: PowerSearchOperator
 }
 
-export function PowerSearchDateRangeEditor(props: Props) @{
+export function PowerSearchDateRangeEditor(props: Props): unknown @{
 	const live = useRef(props)
 	live.current = props
 	const source = useRef({

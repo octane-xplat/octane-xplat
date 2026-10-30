@@ -9,7 +9,7 @@ import { cx } from '@octane-xplat/lib'
  *
  * @see SelectableCardProps, ClickableCardProps.
  */
-export function SelectableCard(props: SelectableCardProps) @{
+export function SelectableCard(props: SelectableCardProps): unknown @{
 	<Pressable
 		id={props.id}
 		className={cx(

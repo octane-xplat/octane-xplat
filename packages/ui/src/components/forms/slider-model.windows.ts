@@ -1,9 +1,15 @@
 import type { SliderProps } from '../../props'
 
+export type SliderBounds = {
+	min: number
+	max: number
+	step: number
+}
+
 export type SliderValue = number | [number, number]
 export type SliderThumb = 'lower' | 'upper'
 
-export function sliderBounds(props: SliderProps) {
+export function sliderBounds(props: SliderProps): SliderBounds {
 	const requestedMin = props.min ?? props.minValue ?? 0
 	const requestedMax = props.max ?? props.maxValue ?? 100
 	const min = Number.isFinite(requestedMin) ? requestedMin : 0
@@ -51,12 +57,15 @@ export function moveSliderThumb(
 		: [value[0], Math.max(next, value[0])]
 }
 
-export function sameSliderValue(a: SliderValue, b: SliderValue) {
+export function sameSliderValue(a: SliderValue, b: SliderValue): boolean {
 	return Array.isArray(a) && Array.isArray(b) ? a[0] === b[0] && a[1] === b[1] : a === b
 }
 
 /** Decode Core's native touch methods without treating pan translation as a local position. */
-export function sliderTouch(event: unknown) {
+export function sliderTouch(event: unknown): {
+	action: unknown
+	x: number | undefined
+} | null {
 	if (event == null || typeof event !== 'object' || !('action' in event)) {
 		return null
 	}

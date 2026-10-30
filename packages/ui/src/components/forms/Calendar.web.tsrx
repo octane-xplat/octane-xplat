@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from '../../props'
 import { cx } from '@octane-xplat/lib'
@@ -37,7 +38,7 @@ import {
  *  Keyboard: arrows move the day (crossing months pages the grid), PageUp/
  *  PageDown move a month, Home/End move to the row edges, Enter/Space picks,
  *  Escape cancels an in-progress range. `ref` exposes `{navigateTo}`. */
-export function Calendar(props: CalendarProps) @{
+export function Calendar(props: CalendarProps): JSX.Element @{
 	const mode = props.mode ?? 'single'
 	const numberOfMonths = props.numberOfMonths === 2 ? 2 : 1
 	const weekStartsOn = normalizeDayOfWeek(props.weekStartsOn)

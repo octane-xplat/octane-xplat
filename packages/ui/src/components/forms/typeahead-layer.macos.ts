@@ -7,6 +7,13 @@ import {
 	type PopoverRect,
 } from '../overlays/popover-position'
 
+export type AppKitTypeaheadLayer = {
+	update: () => void
+	isPresent: () => boolean
+	committed(token: object): boolean | undefined
+	dispose(): void
+}
+
 interface Layer {
 	readonly closed: boolean
 	show(): void
@@ -83,9 +90,9 @@ export function createAppKitTypeaheadLayer(
 		dismiss(): void
 		canDismiss(): boolean
 	},
-	bridge = appKitHost,
+	bridge: typeof appKitHost = appKitHost,
 	native: () => Record<string, any> = () => globalThis,
-) {
+): AppKitTypeaheadLayer {
 	let session: Session | null = null,
 		observed: (() => void) | undefined,
 		size: TypeaheadLayerSize | null = null
@@ -405,7 +412,7 @@ export function createAppKitTypeaheadLayer(
 			throw error
 		}
 	}
-	const update = () => {
+	const update = (): void => {
 		if (disposed) {
 			return
 		}
@@ -439,8 +446,8 @@ export function createAppKitTypeaheadLayer(
 	}
 	return {
 		update,
-		isPresent: () => !!session?.handle && valid(session) && session.revealed,
-		committed(token: object) {
+		isPresent: (): boolean => !!session?.handle && valid(session) && session.revealed,
+		committed(token: object): boolean | undefined {
 			const owned = session
 			if (!owned || owned.token !== token || !valid(owned)) {
 				return
@@ -466,7 +473,7 @@ export function createAppKitTypeaheadLayer(
 			}
 			return valid(owned) && owned.committed && owned.revealed
 		},
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 import type { LinkComponentType } from '../../props'
 
 /** Context value published by `LinkProvider`. */
@@ -10,4 +10,6 @@ export interface LinkContextValue {
 /** Context for the subtree's default link component (Astryx `LinkContext`).
  *  `null` → components render their platform default (`'a'` anchors on web,
  *  the native pressable elsewhere). */
-export const LinkContext = createContext<LinkContextValue | null>(null)
+export const LinkContext: Context<LinkContextValue | null> = createContext<LinkContextValue | null>(
+	null,
+)

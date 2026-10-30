@@ -121,7 +121,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 /** Standalone inputs render Astryx's visible field chrome: outside a
  *  FormField, wrap the control in one (label, description, status). Inside a
  *  field the FormField owns that chrome, so the control renders bare. */
-export function TextInput(props: TextInputProps) @{
+export function TextInput(props: TextInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const needsChrome =
 		!inField &&

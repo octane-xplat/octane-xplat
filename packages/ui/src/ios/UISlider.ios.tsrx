@@ -5,7 +5,7 @@ import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** UISlider — the platform widget (UIKit UISlider via NativeScript `slider`).
  *  The self-drawn shared `Slider` lives in the root export. */
-export function UISlider(props: UISliderProps) @{
+export function UISlider(props: UISliderProps): unknown @{
 	<slider
 		id={props.id}
 		className={cx(props.className)}

@@ -6,7 +6,7 @@ import { Pressable } from '../actions/Pressable'
 import { Text } from '../content/Text'
 
 /** Native popup roots receive explicit menu ownership instead of relying on context crossing roots. */
-export function MenuSurface(props: MenuSurfaceProps) @{
+export function MenuSurface(props: MenuSurfaceProps): unknown @{
 	const context = { closeMenu: () => props.closeMenu(), menuSize: 'md' as const }
 
 	<View

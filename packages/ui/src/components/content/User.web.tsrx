@@ -2,10 +2,11 @@
 import type { UserProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Avatar } from '../media/Avatar.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** User — avatar + name/description row. `onSelect` makes the row
  *  pressable. */
-export function User(props: UserProps) @{
+export function User(props: UserProps): JSX.Element @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

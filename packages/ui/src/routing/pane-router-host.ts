@@ -1,6 +1,49 @@
-import { createRenderRouterHost } from './render-router-host'
-import { createRouterRenderScope } from './router-render-scope'
-import type { ClientRouterHost, RouterHost, RouterHostChange, RouterInstance } from '../props'
+import { createRenderRouterHost, type RenderRouteFlow } from './render-router-host'
+import { createRouterRenderScope, type RouterRenderScope } from './router-render-scope'
+import type {
+	ClientRouterHost,
+	RouterHost,
+	RouterHostChange,
+	RouterInstance,
+	Store,
+} from '../props'
+
+import type { ContentEntry, ContentRoot } from '../components/overlays/owned-content'
+
+export type PaneRouterHost = {
+	host: RouterHost
+	attach(router: RouterInstance<any, any, any>): void
+	scope(flow: string): RouterRenderScope
+	getRenderHost(flow: string):
+		| {
+				host: RouterHost
+				views: Store<ReadonlyMap<string, RenderRouteFlow>>
+				attach(router: RouterInstance<any>): void
+				scope(flow: string): RouterRenderScope
+				mount(
+					flow: string,
+					options?: {
+						modal?: boolean
+						views?: ReadonlyMap<string, unknown>
+					},
+				): () => void
+		  }
+		| undefined
+	mount(
+		flow: string,
+		owner: {
+			entries: Store<ContentEntry[]>
+			readonly disposed: boolean
+			host: {
+				page?: any
+				parent?: any
+				window?: any
+			} | null
+			createRoot(target: unknown, onOwnerDispose?: () => void): ContentRoot
+			dispose(): void
+		},
+	): () => void | Promise<void>
+}
 
 /** Compose independent rendered panes with explicitly selected native Frames.
  * Flow kind is stable for the host lifetime; late Frame readiness must not
@@ -13,7 +56,7 @@ export function createPaneRouterHost(
 		/** Explicit renderer declaration, consulted at the first outlet mount. */
 		isFrameFlow?(flow: string): boolean
 	} = {},
-) {
+): PaneRouterHost {
 	const frames = options.frames
 	if (frames && frames.host.history !== 'independent') {
 		throw new TypeError('Pane composition requires independent Frame histories')

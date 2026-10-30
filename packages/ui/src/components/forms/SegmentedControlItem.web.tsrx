@@ -3,10 +3,11 @@ import { useContext } from 'octane'
 import type { SegmentedControlItemProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { SegmentedControlContext } from './option-list-contexts'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** `SegmentedControlItem` — one segment inside a `SegmentedControl`
  *  (Astryx child part). Reads selected state from the group context. */
-export function SegmentedControlItem(props: SegmentedControlItemProps) @{
+export function SegmentedControlItem(props: SegmentedControlItemProps): JSX.Element @{
 	const ctx = useContext(SegmentedControlContext)
 	const selected = typeof ctx?.selected === 'string' && ctx.selected === props.value
 	const disabled = Boolean(ctx?.isDisabled || props.isDisabled)

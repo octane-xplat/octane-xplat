@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ResizeHandleProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 const KEYBOARD_STEP = 10
 const KEYBOARD_LARGE_STEP = 50
@@ -21,7 +22,7 @@ function devWarnOnce(key: string, msg: string) {
  *  (AP['s separator pattern); double-click toggles collapse. `direction`
  *  selects the axis — `'horizontal'` resizes along the x-axis (the handle
  *  sits vertically, resizing width). */
-export function ResizeHandle(props: ResizeHandleProps) @{
+export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
 	const direction = props.direction ?? 'horizontal'
 	const isHorizontal = direction === 'horizontal'
 	const sign = props.isReversed ? -1 : 1

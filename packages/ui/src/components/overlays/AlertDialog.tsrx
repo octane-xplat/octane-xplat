@@ -18,7 +18,7 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
 /** Confirmation dialog (Astryx `AlertDialog`), native leaf — a
  *  `required`-purpose Dialog with title, description, Cancel, and one
  *  action button. */
-export function AlertDialog(props: AlertDialogProps) @{
+export function AlertDialog(props: AlertDialogProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {

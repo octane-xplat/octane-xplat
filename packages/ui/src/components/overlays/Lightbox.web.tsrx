@@ -7,6 +7,7 @@ import { applyEscapeProps } from './escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const clampIndex = (i: number, count: number) =>
 	count <= 0 ? 0 : Math.min(Math.max(i, 0), count - 1)
@@ -254,7 +255,7 @@ function LightboxLayer(props: {
 /** Full-screen media viewer (Astryx `Lightbox`), web leaf — portal layer
  *  with platform focus trap/scroll lock, keyboard navigation
  *  (Escape/←/→), backdrop click, click-zoom + drag-pan on images. */
-export function Lightbox(props: LightboxProps) @{
+export function Lightbox(props: LightboxProps): JSX.Element | null @{
 	const [internal, setInternal] = useState(props.defaultIndex ?? 0)
 	const count = props.media.length
 	const index = clampIndex(props.index ?? internal, count)

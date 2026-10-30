@@ -10,7 +10,7 @@ import { SizeProvider } from './size-context'
 const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 }
 
 /** Named action region with stable slots and manual AppKit action focus. */
-export function Toolbar(props: ToolbarProps) @{
+export function Toolbar(props: ToolbarProps): unknown @{
 	const size = props.size ?? 'md'
 	const gapPx = (props.gap ?? 1) * 4
 	const vertical = props.orientation === 'vertical'

@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 
 /** Timeline — vertical event list: dot + connector + content per item. */
-export function Timeline(props: TimelineProps) @{
+export function Timeline(props: TimelineProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

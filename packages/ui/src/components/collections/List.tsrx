@@ -4,7 +4,12 @@ import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ListProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { ListProvider } from './list-context'
 
@@ -14,7 +19,7 @@ import { ListProvider } from './list-context'
  *  number) and the divider, so `listStyle`/`hasDividers`/`start` produce
  *  the same visuals as web. Each `ListItem` still reads density from the
  *  context. */
-export function List(props: ListProps) @{
+export function List(props: ListProps): unknown @{
 	const listStyle = props.listStyle ?? 'none'
 	const density = props.density ?? 'balanced'
 	const items = toChildArray(props.children)

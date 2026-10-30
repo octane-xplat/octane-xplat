@@ -6,13 +6,14 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { useFieldControl } from './field-context'
 import { announce } from '../../internal/accessibility/announce.web'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn switch following Astryx's Switch: a visually hidden native
  *  `input[type=checkbox][role=switch]` over the drawn track and thumb, the
  *  label beside it and a detached status below. The platform widget
  *  (UISwitch/MaterialSwitch) lives in `ui/ios` + `ui/android`. Inside a
  *  FormField the field owns label/description/status. */
-export function Switch(inputProps: SwitchProps) @{
+export function Switch(inputProps: SwitchProps): JSX.Element @{
 	const { props, inField } = useFieldControl(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue ?? false)
 	const checked = props.value ?? internal

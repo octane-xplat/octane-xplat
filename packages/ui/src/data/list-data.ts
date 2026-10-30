@@ -96,7 +96,10 @@ export function createListData<T>(options: ListDataOptions<T> = {}): ListData<T>
 }
 
 /** @internal Atomic collection replacement for the async-list owner. */
-export function createListDataController<T>(options: ListDataOptions<T> = {}) {
+export function createListDataController<T>(options: ListDataOptions<T> = {}): {
+	list: ListData<T>
+	replace(items: readonly T[], selectedKeys?: Selection | Iterable<Key>): void
+} {
 	const getKey = options.getKey ?? defaultItemKey
 	let snapshot: ListSnapshot<T> = {
 		items: [...(options.initialItems ?? [])],
@@ -232,7 +235,7 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}) {
 	}
 	return {
 		list,
-		replace(items: readonly T[], selectedKeys?: Selection | Iterable<Key>) {
+		replace(items: readonly T[], selectedKeys?: Selection | Iterable<Key>): void {
 			const present = new Set(items.map(getKey))
 			const removed = new Set(snapshot.items.map(getKey).filter((key) => !present.has(key)))
 			commit({

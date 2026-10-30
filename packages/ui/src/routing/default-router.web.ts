@@ -1,5 +1,6 @@
 import { createBrowserRouterHost } from './browser-router-host.web'
 import { createDefaultRouterRuntime } from './default-router-runtime'
+import type { DefaultRouterRuntime } from './default-router-runtime'
 import type {
 	DefaultRouterContractCheck,
 	RouteManifest,
@@ -7,7 +8,10 @@ import type {
 	RouterInstance,
 } from '../props'
 
-export const defaultRouterRuntime = createDefaultRouterRuntime(createBrowserRouterHost)
+export const defaultRouterRuntime: DefaultRouterRuntime<
+	ReturnType<typeof createBrowserRouterHost>
+> = createDefaultRouterRuntime(createBrowserRouterHost)
+
 /** The application's typed client router. RouteOutlet supplies its owning
  * platform integration; server requests must create isolated instances. */
 export const router: RouterInstance = defaultRouterRuntime.router

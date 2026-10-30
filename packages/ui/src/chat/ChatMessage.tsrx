@@ -14,7 +14,7 @@ const renderable = (v: any) => v != null && v !== false && v !== true
  *  centered (avatar/name suppressed for system). NS has no row-reverse
  *  column order, so the user variant places the avatar after the content
  *  column instead — same visual result. */
-export function ChatMessage(props: ChatMessageProps) @{
+export function ChatMessage(props: ChatMessageProps): unknown @{
 	const listContext = useChatListContext()
 	const density = props.density ?? listContext?.density ?? 'balanced'
 	const contextValue = useMemo(() => ({ sender: props.sender, density }), [props.sender, density])

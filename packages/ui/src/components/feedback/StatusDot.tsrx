@@ -14,7 +14,7 @@ import { Tooltip } from '../overlays/Tooltip'
  *  name. `isPulsing` loops an opacity animation on the native view (no CSS
  *  keyframes in the NS engine). `tooltip` wraps the shared Tooltip — a no-op
  *  on touch targets by Tooltip's own contract. */
-export function StatusDot(props: StatusDotProps) @{
+export function StatusDot(props: StatusDotProps): unknown @{
 	const scheme = useColorScheme()
 	const dot = useRef<any>(null)
 	const pulsing = props.isPulsing ?? false

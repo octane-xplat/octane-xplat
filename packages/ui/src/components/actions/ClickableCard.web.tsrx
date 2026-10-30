@@ -3,8 +3,9 @@ import type { ClickableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'
 import { sanitizeUrl } from '../../routing/safe-url'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function ClickableCard(props: ClickableCardProps) @{
+export function ClickableCard(props: ClickableCardProps): JSX.Element @{
 	const className = cx(
 		'vx-card',
 		'vx-clickable-card',

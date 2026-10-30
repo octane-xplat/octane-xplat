@@ -4,14 +4,17 @@ import { useState } from 'octane'
 import type { ChatComposerDrawerProps } from '../props'
 import { cx } from '@octane-xplat/lib'
 import { Badge } from '../components/feedback/Badge'
-import { nativeAccessibilityRole, nativeAccessibilityState } from '../components/overlays/escape-props'
+import {
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../components/overlays/escape-props'
 
 /** Collapsible drawer panel for a chat composer — attachments, context
  *  chips, previews. With `count`, a toggle row renders the collapsed
  *  summary (badge + label); without it the drawer is always expanded.
  *  The collapse is instant on native (the grid-row crossfade is a DOM
  *  behavior). */
-export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
+export function ChatComposerDrawer(props: ChatComposerDrawerProps): unknown @{
 	const isControlled = props.isCollapsed !== undefined
 	const [internalCollapsed, setInternalCollapsed] = useState(props.defaultIsCollapsed ?? false)
 	const isCollapsed = isControlled ? props.isCollapsed : internalCollapsed

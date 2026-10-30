@@ -40,7 +40,7 @@ const settingsProperty = new Property<WindowsSliderControl, SliderSettings>({
 })
 
 /** Hit-test-excluded peers need explicit focus when the shared track receives a press. */
-export function focusSliderInput(view: View | null) {
+export function focusSliderInput(view: View | null): boolean {
 	if (!view?.isLoaded || !view.isEnabled || view.nativeViewProtected?.IsEnabled === false) {
 		return false
 	}

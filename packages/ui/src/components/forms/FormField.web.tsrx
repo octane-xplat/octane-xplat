@@ -8,12 +8,13 @@ import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
 import { announce } from '../../internal/accessibility/announce.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Shared field wrapper for labels, descriptions, and validation status.
  *  Under a `FormLayout`, horizontal labels flatten the root so the grid can
  *  place labels and controls in shared columns. Form-wide optionality hides
  *  redundant markers while controls retain their required accessibility state. */
-export function FormField(props: FormFieldProps) @{
+export function FormField(props: FormFieldProps): JSX.Element @{
 	const generatedControlId = useId()
 	const form = useContext(FormLayoutContext)
 	const isHorizontalLabels = form.direction === 'horizontal-labels'

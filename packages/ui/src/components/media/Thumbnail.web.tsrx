@@ -8,6 +8,7 @@ import { Skeleton } from '../feedback/Skeleton.web.tsrx'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.web.tsrx'
 import { Icon } from './Icon.web.tsrx'
 import { isRenderable } from '../../internal/rendering/is-renderable'
+import type { JSX } from 'octane/jsx-runtime'
 
 const SIZE = 40
 
@@ -19,7 +20,7 @@ let warnedMissingName = false
  *  'hover' reveals it on hover/focus, 'always' keeps it visible. An empty
  *  `alt` is explicitly decorative; a missing one dev-warns unless `label`
  *  (or web aria attrs) names the group. */
-export function Thumbnail(props: ThumbnailProps) @{
+export function Thumbnail(props: ThumbnailProps): JSX.Element @{
 	const isLoading = props.isLoading ?? false
 	const isDisabled = props.isDisabled ?? false
 	const showRemoveOn = props.showRemoveOn ?? 'hover'

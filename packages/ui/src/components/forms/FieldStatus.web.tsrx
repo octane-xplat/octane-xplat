@@ -2,10 +2,11 @@
 import type { FieldStatusComponentProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** `FieldStatus` — standalone status message (Astryx part): severity glyph
  *  plus message, used where a field owns its chrome. */
-export function FieldStatus(props: FieldStatusComponentProps) @{
+export function FieldStatus(props: FieldStatusComponentProps): JSX.Element @{
 	const variant = props.variant ?? 'detached'
 
 	<div

@@ -9,7 +9,7 @@ import { Avatar } from './Avatar.macos.tsrx'
 /** AvatarGroup — row of overlapping avatars. `max` collapses the rest into
  *  a `+N` avatar. Overlap is one-third of `size`, applied per-item so it
  *  works identically without relying on sibling CSS selectors. */
-export function AvatarGroup(props: AvatarGroupProps) @{
+export function AvatarGroup(props: AvatarGroupProps): unknown @{
 	const size = props.size ?? 32
 	const children = toChildArray(props.children)
 	const shown = props.max != null ? children.slice(0, props.max) : children
@@ -42,7 +42,7 @@ export function AvatarGroup(props: AvatarGroupProps) @{
 }
 
 /** AvatarGroupOverflow — the `+N` counter part (Astryx), AppKit leaf. */
-export function AvatarGroupOverflow(props: AvatarGroupOverflowProps) @{
+export function AvatarGroupOverflow(props: AvatarGroupOverflowProps): unknown @{
 	const size = typeof props.size === 'number' ? props.size : 32
 
 	<masonview

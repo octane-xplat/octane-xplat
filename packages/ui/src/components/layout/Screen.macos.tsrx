@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ScreenProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 
-export function Screen(props: ScreenProps) @{
+export function Screen(props: ScreenProps): unknown @{
 	<masonview
 		id={props.id}
 		className={cx('vx-screen', props.className)}

@@ -13,7 +13,7 @@ import './checkbox-control'
 import './Checkbox.windows.css'
 
 /** Shared indicator and label, with WinUI owning focus and TogglePattern. */
-export function Checkbox(inputProps: CheckboxProps) @{
+export function Checkbox(inputProps: CheckboxProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const inField = useContext(FieldContext) != null
 	const [internal, setInternal] = useState(props.defaultValue ?? false)

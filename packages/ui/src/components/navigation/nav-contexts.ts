@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'octane'
+import { createContext, useContext, type Context } from 'octane'
 import { SizeContext } from '../layout/size-context'
 import type {
 	AppShellMobileContextValue,
@@ -26,7 +26,7 @@ const defaultAppShellMobile: AppShellMobileContextValue = {
 	hasAutoToggle: true,
 }
 
-export const AppShellMobileContext =
+export const AppShellMobileContext: Context<AppShellMobileContextValue> =
 	createContext<AppShellMobileContextValue>(defaultAppShellMobile)
 
 export function useAppShellMobile(): AppShellMobileContextValue {
@@ -35,7 +35,8 @@ export function useAppShellMobile(): AppShellMobileContextValue {
 
 /** AppShell sets this so TopNav can switch between the full bar, the
  *  reduced mobile bar, and drawer rendering below the breakpoint. */
-export const TopNavRenderContext = createContext<TopNavRenderMode>('default')
+export const TopNavRenderContext: Context<TopNavRenderMode> =
+	createContext<TopNavRenderMode>('default')
 
 export function useTopNavRenderMode(): TopNavRenderMode {
 	return useContext(TopNavRenderContext) ?? 'default'
@@ -43,7 +44,7 @@ export function useTopNavRenderMode(): TopNavRenderMode {
 
 /** Which TopNav slot an item renders in — items use it for slot-specific
  *  styling (e.g. drawer layouts stretch items full width). */
-export const TopNavSlotContext = createContext<TopNavSlot>('start')
+export const TopNavSlotContext: Context<TopNavSlot> = createContext<TopNavSlot>('start')
 
 export function useTopNavSlot(): TopNavSlot {
 	return useContext(TopNavSlotContext) ?? 'start'
@@ -51,7 +52,7 @@ export function useTopNavSlot(): TopNavSlot {
 
 /** Extra drawer content AppShell hands to TopNav's drawer render — the
  *  SideNav's items travel this way when the drawer is combined. */
-export const TopNavMobileContentContext = createContext<any>(null)
+export const TopNavMobileContentContext: Context<any> = createContext<any>(null)
 
 export function useTopNavMobileContent(): any {
 	return useContext(TopNavMobileContentContext) ?? null
@@ -59,14 +60,16 @@ export function useTopNavMobileContent(): any {
 
 /** AppShell sets this so SideNav can switch between the full sidebar, the
  *  horizontal topbar, and the two drawer renderings. */
-export const SideNavRenderContext = createContext<SideNavRenderMode>('default')
+export const SideNavRenderContext: Context<SideNavRenderMode> =
+	createContext<SideNavRenderMode>('default')
 
 export function useSideNavRenderMode(): SideNavRenderMode {
 	return useContext(SideNavRenderContext) ?? 'default'
 }
 
 /** SideNav collapse state shared with collapse buttons and items. */
-export const SideNavCollapseContext = createContext<SideNavCollapseState | null>(null)
+export const SideNavCollapseContext: Context<SideNavCollapseState | null> =
+	createContext<SideNavCollapseState | null>(null)
 
 export function useSideNavCollapse(): SideNavCollapseState | null {
 	return useContext(SideNavCollapseContext)
@@ -74,7 +77,8 @@ export function useSideNavCollapse(): SideNavCollapseState | null {
 
 /** TabList → Tab/TabMenu selection contract. Throws when read outside a
  *  TabList, matching upstream. */
-export const TabListContext = createContext<TabListContextValue | null>(null)
+export const TabListContext: Context<TabListContextValue | null> =
+	createContext<TabListContextValue | null>(null)
 
 export function useTabListContext(): TabListContextValue {
 	const ctx = useContext(TabListContext)
@@ -89,14 +93,16 @@ export function useTabListContext(): TabListContextValue {
 
 /** Heading-popover close callback — NavHeadingMenu reads it to dismiss the
  *  popover on item selection and Escape. */
-export const NavHeadingCloseContext = createContext<NavHeadingCloseContextValue | null>(null)
+export const NavHeadingCloseContext: Context<NavHeadingCloseContextValue | null> =
+	createContext<NavHeadingCloseContextValue | null>(null)
 
 export function useNavHeadingCloseContext(): NavHeadingCloseContextValue | null {
 	return useContext(NavHeadingCloseContext)
 }
 
 /** NavHeadingMenu → its items: size + the close callback. */
-export const NavHeadingMenuContext = createContext<NavHeadingMenuContextValue | null>(null)
+export const NavHeadingMenuContext: Context<NavHeadingMenuContextValue | null> =
+	createContext<NavHeadingMenuContextValue | null>(null)
 
 export function useNavHeadingMenuContext(): NavHeadingMenuContextValue | null {
 	return useContext(NavHeadingMenuContext)

@@ -136,7 +136,7 @@ const MemoNav = memo(
  *  TabViewItem-hosted Frames lose navigation bookkeeping upstream
  *  (NativeScript#11444; the #11446 fix ships in the xplat core patch).
  *  `tabs` is identity-stable. */
-export function BottomNavigationView(props: BottomNavigationViewProps) @{
+export function BottomNavigationView(props: BottomNavigationViewProps): unknown @{
 	const indexForKey = (key?: string) =>
 		key == null ? -1 : props.tabs.findIndex((t, i) => (t.key ?? String(i)) === key)
 

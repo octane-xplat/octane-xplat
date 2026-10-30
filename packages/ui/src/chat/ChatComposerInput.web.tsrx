@@ -33,6 +33,7 @@ import { useChatPasteAsToken } from './useChatPasteAsToken.web.tsrx'
 import { ChatPastedTextToken } from './ChatPastedTextToken.web.tsrx'
 import { ChatTokenChip } from './chat-tokens.web.tsrx'
 import { useChatComposerContext } from './chat-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 const LINE_HEIGHT_PX = 22
 const PASTED_TOKEN_MIN = 200
@@ -85,7 +86,7 @@ const isIme = (e: any) => e.isComposing || e.keyCode === 229 || e.nativeEvent?.i
  *  menus (@ //), Enter-to-submit (Shift+Enter newline, IME-guarded), message
  *  history recall, paste-as-token for long pastes, and file drop/paste.
  *  Without `value` it binds to the enclosing ChatComposer context. */
-export function ChatComposerInput(props: ChatComposerInputProps) @{
+export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
 	const composerCtx = useChatComposerContext()
 	const hasControlledValueProp = props.value !== undefined
 	const hasControlledDraftProp = props.draft !== undefined
@@ -594,7 +595,9 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 /** Non-editable inline token element — the chip rendered inside the
  *  contenteditable. Mostly used internally; exported for custom token
  *  renderers. */
-export function ChatComposerTokenElement(props: ChatComposerTokenElementProps) @{
+export function ChatComposerTokenElement(
+	props: ChatComposerTokenElementProps,
+): JSX.Element @{
 	<span
 		id={props.id}
 		className={['vx-chattoken-el', props.className]}

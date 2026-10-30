@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useRef } from 'octane'
 import type { ColorSliderProps, PanEvent } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
@@ -14,7 +15,7 @@ const HUE_STOPS = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00
 
 /** Internal hue slider — 7-stop track, thumb filled with the current hue.
  *  Drag is delta-based (no tap-to-position v1); arrows step 1°, Shift 10°. */
-export function ColorSliderView(props: ColorSliderViewProps) {
+export function ColorSliderView(props: ColorSliderViewProps): JSX.Element {
 	const host = useRef<HTMLElement | null>(null)
 	const measure = useMeasure()
 	const drag = useRef<number | null>(null)
@@ -111,7 +112,7 @@ export function ColorSliderView(props: ColorSliderViewProps) {
 	)
 }
 
-export function ColorSlider(props: ColorSliderProps) {
+export function ColorSlider(props: ColorSliderProps): JSX.Element {
 	const color = useColorState(props, '#ff0000')
 	return (
 		<ColorSliderView

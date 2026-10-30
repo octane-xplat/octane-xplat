@@ -4,6 +4,7 @@ import type { Key, Selection, TreeProps, TreeListNode } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
 import { useLinkComponent } from '../navigation/use-link-component.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 function leafKeys(nodes: readonly TreeListNode[], into: Key[] = []): Key[] {
 	for (const node of nodes) {
@@ -104,7 +105,9 @@ function TreeRow(props: {
  *  control the open set, `defaultExpandedKeys` seeds it; leaf rows keep a
  *  keyed selection under `selectionMode` and `onAction` reports leaf
  *  activation. */
-export function Tree<T extends TreeListNode = TreeListNode>(props: TreeProps<T>) @{
+export function Tree<T extends TreeListNode = TreeListNode>(
+	props: TreeProps<T>,
+): JSX.Element @{
 	const selectionMode = props.selectionMode ?? 'none'
 	const [openInternal, setOpenInternal] = useState<Set<Key>>(
 		() => new Set(props.defaultExpandedKeys ?? []),

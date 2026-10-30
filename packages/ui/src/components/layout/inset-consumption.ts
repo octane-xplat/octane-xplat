@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'octane'
+import { createContext, useContext, type Context } from 'octane'
 import type { SafeAreaEdge } from '../../props'
 
 /** Per-edge system insets, in dips. */
@@ -14,7 +14,7 @@ const NONE: InsetEdges = { top: 0, right: 0, bottom: 0, left: 0 }
 /** Insets ancestor `SafeArea` containers already applied as padding.
  *  Nested containers subtract them so each edge is consumed once;
  *  `KeyboardAvoiding` reads the consumed bottom edge. */
-export const ConsumedInsetsContext = createContext<InsetEdges>(NONE)
+export const ConsumedInsetsContext: Context<InsetEdges> = createContext<InsetEdges>(NONE)
 
 /** JSX provider — universal-renderer contexts are callables, not
  *  `.Provider` members (same aliasing as FieldProvider/DialogProvider). */

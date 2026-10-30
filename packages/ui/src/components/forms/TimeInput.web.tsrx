@@ -36,6 +36,7 @@ import {
 } from './datetime'
 
 import { TimeWheelPanel } from './TimeWheelPanel.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 function isCoarsePointer(): boolean {
 	try {
@@ -500,7 +501,7 @@ function TimeInputControl(inputProps: CoreProps) @{
  *  stepping, wheel sheet on touch surfaces, `<input type=time>` for
  *  `native`. `adaptive-native` (default) keeps the typed field when the OS
  *  picker can't express the contract (`hasSeconds`, `increment !== 1`). */
-export function TimeInput(props: TimeInputProps) @{
+export function TimeInput(props: TimeInputProps): JSX.Element @{
 	const inField = useContext(FieldContext) != null
 	const isTouch = useCoarsePointer()
 	const effective = effectivePresentation(props.presentation)

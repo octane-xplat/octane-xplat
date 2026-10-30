@@ -1,13 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ActivityIndicatorProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 const sizePx: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32 }
 
 /** ActivityIndicator — exported as `Spinner` (Astryx). `size` picks the
  *  diameter, `shade="onMedia"` raises the track contrast for imagery,
  *  `label` renders text/node beside the ring. */
-export function ActivityIndicator(props: ActivityIndicatorProps) @{
+export function ActivityIndicator(props: ActivityIndicatorProps): JSX.Element | null @{
 	if (props.busy === false) {
 		return null
 	}

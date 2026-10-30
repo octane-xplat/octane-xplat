@@ -1,4 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { UseTriggerMenuWebResult } from './use-trigger-menu-result'
+import type { JSX } from 'octane/jsx-runtime'
 import { dispatchLayerKey } from './layer-stack'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type { ChatComposerTrigger, ChatComposerTriggerItem } from '../../props'
@@ -92,7 +94,7 @@ function deleteTriggerText(editable: HTMLDivElement, triggerStart: number): void
  *  the caret, a Popover anchored to a caret-sized fixed span, async/sync
  *  SearchSource with debounce + cancel, and listbox keyboard navigation
  *  (arrows/Enter/Tab/Escape). */
-export function useTriggerMenu(options: UseTriggerMenuOptions) {
+export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWebResult {
 	const {
 		triggers,
 		editableRef,

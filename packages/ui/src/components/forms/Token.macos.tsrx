@@ -25,7 +25,7 @@ const TOKEN_COLORS: Record<string, Record<'light' | 'dark', [string, string]>> =
 
 /** Token — inline entity chip. macOS leaf: `href` routes through
  *  router.navigateUrl like Link; chrome is inlined (no CSS layer). */
-export function Token(props: TokenProps) @{
+export function Token(props: TokenProps): unknown @{
 	const scheme = useThemeScheme()
 	const icon =
 		props.icon == null ? null : typeof props.icon === 'string' ? (

@@ -4,11 +4,12 @@ import type { MetadataListItemProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { MetadataListContext } from './metadata-list-context'
 import { isRenderable } from '../../internal/rendering/is-renderable'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** One label/value item in a MetadataList. 'top' position (or horizontal
  *  orientation) wraps dt+dd in a single grid cell; 'start' emits dt and dd
  *  as separate grid children so label tracks align across items. */
-export function MetadataListItem(props: MetadataListItemProps) @{
+export function MetadataListItem(props: MetadataListItemProps): JSX.Element @{
 	const ctx = useContext(MetadataListContext)
 	const isStacked = (ctx?.labelPosition ?? 'start') === 'top' || ctx?.orientation === 'horizontal'
 

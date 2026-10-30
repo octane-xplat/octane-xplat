@@ -123,7 +123,7 @@ function SelectOptionRow(input: {
 
 /** Select presentation — resolved finite-list state in, user intents out.
  *  Internal only; consumers use `Select`. */
-export function SelectView(props: SelectViewProps) @{
+export function SelectView(props: SelectViewProps): unknown @{
 	const translate = useTranslator()
 	const anchor = useRef<NSView | null>(null)
 	const search = useRef<NSTextField | null>(null)

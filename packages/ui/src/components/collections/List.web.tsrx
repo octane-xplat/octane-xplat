@@ -6,12 +6,13 @@ import type { ListProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { ListProvider } from './list-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** List — a vertical content list (not virtualized; that's VirtualList).
  *  Semantic `ul`/`ol` (`role="list"` restores the semantics `list-style:
  *  none` drops in WebKit), markers custom-rendered by ListItem, density +
  *  dividers + edge compensation flow through context. */
-export function List(props: ListProps) @{
+export function List(props: ListProps): JSX.Element @{
 	const listStyle = props.listStyle ?? 'none'
 	const density = props.density ?? 'balanced'
 	const isOrdered = listStyle === 'decimal'

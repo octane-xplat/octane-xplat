@@ -20,7 +20,9 @@ import { createAppKitAutoFocus } from '../../internal/accessibility/auto-focus.m
 
 /** AppKit combobox search/focus ownership. Results remain in the inline
  * presentation; keyboard intents remain source-only and listbox AX is incomplete. */
-export function BaseTypeahead<T extends SearchableItem>(inProps: BaseTypeaheadProps<T>) @{
+export function BaseTypeahead<T extends SearchableItem>(
+	inProps: BaseTypeaheadProps<T>,
+): unknown @{
 	const props = useFieldControlProps(inProps)
 	const inputRef = useRef<NSTextField | null>(null),
 		busyLane = useContext(BusyLaneContext)

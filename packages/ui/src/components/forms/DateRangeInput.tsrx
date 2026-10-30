@@ -198,7 +198,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
  *  iOS/Android the picker surface is a bottom sheet (Astryx's popover has
  *  no touch story for a two-month range grid); `Popover` is the desktop
  *  surface. */
-export function DateRangeInput(props: DateRangeInputProps) @{
+export function DateRangeInput(props: DateRangeInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const cid = useId()
 	const control = <RangeControl {...props} />

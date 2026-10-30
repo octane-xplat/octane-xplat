@@ -16,7 +16,7 @@ let warnedBlockedUrl = false
 /** Citation — labelled chip or numbered pill referencing a source. Safe
  *  `url`s open via Utils.openUrl; unsafe schemes render inert. A bare-string
  *  `source.icon` is a favicon URL; a node renders inside the icon circle. */
-export function Citation(props: CitationProps) @{
+export function Citation(props: CitationProps): unknown @{
 	const scheme = useColorScheme()
 	const source = props.source
 	const variant = props.variant ?? 'label'

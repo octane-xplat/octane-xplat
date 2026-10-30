@@ -55,7 +55,7 @@ function editorText(value?: FilterValue, dateOnly = false): string {
 	return Array.isArray(value.value) ? value.value.join(', ') : String(value.value)
 }
 
-export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
+export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): unknown @{
 	const field = props.config.fields.find((x) => x.key === props.filter.field)
 	const operatorKey = props.filter.operator ?? field?.defaultOperator
 	const operator =

@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'octane'
+import { createContext, useContext, type Context } from 'octane'
 import type { FieldControlProps } from '../../props'
 import { FormLayoutContext } from './form-layout-context'
 import { InputGroupContext } from './input-group-context'
@@ -11,7 +11,9 @@ export interface FieldContextValue extends FieldControlProps {
 	statusId?: string
 }
 
-export const FieldContext = createContext<FieldContextValue | null>(null)
+export const FieldContext: Context<FieldContextValue | null> =
+	createContext<FieldContextValue | null>(null)
+
 export const FieldProvider: any = FieldContext
 
 export interface ResolvedFieldControlProps extends FieldControlProps {

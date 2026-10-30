@@ -15,7 +15,7 @@ import { refList } from '../../internal/accessibility/ref-list'
 
 /** AppKit GridList: registered native rows, one roving Tab stop in arrow
  * mode, native Tab stops in tab mode, and keyboard/pointer activation. */
-export function GridList<T = any>(props: GridListProps<T>) @{
+export function GridList<T = any>(props: GridListProps<T>): unknown @{
 	const keys = props.items.map((item, index) => (props.keyExtractor ?? defaultItemKey)(item, index))
 	const disabled = new Set<Key>(props.disabledKeys ?? [])
 	const selectionMode = props.selectionMode ?? 'none'
@@ -33,28 +33,41 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 	const liveKeys = useRef(keys)
 	latest.current = props
 	liveKeys.current = keys
-	const activation = useRef<(row: AppKitGridRow, event: NativeKeyboardEvent<object>, toggleOnly: boolean) => void>(() => {})
-	const navigation = useMemo(() => createAppKitGridNavigation({
-		root: () => root.current,
-		rows: () => liveKeys.current.flatMap((key) => {
-			const view = rowViews.current.get(key)
-			return view ? [{ key, view }] : []
-		}),
-		columns: () => latest.current.layout === 'stack' ? 1 : latest.current.columns,
-		tabMode: () => latest.current.keyboardNavigationBehavior === 'tab',
-		press: (row, event, toggleOnly) => activation.current(row, event, toggleOnly),
-	}), [])
+	const activation = useRef<
+		(row: AppKitGridRow, event: NativeKeyboardEvent<object>, toggleOnly: boolean) => void
+	>(() => {})
+
+	const navigation = useMemo(
+		() =>
+			createAppKitGridNavigation({
+				root: () => root.current,
+				rows: () =>
+					liveKeys.current.flatMap((key) => {
+						const view = rowViews.current.get(key)
+						return view ? [{ key, view }] : []
+					}),
+				columns: () => (latest.current.layout === 'stack' ? 1 : latest.current.columns),
+				tabMode: () => latest.current.keyboardNavigationBehavior === 'tab',
+				press: (row, event, toggleOnly) => activation.current(row, event, toggleOnly),
+			}),
+		[],
+	)
+
 	useEffect(() => navigation.start(), [])
 	useEffect(() => navigation.synchronize(), null)
 	const isGrid = (props.layout ?? 'grid') === 'grid'
 
 	const forwardedRef = useMemo(
 		() =>
-			refList<object>((v: object | null) => {
-				if (v) {
-					applyEscapeProps(v, props)
-				}
-			}, root, props.ref),
+			refList<object>(
+				(v: object | null) => {
+					if (v) {
+						applyEscapeProps(v, props)
+					}
+				},
+				root,
+				props.ref,
+			),
 		[props.ref, props.ios, props.android, props.web],
 	)
 
@@ -63,8 +76,14 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 			return
 		}
 
-		if (!event) navigation.focusRow(key)
-		if (!toggleOnly) props.onAction?.(key)
+		if (!event) {
+			navigation.focusRow(key)
+		}
+
+		if (!toggleOnly) {
+			props.onAction?.(key)
+		}
+
 		if (selectionMode === 'none') {
 			return
 		}
@@ -121,8 +140,11 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 			})); key entry.key) {
 			<Pressable
 				ref={(view: NSView | null) => {
-					if (view) rowViews.current.set(entry.key, view)
-					else rowViews.current.delete(entry.key)
+					if (view) {
+						rowViews.current.set(entry.key, view)
+					} else {
+						rowViews.current.delete(entry.key)
+					}
 				}}
 				className={cx(
 					'vx-gridlist-row',

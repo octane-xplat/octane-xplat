@@ -58,7 +58,7 @@ export function createVirtualListEntries<T>(
 	})
 }
 
-export function virtualListMeasurementKey(rowKey: string, hasSeparator: boolean) {
+export function virtualListMeasurementKey(rowKey: string, hasSeparator: boolean): string {
 	return rowKey + (hasSeparator ? ':separator' : ':last')
 }
 
@@ -197,7 +197,7 @@ export function virtualListRange(
 	sizes: VirtualListSizeIndex,
 	scrollOffset: number,
 	viewportSize: number,
-	overscanSize = viewportSize,
+	overscanSize: number = viewportSize,
 ): VirtualListRange {
 	if (sizes.length === 0) {
 		return { start: 0, end: 0, top: 0, bottom: 0 }

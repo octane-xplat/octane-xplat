@@ -13,7 +13,16 @@ export interface VisibleListRow {
 /** Tracks logical rows after each platform observer measures actual viewport
  *  intersections. A native cell can be reused; index plus current item is the
  *  identity exposed to callers. */
-export function createListViewabilityTracker<T>() {
+export function createListViewabilityTracker<T>(): {
+	update: (
+		rows: readonly VisibleListRow[],
+		items: readonly T[],
+		config: ListViewabilityConfig | undefined,
+		callback: ((info: ListViewabilityInfo<T>) => void) | undefined,
+	) => void
+	reset: () => void
+	dispose: () => void
+} {
 	const active = new Map<number, T>()
 	const pending = new Map<
 		number,
@@ -43,7 +52,7 @@ export function createListViewabilityTracker<T>() {
 		items: readonly T[],
 		config: ListViewabilityConfig | undefined,
 		callback: ((info: ListViewabilityInfo<T>) => void) | undefined,
-	) {
+	): void {
 		if (disposed) {
 			return
 		}
@@ -118,12 +127,12 @@ export function createListViewabilityTracker<T>() {
 		emit(changed)
 	}
 
-	function dispose() {
+	function dispose(): void {
 		disposed = true
 		reset()
 	}
 
-	function reset() {
+	function reset(): void {
 		const changed: ListViewabilityChange<T>[] = [...active].map(([index, item]) => ({
 			index,
 			item,

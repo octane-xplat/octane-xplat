@@ -4,6 +4,7 @@ import type { BannerProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Collapsible } from '../collections/Collapsible.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const statusIcon: Record<string, string> = {
 	info: 'xplat-info',
@@ -17,7 +18,7 @@ const statusIcon: Record<string, string> = {
  *  renders the ✕ affordance, `children` render below — behind a show/hide
  *  toggle unless `collapsible={false}`. `variant="floating"` detaches the
  *  strip visually via the `vx-banner--floating` class hook. */
-export function Banner(props: BannerProps) @{
+export function Banner(props: BannerProps): JSX.Element | null @{
 	const [dismissed, setDismissed] = useState(false)
 	if (dismissed) {
 		return null

@@ -12,7 +12,10 @@ export function isCustomToken(token: ChatComposerToken): token is ChatComposerTo
 
 /** The shared inline chip for badge-configured tokens — used by the
  *  composer input, ChatComposerTokenElement, and ChatTokenizedText. */
-export function ChatTokenChip(props: { token: ChatComposerToken; className?: any }) @{
+export function ChatTokenChip(props: {
+	token: ChatComposerToken
+	className?: any
+}): unknown @{
 	const token = props.token
 	if (isCustomToken(token)) {
 		return token.render()

@@ -66,7 +66,7 @@ function EndLane(props: {
  *  Backspace-removes-last-token needs key events native text fields don't
  *  emit, so removal is the token ✕ (and the clear-all lane); truncation is
  *  measured off native layout (`layoutChanged`), not ResizeObserver. */
-export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
+export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): unknown @{
 	const size = useSize(props.size, 'md')
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)
 	const wrapperRef = useRef<any>(null)

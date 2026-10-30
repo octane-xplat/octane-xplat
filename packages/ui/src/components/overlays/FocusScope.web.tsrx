@@ -4,6 +4,7 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from '../../props'
 import { applyEscapeProps } from './escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** FocusScope — keyboard focus containment, React Aria's FocusScope. The
  *  web leaf renders a div that can trap Tab inside its subtree (`contain`),
@@ -27,7 +28,7 @@ function tabStops(root: HTMLElement): HTMLElement[] {
 	)
 }
 
-export function FocusScope(props: FocusScopeProps) @{
+export function FocusScope(props: FocusScopeProps): JSX.Element @{
 	const scopeEl = useRef<HTMLElement | null>(null)
 	const previouslyFocused = useRef<HTMLElement | null>(null)
 	const lastFocused = useRef<HTMLElement | null>(null)

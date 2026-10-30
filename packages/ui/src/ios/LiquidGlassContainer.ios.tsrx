@@ -22,7 +22,7 @@ registerElement('liquidglasscontainer', LiquidGlassContainerView)
  *  host is an AbsoluteLayout — children position via left/top, or nest a
  *  layout primitive inside and let the glass effects merge spatially.
  *  Inert layout on iOS < 26. */
-export function LiquidGlassContainer(props: LiquidGlassContainerProps) @{
+export function LiquidGlassContainer(props: LiquidGlassContainerProps): unknown @{
 	<liquidglasscontainer
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}

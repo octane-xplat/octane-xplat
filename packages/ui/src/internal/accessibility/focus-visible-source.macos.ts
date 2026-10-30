@@ -8,7 +8,12 @@ export function createAppKitFocusVisibleSource(
 	observePointer?: (
 		notify: (event: { type: number; modifierFlags: number }) => void,
 	) => (() => void) | undefined,
-) {
+): {
+	getSnapshot: () => UseFocusVisibleResult
+	subscribe(notify: () => void): () => void
+	isFocusVisible(): boolean
+	dispose(): void
+} {
 	let state: UseFocusVisibleResult = {
 		isFocusVisible: false,
 		inputModality: 'unknown',

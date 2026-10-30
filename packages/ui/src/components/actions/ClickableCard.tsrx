@@ -11,7 +11,7 @@ import { Utils } from '@nativescript/core'
  *
  * @see ClickableCardProps, SelectableCardProps.
  */
-export function ClickableCard(props: ClickableCardProps) @{
+export function ClickableCard(props: ClickableCardProps): unknown @{
 	const activate = () => {
 		if (props.isDisabled) {
 			return

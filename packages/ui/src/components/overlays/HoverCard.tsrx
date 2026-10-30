@@ -9,7 +9,7 @@ import { View } from '../layout/View'
  *  `.mobile` leaf (tap-to-open). Bridge-absent targets render the
  *  trigger only. `focusTrigger` has no native focus traversal to key on
  *  — inert here (documented deviation). */
-export function HoverCard(props: HoverCardProps) @{
+export function HoverCard(props: HoverCardProps): unknown @{
 	const card = useHoverCard({
 		placement: props.placement,
 		alignment: props.alignment,

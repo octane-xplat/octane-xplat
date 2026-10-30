@@ -2,8 +2,9 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { MeterProps } from '../../props'
 import { meterRange } from './meter-math'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function Meter(props: MeterProps) @{
+export function Meter(props: MeterProps): JSX.Element @{
 	const min = props.minValue ?? 0
 	const max = props.maxValue ?? props.max ?? 100
 	const { min: rangeMin, max: rangeMax, value, ratio } = meterRange(props.value, min, max)

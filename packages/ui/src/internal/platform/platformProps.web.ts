@@ -1,5 +1,5 @@
 /** Apply a web escape-hatch bag after the primitive's standard props. */
-export function applyWebProps(el: any, props: Record<string, any> | undefined) {
+export function applyWebProps(el: any, props: Record<string, any> | undefined): void {
 	if (!el || !props) {
 		return
 	}

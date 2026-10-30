@@ -8,7 +8,7 @@ import { Button } from '../actions/controls.macos.tsrx'
 import { toastTiming } from './toast-store'
 
 /** Timed notification card shared by inline and presented stacks. */
-export function Toast(props: ToastProps) @{
+export function Toast(props: ToastProps): unknown @{
 	const timing = toastTiming(props)
 	const onDismiss = useRef(props.onDismiss)
 	onDismiss.current = props.onDismiss

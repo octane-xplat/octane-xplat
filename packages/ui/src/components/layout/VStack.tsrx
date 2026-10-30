@@ -4,7 +4,7 @@ import { Stack } from './Stack'
 
 /** Vertical flow stack — `Stack` with `direction="vertical"`.
  *  `vAlign` is the main axis (justify-content), `hAlign` the cross axis. */
-export function VStack(props: VStackProps) @{
+export function VStack(props: VStackProps): unknown @{
 	return (
 		<Stack
 			{...props}

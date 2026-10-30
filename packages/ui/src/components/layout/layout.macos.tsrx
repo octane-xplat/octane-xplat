@@ -35,7 +35,7 @@ import {
 
 import { gridTrackListToCss } from '../collections/grid-tracks'
 
-export function Grid(props: GridProps) @{
+export function Grid(props: GridProps): unknown @{
 	<masonview
 		id={props.id}
 		className={props.className}
@@ -62,7 +62,7 @@ export function Grid(props: GridProps) @{
 /** Astryx flow Stack on the AppKit host — same direction/alignment/gap
  *  resolution as the other targets; `isScrollable` hosts the flow in a
  *  scrollview. Overlapping children belong in `Absolute`. */
-export function Stack(props: StackProps) @{
+export function Stack(props: StackProps): unknown @{
 	const layout = resolveStackLayout(props)
 	const sizingStyle = {
 		...(props.width != null ? { width: props.width } : {}),
@@ -143,7 +143,7 @@ export function Stack(props: StackProps) @{
 	}
 }
 
-export function StackItem(props: StackItemProps) @{
+export function StackItem(props: StackItemProps): unknown @{
 	const itemStyle = stackItemStyle(props)
 
 	const forwardedRef = useMemo(
@@ -194,13 +194,13 @@ export function StackItem(props: StackItemProps) @{
 	}
 }
 
-export function Absolute(props: AbsoluteProps) @{
+export function Absolute(props: AbsoluteProps): unknown @{
 	<masonview id={props.id} className={cx('vx-absolute', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }
 
-export function Spacer(props: SpacerProps) @{
+export function Spacer(props: SpacerProps): unknown @{
 	<masonview
 		className={cx('vx-spacer flex-1', props.className)}
 		style={mergeStyle({ display: 'flex' }, props.style)}
@@ -212,7 +212,7 @@ export function Spacer(props: SpacerProps) @{
  *  through LayoutPaddingContext; the CSS-var seam, `contentWidth` internal
  *  alignment, and no-divider collapse have no AppKit analog (the middle
  *  lane is centered/constrained instead). */
-export function Layout(props: LayoutProps) @{
+export function Layout(props: LayoutProps): unknown @{
 	const parentPads = useContext(LayoutPaddingContext)
 	const parentDivider = useContext(LayoutDividerContext)
 	const isFill = (props.height ?? 'fill') === 'fill'
@@ -293,7 +293,7 @@ export function Layout(props: LayoutProps) @{
 }
 
 /** Astryx LayoutHeader — `Layout`'s header region on the AppKit host. */
-export function LayoutHeader(props: LayoutHeaderProps) @{
+export function LayoutHeader(props: LayoutHeaderProps): unknown @{
 	const pads = useContext(LayoutPaddingContext)
 	const dividerCtx = useContext(LayoutDividerContext)
 	const hasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
@@ -348,7 +348,7 @@ export function LayoutHeader(props: LayoutHeaderProps) @{
 
 /** Astryx LayoutContent — `Layout`'s scrollable content region on the
  *  AppKit host; `isScrollable` hosts children in a scrollview. */
-export function LayoutContent(props: LayoutContentProps) @{
+export function LayoutContent(props: LayoutContentProps): unknown @{
 	const slots = useContext(LayoutSlotsContext)
 	const pads = useContext(LayoutPaddingContext)
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
@@ -412,7 +412,7 @@ export function LayoutContent(props: LayoutContentProps) @{
 
 /** Astryx LayoutFooter — AppKit leaf: outer shell owns divider+sizing,
  *  inner box owns the resolved padding channels. */
-export function LayoutFooter(props: LayoutFooterProps) @{
+export function LayoutFooter(props: LayoutFooterProps): unknown @{
 	const pads = useContext(LayoutPaddingContext)
 	const dividerCtx = useContext(LayoutDividerContext)
 	const hasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
@@ -465,7 +465,7 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 
 /** Astryx LayoutPanel — AppKit leaf: fixed-width side column; divider is a
  *  class hook the native stylesheet resolves on the content-facing edge. */
-export function LayoutPanel(props: LayoutPanelProps) @{
+export function LayoutPanel(props: LayoutPanelProps): unknown @{
 	const area = props.area ?? useContext(LayoutAreaContext) ?? 'start'
 	const size = props.resizable?._size ?? props.width
 	const pads = useContext(LayoutPaddingContext)

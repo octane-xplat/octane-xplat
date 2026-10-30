@@ -1,6 +1,44 @@
 import { createPaneRouterHost as createPlatformPaneHost } from './pane-router-host'
 import { routerUsesHost } from './router-instance'
-import type { PaneRouterHost, RouterInstance } from '../props'
+import type { PaneRouterHost, RouterHost, RouterInstance, Store } from '../props'
+import type { ContentEntry, ContentRoot } from '../components/overlays/owned-content'
+import type { RenderRouteFlow } from './render-router-host'
+import type { RouterRenderScope } from './router-render-scope'
+
+export type PaneRouterClient = {
+	host: RouterHost
+	attach(router: RouterInstance<any, any, any>): void
+	scope(flow: string): RouterRenderScope
+	getRenderHost(flow: string):
+		| {
+				host: RouterHost
+				views: Store<ReadonlyMap<string, RenderRouteFlow>>
+				attach(router: RouterInstance<any>): void
+				scope(flow: string): RouterRenderScope
+				mount(
+					flow: string,
+					options?: {
+						modal?: boolean
+						views?: ReadonlyMap<string, unknown>
+					},
+				): () => void
+		  }
+		| undefined
+	mount(
+		flow: string,
+		owner: {
+			entries: Store<ContentEntry[]>
+			readonly disposed: boolean
+			host: {
+				page?: any
+				parent?: any
+				window?: any
+			} | null
+			createRoot(target: unknown, onOwnerDispose?: () => void): ContentRoot
+			dispose(): void
+		},
+	): () => void | Promise<void>
+}
 
 const hosts = new WeakMap<PaneRouterHost, ReturnType<typeof createPlatformPaneHost>>()
 
@@ -35,7 +73,7 @@ export function createPaneRouterHost(): PaneRouterHost {
 }
 
 /** @internal Only original pane bindings may provide renderer ownership. */
-export function resolvePaneRouterHost(host: PaneRouterHost) {
+export function resolvePaneRouterHost(host: PaneRouterHost): PaneRouterClient {
 	const platform = hosts.get(host)
 	if (!platform) {
 		throw new TypeError('Use an original host from createPaneRouterHost')

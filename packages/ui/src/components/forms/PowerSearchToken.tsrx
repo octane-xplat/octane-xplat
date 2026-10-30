@@ -9,7 +9,7 @@ import {
 import { Pressable } from '../actions/Pressable'
 import { cx } from '@octane-xplat/lib'
 
-export function PowerSearchToken(props: PowerSearchTokenProps) @{
+export function PowerSearchToken(props: PowerSearchTokenProps): unknown @{
 	const value = formatFilterValue(
 		createInternalConfig(props.config),
 		props.operator.value,

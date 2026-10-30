@@ -60,9 +60,14 @@ export function createAppKitPopoverOwner(
 		dismiss(): void
 		canDismiss(): boolean
 	},
-	bridge = appKitHost,
+	bridge: typeof appKitHost = appKitHost,
 	native: () => Record<string, any> = () => globalThis,
-) {
+): {
+	update: () => void
+	isPresent: () => boolean
+	committed(token: object): void
+	dispose(): void
+} {
 	let current: Scope | null = null,
 		disposed = false,
 		canceled = false,
@@ -375,7 +380,7 @@ export function createAppKitPopoverOwner(
 			throw error
 		}
 	}
-	const update = () => {
+	const update = (): void => {
 		if (disposed) {
 			return
 		}
@@ -407,8 +412,8 @@ export function createAppKitPopoverOwner(
 	}
 	return {
 		update,
-		isPresent: () => !!current?.handle && valid(current) && current.shown,
-		committed(token: object) {
+		isPresent: (): boolean => !!current?.handle && valid(current) && current.shown,
+		committed(token: object): void {
 			const scope = current
 			if (!scope || scope.token !== token || !valid(scope)) {
 				return
@@ -433,7 +438,7 @@ export function createAppKitPopoverOwner(
 				scope.shown = true
 			}
 		},
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

@@ -365,7 +365,7 @@ export function formatTooltipLines(
 // ---------------------------------------------------------------------------
 
 /** Seconds threshold for 'auto' format: below this, relative; else date_time. */
-export const DEFAULT_AUTO_THRESHOLD = 7 * DAY
+export const DEFAULT_AUTO_THRESHOLD: number = 7 * DAY
 
 /** Parse a zone-bearing instant string or a numeric Unix timestamp with an
  *  explicit unit. Numbers are never interpreted by magnitude. */

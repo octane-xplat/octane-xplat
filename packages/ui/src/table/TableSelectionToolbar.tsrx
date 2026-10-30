@@ -8,7 +8,7 @@ import { Button } from '../components/actions/Button'
 import { Text } from '../components/content/Text'
 import { HStack } from '../components/layout/HStack'
 
-export function TableSelectionToolbar(props: TableSelectionToolbarProps) @{
+export function TableSelectionToolbar(props: TableSelectionToolbarProps): any @{
 	const {
 		selection,
 		label = 'Bulk actions',

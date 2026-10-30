@@ -31,7 +31,7 @@ const BREAKPOINT_DIPS: Record<string, number> = {
 /** AppShell — frame for `topNav` + `sideNav` + `banner` + content. Below
  *  the configured width point (measured against the shell's own width) the
  *  side nav collapses into a mobile drawer. */
-export function AppShell(props: AppShellProps) @{
+export function AppShell(props: AppShellProps): unknown @{
 	const variant = props.variant ?? 'wash'
 	const isFill = props.height !== 'auto'
 	const hasTopNav = props.topNav != null

@@ -4,7 +4,7 @@ import type { WebViewProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from '../layout/layout-child'
 
-export function WebView(props: WebViewProps) @{
+export function WebView(props: WebViewProps): unknown @{
 	const view = useRef<any>(null)
 	const currentProps = useRef(props)
 	currentProps.current = props

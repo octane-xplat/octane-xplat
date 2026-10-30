@@ -10,7 +10,7 @@ import { SegmentedControlProvider } from './option-list-contexts'
 /** Self-drawn segmented control — equal-width segments in a track, one
  *  selected (`--on`). Options come from `options` or `SegmentedControlItem`
  *  children; `layout="fill"` stretches segments to the full width. */
-export function SegmentedControl(inputProps: SegmentedControlProps) @{
+export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue)
 	const current = props.value ?? internal

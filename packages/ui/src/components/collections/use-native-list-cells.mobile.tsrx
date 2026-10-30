@@ -6,7 +6,7 @@ import type { ContentRoot } from '../overlays/owned-content'
 
 class CellHost extends GridLayout {
 	releaseContent?: () => void
-	disposeNativeView() {
+	disposeNativeView(): void {
 		this.releaseContent?.()
 		super.disposeNativeView()
 	}
@@ -21,7 +21,14 @@ function CellContent(props: {
 }
 
 /** Template hosts belong to the native list; their content belongs to this outlet. */
-export function useNativeListCells(renderItem: (item: any, index: number) => any, items: any[]) {
+export function useNativeListCells(
+	renderItem: (item: any, index: number) => any,
+	items: any[],
+): {
+	itemTemplate: () => CellHost
+	onItemLoading: (args: any) => void
+	element: unknown
+} {
 	const content = useOwnedContent()
 	const latest = useRef({ renderItem, items })
 	latest.current = { renderItem, items }

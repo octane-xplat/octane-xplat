@@ -6,7 +6,8 @@ import { layoutChildProps } from '../layout/layout-child.web'
 import { useTheme } from '../../theme/use-theme'
 import { textScaleStyle } from '../forms/text-scale'
 import { cx } from '@octane-xplat/lib'
-export function Text(props: TextProps) @{
+import type { JSX } from 'octane/jsx-runtime'
+export function Text(props: TextProps): JSX.Element @{
 	const theme = useTheme()
 	const scale = textScaleStyle(theme.tokens, props)
 	const maxLines = props.maxLines ?? 0

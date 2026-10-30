@@ -49,7 +49,7 @@ function navIcon(icon: any, size = 16) {
  *  children scroll, footer/footerIcons pin to the bottom. Inside AppShell it
  *  adopts the render mode its context sets (topbar / drawer /
  *  drawer-content). */
-export function SideNav(props: SideNavProps) @{
+export function SideNav(props: SideNavProps): unknown @{
 	const renderMode = useSideNavRenderMode()
 
 	const cfg =
@@ -268,7 +268,7 @@ export function SideNav(props: SideNavProps) @{
 }
 
 /** SideNavSection — titled group of items inside the scrollable area. */
-export function SideNavSection(props: SideNavSectionProps) @{
+export function SideNavSection(props: SideNavSectionProps): unknown @{
 	const collapsed = useSideNavCollapse()?.isCollapsed === true
 
 	<masonview
@@ -308,7 +308,7 @@ export function SideNavSection(props: SideNavSectionProps) @{
 }
 
 /** SideNavHeading — identity block at the top of the rail. */
-export function SideNavHeading(props: SideNavHeadingProps) @{
+export function SideNavHeading(props: SideNavHeadingProps): unknown @{
 	const anchor = useRef<any>(null)
 	const [menuOpen, setMenuOpen] = useState(false)
 	const collapsed = useContext(SideNavCollapseContext)?.isCollapsed ?? false
@@ -628,7 +628,7 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 
 /** SideNavCollapseButton — chevron control bound to the nearest
  *  SideNavCollapseContext. */
-export function SideNavCollapseButton(props: SideNavCollapseButtonProps) @{
+export function SideNavCollapseButton(props: SideNavCollapseButtonProps): unknown @{
 	const ctx = useSideNavCollapse()
 	const extCfg = props.collapsible
 	const extHandle = props.handleRef?.current?.getCollapseState()

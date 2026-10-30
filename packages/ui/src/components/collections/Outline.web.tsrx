@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import type { OutlineItem, OutlineProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 const DEFAULT_LABEL = 'Table of contents'
 const SPY_EDGE = 8
@@ -76,7 +77,7 @@ function scrollToTop(container: Element | Document, top: number, smooth: boolean
  *  `activeId`/`onActiveIdChange` give controlled mode (scroll-spy disabled);
  *  uncontrolled mode spies the scroll container for the last heading above
  *  the offset edge. */
-export function Outline(props: OutlineProps) @{
+export function Outline(props: OutlineProps): JSX.Element @{
 	const items = props.items ?? []
 	const label = props.label ?? DEFAULT_LABEL
 	const density = props.density ?? 'default'

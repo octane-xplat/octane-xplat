@@ -27,7 +27,12 @@ function SurfaceContent(props: {
 }
 
 /** Present AppKit surfaces through portals owned by the declaring component. */
-export function usePresentation(isOpen: boolean, component: any, panelProps: any, options: any) {
+export function usePresentation(
+	isOpen: boolean,
+	component: any,
+	panelProps: any,
+	options: any,
+): unknown {
 	const owner = useRef<any>(null)
 	const [target, setTarget] = useState<any>(null)
 	const surface = useRef<any>(null)
@@ -118,7 +123,9 @@ export function useDetachedPresentation(
 	panelProps: any,
 	options: any,
 	registry?: PresentationRegistry,
-) @{
+): {
+	current: any
+} @{
 	const owner = useRef<any>(null)
 	const surface = useRef<any>(null)
 	const latest = useRef(options)

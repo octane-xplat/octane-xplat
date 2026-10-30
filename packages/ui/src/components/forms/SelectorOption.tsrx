@@ -5,7 +5,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** `SelectorOption` — the styled option row used inside `renderOption`/
  *  `renderValue` results (Astryx part): icon lane, label, description. */
-export function SelectorOption(props: SelectorOptionProps) @{
+export function SelectorOption(props: SelectorOptionProps): unknown @{
 	<masonview
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

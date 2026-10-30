@@ -18,7 +18,7 @@ import { usePan } from './pan'
  *  Children that need to overlap belong in `Absolute` instead.
  *  `isScrollable` hosts the flow inside a ScrollView — NS layouts can't
  *  scroll their own overflow. */
-export function Stack(props: StackProps) @{
+export function Stack(props: StackProps): unknown @{
 	const layout = resolveStackLayout(props)
 	const onPan = usePan(props.onPan)
 	const sizingStyle = {

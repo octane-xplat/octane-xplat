@@ -1,4 +1,11 @@
 import type { NSScrollView, NSView, NSWindow } from '@octane-xplat/platform/macos'
+export type AppKitCarouselSnap = {
+	bind: (view: NSScrollView | null) => void
+	invalidate: () => void
+	validate: () => void
+	dispose: () => void
+}
+
 export interface CarouselSnapClock {
 	set(callback: () => void, delay: number): unknown
 	clear(handle: unknown): void
@@ -26,8 +33,8 @@ export function createAppKitCarouselSnap(
 		snap(): void
 	},
 	native: () => Record<string, any> = () => globalThis,
-	timers = clock,
-) {
+	timers: CarouselSnapClock = clock,
+): AppKitCarouselSnap {
 	let attached: NSScrollView | null = null,
 		releases: (() => void)[] = [],
 		timer: unknown = null,
@@ -48,7 +55,7 @@ export function createAppKitCarouselSnap(
 		}
 		timer = null
 	}
-	const invalidate = () => {
+	const invalidate = (): void => {
 		cancelTimer()
 		if (tracking?.active) {
 			tracking.dirty = false
@@ -56,7 +63,7 @@ export function createAppKitCarouselSnap(
 			tracking = null
 		}
 	}
-	const validate = () => {
+	const validate = (): void => {
 		const current = scope()
 		if (
 			!current ||
@@ -138,7 +145,7 @@ export function createAppKitCarouselSnap(
 			tracking = null
 		}
 	}
-	const bind = (view: NSScrollView | null) => {
+	const bind = (view: NSScrollView | null): void => {
 		if (view === attached && releases.length === 3) {
 			return
 		}
@@ -195,5 +202,5 @@ export function createAppKitCarouselSnap(
 			console.warn('[macos-carousel] snap observation unavailable', error)
 		}
 	}
-	return { bind, invalidate, validate, dispose: () => bind(null) }
+	return { bind, invalidate, validate, dispose: (): void => bind(null) }
 }

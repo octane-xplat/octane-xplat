@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatSystemMessageProps } from '../props'
 import { Separator } from '../components/feedback/Separator.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Centered system message — "conversation started", date separators, status
  *  changes. `divider` renders hairlines flanking the content. */
-export function ChatSystemMessage(props: ChatSystemMessageProps) @{
+export function ChatSystemMessage(props: ChatSystemMessageProps): JSX.Element @{
 	if (props.variant === 'divider') {
 		return (
 			<div

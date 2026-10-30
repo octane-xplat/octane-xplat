@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { SeparatorProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Separator — hairline rule (exported as `Divider`). `orientation` picks
  *  the axis; `variant` the stroke weight; `label` centers text between two
  *  rule segments; `isFullBleed` escapes the parent's inline padding. */
-export function Separator(props: SeparatorProps) @{
+export function Separator(props: SeparatorProps): JSX.Element @{
 	const vertical = props.orientation === 'vertical'
 	const classes = [
 		'vx-separator',

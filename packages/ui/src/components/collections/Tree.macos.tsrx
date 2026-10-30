@@ -77,7 +77,9 @@ function TreeRow(props: {
  *  control the open set, `defaultExpandedKeys` seeds it; leaf rows keep a
  *  keyed selection under `selectionMode` and `onAction` reports leaf
  *  activation. */
-export function Tree<T extends TreeListNode = TreeListNode>(props: TreeProps<T>) @{
+export function Tree<T extends TreeListNode = TreeListNode>(
+	props: TreeProps<T>,
+): unknown @{
 	const selectionMode = props.selectionMode ?? 'none'
 	const [openInternal, setOpenInternal] = useState<Set<Key>>(
 		() => new Set(props.defaultExpandedKeys ?? []),

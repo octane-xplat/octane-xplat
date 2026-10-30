@@ -11,7 +11,7 @@ import { cx } from '@octane-xplat/lib'
  *
  * @see ToggleButtonProps, ToggleButtonGroupProps.
  */
-export function ToggleButton(props: ToggleButtonProps) @{
+export function ToggleButton(props: ToggleButtonProps): unknown @{
 	const group = useToggleButtonGroup()
 	const [localPressed, setLocalPressed] = useState(!!props.isPressed)
 	const inGroup = group != null && props.value != null
@@ -62,7 +62,7 @@ export function ToggleButton(props: ToggleButtonProps) @{
  *
  * @see ToggleButtonGroupProps.
  */
-export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
+export function ToggleButtonGroup(props: ToggleButtonGroupProps): unknown @{
 	const type = props.type ?? 'single'
 	const controlled = props.value
 	const selected = new Set(

@@ -28,7 +28,7 @@ export function captureAppKitLayerFocus(
 		nativeView(getTarget?.())?.window ??
 		native().NSApplication?.sharedApplication?.keyWindow
 	const initial = focusedView(owner)
-	return () => {
+	return (): void => {
 		try {
 			const requested = getTarget?.()
 			// Explicit custom focus delegates retain caller-owned behavior; unlike a

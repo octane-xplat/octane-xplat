@@ -16,7 +16,7 @@ const THUMB = 16
 
 /** Internal 2D area view — saturation left→right, brightness top→bottom.
  *  Drag adjusts by delta from the value at `began` (no tap-to-position v1). */
-export function ColorAreaView(props: ColorAreaViewProps) @{
+export function ColorAreaView(props: ColorAreaViewProps): unknown @{
 	const measure = useMeasure()
 	const drag = useRef<Hsb | null>(null)
 	const host = useRef<any>(null)
@@ -168,7 +168,7 @@ export function ColorAreaView(props: ColorAreaViewProps) @{
 	</masonview>
 }
 
-export function ColorArea(props: ColorAreaProps) @{
+export function ColorArea(props: ColorAreaProps): unknown @{
 	const color = useColorState(props, '#ff0000')
 
 	<ColorAreaView

@@ -17,7 +17,7 @@ import {
  *
  * @see SafeAreaProps, useSafeAreaInsets.
  */
-export function SafeArea(props: SafeAreaProps) @{
+export function SafeArea(props: SafeAreaProps): unknown @{
 	const measured = useSafeAreaInsets()
 	const ancestor = useContext(ConsumedInsetsContext)
 	const edges = resolveSafeAreaEdges(props.edges, props.ignoreSafeArea)

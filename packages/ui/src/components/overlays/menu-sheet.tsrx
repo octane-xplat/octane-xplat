@@ -18,7 +18,7 @@ export function MenuSheet(props: {
 	label?: string
 	items?: any
 	children?: any
-}) @{
+}): unknown @{
 	const close = () => props.onOpenChange(false)
 
 	<BottomSheet

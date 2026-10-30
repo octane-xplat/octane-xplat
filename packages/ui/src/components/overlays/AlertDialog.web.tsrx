@@ -5,6 +5,7 @@ import { Dialog } from './Dialog.web.tsrx'
 import { Button } from '../actions/Button.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'
 import { cx } from '@octane-xplat/lib'
+import type { JSX } from 'octane/jsx-runtime'
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {
 	primary: 'bg-primary text-onprimary',
@@ -17,7 +18,7 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
  *  dialog (backdrop and Escape stay closed; web renders
  *  `role="alertdialog"`) with title, description, Cancel, and one action
  *  button. The action reports through `onAction`; callers own `isOpen`. */
-export function AlertDialog(props: AlertDialogProps) @{
+export function AlertDialog(props: AlertDialogProps): JSX.Element @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {

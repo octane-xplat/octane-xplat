@@ -3,6 +3,7 @@ import type { ChatComposerToken } from '../props'
 import { ChatTokenChip } from './chat-tokens.web.tsrx'
 import { Tooltip } from '../components/overlays/Tooltip.web.tsrx'
 import { Pressable } from '../components/actions/Pressable.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 function formatLabel(text: string): string {
 	const lines = text.split('\n').length
@@ -13,7 +14,10 @@ function formatLabel(text: string): string {
 /** Inline token for a long paste — chip shows the size summary; hover
  *  reveals a truncated preview card with an Expand action that dissolves
  *  the token back into editable text. */
-export function ChatPastedTextToken(props: { text: string; onExpand?: () => void }) @{
+export function ChatPastedTextToken(props: {
+	text: string
+	onExpand?: () => void
+}): JSX.Element @{
 	const label = formatLabel(props.text)
 	const chip: ChatComposerToken = { value: props.text, label, variant: 'neutral' }
 

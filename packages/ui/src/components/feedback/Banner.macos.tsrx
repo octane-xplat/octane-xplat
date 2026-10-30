@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 
 /** Banner — inline notice strip with optional dismiss affordance. */
-export function Banner(props: BannerProps) @{
+export function Banner(props: BannerProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

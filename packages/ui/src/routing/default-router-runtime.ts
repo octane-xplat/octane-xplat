@@ -16,13 +16,28 @@ import type {
 	RouterConfiguration,
 	RouteCatalog,
 	RouterInstance,
+	Store,
 } from '../props'
+
+import type { RouteTransitionName } from './core'
+
+export type DefaultRouterRuntime<Platform extends ClientRouterHost = ClientRouterHost> = {
+	router: RouterInstance<RegisteredRouteContracts, 'root', RouteTransitionName>
+	configured: Store<boolean>
+	getClient: () => {
+		platform: Platform
+		instance: RouterInstance<RegisteredRouteContracts>
+	}
+	configure: (next: RouterConfiguration<RouteManifest, string>) => void
+	hasStack: (stack: string) => boolean
+	stackNames: () => string[]
+}
 
 /** Lazy, document/app-local client ownership. Server requests use explicit
  * instances and never install themselves as the default client. */
 export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
 	createPlatform: () => Platform,
-) {
+): DefaultRouterRuntime<Platform> {
 	const configured = createStore(false)
 	let configuration: RouterConfiguration<RouteManifest, string> | undefined
 	let client: { platform: Platform; instance: RouterInstance<RegisteredRouteContracts> } | undefined

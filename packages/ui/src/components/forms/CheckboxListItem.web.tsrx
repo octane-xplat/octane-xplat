@@ -5,11 +5,12 @@ import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** `CheckboxListItem` — one row inside a `CheckboxList` (Astryx child
  *  part). With `value` it joins the group's checked set; without it,
  *  `isChecked`/`onCheck` drive a standalone item (select-all pattern). */
-export function CheckboxListItem(props: CheckboxListItemProps) @{
+export function CheckboxListItem(props: CheckboxListItemProps): JSX.Element @{
 	const ctx = useContext(CheckboxListContext)
 	const groupMode = props.value != null && ctx != null
 	const checked = groupMode

@@ -37,6 +37,7 @@ import {
 } from './datetime'
 
 import { createDateDisabledCheck } from './calendar-core'
+import type { JSX } from 'octane/jsx-runtime'
 
 function isCoarsePointer(): boolean {
 	try {
@@ -580,7 +581,7 @@ function DateInputControl(inputProps: CoreProps) @{
  *  picks the surface: `popover` (typed field + calendar), `bottom-sheet`,
  *  `native` (`<input type=date>` with the shared format painted over it), or
  *  the `adaptive-*` pointer-driven pair. */
-export function DateInput(props: DateInputProps) @{
+export function DateInput(props: DateInputProps): JSX.Element @{
 	const inField = useContext(FieldContext) != null
 	const isTouch = useCoarsePointer()
 	const effective = effectivePresentation(props.presentation)

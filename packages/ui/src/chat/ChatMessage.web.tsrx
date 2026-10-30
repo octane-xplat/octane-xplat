@@ -3,6 +3,7 @@ import { useId, useMemo } from 'octane'
 import { markChatRow } from './chat-scroll-state'
 import type { ChatMessageProps } from '../props'
 import { ChatMessageProvider, useChatListContext } from './chat-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 const renderable = (v: any) => v != null && v !== false && v !== true
 
@@ -10,7 +11,7 @@ const renderable = (v: any) => v != null && v !== false && v !== true
  *  a name row, the body children (usually ChatMessageBubble), and trailing
  *  metadata. Sender drives alignment: user right, assistant left, system
  *  centered (avatar/name suppressed for system). */
-export function ChatMessage(props: ChatMessageProps) @{
+export function ChatMessage(props: ChatMessageProps): JSX.Element @{
 	const listContext = useChatListContext()
 	const density = props.density ?? listContext?.density ?? 'balanced'
 	const contextValue = useMemo(() => ({ sender: props.sender, density }), [props.sender, density])

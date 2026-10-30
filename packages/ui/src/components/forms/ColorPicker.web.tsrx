@@ -7,11 +7,12 @@ import { ColorSwatch } from './ColorSwatch'
 import { normalizeHex } from '../../theme/color'
 import { useColorState } from '../../theme/color-state'
 
+import type { JSX } from 'octane/jsx-runtime'
 /** Fixed composite picker — ColorArea, hue ColorSlider, then a row of
  *  ColorSwatch + ColorField. One shared HSB state drives every part so the
  *  hue survives achromatic edits. React Aria's children-composition picker
  *  is deferred. */
-export function ColorPicker(props: ColorPickerProps) {
+export function ColorPicker(props: ColorPickerProps): JSX.Element {
 	const color = useColorState(props, '#ff0000')
 	return (
 		<div

@@ -12,7 +12,7 @@ export function ImperativeSheetPanel(props: {
 	component: any
 	params: any
 	close: (result?: any) => void
-}) @{
+}): unknown @{
 	const dark = useThemeScheme() === 'dark'
 	const dismissal = useLayerDismissal({
 		active: true,

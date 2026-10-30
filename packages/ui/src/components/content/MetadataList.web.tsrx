@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { descriptorChildren } from 'octane'
 import { useId, useState } from 'octane'
 import type { MetadataListProps } from '../../props'
@@ -12,7 +13,7 @@ import { toChildArray } from '../../internal/rendering/child-array'
  *  one auto-sized track; 'top' labels stack per item. 'multi' auto-fills
  *  minmax(280px,1fr) columns; a numeric `columns` gives fixed tracks.
  *  Horizontal orientation ignores `columns`, `label`, and `maxNumOfItems`. */
-function MetadataListImpl(props: MetadataListProps) @{
+function MetadataListImpl(props: MetadataListProps): JSX.Element @{
 	const columns = props.columns ?? 'single'
 	const orientation = props.orientation ?? 'vertical'
 	const isHorizontal = orientation === 'horizontal'
@@ -90,4 +91,4 @@ function MetadataListImpl(props: MetadataListProps) @{
 }
 
 /** Ask Octane to preserve inspectable child descriptors for collection operations. */
-export const MetadataList = descriptorChildren(MetadataListImpl)
+export const MetadataList: typeof MetadataListImpl = descriptorChildren(MetadataListImpl)

@@ -10,7 +10,7 @@ import { useIndicator } from '../feedback/use-indicator'
 /** `RadioListItem` — one option row inside a `RadioList` (Astryx child
  *  part). Reads the selected value and commit callback from the group's
  *  context; standalone renders a presentational row. */
-export function RadioListItem(props: RadioListItemProps) @{
+export function RadioListItem(props: RadioListItemProps): unknown @{
 	const ctx = useContext(RadioListContext)
 	const selected = typeof ctx?.selected === 'string' && ctx.selected === props.value
 	const disabled = Boolean(ctx?.isDisabled || props.isDisabled)

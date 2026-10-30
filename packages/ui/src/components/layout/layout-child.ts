@@ -13,8 +13,10 @@ const FLEX_ALIGN: Record<string, string> = { start: 'flex-start', end: 'flex-end
  *  there is no `.vx-absolute > *` stylesheet rule on the mason engine. */
 export function layoutChildProps(
 	props: LayoutChildProps & Partial<FlexContainerProps> & { style?: any },
-	baseStyle = props.style,
-) {
+	baseStyle: any = props.style,
+): {
+	style: string | Record<string, any>
+} {
 	const style: Record<string, any> = { ...(typeof baseStyle === 'object' ? baseStyle : {}) }
 	if (props.row !== undefined) {
 		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`

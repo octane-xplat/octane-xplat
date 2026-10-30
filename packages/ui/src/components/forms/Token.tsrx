@@ -11,7 +11,7 @@ import { Pressable } from '../actions/Pressable'
 
 /** Token — inline entity chip. Native leaf: a chip row; `onClick`/`href`
  *  (opens the URL) make it pressable, `onRemove` adds the ✕ affordance. */
-export function Token(props: TokenProps) @{
+export function Token(props: TokenProps): unknown @{
 	const icon =
 		props.icon == null ? null : typeof props.icon === 'string' ? (
 			<Icon name={props.icon} size={14} />

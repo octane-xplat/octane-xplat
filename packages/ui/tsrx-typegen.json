@@ -144,5 +144,7 @@
 		".tsx": ".js",
 		".tsrx": ".js"
 	},
-	"overrides": {}
+	"overrides": {
+		"vendor/ui-svg/src/index.common.d.ts": "types/overrides/ui-svg-index.common.d.ts"
+	}
 }

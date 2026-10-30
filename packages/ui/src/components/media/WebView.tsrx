@@ -91,7 +91,7 @@ function applyNativeScrollEnabled(view: any, enabled: boolean | undefined) {
  *  WKWebView scrollView's scrollEnabled; Android has no settings flag, so
  *  a touch listener eats ACTION_MOVE (DOWN/UP still reach the page, so
  *  link taps work but drag text selection inside the frame does not). */
-export function WebView(props: WebViewProps) @{
+export function WebView(props: WebViewProps): unknown @{
 	const el = useRef<any>(null)
 	const loaded = useRef(false)
 	const currentProps = useRef(props)

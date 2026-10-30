@@ -19,7 +19,12 @@ import {
 import { VirtualListCellPool, type VirtualListCell } from './virtual-list-cell-pool'
 
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { layoutChildProps } from '../layout/layout-child'
 
 function sameSize(a: number, b: number) {
@@ -74,7 +79,7 @@ interface VirtualListAnchor {
 /** Shared vertical virtualization with pooled outer hosts and keyed logical
  *  rows. Off-window item subtrees unmount; measured heights position cells and
  *  preserve the visible keyed anchor after layout. */
-export function VirtualList<T = any>(props: VirtualListProps<T>) @{
+export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 	const entries = useMemo(
 		() =>
 			createVirtualListEntries(

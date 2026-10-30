@@ -3,11 +3,12 @@ import { useContext } from 'octane'
 import type { StepProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { StepperContext } from '../forms/option-list-contexts'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** `Step` — one node in a `Stepper` (Astryx child part). Its state derives
  *  from comparing `step` to the group's `activeStep`: below completed,
  *  equal current, above upcoming. */
-export function Step(props: StepProps) @{
+export function Step(props: StepProps): JSX.Element @{
 	const ctx = useContext(StepperContext)
 	const active = ctx?.activeStep ?? 0
 	const done = props.step < active

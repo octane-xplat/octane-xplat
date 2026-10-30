@@ -3,6 +3,7 @@ import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { formatISOTime, isTimeInRange, parseISOTime } from './datetime'
+import type { JSX } from 'octane/jsx-runtime'
 
 interface TimeWheelProps {
 	value?: ISOTimeString
@@ -18,7 +19,7 @@ interface TimeWheelProps {
  *  seconds, AM/PM) + commit row. The touch surface for `bottom-sheet` /
  *  `adaptive-bottom-sheet` presentations; a self-drawn wheel equivalent —
  *  column lists rather than a rotary drum. */
-export function TimeWheelPanel(props: TimeWheelProps) @{
+export function TimeWheelPanel(props: TimeWheelProps): JSX.Element @{
 	const start = props.value ? parseISOTime(props.value) : null
 	const is12 = (props.hourFormat ?? '12h') === '12h'
 	const [hour24, setHour24] = useState(start?.hour ?? 9)

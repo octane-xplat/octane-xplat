@@ -8,6 +8,7 @@ import { ListItem } from '../collections/ListItem.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
 import { FieldProvider, useFieldControl, useFieldControlProps } from './field-context'
 import { CheckboxListProvider } from './option-list-contexts'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** CheckboxGroup — multi-select list of self-drawn checkboxes. Options
  *  come from the `options` prop (rendered as `List`/`ListItem` rows pairing
@@ -16,7 +17,7 @@ import { CheckboxListProvider } from './option-list-contexts'
  *  `hasDividers` draws hairlines between rows. Standalone groups render
  *  Astryx's field chrome (span label — a group has no single control)
  *  around the `role="group"` container. */
-export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
+export function CheckboxGroup(inputProps: CheckboxGroupProps): JSX.Element @{
 	const { inField } = useFieldControl(inputProps)
 	const generatedId = useId()
 	const controlId = inputProps.id ?? generatedId

@@ -15,7 +15,7 @@ import { spacingPx } from './stack-layout'
 /** Center — a row-direction flex that centers children on the main axis
  *  (`axis="horizontal"`), the cross axis (`"vertical"`), or `both`.
  *  `isInline` is web-only (native containers are always block-level). */
-export function Center(props: CenterProps) @{
+export function Center(props: CenterProps): unknown @{
 	const axis = props.axis ?? 'both'
 
 	const forwardedRef = useMemo(

@@ -20,9 +20,16 @@ export function createAppKitTimeListFocus(
 		tab(backward: boolean): boolean
 		highlight(time: ISOTimeString): void
 	},
-	bridge = appKitHost,
+	bridge: typeof appKitHost = appKitHost,
 	native: () => Record<string, any> = () => globalThis,
-) {
+): {
+	bind: (view: NSView | null) => void
+	update: () => void
+	activate: (time: ISOTimeString) => void
+	dispose: () => void
+	register(time: ISOTimeString, view: NSView): () => void
+	keyDown(event: NativeKeyboardEvent<NSView>): void
+} {
 	const views = new Map<ISOTimeString, NSView>()
 	let root: NSView | null = null,
 		owner: NSWindow | null = null,
@@ -123,7 +130,7 @@ export function createAppKitTimeListFocus(
 			refreshing = false
 		}
 	}
-	const update = () => {
+	const update = (): void => {
 		if (queued) {
 			return
 		}
@@ -135,7 +142,7 @@ export function createAppKitTimeListFocus(
 			}
 		})
 	}
-	const bind = (view: NSView | null) => {
+	const bind = (view: NSView | null): void => {
 		if (root === view) {
 			return
 		}
@@ -177,7 +184,7 @@ export function createAppKitTimeListFocus(
 		}
 		update()
 	}
-	const activate = (time: ISOTimeString) => {
+	const activate = (time: ISOTimeString): void => {
 		const view = views.get(time)
 		if (
 			!root?.window ||
@@ -193,7 +200,7 @@ export function createAppKitTimeListFocus(
 		bind,
 		update,
 		activate,
-		dispose: () => bind(null),
+		dispose: (): void => bind(null),
 		register(time: ISOTimeString, view: NSView): () => void {
 			views.set(time, view)
 			update()
@@ -208,7 +215,7 @@ export function createAppKitTimeListFocus(
 				update()
 			}
 		},
-		keyDown(event: NativeKeyboardEvent<NSView>) {
+		keyDown(event: NativeKeyboardEvent<NSView>): void {
 			const window = root?.window,
 				target = event.target
 			if (

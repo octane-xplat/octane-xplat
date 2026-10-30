@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { SelectorOptionProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** `SelectorOption` — the styled option row used inside `renderOption`/
  *  `renderValue` results (Astryx part): icon lane, label, description. */
-export function SelectorOption(props: SelectorOptionProps) @{
+export function SelectorOption(props: SelectorOptionProps): JSX.Element @{
 	<span
 		ref={(e: any) => applyWebProps(e, props.web)}
 		id={props.id}

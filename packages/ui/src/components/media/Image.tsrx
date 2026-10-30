@@ -114,7 +114,7 @@ function clipImageHost(host: any): void {
  *
  * @see ImageProps for src grammar, sizing, and fit.
  */
-export function Image(props: ImageProps) @{
+export function Image(props: ImageProps): unknown @{
 	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null
 	const srcString = sources ? '' : (props.src as string)
 	const fit = resolveContentFit(props.contentFit)

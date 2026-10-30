@@ -14,7 +14,7 @@ const SIZE = 40
  *  failed `src` shows an empty frame (documented gap vs the web/native
  *  placeholder fallback). Remove button follows the same hover contract —
  *  the renderer's NSTrackingArea drives it. */
-export function Thumbnail(props: ThumbnailProps) @{
+export function Thumbnail(props: ThumbnailProps): unknown @{
 	const isLoading = props.isLoading ?? false
 	const isDisabled = props.isDisabled ?? false
 	const hasImage = props.src != null && props.src !== ''

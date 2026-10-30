@@ -6,7 +6,7 @@ import { cx } from '@octane-xplat/lib'
 /** macOS AppKit leaf — same structure as the shared native leaf; the AppKit
  *  host has no CSS layer for the blockquote rule, so the inline-start bar
  *  comes from the background strip view next to the content column. */
-export function Blockquote(props: BlockquoteProps) @{
+export function Blockquote(props: BlockquoteProps): unknown @{
 	<masonview
 		id={props.id}
 		className={cx('vx-blockquote', props.className)}

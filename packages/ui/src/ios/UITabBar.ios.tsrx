@@ -167,7 +167,7 @@ const MemoTabBar = memo(
  *  Real per-pane Frames: each `stack` tab keeps a native navigation stack
  *  inside its pane. The self-drawn shared `Tabs` lives in the root export.
  *  `tabs` is identity-stable (module const preferred). */
-export function UITabBar(props: UITabBarProps) @{
+export function UITabBar(props: UITabBarProps): unknown @{
 	const indexForKey = (key?: string) =>
 		key == null ? -1 : props.tabs.findIndex((t, i) => (t.key ?? String(i)) === key)
 

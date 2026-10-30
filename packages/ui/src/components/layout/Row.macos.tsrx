@@ -4,7 +4,7 @@ import type { RowProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 
-export function Row(props: RowProps) @{
+export function Row(props: RowProps): unknown @{
 	<masonview
 		id={props.id}
 		{...layoutChildProps(

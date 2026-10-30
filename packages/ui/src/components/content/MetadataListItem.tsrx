@@ -26,7 +26,7 @@ function childContent(children: any, className: string, style?: any) @{
 /** One label/value item. 'start' emits two adjacent grid cells (label track,
  *  value track) so the parent Grid aligns labels across items; 'top' and
  *  horizontal emit a single stacked cell. */
-export function MetadataListItem(props: MetadataListItemProps) @{
+export function MetadataListItem(props: MetadataListItemProps): unknown @{
 	const ctx = useContext(MetadataListContext)
 	const isStacked = (ctx?.labelPosition ?? 'start') === 'top' || ctx?.orientation === 'horizontal'
 

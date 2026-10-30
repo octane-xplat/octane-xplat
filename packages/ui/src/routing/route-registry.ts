@@ -123,7 +123,7 @@ export function createRouteRegistry(
 		return composeRouteCatalogs(filtered, false)
 	}
 	return {
-		replaceBase(catalog: RouteManifest) {
+		replaceBase(catalog: RouteManifest): void {
 			if (disposed) {
 				throw new Error('Router instance is disposed')
 			}
@@ -188,7 +188,7 @@ export function createRouteRegistry(
 				},
 			}
 		},
-		dispose() {
+		dispose(): void {
 			disposed = true
 			layers.clear()
 		},

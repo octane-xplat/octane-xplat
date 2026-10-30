@@ -279,7 +279,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 /** Date-range entry — trigger + range Calendar with optional `presets`. On
  *  On macOS the picker surface is the anchored popover, matching Astryx's
  *  popover-only DateRangeInput anatomy. */
-export function DateRangeInput(props: DateRangeInputProps) @{
+export function DateRangeInput(props: DateRangeInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const cid = useId()
 	const control = <RangeControl {...props} />

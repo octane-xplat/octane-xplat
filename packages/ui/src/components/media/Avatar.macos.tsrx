@@ -8,7 +8,7 @@ import { Image } from './Image.macos.tsrx'
 /** Avatar — circular image with a text fallback when `src` is absent.
  *  `size` sets the square + border-radius inline so the circle is identical
  *  across targets. */
-export function Avatar(props: AvatarProps) @{
+export function Avatar(props: AvatarProps): unknown @{
 	const size =
 		typeof props.size === 'number'
 			? props.size

@@ -399,7 +399,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 	</masonview>
 }
 
-export function Slider(props: SliderProps) @{
+export function Slider(props: SliderProps): unknown @{
 	const field = useContext(FieldContext)
 	const generatedID = useId()
 	const controlID = props.id ?? field?.controlId ?? generatedID

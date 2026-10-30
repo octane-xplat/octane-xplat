@@ -359,7 +359,7 @@ function DateInputControl(inputProps: CoreProps) @{
  * OS-authentic pickers are `@octane-xplat/date-picker`'s platform leaves,
  * not part of the shared control.
  */
-export function DateInput(props: DateInputProps) @{
+export function DateInput(props: DateInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const effective = effectivePresentation(props.presentation)
 	const resolved = resolveInputSurface(effective, true)

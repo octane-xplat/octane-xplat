@@ -5,7 +5,7 @@
 
 // A synthetic group-header row injected into the flattened data. Real rows
 // never carry this marker.
-export const GROUP_HEADER = Symbol('tableGroupHeader')
+export const GROUP_HEADER: unique symbol = Symbol('tableGroupHeader')
 
 export interface TableGroupHeader {
 	[GROUP_HEADER]: true

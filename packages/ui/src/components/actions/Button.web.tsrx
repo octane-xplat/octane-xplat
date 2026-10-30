@@ -9,6 +9,7 @@ import { useButtonGroup } from './button-group-context'
 import { useSize } from '../layout/size-context'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { reportActionError } from '../../internal/rendering/action-error'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn button — Pressable row with optional icon/label/end content
  *  and a loading state that swaps content for the spinner and blocks
@@ -18,7 +19,7 @@ import { reportActionError } from '../../internal/rendering/action-error'
  *  `href` renders a real anchor so link semantics (new tab, copy link)
  *  stay intact. Inside a ButtonGroup the group supplies size/disabled and a
  *  position class for the connected edge treatment. */
-export function Button(props: ButtonProps) @{
+export function Button(props: ButtonProps): JSX.Element @{
 	const group = useButtonGroup()
 	const [actionPending, setActionPending] = useState(false)
 	// Busy = isLoading or an in-flight clickAction: aria-busy + hidden content +

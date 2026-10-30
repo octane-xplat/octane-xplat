@@ -10,7 +10,7 @@ import { useColorState } from '../../theme/color-state'
 
 /** Hex text field — keeps a draft while editing; commits on submit/blur:
  *  valid input fires onChange + onChangeEnd, invalid restores the value. */
-export function ColorField(props: ColorFieldProps) @{
+export function ColorField(props: ColorFieldProps): unknown @{
 	const color = useColorState(props)
 	const draft = useRef<string | null>(null)
 	const [, bump] = useState(0)

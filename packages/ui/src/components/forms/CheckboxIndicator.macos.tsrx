@@ -8,7 +8,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** CheckboxIndicator — decorative box: check glyph when checked, inset bar
  *  when indeterminate. Mirrors the shared leaf. */
-export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
+export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>): unknown @{
 	const size = props.size ?? 'md'
 	const mark =
 		props.state === 'indeterminate' ? (

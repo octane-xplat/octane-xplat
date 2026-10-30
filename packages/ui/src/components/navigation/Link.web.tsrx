@@ -1,13 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { LinkProps } from '../../props'
 import { useLinkComponent } from './use-link-component.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** URL anchor — external/navigation links (Astryx `Link`). `isExternalLink`
  *  opens a new tab with a ↗ marker; `isStandalone`/`hasUnderline` pick the
  *  presentation; `tooltip` and `color` pass through to the anchor. The
  *  element resolves through `useLinkComponent`: `as` → `LinkProvider`
  *  subtree default → plain anchor. */
-export function Link(props: LinkProps) @{
+export function Link(props: LinkProps): JSX.Element @{
 	const LinkEl: any = useLinkComponent(props.as)
 	const external = props.isExternalLink === true
 

@@ -8,6 +8,7 @@ import type {
 
 import { styleRecord } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 const namedSizes: Record<string, number> = { xsm: 16, sm: 24, md: 32, lg: 40, xl: 48 }
 
@@ -25,7 +26,7 @@ function initials(name: string): string {
 }
 
 /** AvatarStatusDot — status dot overlay part for `Avatar` (Astryx). */
-export function AvatarStatusDot(props: AvatarStatusDotProps) @{
+export function AvatarStatusDot(props: AvatarStatusDotProps): JSX.Element @{
 	<span
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
@@ -39,7 +40,7 @@ export function AvatarStatusDot(props: AvatarStatusDotProps) @{
 /** Avatar — circular image with a text fallback when `src` is absent
  *  (Astryx `Avatar`). `name` derives initials + the accessible name;
  *  `status` mounts an `AvatarStatusDot` on the end edge. */
-export function Avatar(props: AvatarProps) @{
+export function Avatar(props: AvatarProps): JSX.Element @{
 	const size = sizePx(props.size)
 	const box = { width: size, height: size, borderRadius: size / 2 }
 	const label = props.alt ?? props.name

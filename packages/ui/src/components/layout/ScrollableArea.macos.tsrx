@@ -37,7 +37,7 @@ function scrollableAreaHandle(
 
 /** AppKit viewport. Pull-to-refresh remains unsupported; apps own a refresh
  * action outside the scrolling content. */
-export function ScrollableArea(props: ScrollableAreaProps) @{
+export function ScrollableArea(props: ScrollableAreaProps): unknown @{
 	const area = useScrollableArea({ axis: props.axis })
 	const direction = useDirection(),
 		liveDirection = useRef(direction)

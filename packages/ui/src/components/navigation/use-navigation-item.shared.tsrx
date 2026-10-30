@@ -5,6 +5,15 @@ import { navLinkActivation, navLinkDestination, navLinkIsActive } from './nav-li
 import type { NavLinkInput, NavigationItemInput, NavLinkContracts } from './nav-link'
 import type { NavigationActivationEvent, RouterState, RouterNavigator } from '../../props'
 
+export type NavigationItemResult = {
+	href: string | undefined
+	selected: boolean
+	disabled: boolean
+	preservesBrowserNavigation: (event: NavigationActivationEvent) => boolean
+	activateWeb: (event: NavigationActivationEvent) => boolean
+	activateNative: (followHref?: (href: string) => void) => boolean
+}
+
 const emptyState: RouterState<NavLinkContracts> = Object.freeze({
 	route: null,
 	navigation: Object.freeze({ status: 'idle' }),
@@ -20,7 +29,7 @@ const subscribeEmpty = () => () => {}
 export function useNavigationItem(
 	props: NavigationItemInput,
 	mode: 'item' | 'link' | 'route' = 'item',
-) {
+): NavigationItemResult {
 	const scope = useContext(RouterScopeContext)
 	if (mode === 'route' && props.to === undefined) {
 		throw new TypeError('A navigation link requires a canonical to destination')

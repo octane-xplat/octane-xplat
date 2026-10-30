@@ -8,6 +8,7 @@ import { useChatStreamScroll } from './useChatStreamScroll.web.tsrx'
 import { useChatNewMessages } from './useChatNewMessages.web.tsrx'
 import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.web.tsrx'
 import { ChatLayoutProvider } from './chat-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 const hasVisibleContent = (children: any): boolean => {
 	if (children == null || children === false || children === true) {
@@ -28,7 +29,7 @@ const hasVisibleContent = (children: any): boolean => {
  *  is position:fixed. Auto-scroll + new-message flagging come from
  *  useChatStreamScroll/useChatNewMessages, exposed to the list through the
  *  layout context. */
-export function ChatLayout(props: ChatLayoutProps) @{
+export function ChatLayout(props: ChatLayoutProps): JSX.Element @{
 	const rootRef = useRef<HTMLDivElement | null>(null)
 	const [root, setRoot] = useState<HTMLDivElement | null>(null)
 	const [dock, setDock] = useState<HTMLDivElement | null>(null)

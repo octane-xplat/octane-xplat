@@ -204,7 +204,7 @@ function LightboxPanel(props: {
  *  close through the RootLayout scrim, swipe gestures for prev/next,
  *  double-tap zoom on images. `type:'video'` falls back to alt text — the
  *  video widget lives in the `@octane-xplat/video` leaf package. */
-export function Lightbox(props: LightboxProps) @{
+export function Lightbox(props: LightboxProps): unknown @{
 	const sentinel = useRef<any>(null)
 	const shown = useRef<{
 		host: GridLayout

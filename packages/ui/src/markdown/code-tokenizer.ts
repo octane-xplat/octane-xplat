@@ -586,7 +586,7 @@ export function syntaxColor(
 }
 
 /** The `--color-syntax-*` var names published in chrome.css. */
-export const SYNTAX_TOKEN_VARS = [
+export const SYNTAX_TOKEN_VARS: readonly [...string[], '--color-syntax-background'] = [
 	...TOKEN_TYPES.map((t) => `--color-syntax-${t}`),
 	'--color-syntax-background',
 ] as const

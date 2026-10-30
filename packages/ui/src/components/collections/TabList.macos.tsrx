@@ -4,7 +4,17 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationItemImplementation } from '../navigation/nav-link'
 import { useNavigationItem } from '../navigation/use-navigation-item.shared.tsrx'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useCallback, useContext, useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from 'octane'
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+} from 'octane'
+
 import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from '../../props'
 import { useSize } from '../layout/size-context'
 import { cx } from '@octane-xplat/lib'
@@ -35,7 +45,7 @@ function navIcon(icon: any, size: number) {
 
 /** AppKit tab strip with native horizontal reveal and registered-tab roving
  * focus. Arrow keys move focus; the renderer owns Enter/Space activation. */
-export function TabList(props: TabListProps) @{
+export function TabList(props: TabListProps): unknown @{
 	const size = useSize(props.size, 'md')
 	const overflow = props.overflow ?? 'auto'
 	const layout = props.layout ?? 'hug'
@@ -45,18 +55,40 @@ export function TabList(props: TabListProps) @{
 	const views = tabViews.current
 	const selected = useRef(props.value)
 	selected.current = props.value
-	const attachScroller = useCallback((view: NSScrollView | null) => { scroller.current = view }, [])
+	const attachScroller = useCallback((view: NSScrollView | null) => {
+		scroller.current = view
+	}, [])
+
 	const root = useRef<NSView | null>(null)
-	const pattern = useRef(props.role === 'tablist' ? 'tabs' as const : 'nav' as const)
+	const pattern = useRef(props.role === 'tablist' ? ('tabs' as const) : ('nav' as const))
 	pattern.current = props.role === 'tablist' ? 'tabs' : 'nav'
-	const direction = useDirection(), liveDirection = useRef(direction)
+	const direction = useDirection(),
+		liveDirection = useRef(direction)
+
 	liveDirection.current = direction
-	const navigation = useMemo(() => createAppKitChoiceFocus({
-		root: () => root.current, views, selected: () => selected.current,
-		orientation: () => pattern.current === 'tabs' ? 'horizontal' : 'both', direction: () => liveDirection.current,
-		reveal: (view) => { revealAppKitTab(scroller.current, view) },
-	}), [])
-	const attachRoot = useCallback((view: NSView | null) => { if (!view) navigation.dispose(); root.current = view }, [])
+	const navigation = useMemo(
+		() =>
+			createAppKitChoiceFocus({
+				root: () => root.current,
+				views,
+				selected: () => selected.current,
+				orientation: () => (pattern.current === 'tabs' ? 'horizontal' : 'both'),
+				direction: () => liveDirection.current,
+				reveal: (view) => {
+					revealAppKitTab(scroller.current, view)
+				},
+			}),
+		[],
+	)
+
+	const attachRoot = useCallback((view: NSView | null) => {
+		if (!view) {
+			navigation.dispose()
+		}
+
+		root.current = view
+	}, [])
+
 	const { keyboardProps } = useKeyboard({ onKeyDown: navigation.keyDown })
 
 	const ctx = useMemo(
@@ -77,34 +109,57 @@ export function TabList(props: TabListProps) @{
 	// resizing and attachment without assuming NativeScript View methods.
 	useEffect(() => {
 		navigation.synchronize()
-		if (hasScroll) revealAppKitTab(scroller.current, views.get(props.value))
+		if (hasScroll) {
+			revealAppKitTab(scroller.current, views.get(props.value))
+		}
 	}, [props.value, hasScroll])
+
 	useEffect(() => {
 		const native = globalThis as Record<string, any>
 		const center = native.NSNotificationCenter?.defaultCenter
-		if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) return
+		if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) {
+			return
+		}
+
 		let token: unknown
 		try {
 			token = center.addObserverForNameObjectQueueUsingBlock(
-				native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification', null, null,
+				native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
+				null,
+				null,
 				(notification: { object: NSWindow }) => {
-					if (root.current?.window !== notification.object) return
+					if (root.current?.window !== notification.object) {
+						return
+					}
+
 					navigation.synchronize()
 					const scroll = scroller.current
-					if (hasScroll && scroll) revealAppKitTab(scroll, navigation.focusedView() ?? views.get(selected.current))
+					if (hasScroll && scroll) {
+						revealAppKitTab(scroll, navigation.focusedView() ?? views.get(selected.current))
+					}
 				},
 			)
 		} catch (error) {
 			console.warn('[macos-tablist] selected-tab observation unavailable', error)
 			return
 		}
-		return () => { if (token != null) center.removeObserver(token) }
+
+		return () => {
+			if (token != null) {
+				center.removeObserver(token)
+			}
+		}
 	}, [hasScroll])
+
 	useEffect(() => () => navigation.dispose(), [])
 
 	const row = (
 		<masonview
-			className={cx('vx-tabstrip', 'vx-tabstrip--appkit', props.isFullBleed && 'vx-tabstrip--bleed')}
+			className={cx(
+				'vx-tabstrip',
+				'vx-tabstrip--appkit',
+				props.isFullBleed && 'vx-tabstrip--bleed',
+			)}
 		>
 			{props.children}
 		</masonview>
@@ -120,10 +175,17 @@ export function TabList(props: TabListProps) @{
 	)
 
 	<TabListProvider value={ctx}>
-		<masonview id={props.id} ref={attachRoot} className={cls} {...keyboardProps}
+		<masonview
+			id={props.id}
+			ref={attachRoot}
+			className={cls}
+			{...keyboardProps}
 			accessibilityRole={props.role === 'tablist' ? 'tablist' : undefined}
-			accessibilityLabel={props.role === 'tablist' ? String(props.web?.['aria-label'] ?? 'Tabs') : undefined}
-			style={mergeStyle({ display: 'flex' }, props.style)}>
+			accessibilityLabel={
+				props.role === 'tablist' ? String(props.web?.['aria-label'] ?? 'Tabs') : undefined
+			}
+			style={mergeStyle({ display: 'flex' }, props.style)}
+		>
 			@if (hasScroll) {
 				<scrollview
 					orientation="horizontal"
@@ -191,9 +253,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 		)}
 		style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
 		disabled={isDisabled}
-		accessibilityRole={
-			ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button'
-		}
+		accessibilityRole={ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button'}
 		accessibilityLabel={props.label}
 		accessibilityState={{ disabled: isDisabled, selected: isSelected }}
 		onPress={select}
@@ -227,62 +287,155 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 
 /** TabMenu — overflow trigger inside a TabList. Native leaf opens the
  *  shared anchored Popover with menuitemradio-style rows. */
-export function TabMenu(props: TabMenuProps) @{
+export function TabMenu(props: TabMenuProps): unknown @{
 	const ctx = useContext(TabListContext)
 	if (ctx == null) {
 		throw new Error('TabMenu must be used within a TabList.')
 	}
 
-	const anchor = useRef<NSView | null>(null), menuKey = useId()
+	const anchor = useRef<NSView | null>(null),
+		menuKey = useId()
+
 	const [open, setOpenState] = useState(false)
-	const openRef = useRef(open); openRef.current = open
-	const choosing = useRef(false), initialFocus = useRef<'first' | 'last'>('first')
-	const live = useRef({ props, ctx }); live.current = { props, ctx }
-	const setOpen = (next: boolean) => { openRef.current = next; if (anchor.current) setOpenState(next) }
+	const openRef = useRef(open)
+	openRef.current = open
+	const choosing = useRef(false),
+		initialFocus = useRef<'first' | 'last'>('first')
+
+	const live = useRef({ props, ctx })
+	live.current = { props, ctx }
+	const setOpen = (next: boolean) => {
+		openRef.current = next
+		if (anchor.current) {
+			setOpenState(next)
+		}
+	}
+
 	const selected = props.options.find((o) => o.value === ctx.value)
 	const triggerLabel = selected?.label ?? props.label
-	const registrationKey = selected?.value ?? menuKey, views = ctx._tabViews
-	const registration = useRef<{ views: Map<string, unknown>; key: string; view: NSView } | null>(null)
+	const registrationKey = selected?.value ?? menuKey,
+		views = ctx._tabViews
+
+	const registration = useRef<{ views: Map<string, unknown>; key: string; view: NSView } | null>(
+		null,
+	)
+
 	const synchronizeRegistration = () => {
 		const previous = registration.current
-		if (previous && previous.views.get(previous.key) === previous.view) previous.views.delete(previous.key)
+		if (previous && previous.views.get(previous.key) === previous.view) {
+			previous.views.delete(previous.key)
+		}
+
 		registration.current = null
 		if (anchor.current && views) {
 			views.set(registrationKey, anchor.current)
 			registration.current = { views, key: registrationKey, view: anchor.current }
 		}
 	}
-	const registerLatest = useRef(synchronizeRegistration); registerLatest.current = synchronizeRegistration
+
+	const registerLatest = useRef(synchronizeRegistration)
+	registerLatest.current = synchronizeRegistration
 	const bind = useCallback((view: NSView | null) => {
-		anchor.current = view; registerLatest.current()
+		anchor.current = view
+		registerLatest.current()
 	}, [])
+
 	useLayoutEffect(synchronizeRegistration, [views, registrationKey])
 
-	const returnOwner = useMemo(() => createAppKitMenuReturn({ anchor: () => anchor.current,
-		open: () => Boolean(anchor.current) && openRef.current, close: () => setOpen(false) }), [])
-	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
-	const closeMenu = () => { returnOwner.reset(); setOpen(false) }
-	const requestOpen = (edge: 'first' | 'last') => {
-		if (!anchor.current || choosing.current || !live.current.props.options.length) return
-		initialFocus.current = edge; returnOwner.reset(); setOpen(true)
+	const returnOwner = useMemo(
+		() =>
+			createAppKitMenuReturn({
+				anchor: () => anchor.current,
+				open: () => Boolean(anchor.current) && openRef.current,
+				close: () => setOpen(false),
+			}),
+		[],
+	)
+
+	const finalFocus = useMemo(
+		() => ({
+			get current() {
+				return returnOwner.focusTarget()
+			},
+		}),
+		[],
+	)
+
+	const closeMenu = () => {
+		returnOwner.reset()
+		setOpen(false)
 	}
-	const keys = useAppKitViewKeys({ onKeyDown: (event) => {
-		if (!anchor.current || choosing.current || !live.current.props.options.length || event.defaultPrevented || event.isComposing ||
-			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return
-		event.preventDefault(); event.stopPropagation()
-		if (!openRef.current) requestOpen(event.key === 'ArrowUp' ? 'last' : 'first')
-	} })
+
+	const requestOpen = (edge: 'first' | 'last') => {
+		if (!anchor.current || choosing.current || !live.current.props.options.length) {
+			return
+		}
+
+		initialFocus.current = edge
+		returnOwner.reset()
+		setOpen(true)
+	}
+
+	const keys = useAppKitViewKeys({
+		onKeyDown: (event) => {
+			if (
+				!anchor.current ||
+				choosing.current ||
+				!live.current.props.options.length ||
+				event.defaultPrevented ||
+				event.isComposing ||
+				event.altKey ||
+				event.ctrlKey ||
+				event.metaKey ||
+				event.shiftKey ||
+				(event.key !== 'ArrowDown' && event.key !== 'ArrowUp')
+			) {
+				return
+			}
+
+			event.preventDefault()
+			event.stopPropagation()
+			if (!openRef.current) {
+				requestOpen(event.key === 'ArrowUp' ? 'last' : 'first')
+			}
+		},
+	})
+
 	const triggerRef = useMemo(() => [bind, keys.ref], [bind, keys.ref])
 	useLayoutEffect(() => {
-		if (!props.options.length && openRef.current) closeMenu()
-		if (!open) initialFocus.current = 'first'
+		if (!props.options.length && openRef.current) {
+			closeMenu()
+		}
+
+		if (!open) {
+			initialFocus.current = 'first'
+		}
 	}, [props.options.length, open])
 
 	const pick = (value: string) => {
-		if (!anchor.current || !openRef.current || choosing.current || !live.current.props.options.some((option) => option.value === value)) return
-		choosing.current = true; openRef.current = false; returnOwner.reset()
-		try { live.current.ctx.onChange(value) }
-		finally { try { if (anchor.current) setOpen(false) } finally { choosing.current = false } }
+		if (
+			!anchor.current ||
+			!openRef.current ||
+			choosing.current ||
+			!live.current.props.options.some((option) => option.value === value)
+		) {
+			return
+		}
+
+		choosing.current = true
+		openRef.current = false
+		returnOwner.reset()
+		try {
+			live.current.ctx.onChange(value)
+		} finally {
+			try {
+				if (anchor.current) {
+					setOpen(false)
+				}
+			} finally {
+				choosing.current = false
+			}
+		}
 	}
 
 	<>
@@ -294,8 +447,22 @@ export function TabMenu(props: TabMenuProps) @{
 			accessibilityLabel={triggerLabel}
 			accessibilityHint={props.label}
 			disabled={!props.options.length}
-			accessibilityState={{ expanded: open && !!props.options.length, selected: !!selected, disabled: !props.options.length }}
-			onPress={() => { if (!anchor.current || choosing.current) return; if (openRef.current) closeMenu(); else requestOpen('first') }}
+			accessibilityState={{
+				expanded: open && !!props.options.length,
+				selected: !!selected,
+				disabled: !props.options.length,
+			}}
+			onPress={() => {
+				if (!anchor.current || choosing.current) {
+					return
+				}
+
+				if (openRef.current) {
+					closeMenu()
+				} else {
+					requestOpen('first')
+				}
+			}}
 		>
 			<masonview
 				className="vx-tab-content"
@@ -328,10 +495,19 @@ export function TabMenu(props: TabMenuProps) @{
 			className="vx-tabmenu-pop"
 		>
 			<AppKitMenuReturnProvider value={returnOwner}>
-				<MenuSurface closeMenu={closeMenu} initialFocus={initialFocus.current} label={props.label} className="vx-tabmenu">
+				<MenuSurface
+					closeMenu={closeMenu}
+					initialFocus={initialFocus.current}
+					label={props.label}
+					className="vx-tabmenu"
+				>
 					<Text className="vx-tabmenu-heading">{props.label}</Text>
 					@for (const option of props.options; key option.value) {
-						<AppKitTabMenuOption option={option} selected={ctx.value === option.value} pick={pick} />
+						<AppKitTabMenuOption
+							option={option}
+							selected={ctx.value === option.value}
+							pick={pick}
+						/>
 					}
 				</MenuSurface>
 			</AppKitMenuReturnProvider>
@@ -339,13 +515,31 @@ export function TabMenu(props: TabMenuProps) @{
 	</>
 }
 
+function AppKitTabMenuOption(props: {
+	option: TabMenuOption
+	selected: boolean
+	pick(value: string): void
+}) @{
+	const row = useAppKitMenuRow({
+		label: props.option.label,
+		disabled: false,
+		press: () => props.pick(props.option.value),
+	})
 
-function AppKitTabMenuOption(props: { option: TabMenuOption; selected: boolean; pick(value: string): void }) @{
-	const row = useAppKitMenuRow({ label: props.option.label, disabled: false, press: () => props.pick(props.option.value) })
-	<Pressable ref={row.ref} className={cx('vx-tabmenu-item', props.selected && 'vx-tabmenu-item--selected')}
-		accessibilityRole="menuitemradio" accessibilityLabel={props.option.label}
-		accessibilityState={{ checked: props.selected, selected: props.selected }} onPress={row.press}>
-		<masonview style={mergeStyle({ flexDirection: 'row', alignItems: 'center', gap: 8 }, { display: 'flex' })}>
+	<Pressable
+		ref={row.ref}
+		className={cx('vx-tabmenu-item', props.selected && 'vx-tabmenu-item--selected')}
+		accessibilityRole="menuitemradio"
+		accessibilityLabel={props.option.label}
+		accessibilityState={{ checked: props.selected, selected: props.selected }}
+		onPress={row.press}
+	>
+		<masonview
+			style={mergeStyle(
+				{ flexDirection: 'row', alignItems: 'center', gap: 8 },
+				{ display: 'flex' },
+			)}
+		>
 			{props.option.icon != null ? navIcon(props.option.icon, 16) : null}
 			<Text className="vx-tabmenu-itemcontent">{props.option.label}</Text>
 			{props.selected ? <Icon name="xplat-check" size={16} /> : null}

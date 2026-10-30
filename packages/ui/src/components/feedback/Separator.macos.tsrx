@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Separator — hairline rule. `orientation` picks which axis it spans;
  *  thickness/color come from the app's `vx-separator` styling. */
-export function Separator(props: SeparatorProps) @{
+export function Separator(props: SeparatorProps): unknown @{
 	const vertical = props.orientation === 'vertical'
 
 	<masonview

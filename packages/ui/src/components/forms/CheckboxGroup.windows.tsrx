@@ -12,7 +12,7 @@ import { CheckboxListProvider } from './option-list-contexts'
 /** CheckboxGroup — multi-select list of self-drawn checkboxes. Options
  *  come from the `options` prop or `CheckboxListItem` children;
  *  `hasDividers` adds the divided class. */
-export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
+export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState<string[]>(props.defaultValue ?? [])
 	const controlled = props.value !== undefined

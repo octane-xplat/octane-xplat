@@ -5,6 +5,7 @@ import { useLayer } from './use-layer'
 import { View } from '../layout/View.web.tsrx'
 import type { TooltipProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
+import type { JSX } from 'octane/jsx-runtime'
 
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]'
 
@@ -27,7 +28,7 @@ type Binding = {
  * semantic and a long-press stand-in would repeat the old hover-wrapper trap
  * (decision #47).
  */
-export function Tooltip(props: TooltipProps) @{
+export function Tooltip(props: TooltipProps): JSX.Element @{
 	const [open, setOpen] = useState(false)
 	const anchor = useRef<HTMLElement | null>(null)
 	const binding = useRef<Binding | null>(null)

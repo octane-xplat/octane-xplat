@@ -13,12 +13,12 @@ const SUCCESS = '#15803d'
 const WARNING = '#b45309'
 const DANGER = '#dc2626'
 
-export const mutedColor = (scheme: Scheme) => TEXT_SECONDARY[scheme]
-export const textColor = (scheme: Scheme) => TEXT_PRIMARY[scheme]
-export const accentColor = (scheme: Scheme) => PRIMARY[scheme]
-export const successColor = () => SUCCESS
-export const warningColor = () => WARNING
-export const dangerColor = () => DANGER
+export const mutedColor = (scheme: Scheme): string => TEXT_SECONDARY[scheme]
+export const textColor = (scheme: Scheme): string => TEXT_PRIMARY[scheme]
+export const accentColor = (scheme: Scheme): string => PRIMARY[scheme]
+export const successColor = (): string => SUCCESS
+export const warningColor = (): string => WARNING
+export const dangerColor = (): string => DANGER
 
 /** StatusDot variant → ink color painted on the dot on native. */
 export function statusDotColor(variant: string, scheme: Scheme): string {

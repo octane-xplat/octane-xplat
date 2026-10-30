@@ -18,7 +18,7 @@ import { PowerSearchView } from './PowerSearchView.macos.tsrx'
 
 export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(
 	props: PowerSearchProps<C>,
-) @{
+): unknown @{
 	const [query, setQuery] = useState('')
 	const [editing, setEditing] = useState<{ filter: PartialFilter; index: number } | null>(null)
 	const [open, setOpen] = useState(false)

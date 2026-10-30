@@ -23,7 +23,9 @@ function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
  *  This is the container half of the split: it coordinates query, results,
  *  highlight, search progress, and open state, then renders
  *  `BaseTypeaheadView` with the resolved state and intent callbacks. */
-export function BaseTypeahead<T extends SearchableItem>(inProps: BaseTypeaheadProps<T>) @{
+export function BaseTypeahead<T extends SearchableItem>(
+	inProps: BaseTypeaheadProps<T>,
+): unknown @{
 	const props = useFieldControlProps(inProps)
 	const searchSource = props.searchSource
 	const hasEntriesOnFocus = props.hasEntriesOnFocus ?? false

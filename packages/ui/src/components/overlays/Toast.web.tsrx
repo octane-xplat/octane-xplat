@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 const SWIPE_DISMISS_PX = 44
 
@@ -13,7 +14,7 @@ const SWIPE_DISMISS_PX = 44
  * swipe/touch drag to dismiss, and `renderContent` takeover. ARIA:
  * `role="status" aria-live="polite"` for info, `role="alert"` for error.
  */
-export function Toast(props: ToastProps) @{
+export function Toast(props: ToastProps): JSX.Element @{
 	const type = props.type ?? 'info'
 	const autoHide = props.isAutoHide ?? type !== 'error'
 	const duration = Math.max(0, props.autoHideDuration ?? 5000)
@@ -155,4 +156,4 @@ export function Toast(props: ToastProps) @{
 }
 
 /** Internal viewport alias; the public card remains `Toast`. */
-export const ToastSurface = Toast
+export const ToastSurface: typeof Toast = Toast

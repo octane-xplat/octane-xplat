@@ -7,7 +7,7 @@ const sizePx: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32
 
 /** ActivityIndicator — exported as `Spinner`. Native leaf: a fixed-size box
  *  carrying the `vx-spinner` hook + optional label row. */
-export function ActivityIndicator(props: ActivityIndicatorProps) @{
+export function ActivityIndicator(props: ActivityIndicatorProps): unknown @{
 	const busy = props.busy !== false
 	if (!busy) {
 		return null

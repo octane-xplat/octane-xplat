@@ -17,7 +17,7 @@ import { useFieldControlProps } from '../components/forms/field-context'
  *  belongs to `Field`. `isDisabled` maps to `isEnabled`; `isReadOnly`
  *  blocks toggling (interaction off, change reverted) while keeping the
  *  enabled appearance. */
-export function MaterialSwitch(inputProps: MaterialSwitchProps) @{
+export function MaterialSwitch(inputProps: MaterialSwitchProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const el = useRef<any>(null)
 	// Last confirmed value for the `isReadOnly` revert — `value` when

@@ -113,7 +113,7 @@ function LightboxPanel(
 	</LayerDepthProvider>
 }
 
-export function Lightbox(props: LightboxProps) @{
+export function Lightbox(props: LightboxProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultIndex ?? 0)
 	const count = props.media.length
 	const index = Math.min(Math.max(props.index ?? internal, 0), Math.max(0, count - 1))

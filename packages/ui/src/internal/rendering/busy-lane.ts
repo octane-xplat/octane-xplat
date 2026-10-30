@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 
 /** How BaseTypeahead hands its busy state to a wrapper that owns the
  *  inline-end lane (Typeahead/Tokenizer paint the spinner beside their own
@@ -35,5 +35,7 @@ export function createBusyIndicatorLane(): BusyIndicatorLane {
 }
 
 /** The wrapper's lane, or null when the base renders its own indicator. */
-export const BusyLaneContext = createContext<BusyIndicatorLane | null>(null)
+export const BusyLaneContext: Context<BusyIndicatorLane | null> =
+	createContext<BusyIndicatorLane | null>(null)
+
 export const BusyLaneProvider: any = BusyLaneContext

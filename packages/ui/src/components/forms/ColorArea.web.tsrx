@@ -9,11 +9,12 @@ import { LinearGradient } from '../media/LinearGradient'
 import { hsbToHex, type Hsb } from '../../theme/color'
 import { useColorState } from '../../theme/color-state'
 
+import type { JSX } from 'octane/jsx-runtime'
 const THUMB = 16
 
 /** Internal 2D area view — saturation left→right, brightness top→bottom.
  *  Drag is delta-based from the value at pointerdown (no tap-to-position v1). */
-export function ColorAreaView(props: ColorAreaViewProps) {
+export function ColorAreaView(props: ColorAreaViewProps): JSX.Element {
 	const host = useRef<HTMLElement | null>(null)
 	const measure = useMeasure()
 	const drag = useRef<Hsb | null>(null)
@@ -139,7 +140,7 @@ export function ColorAreaView(props: ColorAreaViewProps) {
 	)
 }
 
-export function ColorArea(props: ColorAreaProps) {
+export function ColorArea(props: ColorAreaProps): JSX.Element {
 	const color = useColorState(props, '#ff0000')
 	return (
 		<ColorAreaView

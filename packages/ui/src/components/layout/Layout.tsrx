@@ -36,7 +36,7 @@ import {
  *  Two web-only behaviors have no native analog: `contentWidth`'s internal
  *  alignment (the middle lane is centered/constrained instead) and the
  *  no-divider block padding collapse (a `:has()` rule). */
-export function Layout(props: LayoutProps) @{
+export function Layout(props: LayoutProps): unknown @{
 	const parentPads = useContext(LayoutPaddingContext)
 	const parentDivider = useContext(LayoutDividerContext)
 	const isFill = (props.height ?? 'fill') === 'fill'
@@ -125,7 +125,7 @@ export function Layout(props: LayoutProps) @{
  *  boundary-touching edges, inner below, `padding`/`paddingBlockEnd`
  *  overrides last). The `--divided` class paints the hairline through the
  *  shared chrome rule. */
-export function LayoutHeader(props: LayoutHeaderProps) @{
+export function LayoutHeader(props: LayoutHeaderProps): unknown @{
 	const pads = useContext(LayoutPaddingContext)
 	const dividerCtx = useContext(LayoutDividerContext)
 	const hasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
@@ -185,7 +185,7 @@ export function LayoutHeader(props: LayoutHeaderProps) @{
  *  the layout boundary (no sibling region), inner otherwise; `padding`
  *  overrides all four. `isScrollable` hosts children in a scrollview —
  *  masonview can't scroll its own overflow. */
-export function LayoutContent(props: LayoutContentProps) @{
+export function LayoutContent(props: LayoutContentProps): unknown @{
 	const slots = useContext(LayoutSlotsContext)
 	const pads = useContext(LayoutPaddingContext)
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
@@ -254,7 +254,7 @@ export function LayoutContent(props: LayoutContentProps) @{
 
 /** Astryx LayoutFooter — native leaf: outer shell owns divider+sizing,
  *  inner box owns the resolved padding channels. */
-export function LayoutFooter(props: LayoutFooterProps) @{
+export function LayoutFooter(props: LayoutFooterProps): unknown @{
 	const pads = useContext(LayoutPaddingContext)
 	const dividerCtx = useContext(LayoutDividerContext)
 	const hasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
@@ -305,7 +305,7 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 
 /** Astryx LayoutPanel — native leaf: fixed-width side column; divider is a
  *  class hook the native stylesheet resolves on the content-facing edge. */
-export function LayoutPanel(props: LayoutPanelProps) @{
+export function LayoutPanel(props: LayoutPanelProps): unknown @{
 	const area = props.area ?? useContext(LayoutAreaContext) ?? 'start'
 	const size = props.resizable?._size ?? props.width
 	const pads = useContext(LayoutPaddingContext)

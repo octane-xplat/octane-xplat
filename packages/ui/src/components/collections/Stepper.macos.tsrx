@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Stepper — numbered step row with connectors. Steps before `current`
  *  show a done mark; tapping a non-disabled step calls `onStepChange`. */
-export function Stepper(props: StepperProps) @{
+export function Stepper(props: StepperProps): unknown @{
 	const current = props.current ?? 0
 
 	<masonview

@@ -1,5 +1,6 @@
 import { createAppKitRouterHost } from './appkit-router-host.macos'
 import { createDefaultRouterRuntime } from './default-router-runtime'
+import type { DefaultRouterRuntime } from './default-router-runtime'
 import type {
 	DefaultRouterContractCheck,
 	RouteManifest,
@@ -7,7 +8,9 @@ import type {
 	RouterInstance,
 } from '../props'
 
-export const defaultRouterRuntime = createDefaultRouterRuntime(createAppKitRouterHost)
+export const defaultRouterRuntime: DefaultRouterRuntime<ReturnType<typeof createAppKitRouterHost>> =
+	createDefaultRouterRuntime(createAppKitRouterHost)
+
 /** The application's typed client router. RouteOutlet supplies its owning
  * platform integration; server requests must create isolated instances. */
 export const router: RouterInstance = defaultRouterRuntime.router

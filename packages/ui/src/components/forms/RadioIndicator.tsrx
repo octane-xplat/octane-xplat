@@ -9,7 +9,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 /** RadioIndicator — decorative circle (20/24dip); a filled dot appears
  *  when checked. `children` replaces the dot (busy spinners). Decorative
  *  only — the owning control keeps role/focus/state. */
-export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
+export function RadioIndicator(props: IndicatorProps<'singleSelection'>): unknown @{
 	const size = props.size ?? 'md'
 	const content =
 		props.children != null ? (

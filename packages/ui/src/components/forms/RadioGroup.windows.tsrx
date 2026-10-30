@@ -14,7 +14,7 @@ import { RadioListProvider } from './option-list-contexts'
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Options come from the `options` prop or `RadioListItem`
  *  children (Astryx child part). */
-export function RadioGroup(inputProps: RadioGroupProps) @{
+export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue)
 	const current = props.value ?? internal

@@ -17,7 +17,7 @@ let warnedAboutGap = false
  *
  * @see GridProps for the track grammar, diagnostics, and an example; LayoutChildProps for placement.
  */
-export function Grid(props: GridProps) @{
+export function Grid(props: GridProps): unknown @{
 	const deprecatedGap = (props as GridProps & { gap?: number | string }).gap
 	if (deprecatedGap != null && !warnedAboutGap) {
 		warnedAboutGap = true
@@ -69,7 +69,7 @@ export function Grid(props: GridProps) @{
 
 /** GridSpan — spanning Grid child (Astryx); passes through col/row span as
  *  child placement metadata. */
-export function GridSpan(props: GridSpanProps) @{
+export function GridSpan(props: GridSpanProps): unknown @{
 	<masonview
 		id={props.id}
 		className={cx('vx-gridspan', props.className)}

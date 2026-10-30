@@ -16,7 +16,7 @@ import { usePan } from './pan'
 /** StackItem — per-child size (`fill` grows into remaining space) and
  *  cross-axis alignment inside a `Stack`. `isScrollable` hosts the content
  *  in a ScrollView on native (NS layouts can't scroll their own overflow). */
-export function StackItem(props: StackItemProps) @{
+export function StackItem(props: StackItemProps): unknown @{
 	const itemStyle = stackItemStyle(props)
 	const onPan = usePan(props.onPan)
 

@@ -3,6 +3,7 @@ import type { CitationProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { isRenderable } from '../../internal/rendering/is-renderable'
+import type { JSX } from 'octane/jsx-runtime'
 
 let warnedBlockedUrl = false
 
@@ -11,7 +12,7 @@ let warnedBlockedUrl = false
  *  citation inert instead of navigating. A bare-string `source.icon` is a
  *  favicon URL (back-compat); a node renders inside the icon circle; when
  *  both `icon` node and `src` exist the node wins. */
-export function Citation(props: CitationProps) @{
+export function Citation(props: CitationProps): JSX.Element @{
 	const source = props.source
 	const variant = props.variant ?? 'label'
 	const href = source.url

@@ -14,7 +14,7 @@ export { Slider } from '../forms/Slider.macos.tsrx'
 
 export { SegmentedControl } from '../forms/SegmentedControl.macos.tsrx'
 
-export function SearchInput(props: SearchInputProps) @{
+export function SearchInput(props: SearchInputProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal
 	const setValue = (next: string) => {
@@ -36,7 +36,7 @@ export function SearchInput(props: SearchInputProps) @{
 		hasClear={props.hasClear !== false}
 		placeholder={props.placeholder}
 		returnKeyType="search"
-		startIcon={props.icon === false ? undefined : props.icon ?? 'xplat-search'}
+		startIcon={props.icon === false ? undefined : (props.icon ?? 'xplat-search')}
 	/>
 }
 

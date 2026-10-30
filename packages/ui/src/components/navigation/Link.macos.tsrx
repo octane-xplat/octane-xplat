@@ -9,7 +9,7 @@ import { useLinkComponent } from './use-link-component.tsrx'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { mergeStyle } from '../../internal/layout/style-merge'
 
-export function Link(props: LinkProps) @{
+export function Link(props: LinkProps): unknown @{
 	const Injected: any = useLinkComponent(props.as)
 	const url = sanitizeUrl(props.href)
 	const className = cx(

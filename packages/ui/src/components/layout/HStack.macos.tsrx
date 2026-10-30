@@ -3,7 +3,7 @@ import type { HStackProps } from '../../props'
 import { Stack } from './layout.macos.tsrx'
 
 /** Horizontal flow stack — `Stack` with `direction="horizontal"`. */
-export function HStack(props: HStackProps) @{
+export function HStack(props: HStackProps): unknown @{
 	return (
 		<Stack
 			{...props}

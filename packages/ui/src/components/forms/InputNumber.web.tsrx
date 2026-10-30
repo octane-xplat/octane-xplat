@@ -5,12 +5,13 @@ import { useSize } from '../layout/size-context'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { TextInput } from './TextInput.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** InputNumber — normalized number field with −/+ steppers. `units` draws a
  *  trailing suffix; `formatValue` renders the committed value; `hasClear`
  *  adds a reset affordance. `hasNumberSteppers` gates the buttons
  *  (default shown). */
-export function InputNumber(props: InputNumberProps) @{
+export function InputNumber(props: InputNumberProps): JSX.Element @{
 	const size = useSize(props.size, 'md')
 	const [internal, setInternal] = useState(props.defaultValue)
 	const controlled = props.value !== undefined

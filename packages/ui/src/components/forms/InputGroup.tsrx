@@ -14,7 +14,7 @@ import { SizeProvider, useSize } from '../layout/size-context'
  *  drop their own borders into the shared skin. NS has no group role —
  *  the row is a plain flexbox; label/description/status ids still flow to
  *  members through the FieldContext. */
-export function InputGroup(props: InputGroupProps) @{
+export function InputGroup(props: InputGroupProps): unknown @{
 	const groupId = useId()
 	const size = useSize(props.size, 'md')
 	const group = { isDisabled: props.isDisabled, size }
@@ -69,7 +69,7 @@ export function InputGroup(props: InputGroupProps) @{
 
 /** InputGroupText — a prefix/suffix segment inside an InputGroup. String
  *  children render as a label; components render as-is. */
-export function InputGroupText(props: InputGroupTextProps) @{
+export function InputGroupText(props: InputGroupTextProps): unknown @{
 	const forwardedRef = useMemo(
 		() =>
 			refList((v: any) => {

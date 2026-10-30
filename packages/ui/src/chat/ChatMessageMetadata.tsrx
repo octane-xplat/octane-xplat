@@ -26,7 +26,7 @@ const renderable = (v: any) => v != null && v !== false && v !== true
 /** Composable metadata row for chat messages — timestamp · footer · status.
  *  Renders nothing when all three are absent. User-sender rows right-align
  *  (the DOM leaf uses row-reverse; NS children order is explicit). */
-export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
+export function ChatMessageMetadata(props: ChatMessageMetadataProps): unknown @{
 	const msgContext = useChatMessageContext()
 	const sender = msgContext?.sender ?? 'assistant'
 	const hasTimestamp = renderable(props.timestamp)

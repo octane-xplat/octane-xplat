@@ -2,11 +2,12 @@
 import type { ChatTokenizedTextProps } from '../props'
 import { ChatTokenChip } from './chat-tokens.web.tsrx'
 import { tokenizeChatText } from './chat-tokenize'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Renders serialized message text with token values replaced by inline
  *  chips — share one token table between ChatComposerInput triggers and
  *  message display. */
-export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
+export function ChatTokenizedText(props: ChatTokenizedTextProps): JSX.Element @{
 	const text = props.children ?? ''
 	if (!text || !props.tokens || props.tokens.length === 0) {
 		return (

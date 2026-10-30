@@ -48,7 +48,7 @@ declare module '@octane-xplat/jsx/intrinsics' {
 	}
 }
 
-export function Image(props: ImageProps) @{
+export function Image(props: ImageProps): unknown @{
 	// The optional image engine passes this private field through JSX spreads;
 	// keep the shared public ImageProps contract unchanged.
 	const cachePolicy =

@@ -80,8 +80,11 @@ export interface ParityCheck {
 	check: (m: Resolve, target: string, dump: ParityDump) => CheckRow[]
 }
 
-export const near = (a: number | null | undefined, b: number | null | undefined, tol = 0.51) =>
-	a != null && b != null && Math.abs(a - b) <= tol
+export const near = (
+	a: number | null | undefined,
+	b: number | null | undefined,
+	tol = 0.51,
+): boolean => a != null && b != null && Math.abs(a - b) <= tol
 
 export const dims = (el: MeasuredNode, w: number, h: number, tol?: number): CheckRow => [
 	`${w}×${h}`,
@@ -100,7 +103,7 @@ export const circular = (el: MeasuredNode): CheckRow => {
 	return ['thumb corners form a circle', round, `${radius} on ${width}×${height}`]
 }
 
-export const equalPath = (rule: EqualRule) => (typeof rule === 'string' ? rule : rule.path)
+export const equalPath = (rule: EqualRule): string => (typeof rule === 'string' ? rule : rule.path)
 
 export const textEqual: EqualRule[] = [
 	// Font shaping varies slightly by renderer; exact size, weight, line height,
@@ -113,7 +116,9 @@ export const textEqual: EqualRule[] = [
 	'text.style.color',
 ]
 
-export const textLongEqual = textEqual.filter((rule) => equalPath(rule) !== 'text.box.h')
+export const textLongEqual: EqualRule[] = textEqual.filter(
+	(rule) => equalPath(rule) !== 'text.box.h',
+)
 
 export const headingEqual: EqualRule[] = [
 	'heading.box.x',
@@ -306,11 +311,11 @@ export const inputEqual: EqualRule[] = [
 	'field.style.color',
 ]
 
-export const inputNaturalEqual = inputEqual.filter(
+export const inputNaturalEqual: EqualRule[] = inputEqual.filter(
 	(rule) => !['field.box.h', 'field.contentBox.h'].includes(equalPath(rule)),
 )
 
-export const textAreaEqual = inputEqual.map((rule) => {
+export const textAreaEqual: EqualRule[] = inputEqual.map((rule) => {
 	const path = equalPath(rule)
 	return ['field.box.h', 'field.contentBox.h'].includes(path) ? { path, tolerance: 1 } : rule
 })

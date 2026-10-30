@@ -127,7 +127,7 @@ export function attachBottomSheetHost(
  *  RootLayout host + portal from the declaring component's
  *  RootLayout. With `sheetId` inside `BottomSheetSwitcher` it registers
  *  under the switcher's shared host instead. */
-export function BottomSheet(props: BottomSheetProps) @{
+export function BottomSheet(props: BottomSheetProps): unknown @{
 	const switcher = useContext(BottomSheetSwitcherContext)
 	const sentinel = useRef<any>(null)
 	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
@@ -321,7 +321,7 @@ function SwitcherPanel(props: {
 /** Shared host for a set of BottomSheet panels (Astryx
  *  `BottomSheetSwitcher`), native leaf — one RootLayout host whose content
  *  is driven by a module-scope registration store. */
-export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
+export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 	const sentinel = useRef<any>(null)
 	const shown = useRef<{
 		host: GridLayout

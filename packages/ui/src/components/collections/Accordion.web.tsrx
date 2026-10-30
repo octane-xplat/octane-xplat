@@ -3,11 +3,12 @@ import { useState } from 'octane'
 import type { AccordionProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Collapsible } from './Collapsible.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn accordion — a list of Collapsibles sharing one open-state.
  *  Controlled via `open` (key, or keys with `multiple`), uncontrolled via
  *  `defaultOpen`. */
-export function Accordion(props: AccordionProps) @{
+export function Accordion(props: AccordionProps): JSX.Element @{
 	const normalize = (v: string | string[] | null | undefined) =>
 		v == null ? [] : Array.isArray(v) ? v : [v]
 

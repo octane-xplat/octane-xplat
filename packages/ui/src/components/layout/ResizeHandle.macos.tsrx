@@ -10,7 +10,7 @@ import { Pressable } from '../actions/Pressable.macos.tsrx'
  *  Cancel} lifecycle; a double-tap toggles collapse; arrows are a
  *  pointer-platform behavior (web). The handle is focusable for
  *  assistive tech via `accessibilityRole="adjustable"`. */
-export function ResizeHandle(props: ResizeHandleProps) @{
+export function ResizeHandle(props: ResizeHandleProps): unknown @{
 	const direction = props.direction ?? 'horizontal'
 	const isHorizontal = direction === 'horizontal'
 	const sign = props.isReversed ? -1 : 1

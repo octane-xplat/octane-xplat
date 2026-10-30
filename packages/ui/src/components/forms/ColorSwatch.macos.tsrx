@@ -6,7 +6,7 @@ import { nativeAccessibilityRole } from '../overlays/escape-props'
 import { normalizeHex } from '../../theme/color'
 
 /** Small color chip. */
-export function ColorSwatch(props: ColorSwatchProps) @{
+export function ColorSwatch(props: ColorSwatchProps): unknown @{
 	const size = props.size ?? 24
 	const color = normalizeHex(props.color) ?? '#000000'
 

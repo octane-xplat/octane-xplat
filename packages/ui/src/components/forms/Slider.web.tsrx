@@ -7,13 +7,14 @@ import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 import { useId } from 'octane'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn slider — track + fill + thumb(s) in a relative host.
  *  `value` accepts a single number or a `[low, high]` range (two thumbs,
  *  drag adjusts the nearest). `marks` draw labeled stops; `formatValue`
  *  renders the readout when `valueDisplay` asks for it. Drag anywhere on
  *  the widget adjusts by delta. */
-export function Slider(inputProps: SliderProps) @{
+export function Slider(inputProps: SliderProps): JSX.Element @{
 	const props = useFieldControlProps(inputProps)
 	const host = useRef<HTMLElement | null>(null)
 	const measure = useMeasure()

@@ -619,7 +619,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
  *  `popover` keeps typed segments with a calendar popover (and a preset-time
  *  list when `timeOptionInterval` is set); `bottom-sheet`/`native`/
  *  `adaptive-*` resolve to the self-drawn sheet on iOS/Android. */
-export function DateTimeInput(props: DateTimeInputProps) @{
+export function DateTimeInput(props: DateTimeInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const effective = effectivePresentation(props.presentation)
 	const resolved = resolveInputSurface(effective, true)

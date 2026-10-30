@@ -2,11 +2,12 @@
 import type { StepperProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { StepperProvider } from '../forms/option-list-contexts'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Stepper — numbered step row with connectors. `steps` is the flat
  *  data-driven contract; `Step` children are the Astryx child-part
  *  contract (context supplies `activeStep`/`onStepClick`). */
-export function Stepper(props: StepperProps) @{
+export function Stepper(props: StepperProps): JSX.Element @{
 	const current = props.current ?? 0
 	const ctx = {
 		activeStep: props.activeStep ?? props.current ?? 0,

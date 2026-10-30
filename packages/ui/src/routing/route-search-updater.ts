@@ -1,5 +1,25 @@
 import { readRouterMatch } from './router-instance'
-import type { PreparedRouteMatch, RouteDestinationInput, RouterNavigator } from '../props'
+import type {
+	NavigationResult,
+	PreparedRouteMatch,
+	RouteDestinationInput,
+	RouterNavigator,
+} from '../props'
+
+export type SearchUpdateResult =
+	| NavigationResult<any>
+	| {
+			readonly status: 'cancelled'
+			readonly reason: 'superseded'
+			readonly path?: undefined
+			readonly error?: undefined
+	  }
+	| {
+			readonly status: 'invalid-input'
+			readonly path: 'search'
+			readonly error: unknown
+			readonly reason?: undefined
+	  }
 
 /** A rendering entry owns search edits. This cannot target an inactive entry
  * or quietly change another record that uses the same route pattern. */
@@ -8,7 +28,7 @@ export function createSearchUpdater(
 	navigator: RouterNavigator<any, string, string>,
 	entry: PreparedRouteMatch,
 ) {
-	return async (search: unknown, options?: { replace?: boolean }) => {
+	return async (search: unknown, options?: { replace?: boolean }): Promise<SearchUpdateResult> => {
 		const before = navigator.getSnapshot()
 		if (!before.route || readRouterMatch(owner, before.route) !== entry) {
 			return { status: 'cancelled', reason: 'superseded' } as const

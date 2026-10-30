@@ -20,7 +20,7 @@ import { createAppKitTypeaheadAccessibility } from './typeahead-accessibility.ma
  * Native accessibility behavior and announcements remain unqualified. */
 export function BaseTypeaheadView<T extends SearchableItem>(
 	props: BaseTypeaheadViewProps<T>,
-) @{
+): unknown @{
 	const busyLane = useContext(BusyLaneContext)
 	const groups = groupTypeaheadItems(props.results, { ungroupedFirst: true })
 	const selectedId = props.value?.id

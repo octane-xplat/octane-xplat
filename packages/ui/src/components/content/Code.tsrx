@@ -13,7 +13,7 @@ import { nativeColor } from '../../theme/native-color'
  *  already inherits the parent label's metrics). Native spans can't resolve
  *  the `vx-code` background/padding skin — the mono font, muted color, and
  *  chip background on a standalone label come from the class. */
-export function Code(props: CodeProps) @{
+export function Code(props: CodeProps): unknown @{
 	const scheme = useColorScheme()
 	const colorStyle =
 		props.color === 'secondary' ? { color: nativeColor(mutedColor(scheme)) } : undefined

@@ -99,7 +99,7 @@ function partValue(draft: RangePartDraft): DateTimeRangePart | null {
 
 export function rangeValue(
 	draft: RangeDraft,
-	nowSeconds = Math.floor(Date.now() / 1000),
+	nowSeconds: number = Math.floor(Date.now() / 1000),
 ): { value: DateTimeRange | null; error: string | null } {
 	const start = partValue(draft.start),
 		end = partValue(draft.end)

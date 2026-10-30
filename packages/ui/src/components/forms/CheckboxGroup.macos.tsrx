@@ -8,7 +8,7 @@ import { CheckboxListProvider } from './option-list-contexts'
 import { CheckboxListItem } from './CheckboxListItem.macos.tsrx'
 
 /** Multi-choice options and child parts share one checked-set owner. */
-export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
+export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
 	const { props, inField } = useFieldControl(inputProps)
 	const generatedID = useId()
 	const controlID = props.id ?? generatedID

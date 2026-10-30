@@ -11,7 +11,7 @@ import { accentColor, mutedColor, textColor } from '../../theme/scheme-colors'
 const DEFAULT_LABEL = 'Table of contents'
 
 /** Native heading navigation and uncontrolled scroll-spy source path. */
-export function Outline(props: OutlineProps) @{
+export function Outline(props: OutlineProps): unknown @{
 	const items = props.items ?? []
 	const label = props.label ?? DEFAULT_LABEL
 	const density = props.density ?? 'default'
@@ -21,13 +21,35 @@ export function Outline(props: OutlineProps) @{
 	const [internalActive, setInternalActive] = useState<string | undefined>(items[0]?.id)
 	const activeId = controlled ? props.activeId : internalActive
 
-	const latest = useRef(props), active = useRef(activeId), nav = useRef<any>(null)
-	latest.current = props; active.current = activeId
-	const control = useMemo(() => createAppKitOutlineScroll({ props: () => latest.current, root: () => nav.current,
-		active: () => active.current, reducedMotion: readReducedMotion,
-		change(id) { if (latest.current.activeId === undefined) { active.current = id; setInternalActive(id) }; latest.current.onActiveIdChange?.(id) },
-	}), [])
-	useEffect(() => { control.sync() })
+	const latest = useRef(props),
+		active = useRef(activeId),
+		nav = useRef<any>(null)
+
+	latest.current = props
+	active.current = activeId
+	const control = useMemo(
+		() =>
+			createAppKitOutlineScroll({
+				props: () => latest.current,
+				root: () => nav.current,
+				active: () => active.current,
+				reducedMotion: readReducedMotion,
+				change(id) {
+					if (latest.current.activeId === undefined) {
+						active.current = id
+						setInternalActive(id)
+					}
+
+					latest.current.onActiveIdChange?.(id)
+				},
+			}),
+		[],
+	)
+
+	useEffect(() => {
+		control.sync()
+	})
+
 	useEffect(() => () => control.dispose(), [])
 
 	<masonview

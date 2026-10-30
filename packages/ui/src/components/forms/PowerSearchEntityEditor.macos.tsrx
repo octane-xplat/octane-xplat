@@ -29,7 +29,7 @@ interface Draft {
 	error?: string
 }
 
-export function PowerSearchEntityEditor(props: Props) @{
+export function PowerSearchEntityEditor(props: Props): unknown @{
 	const live = useRef(props)
 	live.current = props
 	const config = props.operator.value.type === 'entity_list' ? props.operator.value : null

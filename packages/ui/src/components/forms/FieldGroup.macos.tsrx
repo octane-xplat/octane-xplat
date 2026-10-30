@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** FieldGroup — labeled group of related fields. */
-export function FieldGroup(props: FieldGroupProps) @{
+export function FieldGroup(props: FieldGroupProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

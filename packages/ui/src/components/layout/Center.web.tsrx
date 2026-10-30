@@ -6,11 +6,12 @@ import type { CenterProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { spacingPx } from './stack-layout'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Center — a row-direction flex that centers children on the main axis
  *  (`axis="horizontal"` → justify-content), the cross axis (`"vertical"`
  *  → align-items), or `both`. `isInline` renders `inline-flex`. */
-export function Center(props: CenterProps) @{
+export function Center(props: CenterProps): JSX.Element @{
 	const axis = props.axis ?? 'both'
 	const pad = (v: number | undefined) => (v === undefined ? undefined : v)
 	const pInlineStart = pad(

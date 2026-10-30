@@ -34,7 +34,7 @@ export interface ThemeProps {
 	children?: any
 }
 
-export function Theme(props: ThemeProps) @{
+export function Theme(props: ThemeProps): unknown @{
 	const parent = useContext(ThemeContext)
 	const isNested = useContext(ThemeNestingContext)
 	const scheme = useThemeScheme()

@@ -4,12 +4,13 @@ import type { SearchInputProps } from '../../props'
 import { Icon } from '../media/Icon.web.tsrx'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { normStyle } from '../layout/layout-child.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Chrome-reset search field — an `<input type="search">` in a bordered
  *  shell with a leading glyph and a self-drawn clear button (the engine's
  *  own ::-webkit-search-cancel-button is hidden — same pixels as native).
  *  `value`/`onChange` for controlled, `defaultValue` for uncontrolled. */
-export function SearchInput(props: SearchInputProps) @{
+export function SearchInput(props: SearchInputProps): JSX.Element @{
 	const hostRef = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal

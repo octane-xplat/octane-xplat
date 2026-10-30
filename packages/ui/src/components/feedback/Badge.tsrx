@@ -4,7 +4,7 @@ import { cx } from '@octane-xplat/lib'
 
 /** Badge — inline label chip (Astryx). Native leaf renders the same
  *  `vx-badge--{variant}` class hooks; label text is a span child. */
-export function Badge(props: BadgeProps) @{
+export function Badge(props: BadgeProps): unknown @{
 	<masonview
 		id={props.id}
 		className={cx('vx-badge', `vx-badge--${props.variant ?? 'neutral'}`, props.className)}

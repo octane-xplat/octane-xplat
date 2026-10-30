@@ -2,11 +2,12 @@
 import type { FieldLabelProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** `FieldLabel` — standalone field label row (Astryx part): label text,
  *  required/optional marker, optional icon and tooltip, plus the
  *  description line. `inputID` binds the `<label>` to its control. */
-export function FieldLabel(props: FieldLabelProps) @{
+export function FieldLabel(props: FieldLabelProps): JSX.Element @{
 	const marker =
 		props.isRequired && !props.isOptional ? (
 			<span className="vx-field-marker">

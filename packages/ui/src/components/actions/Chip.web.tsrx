@@ -2,10 +2,11 @@
 import type { ChipProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Pressable } from './Pressable.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Chip — small action/filter element with a selected state and an
  *  optional ✕ remove affordance. */
-export function Chip(props: ChipProps) @{
+export function Chip(props: ChipProps): JSX.Element @{
 	<Pressable
 		id={props.id}
 		className={[

@@ -4,8 +4,9 @@ import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useTheme } from '../../theme/use-theme'
 import { headingScaleStyle } from '../forms/text-scale'
 import { cx } from '@octane-xplat/lib'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function Heading(props: HeadingProps) @{
+export function Heading(props: HeadingProps): JSX.Element @{
 	const level = props.level ?? 2
 	const Tag = `h${level}` as const
 	const theme = useTheme()

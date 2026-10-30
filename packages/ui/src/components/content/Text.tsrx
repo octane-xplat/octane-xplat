@@ -4,11 +4,17 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { Application } from '@nativescript/core'
 import type { TextProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { layoutChildProps } from '../layout/layout-child'
 import { useTheme } from '../../theme/use-theme'
 import { textScaleStyle } from '../forms/text-scale'
 
+import type { JSX } from 'octane/jsx-runtime'
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
  * label/formattedstring. Note: span-under-TextBase parenting needs the
@@ -31,7 +37,7 @@ function TextScope(props: { children?: any }) {
  *
  * @see TextProps.
  */
-export function Text(props: TextProps) @{
+export function Text(props: TextProps): unknown @{
 	const inText = useContext(InText)
 	const theme = useTheme()
 	const scale = textScaleStyle(theme.tokens, props)

@@ -6,6 +6,7 @@ import type { SectionProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { spacingPx } from '../layout/stack-layout'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Section — a banded container. The outer element escapes an ancestor's
  *  `--container-padding-*` (bleed); the inner element re-asserts the
@@ -14,7 +15,7 @@ import { spacingPx } from '../layout/stack-layout'
  *  read the vars a `Layout` container publishes — with none declared the
  *  structure is inert, so the outer/inner split is forward-compatible
  *  rather than dead code. */
-export function Section(props: SectionProps) @{
+export function Section(props: SectionProps): JSX.Element @{
 	const variant = props.variant ?? 'section'
 	const dividers = new Set(props.dividers ?? [])
 	const padding = spacingPx(props.padding) ?? 16

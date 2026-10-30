@@ -7,6 +7,6 @@ import { IconRegistryProvider as IconRegistryContext } from './icon-registry-con
  *
  * @see createIconRegistry, registerIcons, IconProps.
  */
-export function IconRegistryProvider(props: IconRegistryProviderProps) @{
+export function IconRegistryProvider(props: IconRegistryProviderProps): unknown @{
 	<IconRegistryContext value={props.value}>{props.children}</IconRegistryContext>
 }

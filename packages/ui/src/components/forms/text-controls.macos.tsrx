@@ -328,13 +328,13 @@ function TextEntryField({
 	}
 }
 
-export function TextInput(props: TextInputProps) @{
+export function TextInput(props: TextInputProps): unknown @{
 	<TextEntryField props={props}>
 		<TextInputControl {...props} />
 	</TextEntryField>
 }
 
-export function TextArea(props: TextAreaProps) @{
+export function TextArea(props: TextAreaProps): unknown @{
 	<TextEntryField props={props}>
 		<TextAreaControl {...props} />
 	</TextEntryField>

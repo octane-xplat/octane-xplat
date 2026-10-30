@@ -1,12 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { BlockquoteProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Blockquote — semantic <blockquote> with an inline-start rule and an
  *  optional <cite> attribution line. A bare <cite>, never wrapped in
  *  <footer>: <blockquote> is a sectioning root, so a footer inside it maps
  *  to a contentinfo document landmark (Astryx contract). */
-export function Blockquote(props: BlockquoteProps) @{
+export function Blockquote(props: BlockquoteProps): JSX.Element @{
 	<blockquote
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

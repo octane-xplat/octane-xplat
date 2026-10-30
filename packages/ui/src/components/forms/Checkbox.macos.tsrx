@@ -8,7 +8,7 @@ import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 import { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
 
-export function Checkbox(inputProps: CheckboxProps) @{
+export function Checkbox(inputProps: CheckboxProps): unknown @{
 	const { props, inField } = useFieldControl(inputProps)
 	const generatedID = useId()
 	const controlID = props.id ?? generatedID

@@ -1,7 +1,11 @@
 import { GridLayout } from '@nativescript/core'
 
 /** Windows overlay host; software-keyboard occlusion is not yet integrated. */
-export function createKeyboardOverlayHost(panelAlignment: 'bottom' | 'stretch' = 'bottom') {
+export function createKeyboardOverlayHost(panelAlignment: 'bottom' | 'stretch' = 'bottom'): {
+	host: GridLayout
+	panel: GridLayout
+	bindKeyboard: () => () => void
+} {
 	const host = new GridLayout()
 	host.horizontalAlignment = 'stretch'
 	host.verticalAlignment = 'stretch'
@@ -10,7 +14,7 @@ export function createKeyboardOverlayHost(panelAlignment: 'bottom' | 'stretch' =
 	panel.horizontalAlignment = 'stretch'
 	panel.verticalAlignment = panelAlignment
 	host.addChild(panel)
-	return { host, panel, bindKeyboard: () => () => {} }
+	return { host, panel, bindKeyboard: () => (): void => {} }
 }
 
 /** @internal RootLayout owns the presentation animation. */

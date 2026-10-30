@@ -14,7 +14,7 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
 }
 
 /** Required decisions share Dialog presentation and block passive dismissal. */
-export function AlertDialog(props: AlertDialogProps) @{
+export function AlertDialog(props: AlertDialogProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {

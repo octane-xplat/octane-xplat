@@ -17,7 +17,7 @@ interface DelegateTarget {
 /** ListItem — a `List` row: marker + startContent + label/description +
  *  endContent. `onPress`/`href` interactive; `href` resolves through the
  *  deep-link table (external open has no AppKit analog here). */
-export function ListItem(props: ListItemProps) @{
+export function ListItem(props: ListItemProps): unknown @{
 	const ctx = useListContext()
 	const interactive = props.onPress != null || props.href != null
 

@@ -7,7 +7,7 @@ import { useCallback, useLayoutEffect, useRef } from 'octane'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { cx } from '@octane-xplat/lib'
 import { TextSlot } from '../forms/text-slot'
-export function SelectableCard(props: SelectableCardProps) @{
+export function SelectableCard(props: SelectableCardProps): unknown @{
 	const view = useRef<NSView | null>(null)
 	const release = useRef<(() => void) | null>(null)
 	const bind = useCallback((target: NSView | null) => {
@@ -17,22 +17,38 @@ export function SelectableCard(props: SelectableCardProps) @{
 		view.current = target
 		previous?.window?.recalculateKeyViewLoop()
 	}, [])
+
 	useLayoutEffect(() => {
 		const target = view.current
-		if (!target || !props.isDisabled) return
+		if (!target || !props.isDisabled) {
+			return
+		}
+
 		const retain = appKitHost()?.retainDisabledFocus
-		if (typeof retain !== 'function') return
+		if (typeof retain !== 'function') {
+			return
+		}
+
 		const dispose = retain(target)
-		if (typeof dispose !== 'function') throw new Error('AppKit disabled focus ownership unavailable')
+		if (typeof dispose !== 'function') {
+			throw new Error('AppKit disabled focus ownership unavailable')
+		}
+
 		release.current = dispose
 		target.window?.recalculateKeyViewLoop()
 		return () => {
 			// A ref detach may already have released this claim.
-			if (release.current === dispose) { release.current = null; dispose() }
+			if (release.current === dispose) {
+				release.current = null
+				dispose()
+			}
+
 			target.window?.recalculateKeyViewLoop()
 		}
 	}, [props.isDisabled])
-	<masonview ref={bind}
+
+	<masonview
+		ref={bind}
 		id={props.id}
 		className={cx(
 			'vx-pressable',
@@ -53,7 +69,15 @@ export function SelectableCard(props: SelectableCardProps) @{
 			maxWidth: props.maxWidth,
 		}}
 		disabled={props.isDisabled}
-		onTap={props.isDisabled ? undefined : () => { if (!props.isDisabled) props.onChange(!props.isSelected) }}
+		onTap={
+			props.isDisabled
+				? undefined
+				: () => {
+						if (!props.isDisabled) {
+							props.onChange(!props.isSelected)
+						}
+					}
+		}
 		accessibilityRole="checkbox"
 		accessibilityLabel={props.label}
 		accessibilityState={{

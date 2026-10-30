@@ -2,10 +2,11 @@
 import type { AlertProps } from '../../props'
 import { applyEscapeProps } from './escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Alert — status callout. `tone` picks a class modifier; error gets
  *  role=alert, the rest role=status. */
-export function Alert(props: AlertProps) @{
+export function Alert(props: AlertProps): JSX.Element @{
 	const tone = props.tone ?? 'info'
 
 	<div

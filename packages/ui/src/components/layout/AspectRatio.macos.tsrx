@@ -10,7 +10,7 @@ import { useMeasure } from './useMeasure.macos.tsrx'
 /** AspectRatio — derives `height = measured width / ratio` like the
  *  NativeScript leaf. `contain`/`center` center the child; media-level
  *  letterboxing belongs to the child's own sizing. */
-export function AspectRatio(props: AspectRatioProps) @{
+export function AspectRatio(props: AspectRatioProps): unknown @{
 	const { ref, bounds } = useMeasure()
 	const fit = props.fit ?? 'cover'
 	const ellipse = props.shape === 'ellipse'

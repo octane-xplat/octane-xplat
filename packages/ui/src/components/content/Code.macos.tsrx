@@ -6,7 +6,7 @@ import { Text } from './Text.macos.tsrx'
 
 /** Code — macOS leaf. The AppKit host resolves `text-muted` for the
  *  secondary color; `size="inherit"`/`color="inherit"` are inert here. */
-export function Code(props: CodeProps) @{
+export function Code(props: CodeProps): unknown @{
 	<Text
 		id={props.id}
 		className={cx('vx-code', props.color === 'secondary' && 'text-muted', props.className)}

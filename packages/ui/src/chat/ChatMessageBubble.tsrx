@@ -12,7 +12,7 @@ const renderable = (v: any) => v != null && v !== false && v !== true
  *  `group` tightens sender-side corners between consecutive bubbles.
  *  Native note: `width` accepts dips only (percentage strings pass through
  *  to the view's width when set). */
-export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
+export function ChatMessageBubble(props: ChatMessageBubbleProps): unknown @{
 	const msgContext = useChatMessageContext()
 	const sender = msgContext?.sender ?? 'assistant'
 	const density = msgContext?.density ?? 'balanced'

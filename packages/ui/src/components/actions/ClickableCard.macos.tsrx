@@ -6,15 +6,22 @@ import { cx } from '@octane-xplat/lib'
 import { openUrl } from '@octane-xplat/platform'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { TextSlot } from '../forms/text-slot'
-export function ClickableCard(props: ClickableCardProps) @{
+export function ClickableCard(props: ClickableCardProps): unknown @{
 	const activate = () => {
-		if (props.isDisabled) return
+		if (props.isDisabled) {
+			return
+		}
+
 		if (props.href) {
 			const url = sanitizeUrl(props.href)
-			if (url) openUrl(url)
+			if (url) {
+				openUrl(url)
+			}
 		}
+
 		props.onPress?.()
 	}
+
 	<Pressable
 		id={props.id}
 		className={cx(

@@ -5,6 +5,7 @@ import { ChatComposerProvider } from './chat-context'
 import { ChatComposerInput } from './ChatComposerInput.web.tsrx'
 import { ChatSendButton } from './ChatSendButton.web.tsrx'
 import { Icon } from '../components/media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const EDITOR_SELECTOR =
 	'textarea, [contenteditable="true"], [role="textbox"], input:not([type]), input[type="text"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="password"]'
@@ -20,7 +21,7 @@ const EMPTY_DRAFT: ChatComposerDraft = { text: '', tokens: [] }
  *  (un)controlled draft when `input` uses the default ChatComposerInput;
  *  legacy `value`/`onChange` string props still work and are kept in sync.
  *  Clicking empty body space focuses the input. */
-export function ChatComposer(props: ChatComposerProps) @{
+export function ChatComposer(props: ChatComposerProps): JSX.Element @{
 	const placeholder = props.placeholder ?? 'Type a message…'
 	const isDisabled = props.isDisabled ?? false
 	const isStopShown = props.isStopShown ?? false

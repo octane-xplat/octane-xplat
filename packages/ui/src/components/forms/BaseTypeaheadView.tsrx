@@ -18,7 +18,7 @@ import { groupTypeaheadItems } from './typeahead-source'
  *  first option). Internal only — consumers use `BaseTypeahead`. */
 export function BaseTypeaheadView<T extends SearchableItem>(
 	props: BaseTypeaheadViewProps<T>,
-) @{
+): unknown @{
 	const busyLane = useContext(BusyLaneContext)
 	const groups = groupTypeaheadItems(props.results, { ungroupedFirst: true })
 	const selectedId = props.value?.id

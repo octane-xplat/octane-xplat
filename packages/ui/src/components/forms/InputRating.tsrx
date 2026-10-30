@@ -9,7 +9,7 @@ import { useFieldControlProps } from './field-context'
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. `icon`
  *  names a registered glyph; the default is a ★ text glyph. */
-export function InputRating(inputProps: InputRatingProps) @{
+export function InputRating(inputProps: InputRatingProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const max = props.max ?? 5
 	const [internal, setInternal] = useState(props.defaultValue ?? 0)

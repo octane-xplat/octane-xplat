@@ -18,7 +18,7 @@ export interface NavigationBlockerAttempt {
 const idle = Object.freeze({ status: 'idle' } as const)
 
 /** @internal Renderer-owned confirmation state; registration belongs to its effect. */
-export function createNavigationBlocker() {
+export function createNavigationBlocker(): NavigationBlocker {
 	const store = createStore<NavigationBlockerState>(idle)
 	let current: { stop(): void } | undefined
 	const publish = (state: NavigationBlockerState) => {
@@ -32,7 +32,7 @@ export function createNavigationBlocker() {
 	return {
 		getSnapshot: store.getSnapshot,
 		subscribe: store.subscribe,
-		reset() {
+		reset(): void {
 			current?.stop()
 		},
 		request(attempt: NavigationBlockerAttempt): Promise<boolean> {
@@ -99,7 +99,28 @@ export function createNavigationBlocker() {
 	}
 }
 
-export type NavigationBlocker = ReturnType<typeof createNavigationBlocker>
+export type NavigationBlocker = {
+	getSnapshot: () =>
+		| Readonly<{
+				readonly status: 'idle'
+		  }>
+		| Readonly<{
+				readonly status: 'blocked'
+				readonly action: RouterHostCommand['action']
+				readonly destination: NavigationDestinationSnapshot | null
+				readonly proceed: () => void
+				readonly reset: () => void
+		  }>
+		| Readonly<{
+				readonly status: 'proceeding'
+				readonly action: RouterHostCommand['action']
+				readonly destination: NavigationDestinationSnapshot | null
+		  }>
+	subscribe: (notify: () => void) => () => void
+	reset(): void
+	request(attempt: NavigationBlockerAttempt): Promise<boolean>
+}
+
 export interface NavigationBlockerBinding {
 	readonly blocker: NavigationBlocker
 	shouldBlock(): boolean

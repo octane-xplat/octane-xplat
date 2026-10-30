@@ -346,7 +346,7 @@ function DateInputControl(inputProps: DateInputProps) @{
  *  presentation resolves to the pointer surface (fine pointer by
  *  definition); the OS-authentic picker is the `@octane-xplat/date-picker`
  *  AppKit leaf (`AppKitDatePicker`). */
-export function DateInput(props: DateInputProps) @{
+export function DateInput(props: DateInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const cid = useId()
 	const control = <DateInputControl {...props} />

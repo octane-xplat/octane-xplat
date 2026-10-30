@@ -4,11 +4,12 @@ import { CollapsibleGroupContext, CollapsibleGroupProvider } from './collapsible
 import type { CollapsibleProps, CollapsibleGroupProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Pressable } from '../actions/Pressable.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn collapsible — `trigger` toggles `children` between shown and
  *  hidden (unmounted). Controlled via `open`/`onOpenChange`, uncontrolled
  *  via `defaultOpen`. The trigger reports aria-expanded. */
-export function Collapsible(props: CollapsibleProps) @{
+export function Collapsible(props: CollapsibleProps): JSX.Element @{
 	const group = useContext(CollapsibleGroupContext)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const controlled = props.open !== undefined
@@ -55,7 +56,7 @@ export function Collapsible(props: CollapsibleProps) @{
 /** CollapsibleGroup — coordinates `Collapsible` children by `value`
  *  (Astryx). `type="single"` opens one at a time; `"multiple"` toggles each
  *  independently. `hasDividers` paints hairlines between rows. */
-export function CollapsibleGroup(props: CollapsibleGroupProps) @{
+export function CollapsibleGroup(props: CollapsibleGroupProps): JSX.Element @{
 	const [internal, setInternal] = useState<string[]>(() => {
 		const dv = props.defaultValue
 		return dv == null ? [] : Array.isArray(dv) ? [...dv] : [dv]

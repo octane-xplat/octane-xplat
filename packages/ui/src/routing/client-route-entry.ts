@@ -1,5 +1,5 @@
 import { createStore } from '../data/store'
-import { createRouterRenderScope } from './router-render-scope'
+import { createRouterRenderScope, type RouterRenderScope } from './router-render-scope'
 import type {
 	PreparedRouteMatch,
 	RouterHostContent,
@@ -14,7 +14,17 @@ export function createClientRouteEntry(
 	id: string,
 	route: PreparedRouteMatch,
 	content: RouterHostContent,
-) {
+): {
+	id: string
+	flow: string
+	route: PreparedRouteMatch
+	content: RouterHostContent
+	scope: RouterRenderScope
+	committed: Promise<RouterHostResult>
+	rendered(): void
+	failed(error: unknown): void
+	cancel(): void
+} {
 	const match = createStore<PreparedRouteMatch | null>(route)
 	let settle!: (result: RouterHostResult) => void
 	let reject!: (error: unknown) => void
@@ -37,17 +47,17 @@ export function createClientRouteEntry(
 		content,
 		scope: createRouterRenderScope(instance, flow, match),
 		committed,
-		rendered() {
+		rendered(): void {
 			finish({ status: 'committed', route })
 		},
-		failed(error: unknown) {
+		failed(error: unknown): void {
 			if (settled) {
 				return
 			}
 			settled = true
 			reject(error)
 		},
-		cancel() {
+		cancel(): void {
 			finish({ status: 'cancelled', reason: 'disposed' })
 		},
 	}

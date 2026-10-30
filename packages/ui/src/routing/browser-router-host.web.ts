@@ -14,7 +14,10 @@ import type {
 	PreparedRouteMatch,
 	RouterHostContent,
 	TransitionDefinition,
+	Store,
 } from '../props'
+
+import type { RouterRenderScope } from './router-render-scope'
 
 type Modal = { flow: string; startDepth: number; entry: ClientRouteEntry }
 export type BrowserRouteSnapshot = {
@@ -28,7 +31,7 @@ const owners = new WeakMap<object, object>()
 
 /** One real browser history per document. Definitions and prepared data remain
  * instance-local; history.state contains only an opaque identity and depth. */
-export function createBrowserRouterHost() {
+export function createBrowserRouterHost(): BrowserRouterHost {
 	if (typeof window === 'undefined') {
 		throw new Error('A browser router host requires a browser')
 	}
@@ -926,4 +929,14 @@ export function createBrowserRouterHost() {
 	}
 }
 
-export type BrowserRouterHost = ReturnType<typeof createBrowserRouterHost>
+export type BrowserRouterHost = {
+	host: RouterHost
+	views: Store<BrowserRouteSnapshot>
+	/** @internal One-time adoption of a server-prepared document. Never a
+	 * navigation API: subsequent entries must pass the preparation pipeline. */
+	initialize(route: PreparedRouteMatch, content: RouterHostContent): void
+	entryElement(id: string, element: HTMLElement | null): void
+	attach(router: RouterInstance<any>): void
+	scope(flow: string): RouterRenderScope
+	mount(flow: string): () => void
+}

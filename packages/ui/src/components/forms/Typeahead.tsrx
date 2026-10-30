@@ -42,7 +42,7 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
  *  a Token over the input while a value is selected. Tapping the token or
  *  wrapper enters edit mode (input repopulated with the label); leaving the
  *  field without selecting restores the token. */
-export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
+export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>): unknown @{
 	const size = useSize(props.size, 'md')
 	const inputId = useId()
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)

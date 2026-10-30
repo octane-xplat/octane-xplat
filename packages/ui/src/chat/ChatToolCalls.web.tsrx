@@ -4,6 +4,7 @@ import type { ChatToolCallItem, ChatToolCallStatus, ChatToolCallsProps } from '.
 import { Icon } from '../components/media/Icon.web.tsrx'
 import { Badge } from '../components/feedback/Badge.web.tsrx'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const STATUS_ICON: Record<ChatToolCallStatus, string | null> = {
 	pending: 'xplat-clock',
@@ -115,7 +116,7 @@ function CallRow(props: { call: ChatToolCallItem; hasClippedFocusRing?: boolean 
 /** Tool/function call list from an LLM response. A single call renders
  *  inline with no group chrome; multiple collapse behind a header showing
  *  the latest call and a count. */
-export function ChatToolCalls(props: ChatToolCallsProps) @{
+export function ChatToolCalls(props: ChatToolCallsProps): JSX.Element | null @{
 	const isControlled = props.isExpanded !== undefined
 	const [internalExpanded, setInternalExpanded] = useState(props.defaultIsExpanded ?? false)
 	const isExpanded = isControlled ? props.isExpanded : internalExpanded

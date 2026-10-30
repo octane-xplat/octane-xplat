@@ -9,6 +9,7 @@ import { TypeaheadItem } from './TypeaheadItem.web.tsrx'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.web.tsrx'
 import { BusyLaneContext } from '../../internal/rendering/busy-lane'
 import { groupTypeaheadItems } from './typeahead-source'
+import type { JSX } from 'octane/jsx-runtime'
 
 function isImeKeyEvent(e: any): boolean {
 	return e?.isComposing === true || e?.keyCode === 229
@@ -20,7 +21,7 @@ function isImeKeyEvent(e: any): boolean {
  *  consumers use `BaseTypeahead`. */
 export function BaseTypeaheadView<T extends SearchableItem>(
 	props: BaseTypeaheadViewProps<T>,
-) @{
+): JSX.Element @{
 	const busyLane = useContext(BusyLaneContext)
 	const groups = groupTypeaheadItems(props.results, { ungroupedFirst: true })
 	const selectedId = props.value?.id

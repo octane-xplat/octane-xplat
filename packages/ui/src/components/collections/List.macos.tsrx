@@ -10,7 +10,7 @@ import { ListProvider } from './list-context'
 
 /** List — column of rows; markers/dividers are drawn on the per-child
  *  wrapper row (no CSS counters on this target). */
-export function List(props: ListProps) @{
+export function List(props: ListProps): unknown @{
 	const listStyle = props.listStyle ?? 'none'
 	const density = props.density ?? 'balanced'
 	const items = toChildArray(props.children)

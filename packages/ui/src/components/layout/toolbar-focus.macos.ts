@@ -3,6 +3,13 @@ import type { KeyboardEvent } from '../../internal/keyboard/use-keyboard.types'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { createAppKitChoiceFocus } from '../forms/choice-focus.macos'
 
+export type AppKitToolbarFocus = {
+	bind: (view: NSView | null) => void
+	update: () => void
+	dispose: () => void
+	keyDown(event: KeyboardEvent): void
+}
+
 const read = (view: NSView, key: string) => {
 	const value = Reflect.get(view, key)
 	return typeof value === 'function' ? value.call(view) : value
@@ -28,9 +35,9 @@ const composites = new Set([
  * nested composites keep their own keys and natural Tab/focus ownership. */
 export function createAppKitToolbarFocus(
 	options: { orientation(): 'horizontal' | 'vertical' },
-	bridge = appKitHost,
+	bridge: typeof appKitHost = appKitHost,
 	native: () => Record<string, any> = () => globalThis,
-) {
+): AppKitToolbarFocus {
 	type Scope = {
 		view: NSView
 		window: NSWindow | null
@@ -180,7 +187,7 @@ export function createAppKitToolbarFocus(
 			console.warn('[macos-toolbar] focus refresh failed')
 		}
 	}
-	const update = () => {
+	const update = (): void => {
 		if (queued) {
 			return
 		}
@@ -192,7 +199,7 @@ export function createAppKitToolbarFocus(
 			}
 		})
 	}
-	const bind = (view: NSView | null) => {
+	const bind = (view: NSView | null): void => {
 		if (current?.view === view) {
 			return
 		}
@@ -313,8 +320,8 @@ export function createAppKitToolbarFocus(
 	return {
 		bind,
 		update,
-		dispose: () => bind(null),
-		keyDown(event: KeyboardEvent) {
+		dispose: (): void => bind(null),
+		keyDown(event: KeyboardEvent): void {
 			const scope = current
 			if (
 				!scope ||

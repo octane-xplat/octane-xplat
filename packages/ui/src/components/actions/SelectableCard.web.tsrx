@@ -2,8 +2,9 @@
 import type { SelectableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function SelectableCard(props: SelectableCardProps) @{
+export function SelectableCard(props: SelectableCardProps): JSX.Element @{
 	<button
 		id={props.id}
 		type="button"

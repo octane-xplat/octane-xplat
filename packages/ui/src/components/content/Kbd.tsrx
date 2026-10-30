@@ -27,7 +27,7 @@ const aliases: Record<string, string> = {
 }
 
 /** Kbd — key glyph; `keys="mod+k"` renders one cap per chord segment. */
-export function Kbd(props: KbdProps) @{
+export function Kbd(props: KbdProps): unknown @{
 	const caps =
 		props.keys != null
 			? props.keys

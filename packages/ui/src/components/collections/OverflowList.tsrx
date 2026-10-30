@@ -12,7 +12,7 @@ import { toChildArray } from '../../internal/rendering/child-array'
  *  hands the rest to `overflowRenderer`. Native leaf: a hidden inert copy
  *  inside a horizontal ScrollView measures each child's intrinsic width;
  *  the visible row renders only what fits. */
-export function OverflowList(props: OverflowListProps) @{
+export function OverflowList(props: OverflowListProps): unknown @{
 	const gap = (props.gap ?? 2) * 4
 	const minVisibleItems = props.minVisibleItems ?? 0
 	const collapseFrom = props.collapseFrom ?? 'end'

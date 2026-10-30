@@ -1,5 +1,17 @@
-import { createContext, useContext } from 'octane'
+import { createContext, useContext, type Context } from 'octane'
 import type { InternationalizationProviderProps } from '../../props'
+
+export type InternationalizationContextValue = Context<{
+	locale: string
+	direction: 'ltr' | 'rtl'
+	translate: (key: string) => string
+}>
+
+export type Internationalization = {
+	locale: string
+	direction: 'ltr' | 'rtl'
+	translate: (key: string) => string
+}
 
 const english: Record<string, string> = {
 	'@astryx.selector.placeholder': 'Select…',
@@ -47,7 +59,9 @@ export function getLocaleDirection(locale: string): 'ltr' | 'rtl' {
 }
 
 /** @internal Resolve the supported static catalog subset for one scope. */
-export function resolveInternationalization(props: InternationalizationProviderProps) {
+export function resolveInternationalization(
+	props: InternationalizationProviderProps,
+): Internationalization {
 	let locale = props.locale
 	try {
 		locale = new Intl.Locale(locale).baseName
@@ -71,7 +85,7 @@ export function resolveInternationalization(props: InternationalizationProviderP
 }
 
 /** @internal Shared subtree context; defaults to English and LTR. */
-export const InternationalizationContext = createContext(
+export const InternationalizationContext: InternationalizationContextValue = createContext(
 	resolveInternationalization({ locale: 'en' }),
 )
 

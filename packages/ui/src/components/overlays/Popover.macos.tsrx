@@ -31,7 +31,7 @@ function PopoverPortal(props: {
 }
 
 /** Self-drawn, anchored window layer; content portals from its declaring tree. */
-export function Popover(props: PopoverProps) @{
+export function Popover(props: PopoverProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.open ?? internal,
 		dark = useThemeScheme() === 'dark'

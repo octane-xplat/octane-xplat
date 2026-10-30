@@ -21,7 +21,7 @@ const CHECK_MARKUP =
  *  (md) square, check glyph when checked, an inset bar when indeterminate.
  *  Renderable `children` replace the state mark (busy spinners). The owning
  *  control keeps role/focus/state — this draws the picture only. */
-export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
+export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>): unknown @{
 	const size = props.size ?? 'md'
 	const mark =
 		props.state === 'indeterminate' ? (

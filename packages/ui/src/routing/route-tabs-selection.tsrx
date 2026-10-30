@@ -2,9 +2,16 @@
 import { useId, useState } from 'octane'
 import type { TabSpec, TabsProps } from '../props'
 
-export const routeTabKey = (tab: TabSpec | undefined, index: number) => tab?.key ?? String(index)
+export const routeTabKey: (tab: TabSpec | undefined, index: number) => string = (
+	tab: TabSpec | undefined,
+	index: number,
+) => tab?.key ?? String(index)
 
-export function useRouteTabsSelection(props: TabsProps) {
+export function useRouteTabsSelection(props: TabsProps): {
+	selectedKey: string
+	panelId: string
+	select: (key: string) => void
+} {
 	const [internal, setInternal] = useState(
 		() => props.defaultSelectedKey ?? routeTabKey(props.tabs[0], 0),
 	)

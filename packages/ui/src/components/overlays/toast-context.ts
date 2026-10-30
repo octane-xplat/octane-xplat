@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 import type { ToastPosition } from '../../props'
 
 /** The nearest `ToastViewport`'s routing identity + defaults. `useToast`
@@ -11,7 +11,8 @@ export interface ToastViewportContextValue {
 	maxVisible: number
 }
 
-export const ToastViewportContext = createContext<ToastViewportContextValue | null>(null)
+export const ToastViewportContext: Context<ToastViewportContextValue | null> =
+	createContext<ToastViewportContextValue | null>(null)
 
 /** JSX-provider form — universal-renderer contexts are callables, not
  *  `.Provider` members (same aliasing as DialogProvider). */

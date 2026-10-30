@@ -21,7 +21,7 @@ import { reportActionError } from '../../internal/rendering/action-error'
  *  platform browser — touch targets have no link-preview semantics.
  *  Inside a ButtonGroup the group supplies size/disabled and a position
  *  class for the connected edge treatment. */
-export function Button(props: ButtonProps) @{
+export function Button(props: ButtonProps): unknown @{
 	const group = useButtonGroup()
 	const [actionPending, setActionPending] = useState(false)
 	// Mirror the web leaf: busy (isLoading or in-flight action) disables unless

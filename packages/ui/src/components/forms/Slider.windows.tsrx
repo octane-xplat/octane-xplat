@@ -22,7 +22,7 @@ import { focusSliderInput, queueSliderInputFocus } from './slider-control'
 import './Slider.windows.css'
 
 /** Shared drawing and delta-based pan; transparent WinUI peers own keyboard and RangeValue. */
-export function Slider(inputProps: SliderProps) @{
+export function Slider(inputProps: SliderProps): unknown @{
 	const { props, inField } = useFieldControl(inputProps)
 	const bounds = sliderBounds(props)
 	const { min, max, step } = bounds

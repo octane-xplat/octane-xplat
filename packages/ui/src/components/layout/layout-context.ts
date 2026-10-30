@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 
 /** Which `Layout` slots are filled — `LayoutContent` reads it for
  *  edge-aware padding (outer padding on edges that touch the layout
@@ -17,7 +17,9 @@ export const DEFAULT_LAYOUT_SLOTS: LayoutSlots = {
 	hasEnd: false,
 }
 
-export const LayoutSlotsContext = createContext<LayoutSlots>(DEFAULT_LAYOUT_SLOTS)
+export const LayoutSlotsContext: Context<LayoutSlots> =
+	createContext<LayoutSlots>(DEFAULT_LAYOUT_SLOTS)
+
 export const LayoutSlotsProvider: any = LayoutSlotsContext
 
 /** `defaultHasDividers` channel — Layout publishes, LayoutHeader resolves
@@ -27,7 +29,9 @@ export interface LayoutDividerContextValue {
 	defaultHasDividers: boolean
 }
 
-export const LayoutDividerContext = createContext<LayoutDividerContextValue | null>(null)
+export const LayoutDividerContext: Context<LayoutDividerContextValue | null> =
+	createContext<LayoutDividerContextValue | null>(null)
+
 export const LayoutDividerProvider: any = LayoutDividerContext
 
 /** Resolved region padding in dips — the value channel for the
@@ -51,10 +55,15 @@ export const DEFAULT_LAYOUT_PADDING: LayoutPadding = {
 	innerY: 16,
 }
 
-export const LayoutPaddingContext = createContext<LayoutPadding>(DEFAULT_LAYOUT_PADDING)
+export const LayoutPaddingContext: Context<LayoutPadding> =
+	createContext<LayoutPadding>(DEFAULT_LAYOUT_PADDING)
+
 export const LayoutPaddingProvider: any = LayoutPaddingContext
 
 /** Which side slot a `LayoutPanel` mounts in — `Layout` wraps `start`/`end`
  *  slot content in this context (Astryx `LayoutAreaContext`). */
-export const LayoutAreaContext = createContext<'start' | 'end' | null>(null)
+export const LayoutAreaContext: Context<'start' | 'end' | null> = createContext<
+	'start' | 'end' | null
+>(null)
+
 export const LayoutAreaProvider: any = LayoutAreaContext

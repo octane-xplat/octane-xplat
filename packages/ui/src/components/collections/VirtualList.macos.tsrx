@@ -42,7 +42,7 @@ function scrollViewViewport(scroll: any): { width: number; height: number } {
  *  visible window + one viewport of overscan stay unmounted; row heights are
  *  measured through `onLayoutChanged` frame notifications and prefix-summed
  *  by the shared VirtualListSizeIndex. */
-export function VirtualList<T = any>(props: VirtualListProps<T>) @{
+export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 	const entries = useMemo(
 		() =>
 			createVirtualListEntries(

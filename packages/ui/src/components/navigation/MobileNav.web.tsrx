@@ -8,6 +8,7 @@ import { Icon } from '../media/Icon.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'
 import { AppShellMobileContext, useAppShellMobile } from './nav-contexts'
 import { SizeProvider } from '../layout/size-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 export { AppShellMobileContext, useAppShellMobile }
 
@@ -22,7 +23,7 @@ function closeDelay(dialog: HTMLDialogElement | null): number {
  *  from context (and its `id` is shared with the toggle); standalone it
  *  takes `isOpen`/`onOpenChange`. Uses a native `<dialog>` for focus
  *  containment, backdrop, and Escape/cancel semantics. */
-export function MobileNav(props: MobileNavProps) @{
+export function MobileNav(props: MobileNavProps): JSX.Element @{
 	const appShell = useContext(AppShellMobileContext)
 	const fallbackId = useId()
 	const id = props.id ?? appShell.mobileNavId ?? fallbackId
@@ -179,7 +180,7 @@ export function MobileNav(props: MobileNavProps) @{
 
 /** MobileNavToggle — the hamburger. Renders nothing unless the AppShell
  *  mobile context says the drawer is enabled and mobile layout is active. */
-export function MobileNavToggle(props: MobileNavToggleProps) @{
+export function MobileNavToggle(props: MobileNavToggleProps): JSX.Element | null @{
 	const { isMobile, isMobileNavEnabled, toggleMobileNav, mobileNavId, isMobileNavOpen } =
 		useAppShellMobile()
 

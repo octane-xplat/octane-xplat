@@ -13,7 +13,7 @@ import { blurText } from './text-focus'
  *  Controlled `value` writes go through `writeText` so Android keeps its
  *  selection (same path as TextInput); `defaultValue` seeds uncontrolled
  *  use. `returnKeyType` is fixed 'search' — the normalized chrome. */
-export function SearchInput(props: SearchInputProps) @{
+export function SearchInput(props: SearchInputProps): unknown @{
 	const el = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal

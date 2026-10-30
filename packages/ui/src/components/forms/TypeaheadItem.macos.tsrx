@@ -6,7 +6,9 @@ import { Icon } from '../media/Icon.macos.tsrx'
 
 /** Default option content for typeahead dropdowns — label with an optional
  *  leading icon and supporting description. `item.element` wins when set. */
-export function TypeaheadItem<T extends SearchableItem>(props: TypeaheadItemProps<T>) @{
+export function TypeaheadItem<T extends SearchableItem>(
+	props: TypeaheadItemProps<T>,
+): unknown @{
 	if (props.item.element != null) {
 		return <>{props.item.element}</>
 	}

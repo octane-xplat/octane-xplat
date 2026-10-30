@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Badge — inline label chip. Pure composition; `vx-badge` supplies only the
  *  inline-flex row so apps own all visual styling. */
-export function Badge(props: BadgeProps) @{
+export function Badge(props: BadgeProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

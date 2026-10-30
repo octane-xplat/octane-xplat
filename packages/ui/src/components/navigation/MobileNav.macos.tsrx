@@ -19,7 +19,7 @@ export { AppShellMobileContext, useAppShellMobile }
  *  router's back interceptor when one is registered; otherwise the backdrop
  *  tap closes.) Slide-in animation is not implemented on this leaf yet —
  *  the drawer appears/dismisses instantly. */
-export function MobileNav(props: MobileNavProps) @{
+export function MobileNav(props: MobileNavProps): unknown @{
 	const appShell = useContext(AppShellMobileContext)
 	const fallbackId = useId()
 	const id = props.id ?? appShell.mobileNavId ?? fallbackId
@@ -98,7 +98,7 @@ export function MobileNav(props: MobileNavProps) @{
 
 /** MobileNavToggle — the hamburger. Renders nothing unless the AppShell
  *  mobile context says the drawer is enabled and mobile layout is active. */
-export function MobileNavToggle(props: MobileNavToggleProps) @{
+export function MobileNavToggle(props: MobileNavToggleProps): unknown @{
 	const { isMobile, isMobileNavEnabled, toggleMobileNav } = useAppShellMobile()
 
 	@if (!isMobile || !isMobileNavEnabled) {

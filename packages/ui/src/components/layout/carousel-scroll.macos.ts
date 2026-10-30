@@ -4,6 +4,19 @@ import { scrollableAreaOffset } from './scrollable-area-offset.macos'
 import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
 import type { NSScrollView, NSView } from '@octane-xplat/platform/macos'
 
+export type AppKitCarouselScroll = {
+	handle: CarouselHandle
+	state: () => {
+		canPrev: boolean
+		canNext: boolean
+	}
+	width: () => number
+	reset: () => void
+	interacted(): void
+	snap(): void
+	initialize(): void
+}
+
 const EPS = 1
 function hidden(view: NSView) {
 	return ['hidden', 'hiddenOrHasHiddenAncestor'].some((name) => {
@@ -21,7 +34,7 @@ export function createAppKitCarouselScroll(options: {
 	direction(): 'ltr' | 'rtl'
 	reducedMotion(): boolean
 	beforeMove?(): void
-}) {
+}): AppKitCarouselScroll {
 	let initialized: { view: NSScrollView; direction: 'ltr' | 'rtl' } | null = null
 	const read = () => {
 		const view = options.view(),
@@ -46,7 +59,10 @@ export function createAppKitCarouselScroll(options: {
 			position = convertAppKitInlineOffset(metrics.x, metrics.maxX, direction)
 		return { view, document, width, content, maximum: metrics.maxX, position, direction }
 	}
-	const state = () => {
+	const state = (): {
+		canPrev: boolean
+		canNext: boolean
+	} => {
 		const geometry = read()
 		if (!geometry || options.count() <= 0 || geometry.maximum <= EPS) {
 			return { canPrev: false, canNext: false }
@@ -129,17 +145,17 @@ export function createAppKitCarouselScroll(options: {
 	return {
 		handle,
 		state,
-		width: () => read()?.width ?? 0,
-		reset: () => {
+		width: (): number => read()?.width ?? 0,
+		reset: (): void => {
 			initialized = null
 		},
-		interacted() {
+		interacted(): void {
 			const view = options.view()
 			if (view) {
 				initialized = { view, direction: options.direction() }
 			}
 		},
-		snap() {
+		snap(): void {
 			const geometry = read()
 			if (!geometry || !options.count()) {
 				return
@@ -160,7 +176,7 @@ export function createAppKitCarouselScroll(options: {
 				move(geometry, nearest.logical)
 			}
 		},
-		initialize() {
+		initialize(): void {
 			const geometry = read()
 			if (
 				!geometry ||

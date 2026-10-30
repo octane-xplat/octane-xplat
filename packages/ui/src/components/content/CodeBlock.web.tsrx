@@ -7,6 +7,7 @@ import { Icon } from '../media/Icon.web.tsrx'
 import { applyHighlightRangesChunked, hasHighlightAPI, isWebKitOnly } from './code-highlight.web'
 
 import { useCodeCopy, useTokenLines } from './codeblock-shared.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 function cssLength(v: number | string): string | number {
 	return typeof v === 'number' ? `${v}px` : v
@@ -66,7 +67,7 @@ function CodeLine(props: {
  *  `highlightMode` 'ranges' uses the CSS Custom Highlight API (unchanging
  *  DOM text + painting through ::highlight); every other path — and any
  *  engine without the API, including WebKit — renders styled spans. */
-export function CodeBlock(props: CodeBlockProps) @{
+export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 	const language = props.language ?? 'plaintext'
 	const hasLanguageLabel = props.hasLanguageLabel ?? true
 	const hasLineNumbers = props.hasLineNumbers ?? false

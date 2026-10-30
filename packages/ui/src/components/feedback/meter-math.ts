@@ -1,5 +1,12 @@
+export type MeterRange = {
+	min: number
+	max: number
+	value: number
+	ratio: number
+}
+
 /** Clamp a meter value to its declared range for drawing and accessibility. */
-export function meterRange(value: number, min: number, max: number) {
+export function meterRange(value: number, min: number, max: number): MeterRange {
 	const lo = Number.isFinite(min) ? min : 0
 	const hi = Number.isFinite(max) && max > lo ? max : lo + 100
 	const safeValue = Number.isFinite(value) ? Math.min(hi, Math.max(lo, value)) : lo

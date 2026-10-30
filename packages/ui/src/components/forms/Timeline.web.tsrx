@@ -2,9 +2,10 @@
 import type { TimelineProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Timeline — vertical event list: dot + connector + content per item. */
-export function Timeline(props: TimelineProps) @{
+export function Timeline(props: TimelineProps): JSX.Element @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

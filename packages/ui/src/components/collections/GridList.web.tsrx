@@ -8,6 +8,7 @@ import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useGridList } from './use-grid-list'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** GridList — interactive 2D cell collection, React Aria's GridList.
  *  Renders `role="grid"` > `role="row"` > `role="gridcell"`; rows are the
@@ -15,7 +16,7 @@ import { useGridList } from './use-grid-list'
  *  column count (use-grid-list.web.tsrx). Press activates onAction and,
  *  when selectionMode allows, toggles/replaces selection — Space toggles
  *  without firing onAction. Not virtualized; VirtualList stays 1D. */
-export function GridList<T = any>(props: GridListProps<T>) @{
+export function GridList<T = any>(props: GridListProps<T>): JSX.Element @{
 	const keys = useMemo(
 		() => props.items.map((item, index) => (props.keyExtractor ?? defaultItemKey)(item, index)),
 		[props.items, props.keyExtractor],

@@ -13,7 +13,12 @@ import type {
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../components/overlays/escape-props'
 import { isWritingText, writeText } from '../components/forms/text-write'
-import { ChatTriggerMenuOverlay, useTriggerMenu, type ChatTriggerHost } from '../components/overlays/useTriggerMenu.tsrx'
+import {
+	ChatTriggerMenuOverlay,
+	useTriggerMenu,
+	type ChatTriggerHost,
+} from '../components/overlays/useTriggerMenu.tsrx'
+
 import { useChatComposerTokens } from './useChatComposerTokens.tsrx'
 import { ChatTokenChip } from './chat-tokens.tsrx'
 import { useChatComposerContext } from './chat-context'
@@ -81,7 +86,7 @@ function draftFromRecords(text: string, records: TokenRecord[]): ChatComposerDra
  *  chips). Return submits (the newline is cleared with the field);
  *  Shift+Enter, ArrowUp/Down recall, and paste/file interception have no
  *  native analog and are inert. */
-export function ChatComposerInput(props: ChatComposerInputProps) @{
+export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
 	const composerCtx = useChatComposerContext()
 	const hasControlledValueProp = props.value !== undefined
 	const hasControlledDraftProp = props.draft !== undefined
@@ -404,7 +409,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 
 /** Token chip element — renders the chip; on native tokens live in the
  *  composer chip row rather than inline in the text. */
-export function ChatComposerTokenElement(props: ChatComposerTokenElementProps) @{
+export function ChatComposerTokenElement(props: ChatComposerTokenElementProps): unknown @{
 	<masonview
 		id={props.id}
 		className={cx('vx-chattoken-el', props.className)}

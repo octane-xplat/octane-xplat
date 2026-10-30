@@ -24,7 +24,7 @@ let warnedMissingName = false
  *  `src`, an ActivityIndicator overlay over `src`. Load failure falls back to the
  *  placeholder (NS Image's isLoading→false with no imageSource). On touch
  *  targets the remove button is always visible — there is no hover state. */
-export function Thumbnail(props: ThumbnailProps) @{
+export function Thumbnail(props: ThumbnailProps): unknown @{
 	const isLoading = props.isLoading ?? false
 	const isDisabled = props.isDisabled ?? false
 	const [failed, setFailed] = useState(false)

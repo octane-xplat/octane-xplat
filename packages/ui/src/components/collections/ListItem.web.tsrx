@@ -6,6 +6,7 @@ import type { ListItemProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useListContext } from './list-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 interface DelegateTarget {
 	notify?(event?: any): void
@@ -19,7 +20,7 @@ interface DelegateTarget {
  *  keyboard + activation semantics; `:focus-within` draws the ring).
  *  `delegateRef` (upstream `interactiveRef`) forwards row presses to a
  *  nested control instead — the row adds no second tab stop. */
-export function ListItem(props: ListItemProps) @{
+export function ListItem(props: ListItemProps): JSX.Element @{
 	const ctx = useListContext()
 	const interactive = props.onPress != null || props.href != null
 	const rel =

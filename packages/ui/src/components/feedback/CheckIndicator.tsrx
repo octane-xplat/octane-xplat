@@ -10,7 +10,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
  *  items). Renders nothing when `state="unchecked"` and no `children` are
  *  given; a check glyph when checked; `children` replace the glyph (e.g. a
  *  spinner) inside a slot that keeps the layout stable. */
-export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
+export function CheckIndicator(props: IndicatorProps<'singleSelection'>): unknown @{
 	const size = props.size ?? 'md'
 
 	const forwardedRef = useMemo(

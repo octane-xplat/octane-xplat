@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Kbd — keyboard key glyph. */
-export function Kbd(props: KbdProps) @{
+export function Kbd(props: KbdProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

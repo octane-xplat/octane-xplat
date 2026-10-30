@@ -5,7 +5,7 @@ import { usePan } from '../layout/pan.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from '../layout/layout-child'
 
-export function Pressable(props: PressableProps) @{
+export function Pressable(props: PressableProps): unknown @{
 	<masonview
 		ref={props.ref}
 		{...layoutChildProps(

@@ -9,8 +9,31 @@ import {
 	toggleVisibleSelection,
 } from './select-options'
 
+import type { SelectOptionGroup } from './select-options'
+
+export type UseSelectResult = {
+	open: boolean
+	selected: string[]
+	query: string
+	groups: SelectOptionGroup[]
+	shown: SelectOption[]
+	enabled: SelectOption[]
+	selectAllState: 'indeterminate' | 'unchecked' | 'checked'
+	busy: boolean
+	pending: boolean
+	blocked: boolean
+	triggerText: string
+	emptyText: string
+	announcement: string
+	setOpen: (next: boolean) => void
+	setQuery: (next: string) => void
+	pick: (option: SelectOption) => void
+	clear: () => void
+	selectAll: () => void
+}
+
 /** Shared finite-list state; platform leaves own focus, events, and hosting. */
-export function useSelect(props: SelectProps) {
+export function useSelect(props: SelectProps): UseSelectResult {
 	const translate = useTranslator()
 	const latest = useRef(props)
 	latest.current = props

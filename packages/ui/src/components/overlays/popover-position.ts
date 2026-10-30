@@ -121,7 +121,7 @@ export function layerOffset(offset: number | string | undefined): number {
 
 /** Horizontal cross-axis alignment follows the anchor's inline direction. */
 export function resolveLayerAlignment(
-	alignment: PopoverAlignment = 'center',
+	alignment: PopoverAlignment | undefined = 'center',
 	side: PopoverPlacement,
 	rtl = false,
 ): PopoverAlignment {

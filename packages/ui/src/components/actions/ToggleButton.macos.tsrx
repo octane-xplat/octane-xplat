@@ -6,7 +6,7 @@ import { useToggleButtonGroup, ToggleButtonGroupProvider } from './toggle-button
 import { cx } from '@octane-xplat/lib'
 import { Button } from './Button.macos.tsrx'
 
-export function ToggleButton(props: ToggleButtonProps) @{
+export function ToggleButton(props: ToggleButtonProps): unknown @{
 	const group = useToggleButtonGroup()
 	const [local, setLocal] = useState(!!props.isPressed)
 	const inGroup = group != null && props.value != null
@@ -16,29 +16,53 @@ export function ToggleButton(props: ToggleButtonProps) @{
 	const current = useRef(local)
 	const disabled = Boolean(props.isDisabled || group?.isDisabled)
 	const activate = () => {
-		if (disabled) return
-		if (inGroup) { group!.toggle(props.value!); return }
+		if (disabled) {
+			return
+		}
+
+		if (inGroup) {
+			group!.toggle(props.value!)
+			return
+		}
+
 		const next = !(props.isPressed ?? current.current)
-		if (props.isPressed === undefined) { current.current = next; setLocal(next) }
+		if (props.isPressed === undefined) {
+			current.current = next
+			setLocal(next)
+		}
+
 		props.onPressedChange?.(next)
 		return props.pressedChangeAction?.(next)
 	}
-	<Button {...props} variant="ghost" size={props.size ?? group?.size}
-		isDisabled={disabled} clickAction={activate}
+
+	<Button
+		{...props}
+		variant="ghost"
+		size={props.size ?? group?.size}
+		isDisabled={disabled}
+		clickAction={activate}
 		icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon}
 		accessibilityState={{ ...props.accessibilityState, pressed }}
-		className={cx('vx-toggle-button', pressed && 'vx-toggle-button--pressed',
-			pressed && props.color && `vx-toggle-button--${props.color}`, props.className)} />
+		className={cx(
+			'vx-toggle-button',
+			pressed && 'vx-toggle-button--pressed',
+			pressed && props.color && `vx-toggle-button--${props.color}`,
+			props.className,
+		)}
+	/>
 }
 
-export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
+export function ToggleButtonGroup(props: ToggleButtonGroupProps): unknown @{
 	const type = props.type ?? 'single'
 	const selected = new Set(
 		Array.isArray(props.value) ? props.value : props.value == null ? [] : [props.value],
 	)
 
 	const toggle = (key: string) => {
-		if (props.isDisabled) return
+		if (props.isDisabled) {
+			return
+		}
+
 		if (type === 'multiple') {
 			const next = new Set(selected)
 			if (next.has(key)) {

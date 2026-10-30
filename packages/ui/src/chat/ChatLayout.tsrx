@@ -33,7 +33,7 @@ const hasVisibleContent = (children: any): boolean => {
  *  blur strip is a DOM capability; on native the dock is a plain overlay
  *  (style it via .vx-chatlayout-dockpad). `scrollRef` is populated with the
  *  layout's scrollview — there is no external page scroller on native. */
-export function ChatLayout(props: ChatLayoutProps) @{
+export function ChatLayout(props: ChatLayoutProps): unknown @{
 	const scrollViewRef = useRef<any>(null)
 	const [root, setRoot] = useState<any>(null)
 	const [viewport, setViewport] = useState<any>(null)

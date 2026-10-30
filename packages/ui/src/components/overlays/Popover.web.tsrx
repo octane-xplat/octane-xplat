@@ -10,6 +10,7 @@ import type { PopoverInternalProps } from '../../internal-props'
 import { cx } from '@octane-xplat/lib'
 import { resolveCSSLayerOffset } from './layer-position.web'
 import { positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position'
+import type { JSX } from 'octane/jsx-runtime'
 
 type Position = { left: number; top: number; anchorWidth: number }
 
@@ -190,7 +191,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 }
 
 /** Positions a portal within its anchor's modal owner and dismisses on outside taps. */
-export function Popover(props: PopoverProps) @{
+export function Popover(props: PopoverProps): JSX.Element | null @{
 	const [anchorElement, setAnchorElement] = useState<any>(null)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.open ?? internal

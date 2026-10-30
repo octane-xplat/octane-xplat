@@ -80,7 +80,7 @@ export interface QueryOptions<T = unknown> {
 	readonly refetchIntervalMs?: number
 }
 
-const DEFINITION = Symbol('query-definition')
+const DEFINITION: unique symbol = Symbol('query-definition')
 /** Reusable typed loader and family identity. Construct once with defineQuery. */
 export interface QueryDefinition<A extends QueryKeyPart, T> {
 	readonly [DEFINITION]: true
@@ -317,7 +317,10 @@ function freezeJson(value: unknown): unknown {
 }
 
 /** @internal Stable JSON identity shared with the hook; rejects ambiguous non-JSON inputs. */
-export function canonicalQueryKey(value: unknown, parents = new Set<object>()): string {
+export function canonicalQueryKey(
+	value: unknown,
+	parents: Set<object> = new Set<object>(),
+): string {
 	if (value === null) {
 		return 'null'
 	}

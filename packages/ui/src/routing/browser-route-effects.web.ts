@@ -2,7 +2,17 @@ import type { RouteHead } from '../props'
 import { focusBrowserTarget } from '../internal/accessibility/focus-target.web'
 
 /** Per-document effects. Prepared route data never enters history.state. */
-export function createBrowserRouteEffects(browser: Window) {
+export function createBrowserRouteEffects(browser: Window): {
+	head: (next?: RouteHead) => void
+	save(key: string | undefined): void
+	forget(key: string): void
+	clearFocus(): void
+	restore(
+		key: string | undefined,
+		options?: { hash?: string; root?: HTMLElement | null; focus?: boolean },
+	): void
+	dispose(): void
+} {
 	const document = browser.document
 	const initialTitle = document.title
 	const positions = new Map<string, { x: number; y: number; focus: HTMLElement | null }>()
@@ -63,7 +73,7 @@ export function createBrowserRouteEffects(browser: Window) {
 	>()
 	let applied = false
 	let activeMeta = new Set<string>()
-	const head = (next?: RouteHead) => {
+	const head = (next?: RouteHead): void => {
 		applied = true
 		document.title = next?.title ?? initialTitle
 		const names = new Set(Object.keys(next?.meta ?? {}))
@@ -103,7 +113,7 @@ export function createBrowserRouteEffects(browser: Window) {
 	}
 	return {
 		head,
-		save(key: string | undefined) {
+		save(key: string | undefined): void {
 			if (key) {
 				const active = document.activeElement as HTMLElement | null
 				positions.set(key, {
@@ -113,17 +123,17 @@ export function createBrowserRouteEffects(browser: Window) {
 				})
 			}
 		},
-		forget(key: string) {
+		forget(key: string): void {
 			positions.delete(key)
 		},
-		clearFocus() {
+		clearFocus(): void {
 			releaseFocusTarget?.()
 			releaseFocusTarget = undefined
 		},
 		restore(
 			key: string | undefined,
 			options: { hash?: string; root?: HTMLElement | null; focus?: boolean } = {},
-		) {
+		): void {
 			const position = key ? positions.get(key) : undefined
 			const hashTarget = options.hash ? findId(options.hash, options.root) : null
 			if (options.focus !== false) {
@@ -146,7 +156,7 @@ export function createBrowserRouteEffects(browser: Window) {
 				browser.scrollTo(0, 0)
 			}
 		},
-		dispose() {
+		dispose(): void {
 			releaseFocusTarget?.()
 			releaseFocusTarget = undefined
 			if (applied) {

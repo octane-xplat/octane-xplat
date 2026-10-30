@@ -13,7 +13,7 @@ let warnedBlockedUrl = false
 
 /** Citation — macOS leaf. Safe `url`s open via the `__xplatAppKit` bridge
  *  (globalThis.__xplatAppKit.openUrl) when present; otherwise inert. */
-export function Citation(props: CitationProps) @{
+export function Citation(props: CitationProps): unknown @{
 	const scheme = getColorScheme()
 	const source = props.source
 	const variant = props.variant ?? 'label'

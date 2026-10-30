@@ -2,10 +2,13 @@
 import type { ChatLayoutScrollButtonProps } from '../props'
 import { Icon } from '../components/media/Icon.web.tsrx'
 import { Pressable } from '../components/actions/Pressable.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Floating scroll-to-bottom pill for ChatLayout. Hidden controls are
  *  unmounted, matching the native leaf and removing keyboard/hit targets. */
-export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
+export function ChatLayoutScrollButton(
+	props: ChatLayoutScrollButtonProps,
+): JSX.Element | null @{
 	// The outer element centers the pill and owns the gap above the
 	// composer; the pill carries the painted surface.
 

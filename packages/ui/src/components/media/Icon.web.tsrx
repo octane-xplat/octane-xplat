@@ -3,6 +3,7 @@ import type { IconProps } from '../../props'
 import { getIcon } from './icons'
 import { useIconRegistry } from './icon-registry-context'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 const namedSizes: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32 }
 const namedColors: Record<string, string> = {
@@ -17,7 +18,7 @@ const namedColors: Record<string, string> = {
 	inherit: 'inherit',
 }
 
-export function Icon(props: IconProps) @{
+export function Icon(props: IconProps): JSX.Element | null @{
 	const inheritedRegistry = useIconRegistry()
 	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry)
 	if (!glyph) {

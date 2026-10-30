@@ -8,7 +8,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** CheckIndicator — standalone selection mark; nothing when unchecked and
  *  childless, check glyph when checked, `children` in a stable slot. */
-export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
+export function CheckIndicator(props: IndicatorProps<'singleSelection'>): unknown @{
 	const size = props.size ?? 'md'
 
 	const forwardedRef = useMemo(

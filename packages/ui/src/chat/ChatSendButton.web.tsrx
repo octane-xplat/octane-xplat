@@ -3,12 +3,13 @@ import type { ChatSendButtonProps } from '../props'
 import { Icon } from '../components/media/Icon.web.tsrx'
 import { Pressable } from '../components/actions/Pressable.web.tsrx'
 import { useChatComposerContext } from './chat-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Circular send/stop toggle for the chat composer. Reads
  *  ChatComposerContext by default — every value is prop-overridable for
  *  standalone use. Send = accent + arrow-up (disabled when empty); stop =
  *  neutral + stop glyph, calls onStop. */
-export function ChatSendButton(props: ChatSendButtonProps) @{
+export function ChatSendButton(props: ChatSendButtonProps): JSX.Element @{
 	const ctx = useChatComposerContext()
 	const isStopShown = props.isStopShown ?? ctx?.isStopShown ?? false
 	const isDisabled = props.isDisabled ?? !(ctx?.canSend ?? false)

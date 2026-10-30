@@ -7,6 +7,6 @@ import { Button } from '../actions/Button.tsrx'
  *
  * @see IconButtonProps, ButtonProps.
  */
-export function IconButton(props: IconButtonProps) @{
+export function IconButton(props: IconButtonProps): unknown @{
 	<Button {...props} isIconOnly={true} />
 }

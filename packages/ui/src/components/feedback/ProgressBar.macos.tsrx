@@ -9,7 +9,7 @@ const clamp = (value: number, min: number, max: number) => Math.min(Math.max(val
 
 /** AppKit progress uses the renderer keyframe path for unknown progress;
  * reduced-motion rules retain a steady fill. Native playback is unqualified. */
-export function ProgressBar(props: ProgressBarProps) @{
+export function ProgressBar(props: ProgressBarProps): unknown @{
 	const scheme = useThemeScheme()
 	const max = Math.max(props.max ?? 100, 1e-9)
 	const isIndeterminate = props.isIndeterminate ?? false

@@ -15,7 +15,7 @@ import { textRoleClasses } from './text-role'
 /** Timer — live elapsed duration label since `startTimeMs` (ms; defaults to
  *  mount). Native has no `<time>` element — the ISO 8601 duration rides on
  *  `accessibilityValue`. Tick cadence follows the displayed precision. */
-export function Timer(props: TimerProps) @{
+export function Timer(props: TimerProps): unknown @{
 	const format = resolveTimerFormat(props.format)
 	const startRef = useRef<number>(0)
 	if (startRef.current === 0) {

@@ -2,9 +2,10 @@
 import { useImperativeHandle, useEffect, useId, useRef, useState } from 'octane'
 import type { ComplexSelectorHandle, ComplexSelectorProps } from '../../props'
 import { ComplexSelectorView } from './ComplexSelectorView.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Web field trigger and anchored render-function surface for custom pickers. */
-export function ComplexSelector<Value>(props: ComplexSelectorProps<Value>) @{
+export function ComplexSelector<Value>(props: ComplexSelectorProps<Value>): JSX.Element @{
 	const triggerId = useId()
 	const contentId = useId()
 	const anchor = useRef<HTMLElement | null>(null)

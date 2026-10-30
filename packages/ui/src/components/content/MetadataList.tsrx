@@ -27,7 +27,7 @@ function gridColumns(columns: 'multi' | 'single' | number, isStacked: boolean): 
  *  horizontal place one cell per item. 'multi' resolves to two equal columns
  *  on native (there is no auto-fill sizing in GridLayout); a numeric `columns`
  *  is exact. */
-export function MetadataList(props: MetadataListProps) @{
+export function MetadataList(props: MetadataListProps): unknown @{
 	const columns = props.columns ?? 'single'
 	const orientation = props.orientation ?? 'vertical'
 	const isHorizontal = orientation === 'horizontal'

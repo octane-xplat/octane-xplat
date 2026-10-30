@@ -44,7 +44,7 @@ export function createInitialListScrollRestorer() {
 	let applied = false
 
 	return {
-		tryScroll(list: any, target: number | undefined, itemsLength: number) {
+		tryScroll(list: any, target: number | undefined, itemsLength: number): boolean {
 			if (list !== lastList || !hasTarget || target !== lastTarget) {
 				lastList = list
 				lastTarget = target

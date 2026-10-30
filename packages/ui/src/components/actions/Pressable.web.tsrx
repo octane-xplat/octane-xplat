@@ -6,8 +6,9 @@ import type { PressableProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
 import { usePan } from '../layout/pan.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function Pressable(props: PressableProps) @{
+export function Pressable(props: PressableProps): JSX.Element @{
 	// Internal escape hatch (not public API — callers pass `_nativeButton`
 	// through the untyped props bag): render a real <button type="button">
 	// instead of div[role=button]. Button uses it so the control gets native

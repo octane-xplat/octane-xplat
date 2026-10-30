@@ -50,6 +50,7 @@ import {
 } from './datetime'
 
 import { createDateDisabledCheck } from './calendar-core'
+import type { JSX } from 'octane/jsx-runtime'
 
 function isCoarsePointer(): boolean {
 	try {
@@ -913,7 +914,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
  *  both segments' surfaces together; the adaptive/legacy `native` path keeps
  *  Astryx segments when `hasSeconds`, a non-default `timeIncrement`, or
  *  `timeOptionInterval` can't be expressed by OS controls. */
-export function DateTimeInput(props: DateTimeInputProps) @{
+export function DateTimeInput(props: DateTimeInputProps): JSX.Element @{
 	const inField = useContext(FieldContext) != null
 	const isTouch = useCoarsePointer()
 	const effective = effectivePresentation(props.presentation)

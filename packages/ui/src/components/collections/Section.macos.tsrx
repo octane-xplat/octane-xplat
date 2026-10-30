@@ -10,7 +10,7 @@ import { spacingPx } from '../layout/stack-layout'
 /** Section — banded container with surface/transparent/muted background.
  *  Single wrapper on AppKit (the web leaf's container-padding escape is a
  *  CSS-var mechanism with no AppKit analog). */
-export function Section(props: SectionProps) @{
+export function Section(props: SectionProps): unknown @{
 	const variant = props.variant ?? 'section'
 	const dividers = new Set(props.dividers ?? [])
 	const padding = spacingPx(props.padding) ?? 16

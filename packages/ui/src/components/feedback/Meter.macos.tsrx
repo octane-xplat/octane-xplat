@@ -4,7 +4,7 @@ import { cx } from '@octane-xplat/lib'
 import type { MeterProps } from '../../props'
 import { meterRange } from './meter-math'
 
-export function Meter(props: MeterProps) @{
+export function Meter(props: MeterProps): unknown @{
 	const min = props.minValue ?? 0
 	const max = props.maxValue ?? props.max ?? 100
 	const { min: rangeMin, max: rangeMax, value } = meterRange(props.value, min, max)

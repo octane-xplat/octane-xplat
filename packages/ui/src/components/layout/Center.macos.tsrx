@@ -9,7 +9,7 @@ import { spacingPx } from './stack-layout'
 
 /** Center — row-direction flex centering on main/cross/both axes.
  *  `isInline` is inert on AppKit (containers are always block-level). */
-export function Center(props: CenterProps) @{
+export function Center(props: CenterProps): unknown @{
 	const axis = props.axis ?? 'both'
 	const pad = spacingPx(props.padding)
 

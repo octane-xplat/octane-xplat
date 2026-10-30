@@ -11,7 +11,7 @@ import { controlColors } from '../../internal/platform/control-colors.macos'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.macos.tsrx'
 import { AppKitLabelPress } from '../actions/label-press.macos.tsrx'
 
-export function Switch(inputProps: SwitchProps) @{
+export function Switch(inputProps: SwitchProps): unknown @{
 	const { props, inField } = useFieldControl(inputProps)
 	const generatedID = useId()
 	const controlID = props.id ?? generatedID

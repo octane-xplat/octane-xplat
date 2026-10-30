@@ -1,4 +1,4 @@
-import type { CommandPaletteItem, CommandPaletteProps } from '../../props'
+import type { CommandPaletteItem, CommandPaletteProps, Store } from '../../props'
 import { createStore } from '../../data/store'
 import { groupTypeaheadItems } from '../forms/typeahead-source'
 
@@ -83,7 +83,22 @@ export interface CommandPaletteState<T extends CommandPaletteItem> {
 /** Hook-free search/interaction owner. Every rendered root subscribes to store. */
 export function createCommandPaletteController<T extends CommandPaletteItem>(
 	read: () => CommandPaletteProps<T>,
-) {
+): {
+	store: Store<CommandPaletteState<T>>
+	search: (query: string) => void
+	close: () => void
+	select: (id: string) => void
+	highlight: (id: string | null) => void
+	keyDown: (event: {
+		key: string
+		isComposing?: boolean
+		keyCode?: number
+		defaultPrevented?: boolean
+		preventDefault(): void
+	}) => void
+	configure(props?: CommandPaletteProps<T>): void
+	dispose(): void
+} {
 	const store = createStore<CommandPaletteState<T>>({
 		open: false,
 		query: '',
@@ -113,7 +128,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		request = null
 	}
 
-	const search = (query: string) => {
+	const search = (query: string): void => {
 		if (disposed || !store.getSnapshot().open) {
 			return
 		}
@@ -159,7 +174,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		}
 	}
 
-	const close = () => {
+	const close = (): void => {
 		if (!store.getSnapshot().open) {
 			return
 		}
@@ -169,7 +184,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		currentProps.onOpenChange?.(false)
 	}
 
-	const select = (id: string) => {
+	const select = (id: string): void => {
 		const state = store.getSnapshot()
 		const item = state.results.find((entry) => entry.id === id)
 		if (!state.open || state.status !== 'ready' || !item || item.disabled) {
@@ -182,7 +197,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		item.onSelect?.()
 	}
 
-	const highlight = (id: string | null) => {
+	const highlight = (id: string | null): void => {
 		if (
 			id === null ||
 			store.getSnapshot().results.some((item) => item.id === id && !item.disabled)
@@ -197,7 +212,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		keyCode?: number
 		defaultPrevented?: boolean
 		preventDefault(): void
-	}) => {
+	}): void => {
 		if (
 			event.defaultPrevented ||
 			event.isComposing ||
@@ -256,7 +271,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 		select,
 		highlight,
 		keyDown,
-		configure(props = read()) {
+		configure(props: CommandPaletteProps<T> = read()): void {
 			currentProps = props
 			const changed =
 				source !== props.searchSource || staticItems !== props.items || mode !== props.searchMode
@@ -284,7 +299,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 				search(store.getSnapshot().query)
 			}
 		},
-		dispose() {
+		dispose(): void {
 			disposed = true
 			invalidate()
 		},

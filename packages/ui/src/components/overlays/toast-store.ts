@@ -1,11 +1,11 @@
 import { createStore } from '../../data/store'
-import type { ToastDismissReason, ToastEntry, ToastHandle, ToastOptions } from '../../props'
+import type { Store, ToastDismissReason, ToastEntry, ToastHandle, ToastOptions } from '../../props'
 
 /** Module-scope toast queue — the single source of truth for every leaf.
  *  Cross-root state uses module stores (overlay roots never share context
  *  with the declaring tree on native); each leaf's stack reads this and
  *  owns only presentation. */
-export const toastStore = createStore<ToastEntry[]>([])
+export const toastStore: Store<ToastEntry[]> = createStore<ToastEntry[]>([])
 
 /** Stack id for toasts pushed without an enclosing `ToastViewport`
  *  (`showToast`, or `useToast` outside a provider) — the auto-mounted

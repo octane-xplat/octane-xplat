@@ -112,7 +112,22 @@ function readContext(
 /** Create isolated matching and preparation state without importing a renderer,
  * browser history, native host, or HTTP implementation. Platform adapters provide
  * cancellation primitives; stale work is suppressed even when it ignores abort. */
-export function createRoutePreparation(options: RoutePreparationOptions) {
+export function createRoutePreparation(options: RoutePreparationOptions): {
+	href: (destination: RouteDestinationInput) => string
+	resolveUrl: (url: string) => RouteResolution
+	resolveDestination: (input: unknown) => RouteResolution
+	validateDestination: (
+		input: unknown,
+		settings?: { signal?: RouteCancellationSignal },
+	) => Promise<DestinationValidationResult<RouteDestinationInput>>
+	preload: (
+		input: unknown,
+		settings?: { signal?: RouteCancellationSignal },
+	) => Promise<RoutePreloadResult>
+	prepare: (input: unknown, settings?: PrepareSettings) => Promise<RoutePreparationResult>
+	cancel(stack?: string): void
+	dispose(reason?: 'superseded' | 'disposed' | 'aborted' | 'registry-changed'): void
+} {
 	options = { ...options }
 	const explicitStacks = new WeakMap<object, string>()
 	const routeUrl = createRouteUrlPolicy(options)

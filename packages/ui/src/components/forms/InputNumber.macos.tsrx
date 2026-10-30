@@ -180,7 +180,7 @@ function InputNumberControl(
 }
 
 /** A stable standalone Field owns metadata; an enclosing Field keeps ownership. */
-export function InputNumber(props: InputNumberProps) @{
+export function InputNumber(props: InputNumberProps): unknown @{
 	const field = useContext(FieldContext)
 	const generatedID = useId()
 	const inputID = field?.controlId ?? generatedID

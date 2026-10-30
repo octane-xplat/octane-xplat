@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useCallback, useId, useMemo, useState } from 'octane'
 import type { AppShellProps, MobileNavConfig } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
@@ -26,7 +27,7 @@ const MAIN_CONTENT_ID = 'main'
 /** AppShell — frame for `topNav` + `sideNav` + `banner` + content. Below the
  *  configured width breakpoint the side nav collapses into a mobile drawer
  *  owned by the top nav (or rendered standalone for sideNav-only shells). */
-export function AppShell(props: AppShellProps) @{
+export function AppShell(props: AppShellProps): JSX.Element @{
 	const variant = props.variant ?? 'wash'
 	const isFill = props.height !== 'auto'
 	const hasTopNav = props.topNav != null

@@ -8,7 +8,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 /** Blockquote — quoted content with an inline-start rule and secondary text.
  *  String children render through a label so bare text works; component
  *  children are placed as-is. `cite` renders as a smaller attribution line. */
-export function Blockquote(props: BlockquoteProps) @{
+export function Blockquote(props: BlockquoteProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

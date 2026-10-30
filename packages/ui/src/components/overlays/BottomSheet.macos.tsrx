@@ -64,7 +64,7 @@ function PresentedSheet(props: BottomSheetProps) @{
 	<>{owner}</>
 }
 
-export function BottomSheet(props: BottomSheetProps) @{
+export function BottomSheet(props: BottomSheetProps): unknown @{
 	const switcher = useContext(BottomSheetSwitcherContext)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
@@ -114,7 +114,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 	}
 }
 
-export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
+export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 	const specs = useMemo(() => createStore(new Map<string, BottomSheetRegistration>()), [])
 	const [internal, setInternal] = useState<string | null>(props.defaultActiveSheet ?? null)
 	const resolved = props.activeSheet !== undefined ? props.activeSheet : internal

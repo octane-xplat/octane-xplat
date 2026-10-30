@@ -66,7 +66,7 @@ function TimeRow(props: RowProps) @{
 	</masonview>
 }
 
-export function AppKitPresetTimeList(props: Props) @{
+export function AppKitPresetTimeList(props: Props): unknown @{
 	const live = useRef(props)
 	live.current = props
 	const [highlighted, setHighlighted] = useState<string | undefined>(undefined)

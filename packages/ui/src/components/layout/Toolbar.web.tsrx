@@ -4,13 +4,14 @@ import type { ToolbarProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { useListFocus } from '../collections/list-focus.web.tsrx'
 import { SizeProvider } from './size-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 }
 
 /** Toolbar — named contextual action region with start / optional center /
  *  end slots and roving-tabindex arrow navigation across the focusable
  *  children. Outer chrome paints the variant and divider edges. */
-export function Toolbar(props: ToolbarProps) @{
+export function Toolbar(props: ToolbarProps): JSX.Element @{
 	const size = props.size ?? 'md'
 	const gapPx = (props.gap ?? 1) * 4
 	const orientation = props.orientation ?? 'horizontal'

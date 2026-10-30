@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 
+import type { JSX } from 'octane/jsx-runtime'
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type { NavigationItemImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
@@ -76,7 +77,7 @@ function HeadingRow(props: {
  *  children scroll, footer/footerIcons pin to the bottom. Inside AppShell it
  *  adopts the render mode its context sets (topbar / drawer /
  *  drawer-content). */
-export function SideNav(props: SideNavProps) @{
+export function SideNav(props: SideNavProps): JSX.Element @{
 	const renderMode = useSideNavRenderMode()
 
 	const cfg =
@@ -256,7 +257,7 @@ export function SideNav(props: SideNavProps) @{
 }
 
 /** SideNavSection — titled group of items inside the scrollable area. */
-export function SideNavSection(props: SideNavSectionProps) @{
+export function SideNavSection(props: SideNavSectionProps): JSX.Element @{
 	const collapsed = useSideNavCollapse()?.isCollapsed === true
 
 	<section className={['vx-sidenav-section', props.className]} style={props.style} id={props.id}>
@@ -281,7 +282,7 @@ export function SideNavSection(props: SideNavSectionProps) @{
 /** SideNavHeading — identity block at the top of the rail: icon + linked
  *  heading with optional super/subheading lines, trailing content, and an
  *  optional heading menu popover. */
-export function SideNavHeading(props: SideNavHeadingProps) @{
+export function SideNavHeading(props: SideNavHeadingProps): JSX.Element @{
 	const anchor = useRef<any>(null)
 	const [menuOpen, setMenuOpen] = useState(false)
 	const collapsed = useContext(SideNavCollapseContext)?.isCollapsed ?? false
@@ -609,7 +610,9 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 /** SideNavCollapseButton — chevron control bound to the nearest
  *  SideNavCollapseContext, or to an externally-supplied controlled config /
  *  imperative handle when rendered outside the SideNav. */
-export function SideNavCollapseButton(props: SideNavCollapseButtonProps) @{
+export function SideNavCollapseButton(
+	props: SideNavCollapseButtonProps,
+): JSX.Element | null @{
 	const ctx = useSideNavCollapse()
 	const extCfg = props.collapsible
 	const extHandle = props.handleRef?.current?.getCollapseState()

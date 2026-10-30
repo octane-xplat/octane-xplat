@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 import { usePan } from './pan.macos.tsrx'
 
-export function View(props: ViewProps) @{
+export function View(props: ViewProps): unknown @{
 	<masonview
 		id={props.id}
 		ref={props.ref}
@@ -36,4 +36,4 @@ export function View(props: ViewProps) @{
 	</masonview>
 }
 
-export const Column = View
+export const Column: typeof View = View

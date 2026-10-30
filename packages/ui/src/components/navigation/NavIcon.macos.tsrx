@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.macos.tsrx'
 
 /** Circular icon container for navigation headers. Display-only. */
-export function NavIcon(props: NavIconProps) @{
+export function NavIcon(props: NavIconProps): unknown @{
 	<masonview
 		id={props.id}
 		className={cx('vx-navicon', props.className)}

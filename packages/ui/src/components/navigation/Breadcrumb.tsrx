@@ -27,7 +27,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'
 
 /** BreadcrumbItem part — native leaf renders the same link/text branches. */
-export function BreadcrumbItem(props: BreadcrumbItemProps) @{
+export function BreadcrumbItem(props: BreadcrumbItemProps): unknown @{
 	const label = typeof props.children === 'string' ? props.children : ''
 	const menu = props.menu
 		? props.menu.map((opt, i) =>

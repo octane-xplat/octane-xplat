@@ -8,7 +8,7 @@ import { indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
 
 /** Group members and standalone/select-all rows keep separate value owners. */
-export function CheckboxListItem(props: CheckboxListItemProps) @{
+export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 	const group = useContext(CheckboxListContext)
 	const member = group != null && props.value != null
 	const checked = member

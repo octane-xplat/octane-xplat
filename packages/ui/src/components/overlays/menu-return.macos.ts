@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 export interface AppKitMenuReturnOwner {
@@ -9,7 +9,9 @@ export interface AppKitMenuReturnOwner {
 	reset(): void
 }
 
-export const AppKitMenuReturnContext = createContext<AppKitMenuReturnOwner | null>(null)
+export const AppKitMenuReturnContext: Context<AppKitMenuReturnOwner | null> =
+	createContext<AppKitMenuReturnOwner | null>(null)
+
 export const AppKitMenuReturnProvider: any = AppKitMenuReturnContext
 
 /** Current accepted ancestors decide which window still owns return focus. */

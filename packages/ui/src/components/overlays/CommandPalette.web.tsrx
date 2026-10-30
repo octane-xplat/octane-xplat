@@ -7,11 +7,12 @@ import { Icon } from '../media/Icon.web.tsrx'
 import { useStore } from '../../data/use-store.web.tsrx'
 import { createCommandPaletteController } from './command-palette-state'
 import { groupTypeaheadItems } from '../forms/typeahead-source'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Desktop command search: focus remains in the input while arrows highlight results. */
 export function CommandPalette<T extends CommandPaletteItem>(
 	props: CommandPaletteProps<T>,
-) @{
+): JSX.Element @{
 	const controller = useMemo(() => createCommandPaletteController(() => props), [])
 	useEffect(
 		() => controller.configure(props),

@@ -27,9 +27,17 @@ export function createAppKitCalendarFocus(
 		pick(iso: ISODateString): void
 		cancelRange(): void
 	},
-	bridge = appKitHost,
+	bridge: typeof appKitHost = appKitHost,
 	native: () => Record<string, any> = () => globalThis,
-) {
+): {
+	bind: (view: NSView | null) => void
+	update: () => void
+	activate: (iso: ISODateString) => void
+	register(iso: ISODateString, view: NSView): () => void
+	cancelPending(): void
+	dispose(): void
+	keyDown(event: NativeKeyboardEvent<NSView>): void
+} {
 	const views = new Map<ISODateString, NSView>()
 	let root: NSView | null = null,
 		owner: NSWindow | null = null,
@@ -114,7 +122,7 @@ export function createAppKitCalendarFocus(
 			console.warn('[macos-calendar] focus refresh failed', error)
 		}
 	}
-	const update = () => {
+	const update = (): void => {
 		if (queued) {
 			return
 		}
@@ -126,7 +134,7 @@ export function createAppKitCalendarFocus(
 			}
 		})
 	}
-	const bind = (view: NSView | null) => {
+	const bind = (view: NSView | null): void => {
 		if (root === view) {
 			return
 		}
@@ -167,7 +175,7 @@ export function createAppKitCalendarFocus(
 		}
 		update()
 	}
-	const activate = (iso: ISODateString) => {
+	const activate = (iso: ISODateString): void => {
 		const view = views.get(iso)
 		if (
 			!root?.window ||
@@ -197,13 +205,13 @@ export function createAppKitCalendarFocus(
 				update()
 			}
 		},
-		cancelPending() {
+		cancelPending(): void {
 			pending = null
 		},
-		dispose() {
+		dispose(): void {
 			bind(null)
 		},
-		keyDown(event: NativeKeyboardEvent<NSView>) {
+		keyDown(event: NativeKeyboardEvent<NSView>): void {
 			const window = root?.window,
 				target = event.target,
 				state = options.current()

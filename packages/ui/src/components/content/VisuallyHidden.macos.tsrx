@@ -7,7 +7,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 /** VisuallyHidden — 1pt opacity-0 container; keeps content in the a11y
  *  tree while rendering invisible (AppKit hidden views drop from
  *  VoiceOver; transparent ones stay). */
-export function VisuallyHidden(props: VisuallyHiddenProps) @{
+export function VisuallyHidden(props: VisuallyHiddenProps): unknown @{
 	const forwardedRef = useMemo(
 		() =>
 			refList((v: any) => {

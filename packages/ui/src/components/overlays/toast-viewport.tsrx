@@ -13,7 +13,7 @@ import { rootLayoutFor } from '../layout/root-layout'
  *  RootLayout so `useToast` inside it docks there. `inset` and
  *  `isTopLayer` are web semantics (documented; `inset` applies as extra
  *  edge margin where noted on the service). */
-export function ToastViewport(props: ToastViewportProps) @{
+export function ToastViewport(props: ToastViewportProps): unknown @{
 	const id = useId()
 	const sentinel = useRef<any>(null)
 	const ctx = useMemo<ToastViewportContextValue>(

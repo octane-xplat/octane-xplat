@@ -18,7 +18,7 @@ import { Text } from '../content/Text.macos.tsrx'
 import type { AppKitMenuRows } from './menu-rows.macos'
 
 /** Each popup root owns its rows, native focus claims and existing close callbacks. */
-export function MenuSurface(props: MenuSurfaceProps) @{
+export function MenuSurface(props: MenuSurfaceProps): unknown @{
 	const returnOwner = useContext(AppKitMenuReturnContext),
 		liveReturnOwner = useRef(returnOwner)
 

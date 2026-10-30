@@ -12,7 +12,7 @@ import { useLinkComponent } from './use-link-component.tsrx'
  *
  * @see LinkProps, NavLinkProps.
  */
-export function Link(props: LinkProps) @{
+export function Link(props: LinkProps): unknown @{
 	const Injected: any = useLinkComponent(props.as)
 	if (typeof Injected === 'function') {
 		return (

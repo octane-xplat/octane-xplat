@@ -60,7 +60,7 @@ function ResultPortal(props: {
 
 /** Source-tree portal into a same-window layer. No detached result root,
  * inline fallback or focus restoration is used for suggestions. */
-export function TypeaheadResults(props: Props) @{
+export function TypeaheadResults(props: Props): unknown @{
 	const direction = useDirection(),
 		dark = useThemeScheme() === 'dark'
 

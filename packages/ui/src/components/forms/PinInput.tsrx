@@ -9,7 +9,7 @@ import { TextInput } from './TextInput.tsrx'
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when every cell is filled. `secure` masks each cell. */
-export function PinInput(props: PinInputProps) @{
+export function PinInput(props: PinInputProps): unknown @{
 	const fieldProps = useFieldControlProps(props)
 	const length = props.length ?? 4
 	const [internal, setInternal] = useState('')

@@ -7,13 +7,13 @@ import { getRootLayout, RootLayout } from '@nativescript/core'
 const registry: RootLayout[] = []
 
 /** Called by the Screen leaf's <rootlayout> onLoaded/onUnloaded. */
-export function registerRootLayout(rl: RootLayout | undefined | null) {
+export function registerRootLayout(rl: RootLayout | undefined | null): void {
 	if (rl && !registry.includes(rl)) {
 		registry.push(rl)
 	}
 }
 
-export function unregisterRootLayout(rl: RootLayout | undefined | null) {
+export function unregisterRootLayout(rl: RootLayout | undefined | null): void {
 	const i = rl ? registry.indexOf(rl) : -1
 	if (i >= 0) {
 		registry.splice(i, 1)

@@ -6,7 +6,10 @@ import { cx } from '@octane-xplat/lib'
 import { Icon } from '../components/media/Icon'
 import { Badge } from '../components/feedback/Badge'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
-import { nativeAccessibilityRole, nativeAccessibilityState } from '../components/overlays/escape-props'
+import {
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../components/overlays/escape-props'
 
 const STATUS_ICON: Record<ChatToolCallStatus, string | null> = {
 	pending: 'xplat-clock',
@@ -115,7 +118,7 @@ function CallRow(props: { call: ChatToolCallItem }) @{
 /** Tool/function call list from an LLM response. A single call renders
  *  inline with no group chrome; multiple collapse behind a header showing
  *  the latest call and a count. */
-export function ChatToolCalls(props: ChatToolCallsProps) @{
+export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
 	const isControlled = props.isExpanded !== undefined
 	const [internalExpanded, setInternalExpanded] = useState(props.defaultIsExpanded ?? false)
 	const isExpanded = isControlled ? props.isExpanded : internalExpanded

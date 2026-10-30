@@ -32,7 +32,7 @@ function DefaultMessageRender(props: { message: ChatMessageData }) @{
  *
  *  Provide either `children` for full JSX control or `messages` + `renderMessage`
  *  for a data-driven list. */
-export function ChatMessageList(props: ChatMessageListProps) @{
+export function ChatMessageList(props: ChatMessageListProps): unknown @{
 	const layoutContext = useChatLayoutContext()
 	const innerRef = useRef<any>(null)
 	const [isLoadingTop, setIsLoadingTop] = useState(false)

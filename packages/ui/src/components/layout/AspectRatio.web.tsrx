@@ -5,11 +5,12 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { AspectRatioProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** AspectRatio — `width:100%` box sized by CSS `aspect-ratio` (inline so
  *  consumers can override; the `vx-aspectratio-fit-*` classes drive how the
  *  fill wrapper + media children cover/contain/center inside it). */
-export function AspectRatio(props: AspectRatioProps) @{
+export function AspectRatio(props: AspectRatioProps): JSX.Element @{
 	const fit = props.fit ?? 'cover'
 	const ellipse = props.shape === 'ellipse'
 

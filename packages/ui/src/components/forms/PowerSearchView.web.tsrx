@@ -12,8 +12,9 @@ import { PowerSearchToken } from './PowerSearchToken.web.tsrx'
 import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.web.tsrx'
 import { powerSearchTranslate } from './power-search-strings'
 import { cx } from '@octane-xplat/lib'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function PowerSearchView(props: PowerSearchViewProps) @{
+export function PowerSearchView(props: PowerSearchViewProps): JSX.Element @{
 	const size = useSize(props.size, 'md')
 	const anchor = useRef<any>(null)
 	const inputHandle = useRef<any>(null)

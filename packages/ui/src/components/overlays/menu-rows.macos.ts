@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 import type { NSView } from '@octane-xplat/platform/macos'
 
 export interface AppKitMenuRow {
@@ -16,5 +16,7 @@ export interface AppKitMenuRows {
 }
 
 /** Each popup root creates its own registry; nested surfaces never share rows. */
-export const AppKitMenuRowsContext = createContext<AppKitMenuRows | null>(null)
+export const AppKitMenuRowsContext: Context<AppKitMenuRows | null> =
+	createContext<AppKitMenuRows | null>(null)
+
 export const AppKitMenuRowsProvider: any = AppKitMenuRowsContext

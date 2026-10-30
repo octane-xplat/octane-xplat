@@ -8,7 +8,7 @@ import { StepperProvider } from '../forms/option-list-contexts'
 /** Stepper — numbered step row with connectors. `steps` is the flat
  *  data-driven contract; `Step` children are the Astryx child-part
  *  contract (context supplies `activeStep`/`onStepClick`). */
-export function Stepper(props: StepperProps) @{
+export function Stepper(props: StepperProps): unknown @{
 	const current = props.current ?? 0
 	const ctx = {
 		activeStep: props.activeStep ?? props.current ?? 0,

@@ -4,11 +4,12 @@ import type { SegmentedControlProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useFieldControlProps } from './field-context'
 import { SegmentedControlProvider } from './option-list-contexts'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn segmented control — equal-width segments in a track, one
  *  selected (`--on`). Options come from `options` or `SegmentedControlItem`
  *  children; `layout="fill"` stretches segments to the full width. */
-export function SegmentedControl(inputProps: SegmentedControlProps) @{
+export function SegmentedControl(inputProps: SegmentedControlProps): JSX.Element @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue)
 	const current = props.value ?? internal

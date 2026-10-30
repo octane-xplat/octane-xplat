@@ -5,7 +5,7 @@ import { useSelect } from './useSelect'
 import { SelectView } from './SelectView.tsrx'
 
 /** Finite-list selection with local search; Typeahead owns async result sources. */
-export function Select(inputProps: SelectProps) @{
+export function Select(inputProps: SelectProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const state = useSelect(props)
 	const { selectionMode, ...viewProps } = props

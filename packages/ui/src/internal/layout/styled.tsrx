@@ -4,6 +4,7 @@ import type { UniversalComponent } from 'octane/universal'
 import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from '../../props'
 import { resolveStyledClasses } from './styled-variants'
 
+import type { JSX } from 'octane/jsx-runtime'
 /**
  * styled() — decision #7, Tamagui-shaped but CSS-backed. base/variants are
  * class strings composed into className; the leaf decides what those classes

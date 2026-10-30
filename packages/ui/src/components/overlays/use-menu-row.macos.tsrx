@@ -4,7 +4,10 @@ import type { AppKitMenuRow } from './menu-rows.macos'
 import type { NSView } from '@octane-xplat/platform/macos'
 
 /** Current row intents are shared by pointer and menu keyboard activation. */
-export function useAppKitMenuRow(row: AppKitMenuRow) {
+export function useAppKitMenuRow(row: AppKitMenuRow): {
+	ref: (view: NSView | null) => void
+	press: () => void
+} {
 	const registry = useContext(AppKitMenuRowsContext),
 		key = useId()
 

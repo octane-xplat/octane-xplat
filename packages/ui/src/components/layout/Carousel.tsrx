@@ -17,7 +17,7 @@ const SNAP_DEBOUNCE_MS = 140
  *  edge-fade gradients, and end-detection snap when `hasSnap` (NS has no
  *  scroll-snap; a debounced scroll event animates to the nearest slide
  *  edge — documented approximation). RTL offsets are physical on native. */
-export function Carousel(props: CarouselProps) @{
+export function Carousel(props: CarouselProps): unknown @{
 	const items = toChildArray(props.children)
 	const count = items.length
 	const gap = spacingStep(props.gap ?? 2) ?? 8

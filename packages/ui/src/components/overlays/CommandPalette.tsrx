@@ -177,7 +177,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
 /** Touch-first search sheet. Search submits the query; explicit taps activate rows. */
 export function CommandPalette<T extends CommandPaletteItem>(
 	props: CommandPaletteProps<T>,
-) @{
+): unknown @{
 	const controller = useMemo(() => createCommandPaletteController(() => props), [])
 	useEffect(
 		() => controller.configure(props),

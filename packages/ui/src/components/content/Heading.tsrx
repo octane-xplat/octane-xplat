@@ -12,7 +12,7 @@ import { styleRecord } from '../../internal/layout/style-merge'
  *
  * @see HeadingProps.
  */
-export function Heading(props: HeadingProps) @{
+export function Heading(props: HeadingProps): unknown @{
 	const level = props.level ?? 2
 	const theme = useTheme()
 	const scale = headingScaleStyle(theme.tokens, props)

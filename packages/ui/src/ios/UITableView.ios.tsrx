@@ -200,7 +200,7 @@ const MemoListView = memo(
  *  the indicator is self-drawn (vx-spinner), the pull rides UITableView's
  *  own bounce, and the docked phase holds via contentInset — the same
  *  mechanics UIRefreshControl uses, without its OS spinner. */
-export function UITableView<T>(props: UITableViewProps<T>) @{
+export function UITableView<T>(props: UITableViewProps<T>): unknown @{
 	const runtime = useRef<PlatformListRuntime>({
 		list: { current: null },
 		items: { current: props.items },

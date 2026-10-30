@@ -14,7 +14,7 @@ import { PowerSearchFilterEditor } from './PowerSearchFilterEditor'
 import { powerSearchTranslate } from './power-search-strings'
 import { cx } from '@octane-xplat/lib'
 
-export function PowerSearchView(props: PowerSearchViewProps) @{
+export function PowerSearchView(props: PowerSearchViewProps): unknown @{
 	const size = useSize(props.size, 'md')
 	const anchor = useRef<any>(null)
 	const inputHandle = useRef<any>(null)

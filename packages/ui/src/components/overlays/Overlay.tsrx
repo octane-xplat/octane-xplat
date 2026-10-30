@@ -18,7 +18,7 @@ type OpenOverlay = {
 }
 
 /** Renders children in a portal hosted above the current screen. */
-export function Overlay(props: OverlayProps) @{
+export function Overlay(props: OverlayProps): unknown @{
 	const shown = useRef<OpenOverlay | null>(null)
 	const hostView = useRef<any>(null)
 	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)

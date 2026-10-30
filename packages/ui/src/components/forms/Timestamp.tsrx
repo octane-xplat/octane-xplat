@@ -21,7 +21,7 @@ import { textRoleClasses } from './text-role'
  *  no pointer-hover surface on touch targets, so `hasTooltip`/`tooltipEntries`
  *  are accepted for API parity but inert (the absolute instant stays
  *  reachable via the accessible label — see docs/app/components.md). */
-export function Timestamp(props: TimestampProps) @{
+export function Timestamp(props: TimestampProps): unknown @{
 	const format = props.format ?? 'auto'
 	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD
 	const isLive = props.isLive ?? false

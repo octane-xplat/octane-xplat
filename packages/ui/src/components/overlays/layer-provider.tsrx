@@ -2,10 +2,13 @@
 import { createContext, useContext, useMemo } from 'octane'
 import type { LayerContextValue, LayerProviderProps, LayerToastConfig } from '../../props'
 import { ToastViewport } from './toast-viewport'
+import type { Context } from 'octane'
 
 /** Context published by `LayerProvider` — `null` means no provider, in
  *  which case toasts lazily self-mount a default viewport. */
-export const LayerContext = createContext<LayerContextValue | null>(null)
+export const LayerContext: Context<LayerContextValue | null> =
+	createContext<LayerContextValue | null>(null)
+
 export const LayerProviderContext: any = LayerContext
 
 /** Read the nearest `LayerProvider` value, or `null` outside one. */
@@ -20,7 +23,7 @@ const DEFAULT_TOAST_CONFIG: LayerToastConfig = {}
  *  `showToast()` calls dock there. Optional; nested providers pass through
  *  (the outermost wins). One shared leaf: `ToastViewport` already carries
  *  the per-platform stack behavior. */
-export function LayerProvider(props: LayerProviderProps) @{
+export function LayerProvider(props: LayerProviderProps): unknown @{
 	const existing = useLayerContext()
 	const toast = props.toast ?? DEFAULT_TOAST_CONFIG
 	const value = useMemo<LayerContextValue>(

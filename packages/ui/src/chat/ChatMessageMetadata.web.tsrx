@@ -2,6 +2,7 @@
 import type { ChatMessageMetadataProps, ChatMessageStatus } from '../props'
 import { Icon } from '../components/media/Icon.web.tsrx'
 import { useChatMessageContext } from './chat-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 const STATUS_ICON: Record<ChatMessageStatus, string> = {
 	sending: 'xplat-clock',
@@ -24,7 +25,7 @@ const renderable = (v: any) => v != null && v !== false && v !== true
 /** Composable metadata row for chat messages — timestamp · footer · status.
  *  Renders nothing when all three are absent. Direction reverses for the
  *  'user' sender (read from the enclosing ChatMessage). */
-export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
+export function ChatMessageMetadata(props: ChatMessageMetadataProps): JSX.Element | null @{
 	const msgContext = useChatMessageContext()
 	const sender = msgContext?.sender ?? 'assistant'
 	const hasTimestamp = renderable(props.timestamp)

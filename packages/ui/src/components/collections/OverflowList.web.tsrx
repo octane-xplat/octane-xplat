@@ -8,11 +8,12 @@ import { computeOverflow } from './overflow-math'
 
 import { toChildArray } from '../../internal/rendering/child-array'
 
+import type { JSX } from 'octane/jsx-runtime'
 /** OverflowList — renders the subset of children that fits the row (or a
  *  configured count/row cap) and hands the remainder to
  *  `overflowRenderer`. Measures a hidden inert copy + the indicator
  *  rendered at maximum width. */
-function OverflowListImpl(props: OverflowListProps) @{
+function OverflowListImpl(props: OverflowListProps): JSX.Element @{
 	const gap = (props.gap ?? 2) * 4
 	const minVisibleItems = props.minVisibleItems ?? 0
 	const collapseFrom = props.collapseFrom ?? 'end'
@@ -183,4 +184,4 @@ function OverflowListImpl(props: OverflowListProps) @{
 }
 
 /** Ask Octane to preserve inspectable child descriptors for collection operations. */
-export const OverflowList = descriptorChildren(OverflowListImpl)
+export const OverflowList: typeof OverflowListImpl = descriptorChildren(OverflowListImpl)

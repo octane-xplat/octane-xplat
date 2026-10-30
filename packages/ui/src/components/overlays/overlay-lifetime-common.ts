@@ -79,18 +79,18 @@ export function createOverlayLifetime(
 
 	host.on('closed', onClosed)
 	return {
-		own(cleanup: () => void) {
+		own(cleanup: () => void): void {
 			if (released) {
 				cleanup()
 			} else {
 				cleanups.add(cleanup)
 			}
 		},
-		close() {
+		close(): void {
 			release(false)
 			detach()
 		},
-		open(options?: any, afterOpen?: () => void | Promise<void>) {
+		open(options?: any, afterOpen?: () => void | Promise<void>): void {
 			const failed = (error: unknown) => {
 				if (released) {
 					detach()

@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'octane'
 import type { HoverCardProps } from '../../props'
 import { useHoverCard } from './use-hover-card.web.tsrx'
 import { cx } from '@octane-xplat/lib'
+import type { JSX } from 'octane/jsx-runtime'
 
 const isTextOnly = (children: any) => typeof children === 'string' || typeof children === 'number'
 
@@ -13,7 +14,7 @@ const isTextOnly = (children: any) => typeof children === 'string' || typeof chi
  * anchor land on the first element child through a display:contents
  * wrapper.
  */
-export function HoverCard(props: HoverCardProps) @{
+export function HoverCard(props: HoverCardProps): JSX.Element @{
 	const card = useHoverCard({
 		placement: props.placement,
 		alignment: props.alignment,

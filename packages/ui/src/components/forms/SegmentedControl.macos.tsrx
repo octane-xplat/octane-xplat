@@ -12,7 +12,7 @@ import { SegmentedControlItem } from './SegmentedControlItem.macos.tsrx'
 import { useDirection } from '../../internal/platform/internationalization'
 
 /** Self-drawn AppKit selection track; options and child items share state. */
-export function SegmentedControl(inputProps: SegmentedControlProps) @{
+export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue)
 	const current = props.value ?? internal

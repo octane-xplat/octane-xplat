@@ -12,7 +12,7 @@ const LinkProviderEl: any = LinkContext
  *  prop still wins. On web the component replaces the `<a>` element; on
  *  native it supplies the link surface where one is rendered — nav items
  *  already route through the canonical router via `followHref`. */
-export function LinkProvider(props: LinkProviderProps) @{
+export function LinkProvider(props: LinkProviderProps): unknown @{
 	const value = useMemo(() => ({ component: props.component }), [props.component])
 
 	<LinkProviderEl value={value}>{props.children}</LinkProviderEl>

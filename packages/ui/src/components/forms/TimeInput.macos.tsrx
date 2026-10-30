@@ -42,7 +42,7 @@ const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
  *  resolve to the typed field (fine pointer; the OS time control is the
  *  `@octane-xplat/date-picker` AppKit leaf). Plain Up/Down requests minute stepping;
  *  native key delivery is unqualified. The field also parses `2:30 PM`/`14:30`/`1430`. */
-export function TimeInput(inputProps: TimeInputProps) @{
+export function TimeInput(inputProps: TimeInputProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const messages = dateMessages(props.messages)
 	const inField = useContext(FieldContext) != null

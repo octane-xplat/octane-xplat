@@ -11,7 +11,7 @@ import { Pressable } from '../actions/Pressable'
 /** Self-drawn collapsible — `trigger` toggles `children` between shown and
  *  hidden (unmounted). Controlled via `open`/`onOpenChange`, uncontrolled
  *  via `defaultOpen`. */
-export function Collapsible(props: CollapsibleProps) @{
+export function Collapsible(props: CollapsibleProps): unknown @{
 	const group = useContext(CollapsibleGroupContext)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const controlled = props.open !== undefined
@@ -60,7 +60,7 @@ export function Collapsible(props: CollapsibleProps) @{
 
 /** CollapsibleGroup — native leaf: coordinates `Collapsible` children by
  *  `value` (same contract as the web leaf). */
-export function CollapsibleGroup(props: CollapsibleGroupProps) @{
+export function CollapsibleGroup(props: CollapsibleGroupProps): unknown @{
 	const [internal, setInternal] = useState<string[]>(() => {
 		const dv = props.defaultValue
 		return dv == null ? [] : Array.isArray(dv) ? [...dv] : [dv]

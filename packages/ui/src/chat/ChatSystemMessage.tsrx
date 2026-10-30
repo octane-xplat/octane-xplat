@@ -6,7 +6,7 @@ import { Separator } from '../components/feedback/Separator'
 
 /** Centered system message — "conversation started", date separators, status
  *  changes. `divider` renders hairlines flanking the content. */
-export function ChatSystemMessage(props: ChatSystemMessageProps) @{
+export function ChatSystemMessage(props: ChatSystemMessageProps): unknown @{
 	if (props.variant === 'divider') {
 		return (
 			<masonview

@@ -18,7 +18,7 @@ import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
  *  'horizontal-labels' keeps the column host — each `Field` reads the
  *  context and renders its own label-beside-control row (per-field label
  *  width; the web grid's shared label column has no native analog). */
-export function FormLayout(props: FormLayoutProps) @{
+export function FormLayout(props: FormLayoutProps): unknown @{
 	const parent = useContext(FormLayoutContext)
 	const direction = props.direction ?? 'vertical'
 	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality

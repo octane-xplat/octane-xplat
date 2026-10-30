@@ -11,7 +11,7 @@ import './switch-control'
 import './Switch.windows.css'
 
 /** Shared track and thumb, with WinUI owning keyboard input and TogglePattern. */
-export function Switch(inputProps: SwitchProps) @{
+export function Switch(inputProps: SwitchProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const inField = useContext(FieldContext) != null
 	const [internal, setInternal] = useState(props.defaultValue ?? false)

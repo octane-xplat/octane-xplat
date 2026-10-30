@@ -34,7 +34,7 @@ function ringSvg(
  *
  * @see MeterProps; ProgressBarProps for operations.
  */
-export function Meter(props: MeterProps) @{
+export function Meter(props: MeterProps): unknown @{
 	const min = props.minValue ?? 0
 	const max = props.maxValue ?? props.max ?? 100
 	const { max: rangeMax, value, ratio } = meterRange(props.value, min, max)

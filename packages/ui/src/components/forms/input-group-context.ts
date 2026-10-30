@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'octane'
+import { createContext, useContext, type Context } from 'octane'
 import type { InputGroupSize } from '../../props'
 
 /** What a grouped control needs from its `InputGroup`: membership (so it
@@ -10,7 +10,9 @@ export interface InputGroupContextValue {
 	size?: InputGroupSize
 }
 
-export const InputGroupContext = createContext<InputGroupContextValue | null>(null)
+export const InputGroupContext: Context<InputGroupContextValue | null> =
+	createContext<InputGroupContextValue | null>(null)
+
 export const InputGroupProvider: any = InputGroupContext
 
 /** True (with group state) when the control renders inside an InputGroup's

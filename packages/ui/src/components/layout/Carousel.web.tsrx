@@ -9,13 +9,14 @@ import { cx } from '@octane-xplat/lib'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 
+import type { JSX } from 'octane/jsx-runtime'
 const EPS = 1
 
 /** Horizontal slide strip (Astryx `Carousel`), web leaf — a scrollable
  *  labelled region (`aria-roledescription="carousel"`) whose children are
  *  wrapped in slide groups, with optional snap, edge fades, and prev/next
  *  buttons. `ref` hands back the imperative CarouselHandle. */
-function CarouselImpl(props: CarouselProps) @{
+function CarouselImpl(props: CarouselProps): JSX.Element @{
 	const items = toChildArray(props.children)
 	const count = items.length
 	const gapPx = spacingStep(props.gap ?? 2) ?? 8
@@ -261,4 +262,4 @@ function CarouselImpl(props: CarouselProps) @{
 }
 
 /** Ask Octane to preserve inspectable child descriptors for collection operations. */
-export const Carousel = descriptorChildren(CarouselImpl)
+export const Carousel: typeof CarouselImpl = descriptorChildren(CarouselImpl)

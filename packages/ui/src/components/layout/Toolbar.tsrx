@@ -10,7 +10,7 @@ const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 }
 /** Toolbar — named contextual action region with start / optional center /
  *  end slots. Native leaf: the same slot layout minus keyboard roving
  *  (pointer platforms carry the composite-widget arrow navigation). */
-export function Toolbar(props: ToolbarProps) @{
+export function Toolbar(props: ToolbarProps): unknown @{
 	const size = props.size ?? 'md'
 	const gapPx = (props.gap ?? 1) * 4
 	const vertical = props.orientation === 'vertical'

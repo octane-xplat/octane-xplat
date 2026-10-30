@@ -18,6 +18,7 @@ import {
 
 import { useListFocus } from '../collections/list-focus.web.tsrx'
 import { followHref } from './nav-href.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 export {
 	NavHeadingMenuContext,
@@ -32,7 +33,7 @@ const ITEM_SELECTOR = '[role="menuitem"]:not([aria-disabled="true"])'
  *  role=menu + roving tabindex + arrow/Home/End + first-character
  *  typeahead + Enter/Space activation for non-anchor items; Escape closes
  *  the heading's popover via NavHeadingCloseContext. */
-export function NavHeadingMenu(props: NavHeadingMenuProps) @{
+export function NavHeadingMenu(props: NavHeadingMenuProps): JSX.Element @{
 	const closeCtx = useContext(NavHeadingCloseContext)
 	const closeMenu = closeCtx?.closeMenu
 	const size = props.size ?? 'md'

@@ -6,7 +6,9 @@ import { applyNativeProps } from '../internal/platform/platformProps'
 /** CircularProgressIndicator — the platform spinner (Android indeterminate
  *  ProgressBar via NativeScript `activityindicator`). The self-drawn shared
  *  `ActivityIndicator` lives in the root export. */
-export function CircularProgressIndicator(props: CircularProgressIndicatorProps) @{
+export function CircularProgressIndicator(
+	props: CircularProgressIndicatorProps,
+): unknown @{
 	if (props.busy === false) {
 		return null
 	}

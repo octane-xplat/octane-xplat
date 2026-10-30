@@ -1,9 +1,16 @@
 import { createPaneRouterHost } from './pane-router-host'
 import { createAppKitRouteTransitions } from './appkit-route-transition.macos'
-import { createModalRouterHost, type RouterModalSurfaceRequest } from './modal-router-host'
+import {
+	createModalRouterHost,
+	type RouterModalSurface,
+	type RouterModalSurfaceRequest,
+} from './modal-router-host'
+
 import { bindRouterFlow } from './router-instance'
-import type { ContentRoot } from '../components/overlays/owned-content'
-import type { RouterInstance } from '../props'
+import type { ContentRoot, ContentOwner } from '../components/overlays/owned-content'
+import type { RouterHost, RouterInstance, Store } from '../props'
+import type { RenderRouterHost } from './render-router-host'
+import type { RouterRenderScope } from './router-render-scope'
 
 interface AppKitSurface {
 	readonly panel: unknown
@@ -28,7 +35,22 @@ interface AppKitPresentation {
 }
 
 /** One declaring AppKit window; route history/ownership stay in the shared host. */
-export function createAppKitRouterHost() {
+export function createAppKitRouterHost(): {
+	attach(router: Parameters<(router: RouterInstance<any, any, any>) => void>[0]): void
+	host: RouterHost
+	scope(flow: string): RouterRenderScope
+	mount(flow: string, owner: ContentOwner): () => void | Promise<void>
+	getRenderHost?(flow: string): RenderRouterHost | undefined
+	isModalFlow?(flow: string): boolean
+	setFlowActive?(flow: string, active: boolean): void
+	modals: Store<
+		readonly {
+			flow: string
+			presenterFlow: string
+		}[]
+	>
+	getSurface(flow: string): RouterModalSurface | undefined
+} {
 	let instance: RouterInstance<any> | undefined
 	const platform = createModalRouterHost({
 		base: createPaneRouterHost(),
@@ -112,7 +134,7 @@ export function createAppKitRouterHost() {
 	}
 	return {
 		...platform,
-		attach(router: Parameters<typeof platform.attach>[0]) {
+		attach(router: RouterInstance<any, any, any>): void {
 			platform.attach(router)
 			instance = router
 		},

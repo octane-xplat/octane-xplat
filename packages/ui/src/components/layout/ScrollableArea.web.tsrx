@@ -11,6 +11,7 @@ import { REFRESH_HEADER_HEIGHT } from './refresh-metrics'
 import { createPullToRefresh } from './refresh.web'
 import { useScrollableArea } from './use-scrollable-area.web.tsrx'
 import { spacingStep } from './spacing'
+import type { JSX } from 'octane/jsx-runtime'
 
 const size = (v: number | string | undefined) =>
 	v == null ? undefined : typeof v === 'number' ? `${v}px` : v
@@ -193,7 +194,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
  *  `overscroll-behavior`; `stickyContainment` keeps the scroller as the
  *  sticky boundary; `isFullBleed` is inert here (no container-padding
  *  protocol exists yet — documented deviation). */
-export function ScrollableArea(props: ScrollableAreaProps) @{
+export function ScrollableArea(props: ScrollableAreaProps): JSX.Element @{
 	const axis = props.axis ?? 'block'
 
 	@if (axis === 'block' && (props.onRefresh != null || props.refreshing != null)) {

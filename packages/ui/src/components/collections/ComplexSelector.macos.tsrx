@@ -4,7 +4,7 @@ import type { ComplexSelectorHandle, ComplexSelectorProps } from '../../props'
 import { ComplexSelectorView } from './ComplexSelectorView.macos.tsrx'
 
 /** Field trigger and anchored render-function surface for custom pickers. */
-export function ComplexSelector<Value>(props: ComplexSelectorProps<Value>) @{
+export function ComplexSelector<Value>(props: ComplexSelectorProps<Value>): unknown @{
 	const triggerId = useId()
 	const contentId = useId()
 	const anchor = useRef<any>(null)

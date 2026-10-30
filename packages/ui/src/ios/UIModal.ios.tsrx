@@ -12,7 +12,7 @@ type ShownModal = { host: GridLayout; unbindTheme: () => void; finished: boolean
  *  (`showModal`; fullscreen=false is an iOS form sheet). Renders nothing
  *  inline; children or `component` + `params` portal from the declaring tree
  *  into the modal host and retain its context. */
-export function UIModal(props: UIModalProps) @{
+export function UIModal(props: UIModalProps): unknown @{
 	const shown = useRef<ShownModal | null>(null)
 	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)

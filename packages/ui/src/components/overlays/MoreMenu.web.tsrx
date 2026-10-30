@@ -6,6 +6,7 @@ import { Button } from '../actions/Button.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 import { BottomSheet } from './BottomSheet.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 function popoverPlacement(placement?: MoreMenuPlacement): any {
 	if (placement === 'above') {
@@ -27,7 +28,7 @@ function popoverPlacement(placement?: MoreMenuPlacement): any {
 	return placement
 }
 
-export function MoreMenu(props: MoreMenuProps) @{
+export function MoreMenu(props: MoreMenuProps): JSX.Element @{
 	const [localOpen, setLocalOpen] = useState(false)
 	const MenuItemView: any = Pressable
 	const [adaptiveSheet, setAdaptiveSheet] = useState(false)

@@ -27,6 +27,7 @@ import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents.web'
 import { isolateModalFocus } from './modal-focus.web'
 import { applyEscapeProps } from './escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 const BASE_SCRIM = 0.4
 
@@ -168,7 +169,7 @@ function BottomSheetLayer(props: {
  *  usage renders its own portal layer; inside `BottomSheetSwitcher` (with
  *  `sheetId`) it registers under the switcher's shared host and renders
  *  nothing on its own. */
-export function BottomSheet(props: BottomSheetProps) @{
+export function BottomSheet(props: BottomSheetProps): JSX.Element | null @{
 	const switcher = useContext(BottomSheetSwitcherContext)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
@@ -223,7 +224,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 /** Shared host for a set of BottomSheet panels (Astryx
  *  `BottomSheetSwitcher`) — one layer, `activeSheet` picks which
  *  registered child renders inside it. */
-export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
+export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): JSX.Element @{
 	const dark = useThemeScheme() === 'dark'
 	const registry = useRef(new Map<string, BottomSheetRegistration>())
 	const [version, bump] = useState(0)

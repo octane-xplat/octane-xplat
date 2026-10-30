@@ -5,11 +5,12 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { IndicatorProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** CheckboxIndicator — decorative box: check glyph when checked, inset bar
  *  when indeterminate, 20px (sm) / 24px (md). `aria-hidden` — the owning
  *  checkbox keeps the semantics. `children` replaces the state mark. */
-export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
+export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>): JSX.Element @{
 	const size = props.size ?? 'md'
 	// Astryx structure: both marks are always present; CSS shows the check
 	// svg when checked and the bar when indeterminate.

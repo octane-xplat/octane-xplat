@@ -27,7 +27,7 @@ export function createAppKitTypeaheadKeys<T>(options: {
 	select(item: T): void
 }) {
 	let handling = false
-	return (event: NativeKeyboardEvent<NSView>) => {
+	return (event: NativeKeyboardEvent<NSView>): void => {
 		if (handling) {
 			return
 		}

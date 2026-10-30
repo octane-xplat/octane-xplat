@@ -75,7 +75,7 @@ function SwitchControl(inputProps: SwitchProps) @{
 /** Standalone Switch renders its own field chrome — the label column beside
  *  the track (tapping the row toggles) and a detached status line below.
  *  Inside a FormField the field owns that chrome. */
-export function Switch(inputProps: SwitchProps) @{
+export function Switch(inputProps: SwitchProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const inField = useContext(FieldContext) != null
 	const needsChrome =

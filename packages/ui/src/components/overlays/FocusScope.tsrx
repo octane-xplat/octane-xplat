@@ -30,7 +30,7 @@ function warnInertFocusScopeFlag(flag: 'contain' | 'autoFocus' | 'restoreFocus')
  *  convention, so `contain`/`restoreFocus`/`autoFocus` are inert here and
  *  the leaf renders a plain accessible container. Same public props as the
  *  web leaf; the divergence is intrinsic to the platform. */
-export function FocusScope(props: FocusScopeProps) @{
+export function FocusScope(props: FocusScopeProps): unknown @{
 	if (props.contain) {
 		warnInertFocusScopeFlag('contain')
 	}

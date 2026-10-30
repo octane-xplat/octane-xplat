@@ -5,13 +5,14 @@ import type { ViewProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from './layout-child.web'
 import { usePan } from './pan.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Neutral flex-column container — the RN-shaped default block.
  *  onPan is pointer plumbing: pointerdown/move/up on the element.
  *  pointermove isn't in octane's delegated-event set, so the leaf attaches
  *  raw listeners through its internal ref. Payloads normalize
  *  to the shared shape {x,y,dx,dy,vx,vy,state,target}. */
-export function View(props: ViewProps) @{
+export function View(props: ViewProps): JSX.Element @{
 	const el = useRef<HTMLElement | null>(null)
 	usePan(el, props.onPan)
 

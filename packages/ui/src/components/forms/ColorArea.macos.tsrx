@@ -18,7 +18,7 @@ const THUMB = 16
  *  Drag is delta-based (no tap-to-position v1); arrows step 0.01 (Shift 0.1)
  *  on the matching channel, assistive increment/decrement steps brightness
  *  by 0.05. */
-export function ColorAreaView(props: ColorAreaViewProps) @{
+export function ColorAreaView(props: ColorAreaViewProps): unknown @{
 	const measure = useMeasure()
 	const drag = useRef<Hsb | null>(null)
 	const host = useRef<any>(null)
@@ -204,7 +204,7 @@ export function ColorAreaView(props: ColorAreaViewProps) @{
 	</masonview>
 }
 
-export function ColorArea(props: ColorAreaProps) @{
+export function ColorArea(props: ColorAreaProps): unknown @{
 	const color = useColorState(props, '#ff0000')
 
 	<ColorAreaView

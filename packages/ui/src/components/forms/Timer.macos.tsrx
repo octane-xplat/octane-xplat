@@ -13,7 +13,7 @@ import { cx } from '@octane-xplat/lib'
 import { textRoleClasses } from './text-role'
 
 /** Timer — macOS leaf, same as the mobile leaf (label + ISO duration). */
-export function Timer(props: TimerProps) @{
+export function Timer(props: TimerProps): unknown @{
 	const format = resolveTimerFormat(props.format)
 	const startRef = useRef<number>(0)
 	if (startRef.current === 0) {

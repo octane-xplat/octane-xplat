@@ -3,7 +3,7 @@ import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 
 /** Native layouts need a text host for primitive children. Adjacent primitives
  * share one label; supplied components keep their own hosts and styling. */
-export function TextSlot(props: { children?: any; className?: string }) @{
+export function TextSlot(props: { children?: any; className?: string }): unknown @{
 	const runs: any[] = []
 	let text: string | null = null
 	for (const child of toChildArray(props.children)) {

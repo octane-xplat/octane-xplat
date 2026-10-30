@@ -10,7 +10,7 @@ import { useIndicator } from '../feedback/use-indicator'
 /** `CheckboxListItem` — one row inside a `CheckboxList` (Astryx child
  *  part). With `value` it joins the group's checked set; without it,
  *  `isChecked`/`onCheck` drive a standalone item (select-all pattern). */
-export function CheckboxListItem(props: CheckboxListItemProps) @{
+export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 	const ctx = useContext(CheckboxListContext)
 	const groupMode = props.value != null && ctx != null
 	const checked = groupMode

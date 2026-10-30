@@ -9,7 +9,9 @@ import {
 const Provider: any = InternationalizationContext
 
 /** Replaces the nearest locale scope. Set host dir separately to mirror layout. */
-export function InternationalizationProvider(props: InternationalizationProviderProps) @{
+export function InternationalizationProvider(
+	props: InternationalizationProviderProps,
+): unknown @{
 	const value = useMemo(
 		() => resolveInternationalization(props),
 		[props.locale, props.dir, props.messages, props.overrides],

@@ -36,7 +36,7 @@ function warnUnavailableFlags(props: FocusScopeProps) {
 
 /** AppKit focus containment/autofocus/restoration for native descendants.
  * Nested scopes choose the innermost containing owner within each window. */
-export function FocusScope(props: FocusScopeProps) @{
+export function FocusScope(props: FocusScopeProps): unknown @{
 	const root = useRef<NSView | null>(null)
 	const live = useRef(props)
 	live.current = props

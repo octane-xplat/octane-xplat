@@ -5,7 +5,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** `FieldStatus` — standalone status message (Astryx part): severity text
  *  with a tone class. */
-export function FieldStatus(props: FieldStatusComponentProps) @{
+export function FieldStatus(props: FieldStatusComponentProps): unknown @{
 	const variant = props.variant ?? 'detached'
 
 	<masonview

@@ -23,7 +23,7 @@ import { Icon } from '../media/Icon.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 
 /** Native geometry controls/handle and user-scroll snapping. Edge fades remain a gap. */
-export function Carousel(props: CarouselProps) @{
+export function Carousel(props: CarouselProps): unknown @{
 	const items = toChildArray(props.children),
 		count = items.length,
 		direction = useDirection(),

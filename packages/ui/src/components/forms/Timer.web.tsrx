@@ -10,12 +10,13 @@ import {
 
 import { applyEscapeProps } from '../overlays/escape-props'
 import { textRoleClasses } from './text-role'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Timer — live elapsed duration since `startTimeMs` (ms; defaults to mount).
  *  Renders a semantic `<time>` whose `dateTime` is the ISO 8601 duration.
  *  The tick cadence follows the displayed precision — seconds under an hour
  *  in 'elapsed' mode, minutes after. */
-export function Timer(props: TimerProps) @{
+export function Timer(props: TimerProps): JSX.Element @{
 	const format = resolveTimerFormat(props.format)
 	const startRef = useRef<number>(0)
 	if (startRef.current === 0) {

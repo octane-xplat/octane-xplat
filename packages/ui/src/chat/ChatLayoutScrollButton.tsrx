@@ -9,7 +9,7 @@ import { Pressable } from '../components/actions/Pressable'
  *  anatomy (centered pill above the composer, optional expanding label);
  *  the fade/max-width transition is a DOM behavior — native toggles
  *  visibility without animation. */
-export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
+export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps): unknown @{
 	if (!props.isVisible) {
 		return null
 	}

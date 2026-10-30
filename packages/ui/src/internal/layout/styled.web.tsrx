@@ -2,6 +2,7 @@
 import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from '../../props'
 import { resolveStyledClasses } from './styled-variants'
 
+import type { JSX } from 'octane/jsx-runtime'
 /**
  * styled() — decision #7. Web side: DOM codegen lowers JSX in nested
  * functions fine, so the factory is a plain component.
@@ -9,7 +10,10 @@ import { resolveStyledClasses } from './styled-variants'
 export function styled<
 	P extends { className?: ClassValue },
 	V extends Record<string, StyledVariant>,
->(Base: (props: P) => any, def: StyledDef<V>) {
+>(
+	Base: (props: P) => any,
+	def: StyledDef<V>,
+): (props: P & StyledVariantSelection<V>) => JSX.Element {
 	function Styled(props: P & StyledVariantSelection<V>) @{
 		const { classes, rest } = resolveStyledClasses(def, props)
 

@@ -4,7 +4,7 @@
 // plugin hooks (ordinary exported functions) cannot author elements; the
 // leaves instantiate descriptors inside their own component bodies.
 
-const TABLE_SLOT = Symbol.for('xplat.tableSlot')
+const TABLE_SLOT: unique symbol = Symbol.for('xplat.tableSlot')
 
 export interface TableSlotDescriptor {
 	readonly [TABLE_SLOT]: true
@@ -22,7 +22,7 @@ export function isTableSlot(value: any): value is TableSlotDescriptor {
 
 /** Renders a slot value: descriptors become their component, arrays recurse,
  *  and ordinary renderables pass through untouched. */
-export function TableSlot(props: { value: any }) @{
+export function TableSlot(props: { value: any }): any @{
 	const value = props.value
 	if (isTableSlot(value)) {
 		const Component = value.component

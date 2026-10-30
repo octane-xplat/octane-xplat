@@ -4,11 +4,14 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { IndicatorProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** CheckIndicator — standalone selection mark. Nothing when unchecked and
  *  childless; a check glyph when checked; `children` replace the glyph
  *  inside a stable slot. `aria-hidden`. */
-export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
+export function CheckIndicator(
+	props: IndicatorProps<'singleSelection'>,
+): JSX.Element | null @{
 	const size = props.size ?? 'md'
 
 	const forwardedRef = useMemo(

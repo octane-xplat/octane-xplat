@@ -19,7 +19,7 @@ const emit = () => listeners.forEach((l) => l())
 
 /** Set the app-level theme preference. 'system' clears the override and
  *  follows the OS appearance. */
-export function setThemePreference(p: ThemePreference) {
+export function setThemePreference(p: ThemePreference): void {
 	if (p !== preference) {
 		preference = p
 		emit()

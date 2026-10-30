@@ -14,7 +14,7 @@ import { nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/e
 
 /** Select presentation — resolved finite-list state in, user intents out.
  *  Internal only; consumers use `Select`. */
-export function SelectView(props: SelectViewProps) @{
+export function SelectView(props: SelectViewProps): unknown @{
 	const translate = useTranslator()
 	const anchor = useRef<any>(null)
 	const search = useRef<any>(null)

@@ -95,7 +95,7 @@ function AppKitCalendarDay(props: AppKitCalendarDayProps) @{
 /** Self-drawn month calendar — `single` or `range` selection, ISO values.
  *  macOS leaf: native focus adapts the shared keyboard model; `ref` exposes
  *  `{navigateTo}`. */
-export function Calendar(props: CalendarProps) @{
+export function Calendar(props: CalendarProps): unknown @{
 	const inheritedDirection = useDirection(),
 		direction = props.direction ?? inheritedDirection
 

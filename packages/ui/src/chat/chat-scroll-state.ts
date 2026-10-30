@@ -45,13 +45,13 @@ export function chatMessageKey(message: { id?: string }): string {
 }
 
 const rows = new WeakSet<object>()
-export const markChatRow = (host: object | null) => {
+export const markChatRow = (host: object | null): void => {
 	if (host) {
 		rows.add(host)
 	}
 }
 
-export const isChatRow = (host: object) => rows.has(host)
+export const isChatRow = (host: object): boolean => rows.has(host)
 
 const moving = new WeakMap<object, Set<object>>()
 /** @internal Suppress a second scroll animation while a keyboard transition owns range. */
@@ -59,7 +59,7 @@ export function leaseChatViewportMotion(host: object) {
 	const token = {}
 	let active = true
 	return {
-		set(value: boolean) {
+		set(value: boolean): void {
 			if (!active) {
 				return
 			}
@@ -74,7 +74,7 @@ export function leaseChatViewportMotion(host: object) {
 				}
 			}
 		},
-		release() {
+		release(): void {
 			if (!active) {
 				return
 			}
@@ -84,4 +84,4 @@ export function leaseChatViewportMotion(host: object) {
 	}
 }
 
-export const chatViewportMoving = (host: object) => !!moving.get(host)?.size
+export const chatViewportMoving = (host: object): boolean => !!moving.get(host)?.size

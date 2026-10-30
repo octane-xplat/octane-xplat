@@ -11,7 +11,7 @@ import { Pressable } from '../actions/Pressable.macos.tsrx'
 
 /** Shared field wrapper for labels, descriptions, and validation status.
  *  Mirrors the other platform leaves' FormLayout integration. */
-export function FormField(props: FormFieldProps) @{
+export function FormField(props: FormFieldProps): unknown @{
 	const generatedControlId = useId()
 	const form = useContext(FormLayoutContext)
 	const isHorizontalLabels = form.direction === 'horizontal-labels'

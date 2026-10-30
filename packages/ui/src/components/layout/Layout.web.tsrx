@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
@@ -53,7 +54,7 @@ function supportsInternalContentWidthAlignment(width: SizeValue | undefined): bo
  *  properties; tokens.css carries the geometry. The outer box escapes an
  *  ancestor's published container padding (bleed) and the inner box resets
  *  it for descendants — the same escape/reset split `Section` uses. */
-export function Layout(props: LayoutProps) @{
+export function Layout(props: LayoutProps): JSX.Element @{
 	const isFill = (props.height ?? 'fill') === 'fill'
 	const resolvedContent = props.content ?? props.children
 	const hasHeader = props.header != null
@@ -160,7 +161,7 @@ export function Layout(props: LayoutProps) @{
  *  `paddingBlockEnd`) and publishes `--container-padding-*` for bleed
  *  children. `data-divider` drives the content region's no-divider padding
  *  collapse in CSS. */
-export function LayoutHeader(props: LayoutHeaderProps) @{
+export function LayoutHeader(props: LayoutHeaderProps): JSX.Element @{
 	const dividerCtx = useContext(LayoutDividerContext)
 	const resolvedHasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
 
@@ -221,7 +222,7 @@ export function LayoutHeader(props: LayoutHeaderProps) @{
  *  channel on edges that touch the boundary (no sibling region there),
  *  inner otherwise, explicit `padding`/`0` last via inline vars. The
  *  `--align-*` classes add the `contentWidth` alignment gutter. */
-export function LayoutContent(props: LayoutContentProps) @{
+export function LayoutContent(props: LayoutContentProps): JSX.Element @{
 	const { hasHeader, hasFooter, hasStart, hasEnd } = useContext(LayoutSlotsContext)
 	const explicit = props.padding != null
 	const isZero = props.padding === 0
@@ -289,7 +290,7 @@ export function LayoutContent(props: LayoutContentProps) @{
 /** Astryx LayoutFooter — `Layout`'s footer region. `hasDivider` paints the
  *  block-start hairline (falls back to the parent's `defaultHasDividers`);
  *  the inner box owns padding resolved through `--vx-lf-pad-*`. */
-export function LayoutFooter(props: LayoutFooterProps) @{
+export function LayoutFooter(props: LayoutFooterProps): JSX.Element @{
 	const dividerCtx = useContext(LayoutDividerContext)
 	const resolvedHasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
 
@@ -344,7 +345,7 @@ export function LayoutFooter(props: LayoutFooterProps) @{
  *  slots. `hasDivider` paints the edge facing the content lane; `area` is
  *  auto-detected from the slot context. `resizable` takes the
  *  `useResizable` props bag so a `ResizeHandle` drives `width`. */
-export function LayoutPanel(props: LayoutPanelProps) @{
+export function LayoutPanel(props: LayoutPanelProps): JSX.Element @{
 	const area = props.area ?? useContext(LayoutAreaContext) ?? 'start'
 	const size = props.resizable?._size ?? props.width
 

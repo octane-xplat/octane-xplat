@@ -6,11 +6,12 @@ import { useFieldControlProps } from './field-context'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
 import { RadioListProvider } from './option-list-contexts'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Options come from the `options` prop or `RadioListItem`
  *  children (Astryx child part); both share the radiogroup contract. */
-export function RadioGroup(inputProps: RadioGroupProps) @{
+export function RadioGroup(inputProps: RadioGroupProps): JSX.Element @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue)
 	const current = props.value ?? internal

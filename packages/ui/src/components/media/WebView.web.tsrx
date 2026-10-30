@@ -4,6 +4,7 @@ import type { WebViewHandle, WebViewProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from '../layout/layout-child.web'
 import { isWebViewMessage } from './webview-post'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Matches what NS WebView content can already do — scripts, forms, modal
  *  dialogs, its own origin — while top navigation, popups, and downloads
@@ -13,7 +14,7 @@ const DEFAULT_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-modal
 /** Embedded web document — a sandboxed <iframe>. `html` renders through
  *  `srcdoc` and wins over `src` when both are set. The iframe `error`
  *  event is unreliable cross-browser, so `onError` is best-effort here. */
-export function WebView(props: WebViewProps) @{
+export function WebView(props: WebViewProps): JSX.Element @{
 	const frame = useRef<HTMLIFrameElement | null>(null)
 	const handle = (el: any): WebViewHandle => ({
 		reload: () => {

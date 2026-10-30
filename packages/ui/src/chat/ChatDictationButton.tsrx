@@ -11,7 +11,7 @@ const BAR_COUNT = 5
  *  useSpeechRecognition result. Hidden by default when unsupported;
  *  while listening, band bars overlay the button (driven by
  *  dictation.bands — zero-height on the inert native engine). */
-export function ChatDictationButton(props: ChatDictationButtonProps) @{
+export function ChatDictationButton(props: ChatDictationButtonProps): unknown @{
 	const dictation = props.dictation
 	const size = props.size ?? 'md'
 	const hiddenUnsupported = props.isHiddenWhenUnsupported ?? true

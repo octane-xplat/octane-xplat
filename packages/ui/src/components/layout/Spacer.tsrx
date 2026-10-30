@@ -9,7 +9,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
  *
  * @see StackProps.
  */
-export function Spacer(props: SpacerProps) @{
+export function Spacer(props: SpacerProps): unknown @{
 	<masonview
 		id={props.id}
 		ref={(view: any) => applyEscapeProps(view, props)}

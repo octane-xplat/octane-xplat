@@ -6,6 +6,7 @@ import { useFieldControlProps } from './field-context'
 import { BusyLaneContext } from '../../internal/rendering/busy-lane'
 import { characterCount } from './typeahead-source'
 import { BaseTypeaheadView } from './BaseTypeaheadView.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** A query shorter than the caller's threshold; an empty query is the
  *  untouched state — `hasEntriesOnFocus` owns what happens there. */
@@ -22,7 +23,9 @@ function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
  *  This is the container half of the split: it coordinates query, results,
  *  highlight, search progress, and open state, then renders
  *  `BaseTypeaheadView` with the resolved state and intent callbacks. */
-export function BaseTypeahead<T extends SearchableItem>(inProps: BaseTypeaheadProps<T>) @{
+export function BaseTypeahead<T extends SearchableItem>(
+	inProps: BaseTypeaheadProps<T>,
+): JSX.Element @{
 	const props = useFieldControlProps(inProps)
 	const searchSource = props.searchSource
 	const hasEntriesOnFocus = props.hasEntriesOnFocus ?? false

@@ -1,8 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { AbsoluteProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function Absolute(props: AbsoluteProps) @{
+export function Absolute(props: AbsoluteProps): JSX.Element @{
 	<div
 		id={props.id}
 		className={['vx-absolute', props.className]}

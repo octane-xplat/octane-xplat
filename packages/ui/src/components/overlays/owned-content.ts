@@ -1,4 +1,4 @@
-import { createStore } from '../../data/store'
+import { createStore, type Store } from '../../data/store'
 
 export interface ContentRoot {
 	render(component: any, props?: any): void
@@ -15,14 +15,21 @@ export interface ContentEntry {
 }
 
 /** Hook-free ownership for content rendered by an outlet in the source tree. */
-export function createContentOwner() {
+export function createContentOwner(): {
+	entries: Store<ContentEntry[]>
+	readonly disposed: boolean
+	/** The mounted outlet supplies its host view (NS View on native — the modal/page walkers read `.page`/`.parent`). */
+	host: { page?: any; parent?: any; window?: any } | null
+	createRoot(target: unknown, onOwnerDispose?: () => void): ContentRoot
+	dispose(): void
+} {
 	const entries = createStore<ContentEntry[]>([])
 	const roots = new Set<{ dispose(): void }>()
 	let nextId = 0
 	let disposed = false
 	return {
 		entries,
-		get disposed() {
+		get disposed(): boolean {
 			return disposed
 		},
 		/** The mounted outlet supplies its host view (NS View on native — the modal/page walkers read `.page`/`.parent`). */
@@ -101,7 +108,7 @@ export function createContentOwner() {
 			roots.add(root)
 			return root
 		},
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}
@@ -129,10 +136,25 @@ export type ContentOwner = ReturnType<typeof createContentOwner>
 export function afterContentCommit(
 	root: { unmount(): void; whenCommitted?: (callback: () => void) => void },
 	callback: () => void,
-) {
+): void {
 	if (root.whenCommitted) {
 		root.whenCommitted(callback)
 	} else {
 		callback()
 	}
+}
+
+export type OwnedContentResult = {
+	owner: {
+		entries: Store<ContentEntry[]>
+		readonly disposed: boolean
+		host: {
+			page /**  @jsxImportSource @octane-xplat/jsx */?: any
+			parent /**  @jsxImportSource @octane-xplat/jsx */?: any
+			window /**  @jsxImportSource @octane-xplat/jsx */?: any
+		} | null
+		createRoot(target: unknown, onOwnerDispose?: () => void): ContentRoot
+		dispose(): void
+	}
+	element: unknown
 }

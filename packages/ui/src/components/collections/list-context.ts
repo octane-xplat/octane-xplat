@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'octane'
+import { createContext, useContext, type Context } from 'octane'
 import type { ListDensity, ListMarkerStyle } from '../../props'
 
 export interface ListContextValue {
@@ -11,7 +11,10 @@ export interface ListContextValue {
 	start?: number
 }
 
-export const ListContext = createContext<ListContextValue | null>(null)
+export const ListContext: Context<ListContextValue | null> = createContext<ListContextValue | null>(
+	null,
+)
+
 export const ListProvider: any = ListContext
 
 export function useListContext(): ListContextValue {

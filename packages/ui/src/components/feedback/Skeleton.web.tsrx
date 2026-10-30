@@ -2,6 +2,7 @@
 import type { SkeletonProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 const radiusVar: Record<string, string> = {
 	square: 'var(--radius-none, 0)',
@@ -12,7 +13,7 @@ const radiusVar: Record<string, string> = {
 /** Skeleton — placeholder block while content loads (Astryx `Skeleton`).
  *  `radius` picks the corner shape; `index` staggers the shimmer delay per
  *  sibling; `width`/`height` accept dips or CSS lengths. */
-export function Skeleton(props: SkeletonProps) @{
+export function Skeleton(props: SkeletonProps): JSX.Element @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

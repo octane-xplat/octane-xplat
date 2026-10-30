@@ -6,7 +6,12 @@ import { cx } from '@octane-xplat/lib'
 import type { GridListProps } from '../../props'
 import { defaultItemKey, type Key, type Selection } from '../../data/list-data'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { layoutChildProps } from '../layout/layout-child'
 import { refList } from '../../internal/accessibility/ref-list'
 
@@ -15,7 +20,7 @@ import { refList } from '../../internal/accessibility/ref-list'
  *  arrow-key navigation and roving tabindex are web-only by platform
  *  nature. Tap activates onAction and toggles selection per the shared
  *  grid-list-selection mapping (no Shift-range on touch). */
-export function GridList<T = any>(props: GridListProps<T>) @{
+export function GridList<T = any>(props: GridListProps<T>): unknown @{
 	const keys = props.items.map((item, index) => (props.keyExtractor ?? defaultItemKey)(item, index))
 	const disabled = new Set<Key>(props.disabledKeys ?? [])
 	const selectionMode = props.selectionMode ?? 'none'

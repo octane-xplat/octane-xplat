@@ -5,7 +5,7 @@ import { ButtonGroupProvider } from './button-group-context'
 import { SizeProvider, useSize } from '../layout/size-context'
 import { cx } from '@octane-xplat/lib'
 
-export function ButtonGroup(props: ButtonGroupProps) @{
+export function ButtonGroup(props: ButtonGroupProps): unknown @{
 	const orientation = props.orientation ?? 'horizontal'
 	const size = useSize(props.size, 'md')
 	const value = { orientation, isDisabled: !!props.isDisabled, size, position: 'only' as const }

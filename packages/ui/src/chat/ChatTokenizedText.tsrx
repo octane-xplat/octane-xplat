@@ -9,7 +9,7 @@ import { tokenizeChatText } from './chat-tokenize'
  *  Native can't inline chips inside a Label, so the leaf renders a
  *  wrapping row: text runs become labels, tokens become chips in order —
  *  same content, wrapped flow instead of true inline. */
-export function ChatTokenizedText(props: ChatTokenizedTextProps) @{
+export function ChatTokenizedText(props: ChatTokenizedTextProps): unknown @{
 	const text = props.children ?? ''
 	if (!text || !props.tokens || props.tokens.length === 0) {
 		return (

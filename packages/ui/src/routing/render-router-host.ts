@@ -1,6 +1,6 @@
 import { createStore } from '../data/store'
 import { createClientRouteEntry, type ClientRouteEntry } from './client-route-entry'
-import { createRouterRenderScope } from './router-render-scope'
+import { createRouterRenderScope, type RouterRenderScope } from './router-render-scope'
 import { prepareHistoryEntry } from './prepare-history-entry'
 import { createPaneRouteTransitions } from './pane-route-transitions'
 import type {
@@ -9,6 +9,7 @@ import type {
 	RouterHostCommand,
 	RouterHostResult,
 	RouterInstance,
+	Store,
 	TransitionDefinition,
 } from '../props'
 
@@ -25,7 +26,16 @@ export interface RenderRouteFlow {
 
 /** Retained, independent history for a rendered pane. This owns no native
  * Frame, browser history, or modal presentation; those remain host boundaries. */
-export function createRenderRouterHost() {
+export function createRenderRouterHost(): {
+	host: RouterHost
+	views: Store<ReadonlyMap<string, RenderRouteFlow>>
+	attach(router: RouterInstance<any>): void
+	scope(flow: string): RouterRenderScope
+	mount(
+		flow: string,
+		options?: { modal?: boolean; views?: ReadonlyMap<string, unknown> },
+	): () => void
+} {
 	const views = createStore<ReadonlyMap<string, RenderRouteFlow>>(new Map())
 	const mounted = new Map<string, { modal: boolean }>()
 	const motions = new WeakMap<object, TransitionDefinition>()
@@ -357,13 +367,13 @@ export function createRenderRouterHost() {
 	return {
 		host,
 		views,
-		attach(router: RouterInstance<any>) {
+		attach(router: RouterInstance<any>): void {
 			if (instance || disposed) {
 				throw new Error('Render host cannot be attached')
 			}
 			instance = router
 		},
-		scope(flow: string) {
+		scope(flow: string): RouterRenderScope {
 			if (!instance) {
 				throw new Error('Render host is not attached')
 			}
@@ -381,7 +391,7 @@ export function createRenderRouterHost() {
 			surfaces.set(flow, options.views ?? new Map())
 			publish(flow, snapshot(options.modal ? [] : [null]))
 			let closed = false
-			return () => {
+			return (): void => {
 				if (closed) {
 					return
 				}

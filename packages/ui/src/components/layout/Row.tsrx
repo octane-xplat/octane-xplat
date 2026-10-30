@@ -12,7 +12,7 @@ import {
 
 import { layoutChildProps } from './layout-child'
 import { usePan } from './pan'
-export function Row(props: RowProps) @{
+export function Row(props: RowProps): unknown @{
 	const forwardedRef = useMemo(
 		() =>
 			refList((v: any) => {

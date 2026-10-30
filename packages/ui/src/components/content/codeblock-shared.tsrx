@@ -57,7 +57,13 @@ export function useTokenLines(
 }
 
 /** Copy-button state: writes the block's code, flips to a check for a beat. */
-export function useCodeCopy(code: string, onCopy: (() => void) | undefined) {
+export function useCodeCopy(
+	code: string,
+	onCopy: (() => void) | undefined,
+): {
+	copy: () => void
+	copied: boolean
+} {
 	const [copied, setCopied] = useState(false)
 	const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 

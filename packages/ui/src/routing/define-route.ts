@@ -17,6 +17,175 @@ import type {
 	RawRouteSearch,
 } from '../props'
 
+import type { RouteCancellationSignal } from './core'
+import type { RouteSpecParams } from '..'
+
+export type RouteGroupDefiner = {
+	<const Id extends string, Added extends RouteGuardResult = void, Data = unknown>(
+		input: GroupInput<Id, RouteContext, Added, Data> & {
+			loader: (args: GroupArgs<MergedRouteContext<RouteContext, NoInfer<Added>>>) => Data
+		} & RequiredGuard<GroupInput<Id, RouteContext, Added, Data>, Added>,
+	): RouteGroupBuilder<GroupContext<Id, RouteContext, Added, Data>, RouteContext>
+	<const Id extends string, Added extends RouteGuardResult = void>(
+		input: GroupInput<Id, RouteContext, Added, undefined> & {
+			loader?: undefined
+		} & RequiredGuard<GroupInput<Id, RouteContext, Added, undefined>, Added>,
+	): RouteGroupBuilder<GroupContext<Id, RouteContext, Added, undefined>, RouteContext>
+} & {
+	withContext: <Context extends Exclude<RouteGuardResult, void>>() => {
+		<const Id extends string, Added extends RouteGuardResult = void, Data = unknown>(
+			input: GroupInput<Id, Context, Added, Data> & {
+				loader: (args: GroupArgs<MergedRouteContext<Context, NoInfer<Added>>>) => Data
+			} & RequiredGuard<GroupInput<Id, Context, Added, Data>, Added>,
+		): RouteGroupBuilder<GroupContext<Id, Context, Added, Data>, Context>
+		<const Id extends string, Added_1 extends RouteGuardResult = void>(
+			input: GroupInput<Id, Context, Added_1, undefined> & {
+				loader?: undefined
+			} & RequiredGuard<GroupInput<Id, Context, Added_1, undefined>, Added_1>,
+		): RouteGroupBuilder<GroupContext<Id, Context, Added_1, undefined>, Context>
+	}
+}
+
+export type RouteDefiner = {
+	<
+		const Path extends string,
+		Validator extends RouteSearchValidator,
+		Added extends RouteGuardResult = void,
+		Data = unknown,
+	>(
+		definition: RouteDefinitionInput<Path, Validator, RouteContext, Added, Data> & {
+			loader: (args: {
+				params: NoInfer<RouteSpecParams<Path>>
+				search: NoInfer<
+					[
+						Validator extends RouteSearchSchema<unknown, infer Output>
+							? Output extends RouteSearchRecord
+								? Output
+								: never
+							: Validator extends (...args: any[]) => infer Output_1
+								? Awaited<Output_1> extends RouteSearchRecord
+									? Awaited<Output_1>
+									: never
+								: {},
+					] extends [never]
+						? Record<string, unknown>
+						: Validator extends RouteSearchSchema<unknown, infer Output>
+							? Output extends RouteSearchRecord
+								? Output
+								: never
+							: Validator extends (...args: any[]) => infer Output_1
+								? Awaited<Output_1> extends RouteSearchRecord
+									? Awaited<Output_1>
+									: never
+								: {}
+				>
+				context: MergedRouteContext<RouteContext, NoInfer<Added>>
+				signal?: RouteCancellationSignal
+			}) => Data
+		} & {
+			validateSearch: Validator
+		} & RequiredGuard<RouteDefinitionInput<Path, Validator, RouteContext, Added, Data>, Added>,
+	): RouteDefinitionBuilder<Path, Validator, RouteContext, Added, Data, RouteContext>
+	<const Path extends string, Added extends RouteGuardResult = void, Data = unknown>(
+		definition: RouteDefinitionInput<Path, undefined, RouteContext, Added, Data> & {
+			loader: (args: {
+				params: NoInfer<RouteSpecParams<Path>>
+				search: {}
+				context: MergedRouteContext<RouteContext, NoInfer<Added>>
+				signal?: RouteCancellationSignal
+			}) => Data
+		} & RequiredGuard<RouteDefinitionInput<Path, undefined, RouteContext, Added, Data>, Added>,
+	): RouteDefinitionBuilder<Path, undefined, RouteContext, Added, Data, RouteContext>
+	<
+		const Path extends string,
+		Validator extends RouteSearchValidator,
+		Added extends RouteGuardResult = void,
+	>(
+		definition: RouteDefinitionInput<Path, Validator, RouteContext, Added, undefined> & {
+			validateSearch: Validator
+			loader?: undefined
+		} & RequiredGuard<RouteDefinitionInput<Path, Validator, RouteContext, Added, undefined>, Added>,
+	): RouteDefinitionBuilder<Path, Validator, RouteContext, Added, undefined, RouteContext>
+	<const Path extends string, Added extends RouteGuardResult = void>(
+		definition: RouteDefinitionInput<Path, undefined, RouteContext, Added, undefined> & {
+			loader?: undefined
+		} & RequiredGuard<RouteDefinitionInput<Path, undefined, RouteContext, Added, undefined>, Added>,
+	): RouteDefinitionBuilder<Path, undefined, RouteContext, Added, undefined, RouteContext>
+} & {
+	withContext: <Context extends Exclude<RouteGuardResult, void>>() => {
+		<
+			const Path extends string,
+			Validator extends RouteSearchValidator,
+			Added extends RouteGuardResult = void,
+			Data = unknown,
+		>(
+			definition: RouteDefinitionInput<Path, Validator, Context, Added, Data> & {
+				loader: (args: {
+					params: NoInfer<RouteSpecParams<Path>>
+					search: NoInfer<
+						[
+							Validator extends RouteSearchSchema<unknown, infer Output>
+								? Output extends RouteSearchRecord
+									? Output
+									: never
+								: Validator extends (...args: any[]) => infer Output_1
+									? Awaited<Output_1> extends RouteSearchRecord
+										? Awaited<Output_1>
+										: never
+									: {},
+						] extends [never]
+							? Record<string, unknown>
+							: Validator extends RouteSearchSchema<unknown, infer Output>
+								? Output extends RouteSearchRecord
+									? Output
+									: never
+								: Validator extends (...args: any[]) => infer Output_1
+									? Awaited<Output_1> extends RouteSearchRecord
+										? Awaited<Output_1>
+										: never
+									: {}
+					>
+					context: MergedRouteContext<Context, NoInfer<Added>>
+					signal?: RouteCancellationSignal
+				}) => Data
+			} & {
+				validateSearch: Validator
+			} & RequiredGuard<RouteDefinitionInput<Path, Validator, Context, Added, Data>, Added>,
+		): RouteDefinitionBuilder<Path, Validator, Context, Added, Data, Context>
+		<const Path extends string, Added_1 extends RouteGuardResult = void, Data_1 = unknown>(
+			definition: RouteDefinitionInput<Path, undefined, Context, Added_1, Data_1> & {
+				loader: (args: {
+					params: NoInfer<RouteSpecParams<Path>>
+					search: {}
+					context: MergedRouteContext<Context, NoInfer<Added_1>>
+					signal?: RouteCancellationSignal
+				}) => Data_1
+			} & RequiredGuard<RouteDefinitionInput<Path, undefined, Context, Added_1, Data_1>, Added_1>,
+		): RouteDefinitionBuilder<Path, undefined, Context, Added_1, Data_1, Context>
+		<
+			const Path extends string,
+			Validator_1 extends RouteSearchValidator,
+			Added_2 extends RouteGuardResult = void,
+		>(
+			definition: RouteDefinitionInput<Path, Validator_1, Context, Added_2, undefined> & {
+				validateSearch: Validator_1
+				loader?: undefined
+			} & RequiredGuard<
+					RouteDefinitionInput<Path, Validator_1, Context, Added_2, undefined>,
+					Added_2
+				>,
+		): RouteDefinitionBuilder<Path, Validator_1, Context, Added_2, undefined, Context>
+		<const Path extends string, Added_3 extends RouteGuardResult = void>(
+			definition: RouteDefinitionInput<Path, undefined, Context, Added_3, undefined> & {
+				loader?: undefined
+			} & RequiredGuard<
+					RouteDefinitionInput<Path, undefined, Context, Added_3, undefined>,
+					Added_3
+				>,
+		): RouteDefinitionBuilder<Path, undefined, Context, Added_3, undefined, Context>
+	}
+}
+
 /** Adapt a scalar-input schema to decoded URL strings on every navigation path.
  * The decoder runs for links, direct URLs, history and search updates. It must
  * be pure; validation and defaults remain the schema's responsibility.
@@ -94,7 +263,37 @@ type RequiredGuard<Input extends { beforeLoad?: unknown }, Added> = [Added] exte
 
 function definitionsWithContext<Context extends object, Root = Context>(
 	groups: readonly RoutePreparationGroup[] = [],
-) {
+): {
+	<
+		const Path extends string,
+		Validator extends RouteSearchValidator,
+		Added extends RouteGuardResult = void,
+		Data = unknown,
+	>(
+		definition: RouteDefinitionWithLoader<Path, Validator, Context, Added, Data> & {
+			validateSearch: Validator
+		} & RequiredGuard<RouteDefinitionInput<Path, Validator, Context, Added, Data>, Added>,
+	): RouteDefinitionBuilder<Path, Validator, Context, Added, Data, Root>
+	<const Path extends string, Added extends RouteGuardResult = void, Data = unknown>(
+		definition: RouteDefinitionWithLoader<Path, undefined, Context, Added, Data> &
+			RequiredGuard<RouteDefinitionInput<Path, undefined, Context, Added, Data>, Added>,
+	): RouteDefinitionBuilder<Path, undefined, Context, Added, Data, Root>
+	<
+		const Path extends string,
+		Validator extends RouteSearchValidator,
+		Added extends RouteGuardResult = void,
+	>(
+		definition: RouteDefinitionInput<Path, Validator, Context, Added, undefined> & {
+			validateSearch: Validator
+			loader?: undefined
+		} & RequiredGuard<RouteDefinitionInput<Path, Validator, Context, Added, undefined>, Added>,
+	): RouteDefinitionBuilder<Path, Validator, Context, Added, undefined, Root>
+	<const Path extends string, Added extends RouteGuardResult = void>(
+		definition: RouteDefinitionInput<Path, undefined, Context, Added, undefined> & {
+			loader?: undefined
+		} & RequiredGuard<RouteDefinitionInput<Path, undefined, Context, Added, undefined>, Added>,
+	): RouteDefinitionBuilder<Path, undefined, Context, Added, undefined, Root>
+} {
 	function define<
 		const Path extends string,
 		Validator extends RouteSearchValidator,
@@ -177,7 +376,7 @@ function definitionsWithContext<Context extends object, Root = Context>(
  *   loader: ({ params }) => ({ title: params.id }) })
  *   .screen(({ data }) => data.title)
  */
-export const defineRoute = Object.assign(definitionsWithContext<RouteContext>(), {
+export const defineRoute: RouteDefiner = Object.assign(definitionsWithContext<RouteContext>(), {
 	withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
 		return definitionsWithContext<Context>()
 	},
@@ -215,7 +414,19 @@ export function routeGroupPreparation(
 
 function groupsWithContext<Context extends object, Root = Context>(
 	parents: readonly RoutePreparationGroup[] = [],
-) {
+): {
+	<const Id extends string, Added extends RouteGuardResult = void, Data = unknown>(
+		input: GroupInput<Id, Context, Added, Data> & {
+			loader: NonNullable<GroupInput<Id, Context, Added, Data>['loader']>
+		} & RequiredGuard<GroupInput<Id, Context, Added, Data>, Added>,
+	): RouteGroupBuilder<GroupContext<Id, Context, Added, Data>, Root>
+	<const Id extends string, Added extends RouteGuardResult = void>(
+		input: GroupInput<Id, Context, Added, undefined> & { loader?: undefined } & RequiredGuard<
+				GroupInput<Id, Context, Added, undefined>,
+				Added
+			>,
+	): RouteGroupBuilder<GroupContext<Id, Context, Added, undefined>, Root>
+} {
 	function group<const Id extends string, Added extends RouteGuardResult = void, Data = unknown>(
 		input: GroupInput<Id, Context, Added, Data> & {
 			loader: NonNullable<GroupInput<Id, Context, Added, Data>['loader']>
@@ -266,8 +477,11 @@ function groupsWithContext<Context extends object, Root = Context>(
  * const account = defineRouteGroup({ id: 'account', loader: () => ({ name: 'Alex' }) })
  * const settings = account.route({ path: '/settings', loader: ({ context }) => context.account.name })
  */
-export const defineRouteGroup = Object.assign(groupsWithContext<RouteContext>(), {
-	withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
-		return groupsWithContext<Context>()
+export const defineRouteGroup: RouteGroupDefiner = Object.assign(
+	groupsWithContext<RouteContext>(),
+	{
+		withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
+			return groupsWithContext<Context>()
+		},
 	},
-})
+)

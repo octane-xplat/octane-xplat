@@ -19,7 +19,7 @@ import { useMeasure } from './useMeasure'
  *  without stretching — media-level letterboxing belongs to the child
  *  (e.g. an Image's own scale mode). `shape="ellipse"` rounds the box to
  *  50% radius; child clipping depends on the platform view. */
-export function AspectRatio(props: AspectRatioProps) @{
+export function AspectRatio(props: AspectRatioProps): unknown @{
 	const { ref, bounds } = useMeasure()
 	const fit = props.fit ?? 'cover'
 	const ellipse = props.shape === 'ellipse'

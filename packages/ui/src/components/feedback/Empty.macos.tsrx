@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.macos.tsrx'
 
 /** Empty — empty-state block: icon + title + description + actions. */
-export function Empty(props: EmptyProps) @{
+export function Empty(props: EmptyProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

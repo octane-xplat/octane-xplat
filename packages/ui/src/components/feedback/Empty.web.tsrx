@@ -2,11 +2,12 @@
 import type { EmptyProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Empty — empty-state block: icon + title + description + actions
  *  (Astryx `EmptyState`). `isCompact` tightens the rhythm via the
  *  `vx-empty--compact` class hook. */
-export function Empty(props: EmptyProps) @{
+export function Empty(props: EmptyProps): JSX.Element @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

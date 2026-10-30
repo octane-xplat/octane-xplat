@@ -3,8 +3,9 @@ import { useEffect, useRef } from 'octane'
 import type { ButtonGroupProps } from '../../props'
 import { ButtonGroupProvider } from './button-group-context'
 import { SizeProvider, useSize } from '../layout/size-context'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function ButtonGroup(props: ButtonGroupProps) @{
+export function ButtonGroup(props: ButtonGroupProps): JSX.Element @{
 	const orientation = props.orientation ?? 'horizontal'
 	const size = useSize(props.size, 'md')
 	const groupRef = useRef<any>(null)

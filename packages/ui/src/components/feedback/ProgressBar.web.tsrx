@@ -4,6 +4,7 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { ProgressBarProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
 
@@ -11,7 +12,7 @@ const clamp = (value: number, min: number, max: number) => Math.min(Math.max(val
  *  marks. role="progressbar" carries the label + value range; indeterminate
  *  mode drops aria-valuenow per the ARIA contract and animates the fill.
  *  `Meter` remains the ring form — this is the bar. */
-export function ProgressBar(props: ProgressBarProps) @{
+export function ProgressBar(props: ProgressBarProps): JSX.Element @{
 	const max = Math.max(props.max ?? 100, 1e-9)
 	const isIndeterminate = props.isIndeterminate ?? false
 	const value = clamp(props.value ?? 0, 0, max)

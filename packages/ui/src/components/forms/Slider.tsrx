@@ -12,7 +12,7 @@ import { nativeAccessibilityRole } from '../overlays/escape-props'
  *  pixels across targets. Drag anywhere on the widget adjusts value by
  *  delta (no jump-to-tap v1). The platform widget (UISlider/SeekBar)
  *  lives in `ui/ios` + `ui/android`. */
-export function Slider(props: SliderProps) @{
+export function Slider(props: SliderProps): unknown @{
 	const measure = useMeasure()
 	const drag = useRef<{ value0: number } | null>(null)
 	const [dragValue, setDragValue] = useState<number | null>(null)

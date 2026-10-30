@@ -236,7 +236,7 @@ function PalettePortal<T extends CommandPaletteItem>(props: {
 /** AppKit window-modal sheet whose content belongs to the declaring tree. */
 export function CommandPalette<T extends CommandPaletteItem>(
 	options: CommandPaletteProps<T>,
-) @{
+): unknown @{
 	const controller = useMemo(() => createCommandPaletteController(() => options), [])
 	useEffect(
 		() => controller.configure(options),

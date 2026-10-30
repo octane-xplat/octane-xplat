@@ -32,7 +32,7 @@ function nsColor(hex: string): any {
  *  bounds on layout. 'vertical' (top→bottom in the shared convention) runs
  *  from y=1 to y=0: the color-picker macOS probe's rendered pixels confirm
  *  that orientation inside masonview hosts. */
-export function LinearGradient(props: LinearGradientProps) @{
+export function LinearGradient(props: LinearGradientProps): unknown @{
 	const state = useRef(props)
 	state.current = props
 

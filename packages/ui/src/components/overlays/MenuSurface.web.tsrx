@@ -3,9 +3,10 @@ import { useEffect, useRef } from 'octane'
 import type { MenuSurfaceProps } from '../../props'
 import { MenuProvider } from './menu-context'
 import { applyEscapeProps } from './escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Each portaled submenu is its own keyboard boundary. Escape belongs to Popover. */
-export function MenuSurface(props: MenuSurfaceProps) @{
+export function MenuSurface(props: MenuSurfaceProps): JSX.Element @{
 	const panel = useRef<HTMLDivElement | null>(null)
 	const search = useRef({ text: '', at: 0 })
 	const context = { closeMenu: () => props.closeMenu(), menuSize: 'md' as const }

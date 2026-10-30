@@ -10,7 +10,7 @@ import { isRenderable } from '../../internal/rendering/is-renderable'
 /** StatusDot — macOS leaf. The AppKit host has no `animate` — `isPulsing` is
  *  a steady dot here (documented). Variant colors come from the scheme
  *  palette mirror since the host has no CSS layer. */
-export function StatusDot(props: StatusDotProps) @{
+export function StatusDot(props: StatusDotProps): unknown @{
 	const dot = useRef<any>(null)
 	const scheme = getColorScheme()
 	// The AppKit layer animates via CAAnimation — a JS opacity loop is the

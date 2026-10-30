@@ -8,7 +8,7 @@ import { useChatComposerContext } from './chat-context'
 /** Circular send/stop toggle for the chat composer. Reads
  *  ChatComposerContext by default — every value is prop-overridable for
  *  standalone use. */
-export function ChatSendButton(props: ChatSendButtonProps) @{
+export function ChatSendButton(props: ChatSendButtonProps): unknown @{
 	const ctx = useChatComposerContext()
 	const isStopShown = props.isStopShown ?? ctx?.isStopShown ?? false
 	const isDisabled = props.isDisabled ?? !(ctx?.canSend ?? false)

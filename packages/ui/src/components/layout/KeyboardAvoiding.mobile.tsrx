@@ -13,7 +13,7 @@ import {
 import { useConsumedInsets } from './inset-consumption'
 import type { KeyboardAvoidingProps } from '../../props'
 
-export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
+export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
 	const enabled = props.enabled ?? true
 	const [host, setHost] = useState<any>(null)
 	const attach = useCallback((next: any) => setHost(next), [])

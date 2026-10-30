@@ -34,6 +34,8 @@ import {
 	type BusyIndicatorLane,
 } from '../../internal/rendering/busy-lane'
 
+import type { JSX } from 'octane/jsx-runtime'
+
 // Sentinel prefix distinguishing "Create \"X\"" entries from real results.
 const CREATABLE_ID_PREFIX = '__xds_create__'
 
@@ -64,7 +66,9 @@ function EndLane(props: {
 /** Multi-select field: Token chips + a BaseTypeahead input. Selecting adds a
  *  token and clears the query; Backspace on an empty input removes the last
  *  token; `hasCreate` offers a "Create \"…\"" entry for unmatched text. */
-export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
+export function Tokenizer<T extends SearchableItem>(
+	props: TokenizerProps<T>,
+): JSX.Element @{
 	const size = useSize(props.size, 'md')
 	const inputId = useId()
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)

@@ -141,7 +141,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 /** Standalone text areas render Astryx's visible field chrome: outside a
  *  FormField, wrap the control in one (label, description, status). Inside a
  *  field the FormField owns that chrome, so the control renders bare. */
-export function TextArea(props: TextAreaProps) @{
+export function TextArea(props: TextAreaProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const needsChrome =
 		!inField &&

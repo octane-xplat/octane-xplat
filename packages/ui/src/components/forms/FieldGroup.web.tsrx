@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { FieldGroupProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** FieldGroup — labeled group of related fields. */
-export function FieldGroup(props: FieldGroupProps) @{
+export function FieldGroup(props: FieldGroupProps): JSX.Element @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

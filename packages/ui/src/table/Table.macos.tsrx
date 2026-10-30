@@ -74,7 +74,7 @@ function AppKitTableCellContent(props: { value: unknown; overflow?: TableTextOve
  *  plugins; their DOM-only props are outside the native safe subset. */
 export function Table<T extends Record<string, unknown> = Record<string, unknown>>(
 	props: TableProps<T>,
-) @{
+): unknown @{
 	const {
 		data,
 		columns,
@@ -301,25 +301,25 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 	</TableContextProvider>
 }
 
-export function TableHeader(props: TableHeaderProps) @{
+export function TableHeader(props: TableHeaderProps): unknown @{
 	<masonview className={cx('vx-table-header', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }
 
-export function TableBody(props: TableBodyProps) @{
+export function TableBody(props: TableBodyProps): unknown @{
 	<masonview className={cx('vx-table-body', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }
 
-export function TableFooter(props: TableFooterProps) @{
+export function TableFooter(props: TableFooterProps): unknown @{
 	<masonview className={cx('vx-table-footer', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }
 
-export function TableRow(props: TableRowProps) @{
+export function TableRow(props: TableRowProps): unknown @{
 	const { children, className, style, ...rest } = props
 
 	<masonview
@@ -331,7 +331,7 @@ export function TableRow(props: TableRowProps) @{
 	</masonview>
 }
 
-export function TableCell(props: TableCellProps) @{
+export function TableCell(props: TableCellProps): unknown @{
 	const { children, className, style, colSpan, ...rest } = props
 
 	<masonview
@@ -343,7 +343,7 @@ export function TableCell(props: TableCellProps) @{
 	</masonview>
 }
 
-export function TableHeaderCell(props: TableHeaderCellProps) @{
+export function TableHeaderCell(props: TableHeaderCellProps): unknown @{
 	const { children, className, style, ...rest } = props
 
 	<masonview

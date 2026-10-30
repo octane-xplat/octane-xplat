@@ -23,7 +23,7 @@ function childContent(children: any, className: string, style?: any) @{
 }
 
 /** One label/value item — macOS leaf matching the mobile structure. */
-export function MetadataListItem(props: MetadataListItemProps) @{
+export function MetadataListItem(props: MetadataListItemProps): unknown @{
 	const ctx = useContext(MetadataListContext)
 	const isStacked = (ctx?.labelPosition ?? 'start') === 'top' || ctx?.orientation === 'horizontal'
 

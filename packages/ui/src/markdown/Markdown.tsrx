@@ -210,7 +210,7 @@ function MarkdownTable(props: {
  *  doc built programmatically); `text` parses at runtime, with `isStreaming`
  *  enabling incremental parsing + withheld partial constructs for growing
  *  chat-style input. */
-export function Markdown(props: MarkdownProps) @{
+export function Markdown(props: MarkdownProps): unknown @{
 	// Octane re-runs reactive slots rather than the whole body, so every piece
 	// derived from the current props lives inside this one memo: the parsed
 	// blocks, the fade boundary ring, and each block's absolute rendered-text
@@ -362,7 +362,7 @@ export function Markdown(props: MarkdownProps) @{
 /** Route screen for `.md` files — the codegen emits specs with this as
  *  `screen`, so a markdown file in the route dir is a route end-to-end.
  *  Receives baked data like any route (`props.data`). */
-export function MarkdownScreen(props: MarkdownScreenProps) @{
+export function MarkdownScreen(props: MarkdownScreenProps): unknown @{
 	<Screen className="vx-app">
 		<ScrollableArea padding={4}>
 			{props.data != null ? <Markdown data={props.data} /> : null}

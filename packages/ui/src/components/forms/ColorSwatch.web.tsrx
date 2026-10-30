@@ -2,8 +2,9 @@
 import type { ColorSwatchProps } from '../../props'
 import { normalizeHex } from '../../theme/color'
 
+import type { JSX } from 'octane/jsx-runtime'
 /** Small color chip. */
-export function ColorSwatch(props: ColorSwatchProps) {
+export function ColorSwatch(props: ColorSwatchProps): JSX.Element {
 	const size = props.size ?? 24
 	const color = normalizeHex(props.color) ?? '#000000'
 	return (

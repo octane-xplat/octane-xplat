@@ -7,7 +7,7 @@ import { StepperContext } from '../forms/option-list-contexts'
 
 /** `Step` — one node in a `Stepper` (Astryx child part). Its state derives
  *  from comparing `step` to the group's `activeStep`. */
-export function Step(props: StepProps) @{
+export function Step(props: StepProps): unknown @{
 	const ctx = useContext(StepperContext)
 	const active = ctx?.activeStep ?? 0
 	const done = props.step < active

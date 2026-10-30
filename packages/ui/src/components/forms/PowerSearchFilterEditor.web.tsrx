@@ -4,6 +4,7 @@ import type { PowerSearchFilterEditorProps, FilterValue } from '../../props'
 import { Button } from '../actions/Button.web.tsrx'
 import { TextInput } from './TextInput.web.tsrx'
 import { resolveOperatorLabel } from './power-search-config'
+import type { JSX } from 'octane/jsx-runtime'
 
 function editorText(value: any): string {
 	if (!value) {
@@ -21,7 +22,9 @@ function editorText(value: any): string {
 	return Array.isArray(value.value) ? value.value.join(', ') : String(value.value)
 }
 
-export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
+export function PowerSearchFilterEditor(
+	props: PowerSearchFilterEditorProps,
+): JSX.Element @{
 	const field =
 		props.config.fields.find((x) => x.key === props.filter.field) ?? props.config.fields[0]
 

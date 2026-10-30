@@ -7,7 +7,12 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { TabListProps, TabProps, TabMenuProps } from '../../props'
 import { useSize } from '../layout/size-context'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { Icon } from '../media/Icon'
 import { Text } from '../content/Text'
 import { Popover } from '../overlays/Popover'
@@ -30,7 +35,7 @@ function navIcon(icon: any, size: number) {
  *  WAI-ARIA tablist pattern carries `tab` semantics to each stop; there's no
  *  composite-widget arrow model on pointer platforms. `role="tablist"`
  *  switches item semantics; the strip itself doesn't gain native grouping. */
-export function TabList(props: TabListProps) @{
+export function TabList(props: TabListProps): unknown @{
 	const size = useSize(props.size, 'md')
 	const overflow = props.overflow ?? 'auto'
 	const layout = props.layout ?? 'hug'
@@ -203,7 +208,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 
 /** TabMenu — overflow trigger inside a TabList. Native leaf opens the
  *  shared anchored Popover with menuitemradio-style rows. */
-export function TabMenu(props: TabMenuProps) @{
+export function TabMenu(props: TabMenuProps): unknown @{
 	const ctx = useContext(TabListContext)
 	if (ctx == null) {
 		throw new Error('TabMenu must be used within a TabList.')

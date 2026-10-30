@@ -8,11 +8,12 @@ import { useMediaQuery } from '../../internal/platform/use-media-query.web'
 import { CheckIndicator, CheckboxIndicator } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
 import { cx } from '@octane-xplat/lib'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Select presentation — resolved finite-list state in, user intents out.
  *  Owns trigger/option focus, keyboard navigation, and type-ahead matching;
  *  internal only — consumers use `Select`. */
-export function SelectView(props: SelectViewProps) @{
+export function SelectView(props: SelectViewProps): JSX.Element @{
 	const translate = useTranslator()
 	const anchor = useRef<HTMLDivElement | null>(null)
 	const search = useRef<HTMLInputElement | null>(null)

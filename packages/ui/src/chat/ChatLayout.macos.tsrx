@@ -25,7 +25,7 @@ const hasVisibleContent = (children: any): boolean => {
 
 /** AppKit conversation: a shrinking scroll viewport and an in-flow bottom dock.
  * Native desktop keyboard space stays neutral; the viewport owns composer range. */
-export function ChatLayout(props: ChatLayoutProps) @{
+export function ChatLayout(props: ChatLayoutProps): unknown @{
 	const scrollViewRef = useRef<any>(null)
 	const [root, setRoot] = useState<any>(null)
 	const [viewport, setViewport] = useState<any>(null)

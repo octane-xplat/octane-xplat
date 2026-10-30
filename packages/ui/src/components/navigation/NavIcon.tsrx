@@ -8,7 +8,7 @@ import { Icon } from '../media/Icon'
 /** Circular icon container for navigation headers (TopNavHeading,
  *  SideNavHeading). Display-only — the `icon` prop takes an element or a
  *  registered icon name. */
-export function NavIcon(props: NavIconProps) @{
+export function NavIcon(props: NavIconProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

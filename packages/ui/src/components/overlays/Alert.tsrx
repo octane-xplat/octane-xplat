@@ -6,7 +6,7 @@ import { applyEscapeProps } from './escape-props'
 import { Icon } from '../media/Icon'
 
 /** Alert — status callout. `tone` picks a class modifier. */
-export function Alert(props: AlertProps) @{
+export function Alert(props: AlertProps): unknown @{
 	const tone = props.tone ?? 'info'
 
 	<masonview

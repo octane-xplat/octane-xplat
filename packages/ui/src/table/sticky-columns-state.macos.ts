@@ -1,3 +1,10 @@
+export type AppKitStickyColumns = {
+	sync: () => void
+	bind(view: Host | null): void
+	cell(edge: 'start' | 'end'): (view: Host | null) => void
+	dispose(): void
+}
+
 interface Geometry {
 	x: number
 	width: number
@@ -43,7 +50,7 @@ export function createAppKitStickyColumns(
 		retain(view: object): Lease | undefined
 	},
 	native: () => Host = () => globalThis,
-) {
+): AppKitStickyColumns {
 	type Cell = { view: Host; edge: 'start' | 'end'; lease?: Lease }
 	let viewport: Host | null = null,
 		observed: { clip: Host; document: Host; window: object | undefined } | undefined
@@ -217,7 +224,7 @@ export function createAppKitStickyColumns(
 	}
 	return {
 		sync: schedule,
-		bind(view: Host | null) {
+		bind(view: Host | null): void {
 			if (disposed || viewport === view) {
 				schedule()
 				return
@@ -233,7 +240,7 @@ export function createAppKitStickyColumns(
 		},
 		cell(edge: 'start' | 'end') {
 			let current: Cell | undefined
-			return (view: Host | null) => {
+			return (view: Host | null): void => {
 				if (current?.view === view) {
 					return
 				}
@@ -249,7 +256,7 @@ export function createAppKitStickyColumns(
 				}
 			}
 		},
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

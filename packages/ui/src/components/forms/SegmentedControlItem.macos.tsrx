@@ -7,7 +7,7 @@ import { cx } from '@octane-xplat/lib'
 import { AppKitSegmentedContext } from '../actions/segmented-control-context.macos'
 
 /** Self-drawn AppKit segment with selection and scoped keyboard registration. */
-export function SegmentedControlItem(props: SegmentedControlItemProps) @{
+export function SegmentedControlItem(props: SegmentedControlItemProps): unknown @{
 	const ctx = useContext(AppKitSegmentedContext)
 	const selected = ctx?.selected === props.value
 	const disabled = Boolean(ctx?.isDisabled || props.isDisabled)

@@ -21,7 +21,7 @@ function gridColumns(columns: 'multi' | 'single' | number, isStacked: boolean): 
 
 /** MetadataList — macOS leaf, same structure as the mobile leaf on the
  *  AppKit host. */
-export function MetadataList(props: MetadataListProps) @{
+export function MetadataList(props: MetadataListProps): unknown @{
 	const columns = props.columns ?? 'single'
 	const orientation = props.orientation ?? 'vertical'
 	const isHorizontal = orientation === 'horizontal'

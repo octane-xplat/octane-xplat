@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 /** Divider — hairline rule. `variant`/`label`/`isFullBleed` are class hooks
  *  the native stylesheet resolves; a labeled rule renders text between two
  *  segments. */
-export function Separator(props: SeparatorProps) @{
+export function Separator(props: SeparatorProps): unknown @{
 	const vertical = props.orientation === 'vertical'
 
 	@if (props.label != null) {

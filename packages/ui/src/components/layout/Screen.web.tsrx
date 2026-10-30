@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ScreenProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
-export function Screen(props: ScreenProps) @{
+import type { JSX } from 'octane/jsx-runtime'
+export function Screen(props: ScreenProps): JSX.Element @{
 	<div
 		id={props.id}
 		ref={(e: any) => applyEscapeProps(e, props)}

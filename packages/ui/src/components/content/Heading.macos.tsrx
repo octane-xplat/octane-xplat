@@ -6,17 +6,20 @@ import { cx } from '@octane-xplat/lib'
 import { useTheme } from '../../theme/use-theme'
 import { headingScaleStyle } from '../forms/text-scale'
 
-export function Heading(props: HeadingProps) @{
+export function Heading(props: HeadingProps): unknown @{
 	const level = props.level ?? 2
 	const theme = useTheme()
 	const scale = headingScaleStyle(theme.tokens, props)
 	const maxLines = props.maxLines ?? 0
-	const headingStyle = mergeStyle({
-		...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
-		...(scale.fontWeight && { fontWeight: scale.fontWeight }),
-		...(scale.lineHeightPx != null && { lineHeight: scale.lineHeightPx }),
-		...(scale.color && { color: scale.color }),
-	}, props.style)
+	const headingStyle = mergeStyle(
+		{
+			...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
+			...(scale.fontWeight && { fontWeight: scale.fontWeight }),
+			...(scale.lineHeightPx != null && { lineHeight: scale.lineHeightPx }),
+			...(scale.color && { color: scale.color }),
+		},
+		props.style,
+	)
 
 	<label
 		id={props.id}

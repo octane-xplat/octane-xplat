@@ -7,7 +7,7 @@ import { View } from '../layout/View'
  *  hint layer — hover/focus intent has no touch semantic (decision #47,
  *  revised). Keep essential information out of `content`; the pointer
  *  platforms (web, macOS) carry the real hover surface. */
-export function Tooltip(props: TooltipProps) @{
+export function Tooltip(props: TooltipProps): unknown @{
 	<View
 		id={props.id}
 		className={cx(props.className)}

@@ -4,7 +4,7 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'
 
 /** Skeleton — placeholder block; `radius` resolves to dips on native. */
-export function Skeleton(props: SkeletonProps) @{
+export function Skeleton(props: SkeletonProps): unknown @{
 	const radius =
 		props.radius === 'circle'
 			? 9999

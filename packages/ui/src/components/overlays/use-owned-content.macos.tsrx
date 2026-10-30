@@ -2,7 +2,12 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'octane'
 import { createPortal } from '../../internal/platform/native-portal'
-import { createContentOwner, type ContentOwner, type ContentEntry } from './owned-content'
+import {
+	createContentOwner,
+	type ContentOwner,
+	type ContentEntry,
+	type OwnedContentResult,
+} from './owned-content'
 
 function OwnedEntry(props: { key?: number; entry: ContentEntry }) {
 	const entry = props.entry
@@ -37,7 +42,7 @@ function ContentOutlet(props: { owner: ContentOwner }) {
 	)
 }
 
-export function useOwnedContent() {
+export function useOwnedContent(): OwnedContentResult {
 	const owner = useMemo(() => createContentOwner(), [])
 	useEffect(() => () => owner.dispose(), [owner])
 	return { owner, element: <ContentOutlet owner={owner} /> }

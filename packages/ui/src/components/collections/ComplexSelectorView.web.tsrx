@@ -6,9 +6,12 @@ import { cx } from '@octane-xplat/lib'
 import { Popover } from '../overlays/Popover.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Internal resolved presentation, sharing the handle’s host anchor. */
-export function ComplexSelectorView<Value>(props: ComplexSelectorViewProps<Value>) @{
+export function ComplexSelectorView<Value>(
+	props: ComplexSelectorViewProps<Value>,
+): JSX.Element @{
 	const { open, pending } = props.state
 	const size = useSize(props.size, 'md')
 	const { triggerId, contentId, anchor } = props

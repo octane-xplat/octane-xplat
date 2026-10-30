@@ -55,7 +55,7 @@ function navIcon(icon: any, size = 16) {
  *  render modes — `default` full bar, `mobile-bar` (heading + end +
  *  toggle), `drawer` (content inside MobileNav). Hover-driven menus open on
  *  tap on pointer platforms. */
-export function TopNav(props: TopNavProps) @{
+export function TopNav(props: TopNavProps): unknown @{
 	const renderMode = useTopNavRenderMode()
 	const mobileContent = useTopNavMobileContent()
 	const label = props.label ?? 'Top navigation'
@@ -191,7 +191,7 @@ export function TopNav(props: TopNavProps) @{
 
 /** TopNavHeading — the brand block: logo + heading link with optional
  *  super/subheading lines and an optional heading menu popover. */
-export function TopNavHeading(props: TopNavHeadingProps) @{
+export function TopNavHeading(props: TopNavHeadingProps): unknown @{
 	const anchor = useRef<any>(null)
 	const [menuOpen, setMenuOpen] = useState(false)
 	const hasLinks = !!(props.headingHref || props.superheadingHref || props.subheadingHref)
@@ -455,7 +455,7 @@ export function TopNavMenu(
 
 /** TopNavMegaMenu — trigger opening a wide panel with an items grid plus an
  *  optional featured panel. Native leaf: a press-opened anchored popover. */
-export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
+export function TopNavMegaMenu(props: TopNavMegaMenuProps): unknown @{
 	const anchor = useRef<any>(null)
 	const [open, setOpen] = useState(false)
 
@@ -566,7 +566,9 @@ export function TopNavMegaMenuItem(
 
 /** TopNavMegaMenuFeaturedCard — the marketing card inside a mega menu's
  *  featured panel. */
-export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProps) @{
+export function TopNavMegaMenuFeaturedCard(
+	props: TopNavMegaMenuFeaturedCardProps,
+): unknown @{
 	<masonview
 		id={props.id}
 		className={cx('vx-topnavmegamenu-card', props.className)}

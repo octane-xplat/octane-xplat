@@ -13,7 +13,7 @@ type ShownModal = { host: GridLayout; unbindTheme: () => void; finished: boolean
  *  to its content, not a bottom sheet). Renders nothing inline; children
  *  portal from the declaring tree into the modal host and retain its
  *  context, whether supplied as children or through `component` + `params`. */
-export function MaterialDialog(props: MaterialDialogProps) @{
+export function MaterialDialog(props: MaterialDialogProps): unknown @{
 	const shown = useRef<ShownModal | null>(null)
 	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)

@@ -169,7 +169,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
  *  horizontal scroller inside the vertical one (NS has no two-axis
  *  ScrollView). `overscroll`/`stickyContainment`/`isFullBleed` are web
  *  semantics and inert here; `role` has no native equivalent. */
-export function ScrollableArea(props: ScrollableAreaProps) @{
+export function ScrollableArea(props: ScrollableAreaProps): unknown @{
 	const axis = props.axis ?? 'block'
 
 	@if (axis === 'block' && (props.onRefresh != null || props.refreshing != null)) {

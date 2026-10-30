@@ -5,7 +5,7 @@ import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** UIActivityIndicatorView — the platform spinner (UIKit). The self-drawn
  *  shared `ActivityIndicator` lives in the root export. */
-export function UIActivityIndicatorView(props: UIActivityIndicatorViewProps) @{
+export function UIActivityIndicatorView(props: UIActivityIndicatorViewProps): unknown @{
 	if (props.busy === false) {
 		return null
 	}

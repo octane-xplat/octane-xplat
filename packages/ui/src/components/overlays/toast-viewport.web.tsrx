@@ -17,6 +17,7 @@ import { applyThemeClasses } from '../../theme/theme-host'
 import { cx } from '@octane-xplat/lib'
 import { ToastSurface } from './Toast.web.tsrx'
 import { Popover } from './Popover.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const POSITIONS: ToastPosition[] = ['topStart', 'topEnd', 'bottomStart', 'bottomEnd']
 
@@ -51,7 +52,7 @@ export function ToastViewportSurface(props: {
 	maxVisible: number
 	inset?: ToastViewportProps['inset']
 	isTopLayer?: boolean
-}) @{
+}): JSX.Element @{
 	const entries = useStore(toastStore)
 	const mine = entries.filter((e) => toastOnViewport(e, props.viewportId))
 	const viewport = useRef<HTMLDivElement | null>(null)
@@ -292,7 +293,7 @@ export function ToastViewportSurface(props: {
 /** Toast stack container (Astryx `ToastViewport`), web leaf. Provides the
  *  context `useToast` routes through and renders its own fixed stack;
  *  toasts pushed unscoped land on the auto-mounted fallback stack. */
-export function ToastViewport(props: ToastViewportProps) @{
+export function ToastViewport(props: ToastViewportProps): JSX.Element @{
 	const id = useId()
 	const ctx = useMemo<ToastViewportContextValue>(
 		() => ({ id, position: props.position ?? 'bottomEnd', maxVisible: props.maxVisible ?? 5 }),

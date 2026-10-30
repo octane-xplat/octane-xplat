@@ -5,10 +5,11 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { isChildrenBlock } from 'octane'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { Avatar, AvatarStatusDot } from './Avatar.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** AvatarGroupOverflow — the `+N` counter part (Astryx). `label` overrides
  *  the rendered text. */
-export function AvatarGroupOverflow(props: AvatarGroupOverflowProps) @{
+export function AvatarGroupOverflow(props: AvatarGroupOverflowProps): JSX.Element @{
 	const size =
 		typeof props.size === 'number'
 			? props.size
@@ -34,7 +35,7 @@ export function AvatarGroupOverflow(props: AvatarGroupOverflowProps) @{
 /** AvatarGroup — row of overlapping avatars. `max` collapses the rest into
  *  a `+N` avatar; an explicit `AvatarGroupOverflow` child renders instead
  *  when supplied. Overlap is one-third of `size`. */
-function AvatarGroupImpl(props: AvatarGroupProps) @{
+function AvatarGroupImpl(props: AvatarGroupProps): JSX.Element @{
 	const size = props.size ?? 32
 	const children = isChildrenBlock(props.children) ? [] : toChildArray(props.children)
 	const hasOverflowChild = children.some((c: any) => c?.type === AvatarGroupOverflow)
@@ -68,4 +69,4 @@ function AvatarGroupImpl(props: AvatarGroupProps) @{
 }
 
 /** Ask Octane to preserve inspectable child descriptors for collection operations. */
-export const AvatarGroup = descriptorChildren(AvatarGroupImpl)
+export const AvatarGroup: typeof AvatarGroupImpl = descriptorChildren(AvatarGroupImpl)

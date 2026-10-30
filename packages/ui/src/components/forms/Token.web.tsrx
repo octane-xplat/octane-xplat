@@ -4,13 +4,14 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { TokenProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Token — inline entity chip. Plain `<span>` by default; `onClick` renders
  *  an inner button hit-surface (real button semantics, :focus-within ring on
  *  the chip); `href` renders an `<a>`; `href` + `onRemove` keeps them
  *  siblings (a <button> inside an <a> is invalid HTML) and delegates clicks
  *  on the rest of the chip to the link, including ⌘/Ctrl-click new-tab. */
-export function Token(props: TokenProps) @{
+export function Token(props: TokenProps): JSX.Element @{
 	const rootRef = useRef<HTMLElement | null>(null)
 	const linkRef = useRef<HTMLAnchorElement | null>(null)
 

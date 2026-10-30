@@ -20,7 +20,7 @@ import { HoverCard } from '../overlays/HoverCard'
 /** Timestamp — macOS leaf. The AppKit host's HoverCard carries the tooltip
  *  card (labels + copyable values as plain rows; the copy affordance is
  *  pointer-web only). */
-export function Timestamp(props: TimestampProps) @{
+export function Timestamp(props: TimestampProps): unknown @{
 	const format = props.format ?? 'auto'
 	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD
 	const hasTooltip = props.hasTooltip ?? true

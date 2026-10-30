@@ -43,7 +43,7 @@ function ScrollingDialogPanel(
 	</scrollview>
 }
 
-export function Dialog(props: DialogProps) @{
+export function Dialog(props: DialogProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {
@@ -91,7 +91,7 @@ export function Dialog(props: DialogProps) @{
 	</>
 }
 
-export function DialogHeader(props: DialogHeaderProps) @{
+export function DialogHeader(props: DialogHeaderProps): unknown @{
 	const ctx = useContext(DialogContext)
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 

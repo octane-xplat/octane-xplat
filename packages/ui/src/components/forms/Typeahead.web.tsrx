@@ -16,6 +16,8 @@ import {
 	type BusyIndicatorLane,
 } from '../../internal/rendering/busy-lane'
 
+import type { JSX } from 'octane/jsx-runtime'
+
 /** The field's inline-end lane: busy Spinner, then the clear button. A leaf
  *  subscribing to the lane re-renders only itself per search transition. */
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
@@ -38,7 +40,9 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
  *  a Token painted over the input while a value is selected. Clicking the
  *  token or wrapper enters edit mode (input repopulated with the label);
  *  blur or Escape without a selection restores the token. */
-export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
+export function Typeahead<T extends SearchableItem>(
+	props: TypeaheadProps<T>,
+): JSX.Element @{
 	const size = useSize(props.size, 'md')
 	const inputId = useId()
 	const inputRef = useRef<HTMLInputElement | null>(null)

@@ -7,7 +7,7 @@ import { layoutChildProps } from '../layout/layout-child'
 /** Native rich text is a Label hosting one FormattedString. The driver knows
  * how to parent FormattedString → Span, while each run writes its text
  * directly because Span is not a TextBase host for #text children. */
-export function RichText(props: RichTextProps) @{
+export function RichText(props: RichTextProps): unknown @{
 	<label
 		id={props.id}
 		ref={(el: any) => applyEscapeProps(el, props)}
@@ -32,7 +32,7 @@ function runText(props: RichTextSpanProps): string {
 }
 
 /** A FormattedString run. `onLinkTap` is NativeScript's per-span tap event. */
-export function RichTextSpan(props: RichTextSpanProps) @{
+export function RichTextSpan(props: RichTextSpanProps): unknown @{
 	<span
 		text={runText(props)}
 		className={cx(props.className)}

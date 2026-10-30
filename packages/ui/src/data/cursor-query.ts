@@ -41,7 +41,7 @@ export interface CursorQueryOptions<T, C extends QueryKeyPart> extends QueryOpti
 	readonly maxPages?: number
 }
 
-const CURSOR_QUERY = Symbol('cursor-query')
+const CURSOR_QUERY: unique symbol = Symbol('cursor-query')
 interface CursorEngine<A extends QueryKeyPart, T, C extends QueryKeyPart> {
 	loadPage: (
 		selection: A,

@@ -73,7 +73,7 @@ export class VirtualListCellPool<T> {
 		return cell?.entry?.rowKey === rowKey && cell.generation === generation
 	}
 
-	clear() {
+	clear(): void {
 		this.cells = []
 		this.byId.clear()
 		// IDs remain monotonic across empty/restore so old work cannot match.

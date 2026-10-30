@@ -2,10 +2,11 @@
 import { useDirection, useTranslator } from '../../internal/platform/internationalization'
 import type { PaginationProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Pagination — ‹ › plus a windowed run of page buttons around `page`
  *  (first, last, `siblingCount` each side, … for gaps). */
-export function Pagination(props: PaginationProps) @{
+export function Pagination(props: PaginationProps): JSX.Element @{
 	const direction = useDirection()
 	const translate = useTranslator()
 	const sibling = props.siblingCount ?? 1

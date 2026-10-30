@@ -7,7 +7,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** RadioIndicator — decorative circle + filled dot when checked. */
-export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
+export function RadioIndicator(props: IndicatorProps<'singleSelection'>): unknown @{
 	const size = props.size ?? 'md'
 	const content =
 		props.children != null ? (

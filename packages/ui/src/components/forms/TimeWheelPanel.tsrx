@@ -21,7 +21,7 @@ interface TimeWheelProps {
  *  Columns are scrollviews of tap-to-select rows (the self-drawn wheel
  *  equivalent — a NativeScript `listpicker` per column is the alternative,
  *  but scroll columns keep sizing/theming identical across targets). */
-export function TimeWheelPanel(props: TimeWheelProps) @{
+export function TimeWheelPanel(props: TimeWheelProps): unknown @{
 	const start = props.value ? parseISOTime(props.value) : null
 	const is12 = (props.hourFormat ?? '12h') === '12h'
 	const [hour24, setHour24] = useState(start?.hour ?? 9)

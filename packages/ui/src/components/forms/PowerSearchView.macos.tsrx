@@ -28,7 +28,7 @@ function appKitInput(view: unknown): view is NSView {
 	)
 }
 
-export function PowerSearchView(inProps: PowerSearchViewProps) @{
+export function PowerSearchView(inProps: PowerSearchViewProps): unknown @{
 	const props = useFieldControlProps(inProps)
 	const live = useRef(props)
 	live.current = props

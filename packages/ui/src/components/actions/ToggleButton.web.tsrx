@@ -3,8 +3,9 @@ import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from '../../props'
 import { useToggleButtonGroup, ToggleButtonGroupProvider } from './toggle-button-group-context'
 import { Button } from './Button.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function ToggleButton(props: ToggleButtonProps) @{
+export function ToggleButton(props: ToggleButtonProps): JSX.Element @{
 	const group = useToggleButtonGroup()
 	const [localPressed, setLocalPressed] = useState(!!props.isPressed)
 	const inGroup = group != null && props.value != null
@@ -75,7 +76,7 @@ export function ToggleButton(props: ToggleButtonProps) @{
 	</Button>
 }
 
-export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
+export function ToggleButtonGroup(props: ToggleButtonGroupProps): JSX.Element @{
 	const type = props.type ?? 'single'
 	const selected = new Set(
 		Array.isArray(props.value) ? props.value : props.value == null ? [] : [props.value],

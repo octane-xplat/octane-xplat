@@ -6,9 +6,10 @@ import { useThemeScheme } from '../../theme/theme-scheme'
 import { cx } from '@octane-xplat/lib'
 import { isolateModalFocus } from './modal-focus.web'
 import { SizeProvider } from '../layout/size-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Renders an in-window overlay through the DOM renderer's body portal. */
-export function Overlay(props: OverlayProps) @{
+export function Overlay(props: OverlayProps): JSX.Element | null @{
 	const dark = useThemeScheme() === 'dark'
 	const layer = useRef<HTMLDivElement | null>(null)
 	const panel = useRef<HTMLDivElement | null>(null)

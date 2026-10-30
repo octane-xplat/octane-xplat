@@ -94,7 +94,7 @@ function CheckboxControl(inputProps: CheckboxProps) @{
 
 /** Standalone Checkbox renders its own field chrome — an inline row plus a
  *  detached status line. Inside a FormField the field owns that chrome. */
-export function Checkbox(props: CheckboxProps) @{
+export function Checkbox(props: CheckboxProps): unknown @{
 	const inField = useContext(FieldContext) != null
 
 	@if (inField || (props.description == null && props.status == null)) {

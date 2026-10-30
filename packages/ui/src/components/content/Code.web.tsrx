@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { CodeProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Code — inline monospace run. `size="inherit"` drops the fixed font-size so
  *  the run adopts its surrounding text metrics; `color` picks the primary,
  *  secondary, or inherited text color. */
-export function Code(props: CodeProps) @{
+export function Code(props: CodeProps): JSX.Element @{
 	<code
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

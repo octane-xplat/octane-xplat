@@ -203,7 +203,7 @@ function mount(entry: ToastEntry) {
  *  re-render the rest so `exiting` reaches the card, unmount entries that
  *  left the store or fell outside their bucket's `maxVisible` window
  *  (they resurface when the stack drains — upstream parity). */
-export function sync() {
+export function sync(): void {
 	if (syncing) {
 		return
 	}

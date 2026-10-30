@@ -10,7 +10,7 @@ import { indicatorScope } from '../feedback/indicators'
 import { AppKitRadioViewsContext } from './radio-focus-context.macos'
 
 /** Options and child parts use one group owner and identical native semantics. */
-export function RadioListItem(props: RadioListItemProps) @{
+export function RadioListItem(props: RadioListItemProps): unknown @{
 	const group = useContext(RadioListContext)
 	const views = useContext(AppKitRadioViewsContext)
 	const live = useRef({ props, group, views })

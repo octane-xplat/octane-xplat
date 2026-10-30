@@ -8,8 +8,9 @@ import { useFieldControl, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function TextInput(props: TextInputProps) @{
+export function TextInput(props: TextInputProps): JSX.Element @{
 	const { inField } = useFieldControl(props)
 	const generatedId = useId()
 	const controlId = props.id ?? generatedId

@@ -45,7 +45,12 @@ export function createAppKitLandmarks(
 	boundary: (window: NSWindow) => NSView | undefined,
 	native: () => Record<string, any> = () => globalThis,
 	bridge: () => Record<string, any> | undefined = appKitHost,
-) {
+): {
+	cycle: (window: NSWindow, backward: boolean) => boolean
+	keyDown: (event: any) => any
+	register(view: NSView): () => void
+	dispose(): void
+} {
 	type Entry = { release(): void }
 	const regions = new Map<NSView, Set<Entry>>()
 	let monitor: unknown,
@@ -177,7 +182,7 @@ export function createAppKitLandmarks(
 			moving = false
 		}
 	}
-	const keyDown = (event: any) => {
+	const keyDown = (event: any): any => {
 		if (
 			disposed ||
 			moving ||
@@ -284,7 +289,7 @@ export function createAppKitLandmarks(
 				}
 			}
 		},
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

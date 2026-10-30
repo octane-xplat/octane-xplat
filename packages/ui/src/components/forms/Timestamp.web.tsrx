@@ -20,6 +20,7 @@ import { HoverCard } from '../overlays/HoverCard.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { copyText } from '../../internal/platform/clipboard-write'
 import { textRoleClasses } from './text-role'
+import type { JSX } from 'octane/jsx-runtime'
 
 const COPY_FEEDBACK_MS = 1500
 
@@ -86,7 +87,7 @@ function TimestampCard(props: { lines: readonly TimestampTooltipLine[] }) @{
  *  aria-label. 'auto' is relative below `autoThresholdSeconds`, else
  *  `date_time`. `isLive` re-renders on the relative cadence. `hasTooltip`
  *  opens the HoverCard with one row per tooltip entry. */
-export function Timestamp(props: TimestampProps) @{
+export function Timestamp(props: TimestampProps): JSX.Element @{
 	const format = props.format ?? 'auto'
 	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD
 	const hasTooltip = props.hasTooltip ?? true

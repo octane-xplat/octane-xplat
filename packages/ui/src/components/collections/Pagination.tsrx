@@ -7,7 +7,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Pagination — ‹ › plus a windowed run of page buttons around `page`
  *  (first, last, `siblingCount` each side, … for gaps). */
-export function Pagination(props: PaginationProps) @{
+export function Pagination(props: PaginationProps): unknown @{
 	const direction = useDirection()
 	const translate = useTranslator()
 	const sibling = props.siblingCount ?? 1

@@ -14,7 +14,22 @@ const ownWidth = (widths: Record<string, number> | undefined, key: string) =>
 export function createAppKitColumnResizeState(options: {
 	config(): UseTableColumnResizeConfig
 	changed(): void
-}) {
+}): {
+	limits: () => {
+		min: number
+		max: number
+	}
+	widths(): Record<string, number>
+	active(key: string): boolean
+	synchronize(): void
+	begin(scope: AppKitResizeScope): boolean
+	move(scope: AppKitResizeScope, delta: number): boolean
+	end(scope: AppKitResizeScope, delta: number): boolean
+	cancel(view?: object): boolean
+	step(scope: AppKitResizeScope, amount: number): boolean
+	key(scope: AppKitResizeScope, key: string): boolean
+	dispose(): void
+} {
 	type Drag = {
 		scope: AppKitResizeScope
 		start: number
@@ -27,7 +42,10 @@ export function createAppKitColumnResizeState(options: {
 	let internal: Record<string, number> = {},
 		drag: Drag | undefined,
 		disposed = false
-	const limits = () => {
+	const limits = (): {
+		min: number
+		max: number
+	} => {
 		const config = options.config()
 		const min = Number.isFinite(config.minWidth) ? Math.max(0, config.minWidth!) : 50
 		const max = Number.isFinite(config.maxWidth) ? Math.max(min, config.maxWidth!) : Infinity
@@ -100,19 +118,19 @@ export function createAppKitColumnResizeState(options: {
 	}
 	return {
 		limits,
-		widths() {
+		widths(): Record<string, number> {
 			validate()
 			return drag ? { ...base(), [drag.scope.key]: drag.width } : base()
 		},
-		active(key: string) {
+		active(key: string): boolean {
 			return drag?.scope.key === key
 		},
-		synchronize() {
+		synchronize(): void {
 			if (!disposed && validate()) {
 				publish()
 			}
 		},
-		begin(scope: AppKitResizeScope) {
+		begin(scope: AppKitResizeScope): boolean {
 			if (disposed || !scope.valid() || !Number.isFinite(scope.width) || scope.width < 0) {
 				return false
 			}
@@ -130,7 +148,7 @@ export function createAppKitColumnResizeState(options: {
 			publish()
 			return true
 		},
-		move(scope: AppKitResizeScope, delta: number) {
+		move(scope: AppKitResizeScope, delta: number): boolean {
 			const owner = drag
 			validate()
 			if (drag !== owner) {
@@ -154,7 +172,7 @@ export function createAppKitColumnResizeState(options: {
 			}
 			return true
 		},
-		end(scope: AppKitResizeScope, delta: number) {
+		end(scope: AppKitResizeScope, delta: number): boolean {
 			const owner = drag
 			if (!owner) {
 				return false
@@ -186,7 +204,7 @@ export function createAppKitColumnResizeState(options: {
 			}
 			return true
 		},
-		cancel(view?: object) {
+		cancel(view?: object): boolean {
 			if (drag && (!view || drag.scope.view === view)) {
 				drag = undefined
 				publish()
@@ -194,10 +212,10 @@ export function createAppKitColumnResizeState(options: {
 			}
 			return false
 		},
-		step(scope: AppKitResizeScope, amount: number) {
+		step(scope: AppKitResizeScope, amount: number): boolean {
 			return commit(scope, current(scope.key, scope.width) + amount)
 		},
-		key(scope: AppKitResizeScope, key: string) {
+		key(scope: AppKitResizeScope, key: string): boolean {
 			if (key === 'Escape') {
 				return this.cancel(scope.view)
 			}
@@ -215,7 +233,7 @@ export function createAppKitColumnResizeState(options: {
 			}
 			return false
 		},
-		dispose() {
+		dispose(): void {
 			disposed = true
 			drag = undefined
 		},

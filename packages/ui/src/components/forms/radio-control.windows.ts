@@ -26,7 +26,7 @@ class WindowsRadioControl extends View {
 	declare settings: RadioSettings | undefined
 	group!: WindowsRadioGroup
 	option = ''
-	configure(previous: RadioSettings | undefined, settings: RadioSettings | undefined) {
+	configure(previous: RadioSettings | undefined, settings: RadioSettings | undefined): void {
 		previous?.group.remove(this)
 		if (!settings) {
 			return
@@ -45,11 +45,11 @@ class WindowsRadioControl extends View {
 	private key: any
 	private lost: any
 	private press: any
-	get peer() {
+	get peer(): any {
 		return this.eventNative
 	}
 
-	createNativeView() {
+	createNativeView(): any {
 		const native = new Microsoft.UI.Xaml.Controls.RadioButton()
 		native.MinWidth = 0
 		native.MinHeight = 0
@@ -61,7 +61,7 @@ class WindowsRadioControl extends View {
 		native.IsChecked = this.model
 		return native
 	}
-	initNativeView() {
+	initNativeView(): void {
 		super.initNativeView()
 		const native = this.nativeViewProtected
 		this.eventNative = native
@@ -130,12 +130,12 @@ class WindowsRadioControl extends View {
 		this.group.add(this)
 		this.group.restore()
 	}
-	listen(on: boolean) {
+	listen(on: boolean): void {
 		if (this.eventNative) {
 			this.eventNative.Checked = on ? this.checked : null
 		}
 	}
-	disposeNativeView() {
+	disposeNativeView(): void {
 		this.group.cancelFocusReset()
 		const native = this.eventNative
 		this.eventNative = undefined
@@ -151,7 +151,7 @@ class WindowsRadioControl extends View {
 }
 
 export class WindowsRadioGroup {
-	readonly name = `xplat-radio-${++nextGroup}`
+	readonly name: string = `xplat-radio-${++nextGroup}`
 	root: View | null = null
 	readOnly = false
 	disabled = false
@@ -161,12 +161,12 @@ export class WindowsRadioGroup {
 	focusValue: string | undefined
 	writing = 0
 	private focusTask: ReturnType<typeof setTimeout> | undefined
-	add(view: WindowsRadioControl) {
+	add(view: WindowsRadioControl): void {
 		if (!this.controls.includes(view)) {
 			this.controls.push(view)
 		}
 	}
-	remove(view: WindowsRadioControl) {
+	remove(view: WindowsRadioControl): void {
 		this.controls = this.controls.filter((item) => item !== view)
 		this.restore()
 	}
@@ -175,7 +175,7 @@ export class WindowsRadioGroup {
 		disabled: boolean,
 		readOnly: boolean,
 		requestChange: (value: string) => void,
-	) {
+	): void {
 		if (selected !== this.selected) {
 			this.focusValue = selected
 		}
@@ -185,7 +185,7 @@ export class WindowsRadioGroup {
 		this.requestChange = requestChange
 		this.restore()
 	}
-	ordered() {
+	ordered(): WindowsRadioControl[] {
 		const result: WindowsRadioControl[] = []
 		const visit = (view: Pick<View, 'eachChildView'>) => {
 			if (this.controls.includes(view as WindowsRadioControl)) {
@@ -203,7 +203,7 @@ export class WindowsRadioGroup {
 		return [...result, ...this.controls.filter((view) => !result.includes(view))]
 	}
 
-	hold(action: () => void) {
+	hold(action: () => void): void {
 		this.writing++
 		for (const view of this.controls) {
 			view.listen(false)
@@ -219,7 +219,7 @@ export class WindowsRadioGroup {
 			}
 		}
 	}
-	tabStops() {
+	tabStops(): void {
 		const enabled = this.ordered().filter(
 			(view) => view.isEnabled && view.peer?.IsEnabled !== false,
 		)
@@ -233,7 +233,7 @@ export class WindowsRadioGroup {
 			}
 		}
 	}
-	restore() {
+	restore(): void {
 		this.hold(() => {
 			for (const view of this.controls) {
 				view.model = view.option === this.selected
@@ -249,7 +249,7 @@ export class WindowsRadioGroup {
 			this.tabStops()
 		})
 	}
-	choose(view: WindowsRadioControl) {
+	choose(view: WindowsRadioControl): void {
 		if (
 			!view.isLoaded ||
 			!view.isEnabled ||
@@ -265,7 +265,7 @@ export class WindowsRadioGroup {
 			this.requestChange?.(view.option)
 		}
 	}
-	focus(view: WindowsRadioControl, state: number) {
+	focus(view: WindowsRadioControl, state: number): boolean {
 		this.cancelFocusReset()
 		let accepted = false
 		this.hold(() => {
@@ -278,7 +278,7 @@ export class WindowsRadioGroup {
 
 		return accepted
 	}
-	navigate(from: WindowsRadioControl, key: number, control: boolean) {
+	navigate(from: WindowsRadioControl, key: number, control: boolean): void {
 		const enabled = this.ordered().filter(
 			(view) => view.isLoaded && view.isEnabled && view.peer?.IsEnabled,
 		)
@@ -299,13 +299,13 @@ export class WindowsRadioGroup {
 			this.choose(target)
 		}
 	}
-	cancelFocusReset() {
+	cancelFocusReset(): void {
 		if (this.focusTask !== undefined) {
 			clearTimeout(this.focusTask)
 		}
 		this.focusTask = undefined
 	}
-	queueFocusReset() {
+	queueFocusReset(): void {
 		this.cancelFocusReset()
 		this.focusTask = setTimeout(() => {
 			this.focusTask = undefined

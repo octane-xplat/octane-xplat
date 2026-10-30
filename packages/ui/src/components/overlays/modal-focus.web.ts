@@ -117,7 +117,7 @@ export function isolateModalFocus(
 	layer: HTMLElement,
 	panel: HTMLElement,
 	dismiss: () => void,
-	depth = scopes.length,
+	depth: number = scopes.length,
 	resolveReturnTarget?: (trigger: HTMLElement | null) => HTMLElement | null,
 ): () => void {
 	const document = layer.ownerDocument

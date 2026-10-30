@@ -24,16 +24,22 @@ interface Options {
 }
 
 /** SelectView.web key policy adapted to native focus ownership; no host objects escape. */
-export function createAppKitSelectKeyboard(options: Options, now = Date.now) {
+export function createAppKitSelectKeyboard(
+	options: Options,
+	now: () => number = Date.now,
+): {
+	reset: () => void
+	keyDown(event: KeyboardEvent): void
+} {
 	let text = '',
 		at = 0
-	const reset = () => {
+	const reset = (): void => {
 		text = ''
 		at = 0
 	}
 	return {
 		reset,
-		keyDown(event: KeyboardEvent) {
+		keyDown(event: KeyboardEvent): void {
 			if (event.defaultPrevented || event.isComposing || options.blocked() || event.altKey) {
 				return
 			}

@@ -1,12 +1,27 @@
 import { createClientRouteEntry } from './client-route-entry'
-import { createRouterRenderScope } from './router-render-scope'
+import { createRouterRenderScope, type RouterRenderScope } from './router-render-scope'
 import { createStore } from '../data/store'
 import type { BrowserRouteSnapshot } from './browser-router-host.web'
-import type { PreparedRouteMatch, RouterHost, RouterHostContent, RouterInstance } from '../props'
+import type {
+	PreparedRouteMatch,
+	RouterHost,
+	RouterHostContent,
+	RouterInstance,
+	Store,
+} from '../props'
 
 /** Request-local, read-only counterpart of the browser outlet. No browser globals
  * and no process-global router; both compilers render exactly the same tree. */
-export function createServerRouterHost() {
+export function createServerRouterHost(): {
+	host: RouterHost
+	views: Store<BrowserRouteSnapshot>
+	attach(router: RouterInstance<any>): void
+	initialize(route: PreparedRouteMatch, content: RouterHostContent): void
+	assertRendered(): void
+	scope(flow: string): RouterRenderScope
+	mount: (_flow: string) => () => void
+	entryElement: (_id: string, _element: HTMLElement | null) => void
+} {
 	let instance: RouterInstance<any> | undefined
 	let failure: unknown
 	let failed = false
@@ -24,13 +39,13 @@ export function createServerRouterHost() {
 	return {
 		host,
 		views,
-		attach(router: RouterInstance<any>) {
+		attach(router: RouterInstance<any>): void {
 			if (instance) {
 				throw new Error('Server router host is already attached')
 			}
 			instance = router
 		},
-		initialize(route: PreparedRouteMatch, content: RouterHostContent) {
+		initialize(route: PreparedRouteMatch, content: RouterHostContent): void {
 			if (!instance || views.getSnapshot().main) {
 				throw new Error('Server route is already initialized')
 			}
@@ -41,18 +56,18 @@ export function createServerRouterHost() {
 			}
 			views.set({ main: entry, modals: [] })
 		},
-		assertRendered() {
+		assertRendered(): void {
 			if (failed) {
 				throw failure
 			}
 		},
-		scope(flow: string) {
+		scope(flow: string): RouterRenderScope {
 			if (!instance) {
 				throw new Error('Server router host is not attached')
 			}
 			return createRouterRenderScope(instance, flow)
 		},
-		mount: (_flow: string) => () => {},
-		entryElement: (_id: string, _element: HTMLElement | null) => {},
+		mount: (_flow: string) => (): void => {},
+		entryElement: (_id: string, _element: HTMLElement | null): void => {},
 	}
 }

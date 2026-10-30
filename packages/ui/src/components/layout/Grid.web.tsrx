@@ -4,6 +4,7 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { gridTrackListToCss } from '../collections/grid-tracks'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 function columnsToCss(columns: GridProps['columns']): string | undefined {
 	if (columns == null) {
@@ -28,7 +29,7 @@ function columnsToCss(columns: GridProps['columns']): string | undefined {
 	return gridTrackListToCss(columns, 'columns')
 }
 
-export function Grid(props: GridProps) @{
+export function Grid(props: GridProps): JSX.Element @{
 	const rowTracks = gridTrackListToCss(props.rows, 'rows')
 	const columnTracks = columnsToCss(props.columns)
 
@@ -61,7 +62,7 @@ export function Grid(props: GridProps) @{
 
 /** GridSpan — a `Grid` child spanning tracks (Astryx). `columns="full"`
  *  spans every declared column (`grid-column: 1 / -1`). */
-export function GridSpan(props: GridSpanProps) @{
+export function GridSpan(props: GridSpanProps): JSX.Element @{
 	const col = props.columns
 	const row = props.rows
 

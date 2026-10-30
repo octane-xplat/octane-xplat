@@ -13,7 +13,7 @@ import './checkbox-control'
 import './Checkbox.windows.css'
 
 /** Shared list-item chrome with the same native input as CheckboxInput. */
-export function CheckboxListItem(props: CheckboxListItemProps) @{
+export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 	const ctx = useContext(CheckboxListContext)
 	const groupMode = props.value != null && ctx != null
 	const selected = ctx?.selected

@@ -17,7 +17,7 @@ import { View } from '../components/layout/View'
 import type { ThemeProps } from './Theme'
 export type { ThemeProps } from './Theme'
 
-export function Theme(props: ThemeProps) @{
+export function Theme(props: ThemeProps): unknown @{
 	const parent = useContext(ThemeContext)
 	const isNested = useContext(ThemeNestingContext)
 	const scheme = useThemeScheme()

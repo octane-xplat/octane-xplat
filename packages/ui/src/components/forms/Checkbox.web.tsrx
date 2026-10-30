@@ -8,13 +8,14 @@ import { announce } from '../../internal/accessibility/announce.web'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn checkbox following Astryx's CheckboxInput: a visually hidden
  *  native `<input type="checkbox">` under the drawn indicator, with the label
  *  and description beside it and a detached status below. The DOM
  *  `indeterminate` property carries the mixed state. Inside a FormField the
  *  field owns label/description/status, so the control renders bare. */
-export function Checkbox(inputProps: CheckboxProps) @{
+export function Checkbox(inputProps: CheckboxProps): JSX.Element @{
 	const { props, inField } = useFieldControl(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue ?? false)
 	const resolved = props.value ?? internal

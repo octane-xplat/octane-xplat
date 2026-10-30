@@ -287,7 +287,7 @@ function TimeInputControl(inputProps: CoreProps) @{
  * the `@octane-xplat/date-picker` leaf, not part of the shared control).
  * Arrow-key stepping has no touch equivalent — the typed field still parses.
  */
-export function TimeInput(props: TimeInputProps) @{
+export function TimeInput(props: TimeInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const effective = effectivePresentation(props.presentation)
 	const resolved = resolveInputSurface(effective, true)

@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Card — container with optional header/footer slots. */
-export function Card(props: CardProps) @{
+export function Card(props: CardProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

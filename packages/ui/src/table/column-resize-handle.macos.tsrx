@@ -12,7 +12,7 @@ export function AppKitColumnResizeHandle(props: {
 	width: number
 	direction: 'ltr' | 'rtl'
 	state: AppKitColumnResizeState
-}) @{
+}): unknown @{
 	const view = useRef<NSView | null>(null),
 		latest = useRef(props)
 

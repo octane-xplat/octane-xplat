@@ -16,7 +16,7 @@ const EMPTY_DRAFT: ChatComposerDraft = { text: '', tokens: [] }
  *  Legacy `value`/`onChange` string props still work and are kept in sync.
  *  Native note: no shadow/elevation or hover states — `elevation="none"`
  *  draws the border treatment; both map to the same surface on touch. */
-export function ChatComposer(props: ChatComposerProps) @{
+export function ChatComposer(props: ChatComposerProps): unknown @{
 	const placeholder = props.placeholder ?? 'Type a message…'
 	const isDisabled = props.isDisabled ?? false
 	const isStopShown = props.isStopShown ?? false

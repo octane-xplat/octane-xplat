@@ -16,7 +16,7 @@ import { usePan } from './pan'
  *  the driver's onX → eventName rule covers them generically. Payloads
  *  are normalized to the shared gesture shape (animation-gestures.md):
  *  { x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled' }. */
-export function View(props: ViewProps) @{
+export function View(props: ViewProps): unknown @{
 	const forwardedRef = useMemo(
 		() =>
 			refList((v: any) => {

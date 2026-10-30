@@ -7,12 +7,13 @@ import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { FormField } from './FormField.web.tsrx'
 import { InputGroupProvider } from './input-group-context'
 import { SizeProvider, useSize } from '../layout/size-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** InputGroup — a labeled, visually joined input surface: the `Field`
  *  carries label/description/status with `isGroupLabel` so the label ids
  *  feed the inner `role="group"` element's aria-labelledby; members read
  *  `useInputGroup()` and drop their own borders into the shared skin. */
-export function InputGroup(props: InputGroupProps) @{
+export function InputGroup(props: InputGroupProps): JSX.Element @{
 	const groupId = useId()
 	const labelId = `${groupId}-label`
 	const descriptionId = props.description != null ? `${groupId}-description` : undefined
@@ -76,7 +77,7 @@ export function InputGroup(props: InputGroupProps) @{
 /** InputGroupText — a prefix/suffix segment ('$', 'https://', units) inside
  *  an InputGroup. Non-interactive chrome; keeps the group's shared surface
  *  but only draws its own edge borders. */
-export function InputGroupText(props: InputGroupTextProps) @{
+export function InputGroupText(props: InputGroupTextProps): JSX.Element @{
 	const forwardedRef = useMemo(
 		() =>
 			refList((e: any) => {

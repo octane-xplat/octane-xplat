@@ -12,7 +12,7 @@ import { createClientRouteEntry, type ClientRouteEntry } from './client-route-en
 import { prepareHistoryEntry } from './prepare-history-entry'
 // oxlint-disable-next-line xplat/no-ts-imports-tsrx -- Compiled component value for owned roots; no hooks run here.
 import { ClientRouteView } from './ClientRouteView.tsrx'
-import { createRouterRenderScope } from './router-render-scope'
+import { createRouterRenderScope, type RouterRenderScope } from './router-render-scope'
 import { bindRouterFlow } from './router-instance'
 import { isNativeActivityBackEvent, registerNativeBackHandler } from './native-back-dispatcher'
 import { resolveNativePageTransition } from './native-route-transition'
@@ -84,7 +84,12 @@ export function createNativeRouterHost(options: {
 	isFlowActive?(flow: string): boolean
 	navigationTimeoutMs?: number
 	onOwnerEvent?(event: OwnerEvent): void
-}) {
+}): {
+	host: RouterHost
+	attach(router: RouterInstance<any>): void
+	scope(flow: string): RouterRenderScope
+	mount(flow: string, owner: ContentOwner): () => Promise<void>
+} {
 	const timeoutMs = options.navigationTimeoutMs ?? 15000
 	if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
 		throw new TypeError('Expected a positive native navigation timeout')
@@ -777,7 +782,7 @@ export function createNativeRouterHost(options: {
 	}
 	return {
 		host,
-		attach(router: RouterInstance<any>) {
+		attach(router: RouterInstance<any>): void {
 			if (instance || disposed) {
 				throw new Error('Native host cannot be attached')
 			}
@@ -824,7 +829,7 @@ export function createNativeRouterHost(options: {
 				},
 			})
 		},
-		scope(flow: string) {
+		scope(flow: string): RouterRenderScope {
 			if (!instance) {
 				throw new Error('Native host is not attached')
 			}
@@ -891,7 +896,7 @@ export function createNativeRouterHost(options: {
 			// the Frame to its base. Retain the wait until that restoration ends.
 			frame?.on('navigatedTo', ready)
 			ready()
-			return () => {
+			return (): Promise<void> => {
 				detachReady()
 				owners.delete(flow)
 				notify({ ownerDisposed: true, flow })

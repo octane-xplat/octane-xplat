@@ -2,6 +2,7 @@
 import type { ChatMessageBubbleProps } from '../props'
 import { styleRecord } from '../internal/layout/style-merge'
 import { useChatMessageContext } from './chat-context'
+import type { JSX } from 'octane/jsx-runtime'
 
 const renderable = (v: any) => v != null && v !== false && v !== true
 
@@ -9,7 +10,7 @@ const renderable = (v: any) => v != null && v !== false && v !== true
  *  the enclosing ChatMessage (or list defaults). `variant="ghost"` drops the
  *  background but keeps the padding so custom content stays column-aligned;
  *  `group` tightens sender-side corners between consecutive bubbles. */
-export function ChatMessageBubble(props: ChatMessageBubbleProps) @{
+export function ChatMessageBubble(props: ChatMessageBubbleProps): JSX.Element @{
 	const msgContext = useChatMessageContext()
 	const sender = msgContext?.sender ?? 'assistant'
 	const density = msgContext?.density ?? 'balanced'

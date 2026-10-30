@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { MenuSurface } from '../overlays/MenuSurface.web.tsrx'
 import { useDropdownMenuContext } from '../overlays/menu-context'
 import type { TopNavMenuItemData } from '../../props'
@@ -52,7 +53,7 @@ function navIcon(icon: any, size = 16) {
 /** TopNav — the app's top navigation bar. Three render modes: `default`
  *  (full bar), `mobile-bar` (heading + end + toggle, set by AppShell below
  *  the breakpoint), and `drawer` (content inside the MobileNav overlay). */
-export function TopNav(props: TopNavProps) @{
+export function TopNav(props: TopNavProps): JSX.Element @{
 	const renderMode = useTopNavRenderMode()
 	const mobileContent = useTopNavMobileContent()
 	const label = props.label ?? 'Top navigation'
@@ -113,7 +114,7 @@ export function TopNav(props: TopNavProps) @{
 
 /** TopNavHeading — the brand block: logo + heading link with optional
  *  super/subheading lines and an optional heading menu popover. */
-export function TopNavHeading(props: TopNavHeadingProps) @{
+export function TopNavHeading(props: TopNavHeadingProps): JSX.Element @{
 	const anchor = useRef<any>(null)
 	const [menuOpen, setMenuOpen] = useState(false)
 	const renderMode = useTopNavRenderMode()
@@ -415,7 +416,7 @@ export function TopNavMenu(
 
 /** TopNavMegaMenu — trigger opening a wide panel with an items grid plus an
  *  optional featured panel. */
-export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
+export function TopNavMegaMenu(props: TopNavMegaMenuProps): JSX.Element @{
 	const anchor = useRef<any>(null)
 	const [open, setOpen] = useState(false)
 	const delay = props.delay ?? 150
@@ -544,7 +545,9 @@ export function TopNavMegaMenuItem(
 
 /** TopNavMegaMenuFeaturedCard — the marketing card inside a mega menu's
  *  featured panel. */
-export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProps) @{
+export function TopNavMegaMenuFeaturedCard(
+	props: TopNavMegaMenuFeaturedCardProps,
+): JSX.Element @{
 	<div
 		ref={(el: any) => applyEscapeProps(el, props)}
 		id={props.id}

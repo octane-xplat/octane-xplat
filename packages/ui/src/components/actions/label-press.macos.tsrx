@@ -11,7 +11,7 @@ export function AppKitLabelPress(props: {
 	blocked: boolean
 	control(): NSView | null
 	press(): void
-}) @{
+}): unknown @{
 	const label = useRef<NSView | null>(null)
 	const release = useRef<(() => void) | null>(null)
 	const available = typeof appKitHost()?.suppressTabStop === 'function'
@@ -22,19 +22,37 @@ export function AppKitLabelPress(props: {
 		label.current = view
 		if (view && typeof appKitHost()?.suppressTabStop === 'function') {
 			const dispose = appKitHost()!.suppressTabStop(view)
-			if (typeof dispose !== 'function') throw new Error('AppKit label Tab-stop ownership unavailable')
+			if (typeof dispose !== 'function') {
+				throw new Error('AppKit label Tab-stop ownership unavailable')
+			}
+
 			release.current = dispose
 		}
+
 		previous?.window?.recalculateKeyViewLoop()
-		if (view !== previous) view?.window?.recalculateKeyViewLoop()
+		if (view !== previous) {
+			view?.window?.recalculateKeyViewLoop()
+		}
 	}, [])
-	<masonview ref={bind} accessible={false} className="vx-field-label-press--appkit"
-		onTap={!available || props.blocked ? undefined : () => {
-			const control = props.control()
-			if (!control) return
-			control.window?.makeFirstResponder(control)
-			props.press()
-		}}>
+
+	<masonview
+		ref={bind}
+		accessible={false}
+		className="vx-field-label-press--appkit"
+		onTap={
+			!available || props.blocked
+				? undefined
+				: () => {
+						const control = props.control()
+						if (!control) {
+							return
+						}
+
+						control.window?.makeFirstResponder(control)
+						props.press()
+					}
+		}
+	>
 		{props.children}
 	</masonview>
 }

@@ -2,9 +2,10 @@
 import type { ProgressGroupProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Meter } from './Meter.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** ProgressGroup — stacked labeled Meter rows. */
-export function ProgressGroup(props: ProgressGroupProps) @{
+export function ProgressGroup(props: ProgressGroupProps): JSX.Element @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

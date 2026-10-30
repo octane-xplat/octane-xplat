@@ -3,12 +3,13 @@ import type { StatusDotProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
 import { isRenderable } from '../../internal/rendering/is-renderable'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** StatusDot — an 8px colored status signal. Non-focusable `role="img"` with
  *  `aria-label` so the status reaches screen readers without hover. `icon`
  *  paints in the variant's on-color inside an aria-hidden span; `isPulsing`
  *  animates (reduced-motion users get the still dot). */
-export function StatusDot(props: StatusDotProps) @{
+export function StatusDot(props: StatusDotProps): JSX.Element @{
 	const dot = (
 		<span
 			ref={(e: any) => applyEscapeProps(e, props)}

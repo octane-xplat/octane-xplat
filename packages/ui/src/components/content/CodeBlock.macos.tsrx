@@ -15,7 +15,7 @@ import { syntaxColor } from '../../markdown/code-tokenizer'
  *  FormattedString spans, so per-token coloring renders as a single-color
  *  mono line unless the token map supplies a concrete override (documented
  *  coverage gap: fine-grained syntax colors are web/mobile only). */
-export function CodeBlock(props: CodeBlockProps) @{
+export function CodeBlock(props: CodeBlockProps): unknown @{
 	const scheme = getColorScheme()
 	const language = props.language ?? 'plaintext'
 	const hasLanguageLabel = props.hasLanguageLabel ?? true

@@ -20,7 +20,7 @@ function TooltipPanel(props: { body?: any; className?: any; style?: any }) @{
  *  `.mobile` passthrough; bridge-absent targets (Windows) render the
  *  trigger only. The content renders once at open (the popup root is a
  *  separate tree — no shared context). */
-export function Tooltip(props: TooltipProps) @{
+export function Tooltip(props: TooltipProps): unknown @{
 	const anchor = useRef<any>(null)
 	const popup = useRef<any>(null)
 	const detachHover = useRef<(() => void) | null>(null)

@@ -70,7 +70,7 @@ function NativeCodeLine(props: {
  *  so the block fills its parent width). `maxHeight` wraps the body in a
  *  vertical ScrollView; unwrapped long lines clip rather than scroll
  *  horizontally (documented limitation — NS ScrollView is single-axis). */
-export function CodeBlock(props: CodeBlockProps) @{
+export function CodeBlock(props: CodeBlockProps): unknown @{
 	const scheme = useColorScheme()
 	const language = props.language ?? 'plaintext'
 	const hasLanguageLabel = props.hasLanguageLabel ?? true

@@ -13,6 +13,7 @@ import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar.web.tsrx'
 import { formatDateValue, resolveLocale } from './datetime'
 import { isDateRangeAllowed } from './calendar-core'
+import type { JSX } from 'octane/jsx-runtime'
 
 const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
 
@@ -234,7 +235,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 /** Date-range entry — trigger + popover with a range Calendar (and optional
  *  `presets` column). `value`/`onChange` use `DateRange`; emits `null`
  *  when cleared. */
-export function DateRangeInput(props: DateRangeInputProps) @{
+export function DateRangeInput(props: DateRangeInputProps): JSX.Element @{
 	const inField = useContext(FieldContext) != null
 	const cid = useId()
 	const control = <RangeControl {...props} />

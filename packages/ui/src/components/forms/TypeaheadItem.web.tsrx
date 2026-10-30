@@ -4,11 +4,14 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { SearchableItem, TypeaheadItemProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Default option content for typeahead dropdowns — label with an optional
  *  leading icon and supporting description. `item.element` wins when set.
  *  Exported for use in custom `renderItem` implementations. */
-export function TypeaheadItem<T extends SearchableItem>(props: TypeaheadItemProps<T>) @{
+export function TypeaheadItem<T extends SearchableItem>(
+	props: TypeaheadItemProps<T>,
+): JSX.Element @{
 	if (props.item.element != null) {
 		return <>{props.item.element}</>
 	}

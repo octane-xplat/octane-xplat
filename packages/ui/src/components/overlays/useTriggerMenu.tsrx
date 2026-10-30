@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { UseTriggerMenuResult } from './use-trigger-menu-result'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type { ChatComposerTrigger, ChatComposerTriggerItem } from '../../props'
@@ -74,7 +75,7 @@ function TriggerMenuItems(props: TriggerMenuItemsProps) @{
 	}
 }
 
-export function ChatTriggerMenuOverlay(props: TriggerMenuOverlayProps) @{
+export function ChatTriggerMenuOverlay(props: TriggerMenuOverlayProps): unknown @{
 	<Popover
 		anchor={props.anchor}
 		open={props.state.isActive}
@@ -132,7 +133,7 @@ function findActiveTrigger(
  *  trigger's source (debounced when async), anchor a Popover to the field,
  *  tap to select. Hardware-keyboard arrow navigation isn't wired — the
  *  highlighted index still tracks for consumers that drive it. */
-export function useTriggerMenu(options: UseTriggerMenuOptions) {
+export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuResult {
 	const { triggers, hostRef, onInsertToken, onInsertText, onEmitChange, debounceMs = 150 } = options
 
 	const listboxId = useId()

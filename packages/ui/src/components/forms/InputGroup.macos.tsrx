@@ -11,7 +11,7 @@ import { SizeProvider, useSize } from '../layout/size-context'
 
 /** InputGroup — labeled joined input surface; members flatten their own
  *  chrome via `useInputGroup()`. */
-export function InputGroup(props: InputGroupProps) @{
+export function InputGroup(props: InputGroupProps): unknown @{
 	const groupId = useId()
 	const size = useSize(props.size, 'md')
 	const group = { isDisabled: props.isDisabled, size }
@@ -64,7 +64,7 @@ export function InputGroup(props: InputGroupProps) @{
 	</FormField>
 }
 
-export function InputGroupText(props: InputGroupTextProps) @{
+export function InputGroupText(props: InputGroupTextProps): unknown @{
 	const forwardedRef = useMemo(
 		() =>
 			refList((v: any) => {

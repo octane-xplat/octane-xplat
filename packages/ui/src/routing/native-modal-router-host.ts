@@ -12,9 +12,30 @@ import {
 
 import { applyThemeClasses } from '../theme/theme-host'
 import { modalPresenter } from '../components/overlays/modal-presenter'
-import type { RouteTransitionResult } from '../props'
+import type { RouterInstance, RouterHost, RouteTransitionResult, Store } from '../props'
 import { bindRouterFlow } from './router-instance'
 import { isNativeActivityBackEvent, registerNativeBackHandler } from './native-back-dispatcher'
+import type { RenderRouterHost } from './render-router-host'
+import type { ContentOwner } from '../components/overlays/owned-content'
+import type { RouterRenderScope } from './router-render-scope'
+
+export type NativeModalRouterHost = {
+	setFlowActive(flow: string, active: boolean): void
+	attach(router: Parameters<(router: RouterInstance<any, any, any>) => void>[0]): void
+	getModalView(flow: string): GridLayout | undefined
+	host: RouterHost
+	scope(flow: string): RouterRenderScope
+	mount(flow: string, owner: ContentOwner): () => void | Promise<void>
+	getRenderHost?(flow: string): RenderRouterHost | undefined
+	isModalFlow?(flow: string): boolean
+	modals: Store<
+		readonly {
+			flow: string
+			presenterFlow: string
+		}[]
+	>
+	getSurface(flow: string): RouterModalSurface | undefined
+}
 
 type Shown = Awaited<ReturnType<RouterModalSurface['show']>>
 /** SDK surface lifecycle is separate from renderer receipts and routed history. */
@@ -230,7 +251,7 @@ export function createNativeModalRouterHost(
 		frameFlows?: readonly string[]
 		onCleanupError?(error: unknown): void
 	},
-) {
+): NativeModalRouterHost {
 	const timeout = options.modalTimeoutMs ?? 15000
 	if (!Number.isFinite(timeout) || timeout <= 0) {
 		throw new TypeError('Expected a positive modal timeout')
@@ -277,10 +298,10 @@ export function createNativeModalRouterHost(
 	}
 	return {
 		...platform,
-		setFlowActive(flow: string, active: boolean) {
+		setFlowActive(flow: string, active: boolean): void {
 			activeFlows.set(flow, { active, order: ++activationOrder })
 		},
-		attach(router: Parameters<typeof platform.attach>[0]) {
+		attach(router: RouterInstance<any, any, any>): void {
 			platform.attach(router)
 			detachPaneBack = registerNativeBackHandler(
 				{},

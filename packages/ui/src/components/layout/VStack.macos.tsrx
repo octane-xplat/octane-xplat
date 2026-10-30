@@ -3,7 +3,7 @@ import type { VStackProps } from '../../props'
 import { Stack } from './layout.macos.tsrx'
 
 /** Vertical flow stack — `Stack` with `direction="vertical"`. */
-export function VStack(props: VStackProps) @{
+export function VStack(props: VStackProps): unknown @{
 	return (
 		<Stack
 			{...props}

@@ -13,7 +13,7 @@ import { SegmentedControlContext } from './option-list-contexts'
 /** `SegmentedControlItem` — one segment inside a `SegmentedControl`
  *  (Astryx child part). Reads selected state from the group context;
  *  standalone renders a presentational segment. */
-export function SegmentedControlItem(props: SegmentedControlItemProps) @{
+export function SegmentedControlItem(props: SegmentedControlItemProps): unknown @{
 	const ctx = useContext(SegmentedControlContext)
 	const selected = typeof ctx?.selected === 'string' && ctx.selected === props.value
 	const disabled = Boolean(ctx?.isDisabled || props.isDisabled)

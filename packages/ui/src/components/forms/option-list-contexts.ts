@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 
 /** Shared selection-group context for the Astryx child parts
  *  (`RadioListItem`, `CheckboxListItem`, `SegmentedControlItem`, `Step`).
@@ -16,9 +16,14 @@ export interface OptionListContextValue {
 	size?: 'sm' | 'md' | 'lg'
 }
 
-export const RadioListContext = createContext<OptionListContextValue | null>(null)
-export const CheckboxListContext = createContext<OptionListContextValue | null>(null)
-export const SegmentedControlContext = createContext<OptionListContextValue | null>(null)
+export const RadioListContext: Context<OptionListContextValue | null> =
+	createContext<OptionListContextValue | null>(null)
+
+export const CheckboxListContext: Context<OptionListContextValue | null> =
+	createContext<OptionListContextValue | null>(null)
+
+export const SegmentedControlContext: Context<OptionListContextValue | null> =
+	createContext<OptionListContextValue | null>(null)
 
 export interface StepperContextValue {
 	activeStep?: number
@@ -27,7 +32,8 @@ export interface StepperContextValue {
 	indicatorPosition?: 'off-track' | 'on-track'
 }
 
-export const StepperContext = createContext<StepperContextValue | null>(null)
+export const StepperContext: Context<StepperContextValue | null> =
+	createContext<StepperContextValue | null>(null)
 
 export const RadioListProvider: any = RadioListContext
 export const CheckboxListProvider: any = CheckboxListContext

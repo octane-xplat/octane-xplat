@@ -4,10 +4,11 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { IndicatorProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** RadioIndicator — decorative circle (20/24px); a filled dot appears when
  *  checked. `aria-hidden`; `children` replaces the dot. */
-export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
+export function RadioIndicator(props: IndicatorProps<'singleSelection'>): JSX.Element @{
 	const size = props.size ?? 'md'
 	const content =
 		props.children != null ? (

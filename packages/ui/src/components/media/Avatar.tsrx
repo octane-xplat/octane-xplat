@@ -24,7 +24,7 @@ const initials = (name: string) => {
 }
 
 /** AvatarStatusDot — status dot overlay part (Astryx). */
-export function AvatarStatusDot(props: AvatarStatusDotProps) @{
+export function AvatarStatusDot(props: AvatarStatusDotProps): unknown @{
 	<masonview
 		id={props.id}
 		className={cx(
@@ -37,7 +37,7 @@ export function AvatarStatusDot(props: AvatarStatusDotProps) @{
 	/>
 }
 
-export function Avatar(props: AvatarProps) @{
+export function Avatar(props: AvatarProps): unknown @{
 	const size = px(props.size)
 	const box = { width: size, height: size, borderRadius: size / 2 }
 	const label = props.alt ?? props.name

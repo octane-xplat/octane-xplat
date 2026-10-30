@@ -11,7 +11,7 @@ import { Pressable } from '../actions/Pressable'
 /** InputNumber — normalized number field with −/+ steppers. Controlled via
  *  `value`/`onValueChange`, uncontrolled via `defaultValue`. Steppers clamp
  *  to `min`/`max`. */
-export function InputNumber(props: InputNumberProps) @{
+export function InputNumber(props: InputNumberProps): unknown @{
 	const size = useSize(props.size, 'md')
 	const [internal, setInternal] = useState(props.defaultValue)
 	const controlled = props.value !== undefined

@@ -32,7 +32,7 @@ const MIN_WIDTHS: Record<string, number> = { sm: 168, md: 200, lg: 240 }
  *  Native leaf: a plain item column — arrow/typeahead keyboard navigation
  *  is a pointer-platform behavior; item activation fires `onClick` +
  *  closes the parent menu. */
-export function NavHeadingMenu(props: NavHeadingMenuProps) @{
+export function NavHeadingMenu(props: NavHeadingMenuProps): unknown @{
 	const closeCtx = useContext(NavHeadingCloseContext)
 	const closeMenu = closeCtx?.closeMenu
 	const size = props.size ?? 'md'

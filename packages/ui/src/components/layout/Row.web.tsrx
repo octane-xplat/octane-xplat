@@ -5,7 +5,8 @@ import type { RowProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps } from './layout-child.web'
 import { usePan } from './pan.web.tsrx'
-export function Row(props: RowProps) @{
+import type { JSX } from 'octane/jsx-runtime'
+export function Row(props: RowProps): JSX.Element @{
 	const el = useRef<HTMLElement | null>(null)
 	usePan(el, props.onPan)
 

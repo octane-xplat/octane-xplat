@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useContext } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { SafeAreaProps } from '../../props'
@@ -24,7 +25,7 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
 	}
 }
 
-export function SafeArea(props: SafeAreaProps) @{
+export function SafeArea(props: SafeAreaProps): JSX.Element @{
 	const measured = useSafeAreaInsets()
 	const ancestor = useContext(ConsumedInsetsContext)
 	const edges = resolveSafeAreaEdges(props.edges, props.ignoreSafeArea)

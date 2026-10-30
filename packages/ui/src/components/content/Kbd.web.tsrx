@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { KbdProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')
 const aliases: Record<string, string> = {
@@ -36,7 +37,7 @@ function keyCaps(keys: string): string[] {
 /** Kbd — keyboard key glyph. `keys="mod+shift+p"` renders one cap per
  *  chord segment; `children` render verbatim when `keys` is unset
  *  (Astryx `Kbd`). */
-export function Kbd(props: KbdProps) @{
+export function Kbd(props: KbdProps): JSX.Element @{
 	@if (props.keys != null) {
 		<span
 			ref={(e: any) => applyEscapeProps(e, props)}

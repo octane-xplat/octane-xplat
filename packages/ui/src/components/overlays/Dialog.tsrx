@@ -112,7 +112,7 @@ function DialogInline(props: DialogProps) @{
  *  `purpose` maps to shade `tapToClose` (Android back is not blockable through RootLayout —
  *  documented deviation). Focus restoration has no direct equivalent;
  *  `finalFocusRef` calls the target's focus method when the declaration closes. */
-export function Dialog(props: DialogProps) @{
+export function Dialog(props: DialogProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {
@@ -232,7 +232,7 @@ export function Dialog(props: DialogProps) @{
 }
 
 /** Dialog title row (Astryx `DialogHeader`), native leaf. */
-export function DialogHeader(props: DialogHeaderProps) @{
+export function DialogHeader(props: DialogHeaderProps): unknown @{
 	const ctx = useContext(DialogContext) // provider membership supplies the title id on web and the shared close request.
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 

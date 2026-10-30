@@ -21,7 +21,7 @@ export class LiquidGlassView extends NSLiquidGlass {
 		GridLayout.prototype.onMeasure.call(this, widthMeasureSpec, heightMeasureSpec)
 	}
 
-	createNativeView() {
+	createNativeView(): globalThis.UIVisualEffectView {
 		const view = super.createNativeView() as UIVisualEffectView
 		if (!Utils.supportsGlass()) {
 			view.effect = UIBlurEffect.effectWithStyle(SYSTEM_MATERIAL_BLUR_STYLE)

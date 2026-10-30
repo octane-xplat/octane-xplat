@@ -3,7 +3,12 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import type { OutlineProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { useColorScheme } from '../../theme/colorScheme'
 import { accentColor, mutedColor, textColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
@@ -36,7 +41,7 @@ function findScroller(view: any): any {
  *  listens to the resolved scroller's 'scroll' event and activates the
  *  last heading above the offset edge; activation calls
  *  `scrollTo({ top, behavior: 'smooth' })`. */
-export function Outline(props: OutlineProps) @{
+export function Outline(props: OutlineProps): unknown @{
 	const items = props.items ?? []
 	const label = props.label ?? DEFAULT_LABEL
 	const density = props.density ?? 'default'

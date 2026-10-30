@@ -110,7 +110,7 @@ function TokenizerToken(props: {
 
 /** AppKit token entry with current controlled selection and empty-input
  * Backspace removal. Native key/IME/focus and overflow layout remain unqualified. */
-export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) @{
+export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>): unknown @{
 	const props = useFieldControlProps(inProps)
 	const live = useRef(props)
 	live.current = props

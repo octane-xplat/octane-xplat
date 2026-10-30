@@ -10,7 +10,7 @@ import { TextInput } from './text-controls.macos.tsrx'
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when every cell is filled. `secure` masks each cell. */
-export function PinInput(inputProps: PinInputProps) @{
+export function PinInput(inputProps: PinInputProps): unknown @{
 	const { props, inField } = useFieldControl(inputProps)
 	const generatedID = useId()
 	const controlID = props.id ?? generatedID

@@ -7,6 +7,7 @@ import { cx } from '@octane-xplat/lib'
 import { useFieldControl, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Multiline input — <textarea> inside the bordered box. `autoGrow` re-fits
  *  height to content after input and value updates via scrollHeight, capped by
@@ -15,7 +16,7 @@ import { STATUS_ICON_PATHS } from '../../theme/status-icons'
  *  measure lands pre-paint in the commit that wrote `value`. Deps are explicit
  *  — tsrx infers them from the closure's reads otherwise, and `props.value`
  *  (the thing that changes the height) isn't read inside. */
-export function TextArea(inputProps: TextAreaProps) @{
+export function TextArea(inputProps: TextAreaProps): JSX.Element @{
 	const { inField } = useFieldControl(inputProps)
 	const generatedId = useId()
 	const controlId = inputProps.id ?? generatedId

@@ -4,7 +4,12 @@ import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ListItemProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { useListContext } from './list-context'
 import { followHref } from '../navigation/nav-href'
 
@@ -20,7 +25,7 @@ interface DelegateTarget {
  *  (tap event → click → focus, whichever the bound node supports).
  *  `href` navigates through the deep-link table first, then opens the URL
  *  externally. */
-export function ListItem(props: ListItemProps) @{
+export function ListItem(props: ListItemProps): unknown @{
 	const ctx = useListContext()
 	const interactive = props.onPress != null || props.href != null
 	const density = ctx.density

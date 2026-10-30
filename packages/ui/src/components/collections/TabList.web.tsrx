@@ -13,6 +13,7 @@ import { Popover } from '../overlays/Popover.web.tsrx'
 import { followHref } from '../navigation/nav-href.web'
 import { TabListContext, TabListProvider } from '../navigation/nav-contexts'
 import { useListFocus } from './list-focus.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 export { TabListContext }
 export { useTabListContext } from '../navigation/nav-contexts'
@@ -32,7 +33,7 @@ function navIcon(icon: any, size: number) {
  *  A `<nav>` landmark by default; `role="tablist"` switches to the WAI-ARIA
  *  tabs pattern. Owns roving-tabindex arrow navigation and horizontal
  *  overflow scrolling with edge fades + arrow affordances. */
-export function TabList(props: TabListProps) @{
+export function TabList(props: TabListProps): JSX.Element @{
 	const size = useSize(props.size, 'md')
 	const overflow = props.overflow ?? 'auto'
 	const hasScroll = overflow !== 'visible'
@@ -348,7 +349,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 
 /** TabMenu — overflow trigger inside a TabList; opens a menu of extra tab
  *  options. The selected option's label becomes the trigger text. */
-export function TabMenu(props: TabMenuProps) @{
+export function TabMenu(props: TabMenuProps): JSX.Element @{
 	const ctx = useContext(TabListContext)
 	if (ctx == null) {
 		throw new Error('TabMenu must be used within a TabList.')

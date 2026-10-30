@@ -9,7 +9,7 @@ import { Pressable } from '../actions/Pressable.macos.tsrx'
 /** Self-drawn collapsible — `trigger` toggles `children` between shown and
  *  hidden (unmounted). Controlled via `open`/`onOpenChange`, uncontrolled
  *  via `defaultOpen`. */
-export function Collapsible(props: CollapsibleProps) @{
+export function Collapsible(props: CollapsibleProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const controlled = props.open !== undefined
 	const open = controlled ? props.open : internal

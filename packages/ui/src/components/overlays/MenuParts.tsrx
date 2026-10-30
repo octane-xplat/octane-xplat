@@ -30,7 +30,7 @@ import { Separator } from '../feedback/Separator'
 import { Popover } from './Popover'
 import { MenuSurface } from './MenuSurface'
 
-export function DropdownMenuItem(props: MenuItemProps) @{
+export function DropdownMenuItem(props: MenuItemProps): unknown @{
 	const menu = useDropdownMenuContext()
 	if (!menu) {
 		throw new Error(
@@ -71,7 +71,7 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 	</Pressable>
 }
 
-export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
+export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps): unknown @{
 	const menu = useDropdownMenuContext()
 	if (!menu) {
 		throw new Error(
@@ -114,7 +114,7 @@ export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
 	</Pressable>
 }
 
-export function DropdownMenuRadioGroup(props: MenuRadioGroupProps) @{
+export function DropdownMenuRadioGroup(props: MenuRadioGroupProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultValue)
 	const context: MenuRadioGroupProps = {
 		get value() {
@@ -147,7 +147,7 @@ export function DropdownMenuRadioGroup(props: MenuRadioGroupProps) @{
 	</View>
 }
 
-export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
+export function DropdownMenuRadioItem(props: MenuRadioItemProps): unknown @{
 	const group = useContext(MenuRadioContext)
 	const menu = useDropdownMenuContext()
 	if (!group) {
@@ -201,16 +201,16 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 	</Pressable>
 }
 
-export function DropdownMenuSeparator(props: MenuSeparatorProps) @{
+export function DropdownMenuSeparator(props: MenuSeparatorProps): unknown @{
 	<Separator {...props} />
 }
 
 /** @deprecated Use `DropdownMenuSeparator`. */
-export function DropdownMenuDivider(props: MenuSeparatorProps) @{
+export function DropdownMenuDivider(props: MenuSeparatorProps): unknown @{
 	<DropdownMenuSeparator {...props} />
 }
 
-export function DropdownMenuSection(props: MenuSectionProps) @{
+export function DropdownMenuSection(props: MenuSectionProps): unknown @{
 	<View id={props.id} accessibilityRole="group" accessibilityLabel={props.label}>
 		{props.children}
 	</View>
@@ -355,7 +355,9 @@ const MenuSubMenuView = DropdownMenuSubMenu as (
 ) => any
 
 /** Render data through the same stateful components as compound content. */
-export function MenuData(props: { items?: readonly MenuOptionImplementation[] }) @{
+export function MenuData(props: {
+	items?: readonly MenuOptionImplementation[]
+}): unknown @{
 	<>
 		{props.items?.map((item) =>
 			item.type === 'separator' ? (

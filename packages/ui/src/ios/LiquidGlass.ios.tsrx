@@ -13,7 +13,7 @@ registerElement('liquidglass', LiquidGlassView)
 /** System material blur before iOS 26; native glass on iOS 26+.
  *  Glass touch tracking is opt-in to avoid the reported child interception path.
  *  Explicit interactive glass with children still needs device qualification. */
-export function LiquidGlass(props: LiquidGlassProps) @{
+export function LiquidGlass(props: LiquidGlassProps): unknown @{
 	<liquidglass
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}

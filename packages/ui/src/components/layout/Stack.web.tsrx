@@ -7,11 +7,12 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { resolveStackLayout, stackWebStyle } from './stack-layout'
 import { usePan } from './pan.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Astryx flow Stack — flex container in `direction`, `hAlign`/`vAlign`
  *  mapped to main/cross axes, spacing-step gap/padding. Children that need
  *  to overlap belong in `Absolute` instead. */
-export function Stack(props: StackProps) @{
+export function Stack(props: StackProps): JSX.Element @{
 	const layout = resolveStackLayout(props)
 	const Tag: any = props.as ?? 'div'
 	const el = useRef<HTMLElement | null>(null)

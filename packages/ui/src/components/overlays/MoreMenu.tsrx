@@ -33,7 +33,7 @@ function popoverPlacement(placement?: MoreMenuPlacement): any {
  *
  * @see MoreMenuProps, MenuActionData.
  */
-export function MoreMenu(props: MoreMenuProps) @{
+export function MoreMenu(props: MoreMenuProps): unknown @{
 	const [localOpen, setLocalOpen] = useState(false)
 	const MenuItemView: any = Pressable
 	const open = props.isMenuOpen ?? localOpen

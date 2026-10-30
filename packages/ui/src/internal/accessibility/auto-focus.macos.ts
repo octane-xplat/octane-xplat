@@ -16,7 +16,11 @@ const enabled = (view: object, name: string) => {
 export function createAppKitAutoFocus(
 	options: { requested(): boolean; blocked(): boolean },
 	native: () => Host = () => globalThis,
-) {
+): {
+	update: () => void
+	bind(next: NSView | null): void
+	dispose(): void
+} {
 	type Request = {
 		view: NSView | null
 		window: any
@@ -210,7 +214,7 @@ export function createAppKitAutoFocus(
 			console.warn('[macos-autofocus] delayed observation unavailable', error)
 		}
 	}
-	const update = () => {
+	const update = (): void => {
 		if (disposed) {
 			return
 		}
@@ -233,7 +237,7 @@ export function createAppKitAutoFocus(
 	}
 	return {
 		update,
-		bind(next: NSView | null) {
+		bind(next: NSView | null): void {
 			if (disposed || view === next) {
 				return
 			}
@@ -245,7 +249,7 @@ export function createAppKitAutoFocus(
 			view = next
 			update()
 		},
-		dispose() {
+		dispose(): void {
 			disposed = true
 			cancel()
 			view = null

@@ -2,9 +2,10 @@
 import type { CardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Card — container with optional header/footer slots. */
-export function Card(props: CardProps) @{
+export function Card(props: CardProps): JSX.Element @{
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

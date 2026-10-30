@@ -3,6 +3,7 @@ import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatDictationButtonProps } from '../props'
 import { Icon } from '../components/media/Icon.web.tsrx'
 import { Button } from '../components/actions/Button.web.tsrx'
+import type { JSX } from 'octane/jsx-runtime'
 
 const BAR_COUNT = 5
 const BAR_MIN_SCALE = 0.08
@@ -16,7 +17,7 @@ const SIZE_CONFIG = {
  *  useSpeechRecognition result. Hidden by default when unsupported
  *  (`isHiddenWhenUnsupported`); while listening, a 5-band equalizer
  *  overlays the button and blends toward error color on clipping. */
-export function ChatDictationButton(props: ChatDictationButtonProps) @{
+export function ChatDictationButton(props: ChatDictationButtonProps): JSX.Element | null @{
 	const dictation = props.dictation
 	const size = props.size ?? 'md'
 	const hiddenUnsupported = props.isHiddenWhenUnsupported ?? true

@@ -6,7 +6,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 /** `FieldLabel` — standalone field label row (Astryx part): label text and
  *  required/optional marker; `labelTooltip` folds into the accessibility
  *  hint on native. */
-export function FieldLabel(props: FieldLabelProps) @{
+export function FieldLabel(props: FieldLabelProps): unknown @{
 	const text =
 		props.isRequired && !props.isOptional
 			? `${props.label} · Required`

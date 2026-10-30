@@ -11,7 +11,7 @@ import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
  *  column (each Field renders its own label row). The AppKit grid doesn't
  *  auto-assign columns, so 'horizontal' uses a wrapped row flow rather
  *  than equal-width columns. */
-export function FormLayout(props: FormLayoutProps) @{
+export function FormLayout(props: FormLayoutProps): unknown @{
 	const parent = useContext(FormLayoutContext)
 	const direction = props.direction ?? 'vertical'
 	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality

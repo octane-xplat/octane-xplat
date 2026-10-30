@@ -1,4 +1,4 @@
-import { createContext } from 'octane'
+import { createContext, type Context } from 'octane'
 
 /** Dialog-internal wiring: the header's title becomes the dialog's
  *  accessible name (web `aria-labelledby`) and the modal autofocus target.
@@ -15,7 +15,8 @@ export interface DialogContextValue {
 	requestClose?: (isOpen: boolean) => void
 }
 
-export const DialogContext = createContext<DialogContextValue | null>(null)
+export const DialogContext: Context<DialogContextValue | null> =
+	createContext<DialogContextValue | null>(null)
 
 /** JSX-provider form — the universal renderer's context is a callable
  *  rather than a `.Provider` member (same aliasing as FieldProvider). */

@@ -41,7 +41,7 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 /** AppKit search-as-you-type field with focus bootstrap and click selection.
  * Input-owned keyboard selection has a source path; native listbox AX remains incomplete.
  * The selected value uses a Token; disabledMessage uses the tooltip bridge. */
-export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>) @{
+export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>): unknown @{
 	const props = useFieldControlProps(inProps)
 	const size = useSize(props.size, 'md')
 	const inputId = useId()

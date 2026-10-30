@@ -117,7 +117,7 @@ export function createIconRegistry(): IconRegistry {
  * The default app-wide registry used by the legacy registration functions
  * and by icons rendered outside an IconRegistryProvider.
  */
-export const defaultIconRegistry = createIconRegistry()
+export const defaultIconRegistry: IconRegistry = createIconRegistry()
 
 /**
  * Register one icon glyph under a name for `Icon`/`icon` props.

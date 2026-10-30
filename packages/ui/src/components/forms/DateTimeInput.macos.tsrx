@@ -912,7 +912,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 /** Combined date+time entry — typed date segment with calendar popover plus
  *  typed time segment (and a preset-time list when `timeOptionInterval` is
  *  set). On macOS every presentation resolves to this pointer surface. */
-export function DateTimeInput(props: DateTimeInputProps) @{
+export function DateTimeInput(props: DateTimeInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const cid = useId()
 	const control = <DateTimeInputControl {...props} />
