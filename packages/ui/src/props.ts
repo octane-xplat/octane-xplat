@@ -63,6 +63,7 @@ export type ElementComponent<P> = (props: P & Octane.Attributes) => Renderable
  * ```
  */
 export interface HostedComponentProps<TParams = unknown> {
+	/** Parameters forwarded to the hosted component when it is opened. */
 	params: TParams | undefined
 	close(result?: unknown): void
 }
@@ -90,14 +91,23 @@ export interface PanEvent {
 	/** Current point in the attached host's top-left logical coordinates.
 	 * Currently supplied by AppKit only; use dx/dy for portable dragging. */
 	locationX?: number
+	/** Vertical point in the attached host's top-left logical coordinates — AppKit only; prefer dx/dy for portable dragging. */
 	locationY?: number
+	/** Normalized horizontal position within the host (0–1). */
 	x: number
+	/** Normalized vertical position within the host (0–1). */
 	y: number
+	/** Horizontal translation since gesture start, in DIPs. */
 	dx: number
+	/** Vertical translation since gesture start, in DIPs. */
 	dy: number
+	/** Horizontal velocity in DIPs per second. */
 	vx: number
+	/** Vertical velocity in DIPs per second. */
 	vy: number
+	/** Gesture phase — began → moved → ended/cancelled. */
 	state: PanState
+	/** The host element the gesture is attached to. */
 	target: HostElement
 }
 
@@ -105,6 +115,7 @@ export interface PanEvent {
  * Swipe callbacks attach to native gesture-capable primitives; web does not
  * synthesize swipe events. Use onPan for portable dragging. */
 export interface SwipeEvent {
+	/** NativeScript direction bitmask: right=1, left=2, up=4, down=8. */
 	direction: 1 | 2 | 4 | 8
 }
 
@@ -133,12 +144,19 @@ export interface LayoutChildProps {
 	rowSpan?: number
 	/** Column tracks to span, >= 1. */
 	colSpan?: number
+	/** Dock edge inside a DockLayout parent; ignored elsewhere. */
 	dock?: 'left' | 'top' | 'right' | 'bottom'
+	/** Absolute x offset in a FixedLayout/AbsoluteLayout parent, in DIPs. */
 	left?: number
+	/** Absolute y offset in a FixedLayout/AbsoluteLayout parent, in DIPs. */
 	top?: number
+	/** Flex grow factor consumed by the parent container. */
 	flexGrow?: number
+	/** Flex shrink factor consumed by the parent container. */
 	flexShrink?: number
+	/** Per-child cross-axis alignment overriding the parent's alignItems. */
 	alignSelf?: string
+	/** Paint/layout order override consumed by the parent container. */
 	order?: number
 }
 
@@ -160,12 +178,15 @@ export type NativeModifier =
 
 /** Adds the native-only modifier escape hatch to an OS-backed widget's props. */
 export type PlatformWidgetProps<Props> = Props & {
+	/** Native modifier array applied after shared props (platform subpaths only). */
 	modifiers?: readonly NativeModifier[]
 }
 
 /** Native glyph names for the OS-authentic UI subpaths. */
 export interface PlatformIconChoice {
+	/** Icon name used on iOS/macOS. */
 	ios: string
+	/** Icon name used on Android. */
 	android: string
 }
 
@@ -174,11 +195,17 @@ export interface PlatformIconChoice {
  *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
  *  (GridLayout has no gap). */
 export interface FlexContainerProps {
+	/** Main-axis distribution for the container's children. */
 	justifyContent?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
+	/** Cross-axis alignment for the container's children. */
 	alignItems?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
+	/** Wrap behavior; `true` equals `wrap`. */
 	flexWrap?: boolean | 'wrap' | 'nowrap' | 'wrap-reverse'
+	/** Shorthand for rowGap + columnGap between children, in DIPs or CSS units. */
 	gap?: number | string
+	/** Vertical gap between wrapped rows. */
 	rowGap?: number | string
+	/** Horizontal gap between children. */
 	columnGap?: number | string
 }
 
@@ -187,10 +214,12 @@ export interface FlexContainerProps {
  *  backdrop-filter approximation. `variant:'clear'` is the faint,
  *  mostly-transparent glass; `'regular'` is Apple's default. */
 export interface GlassConfig {
+	/** Glass material — `clear` is faint/mostly transparent, `regular` is Apple's default; `identity`/`none` opt out. */
 	variant?: 'regular' | 'clear' | 'identity' | 'none'
 	/** Touch-tracking highlight — only meaningful on <LiquidGlass>; the
 	 *  per-view glass applied by `glass` never receives touches upstream. */
 	interactive?: boolean
+	/** Tint color blended into the glass material. */
 	tint?: string
 	/** (LiquidGlassContainer only) merge distance between glass siblings. */
 	spacing?: number
@@ -235,22 +264,33 @@ export type GridTrackList = string | readonly GridTrack[]
  *  tracks of at least `minWidth` dips. Web only; native leaves report a
  *  `[Grid]` diagnostic and fall back to a single 'auto' column. */
 export interface GridResponsiveColumns {
+	/** Minimum track width in DIPs before the column count steps down. */
 	minWidth: number
+	/** Upper bound on the generated column count. */
 	max?: number
+	/** `fill` packs as many tracks as fit; `fit` stretches fewer tracks to fill the row. */
 	repeat?: 'fill' | 'fit'
 }
 
 export interface GridProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Row track list — a CSS grid-template-rows string or GridTrack array. */
 	rows?: GridTrackList
 	/** Track grammar, a fixed column count (equal tracks), or a responsive
 	 *  `{minWidth}` rule (Astryx `columns`). */
 	columns?: GridTrackList | number | GridResponsiveColumns
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 }
 
@@ -260,14 +300,23 @@ export interface GridProps extends AccessibilityProps {
  *  the grid's declared column count (a `Grid`-parented child on web uses
  *  `grid-column: 1 / -1`). */
 export interface GridSpanProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Column span, or `full` to span every track. */
 	columns?: number | 'full'
+	/** Row span. */
 	rows?: number
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 }
 
@@ -302,24 +351,32 @@ export type StackWrap = 'nowrap' | 'wrap' | 'wrap-reverse'
 /** Padding props shared by the flow layout components. Per edge, most
  *  specific wins: edge → axis → `padding`. */
 export interface StackPaddingProps {
+	/** Uniform inner padding on the SpacingStep scale (×4 DIP). */
 	padding?: SpacingStep
 	/** Inline axis (horizontal in LTR). Overrides `padding` on both inline edges. */
 	paddingInline?: SpacingStep
 	/** Inline-start edge — left in LTR. Native maps logical edges to physical left/right. */
 	paddingInlineStart?: SpacingStep
+	/** End-edge inline padding; resolves against writing direction. */
 	paddingInlineEnd?: SpacingStep
 	/** Block axis (vertical). Overrides `padding` on both block edges. */
 	paddingBlock?: SpacingStep
+	/** Top block-edge padding. */
 	paddingBlockStart?: SpacingStep
+	/** Bottom block-edge padding. */
 	paddingBlockEnd?: SpacingStep
 }
 
 /** Explicit size constraints shared by the flow layout components. Numeric
  *  sizes are dips (CSS pixels on web); strings are CSS lengths used as-is. */
 export interface StackSizeProps {
+	/** Fixed width — number is DIPs, string is a CSS length. */
 	width?: SizeValue
+	/** Fixed height — number is DIPs, string is a CSS length. */
 	height?: SizeValue
+	/** Maximum width constraint. */
 	maxWidth?: SizeValue
+	/** Minimum height constraint. */
 	minHeight?: SizeValue
 }
 
@@ -343,26 +400,43 @@ export interface StackSizeProps {
  *  StackItemProps for per-child overrides, AbsoluteProps for overlap. */
 export interface StackProps
 	extends StackPaddingProps, StackSizeProps, AccessibilityProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** @default 'vertical' */
 	direction?: StackDirection
+	/** Horizontal alignment shorthand — main-axis in horizontal stacks, cross-axis in vertical. */
 	hAlign?: StackAlignment
+	/** Vertical alignment shorthand — cross-axis in horizontal stacks, main-axis in vertical. */
 	vAlign?: StackAlignment
+	/** Main-axis distribution along `direction`. */
 	justify?: StackMainAlignment
+	/** Cross-axis alignment of children. */
 	align?: StackCrossAlignment
+	/** Gap between children on the SpacingStep scale. */
 	gap?: SpacingStep
+	/** Wrap behavior when children overflow the main axis. */
 	wrap?: StackWrap
+	/** Wraps children in a scroll container when they overflow. */
 	isScrollable?: boolean
+	/** Host element override — render as a different element/component type. */
 	as?: ElementType
+	/** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
 	onPan?: (e: PanEvent) => void
+	/** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
 	onSwipe?: (e: SwipeEvent) => void
 }
 
@@ -388,13 +462,21 @@ export type StackItemSize = 'static' | 'fill'
  *  ```
  *  @see StackProps */
 export interface StackItemProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Cross-axis self alignment, overriding the stack's cross alignment. */
 	crossAlignSelf?: StackItemCrossAlignSelf
@@ -402,8 +484,11 @@ export interface StackItemProps extends AccessibilityProps {
 	size?: StackItemSize
 	/** overflow:auto on web; wraps in a ScrollView on native. */
 	isScrollable?: boolean
+	/** Host element override for the stack item wrapper. */
 	as?: ElementType
+	/** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
 	onPan?: (e: PanEvent) => void
+	/** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
 	onSwipe?: (e: SwipeEvent) => void
 }
 
@@ -421,7 +506,9 @@ export interface StackItemProps extends AccessibilityProps {
  * ```
  * @see StackProps, VStackProps. */
 export interface HStackProps extends Omit<StackProps, 'direction' | 'hAlign' | 'vAlign'> {
+	/** Main-axis alignment (horizontal distribution). */
 	hAlign?: StackMainAlignment
+	/** Cross-axis alignment (vertical). */
 	vAlign?: StackCrossAlignment
 }
 
@@ -438,7 +525,9 @@ export interface HStackProps extends Omit<StackProps, 'direction' | 'hAlign' | '
  * ```
  * @see StackProps, HStackProps. */
 export interface VStackProps extends Omit<StackProps, 'direction' | 'hAlign' | 'vAlign'> {
+	/** Cross-axis alignment (horizontal). */
 	hAlign?: StackCrossAlignment
+	/** Main-axis alignment (vertical distribution). */
 	vAlign?: StackMainAlignment
 }
 
@@ -456,12 +545,19 @@ export interface VStackProps extends Omit<StackProps, 'direction' | 'hAlign' | '
  * @see StackProps for flow layout, GridProps for tracks.
  */
 export interface AbsoluteProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 }
 
@@ -480,19 +576,30 @@ export interface AbsoluteProps extends AccessibilityProps {
  * ```
  * @see GlassConfig, LiquidGlassContainerProps. */
 export interface LiquidGlassProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** `regular` is the standard material; `clear` is the faint variant. */
 	variant?: 'regular' | 'clear'
 	/** iOS 26+ glass touch tracking. Default false; child touch behavior with
 	 * explicit true is not device-qualified. Earlier iOS uses system material blur. */
 	interactive?: boolean
+	/** Tint color blended into the glass. */
 	tint?: string
+	/** Effect-change animation in ms (default 300). */
 	animateChangeDuration?: number
+	/** Native modifier array applied after shared props. */
 	modifiers?: readonly NativeModifier[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -511,14 +618,23 @@ export interface LiquidGlassProps extends LayoutChildProps {
  * ```
  * @see LiquidGlassProps, GlassConfig. */
 export interface LiquidGlassContainerProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Merge distance in DIPs between glass siblings inside the container. */
 	spacing?: number
+	/** Native modifier array applied after shared props. */
 	modifiers?: readonly NativeModifier[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -537,11 +653,17 @@ export interface LiquidGlassContainerProps extends LayoutChildProps {
  * @see StackProps
  */
 export interface SpacerProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 }
 
@@ -560,11 +682,17 @@ export interface TestIDProps {
  *  below; containers and leaf components carry the same names so ARIA on
  *  web and NativeScript's accessibility properties stay aligned. */
 export interface AccessibilityProps {
+	/** Groups the subtree into a single accessibility element on native. */
 	accessible?: boolean
+	/** Accessible name announced by assistive technology in place of derived text. */
 	accessibilityLabel?: string
+	/** Semantic role (ARIA spelling; native maps e.g. `heading` → `header`). */
 	accessibilityRole?: Role
+	/** Describes the result of activating; announced after the label. */
 	accessibilityHint?: string
+	/** Current value text for adjustable/progress elements. */
 	accessibilityValue?: string
+	/** State flags reported to assistive technology (disabled, selected, checked, …). */
 	accessibilityState?: {
 		disabled?: boolean
 		selected?: boolean
@@ -577,6 +705,7 @@ export interface AccessibilityProps {
 		invalid?: boolean
 		required?: boolean
 	}
+	/** Politeness for announcing content changes — `none` keeps the region inert. */
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 }
 
@@ -594,17 +723,25 @@ export interface AccessibilityProps {
  */
 export interface ViewProps
 	extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
 	onPan?: (e: PanEvent) => void
+	/** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -612,17 +749,25 @@ export interface ViewProps
  */
 export interface RowProps
 	extends LayoutChildProps, FlexContainerProps, AccessibilityProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
 	onPan?: (e: PanEvent) => void
+	/** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -672,21 +817,35 @@ export type HeadingType = 'display-1' | 'display-2' | 'display-3'
  * @see HeadingProps, RichTextProps.
  */
 export interface TextProps extends LayoutChildProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Astryx type-scale slot (`--text-<type>-*` theme tokens); `inherit` keeps ambient typography. */
 	type?: TextType
+	/** Size override refining the `type` slot. */
 	size?: TextSize
+	/** Theme text color token. */
 	color?: TextColor
+	/** Font weight override. */
 	weight?: TextWeight
 	/** Line cap before ellipsis truncation; 0/unset = no truncation. */
 	maxLines?: number
+	/** Groups the text into a single accessibility element on native. */
 	accessible?: boolean
+	/** Optional explicit accessible name override for the text block. */
 	accessibilityLabel?: string
+	/** Semantic role override (rarely needed — Text infers `text`). */
 	accessibilityRole?: Role
+	/** Describes the result of interacting; announced after the label. */
 	accessibilityHint?: string
+	/** Value text reported to assistive technology. */
 	accessibilityValue?: string
+	/** State flags reported to assistive technology. */
 	accessibilityState?: {
 		disabled?: boolean
 		selected?: boolean
@@ -699,10 +858,13 @@ export interface TextProps extends LayoutChildProps, TestIDProps {
 		invalid?: boolean
 		required?: boolean
 	}
+	/** Politeness for announcing text changes (live regions on web). */
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -720,15 +882,21 @@ export interface TextProps extends LayoutChildProps, TestIDProps {
  * ```
  * @see RichTextSpanProps, TextProps. */
 export interface RichTextProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Optional explicit accessible name override for the text block. */
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -736,14 +904,21 @@ export interface RichTextProps extends LayoutChildProps {
  * native-safe escape hatch; a single string child is also accepted.
  * @see RichTextProps for the enclosing container and a composition example. */
 export interface RichTextSpanProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Literal text content of the span. */
 	text?: string
+	/** Makes the span a link — fires on activation. */
 	onPress?: () => void
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -760,27 +935,45 @@ export interface RichTextSpanProps {
  * @see ButtonProps, PanEvent.
  */
 export interface PressableProps extends LayoutChildProps, FlexContainerProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Prevents interaction and applies the disabled appearance. */
 	disabled?: boolean
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Pan gesture callback — fires through began/moved/ended/cancelled with translation and velocity. */
 	onPan?: (e: PanEvent) => void
+	/** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
 	onSwipe?: (e: SwipeEvent) => void
+	/** Activation callback — tap/click or keyboard activation. */
 	onPress?: () => void
 	/** ~500ms press-and-hold (web: timer over pointerdown/up). */
 	onLongPress?: () => void
+	/** Groups the subtree into a single accessibility element on native. */
 	accessible?: boolean
+	/** Accessible name announced by assistive technology. */
 	accessibilityLabel?: string
+	/** Semantic role override (defaults to `button` when onPress is set). */
 	accessibilityRole?: Role
+	/** Fires when the press starts (touch down), before activation. */
 	onPressIn?: () => void
+	/** Fires when the press is released, whether or not it activated. */
 	onPressOut?: () => void
+	/** Double-tap callback; may delay `onPress` while waiting for a second tap on platforms that serialize gestures. */
 	onDoublePress?: () => void
+	/** Extra touch target around the element in DIPs without changing layout. */
 	hitSlop?: number
+	/** Describes the result of activating; announced after the label. */
 	accessibilityHint?: string
+	/** Value text reported to assistive technology. */
 	accessibilityValue?: string
+	/** State flags reported to assistive technology. */
 	accessibilityState?: {
 		disabled?: boolean
 		selected?: boolean
@@ -793,10 +986,13 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
 		invalid?: boolean
 		required?: boolean
 	}
+	/** Politeness for announcing content changes. */
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -805,6 +1001,7 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
 export interface TextInputHandle {
 	focus(): void
 	blur(): void
+	/** The platform text-input host (DOM input / native field) — surfaces differ per platform. */
 	native: HostElement
 }
 
@@ -814,7 +1011,9 @@ export type FieldStatusType = 'warning' | 'error' | 'success'
 
 /** Portable validation status shared by field controls. */
 export interface FieldStatus {
+	/** Status tone — selects the icon and color treatment. */
 	type: FieldStatusType
+	/** Status text shown beside/below the field. */
 	message?: string
 }
 
@@ -840,20 +1039,29 @@ export type FieldStatusVariant = 'attached' | 'detached' | 'tooltip'
  *  @see TextInputProps for a concrete control and preferred composition,
  *  FieldStatus for the `status` shape. */
 export interface FieldControlProps {
+	/** Visible label text bound to the control. */
 	label?: string
+	/** Helper text under the label, above the control. */
 	description?: string
+	/** Keeps the label for assistive tech but removes it visually. */
 	isLabelHidden?: boolean
+	/** Prevents interaction and applies the disabled styling. */
 	isDisabled?: boolean
 	/** Why the field is disabled. Web shows it as a hover/focus tooltip on the
 	 *  control (which stays focusable via `aria-disabled`); native appends it
 	 *  to the control's accessibility hint instead. */
 	disabledMessage?: string
+	/** Shows the value without allowing edits. */
 	isReadOnly?: boolean
 	/** Indicates asynchronous work associated with the field. */
 	isLoading?: boolean
+	/** Marks the field required — adds the required affordance to the label. */
 	isRequired?: boolean
+	/** Marks the field optional (overrides the form's default marker). */
 	isOptional?: boolean
+	/** Control size on the shared FieldControlSize scale. */
 	size?: FieldControlSize
+	/** Validation/status message shown under the control. */
 	status?: FieldStatus
 	/** @default 'attached' */
 	statusVariant?: FieldStatusVariant
@@ -877,25 +1085,36 @@ export interface FieldControlProps {
  * @see FieldControlProps for the field vocabulary, TextAreaProps for multi-line, SearchInputProps for search.
  */
 export interface TextInputProps extends FieldControlProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Controlled text — pair with `onChange`. */
 	value?: string
 	/** Initial text for uncontrolled use; `value` wins when both are set. */
 	defaultValue?: string
+	/** Text shown while the field is empty. */
 	placeholder?: string
 	/** Reports the field's text after each user edit (and after `hasClear`).
 	 *  Programmatic `value` writes do not fire it. */
 	onChange?: (value: string) => void
 	/** Optional explicit accessible name override for the input. */
 	accessibilityLabel?: string
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TextInputHandle>
+	/** Masks input characters (password entry). */
 	secure?: boolean
+	/** Virtual keyboard variant requested on touch platforms. */
 	keyboardType?: 'default' | 'email' | 'number' | 'decimal' | 'phone' | 'url'
+	/** Label for the keyboard's submit/return key. */
 	returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send'
+	/** Fires when the field is submitted (return key). */
 	onSubmit?: () => void
+	/** Fires when the field gains focus. */
 	onFocus?: () => void
+	/** Fires when the field loses focus. */
 	onBlur?: () => void
 	/** Draw a clear action while the field has a value. Defaults to false. */
 	hasClear?: boolean
@@ -904,10 +1123,13 @@ export interface TextInputProps extends FieldControlProps, TestIDProps {
 	/** Leading glyph inside the input — a registered `IconName` or a node
 	 *  (Astryx `startIcon`). */
 	startIcon?: Renderable
+	/** Color for the placeholder text only. */
 	placeholderTextColor?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -959,8 +1181,11 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
  * ```
  * @see TextInputProps. */
 export interface SearchInputProps extends FieldControlProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Controlled text — pair with `onChange`. */
 	value?: string
@@ -973,18 +1198,26 @@ export interface SearchInputProps extends FieldControlProps, TestIDProps {
 	onSubmit?: () => void
 	/** The clear button tapped — fires after `onChange('')`. */
 	onClear?: () => void
+	/** Fires when the field gains focus. */
 	onFocus?: () => void
+	/** Fires when the field loses focus. */
 	onBlur?: () => void
+	/** Text shown while the field is empty. */
 	placeholder?: string
+	/** Shows a clear button that empties the query. */
 	hasClear?: boolean
 	/** Leading glyph — a registered icon name. Defaults to the built-in
 	 *  `'xplat-search'` glyph; `false` renders no glyph. */
 	icon?: IconName | false
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TextInputHandle>
+	/** Accessible name for the search field. */
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1020,21 +1253,28 @@ export type DayOfWeekName = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat
 
 /** Inclusive ISO date range. */
 export interface DateRange {
+	/** Inclusive range start (ISO date). */
 	start: ISODateString
+	/** Inclusive range end (ISO date). */
 	end: ISODateString
 }
 
 /** Quick-select range beside a `DateRangeInput` calendar. A preset is
  *  disabled when it violates min/max/dateConstraints or the span bounds. */
 export interface DateRangePreset {
+	/** Preset name shown in the picker. */
 	label: string
+	/** Computes the preset's range at selection time (evaluated lazily so relative presets stay current). */
 	getRange: () => DateRange
 }
 
 /** Immutable Gregorian calendar day — the unit all calendar math uses. */
 export interface PlainDate {
+	/** Full calendar year. */
 	readonly year: number
+	/** Calendar month, 1–12. */
 	readonly month: number
+	/** Day of month, 1–31. */
 	readonly day: number
 }
 
@@ -1083,21 +1323,37 @@ export interface CalendarHandle {
 /** App-owned translations for date-family chrome and state announcements.
  * Dates passed to message functions are already formatted in `locale`. */
 export interface DateInputMessages {
+	/** Accessible label for the previous-month button. */
 	previousMonth: string
+	/** Accessible label for the next-month button. */
 	nextMonth: string
+	/** Accessible label for opening the calendar popover. */
 	openCalendar: string
+	/** Accessible label for closing the calendar popover. */
 	closeCalendar: string
+	/** Accessible label for opening the time picker. */
 	openTimePicker: string
+	/** Accessible label for closing the time picker. */
 	closeTimePicker: string
+	/** Validation message for an unparseable date. */
 	invalidDate: string
+	/** Validation message for an unparseable time. */
 	invalidTime: string
+	/** Validation message for an unparseable date-time. */
 	invalidDateTime: string
+	/** Accessible announcement for a selected date. */
 	selected: (date: string) => string
+	/** Accessible announcement for a chosen range start. */
 	rangeStart: (date: string) => string
+	/** Accessible announcement for a chosen range end. */
 	rangeEnd: (date: string) => string
+	/** Accessible announcement for dates inside the selected range. */
 	inRange: (date: string) => string
+	/** Accessible announcement for a completed range. */
 	rangeSelected: (start: string, end: string) => string
+	/** Accessible announcement when the range is cleared. */
 	rangeCleared: string
+	/** Accessible announcement when the value is cleared. */
 	cleared: string
 }
 
@@ -1114,14 +1370,19 @@ export interface DateLocaleProps {
 }
 
 interface CalendarBaseProps extends DateLocaleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Receives `{ navigateTo }` for imperative month navigation. */
 	ref?: Octane.Ref<CalendarHandle>
 	/** Month panes shown side by side. @default 1 */
 	numberOfMonths?: 1 | 2
+	/** Earliest selectable date (inclusive, ISO). */
 	min?: ISODateString
+	/** Latest selectable date (inclusive, ISO). */
 	max?: ISODateString
 	/** Extra rules — a date is disabled when ANY callback returns false. The
 	 *  callback receives a local-midnight `Date`. */
@@ -1133,6 +1394,7 @@ interface CalendarBaseProps extends DateLocaleProps {
 	minRangeSpan?: number
 	/** Controlled visible month (any ISO day in it). */
 	focusDate?: ISODateString
+	/** Fires as the calendar's keyboard focus date moves. */
 	onFocusDateChange?: (focusDate: ISODateString) => void
 	/** Render adjacent-month pad days (dimmed, never interactive).
 	 *  @default true */
@@ -1145,14 +1407,18 @@ interface CalendarBaseProps extends DateLocaleProps {
 	/** First column of the week grid — number (0=Sun) or three-letter day
 	 *  name. @default 0 */
 	weekStartsOn?: DayOfWeek | DayOfWeekName
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Single-day `Calendar` — `value`/`defaultValue`/`onChange` carry one `ISODateString`; `onChange` also passes a local-midnight `Date` convenience. `mode` may be omitted (`'single'` is the default).
  */
 export interface CalendarSingleProps extends CalendarBaseProps {
+	/** Single-date selection mode discriminator. */
 	mode?: 'single'
 	/** A selected local calendar date, or `null` for an explicitly empty calendar. */
 	value?: ISODateString | null
@@ -1165,11 +1431,13 @@ export interface CalendarSingleProps extends CalendarBaseProps {
 /** Range `Calendar` — `mode="range"` is required; `value`/`defaultValue`/`onChange` carry an inclusive `DateRange`. `minRangeSpan`/`maxRangeSpan` bound the selectable span.
  */
 export interface CalendarRangeProps extends CalendarBaseProps {
+	/** Range selection mode discriminator. */
 	mode: 'range'
 	/** A selected local date range, or `null` for an explicitly empty calendar. */
 	value?: DateRange | null
 	/** Initial selected range; `null` starts with no selected range. */
 	defaultValue?: DateRange | null
+	/** Fires with the committed range (start may precede end only after both picks). */
 	onChange?: (value: DateRange) => void
 }
 
@@ -1264,35 +1532,53 @@ export type DateRangeInputStatusType = FieldStatusType
  * @see CalendarProps, DateRangeInputProps, InputPresentation.
  */
 export interface DateInputProps extends FieldControlProps, DateLocaleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Accessible name for the date field. */
 	accessibilityLabel?: string
+	/** Describes the calendar interaction; announced after the label. */
 	accessibilityHint?: string
 	/** Parent-owned committed value. Echo accepted edits in `onChange`;
 	 *  resets and corrections replace the displayed value. */
 	value?: ISODateString | null
+	/** Fires with the ISO date on commit; `null` when cleared. */
 	onChange?: (value: ISODateString | null) => void
 	/** Async follow-up after `onChange`; the field stays busy until it
 	 *  resolves. */
 	changeAction?: (value: ISODateString | null) => void | Promise<void>
+	/** Earliest selectable date (inclusive, ISO). */
 	min?: ISODateString
+	/** Latest selectable date (inclusive, ISO). */
 	max?: ISODateString
+	/** Extra predicates — a date failing any is unselectable. */
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
 	/** Closed-value format — a named shared format or a mapper from ISO.
 	 *  @default 'date_long' */
 	format?: DateInputFormat | ((iso: ISODateString) => string)
+	/** Shows a clear button that empties the field. */
 	hasClear?: boolean
+	/** Focuses the field on mount. */
 	hasAutoFocus?: boolean
+	/** Picker surface — popover calendar vs inline/native presentation. */
 	presentation?: DateInputPresentation
+	/** Text shown while the field is empty. */
 	placeholder?: string
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TextInputHandle>
 	/** Calendar popover pane count. Ignored by the `native` surface.
 	 *  @default 1 */
 	numberOfMonths?: 1 | 2
+	/** First weekday column in the calendar grid. */
 	weekStartsOn?: DayOfWeek | DayOfWeekName
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1311,21 +1597,32 @@ export interface DateInputProps extends FieldControlProps, DateLocaleProps {
  * @see DateInputProps, InputPresentation.
  */
 export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Accessible name for the time field. */
 	accessibilityLabel?: string
+	/** Describes the picker interaction; announced after the label. */
 	accessibilityHint?: string
 	/** Parent-owned committed value. Echo accepted edits in `onChange`;
 	 *  resets and corrections replace the displayed value. */
 	value?: ISOTimeString | null
+	/** Fires with the ISO time on commit; `null` when cleared. */
 	onChange?: (value: ISOTimeString | null) => void
+	/** Async commit hook — may return a Promise the control awaits before settling. */
 	changeAction?: (value: ISOTimeString | null) => void | Promise<void>
+	/** Earliest selectable time (ISO). */
 	min?: ISOTimeString
+	/** Latest selectable time (ISO). */
 	max?: ISOTimeString
 	/** Include a seconds segment. @default false */
 	hasSeconds?: boolean
+	/** Shows a clear button that empties the field. */
 	hasClear?: boolean
+	/** Focuses the field on mount. */
 	hasAutoFocus?: boolean
 	/** Display format of the closed field. @default '12h' */
 	hourFormat?: TimeInputHourFormat
@@ -1333,10 +1630,15 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 	increment?: number
 	/** @default 'adaptive-native' */
 	presentation?: TimeInputPresentation
+	/** Text shown while the field is empty. */
 	placeholder?: string
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TextInputHandle>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1353,22 +1655,31 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
  * @see DateInputProps, TimeInputProps.
  */
 export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Accessible name for the date-time field. */
 	accessibilityLabel?: string
+	/** Describes the picker interaction; announced after the label. */
 	accessibilityHint?: string
 	/** Parent-owned committed value. Echo accepted edits in `onChange`;
 	 *  resets and corrections replace the displayed value. */
 	value?: ISODateTimeString | null
+	/** Fires with the ISO date-time on commit; `null` when cleared. */
 	onChange: (value: ISODateTimeString | null) => void
+	/** Async commit hook — may return a Promise the control awaits before settling. */
 	changeAction?: (value: ISODateTimeString | null) => void | Promise<void>
 	/** Earliest selectable local date-time — constrains the calendar and (when
 	 *  the picked day equals `min`'s day) the time segment. */
 	min?: ISODateTimeString
 	/** Latest selectable local date-time. */
 	max?: ISODateTimeString
+	/** Extra predicates — a date failing any is unselectable. */
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
+	/** Includes a seconds segment in the time part. */
 	hasSeconds?: boolean
 	/** @default '12h' */
 	hourFormat?: DateTimeInputHourFormat
@@ -1379,7 +1690,9 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	 *  typing still accepts times between options. Pointer platforms only —
 	 *  touch sheets use wheels instead. */
 	timeOptionInterval?: DateTimeInputTimeOptionInterval
+	/** Shows a clear button that empties the field. */
 	hasClear?: boolean
+	/** Text shown while the field is empty. */
 	placeholder?: string
 	/** Time segment placeholder. @default "Select a time" */
 	timePlaceholder?: string
@@ -1387,12 +1700,17 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	timeLabel?: string
 	/** @default 'adaptive-native' */
 	presentation?: DateTimeInputPresentation
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TextInputHandle>
 	/** Calendar pane count on the popover/sheet surface. @default 1 */
 	numberOfMonths?: 1 | 2
+	/** First weekday column in the calendar grid. */
 	weekStartsOn?: DayOfWeek | DayOfWeekName
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1408,33 +1726,51 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
  * @see DateRange, DateRangePreset, CalendarProps.
  */
 export interface DateRangeInputProps extends FieldControlProps, DateLocaleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Accessible name for the range field. */
 	accessibilityLabel?: string
+	/** Describes the picker interaction; announced after the label. */
 	accessibilityHint?: string
 	/** Parent-owned committed value. Echo accepted edits in `onChange`;
 	 *  resets and corrections replace the displayed value. */
 	value: DateRange | null
+	/** Fires with the committed range; `null` when cleared. */
 	onChange: (value: DateRange | null) => void
+	/** Async commit hook — may return a Promise the control awaits before settling. */
 	changeAction?: (value: DateRange | null) => void | Promise<void>
+	/** Earliest selectable date (inclusive, ISO). */
 	min?: ISODateString
+	/** Latest selectable date (inclusive, ISO). */
 	max?: ISODateString
+	/** Extra predicates — a date failing any is unselectable. */
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
+	/** Longest selectable span in days. */
 	maxRangeSpan?: number
+	/** Shortest selectable span in days. */
 	minRangeSpan?: number
 	/** Quick ranges beside the calendar. Invalid endpoint/span selections
 	 *  are disabled; an accepted preset closes the picker. */
 	presets?: ReadonlyArray<DateRangePreset>
 	/** @default true */
 	hasClear?: boolean
+	/** Text shown while the field is empty. */
 	placeholder?: string
 	/** @default 2 */
 	numberOfMonths?: 1 | 2
+	/** First weekday column in the calendar grid. */
 	weekStartsOn?: DayOfWeek | DayOfWeekName
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TextInputHandle>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1459,19 +1795,24 @@ export interface RefreshProps {
 
 /** A logical row reported by a platform list's viewability callback. */
 export interface ListVisibleItem<T = unknown> {
+	/** The data item currently in the viewport. */
 	item: T
+	/** Index of the item in the data array. */
 	index: number
 }
 
 /** A change to the set of rows that meet the configured viewability rules. */
 export interface ListViewabilityChange<T = unknown> extends ListVisibleItem<T> {
+	/** Whether the item crossed into viewability (true) or out of it. */
 	isViewable: boolean
 }
 
 /** Current viewable rows and the rows that entered or left in this update.
  *  Both arrays are ordered by data index. */
 export interface ListViewabilityInfo<T = unknown> {
+	/** Snapshot of items meeting the viewability threshold. */
 	viewableItems: readonly ListVisibleItem<T>[]
+	/** Items whose viewability flipped since the last report. */
 	changed: readonly ListViewabilityChange<T>[]
 }
 
@@ -1479,7 +1820,9 @@ export interface ListViewabilityInfo<T = unknown> {
  *  long it must remain visible before it is reported. Defaults match the
  *  NativeScript feed contract: 50 percent for 250 milliseconds. */
 export interface ListViewabilityConfig {
+	/** Percent of the item that must be visible to count (0–100). */
 	itemVisiblePercentThreshold?: number
+	/** Dwell time in ms before a visible item counts as viewable. */
 	minimumViewTime?: number
 }
 
@@ -1502,11 +1845,17 @@ export interface PlatformListHandle {
  * @see VirtualListProps for the shared virtualized list.
  */
 export interface PlatformListProps<T = unknown> extends RefreshProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Data array rendered through `renderItem`. */
 	items: T[]
+	/** Renders one row; called per visible item. */
 	renderItem: (item: T, index: number) => Renderable
+	/** Rendered when `items` is empty. */
 	renderEmpty?: () => Renderable
 	/** Ref to a platform-neutral list handle. It is cleared on unmount. */
 	ref?: Octane.Ref<PlatformListHandle>
@@ -1516,6 +1865,7 @@ export interface PlatformListProps<T = unknown> extends RefreshProps {
 	/** Rows crossing the threshold and dwell time are reported by logical data
 	 *  index, not by recycled native cell identity. */
 	viewabilityConfig?: ListViewabilityConfig
+	/** Fires when the viewable set changes, honoring the configured thresholds. */
 	onViewableItemsChanged?: (info: ListViewabilityInfo<T>) => void
 	/** iOS row-height estimate (UITableView only). */
 	estimatedItemHeight?: number
@@ -1523,7 +1873,9 @@ export interface PlatformListProps<T = unknown> extends RefreshProps {
 	onEndReached?: () => void
 	/** Platform escape hatches, applied after the shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1574,7 +1926,9 @@ export interface ScrollAxisState {
 /** Live scroll state of a `ScrollableArea` viewport, keyed by logical axis (`inline`/`block`). Returned by `useScrollableArea` and readable for edge effects or scroll-affordance UI.
  */
 export interface ScrollableAreaState {
+	/** Scroll metrics for the inline axis (horizontal in LTR). */
 	inline: ScrollAxisState
+	/** Scroll metrics for the block axis (vertical). */
 	block: ScrollAxisState
 }
 
@@ -1585,7 +1939,9 @@ export interface UseScrollableAreaOptions {
 	axis?: ScrollAxis
 	/** Keyboard/tab-stop ownership. Web only. */
 	keyboardAccess?: ScrollKeyboardAccess
+	/** Overscroll behavior at content edges (contain/none/auto semantics). */
 	overscroll?: ScrollOverscroll
+	/** How sticky children are contained within the scroll viewport. */
 	stickyContainment?: ScrollStickyContainment
 }
 
@@ -1593,14 +1949,22 @@ export interface UseScrollableAreaOptions {
  *  `TElement` identifies the host receiving the composed ref and defaults to
  *  `HostElement` when the caller does not need host-specific ref typing. */
 export interface UseScrollableAreaViewportProps<TElement extends object = object> {
+	/** Attach to the viewport element — the measured scroll container. */
 	ref: Octane.Ref<TElement>
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Scroll-event handler invoked by the hook's internal binding. */
 	onScroll?: ScrollableAreaEventHandler
+	/** Layout-change handler (resize/remeasure) invoked by the hook. */
 	onLayoutChanged?: ScrollableAreaEventHandler
+	/** ARIA role for the scroll region. */
 	role?: string
 	'aria-label'?: string
+	/** Tab order for keyboard scrolling (usually 0). */
 	tabIndex?: number
+	/** Scrollable axis — horizontal, vertical, or both. */
 	orientation?: 'horizontal' | 'vertical' | 'both'
 	'data-scrollable-x'?: boolean
 	'data-scrollable-y'?: boolean
@@ -1613,12 +1977,18 @@ export interface UseScrollableAreaViewportProps<TElement extends object = object
 
 /** Props returned for the observed content box by `useScrollableArea`. */
 export interface UseScrollableAreaContentProps<TElement extends object = object> {
+	/** Attach to the content element — the measured scrollable child. */
 	ref: Octane.Ref<TElement>
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Layout-change handler invoked when content resizes. */
 	onLayoutChanged?: ScrollableAreaEventHandler
+	/** ARIA role for the content wrapper. */
 	role?: string
 	'aria-label'?: string
+	/** Tab order for the content element. */
 	tabIndex?: number
 }
 
@@ -1692,8 +2062,11 @@ export interface ScrollableAreaHandle {
  */
 export interface ScrollableAreaProps
 	extends LayoutChildProps, AccessibilityProps, RefreshProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Logical axis or axes where scrolling is allowed. @default 'block' */
 	axis?: ScrollAxis
@@ -1703,20 +2076,31 @@ export interface ScrollableAreaProps
 	/** Semantics for the named scroll viewport. Web emits ARIA `role`;
 	 *  native has no group/region role and ignores this. @default 'group' */
 	role?: 'group' | 'region'
+	/** Overscroll behavior at content edges. */
 	overscroll?: ScrollOverscroll
 	/** Viewport sizing; numbers are CSS px on web, dips on mobile, points on macOS. */
 	width?: number | string
+	/** Viewport height — number is DIPs, string is a CSS length. */
 	height?: number | string
+	/** Maximum viewport width. */
 	maxWidth?: number | string
+	/** Minimum viewport height. */
 	minHeight?: number | string
+	/** How sticky children are contained within the viewport. */
 	stickyContainment?: ScrollStickyContainment
 	/** Content padding on every edge, in spacing steps (1 step = 4px/dip). */
 	padding?: number
+	/** Uniform inline-axis padding inside the viewport. */
 	paddingInline?: number
+	/** Start-edge inline padding; resolves against writing direction. */
 	paddingInlineStart?: number
+	/** End-edge inline padding; resolves against writing direction. */
 	paddingInlineEnd?: number
+	/** Uniform block-axis padding inside the viewport. */
 	paddingBlock?: number
+	/** Top block-edge padding. */
 	paddingBlockStart?: number
+	/** Bottom block-edge padding. */
 	paddingBlockEnd?: number
 	/** Web only: escape inherited container padding on the viewport's block
 	 *  edges via negative margins. Inert on native. @default false */
@@ -1724,15 +2108,19 @@ export interface ScrollableAreaProps
 	/** Ref to a portable `ScrollableAreaHandle` — logical-axis scrolling plus
 	 *  `native` for the raw platform viewport. It is cleared on unmount. */
 	ref?: Octane.Ref<ScrollableAreaHandle>
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Options accepted by the `VirtualList` key/index seeks. */
 export interface VirtualListScrollOptions {
+	/** Animates the scroll instead of jumping. */
 	animated?: boolean
 	/** Where the target row lands in the viewport. @default 'start' */
 	align?: 'start' | 'center' | 'end'
@@ -1775,25 +2163,37 @@ export interface VirtualListHandle {
  */
 export interface VirtualListProps<T = unknown>
 	extends LayoutChildProps, AccessibilityProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Ref to a platform-neutral scroll handle. It is cleared on unmount. */
 	ref?: Octane.Ref<VirtualListHandle>
+	/** Data array rendered through `renderItem`. */
 	items: readonly T[]
 	/** Returns each item's stable `Key`; must be unique and survive reorder.
 	 *  Defaults to `defaultItemKey` — the item's `id` or `key` property;
 	 *  items without either throw instead of guessing a positional key. */
 	keyExtractor?: (item: T, index: number) => Key
+	/** Recycling key — items sharing a type reuse host elements; defaults to index. */
 	getItemType?: (item: T, index: number) => Key
+	/** Renders one row; called per visible item plus overscan. */
 	renderItem: (item: T, index: number) => Renderable
+	/** Rendered when `items` is empty. */
 	renderEmpty?: () => Renderable
+	/** Static content above the item rows. */
 	renderHeader?: () => Renderable
+	/** Static content below the item rows. */
 	renderFooter?: () => Renderable
+	/** Content rendered between rows (not before the first or after the last). */
 	renderSeparator?: () => Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1823,7 +2223,9 @@ export interface WebViewLoadEvent {
 /** Document size reported to `WebView.onLayoutContent` — CSS px on web, dips/points on native.
  */
 export interface WebViewContentSize {
+	/** Measured content width in CSS px. */
 	width: number
+	/** Measured content height in CSS px. */
 	height: number
 }
 
@@ -1843,8 +2245,11 @@ export interface WebViewMessageEvent {
 }
 
 interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** After each successful document load (web `load`; native
 	 *  `loadFinished` without an error). */
@@ -1885,7 +2290,9 @@ interface WebViewBaseProps extends LayoutChildProps, AccessibilityProps {
 	ref?: Octane.Ref<WebViewHandle>
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -1935,9 +2342,13 @@ export type WebViewProps = WebViewBaseProps &
  *  selector compares `width·height·scale²` against the view's pixel count
  *  and loads the closest match once a real layout exists. */
 export interface ImageSourceLike {
+	/** Image URL or asset specifier. */
 	uri: string
+	/** Intrinsic image width for layout before load. */
 	width?: number
+	/** Intrinsic image height for layout before load. */
 	height?: number
+	/** Pixel-density multiplier for the asset. */
 	scale?: number
 }
 
@@ -1952,9 +2363,13 @@ export type ImageContentPositionValue = number | `${number}%` | 'center'
 /** Object form of `Image.contentPosition` — name one horizontal and one vertical edge with a dip or percentage offset.
  */
 export interface ImageContentPositionObject {
+	/** Offset from the top edge (object-position). */
 	top?: ImageContentPositionValue
+	/** Offset from the right edge (object-position). */
 	right?: ImageContentPositionValue
+	/** Offset from the bottom edge (object-position). */
 	bottom?: ImageContentPositionValue
+	/** Offset from the left edge (object-position). */
 	left?: ImageContentPositionValue
 }
 
@@ -2000,13 +2415,17 @@ export type ImageDecoding = 'async' | 'sync'
  * @see ImageSourceLike, ImageContentFit, ImageContentPosition.
  */
 export interface ImageProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** A single source — `res://name`, `~/bundle-path`, file path, remote
 	 *  URL, or data:/inline-SVG URI — or a resolution-qualified array
 	 *  (closest pixel count wins; the `srcset` model). */
 	src: string | ImageSourceLike[]
+	/** Alternative text for the image — required for assistive technology; empty string marks it decorative. */
 	alt?: string
 	/** Placeholder shown while `src` loads — painted inside the same image
 	 *  view so the swap can't blank or mismatch fit (expo-image study L5).
@@ -2043,7 +2462,9 @@ export interface ImageProps extends LayoutChildProps {
 	decoding?: ImageDecoding
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2059,13 +2480,19 @@ export interface ImageProps extends LayoutChildProps {
  * ```
  */
 export interface ScreenProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 }
 
@@ -2086,8 +2513,11 @@ export type SafeAreaEdge = 'top' | 'right' | 'bottom' | 'left'
  * @see KeyboardAvoidingProps, useSafeAreaInsets.
  */
 export interface SafeAreaProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Safe-area edges this container consumes as padding — defaults to all
 	 *  four. Each edge's inset is consumed once: a nested `SafeArea` pads
@@ -2100,8 +2530,11 @@ export interface SafeAreaProps {
 	ignoreSafeArea?: boolean
 	/** NativeScript props applied to the host after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 }
 
@@ -2130,8 +2563,11 @@ export interface SafeAreaProps {
 export interface KeyboardAvoidingProps {
 	/** Underlying platform host; cleared on removal. */
 	ref?: Octane.Ref<object>
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Set false to keep the layout wrapper without avoidance — no inset
 	 *  subscription or Android window-resize lease runs. @default true */
@@ -2140,9 +2576,13 @@ export interface KeyboardAvoidingProps {
 	 *  the measured inset (React Native `keyboardVerticalOffset`).
 	 *  @default 0 */
 	keyboardVerticalOffset?: number
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 }
 
@@ -2164,8 +2604,11 @@ export interface UseKeyboardInsetOptions {
  * @see PlatformSwitchProps.
  */
 export interface SwitchProps extends FieldControlProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Optional explicit accessible name override for the switch. */
 	accessibilityLabel?: string
@@ -2187,7 +2630,9 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
 	labelSpacing?: 'hug' | 'spread'
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2210,8 +2655,11 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
  * @see SwitchProps for the self-drawn shared switch.
  */
 export interface PlatformSwitchProps extends TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Controlled checked state — pair with `onChange`. */
 	value?: boolean
@@ -2220,7 +2668,9 @@ export interface PlatformSwitchProps extends TestIDProps {
 	defaultValue?: boolean
 	/** Called with the requested next state when the user toggles. */
 	onChange?: (checked: boolean) => void
+	/** Prevents toggling and applies the disabled styling. */
 	isDisabled?: boolean
+	/** Shows the state without allowing changes. */
 	isReadOnly?: boolean
 	/** Spoken name source — the platform widget renders no visible label. */
 	label?: string
@@ -2228,11 +2678,15 @@ export interface PlatformSwitchProps extends TestIDProps {
 	description?: string
 	/** Appended to the spoken hint while the widget is disabled. */
 	disabledMessage?: string
+	/** Accessible name for the switch. */
 	accessibilityLabel?: string
+	/** Describes the toggled outcome; announced after the label. */
 	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2251,9 +2705,13 @@ export type MaterialSwitchProps = PlatformWidgetProps<PlatformSwitchProps>
  * ```
  */
 export interface ActivityIndicatorProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Toggles the spinning indicator; hidden when false. */
 	busy?: boolean
 	/** Accessible name announced when the platform exposes it. */
 	accessibilityLabel?: string
@@ -2263,8 +2721,11 @@ export interface ActivityIndicatorProps {
 	shade?: 'default' | 'onMedia'
 	/** Label content rendered beside/under the spinner (Astryx `label`). */
 	label?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2289,9 +2750,13 @@ export type CircularProgressIndicatorProps = PlatformWidgetProps<ActivityIndicat
  * @see ProgressBarProps for task progress.
  */
 export interface MeterProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Current quantity, clamped to the [minValue, maxValue] range. */
 	value: number
@@ -2304,10 +2769,15 @@ export interface MeterProps {
 	/** Human-readable value description reported to assistive technology —
 	 *  `aria-valuetext` on web (for example "6 GB of 10 GB used"). */
 	valueLabel?: string
+	/** Ring diameter in DIPs. */
 	size?: number
+	/** Ring stroke width in DIPs. */
 	strokeWidth?: number
+	/** Filled-arc color. */
 	color?: string
+	/** Unfilled-arc (track) color. */
 	trackColor?: string
+	/** Accessible name for the meter. */
 	accessibilityLabel?: string
 }
 
@@ -2322,7 +2792,9 @@ export interface MeterProps {
  */
 /** One labeled stop drawn on a `Slider` track (Astryx `marks`). */
 export interface SliderMark {
+	/** Scale position of the mark. */
 	value: number
+	/** Text shown at the mark. */
 	label?: string
 }
 
@@ -2334,20 +2806,27 @@ export interface SliderMark {
  *  single-value widget subset. AppKit and Windows runtime qualification
  *  remains open; see the platform guides. */
 export interface SliderProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Controlled value — `number` or `[low, high]` for a range. */
 	value?: number | [number, number]
 	/** Initial value for uncontrolled use; `value` wins when both are set. */
 	defaultValue?: number | [number, number]
+	/** Minimum value (default 0). */
 	min?: number
+	/** Maximum value (default 100). */
 	max?: number
 	/** @deprecated use `min` */
 	minValue?: number
 	/** @deprecated use `max` */
 	maxValue?: number
+	/** Quantization step between values. */
 	step?: number
+	/** Prevents interaction and applies the disabled styling. */
 	disabled?: boolean
 	/** Labeled stops drawn on the track. */
 	marks?: SliderMark[]
@@ -2359,8 +2838,11 @@ export interface SliderProps extends FieldControlProps {
 	formatValue?: (value: number) => string
 	/** Called while the user drags/keys — receives the new value. */
 	onValueChange?: (value: number | [number, number]) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2380,20 +2862,28 @@ export interface ColorValueProps {
 	onChange?: (hex: string) => void
 	/** Committed changes — drag end, keyboard step, field commit. */
 	onChangeEnd?: (hex: string) => void
+	/** Prevents interaction and applies the disabled styling. */
 	isDisabled?: boolean
 }
 
 export interface ColorBaseProps {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Stable semantic automation name, independent of `id` and spoken labels. */
 	testID?: string
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Accessible name for the color control. */
 	accessibilityLabel?: string
 }
 
 /** Small color chip — `color` accepts the shared hex forms. */
 export interface ColorSwatchProps extends ColorBaseProps {
+	/** Swatch fill color. */
 	color: string
+	/** Swatch edge size in DIPs. */
 	size?: number
 }
 
@@ -2404,12 +2894,14 @@ export interface ColorAreaProps extends ColorValueProps, ColorBaseProps {}
 
 /** Single-channel slider. `hue` is the documented channel subset for v1. */
 export interface ColorSliderProps extends ColorValueProps, ColorBaseProps {
+	/** Color channel the slider edits (currently `hue` only). */
 	channel: 'hue'
 }
 
 /** Hex text field — commits on submit/blur; invalid input restores the
  *  current value. */
 export interface ColorFieldProps extends ColorValueProps, ColorBaseProps {
+	/** Channel label shown beside the field. */
 	label?: string
 }
 
@@ -2487,7 +2979,9 @@ export type IconName = keyof IconNameRegistry extends never
  * @see IconRegistry, IconGlyph, IconName.
  */
 export interface IconProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Registered icon identifier — a built-in `xplat-*` name or a name
 	 *  registered through `registerIcon`/`registerIcons`. An unregistered
@@ -2496,13 +2990,18 @@ export interface IconProps {
 	/** Override the registry for this icon. Use IconRegistryProvider to scope
 	 *  several icons and components to one registry. */
 	registry?: IconRegistry
+	/** Glyph size in DIPs. */
 	size?: number
+	/** Glyph color. */
 	color?: string
 	/** Accessible name — set it when the icon carries meaning on its own.
 	 *  Omitted keeps the glyph decorative (hidden from assistive tech). */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2515,11 +3014,17 @@ export interface IconProps {
  *  `.svg` paths/URLs. Opaque resource names need `markup`/`svg` when their
  *  format cannot be inferred from the string. */
 export interface IconGlyph {
+	/** Raw SVG source for the glyph. */
 	svg?: string
+	/** Pre-rendered markup alternative. */
 	markup?: string
+	/** SVG viewBox used to scale the glyph. */
 	viewBox?: string
+	/** Text-glyph content when the icon is a font/codepoint glyph. */
 	text?: string
+	/** Font family + codepoint for font-based glyphs. */
 	font?: { family: string; glyph: string }
+	/** Raster/vector asset URL for image glyphs. */
 	src?: string
 }
 
@@ -2541,7 +3046,9 @@ export interface IconRegistry {
  * ```
  */
 export interface IconRegistryProviderProps {
+	/** Registry instance made available to descendant Icons. */
 	value: IconRegistry
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
@@ -2560,19 +3067,29 @@ export interface IconRegistryProviderProps {
  * @see TextProps.
  */
 export interface HeadingProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Semantic heading level 1–6 (h1–h6). */
 	level?: 1 | 2 | 3 | 4 | 5 | 6
 	/** Display-scale visual override; `level` still owns semantics. */
 	type?: HeadingType
+	/** Theme text color token. */
 	color?: TextColor
+	/** Font weight override. */
 	weight?: TextWeight
 	/** Line cap before ellipsis truncation; 0/unset = no truncation. */
 	maxLines?: number
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2612,11 +3129,17 @@ export interface OverlayProps extends TestIDProps {
 	 *  and Escape dismissal, Android back dismissal, and iOS modal
 	 *  accessibility. `shadeCover` implies this. macOS ignores it. */
 	isModal?: boolean
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2630,6 +3153,7 @@ export type PopoverAlignment = 'start' | 'center' | 'end'
 
 /** A platform-neutral ref to the host view or element that owns a popover. */
 export interface PopoverAnchorRef {
+	/** The measured anchor host; set by the trigger binding. */
 	readonly current: unknown
 }
 
@@ -2657,11 +3181,13 @@ export interface PopoverProps {
 	/** Initial visibility for uncontrolled use; `open` wins when both are
 	 *  set. Uncontrolled dismissal closes the popover itself. */
 	defaultOpen?: boolean
+	/** Preferred side/alignment of the popover relative to its anchor. */
 	placement?: PopoverPlacement
 	/** Cross-axis alignment within the placement. @default 'start' */
 	alignment?: PopoverAlignment
 	/** Clearance in dips/px; web also resolves CSS lengths. Native accepts numbers or px strings. @default 8 */
 	offset?: number | string
+	/** Dismisses when the user taps outside the popover. */
 	dismissOnOutsideTap?: boolean
 	/** Escape requests dismissal when this is the top layer. False blocks
 	 *  Escape from reaching a layer below. @default true */
@@ -2669,12 +3195,19 @@ export interface PopoverProps {
 	/** Return target when popover content received focus (web), or an explicit
 	 *  native focus target. Defaults to the anchor on web. */
 	finalFocusRef?: { current: HostElement | null }
+	/** Fires when the popover requests dismissal (outside tap/Escape). */
 	onDismiss?: () => void
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2705,6 +3238,7 @@ interface LayerBaseOptions {
 
 /** `useLayer` options for anchor-relative positioning (Astryx context mode). */
 export interface ContextLayerOptions extends LayerBaseOptions {
+	/** `context` positions the layer relative to its anchor context. */
 	mode: 'context'
 	/** Accepted for API parity: layers always mount content only while open,
 	 *  so the flag is a no-op in this implementation. */
@@ -2713,6 +3247,7 @@ export interface ContextLayerOptions extends LayerBaseOptions {
 
 /** `useLayer` options for manual x/y positioning (Astryx fixed mode). */
 export interface FixedLayerOptions extends LayerBaseOptions {
+	/** `fixed` positions the layer at explicit coordinates. */
 	mode: 'fixed'
 }
 
@@ -2740,10 +3275,15 @@ export interface ContextRenderProps {
 	accessibilityLabel?: string
 	/** ARIA role on web (e.g. 'tooltip', 'dialog'). */
 	accessibilityRole?: string
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2751,14 +3291,23 @@ export interface ContextRenderProps {
  *  Coordinates are viewport px on web, page dips on native, and top-left-origin
  *  AppKit points on macOS. */
 export interface FixedRenderProps {
+	/** X coordinate in DIPs for the layer. */
 	x: number
+	/** Y coordinate in DIPs for the layer. */
 	y: number
+	/** Accessible name for the layer surface. */
 	accessibilityLabel?: string
+	/** ARIA role for the layer surface. */
 	accessibilityRole?: string
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -2833,6 +3382,7 @@ export interface LayerContextValue {
  * @see ToastViewportProps, LayerToastConfig.
  */
 export interface LayerProviderProps {
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Toast configuration for the provider-mounted viewport. */
 	toast?: LayerToastConfig
@@ -2872,9 +3422,13 @@ export interface UsePopoverReturn {
 	anchorId: string
 	/** Unique id for `aria-controls`/`aria-describedby` composition. */
 	id: string
+	/** Current open state. */
 	isOpen: boolean
+	/** Opens the popover. */
 	show: () => void
+	/** Closes the popover. */
 	hide: () => void
+	/** Toggles open state. */
 	toggle: () => void
 	/** Render popover content into the anchored layer. */
 	render: (children: Renderable, props?: ContextRenderProps) => Renderable
@@ -2900,7 +3454,9 @@ export interface TooltipOptions {
 	delay?: number
 	/** Delay before hiding after pointer/focus leave (ms). @default 0 */
 	hideDelay?: number
+	/** Focus behavior that shows the tooltip. */
 	focusTrigger?: TooltipFocusTrigger
+	/** Touch behavior that shows the tooltip (long-press, tap, …). */
 	touchTrigger?: TooltipTouchTrigger
 	/** Enables hover/focus triggers. @default true */
 	isEnabled?: boolean
@@ -2908,7 +3464,9 @@ export interface TooltipOptions {
 	isOpen?: boolean
 	/** Show on mount (still dismissible). */
 	isDefaultOpen?: boolean
+	/** Fires when the tooltip becomes visible. */
 	onShow?: () => void
+	/** Fires when the tooltip hides. */
 	onHide?: () => void
 }
 
@@ -2917,10 +3475,15 @@ export interface TooltipOptions {
  *  `describedBy` is the tooltip's id for `aria-describedby`. Touch targets
  *  bind the refs but never mount the hint — matching `Tooltip`. */
 export interface TooltipReturn {
+	/** Attach to the element that triggers the tooltip. */
 	ref: (el: HostElement) => void
+	/** Attach to the tooltip element that gets positioned. */
 	positionRef: (el: HostElement) => void
+	/** Attach to the element receiving hover/focus listeners. */
 	interactionRef: (el: HostElement) => void
+	/** Id placed on the tooltip for aria anchoring. */
 	anchorId: string
+	/** Id the trigger uses in `aria-describedby`. */
 	describedBy: string
 	/** Render the tooltip content into the anchored layer. */
 	renderTooltip: (
@@ -2945,6 +3508,7 @@ export interface TooltipReturn {
  * @see useHoverCard for the headless form, TooltipProps for a passive hint.
  */
 export interface HoverCardProps {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Trigger content. */
 	children?: Renderable
@@ -2983,10 +3547,15 @@ export interface HoverCardProps {
 	isOpen?: boolean
 	/** Show on mount (still dismissible). */
 	isDefaultOpen?: boolean
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3006,17 +3575,29 @@ export type HoverCardTouchTrigger = 'auto' | 'tap' | 'none'
 /** Options for `useHoverCard` — placement/alignment, `delay`/`hideDelay` (ms), `focusTrigger`/`touchTrigger`, `isEnabled`, accessible `label`, open-state (`isOpen`/`isDefaultOpen`), and `onShow`/`onHide` notifications.
  */
 export interface HoverCardOptions {
+	/** Preferred side of the card relative to its anchor. */
 	placement?: HoverCardPlacement
+	/** Alignment along the placement axis. */
 	alignment?: HoverCardAlignment
+	/** Hover dwell in ms before the card opens. */
 	delay?: number
+	/** Grace period in ms before the card closes after hover leaves. */
 	hideDelay?: number
+	/** Focus behavior that opens the card. */
 	focusTrigger?: HoverCardFocusTrigger
+	/** Touch behavior that opens the card. */
 	touchTrigger?: HoverCardTouchTrigger
+	/** Master switch — disabled suppresses open entirely. */
 	isEnabled?: boolean
+	/** Accessible label for the card region. */
 	label?: string
+	/** Controlled open state. */
 	isOpen?: boolean
+	/** Initial open state for uncontrolled usage. */
 	isDefaultOpen?: boolean
+	/** Fires when the card opens. */
 	onShow?: () => void
+	/** Fires when the card closes. */
 	onHide?: () => void
 }
 
@@ -3038,11 +3619,13 @@ export interface HoverCardReturn {
 	/** Web: the anchor element's positioning id (kept for upstream parity —
 	 *  equals `id` in this implementation). */
 	anchorId: string
+	/** Current open state. */
 	isOpen: boolean
 	/** Render the card content into the anchored layer. */
 	renderHoverCard: (children: Renderable, props?: Record<string, unknown>) => Renderable
 	/** Imperatively show/hide, bypassing the delays. */
 	show: () => void
+	/** Closes the card. */
 	hide: () => void
 }
 
@@ -3061,20 +3644,33 @@ export interface HoverCardReturn {
  * @see HoverCardProps for interactive rich content.
  */
 export interface TooltipProps {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Element that shows the tooltip on hover/focus. */
 	trigger: Renderable
+	/** Tooltip body content. */
 	content: Renderable
 	/** Styling for the tooltip panel inside the popover. */
 	contentClassName?: ClassValue
+	/** Inline style for the tooltip surface. */
 	contentStyle?: StyleProp
+	/** Dwell in ms before the tooltip opens. */
 	openDelay?: number
+	/** Grace period in ms before the tooltip closes. */
 	closeDelay?: number
+	/** Preferred side of the tooltip relative to the trigger. */
 	placement?: PopoverPlacement
+	/** Suppresses the tooltip entirely. */
 	disabled?: boolean
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3141,8 +3737,11 @@ export interface ToastOptions {
 	/** Placement used with `anchor`; `position` supplies the
 	 *  above/below default. */
 	placement?: PopoverPlacement
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3193,7 +3792,9 @@ export type ShowToastFn = (options: ToastOptions) => ToastHandle | null
 /** One queued/active toast inside a viewport. `viewportId`/`exiting` are
  *  managed by the toast stack — callers never set them. */
 export interface ToastEntry {
+	/** Generated id for this queued toast. */
 	id: string
+	/** Options the toast was shown with. */
 	options: ToastOptions
 	/** Owning ToastViewport; absent entries render on the fallback stack. */
 	viewportId?: string
@@ -3224,12 +3825,19 @@ export interface ToastViewportProps {
 	/** Web only: promote the viewport into the CSS top layer (above modal
 	 *  dialogs). Set false when rendering inside a dialog. @default true */
 	isTopLayer?: boolean
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3247,20 +3855,31 @@ export interface ToastViewportProps {
 export interface ToastProps {
 	/** @default 'info' */
 	type?: ToastType
+	/** Toast content. */
 	body?: Renderable
+	/** Trailing content (actions, close affordance). */
 	endContent?: Renderable
+	/** Dismisses automatically after `autoHideDuration`. */
 	isAutoHide?: boolean
+	/** Milliseconds before auto-dismiss (when isAutoHide). */
 	autoHideDuration?: number
 	/** Exiting presentation (collapsed/sliding). Managed by the viewport. */
 	isExiting?: boolean
 	/** Called with the reason when the toast requests dismissal. */
 	onDismiss?: (reason: ToastDismissReason) => void
+	/** Custom renderer for the toast body — overrides `body`. */
 	renderContent?: ToastContentRenderFn
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3273,9 +3892,13 @@ export interface ToastProps {
  *  windows report the same space, so a value means the same thing on
  *  every target. */
 export interface MeasureBounds {
+	/** Left edge in DIPs. */
 	x: number
+	/** Top edge in DIPs. */
 	y: number
+	/** Measured width in DIPs. */
 	width: number
+	/** Measured height in DIPs. */
 	height: number
 }
 
@@ -3330,6 +3953,7 @@ export interface ModalProps {
 	defaultOpen?: boolean
 	/** Called with the modal's result value when the host closes it. */
 	onClose?: (result?: ModalOpenResult) => void
+	/** Covers the full window instead of a centered surface. */
 	fullscreen?: boolean
 	/** Native: sheet uses fullscreen=false (iOS form sheet; Android centered
 	 *  dialog), fullscreen uses fullscreen=true. Web: dialog is a centered
@@ -3340,6 +3964,7 @@ export interface ModalProps {
 	component?: (props: any) => any
 	/** Props passed to component. */
 	params?: Record<string, unknown>
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
@@ -3352,8 +3977,11 @@ export type MaterialDialogProps = ModalProps
  *  NativeScript option directly; `presentation` takes precedence when set.
  *  Android's non-fullscreen modal is a centered dialog, not a bottom sheet. */
 export interface ModalOpenOptions {
+	/** Surface treatment — sheet, fullscreen, or dialog. */
 	presentation?: 'sheet' | 'fullscreen' | 'dialog'
+	/** Covers the full window; overrides `presentation` sizing. */
 	fullscreen?: boolean
+	/** Animates the open/close transition. */
 	animated?: boolean
 }
 
@@ -3390,8 +4018,11 @@ export interface ModalHandle extends Promise<ModalOpenResult> {
  * ```
  */
 export type OpenModal = <TParams>(
+	/** Component rendered inside the modal. */
 	component: HostedComponent<TParams>,
+	/** Params forwarded to the component. */
 	params?: TParams,
+	/** Presentation options for this open call. */
 	options?: ModalOpenOptions,
 ) => ModalHandle
 
@@ -3437,6 +4068,7 @@ export interface BottomSheetProps {
 	 *  Escape, swipe-down, or hardware back — not on programmatic
 	 *  `isOpen`→false transitions. */
 	onOpenChange?: (isOpen: boolean) => void
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Height budget: 'hug' sizes to content (≤92% of the window), 'capped'
 	 *  at 62%, 'tall' at 92%; a number is px/dips and a string is a CSS/web
@@ -3460,11 +4092,17 @@ export interface BottomSheetProps {
 	 * Native hosts call the target's focus method when available; supply this
 	 * explicitly when a native input should regain editing focus. */
 	finalFocusRef?: { current: HostElement | null }
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3498,16 +4136,23 @@ export interface BottomSheetSwitcherProps {
 	hasScrim?: boolean
 	/** The `BottomSheet` children, each with a `sheetId`. */
 	children?: Renderable
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Options for the imperative `openBottomSheet` service. */
 export interface BottomSheetOpenOptions {
+	/** Shows a dimming scrim behind the sheet. */
 	hasScrim?: boolean
 	/** Same contract as `BottomSheetProps.snapPoints`. */
 	snapPoints?: BottomSheetSnapPoint[]
@@ -3538,8 +4183,11 @@ export interface BottomSheetHandle extends Promise<ModalOpenResult> {
  * ```
  */
 export type OpenBottomSheet = <TParams>(
+	/** Component rendered inside the sheet. */
 	component: HostedComponent<TParams>,
+	/** Params forwarded to the component. */
 	params?: TParams,
+	/** Presentation options for this open call. */
 	options?: BottomSheetOpenOptions,
 ) => BottomSheetHandle
 
@@ -3561,9 +4209,13 @@ export type DialogPurpose = 'required' | 'form' | 'info'
  *  block axis; start/end are logical inline offsets (mirror under RTL on
  *  web; native maps start→left, end→right). */
 export interface DialogPosition {
+	/** Offset from the top edge (number is DIPs). */
 	top?: number | string
+	/** Offset from the bottom edge (number is DIPs). */
 	bottom?: number | string
+	/** Offset from the inline-start edge. */
 	start?: number | string
+	/** Offset from the inline-end edge. */
 	end?: number | string
 }
 
@@ -3594,6 +4246,7 @@ export interface DialogProps extends AccessibilityProps {
 	 *  path (backdrop, Escape, purpose permitting) — and with true only from
 	 *  `DialogHeader`'s close affordance contract. */
 	onOpenChange?: (isOpen: boolean) => void
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Panel width (px on web, dips on native). @default 400 */
 	width?: number | string
@@ -3602,7 +4255,9 @@ export interface DialogProps extends AccessibilityProps {
 	maxHeight?: number | string
 	/** Non-centered anchoring. */
 	position?: DialogPosition
+	/** Visual variant of the dialog surface. */
 	variant?: DialogVariant
+	/** Semantic purpose — drives default actions/emphasis (e.g. destructive confirmations). */
 	purpose?: DialogPurpose
 	/** Internal padding, spacing steps (1 step = 4px/dip). @default 5 */
 	padding?: number
@@ -3613,11 +4268,17 @@ export interface DialogProps extends AccessibilityProps {
 	 *  dialog opened on web/AppKit. `{current}`-style ref; touch targets call
 	 *  its focus method when available. */
 	finalFocusRef?: { current: HostElement | null }
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3630,7 +4291,9 @@ export interface DialogProps extends AccessibilityProps {
  * @see DialogProps — renders the title row (and close affordance) inside it.
  */
 export interface DialogHeaderProps {
+	/** Header title content. */
 	title?: Renderable
+	/** Secondary header content under the title. */
 	subtitle?: Renderable
 	/** Supplies the close affordance; called `onOpenChange(false)`. */
 	onOpenChange?: (isOpen: boolean) => void
@@ -3643,11 +4306,17 @@ export interface DialogHeaderProps {
 	endContentEdgeCompensation?: 'inline' | 'block' | 'all'
 	/** Hairline under the header. @default true */
 	hasDivider?: boolean
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3665,7 +4334,9 @@ export type DialogOptions = Omit<
 export interface ImperativeDialogReturn {
 	/** Opens the dialog with arbitrary content. */
 	show: (children: Renderable, options?: DialogOptions) => void
+	/** Closes this dialog instance. */
 	hide: () => void
+	/** Current open state of this dialog. */
 	isOpen: boolean
 	/** Rendered anywhere in the tree — the dialog itself. */
 	element: Renderable
@@ -3700,8 +4371,11 @@ export interface AlertDialogProps {
 	/** Called with the requested next state: false on Cancel or user
 	 *  dismissal paths. */
 	onOpenChange?: (isOpen: boolean) => void
+	/** Dialog title content. */
 	title: Renderable
+	/** Body copy explaining the alert. */
 	description?: Renderable
+	/** Label for the confirming action. */
 	actionLabel: Renderable
 	/** Called when the action button is pressed; the caller closes the
 	 *  dialog or marks `isActionLoading`. */
@@ -3718,11 +4392,17 @@ export interface AlertDialogProps {
 	isInline?: boolean
 	/** Element to focus on close. `{current}`-style ref; web semantics. */
 	finalFocusRef?: { current: HostElement | null }
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3731,7 +4411,9 @@ export interface AlertDialogProps {
 export interface ImperativeAlertDialogReturn {
 	/** Opens the dialog with the given confirmation content. */
 	show: (options: Omit<AlertDialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange'>) => void
+	/** Closes this alert instance. */
 	hide: () => void
+	/** Current open state of this alert. */
 	isOpen: boolean
 	/** Rendered anywhere in the tree — the dialog itself. */
 	element: Renderable
@@ -3779,6 +4461,7 @@ export interface CarouselProps extends AccessibilityProps {
 	/** Accessible name for the region (web `aria-label` on
 	 *  `aria-roledescription="carousel"`; native `accessibilityLabel`). */
 	label?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Space between slides, spacing steps (1 step = 4px/dip). @default 2 */
 	gap?: number
@@ -3800,11 +4483,17 @@ export interface CarouselProps extends AccessibilityProps {
 	hasSnap?: boolean
 	/** Receives the imperative handle. */
 	ref?: Octane.Ref<CarouselHandle>
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3817,9 +4506,11 @@ export type LightboxMediaType = 'image' | 'video'
 /** One `Lightbox` entry — `src` URI, required `alt` description, optional `caption`, and `type`.
  */
 export interface LightboxMedia {
+	/** Media URL shown in the viewer. */
 	src: string
 	/** Accessible description of the media (web `alt`). */
 	alt: string
+	/** Caption rendered under the media. */
 	caption?: Renderable
 	/** @default 'image' */
 	type?: LightboxMediaType
@@ -3843,13 +4534,17 @@ export interface LightboxMedia {
  * @see LightboxMedia, useLightbox.
  */
 export interface LightboxProps {
+	/** Controlled open state. */
 	isOpen: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange: (isOpen: boolean) => void
+	/** Media items navigable inside the lightbox. */
 	media: LightboxMedia[]
 	/** Controlled index. */
 	index?: number
 	/** Uncontrolled initial index. */
 	defaultIndex?: number
+	/** Fires when the displayed media index changes. */
 	onIndexChange?: (index: number) => void
 	/** Pinch/click zoom on images. @default true */
 	hasZoom?: boolean
@@ -3858,11 +4553,17 @@ export interface LightboxProps {
 	/** Element to focus on close; defaults to the element focused when the
 	 *  lightbox opened. `{current}`-style ref; web semantics. */
 	finalFocusRef?: { current: HostElement | null }
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -3872,6 +4573,7 @@ export interface LightboxProps {
  * @see UseLightboxReturn.getTriggerProps — these props come from `useLightbox`.
  */
 export interface LightboxTriggerProps {
+	/** Custom activation handler — overrides the default open behavior. */
 	onPress?: () => void
 	/** Web cursor hint + native accessibility hint. */
 	web?: PlatformProps
@@ -3880,12 +4582,19 @@ export interface LightboxTriggerProps {
 /** Options for `useLightbox` — the `media` array, controlled `index`/`onIndexChange` or `defaultIndex`, and zoom/autoplay flags matching `LightboxProps`.
  */
 export interface UseLightboxOptions {
+	/** Media items navigable inside the lightbox. */
 	media: LightboxMedia[]
+	/** Controlled displayed index. */
 	index?: number
+	/** Initial index for uncontrolled usage. */
 	defaultIndex?: number
+	/** Fires when the displayed index changes. */
 	onIndexChange?: (index: number) => void
+	/** Enables pinch/double-tap zoom on the media. */
 	hasZoom?: boolean
+	/** Auto-advances through the media on a timer. */
 	hasAutoPlay?: boolean
+	/** Element focus returns to on close. */
 	finalFocusRef?: { current: HostElement | null }
 }
 
@@ -3894,8 +4603,11 @@ export interface UseLightboxOptions {
 export interface UseLightboxReturn {
 	/** Open at `index` (default 0). */
 	open: (index?: number) => void
+	/** Closes the lightbox. */
 	close: () => void
+	/** Current open state. */
 	isOpen: boolean
+	/** Currently displayed media index. */
 	index: number
 	/** The lightbox node — render it once in the tree. */
 	element: Renderable
@@ -3912,6 +4624,7 @@ export interface TabSpec {
 	 *  web tab↔panel ARIA linkage, and pane reconciliation all use it.
 	 *  Defaults to the tab's position index. */
 	key?: string
+	/** Tab label text. */
 	title: string
 	/** Registered icon name (see `registerIcons`). The shared self-drawn
 	 *  `Tabs` renders the glyph through `Icon` on every platform. The
@@ -3921,6 +4634,7 @@ export interface TabSpec {
 	 *  path) or `font`/`text` representation; `svg`/`markup`-only glyphs
 	 *  warn and render title-only there. */
 	icon?: IconName
+	/** Lazily renders the tab panel content — invoked when the tab activates. */
 	render: () => Renderable
 	/** Named parallel stack — the pane is the route outlet for `stack`
 	 *  (pushed screens render in place). The platform tab bars host a real
@@ -3946,9 +4660,13 @@ export interface TabSpec {
  * @see TabSpec, TabListProps for a standalone strip, PlatformTabsProps for the OS tab bars.
  */
 export interface TabsProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Tab descriptors rendered by the platform tab bar. */
 	tabs: readonly TabSpec[]
 	/** Controlled selection by tab `key` — React Aria `selectedKey`. Wins
 	 *  over `selectedIndex` when both are passed. */
@@ -3969,14 +4687,18 @@ export interface TabsProps {
 /** Platform tab-bar item shape. `icon` may be a registered name or a native
  *  asset value returned by `PlatformIcon.select()` from the matching subpath. */
 export type PlatformTabSpec = Omit<TabSpec, 'icon'> & {
+	/** Icon name for the tab. */
 	icon?: string
 }
 
 /** The OS tab bars' contract — `TabsProps` with `PlatformTabSpec` items (icon may be a registered name or a native asset string from `PlatformIcon.select`). Consumed by `UITabBar` (`ui/ios`) and `BottomNavigationView` (`ui/android`); each pane with `stack` hosts a real navigation Frame natively.
  */
 export type PlatformTabsProps = Omit<TabsProps, 'tabs'> & {
+	/** Tab descriptors rendered by the platform tab bar. */
 	tabs: readonly PlatformTabSpec[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
 }
 
@@ -3991,17 +4713,26 @@ export type BottomNavigationViewProps = PlatformWidgetProps<PlatformTabsProps>
  * Typed application destinations narrow this shape through their route catalog.
  * Prepared data and context are deliberately not navigation input. */
 export interface RouteDestinationInput {
+	/** Route name or path to navigate to. */
 	to: string
+	/** Path-parameter values for the destination. */
 	params?: Record<string, string | undefined>
+	/** Query-string values merged into the destination. */
 	search?: Record<string, unknown>
+	/** Target stack id for multi-pane routing. */
 	stack?: string
+	/** Fragment appended to the destination URL. */
 	hash?: string
+	/** `push` adds a history entry; `modal` presents over the stack. */
 	presentation?: 'push' | 'modal'
+	/** Named transition used for this navigation. */
 	transition?: string
+	/** Replaces the current history entry instead of pushing. */
 	replace?: boolean
 }
 
 interface RouteCancellationSignalLike {
+	/** Set when the destination was rejected before commit. */
 	readonly aborted: boolean
 	addEventListener(type: 'abort', listener: () => void, options?: { once?: boolean }): void
 	removeEventListener(type: 'abort', listener: () => void): void
@@ -4018,27 +4749,36 @@ export type RouteCancellationSignal = typeof globalThis extends {
 
 /** Host-provided cancellation primitive; creation belongs to the platform adapter. */
 export interface RouteCancellationController {
+	/** Signal aborted when the navigation is superseded or cancelled. */
 	readonly signal: RouteCancellationSignal
 	abort(): void
 }
 
 /** Validated inputs shared by a route's guard and loader in the refined contract. */
 export interface RoutePreparationArgs {
+	/** Resolved path params for the incoming route. */
 	params: Record<string, string>
+	/** Validated search params for the incoming route. */
 	search: Record<string, unknown>
+	/** Shared route context carried through preparation. */
 	context: RouteContext
+	/** Aborts when the navigation is superseded — check before committing async work. */
 	signal?: RouteCancellationSignal
 }
 
 /** Executable behavior shared by every route authoring style. File generation
  * and programmatic inference adapt their declarations to this internal boundary. */
 export interface RoutePreparationGroup {
+	/** Group identity — preparations in a group share lifecycle. */
 	readonly id: string
+	/** Guard run before the group's loaders. */
 	readonly beforeLoad?: RoutePreparationBehavior['beforeLoad']
+	/** Loader run for this group. */
 	readonly loader?: RoutePreparationBehavior['loader']
 }
 
 export interface RoutePreparationBehavior {
+	/** Ordered preparation groups for a route name. */
 	readonly groups?: readonly RoutePreparationGroup[]
 	validateSearch?(
 		raw: Record<string, unknown>,
@@ -4050,16 +4790,27 @@ export interface RoutePreparationBehavior {
 /** A host-free prepared match. The context and data here are not automatically
  * safe to serialize; SSR must project an explicitly declared public payload. */
 export interface PreparedRouteMatch {
+	/** Path the match was prepared from. */
 	to: string
+	/** Route name the match resolved to. */
 	name: string
+	/** Stack the match belongs to. */
 	stack: string
+	/** Resolved path params. */
 	params: Record<string, string>
+	/** Validated search params. */
 	search: Record<string, unknown>
+	/** Route context carried into the screen. */
 	context: RouteContext
+	/** Loader result for this route. */
 	data: unknown
+	/** Resolved URL for the match. */
 	href: string
+	/** Fragment carried into the resolved URL. */
 	hash?: string
+	/** Resolved presentation (push/modal). */
 	presentation?: 'push' | 'modal'
+	/** Named transition chosen for this navigation. */
 	transition?: string
 }
 
@@ -4115,7 +4866,9 @@ export type RoutePreloadResult =
  * read once per attempt. Linear clients supersede all pending navigation, while
  * independent native flows may prepare concurrently. No host is created here. */
 export interface RoutePreparationOptions {
+	/** Route manifest supplying route metadata. */
 	catalog: RouteManifest
+	/** Guard/loader groups keyed by route name. */
 	behaviors?: Readonly<Record<string, RoutePreparationBehavior>>
 	/** @internal Client effect names; server preparation can omit motion policy. */
 	transitionNames?: readonly string[]
@@ -4125,6 +4878,7 @@ export interface RoutePreparationOptions {
 	 * yielding; async sources must resolve a consistent record. Services retain
 	 * identity. Changing this source does not invalidate retained entries. */
 	context?: object | (() => object | Promise<object>)
+	/** Base path the app is served under. */
 	base?: string
 	/** Trusted HTTP(S) origins for incoming links. Relative URLs are always accepted. */
 	allowedOrigins?: readonly string[]
@@ -4132,7 +4886,9 @@ export interface RoutePreparationOptions {
 	allowedSchemes?: readonly string[]
 	/** Named flows use /@name/... URLs, separate from root route patterns. */
 	stacks?: readonly string[]
+	/** `linear` keeps one history per session; `independent` keeps per-stack history. */
 	history?: 'linear' | 'independent'
+	/** Factory for navigation cancellation signals. */
 	createCancellationController?: () => RouteCancellationController
 }
 
@@ -4291,10 +5047,15 @@ export interface RouteContract<
 	Context = RouteContext,
 	RootContext = object,
 > {
+	/** Param schema/parser for this route family. */
 	params: Params
+	/** Search-param input schema (pre-validation shape). */
 	searchInput: SearchInput
+	/** Search-param output type after validation. */
 	search: Search
+	/** Loader-data type carried by this route family. */
 	data: Data
+	/** Context type injected into route callbacks. */
 	context: Context
 	/** Type metadata for dependencies supplied before guards add context. */
 	readonly rootContext?: RootContext
@@ -4306,6 +5067,7 @@ export interface AppRouteContracts {}
 
 /** Generated/declared navigation flow names. The root flow always exists. */
 export interface AppRouteStacks {
+	/** The default/root stack contract — app-declared stacks merge onto this. */
 	root: unknown
 }
 
@@ -4431,9 +5193,13 @@ export type MergedRouteContext<Context, Added> = Omit<
 
 /** Contextual callback inputs inferred by defineRoute for programmatic routes. */
 export interface RouteDefinitionArgs<Path extends string, Validator, Context> {
+	/** Resolved path params passed to the screen. */
 	params: RouteSpecParams<Path>
+	/** Validated search passed to the screen. */
 	search: RouteSearchOutput<Validator>
+	/** Route context passed to the screen. */
 	context: Context
+	/** Aborts when the navigation is superseded. */
 	signal?: RouteCancellationSignal
 }
 
@@ -4449,32 +5215,45 @@ type InferredRouteCallbackSearch<Validator> = [RouteSearchOutput<Validator>] ext
 	: RouteSearchOutput<Validator>
 
 type RouteDefinitionCallbackArgs<Path extends string, Validator, Context> = {
+	/** Params a guard may rewrite before commit. */
 	params: NoInfer<RouteSpecParams<Path>>
+	/** Search a guard may rewrite before commit. */
 	search: NoInfer<InferredRouteCallbackSearch<Validator>>
+	/** Context a guard may extend before commit. */
 	context: Context
+	/** Aborts when the navigation is superseded. */
 	signal?: RouteCancellationSignal
 }
 
 /** Programmatic preparation input. Attach a screen to the returned builder
  * after these contracts have been inferred. Use withContext for root services. */
 export interface RouteDefinitionInput<Path extends string, Validator, Context, Added, Data> {
+	/** Route path pattern (params as `:name`). */
 	path: Path
+	/** Search-param validator for this route. */
 	validateSearch?: CheckedSearchValidator<Validator>
+	/** Guard run before the loader — may redirect or abort. */
 	beforeLoad?: (
 		args: RouteDefinitionCallbackArgs<Path, Validator, Context>,
 	) => Added | Promise<Added>
+	/** Data loader run during preparation. */
 	loader?: (
 		args: RouteDefinitionCallbackArgs<Path, Validator, MergedRouteContext<Context, NoInfer<Added>>>,
 	) => Data
+	/** Default presentation for this route. */
 	presentation?: 'push' | 'modal'
+	/** Default transition for this route. */
 	transition?: RouteTransitionName
+	/** Head metadata (title/meta) for this route. */
 	head?: RouteHeadExport<
 		RouteSpecParams<Path>,
 		NoInfer<RouteSearchOutput<Validator>>,
 		MergedRouteContext<Context, NoInfer<Added>>,
 		Awaited<NoInfer<Data>>
 	>
+	/** Boundary rendered when the screen or loader throws. */
 	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
+	/** Originating module specifier — used for diagnostics/HMR. */
 	source?: string
 }
 
@@ -4494,6 +5273,7 @@ export interface RouteDefinitionBuilder<
 	Data,
 	Root = Context,
 > {
+	/** Finalizes the route — binds the screen component. */
 	readonly screen: (
 		component: (props: {
 			params: RouteSpecParams<Path>
@@ -4513,6 +5293,7 @@ export type RouteDefinitionWithLoader<
 	Added,
 	Data,
 > = RouteDefinitionInput<Path, Validator, Context, Added, Data> & {
+	/** The route's data loader. */
 	loader: NonNullable<RouteDefinitionInput<Path, Validator, Context, Added, Data>['loader']>
 }
 
@@ -4525,8 +5306,11 @@ export type DefinedRoute<
 	Data,
 	Root = Context,
 > = Readonly<Omit<RouteSpec, 'screen' | 'preparation'>> & {
+	/** Route path pattern. */
 	readonly path: Path
+	/** Guard/loader groups bound to this route. */
 	readonly preparation?: Readonly<RoutePreparationBehavior>
+	/** Screen component factory bound by the builder. */
 	readonly screen: Parameters<
 		RouteDefinitionBuilder<Path, Validator, Context, Added, Data, Root>['screen']
 	>[0]
@@ -4826,16 +5610,23 @@ export type RouteTransitionResult =
 
 /** Motion receives prepared matches; it cannot decide when navigation commits. */
 export interface RouteTransitionContext {
+	/** `forward` on push, `back` on pop. */
 	direction: 'forward' | 'back'
+	/** Host command driving the transition. */
 	action: RouterHostCommand['action'] | 'forward'
+	/** Route being left, or null on first mount. */
 	from: PreparedRouteMatch | null
+	/** Route being entered, or null on dismissal. */
 	to: PreparedRouteMatch | null
 }
 
 /** CSS supplies the visual effect selected by these browser transition types. */
 export interface WebTransitionOptions {
+	/** View-transition type list, or a function computing it per navigation. */
 	types?: readonly string[] | ((context: RouteTransitionContext) => readonly string[])
+	/** `skip` honors prefers-reduced-motion; `allow` plays anyway. */
 	reducedMotion?: 'skip' | 'allow'
+	/** Behavior when view transitions are unavailable (`skip` only). */
 	unsupported?: 'skip'
 }
 
@@ -4844,11 +5635,17 @@ export interface WebTransitionOptions {
  * Translations use layout units (DIP on NativeScript), rotation uses degrees
  * and opacity ranges 0–1. */
 export interface NativeViewTransitionValues {
+	/** Alpha applied to the transitioning view. */
 	opacity?: number
+	/** Horizontal offset in DIPs. */
 	translateX?: number
+	/** Vertical offset in DIPs. */
 	translateY?: number
+	/** Horizontal scale factor. */
 	scaleX?: number
+	/** Vertical scale factor. */
 	scaleY?: number
+	/** Rotation in degrees. */
 	rotate?: number
 }
 
@@ -4858,10 +5655,13 @@ export type AppKitTransitionValues = NativeViewTransitionValues
 /** Incoming-view animation on AppKit; NativeScript Frames and browser View
  * Transitions use their respective platform helpers. */
 export interface AppKitTransitionOptions {
+	/** Start values for the incoming view — static or computed per navigation. */
 	from:
 		| Readonly<AppKitTransitionValues>
 		| ((context: RouteTransitionContext) => Readonly<AppKitTransitionValues>)
+	/** Animation duration in ms. */
 	duration?: number
+	/** `skip` honors reduced-motion; `allow` plays anyway. */
 	reducedMotion?: 'skip' | 'allow'
 }
 
@@ -4876,6 +5676,7 @@ declare const nativeTransitionTypes: unique symbol
 /** Opaque native effect created by a platform integration helper. Portable
  * routing contracts do not import the platform's view or animation types. */
 export interface NativeTransitionDefinition {
+	/** Marks this transition as native-rendered (vs web view-transition). */
 	readonly kind: 'native'
 	readonly [nativeTransitionTypes]: true
 }
@@ -4916,7 +5717,9 @@ export type NavigationDestinationSnapshot = Omit<
 	Readonly<RouteDestinationInput>,
 	'params' | 'search'
 > & {
+	/** Param snapshot for the destination. */
 	readonly params?: Readonly<Record<string, string | undefined>>
+	/** Search snapshot for the destination. */
 	readonly search?: Readonly<Record<string, unknown>>
 }
 
@@ -4975,9 +5778,13 @@ export type NavigationBlockerState =
 /** Snapshot of the owning navigation flow. Pending work leaves the current
  * committed match visible. Snapshots are stable until the instance changes. */
 export interface RouterState<Contracts = RegisteredRouteContracts> {
+	/** Current prepared match, or null before the first commit. */
 	route: RouterMatch<Contracts> | null
+	/** In-flight navigation state (idle/loading/…). */
 	navigation: RouterNavigationState
+	/** Whether back navigation is currently possible. */
 	canGoBack: boolean
+	/** Whether the top entry is presented modally. */
 	modal: boolean
 }
 
@@ -5043,8 +5850,11 @@ export interface RouterProviderProps<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > {
+	/** Router instance provided to the subtree. */
 	router: RouterInstance<Contracts, Stacks, Transitions>
+	/** Stack registry the router manages. */
 	stack?: NoInfer<Stacks>
+	/** App content rendered inside the provider. */
 	children?: any
 }
 
@@ -5055,7 +5865,9 @@ declare const paneRouterHostTypes: unique symbol
  * Instance disposal releases the host; it cannot be recycled for another owner.
  */
 export interface PaneRouterHost {
+	/** Router host bound to this pane. */
 	readonly host: RouterHost
+	/** Binds the host to a router instance and stack. */
 	readonly attach: <Contracts, Stacks extends string, Transitions extends string>(
 		router: RouterInstance<Contracts, Stacks, Transitions>,
 	) => void
@@ -5069,7 +5881,9 @@ export interface PaneRouterHost {
  * @see createPaneRouterHost in @octane-xplat/ui/routing.
  */
 export interface RouterPaneProps<Contracts, Stacks extends string, Transitions extends string> {
+	/** Router instance driving this pane. */
 	router: RouterInstance<Contracts, Stacks, Transitions>
+	/** Pane host receiving route commands. */
 	host: PaneRouterHost
 	/** Declared stack to render. @default 'root' */
 	stack?: NoInfer<Stacks>
@@ -5086,6 +5900,7 @@ export type RouteSearchUpdater<Contracts, Name extends keyof Contracts & string>
 		| ((
 				previous: Readonly<RouteMatchFor<Contracts, Name>['search']>,
 		  ) => Contracts[Name] extends { searchInput: infer Input } ? Input : never),
+	/** `replace: false` creates a Back destination instead of replacing the history entry (default). */
 	options?: { replace?: boolean },
 ) => Promise<NavigationResult<Contracts>>
 
@@ -5126,6 +5941,7 @@ export interface RouterInstance<
 }
 
 export interface RouteRegistrationOptions {
+	/** Registration id used to dedupe/unregister. */
 	id: string
 	/** Collisions fail by default. Replace shadows runtime layers; an instance's
 	 * declared contracts cannot be replaced by runtime registration. */
@@ -5141,8 +5957,11 @@ export interface RouteRegistration {
 export interface RouterHostSnapshot {
 	/** Permanently ended identity; hosts must not reuse it for another flow. */
 	disposed?: boolean
+	/** Currently committed route, or null. */
 	route: PreparedRouteMatch | null
+	/** Whether back is possible on this host. */
 	canGoBack: boolean
+	/** Whether the host's top entry is modal. */
 	modal: boolean
 }
 
@@ -5155,22 +5974,30 @@ export interface RouterHostChange {
 	/** Owner removal cancels only that flow's unaccepted work. It is not an
 	 * external history traversal: a commit may itself remove source outlets. */
 	ownerDisposed?: boolean
+	/** True when the change came from outside the router (e.g. browser back). */
 	external?: boolean
+	/** Flow id grouping this change. */
 	flow?: string
 }
 
 /** Executable render selection from the instance's current catalog. This never
  * crosses URL, browser history state, or server transfer boundaries. */
 export interface RouterHostContent {
+	/** Screen component to render. */
 	screen: ScreenComponent
+	/** Layout chain wrapping the screen. */
 	layouts: LayoutComponent[]
+	/** Error boundary configured for this route. */
 	boundary?: RouteMeta['errorBoundary']
+	/** Props forwarded to the screen. */
 	props: Record<string, unknown>
+	/** Resolved head metadata for the route. */
 	head?: RouteHead
 }
 
 /** @internal Rendering bindings shared by platform hosts and owned outlets. */
 export interface ClientRouterHost {
+	/** Underlying router host implementation. */
 	host: RouterHost
 	attach(router: RouterInstance<any, any, any>): void
 	scope(flow: string): import('./routing/router-render-scope').RouterRenderScope
@@ -5186,35 +6013,49 @@ export interface ClientRouteOutletProps extends Pick<
 	RouteOutletProps,
 	'authority' | 'resumeUrl' | 'onResume'
 > {
+	/** Client host supplying the rendered route content. */
 	host: ClientRouterHost
+	/** Flow id this outlet renders. */
 	flow?: string
+	/** Fallback/inner content. */
 	children?: any
 }
 
 /** @internal Retained pane outlet, including a base-less modal history. */
 export interface RenderRouteOutletProps {
+	/** Render host supplying route content. */
 	host: import('./routing/render-router-host').RenderRouterHost
+	/** Flow id this outlet renders. */
 	flow?: string
+	/** Whether the outlet renders the modal layer. */
 	modal?: boolean
+	/** Fallback/inner content. */
 	children?: any
 }
 
 /** @internal Retained routing pane. Inactive content keeps its component state
  * while the platform removes it from layout and native visibility. */
 export interface RoutePaneProps {
+	/** Whether this pane is the active one — inactive panes stay mounted but hidden. */
 	active: boolean
 	/** Internal wrapper ref; applications retain their own screen refs. */
 	viewRef?: (view: unknown) => void
+	/** Pane content. */
 	children?: any
 }
 
 /** Internal host command. Deferred renderer/animation callbacks must check
  * isCurrent immediately before mutating history or rendering a destination. */
 export interface RouterHostCommand {
+	/** Navigation verb applied by the host. */
 	action: 'push' | 'replace' | 'reset' | 'refresh' | 'back' | 'forward' | 'dismiss'
+	/** Flow id grouping the command. */
 	flow: string
+	/** Prepared match the command targets. */
 	route?: PreparedRouteMatch
+	/** Resolved content rendered for the route. */
 	content?: RouterHostContent
+	/** Transition applied for this command. */
 	transition?: TransitionDefinition
 	/** A history handoff keeps the receiving flow's existing presentation. Route
 	 * defaults must not reopen an already-owned modal during replace/refresh. */
@@ -5278,7 +6119,9 @@ export type RouterHostPreparation =
  * than silently ignoring an unsupported operation. Each host belongs to one
  * instance for its lifetime, including after disposal. */
 export interface RouterHost {
+	/** History mode the host maintains. */
 	readonly history: 'linear' | 'independent'
+	/** Whether the host supports reset commands. */
 	readonly canReset: boolean
 	getSnapshot(flow: string): RouterHostSnapshot
 	subscribe(listener: (change?: RouterHostChange) => void): () => void
@@ -5372,7 +6215,9 @@ export type RouteContext = Record<string, unknown>
  * @see RouteHeadFn, RouteHeadExport.
  */
 export interface RouteHead {
+	/** Document/screen title. */
 	title?: string
+	/** Name→content map emitted as meta tags on web. */
 	meta?: Record<string, string>
 }
 
@@ -5384,9 +6229,13 @@ export interface RouteHeadArgs<
 	Context = RouteContext,
 	Data = unknown,
 > {
+	/** Route params available to the head factory. */
 	readonly params: Params
+	/** Validated search available to the head factory. */
 	readonly search: Search
+	/** Route context available to the head factory. */
 	readonly context: Context
+	/** Loader data available to the head factory. */
 	readonly data: Data
 }
 
@@ -5415,8 +6264,11 @@ export type RouteHeadExport<
  *  deterministic render error recatches. `route` is the committed Route
  *  the boundary is rendering for. */
 export interface RouteErrorBoundaryProps {
+	/** The thrown value captured by the boundary. */
 	error: unknown
+	/** Retries the route — clears the error and re-runs preparation. */
 	reset: () => void
+	/** Match whose screen failed. */
 	route: PreparedRouteMatch
 }
 
@@ -5429,8 +6281,11 @@ export interface RouteErrorBoundaryProps {
  * @see RouteErrorBoundaryProps — the props the declared boundary receives.
  */
 export interface RouteBoundaryProps {
+	/** Boundary component wrapping this route. */
 	boundary?: (props: RouteErrorBoundaryProps) => Renderable
+	/** Match the boundary guards. */
 	route: PreparedRouteMatch
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
@@ -5445,8 +6300,11 @@ export interface RouteBoundaryProps {
  * @see NavLinkProps.
  */
 export interface LinkProps {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Raw URL — bypasses the router and navigates directly. */
 	href: string
+	/** Anchor target (e.g. `_blank`). */
 	target?: string
 	/** External-destination treatment — new tab + indicator (Astryx `isExternalLink`). */
 	isExternalLink?: boolean
@@ -5467,34 +6325,50 @@ export interface LinkProps {
 	accessibilityRole?: 'link' | 'menuitem'
 	/** Runs when the user activates the link, before navigation. */
 	onPress?: () => void
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
 /** Cancellable activation shared by browser and native navigation items. */
 export interface NavigationActivationEvent {
+	/** Set once the activation has been consumed — prevents the default navigation. */
 	readonly defaultPrevented: boolean
 	preventDefault(): void
+	/** Pointer button that activated (0 = primary). */
 	readonly button?: number
+	/** Whether Cmd/⌘ was held — conventionally opens in a new context. */
 	readonly metaKey?: boolean
+	/** Whether Ctrl was held. */
 	readonly ctrlKey?: boolean
+	/** Whether Shift was held. */
 	readonly shiftKey?: boolean
+	/** Whether Alt/⌥ was held. */
 	readonly altKey?: boolean
 }
 
 /** Presentation and activation options for typed navigation links. */
 export interface NavLinkOptions {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Class applied while the link's route is active. */
 	activeClassName?: string
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Exact route by default; prefix includes descendant paths. */
 	match?: 'exact' | 'prefix'
 	/** Ignore search by default, or compare all/selected fields. */
 	matchSearch?: boolean | readonly string[]
+	/** Includes the hash when deciding whether the link is active. */
 	matchHash?: boolean
+	/** Renders inert — no navigation on activation. */
 	disabled?: boolean
 	/** Runs before routing. preventDefault() cancels activation on every target. */
 	onPress?: (event: NavigationActivationEvent) => void
@@ -5502,6 +6376,7 @@ export interface NavLinkOptions {
 	target?: string
 	/** Browser anchor relationship and download semantics. */
 	rel?: string
+	/** Marks the link a download; string sets the suggested filename. */
 	download?: boolean | string
 }
 
@@ -5592,6 +6467,7 @@ type RoutePlatform = 'web' | 'ios' | 'android' | 'mobile' | 'macos' | 'windows' 
 export interface RouteMeta {
 	/** @internal Generated module identity; caches code only, never prepared inputs. */
 	loadModule?: () => Promise<{ meta: RouteMeta; screen: ScreenComponent }>
+	/** Route name derived from the path. */
 	name: string
 	/** Generated file availability; platform readiness and authorization remain runtime checks. */
 	platforms?: readonly RoutePlatform[]
@@ -5599,7 +6475,9 @@ export interface RouteMeta {
 	preparation?: RoutePreparationBehavior
 	/** Animation is independent of page or modal presentation. */
 	transition?: RouteTransitionName
+	/** Path split into segments. */
 	segments: string[]
+	/** Param names declared by the path pattern. */
 	params: string[]
 	/** Source file (glob key) — diagnostics only. */
 	file: string
@@ -5634,9 +6512,13 @@ export type RouteDataMode = 'live' | 'baked'
 
 /** Normalized catalog of screens, preparation metadata, layouts and baked data. */
 export interface RouteManifest {
+	/** Name → screen component table. */
 	screens: ScreenTable
+	/** Route metadata entries. */
 	routes: RouteMeta[]
+	/** Name → layout component map. */
 	layouts: Record<string, LayoutComponent>
+	/** Name → loader function map. */
 	loaders?: Record<string, (params: Record<string, unknown>) => unknown | Promise<unknown>>
 	/** Build-time loader output for `dataMode: 'baked'` routes — the
 	 *  generated `routes.gen.*` glue assigns it from `routes.gen.data`;
@@ -5662,19 +6544,23 @@ export type RouteSpecParams<Path extends string> = string extends Path
  *  the callback members are methods so a narrowed spec remains assignable
  *  to the default `RouteSpec` the manifest consumes. */
 export interface RouteSpec<Path extends string = string> {
+	/** Path pattern for the spec. */
 	path: Path
 	/** @internal Inferred executable behavior assembled by defineRoute. */
 	preparation?: RoutePreparationBehavior
 	/** Independent animation preset; presentation continues to describe the host. */
 	transition?: RouteTransitionName
+	/** Screen rendered for the spec. */
 	screen: ScreenComponent
 	/** Default presentation, like a `+modal`/`+push` filename suffix. */
 	presentation?: 'push' | 'modal'
 	loader?(args: RouteDefinitionArgs<Path, undefined, RouteContext>): unknown
+	/** Where route data resolves (server/client/static). */
 	dataMode?: RouteDataMode
 	beforeLoad?(
 		args: RouteDefinitionArgs<Path, undefined, RouteContext>,
 	): RouteGuardResult | Promise<RouteGuardResult>
+	/** Head metadata factory for the spec. */
 	head?: RouteHeadExport<RouteSpecParams<Path>, any, any, any>
 	/** Component receiving `RouteErrorBoundaryProps` — the spec form of a
 	 *  route file's `ErrorBoundary` export. */
@@ -5689,8 +6575,11 @@ export interface RouteSpec<Path extends string = string> {
  *  `dataMode: 'baked'` specs — the host computes it (a content dir read, a
  *  build step) and ships it in the manifest. */
 export interface RouteSpecSet {
+	/** Specs in declaration order. */
 	routes: readonly RouteSpec[]
+	/** Layout map the specs reference. */
 	layouts?: Record<string, LayoutComponent>
+	/** Pre-computed values baked in at build time. */
 	baked?: Record<string, unknown>
 }
 
@@ -5701,11 +6590,13 @@ export interface RouteSpecSet {
  *  one normalized list. `loader`/`guard`/`head`/`errorBoundary` are
  *  presence flags — the functions don't cross the JSON boundary. */
 export interface RouteManifestJson {
+	/** Manifest schema version — always 1. */
 	version: 1
 	/** Layout dirs present, '' = the root `_layout` — sorted. */
 	layouts: string[]
 	/** Registered screen names, including any without a URL pattern. */
 	screens: string[]
+	/** Serialized route entries. */
 	routes: RouteJson[]
 }
 
@@ -5714,22 +6605,31 @@ export interface RouteManifestJson {
 export interface RouteJson {
 	/** Present for lazy routes. Callback flags are unknown/omitted until loaded. */
 	moduleLoaded?: boolean
+	/** Route name. */
 	name: string
 	/** Optional generated target availability, including missing-screen metadata. */
 	platforms?: readonly RoutePlatform[]
 	/** Colon-syntax path — 'docs/:slug', '' for the root index. */
 	path: string
+	/** Param names in path order. */
 	params: string[]
+	/** Default presentation. */
 	presentation?: 'push' | 'modal'
+	/** Default transition. */
 	transition?: RouteTransitionName
+	/** Where route data resolves. */
 	dataMode?: RouteDataMode
 	/** Layout dirs applying to this route, root '' first, innermost last. */
 	layouts: string[]
 	/** Source label — file path or `programmatic:<path>`. */
 	source: string
+	/** Whether the route declares a loader. */
 	loader?: boolean
+	/** Whether the route declares a guard. */
 	guard?: boolean
+	/** Whether the route declares head metadata. */
 	head?: boolean
+	/** Whether the route declares an error boundary. */
 	errorBoundary?: boolean
 }
 
@@ -5793,10 +6693,15 @@ export type RouteDiagnosticCode =
  *  the smallest correct edit. `detail` carries what was actually found —
  *  the received value or the colliding source. */
 export interface RouteDiagnostic {
+	/** Diagnostic code identifying the problem class. */
 	code: RouteDiagnosticCode
+	/** Path or route name the diagnostic applies to. */
 	path: string
+	/** What the route was expected to provide. */
 	expected: string
+	/** Suggested fix shown to the author. */
 	hint: string
+	/** Additional context (found value, offending spec). */
 	detail?: string
 }
 
@@ -6053,6 +6958,7 @@ export type AnimationResult =
  * while allowing opacity fades.
  */
 export interface AnimatedValue {
+	/** Current animated scalar. */
 	readonly value: number
 	/** Attach to a shared view ref; pass null to detach and cancel. */
 	ref(el: HostElement): void
@@ -6141,22 +7047,34 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
  * @see AccordionProps for a labelled multi-section form.
  */
 export interface CollapsibleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content that toggles the collapsible region. */
 	trigger?: Renderable
 	/** Key inside a `CollapsibleGroup` — the group owns which value is open
 	 *  (Astryx `value`). Standalone collapsibles ignore it. */
 	value?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Controlled open state. */
 	open?: boolean
+	/** Initial open state for uncontrolled usage. */
 	defaultOpen?: boolean
+	/** Prevents toggling and applies the disabled styling. */
 	disabled?: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange?: (open: boolean) => void
+	/** Accessible name for the trigger. */
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6166,26 +7084,42 @@ export interface CollapsibleProps {
  *  `onChange` carry the open key (single) or keys (multiple). `hasDividers`
  *  paints hairlines between the grouped rows. */
 export interface CollapsibleGroupProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** `single` keeps at most one item open; `multiple` allows many. */
 	type?: 'single' | 'multiple'
+	/** Controlled open item key(s). */
 	value?: string | string[]
+	/** Initial open key(s) for uncontrolled usage. */
 	defaultValue?: string | string[]
+	/** Fires with the new open key(s). */
 	onChange?: (value: string | string[]) => void
+	/** Draws separators between items. */
 	hasDividers?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One `Accordion` section — stable `key` (selection identity), `header` row content, `content` body, `disabled`.
  */
 export interface AccordionItemSpec {
+	/** Stable key identifying the item (used for open state). */
 	key: string
+	/** Header content rendered in the trigger row. */
 	header?: Renderable
+	/** Body content revealed when open. */
 	content?: Renderable
+	/** Locks the item in its current state. */
 	disabled?: boolean
 }
 
@@ -6205,29 +7139,43 @@ export interface AccordionItemSpec {
  * @see AccordionItemSpec, CollapsibleProps.
  */
 export interface AccordionBaseProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Item descriptors rendered by the accordion. */
 	items: AccordionItemSpec[]
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Single-open disclosure state. `null` means that no section is open. */
 export interface AccordionSingleProps extends AccordionBaseProps {
+	/** Single-open mode discriminator — `false` fixes this variant. */
 	multiple?: false
+	/** Controlled open item key, or null when collapsed. */
 	open?: string | null
+	/** Initial open key for uncontrolled usage. */
 	defaultOpen?: string | null
+	/** Reports requested open-key changes. */
 	onOpenChange?: (open: string | null) => void
 }
 
 /** Multi-open disclosure state. */
 export interface AccordionMultipleProps extends AccordionBaseProps {
+	/** Multi-open mode discriminator — `true` fixes this variant. */
 	multiple: true
+	/** Controlled open item keys. */
 	open?: string[]
+	/** Initial open keys for uncontrolled usage. */
 	defaultOpen?: string[]
+	/** Reports requested open-key changes. */
 	onOpenChange?: (open: string[]) => void
 }
 
@@ -6244,8 +7192,11 @@ export type AccordionProps = AccordionSingleProps | AccordionMultipleProps
  * @see CheckboxGroupProps (`CheckboxList`) for multi-choice lists.
  */
 export interface CheckboxProps extends FieldControlProps, TestIDProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Controlled state — pair with `onChange`. `'indeterminate'` is the
 	 *  partial-selection state (parent-of-a-tree semantics): it renders the
@@ -6262,19 +7213,26 @@ export interface CheckboxProps extends FieldControlProps, TestIDProps {
 	 *  the loading state; a rejection reverts the toggle and reports the
 	 *  previous value through `onChange` again. */
 	changeAction?: (checked: boolean) => void | Promise<void>
+	/** Accessible name for the checkbox. */
 	accessibilityLabel?: string
+	/** Describes the toggled outcome; announced after the label. */
 	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One option of `RadioList`/`SegmentedControl` — `value` is the selection identity, `label` the text, `isDisabled` blocks the single option.
  */
 export interface RadioOption {
+	/** Value submitted when this option is selected. */
 	value: string
+	/** Text shown beside the option. */
 	label?: string
+	/** Makes the option unselectable while keeping it visible. */
 	isDisabled?: boolean
 	/** Supporting text under the label (Astryx item `description`). */
 	description?: string
@@ -6298,25 +7256,33 @@ export interface RadioOption {
  * @see SegmentedControlProps, SelectProps (`Selector`).
  */
 export interface RadioGroupProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Options rendered as radio rows. */
 	options?: RadioOption[]
 	/** Controlled selected option — pair with `onValueChange`. */
 	value?: string
 	/** Initial selected option for uncontrolled use; `value` wins when both
 	 *  are set. */
 	defaultValue?: string
+	/** Lays options out in a row instead of a column. */
 	horizontal?: boolean
 	/** Called with the chosen option's `value`. */
 	onValueChange?: (value: string) => void
+	/** Accessible name for the radio group. */
 	accessibilityLabel?: string
 	/** `RadioListItem` children — the Astryx child-part alternative to
 	 *  `options`; items read selection state from the group context. */
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6324,16 +7290,27 @@ export interface RadioGroupProps extends FieldControlProps {
  *  Selection state comes from the enclosing group's context; standalone use
  *  renders a presentational row. */
 export interface RadioListItemProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Value submitted when this item is selected. */
 	value: string
+	/** Primary text for the item row. */
 	label?: string
+	/** Secondary text under the label. */
 	description?: string
+	/** Content rendered at the row's trailing edge. */
 	endContent?: Renderable
+	/** Makes the item unselectable while keeping it visible. */
 	isDisabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6356,9 +7333,13 @@ export interface RadioListItemProps {
  * @see RadioGroupProps (`RadioList`).
  */
 export interface SegmentedControlProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Options rendered as segments. */
 	options?: RadioOption[]
 	/** Controlled selected segment — pair with `onValueChange`. */
 	value?: string
@@ -6367,6 +7348,7 @@ export interface SegmentedControlProps extends FieldControlProps {
 	defaultValue?: string
 	/** Called with the chosen segment's `value`. */
 	onValueChange?: (value: string) => void
+	/** Accessible name for the control. */
 	accessibilityLabel?: string
 	/** `'fill'` stretches segments to share the full track width.
 	 *  @default 'hug' */
@@ -6376,7 +7358,9 @@ export interface SegmentedControlProps extends FieldControlProps {
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6384,29 +7368,45 @@ export interface SegmentedControlProps extends FieldControlProps {
  *  (Astryx child part). `icon` leads the label; `isLabelHidden` renders an
  *  icon-only segment while `label` stays the accessible name. */
 export interface SegmentedControlItemProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Value this segment selects. */
 	value: string
+	/** Text shown inside the segment. */
 	label?: string
+	/** Icon shown inside the segment. */
 	icon?: Renderable
+	/** Keeps the label for assistive tech but renders only the icon. */
 	isLabelHidden?: boolean
+	/** Makes the segment unselectable. */
 	isDisabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Data-driven menu row fields shared by the menu families. */
 export interface MenuItemData {
+	/** Stable key identifying the item. */
 	key: string
+	/** Text shown for the item. */
 	label?: string
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
 	/** Secondary text under the label (Astryx item `description`). */
 	description?: string
+	/** Dims the item and blocks selection. */
 	isDisabled?: boolean
+	/** Fires when the item is chosen. */
 	onSelect?: () => void
+	/** Closes the menu after selection (default behavior; set false to keep open). */
 	hasCloseOnSelect?: boolean
 	/** Row tone — 'destructive' renders label/description/icon in the error
 	 *  color (Astryx `variant`). @default 'default' */
@@ -6415,16 +7415,23 @@ export interface MenuItemData {
 
 /** An action menu row. */
 export interface MenuActionData extends MenuItemData {
+	/** Action-row discriminator — a command, not a link. */
 	type: 'action'
+	/** Unused on action rows — `type` discriminates. */
 	items?: never
+	/** Unused on action rows — `type` discriminates. */
 	href?: never
 }
 
 /** A link row that retains normal link navigation. */
 interface MenuLinkDataBase extends Omit<MenuItemData, 'onSelect'> {
+	/** Fires with the activation event — cancelable before navigation. */
 	onSelect?: (event: NavigationActivationEvent) => void
+	/** Link-row discriminator — retains normal link navigation. */
 	type: 'link'
+	/** Anchor target for the link row. */
 	target?: string
+	/** Unused on link rows — `type` discriminates. */
 	items?: never
 }
 
@@ -6441,26 +7448,43 @@ export interface MenuSectionData<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > extends MenuItemData {
+	/** Section-header discriminator. */
 	type: 'section'
+	/** Section heading text. */
 	label: string
+	/** Items grouped under this section. */
 	items: readonly MenuOption<Contracts, Stacks, Transitions>[]
+	/** Unused on sections — `type` discriminates. */
 	icon?: never
+	/** Unused on sections — `type` discriminates. */
 	isDisabled?: never
+	/** Unused on sections — `type` discriminates. */
 	onSelect?: never
+	/** Unused on sections — `type` discriminates. */
 	hasCloseOnSelect?: never
+	/** Unused on sections — `type` discriminates. */
 	href?: never
 }
 
 /** A semantic separator with no label or activation behavior. */
 export interface MenuSeparatorData {
+	/** Stable key identifying the separator. */
 	key: string
+	/** Separator discriminator. */
 	type: 'separator'
+	/** Unused on separators — `type` discriminates. */
 	label?: never
+	/** Unused on separators — `type` discriminates. */
 	icon?: never
+	/** Unused on separators — `type` discriminates. */
 	isDisabled?: never
+	/** Unused on separators — `type` discriminates. */
 	onSelect?: never
+	/** Unused on separators — `type` discriminates. */
 	hasCloseOnSelect?: never
+	/** Unused on separators — `type` discriminates. */
 	items?: never
+	/** Unused on separators — `type` discriminates. */
 	href?: never
 }
 
@@ -6470,23 +7494,31 @@ export type MenuDividerData = MenuSeparatorData
 /** A toggleable menu row — `type: 'checkbox'`, caller-owned `value`, `onValueChange` requests the next state.
  */
 export interface MenuCheckboxData extends MenuItemData {
+	/** Checkbox-row discriminator. */
 	type: 'checkbox'
+	/** Controlled checked state. */
 	value: boolean
+	/** Fires with the toggled value. */
 	onValueChange?: (value: boolean) => void
 }
 
 /** One choice inside a `MenuRadioGroupData` — `value` is its selection identity.
  */
 export interface MenuRadioOptionData extends MenuItemData {
+	/** Value this option contributes when selected. */
 	value?: string
 }
 
 /** A single-choice group in menu data — `type: 'radio-group'`, shared `value`/`onValueChange`, `items` of `MenuRadioOptionData`.
  */
 export interface MenuRadioGroupData extends MenuItemData {
+	/** Radio-group discriminator. */
 	type: 'radio-group'
+	/** Controlled selected value. */
 	value?: string
+	/** Fires with the new selected value. */
 	onValueChange?: (value: string) => void
+	/** Options inside the group. */
 	items: MenuRadioOptionData[]
 }
 
@@ -6496,9 +7528,13 @@ export interface MenuSubMenuData<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > extends MenuItemData {
+	/** Submenu discriminator. */
 	type: 'submenu'
+	/** Nested menu items revealed on hover/focus. */
 	items: readonly MenuOption<Contracts, Stacks, Transitions>[]
+	/** Unused on submenus — opening is the interaction. */
 	onSelect?: never
+	/** Unused on submenus — `type` discriminates. */
 	href?: never
 }
 
@@ -6526,17 +7562,27 @@ export type MenuItem<
 /** One row in a compound menu (`DropdownMenu`/`ContextMenu` children) — `label`, optional `icon`/`description`/`endContent`, `isDisabled`, `onSelect`; `hasCloseOnSelect` keeps the menu open after selection when false.
  */
 export interface MenuItemProps {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Item content. */
 	label: Renderable
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
+	/** Secondary text under the label. */
 	description?: string
+	/** Content at the row's trailing edge (shortcut, checkmark, …). */
 	endContent?: Renderable
+	/** Dims the item and blocks selection. */
 	isDisabled?: boolean
+	/** Fires when the item is chosen. */
 	onSelect?: () => void
+	/** Closes the menu after selection. */
 	hasCloseOnSelect?: boolean
 	/** Row tone — 'destructive' renders label/description/icon in the error
 	 *  color (Astryx `variant`). @default 'default' */
@@ -6545,7 +7591,9 @@ export interface MenuItemProps {
 
 /** Props for an actionable link inside a menu. */
 interface MenuLinkPropsBase extends Omit<MenuItemProps, 'onSelect'> {
+	/** Anchor target when the item navigates. */
 	target?: string
+	/** Fires with the activation event — cancelable before navigation. */
 	onSelect?: (event: NavigationActivationEvent) => void
 }
 
@@ -6558,8 +7606,11 @@ export type MenuLinkProps<
 
 /** Accessible, non-actionable group inside a menu. */
 export interface MenuSectionProps {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Section heading text. */
 	label: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
@@ -6568,12 +7619,14 @@ export interface MenuSectionProps {
 export interface MenuCheckboxItemProps extends MenuItemProps {
 	/** Caller-owned checked state; updates are requested through onValueChange. */
 	value: boolean
+	/** Fires with the toggled value. */
 	onValueChange?: (value: boolean) => void
 }
 
 /** One choice inside a compound `MenuRadioGroup` — `value` is the selection identity.
  */
 export interface MenuRadioItemProps extends MenuItemProps {
+	/** Value this item contributes when selected. */
 	value: string
 }
 
@@ -6582,19 +7635,28 @@ export interface MenuRadioItemProps extends MenuItemProps {
 export interface MenuRadioGroupProps {
 	/** Required accessible name for this set of choices. */
 	label: string
+	/** Controlled selected value. */
 	value?: string
+	/** Initial value for uncontrolled usage. */
 	defaultValue?: string
+	/** Fires with the new selected value. */
 	onValueChange?: (value: string) => void
+	/** Disables the whole group. */
 	isDisabled?: boolean
+	/** Closes the menu after a selection. */
 	hasCloseOnSelect?: boolean
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
 /** A separator between compound-menu rows.
  */
 export interface MenuSeparatorProps {
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
 }
 
@@ -6608,10 +7670,15 @@ export interface MenuSubMenuProps<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > extends MenuItemProps {
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Nested items revealed on hover/focus. */
 	items?: readonly MenuOption<Contracts, Stacks, Transitions>[]
+	/** Controlled open state. */
 	isOpen?: boolean
+	/** Initial open state for uncontrolled usage. */
 	defaultOpen?: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange?: (isOpen: boolean) => void
 }
 
@@ -6619,20 +7686,30 @@ export interface MenuSubMenuProps<
  */
 export interface MenuContextValue {
 	closeMenu(): void
+	/** Size variant propagated to menu parts. */
 	menuSize: 'sm' | 'md' | 'lg'
 }
 
 /** Internal surface contract shared by every renderer. */
 export interface MenuSurfaceProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Content rendered inside the element. */
 	children?: Renderable
 	closeMenu(): void
+	/** Closes this menu level (for nested submenus). */
 	closeLevel?: () => void
+	/** Where focus lands when the menu opens. */
 	initialFocus?: 'first' | 'last' | 'container'
+	/** Accessible label for the menu surface. */
 	label?: string
 	/** Id of the trigger that opened this surface — the web leaf sets
 	 *  `aria-labelledby` so the menu is named by its trigger. Native leaves
@@ -6672,6 +7749,7 @@ export interface DropdownMenuProps<
 	className?: ClassValue
 	/** Applied to the menu surface (Astryx `style`). */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Trigger rendered as the shared `Button` — `label`, `icon`, `variant`,
 	 *  `size`, `isIconOnly`, `isDisabled`, `endContent`, `tooltip`, …
@@ -6688,14 +7766,21 @@ export interface DropdownMenuProps<
 	hasChevron?: boolean
 	/** Additional class for the inherited Popover surface. */
 	menuClassName?: ClassValue
+	/** Menu items/sections rendered by the dropdown. */
 	items?: readonly MenuOption<Contracts, Stacks, Transitions>[]
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Caller-owned visibility; onOpenChange requests do not replace this value. */
 	isOpen?: boolean
+	/** Initial open state for uncontrolled usage. */
 	defaultOpen?: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange?: (isOpen: boolean) => void
+	/** Preferred side of the menu relative to the trigger. */
 	placement?: PopoverPlacement
+	/** Alignment along the placement axis. */
 	alignment?: PopoverAlignment
+	/** Disables the trigger. */
 	isDisabled?: boolean
 	/** Surface presenting the items: anchored 'popover' (default), a modal
 	 *  'bottom-sheet', or 'adaptive' (bottom-sheet on compact coarse-pointer
@@ -6705,8 +7790,11 @@ export interface DropdownMenuProps<
 	/** Accessible name for the menu surface — the BottomSheet label under
 	 *  sheet presentation and the trigger/menu fallback. */
 	label?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6730,6 +7818,7 @@ export interface ContextMenuProps<
 	DropdownMenuProps<Contracts, Stacks, Transitions>,
 	'children' | 'button' | 'hasChevron'
 > {
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Compound menu content (children remain the context target). */
 	menu?: Renderable
@@ -6772,17 +7861,23 @@ export type BadgeVariant =
 /** Badge — small status/category pill. `label` is the pill text; `children`
  *  win when both are set (Astryx `Badge`). */
 export interface BadgeProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Pill text (Astryx `label`). */
 	label?: string | number
 	/** Semantic or categorical color. @default 'neutral' */
 	variant?: BadgeVariant
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6796,9 +7891,13 @@ export interface BadgeProps {
  * ```
  */
 export interface SeparatorProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Axis the separator runs perpendicular to. */
 	orientation?: 'horizontal' | 'vertical'
 	/** Stroke weight — 'subtle' hairline (default) or 'strong' (Astryx Divider variant). */
 	variant?: 'subtle' | 'strong'
@@ -6808,7 +7907,9 @@ export interface SeparatorProps {
 	isFullBleed?: boolean
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6822,10 +7923,15 @@ export interface SeparatorProps {
  * ```
  */
 export interface SkeletonProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Placeholder width — number is DIPs, string is a CSS length. */
 	width?: number | string
+	/** Placeholder height — number is DIPs, string is a CSS length. */
 	height?: number | string
 	/** Corner shape (Astryx `radius`): 'rounded' (default square-ish element
 	 *  radius) or 'circle' for avatar-like placeholders. */
@@ -6834,7 +7940,9 @@ export interface SkeletonProps {
 	index?: number
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6852,23 +7960,31 @@ export interface SkeletonProps {
 export type AvatarSize = 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | number
 
 export interface AvatarProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Image URL for the avatar. */
 	src?: string
+	/** Accessible description of the avatar image. */
 	alt?: string
 	/** Person name — derives initials for the fallback and the accessible
 	 *  name when `alt`/`fallback` are unset (Astryx `name`). */
 	name?: string
 	/** Fallback text (initials) shown when `src` is missing/fails. */
 	fallback?: string
+	/** Avatar size token. */
 	size?: AvatarSize
 	/** Status dot rendered on the avatar's end edge — an `AvatarStatusDot`
 	 *  element (Astryx `status`) or a variant name. */
 	status?: AvatarStatusDotVariant | Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6885,16 +8001,23 @@ export interface AvatarProps {
  * @see AvatarProps.
  */
 export interface AvatarGroupProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Max avatars rendered; the rest collapse into a `+N` avatar. */
 	max?: number
+	/** Avatar size applied to every member of the group. */
 	size?: number
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6905,13 +8028,21 @@ export type AvatarStatusDotVariant = StatusDotVariant
  *  `AvatarStatusDot`, also exposed as `Avatar status`). `label` is the
  *  accessible status name. */
 export interface AvatarStatusDotProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Status meaning — picks the dot color. */
 	variant?: AvatarStatusDotVariant
+	/** Accessible name for the status (e.g. "Online"). */
 	label?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6919,14 +8050,23 @@ export interface AvatarStatusDotProps {
  *  `count` is the number of hidden members; `label` overrides the rendered
  *  text (`+{count}` default). */
 export interface AvatarGroupOverflowProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Overflow count rendered in the chip (e.g. "+3"). */
 	count?: number
+	/** Custom overflow content — overrides `count`. */
 	label?: Renderable
+	/** Size matching the grouped avatars. */
 	size?: AvatarSize
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6946,8 +8086,11 @@ export interface AvatarGroupOverflowProps {
  * @see FieldControlProps — standalone controls carry the same vocabulary inline.
  */
 export interface FormFieldProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** ID of the single control associated with this field's label. */
 	inputID?: string
@@ -6963,9 +8106,13 @@ export interface FormFieldProps extends FieldControlProps {
 	isGroupLabel?: boolean
 	/** Tooltip text shown via an info affordance at the end of the label. */
 	labelTooltip?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -6973,35 +8120,56 @@ export interface FormFieldProps extends FieldControlProps {
  *  plus the required/optional marker, tooltip, and description row, without
  *  the wrapping `Field` chrome. `inputID` binds it to its control. */
 export interface FieldLabelProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Label text bound to the field. */
 	label: string
+	/** Id of the input the label points at (for/id linking on web). */
 	inputID?: string
+	/** Adds the required marker. */
 	isRequired?: boolean
+	/** Adds the optional marker. */
 	isOptional?: boolean
+	/** Applies the disabled label styling. */
 	isDisabled?: boolean
+	/** Helper text rendered under the label. */
 	description?: string
+	/** Tooltip content on the label's info affordance. */
 	labelTooltip?: string
 	/** Leading node in the label row (Astryx `labelIcon`). */
 	labelIcon?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** `FieldStatus` — a standalone status message (Astryx part): the severity
  *  glyph plus message text, for fields that own their chrome. */
 export interface FieldStatusComponentProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Status tone — selects icon and color. */
 	type: FieldStatusType
+	/** Status text rendered. */
 	message?: string
 	/** @default 'detached' */
 	variant?: FieldStatusVariant
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7019,13 +8187,21 @@ export interface FieldStatusComponentProps {
  * @see FormFieldProps (`Field`).
  */
 export interface FieldGroupProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Group heading text. */
 	label?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7044,8 +8220,11 @@ export interface FieldGroupProps {
  * @see ItemComponent for the slot composition, ListItemProps for list-context rows.
  */
 export interface ItemProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Primary row text or rich content. */
 	label?: Renderable
@@ -7055,7 +8234,9 @@ export interface ItemProps extends AccessibilityProps {
 	startContent?: Renderable
 	/** Content after the label/description column. */
 	endContent?: Renderable
+	/** Activation callback — makes the row pressable. */
 	onPress?: () => void
+	/** Dims the row and blocks activation. */
 	isDisabled?: boolean
 	/** Selected row state (Astryx `isSelected`). */
 	isSelected?: boolean
@@ -7065,13 +8246,16 @@ export interface ItemProps extends AccessibilityProps {
 	density?: ListDensity
 	/** Clamp the description text to N lines (Astryx `descriptionLines`). */
 	descriptionLines?: number
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
 /** Props of the `Item` slot components (`Item.StartContent`/`Content`/`Description`/`EndContent`) — `className` plus children.
  */
 export interface ItemSlotProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
@@ -7079,9 +8263,13 @@ export interface ItemSlotProps {
  */
 export interface ItemComponent {
 	(props: ItemProps): unknown
+	/** Slot component for the leading region. */
 	StartContent: (props: ItemSlotProps) => unknown
+	/** Slot component for the main region. */
 	Content: (props: ItemSlotProps) => unknown
+	/** Slot component for the secondary text region. */
 	Description: (props: ItemSlotProps) => unknown
+	/** Slot component for the trailing region. */
 	EndContent: (props: ItemSlotProps) => unknown
 }
 
@@ -7097,16 +8285,23 @@ export interface ItemComponent {
  * ```
  */
 export interface InputNumberProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Controlled number; `null` is the explicit empty value. */
 	value?: number | null
 	/** Initial number or empty value for uncontrolled use. */
 	defaultValue?: number | null
+	/** Minimum accepted value. */
 	min?: number
+	/** Maximum accepted value. */
 	max?: number
+	/** Increment applied by the spin buttons/arrow keys. */
 	step?: number
+	/** Text shown while the field is empty. */
 	placeholder?: string
 	/** Trailing unit text inside the field (Astryx `units`). */
 	units?: string
@@ -7122,8 +8317,11 @@ export interface InputNumberProps extends FieldControlProps {
 	onClear?: () => void
 	/** Requests a number or `null` when the input is cleared. */
 	onValueChange?: (value: number | null) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7138,24 +8336,38 @@ export interface InputNumberProps extends FieldControlProps {
  * ```
  */
 export interface PinInputProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Number of digit cells. */
 	length?: number
+	/** Controlled entered value. */
 	value?: string
+	/** Fires as digits are entered/cleared. */
 	onValueChange?: (value: string) => void
+	/** Fires once every cell is filled. */
 	onComplete?: (value: string) => void
+	/** Masks the entered digits. */
 	secure?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One `Selector`/`MultiSelector` option — `value` is the selection identity, `label` the shown text (defaults to `value`), `group` a shared heading, `description` supporting text (not matched by search), `isDisabled` blocks it.
  */
 export interface SelectOption {
+	/** Value committed when the option is chosen. */
 	value: string
+	/** Text shown for the option. */
 	label?: string
+	/** Makes the option unselectable. */
 	isDisabled?: boolean
 	/** Group heading. Options in the same group retain their input order. */
 	group?: string
@@ -7196,15 +8408,23 @@ export type SelectVariant = 'input' | 'ghost'
  * @see SelectOption, MultiSelectorProps — `MultiSelector` is the multi-select preset.
  */
 export interface SelectBaseProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Options rendered in the dropdown. */
 	options: SelectOption[]
+	/** Adds a filter field inside the dropdown. */
 	searchable?: boolean
 	/** Called when the local filter changes, including reset on close. */
 	onChangeQuery?: (query: string) => void
+	/** Placeholder for the dropdown's filter field. */
 	searchPlaceholder?: string
+	/** Text shown when there are no options. */
 	emptyText?: string
+	/** Text shown when filtering matches nothing. */
 	emptySearchText?: string
 	/** Called after rejected commits have reconciled the selection. */
 	onChangeError?: (error: unknown) => void
@@ -7212,12 +8432,19 @@ export interface SelectBaseProps extends FieldControlProps {
 	htmlName?: string
 	/** Maximum list height, in px/dip. @default 280 */
 	maxMenuHeight?: number
+	/** Text shown in the trigger before selection. */
 	placeholder?: string
+	/** Controlled open state of the dropdown. */
 	open?: boolean
+	/** Initial open state for uncontrolled usage. */
 	defaultOpen?: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange?: (open: boolean) => void
+	/** Fires when the selection is cleared. */
 	onClear?: () => void
+	/** Shows a clear affordance in the trigger. */
 	hasClear?: boolean
+	/** Preferred side of the dropdown relative to the trigger. */
 	placement?: PopoverPlacement
 	/** Surface the listbox opens on — see `SelectPresentation`. */
 	presentation?: SelectPresentation
@@ -7231,55 +8458,83 @@ export interface SelectBaseProps extends FieldControlProps {
 	 *  resolved `SelectOption`; default shows its label. (Astryx
 	 *  `renderValue`.) */
 	renderValue?: (option: SelectOption) => Renderable
+	/** Accessible name for the select. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** `SelectorOption` — the styled option row used by `renderOption`/
  *  `renderValue` renderers (Astryx part): icon lane, label, description. */
 export interface SelectorOptionProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Icon shown beside the option. */
 	icon?: Renderable
+	/** Text shown for the option. */
 	label?: string
+	/** Secondary text under the option. */
 	description?: string
+	/** Makes the option unselectable. */
 	isDisabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Single-value Selector contract. `null` means no selected option. */
 export interface SelectSingleProps extends SelectBaseProps {
+	/** Single-select discriminator — `single` fixes this variant. */
 	selectionMode?: 'single'
+	/** Controlled selected value, or null. */
 	value?: string | null
+	/** Initial value for uncontrolled usage. */
 	defaultValue?: string | null
+	/** Fires with the new value (or null when cleared). */
 	onValueChange?: (value: string | null) => void
 	/** Async commit after `onValueChange`. Blocks edits until settled. */
 	changeAction?: (value: string | null) => void | Promise<void>
+	/** Unused in single mode — `selectionMode` discriminates. */
 	hasSelectAll?: never
+	/** Unused in single mode — `selectionMode` discriminates. */
 	selectAllLabel?: never
+	/** Unused in single mode — `selectionMode` discriminates. */
 	triggerDisplay?: never
+	/** Unused in single mode — `selectionMode` discriminates. */
 	formatValue?: never
 }
 
 /** Multi-value Selector contract. Its callback always receives the selected
  *  values as an array, including an empty array after clearing. */
 export interface SelectMultipleProps extends SelectBaseProps {
+	/** Multi-select discriminator — `multiple` fixes this variant. */
 	selectionMode: 'multiple'
+	/** Controlled selected values. */
 	value?: string[]
+	/** Initial values for uncontrolled usage. */
 	defaultValue?: string[]
+	/** Fires with the new value array. */
 	onValueChange?: (value: string[]) => void
 	/** Show bulk selection of the visible enabled options. */
 	hasSelectAll?: boolean
+	/** Label for the select-all row. */
 	selectAllLabel?: string
 	/** Multi-value trigger summary — `'labels'` joins selected labels,
 	 *  `'count'` shows `N selected`, `'badges'` renders removable tokens.
 	 *  @default 'labels' */
 	triggerDisplay?: 'labels' | 'count' | 'badges'
+	/** Formats the selection summary shown in the trigger. */
 	formatValue?: (items: { value: string; label: string }[]) => string
 	/** Async commit after `onValueChange`. Blocks edits until settled. */
 	changeAction?: (value: string[]) => void | Promise<void>
@@ -7297,9 +8552,13 @@ export type SelectProps = SelectSingleProps | SelectMultipleProps
  * @see SearchSource — the search contract these items arrive through; createStaticSource builds one from an array.
  */
 export interface SearchableItem<TAuxData = unknown> {
+	/** Stable identity used for selection and keys. */
 	id: string
+	/** Text matched against the query and displayed. */
 	label: string
+	/** Custom rendered content for the item row — overrides `label`. */
 	element?: Renderable
+	/** Caller data carried through to `renderItem`/selection unchanged. */
 	auxiliaryData?: TAuxData
 }
 
@@ -7307,6 +8566,7 @@ export interface SearchableItem<TAuxData = unknown> {
  *  superseded or abandoned — every call gets a fresh signal, so consumers
  *  sharing one source cannot cancel each other's work. */
 export interface SearchRequest {
+	/** Aborts the request when superseded by a newer query. */
 	readonly signal: AbortSignal
 }
 
@@ -7360,6 +8620,7 @@ export interface TypeaheadInputHandle {
 	focus(): void
 	blur(): void
 	setQuery(query: string): void
+	/** The platform input host — surfaces differ per platform. */
 	native: HostElement
 }
 
@@ -7372,9 +8633,13 @@ export interface TypeaheadInputHandle {
 /** Portable key event for the typeahead input's `onKeyDown` — the DOM
  *  KeyboardEvent satisfies it on web; other hosts may fire a subset. */
 export interface TypeaheadKeyEvent {
+	/** DOM `key` value for the pressed key. */
 	key: string
+	/** True while an IME composition is in progress — handlers should ignore. */
 	isComposing?: boolean
+	/** Legacy key code for the pressed key. */
 	keyCode?: number
+	/** Set when the default navigation/editing behavior was consumed. */
 	defaultPrevented?: boolean
 	preventDefault(): void
 }
@@ -7404,10 +8669,13 @@ export type TypeaheadKeyDownHandler = (event: TypeaheadKeyEvent) => void
 export interface BaseTypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
 	/** Element id applied to the input itself. */
 	id?: string
+	/** Async/search provider supplying suggestion items. */
 	searchSource: SearchSource<T>
 	/** Currently selected item (null = nothing selected). Controlled. */
 	value: T | null
@@ -7416,6 +8684,7 @@ export interface BaseTypeaheadProps<
 	/** Custom option content inside the stable result row. Default:
 	 *  TypeaheadItem. `item.element` takes precedence over this. */
 	renderItem?: (item: T) => Renderable
+	/** Text shown while the field is empty. */
 	placeholder?: string
 	/** Offer `bootstrap()` results on focus before typing. */
 	hasEntriesOnFocus?: boolean
@@ -7433,29 +8702,46 @@ export interface BaseTypeaheadProps<
 	 *  aria-disabled + readOnly) so a disabled-reason tooltip stays
 	 *  discoverable. Editing stays blocked. */
 	isFocusableDisabled?: boolean
+	/** Focuses the field on mount. */
 	hasAutoFocus?: boolean
+	/** Fires as the query text changes. */
 	onChangeQuery?: (query: string) => void
+	/** Reports requested open-state changes for the suggestion menu. */
 	onOpenChange?: (open: boolean) => void
 	/** Debounce before `search` after typing; 0 runs synchronously.
 	 *  Default 150. */
 	debounceMs?: number
 	/** Anchor the dropdown to this ref's element/view instead of the input. */
 	anchorRef?: PopoverAnchorRef
+	/** Preferred side of the menu relative to the input. */
 	placement?: PopoverPlacement
+	/** Id applied to the inner input element. */
 	inputId?: string
+	/** Extra ids wired into the input's aria-describedby. */
 	ariaDescribedBy?: string
+	/** Ids wired into the input's aria-labelledby. */
 	ariaLabelledBy?: string
+	/** Tab order override for the inner input. */
 	inputTabIndex?: number
+	/** Key handler invoked before the typeahead's own handling. */
 	onKeyDown?: TypeaheadKeyDownHandler
+	/** Fires when the field gains focus. */
 	onFocus?: () => void
+	/** Fires when the field loses focus. */
 	onBlur?: () => void
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TypeaheadInputHandle>
 	/** Class/style applied to the input element only. */
 	inputClassName?: ClassValue
+	/** Inline style applied to the inner input only. */
 	inputStyle?: StyleProp
+	/** Accessible name for the input. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7476,59 +8762,90 @@ export interface BaseTypeaheadProps<
 export interface TypeaheadProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Accessible label — required by Astryx; kept required here. */
 	label: string
+	/** Keeps the label for assistive tech but removes it visually. */
 	isLabelHidden?: boolean
+	/** Async/search provider supplying suggestion items. */
 	searchSource: SearchSource<T>
+	/** Controlled selected item, or null. */
 	value: T | null
+	/** Fires when an item is chosen (or cleared). */
 	onChange: (item: T | null) => void
+	/** Renders one suggestion row. */
 	renderItem?: (item: T) => Renderable
+	/** Text shown while the field is empty. */
 	placeholder?: string
+	/** Opens the menu on focus before any query is typed. */
 	hasEntriesOnFocus?: boolean
+	/** Cap on suggestions rendered at once. */
 	maxMenuItems?: number
+	/** Minimum query length before the source is queried. */
 	minQueryLength?: number
+	/** Text shown when the query matches nothing. */
 	emptySearchResultsText?: string
 	/** Why the field is disabled; shown as a tooltip on pointer platforms
 	 *  while the input stays focusable. */
 	disabledMessage?: string
 	/** Show the clear button while a value is selected. Default true. */
 	hasClear?: boolean
+	/** Focuses the field on mount. */
 	hasAutoFocus?: boolean
+	/** Query debounce in ms before hitting the source. */
 	debounceMs?: number
+	/** Fires as the query text changes. */
 	onChangeQuery?: (query: string) => void
+	/** Reports requested open-state changes for the menu. */
 	onOpenChange?: (open: boolean) => void
 	/** Leading glyph — a registered Icon name or a node. */
 	startIcon?: Renderable
 	/** Field width; numbers are px/dip, strings pass through. */
 	width?: number | string
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TypeaheadInputHandle>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Tooltip content on the label's info affordance. */
 	labelTooltip?: string
 }
 
 /** Default result-row content for the Typeahead family — `item`, optional leading `icon`/`description`, `isDisabled`, presentational `group` label. Swap via `renderItem` on `BaseTypeahead`/`Typeahead`/`Tokenizer`.
  */
 export interface TypeaheadItemProps<T extends SearchableItem = SearchableItem> {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** The suggestion rendered by this row. */
 	item: T
 	/** Leading node — icon, avatar, etc. */
 	icon?: Renderable
 	/** Supporting text under the label. */
 	description?: string
+	/** Makes the suggestion unselectable. */
 	isDisabled?: boolean
 	/** Group label; presentational only — grouping itself is driven by
 	 *  `item.auxiliaryData.group`. */
 	group?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7565,14 +8882,21 @@ export type TokenSize = FieldControlSize
  * @see TokenizerProps — a field of editable tokens.
  */
 export interface TokenProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Text shown inside the token chip. */
 	label: string
+	/** Token size variant. */
 	size?: TokenSize
+	/** Token color variant. */
 	color?: TokenColor
 	/** Leading node — icon, avatar, etc. */
 	icon?: Renderable
+	/** Dims the token and blocks removal/interaction. */
 	isDisabled?: boolean
 	/** Remove affordance — renders the ✕ button. (Astryx `onRemove`.) */
 	onRemove?: () => void
@@ -7587,9 +8911,13 @@ export interface TokenProps {
 	endContent?: Renderable
 	/** Hide the label visually; it stays the accessible name. */
 	isLabelHidden?: boolean
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7640,26 +8968,38 @@ export interface TokenizerHandle {
 export interface TokenizerProps<
 	T extends SearchableItem = SearchableItem,
 > extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Label for the tokenizing field. */
 	label: string
+	/** Provider supplying token suggestions. */
 	searchSource: SearchSource<T>
 	/** Selected items. Controlled. */
 	value: T[]
+	/** Fires with the full token list plus the change that produced it. */
 	onChange: (items: T[], change: TokenizerChange<T>) => void
+	/** Renders one suggestion row. */
 	renderItem?: (item: T) => Renderable
 	/** Custom token renderer — receives the item and its remove callback.
 	 *  Default: Token with label + ✕. */
 	renderToken?: (item: T, onRemove: () => void) => Renderable
 	/** Cap on selections; the input collapses at the cap. */
 	maxEntries?: number
+	/** Text shown while the field is empty. */
 	placeholder?: string
+	/** Opens the menu on focus before any query is typed. */
 	hasEntriesOnFocus?: boolean
+	/** Cap on suggestions rendered at once. */
 	maxMenuItems?: number
 	/** Fixed dropdown width (px/dip); never below the field width. */
 	menuWidth?: number
+	/** Minimum query length before the source is queried. */
 	minQueryLength?: number
+	/** Text shown when the query matches nothing. */
 	emptySearchResultsText?: string
 	/** Why the field is disabled; tooltip on pointer platforms. */
 	disabledMessage?: string
@@ -7667,24 +9007,36 @@ export interface TokenizerProps<
 	hasClear?: boolean
 	/** Content in the field's inline-end lane (with the spinner/clear). */
 	endContent?: Renderable
+	/** Focuses the field on mount. */
 	hasAutoFocus?: boolean
+	/** What happens when tokens exceed the field width (wrap/truncate/popover). */
 	tokenOverflowBehavior?: TokenizerOverflowBehavior
+	/** Query debounce in ms before hitting the source. */
 	debounceMs?: number
 	/** Offer "Create \"query\"" for unmatched free text. */
 	hasCreate?: boolean
 	/** HTML form name — web only: renders hidden `<input>`s carrying one
 	 *  entry per selected item id. No-op on native. */
 	htmlName?: string
+	/** Fires as the query text changes. */
 	onChangeQuery?: (query: string) => void
 	/** Focus enters/leaves the field (no event object — portable). */
 	onFocus?: () => void
+	/** Fires when the field loses focus. */
 	onBlur?: () => void
+	/** Icon rendered at the field's leading edge. */
 	startIcon?: Renderable
+	/** Field width — number is DIPs, string is a CSS length. */
 	width?: number | string
+	/** Tooltip content on the label's info affordance. */
 	labelTooltip?: string
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TokenizerHandle>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7697,9 +9049,13 @@ export type ComplexSelectorSize = FieldControlSize
 
 /** Render state passed to the ComplexSelector surface builder. */
 export interface ComplexSelectorRenderState {
+	/** Whether the selector surface is open. */
 	isOpen: boolean
+	/** Whether the selector is loading. */
 	isBusy: boolean
+	/** Id linking the trigger to the surface. */
 	triggerId: string
+	/** Id of the surface element. */
 	contentId: string
 }
 
@@ -7707,8 +9063,11 @@ export interface ComplexSelectorRenderState {
  *  `value` is optimistic while `changeAction` is pending; `onChange`
  *  commits a value and `close` closes the surface. */
 export interface ComplexSelectorRenderProps<Value> extends ComplexSelectorRenderState {
+	/** Current value passed to the render function. */
 	value: Value
+	/** Commits a new value from inside the surface. */
 	onChange: (value: Value) => void
+	/** Closes the surface. */
 	close: () => void
 }
 
@@ -7746,35 +9105,55 @@ export interface ComplexSelectorHandle {
  * @see ComplexSelectorRenderProps for the children context, ComplexSelectorHandle.
  */
 export interface ComplexSelectorProps<Value> extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Label for the selector field. */
 	label: string
+	/** Controlled selected value. */
 	value: Value
+	/** Fires when a value is committed. */
 	onChange?: (value: Value) => void
 	/** Async action run after `onChange`; the surface reports `isBusy` and
 	 *  renders `value` optimistically until it settles. */
 	changeAction?: (value: Value) => void | Promise<void>
+	/** Render function receiving the selector's render props. */
 	children: (context: ComplexSelectorRenderProps<Value>) => Renderable
 	/** Trigger content while closed; falls back to `placeholder`. */
 	triggerLabel?: Renderable
+	/** Content shown in the trigger before selection. */
 	placeholder?: Renderable
 	/** Loading/busy state on the trigger. */
 	isLoading?: boolean
 	/** 'input' (default) draws the field chrome; 'ghost' a flat
 	 *  toolbar-style button. */
 	variant?: ComplexSelectorVariant
+	/** Icon at the trigger's leading edge. */
 	startIcon?: Renderable
+	/** Trigger width — number is DIPs, string is a CSS length. */
 	width?: number | string
+	/** Tooltip content on the label's info affordance. */
 	labelTooltip?: string
+	/** Preferred side of the surface relative to the trigger. */
 	placement?: PopoverPlacement
+	/** Alignment of the surface along the placement axis. */
 	alignment?: 'start' | 'center' | 'end'
+	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<ComplexSelectorHandle>
+	/** Reports requested open-state changes. */
 	onOpenChange?: (open: boolean) => void
+	/** Classes applied to the surface element. */
 	contentClassName?: ClassValue
+	/** Inline style applied to the surface element. */
 	contentStyle?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7788,18 +9167,29 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
  * ```
  */
 export interface InputRatingProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Controlled rating value. */
 	value?: number
+	/** Initial value for uncontrolled usage. */
 	defaultValue?: number
+	/** Highest rating (number of stars). */
 	max?: number
 	/** Glyph per cell — a Text character (default ★) or a registered Icon name. */
 	icon?: string
+	/** Fires with the new rating. */
 	onValueChange?: (value: number) => void
+	/** Accessible name for the rating control. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7819,9 +9209,13 @@ export interface InputRatingProps extends FieldControlProps {
  * @see CheckboxProps (`CheckboxInput`), RadioGroupProps.
  */
 export interface CheckboxGroupProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Options rendered as checkbox rows. */
 	options?: RadioOption[]
 	/** Controlled checked values — pair with `onValueChange`. */
 	value?: string[]
@@ -7831,17 +9225,22 @@ export interface CheckboxGroupProps extends FieldControlProps {
 	/** Called with the complete next value array when the user toggles an
 	 *  option. */
 	onValueChange?: (values: string[]) => void
+	/** Lays options out in a row instead of a column. */
 	horizontal?: boolean
 	/** Row density for the list items — 'compact' renders sm checkboxes. */
 	density?: ListDensity
 	/** Hairline between rows. @default false */
 	hasDividers?: boolean
+	/** Accessible name for the group. */
 	accessibilityLabel?: string
 	/** `CheckboxListItem` children — the Astryx child-part alternative to
 	 *  `options`; items read checked state from the group context. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7849,21 +9248,31 @@ export interface CheckboxGroupProps extends FieldControlProps {
  *  part). With `value` it joins the group's checked set; without `value`,
  *  `isChecked`/`onCheck` make it a standalone item (select-all pattern). */
 export interface CheckboxListItemProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Group membership key — join the parent `CheckboxList` value set. */
 	value?: string
+	/** Primary text for the row. */
 	label?: string
+	/** Secondary text under the label. */
 	description?: string
+	/** Content at the row's trailing edge. */
 	endContent?: Renderable
+	/** Makes the row unselectable. */
 	isDisabled?: boolean
 	/** Standalone checked state (no group `value`). */
 	isChecked?: boolean | 'indeterminate'
 	/** Standalone toggle callback (no group `value`). */
 	onCheck?: (checked: boolean) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7879,8 +9288,11 @@ export type BreadcrumbMenuOption = { label: string; onClick?: () => void } | { t
 export type BreadcrumbsVariant = 'default' | 'supporting'
 
 interface BreadcrumbItemBase {
+	/** Link text for the breadcrumb entry. */
 	label: string
+	/** Renders the entry inert (current page). */
 	isDisabled?: boolean
+	/** Fires when the entry is activated. */
 	onSelect?: () => void
 	/** Leading icon content (Astryx `startIcon`). */
 	startIcon?: Renderable
@@ -7917,14 +9329,19 @@ export interface BreadcrumbProps<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Ordered breadcrumb entries, root first. */
 	items?: readonly BreadcrumbEntry<Contracts, Stacks, Transitions>[]
 	/** Maximum visible trail items, at least two; hidden ancestors use a menu. */
 	maxVisibleItems?: number
 	/** Additional overflow actions use the same compound menu parts. */
 	overflowMenu?: Renderable
+	/** Accessible label for the overflow menu. */
 	overflowLabel?: string
 	/** Separator between crumbs — text or element (Astryx `separator`,
 	 *  default '/'). */
@@ -7934,9 +9351,13 @@ export interface BreadcrumbProps<
 	/** `BreadcrumbItem` part children (Astryx composition) — combined with
 	 *  `items`, which render first. */
 	children?: Renderable
+	/** Accessible name for the nav landmark. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -7950,28 +9371,42 @@ export interface BreadcrumbProps<
  * ```
  */
 export interface PaginationProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Controlled current page (1-based). */
 	page: number
+	/** Total number of pages. */
 	pageCount: number
 	/** Pages shown to each side of `page` (default 1). */
 	siblingCount?: number
+	/** Fires with the requested page. */
 	onPageChange?: (page: number) => void
+	/** Disables all page controls. */
 	disabled?: boolean
+	/** Accessible name for the pagination nav. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One `Stepper` entry — stable `key`, `label`, optional `icon` (registered `IconName`), `disabled` blocks tapping it.
  */
 export interface StepperStep {
+	/** Stable key identifying the step. */
 	key: string
+	/** Step title text. */
 	label?: string
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
+	/** Blocks navigating to this step. */
 	disabled?: boolean
 }
 
@@ -7987,13 +9422,19 @@ export interface StepperStep {
  * @see StepperStep.
  */
 export interface StepperProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Data-driven steps — the flat alternative to `Step` children. */
 	steps?: StepperStep[]
+	/** Controlled current step index. */
 	current?: number
+	/** Fires when a step is activated. */
 	onStepChange?: (index: number) => void
+	/** Accessible name for the stepper. */
 	accessibilityLabel?: string
 	/** Active step index for the `Step` child-part contract (Astryx
 	 *  `activeStep`). */
@@ -8013,8 +9454,11 @@ export interface StepperProps {
 	}
 	/** `Step` children — the Astryx child-part alternative to `steps`. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8023,36 +9467,53 @@ export interface StepperProps {
  *  completed, equal is current, above is upcoming. Children render as the
  *  step's content slot. */
 export interface StepProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Position this step claims in the parent's progress. */
 	step: number
+	/** Step title text. */
 	label?: string
+	/** Secondary text under the step title. */
 	description?: string
 	/** `'auto'` (number → check when passed), `'number'`, `'none'`, or a
 	 *  node rendered as the indicator. */
 	indicator?: 'auto' | 'number' | 'none' | Renderable
 	/** Status tint — `'accent'` marks the in-progress step without error. */
 	status?: 'success' | 'warning' | 'error' | 'accent'
+	/** Marks the step skippable. */
 	isOptional?: boolean
+	/** Blocks navigating to this step. */
 	isDisabled?: boolean
+	/** Content at the step row's trailing edge. */
 	endContent?: Renderable
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One `NavigationMenu` entry — `key`, `label`, optional `icon`, `href` link target (real anchor on web; route-table activation on native), `active` marks the current item, `onSelect` handles custom activation.
  */
 interface NavigationMenuItemBase {
+	/** Stable key identifying the step. */
 	key: string
+	/** Step title text. */
 	label?: string
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
+	/** Whether this step is the current one. */
 	active?: boolean
+	/** Blocks navigating to this step. */
 	disabled?: boolean
+	/** Fires with the activation event when the step is chosen. */
 	onSelect?: (event: NavigationActivationEvent) => void
 }
 
@@ -8079,22 +9540,35 @@ export interface NavigationMenuProps<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Menu entries rendered by the nav menu. */
 	items: readonly NavigationMenuItem<Contracts, Stacks, Transitions>[]
+	/** Lays the menu out in a row (default column). */
 	horizontal?: boolean
+	/** Accessible name for the nav landmark. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Static action entry for CommandPalette's search results. */
 export interface CommandPaletteMenuItem extends MenuItemData {
+	/** Section the item is grouped under. */
 	group?: string
+	/** Extra terms matched during search. */
 	keywords?: string[]
+	/** Secondary text under the item. */
 	description?: string
+	/** Shortcut hint rendered at the trailing edge. */
 	shortcut?: string
 }
 
@@ -8102,9 +9576,13 @@ export interface CommandPaletteMenuItem extends MenuItemData {
 export interface CommandPaletteItem extends SearchableItem {
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
+	/** Dims the item and blocks selection. */
 	disabled?: boolean
+	/** Secondary text under the item. */
 	description?: string
+	/** Shortcut hint rendered at the trailing edge. */
 	shortcut?: string
+	/** Fires when the command is chosen. */
 	onSelect?: () => void
 }
 
@@ -8125,11 +9603,15 @@ export interface CommandPaletteItem extends SearchableItem {
  * @see CommandPaletteItem, CommandPaletteMenuItem, SearchSource.
  */
 export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPaletteItem> {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Controlled visibility. Defaults to false. */
 	open?: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange?: (open: boolean) => void
 	/** Static commands; ignored when searchSource is supplied. */
 	items?: CommandPaletteMenuItem[]
@@ -8137,23 +9619,35 @@ export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPalet
 	searchSource?: SearchSource<T>
 	/** Static matching only. Custom sources own their matching policy. */
 	searchMode?: 'substring' | 'fuzzy'
+	/** Text shown in the query field while empty. */
 	placeholder?: string
 	/** Accessible surface and input name. Defaults to Command palette. */
 	label?: string
+	/** Controlled query text. */
 	value?: string
+	/** Fires as the query changes. */
 	onValueChange?: (value: string) => void
 	/** Inner row content; selection/disabled semantics remain palette-owned. */
 	renderItem?: (item: T, isSelected: boolean) => Renderable
+	/** Text shown when the query matches nothing. */
 	emptySearchText?: string
+	/** Text shown before any query is typed. */
 	emptyBootstrapText?: string
+	/** Text shown while results load. */
 	loadingText?: string
+	/** Text shown when result loading fails. */
 	errorText?: string
 	/** Custom footer content; false hides it. Mobile has no default key hints. */
 	footer?: Renderable
+	/** Palette width — number is DIPs, string is a CSS length. */
 	width?: number | string
+	/** Maximum result-list height in DIPs. */
 	maxHeight?: number
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8169,7 +9663,9 @@ export type TableVerticalAlign = 'middle' | 'top' | 'bottom'
 
 /** A proportional (fr-like) column width — created by `proportional()`. */
 export interface ProportionalWidth {
+	/** Width-unit discriminator — value is a flex proportion. */
 	type: 'proportional'
+	/** Proportion weight relative to siblings. */
 	value: number
 	/** Minimum width in pixels; defaults to `DEFAULT_MIN_COLUMN_WIDTH` (120). */
 	minWidth?: number
@@ -8177,7 +9673,9 @@ export interface ProportionalWidth {
 
 /** A fixed pixel column width — created by `pixel()`. */
 export interface PixelWidth {
+	/** Width-unit discriminator — value is fixed pixels. */
 	type: 'pixel'
+	/** Fixed width in px. */
 	value: number
 }
 
@@ -8188,6 +9686,7 @@ export type ColumnWidth = ProportionalWidth | PixelWidth
 /** Sortable configuration for a column — `sortKey` decouples the sort
  *  identity from the column key (defaults to the column key). */
 export interface TableSortableColumnConfig {
+	/** Data key (or explicit key) sorted on; defaults to the column key. */
 	sortKey?: string
 }
 
@@ -8195,7 +9694,9 @@ export interface TableSortableColumnConfig {
  *  `useTableFiltering` — a bare field key (uses `defaultOperator`) or
  *  `{ field, operator }` for an explicit operator. */
 export interface TableFilterFieldRef {
+	/** Field key the filter targets. */
 	field: string
+	/** Operator key applied to the field. */
 	operator?: string
 }
 
@@ -8204,11 +9705,13 @@ export interface TableFilterFieldRef {
  *  cell content with a per-item renderer. `sortable`/`resizable`/`filter` are
  *  inert column metadata — the matching `useTable*` plugins act on them. */
 export interface TableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
+	/** Data key bound to the column; also the default header/sort id. */
 	key: string
 	/** Header content; defaults to the column key. */
 	header?: Renderable
 	/** `proportional()` / `pixel()` width — see `resolveColumnWidths`. */
 	width?: ColumnWidth
+	/** Cell content alignment for the column. */
 	align?: TableColumnAlign
 	/** `true` sorts by the column key; `{ sortKey }` sorts by another key. */
 	sortable?: boolean | TableSortableColumnConfig
@@ -8253,10 +9756,16 @@ export type TableTextOverflow = 'wrap' | 'truncate'
  * @see TableColumn, TablePlugin, useTableSelectionState, useTableSortableState.
  */
 export interface TableProps<T extends Record<string, unknown> = Record<string, unknown>> {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
-	ref?: any
+	/** Receives the table host through a standard Octane ref (`<table>` on
+	 *  web). On native it reaches the wrapper only in children mode — the
+	 *  data-mode wrapper's ref slot is consumed applying platform props. */
+	ref?: Octane.Ref<object>
 	/** Row data — rendered as body rows in data mode. */
 	data?: T[]
 	/** Column definitions; auto-generated from data keys when omitted. */
@@ -8265,11 +9774,17 @@ export interface TableProps<T extends Record<string, unknown> = Record<string, u
 	idKey?: (keyof T & string) | ((item: T) => string | number)
 	/** Named plugins (`useTable*` hooks) keyed by behavior name. */
 	plugins?: Record<string, import('./table/types').TablePlugin<T>>
+	/** Row height/padding density. */
 	density?: TableDensity
+	/** Which grid lines are drawn. */
 	dividers?: TableDividers
+	/** Alternating row background. */
 	isStriped?: boolean
+	/** Highlights the row under the pointer. */
 	hasHover?: boolean
+	/** Vertical alignment of cell content. */
 	verticalAlign?: TableVerticalAlign
+	/** Overflow behavior for cell text (wrap/ellipsis). */
 	textOverflow?: TableTextOverflow
 	/** Content for the empty-data row; `false` disables it. Default renders a
 	 *  compact "No data" `EmptyState`. */
@@ -8282,71 +9797,110 @@ export interface TableProps<T extends Record<string, unknown> = Record<string, u
 	/** Children mode — `TableHeader`/`TableBody`/`TableRow`/`TableCell`
 	 *  composition; bypasses the data pipeline. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Props for `TableHeader` — the `<thead>` equivalent. */
 export interface TableHeaderProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Props for `TableBody` — the `<tbody>` equivalent. */
 export interface TableBodyProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Props for `TableFooter` — the `<tfoot>` equivalent. */
 export interface TableFooterProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Props for `TableRow` — `<tr>` equivalent; reads density/striping from the
  *  enclosing `Table` context, `isHeaderRow` opts out of body-row styling. */
 export interface TableRowProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Renders the row in the header section with header semantics. */
 	isHeaderRow?: boolean
+	/** Context-menu actions attached to the row. */
 	contextMenuActions?: import('./table/types').TableContextActions
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 	[key: string]: any
 }
 
 /** Props for `TableCell` — `<td>` equivalent. */
 export interface TableCellProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Header scope for assistive technology (col/row/group). */
 	scope?: 'col' | 'row' | 'colgroup' | 'rowgroup'
+	/** Space-separated ids of header cells this cell is described by. */
 	headers?: string
+	/** Number of columns the cell spans. */
 	colSpan?: number
+	/** Number of rows the cell spans. */
 	rowSpan?: number
+	/** Context-menu actions attached to the cell. */
 	contextMenuActions?: import('./table/types').TableContextActions
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 	[key: string]: any
 }
 
 /** Props for `TableHeaderCell` — `<th>` equivalent. */
 export interface TableHeaderCellProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Header scope for assistive technology. */
 	scope?: 'col' | 'row' | 'colgroup' | 'rowgroup'
+	/** Ids of higher headers this cell is described by. */
 	headers?: string
+	/** Number of columns the header spans. */
 	colSpan?: number
+	/** Number of rows the header spans. */
 	rowSpan?: number
+	/** Context-menu actions attached to the header cell. */
 	contextMenuActions?: import('./table/types').TableContextActions
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 	[key: string]: any
 }
@@ -8355,8 +9909,11 @@ export interface TableHeaderCellProps {
  *  rendered above a table; `selection` is the `TableSelectionState` returned
  *  by `useTableSelectionState`. */
 export interface TableSelectionToolbarProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Selection state the toolbar summarizes. */
 	selection: import('./table/types').TableSelectionState
 	/** Accessible label for the toolbar. @default 'Bulk actions' */
 	label?: string
@@ -8366,19 +9923,28 @@ export interface TableSelectionToolbarProps {
 	clearLabel?: string
 	/** Toolbar `startContent` slot (actions). */
 	startContent?: Renderable
+	/** Toolbar size variant. */
 	size?: ToolbarSize
+	/** Toolbar visual variant. */
 	variant?: ToolbarVariant
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One `Timeline` entry — see `TimelineProps` for the shared content slots.
  */
 export interface TimelineItem {
+	/** Stable key identifying the entry. */
 	key: string
+	/** Entry title text. */
 	title?: string
+	/** Secondary text under the title. */
 	description?: string
+	/** Timestamp text shown for the entry. */
 	time?: string
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
@@ -8395,12 +9961,19 @@ export interface TimelineItem {
  * @see TimelineItem.
  */
 export interface TimelineProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Chronological entries rendered top to bottom. */
 	items: TimelineItem[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8409,9 +9982,13 @@ export interface TimelineProps {
  *  by extending it; `onAction`'s key and `useTreeData`'s `getItem` share
  *  the same `Key` identity. */
 export interface TreeListNode {
+	/** Stable key identifying the node. */
 	key: Key
+	/** Text shown for the node. */
 	label?: string
+	/** Nested child nodes. */
 	children?: TreeListNode[]
+	/** Makes the node unselectable (children stay expandable). */
 	disabled?: boolean
 	/** Leaf destination — the row renders as a link where the host supports
 	 *  anchors (resolving `LinkProvider`/`as` on web); activation still
@@ -8439,9 +10016,13 @@ export interface TreeListNode {
  * @see TreeListNode, useTreeData for the store-backed form.
  */
 export interface TreeProps<T extends TreeListNode = TreeListNode> {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Root nodes rendered by the tree. */
 	nodes: readonly T[]
 	/** Controlled expanded keys — pair with `onExpandedChange`. */
 	expandedKeys?: Iterable<Key>
@@ -8458,12 +10039,16 @@ export interface TreeProps<T extends TreeListNode = TreeListNode> {
 	selectedKeys?: 'all' | Iterable<Key>
 	/** Initial selection for the uncontrolled form. */
 	defaultSelectedKeys?: 'all' | Iterable<Key>
+	/** Fires with the new selection key set. */
 	onSelectionChange?: (keys: Selection) => void
 	/** Fires when a leaf row is activated (click/Enter on web, tap on
 	 *  native), independent of selection. */
 	onAction?: (key: Key) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8479,16 +10064,25 @@ export interface TreeProps<T extends TreeListNode = TreeListNode> {
  * @see BannerProps, EmptyProps.
  */
 export interface AlertProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Severity tone — picks colors and default icon. */
 	tone?: 'info' | 'success' | 'warning' | 'error'
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
+	/** Heading text inside the alert. */
 	title?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8508,24 +10102,38 @@ export interface AlertProps {
  * ```
  */
 export interface CardProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered in the card header region. */
 	header?: Renderable
+	/** Content rendered in the card footer region. */
 	footer?: Renderable
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Internal padding in 4px spacing steps. Omit it and the card takes the
 	 *  theme's card padding (upstream `--astryx-card-padding`; 16px minus the
 	 *  1px border with no theme), so passing a step overrides the theme rather
 	 *  than restating the default. */
 	padding?: number
+	/** Visual variant of the card surface. */
 	variant?: string
+	/** Shadow depth level. */
 	elevation?: Elevation
+	/** Card width — number is DIPs, string is a CSS length. */
 	width?: number | string
+	/** Card height — number is DIPs, string is a CSS length. */
 	height?: number | string
+	/** Maximum card width. */
 	maxWidth?: number | string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8540,17 +10148,29 @@ export interface CardProps {
  * ```
  */
 export interface ChipProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Controlled selected state. */
 	selected?: boolean
+	/** Dims the chip and blocks interaction. */
 	disabled?: boolean
+	/** Fires when the chip is activated. */
 	onSelect?: () => void
+	/** Shows a remove affordance and fires on its activation. */
 	onRemove?: () => void
+	/** Accessible name for the chip. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8564,15 +10184,22 @@ export interface ChipProps {
  * ```
  */
 export interface KbdProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Chord string like 'mod+k' — split on '+', each segment renders a key
 	 *  cap; 'mod' resolves to the platform modifier glyph (Astryx `keys`). */
 	keys?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8588,20 +10215,29 @@ export interface KbdProps {
  * ```
  */
 export interface EmptyProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Registered icon name (see `registerIcon`) or an icon element. */
 	icon?: IconName | Renderable
+	/** Primary empty-state message. */
 	title?: string
+	/** Secondary guidance text. */
 	description?: string
 	/** Action row rendered below the description (Astryx `actions`). */
 	actions?: Renderable
 	/** Tighter vertical rhythm (Astryx `isCompact`). */
 	isCompact?: boolean
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8619,8 +10255,11 @@ export interface EmptyProps {
 export type BannerStatus = 'info' | 'success' | 'warning' | 'error'
 
 export interface BannerProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Status tone — paints the strip and picks the default glyph (Astryx). */
 	status?: BannerStatus
@@ -8643,10 +10282,15 @@ export interface BannerProps {
 	/** Body content collapse behavior (Astryx): true/{defaultIsOpen} wraps
 	 *  children behind a toggle; false keeps them always visible. */
 	collapsible?: boolean | { defaultIsOpen?: boolean }
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Shows a dismiss affordance and fires on its activation. */
 	onDismiss?: () => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8661,17 +10305,29 @@ export interface BannerProps {
  * @see AvatarProps.
  */
 export interface UserProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Display name. */
 	name?: string
+	/** Secondary line (role, email, …). */
 	description?: string
+	/** Avatar image URL. */
 	src?: string
+	/** Initials/text shown when no image is available. */
 	fallback?: string
+	/** Avatar size in DIPs. */
 	size?: number
+	/** Activation callback — makes the row pressable. */
 	onSelect?: () => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8686,12 +10342,19 @@ export interface UserProps {
  * @see MeterProps, ProgressBarProps.
  */
 export interface ProgressGroupProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Progress entries rendered as labeled bars. */
 	items: { key: string; label?: string; value: number; max?: number }[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8710,7 +10373,9 @@ export type ChatMessageSender = 'user' | 'assistant' | 'system'
 export interface ChatMessageData {
 	/** Stable unique identity for history anchoring. Omitted ids use object identity. */
 	id?: string
+	/** Who sent the message — drives alignment and styling. */
 	sender: ChatMessageSender
+	/** Message body content. */
 	content: Renderable
 	/** Display timestamp — a Date, epoch ms, or ISO string. */
 	timestamp?: Date | number | string
@@ -8759,11 +10424,17 @@ export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'err
  * @see ChatMessageBubbleProps, ChatMessageListProps.
  */
 export interface ChatMessageProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Who sent the message — drives alignment and styling. */
 	sender: ChatMessageSender
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Avatar content beside the message. */
 	avatar?: Renderable
 	/** Sender name above the body — prefer the bubble's `name` when the first
 	 *  child is a ChatMessageBubble. */
@@ -8773,9 +10444,13 @@ export interface ChatMessageProps {
 	metadata?: Renderable
 	/** Defaults to the enclosing ChatMessageList density, then 'balanced'. */
 	density?: ChatDensity
+	/** Accessible name for the message group. */
 	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8787,35 +10462,53 @@ export type ChatMessageBubbleVariant = 'filled' | 'ghost'
  *  enclosing ChatMessage. `group` tightens sender-side corners for
  *  consecutive bubbles; `width` replaces the default max-width cap. */
 export interface ChatMessageBubbleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Bubble style variant (filled/outline/etc.). */
 	variant?: ChatMessageBubbleVariant
 	/** Sender name row above the bubble, aligned to its text column. */
 	name?: Renderable
 	/** Metadata row below the bubble, aligned to its text column. */
 	metadata?: Renderable
+	/** Position within a same-sender run — shapes the bubble corners. */
 	group?: 'first' | 'middle' | 'last'
 	/** Bubble width — number (px/dip) or CSS string ('100%'). Replaces the
 	 *  default max-width cap when set. */
 	width?: number | string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Composable metadata row: timestamp · footer · status. Renders nothing
  *  when all three are absent. */
 export interface ChatMessageMetadataProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Timestamp content under the message. */
 	timestamp?: Renderable
+	/** Extra footer content under the message. */
 	footer?: Renderable
+	/** Delivery status rendered with the metadata. */
 	status?: ChatMessageStatus
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8826,14 +10519,23 @@ export type ChatSystemMessageVariant = 'default' | 'divider'
 /** Centered system/notice row — date separators, "conversation started".
  *  `divider` draws hairlines on both sides of the text. */
 export interface ChatSystemMessageProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** System-message style variant. */
 	variant?: ChatSystemMessageVariant
+	/** Icon shown with the system message. */
 	icon?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8859,26 +10561,37 @@ export interface ChatSystemMessageProps {
  * @see ChatMessageProps, ChatLayoutProps — the layout owns auto-scroll.
  */
 export interface ChatMessageListProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Content rendered when there are no messages. */
 	emptyState?: Renderable
 	/** Called when the user scrolls to the top — load older messages. Calls are
 	 *  serialized while a returned promise is pending. */
 	scrollToTopAction?: () => void | Promise<void>
+	/** Message spacing density. */
 	density?: ChatDensity
 	/** Gap between top-level message rows (px on web, dip on native).
 	 *  Defaults to the density's gap. */
 	gap?: number
+	/** `bottom` pins content to the viewport end (chat convention); `top` flows normally. */
 	align?: 'top' | 'bottom'
+	/** Marks the list busy for assistive tech while a response streams. */
 	isStreaming?: boolean
 	/** Data-driven messages — provide either this or `children`. */
 	messages?: ChatMessageData[]
 	/** Render a data-driven message; defaults to ChatMessage + ChatMessageBubble. */
 	renderMessage?: (message: ChatMessageData) => Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8887,15 +10600,21 @@ export interface ChatMessageListProps {
 export type ChatToolCallStatus = 'pending' | 'running' | 'complete' | 'error'
 
 interface ChatToolCallItemBase {
+	/** Tool or action name. */
 	name: string
+	/** What the tool acted on (file, query, …). */
 	target?: string
 	/** Short qualifier rendered as a chip next to the name (e.g. file part). */
 	node?: string
+	/** Added-line count for edit-style calls. */
 	additions?: number
+	/** Removed-line count for edit-style calls. */
 	deletions?: number
 	/** Custom stats content replacing/augmenting additions+deletions. */
 	stats?: Renderable
+	/** Stable key identifying the call. */
 	key?: string
+	/** Raw payload the call produced, passed through to renderers. */
 	data?: unknown
 	/** Expandable detail content (diff, code block, arguments). */
 	resultDetail?: Renderable
@@ -8934,17 +10653,27 @@ export type ChatToolCallItem = ChatToolCallItemBase &
  * @see ChatToolCallItem — `status` gates which fields render.
  */
 export interface ChatToolCallsProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Tool calls rendered in the collapsible list. */
 	calls: ChatToolCallItem[]
 	/** Expanded-state summary label (defaults to "N tool calls"). */
 	label?: string
+	/** Controlled expanded state. */
 	isExpanded?: boolean
+	/** Initial expanded state for uncontrolled usage. */
 	defaultIsExpanded?: boolean
+	/** Reports expanded-state changes. */
 	onExpandedChange?: (isExpanded: boolean) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -8960,15 +10689,22 @@ export type ChatComposerStatus = { type: 'error' | 'warning'; message?: string }
  * @see ChatComposerInputProps.onKeyDown.
  */
 export interface ChatComposerKeyEvent {
+	/** DOM `key` value for the pressed key. */
 	key: string
+	/** Whether Shift was held. */
 	shiftKey: boolean
+	/** Whether Ctrl was held. */
 	ctrlKey: boolean
+	/** Whether Cmd/⌘ was held. */
 	metaKey: boolean
+	/** Whether Alt/⌥ was held. */
 	altKey: boolean
 	/** True while an IME composition is active — Enter never submits. */
 	isComposing: boolean
+	/** Set when the default key behavior was consumed. */
 	defaultPrevented: boolean
 	preventDefault(): void
+	/** The underlying platform event object. */
 	native?: unknown
 }
 
@@ -8979,10 +10715,13 @@ export interface ChatComposerKeyEvent {
  * @see ChatComposerInputProps paste/drop seams.
  */
 export interface ChatComposerFile {
+	/** File name shown in the attachment chip. */
 	name: string
 	/** MIME type ('' when unknown). */
 	type: string
+	/** File size in bytes. */
 	size: number
+	/** The underlying platform file/blob object. */
 	native?: unknown
 }
 
@@ -9020,8 +10759,11 @@ export type ChatComposerTokenVariant =
  * @see ChatComposerToken, serializeChatComposerToken.
  */
 export interface ChatComposerTokenBadge {
+	/** Token value committed to the draft. */
 	value: string
+	/** Badge content shown inside the token. */
 	label?: Renderable
+	/** Badge color variant. */
 	variant?: ChatComposerTokenVariant
 	/** Registered icon name (see registerIcon). */
 	icon?: IconName
@@ -9032,7 +10774,9 @@ export interface ChatComposerTokenBadge {
  * @see ChatComposerToken — `render` does not serialize; persist the `ChatComposerTokenCustomData` half.
  */
 export interface ChatComposerTokenCustom {
+	/** Token value committed to the draft. */
 	value: string
+	/** Custom renderer for the token chip. */
 	render: () => Renderable
 }
 
@@ -9049,17 +10793,24 @@ export type ChatComposerToken = ChatComposerTokenBadge | ChatComposerTokenCustom
  *  `render` is omitted because functions cannot be serialized; restore it via
  *  `deserializeChatComposerToken` with a renderer lookup. */
 export interface ChatComposerTokenBadgeData {
+	/** Badge-token discriminator. */
 	kind: 'badge'
+	/** Token value committed to the draft. */
 	value: string
+	/** Badge text inside the token. */
 	label?: string
+	/** Badge color variant. */
 	variant?: ChatComposerTokenVariant
+	/** Icon shown inside the badge. */
 	icon?: IconName
 }
 
 /** Serializable form of a custom composer token — `kind: 'custom'` plus the serialized `value`; its render function is restored on load via `deserializeChatComposerToken`.
  */
 export interface ChatComposerTokenCustomData {
+	/** Custom-token discriminator. */
 	kind: 'custom'
+	/** Token value committed to the draft. */
 	value: string
 }
 
@@ -9073,7 +10824,9 @@ export type ChatComposerTokenData = ChatComposerTokenBadgeData | ChatComposerTok
  * @see serializeChatComposerDraft / deserializeChatComposerDraft for the JSON-safe form.
  */
 export interface ChatComposerDraft {
+	/** Plain-text content of the draft. */
 	text: string
+	/** Structured tokens interleaved in the draft. */
 	tokens: ChatComposerToken[]
 }
 
@@ -9083,7 +10836,9 @@ export interface ChatComposerDraft {
  * @see serializeChatComposerDraft / deserializeChatComposerDraft.
  */
 export interface ChatComposerDraftData {
+	/** Plain-text content of the draft. */
 	text: string
+	/** Serializable token data interleaved in the draft. */
 	tokens: ChatComposerTokenData[]
 }
 
@@ -9092,10 +10847,13 @@ export interface ChatComposerDraftData {
  * @see SearchableItem — same shape; used by composer trigger sources.
  */
 export interface ChatComposerTriggerItem<TAuxData = unknown> {
+	/** Stable identity for the trigger item. */
 	id: string
+	/** Text shown in the trigger menu. */
 	label: string
 	/** Pre-rendered item content — takes priority over renderItem/label. */
 	element?: Renderable
+	/** Caller data carried through to `renderItem`. */
 	auxiliaryData?: TAuxData
 }
 
@@ -9114,14 +10872,19 @@ export interface ChatComposerSearchSource<
 export interface ChatComposerTrigger {
 	/** Character that activates the menu (e.g. '@', '/'). */
 	character: string
+	/** Provider supplying trigger items for the menu. */
 	searchSource: ChatComposerSearchSource
+	/** Renders one trigger-menu row. */
 	renderItem?: (item: ChatComposerTriggerItem) => Renderable
 	/** What to insert on selection — plain text or a token chip. */
 	onSelect: (item: ChatComposerTriggerItem) => string | ChatComposerToken
 	/** Parse a serialized token back when loading a draft for editing. */
 	deserialize?: (value: string) => ChatComposerToken | null
+	/** Text shown when the trigger query matches nothing. */
 	emptySearchResultsText?: string
+	/** Text shown while trigger items load. */
 	loadingText?: string
+	/** Accessible label for the trigger menu. */
 	menuLabel?: string
 }
 
@@ -9150,22 +10913,31 @@ export interface ChatComposerInputControl {
 /** Composer context read via `useChatComposerContext` inside `ChatComposer` slots — `value`/`draft`, `onChange`/`onDraftChange`, `onSend`, `placeholder`, `isDisabled`, `isStopShown`, `canSend`, cancel. `onSubmit` is the deprecated `onSend` alias.
  */
 export interface ChatComposerContextValue {
+	/** Current plain-text value. */
 	value: string
+	/** Current structured draft (text + tokens). */
 	draft: ChatComposerDraft
+	/** Commits a new plain-text value. */
 	onChange: (value: string) => void
+	/** Commits a new structured draft. */
 	onDraftChange: (draft: ChatComposerDraft) => void
 	/** Send the current draft. */
 	onSend: (value: string) => void
 	/** @deprecated Use onSend. */
 	onSubmit: (value: string) => void
+	/** Text shown while the input is empty. */
 	placeholder: string
+	/** Disables editing and send affordances. */
 	isDisabled: boolean
+	/** Shows the stop button instead of send (streaming). */
 	isStopShown: boolean
+	/** Whether the current draft is sendable. */
 	canSend: boolean
 	/** Cancel/stop action. */
 	onCancel?: () => void
 	/** @deprecated Use onCancel. */
 	onStop?: () => void
+	/** Handle for focusing/controlling the inner input. */
 	inputControlRef?: { current: ChatComposerInputControl | null }
 }
 
@@ -9175,27 +10947,37 @@ export interface ChatComposerContextValue {
  *  for inserted tokens; serialization matches, mid-text token positions are
  *  approximated by recorded insertion offsets. */
 export interface ChatComposerInputProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Exposes the imperative handle through a standard Octane ref. */
 	ref?: Octane.Ref<ChatComposerInputHandle>
 	/** Serialized string value (legacy) — use draft props instead. */
 	value?: string
+	/** Fires as the plain-text value changes. */
 	onChange?: (value: string) => void
 	/** Structured draft value. */
 	draft?: ChatComposerDraft
+	/** Initial draft for uncontrolled usage. */
 	defaultDraft?: ChatComposerDraft
+	/** Fires with the structured draft on each edit. */
 	onDraftChange?: (draft: ChatComposerDraft) => void
+	/** Text shown while the input is empty. */
 	placeholder?: string
 	/** Height cap in lines before the field scrolls internally. */
 	maxRows?: number
+	/** Trigger definitions (@-mention, /-command, …). */
 	triggers?: ChatComposerTrigger[]
+	/** Debounce in ms applied to change callbacks. */
 	debounceMs?: number
 	/** ArrowUp/ArrowDown recall of submitted messages — keyboard platforms. */
 	hasHistory?: boolean
 	/** Accessible name for the field. */
 	label?: string
+	/** Disables editing. */
 	isDisabled?: boolean
 	/** Plain-text paste interception — return true to take over insertion. */
 	onPaste?: (event: ChatComposerPasteEvent, text: string) => boolean | void
@@ -9211,61 +10993,96 @@ export interface ChatComposerInputProps {
 	/** Runs before built-in Enter/recall handling; preventDefault() to own
 	 *  the keystroke. IME composition always suppresses submit. */
 	onKeyDown?: (event: ChatComposerKeyEvent) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Props for `ChatComposerTokenElement` — renders one `ChatComposerToken` chip (`token` is required).
  */
 export interface ChatComposerTokenElementProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** The token this element renders. */
 	token: ChatComposerToken
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Collapsible drawer above the composer input — attachments/context chips.
  *  With `count`, a collapse toggle renders the badge+label summary. */
 export interface ChatComposerDrawerProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Badge count shown on the drawer toggle. */
 	count?: number
+	/** Drawer heading text. */
 	label?: string
+	/** Content previewed while the drawer is collapsed. */
 	collapsedSummary?: Renderable
+	/** Controlled collapsed state. */
 	isCollapsed?: boolean
+	/** Initial collapsed state for uncontrolled usage. */
 	defaultIsCollapsed?: boolean
+	/** Reports collapsed-state changes. */
 	onCollapsedChange?: (isCollapsed: boolean) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Circular send/stop toggle. Reads ChatComposerContext by default; every
  *  context-derived value is prop-overridable for standalone use. */
 export interface ChatSendButtonProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Shows the stop affordance instead of send. */
 	isStopShown?: boolean
+	/** Disables the button. */
 	isDisabled?: boolean
+	/** Fires on send activation. */
 	onSend?: () => void
 	/** @deprecated Use onCancel. */
 	onStop?: () => void
+	/** Fires on stop activation (when isStopShown). */
 	onCancel?: () => void
 	/** Custom send-state icon content (default: registered arrow-up glyph). */
 	sendIcon?: Renderable
+	/** Custom stop affordance content. */
 	stopIcon?: Renderable
+	/** Button size. */
 	size?: 'sm' | 'md'
 	/** Composes after the send/stop action. */
 	onPress?: () => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9285,8 +11102,11 @@ export interface ChatSendButtonProps {
  * @see ChatComposerProps slots and useChatComposerContext.
  */
 export interface ChatComposerProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Send action — called with the serialized draft text. */
 	onSend?: (value: string) => void
@@ -9296,44 +11116,70 @@ export interface ChatComposerProps {
 	onCancel?: () => void
 	/** @deprecated Use onCancel. */
 	onStop?: () => void
+	/** Shows the stop affordance instead of send. */
 	isStopShown?: boolean
 	/** Serialized string value (legacy) — use draft props instead. */
 	value?: string
+	/** Fires as the plain-text value changes. */
 	onChange?: (value: string) => void
 	/** Structured draft value. */
 	draft?: ChatComposerDraft
+	/** Initial draft for uncontrolled usage. */
 	defaultDraft?: ChatComposerDraft
+	/** Fires with the structured draft on each edit. */
 	onDraftChange?: (draft: ChatComposerDraft) => void
+	/** Text shown while the input is empty. */
 	placeholder?: string
+	/** Disables editing and send affordances. */
 	isDisabled?: boolean
+	/** Composer spacing density. */
 	density?: ChatComposerDensity
 	/** 'low' (default) is the raised surface; 'none' is flat with a border. */
 	elevation?: 'none' | 'low'
+	/** Collapsible drawer content (attachments, previews). */
 	drawer?: Renderable
+	/** Action buttons in the composer header. */
 	headerActions?: Renderable
+	/** Context content in the composer header. */
 	headerContext?: Renderable
 	/** Custom input element — replaces the default ChatComposerInput. */
 	input?: Renderable
+	/** Action buttons in the composer footer. */
 	footerActions?: Renderable
+	/** Content beside the send button. */
 	sendActions?: Renderable
+	/** Custom send-button content — overrides the default. */
 	sendButton?: Renderable
+	/** Status line rendered with the composer. */
 	status?: ChatComposerStatus
+	/** Whether the status sits above or below the input. */
 	statusPosition?: 'top' | 'bottom'
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Renders serialized message text with token values replaced by their
  *  chips — share one token table between input and display. */
 export interface ChatTokenizedTextProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Raw text containing token markup. */
 	children?: string
+	/** Tokens resolved against the text. */
 	tokens?: ChatComposerToken[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9348,23 +11194,32 @@ export interface ChatTokenizedTextProps {
  *  Native targets have no backdrop blur; `scrollRef` is populated with the
  *  layout's own scroll viewport so callers can hand it to the hooks. */
 export interface ChatLayoutProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Composer element docked at the bottom — typically ChatComposer. */
 	composer?: Renderable
+	/** Content rendered when the chat has no messages. */
 	emptyState?: Renderable
 	/** Custom scroll-to-bottom control, or null to hide. Defaults to
 	 *  ChatLayoutScrollButton wired to the layout's scroll state. */
 	scrollButton?: Renderable
 	/** External scroll container — { current: HTMLElement | NSView }. */
 	scrollRef?: { current?: HostElement | null }
+	/** Chat spacing density. */
 	density?: ChatDensity
 	/** Keep the viewport following new content (default true). */
 	followLatest?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 	/** Follow keyboard movement always, only from the conversation end, or never.
 	 * This controls scrolling; the composer still avoids the keyboard. Web and
@@ -9379,15 +11234,23 @@ export interface ChatLayoutProps {
 /** The floating 'scroll to bottom' pill rendered by `ChatLayout` — `isVisible` toggles it, `label` expands it, `onPress` scrolls.
  */
 export interface ChatLayoutScrollButtonProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Toggles the scroll-to-latest button. */
 	isVisible: boolean
 	/** Optional pill label (e.g. "New messages") — expands the button. */
 	label?: string
+	/** Fires when the button is activated. */
 	onPress?: () => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9405,7 +11268,9 @@ export interface ChatScrollToBottomOptions {
  * @see UseChatStreamScrollReturn — the hook owns ChatLayout's follow-the-stream behavior.
  */
 export interface UseChatStreamScrollOptions {
+	/** Scroll viewport the hook drives. */
 	scrollRef: { current?: HostElement | null }
+	/** Toggles stream-following behavior. */
 	enabled?: boolean
 	/** Keep the viewport following new content (default true). */
 	followLatest?: boolean
@@ -9415,14 +11280,18 @@ export interface UseChatStreamScrollOptions {
 	buttonThreshold?: number
 	/** Web spring parameters; native scroll uses the OS animation. */
 	damping?: number
+	/** Spring stiffness for follow scrolling. */
 	stiffness?: number
+	/** Spring mass for follow scrolling. */
 	mass?: number
 }
 
 /** `useChatStreamScroll` result — `isScrolledUp`/`isLocked` state, `scrollToBottom`/`scrollToMessage`/`scrollToLastMessage` seeks, `lock`/`unlock` follow control, and `scrollIfLocked` to call on content growth.
  */
 export interface UseChatStreamScrollReturn {
+	/** Whether the viewport is away from the latest content. */
 	isScrolledUp: boolean
+	/** Whether scroll is locked to the latest content (follows streaming). */
 	isLocked: boolean
 	scrollToBottom(options?: ChatScrollToBottomOptions): void
 	/** Scroll so the given message element/view tops the visible area. */
@@ -9449,6 +11318,7 @@ export interface UseChatNewMessagesOptions {
 /** `useChatNewMessages` result — `hasNewMessages` flag, `dismiss()`, and `contentRef` to attach to the message-list content element (ResizeObserver on web, layoutChanged on native).
  */
 export interface UseChatNewMessagesReturn {
+	/** Whether unseen messages arrived while scrolled up. */
 	hasNewMessages: boolean
 	dismiss(): void
 	/** Attach to the message-list content element — ResizeObserver on web,
@@ -9459,9 +11329,11 @@ export interface UseChatNewMessagesReturn {
 /** Converts long pastes into token chips. `inputRef` carries the input
  *  handle (the object `ref` delivered). */
 export interface UseChatPasteAsTokenOptions {
+	/** Composer input handle the paste hook drives. */
 	inputRef: { current: ChatComposerInputHandle | null }
 	/** Character threshold — pastes longer than this become tokens (200). */
 	threshold?: number
+	/** Converts pasted text into a token. */
 	toToken?: (text: string) => ChatComposerToken
 }
 
@@ -9479,6 +11351,7 @@ export interface UseChatPasteAsTokenReturn {
  * @see UseChatComposerTokensReturn.
  */
 export interface UseChatComposerTokensOptions {
+	/** Editable element whose tokens are tracked. */
 	editableRef: { current?: HostElement | null }
 	onEmitChange(): void
 }
@@ -9486,15 +11359,18 @@ export interface UseChatComposerTokensOptions {
 /** One mounted token chip inside a composer input — `id`, the `span` host the web portal renders into, and the `token` data.
  */
 export interface TokenPortal {
+	/** Stable id for the token portal. */
 	id: string
 	/** The non-editable span web portals render into (DOM element). */
 	span: HostElement
+	/** Token rendered through the portal. */
 	token: ChatComposerToken
 }
 
 /** `useChatComposerTokens` result — `tokenPortals` to render, `insertToken`/`expandToken` editing ops, `handleKeyDown`/`handlePaste` interception (web events), `cleanupPortals`.
  */
 export interface UseChatComposerTokensReturn {
+	/** Portals to mount for rendered tokens. */
 	tokenPortals: TokenPortal[]
 	expandToken(id: string): void
 	insertToken(token: ChatComposerToken): string | undefined
@@ -9510,27 +11386,44 @@ export interface UseChatComposerTokensReturn {
 /** Options for `useSpeechRecognition` — `lang`, `continuous`, `interimResults`, `transformTranscript`, and transcript/start/end/error callbacks. Web SpeechRecognition only — native reports `isSupported: false` and never starts.
  */
 export interface UseSpeechRecognitionOptions {
+	/** BCP-47 language tag for recognition. */
 	lang?: string
+	/** Keeps listening across utterances instead of stopping at the first result. */
 	continuous?: boolean
+	/** Delivers interim hypotheses via `onTranscript`, not just finals. */
 	interimResults?: boolean
+	/** Optional shared AudioContext used for metering. */
 	audioContext?: unknown
+	/** Post-processor applied to each transcript before callbacks. */
 	transformTranscript?: (text: string) => string
+	/** Fires per result — `isFinal` distinguishes committed text from interim. */
 	onTranscript?: (transcript: string, isFinal: boolean) => void
+	/** Fires with each final transcript. */
 	onResult?: (transcript: string) => void
+	/** Fires on recognition errors. */
 	onError?: (error: { error: string; message?: string }) => void
+	/** Fires when capture begins. */
 	onStart?: () => void
+	/** Fires when capture ends (natural or stopped). */
 	onEnd?: () => void
 }
 
 /** `useSpeechRecognition` result — `isSupported` (check first; false on native), `isListening`/`isSpeaking`, `volume`/`bands`/`rawBands` metering, `interimTranscript`, and `start`/`stop`/`abort`/`toggle`.
  */
 export interface UseSpeechRecognitionReturn {
+	/** Whether the platform exposes speech recognition. */
 	isSupported: boolean
+	/** Whether capture is active. */
 	isListening: boolean
+	/** Whether speech energy is currently detected. */
 	isSpeaking: boolean
+	/** Current input level (0–1). */
 	volume: number
+	/** Smoothed frequency-band energies for visualization. */
 	bands: number[]
+	/** Unsmoothed frequency-band energies. */
 	rawBands: number[]
+	/** Latest interim (uncommitted) transcript. */
 	interimTranscript: string
 	start(): void
 	stop(): void
@@ -9557,28 +11450,40 @@ export interface UseChatDictationReturn extends UseSpeechRecognitionReturn {}
  * @see useChatDictation — pass its return as `dictation`.
  */
 export interface ChatDictationButtonProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Speech-recognition state/actions the button drives. */
 	dictation: UseSpeechRecognitionReturn
+	/** Button size. */
 	size?: 'sm' | 'md'
 	/** Hide entirely when unsupported (default true) — else show disabled. */
 	isHiddenWhenUnsupported?: boolean
+	/** Accessible name for the button. */
 	label?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Values flowing from ChatMessageList/ChatLayout to their children. */
 export interface ChatMessageContextValue {
+	/** Sender propagated to message parts. */
 	sender: ChatMessageSender
+	/** Density propagated to message parts. */
 	density: ChatDensity
 }
 
 /** Density context `ChatMessageList` provides to descendants — `{ density }`.
  */
 export interface ChatListContextValue {
+	/** Density propagated to message parts. */
 	density: ChatDensity
 }
 
@@ -9622,6 +11527,7 @@ export type LinkComponentType = NavLinkComponentType
 export interface LinkProviderProps {
 	/** Link component for the subtree — e.g. a router link. */
 	component: LinkComponentType
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
@@ -9637,14 +11543,20 @@ export interface LinkProviderProps {
  * ```
  */
 export interface NavIconProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Icon content inside the circular container — an element or a
 	 *  registered icon name (rendered through `Icon`). */
 	icon: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9670,8 +11582,11 @@ export type ToolbarVariant = 'transparent' | 'section' | 'muted'
  * @see ToolbarSize, ToolbarVariant.
  */
 export interface ToolbarProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Content aligned to the start (left in LTR). */
 	startContent?: Renderable
@@ -9695,8 +11610,11 @@ export interface ToolbarProps extends LayoutChildProps {
 	variant?: ToolbarVariant
 	/** Divider edges painted on the outer chrome. */
 	dividers?: ('top' | 'bottom' | 'start' | 'end')[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9717,10 +11635,15 @@ export type TabListOverflow = 'auto' | 'scroll' | 'visible'
 /** Context `TabList` provides to `Tab`/`TabMenu` children — current `value`, `onChange`, `size`, `layout`, and resolved `pattern` (nav landmark vs ARIA tabs).
  */
 export interface TabListContextValue {
+	/** Controlled selected tab value. */
 	value: string
+	/** Fires when the selection changes. */
 	onChange: (value: string) => void
+	/** Tab size variant propagated to tabs. */
 	size: TabListSize
+	/** Layout variant propagated to tabs. */
 	layout: TabListLayout
+	/** Interaction pattern propagated to tabs. */
 	pattern: TabListPattern
 	/** Internal plumbing — the strip's registered tab views for
 	 *  scroll-selected-into-view. */
@@ -9741,13 +11664,17 @@ export interface TabListContextValue {
  * @see TabProps, TabMenuProps, TabsProps for the strip+panels component.
  */
 export interface TabListProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** The currently selected tab value. */
 	value: string
 	/** Fires when a tab is selected. */
 	onChange: (value: string) => void
+	/** Tab size variant. */
 	size?: TabListSize
 	/** `hug`: each tab wraps its content; `fill`: tabs stretch equally to
 	 *  fill the strip width. */
@@ -9768,8 +11695,11 @@ export interface TabListProps extends LayoutChildProps {
 	overflow?: TabListOverflow
 	/** Tab and TabMenu children. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9781,8 +11711,11 @@ export interface TabListProps extends LayoutChildProps {
  * @see TabListProps.
  */
 interface TabPropsBase {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Unique value matched against TabList `value`. */
 	value: string
@@ -9791,6 +11724,7 @@ interface TabPropsBase {
 	/** Accessible label — visible text by default; `isLabelHidden` makes it
 	 *  the aria label only. */
 	label: string
+	/** Keeps tab labels for assistive tech but renders icons only. */
 	isLabelHidden?: boolean
 	/** Id of the panel this tab controls → `aria-controls` under the
 	 *  tablist pattern; no effect (documented) under the nav pattern. */
@@ -9805,8 +11739,11 @@ interface TabPropsBase {
 	endContent?: Renderable
 	/** Extra press callback run before selection reports to the list. */
 	onPress?: NavLinkOptions['onPress']
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9820,7 +11757,9 @@ export type TabProps<
 /** One `TabMenu` dropdown option — `value`, `label`, optional leading `icon`.
  */
 export interface TabMenuOption {
+	/** Value this option selects. */
 	value: string
+	/** Text shown for the option. */
 	label: string
 	/** Icon content or registered icon name shown before the label. */
 	icon?: Renderable
@@ -9829,14 +11768,21 @@ export interface TabMenuOption {
 /** Overflow menu trigger inside a TabList — opens a dropdown of extra
  *  options; the selected option's label becomes the trigger text. */
 export interface TabMenuProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Trigger label when no option is selected + the dropdown heading. */
 	label: string
+	/** Options rendered in the tab overflow menu. */
 	options: TabMenuOption[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9859,6 +11805,7 @@ export interface MobileNavConfig {
 	hasToggle?: boolean
 	/** Controlled drawer open state. */
 	isOpen?: boolean
+	/** Reports requested open-state changes for the mobile nav. */
 	onOpenChange?: (isOpen: boolean) => void
 	/** Custom drawer content replacing the auto drawer — a `MobileNav`
 	 *  element or raw children. Renders below the breakpoint inside the
@@ -9875,14 +11822,21 @@ export interface MobileNavConfig {
 /** Context `AppShell` publishes (read via `useAppShellMobile`) — `isMobile`, drawer state (`isMobileNavOpen`, `mobileNavId`), open/close/toggle operations, and `isMobileNavEnabled`/`hasAutoToggle`.
  */
 export interface AppShellMobileContextValue {
+	/** Whether the shell is in the mobile breakpoint. */
 	isMobile: boolean
+	/** Whether the mobile nav sheet is open. */
 	isMobileNavOpen: boolean
 	/** Id of the mobile nav drawer (toggle references it). */
 	mobileNavId?: string
+	/** Toggles the mobile nav sheet. */
 	toggleMobileNav: () => void
+	/** Opens the mobile nav sheet. */
 	openMobileNav: () => void
+	/** Closes the mobile nav sheet. */
 	closeMobileNav: () => void
+	/** Whether mobile nav is enabled at all (vs desktop nav only). */
 	isMobileNavEnabled: boolean
+	/** Whether the nav auto-closes on navigation. */
 	hasAutoToggle: boolean
 }
 
@@ -9900,9 +11854,13 @@ export interface AppShellMobileContextValue {
  * @see MobileNavConfig, TopNavProps, SideNavProps.
  */
 export interface AppShellProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Shell layout variant. */
 	variant?: AppShellVariant
 	/** Banner slot above the top nav. */
 	banner?: Renderable
@@ -9923,8 +11881,11 @@ export interface AppShellProps extends LayoutChildProps {
 	sideNav?: Renderable
 	/** Top navigation — typically a `TopNav`. */
 	topNav?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9951,8 +11912,11 @@ export type TopNavSlot = 'start' | 'center' | 'end'
  * @see TopNavHeadingProps, TopNavItemProps, AppShellProps.
  */
 export interface TopNavProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Heading slot — typically `TopNavHeading`. */
 	heading?: Renderable
@@ -9966,8 +11930,11 @@ export interface TopNavProps {
 	endContent?: Renderable
 	/** Accessible label for the navigation landmark (default 'Top navigation'). */
 	label?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -9976,26 +11943,40 @@ export interface TopNavProps {
  * @see TopNavProps, NavHeadingMenuProps.
  */
 export interface TopNavHeadingProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Logo element before the heading (e.g. `NavIcon`). */
 	logo?: Renderable
 	/** Accessible name for a linked logo-only heading. */
 	logoLabel?: string
+	/** Primary heading text. */
 	heading?: string
+	/** URL the heading links to. */
 	headingHref?: string
+	/** Kicker text above the heading. */
 	superheading?: string
+	/** URL the superheading links to. */
 	superheadingHref?: string
+	/** Secondary text under the heading. */
 	subheading?: string
+	/** URL the subheading links to. */
 	subheadingHref?: string
+	/** Content at the header row's trailing edge. */
 	headerEndContent?: Renderable
 	/** Menu content shown in a popover from the heading — typically a
 	 *  `NavHeadingMenu`. A chevron affordance is added automatically. */
 	menu?: Renderable
+	/** Component used to render the link. */
 	as?: NavLinkComponentType
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10004,18 +11985,26 @@ export interface TopNavHeadingProps {
  * @see TopNavProps.
  */
 interface TopNavItemPropsBase {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Web anchor attributes; no-op on native. */
 	target?: string
+	/** Anchor rel attribute. */
 	rel?: string
+	/** Marks the link a download; string sets the filename. */
 	download?: string | boolean
+	/** Referrer policy for the link. */
 	referrerPolicy?: string
+	/** Component used to render the nav item. */
 	as?: NavLinkComponentType
 	/** Accessible label; visible text by default, aria label when
 	 *  `isIconOnly`. */
 	label: string
+	/** Marks the item as the current page. */
 	isSelected?: boolean
 	/** Disabled items cannot navigate and leave the tab order. */
 	isDisabled?: boolean
@@ -10027,9 +12016,13 @@ interface TopNavItemPropsBase {
 	children?: Renderable
 	/** Size variant — controls drawer-mode height/padding. */
 	size?: NavElementSize
+	/** Activation handler — receives the navigation event. */
 	onClick?: NavLinkOptions['onPress']
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10043,10 +12036,15 @@ export type TopNavItemProps<
 /** One `TopNavMenu` data row — `title`, `description`, `icon`, `href`, `onClick`.
  */
 interface TopNavMenuItemDataBase {
+	/** Item title text. */
 	title: string
+	/** Dims the item and blocks activation. */
 	isDisabled?: boolean
+	/** Secondary text under the title. */
 	description?: string
+	/** Icon shown beside the item. */
 	icon?: Renderable
+	/** Activation handler — receives the navigation event. */
 	onClick?: NavLinkOptions['onPress']
 }
 
@@ -10067,55 +12065,86 @@ export interface TopNavMenuProps<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Trigger label text. */
 	label: string
+	/** Entries rendered in the menu. */
 	items: readonly TopNavMenuItemData<Contracts, Stacks, Transitions>[]
 	/** Hover-open delay in ms (pointer platforms). */
 	delay?: number
 	/** Hover-close delay in ms (pointer platforms). */
 	hideDelay?: number
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** A `TopNav` trigger that opens a wide mega-menu — `items` (`TopNavMegaMenuItem` children or custom content), `featured` panel, hover `delay`/`hideDelay` (ms) on pointer platforms, `onOpenChange`.
  */
 export interface TopNavMegaMenuProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Trigger label text. */
 	label: string
 	/** Menu items slot — `TopNavMegaMenuItem` children or custom content. */
 	items?: Renderable
 	/** Featured panel content (right side on wide layouts, below items in
 	 *  the drawer). */
 	featured?: Renderable
+	/** Hover dwell in ms before the menu opens. */
 	delay?: number
+	/** Grace period in ms before the menu closes. */
 	hideDelay?: number
+	/** Reports requested open-state changes. */
 	onOpenChange?: (isOpen: boolean) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One `TopNavMegaMenu` entry — `title`, `description`, `icon`, `href`/`onClick` activation, `as` link override (web).
  */
 interface TopNavMegaMenuItemPropsBase {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Item title text. */
 	title: string
+	/** Dims the item and blocks activation. */
 	isDisabled?: boolean
+	/** Marks the item as the current page. */
 	isSelected?: boolean
+	/** Secondary text under the title. */
 	description?: string
+	/** Icon shown beside the item. */
 	icon?: Renderable
+	/** Activation handler — receives the navigation event. */
 	onClick?: NavLinkOptions['onPress']
+	/** Component used to render the item. */
 	as?: NavLinkComponentType
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10129,20 +12158,32 @@ export type TopNavMegaMenuItemProps<
 /** The featured card inside `TopNavMegaMenu` — `title`, `description`, decorative `image`/`imageAlt`, `linkLabel`/`linkHref`, `children`.
  */
 export interface TopNavMegaMenuFeaturedCardProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Card title text. */
 	title: string
+	/** Secondary text under the title. */
 	description?: string
 	/** Decorative image URL shown above the body; `imageAlt` makes it
 	 *  informative. */
 	image?: string
+	/** Accessible description of the card image. */
 	imageAlt?: string
+	/** Link text on the card. */
 	linkLabel?: string
+	/** URL the card links to. */
 	linkHref?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10158,16 +12199,22 @@ export type NavItemSize = NavElementSize
 /** Live collapse state shared from a `SideNav` — `isCollapsed`, `toggle()`, `isCollapsible`.
  */
 export interface SideNavCollapseState {
+	/** Whether the side nav is collapsed. */
 	isCollapsed: boolean
+	/** Toggles the collapsed state. */
 	toggle: () => void
+	/** Whether collapsing is available. */
 	isCollapsible: boolean
 }
 
 /** Collapse behavior for `SideNav` — `defaultIsCollapsed` (uncontrolled) or `isCollapsed`+`onCollapsedChange` (controlled), `hasButton` renders the built-in collapse affordance (default true), `buttonLabel` names it.
  */
 export interface SideNavCollapsibleConfig {
+	/** Initial collapsed state for uncontrolled usage. */
 	defaultIsCollapsed?: boolean
+	/** Controlled collapsed state. */
 	isCollapsed?: boolean
+	/** Reports collapsed-state changes. */
 	onCollapsedChange?: (isCollapsed: boolean) => void
 	/** Render the built-in collapse button (default true). */
 	hasButton?: boolean
@@ -10178,13 +12225,16 @@ export interface SideNavCollapsibleConfig {
 /** `SideNavCollapsibleConfig` with the controlled fields required — `isCollapsed` + `onCollapsedChange`.
  */
 export interface SideNavControlledCollapsible extends SideNavCollapsibleConfig {
+	/** Controlled collapsed state. */
 	isCollapsed: boolean
+	/** Reports collapsed-state changes. */
 	onCollapsedChange: (isCollapsed: boolean) => void
 }
 
 /** @deprecated Hand the same controlled `collapsible` config to SideNav and
  *  to the outside button instead. */
 export interface SideNavImperativeCollapseHandle {
+	/** Reads the current collapse state; null when not collapsible. */
 	getCollapseState: () => SideNavCollapseState | null
 }
 
@@ -10203,8 +12253,11 @@ export interface SideNavImperativeCollapseHandle {
  * @see SideNavCollapsibleConfig, SideNavItemProps, SideNavSectionProps.
  */
 export interface SideNavProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Header area (typically `SideNavHeading`) — sticky at top. */
 	header?: Renderable
@@ -10227,51 +12280,77 @@ export interface SideNavProps extends LayoutChildProps {
 	handleRef?: { current: SideNavImperativeCollapseHandle | null }
 	/** Landmark label (default 'Side navigation'). */
 	label?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** A titled group inside `SideNav` — `title` (+`subtitle`, `endContent`), `isHeaderHidden` keeps the title accessible but invisible; children are `SideNavItem`s.
  */
 export interface SideNavSectionProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Section heading text. */
 	title: string
+	/** Secondary text under the heading. */
 	subtitle?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Trailing content in the section header. */
 	endContent?: Renderable
 	/** Visually hide the header (title stays accessible). */
 	isHeaderHidden?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** The brand/heading block inside `SideNav` — `icon`, `heading`/`superheading`/`subheading` (+Href), `headerEndContent`, `menu` heading popover (typically `NavHeadingMenu`), `as` link override on web.
  */
 export interface SideNavHeadingProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Product/app icon (e.g. `NavIcon`). */
 	icon?: Renderable
+	/** Component used to render the heading link. */
 	as?: NavLinkComponentType
+	/** Primary heading text. */
 	heading: string
+	/** URL the heading links to. */
 	headingHref?: string
+	/** Kicker text above the heading. */
 	superheading?: string
+	/** URL the superheading links to. */
 	superheadingHref?: string
+	/** Secondary text under the heading. */
 	subheading?: string
+	/** URL the subheading links to. */
 	subheadingHref?: string
+	/** Content at the header row's trailing edge. */
 	headerEndContent?: Renderable
 	/** Menu popover content (typically `NavHeadingMenu`) — shows a chevron
 	 *  affordance. Without hrefs the whole header is the trigger; with hrefs
 	 *  the chevron area is. */
 	menu?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10280,17 +12359,25 @@ export interface SideNavHeadingProps {
  * @see SideNavProps, SideNavSectionProps.
  */
 interface SideNavItemPropsBase {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Component used to render the item link. */
 	as?: NavLinkComponentType
+	/** Item label text. */
 	label: string
 	/** Icon (element or registered name) shown when not selected. */
 	icon?: Renderable
 	/** Icon shown when selected; falls back to `icon`. */
 	selectedIcon?: Renderable
+	/** Marks the item as the current page. */
 	isSelected?: boolean
+	/** Dims the item and blocks activation. */
 	isDisabled?: boolean
+	/** Activation handler — receives the navigation event. */
 	onClick?: NavLinkOptions['onPress']
 	/** Passive trailing content (badges, counts) inside the primary
 	 *  element. */
@@ -10309,9 +12396,13 @@ interface SideNavItemPropsBase {
 				isCollapsed?: boolean
 				onCollapsedChange?: (isCollapsed: boolean) => void
 		  }
+	/** Item size variant. */
 	size?: NavItemSize
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10325,8 +12416,11 @@ export type SideNavItemProps<
 /** The rail collapse/expand button — reads the enclosing `SideNav`'s collapse state; `collapsible` passes a controlled `SideNavControlledCollapsible` only when the button renders outside its SideNav. `label` switches icon-only → text+chevron.
  */
 export interface SideNavCollapseButtonProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** The same controlled config given to SideNav — needed only when the
 	 *  button renders outside this SideNav. */
@@ -10335,10 +12429,15 @@ export interface SideNavCollapseButtonProps {
 	handleRef?: { current: SideNavImperativeCollapseHandle | null }
 	/** Text label — renders a text+chevron button instead of icon-only. */
 	label?: string
+	/** Button size variant. */
 	size?: NavElementSize
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10357,12 +12456,17 @@ export interface SideNavCollapseButtonProps {
  * @see MobileNavConfig, AppShellProps.
  */
 export interface MobileNavProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Drawer open state — inside `AppShell` it is managed by context. */
 	isOpen?: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange?: (isOpen: boolean) => void
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Drawer header — a string renders as a heading; an element for custom
 	 *  content (logo, `SideNavHeading`, search). */
@@ -10375,23 +12479,32 @@ export interface MobileNavProps extends LayoutChildProps {
 	/** Accessible label (falls back to a string `header`, then
 	 *  'Navigation'). */
 	label?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** The hamburger button that opens the `MobileNav` drawer — `children` replace the glyph, `label` names it (default 'Open navigation'). Auto-rendered by `AppShell` unless `mobileNav.hasToggle` is false.
  */
 export interface MobileNavToggleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Custom content replacing the default hamburger glyph. */
 	children?: Renderable
 	/** Accessible label (default 'Open navigation'). */
 	label?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10404,45 +12517,66 @@ export type NavHeadingMenuSize = NavElementSize
 /** Context `NavHeadingMenu` provides to its items — inherited `size` and `closeMenu()`.
  */
 export interface NavHeadingMenuContextValue {
+	/** Menu size variant propagated to items. */
 	size: NavHeadingMenuSize
+	/** Closes the open menu. */
 	closeMenu: () => void
 }
 
 /** Close callback supplied by the heading popover hosting the menu. */
 export interface NavHeadingCloseContextValue {
+	/** Closes the open menu. */
 	closeMenu: () => void
 }
 
 /** Menu popover content for `TopNavHeading`/`SideNavHeading` (`menu` slot) — `NavHeadingMenuItem` children, separators, or custom content; `size`, `minWidth` override (dips).
  */
 export interface NavHeadingMenuProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** `NavHeadingMenuItem` children, separators, or custom content. */
 	children?: Renderable
+	/** Menu size variant. */
 	size?: NavHeadingMenuSize
 	/** Minimum width override (dips/px) — takes precedence over the
 	 *  size-based default. */
 	minWidth?: number | string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One `NavHeadingMenu` row — `label` required, `icon`, `description`, `href`/`onClick` activation, `isDisabled`.
  */
 interface NavHeadingMenuItemPropsBase {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Icon shown beside the item. */
 	icon?: Renderable
+	/** Item label content. */
 	label: Renderable
+	/** Secondary text under the label. */
 	description?: Renderable
+	/** Activation handler — receives the navigation event. */
 	onClick?: NavLinkOptions['onPress']
+	/** Dims the item and blocks activation. */
 	isDisabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10480,17 +12614,23 @@ export interface OverflowItem {
  * @see OverflowItem.
  */
 export interface OverflowListProps extends LayoutChildProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** One element per item. */
 	children?: Renderable
 	/** Gap between items, spacing-scale step (default 2). */
 	gap?: SpacingStep
+	/** Items always kept visible even in tight space. */
 	minVisibleItems?: number
+	/** Items shown before overflow begins. */
 	maxVisibleItems?: number
 	/** Wrap items across up to this many rows before collapsing. */
 	maxRows?: number
+	/** Which end items collapse into overflow from. */
 	collapseFrom?: 'start' | 'end'
 	/** `observeSelf` (default) measures this list's width; `observeParent`
 	 *  measures the parent's content width instead. */
@@ -10501,8 +12641,11 @@ export interface OverflowListProps extends LayoutChildProps {
 	 *  while nothing overflows (including mount), and again with `[]` when
 	 *  everything fits after having overflowed. */
 	onOverflowChange?: (overflowItems: OverflowItem[]) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10515,7 +12658,9 @@ export type ResizableDirection = 'horizontal' | 'vertical'
 /** A pixel bound for a percentage size — `pixel(240)`. The number is dips
  *  (CSS pixels on web). */
 export interface ResizablePixelSize {
+	/** Size-unit discriminator — value is fixed px. */
 	readonly type: 'pixel'
+	/** Size in px. */
 	readonly value: number
 }
 
@@ -10523,7 +12668,9 @@ export interface ResizablePixelSize {
  *  `percent(50, {min: pixel(200)})`. The number is a percentage of its
  *  resize basis; the optional pixel bound is dips (CSS pixels on web). */
 export type ResizablePercentSize = {
+	/** Size-unit discriminator — value is a container percentage. */
 	readonly type: 'percent'
+	/** Percentage of the container (0–100). */
 	readonly value: number
 } & (
 	| { readonly min: ResizablePixelSize; readonly max?: never }
@@ -10546,12 +12693,14 @@ export type ResizableSize =
 /** The `minSize` half of a region config — a `ResizableSize` floor.
  */
 export interface ResizableMinConfig {
+	/** Smallest size the region can be resized to. */
 	minSize?: ResizableSize
 }
 
 /** The `maxSize` half of a region config — a `ResizableSize` ceiling.
  */
 export interface ResizableMaxConfig {
+	/** Largest size the region can be resized to. */
 	maxSize?: ResizableSize
 }
 
@@ -10560,6 +12709,7 @@ export interface ResizableMaxConfig {
  *  the same unit, and `shrinkOrder` cascade priority (lower shrinks first).
  */
 export interface ResizableRegionSizing {
+	/** Initial size before user resizing. */
 	defaultSize?: ResizableSize
 	/** Whether this region can collapse to 0 (default false). */
 	collapsible?: boolean
@@ -10588,9 +12738,13 @@ export interface ResizableConfig {
 	/** Persistence key — localStorage on web, ApplicationSettings on
 	 *  native; in-memory only on the AppKit desktop leaf. */
 	autoSaveId?: string
+	/** Fires during resize with the current width. */
 	onWidthChange?: (width: number) => void
+	/** Initial collapsed state for uncontrolled usage. */
 	defaultIsCollapsed?: boolean
+	/** Controlled collapsed state. */
 	isCollapsed?: boolean
+	/** Reports collapsed-state changes. */
 	onCollapseChange?: (isCollapsed: boolean) => void
 }
 
@@ -10601,10 +12755,15 @@ export interface UseResizableSingleOptions {
 	containerRef?: { current: HostElement | null }
 	/** Axis this region resizes along; must match `ResizeHandle.direction`. */
 	direction?: ResizableDirection
+	/** Persists size across sessions under this storage key. */
 	autoSaveId?: string
+	/** Initial collapsed state for uncontrolled usage. */
 	defaultIsCollapsed?: boolean
+	/** Controlled collapsed state. */
 	isCollapsed?: boolean
+	/** Fires when the size settles after a resize. */
 	onSizeChange?: (size: number) => void
+	/** Reports collapsed-state changes. */
 	onCollapseChange?: (isCollapsed: boolean) => void
 }
 
@@ -10615,9 +12774,13 @@ export type UseResizableSingleConfig = ResizableRegionConfig & UseResizableSingl
 /** Multi-region `useResizable` config — named `regions` map (`Record<string, ResizableRegionConfig>`), shared `direction`/`containerRef`/`autoSaveId`.
  */
 export interface UseResizableMultiConfig {
+	/** Axis the regions resize along. */
 	direction?: ResizableDirection
+	/** Container element the regions are measured against. */
 	containerRef?: { current: HostElement | null }
+	/** Per-region sizing config keyed by region id. */
 	regions: Record<string, ResizableRegionConfig>
+	/** Persists sizes across sessions under this storage key. */
 	autoSaveId?: string
 }
 
@@ -10626,20 +12789,32 @@ export interface UseResizableMultiConfig {
  *  Underscore fields are internal plumbing exported for hand-built
  *  integrations. */
 export interface ResizableProps {
+	/** Internal — current size injected by the Resizable parent. */
 	_size: number
+	/** Internal — collapsed state injected by the Resizable parent. */
 	_isCollapsed: boolean
+	/** Internal — resize-start hook from the parent. */
 	_onResizeStart: () => void
+	/** Internal — resize-move hook receiving pointer deltas. */
 	_onResizeMove: (delta: number) => void
+	/** Internal — resize-end hook from the parent. */
 	_onResizeEnd: () => void
 	/** Gesture ended without completing (pointercancel/lost capture/handle
 	 *  unmounted) — releases the gesture without signalling a resize end. */
 	_onResizeCancel?: () => void
+	/** Internal — resolved minimum size in px. */
 	_minSizePx: number
+	/** Internal — resolved maximum size in px. */
 	_maxSizePx: number
+	/** Internal — snap points in px. */
 	_snaps: number[]
+	/** Internal — size applied while collapsed. */
 	_collapsedSize: number
+	/** Internal — whether the region may collapse. */
 	_collapsible: boolean
+	/** Internal — resize axis. */
 	_direction?: ResizableDirection
+	/** Internal marker discriminating injected props. */
 	_isResizableProps: true
 }
 
@@ -10648,9 +12823,13 @@ export interface ResizableProps {
 export interface ResizableRegion {
 	/** Current size in px/dips. */
 	size: number
+	/** Whether the region is currently collapsed. */
 	isCollapsed: boolean
+	/** Collapses the region. */
 	collapse: () => void
+	/** Expands the region from collapsed. */
 	expand: () => void
+	/** Sets the region size directly. */
 	resize: (size: number) => void
 	/** Props to spread into `ResizeHandle`'s `resizable`. */
 	props: ResizableProps
@@ -10659,8 +12838,11 @@ export interface ResizableRegion {
 /** The drag handle between resizable regions — `resizable` takes the `ResizableProps` a `useResizable` region emits (or a component's `resizable` config object); `direction` must match the region's axis.
  */
 export interface ResizeHandleProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Layout direction — determines cursor and indicator orientation
 	 *  (default 'horizontal'). */
@@ -10671,6 +12853,7 @@ export interface ResizeHandleProps {
 	/** Reverse the drag direction — set when the handle controls a panel on
 	 *  the end/right/bottom side. */
 	isReversed?: boolean
+	/** Disables dragging. */
 	isDisabled?: boolean
 	/** Paint a hairline divider at the handle position (inline mode). */
 	hasDivider?: boolean
@@ -10685,8 +12868,11 @@ export interface ResizeHandleProps {
 	resizable?: ResizableProps
 	/** Custom handle content replacing the default pill. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10708,7 +12894,9 @@ export interface IconButtonProps extends Omit<
 	ButtonProps,
 	'children' | 'endContent' | 'isIconOnly' | 'label'
 > {
+	/** Glyph rendered inside the button. */
 	icon: Renderable
+	/** Accessible name (required — icon-only buttons have no visible text). */
 	label: string
 }
 
@@ -10719,8 +12907,11 @@ export type ButtonGroupOrientation = 'horizontal' | 'vertical'
 /** Shared context Button (and grouped trigger components) read inside a
  *  ButtonGroup — mirrors upstream `useButtonGroup`. */
 export interface ButtonGroupContextValue {
+	/** Axis the group lays out on, propagated to buttons. */
 	orientation: ButtonGroupOrientation
+	/** Disables every button in the group. */
 	isDisabled: boolean
+	/** Size variant propagated to buttons. */
 	size?: FieldControlSize
 }
 
@@ -10740,9 +12931,13 @@ export interface ButtonGroupContextValue {
  * @see ButtonGroupContextValue, ButtonGroupOrientation.
  */
 export interface ButtonGroupProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Accessible label for the group (role="group" aria-label). */
 	label: string
@@ -10752,9 +12947,13 @@ export interface ButtonGroupProps {
 	size?: FieldControlSize
 	/** Resting elevation for the shared surface. @default 'none' */
 	elevation?: Elevation
+	/** Disables every button in the group. */
 	isDisabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10772,7 +12971,9 @@ export interface ButtonGroupProps {
  * @see ToggleButtonGroupProps for grouped selection.
  */
 export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant' | 'clickAction'> {
+	/** Button text. */
 	label: string
+	/** Controlled pressed state. */
 	isPressed?: boolean
 	/** Called with the next pressed state when the button is activated. */
 	onPressedChange?: (isPressed: boolean) => void
@@ -10789,31 +12990,47 @@ export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'
 }
 
 interface ToggleButtonGroupBaseProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Accessible label for the group (role="group" aria-label). */
 	label: string
+	/** Axis override when the button sits in a group. */
 	orientation?: ButtonGroupOrientation
+	/** Size variant. */
 	size?: FieldControlSize
+	/** Disables the button. */
 	isDisabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** Single-select toggle group — clicking the active button deselects. */
 export interface ToggleButtonGroupSingleProps extends ToggleButtonGroupBaseProps {
+	/** Single-select discriminator — `single` fixes this variant. */
 	type?: 'single'
+	/** Controlled pressed value, or null when none. */
 	value: string | null
+	/** Fires with the new value (null when toggled off). */
 	onChange: (value: string | null) => void
 }
 
 /** Multi-select toggle group. */
 export interface ToggleButtonGroupMultipleProps extends ToggleButtonGroupBaseProps {
+	/** Multi-select discriminator — `multiple` fixes this variant. */
 	type: 'multiple'
+	/** Controlled pressed values. */
 	value: string[]
+	/** Fires with the new value array. */
 	onChange: (value: string[]) => void
 }
 
@@ -10849,15 +13066,23 @@ export type ToggleButtonGroupProps = ToggleButtonGroupSingleProps | ToggleButton
  * @see SelectableCardProps, CardProps.
  */
 export interface ClickableCardProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Accessible name for the card's action. */
 	label: string
+	/** Activation callback — makes the whole card pressable. */
 	onPress?: () => void
+	/** Turns the card into a link to this URL. */
 	href?: string
+	/** Anchor target when `href` is set. */
 	target?: string
+	/** Dims the card and blocks activation. */
 	isDisabled?: boolean
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Internal padding in 4px spacing steps. @default 4 */
 	padding?: number
@@ -10865,11 +13090,17 @@ export interface ClickableCardProps {
 	variant?: string
 	/** @default 'none' */
 	elevation?: Elevation
+	/** Card width — number is DIPs, string is a CSS length. */
 	width?: number | string
+	/** Card height — number is DIPs, string is a CSS length. */
 	height?: number | string
+	/** Maximum card width. */
 	maxWidth?: number | string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10887,25 +13118,39 @@ export interface ClickableCardProps {
  * @see ClickableCardProps.
  */
 export interface SelectableCardProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Accessible name for the selectable card. */
 	label: string
 	/** Controlled selection state. */
 	isSelected: boolean
+	/** Fires with the new selected state. */
 	onChange: (isSelected: boolean) => void
 	/** Disabled cards stay focusable with a disabled state announced. */
 	isDisabled?: boolean
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Inner padding in DIPs. */
 	padding?: number
+	/** Visual variant of the card surface. */
 	variant?: string
+	/** Shadow depth level. */
 	elevation?: Elevation
+	/** Card width — number is DIPs, string is a CSS length. */
 	width?: number | string
+	/** Card height — number is DIPs, string is a CSS length. */
 	height?: number | string
+	/** Maximum card width. */
 	maxWidth?: number | string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10939,8 +13184,11 @@ export type MoreMenuPresentation = 'popover' | 'bottom-sheet' | 'adaptive'
  * @see MenuActionData, DropdownMenuProps.
  */
 export interface MoreMenuProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** This compact overflow menu contains action rows only. Use DropdownMenu
 	 *  for links, sections, separators, and other row kinds. */
@@ -10953,6 +13201,7 @@ export interface MoreMenuProps {
 	size?: FieldControlSize
 	/** Trigger icon override — node or registered name. @default three dots */
 	icon?: Renderable
+	/** Disables the trigger. */
 	isDisabled?: boolean
 	/** Menu side of the trigger. @default 'below' */
 	placement?: MoreMenuPlacement
@@ -10962,9 +13211,13 @@ export interface MoreMenuProps {
 	presentation?: MoreMenuPresentation
 	/** Controlled open state. */
 	isMenuOpen?: boolean
+	/** Reports requested open-state changes. */
 	onOpenChange?: (isOpen: boolean) => void
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -10976,55 +13229,75 @@ export interface MoreMenuProps {
 /** PowerSearch operator that takes no value (e.g. 'is empty').
  */
 export interface EmptyOperatorValue {
+	/** Operator carrying no value (e.g. `is_empty`). */
 	readonly type: 'empty'
 }
 
 /** PowerSearch operator taking one string; `searchSource` supplies completions, `isArbitraryStringAllowed` permits free text.
  */
 export interface StringOperatorValue {
+	/** String-value operator discriminator. */
 	readonly type: 'string'
+	/** Provider supplying value suggestions. */
 	readonly searchSource?: SearchSource
+	/** Permits free-form values outside the suggestion list. */
 	readonly isArbitraryStringAllowed?: boolean
 }
 
 /** PowerSearch operator taking a string list — `searchSource` completions, `isArbitraryStringAllowed` free entries, `tokenization` paste rules.
  */
 export interface StringListOperatorValue {
+	/** String-list operator discriminator. */
 	readonly type: 'string_list'
+	/** Provider supplying value suggestions. */
 	readonly searchSource?: SearchSource
+	/** Permits free-form values outside the suggestion list. */
 	readonly isArbitraryStringAllowed?: boolean
+	/** How typed text splits into list tokens. */
 	readonly tokenization?: OperatorTokenizationConfig
 }
 
 /** PowerSearch operator taking an integer, optionally `minValue`/`maxValue` bounded with `units` label.
  */
 export interface IntegerOperatorValue {
+	/** Integer-value operator discriminator. */
 	readonly type: 'integer'
+	/** Minimum accepted value. */
 	readonly minValue?: number
+	/** Maximum accepted value. */
 	readonly maxValue?: number
+	/** Unit suffix displayed beside the value. */
 	readonly units?: string
 }
 
 /** PowerSearch operator taking a float, optionally `minValue`/`maxValue` bounded with `units` label.
  */
 export interface FloatOperatorValue {
+	/** Float-value operator discriminator. */
 	readonly type: 'float'
+	/** Minimum accepted value. */
 	readonly minValue?: number
+	/** Maximum accepted value. */
 	readonly maxValue?: number
+	/** Unit suffix displayed beside the value. */
 	readonly units?: string
 }
 
 /** PowerSearch operator taking a wall-clock time string, optionally `minValue`/`maxValue` bounded.
  */
 export interface TimeOperatorValue {
+	/** Time-value operator discriminator. */
 	readonly type: 'time'
+	/** Earliest accepted time. */
 	readonly minValue?: string
+	/** Latest accepted time. */
 	readonly maxValue?: string
 }
 
 /** PowerSearch operator taking an absolute date — `isDateOnly` drops the time part.
  */
 export interface DateAbsoluteOperatorValue {
+	/** Absolute-date operator discriminator. */
 	readonly type: 'date_absolute'
 	/** Date-only editing without a time part. */
 	readonly isDateOnly?: boolean
@@ -11033,6 +13306,7 @@ export interface DateAbsoluteOperatorValue {
 /** PowerSearch operator taking a relative date expression — `isPastAllowed`/`isFutureAllowed` gate direction (default both true).
  */
 export interface DateRelativeOperatorValue {
+	/** Relative-date operator discriminator. */
 	readonly type: 'date_relative'
 	/** @default true */
 	readonly isPastAllowed?: boolean
@@ -11043,55 +13317,74 @@ export interface DateRelativeOperatorValue {
 /** PowerSearch operator taking a `DateTimeRange` — `intervalDatePresets`/`relativeDatePresets` supply quick picks.
  */
 export interface DateRangeOperatorValue {
+	/** Date-range operator discriminator. */
 	readonly type: 'date_range'
+	/** Named fixed-range presets shown in the editor. */
 	readonly intervalDatePresets?: ReadonlyArray<DateRangeFilterPreset>
+	/** Named relative-range presets (e.g. "last 7 days"). */
 	readonly relativeDatePresets?: ReadonlyArray<RelativeDateFilterPreset>
 }
 
 /** One fixed choice for enum-valued PowerSearch operators — `value`, `label`, optional `icon`.
  */
 export interface EnumItem {
+	/** Value committed when the option is chosen. */
 	readonly value: string
+	/** Text shown for the option. */
 	readonly label: string
+	/** Icon shown beside the option. */
 	readonly icon?: Renderable
 }
 
 /** PowerSearch operator taking one `EnumItem.value` from `values`.
  */
 export interface EnumOperatorValue {
+	/** Single-enum operator discriminator. */
 	readonly type: 'enum'
+	/** Options the value may take. */
 	readonly values: ReadonlyArray<EnumItem>
 }
 
 /** PowerSearch operator taking several `EnumItem.value`s from `values`.
  */
 export interface EnumListOperatorValue {
+	/** Enum-list operator discriminator. */
 	readonly type: 'enum_list'
+	/** Options the values may take. */
 	readonly values: ReadonlyArray<EnumItem>
 }
 
 /** PowerSearch operator taking a list of entity picks — `searchSource` resolves them, `tokenization` handles pastes, `renderItem` customizes rows.
  */
 export interface EntityListOperatorValue {
+	/** Entity-list operator discriminator. */
 	readonly type: 'entity_list'
+	/** Provider supplying entity suggestions. */
 	readonly searchSource?: SearchSource
+	/** Permits free-form entries outside the suggestion list. */
 	readonly isArbitraryStringAllowed?: boolean
+	/** How typed text splits into list tokens. */
 	readonly tokenization?: OperatorTokenizationConfig
+	/** Renders one entity suggestion row. */
 	readonly renderItem?: (item: SearchableItem) => Renderable
 }
 
 /** Props for a caller-supplied `CustomOperatorValue.Editor` — the JSON value
  *  string and its change sink inside the filter editor. */
 export interface CustomOperatorEditorProps {
+	/** Current editor value. */
 	value: string
 	onChange(value: string): void
+	/** Text shown while the editor is empty. */
 	placeholder?: string
+	/** Disables the editor. */
 	isDisabled?: boolean
 }
 
 /** PowerSearch operator with a caller-supplied editor — `Editor` gets `CustomOperatorEditorProps`; `getString` renders the stored JSON value as token text.
  */
 export interface CustomOperatorValue {
+	/** Custom operator discriminator — the app supplies the editor. */
 	readonly type: 'custom'
 	/** Caller editor component: `{value, onChange, placeholder, isDisabled}`. */
 	readonly Editor: ElementComponent<CustomOperatorEditorProps>
@@ -11102,6 +13395,7 @@ export interface CustomOperatorValue {
 /** PowerSearch operator taking a nested filter list (`FilterValueNested`).
  */
 export interface NestedOperatorValue {
+	/** Nested-filter operator discriminator. */
 	readonly type: 'nested'
 }
 
@@ -11127,105 +13421,135 @@ export type OperatorValue =
 /** Stored PowerSearch value: none (empty operators).
  */
 export interface FilterValueEmpty {
+	/** Empty-value discriminator (operators with no operand). */
 	readonly type: 'empty'
 }
 
 /** Stored PowerSearch value: one string.
  */
 export interface FilterValueString {
+	/** String-value discriminator. */
 	readonly type: 'string'
+	/** The string operand. */
 	readonly value: string
 }
 
 /** Stored PowerSearch value: a string list.
  */
 export interface FilterValueStringList {
+	/** String-list discriminator. */
 	readonly type: 'string_list'
+	/** The string operands. */
 	readonly value: ReadonlyArray<string>
 }
 
 /** Stored PowerSearch value: an integer.
  */
 export interface FilterValueInteger {
+	/** Integer-value discriminator. */
 	readonly type: 'integer'
+	/** The integer operand. */
 	readonly value: number
 }
 
 /** Stored PowerSearch value: a float.
  */
 export interface FilterValueFloat {
+	/** Float-value discriminator. */
 	readonly type: 'float'
+	/** The float operand. */
 	readonly value: number
 }
 
 /** Stored PowerSearch value: a wall-clock time string.
  */
 export interface FilterValueTime {
+	/** Time-value discriminator. */
 	readonly type: 'time'
+	/** The time operand. */
 	readonly value: string
 }
 
 /** Stored PowerSearch value: an instant as `unixSeconds`.
  */
 export interface FilterValueDateAbsolute {
+	/** Absolute-date discriminator. */
 	readonly type: 'date_absolute'
+	/** The instant as Unix seconds. */
 	readonly unixSeconds: number
 }
 
 /** Stored PowerSearch value: a relative-date expression string.
  */
 export interface FilterValueDateRelative {
+	/** Relative-date discriminator. */
 	readonly type: 'date_relative'
+	/** Relative offset descriptor (e.g. "P7D"). */
 	readonly value: string
 }
 
 /** Stored PowerSearch value: a `DateTimeRange`.
  */
 export interface FilterValueDateRange {
+	/** Date-range discriminator. */
 	readonly type: 'date_range'
+	/** The range operand. */
 	readonly value: DateTimeRange
 }
 
 /** Stored PowerSearch value: one enum `value`.
  */
 export interface FilterValueEnum {
+	/** Single-enum discriminator. */
 	readonly type: 'enum'
+	/** The chosen enum value. */
 	readonly value: string
 }
 
 /** Stored PowerSearch value: enum `value`s.
  */
 export interface FilterValueEnumList {
+	/** Enum-list discriminator. */
 	readonly type: 'enum_list'
+	/** The chosen enum values. */
 	readonly value: ReadonlyArray<string>
 }
 
 /** An entity pick stored in a filter — `id`, `label`, optional `photo`.
  */
 export interface PowerSearchEntity {
+	/** Stable identity for the entity. */
 	readonly id: string
+	/** Text shown for the entity. */
 	readonly label: string
+	/** Avatar/thumbnail URL for the entity. */
 	readonly photo?: string
 }
 
 /** Stored PowerSearch value: picked `PowerSearchEntity` items.
  */
 export interface FilterValueEntityList {
+	/** Entity-list discriminator. */
 	readonly type: 'entity_list'
+	/** The chosen entities. */
 	readonly value: ReadonlyArray<PowerSearchEntity>
 }
 
 /** Stored PowerSearch value: a custom operator's JSON string.
  */
 export interface FilterValueCustom {
+	/** Custom-value discriminator. */
 	readonly type: 'custom'
+	/** The custom operand — interpreted by the app's editor. */
 	readonly value: string
 }
 
 /** Stored PowerSearch value: a nested `PowerSearchFilter` list.
  */
 export interface FilterValueNested {
+	/** Nested-filter discriminator. */
 	readonly type: 'nested'
+	/** Child filters under this node. */
 	readonly value: ReadonlyArray<PowerSearchFilter>
 }
 
@@ -11271,21 +13595,27 @@ export type DateTimeRangePart =
 /** An absolute-or-relative time range — `start`/`end` as `DateTimeRangePart`s; the stored form for `date_range` filters and presets.
  */
 export interface DateTimeRange {
+	/** Range start part. */
 	readonly start: DateTimeRangePart
+	/** Range end part. */
 	readonly end: DateTimeRangePart
 }
 
 /** A named absolute-range quick pick — `label` + `DateTimeRange` value.
  */
 export interface DateRangeFilterPreset {
+	/** Preset name shown in the editor. */
 	readonly label: string
+	/** Range the preset resolves to. */
 	readonly value: DateTimeRange
 }
 
 /** A named relative-range quick pick — `label` + relative expression `value`.
  */
 export interface RelativeDateFilterPreset {
+	/** Preset name shown in the editor. */
 	readonly label: string
+	/** Relative offset descriptor the preset resolves to. */
 	readonly value: string
 }
 
@@ -11293,13 +13623,17 @@ export interface RelativeDateFilterPreset {
 /** Shared operator fields — `key` (identity) and `value` (the `OperatorValue` editor kind).
  */
 export interface PowerSearchOperatorBase {
+	/** Operator id used in filter values. */
 	readonly key: string
+	/** Value-editor spec for the operator. */
 	readonly value: OperatorValue
 }
 
 /** Operator with literal label text. */
 export interface PowerSearchOperatorWithLabel extends PowerSearchOperatorBase {
+	/** Literal display label for the operator. */
 	readonly label: string
+	/** Unused when `label` is given — the two are exclusive. */
 	readonly i18nKey?: never
 }
 
@@ -11307,7 +13641,9 @@ export interface PowerSearchOperatorWithLabel extends PowerSearchOperatorBase {
  *  `@octane-xplat/ui` ships English defaults for the `@astryx.powersearch.*`
  *  keys; a custom catalog key falls back to the key's last segment. */
 export interface PowerSearchOperatorWithI18nKey extends PowerSearchOperatorBase {
+	/** Message-catalog key for the operator label. */
 	readonly i18nKey: string
+	/** Unused when `i18nKey` is given — the two are exclusive. */
 	readonly label?: never
 }
 
@@ -11318,14 +13654,19 @@ export type PowerSearchOperator = PowerSearchOperatorWithLabel | PowerSearchOper
 /** One searchable field — `key`, `label`, its `operators`, `defaultOperator`, `group`/`description`/`typeaheadAliases` for browsing and matching.
  */
 export interface PowerSearchField {
+	/** Field id used in filter values. */
 	readonly key: string
+	/** Field name shown in the UI. */
 	readonly label: string
+	/** Operators available for this field. */
 	readonly operators: ReadonlyArray<PowerSearchOperator>
+	/** Icon shown beside the field name. */
 	readonly icon?: Renderable
 	/** Default operator key when the field is picked. */
 	readonly defaultOperator?: string
 	/** Group label organizing fields in the browse menu. */
 	readonly group?: string
+	/** Secondary text describing the field. */
 	readonly description?: string
 	/** Extra strings that match this field in the typeahead. */
 	readonly typeaheadAliases?: ReadonlyArray<string>
@@ -11340,7 +13681,9 @@ export interface PowerSearchField {
  * @see PowerSearchField, PowerSearchOperator, createPowerSearchConfig.
  */
 export interface PowerSearchConfig {
+	/** Config identity — scopes persistence and labels. */
 	readonly name: string
+	/** Fields available for filtering. */
 	readonly fields: ReadonlyArray<PowerSearchField>
 	/** Field key receiving free-text search. */
 	readonly contentSearchFieldKey?: string
@@ -11349,8 +13692,11 @@ export interface PowerSearchConfig {
 /** One committed filter — `field`/`operator` keys plus a typed `value`; `isReadOnly` blocks editing. With a config from `createPowerSearchConfig`, use `PowerSearchFilterFor<C>` to constrain combinations to the declared schema.
  */
 export interface PowerSearchFilter {
+	/** Field key the filter applies to. */
 	readonly field: string
+	/** Operator key applied to the field. */
 	readonly operator: string
+	/** Operand the operator evaluates. */
 	readonly value: FilterValue
 	/** Prevent editing this filter. */
 	readonly isReadOnly?: boolean
@@ -11359,9 +13705,13 @@ export interface PowerSearchFilter {
 /** An in-progress filter inside the editor — `field` required, `operator`/`value` optional until complete.
  */
 export interface PartialFilter {
+	/** Field key the in-progress filter targets. */
 	readonly field: string
+	/** Operator key chosen so far. */
 	readonly operator?: string
+	/** Operand collected so far. */
 	readonly value?: FilterValue
+	/** Locks the filter for display (no editing). */
 	readonly isReadOnly?: boolean
 }
 
@@ -11381,10 +13731,15 @@ export interface PowerSearchHandle {
 /** Suggestion metadata inside `PowerSearchItem.auxiliaryData` — which field/operator/value/filter index an entry refers to, and its browse `group`.
  */
 export interface PowerSearchAuxData {
+	/** Field key attached to the token. */
 	readonly fieldKey: string
+	/** Operator key attached to the token. */
 	readonly operatorKey?: string
+	/** Operand attached to the token. */
 	readonly filterValue?: FilterValue
+	/** Index of the filter in the applied list. */
 	readonly filterIndex?: number
+	/** Group the filter belongs to. */
 	readonly group?: string
 }
 
@@ -11401,26 +13756,43 @@ export type PowerSearchSize = 'sm' | 'md' | 'lg'
  * @see PowerSearchComponents — supply a `Token` override per operator type.
  */
 export interface PowerSearchTokenProps {
+	/** Active PowerSearch config. */
 	readonly config: PowerSearchConfig
+	/** Filter this token represents. */
 	readonly filter: PowerSearchFilter
+	/** Field definition for the token. */
 	readonly field: PowerSearchField
+	/** Operator definition for the token. */
 	readonly operator: PowerSearchOperator
+	/** Label length cap before truncation. */
 	readonly maxLength: number
+	/** Fires on token activation (opens the editor). */
 	readonly onPress?: () => void
+	/** Fires on the remove affordance. */
 	readonly onRemove?: () => void
+	/** Dims the token and blocks interaction. */
 	readonly isDisabled?: boolean
+	/** IANA zone used to render date operands. */
 	readonly timezoneID?: string
 }
 
 /** Props for a custom filter editor (`components[type].Editor`). */
 export interface PowerSearchEditorProps {
+	/** Active PowerSearch config. */
 	readonly config: PowerSearchConfig
+	/** In-progress filter being edited. */
 	readonly filter: PartialFilter
+	/** `create` starts a new filter; `edit` modifies an existing one. */
 	readonly mode: 'create' | 'edit'
+	/** Commits the filter — null removes it. */
 	readonly onSave: (filter: PowerSearchFilter | null) => void
+	/** Abandons the edit. */
 	readonly onCancel: () => void
+	/** Label for the commit button. */
 	readonly saveButtonLabel?: string
+	/** Renders the editor for display only. */
 	readonly isReadOnly?: boolean
+	/** IANA zone used to render date operands. */
 	readonly timezoneID?: string
 }
 
@@ -11431,7 +13803,9 @@ export type PowerSearchFilterEditorProps = PowerSearchEditorProps
 /** Per-operator-type component overrides — `Token` (the filter pill) and/or `Editor` (the popover editor).
  */
 export interface PowerSearchComponentOverride {
+	/** Component replacing the default token renderer. */
 	readonly Token?: ElementComponent<PowerSearchTokenProps>
+	/** Component replacing the default filter editor. */
 	readonly Editor?: ElementComponent<PowerSearchEditorProps>
 }
 
@@ -11464,8 +13838,11 @@ export type PowerSearchComponents = Partial<
 export interface PowerSearchProps<
 	C extends PowerSearchConfig = PowerSearchConfig,
 > extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Status layout: overlaps the field below it or occupies its own row. */
 	statusVariant?: 'attached' | 'detached'
@@ -11507,12 +13884,17 @@ export interface PowerSearchProps<
 	resultCount?: number | string
 	/** Callback adaptation of Astryx's imperative handle ref. */
 	handleRef?: (handle: PowerSearchHandle) => void
+	/** Fires when the search field gains focus. */
 	onFocus?: () => void
+	/** Fires when the search field loses focus. */
 	onBlur?: () => void
 	/** Per-operator-value-type Token/Editor component overrides. */
 	components?: PowerSearchComponents
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -11521,8 +13903,11 @@ export interface FieldDefinition<
 	K extends string = string,
 	T extends PowerSearchFieldType = PowerSearchFieldType,
 > {
+	/** Field id used in filter values. */
 	readonly key: K
+	/** Field type — selects the JS value type and generated operators. */
 	readonly type: T
+	/** Field name shown in the UI. */
 	readonly label?: string
 	/** Required for 'enum'/'enum_list'. */
 	readonly enumValues?: ReadonlyArray<EnumItem>
@@ -11542,12 +13927,19 @@ export type PowerSearchFieldType =
 /** Maps a `PowerSearchFieldType` to its stored JS value type — drives `InferData` and typed filter values.
  */
 export type PowerSearchFieldTypeToJS = {
+	/** JS value type for `string` fields. */
 	string: string
+	/** JS value type for `number` fields. */
 	number: number
+	/** JS value type for `boolean` fields. */
 	boolean: boolean
+	/** JS value type for `date` fields (Date or epoch ms). */
 	date: Date | number
+	/** JS value type for `enum` fields. */
 	enum: string
+	/** JS value type for `enum_list` fields. */
 	enum_list: ReadonlyArray<string>
+	/** JS value type for `string_list` fields. */
 	string_list: ReadonlyArray<string>
 }
 
@@ -11711,8 +14103,11 @@ export type StyledVariantSelection<V extends Record<string, StyledVariant>> = {
  *  `variants` slot adds a typed prop, and `defaultVariants` supplies the
  *  value used when a variant prop is omitted. */
 export interface StyledDef<V extends Record<string, StyledVariant>> {
+	/** Classes always applied by the styled component. */
 	base?: StyledClass
+	/** Variant name → option → class map. */
 	variants?: V
+	/** Variant selection used when the prop is omitted. */
 	defaultVariants?: StyledVariantSelection<V>
 }
 
@@ -11783,6 +14178,7 @@ export type NumberInputProps = InputNumberProps
 export type SelectorProps = SelectProps
 /** Props accepted by `MultiSelector`. */
 export type MultiSelectorProps = Omit<SelectMultipleProps, 'selectionMode'> & {
+	/** Multi-select discriminator — `multiple` fixes this variant. */
 	selectionMode?: 'multiple'
 }
 
@@ -11846,15 +14242,21 @@ export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
  * ```
  */
 export interface BlockquoteProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Attribution rendered after the quoted content (`<cite>` on web). */
 	cite?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -11876,24 +14278,34 @@ export type CodeSize = 'inherit'
  * @see CodeBlockProps for multi-line display.
  */
 export interface CodeProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** @default 'primary' */
 	color?: CodeColor
 	/** `'inherit'` adopts the surrounding text's font-size and line-height. */
 	size?: CodeSize
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One syntax token. start/end are UTF-16 code-unit offsets relative to
  * its line; start is inclusive and end is exclusive. */
 export interface SyntaxToken {
+	/** Token classification from the code tokenizer. */
 	type: import('./markdown/code-tokenizer').SyntaxTokenType
+	/** Start offset in the source string. */
 	start: number
+	/** End offset in the source string. */
 	end: number
 }
 
@@ -11903,8 +14315,11 @@ export type TokenLine = SyntaxToken[]
 /** A custom token with inclusive start/exclusive end UTF-16 offsets in the
  * complete source (including newlines), rather than offsets in one line. */
 export interface CodeToken {
+	/** Token classification from the code tokenizer. */
 	type: import('./markdown/code-tokenizer').SyntaxTokenType
+	/** Start offset in the source string. */
 	start: number
+	/** End offset in the source string. */
 	end: number
 }
 
@@ -11919,7 +14334,9 @@ export type CodeTokenizer = (code: string, language: string) => CodeToken[]
  *  properties; on native it recolors the emitted text runs directly (native
  *  spans don't resolve CSS vars). */
 export interface SyntaxThemeOverride {
+	/** Theme name the override applies to. */
 	name?: string
+	/** Token-type → color map; tuple gives [light, dark]. */
 	tokens: Record<string, string | [light: string, dark: string]>
 }
 
@@ -11934,8 +14351,11 @@ export interface SyntaxThemeOverride {
  * @see CodeTokenizer, SyntaxThemeOverride.
  */
 export interface CodeBlockProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** The source code to display. */
 	code: string
@@ -11984,8 +14404,11 @@ export interface CodeBlockProps {
 	highlightMode?: 'auto' | 'ranges' | 'spans'
 	/** Per-instance syntax theme override (see `SyntaxThemeOverride`). */
 	syntaxTheme?: SyntaxThemeOverride
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -11999,10 +14422,15 @@ export interface ProgressBarMark {
 
 /** ProgressBar variant names — extendable via module augmentation. */
 export interface ProgressBarVariantMap {
+	/** Enables the `accent` variant. */
 	accent: true
+	/** Enables the `success` variant. */
 	success: true
+	/** Enables the `warning` variant. */
 	warning: true
+	/** Enables the `neutral` variant. */
 	neutral: true
+	/** Enables the `error` variant. */
 	error: true
 }
 
@@ -12022,8 +14450,11 @@ export type ProgressBarVariant = keyof ProgressBarVariantMap
  * @see MeterProps for a static gauge, ProgressGroupProps.
  */
 export interface ProgressBarProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Current value. Ignored when `isIndeterminate` is true. @default 0 */
 	value?: number
@@ -12048,21 +14479,33 @@ export interface ProgressBarProps {
 	isDisabled?: boolean
 	/** `ref` receives the host element (web) / native view. */
 	ref?: Octane.Ref<object>
+	/** Groups the bar into a single accessibility element on native. */
 	accessible?: boolean
+	/** Accessible name for the progress bar. */
 	accessibilityLabel?: string
+	/** Describes the progress meaning; announced after the label. */
 	accessibilityHint?: string
+	/** Value text reported to assistive technology (e.g. "45%"). */
 	accessibilityValue?: string
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** StatusDot variant names — extendable via module augmentation. */
 export interface StatusDotVariantMap {
+	/** Enables the `success` variant. */
 	success: true
+	/** Enables the `warning` variant. */
 	warning: true
+	/** Enables the `error` variant. */
 	error: true
+	/** Enables the `accent` variant. */
 	accent: true
+	/** Enables the `neutral` variant. */
 	neutral: true
 }
 
@@ -12080,8 +14523,11 @@ export type StatusDotVariant = keyof StatusDotVariantMap
  * ```
  */
 export interface StatusDotProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Semantic color variant (required). */
 	variant: StatusDotVariant
@@ -12095,8 +14541,11 @@ export interface StatusDotProps {
 	tooltip?: string
 	/** Optional icon node painted in the dot's ink color (8px field). */
 	icon?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -12142,8 +14591,11 @@ export type TimestampValueUnit = 'unix-seconds' | 'unix-milliseconds'
 
 /** Shared display props for the two explicit Timestamp value forms. */
 export interface TimestampBaseProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/**
 	 * - 'auto': relative for recent times, `date_time` for older (default)
@@ -12175,8 +14627,11 @@ export interface TimestampBaseProps {
 	color?: TextColor
 	/** Font weight override. */
 	weight?: TextWeight
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -12211,8 +14666,11 @@ export type TimerFormat = 'elapsed' | 'clock'
  * @see TimestampProps — `startTimeMs` and generated timestamps use Unix milliseconds.
  */
 export interface TimerProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Unix time in milliseconds when the measured operation began. Omit to
 	 *  count from this Timer's mount. */
@@ -12227,13 +14685,17 @@ export interface TimerProps {
 	color?: TextColor
 	/** Font weight override. */
 	weight?: TextWeight
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
 /** One cited source for `Citation`. */
 export interface CitationSource {
+	/** Source title shown in the citation. */
 	title?: string
 	/** Destination URL. Unsafe schemes (javascript:, vbscript:, data:text/html)
 	 *  are blocked — the citation renders inert instead of linking. */
@@ -12257,15 +14719,23 @@ export interface CitationSource {
  * @see CitationSource.
  */
 export interface CitationProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Source the citation points to. */
 	source: CitationSource
+	/** Footnote number rendered. */
 	number: number
 	/** 'label' (icon + title chip, default) or 'number' (accent pill). */
 	variant?: 'label' | 'number'
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -12295,8 +14765,11 @@ export type MetadataListColumns = 'multi' | 'single' | number
  * @see MetadataListItemProps, MetadataListColumns.
  */
 export interface MetadataListProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** MetadataListItem children. */
 	children?: Renderable
@@ -12314,8 +14787,11 @@ export interface MetadataListProps {
 	orientation?: 'vertical' | 'horizontal'
 	/** Optional title rendered above the list. */
 	title?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -12324,16 +14800,23 @@ export interface MetadataListProps {
  * @see MetadataListProps — render inside it.
  */
 export interface MetadataListItemProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Label text for this item. */
 	label: string
 	/** Icon node rendered before the label text. */
 	icon?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -12347,8 +14830,11 @@ export interface MetadataListItemProps {
  * ```
  */
 export interface ThumbnailProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Image source (any `Image` src grammar). Shows the placeholder when
 	 *  absent or after a failed load. */
@@ -12373,8 +14859,11 @@ export interface ThumbnailProps {
 	 *  touch targets always show it (same rule upstream uses for coarse
 	 *  pointers). 'always' always shows it. */
 	showRemoveOn?: 'always' | 'hover'
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -12417,8 +14906,11 @@ export interface OutlineFromViewCapabilities {
  *  platform-specific while the resulting data stays portable.
  */
 export interface OutlineProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Ordered heading items to render. */
 	items: readonly OutlineItem[]
@@ -12447,8 +14939,11 @@ export interface OutlineProps {
 	 *  scrolling yourself — activation still updates the active item, the
 	 *  URL fragment (web), and the navigate callbacks. @default true */
 	hasScrollOnClick?: boolean
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -12493,8 +14988,11 @@ export type MdNode =
  * @see MdNode, MdInline, MarkdownDataProps.
  */
 export interface MdDoc {
+	/** Document kind tag for the serialized markdown format. */
 	kind: 'octane-xplat/md'
+	/** Format version — always 1. */
 	v: 1
+	/** Top-level markdown nodes. */
 	children: MdNode[]
 }
 
@@ -12505,9 +15003,13 @@ export interface MdDoc {
  * @see MarkdownProps — the union this feeds; canonical import '@octane-xplat/ui/markdown'.
  */
 export interface MarkdownDataProps {
+	/** Pre-parsed document — skips the tokenizer. */
 	data: MdDoc
+	/** Unused with `data` — the two sources are exclusive. */
 	text?: never
+	/** Unused with `data` — the two sources are exclusive. */
 	isStreaming?: never
+	/** Unused with `data` — the two sources are exclusive. */
 	fadeIn?: never
 }
 
@@ -12517,7 +15019,9 @@ export interface MarkdownDataProps {
  * @see MarkdownProps — the union this feeds; canonical import '@octane-xplat/ui/markdown'.
  */
 export interface MarkdownTextProps {
+	/** Markdown source parsed and rendered. */
 	text: string
+	/** Unused with `text` — the two sources are exclusive. */
 	data?: never
 	/** `text` is a cumulative streaming snapshot that grows in chunks — often
 	 *  mid-token with unclosed constructs. Completed blocks parse once and
@@ -12563,7 +15067,9 @@ export type MarkdownProps = (MarkdownDataProps | MarkdownTextProps) & MarkdownPr
  * @see MarkdownProps — canonical import '@octane-xplat/ui/markdown'.
  */
 export interface MarkdownScreenProps {
+	/** Parsed document for the screen to render. */
 	data?: MdDoc
+	/** Load/parse failure shown instead of the document. */
 	error?: unknown
 }
 
@@ -12586,16 +15092,25 @@ export type CenterAxis = 'both' | 'horizontal' | 'vertical'
  * @see StackProps.
  */
 export interface CenterProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** @default 'both' */
 	axis?: CenterAxis
+	/** Renders as an inline-level box instead of a block. */
 	isInline?: boolean
 }
 
@@ -12619,13 +15134,21 @@ export type SectionDividerSide = 'top' | 'bottom' | 'start' | 'end'
  * @see SectionVariant, SectionDividerSide.
  */
 export interface SectionProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** @default 'section' */
 	variant?: SectionVariant
@@ -12672,14 +15195,21 @@ export type LayoutRole =
  * @see LayoutHeaderProps, LayoutContentProps.
  */
 export interface LayoutProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
 	/** Shorthand for the `content` slot — `content` wins when both are set. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Top region — typically a `LayoutHeader`. */
 	header?: Renderable
@@ -12723,13 +15253,21 @@ export interface LayoutProps extends AccessibilityProps {
  * @see LayoutProps.
  */
 export interface LayoutHeaderProps extends StackSizeProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Themed hairline on the block-end edge. @default false (or the parent
 	 *  Layout's `defaultHasDividers`). */
@@ -12762,13 +15300,21 @@ export interface LayoutHeaderProps extends StackSizeProps, AccessibilityProps {
  * @see LayoutProps.
  */
 export interface LayoutContentProps extends StackSizeProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Internal padding in spacing steps — overrides the layout-provided
 	 *  outer/inner padding on all four edges. `0` gives edge-to-edge content. */
@@ -12790,13 +15336,21 @@ export interface LayoutContentProps extends StackSizeProps, AccessibilityProps {
  *  the parent Layout's `defaultHasDividers`). Padding resolves like
  *  `LayoutHeader` (outer channel on boundary edges). */
 export interface LayoutFooterProps extends StackSizeProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Themed hairline on the block-start edge. @default false */
 	hasDivider?: boolean
@@ -12813,13 +15367,21 @@ export interface LayoutFooterProps extends StackSizeProps, AccessibilityProps {
  *  `resizable` accepts the `useResizable` handle's `props` bag so an adjacent
  *  `ResizeHandle` drives `width`. */
 export interface LayoutPanelProps extends StackSizeProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Hairline on the edge facing the content lane. @default false */
 	hasDivider?: boolean
@@ -12851,11 +15413,17 @@ export interface LayoutPanelProps extends StackSizeProps, AccessibilityProps {
  * ```
  */
 export interface VisuallyHiddenProps extends AccessibilityProps {
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 	/** Web element tag — 'span' (default) for inline labels, 'div' for block
 	 *  content / live regions. Native ignores it. */
@@ -12896,13 +15464,21 @@ export interface FocusScopeCapabilities {
  * @see FocusScopeCapabilities — check it before relying on target behavior.
  */
 export interface FocusScopeProps extends AccessibilityProps {
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 	/** Trap Tab/Shift+Tab inside the scope and pull outside focus back in. */
 	contain?: boolean
@@ -12935,18 +15511,27 @@ export type AspectRatioFit = 'cover' | 'contain' | 'center'
  * ```
  */
 export interface AspectRatioProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** width / height — e.g. 16/9 ≈ 1.777. Required. */
 	ratio: number
 	/** @default 'rectangle' */
 	shape?: AspectRatioShape
+	/** How content fits the ratio box (cover/contain semantics). */
 	fit?: AspectRatioFit
 }
 
@@ -12982,16 +15567,25 @@ export type FormOptionality = 'optional' | 'required'
  * @see FormLayoutDirection, FormFieldProps (`Field`).
  */
 export interface FormLayoutProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** @default 'vertical' */
 	direction?: FormLayoutDirection
+	/** Default required/optional marker policy for fields in the form. */
 	defaultOptionality?: FormOptionality
 }
 
@@ -13016,18 +15610,27 @@ export type InputGroupSize = 'sm' | 'md' | 'lg'
  * @see InputGroupTextProps.
  */
 export interface InputGroupProps extends FieldControlProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Group label — required for accessibility. */
 	label: string
 	/** Tooltip text shown via an info affordance at the end of the label. */
 	labelTooltip?: string
+	/** Size variant applied to grouped inputs. */
 	size?: InputGroupSize
 }
 
@@ -13037,13 +15640,21 @@ export interface InputGroupProps extends FieldControlProps {
  * @see InputGroupProps — renders a prefix/suffix segment inside it.
  */
 export interface InputGroupTextProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 }
 
@@ -13076,16 +15687,25 @@ export type ListStyle = ListMarkerStyle
  * @see ListItemProps, VirtualListProps for large data sets.
  */
 export interface ListProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** @default 'balanced' */
 	density?: ListDensity
+	/** Draws separators between list rows. */
 	hasDividers?: boolean
 	/** Compensates for each item's inline inset up to the container padding
 	 *  on each edge (aligns rows with sibling headings). Reads the
@@ -13111,28 +15731,44 @@ export interface ListProps extends AccessibilityProps {
  * @see ListProps — render inside it.
  */
 export interface ListItemProps extends AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
 	/** Primary text (string truncates to one line) or rich content. */
 	label: Renderable
+	/** Secondary text under the title. */
 	description?: Renderable
+	/** Content at the row's leading edge. */
 	startContent?: Renderable
+	/** Content at the row's trailing edge. */
 	endContent?: Renderable
+	/** Activation callback — makes the row pressable. */
 	onPress?: () => void
 	/** Extra app content rendered inside the row's label area. */
 	delegateRef?: { current: HostElement | null }
 	/** Link target: web renders a real anchor; native navigates via the
 	 *  registered deep-link table, falling back to opening the URL. */
 	href?: string
+	/** Anchor target when the row navigates. */
 	target?: '_blank' | '_self' | string
+	/** Anchor rel attribute. */
 	rel?: string
+	/** Dims the row and blocks activation. */
 	isDisabled?: boolean
+	/** Marks the row as the current selection. */
 	isSelected?: boolean
 }
 
@@ -13160,19 +15796,29 @@ export interface ListItemProps extends AccessibilityProps {
  * @see Selection, Key — selection contract; `useGridList` reports `isSupported` for grid keyboard nav.
  */
 export interface GridListProps<T = unknown> extends LayoutChildProps, AccessibilityProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Content rendered inside the element. */
 	children?: Renderable
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Data array rendered through `renderItem`. */
 	items: readonly T[]
 	/** Returns each item's stable `Key`; must be unique and survive reorder.
 	 *  Defaults to `defaultItemKey` — the item's `id` or `key` property;
 	 *  items without either throw instead of guessing a positional key. */
 	keyExtractor?: (item: T, index: number) => Key
+	/** Renders one cell; called per item. */
 	renderItem: (item: T, index: number) => Renderable
 	/** Content rendered when `items` is empty (RA `renderEmptyState`). */
 	renderEmpty?: () => Renderable
@@ -13183,6 +15829,7 @@ export interface GridListProps<T = unknown> extends LayoutChildProps, Accessibil
 	 *  and measures the rendered count for arrow-key navigation; native
 	 *  wraps by content width. */
 	columns?: number
+	/** Selection policy for cells (none/single/multiple). */
 	selectionMode?: 'none' | 'single' | 'multiple'
 	/** 'toggle' (default): click toggles membership, Shift+click extends the
 	 *  range. 'replace': click selects only the pressed key. */
@@ -13207,6 +15854,7 @@ export interface GridListProps<T = unknown> extends LayoutChildProps, Accessibil
 	 * and AppKit GridList components; mobile keeps tap selection/onAction.
 	 * The selector-based useGridList hook remains unsupported on AppKit. */
 	keyboardNavigationBehavior?: 'arrow' | 'tab'
+	/** Stable semantic automation name, independent of `id` and spoken labels. */
 	testID?: string
 }
 
@@ -13217,7 +15865,9 @@ export interface GridListProps<T = unknown> extends LayoutChildProps, Accessibil
  *  A replacement registered under a name is checked against its family's
  *  state space. */
 export interface IndicatorFamilyMap {
+	/** Glyph used for single-select states. */
 	singleSelection: 'unchecked' | 'checked'
+	/** Glyph used for multi-select states (adds indeterminate). */
 	multiSelection: 'unchecked' | 'checked' | 'indeterminate'
 }
 
@@ -13242,23 +15892,34 @@ export type IndicatorPosition = 'start' | 'end'
  * @see IndicatorMap, IndicatorComponent — register replacements with `registerIndicator`/`registerIndicators`.
  */
 export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
+	/** Current indicator state. */
 	state: IndicatorState<F>
 	/** @default 'md' */
 	size?: IndicatorSize
+	/** Dims the indicator. */
 	isDisabled?: boolean
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
 /** A replacement indicator's signature — renders `IndicatorProps<F>` for its family.
  */
 export type IndicatorComponent<F extends IndicatorFamily = IndicatorFamily> = (
+	/** Props forwarded to the indicator renderer. */
 	props: IndicatorProps<F>,
 ) => Renderable
 
@@ -13290,13 +15951,17 @@ export type IndicatorRegistry = {
 
 /** An owner-scoped modal opener. Keep element rendered beneath the providers to inherit. */
 export interface ImperativeModalReturn {
+	/** Opens a modal and returns its instance handle. */
 	open: OpenModal
+	/** Element to mount that hosts the imperative modals. */
 	element: Renderable
 }
 
 /** An owner-scoped sheet opener. Removing element closes every owned handle. */
 export interface ImperativeBottomSheetReturn {
+	/** Opens a bottom sheet and returns its instance handle. */
 	open: OpenBottomSheet
+	/** Element to mount that hosts the imperative sheets. */
 	element: Renderable
 }
 
@@ -13309,16 +15974,22 @@ export interface RouteOutletProps {
 	resumeUrl?: string
 	/** Reports the handoff result only while its owner is still mounted. */
 	onResume?: (result: NavigationResult<unknown>) => void
+	/** Stack id this outlet renders. */
 	stack?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
 
 // Media luminance and secondary-action reveal contracts.
 /** Normalized image coordinates, each in the range 0–1. */
 export interface ImageSampleRegion {
+	/** Sample region left edge in DIPs. */
 	x: number
+	/** Sample region top edge in DIPs. */
 	y: number
+	/** Sample region width in DIPs. */
 	width: number
+	/** Sample region height in DIPs. */
 	height: number
 }
 
@@ -13333,15 +16004,19 @@ export interface UseImageModeOptions {
 
 /** Exercised subset of Astryx's container reveal contract. */
 export interface UseContainerRevealOptions {
+	/** Toggles reveal behavior — disabled leaves content always revealed. */
 	isEnabled?: boolean
 }
 
 export interface ContainerRevealProps {
+	/** Classes applied to the reveal wrapper. */
 	className?: string
 }
 
 export interface UseContainerRevealReturn {
+	/** Props to spread on the container that triggers the reveal. */
 	getContainerProps: () => ContainerRevealProps
+	/** Props to spread on the content being revealed. */
 	getContentRevealProps: () => ContainerRevealProps
 }
 
@@ -13350,20 +16025,33 @@ export interface UseContainerRevealReturn {
  *  marks the current location, `startIcon` leads the label, `menu` turns
  *  the crumb into a dropdown trigger. */
 export interface BreadcrumbItemProps {
+	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
+	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
 	style?: StyleProp
+	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
+	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Inert navigation target (label-only crumbs pass no href). */
 	href?: string
+	/** Route the crumb links to. */
 	to?: string
+	/** Activation handler for the crumb. */
 	onPress?: () => void
+	/** Raw click handler for the crumb. */
 	onClick?: () => void
+	/** Marks the crumb as the current page (aria-current, no link). */
 	isCurrent?: boolean
+	/** Icon rendered before the crumb label. */
 	startIcon?: Renderable
+	/** Sibling entries shown in the crumb's dropdown. */
 	menu?: BreadcrumbMenuOption[]
+	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	android?: PlatformProps
+	/** Platform-specific properties are applied after shared props. */
 	web?: PlatformProps
 }
 
@@ -13376,9 +16064,14 @@ export type InternationalizationMessages = Record<
 /** Locale/catalog scope for built-in Selector and Pagination static strings.
  * Nested providers replace the parent scope; set host dir separately. */
 export interface InternationalizationProviderProps {
+	/** Active BCP-47 locale. */
 	locale: string
+	/** Text direction override; defaults to the locale's direction. */
 	dir?: 'ltr' | 'rtl'
+	/** Message catalog for the active locale. */
 	messages?: InternationalizationMessages
+	/** Per-key message overrides merged over `messages`. */
 	overrides?: InternationalizationMessages
+	/** Content rendered inside the element. */
 	children?: Renderable
 }
