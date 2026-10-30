@@ -11,6 +11,7 @@ function validateLock(lock: OrientationLock) {
 		throw new RangeError('Orientation lock must be a policy between DEFAULT and LANDSCAPE_RIGHT')
 	}
 }
+
 // Mutations run in call order; one rejected request does not poison the queue.
 let pending: Promise<void> = Promise.resolve()
 function enqueue(operation: () => Promise<void>): Promise<void> {
@@ -18,26 +19,33 @@ function enqueue(operation: () => Promise<void>): Promise<void> {
 	pending = result.catch(() => {})
 	return result
 }
-export async function getOrientationAsync() {
+
+export async function getOrientationAsync(): Promise<Orientation> {
 	return backend.info().orientation
 }
-export async function getOrientationLockAsync() {
+
+export async function getOrientationLockAsync(): Promise<OrientationLock> {
 	return backend.policy()
 }
+
 export async function getPlatformOrientationLockAsync(): Promise<PlatformOrientationInfo> {
 	return backend.platformPolicy()
 }
+
 export async function supportsOrientationLockAsync(lock: OrientationLock): Promise<boolean> {
 	validateLock(lock)
 	return backend.supports(lock)
 }
+
 export async function lockAsync(lock: OrientationLock): Promise<void> {
 	validateLock(lock)
 	return enqueue(() => backend.lock(lock))
 }
+
 export async function unlockAsync(): Promise<void> {
 	return enqueue(() => backend.unlock())
 }
+
 export async function lockPlatformAsync(options: PlatformOrientationInfo): Promise<void> {
 	if (
 		!options ||
@@ -60,6 +68,7 @@ export async function lockPlatformAsync(options: PlatformOrientationInfo): Promi
 				'iOS orientations must contain values between PORTRAIT_UP and LANDSCAPE_RIGHT',
 			)
 		}
+
 		copy.screenOrientationArrayIOS = [...new Set(copy.screenOrientationArrayIOS)]
 	} else if ('screenOrientationConstantAndroid' in copy) {
 		if (
@@ -81,12 +90,14 @@ export async function lockPlatformAsync(options: PlatformOrientationInfo): Promi
 	}
 	return enqueue(() => backend.lockPlatform(copy))
 }
+
 const axis = (value: number) =>
 	value === Orientation.PORTRAIT_UP || value === Orientation.PORTRAIT_DOWN
 		? 'portrait'
 		: value === Orientation.LANDSCAPE_LEFT || value === Orientation.LANDSCAPE_RIGHT
 			? 'landscape'
 			: 'unknown'
+
 /** Emits portrait/landscape transitions; same-axis flips do not emit. */
 export function addOrientationChangeListener(listener: OrientationChangeListener): Subscription {
 	if (typeof listener !== 'function') {
@@ -116,11 +127,26 @@ export function addOrientationChangeListener(listener: OrientationChangeListener
 		},
 	}
 }
+
 /** Forward UIApplicationDelegate's supported-orientations callback here on iOS. */
 export function getIOSSupportedInterfaceOrientations(window: object | null): number {
 	return backend.iosSupportedOrientations(window)
 }
-export const ScreenOrientation = Object.freeze({
+
+export const ScreenOrientation: Readonly<{
+	readonly capabilities: Readonly<import('./types').ScreenOrientationCapabilities>
+	readonly supported: boolean
+	isAvailable(): Promise<boolean>
+	getOrientationAsync: typeof getOrientationAsync
+	getOrientationLockAsync: typeof getOrientationLockAsync
+	getPlatformOrientationLockAsync: typeof getPlatformOrientationLockAsync
+	supportsOrientationLockAsync: typeof supportsOrientationLockAsync
+	lockAsync: typeof lockAsync
+	lockPlatformAsync: typeof lockPlatformAsync
+	unlockAsync: typeof unlockAsync
+	addOrientationChangeListener: typeof addOrientationChangeListener
+	getIOSSupportedInterfaceOrientations: typeof getIOSSupportedInterfaceOrientations
+}> = Object.freeze({
 	get capabilities() {
 		return Object.freeze(backend.capabilities())
 	},

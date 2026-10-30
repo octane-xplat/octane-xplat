@@ -5,14 +5,17 @@ import type { SplashScreenOptions } from './types'
 export async function preventAutoHideAsync(): Promise<boolean> {
 	return backend.preventAutoHide()
 }
+
 /** Request dismissal. It does not wait for the fade to finish. */
 export function hide(): void {
 	backend.hide()
 }
+
 /** Promise-shaped Expo entry point; resolves when dismissal has been requested. */
 export async function hideAsync(): Promise<void> {
 	hide()
 }
+
 export function setOptions(options: SplashScreenOptions): void {
 	if (
 		!options ||
@@ -36,7 +39,14 @@ export function setOptions(options: SplashScreenOptions): void {
 	}
 	backend.configure({ ...options })
 }
-export const SplashScreen = Object.freeze({
+
+export const SplashScreen: Readonly<{
+	readonly capabilities: Readonly<import('./types').SplashScreenCapabilities>
+	preventAutoHideAsync: typeof preventAutoHideAsync
+	hide: typeof hide
+	hideAsync: typeof hideAsync
+	setOptions: typeof setOptions
+}> = Object.freeze({
 	get capabilities() {
 		return Object.freeze(backend.capabilities())
 	},

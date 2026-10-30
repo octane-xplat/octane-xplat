@@ -1,17 +1,22 @@
 {
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"strict": true,
-		"skipLibCheck": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"target": "esnext",
-		"types": ["@nativescript/types"],
 		"declaration": true,
-		"allowImportingTsExtensions": true,
+		"isolatedDeclarations": true,
 		"emitDeclarationOnly": true,
+		"noEmit": false,
 		"noEmitOnError": true,
 		"rootDir": "src",
 		"outDir": "types/generated",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": [
+			"@nativescript/types"
+		],
+		"allowImportingTsExtensions": true,
 		"moduleSuffixes": [
 			"",
 			".web",
@@ -24,5 +29,13 @@
 			".windows"
 		]
 	},
-	"include": ["src/**/*.ts"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsrx",
+		"src/**/*.tsx"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.spec.*"
+	]
 }
