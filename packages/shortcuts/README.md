@@ -37,8 +37,10 @@ export const disposeShortcuts = () => shortcuts.dispose()
 
 Native desktop targets accept an attached AppKit view, GTK4 widget, or WinUI
 element instead of `document`. Their hosts remain experimental. Chromium and
-GTK/X11 input have runtime checks; AppKit and WinUI have source/model checks
-and still need native input qualification. Mobile hardware shortcuts and
+GTK/X11 and WinUI input have runtime checks; AppKit has a native event-queue
+check through the renderer. WinUI requires the framework’s pinned, patched
+NativeScript core for shared event ownership. IMEs and installed desktop
+consumers still need qualification. Mobile hardware shortcuts and
 system-wide hotkeys are unsupported. Missing host support throws at creation.
 
 Read [Add keyboard shortcuts](../../docs/app/keyboard-shortcuts.md) for native

@@ -1,9 +1,8 @@
 ### Add configurable keyboard shortcuts
 
 The optional `@octane-xplat/shortcuts` package adds scoped commands, sequences,
-shortcut recording, atomic rebinding and dispatch diagnostics. Browser and
-GTK/X11 input have runtime checks; AppKit and WinUI adapters remain experimental
-and await native input qualification. Mobile hardware shortcuts are unsupported.
+shortcut recording, atomic rebinding and dispatch diagnostics. Browser, GTK/X11 and WinUI input have runtime checks; AppKit has a native
+event-queue check. Native desktop adapters remain experimental. Mobile hardware shortcuts are unsupported.
 
 ```ts
 import { createShortcuts } from '@octane-xplat/shortcuts'

@@ -194,14 +194,28 @@ function inspectLastKey(event: import('@octane-xplat/shortcuts').ShortcutEvent) 
 | Browser and desktop webviews | Document or DOM element. The browser adapter also accepts iframe realms. |
 | AppKit | An attached renderer-owned NSView. Shares the renderer's key monitor, field-editor routing and focus-scope ordering. Modifier-only `flagsChanged` events remain unavailable. |
 | GTK4/GJS | An attached GTK widget. Runs after native editors filter input; shortcuts consumed by a focused widget or IME are unavailable. Physical codes use Linux XKB/evdev positions. |
-| WinUI | An attached UIElement, or a NativeScript view wrapping it. Uses preview routed events, scan codes and the active Windows text layout. Requires NativeScript's Win32 projection. |
+| WinUI | An attached UIElement, or a NativeScript view wrapping it. Uses preview routed events, scan codes and the active Windows text layout. Requires NativeScript's Win32 projection and the framework's patched core event subscription helper. |
 | iOS, Android, and unconfigured hosts | Creation throws; importing the package itself is safe. |
 
-Use the normal platform preset to select the adapter. AppKit
-and WinUI remain experimental and their OS input, IME, native teardown and
-installed-app integration need qualification. Chromium and Linux GTK/X11 have
-nonvisual input checks; those checks do not establish Wayland, every keyboard
-layout, or every IME. Pure-modifier recording is excluded on every host.
+Use the normal platform preset to select the adapter. Chromium, Linux GTK/X11
+and WinUI have nonvisual input checks; AppKit has a queued native-event check
+through its renderer. Desktop hosts remain experimental: these checks do not
+establish physical AppKit input, Wayland, every keyboard layout, every IME or
+installed-app integration. Pure-modifier recording is excluded on every host.
+
+WinUI requires the pinned Windows host and patched NativeScript core supplied
+with the framework. Its optional NativeScript peer is unnecessary on web,
+AppKit and GTK. Register after the native element attaches to its window.
+
+```ts
+import { createShortcuts } from '@octane-xplat/shortcuts'
+
+export function attachDesktopShortcuts(target: object) {
+	const shortcuts = createShortcuts({ target })
+	shortcuts.bind('Mod+KeyK', () => console.log('Open commands'))
+	return () => shortcuts.dispose()
+}
+```
 
 GTK and WinUI use one native “handled” result for event consumption. On those
 hosts, stopping propagation also stops native handling. AppKit and the browser

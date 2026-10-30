@@ -37,17 +37,27 @@
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:e2e": "node tests/browser.web.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"test:gtk-runtime": "node tests/gtk-runtime.mjs"
+		"test:gtk-runtime": "node tests/gtk-runtime.mjs",
+		"test:windows-runtime": "node tests/windows-runtime.mjs"
 	},
 	"dependencies": {
 		"@casbin/expression-eval": "5.3.0"
 	},
 	"devDependencies": {
+		"@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
 		"jsdom": "catalog:",
 		"playwright": "1.63.0",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.4-0 <10"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": {
+			"optional": true
+		}
 	}
 }

@@ -98,7 +98,7 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		for (const view of path) {
 			const payload: NativeKeyboardEvent<KeyView> = {
 				eventName: name === 'onKeyDown' ? 'keyDown' : 'keyUp', object: view, target, currentTarget: view,
-				key, code, altKey, ctrlKey, metaKey, shiftKey, repeat: Boolean(event.isARepeat), isComposing,
+				key, code, altKey, ctrlKey, metaKey, shiftKey, repeat: Boolean(typeof event.isARepeat === 'function' ? event.isARepeat() : event.isARepeat), isComposing,
 				get defaultPrevented() { return result.defaultPrevented },
 				preventDefault: () => { result.defaultPrevented = true },
 				stopPropagation: () => { result.propagationStopped = true },

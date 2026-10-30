@@ -44,6 +44,7 @@
 	},
 	"scripts": {
 		"test": "node --experimental-strip-types --test test/*.test.ts",
+		"test:keyboard": "node --test test/keyboard.test.ts",
 		"test:gestures": "node ../../scripts/probe.ts run test/fixtures/gestures.macos.tsrx --target macos",
 		"test:portals": "node ../../scripts/probe.ts run test/fixtures/portal-lifecycle.macos.tsrx --target macos",
 		"test:overflow": "node ../../scripts/probe.ts run test/fixtures/text-overflow.macos.tsrx --target macos",

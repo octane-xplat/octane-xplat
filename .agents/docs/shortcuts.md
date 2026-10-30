@@ -40,16 +40,23 @@ concerns.
   first; input they consume cannot reach shortcuts. `handled` cannot separate
   stopping propagation from cancelling native input. Linux physical positions
   use XKB's evdev+8 keycodes. GJS timers use GLib directly.
-- WinUI uses typed KeyEventHandler/RoutedEventHandler instances with
-  `AddHandler`/`RemoveHandler`, not event-property assignment that would replace
-  an existing owner. Preview key events carry scan codes and VK_PROCESSKEY;
-  `GetKeyboardState` and `ToUnicodeEx` recover the active logical layout.
-  [ToUnicodeEx flag 4](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex)
-  avoids mutating native dead-key state. Runtime source examined:
-  `@nativescript/windows` 0.1.0-alpha.144, `global_fns.rs` Win32/interop helpers
-  and `ns_proxy.rs` delegate construction. Pointer addresses are checked for
-  safe integer representation and buffers remain closure-owned during calls.
-  This is source feasibility, not live WinUI/IME qualification.
+- WinUI uses typed KeyEventHandler/RoutedEventHandler instances through the
+  pinned NativeScript core `subscribeNativeEvent` helper, exposed through the
+  host-owned `__xplatWindowsEvents.subscribe` bridge. Production shortcuts do
+  not deep-import core: a separate bundle copy would have another listener
+  registry. The runtime rejects
+  `AddHandler` with `E_NOINTERFACE` (0x80004002) on a real attached element;
+  the helper shares its replacement-only event-property fallback with other
+  owners. It is supplied by
+  [the Windows core patch](../../packages/cli/patches/@nativescript__core@9.1.4-next.0.patch).
+  The package declares core as an optional peer; Windows consumers must use
+  this framework's pinned preview and patch, not an arbitrary stable core.
+  Preview events carry scan codes and VK_PROCESSKEY; `GetKeyboardState` and
+  `ToUnicodeEx` recover the active layout. ToUnicodeEx flag 4 avoids changing
+  the editor's dead-key state. Pointer addresses are checked for safe integer
+  representation and buffers remain closure-owned during calls. Native
+  `GetType()?.FullName` is unavailable on the tested projection; editable
+  ancestors are identified using the projected control constructors instead.
 - Webviews use the browser adapter. Phone hosts and an unconfigured default
   throw on creation; import alone remains safe. OS reservations are validation
   data, not permission to intercept system-wide input. Browser reservations
@@ -59,8 +66,8 @@ concerns.
 
 The retained Powerkeys suite and local regressions exercise registration,
 availability, conflicts, sequences, blocklists, recording, rebinding, physical
-matching, iframe realms and disposal. Native adapter fixtures use models and
-must not be reported as AppKit or WinUI input runs.
+matching, iframe realms and disposal. Native adapter unit fixtures use models. The separate desktop runners below
+exercise the actual native adapters and their engine.
 
 ```sh
 pnpm exec turbo run test pack:check test:packed --filter=@octane-xplat/shortcuts
@@ -83,11 +90,49 @@ SHORTCUTS_GTK_HOST=andromeda.local SHORTCUTS_GTK_VM=octane-linux \
 ```
 
 For a direct Linux SSH host, omit SHORTCUTS_GTK_VM. The runner only removes its
-own temporary directory and stops its own process/display. AppKit/WinUI OS
-input, all IMEs/layouts, Wayland and installed desktop consumers remain open;
-the packed check proves export resolution and ambient-free Bundler/NodeNext
-declarations, not those runtime contracts. Browser/device runs stay outside
-the PR checks job.
+own temporary directory and stops its own process/display.
+
+The AppKit runner bundles current source with the real renderer and transfers
+its checksum-tracked JSC host/SDK to a temporary directory on the SSH host.
+On skymac.local, queued NSEvents pass Mod/physical matching, context/when,
+boundary selection, sequences, editable native text/default prevention,
+recording consumption and disposal. This exposed method-projected
+`NSEvent.isARepeat`: coercing the function to boolean marked every initial
+press as a repeat. The renderer now calls the method while retaining property
+projection support. AppKit editable detection also checks the active field
+editor rather than assuming every NSControl with a currentEditor method is
+a text input. A real NSButton check guards that distinction. This proves native event-queue routing, not physical OS
+input or IMEs.
+
+```sh
+SHORTCUTS_MACOS_HOST=skymac.local \
+  goddard-agent resource run --json '{"resources":{"exclusive":["device:skymac"],"desktop_input":1},"purpose":"AppKit shortcut queue"}' \
+  -- pnpm exec turbo run test:shortcuts-runtime --filter=@xplat/macos
+```
+
+The WinUI runner uses a compiled NativeScript Windows runtime directory on the
+SSH host. It copies that directory, registers a unique development app identity
+in an interactive scheduled task, injects scan-code keys using SendInput, and
+removes its own registration, process, task and temporary files. No native
+compilation or replacement of the host's app is needed. On windy, it passes
+physical Control+K, context/when, sequences, recording, editable input/default
+prevention, boundary selection and disposal. Right Control avoids the host's
+observed left-Control-to-Alt remapping; system input configuration is untouched.
+The tested runtime is @nativescript/windows 0.1.0-alpha.144 with the framework's
+core 9.1.4-next.0 Windows patch. A development-mode interactive user session is
+required. The path below names an existing compiled runtime, not a new build.
+
+```sh
+SHORTCUTS_WINDOWS_HOST=windy \
+SHORTCUTS_WINDOWS_RUNTIME='C:\Users\alecs\dev\octane-xplat\apps\windows\platforms\windows\windows\bin\x64\Release\net10.0-windows10.0.26100.0\win-x64' \
+  goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"],"desktop_input":1},"purpose":"WinUI shortcut input"}' \
+  -- pnpm exec turbo run test:windows-runtime --filter=@octane-xplat/shortcuts
+```
+
+All IMEs/layouts, physical AppKit input, Wayland and installed desktop consumers
+remain open. The packed check proves export resolution and ambient-free
+Bundler/NodeNext declarations, not those runtime contracts. Browser/device
+runs stay outside the PR checks job.
 
 The new package joins lockstep discovery. Before the first automated release,
 the npm stub and trusted publisher must be configured under the final package

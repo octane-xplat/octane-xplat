@@ -1,0 +1,6 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test:keyboard": { "dependsOn": [], "outputs": [] }
+	}
+}

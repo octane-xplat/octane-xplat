@@ -10,9 +10,11 @@ export const host: ShortcutHost = {
 	boundaryDepth: pathDepth,
 	isEditableTarget(target) {
 		const view = target as any
+		const editor =
+			typeof view?.currentEditor === 'function' ? view.currentEditor() : view?.currentEditor
 		return Boolean(
 			view &&
-			(typeof view.currentEditor === 'function' ||
+			(editor ||
 				view.isEditable === true ||
 				(typeof view.isEditable === 'function' && view.isEditable())),
 		)

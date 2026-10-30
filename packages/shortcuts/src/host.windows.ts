@@ -106,17 +106,22 @@ export const host: ShortcutHost = {
 	platform: () => 'windows',
 	boundaryDepth: pathDepth,
 	isEditableTarget(target) {
-		const parent = projection().Microsoft?.UI?.Xaml?.Media?.VisualTreeHelper
-		return pathFrom(target, (node) => parent?.GetParent(node)).some((node) => {
-			const name = (node as any)?.GetType?.()?.FullName ?? ''
-			return /\.(TextBox|RichEditBox|PasswordBox|ComboBox)$/.test(name)
-		})
+		const ui = projection().Microsoft?.UI?.Xaml
+		return pathFrom(target, (node) => ui?.Media?.VisualTreeHelper.GetParent(node)).some((node) =>
+			['TextBox', 'RichEditBox', 'PasswordBox', 'ComboBox'].some((name) => {
+				const Type = ui?.Controls?.[name]
+				return typeof Type === 'function' && node instanceof Type
+			}),
+		)
 	},
 	subscribe(target, callbacks) {
 		const element = unwrap(target)
 		const { Microsoft, NSWinRT } = projection()
 		const ui = Microsoft?.UI?.Xaml
+		const subscribeNativeEvent: ((...args: any[]) => () => void) | undefined =
+			projection().__xplatWindowsEvents?.subscribe
 		if (
+			typeof subscribeNativeEvent !== 'function' ||
 			!element?.XamlRoot ||
 			typeof element.AddHandler !== 'function' ||
 			!ui?.UIElement?.PreviewKeyDownEvent ||
@@ -127,7 +132,7 @@ export const host: ShortcutHost = {
 			!NSWinRT.interop?.pointerFromBuffer
 		) {
 			throw new Error(
-				'Shortcuts require an attached WinUI element and the NativeScript Win32 keyboard projection',
+				'Shortcuts require an attached WinUI element and the patched NativeScript event bridge and Win32 keyboard projection',
 			)
 		}
 		const read = keyboard(NSWinRT)
@@ -167,23 +172,37 @@ export const host: ShortcutHost = {
 				['keydown', ui.UIElement.PreviewKeyDownEvent],
 				['keyup', ui.UIElement.PreviewKeyUpEvent],
 			]) {
-				const handler = new ui.Input.KeyEventHandler((_sender: unknown, args: any) =>
-					receive(type, args),
+				releases.push(
+					subscribeNativeEvent(
+						element,
+						type === 'keydown' ? 'PreviewKeyDown' : 'PreviewKeyUp',
+						(_sender: unknown, args: any) => receive(type, args),
+						routed,
+						(callback: any) => new ui.Input.KeyEventHandler(callback),
+					),
 				)
-				element.AddHandler(routed, handler, true)
-				releases.push(() => element.RemoveHandler(routed, handler))
 			}
-			for (const routed of [ui.UIElement.LostFocusEvent, ui.FrameworkElement.UnloadedEvent]) {
+			for (const [name, routed] of [
+				['LostFocus', ui.UIElement.LostFocusEvent],
+				['Unloaded', ui.FrameworkElement.UnloadedEvent],
+			] as const) {
 				if (!routed) {
 					continue
 				}
-				const handler = new ui.RoutedEventHandler(() => {
+				const reset = () => {
 					if (active) {
 						callbacks.reset()
 					}
-				})
-				element.AddHandler(routed, handler, true)
-				releases.push(() => element.RemoveHandler(routed, handler))
+				}
+				releases.push(
+					subscribeNativeEvent(
+						element,
+						name,
+						reset,
+						routed,
+						(callback: any) => new ui.RoutedEventHandler(callback),
+					),
+				)
 			}
 		} catch (error) {
 			active = false

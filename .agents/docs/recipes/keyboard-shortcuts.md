@@ -25,6 +25,6 @@ supported input from unqualified native behavior.
 ## Documentation
 
 - AC1: [Installation and ownership](../../../docs/app/keyboard-shortcuts.md#open-your-command-menu), [native boundaries](../../../docs/app/keyboard-shortcuts.md#native-desktop-boundaries), [workspace installer](../../../packages/shortcuts/examples/workspace.ts).
-- AC2: [Keys and typing](../../../docs/app/keyboard-shortcuts.md#choose-keys-and-protect-typing), [host boundaries](../../../docs/app/keyboard-shortcuts.md#native-desktop-boundaries), [browser input fixture](../../../packages/shortcuts/tests/fixtures/index.html), [GTK input fixture](../../../packages/shortcuts/tests/fixtures/input.gtk.js).
+- AC2: [Keys and typing](../../../docs/app/keyboard-shortcuts.md#choose-keys-and-protect-typing), [host boundaries](../../../docs/app/keyboard-shortcuts.md#native-desktop-boundaries), [browser input fixture](../../../packages/shortcuts/tests/fixtures/index.html), [GTK input fixture](../../../packages/shortcuts/tests/fixtures/input.gtk.js), [AppKit native-event fixture](../../../apps/macos/test/shortcuts-fixture.macos.tsx), [WinUI input fixture](../../../packages/shortcuts/tests/fixtures/input.windows.js).
 - AC3: [Scoped actions](../../../docs/app/keyboard-shortcuts.md#put-dialog-commands-above-editor-commands), [workspace installer](../../../packages/shortcuts/examples/workspace.ts).
 - AC4: [Recording and rebinding](../../../docs/app/keyboard-shortcuts.md#record-and-replace-a-saved-shortcut), [runtime regressions](../../../packages/shortcuts/tests/runtime.web.test.ts).

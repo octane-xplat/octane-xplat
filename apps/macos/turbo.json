@@ -10,6 +10,11 @@
 			"dependsOn": ["^typegen", "^build"],
 			"cache": false
 		},
+		"test:shortcuts-runtime": {
+			"dependsOn": ["@octane-xplat/shortcuts#build"],
+			"cache": false,
+			"env": ["SHORTCUTS_MACOS_HOST"]
+		},
 		"test:text-controls": {
 			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
 			"cache": false

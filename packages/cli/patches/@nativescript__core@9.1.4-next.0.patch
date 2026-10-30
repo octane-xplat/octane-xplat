@@ -1278,7 +1278,7 @@ new file mode 100644
 index 0000000000000000000000000000000000000000..a91f00b138b49528669d8752f19625525c51dcf6
 --- /dev/null
 +++ b/ui/gestures/pointer-events.windows.js
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,69 @@
 +const nativeEvents = new WeakMap();
 +/** Share the bridge's replacement-only event property between independent owners. */
 +export function subscribeNativeEvent(native, name, callback, routedEvent, wrap, priority = 0) {
@@ -1345,6 +1345,9 @@ index 0000000000000000000000000000000000000000..a91f00b138b49528669d8752f1962552
 +        }
 +    };
 +}
++
++// Share the host-owned registry with optional leaves without deep-importing core.
++globalThis.__xplatWindowsEvents = { subscribe: subscribeNativeEvent };
 diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
 index 50c747a85135d761c1a646a007c4930f790fb0a3..8f3a627224cf903555574480a0cdeba74b1c3e35 100644
 --- a/ui/layouts/flexbox-layout/flexbox-layout-common.js

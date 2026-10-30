@@ -158,7 +158,7 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   workerd: true
-  '@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=9b6a2a9a26eab2ef7cb6ed0e9deaf00b24a2f0bb753d5ad468b587ed5d7235db)': true
+  '@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585)': true
   # firebase (web push) postinstalls: @firebase/util's is a React Native
   # bundling shim, protobufjs's prints a deprecation banner — neither needed.
   '@firebase/util': false
@@ -315,7 +315,9 @@ patchedDependencies:
   # and nontruncating OpenOrCreate file creation, preserving Core's System import shim.
   # Existence projection failures are not treated as missing paths. Adds Windows
   # single-contact pan with cumulative logical-DIP deltas, owned pointer capture,
-  # cancellation, and cleanup while retaining sibling touch delivery.
+  # cancellation, and cleanup while retaining sibling touch delivery. Exposes the shared
+  # native event subscription registry through __xplatWindowsEvents so optional leaves reuse
+  # the host owner without deep-importing a second core module.
   "@nativescript/core@9.1.4-next.0": packages/cli/patches/@nativescript__core@9.1.4-next.0.patch
   # Enables `resolveHiddenExtensions` on the language plugin's typescript facet so
   # extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required

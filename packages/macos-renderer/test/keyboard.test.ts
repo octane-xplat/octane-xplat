@@ -234,3 +234,13 @@ test('empty modified navigation/function characters are not dead text while real
 	assert.equal(seen[4].key, 'ArrowDown'); assert.equal(seen[4].isComposing, true)
 	f.dispatcher.dispose()
 })
+
+test('method-projected AppKit repeat flags distinguish initial and held key presses', () => {
+	const env = fixture()
+	const repeats: boolean[] = []
+	env.dispatcher.set(env.field, { onKeyDown: event => repeats.push(event.repeat) })
+	env.send(env.event({ isARepeat: () => false }))
+	env.send(env.event({ isARepeat: () => true }))
+	assert.deepEqual(repeats, [false, true])
+	env.dispatcher.dispose()
+})

@@ -24,7 +24,8 @@
 		"test:layout-channels": "node test/verify-layout-channels.mjs",
 		"test:layout-placement": "node test/verify-layout-placement.mjs",
 		"test:camera-webview": "node ./scripts/camera-webview-proof.ts --verify",
-		"test:routing": "node test/verify-routing.mjs"
+		"test:routing": "node test/verify-routing.mjs",
+		"test:shortcuts-runtime": "node test/verify-shortcuts.mjs"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",

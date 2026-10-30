@@ -14,6 +14,11 @@
 			"dependsOn": ["typegen", "build"],
 			"cache": false
 		},
+		"test:windows-runtime": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"env": ["SHORTCUTS_WINDOWS_HOST", "SHORTCUTS_WINDOWS_RUNTIME"]
+		},
 		"test:gtk-runtime": {
 			"dependsOn": ["typegen", "build"],
 			"cache": false,
