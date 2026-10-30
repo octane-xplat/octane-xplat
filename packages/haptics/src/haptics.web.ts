@@ -10,6 +10,7 @@ const patterns: Record<HapticPreset, number[]> = {
 	error: [30, 45, 30],
 }
 
+/** Create an owned haptic engine (see Haptics). */
 export const createHaptics = (): Haptics => {
 	let disposed = false
 	let realtimeTimer: ReturnType<typeof setInterval> | undefined

@@ -91,6 +91,7 @@ function openPanel(accept = '*/*', multiple = false, opts?: FilePickOptions): Fi
 
 let exporting = false
 
+/** File service — pickers, sandbox IO, user-directed export. */
 export const files: Files = {
 	async pick(accept = '*/*', opts?: FilePickOptions): Promise<FileRef | null> {
 		return openPanel(accept, false, opts)?.[0] ?? null

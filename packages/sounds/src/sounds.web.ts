@@ -1,5 +1,6 @@
 import type { SoundBank, SoundBankOptions, SoundCapabilities, SoundSource } from './types'
 
+/** Create an owned sound bank of named clips (see SoundBank). */
 export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): SoundBank => {
 	const voiceLimit = Number.isFinite(maxVoices) ? Math.max(1, Math.floor(maxVoices)) : 6
 

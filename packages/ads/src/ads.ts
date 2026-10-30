@@ -48,6 +48,7 @@ function wrap<
 	}
 }
 
+/** Google Mobile Ads service — see Ads for the contract. */
 export const ads: Ads = {
 	supported: true,
 

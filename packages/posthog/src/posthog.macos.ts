@@ -11,6 +11,7 @@ const getClient = () => {
 	return client
 }
 
+/** PostHog analytics service — see PostHogService. */
 export const posthog: PostHogService = {
 	supported: true,
 	init(options: PostHogInitOptions): void {

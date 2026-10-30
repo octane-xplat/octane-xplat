@@ -15,6 +15,7 @@ const presetNames: Record<HapticPreset, string> = {
 	error: 'Error',
 }
 
+/** Create an owned haptic engine (see Haptics). */
 export const createHaptics = (): Haptics => {
 	const android = Boolean(Application.android)
 	const context = android

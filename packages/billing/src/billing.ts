@@ -57,6 +57,7 @@ function getClient(): Payment {
 	return client
 }
 
+/** Store billing service — Play Billing / StoreKit. */
 export const billing: Billing = {
 	supported: Payment.isSupported(),
 

@@ -3,6 +3,7 @@
 import * as BrowserSentry from '@sentry/browser'
 import type { SentryBreadcrumb, SentryInitOptions, SentryService, SentryUser } from './types'
 
+/** Sentry error-reporting service — see SentryService. */
 export const sentry: SentryService = {
 	supported: typeof window !== 'undefined',
 

@@ -4,6 +4,7 @@
 import * as NativeSentry from '@nativescript-community/sentry'
 import type { SentryBreadcrumb, SentryInitOptions, SentryService, SentryUser } from './types'
 
+/** Sentry error-reporting service — see SentryService. */
 export const sentry: SentryService = {
 	supported: true,
 

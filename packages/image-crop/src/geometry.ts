@@ -31,6 +31,8 @@ export function containFrame(view: Size, natural: Size): ImageFrame {
 	}
 }
 
+/** Resolve any Crop to displayed pixels. Percent crops scale against
+ *  `size` (the displayed image frame, not the component box). */
 export function convertToPixelCrop(crop: Crop, size: Size): PixelCrop {
 	const sx = crop.unit === '%' ? positive(size.width) / 100 : 1
 	const sy = crop.unit === '%' ? positive(size.height) / 100 : 1
@@ -43,6 +45,7 @@ export function convertToPixelCrop(crop: Crop, size: Size): PixelCrop {
 	}
 }
 
+/** Resolve any Crop to percent-of-displayed-image coordinates. */
 export function convertToPercentCrop(crop: Crop, size: Size): PercentCrop {
 	const p = convertToPixelCrop(crop, size)
 	return {
@@ -60,6 +63,8 @@ export function toNaturalCrop(crop: Crop, displayed: Size, natural: Size): Pixel
 	return convertToPixelCrop(p, natural)
 }
 
+/** Convert natural-image pixels back to a displayed-pixel crop — the
+ *  inverse of toNaturalCrop. */
 export function fromNaturalCrop(crop: PixelCrop, natural: Size, displayed: Size): PixelCrop {
 	return convertToPixelCrop(convertToPercentCrop(crop, natural), displayed)
 }

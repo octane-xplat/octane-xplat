@@ -16,6 +16,8 @@ export * from './types'
 // Runtime dispatch keeps the packed `native` lane (and suffix-less bundlers)
 // working on both OSes — a bare `./recorder` specifier would resolve to
 // recorder.ios.ts first under the repo's extension order.
+/** Create an owned microphone recorder — dispatches to the running
+ *  platform's leaf (Android/iOS). */
 export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 	if (Application.android) {
 		return createAndroidRecorder()

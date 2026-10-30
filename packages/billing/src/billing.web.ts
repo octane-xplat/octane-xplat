@@ -5,6 +5,7 @@ import type { Billing } from './types'
 
 const unsupported = () => Promise.reject(new Error('unsupported: no store backend on web'))
 
+/** Store billing service — Play Billing / StoreKit. */
 export const billing: Billing = {
 	supported: false,
 	connect: () => {},

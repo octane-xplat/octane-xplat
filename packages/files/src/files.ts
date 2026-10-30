@@ -394,6 +394,7 @@ async function iosExport(
 	})
 }
 
+/** File service — pickers, sandbox IO, user-directed export. */
 export const files: Files = {
 	async pickMultiple(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef[]> {
 		return pickFiles(accept, true, opts)

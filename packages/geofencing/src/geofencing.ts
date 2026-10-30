@@ -158,6 +158,7 @@ if (!isIOS) {
 	setTimeout(drainQueue, 0)
 }
 
+/** Geofence-monitoring service — see Geofencing. */
 export const geofencing: Geofencing = {
 	supported: isIOS ? typeof CLLocationManager !== 'undefined' : androidGeofencingClient() !== null,
 

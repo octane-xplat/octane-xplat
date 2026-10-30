@@ -118,6 +118,7 @@ async function fetchBytes(uri: string, opts?: FileReadBytesOptions): Promise<Uin
 	return concatBytes(chunks, total)
 }
 
+/** File service — pickers, sandbox IO, user-directed export. */
 export const files: Files = {
 	async pickMultiple(accept = '*/*', _opts?: { startingFolder?: string }): Promise<FileRef[]> {
 		return chooseFiles(accept, true)

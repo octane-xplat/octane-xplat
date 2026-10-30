@@ -33,6 +33,7 @@ const withEngine = (run: (engine: Haptics) => boolean | void) => {
 	return run(engine)
 }
 
+/** Expo-haptics-shaped shared service. */
 export const haptics: Service<HapticsImpl> = {
 	get supported() {
 		try {

@@ -3,6 +3,7 @@ import type { Geofencing, PermissionResult } from './types'
 
 const unsupported = () => Promise.reject(new Error('unsupported: no geofencing API on web'))
 
+/** Geofence-monitoring service — see Geofencing. */
 export const geofencing: Geofencing = {
 	supported: false,
 	ensure: async (): Promise<PermissionResult> => 'unsupported',

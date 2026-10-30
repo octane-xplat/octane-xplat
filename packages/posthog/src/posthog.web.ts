@@ -4,6 +4,7 @@
 import posthogJs from 'posthog-js'
 import type { PostHogInitOptions, PostHogService } from './types'
 
+/** PostHog analytics service — see PostHogService. */
 export const posthog: PostHogService = {
 	supported: typeof window !== 'undefined',
 

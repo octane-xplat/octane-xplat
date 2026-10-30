@@ -170,6 +170,7 @@ async function writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
  * const text = await files.readText(draft)
  * files.release(draft)
  */
+/** File service — pickers, sandbox IO, user-directed export. */
 export const files: Files = {
 	pick: async () => {
 		throw new UnavailabilityError('files.pick')

@@ -8,6 +8,7 @@ export interface KeyboardScrollOptions {
 	keyboardClose?: 'preserve' | 'restore'
 }
 
+/** Handle for an attached scroll binding — release() when the viewport unmounts. */
 export interface KeyboardScrollBinding {
 	/** Explicitly resume visibility enforcement after validation or manual scrolling. */
 	recheck(): void
@@ -17,6 +18,7 @@ export interface KeyboardScrollBinding {
 	release(): void
 }
 
+/** Service attaching keyboard-avoidance scrolling to vertical viewports. */
 export interface KeyboardScrollService {
 	/** Attach to a vertical scroll viewport. Only scroll ancestors through this
 	 * viewport are eligible; unrelated fields in the same window are ignored. */

@@ -12,6 +12,7 @@ type Voice = { source: AudioBufferSourceNode; gain: GainNode; name: string }
 
 const uriFor = (source: SoundSource) => (typeof source === 'string' ? source : source.uri)
 
+/** Create an owned sound bank of named clips (see SoundBank). */
 export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): SoundBank => {
 	const voiceLimit = Number.isFinite(maxVoices) ? Math.max(1, Math.floor(maxVoices)) : 6
 

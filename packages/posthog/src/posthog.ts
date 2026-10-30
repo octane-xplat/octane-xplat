@@ -20,6 +20,7 @@ function getClient(): PostHog {
 	return client
 }
 
+/** PostHog analytics service — see PostHogService. */
 export const posthog: PostHogService = {
 	supported: true,
 

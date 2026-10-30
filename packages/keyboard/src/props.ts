@@ -9,6 +9,7 @@ import type { KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
  * ```
  */
 export interface KeyboardProviderProps {
+	/** Content the provider wraps; `unknown` accepts any renderable. */
 	children?: unknown
 	/** Activate native tracking; false retains children and fallback behavior. @default true */
 	enabled?: boolean
@@ -20,7 +21,11 @@ export interface KeyboardAwareScrollViewProps extends Omit<KeyboardAvoidingProps
 	clearance?: number
 	/** Additional bottom scroll range while the keyboard is open. @default 0 */
 	extraScrollSpace?: number
+	/** After a user scroll: 'pause' stops chasing the caret until focus or
+	 *  selection changes; 'follow' keeps enforcing visibility. @default 'pause' */
 	manualScroll?: 'pause' | 'follow'
+	/** When the keyboard closes: 'preserve' keeps the final offset; 'restore'
+	 *  returns offsets the binding itself introduced. @default 'preserve' */
 	keyboardClose?: 'preserve' | 'restore'
 	/** Mounted visibility binding; null on cleanup. */
 	ref?: (binding: import('./scroll-types').KeyboardScrollBinding | null) => void

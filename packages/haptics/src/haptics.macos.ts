@@ -7,6 +7,7 @@ import type { Haptics } from './types'
 
 /** AppKit offers discrete trackpad feedback; patterns and continuous intensity
  * are unavailable. A successful request does not guarantee attached hardware. */
+/** Create an owned haptic engine (see Haptics). */
 export const createHaptics = (): Haptics => {
 	let disposed = false
 	const performer = NSHapticFeedbackManager.defaultPerformer

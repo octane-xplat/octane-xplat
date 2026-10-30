@@ -1,4 +1,6 @@
+/** An opaque file reference usable with readText/readBytes/release. */
 export interface FileRef {
+	/** Display name of the file. */
 	name: string
 	/**
 	 * Opaque reference: blob/object URL on web, filesystem path on native.
@@ -8,10 +10,14 @@ export interface FileRef {
 	uri: string
 }
 
+/** Options for pick()/pickMultiple(). */
 export interface FilePickOptions {
+	/** Directory hint the picker opens to (honored where the OS picker
+	 *  supports it; ignored on web). */
 	startingFolder?: string
 }
 
+/** Options for readBytes(). */
 export interface FileReadBytesOptions {
 	/**
 	 * Reject with a too-large error once the file exceeds this many bytes.
@@ -22,6 +28,7 @@ export interface FileReadBytesOptions {
 	signal?: AbortSignal
 }
 
+/** Options for export(). */
 export interface FileExportOptions {
 	/**
 	 * MIME type hint for the destination — the Android SAF action type and the
@@ -46,6 +53,7 @@ export interface Files {
 	pick(accept?: string, opts?: FilePickOptions): Promise<FileRef | null>
 	/** Opens the platform document picker and returns selected opaque URIs. */
 	pickMultiple(accept?: string, opts?: FilePickOptions): Promise<FileRef[]>
+	/** Read the full text content of a picked or sandbox-written ref. */
 	readText(ref: FileRef): Promise<string>
 	/**
 	 * Reads the full binary content of a picked or sandbox-written ref.
@@ -54,6 +62,8 @@ export interface Files {
 	 * or fetches foreign URLs.
 	 */
 	readBytes(ref: FileRef, opts?: FileReadBytesOptions): Promise<Uint8Array>
+	/** Write UTF-8 text inside the app sandbox (native) or start a browser
+	 *  download (web); returns a ref suitable for readText/release. */
 	writeText(name: string, text: string): Promise<FileRef>
 	/**
 	 * Writes bytes inside the app sandbox (native) or starts a browser

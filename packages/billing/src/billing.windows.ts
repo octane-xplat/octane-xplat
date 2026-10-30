@@ -4,6 +4,7 @@ import type { Billing } from './types'
 const unsupported = () =>
 	Promise.reject(new Error('unsupported: billing is not available on windows'))
 
+/** Store billing service — Play Billing / StoreKit. */
 export const billing: Billing = {
 	supported: false,
 	connect: () => {},
