@@ -3491,6 +3491,9 @@ importers:
       '@nativescript-community/sentry':
         specifier: 4.6.49
         version: 4.6.49
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
       '@sentry/browser':
         specifier: 11.9.0
         version: 11.9.0

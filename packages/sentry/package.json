@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/sentry",
 	"version": "0.18.0",
-	"description": "Sentry error and performance reporting for Octane xplat — @nativescript-community/sentry on iOS/Android, @sentry/browser on web",
+	"description": "Sentry error and performance reporting for Octane xplat \u2014 @nativescript-community/sentry on iOS/Android, @sentry/browser on web",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -87,6 +87,7 @@
 	},
 	"dependencies": {
 		"@nativescript-community/sentry": "4.6.49",
-		"@sentry/browser": "11.9.0"
+		"@sentry/browser": "11.9.0",
+		"@octane-xplat/lib": "workspace:*"
 	}
 }

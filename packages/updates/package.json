@@ -20,6 +20,7 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.web.d.ts",
+			"macos": "./src/index.macos.ts",
 			"native": "./src/index.ts",
 			"default": "./src/index.web.ts"
 		},
