@@ -92,6 +92,32 @@ const badge = compiled('badge', read('feedback/Badge.windows.tsrx'), {
 
 const { Badge } = await import(badge)
 
+const card = compiled('card', read('actions/Card.windows.tsrx'), {
+	'../../internal/layout/style-merge': support,
+	'@octane-xplat/lib': support,
+	'../overlays/escape-props': support,
+	'../forms/text-slot': slot,
+})
+
+const safeUrl = compiled(
+	'safe-url',
+	readFileSync(new URL('../src/routing/safe-url.ts', import.meta.url), 'utf8'),
+	{},
+	false,
+)
+
+const clickableCard = compiled('clickable-card', read('actions/ClickableCard.windows.tsrx'), {
+	'../../internal/layout/style-merge': support,
+	'@octane-xplat/lib': support,
+	'@nativescript/core': support,
+	'../../routing/safe-url': safeUrl,
+	'./Pressable': pressable,
+	'../forms/text-slot': slot,
+})
+
+const { Card } = await import(card)
+const { ClickableCard } = await import(clickableCard)
+
 const link = compiled('link', read('navigation/Link.windows.tsrx'), {
 	'../../internal/layout/style-merge': support,
 	'@nativescript/core': support,
@@ -377,6 +403,68 @@ export function BadgeWithSlots(props) @{
 		assert.deepEqual(text(f), ['Count 0', 'Composed', ' total'])
 		f.render({ count: 2, suffix: ' ready' })
 		assert.deepEqual(text(f), ['Count 2', 'Composed', ' ready'])
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows Card gives primitive slots text hosts and updates explicit padding without losing theme defaults', () => {
+	const f = mount(Card, { id: 'card', header: 'Header', children: 0, footer: 'Footer', padding: 2 })
+	try {
+		const host = () => f.nodes().find((node) => node.props.id === 'card')
+		const edges = () =>
+			['Top', 'Right', 'Bottom', 'Left'].map((edge) => host().props.style['padding' + edge])
+
+		assert.deepEqual(text(f), ['Header', '0', 'Footer'])
+		assert.equal(f.nodes().filter((node) => node.type === 'label').length, 3)
+		assert.deepEqual(edges(), [8, 8, 8, 8])
+		f.render({ id: 'card', children: 'Updated', padding: 0 })
+		assert.deepEqual(edges(), [0, 0, 0, 0])
+		assert.deepEqual(text(f), ['Updated'])
+		f.render({ id: 'card', children: 'Themed', width: 200 })
+		assert.deepEqual(edges(), [undefined, undefined, undefined, undefined])
+		assert.equal(host().props.style.width, 200)
+		assert.equal(host().props.style.padding, undefined)
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows ClickableCard preserves text, current callbacks and disabled semantics across button/link updates', () => {
+	let first = 0
+	let current = 0
+	const f = mount(ClickableCard, {
+		id: 'clickable',
+		label: 'Open',
+		children: 0,
+		padding: 2,
+		onPress: () => first++,
+	})
+	try {
+		assert.deepEqual(text(f), ['0'])
+		const host = () => f.nodes().find((node) => node.props.id === 'clickable')
+		assert.equal(host().props.style.paddingLeft, 8)
+		assert.equal(buttons(f).length, 1)
+		buttons(f)[0].props.settings.onPress()
+		assert.equal(first, 1)
+		f.render({ id: 'clickable', label: 'Next', children: 'Next', onPress: () => current++ })
+		assert.equal(host().props.style.paddingLeft, 16)
+		buttons(f)[0].props.settings.onPress()
+		assert.equal(current, 1)
+		f.render({
+			id: 'clickable',
+			label: 'Disabled',
+			href: '/details',
+			isDisabled: true,
+			onPress: () => current++,
+		})
+
+		assert.equal(buttons(f).length, 1)
+		assert.equal(buttons(f)[0].props.isEnabled, false)
+		buttons(f)[0].props.settings.onPress()
+		assert.equal(current, 1)
+		f.render({ id: 'clickable', label: 'Details', href: '/details', children: 'Details' })
+		assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowslink').length, 1)
 	} finally {
 		f.root.unmount()
 	}

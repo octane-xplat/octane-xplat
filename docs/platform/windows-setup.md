@@ -96,6 +96,29 @@ matrix remain unqualified. The final clean-main core-component run and
 downstream setup remain open. See the
 [action evidence and limits](../../.agents/docs/parity/windows-support-progress.md#native-action-contracts).
 
+## Card padding candidate
+
+`Card` and `ClickableCard` use padding steps of 4 DIP on Windows. Header, body
+and footer slots accept plain text, numbers or supplied components:
+
+```tsx
+import { Card, ClickableCard } from '@octane-xplat/ui'
+
+export function Summary() {
+  return <>
+    <Card padding={2} header="Pending" footer="Updated just now">{0}</Card>
+    <ClickableCard label="Open summary" padding={2} onPress={() => console.log('Opened')}>
+      Open summary
+    </ClickableCard>
+  </>
+}
+```
+
+Packaged x64 checks cover slot order, padding updates, wrapping, remounting
+and the clickable control shape. Keyboard/mouse/Invoke activation, the full
+props matrix, Narrator, visual review and final clean-main qualification remain
+pending.
+
 ## Badge text candidate
 
 Windows `Badge` keeps text and numbers in native text controls, including the
@@ -110,7 +133,8 @@ export function PendingCount() {
 ```
 
 Compiled component checks cover content updates and mixed children. Packaged
-UIA, geometry and the final clean-main qualification remain pending.
+x64 checks expose string and zero counts through UI Automation across updates,
+remounting and resizing. The final clean-main qualification remains pending.
 
 ## Banner candidate
 
