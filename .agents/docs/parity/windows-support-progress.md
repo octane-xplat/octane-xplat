@@ -3611,3 +3611,46 @@ checkpoint above.
 
 Raw evidence: `research/windows61/win61-clean-main-install-{preflight,postflight}.json`,
 `win61-clean-main-install.exit`, and `clean-main-install-readable.log`.
+
+### Core-component harness: first packaged UIA run
+
+The opt-in qualification entry built on windy from the clean-installed main
+`a57b1b872` plus a task-owned Windows harness overlay: **39/39 Turbo tasks**,
+13m35s. The resulting application directory was packaged and signed as MSIX
+**1.0.0.73**. Its Mason DLL matches the published beta.129 hash above. This was
+a diagnostic overlay build, not the final clean-main qualification artifact.
+The overlay's missing direct JSX type dependency was corrected locally; the
+build's TypeScript pass had continued despite diagnostics, as configured by
+this preview. The separate local touched-package/dependents check remains
+**64/68**, with exactly the same 46 baseline diagnostics and no additions.
+
+Launch **mvv0sux4** exposed 21 UIA nodes, including named layout groups and the
+220×40-DIP wrapping text. The run then failed: the external driver's first
+`snapshot` command received no acknowledgement, and the harness logged
+`WinRT async operation failed` while reading the command file. Its path mixed
+Windows backslashes with a forward-slash filename. A Windows-separator
+correction is prepared; that suspected cause is not yet runtime-confirmed.
+The app was stopped by the driver, and a subsequent owned-process check found
+zero remaining processes.
+
+The initial UIA capture also reports content-sized bounds for named groups;
+for example, the group containing the padded child reports the same 170×10-DIP
+box as that child. This does not establish the container's layout frame.
+Two empty shrink children have offscreen/empty bounds in the combined screen.
+The next harness revision isolates each layout case and makes the wrapping
+container responsive, so these observations can be resolved against numeric
+host frames and fresh UIA bounds. No component has been marked qualified.
+
+Packaging first failed when windy ran out of disk space. Only this task's
+failed staging copy and the expanded copy of its preserved diagnostic MSIX
+were removed; source checkouts, build output, signed diagnostic MSIX and
+recorded evidence were retained. The packaging retry passed. Windy subsequently
+stopped answering SSH, preventing the corrected-path run. The stalled upload
+was cancelled before its repackage command started; MSIX 1.0.0.74 was not built.
+
+Evidence: `research/windows61/win61-core20-{build.log,build.exit,console.log,layout-default-uia.json}`,
+`windy-core20-inspect.log`, `core20-{web-parity.log,web-checks.log,typecheck-comparison.json}`.
+The maintained explicit-width shrink fixture is commit `0ae78ad30`: six web
+assertions pass, including two 85-DIP children meeting inside a 170-DIP row.
+Its native execution remains pending. No public starter or app-building recipe
+has changed; this work adds private qualification coverage.
