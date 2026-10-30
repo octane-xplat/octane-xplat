@@ -28,7 +28,16 @@ struct EpoxyIntrinsicContentSizeInvalidator {
 
 // MARK: - EnvironmentValues
 
+// An explicit `EnvironmentKey` keeps this leaf buildable without Xcode's
+// bundled `libSwiftUIMacros` plugin, which `@Entry` requires.
+private struct EpoxyIntrinsicContentSizeInvalidatorKey: EnvironmentKey {
+  static let defaultValue = EpoxyIntrinsicContentSizeInvalidator(invalidate: { })
+}
+
 extension EnvironmentValues {
   /// A means of invalidating the intrinsic content size of the parent `EpoxySwiftUIHostingView`.
-  @Entry var epoxyIntrinsicContentSizeInvalidator = EpoxyIntrinsicContentSizeInvalidator(invalidate: { })
+  var epoxyIntrinsicContentSizeInvalidator: EpoxyIntrinsicContentSizeInvalidator {
+    get { self[EpoxyIntrinsicContentSizeInvalidatorKey.self] }
+    set { self[EpoxyIntrinsicContentSizeInvalidatorKey.self] = newValue }
+  }
 }

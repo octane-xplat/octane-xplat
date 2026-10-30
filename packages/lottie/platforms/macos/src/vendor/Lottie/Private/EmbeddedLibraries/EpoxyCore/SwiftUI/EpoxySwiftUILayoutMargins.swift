@@ -20,9 +20,18 @@ extension View {
 
 // MARK: - EnvironmentValues
 
+// An explicit `EnvironmentKey` keeps this leaf buildable without Xcode's
+// bundled `libSwiftUIMacros` plugin, which `@Entry` requires.
+private struct EpoxyLayoutMarginsKey: EnvironmentKey {
+  static let defaultValue = EdgeInsets()
+}
+
 extension EnvironmentValues {
   /// The layout margins of the parent `EpoxySwiftUIHostingView`, else zero if there is none.
-  @Entry var epoxyLayoutMargins = EdgeInsets()
+  var epoxyLayoutMargins: EdgeInsets {
+    get { self[EpoxyLayoutMarginsKey.self] }
+    set { self[EpoxyLayoutMarginsKey.self] = newValue }
+  }
 }
 
 // MARK: - EpoxyLayoutMarginsPadding
