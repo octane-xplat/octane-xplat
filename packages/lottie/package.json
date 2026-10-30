@@ -44,7 +44,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"prepack": "pnpm typegen",
+		"prepack": "bun run typegen",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"typegen": "tsrx-typegen --target octane"
 	},

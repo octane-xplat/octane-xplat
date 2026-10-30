@@ -14,7 +14,7 @@ import {
 	nsAppId,
 	nsBuildCommand,
 	nsRunCommand,
-	pnpmPrerequisite,
+	packageManagerPrerequisite,
 	runToExit,
 	trackPhases,
 } from './shared.ts'
@@ -35,7 +35,7 @@ export function createAndroidAdapter() {
 
 		async describe(app, deps) {
 			const blocked = hostBlock('android', deps.host)
-			const prereqs = [pnpmPrerequisite(deps), adbPrereq(deps)]
+			const prereqs = [packageManagerPrerequisite(deps, app), adbPrereq(deps)]
 			const missing = prereqs.filter((p) => p.status !== 'satisfied')
 			const ready = !blocked && missing.length === 0
 			return [
@@ -68,13 +68,13 @@ export function createAndroidAdapter() {
 			return androidDevices(deps)
 		},
 
-		prerequisites(deps) {
-			return [pnpmPrerequisite(deps), adbPrereq(deps)]
+		prerequisites(deps, app) {
+			return [packageManagerPrerequisite(deps, app), adbPrereq(deps)]
 		},
 
 		async build({ app, logs, signal, report, deps }) {
 			await runToExit({
-				command: nsBuildCommand('android'),
+				command: nsBuildCommand('android', app),
 				cwd: app.root,
 				logs,
 				signal,
@@ -91,8 +91,7 @@ export function createAndroidAdapter() {
 
 		async launch({ app, target, logs, signal, report, claim, deps }) {
 			const child = spawnManaged({
-				cmd: 'pnpm',
-				args: nsRunCommand('android', target.targetId).args,
+				...nsRunCommand('android', target.targetId, app),
 				cwd: app.root,
 				logBuffer: logs,
 				signal,

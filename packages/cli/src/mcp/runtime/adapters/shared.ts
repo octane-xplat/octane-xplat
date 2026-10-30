@@ -10,6 +10,7 @@ import { createRequire } from 'node:module'
 import { contractError } from '../../contracts/errors.ts'
 import { execText, spawnManaged } from '../process.ts'
 import { waitForLogMatch } from '../readiness.ts'
+import { packageManagerExec, packageManagerFor } from '../../../package-manager.ts'
 import { hostBlock } from '../targets.ts'
 
 const readJson = (file) => {
@@ -63,33 +64,39 @@ export function appCliFile(app, exportPath, siblingFile) {
 }
 
 /** `pnpm exec …` — resolves binaries from the app's installed dependencies. */
-export const pnpmExec = (args) => ({ cmd: 'pnpm', args: ['exec', ...args] })
+export const appExec = (args, app) =>
+	app?.root ? packageManagerExec(app.root, args) : { cmd: 'pnpm', args: ['exec', ...args] }
+
+export const appScript = (name, app) => ({
+	cmd: app?.root ? packageManagerFor(app.root) : 'pnpm',
+	args: ['run', name],
+})
 
 /** Does the app manifest carry a script? */
 export const hasScript = (app, name) => typeof appManifest(app).scripts?.[name] === 'string'
 
 /** Common launch-time prerequisites: the app's package manager must run. */
-export function pnpmPrerequisite({ exec = execText } = {}) {
-	const out = exec('pnpm', ['--version'])
+export function packageManagerPrerequisite({ exec = execText } = {}, app) {
+	const manager = app?.root ? packageManagerFor(app.root) : 'pnpm'
+	const out = exec(manager, ['--version'])
 	return out
-		? { id: 'pnpm', name: 'pnpm', status: 'satisfied', detail: out.trim() }
+		? { id: manager, name: manager, status: 'satisfied', detail: out.trim() }
 		: {
-				id: 'pnpm',
-				name: 'pnpm',
+				id: manager,
+				name: manager,
 				status: 'missing',
-				remedy:
-					'Install pnpm — the runtime adapters spawn the app\u2019s toolchain through `pnpm exec`.',
+				remedy: `Install ${manager} — the runtime adapters use the app's package manager.`,
 			}
 }
 
 /** `pnpm exec ns run <platform> [--device <id>]` — the same command `xplat dev` spawns. */
-export function nsRunCommand(platform, targetId) {
-	return pnpmExec(['ns', 'run', platform, ...(targetId ? ['--device', targetId] : [])])
+export function nsRunCommand(platform, targetId, app) {
+	return appExec(['ns', 'run', platform, ...(targetId ? ['--device', targetId] : [])], app)
 }
 
 /** `pnpm exec ns build <platform>` — the same command `xplat build` spawns. */
-export function nsBuildCommand(platform) {
-	return pnpmExec(['ns', 'build', platform])
+export function nsBuildCommand(platform, app) {
+	return appExec(['ns', 'build', platform], app)
 }
 
 /** Track coarse launch phases from toolchain output for job progress. */

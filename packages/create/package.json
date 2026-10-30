@@ -54,7 +54,7 @@
 	},
 	"scripts": {
 		"build": "vite build",
-		"prepack": "pnpm build",
+		"prepack": "bun run build",
 		"typecheck": "tsc -p tsconfig.json",
 		"test:library": "node test/library-guide.mjs"
 	},

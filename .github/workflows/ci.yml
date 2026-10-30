@@ -25,29 +25,31 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       # No Playwright/browser install — the checks job stays lightweight
       # (no device emulation either). Browser-dependent tasks are filtered
       # out below; they run locally, not in PR gating.
       - name: Generate declarations before checking consumers
-        run: pnpm typegen
+        run: bun run typegen
 
       # Error-level correctness rules block releases; warning-level style
       # findings stay advisory. CSS runs once below, recipes in the PR job.
       - name: Lint code (oxlint + tsrx pass)
-        run: pnpm lint
+        run: bun run lint
 
       # check:decisions is deliberately absent — it mirrors the ledger against
       # the git-scoped Silo DB, which lives on dev machines, not in the checkout.
@@ -56,53 +58,56 @@ jobs:
       # This is the same task as "Prepare packages" below; the second run is
       # a turbo cache hit.
       - name: Prepare packages for repo checks
-        run: pnpm build:packages
+        run: bun run build:packages
 
       - name: Repo checks
         run: >-
-          pnpm check:compatibility && pnpm check:patches && pnpm check:ui-barrels && pnpm check:css &&
-          pnpm check:suffix-resolution && pnpm check:changelog && pnpm check:doc-examples
+          bun run check:workspace && bun run check:compatibility && bun run check:patches && bun run check:ui-barrels && bun run check:css &&
+          bun run check:suffix-resolution && bun run check:changelog && bun run check:doc-examples
 
       - name: Typecheck web
-        run: pnpm typecheck:web
+        run: bun run typecheck:web
 
       - name: Typecheck mobile
-        run: pnpm typecheck:mobile
+        run: bun run typecheck:mobile
 
       # @xplat/visual runs browser-mode vitest (Playwright) — excluded here;
       # it runs locally via the same `pnpm test` script.
       - name: Test
         run: >-
-          pnpm exec turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
-          pnpm test:create &&
-          node --test examples/auth/server-verification.test.mjs && pnpm test:scripts
+          bun run turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
+          bun run test:create &&
+          node --test examples/auth/server-verification.test.mjs && bun run test:scripts
 
       - name: Build web app
-        run: pnpm build:web
+        run: bun run build:web
 
       # Runtime packages ship source; prepare declarations and required assets.
       - name: Prepare packages
-        run: pnpm build:packages
+        run: bun run build:packages
+
+      - name: Check Bun and pnpm patch installs
+        run: bun run turbo run test:patches-install --filter=@octane-xplat/cli
 
       - name: Check standalone CLI executable
-        run: pnpm exec turbo run test:executable --filter=@octane-xplat/cli
+        run: bun run turbo run test:executable --filter=@octane-xplat/cli
 
       - name: Check packed exports and declaration dependencies
-        run: pnpm check:pack
+        run: bun run check:pack
 
       # Updates also exports a Node bootstrap hook. Its consumer fixture checks
       # that payload and six target conditions separately from declaration pairs.
       - name: Check Updates packed consumer
-        run: pnpm exec turbo run test:packed --filter=@octane-xplat/updates
+        run: bun run turbo run test:packed --filter=@octane-xplat/updates
 
       # The Node regression files already run in Test above.
       - name: Check optional service adapter types
-        run: pnpm check:optional-services --types-only
+        run: bun run check:optional-services --types-only
 
       # Real tarballs, isolated install, plain TypeScript declarations, and
       # starter web compilation. Full app/library journeys gate stable.
       - name: Packed web consumer smoke
-        run: pnpm check:consumer --no-build --quick
+        run: bun run check:consumer --no-build --quick
 
   repo-hygiene:
     runs-on: ubuntu-latest

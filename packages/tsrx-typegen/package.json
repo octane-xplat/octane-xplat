@@ -29,8 +29,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
-		"prepack": "pnpm build",
-		"test": "pnpm build && node tests/pack-check.mjs && node tests/packed-consumer.mjs",
+		"prepack": "bun run build",
+		"test": "bun run build && node tests/pack-check.mjs && node tests/packed-consumer.mjs",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"devDependencies": {

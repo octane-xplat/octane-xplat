@@ -12,7 +12,8 @@ platform example. Platform divergence belongs at file boundaries.
 
 ## Core constraints
 
-- Use pnpm for project commands. Declare every imported dependency; repository
+- Use the project's selected package manager. This repository uses Bun 1.4.4;
+  consumer starters use pnpm. Declare every imported dependency; repository
   workspace dependencies use `"workspace:*"`.
 - Keep one Octane runtime per app. Hooks belong in `.tsx`/`.tsrx` inside the
   renderer include glob. Keep runtime imports from `octane`; the native preset
@@ -125,7 +126,7 @@ harnesses; they are not consumer dependencies. Internal guidance lives in
   UI stays in UI. Follow the repository's current decision criteria.
 - Run the touched-package/dependents typecheck. For public workflow changes,
   reconcile recipes, docs, maintained examples, and Silo coverage; run
-  `pnpm check:recipes`. Follow [documentation coverage](../../docs/documentation.md).
+  `bun run check:recipes`. Follow [documentation coverage](../../docs/documentation.md).
 - Verify and record upstream limitations and local workarounds using
   [upstream guidance](../../docs/upstream-limitations.md). Report actual targets
   and evidence; source/build success does not qualify OS input or pixel parity.

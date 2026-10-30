@@ -52,9 +52,9 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target nano-icons",
-		"typecheck": "node ../../scripts/typecheck.ts && pnpm exec tsc --noEmit -p tsconfig.build.json",
-		"test": "pnpm build && node --test tests/*.test.mjs",
-		"prepack": "pnpm build && pnpm typegen && tsrx-typegen --pack-check",
+		"typecheck": "node ../../scripts/typecheck.ts && bun run tsc --noEmit -p tsconfig.build.json",
+		"test": "bun run build && node --test tests/*.test.mjs",
+		"prepack": "bun run build && bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"build": "vite build"

@@ -1,0 +1,4 @@
+[install]
+# NativeScript's module/vendor discovery needs package-local dependency links.
+linker = "isolated"
+exact = true

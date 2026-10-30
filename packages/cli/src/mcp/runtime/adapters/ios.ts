@@ -18,7 +18,7 @@ import {
 	nsAppId,
 	nsBuildCommand,
 	nsRunCommand,
-	pnpmPrerequisite,
+	packageManagerPrerequisite,
 	runToExit,
 	trackPhases,
 } from './shared.ts'
@@ -39,7 +39,7 @@ export function createIosAdapter() {
 
 		async describe(app, deps) {
 			const blocked = hostBlock('ios', deps.host)
-			const prereqs = [pnpmPrerequisite(deps), xcodePrereq(deps)]
+			const prereqs = [packageManagerPrerequisite(deps, app), xcodePrereq(deps)]
 			const missing = prereqs.filter((p) => p.status !== 'satisfied')
 			const ready = !blocked && missing.length === 0
 			const detail = blocked ?? undefined
@@ -76,14 +76,14 @@ export function createIosAdapter() {
 			return iosSimulators(deps)
 		},
 
-		prerequisites(deps) {
-			return [pnpmPrerequisite(deps), xcodePrereq(deps)]
+		prerequisites(deps, app) {
+			return [packageManagerPrerequisite(deps, app), xcodePrereq(deps)]
 		},
 
 		async build({ app, logs, signal, report, deps }) {
 			assertHost('ios', deps)
 			await runToExit({
-				command: nsBuildCommand('ios'),
+				command: nsBuildCommand('ios', app),
 				cwd: app.root,
 				logs,
 				signal,
@@ -102,8 +102,7 @@ export function createIosAdapter() {
 			assertHost('ios', deps)
 			prepareIosSimulator(target.targetId, deps.execCommand ?? deps.exec)
 			const child = spawnManaged({
-				cmd: 'pnpm',
-				args: nsRunCommand('ios', target.targetId).args,
+				...nsRunCommand('ios', target.targetId, app),
 				cwd: app.root,
 				logBuffer: logs,
 				signal,

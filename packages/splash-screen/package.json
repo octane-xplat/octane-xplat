@@ -42,7 +42,7 @@
 		"typegen": "tsrx-typegen --target splash-screen",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"test:ios-bridge": "node tests/ios-bridge.mjs",
 		"test:ios-runtime": "node tests/ios-runtime.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",

@@ -44,7 +44,7 @@
 		"test": "vitest run",
 		"test:ios-runtime": "node tests/ios-runtime.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:macos-feasibility": "node tests/macos-feasibility.mjs"
 	},

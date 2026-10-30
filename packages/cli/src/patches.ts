@@ -1,30 +1,35 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// Canonical framework patch set — ../patches/manifest.json + .patch files,
-// shipped inside @octane-xplat/cli. pnpm only honors `patchedDependencies`
-// at the app/workspace root, so downstream apps materialize the set:
-// `xplat patches apply` copies files into <app>/patches/ and merges the
-// block into the app's pnpm-workspace.yaml (or package.json
-// `pnpm.patchedDependencies` when no workspace yaml exists). `xplat doctor`
-// and `xplat patches check` report drift via inspectPatches().
+// Canonical patches are registered at the app/workspace root: Bun reads
+// package.json patchedDependencies; pnpm reads pnpm-workspace.yaml.
+// Both managers use the same unmodified patch files.
 
 import { createHash } from 'node:crypto'
-import {
-	copyFileSync,
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	writeFileSync,
-} from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseDocument, parseAllDocuments, isMap, Scalar } from 'yaml'
+
+import {
+	readBunLock,
+	readProjectPackage,
+	packageManagerFor,
+	packageManagerRoot,
+	readProjectWorkspace,
+	workspaceMembers,
+} from './package-manager.ts'
 
 export const canonicalPatchesDir = join(dirname(fileURLToPath(import.meta.url)), '../patches')
 
 export const loadPatchManifest = () =>
 	JSON.parse(readFileSync(join(canonicalPatchesDir, 'manifest.json'), 'utf8')).patches
+
+const patchesFor = (manager) =>
+	loadPatchManifest().flatMap((patch) =>
+		(manager === 'bun' ? (patch.bunSpecifiers ?? [patch.specifier]) : [patch.specifier]).map(
+			(specifier) => ({ ...patch, specifier }),
+		),
+	)
 
 export const specifierPackage = (spec) => {
 	const i = spec.indexOf('@', 1)
@@ -38,14 +43,6 @@ const sha = (file) => createHash('sha256').update(readFileSync(file)).digest('he
 const readJson = (file) => {
 	try {
 		return JSON.parse(readFileSync(file, 'utf8'))
-	} catch {
-		return null
-	}
-}
-
-const readYamlDoc = (file) => {
-	try {
-		return parseDocument(readFileSync(file, 'utf8'))
 	} catch {
 		return null
 	}
@@ -71,44 +68,20 @@ export const declaredDeps = (pkg) => ({
 // Workspace roots declare the shared deps in member package.jsons, not the
 // root's own — expand `packages:` globs (dir/* form) and merge every member's
 // dep fields so a workspace app checks the packages it actually installs.
-const workspaceDeps = (appDir) => {
-	const ws = join(appDir, 'pnpm-workspace.yaml')
-	if (!existsSync(ws)) {
-		return {}
-	}
-
-	const globs = readYamlDoc(ws)?.get('packages')?.toJSON() ?? []
-	const deps = {}
-	for (const glob of globs) {
-		if (!glob.endsWith('/*')) {
-			continue
-		}
-
-		const parent = join(appDir, glob.slice(0, -2))
-		if (!existsSync(parent)) {
-			continue
-		}
-
-		for (const member of readdirSync(parent)) {
-			const pkg = readJson(join(parent, member, 'package.json'))
-			Object.assign(deps, declaredDeps(pkg))
-		}
-	}
-
-	return deps
-}
+const workspaceDeps = (appDir, manager) =>
+	Object.assign(
+		{},
+		...workspaceMembers(appDir, manager).map((dir) =>
+			declaredDeps(readJson(join(dir, 'package.json'))),
+		),
+	)
 
 // pnpm `catalog:` specifiers pin via the workspace yaml, not the dep field
 // itself — substitute the catalog value so version checks see the real pin.
-const resolveCatalogs = (appDir, deps) => {
-	const ws = join(appDir, 'pnpm-workspace.yaml')
-	if (!existsSync(ws)) {
-		return deps
-	}
-
-	const doc = readYamlDoc(ws)
-	const shared = doc?.get('catalog')?.toJSON() ?? {}
-	const named = doc?.get('catalogs')?.toJSON() ?? {}
+const resolveCatalogs = (appDir, deps, manager) => {
+	const config = readProjectWorkspace(appDir, manager)
+	const shared = config.catalog ?? config.catalogs?.default ?? {}
+	const named = config.catalogs ?? {}
 	for (const [name, spec] of Object.entries(deps)) {
 		if (spec === 'catalog:' || spec === 'catalog:default') {
 			if (shared[name]) {
@@ -125,23 +98,31 @@ const resolveCatalogs = (appDir, deps) => {
 	return deps
 }
 
-/** The config file that owns patchedDependencies for this app. */
-const configTarget = (appDir) =>
-	existsSync(join(appDir, 'pnpm-workspace.yaml')) ? 'workspace' : 'packageJson'
-
-/** spec → patch path, from whichever config source the app uses. */
-export const configuredPatches = (appDir) => {
-	if (configTarget(appDir) === 'workspace') {
-		const doc = readYamlDoc(join(appDir, 'pnpm-workspace.yaml'))
-		const pd = doc?.get('patchedDependencies')
-		return isMap(pd) ? pd.toJSON() : {}
+/** Read only the patch configuration owned by the selected package manager. */
+export const configuredPatches = (appDir, options = {}) => {
+	appDir = packageManagerRoot(appDir)
+	const manager = packageManagerFor(appDir, options.packageManager)
+	if (manager === 'bun') {
+		return readProjectPackage(appDir).patchedDependencies ?? {}
 	}
-
-	return readJson(join(appDir, 'package.json'))?.pnpm?.patchedDependencies ?? {}
+	const file = join(appDir, 'pnpm-workspace.yaml')
+	if (!existsSync(file)) {
+		return {}
+	}
+	const doc = parseDocument(readFileSync(file, 'utf8'))
+	if (doc.errors.length) {
+		throw new Error(`Cannot read ${file}: ${doc.errors[0].message}`)
+	}
+	const pd = doc.get('patchedDependencies')
+	return isMap(pd) ? pd.toJSON() : {}
 }
 
-/** Specifiers recorded in pnpm-lock.yaml — null when there is no lockfile. */
-const lockfilePatches = (appDir) => {
+/** Specifiers recorded in the selected manager lockfile; null before install. */
+const lockfilePatches = (appDir, manager) => {
+	if (manager === 'bun') {
+		const lock = readBunLock(appDir)
+		return lock ? new Set(Object.keys(lock.patchedDependencies ?? {})) : null
+	}
 	const lock = join(appDir, 'pnpm-lock.yaml')
 	if (!existsSync(lock)) {
 		return null
@@ -161,9 +142,35 @@ const lockfilePatches = (appDir) => {
 }
 
 // Resolved versions per package across all lockfile importers — the truth
-// about which copy pnpm actually installs. `>=9.1.0 <10` on a peer is fine
+// about which copies the selected package manager installs. `>=9.1.0 <10` on a peer is fine
 // when every resolution lands on the pin.
-const lockfileResolvedVersions = (appDir) => {
+const lockfileResolvedVersions = (appDir, manager) => {
+	if (manager === 'bun') {
+		const lock = readBunLock(appDir)
+		if (!lock) {
+			return null
+		}
+
+		const versions = {}
+		for (const entry of Object.values(lock.packages ?? {})) {
+			const spec = entry?.[0]
+			if (typeof spec !== 'string') {
+				continue
+			}
+
+			const at = spec.indexOf('@', 1)
+			if (at === -1) {
+				continue
+			}
+
+			const name = spec.slice(0, at)
+			const version = spec.slice(at + 1)
+
+			;(versions[name] ??= new Set()).add(version)
+		}
+
+		return versions
+	}
 	const lock = join(appDir, 'pnpm-lock.yaml')
 	if (!existsSync(lock)) {
 		return null
@@ -220,7 +227,7 @@ const lockfileResolvedVersions = (appDir) => {
 	return resolved
 }
 
-// A patch only bites when pnpm resolves exactly its pinned version. The
+// A patch only applies when the package manager resolves its exact source/version. The
 // lockfile is authoritative; pre-install (no lockfile) fall back to the
 // declared range being the pin itself.
 const versionOk = (declared, pinned, resolved) =>
@@ -239,18 +246,23 @@ const versionOk = (declared, pinned, resolved) =>
  *   not-installed     configured but absent from pnpm-lock.yaml
  *   applied           configured, file matches, lockfile recorded it
  */
-export const inspectPatches = (appDir) => {
-	appDir = resolve(appDir)
-	const deps = resolveCatalogs(appDir, {
-		...workspaceDeps(appDir),
-		...declaredDeps(readJson(join(appDir, 'package.json'))),
-	})
+export const inspectPatches = (appDir, options = {}) => {
+	appDir = packageManagerRoot(appDir)
+	const manager = packageManagerFor(appDir, options.packageManager)
+	const deps = resolveCatalogs(
+		appDir,
+		{
+			...workspaceDeps(appDir, manager),
+			...declaredDeps(readJson(join(appDir, 'package.json'))),
+		},
+		manager,
+	)
 
-	const configured = configuredPatches(appDir)
-	const locked = lockfilePatches(appDir)
-	const resolved = lockfileResolvedVersions(appDir)
+	const configured = configuredPatches(appDir, { packageManager: manager })
+	const locked = lockfilePatches(appDir, manager)
+	const resolved = lockfileResolvedVersions(appDir, manager)
 
-	return loadPatchManifest().map((patch) => {
+	return patchesFor(manager).map((patch) => {
 		const name = specifierPackage(patch.specifier)
 		const declared = deps[name]
 		const base = { ...patch, declared, path: configured[patch.specifier] }
@@ -303,7 +315,7 @@ export const patchStateDetail = (state) =>
 		'missing-file': 'configured patch file does not exist',
 		'file-differs': 'patch file differs from the framework copy',
 		'version-mismatch': `declared range won't resolve the pinned version`,
-		'not-installed': 'configured but missing from pnpm-lock.yaml',
+		'not-installed': 'configured but missing from the package manager lockfile',
 		applied: 'applied',
 	})[state]
 
@@ -332,23 +344,28 @@ export const wrapComment = (text, width = 88) => {
 /**
  * Copy canonical patches into <appDir>/patches/ and register them. Only
  * patches whose package the app declares are applied — an entry for a
- * package pnpm never resolves produces a "patch not applied" warning at
+ * package the manager never resolves produces a "patch not applied" warning at
  * install for no benefit.
  */
-export const applyPatches = (appDir, { force = false } = {}) => {
-	appDir = resolve(appDir)
+export const applyPatches = (appDir, { force = false, packageManager } = {}) => {
+	appDir = packageManagerRoot(appDir)
+	const manager = packageManagerFor(appDir, packageManager)
 	const pkg = readJson(join(appDir, 'package.json'))
 	if (!pkg) {
 		return { error: `no package.json in ${appDir}` }
 	}
 
-	const deps = resolveCatalogs(appDir, { ...workspaceDeps(appDir), ...declaredDeps(pkg) })
-	const configured = configuredPatches(appDir)
-	const resolved = lockfileResolvedVersions(appDir)
+	const deps = resolveCatalogs(
+		appDir,
+		{ ...workspaceDeps(appDir, manager), ...declaredDeps(pkg) },
+		manager,
+	)
+	const configured = configuredPatches(appDir, { packageManager: manager })
+	const resolved = lockfileResolvedVersions(appDir, manager)
 	const report = { copied: [], kept: [], conflicts: [], skipped: [] }
 	const relevant = []
 
-	for (const patch of loadPatchManifest()) {
+	for (const patch of patchesFor(manager)) {
 		const name = specifierPackage(patch.specifier)
 		const declared = deps[name]
 		const pinned = specifierVersion(patch.specifier)
@@ -428,16 +445,16 @@ export const applyPatches = (appDir, { force = false } = {}) => {
 	mergeConfig(
 		appDir,
 		relevant.filter((p) => landed.has(p.specifier) && !skipMerge.has(p.specifier)),
-		{ force, report },
+		{ force, report, manager },
 	)
 
 	return report
 }
 
-const mergeConfig = (appDir, patches, { force, report }) => {
-	if (configTarget(appDir) === 'workspace') {
+const mergeConfig = (appDir, patches, { force, report, manager }) => {
+	if (manager === 'pnpm') {
 		const file = join(appDir, 'pnpm-workspace.yaml')
-		const doc = parseDocument(readFileSync(file, 'utf8'))
+		const doc = parseDocument(existsSync(file) ? readFileSync(file, 'utf8') : 'packages: []\n')
 		let pd = doc.get('patchedDependencies')
 		if (pd === undefined) {
 			doc.set('patchedDependencies', doc.createNode({}))
@@ -484,12 +501,12 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 	const file = join(appDir, 'package.json')
 	const src = readFileSync(file, 'utf8')
 	const pkg = JSON.parse(src)
-	pkg.pnpm ??= {}
-	pkg.pnpm.patchedDependencies ??= {}
+	const owner = pkg
+	owner.patchedDependencies ??= {}
 	let changed = false
 	for (const patch of patches) {
 		const target = `patches/${patch.file}`
-		const existing = pkg.pnpm.patchedDependencies[patch.specifier]
+		const existing = owner.patchedDependencies[patch.specifier]
 		if (existing === target) {
 			continue
 		}
@@ -497,13 +514,13 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 		if (existing !== undefined && !force) {
 			report.conflicts.push({
 				...patch,
-				reason: `pnpm.patchedDependencies already maps ${patch.specifier} → ${existing}`,
+				reason: `${manager === 'bun' ? 'patchedDependencies' : 'pnpm.patchedDependencies'} already maps ${patch.specifier} → ${existing}`,
 			})
 
 			continue
 		}
 
-		pkg.pnpm.patchedDependencies[patch.specifier] = target
+		owner.patchedDependencies[patch.specifier] = target
 		changed = true
 	}
 

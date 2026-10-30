@@ -190,11 +190,7 @@ export async function dependencies(target, caseFile, extra) {
 }
 
 export async function fingerprint(deps, resources) {
-	const files = [
-		...deps.nativeFiles,
-		join(repo, 'pnpm-lock.yaml'),
-		...(await filesUnder(directory)),
-	]
+	const files = [...deps.nativeFiles, join(repo, 'bun.lock'), ...(await filesUnder(directory))]
 
 	if (resources) {
 		files.push(

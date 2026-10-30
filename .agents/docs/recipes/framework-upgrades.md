@@ -2,7 +2,7 @@
 
 ID: framework-upgrades
 Targets: web, ios, android, macos, linux
-Related APIs: xplat upgrade, xplat upgrade --check, xplat upgrade --no-install, xplat doctor, catalog:xplat, catalog:xplat-windows, @octane-xplat/patches
+Related APIs: xplat upgrade, xplat upgrade --check, xplat upgrade --no-install, xplat doctor, xplat patches, catalog:xplat, catalog:xplat-windows, @octane-xplat/patches
 
 ## Starting point
 
@@ -27,6 +27,8 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 - AC6: The reader runs their own tests and target builds after alignment; host checks and simulated Windows metadata tests do not establish browser/device/native runtime support.
 - AC7: An isolated mobile app's explicit Mason core beta dependency survives upgrades without adding full MasonKit; doctor reports conflicting native engines, duplicate core installations, or unsupported Windows selection.
 
+- AC8: The reader can apply/check the same canonical patch set in Bun and pnpm projects, including workspace members, catalogs, transitive dependencies, lockfile selection, conflicts, and deferred installation; pnpm 11 configuration is YAML, while Bun configuration is root package.json.
+
 ## Documentation
 
 - AC1: [Compatible versions](../../../packages/cli/README.md#compatible-versions), [creator](../../../packages/create/README.md), [compatibility manifest](../../../packages/create/compatibility.json), and [template synchronization](../../../scripts/sync-compatibility.ts).
@@ -36,3 +38,5 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 - AC5: [Installed checks and duplicate runtime paths](../../../packages/cli/README.md#compatible-versions) and [installed-graph tests](../../../packages/cli/test/compatibility.test.mjs).
 - AC6: [Post-upgrade checks](../../../docs/start/toolchain.md#upgrade-framework-packages) and [target support](../../../docs/start/spec.md#choose-your-targets).
 - AC7: [Core engine choice](../../../packages/cli/README.md#compatible-versions), [native preset](../../../packages/cli/README.md#native-vite-preset), [compatibility regressions](../../../packages/cli/test/compatibility.test.mjs), and the [shared FontManager runtime regression](../../../apps/mobile/src/tests/font-manager-coinstallation.spec.tsrx).
+
+- AC8: [Patches with Bun and pnpm](../../../packages/cli/README.md#framework-patches), [lockfile and conflict tests](../../../packages/cli/test/patches-bun.test.mjs), and [real frozen-install tests](../../../packages/cli/standalone/patches-install.test.mjs).

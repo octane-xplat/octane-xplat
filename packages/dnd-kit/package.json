@@ -34,7 +34,7 @@
 		"typegen": "tsrx-typegen --project tsconfig.json",
 		"typecheck": "node ../../scripts/typecheck.ts && tsrx-tsc --noEmit -p tsconfig.example.json",
 		"test": "vitest run",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs"
 	},

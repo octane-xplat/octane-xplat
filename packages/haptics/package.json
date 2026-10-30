@@ -44,7 +44,7 @@
 	"scripts": {
 		"typegen": "tsrx-typegen --target haptics",
 		"test": "node --experimental-strip-types --test tests/*.test.ts",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"

@@ -9,24 +9,46 @@ For meaningful user-facing changes, include a short Markdown
 Features and breaking changes go in `.changelog/`; bug fixes go in
 `.changelog/fixes/`. Internal-only work needs no note. Keep API examples brief,
 explain necessary jargon in context, and link to official docs.
-Validate pending notes with `pnpm check:changelog`.
+Validate pending notes with `bun run check:changelog`.
 
 ## Framework workspace commands
 
-Run these from the repository root after `pnpm install`:
+Install [Bun 1.4.4](https://bun.com/docs/installation) and the Node version
+required by the [toolchain guide](docs/start/toolchain.md#create-and-run).
+The repository uses Bun's isolated installs and supports both default and named
+`catalog:` references. Root `package.json` owns workspace/catalog/override/patch
+settings; `bun.lock` records the resolved dependency graph.
+
+```sh
+bun --version
+bun install --frozen-lockfile
+```
+
+pnpm 11.24.0 remains necessary for packed-consumer checks and publishing with
+provenance. The generated `pnpm-workspace.yaml` exists for that packaging path;
+use Bun to install the repository. After changing root workspace patterns or
+catalogs, regenerate its packaging metadata and verify patches:
+
+```sh
+bun run sync:workspace
+bun run check:workspace
+bun run check:patches
+```
+
+Run these from the repository root after `bun install --frozen-lockfile`:
 
 | Task                                                       | Command                                                                              |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Start a harness target                                     | `pnpm dev:web`, `dev:ios`, `dev:android`, `dev:macos`, `dev:linux`, or `dev:windows` |
-| Build a harness target                                     | `pnpm build:web`, `build:ios`, `build:macos`, `build:linux`, or `build:windows`      |
-| Work on the docs site                                      | `pnpm dev:docs` or `pnpm build:docs`                                                 |
-| Build workspace packages                                   | `pnpm build:packages`                                                                |
-| Run lint and repository checks                             | `pnpm check`                                                                         |
-| Generate declarations and typecheck every target           | `pnpm typecheck`                                                                     |
-| Run unit, repository-checker, and typegen tests            | `pnpm test`                                                                          |
-| Run checks, typechecks, and tests in order                 | `pnpm validate`                                                                      |
-| Verify packed UI, GIF, auth, and typegen-fixture consumers | `pnpm test:packed`                                                                   |
-| Build and browser-smoke the harness or docs                | `pnpm smoke:web` or `pnpm smoke:docs`                                                |
+| Start a harness target                                     | `bun run dev:web`, `dev:ios`, `dev:android`, `dev:macos`, `dev:linux`, or `dev:windows` |
+| Build a harness target                                     | `bun run build:web`, `build:ios`, `build:macos`, `build:linux`, or `build:windows`      |
+| Work on the docs site                                      | `bun run dev:docs` or `bun run build:docs`                                                 |
+| Build workspace packages                                   | `bun run build:packages`                                                                |
+| Run lint and repository checks                             | `bun run check`                                                                         |
+| Generate declarations and typecheck every target           | `bun run typecheck`                                                                     |
+| Run unit, repository-checker, and typegen tests            | `bun run test`                                                                          |
+| Run checks, typechecks, and tests in order                 | `bun run validate`                                                                      |
+| Verify packed UI, GIF, auth, and typegen-fixture consumers | `bun run test:packed`                                                                   |
+| Build and browser-smoke the harness or docs                | `bun run smoke:web` or `bun run smoke:docs`                                                |
 
 Individual `typecheck:web`, `typecheck:mobile`, `typecheck:macos`,
 `typecheck:linux`, `typecheck:windows`, and `typecheck:docs` commands are also

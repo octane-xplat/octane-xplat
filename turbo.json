@@ -45,6 +45,10 @@
 			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": ["dist/**", "types/**"]
 		},
+		"test:patches-install": {
+			"dependsOn": ["build", "^build"],
+			"cache": false
+		},
 		"test:executable": {
 			"dependsOn": ["build:executable"],
 			"cache": false

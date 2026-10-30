@@ -15,7 +15,7 @@ import { RELEASES } from './release-version.ts'
 // Publishable surface: the lockstep package set (with its existing
 // non-published package exclusions) plus workspace wiring that changes what
 // consumers install.
-export const NIGHTLY_PATHS = [...RELEASES.lockstep.paths, 'pnpm-workspace.yaml', 'pnpm-lock.yaml']
+export const NIGHTLY_PATHS = [...RELEASES.lockstep.paths, 'package.json', 'bunfig.toml', 'bun.lock']
 
 const NIGHTLY_PATTERN = /^0\.0\.0-nightly\.g([0-9a-f]{7,})$/
 

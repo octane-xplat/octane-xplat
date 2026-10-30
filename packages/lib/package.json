@@ -41,7 +41,7 @@
 	"scripts": {
 		"typegen": "tsc -p tsconfig.build.json",
 		"typecheck": "tsc -p tsconfig.json",
-		"prepack": "pnpm typegen",
+		"prepack": "bun run typegen",
 		"test": "node --test tests/*.test.mjs",
 		"test:packed": "node tests/packed-consumer.mjs"
 	},

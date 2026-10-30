@@ -90,12 +90,12 @@ XPLAT_CLI_CACHE=./.xplat-cli-cache ./xplat-darwin-arm64 catalog --json
 ```
 
 Repository contributors can build and check an executable for the current
-host. Bun 1.4.3, pnpm, and `tar` must be available. These commands prepare the
+host. Bun 1.4.4 and `tar` must be available. These commands prepare the
 package outputs and write `packages/cli/dist/xplat` (`xplat.exe` on Windows):
 
 ```sh
-pnpm exec turbo run build:executable --filter=@octane-xplat/cli
-pnpm exec turbo run test:executable --filter=@octane-xplat/cli
+bun run turbo run build:executable --filter=@octane-xplat/cli
+bun run turbo run test:executable --filter=@octane-xplat/cli
 ```
 
 Build on each destination OS and architecture so the native parser and
@@ -351,15 +351,55 @@ Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolcha
 
 ## Framework patches
 
-The framework carries a small set of upstream fixes as pnpm
-`patchedDependencies` (`packages/cli/patches/` + manifest in the published
-package). pnpm only honors them at an app's workspace root. For existing apps,
-`xplat patches apply` copies the `.patch` files into `<app>/patches/` and merges
-the block into the app's `pnpm-workspace.yaml` (or `pnpm.patchedDependencies`
-in package.json). Fresh apps from `create-octane-xplat` fetch the
-dependency-free `@octane-xplat/patches` package through pnpm
-`configDependencies`; their patch paths point into
-`node_modules/.pnpm-config/`.
+The creator and `xplat upgrade` continue to manage pnpm app setup. Bun users
+can use the patch workflow below and run existing development/build targets.
+
+The same canonical patch files work with **Bun 1.4.4 or later** and **pnpm**.
+Run from your app directory. The CLI selects the workspace root and uses its
+`packageManager` declaration first, then its lockfile. For a Bun project:
+
+```sh
+bun run xplat patches apply
+bun install
+bun run xplat patches check
+```
+
+Bun registers patches in the root `package.json` under `patchedDependencies`.
+It reads default and named catalogs from that same manifest. For a pnpm project,
+the command writes `pnpm-workspace.yaml`, creating it for a standalone app too:
+
+```sh
+pnpm xplat patches apply
+pnpm install
+pnpm xplat patches check
+```
+
+pnpm 11 ignores `package.json.pnpm.patchedDependencies`; rerun `apply` to move
+framework registration into the YAML configuration. Fresh pnpm starters still
+use the `@octane-xplat/patches` config dependency. If the package manager is not
+yet declared, or both lockfiles remain during migration, select it explicitly:
+
+```sh
+xplat patches apply --package-manager bun
+bun install
+xplat patches check --package-manager bun
+```
+
+Patch files are copied into the workspace root's `patches/` directory. Existing
+custom mappings and differing files are reported as conflicts; review them
+before opting into replacement:
+
+```sh
+xplat patches apply --force
+```
+
+Bun inspection reads the text `bun.lock`, including transitive and URL-pinned
+resolutions. Convert an older binary lockfile before checking patches:
+
+```sh
+bun install --save-text-lockfile --lockfile-only
+xplat patches check
+```
 
 ## Working against a local checkout
 

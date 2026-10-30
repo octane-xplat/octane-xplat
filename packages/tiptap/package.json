@@ -46,7 +46,7 @@
 		"test:native": "vitest run --config vitest.native.config.mts",
 		"typegen": "tsrx-typegen --target tiptap",
 		"build:assets": "node ../richtext/build-browser.ts",
-		"prepack": "pnpm build:assets && pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run build:assets && bun run typegen && tsrx-typegen --pack-check",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {

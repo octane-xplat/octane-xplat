@@ -39,7 +39,7 @@
 	},
 	"scripts": {
 		"build": "vite build",
-		"prepack": "pnpm build",
+		"prepack": "bun run build",
 		"typecheck": "tsc -p tsconfig.json",
 		"test": "node --test --test-concurrency=1 ../../scripts/xplat-rules.test.mjs"
 	},

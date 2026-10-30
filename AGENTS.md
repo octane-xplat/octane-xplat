@@ -118,12 +118,13 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   for every package you touched. The filter includes that package and its
   dependents; do not typecheck unrelated packages.
 - Run builds, tests, and typechecks through `turbo run <task> --filter=<pkg>`
-  rather than raw package scripts (`pnpm --filter <pkg> <script>`,
+  rather than raw package scripts (`bun run --filter <pkg> <script>`,
   `node --test`, per-package `build`). Turbo task deps are the on-demand
   ordering mechanism — `//#submodules` initializes vendor checkouts and
   `^typegen`/`^build` produce generated types and dists first. Raw commands
   skip all of that and fail on missing vendor sources or dist outputs.
-- Use **pnpm**, not npm. Declare every imported dependency; workspace dependencies
+- Use **Bun 1.4.4** for repository installs and scripts. Retain pnpm only for
+  packaging/publishing and pnpm consumer qualification. Declare every imported dependency; workspace dependencies
   use `"workspace:*"`. `packages/ui` takes **no new external dependencies or peers** (internal workspace packages are fine);
   plugin-backed features belong in leaf packages. A leaf package is warranted
   when a feature owns an external cost or a separate system lifecycle — a
@@ -155,8 +156,8 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 - Keep signal-backed names suffixed with `$`. Non-signal module state needs
   `useStore` per reader on native; an unchanged-prop child is not re-rendered
   just because its parent renders.
-- For a single investigation, use `pnpm probe doctor` and
-  `pnpm probe run <case> --target <target> --watch`. Probes are temporary by
+- For a single investigation, use `bun run probe doctor` and
+  `bun run probe run <case> --target <target> --watch`. Probes are temporary by
   default (`research/`); promote behavior we must preserve into maintained tests.
   The runner and `examples/probes/` are permanent tooling fixtures. Windows is
   excluded from this runner.
@@ -173,12 +174,12 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   showing its use; snippets must be syntactically valid and idiomatic.
 - Public workflow changes must reconcile recipes, docs, and maintained examples;
   record coverage separately from verification in Silo and run
-  `pnpm check:recipes`. Never weaken criteria to conceal a limitation. Report
+  `bun run check:recipes`. Never weaken criteria to conceal a limitation. Report
   affected recipes and remaining gaps at handoff, or why none is affected.
 - Maintain public guides and package READMEs with the
   [documentation quality system](.agents/docs/documentation-quality.md): review
-  the reader's path, reconcile canonical guidance, and run `pnpm check:docs`
-  and `pnpm check:doc-examples`. Mechanical checks do not replace reviewing
+  the reader's path, reconcile canonical guidance, and run `bun run check:docs`
+  and `bun run check:doc-examples`. Mechanical checks do not replace reviewing
   setup, API correctness, lifecycle, platform claims, and observable results.
 - When public APIs or documented behavior change, review the affected guidance
   in [the Octane skill](.agents/skills/octane-xplat/SKILL.md), including its

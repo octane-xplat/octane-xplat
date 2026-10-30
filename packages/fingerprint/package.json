@@ -29,7 +29,7 @@
 		"build": "tsc -p tsconfig.build.json",
 		"typecheck": "tsc -p tsconfig.build.json --noEmit",
 		"test": "node --test tests/*.test.mjs",
-		"prepack": "pnpm build",
+		"prepack": "bun run build",
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {

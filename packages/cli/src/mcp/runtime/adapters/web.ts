@@ -12,7 +12,7 @@ import { chromiumExecutable } from '../targets.ts'
 import { contractError } from '../../contracts/errors.ts'
 import { spawnManaged } from '../process.ts'
 import { sleep, urlFromLogs, waitForHttp } from '../readiness.ts'
-import { awaitReady, gitRevision, pnpmExec, pnpmPrerequisite } from './shared.ts'
+import { awaitReady, gitRevision, appExec, packageManagerPrerequisite } from './shared.ts'
 
 const ATTACH_PORTS = [5200, 5173, 4173, 5201, 3000]
 
@@ -21,7 +21,7 @@ export function createWebAdapter() {
 		platform: 'web',
 
 		async describe(app, deps) {
-			const pnpm = pnpmPrerequisite(deps)
+			const pnpm = packageManagerPrerequisite(deps, app)
 			const chromium = chromiumExecutable(deps)
 			const ready = pnpm.status === 'satisfied'
 			return [
@@ -80,13 +80,13 @@ export function createWebAdapter() {
 			}
 		},
 
-		prerequisites(deps) {
-			return [pnpmPrerequisite(deps)]
+		prerequisites(deps, app) {
+			return [packageManagerPrerequisite(deps, app)]
 		},
 
 		async build({ app, logs, signal, report, deps }) {
 			const child = spawnManaged({
-				...pnpmExec(['vite', 'build']),
+				...appExec(['vite', 'build'], app),
 				cwd: app.root,
 				logBuffer: logs,
 				signal,
@@ -116,7 +116,7 @@ export function createWebAdapter() {
 
 		async launch({ app, logs, signal, report, claim, deps, browserMode }) {
 			const server = spawnManaged({
-				...pnpmExec(['vite', '--host', '127.0.0.1']),
+				...appExec(['vite', '--host', '127.0.0.1'], app),
 				cwd: app.root,
 				logBuffer: logs,
 				signal,

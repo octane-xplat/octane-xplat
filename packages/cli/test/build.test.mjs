@@ -10,7 +10,7 @@ import test from 'node:test'
 const exec = promisify(execFile)
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
 
-async function fixture(t, { android = false, web = true } = {}) {
+async function fixture(t, { android = false, web = true, manager = 'pnpm' } = {}) {
 	const root = await mkdtemp(join(tmpdir(), 'xplat-build-selection-'))
 	t.after(() => rm(root, { recursive: true, force: true }))
 	await mkdir(join(root, 'bin'))
@@ -20,6 +20,7 @@ async function fixture(t, { android = false, web = true } = {}) {
 		join(root, 'package.json'),
 		JSON.stringify({
 			private: true,
+			packageManager: `${manager}@${manager === 'bun' ? '1.4.4' : '11.24.0'}`,
 			type: 'module',
 			devDependencies: android ? { '@nativescript/android': '*' } : {},
 		}),
@@ -32,7 +33,7 @@ async function fixture(t, { android = false, web = true } = {}) {
 	}
 	const log = join(root, 'launched.jsonl')
 	await writeFile(
-		join(root, 'bin/pnpm'),
+		join(root, 'bin', manager),
 		`#!${process.execPath}\nimport { appendFileSync } from 'node:fs'; appendFileSync(${JSON.stringify(log)}, JSON.stringify(process.argv.slice(2)) + '\\n')\n`,
 		{ mode: 0o755 },
 	)
@@ -119,3 +120,10 @@ for (const argument of ['--targets', '--targets=']) {
 		await project.unchanged()
 	})
 }
+
+test('Bun-managed apps build through their installed Bun toolchain', async (t) => {
+	const project = await fixture(t, { manager: 'bun' })
+	const result = await project.run('web')
+	assert.equal(result.code, 0, result.output)
+	assert.deepEqual(await project.calls(), [['run', 'vite', 'build']])
+})

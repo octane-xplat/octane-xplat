@@ -42,8 +42,8 @@ const nightly = (sha) => `0.0.0-nightly.g${sha.slice(0, 7)}`
 test('NIGHTLY_PATHS extends the lockstep publish set with workspace wiring', () => {
 	assert.ok(NIGHTLY_PATHS.includes('packages/**'))
 	assert.ok(NIGHTLY_PATHS.includes(':(exclude)packages/tsrx-typegen/**'))
-	assert.ok(NIGHTLY_PATHS.includes('pnpm-workspace.yaml'))
-	assert.ok(NIGHTLY_PATHS.includes('pnpm-lock.yaml'))
+	assert.ok(NIGHTLY_PATHS.includes('package.json'))
+	assert.ok(NIGHTLY_PATHS.includes('bun.lock'))
 })
 
 test('nightlyDecision publishes when no nightly exists or it is unreadable', (t) => {
@@ -101,8 +101,8 @@ test('nightlyDecision publishes for lockstep paths and workspace wiring', (t) =>
 	const published = commit(root, 'feat: base')
 	for (const [message, path] of [
 		['fix: package change', 'packages/ui/src/fix.ts'],
-		['chore: workspace wiring', 'pnpm-workspace.yaml'],
-		['chore: lockfile', 'pnpm-lock.yaml'],
+		['chore: workspace wiring', 'package.json'],
+		['chore: lockfile', 'bun.lock'],
 	]) {
 		commit(root, message, path)
 		const decision = nightlyDecision({

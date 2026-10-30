@@ -44,20 +44,22 @@ jobs:
           ref: ${{ env.TESTED_SHA }}
           submodules: true
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build:packages
+          package-manager-cache: false
+      - run: bun install --frozen-lockfile
+      - run: bun run build:packages
       # Workshop's Playwright journey remains local; no browser installation.
       - name: Check declared non-browser packed consumer suites
-        run: pnpm exec turbo run test:packed --filter='./packages/*' --filter='!@octane-xplat/workshop' --concurrency=2
+        run: bun run turbo run test:packed --filter='./packages/*' --filter='!@octane-xplat/workshop' --concurrency=2
       - name: Verify complete packed app and library starter workflows
-        run: pnpm check:consumer --no-build
+        run: bun run check:consumer --no-build
 
   # Device qualification runs inside the per-target advisory lock so parallel
   # worktree/device sessions on shared hosts serialize instead of fighting
@@ -78,26 +80,28 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       # Produces a simulator-debug .app from the packed artifacts and proves
       # it installs + launches on a booted iPhone sim (simctl install/launch
       # on an already-booted device — ns run ios reboots and fails).
       - name: Prepare and validate packed consumer packages
         run: |
-          pnpm build:packages
-          pnpm check:pack
+          bun run build:packages
+          bun run check:pack
 
       - name: Packed consumer iOS build + simulator smoke
         run: node scripts/with-target-lock.ts ios -- node scripts/verify-consumer.ts --no-build --native ios --smoke-ios
@@ -121,22 +125,24 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       # apps/mobile's vite config imports @octane-xplat/cli/vite, which resolves
       # to cli's dist — build the package closure before ns test runs vite.
-      - run: pnpm build:packages
+      - run: bun run build:packages
 
       # Hosted runners still ship Simulator.app, but pinning an explicit
       # booted device keeps the lane identical to Xcode 27 dev hosts (which
@@ -149,13 +155,13 @@ jobs:
           echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
 
       - name: Generate app routes for the bundle
-        run: pnpm gen:app
+        run: bun run gen:app
 
       # The unitTesting bundle's vite build exceeds Node's default 2GB heap
       # (OOM before emit → the .app has no bundle.js and the worker never
       # connects). macos runners have ~14GB; give the build headroom.
       - name: On-device Vitest suite (apps/mobile)
-        run: node scripts/with-target-lock.ts ios -- pnpm exec turbo run test:ios --filter=@xplat/mobile --env-mode=loose -- --device "$SIM_UDID"
+        run: node scripts/with-target-lock.ts ios -- bun run turbo run test:ios --filter=@xplat/mobile --env-mode=loose -- --device "$SIM_UDID"
         env:
           NODE_OPTIONS: '--max-old-space-size=6144'
 
@@ -175,6 +181,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - name: Setup Temurin JDK 21
         uses: actions/setup-java@v4
@@ -184,23 +192,23 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       # Produces a debug .apk from the packed artifacts. Debug-signed artifact
       # — this is a build check, not Play-store distribution evidence. No
       # emulator runtime smoke yet (documented gap).
       - name: Prepare and validate packed consumer packages
         run: |
-          pnpm build:packages
-          pnpm check:pack
+          bun run build:packages
+          bun run check:pack
 
       - name: Packed consumer Android build
         run: node scripts/with-target-lock.ts android -- node scripts/verify-consumer.ts --no-build --native android

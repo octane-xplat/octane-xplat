@@ -27,8 +27,8 @@ means an unfinished publication, which the next green `main` CI run resumes.
 The nightly decision compares the newest green `main` CI revision with the
 published `@octane-xplat/ui` `nightly` dist-tag. It publishes only when no
 published nightly exists, the published commit is unknown, or
-`NIGHTLY_PATHS` — the lockstep publish paths plus `pnpm-workspace.yaml` and
-`pnpm-lock.yaml` — changed since the published commit. An unchanged tree
+`NIGHTLY_PATHS` — the lockstep publish paths plus `package.json`, `bunfig.toml`, and
+`bun.lock` — changed since the published commit. An unchanged tree
 publishes nothing. Nightlies do not commit to `main` or change `latest`, and
 `tsrx-typegen` has no nightly channel.
 Recipe structure and documentation links run in the PR-only `repo-hygiene`
@@ -139,6 +139,21 @@ cache path:
 ```sh
 TRUSTED_PUBLISHERS_CACHE= node scripts/check-trusted-publishers.ts
 ```
+
+## Repository installs and publication
+
+Use Bun 1.4.4 with `bun install --frozen-lockfile`. Bun owns the workspace
+catalogs in root `package.json` and the committed `bun.lock`. pnpm remains the
+publication tool because it applies `publishConfig.exports`, rewrites
+workspace/catalog ranges, and supports the existing OIDC/provenance path.
+The root `pnpm-workspace.yaml` is generated packaging metadata; it is not an
+installation configuration. Run `bun run check:workspace` before packaging.
+
+Release version changes must refresh `bun.lock` with
+`bun install --lockfile-only --ignore-scripts`. The release PR and independent
+typegen release commit that refreshed lockfile; nightlies refresh it in their
+uncommitted publication checkout. Keep the pinned pnpm version in publishing
+and pnpm consumer CI jobs even though their installs use Bun.
 
 ## CLI executables
 

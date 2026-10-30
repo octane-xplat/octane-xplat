@@ -46,18 +46,20 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       # A merged release commit raises frameworkVersion before its tag exists;
       # between merge and tag the release is pending and no PR is rebuilt —
@@ -129,8 +131,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B release/lockstep
           node scripts/bump-versions.ts "${{ steps.version.outputs.version }}"
+          bun install --lockfile-only --ignore-scripts
           node scripts/release-notes.ts prepare lockstep "${{ steps.version.outputs.version }}"
           git add -A -- \
+            bun.lock \
             'packages/*/package.json' \
             packages/create/compatibility.json \
             packages/create/template/package.json \

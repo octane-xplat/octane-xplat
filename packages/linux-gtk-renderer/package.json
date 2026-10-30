@@ -40,7 +40,7 @@
 		"test": "node --test test/build.test.mjs test/mason.test.mjs test/css.test.mjs test/style-css.test.mjs",
 		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/fixtures/tsconfig.routing.json",
 		"build": "tsc -p tsconfig.build.json && node build.mjs",
-		"prepack": "pnpm exec turbo run build --filter=@octane-xplat/linux-gtk",
+		"prepack": "bun run turbo run build --filter=@octane-xplat/linux-gtk",
 		"test:a11y": "node --test test/a11y.test.mjs",
 		"typegen": "tsc -p tsconfig.build.json && node build.mjs"
 	},

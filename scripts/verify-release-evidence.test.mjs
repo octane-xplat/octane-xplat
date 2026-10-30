@@ -433,9 +433,9 @@ test('workflow dependencies keep ci independent and stable bound to the release 
 	assert.deepEqual(release.on.workflow_run.workflows, [ci.name])
 	assert.equal(ci.jobs['repo-hygiene'].if, "github.event_name == 'pull_request'")
 	const commands = ci.jobs.checks.steps.map((step) => step.run ?? '')
-	const prepared = commands.indexOf('pnpm build:packages')
-	const checked = commands.indexOf('pnpm check:pack')
-	const smoke = commands.indexOf('pnpm check:consumer --no-build --quick')
+	const prepared = commands.indexOf('bun run build:packages')
+	const checked = commands.indexOf('bun run check:pack')
+	const smoke = commands.indexOf('bun run check:consumer --no-build --quick')
 	assert.ok(
 		prepared >= 0 && checked > prepared && smoke > checked,
 		'quick packing must follow package preparation and integrity checks',

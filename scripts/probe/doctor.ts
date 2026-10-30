@@ -24,11 +24,11 @@ export async function doctor() {
 		const { chromium } = await importFrom(appFor('web'), 'playwright')
 		if (!existsSync(chromium.executablePath())) {
 			targets.web.issues.push(
-				'Chromium is missing; run pnpm --dir apps/web exec playwright install chromium',
+				'Chromium is missing; run bun run --cwd apps/web playwright install chromium',
 			)
 		}
 	} catch {
-		targets.web.issues.push('Install workspace dependencies with pnpm install --frozen-lockfile')
+		targets.web.issues.push('Install workspace dependencies with bun install --frozen-lockfile')
 	}
 
 	if (process.platform !== 'darwin') {

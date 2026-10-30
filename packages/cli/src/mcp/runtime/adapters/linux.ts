@@ -15,8 +15,9 @@ import {
 	awaitReady,
 	gitRevision,
 	hasScript,
-	pnpmExec,
-	pnpmPrerequisite,
+	appScript,
+	appExec,
+	packageManagerPrerequisite,
 	runToExit,
 } from './shared.ts'
 
@@ -26,7 +27,7 @@ export function createLinuxAdapter() {
 
 		async describe(app, deps) {
 			const blocked = hostBlock('linux', deps.host)
-			const pnpm = pnpmPrerequisite(deps)
+			const pnpm = packageManagerPrerequisite(deps, app)
 			const ready = !blocked && pnpm.status === 'satisfied' && hasScript(app, 'dev')
 			return [
 				{
@@ -82,8 +83,8 @@ export function createLinuxAdapter() {
 			}
 		},
 
-		prerequisites(deps) {
-			return [pnpmPrerequisite(deps)]
+		prerequisites(deps, app) {
+			return [packageManagerPrerequisite(deps, app)]
 		},
 
 		async build({ app, logs, signal, report, deps }) {
@@ -100,7 +101,7 @@ export function createLinuxAdapter() {
 			}
 
 			await runToExit({
-				command: pnpmExec(['xplat', 'build', '--targets', 'linux']),
+				command: appExec(['xplat', 'build', '--targets', 'linux'], app),
 				cwd: app.root,
 				logs,
 				signal,
@@ -126,8 +127,7 @@ export function createLinuxAdapter() {
 			}
 
 			const child = spawnManaged({
-				cmd: 'pnpm',
-				args: ['run', 'dev'],
+				...appScript('dev', app),
 				cwd: app.root,
 				logBuffer: logs,
 				signal,

@@ -35,16 +35,15 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: pnpm/action-setup@v4
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec turbo run test:executable --filter=@octane-xplat/cli
+          package-manager-cache: false
+      - run: bun install --frozen-lockfile
+      - run: bun run turbo run test:executable --filter=@octane-xplat/cli
       - name: Name executable
         shell: bash
         run: |

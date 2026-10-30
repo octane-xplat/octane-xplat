@@ -58,7 +58,7 @@
 		"test:packed": "node test/packed-consumer.mjs",
 		"typegen": "tsrx-typegen --target richtext",
 		"build:assets": "node build-browser.ts",
-		"prepack": "pnpm build:assets && pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run build:assets && bun run typegen && tsrx-typegen --pack-check",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
 	"devDependencies": {

@@ -4,7 +4,7 @@ Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
 Use [single-case probing](probing.md) for platform investigations:
-`pnpm probe doctor` and `pnpm probe run <case> --target <target> --watch`.
+`bun run probe doctor` and `bun run probe run <case> --target <target> --watch`.
 For Android emulator setup, device isolation, and verified host commands, use the
 [Android lab log](android-lab.md).
 
@@ -24,7 +24,7 @@ conditions. The default mobile mode excludes the AppKit test patterns; those
 cases remain owned by the AppKit command, not silently treated as passing.
 
 ```sh
-XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos bun run turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
 ```
 
 The existing Node-test prelude still runs. Turbo may prepare dependency builds
@@ -36,12 +36,12 @@ other values.
 
 ## Web browser end-to-end tests
 
-The UI's web unit suite uses jsdom and runs in the normal `pnpm test` and PR
+The UI's web unit suite uses jsdom and runs in the normal `bun run test` and PR
 checks. Run it alone through Turbo; the task prepares its declarations first.
 These checks do not launch a browser or establish layout and OS input behavior.
 
 ```sh
-pnpm exec turbo run test --filter=@octane-xplat/ui
+bun run turbo run test --filter=@octane-xplat/ui
 ```
 
 Fast CI runs web builds, typechecks, unit tests, package integrity checks, and
@@ -53,7 +53,7 @@ The longer Playwright coverage runs locally across
 Chromium, Firefox, and WebKit with:
 
 ```sh
-pnpm test:e2e
+bun run test:e2e
 ```
 
 The command installs Playwright's browser binaries when needed, then runs the
@@ -83,8 +83,8 @@ Keep object-driver unit tests and synthesized probe dispatch for their own
 contracts; they do not establish a Maestro pass.
 
 ```sh
-pnpm test:maestro --target ios --device DEVICE_ID
-pnpm test:maestro --target android --device DEVICE_ID
+bun run test:maestro --target ios --device DEVICE_ID
+bun run test:maestro --target android --device DEVICE_ID
 ```
 
 - Reserve host resources before native builds/device use when a broker is

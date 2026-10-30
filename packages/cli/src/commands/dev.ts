@@ -11,15 +11,20 @@ import { createRouteWatcher } from '../route-watch.ts'
 import { discoverMacOSNative } from '../macos/native.ts'
 import { fileURLToPath } from 'node:url'
 import { siblingUrl } from '../env.ts'
+import { packageManagerExec, packageManagerFor } from '../package-manager.ts'
 import { prepareIosSimulator } from '../ios-simulator.ts'
 
 const spawnFor = (t, cwd) => {
+	const exec = (tag, args) => {
+		const command = packageManagerExec(cwd, args)
+		return run(tag, command.cmd, command.args, cwd)
+	}
 	const run = (tag, cmd, args, cwd) =>
 		spawnTagged(tag, cmd, args, cwd, {
 			capture: { platform: t.kind, targetId: t.id },
 		})
 	if (t.kind === 'web') {
-		return run('web', 'pnpm', ['exec', 'vite'], cwd)
+		return exec('web', ['vite'])
 	}
 
 	if (t.kind === 'macos') {
@@ -39,22 +44,22 @@ const spawnFor = (t, cwd) => {
 			)
 		}
 
-		return run('macos', 'pnpm', ['run', 'dev'], cwd)
+		return run('macos', packageManagerFor(cwd), ['run', 'dev'], cwd)
 	}
 
 	if (t.kind === 'linux') {
-		return run('linux', 'pnpm', ['run', 'dev'], cwd)
+		return run('linux', packageManagerFor(cwd), ['run', 'dev'], cwd)
 	}
 
 	if (t.kind === 'windows') {
-		return run('windows', 'pnpm', ['exec', 'ns', 'run', 'windows'], cwd)
+		return exec('windows', ['ns', 'run', 'windows'])
 	}
 
 	if (t.kind === 'ios') {
 		prepareIosSimulator(t.device)
 	}
 
-	return run(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
+	return exec(t.kind, ['ns', 'run', t.kind, '--device', t.device])
 }
 
 /** Nearest enclosing Turborepo root that declares a `typegen` task. */
@@ -230,8 +235,8 @@ export const dev = command({
 			if (types) {
 				spawnTagged(
 					'types',
-					'pnpm',
-					['exec', 'turbo', 'watch', 'typegen', '--continue', 'always'],
+					packageManagerExec(types, []).cmd,
+					packageManagerExec(types, ['turbo', 'watch', 'typegen', '--continue', 'always']).args,
 					types,
 				)
 			}

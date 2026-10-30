@@ -35,9 +35,9 @@
 	"scripts": {
 		"start": "node src/xplat-mcp.ts",
 		"build": "vite build",
-		"prepack": "pnpm build",
-		"test": "pnpm build && node --test tests/*.test.mjs",
-		"test:consumer": "pnpm build && node tests/consumer-workflow.mjs",
+		"prepack": "bun run build",
+		"test": "bun run build && node --test tests/*.test.mjs",
+		"test:consumer": "bun run build && node tests/consumer-workflow.mjs",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"dependencies": {

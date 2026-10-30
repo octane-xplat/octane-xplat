@@ -493,7 +493,7 @@ export async function runTarget(target, args, onResult, signal) {
 
 		watch([
 			args.case,
-			join(repo, 'pnpm-lock.yaml'),
+			join(repo, 'bun.lock'),
 			...project.stamp.files,
 			...project.stamp.files.map(dirname),
 		])

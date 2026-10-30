@@ -15,8 +15,9 @@ import {
 	awaitReady,
 	gitRevision,
 	hasScript,
-	pnpmExec,
-	pnpmPrerequisite,
+	appScript,
+	appExec,
+	packageManagerPrerequisite,
 	runToExit,
 } from './shared.ts'
 
@@ -38,7 +39,7 @@ export function createMacosAdapter() {
 
 		async describe(app, deps) {
 			const blocked = hostBlock('macos', deps.host)
-			const prereqs = [pnpmPrerequisite(deps), cliPrereq(app)]
+			const prereqs = [packageManagerPrerequisite(deps, app), cliPrereq(app)]
 			const missing = prereqs.filter((p) => p.status !== 'satisfied')
 			const ready = !blocked && missing.length === 0
 			return [
@@ -87,8 +88,8 @@ export function createMacosAdapter() {
 			}
 		},
 
-		prerequisites(deps) {
-			return [pnpmPrerequisite(deps)]
+		prerequisites(deps, app) {
+			return [packageManagerPrerequisite(deps, app)]
 		},
 
 		async build({ app, logs, signal, report, deps }) {
@@ -106,7 +107,7 @@ export function createMacosAdapter() {
 			}
 
 			await runToExit({
-				command: pnpmExec(['xplat', 'build', '--targets', 'macos']),
+				command: appExec(['xplat', 'build', '--targets', 'macos'], app),
 				cwd: app.root,
 				logs,
 				signal,
@@ -141,7 +142,7 @@ export function createMacosAdapter() {
 
 				command = { cmd: process.execPath, args: [devEntry, app.root] }
 			} else if (hasScript(app, 'dev')) {
-				command = { cmd: 'pnpm', args: ['run', 'dev'] }
+				command = appScript('dev', app)
 			} else {
 				throw contractError(
 					'prerequisite_missing',

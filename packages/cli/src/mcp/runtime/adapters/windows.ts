@@ -14,7 +14,7 @@ import {
 	NS_READY_MARKERS,
 	nsBuildCommand,
 	nsRunCommand,
-	pnpmPrerequisite,
+	packageManagerPrerequisite,
 	runToExit,
 	trackPhases,
 } from './shared.ts'
@@ -25,7 +25,7 @@ export function createWindowsAdapter() {
 
 		async describe(app, deps) {
 			const blocked = hostBlock('windows', deps.host)
-			const pnpm = pnpmPrerequisite(deps)
+			const pnpm = packageManagerPrerequisite(deps, app)
 			const ready = !blocked && pnpm.status === 'satisfied'
 			return [
 				{
@@ -75,14 +75,14 @@ export function createWindowsAdapter() {
 			}
 		},
 
-		prerequisites(deps) {
-			return [pnpmPrerequisite(deps)]
+		prerequisites(deps, app) {
+			return [packageManagerPrerequisite(deps, app)]
 		},
 
 		async build({ app, logs, signal, report, deps }) {
 			assertHost('windows', deps)
 			await runToExit({
-				command: nsBuildCommand('windows'),
+				command: nsBuildCommand('windows', app),
 				cwd: app.root,
 				logs,
 				signal,
@@ -100,8 +100,7 @@ export function createWindowsAdapter() {
 		async launch({ app, logs, signal, report, claim, deps }) {
 			assertHost('windows', deps)
 			const child = spawnManaged({
-				cmd: 'pnpm',
-				args: nsRunCommand('windows', null).args,
+				...nsRunCommand('windows', null, app),
 				cwd: app.root,
 				logBuffer: logs,
 				signal,

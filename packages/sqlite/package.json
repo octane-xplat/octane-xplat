@@ -31,7 +31,7 @@
 		"test:android-runtime": "node tests/android-runtime.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {

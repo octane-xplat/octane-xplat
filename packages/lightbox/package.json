@@ -45,7 +45,7 @@
 		"test": "vitest run",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"typegen": "tsrx-typegen --target lightbox",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:e2e": "node e2e/lightbox.mjs",
 		"test:native": "vitest run -c vitest.native.config.mts"

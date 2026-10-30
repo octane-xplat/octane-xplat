@@ -1,5 +1,5 @@
 {
-	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` generates the config package's patch files and the template config; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` \u2014 the root workspace yaml points here so commit writes land in this dir. Entries with `template: false` target repo-internal environments (e.g. the windows preview matrix) and are omitted from the starter's patchedDependencies \u2014 pnpm fails install on declared-but-unused patches.",
+	"$comment": "Canonical framework patches, shipped with the CLI and registered at the workspace root by xplat patches apply for Bun or pnpm. bun run sync:patches updates root Bun registrations, the patch package, and pnpm starter configuration; bun run check:patches rejects drift. Maintain patches with bun patch and bun patch --commit, retaining the canonical file path and updating why/dropWhen. bunSpecifiers names exact Bun source identities when tarball dependencies differ from pnpm version identities. repository: false retains a consumer patch without registering it in this repository. template: false excludes a patch from pnpm starter configuration.",
 	"patches": [
 		{
 			"specifier": "octane@0.16.3",
@@ -33,6 +33,7 @@
 		},
 		{
 			"specifier": "@nativescript-community/octane@0.2.4",
+			"repository": false,
 			"file": "@nativescript-community__octane@0.2.4.patch",
 			"upstreamPR": "https://github.com/nativescript-community/octane/pull/14",
 			"scope": "runtime",
@@ -57,6 +58,7 @@
 		},
 		{
 			"specifier": "@nativescript/vite@8.0.21",
+			"bunSpecifiers": ["@nativescript/vite@8.0.21", "@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298"],
 			"file": "@nativescript__vite@8.0.21.patch",
 			"scope": "dev",
 			"why": "Windows preview abae298 from NativeScript#11272 uses Vite 8.0.21. Retains /ns/m re-export records, outside-root /@fs routing through the device transform, and .mobile-aware tsconfig-paths probing. Vendor-manifest gating and percent-decoded module paths are now upstream and no longer patched. Carries the 8.0.20 vendor collector repair for Android linked-source consumers (#51): classify the selected native export, excluding source roots even when sibling exports are compiled and preserving compiled subpaths and native plugins.",
@@ -65,6 +67,7 @@
 		},
 		{
 			"specifier": "@nativescript/core@9.1.4-next.0",
+			"bunSpecifiers": ["@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298"],
 			"file": "@nativescript__core@9.1.4-next.0.patch",
 			"scope": "runtime",
 			"why": "Windows preview abae298 from NativeScript#11272 retains CSS @layer cascade machinery and explicit-size flex alignment, Windows pointer subscription and hover ownership, cancellation/capture-loss handling and gesture separation, parent-driven percentage sizing lifecycle and padded content-box updates, raw keyDown/keyUp subscription ownership, submit cancellation, and input focus/blur ownership, IsEnabled forwarding, accessible names, secure readonly, and literal non-CSS property values. Also moves _ensureNativeTransforms into a leaf module to break the view-common/animation import cycle that crashed ESM bundle evaluation at startup. The #11446 frame/tab fixes are now upstream and removed. Preserves upstream transparent-background hit testing and contact-only pointer moves. Registry core 9.1.4-next.0 has no Windows implementation; this patch targets the commit-pinned preview with that version. Uses the explicit NSWinRT.dotnet.invoke bridge for synchronous existence, recursive directory creation, and nontruncating OpenOrCreate file creation, preserving Core's System import shim. Existence projection failures are not treated as missing paths. Adds Windows single-contact pan with cumulative logical-DIP deltas, owned pointer capture, cancellation, and cleanup while retaining sibling touch delivery. Exposes the shared native event subscription registry through __xplatWindowsEvents so optional leaves reuse the host owner without deep-importing a second core module.",

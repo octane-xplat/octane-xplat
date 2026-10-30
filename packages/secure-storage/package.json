@@ -53,7 +53,7 @@
 		"test:macos": "node tests/macos.test.mjs",
 		"test:macos-runtime": "node tests/macos-runtime.mjs",
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:windows": "node tests/windows.test.mjs"
 	},

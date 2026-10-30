@@ -15,6 +15,22 @@ complements source editing; it is not an arbitrary shell/evaluation service or
 a deployment tool. Choose the commands needed for the task instead of running
 all discovery commands before every edit. Uppercase placeholders below must be replaced with exact returned values.
 
+`xplat patches` supports Bun and pnpm. It selects the workspace root and uses
+the declared `packageManager` before lockfile detection. Bun catalogs live in
+root `package.json`; Bun patches use top-level `patchedDependencies`. pnpm 11
+patches always use `pnpm-workspace.yaml`, including standalone apps. Require
+Bun >=1.4.4 for the complete framework patch set; 1.4.3 failed the NativeScript
+Vite patch. A retained binary `bun.lockb` needs conversion to `bun.lock` first.
+The [CLI patch guide](../../../../packages/cli/README.md#framework-patches)
+owns setup and recovery. `xplat dev` and `build`, including agent adapters,
+use the selected project's package manager.
+
+```sh
+xplat patches apply --package-manager bun
+bun install
+xplat patches check
+```
+
 ## Discover the installed contract
 
 Start with help when the command is known; use the catalog to discover command

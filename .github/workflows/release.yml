@@ -130,26 +130,28 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       # turbo so the declared workspace dep graph builds first — the docs
       # vite config imports @octane-xplat/cli/vite, which resolves to dist/.
       - name: Build docs site
-        run: pnpm exec turbo run build --filter=@xplat/docs
+        run: bun run turbo run build --filter=@xplat/docs
 
       - name: Deploy to Cloudflare Pages
-        run: pnpm --filter @xplat/docs exec wrangler pages deploy dist --project-name octane-xplat-docs --branch=main
+        run: bun run --cwd apps/docs wrangler pages deploy dist --project-name octane-xplat-docs --branch=main
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -195,10 +197,12 @@ jobs:
       - name: Setup pnpm
         if: steps.pending.outputs.state == 'unpublished'
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         if: steps.pending.outputs.state == 'unpublished'
         uses: actions/setup-node@v5
@@ -230,7 +234,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.pending.outputs.state == 'unpublished'
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Publish to npm
         if: steps.pending.outputs.state == 'unpublished'
@@ -288,10 +292,12 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -350,18 +356,19 @@ jobs:
 
       - name: Install dependencies
         if: steps.sync.outputs.skip != 'true'
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Bump version
         if: steps.version.outputs.should_release == 'true'
-        # npm --workspace requires npm workspaces; this is a pnpm workspace, so
-        # run inside the package dir instead.
+        # Update only the independent package manifest.
         working-directory: packages/tsrx-typegen
         run: npm pkg set version="${{ steps.version.outputs.version }}"
 
       - name: Prepare release notes
         if: steps.version.outputs.should_release == 'true'
-        run: node scripts/release-notes.ts prepare tsrx-typegen "${{ steps.version.outputs.version }}"
+        run: |
+          bun install --lockfile-only --ignore-scripts
+          node scripts/release-notes.ts prepare tsrx-typegen "${{ steps.version.outputs.version }}"
 
       # Checkout persists the RELEASE_TOKEN credential, so this push (which
       # also triggers CI and release-pr on the new main commit) needs no
@@ -372,7 +379,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- packages/tsrx-typegen/package.json CHANGELOG.md FIXLOG.md .changelog
+          git add -A -- bun.lock packages/tsrx-typegen/package.json CHANGELOG.md FIXLOG.md .changelog
           git commit -m "chore(release): tsrx-typegen ${{ steps.version.outputs.version }}"
           # Refuse a concurrent main update; never rebase generated log edits.
           git tag "${{ steps.version.outputs.tag }}"
@@ -495,10 +502,12 @@ jobs:
       - name: Setup pnpm
         if: steps.unpublished.outputs.exists != 'true'
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         if: steps.unpublished.outputs.exists != 'true'
         uses: actions/setup-node@v5
@@ -507,11 +516,11 @@ jobs:
 
       - name: Install dependencies
         if: steps.unpublished.outputs.exists != 'true'
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Check versioned patch artifact
         if: steps.unpublished.outputs.exists != 'true'
-        run: pnpm exec turbo run pack:check --filter=@octane-xplat/patches
+        run: bun run turbo run pack:check --filter=@octane-xplat/patches
 
       - name: Tag the release
         if: >-
@@ -647,10 +656,12 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -679,15 +690,17 @@ jobs:
           key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       # `g<sha>` keeps the prerelease identifier alphanumeric — a bare sha
       # prefix can be all digits with a leading zero, which is invalid semver.
       - name: Bump lockstep versions (nightly)
-        run: node scripts/bump-versions.ts "$VERSION"
+        run: |
+          node scripts/bump-versions.ts "$VERSION"
+          bun install --lockfile-only --ignore-scripts
 
       - name: Check nightly patch artifact
-        run: pnpm exec turbo run pack:check --filter=@octane-xplat/patches
+        run: bun run turbo run pack:check --filter=@octane-xplat/patches
 
       - name: Publish nightly to npm
         run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance --tag nightly

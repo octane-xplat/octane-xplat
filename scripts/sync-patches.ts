@@ -2,7 +2,7 @@
 // Propagates the canonical framework patch set —
 // packages/cli/patches/manifest.json + *.patch — to every consumer:
 //
-//   1. root pnpm-workspace.yaml        patchedDependencies points at
+//   1. root package.json             patchedDependencies points at
 //                                      packages/cli/patches/ directly — no
 //                                      second copy lives at the repo root.
 //   2. packages/patches/               generated package files, consumed by
@@ -10,14 +10,14 @@
 //   3. packages/create/template/       configDependencies + patchedDependencies
 //                                      point into node_modules/.pnpm-config.
 //
-// `pnpm sync:patches` rewrites these outputs. `pnpm check:patches` diffs and
+// `bun run sync:patches` rewrites these outputs. `bun run check:patches` diffs and
 // exits 1 on drift.
 // --package-only prepares packages/patches without editing workspace YAML
 // or starter files; the patch package's prepack hook uses this scope.
 //
-// Maintainer flow: `pnpm patch <pkg@version>` → edit → `pnpm patch-commit`
-// writes back to the configured path (packages/cli/patches/), then
-// `pnpm sync:patches` + update manifest.json why/dropWhen.
+// Maintainer flow: `bun patch <pkg@version>` → edit → `bun patch --commit`.
+// Retain the canonical path in packages/cli/patches/ and the manifest, then
+// `bun run sync:patches` + update manifest.json why/dropWhen.
 
 import {
 	copyFileSync,
@@ -114,9 +114,6 @@ const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
 	return String(doc)
 }
 
-const ROOT_HEADER =
-	'Canonical copies live in packages/cli/patches/ — manifest.json there carries why/dropWhen per entry and feeds `xplat patches apply`. Regenerate a patch with `pnpm patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches` propagates it to @octane-xplat/patches. `pnpm check:patches` fails on drift.'
-
 const TEMPLATE_HEADER =
 	'Framework patches are supplied by the @octane-xplat/patches config dependency and applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.'
 
@@ -187,7 +184,28 @@ const removeTemplatePatchCopies = (failures) => {
 
 const failures = []
 if (!PACKAGE_ONLY) {
-	syncYaml(join(repo, 'pnpm-workspace.yaml'), 'packages/cli/patches', ROOT_HEADER, failures)
+	const file = join(repo, 'package.json')
+	const before = readFileSync(file, 'utf8')
+	const pkg = JSON.parse(before)
+	pkg.patchedDependencies = Object.fromEntries(
+		manifest
+			.filter((patch) => patch.repository !== false)
+			.flatMap((patch) =>
+				(patch.bunSpecifiers ?? [patch.specifier]).map((specifier) => [
+					specifier,
+					`packages/cli/patches/${patch.file}`,
+				]),
+			),
+	)
+
+	const after = JSON.stringify(pkg, null, '\t') + '\n'
+	if (before !== after) {
+		failures.push('package.json — Bun patchedDependencies are stale')
+		if (!CHECK) {
+			writeFileSync(file, after)
+		}
+	}
+
 	syncYaml(
 		join(TEMPLATE, 'pnpm-workspace.yaml'),
 		`${PATCH_CONFIG_PATH}/patches`,
@@ -217,7 +235,7 @@ if (failures.length) {
 	}
 
 	if (CHECK) {
-		console.error('\nrun `pnpm sync:patches` to regenerate')
+		console.error('\nrun `bun run sync:patches` to regenerate')
 		process.exit(1)
 	}
 } else {

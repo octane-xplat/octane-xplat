@@ -48,7 +48,7 @@
 	},
 	"scripts": {
 		"test:packed": "node tests/packed-consumer.mjs",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"test": "node --experimental-strip-types --test tests/*.test.ts",
 		"test:macos": "node tests/verify-macos.mjs",
 		"typegen": "tsrx-typegen --project tsconfig.types.json",

@@ -4,8 +4,14 @@ import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import * as p from '@clack/prompts'
 import { applyPatches, inspectPatches, patchStateDetail } from '../patches.ts'
+import { packageManagerFor } from '../package-manager.ts'
 
 const dirArg = {
+	packageManager: option({
+		type: optional(string),
+		long: 'package-manager',
+		description: 'bun or pnpm (default: detect from project metadata)',
+	}),
 	dir: option({
 		type: optional(string),
 		long: 'dir',
@@ -15,7 +21,7 @@ const dirArg = {
 
 const apply = command({
 	name: 'apply',
-	description: 'Copy the framework patch set into this app and register it in pnpm-workspace.yaml',
+	description: 'Copy and register framework patches for this Bun or pnpm project',
 	args: {
 		...dirArg,
 		force: flag({
@@ -23,7 +29,7 @@ const apply = command({
 			description: 'overwrite patch files and config entries that differ from the framework copies',
 		}),
 	},
-	handler: async ({ dir, force }) => {
+	handler: async ({ dir, force, packageManager }) => {
 		const appDir = resolve(dir ?? '.')
 		p.intro('xplat patches apply')
 		if (!existsSync(join(appDir, 'package.json'))) {
@@ -32,7 +38,7 @@ const apply = command({
 			return
 		}
 
-		const report = applyPatches(appDir, { force })
+		const report = applyPatches(appDir, { force, packageManager })
 		if (report.error) {
 			p.cancel(report.error)
 			process.exitCode = 1
@@ -59,7 +65,7 @@ const apply = command({
 			p.outro('conflicts above — rerun with --force to take the framework copies')
 			process.exitCode = 1
 		} else if (report.copied.length) {
-			p.outro('run `pnpm install` to apply')
+			p.outro(`run \`${packageManagerFor(appDir, packageManager)} install\` to apply`)
 		} else {
 			p.outro('patch set already applied')
 		}
@@ -71,7 +77,7 @@ const check = command({
 	description:
 		'Verify this app has the framework patch set registered, applied, and identical to the shipped copies',
 	args: { ...dirArg },
-	handler: async ({ dir }) => {
+	handler: async ({ dir, packageManager }) => {
 		const appDir = resolve(dir ?? '.')
 		p.intro('xplat patches check')
 		if (!existsSync(join(appDir, 'package.json'))) {
@@ -81,7 +87,7 @@ const check = command({
 		}
 
 		let bad = 0
-		for (const row of inspectPatches(appDir)) {
+		for (const row of inspectPatches(appDir, { packageManager })) {
 			if (row.state === 'not-declared' || row.state === 'not-applicable') {
 				continue
 			}
@@ -91,7 +97,9 @@ const check = command({
 			} else {
 				bad++
 				const hint =
-					row.state === 'not-installed' ? 'run `pnpm install`' : 'run `xplat patches apply`'
+					row.state === 'not-installed'
+						? `run \`${packageManagerFor(appDir, packageManager)} install\``
+						: 'run `xplat patches apply`'
 
 				p.log.warn(`${row.specifier} — ${patchStateDetail(row.state)} (${hint})`)
 			}
@@ -107,6 +115,6 @@ const check = command({
 
 export const patches = subcommands({
 	name: 'patches',
-	description: 'Manage the framework patch set (pnpm patchedDependencies)',
+	description: 'Manage the framework patch set (Bun and pnpm patchedDependencies)',
 	cmds: { apply, check },
 })

@@ -34,7 +34,9 @@ Keep the supplied catalog and managed patches together. The compatibility
 manifest, installed package versions, and doctor/upgrade output own the current
 version set; exact pins copied into prose go stale. Within this repository,
 workspace dependencies use `"workspace:*"` and packages declare every import.
-The npm CLI runs under Bun >=1.4.3; standalone executables embed it.
+The npm CLI runs under Bun; standalone executables embed it. Repository
+installs require Bun 1.4.4. Consumer starters retain pnpm, while `xplat patches`
+and development/build commands select either Bun or pnpm from the project.
 Other Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
 consumer bundlers still compile framework runtime source.
 

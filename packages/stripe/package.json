@@ -43,7 +43,7 @@
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {

@@ -5,7 +5,7 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
 ## CLI runtime and executable packaging
 
-`xplat` uses Bun >=1.4.3. Keep pnpm for dependency management and Turbo tasks;
+`xplat` uses Bun. Repository installs and script dispatch use Bun 1.4.4;
 Node remains required by app and repository tooling. Vite/MCP subpath exports
 retain per-module ESM for Node consumers.
 
@@ -86,42 +86,50 @@ imports `fast-glob` from `lib/services/ios-project-service.js` and `glob` from
 its published dependencies. With the isolated linker, the Windows build exits
 with `Cannot find module 'fast-glob'` or `'glob'` before
 compilation.
-The exact-version `packageExtensions` entry in `pnpm-workspace.yaml` supplies
+The exact-version `packageExtensions` entry in `package.json` supplies
 `fast-glob@3.3.3` and `glob@10.5.0`; it does not change other NativeScript
 versions. The package import audit found these two omissions; `ns --version`
 then passed on windy. This establishes CLI startup, not app runtime behavior.
 Remove the extension when a replacement CLI declares the import itself.
 
-```yaml
-packageExtensions:
-  'nativescript@9.1.2-dev.2026-09-24-36031892256':
-    dependencies:
-      fast-glob: 3.3.3
-      glob: 10.5.0
+```json
+{
+  "packageExtensions": {
+    "nativescript@9.1.2-dev.2026-09-24-36031892256": {
+      "dependencies": { "fast-glob": "3.3.3", "glob": "10.5.0" }
+    }
+  }
+}
 ```
+
+`@nativescript/firebase-analytics@5.0.2` requires `@nativescript/hook` in
+its postinstall but omits the dependency. A fresh Bun 1.4.4 isolated install
+failed with `Cannot find module '@nativescript/hook'` from that hook. Root
+`packageExtensions` adds `@nativescript/hook@3.0.5` for this exact plugin
+version. The subsequent install completed its allowed hooks and generated the
+workspace declarations/app files. Remove the extension when the plugin declares
+its hook dependency. This establishes host installation only.
 
 Sentry CLI 3.8.2 resolves its binary from the matching optional platform package
 at runtime. Its [install script](https://github.com/getsentry/sentry-cli/blob/3.8.2/scripts/install.js)
 exits when that package is present and otherwise downloads a fallback from its
-CDN. The repository sets `allowBuilds['@sentry/cli']` to `false` to skip that
-fallback. Keep optional dependencies enabled. Recheck the policy when updating
+CDN. The repository omits `@sentry/cli` from Bun's explicit `trustedDependencies`
+to skip that fallback. Keep optional dependencies enabled. Recheck the policy when updating
 Sentry's binary-distribution mechanism. The installed macOS platform binary
 reports `sentry-cli 3.8.2` without running the install script.
 
-```yaml
-allowBuilds:
-  '@sentry/cli': false
-```
+The root manifest owns the allowlist; do not trust this install script merely
+to silence a blocked-script notice.
 
 Drive-by improvements to `packages/lint/` are allowed when they improve the
 experience of agents writing Octane-xplat code effectively.
 
 - **Typegen emits declarations per file and does not type-check.** `tsrx-typegen` transpiles each source's declarations with `isolatedDeclarations` and no TypeScript program, so every exported function, method and variable needs an explicit type. In this repository, native tsrx components use `): unknown @{` and DOM components use `): JSX.Element @{` with `import type { JSX } from 'octane/jsx-runtime'`. Type errors surface only in `typecheck` tasks. `ui` and `lottie` keep `isolatedDeclarations` off their tsconfigs because their vendored submodule sources cannot carry annotations. Those files' declarations come from `types/overrides/` through `tsrx-typegen.json` overrides; update them by hand when the vendored submodule changes. Leaf packages generate their declarations with `tsrx-typegen` into `types/generated/` and must not commit hand-written declaration facades under `types/`; signatures the emitter cannot express go in `types/overrides/`.
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
-  `turbo.json` at the root). `pnpm typegen`, `pnpm typecheck`, the
+  `turbo.json` at the root). `bun run typegen`, `bun run typecheck`, the
   `typecheck:{web,mobile,macos,linux,windows,docs}` filters,
-  `pnpm build:packages`, `pnpm build:web`, `pnpm build:docs`, `pnpm check:pack`,
-  `pnpm test:packed`, and the package-test half of `pnpm test`
+  `bun run build:packages`, `bun run build:web`, `bun run build:docs`, `bun run check:pack`,
+  `bun run test:packed`, and the package-test half of `bun run test`
   delegate to `turbo run`. Results cache locally under `.turbo/` (gitignored —
   shared across worktrees of this clone): unchanged tasks reuse cached results,
   and touching a leaf package invalidates its tasks and dependents.
@@ -137,9 +145,9 @@ experience of agents writing Octane-xplat code effectively.
   `test:macos-runtime`, and `apps/linux`'s `build` are `cache: false` — their
   side effects land outside declared `outputs`. `lint` stays a single
   repo-wide pass; `turbo run lint` works via the `//#lint` root task but is
-  uncached for the same reason. `pnpm typecheck` runs every declared workspace
-  `typecheck`, including package-specific checks. `pnpm typecheck:apps` keeps
-  the narrower harness-only scope; `pnpm typecheck:scripts` checks repository
+  uncached for the same reason. `bun run typecheck` runs every declared workspace
+  `typecheck`, including package-specific checks. `bun run typecheck:apps` keeps
+  the narrower harness-only scope; `bun run typecheck:scripts` checks repository
   tooling separately. Use a touched-package/dependents filter for focused work.
 - **Package typechecks use one `tsconfig.envs.json` per package** — never
   `tsconfig.<platform>.json`. The manifest declares the checked surface once
@@ -172,27 +180,40 @@ experience of agents writing Octane-xplat code effectively.
   typecheck gate and assess actual mobile diagnostics separately. Source:
   [upstream checker at the 8.0.20 publish commit](https://github.com/NativeScript/NativeScript/blob/1fe745085ed609783355c51488ddc236aef0c0e1/packages/vite/helpers/typescript-check.ts).
   Recheck when upstream filters desktop roots or supports their resolver context.
-- **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
-  `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
-  Consequence: every package must declare what it imports (no transitive-dep
-  leakage). Apps declare the `@nativescript/*` plugins they import directly;
-  plugins that a leaf package owns (e.g. `@octane-xplat/gif`'s
-  `ui-image`) travel as that package's real `dependency` — `ns prepare` BFSes
-  transitive deps, and a patched `/ns/m` routing serves them per-module in dev
-  (decision #51).
-  `minimumReleaseAgeExclude` covers the octane packages — they're newer than
-  the supply-chain cutoff.
-  Versions that must stay aligned across packages live once in the yaml's
-  `catalog:` (runtime singletons: `octane`, `@nativescript-community/octane`,
-  `@nativescript/core`/`types*`; toolchain: `typescript`, `vite`, `vitest`,
-  `@octanejs/vite-plugin`, `@tsrx/typescript-plugin`) — dep fields read them
-  via `"catalog:"`. `vitest` stays on 4 repo-wide: `platform` peers pin
-  `vitest <5` for `@nativescript/unit-test-runner` and `visual`'s
-  `@vitest/browser` family must match. Peers keep ranges since consumers
-  supply the version. A second
-  copy of the community renderer breaks type-level augmentations — e.g.
-  `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
-  resolves.
+- **Bun owns repository installation.** `package.json.workspaces` owns the
+  workspace list and catalogs; `bun.lock` owns resolved versions. Keep
+  `catalog:` references in member manifests. `bunfig.toml` selects the
+  isolated linker, and root `trustedDependencies` permits only the intended
+  install hooks. Explicit root `tslib` replaces the former public hoist.
+  Every workspace must still declare what it imports. pnpm remains installed
+  for packed-consumer qualification and provenance publishing; the generated
+  `pnpm-workspace.yaml` mirrors only package lists/catalogs for those commands.
+  Run `bun run sync:workspace` after changing workspace patterns/catalogs;
+  `bun run check:workspace` rejects drift. Do not use pnpm to install this repo.
+- **Keep patch source identities exact.** Bun keys tarball patches by URL,
+  while pnpm keys the Windows previews by the package version. The canonical
+  manifest's `bunSpecifiers` records the verified URL identities; it does not
+  change patch bytes. `bun run sync:patches` updates root Bun registrations,
+  the patch package, and the pnpm starter configurations. `xplat patches`
+  accepts either manager and checks its own selected lockfile/configuration.
+  pnpm 11 ignores `package.json.pnpm`, so standalone applications also need
+  a `pnpm-workspace.yaml`; do not restore the old JSON fallback.
+- **Bun 1.4.4 is the install minimum.** On macOS arm64, 1.4.3 failed the
+  canonical `@nativescript/vite@8.0.21` patch with `EINVAL (fstatat)` in both
+  an isolated dependency and the full workspace. The identical patch applied
+  with 1.4.4. Retain the patch; retest before lowering this requirement.
+  This is host installation evidence, not native/device qualification. After failed 1.4.3 attempts, a
+  cached patched Vite 8.0.20 artifact that Node rejected with `Illegal return
+  statement`; the same patch installed with 1.4.4 and a separate cold cache
+  parsed correctly and passed the native-Vite regressions. If an earlier
+  attempt left corrupt cached output, reinstall with `bun install --force
+  --cache-dir <temporary-cache>` rather than changing the canonical patch.
+
+- **Publishing remains pnpm-backed.** Bun 1.4.4's packer preserved
+  `publishConfig.exports` instead of remapping the creator's published
+  exports. Bun also rejects requested provenance rather than generating it.
+  Keep the existing pnpm OIDC publication path and its generated workspace
+  metadata. See [Bun publishing](https://bun.com/docs/pm/cli/publish).
 - Keep the CLI's public Vite declarations independent of its PostCSS
   implementation. With TypeScript 5.9.3, CLI PostCSS 8.5.28 and Vite 8.3.0
   resolving PostCSS 8.5.31, re-exporting `xplatCss` from `css-platform.ts`
@@ -433,28 +454,16 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   installs. pnpm 12 re-resolves and is unaffected. `xplat-lint` resolves
   its owned `oxlint` dependency, so invoking `bin/lint.mjs` with `node`
   directly no longer needs `.bin` on PATH.
-- The framework patch set lives canonically in `packages/cli/patches/`
-  (`manifest.json` carries specifier/scope/why/dropWhen per patch) and ships
-  inside `@octane-xplat/cli`. Existing apps materialize it with
-  `xplat patches apply` (copies files into `<app>/patches/` + merges the yaml
-  block; `--force` takes the framework copy over a divergent one) and verify
-  with `xplat patches check` / `xplat doctor`. Fresh create templates instead
-  declare `@octane-xplat/patches` as a pnpm `configDependencies` package and
-  point patched files into `node_modules/.pnpm-config/`, so the first install
-  has the patches without template copies. The root `pnpm-workspace.yaml`
-  references `packages/cli/patches/` directly. `pnpm sync:patches` regenerates
-  root and both starter yaml blocks and the config package files from the manifest —
-  `pnpm check:patches` fails on drift. Regenerate a patch via
-  `pnpm patch`/`pnpm patch-commit` (writes to the configured path, i.e. the
-  canonical dir), then sync + update the manifest entry. Each patch is pinned
-  to an exact version; remove it when upstream ships its fix. esbuild is
-  pinned to 0.27.7 — vite 8's peer range admits 0.28.x and the vendor bundler
-  dies on the host/binary mismatch.
-  The patch package's `prepack` uses `sync-patches.ts --package-only`: it
-  refreshes only its own generated patch files. Root and starter YAML changes
-  belong to the explicit `pnpm sync:patches` command.
+- Canonical framework patch files live in `packages/cli/patches/` and ship
+  with the CLI. Root Bun registration and consumer pnpm configuration are
+  synchronized from that manifest; see the package-manager contract above and
+  [the patch workflow](../../packages/cli/README.md#framework-patches).
+  The patch package's prepack uses `sync-patches.ts --package-only`, refreshing
+  only its generated files. Root configuration and starter changes belong to
+  the explicit `bun run sync:patches` command. Remove a patch when upstream
+  ships the fix, preserving exact source/version identity until then.
 - To develop against a local checkout of the `octane-xplat/nativescript-mason`
-  fork, see [links/README.md](../../links/README.md) (`pnpm dev:masonkit`
+  fork, see [links/README.md](../../links/README.md) (`bun run dev:masonkit`
   links the built dist package without touching the lockfile).
 - `packages/*/src/vendor/*` dirs are **git submodules** of forks in the
   `octane-xplat` org, each pinned to a `xplat-vendored` branch

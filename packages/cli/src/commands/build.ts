@@ -1,4 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+import { packageManagerExec } from '../package-manager.ts'
 import { command, flag, option, optional, string } from '@alloc/cmd-ts'
 import * as p from '@clack/prompts'
 import { buildTargets } from '../targets.ts'
@@ -91,7 +92,8 @@ export const build = command({
 							? ['exec', 'vite', 'build']
 							: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
 
-					await runTagged(t.kind, 'pnpm', argv, cwd)
+					const command = packageManagerExec(cwd, argv.slice(1))
+					await runTagged(t.kind, command.cmd, command.args, cwd)
 				}
 			} catch (e) {
 				p.log.error(String(e))
