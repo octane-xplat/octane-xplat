@@ -53,6 +53,7 @@ downgrading to the registry's older `latest` tag.
 Drive-by improvements to `packages/lint/` are allowed when they improve the
 experience of agents writing Octane-xplat code effectively.
 
+- **Typegen emits declarations per file and does not type-check.** `tsrx-typegen` transpiles each source's declarations with `isolatedDeclarations` and no TypeScript program, so every exported function, method and variable needs an explicit type. In this repository, native tsrx components use `): unknown @{` and DOM components use `): JSX.Element @{` with `import type { JSX } from 'octane/jsx-runtime'`. Type errors surface only in `typecheck` tasks. `ui` and `lottie` keep `isolatedDeclarations` off their tsconfigs because their vendored submodule sources cannot carry annotations. Those files' declarations come from `types/overrides/` through `tsrx-typegen.json` overrides; update them by hand when the vendored submodule changes.
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
   `turbo.json` at the root). `pnpm typegen`, `pnpm typecheck`, the
   `typecheck:{web,mobile,macos,linux,windows,docs}` filters,

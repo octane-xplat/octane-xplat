@@ -125,6 +125,7 @@ ignored declarations before linked consumers check types. A link may resolve
 a second physical Octane copy even at the same version; qualify resolution
 through the app and finish with a real tarball. Do not treat plain TypeScript
 type acceptance as source compilation or native runtime qualification.
+tsrx-typegen needs an explicit type on every export (for example `): JSX.Element`); it neither infers across files nor type-checks, so keep `typecheck` in the loop.
 
 ```sh
 pnpm create octane-xplat travel-controls --template library --name @acme/travel-controls
