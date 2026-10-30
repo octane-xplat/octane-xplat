@@ -226,6 +226,12 @@ export function updateImage(view: NSImageView, source: unknown, placeholder?: un
 	else release()
 }
 
+/** Shared decoded-image request for non-view consumers (background url()
+ *  layers). Delivers the NSImage or null; the release cancels. */
+export function requestImage(source: string, deliver: (image: NSImage | null) => void): () => void {
+	return imageRequests.subscribe(source, (loaded) => deliver(loaded?.image ?? null))
+}
+
 /** Invalidates any in-flight decode for `view`; call when its node is destroyed. */
 export function disposeImage(view: NSImageView) {
 	const request = requests.get(view)
