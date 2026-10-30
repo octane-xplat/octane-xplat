@@ -3672,3 +3672,38 @@ Windy answers a Tailscale transport ping, while SSH port 22 times out over both
 tailnet and direct LAN routes. Restoring SSH access is required for the pending
 Windows run; no component's qualification state has advanced from this local
 preparation.
+
+### Command channel and bounded UIA reader confirmed
+
+SSH access recovered. Diagnostic MSIX **1.0.0.74** was subsequently packaged,
+but its first UIA read timed out before a capture or command acknowledgement.
+The owned app was stopped. That timeout's cause remains unproven.
+
+Diagnostic MSIX **1.0.0.75**, based on the earlier combined harness with the
+Windows-separator correction and one-shot read checkpoints, passed **14/14
+host-prerequisite assertions**. Revision command launch `mvv64oos` and snapshot
+launch `mvv67tjv` each acknowledged their command exactly once; the snapshot
+contained 24 native nodes. `File.exists`, `File.fromPath` and `File.readText`
+completed for the corrected path. This does not establish an upstream file
+API defect as the cause of the earlier failure.
+
+The maintained UIA reader captured 21 nodes at launch `mvv6utbh`, verified the
+window and UIA root belonged to the owned app, and exited 0. The loaded,
+package-owned Mason DLL matched published beta.129. Separate diagnostic MTA
+and STA readers both captured 21 nodes, so the earlier timeout cannot be
+attributed to STA from this evidence. The maintained driver now bounds each
+UIA read in a child process, allowing its caller to retain the failure and
+stop the app if a read hangs.
+
+Raw logs, exact scripts, signed MSIX and the assertion summary are retained
+outside disposable scratch in `research/windows61/core20-channel75/`.
+`scenario:windows-core20-harness` remains **running** in Silo: fixture
+selection, updates, remount and resize still need the full driver run against
+the latest isolated host. No component qualification row advanced. The exact
+maintained shrink fixture is absent from this older diagnostic package.
+
+Task artifacts now follow [the shared-host convention](../host-artifacts.md).
+The earlier disk-full condition was relieved by removing owned intermediates
+and obsolete dependency trees. Shared-cache pruning was intentionally stopped
+after sufficient space returned; it did not complete. Dirty source checkouts,
+signing material and retained evidence were preserved.
