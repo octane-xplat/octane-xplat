@@ -1,0 +1,11 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// tsconfig.envs.json's native env includes this package's own
+		// types/generated — typecheck must order after own typegen, not just ^typegen.
+		"typecheck": {
+			"dependsOn": ["typegen", "^typegen"]
+		}
+	}
+}
