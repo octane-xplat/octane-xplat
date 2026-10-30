@@ -13,6 +13,7 @@
 			"cache": false
 		},
 		"build:windows": {
+			"env": ["XPLAT_WINDOWS_QUALIFICATION"],
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
 			// NativeScript's startup checks read the Windows shared-program paths.
 			// PROCESSOR_ARCHITECTURE selects the Microsoft.Windows.SDK.BuildTools

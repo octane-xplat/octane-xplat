@@ -697,6 +697,9 @@ importers:
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../../packages/jsx
       '@octane-xplat/macos-renderer':
         specifier: workspace:*
         version: link:../../packages/macos-renderer

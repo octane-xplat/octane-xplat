@@ -45,6 +45,7 @@
 		"@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@abae298",
 		"@nativescript/windows": "0.1.0-alpha.144",
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"nativescript": "9.1.2-dev.2026-09-24-36031892256",

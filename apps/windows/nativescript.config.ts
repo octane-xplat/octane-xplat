@@ -1,7 +1,10 @@
 import { NativeScriptConfig } from '@nativescript/core'
 
 export default {
-	id: 'org.nativescript.xplat',
+	id:
+		process.env.XPLAT_WINDOWS_QUALIFICATION === '1'
+			? 'org.octanexplat.windows61'
+			: 'org.nativescript.xplat',
 	appPath: 'src',
 	appResourcesPath: 'App_Resources',
 	// The workspace is pnpm-managed — without this the CLI defaults to npm
