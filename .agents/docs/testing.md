@@ -13,7 +13,8 @@ to answer one question. Windows is excluded from this runner.
 
 On shared test hosts, follow the [temporary-file convention](host-artifacts.md):
 one disposable scratch tree per task, with implementation work and retained
-evidence outside it.
+evidence outside it. Reuse the host's persistent repository checkout between
+runs; a new run folder does not require another clone or dependency tree.
 
 ## AppKit component tests
 

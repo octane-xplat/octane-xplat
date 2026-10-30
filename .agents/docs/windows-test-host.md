@@ -37,11 +37,14 @@ dotnet --version
 
 ## Get the workspace onto the VM
 
-Clone the repository on Windows, or copy it from your development machine using
-your preferred secure file transfer.
+Reuse the host's existing repository checkout. On Windy, the preferred location
+is `%USERPROFILE%\dev\octane-xplat`. Clone or copy the repository only when no
+suitable checkout exists; do not create a clone for each verification run.
+Inspect local changes and reserve the host before changing commits or running
+tools against a shared checkout. Preserve another task's work.
 
 Use the [shared-host scratch convention](host-artifacts.md) for agent uploads,
-temporary build clones, packages and logs. On windy, keep them together under
+packages and logs. On Windy, keep them together under
 `%USERPROFILE%\agent-scratch\octane-xplat\<task>\`; preserve authoritative source
 and retained evidence outside that disposable tree.
 

@@ -6,6 +6,26 @@ disposable: a human may delete a run, a task folder, or the whole tree. Deleting
 an active run may interrupt it and require regeneration; it must not lose
 implementation work or retained evidence.
 
+## Reuse the host's source checkout
+
+Prefer one persistent repository clone per host, outside scratch. On Windy,
+use `%USERPROFILE%\dev\octane-xplat` when it is available and safe to reuse.
+Keep the repository and its dependency tree between runs; create a new scratch
+run folder for scripts, packages and logs, rather than another source clone.
+
+Reserve the host before changing its checkout or running tools against it.
+Inspect its commit, local changes and running processes first. Preserve local
+work and coordinate with its owner before changing that source. Reuse the
+current checkout for retries of the same build. Additional worktrees or source
+copies need a concrete isolation or concurrency requirement; remove their
+generated dependency trees and build outputs when they are no longer needed.
+
+A fresh-install check can reuse the same clean checkout: select the required
+commit and regenerate its disposable dependency tree with a frozen lockfile.
+It does not require a new clone. Retain the commands and source identity, and
+verify cleanliness before claiming clean-source evidence. Review older
+checkouts before consolidation; a dirty checkout is not disposable.
+
 ## Choose a task and run folder
 
 Use a readable task name plus its unique ID, then a dated folder for each run.
@@ -50,8 +70,9 @@ the home directory, or a system temporary directory.
 - Keep authoritative source workspaces and registered Git worktrees outside
   scratch. A disposable build clone or source copy may live inside it only
   when implementation changes already exist in an authoritative workspace or
-  commit elsewhere. Prefer an independent clone or archive; deleting scratch
-  must not leave an external Git worktree registration behind.
+  commit elsewhere and a separate copy is necessary. If isolation requires a
+  disposable source copy, use an independent clone or archive; deleting
+  scratch must not leave an external Git worktree registration behind.
 - One-off diagnostic scripts and probes may be disposable. Promote anything
   that must survive into the repository before relying on it.
 - Copy evidence worth retaining outside scratch before citing it in an issue,
