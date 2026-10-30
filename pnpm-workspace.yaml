@@ -10,6 +10,12 @@ nodeLinker: isolated
 # @nativescript/core imports tslib at runtime; keep it reachable.
 publicHoistPattern:
   - tslib
+# This Windows CLI build imports fast-glob from its iOS service at startup,
+# but omits the dependency from its published manifest.
+packageExtensions:
+  'nativescript@9.1.2-dev.2026-09-24-36031892256':
+    dependencies:
+      fast-glob: 3.3.3
 # Versions that must stay aligned across official packages: runtime
 # singletons (octane, @nativescript/* — one copy per app), the shared
 # toolchain, and the patched native renderer whose type-level augmentations

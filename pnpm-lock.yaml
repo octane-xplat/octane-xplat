@@ -108,6 +108,8 @@ overrides:
   '@tiptap/extension-underline': 3.32.0
   sameframe>playwright: 1.63.0
 
+packageExtensionsChecksum: sha256-uov/DVDvhKUC47VRuOKasAz2V4XwbkrrmvgDwCf8KRY=
+
 patchedDependencies:
   '@nativescript-community/octane@0.2.4': 08c8bb6f79fe9cff7bc2cdfd5accfc02011475a206eb94a45425e1f02ac53961
   '@nativescript-community/octane@0.2.5': 4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c
@@ -878,7 +880,7 @@ importers:
     devDependencies:
       '@nativescript-community/vite-octane':
         specifier: 'catalog:'
-        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(dacf108fb91221f993cec80b3d235d8f)
+        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(cc7fef5dda8f9bfede6ace649cb04566)
       '@nativescript/types':
         specifier: 'catalog:'
         version: 9.1.4
@@ -1074,6 +1076,9 @@ importers:
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
   packages/audio:
     dependencies:
@@ -14685,7 +14690,7 @@ snapshots:
       - '@nativescript/core'
       - octane
 
-  '@nativescript-community/vite-octane@0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(dacf108fb91221f993cec80b3d235d8f)':
+  '@nativescript-community/vite-octane@0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(cc7fef5dda8f9bfede6ace649cb04566)':
     dependencies:
       '@nativescript-community/octane': 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/vite': https://pkg.pr.new/@nativescript/vite@abae298(patch_hash=d6580a37f1041a153ab0c5043911dcb95fb385f87bd1f404583d399b4d0167ac)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
@@ -18728,6 +18733,7 @@ snapshots:
       convert-source-map: 2.0.0
       detect-newline: 3.1.0
       email-validator: 2.0.4
+      fast-glob: 3.3.3
       font-finder: 1.1.0
       ios-device-lib: 0.9.6
       ios-mobileprovision-finder: 1.2.1

@@ -38,7 +38,8 @@
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/macos-renderer": "workspace:*",
-		"octane": "catalog:"
+		"octane": "catalog:",
+		"vite": "catalog:"
 	},
 	"peerDependencies": {
 		"octane": ">=0.6.3 <1"
