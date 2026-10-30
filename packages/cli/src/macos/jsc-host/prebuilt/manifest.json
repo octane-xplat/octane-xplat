@@ -13,7 +13,7 @@
     "macos/host": "1ce7515fe324b9e9f5ca4b9655b4c4dd692576a8f223a31a5aad0ba0e9b48b49",
     "macos/metadata.macos.arm64.nsmd": "6d5641156e38c2768a50b08180aa4f005d5be1eb4f24998b106d720fe78b7ef7",
     "macos/NativeScript.framework/Versions/A/NativeScript": "5cc3fe05a1f6a60decfeb32a1da238797bcbda389366ad78b4b8a7e0c77d3b3a",
-    "macos/objc-metadata-generator": "f9bb5f176feec1b4cd2e1c62c8fa8fd58f44804e3f1706b8c3d50408432b8afe",
+    "macos/objc-metadata-generator": "87f9f42ca3fd4100bfc23c2af73640dea1a7d35b77c8dce67d61725115b73790",
     "macos/metadata.macos.x86_64.nsmd": "50d22c261cd4f318fd8397a76c43784a474fc08a5d3554271b6a2e3b793a66e8"
   },
   "metadataGenerator": {
@@ -23,7 +23,11 @@
       "patches/nativescript-runtimes.patch",
       "patches/metadata-leaves.patch"
     ],
-    "libclang": "Command Line Tools libclang (checked by --xplat-check)"
+    "libclang": "Command Line Tools libclang (checked by --xplat-check)",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ]
   },
   "architectures": [
     "arm64",

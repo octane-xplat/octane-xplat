@@ -416,7 +416,8 @@ The CLI can also run the in-repository experimental macOS AppKit Node-API app
 with `pnpm xplat dev macos` and package it with
 `pnpm xplat build --targets macos`. Packaged apps are universal: one `.app`
 runs on Apple Silicon and Intel Macs. You can package on either kind of Mac,
-but apps with native leaves need an Apple Silicon build Mac. This target is
+and apps with native leaves build on either kind too — the metadata generator
+loads the Command Line Tools `libclang` for the build host's architecture. This target is
 not part of the scaffolded starter. See the
 [target guide](spec.md#choose-your-targets) for release support boundaries.
 `xplat.targets.macos.package` in the app manifest supplies the app name, bundle identifier, executable name, version, minimum macOS version, Vite

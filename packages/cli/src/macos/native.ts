@@ -505,9 +505,9 @@ export async function inspectMacOSNative(appRoot) {
 		return { ...graph, toolchain: null }
 	}
 
-	if (process.platform !== 'darwin' || process.arch !== 'arm64') {
+	if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
 		throw new Error(
-			'[macos-native] Native leaves require an Apple Silicon build Mac: the metadata generator needs an arm64-only libclang',
+			'[macos-native] Native leaves require a Mac running macOS arm64 or x86_64: the metadata generator loads the Command Line Tools libclang for the build host architecture',
 		)
 	}
 

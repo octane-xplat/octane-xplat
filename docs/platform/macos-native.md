@@ -21,9 +21,8 @@ native source compilation does not expand its UI or service support.
 
 ## Prepare the app
 
-Build on an Apple Silicon Mac, because the metadata generator loads an
-arm64-only `libclang`. Select Xcode, Command Line Tools installed,
-and Node 22.17 or later. Zig is needed only when a dependency ships `.zig`
+Build on a Mac running macOS arm64 or x86_64 (Apple Silicon or Intel). Select
+Xcode, Command Line Tools installed, and Node 22.17 or later. Zig is needed only when a dependency ships `.zig`
 sources; the maintained fixture uses Zig 0.16. The CLI ships its pinned metadata
 generator, which loads Command Line Tools' `libclang`. App builds need neither
 CMake nor an upstream runtime checkout. `pnpm xplat doctor` checks the native

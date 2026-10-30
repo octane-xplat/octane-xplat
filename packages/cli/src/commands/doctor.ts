@@ -431,9 +431,7 @@ export const doctor = command({
 			row(
 				'macOS architecture',
 				process.arch === 'arm64' || process.arch === 'x64',
-				process.arch === 'x64'
-					? 'x86_64; native leaves need an Apple Silicon build Mac'
-					: process.arch,
+				process.arch === 'x64' ? 'x86_64' : process.arch,
 				'the packaged runtime targets macOS arm64 and x86_64 (universal)',
 			)
 

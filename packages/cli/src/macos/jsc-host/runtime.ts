@@ -194,13 +194,7 @@ export function inspectJscHost() {
 			// is expected (it resolves Xcode/CLT libclang at run time), unlike
 			// the packaged host/framework which must stay self-contained.
 			const generatorIssues = []
-			inspectMachO(
-				bytes,
-				relativePath,
-				generatorIssues,
-				minimumJscHostSystemVersion,
-				['arm64'],
-			)
+			inspectMachO(bytes, relativePath, generatorIssues, minimumJscHostSystemVersion)
 			issues.push(
 				...generatorIssues.filter((issue) => !issue.includes('unpackaged library')),
 			)

@@ -10,10 +10,15 @@ if [[ $# -gt 1 || ( $# -eq 1 && "$1" != --install ) ]]; then
   echo 'usage: build-generator.sh [--install]' >&2
   exit 2
 fi
-if [[ "$(uname -s)" != Darwin || "$(uname -m)" != arm64 ]]; then
-  echo 'Build on an Apple Silicon Mac with Xcode, Command Line Tools, and CMake' >&2
+if [[ "$(uname -s)" != Darwin || ( "$(uname -m)" != arm64 && "$(uname -m)" != x86_64 ) ]]; then
+  echo 'Build on a macOS arm64 or x86_64 Mac with Xcode, Command Line Tools, and CMake' >&2
   exit 2
 fi
+# The generator links the Command Line Tools libclang, so a slice builds only
+# where that libclang carries the target arch. XPLAT_GENERATOR_ARCH overrides
+# the default host-arch build (e.g. an x86_64 slice on Apple Silicon with a
+# universal libclang).
+generator_arch="${XPLAT_GENERATOR_ARCH:-$(uname -m)}"
 revision=5b697b393152f973dd392851fd72dacf03a7a0c9
 mkdir -p "$scratch"
 if [[ ! -d "$source_dir" ]]; then
@@ -33,16 +38,29 @@ for name in nativescript-runtimes metadata-leaves; do
     exit 1
   fi
 done
-cmake -S "$source_dir/metadata-generator" -B "$build_dir" \
-  -DCMAKE_BUILD_TYPE=Release -DMETADATA_BINARY_ARCH=arm64 \
-  -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.5 \
+cmake -S "$source_dir/metadata-generator" -B "$build_dir/$generator_arch" \
+  -DCMAKE_BUILD_TYPE=Release -DMETADATA_BINARY_ARCH="$generator_arch" \
+  -DCMAKE_OSX_ARCHITECTURES="$generator_arch" -DCMAKE_OSX_DEPLOYMENT_TARGET=13.5 \
   -DCMAKE_OBJC_COMPILER="$(xcrun --find clang)" \
   -DCMAKE_CXX_COMPILER="$(xcrun --find clang++)" \
   -DCMAKE_OSX_SYSROOT="$(xcrun --sdk macosx --show-sdk-path)"
-cmake --build "$build_dir" -j 8
-"$build_dir/bin/objc-metadata-generator" --xplat-check
+cmake --build "$build_dir/$generator_arch" -j 8
+"$build_dir/$generator_arch/bin/objc-metadata-generator" --xplat-check
 if [[ "${1:-}" == --install ]]; then
-  cp "$build_dir/bin/objc-metadata-generator" "$host_dir/prebuilt/macos/objc-metadata-generator"
+  # Merge the fresh slice into the shipped binary so the prebuilt generator
+  # runs on both build-host architectures.
+  generator="$host_dir/prebuilt/macos/objc-metadata-generator"
+  built="$build_dir/$generator_arch/bin/objc-metadata-generator"
+  if [[ -f "$generator" ]]; then
+    if lipo "$generator" -verify_arch "$generator_arch" 2>/dev/null; then
+      lipo "$generator" -replace "$generator_arch" "$built" -output "$generator.next"
+    else
+      lipo -create "$generator" "$built" -output "$generator.next"
+    fi
+    mv "$generator.next" "$generator"
+  else
+    cp "$built" "$generator"
+  fi
   cp "$source_dir/packages/objc-node-api/LICENSE" "$host_dir/prebuilt/licenses/metadata-generator.txt"
   python3 - "$host_dir/prebuilt" <<'PY'
 import hashlib, json, pathlib, sys

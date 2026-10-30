@@ -6,8 +6,9 @@ metadata. It is an investigation fixture, not a supported build command.
 
 ## Reproduce
 
-On an Apple Silicon Mac, install Xcode, Command Line Tools (the generator links
-their `libclang`), CMake, Node, and the `opensrc` CLI. From the repository root:
+On a macOS arm64 or x86_64 Mac, install Xcode, Command Line Tools (the
+generator links their `libclang`), CMake, Node, and the `opensrc` CLI. From the
+repository root:
 
 ```sh
 node packages/cli/test/verify-macos-dylib.mjs
