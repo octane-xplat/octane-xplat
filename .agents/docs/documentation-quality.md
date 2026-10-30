@@ -42,29 +42,15 @@ does not compensate for a broken example.
 | Explanation | Readers understand why and can adapt the result; unfamiliar terms are introduced where used | Dense capability lists, unexplained “seams” and “facades,” generic benefit claims               |
 | Navigation  | Readers can find the task, see their next step, and open links from the publishing surface  | Orphan README, accidental sidebar order, repo-only links used as consumer instructions          |
 
-Start package READMEs with an explanation, then a first-use path. Keep the first
-example small enough to understand; do not demonstrate every option. In a
-configured app, say which file or handler receives it and what should happen.
-If external credentials or assets are required, name their source and make
-the placeholder explicit before the example. A private fixture or internal
-package should explain its repository role instead of inventing an install
-workflow for consumers.
+Apply the [writing and example contracts](documentation.md) during review.
+For READMEs, connect explanation, installation (or why it is inappropriate), a
+first use in a named file/handler, expected result, and the next guide. Private
+fixtures explain their repository role instead of inventing consumer setup.
+Name credentials/assets and valid placeholders before examples. Review lifecycle,
+cancellation, denial, failure, and disposal where encountered; invented setup and
+empty error handlers do not close gaps.
 
-Explain cancellation, denial, failure, and disposal when the example encounters
-them. Keep the main path readable: one likely recovery and a link to deeper
-troubleshooting are often enough. Never disguise a gap with invented setup,
-an empty error handler, or a comment saying “your code here.”
-
-Every paragraph explaining an API capability still needs the adjacent usage
-example required by [the example contract](documentation.md#show-every-api-capability-in-code).
-Consolidate related explanation around a coherent example instead of padding
-the page with disconnected snippets. Label continuations and fragments; give
-the first example all the context it needs.
-
-For long pages, provide task-based entry points before advanced details. Split
-a page when it has independently useful reader jobs, not at an arbitrary word
-count. Preserve public anchors or update all inbound links and recipe mappings
-in the same change. A short page can be complete; a long page can be necessary.
+Preserve anchors or update inbound links and recipe mappings when reorganizing.
 
 ## Maintain with each change
 

@@ -1,223 +1,125 @@
-# Documentation coverage
+# Documentation contracts
 
-Paths in code spans refer to the repository root. Read this reference when its
-subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
-
-Use the [documentation quality system](documentation-quality.md) to apply these
-rules to public guides and package READMEs: page ownership, editorial review,
-automated checks, change-triggered maintenance, and periodic audits.
+This page owns the project's audience, writing, example, declaration, and skill
+maintenance rules. The [quality system](documentation-quality.md) owns page
+responsibilities, review, checks, and audit practice. Paths in code spans are
+relative to the repository root.
 
 ## Earn interest and keep momentum
 
-Give people room to fall in love with the framework. Help them picture
-something they want to build, see how Xplat makes it possible, and feel
-confident taking the first step. Earning interest and sustaining excitement
-are part of the docs' job and support the framework's growth. Apply this
-mindset when writing new documentation and reviewing existing pages.
+Help readers picture something they want to build and reach a small, visible
+success. Ground excitement in working capabilities and useful examples. An
+introduction orients and inspires; a tutorial delivers a first result; a task
+guide completes a workflow; reference supports lookup. Serve that job for both
+humans and coding agents.
 
-- Hook readers with an appealing possibility and a concrete, achievable
-  result. Let them see the value before asking them to absorb optional
-  complexity, setup costs, or an inventory of caveats.
-- Be honest about costs and limitations when they affect the reader's next
-  decision or action. Explain what they need for that next step and how to
-  proceed. For example, introduce phone development tools when readers are
-  ready to try their working browser app on a phone, and signing requirements
-  when they are preparing to release it.
-- Keep excitement grounded in real capabilities and useful examples. A
-  reader's first success, growing understanding, and trust should reinforce
-  their interest in the framework.
-- Serve the page's job. Introductions inspire and orient; tutorials deliver
-  a first success; task guides help readers build features; concept guides
-  help them adapt; reference gives exact answers; troubleshooting helps them
-  recover; maintenance and release guides help them keep and ship working
-  apps; contributor notes explain how to extend the framework.
-- Support humans and agents together. Humans need motivation, understanding,
-  and confidence. Agents need precise APIs, constraints, supported patterns,
-  and checks. Keep current instructions, known limitations, and historical
-  experiments distinguishable so both can act with confidence.
-
-When reviewing a page, ask whether it helps readers want to continue and
-makes their next step feel achievable. Place detail according to the job
-they came to complete, using progressive disclosure to preserve momentum.
+Introduce costs, setup, and limitations when they affect the next decision or
+action. Phone tooling belongs where readers choose to run on a phone; signing
+belongs with release instructions. Keep current instructions distinguishable
+from experiments so readers can act with confidence.
 
 ## Audience and voice
 
-Write the app-building docs for junior engineers and people building with a
-coding agent who may have no programming experience (often called vibe coders).
-Help them make something useful and understand what they are doing. Do not
-assume they know React, TypeScript, terminal commands, or software-engineering
-terms. Experienced readers can follow links to deeper material.
+Write app-building guides for junior engineers and people using coding agents
+with no prior programming experience. Assume no React, TypeScript, terminal,
+or engineering vocabulary. Explain terms where they become useful, what commands
+do, where to run them, and how success looks. Support both coding and asking an
+agent to code without making either path mandatory.
 
-- Use a friendly, direct voice. Avoid corporate language, slogans, and
-  abstractions such as "product behavior," "calibration task," or "prove the
-  loop" when a concrete action says what to do.
-- Introduce terms when readers need them: a component is a reusable piece of
-  a screen; a terminal is where they type commands. Explain what commands do,
-  where to run them, what to expect, and how to recognize success.
-- Start with a small result readers can see. Put advanced architecture,
-  framework internals, and release details after the first working app or in
-  linked reference pages. State required setup and support limits plainly.
-- Support both writing code and asking an agent to write it. Give concrete
-  prompts, examples, and checks without making the reader responsible for
-  knowing unexplained engineering concepts or treating agent use as mandatory.
-- Be encouraging without overpromising or talking down to readers. Explain
-  likely mistakes and fixes as a normal part of building. Keep technical names
-  exact and preserve important limits; approachable does not mean imprecise.
-- Review every changed guide from this starting point. Can someone new to
-  programming understand the next action, why it matters, and what should
-  happen? Technical reference and historical design notes can retain necessary
-  detail, but label their purpose and keep them out of the beginner path.
+Use a friendly, direct voice and concrete actions. Preserve technical names and
+support limits; approachable does not mean imprecise. Treat mistakes and recovery
+as normal. Keep advanced internals and labeled historical design notes outside
+the beginner path.
 
 ## Progressive disclosure
 
-Give readers the information they need for their current step. Introduce more
-detail as their app and questions grow, rather than asking them to understand
-the whole framework before they can start.
+Lead with one working path. Link to alternatives, optional setup, and deeper
+reference when readers have a reason to choose them. Required prerequisites and
+meaningful limits must precede the actions they affect. Do not front-load a
+package inventory, glossary, or architecture course.
 
-- Lead with one small, working path. Show alternatives when readers have a
-  reason to choose between them.
-- Explain a term at the step that uses it. Avoid front-loading a glossary,
-  package inventory, or architecture overview.
-- Link to optional features, platform setup, and deeper reference with labels
-  that say when readers need them. Keep the first-app path focused on getting
-  an app running and making one visible change.
-- Keep required prerequisites, meaningful support limits, and warnings before
-  the actions they affect. Progressive disclosure must not hide information
-  readers need to succeed or make a decision.
-- Review each section with: “Does the reader need this now, or can it wait
-  until the step that uses it?” Move detail to its task guide or reference
-  when it can wait. Shorter sentences alone do not reduce the number of ideas
-  a reader has to learn at once.
-
-For example, a first browser app needs Node.js, pnpm, the create command, and
-a way to recognize success. Phone development tools belong at the point
-where the reader chooses to run on a phone; signing belongs with release
-instructions.
+Ask whether each section is needed for the current step. Move independently
+useful tasks to their owning guide; shorter sentences alone do not reduce the
+number of ideas a reader must learn.
 
 ## Terminology
 
-Give each project-specific term or unusual meaning a canonical explanation
-in the topic that owns it. Public guides explain unfamiliar language where
-readers first need it. Relevant Octane skill references carry distinctions
-that change agent behavior and link to the guides for detail. Contributor-only
-concepts, such as [documentation recipes](recipes/README.md), belong in
-`.agents/docs/`.
-
-Use existing topic references and links instead of a standalone glossary or
-parallel definition table. When a meaning changes, update its canonical
-explanation and affected skill guidance in the same change. Prefer plain
-language when it is equally precise, including in release notes.
-
-For choosing and writing release notes, follow the
-[release-note authoring contract](releases.md#write-a-release-note).
+Explain a project-specific term or unusual meaning in its owning topic. Public
+guides introduce unfamiliar language at first use; skill references carry
+distinctions that change agent behavior; contributor concepts such as
+[recipes](recipes/README.md) belong here. Link to the canonical explanation
+instead of maintaining a standalone glossary or duplicate definition table.
+Update affected guides and skill guidance together when meaning changes.
+Prefer familiar language in [release notes](releases.md#write-a-release-note).
 
 ## Show every API capability in code
 
-Every paragraph that explains an API capability must have an accompanying
-fenced code snippet showing how to use that capability. Place the snippet
-directly before or after the explanation. This applies to functions, hooks,
-components, props, options, and events across new docs and reviews of existing
-docs. A link to another example does not replace the paragraph's snippet.
+Every paragraph explaining a function, hook, component, prop, option, or event
+needs an adjacent fenced usage snippet, directly before or after it. This applies
+to new docs and reviews. A link to another example does not satisfy the rule.
 
-- Show the capability the paragraph describes with the smallest useful
-  example. Keep each explanation focused so readers can connect the prose
-  to the code without absorbing unrelated features.
-- Make every snippet syntactically valid in its stated language and context.
-  Include needed imports and definitions, or clearly connect it to setup
-  already shown on the page. Explain where the code belongs. Keep placeholders
-  valid; avoid pseudocode or omitted code that makes the snippet invalid.
-- Use actual supported APIs and idiomatic project patterns. Follow the
-  relevant platform, renderer, styling, and state conventions. Prefer code
-  readers should use in their own app over shortcuts that only illustrate
-  a name or signature.
-- Validate new or changed snippets with the appropriate parser, compiler,
-  or typecheck in their intended context. Check the claimed behavior when
-  it requires execution, and report the targets actually verified. Syntax
-  highlighting alone is not validation.
+Show the smallest useful, idiomatic use of the actual supported API. Include
+imports and definitions, or connect explicitly to setup already on the page;
+say where the code belongs. Label continuations/fragments and keep placeholders
+syntactically valid. Do not present pseudocode as copyable code.
 
-Review API explanations paragraph by paragraph: is the usage shown, is the
-code valid, and is this how we recommend writing it?
+Validate new or changed snippets with the appropriate parser/compiler/typecheck
+in their intended context. Execute checks when the claim requires runtime
+behavior, and report the actual targets. Syntax highlighting is not validation.
 
 ## Octane skill maintenance
 
-The [Octane skill](../skills/octane-xplat/SKILL.md) distills the guidance an
-agent needs to build correctly with the framework. When public APIs or
-documented behavior change, review the affected skill content, including
-references, examples, limitations, and links. Update anything that becomes
-stale in the same change. Review is mandatory; an edit is needed only when the
-guidance needs to change.
+When public APIs or documented behavior change, review affected content in the
+[Octane skill](../skills/octane-xplat/SKILL.md), including references, examples,
+limitations, and links. Review is mandatory; edit when guidance becomes stale.
 
-Add information when it changes how an agent chooses an API, implements a
-supported pattern, satisfies a prerequisite, or avoids a consequential mistake.
-A new export alone does not require skill prose. Keep exhaustive API facts
-beside declarations or in public documentation; keep investigation history and
-evidence in internal records and Silo. The skill carries the actionable
-conclusion and links to detail when needed.
+Keep information that changes an agent's API choice, implementation, prerequisite,
+or avoidance of a consequential mistake. A new export alone needs no skill
+prose. Declarations and public docs own exhaustive API facts; Silo/local artifacts
+own investigation state and evidence. Skills carry actionable conclusions.
 
-Maintain three levels of task-based progressive disclosure:
+| Location | Owns |
+| --- | --- |
+| `SKILL.md` | Scope, shared constraints, task routing |
+| `references/<topic>.md` | Recommended approach and links for the current task |
+| `references/<topic>/<detail>.md` | Narrow platform, advanced, or implementation guidance |
 
-| Location | Purpose | Content |
-| --- | --- | --- |
-| `SKILL.md` | Orient and route | Scope, broadly applicable constraints, and links labeled by when to read them. |
-| `references/<topic>.md` | Support the current task | Recommended approach, minimal examples, prerequisites, and relevant limitations. |
-| `references/<topic>/<detail>.md` | Resolve a narrower question | Platform details, advanced cases, and internals needed for particular work. |
-
-Read by relevance, not by directory. Every reference must be reachable from
-`SKILL.md` or a relevant parent reference, with a link label or adjacent text
-that explains the task, question, or condition that warrants reading it.
-Reading a topic does not require loading all its subpages. For example,
-`references/navigation.md` covers ordinary navigation; it routes to
-`references/navigation/native-frames.md` when native Frame internals matter.
-
-Keep required prerequisites and meaningful limitations beside the guidance
-they qualify. Progressive disclosure must not hide information needed to use
-an API correctly. Update or replace existing guidance before adding another
-section; avoid duplicating detail across levels. Split a page when it serves
-distinct tasks that readers can load independently, rather than enforcing an
-arbitrary line limit. Keep skill maintenance policy here so consumer agents
-do not need to load contributor instructions.
+Every reference must be reachable from the entry point or a relevant parent.
+Link labels or adjacent text explain when to read it; reading one topic does not
+require loading its children. For example, ordinary navigation routes to
+`navigation/native-frames.md` only for native stack internals. Keep meaningful
+limits and prerequisites beside the guidance they qualify. Replace stale text
+before appending more; split by independently useful tasks, not a line limit.
+Keep contributor skill-maintenance policy here rather than in consumer guidance.
 
 ## Declaration comments
 
-Every public export reachable from a package barrel — components, prop
-interfaces, types, hooks, services, and utilities — carries a doc comment
-beside its declaration. Coding agents read these directly; an answer beside
-the declaration beats scattered prose. For `packages/ui`, that means every
-export in `props.ts` and every declaration re-exported through
-`index.shared.ts` or a platform subpath.
+Every public export reachable from a package barrel carries a doc comment beside
+its declaration: components, prop interfaces, types, hooks, services, and utilities.
+For UI, this includes exports from `props.ts`, `index.shared.ts`, and platform
+subpaths. Comments cover applicable contract facts:
 
-A declaration comment covers, as applicable:
+- Purpose and owning package/subpath; resolved defaults using `@default`.
+- Units: px/DIP, spacing steps (one step = 4 px/DIP), milliseconds, percentages,
+  ISO dates/times, Unix seconds versus milliseconds.
+- Named platform divergence, unsupported behavior, errors, diagnostics, and
+  fallback behavior; prerequisites and related APIs through `@see`.
+- A minimal `@example` on composable component props and public operations,
+  importing the canonical package path. Validate it with a typecheck.
+- For an explicitly retained migration alias, `@deprecated` naming the canonical
+  replacement on both declaration and barrel re-export. The alpha cutover rule
+  in [AGENTS.md](../../AGENTS.md) still governs whether an alias may exist.
 
-- What the type/component represents and which package/subpath owns it.
-- Defaults as `@default` — cite the resolved value, not "optional".
-- Units explicitly: px/dips, spacing steps (1 step = 4px/dip), milliseconds,
-  percentages, ISO dates/times, Unix seconds vs milliseconds.
-- Platform divergence and unsupported behavior — name the target and what
-  happens instead (explicit subset, capability result, or failure).
-- Errors/diagnostics and fallback behavior where applicable.
-- Prerequisites and related APIs via `@see`.
-- One minimal `@example` on composable component props and public
-  operations, importing from the canonical path (`@octane-xplat/ui` or the
-  owning subpath, never a relative file). Snippets follow the same validity
-  rules as docs prose — verify them with a typecheck.
-- Migration aliases and legacy names get `@deprecated` naming the canonical
-  replacement, both on the declaration and on its barrel re-export.
-
-Internal plumbing stays out of the comment unless it is part of the public
-contract (for example, `_`-prefixed fields exported for hand-built
-integrations).
+Exclude internal plumbing unless it is part of an exported integration contract.
 
 ## Workflow coverage
 
-[Recipes](recipes/README.md) define the non-trivial developer workflows that
-need documentation and the criteria for complete coverage. Before changing
-public behavior, setup, or a supported workflow, inspect recipes by outcome and
-related API name. Add or update the affected recipe, supporting docs, and
-maintained examples in the same change; pure refactors ordinarily need none.
-Do not weaken criteria to hide an implementation limitation.
+Before changing public behavior, setup, or a supported workflow, inspect
+[recipes](recipes/README.md) by outcome and API. Reconcile the affected recipe,
+public docs, maintained example, and skill in the same change. Pure refactors
+ordinarily need no recipe change. Never weaken criteria to hide a limitation.
 
-Record criterion coverage and verification evidence separately in Silo's
-`recipe_audit` table, following the recipe guide. Run `pnpm check:recipes`.
-At handoff, identify affected recipes and remaining gaps, or briefly explain
-why no recipe is affected. A public workflow change is not finished until its
-recipe and documentation are reconciled and any remaining gap is explicit.
+Record coverage separately from verification in Silo `recipe_audit` (or the
+appropriate desktop table) and run `pnpm check:recipes`. At handoff, name affected
+recipes and remaining gaps, or explain why none is affected. A public workflow
+change is unfinished until documentation is reconciled and any gap is explicit.
