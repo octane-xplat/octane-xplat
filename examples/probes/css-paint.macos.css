@@ -1,0 +1,60 @@
+/* css-paint fixture styles — backgrounds, outlines and box-shadows. */
+.paint-sample {
+	display: flex;
+	width: 220px;
+	height: 90px;
+	padding: 10px;
+	margin: 6px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: #335577;
+	border-radius: 10px;
+	background-color: #fafafa;
+	color: #223344;
+}
+
+.paint-bg-linear { background-image: linear-gradient(135deg, #8ec5fc, #e0c3fc); }
+.paint-bg-radial { background-image: radial-gradient(circle at 30% 40%, #ffffff 0, #5b8def 70%, #224488); }
+.paint-bg-repeating {
+	background-image: repeating-linear-gradient(45deg, #f5a623 0 8px, #ffffff 8px 16px);
+}
+.paint-bg-layers {
+	background-image:
+		linear-gradient(to right, rgba(91, 141, 239, 0.55), rgba(224, 195, 252, 0.55)),
+		radial-gradient(circle at center, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)),
+		url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12P8z8AARQwMDAxMDEAMAwA+9wEDx8oBfwAAAABJRU5ErkJggg==');
+	background-repeat: no-repeat, no-repeat, repeat;
+	background-position: 0 0, 0 0, 4px 4px;
+	background-size: auto, auto, 8px 8px;
+}
+.paint-bg-url {
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAKElEQVQYl2P8//8/AzGAiShjZGRkZPxvYGAQYmBgIAIxoBgQBgYGAO8fBP+0wJ5eAAAAAElFTkSuQmCC');
+	background-repeat: repeat;
+	background-origin: content-box;
+	background-clip: padding-box;
+}
+.paint-bg-positioned {
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAKElEQVQYl2P8//8/AzGAiShjZGRkZPxvYGAQYmBgIAIxoBgQBgYGAO8fBP+0wJ5eAAAAAElFTkSuQmCC');
+	background-repeat: no-repeat;
+	background-position: right 8px bottom 8px;
+	background-size: 24px 24px;
+	background-color: #eef4ff;
+}
+.paint-bg-shorthand { background: #dfefff url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAKElEQVQYl2P8//8/AzGAiShjZGRkZPxvYGAQYmBgIAIxoBgQBgYGAO8fBP+0wJ5eAAAAAElFTkSuQmCC') center/32px 32px no-repeat; }
+.paint-bg-none { background-image: none; }
+
+.paint-outline-solid { outline: 3px solid #d64545; outline-offset: 3px; }
+.paint-outline-dashed { outline: 3px dashed #d64545; outline-offset: 4px; }
+.paint-outline-dotted { outline: 3px dotted #d64545; outline-offset: 4px; }
+.paint-outline-double { outline: 5px double #335577; outline-offset: 3px; }
+.paint-outline-groove { outline: 5px groove #5588aa; outline-offset: 3px; }
+.paint-outline-ridge { outline: 5px ridge #5588aa; outline-offset: 3px; }
+.paint-outline-none { outline: none; }
+
+.paint-shadow-single { box-shadow: 4px 6px 12px rgba(30, 40, 80, 0.5); }
+.paint-shadow-multi { box-shadow: 4px 6px 12px rgba(30, 40, 80, 0.5), -4px -4px 8px rgba(200, 60, 60, 0.45), 0 0 0 3px rgba(60, 160, 90, 0.35); }
+.paint-shadow-inset { box-shadow: inset 0 4px 10px rgba(30, 40, 80, 0.55); }
+.paint-shadow-inset-multi { box-shadow: inset 0 4px 10px rgba(30, 40, 80, 0.55), inset 0 -4px 8px rgba(200, 60, 60, 0.4); }
+.paint-shadow-mixed { box-shadow: 6px 8px 16px rgba(30, 40, 80, 0.5), inset 0 3px 8px rgba(30, 40, 80, 0.45); }
+.paint-shadow-spread { box-shadow: 0 0 0 6px rgba(91, 141, 239, 0.45), inset 0 0 0 4px rgba(200, 60, 60, 0.4); }
+.paint-shadow-none { box-shadow: none; }

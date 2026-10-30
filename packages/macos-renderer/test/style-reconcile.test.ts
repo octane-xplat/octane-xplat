@@ -5,6 +5,7 @@ import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
 import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
+import { splitStyleTokens, splitTopLevelCommas } from '../src/css-text.ts'
 import {
 	registerStylesheet,
 	stylesheetScope,
@@ -313,6 +314,8 @@ const sandbox = {
 	shallowEqualStyle: () => false,
 	// Real cascade machinery — the vendored selector engine is importable
 	// directly, so slices exercise actual CSS matching.
+	splitStyleTokens,
+	splitTopLevelCommas,
 	computeCascade,
 	stylesheetScope,
 	INHERITED_CSS_PROPERTIES,
@@ -999,20 +1002,24 @@ test('box-shadow paints layer shadow and trades the corner clip for it', () => {
 	assert.equal(item.view.layer.masksToBounds, true, 'radius clip restored')
 })
 
-test('inset box-shadow approximates as an even-odd inner ring', () => {
+test('inset box-shadow paints a wall-hole shape carrying real blur', () => {
 	const item = node('masonview', { orientation: 1 })
 	item.view.frame.size.width = 100
 	item.view.frame.size.height = 50
-	setStyle(item, { boxShadow: 'inset 0 0 0 2px rgba(0, 0, 0, 0.3)' })
+	setStyle(item, { boxShadow: 'inset 0 0 6px 2px rgba(0, 0, 0, 0.3)' })
 
-	const ring = item.insetShadowLayer
-	assert.ok(ring, 'ring layer installed')
-	assert.equal(ring.fillRule, 'even-odd')
-	assert.ok(ring.path.ops.length > 9, 'outer and inner subpaths recorded')
+	const host = item.insetShadowHost
+	assert.ok(host, 'inset shadow host installed')
+	const shape = item.insetShadowShapes?.[0]
+	assert.ok(shape, 'one shape per inset shadow')
+	assert.equal(shape.fillRule, 'even-odd')
+	assert.ok(shape.path.ops.length > 9, 'outer wall + inner hole recorded')
+	assert.equal(shape.shadowRadius, 6, 'real blur reaches the shape')
+	assert.equal(shape.masksToBounds, true, 'cast shadow clipped to the interior')
 	assert.equal(item.view.layer.shadowOpacity ?? 0, 0, 'no outset shadow applied')
 
 	setStyle(item, { boxShadow: 'none' })
-	assert.equal(item.insetShadowLayer, null)
+	assert.equal(item.insetShadowHost, null)
 })
 
 test('transform shorthand composes translate/rotate/scale onto the layer', () => {

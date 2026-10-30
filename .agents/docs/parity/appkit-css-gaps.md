@@ -84,6 +84,58 @@ nonzero offsets, rounded outline corners).
   deepStrictEqual trap). Runtime qualification pending (does an empty sibling
   layer's shadowPath render? wall/hole semantics on real CA).
 
+### Per-window @media (`3585363f0`) — source + unit evidence
+
+`restyleNode` pins `activeMediaNode` through each `computeCascade`; the
+injected environment resolves `envForNode` — the node's own window
+(portal roots use their target view's window; windowless nodes fall back
+to host frame then largest window). `container.mediaEnvs` records the
+last size per window (host + portal targets); a resize diffs every
+registered media query under old/new env via new css-engine export
+`stylesheetMediaQueries()` and restyles only changed containers.
+Windowless notifications (accessibility display) restyle media-gated
+containers unconditionally. GTK keeps `refreshMediaQueries`.
+Tests: rewritten resize-observer case + `envForNode` portal/direct cases
+in css-machinery.test.ts (19 pass). Runtime qualification pending (real
+second window, resize coalescing under load).
+
+### Style/layout prop audit (contract: GTK CSS_PROPS + NS vocabulary + style-merge normalization)
+
+Legend: ✓ handled · ~ partial · ✗ absent (grep-verified, warn-path).
+
+**Painted — covered by this branch or already worked:** background/Color/
+Image/Repeat/Position/Size/Origin/Clip ✓ (Attachment/BlendMode/clip:text
+warn) · borderWidth/Style/Color/Radius per-side + decorative ✓ ·
+outline + longhands incl. non-solid ✓ · boxShadow multi/inset ✓ ·
+opacity ✓ · visibility ✓ · filter ✓ · zIndex ✓ (layer.zPosition) ·
+color/font props ✓ (Family/Size/Style/Weight/letterSpacing/lineHeight/
+textDecoration) · textAlign/direction(rtl partial: warn) /whiteSpace/
+textOverflow (label) ~ · objectFit/objectPosition (image) ✓ ·
+cursor/userSelect/pointerEvents ✓.
+
+**Layout (Mason consumed):** width/height/minWidth/minHeight/maxWidth/
+maxHeight/margin/padding (all sides) · flexDirection/Grow/Shrink/Basis/
+Wrap · alignSelf/Items/Content · justifyContent · order · gap/rowGap/
+columnGap · position+top/right/bottom/left · aspectRatio · display ·
+inset.
+
+**Precise gaps (grep-verified absent from index.ts/mason.ts):**
+- `textShadow` — GTK paints it; AppKit has nothing.
+- `textTransform` — GTK paints it; absent here.
+- `fontVariationSettings` — GTK passes through; absent here.
+- `transformOrigin` — transform slots exist (translate/rotate/scale/
+  perspective) but origin is fixed at center.
+- `transition` — no CSS transition machinery (keyframes-only; see
+  .agents/docs/notes/routing-transitions.md).
+- `verticalAlign`, `caretColor`, `accentColor`, `listStyle`, `wordBreak`,
+  `overflowWrap`, `hyphens`, `tabSize`, `fontVariant`, `fontStretch`,
+  `mixBlendMode`, `isolation`, `backdropFilter`, `resize` (CSS prop),
+  `minWidth`/`rowGap`/`columnGap` reach Mason only (fine) — the rest
+  warn via warnUnsupportedCssProp / ignored-style warn.
+- `overflow`/`overflowX`/`overflowY` — only both-hidden or both-visible
+  paint; mixed-axis and scroll containers warn (NSView clipsToBounds is
+  a boolean).
+
 ## Next (demand order)
 
 1. Per-window @media: keep `setStyleEnvironment` but make injected fn read a
