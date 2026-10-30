@@ -18,7 +18,9 @@ import type { ReadableStore } from '../props'
  * Sort request for list stores — `column` key and `direction`.
  */
 export interface SortDescriptor {
+	/** Column identity to sort by. */
 	column: Key
+	/** Sort direction. */
 	direction: 'ascending' | 'descending'
 }
 
@@ -31,9 +33,13 @@ export type LoadingState = 'loading' | 'loadingMore' | 'sorting' | 'filtering' |
  * Arguments to an `AsyncList` `load` — `filterText`, `sortDescriptor`, `cursor` for the next page, and an `AbortSignal` for cancellation.
  */
 export interface AsyncListLoadContext<C> {
+	/** Current query text — reloads re-pass it each time. */
 	filterText: string
+	/** Active sort, when set (server-side sorting reads this). */
 	sortDescriptor?: SortDescriptor
+	/** Pagination cursor from the previous page's result — absent on the first load. */
 	cursor?: C
+	/** Aborted when a newer operation starts — wire it into the fetch. */
 	signal: AbortSignal
 }
 
@@ -41,8 +47,11 @@ export interface AsyncListLoadContext<C> {
  * An `AsyncList` loader's page result — `items`, optional `cursor` (next page), optional `selectedKeys`.
  */
 export interface AsyncListLoadResult<T, C> {
+	/** Page items — replaces the list on first-page loads, appends on `loadMore`. */
 	items: T[]
+	/** Cursor for the next page; omit when there is no more data (drives `hasMore`). */
 	cursor?: C
+	/** Selection override applied with this page. */
 	selectedKeys?: Selection | Iterable<Key>
 }
 
@@ -50,17 +59,28 @@ export interface AsyncListLoadResult<T, C> {
  * Options for `useAsyncList`/`createAsyncList` — required `load`, optional client `sort`, `initial*` state (read once), `getKey`. Without `sort`, sorting reloads through `load` (server-side).
  */
 export interface AsyncListOptions<T, C = string> {
+	/** Page loader — called on mount, on `reload`/`loadMore`, and on
+	 *  filter/sort changes when no client `sort` is given. Honor `signal`. */
 	load: (state: AsyncListLoadContext<C>) => Promise<AsyncListLoadResult<T, C>>
 	/** Client-side sort; when omitted, sort() reloads through `load` with the
 	 *  descriptor (server-side sort). `state.items` is the current readonly
 	 *  snapshot — return a new array rather than mutating it. */
 	sort?: (state: {
+		/** Current readonly snapshot — return a new array rather than mutating it. */
 		items: readonly T[]
+		/** Requested sort. */
 		sortDescriptor: SortDescriptor
-	}) => { items: T[] } | Promise<{ items: T[] }>
+	}) => { /** Sorted items — replaces the list. */ items: T[] } | Promise<{
+		/** Sorted items — replaces the list. */
+		items: T[]
+	}>
+	/** Initial selection — 'all' or a key iterable; read once. */
 	initialSelectedKeys?: 'all' | Iterable<Key>
+	/** Initial query text; read once — a non-empty value filters the first load too. */
 	initialFilterText?: string
+	/** Initial sort; read once. */
 	initialSortDescriptor?: SortDescriptor
+	/** Item identity extractor — defaults to `defaultItemKey` (`id`/`key` fields). */
 	getKey?: (item: T) => Key
 }
 
@@ -68,11 +88,17 @@ export interface AsyncListOptions<T, C = string> {
  * Immutable snapshot of an `AsyncListData` — `items`, `filterText`, `selectedKeys`, `sortDescriptor`, `loadingState`, and `error`.
  */
 export interface AsyncListSnapshot<T> {
+	/** Loaded items at commit time. */
 	readonly items: readonly T[]
+	/** Current query text. */
 	readonly filterText: string
+	/** Selection — a key Set or 'all'. */
 	readonly selectedKeys: Selection
+	/** Active sort, when set. */
 	readonly sortDescriptor?: SortDescriptor
+	/** Lifecycle state. */
 	readonly loadingState: LoadingState
+	/** Last load failure, when in 'error'. */
 	readonly error?: Error
 	/** Whether a next page can be requested — true while the last load
 	 *  returned a pagination cursor. */
@@ -88,9 +114,13 @@ export interface AsyncListData<T>
 	extends
 		ReadableStore<AsyncListSnapshot<T>>,
 		Omit<ListData<T>, 'getSnapshot' | 'subscribe' | 'setFilterText'> {
+	/** Lifecycle state — 'loading'/'loadingMore'/'sorting'/'filtering'/'error'/'idle'. */
 	readonly loadingState: LoadingState
+	/** True while any operation is in flight (loadingState !== 'idle'/'error'). */
 	readonly isLoading: boolean
+	/** Last load failure, when in 'error'. */
 	readonly error?: Error
+	/** Active sort, when set. */
 	readonly sortDescriptor?: SortDescriptor
 	/** Whether a next page can be requested — true while the last load
 	 *  returned a pagination cursor. */
@@ -136,6 +166,8 @@ interface AsyncListOperation {
 	settle: () => void
 }
 
+/** Creates an `AsyncListData` store — paged loading, selection, and the
+ *  ListData mutation surface over the loaded items. */
 export function createAsyncListData<T, C = string>(
 	options: AsyncListOptions<T, C>,
 ): AsyncListData<T> {
