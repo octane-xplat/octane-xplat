@@ -7,7 +7,7 @@
 				"src/**/*.tsrx",
 				"examples/**/*.tsrx",
 				"tests/fixtures/**/*.tsrx",
-				"types/index.d.ts"
+				"types/generated/index.d.ts"
 			]
 		},
 		"web": {
