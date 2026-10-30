@@ -5231,9 +5231,11 @@ function syncBorderBox(node: ElementNode) {
 	)
 
 	const layers = typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
-	// An outset shadow cannot render under a mask or masksToBounds — the layer
-	// clip loses to the shadow (same CALayer constraint UIKit has).
-	const outsetShadow = node.boxShadowSpec?.some((s: any) => !s.inset) === true
+	// An outset shadow painted on the view's own layer (the no-superlayer
+	// fallback) cannot render under a mask or masksToBounds — the layer clip
+	// loses to the shadow (same CALayer constraint UIKit has). Sibling shadow
+	// hosts keep clipping on.
+	const outsetShadow = outsetShadowOnSelf(node, view)
 	const perCorner = maxRadius > 0 && !uniformRadius && layers && !outsetShadow
 	const patterned = BORDER_SIDES.some(side => borderStrokeStyle(sideStyles[side], widths[side]) != null)
 	const uniformPattern = patterned && uniformWidth && uniformColor && BORDER_SIDES.every(side => sideStyles[side] === sideStyles.top)
@@ -5289,7 +5291,10 @@ function syncBorderBox(node: ElementNode) {
 		layer.borderColor = null
 		if (!node.borderLayer) {
 			node.borderLayer = CALayer.alloc().init()
-			layer.insertSublayerAtIndex(node.borderLayer, node.bgHost ? 1 : 0)
+			layer.insertSublayerAtIndex(
+				node.borderLayer,
+				(node.bgHost ? 1 : 0) + (node.insetShadowHost ? 1 : 0),
+			)
 		}
 
 		const box = node.borderLayer
@@ -5466,21 +5471,53 @@ function parseBoxShadow(value: any): ParsedBoxShadow[] {
 	return shadows
 }
 
-// CALayer takes one shadow — the first outset entry wins, painted around a
-// shadowPath that honors the resolved corner radii (UIKit smooth-corners does
-// the same). The first inset entry approximates as an even-odd inner ring.
+// `box-shadow` paints every list entry. Outset shadows live on sibling
+// CALayers inserted below view.layer so corner clipping (masksToBounds/mask)
+// stays on; a root view with no superlayer/superview falls back to its own
+// shadow props and keeps the no-clip limit. Inset shadows are CAShapeLayer
+// walls — an even-odd silhouette (huge rect minus the box hole inset by
+// spread) whose own layer shadow bleeds into the hole while masksToBounds
+// clips it to the interior; this carries real blur.
+const ZERO_RADII = { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 } as Record<BorderCorner, number>
+
+function outsetShadowOnSelf(node: ElementNode, view: NSView): boolean {
+	if (!(node.boxShadowSpec?.some((s: any) => !s.inset) === true)) {
+		return false
+	}
+	return view.layer?.superlayer == null && (view as any).superview == null
+}
+
+function siblingShadowSuperlayer(view: NSView): any | null {
+	const superlayer = view.layer?.superlayer
+	if (superlayer) {
+		return superlayer
+	}
+	const superview = (view as any).superview
+	if (!superview) {
+		return null
+	}
+	superview.wantsLayer = true
+	return superview.layer ?? null
+}
+
 function syncBoxShadow(node: ElementNode) {
 	const view = node.view
 	if (!view) {
 		return
 	}
 	const shadows = correctProjectionShadows<ParsedBoxShadow>(view, node.boxShadowSpec ?? [])
-	const outset = shadows.find((s: ParsedBoxShadow) => !s.inset)
-	const inset = shadows.find((s: ParsedBoxShadow) => s.inset)
-	if (!outset && !inset && !node.shadowApplied && !node.insetShadowLayer) {
+	const outsets = shadows.filter((s: ParsedBoxShadow) => !s.inset)
+	const insets = shadows.filter((s: ParsedBoxShadow) => s.inset)
+	if (
+		!outsets.length &&
+		!insets.length &&
+		!node.shadowApplied &&
+		!node.insetShadowHost &&
+		!node.outsetShadowHosts?.length
+	) {
 		return
 	}
-	if (outset || inset) {
+	if (outsets.length || insets.length) {
 		view.wantsLayer = true
 	}
 	const layer = view.layer
@@ -5493,59 +5530,117 @@ function syncBoxShadow(node: ElementNode) {
 	const h = Math.max(0, Number(size.height) || 0)
 	const radii = scaleBorderRadii(correctProjectionRadii(view, resolveBorderRadii(node.borderSpec?.radii, w, h), node.borderSpec?.radii), w, h)
 
-	if (outset) {
-		view.wantsLayer = true
-		const s = outset.spread
-		const grown = {
-			topLeft: Math.max(0, radii.topLeft + s),
-			topRight: Math.max(0, radii.topRight + s),
-			bottomRight: Math.max(0, radii.bottomRight + s),
-			bottomLeft: Math.max(0, radii.bottomLeft + s),
+	const superlayer = outsets.length ? siblingShadowSuperlayer(view) : null
+	if (superlayer) {
+		// One empty sibling layer per outset shadow; the first CSS shadow sits
+		// closest to the view (topmost).
+		const hosts = (node.outsetShadowHosts ??= [])
+		outsets.forEach((s, index) => {
+			const host = (hosts[index] ??= CALayer.alloc().init())
+			host.frame = layer.frame
+			const s2 = s.spread
+			const grown = {
+				topLeft: Math.max(0, radii.topLeft + s2),
+				topRight: Math.max(0, radii.topRight + s2),
+				bottomRight: Math.max(0, radii.bottomRight + s2),
+				bottomLeft: Math.max(0, radii.bottomLeft + s2),
+			}
+			host.shadowPath = roundedBoxCGPath(w + 2 * s2, h + 2 * s2, grown)
+			host.shadowColor = borderNSColor(node, s.color)?.CGColor ?? null
+			host.shadowOffset = { width: s.dx - s2, height: -s.dy - s2 }
+			host.shadowRadius = s.blur
+			host.shadowOpacity = 1
+			superlayer.insertSublayerBelow(host, index === 0 ? layer : hosts[index - 1])
+		})
+		for (let i = outsets.length; i < hosts.length; i++) {
+			hosts[i].removeFromSuperlayer()
 		}
-
-		// Spread grows the silhouette — the offset recenters the grown path.
-		layer.shadowPath = roundedBoxCGPath(w + 2 * s, h + 2 * s, grown)
-		layer.shadowColor = borderNSColor(node, outset.color)?.CGColor ?? null
-		layer.shadowOffset = { width: outset.dx - s, height: -outset.dy - s }
-		layer.shadowRadius = outset.blur
+		hosts.length = outsets.length
+		if (node.shadowApplied) {
+			layer.shadowOpacity = 0
+			layer.shadowPath = null
+			node.shadowApplied = false
+		}
+	} else if (outsets.length) {
+		const s = outsets[0]
+		const s2 = s.spread
+		const grown = {
+			topLeft: Math.max(0, radii.topLeft + s2),
+			topRight: Math.max(0, radii.topRight + s2),
+			bottomRight: Math.max(0, radii.bottomRight + s2),
+			bottomLeft: Math.max(0, radii.bottomLeft + s2),
+		}
+		layer.shadowPath = roundedBoxCGPath(w + 2 * s2, h + 2 * s2, grown)
+		layer.shadowColor = borderNSColor(node, s.color)?.CGColor ?? null
+		layer.shadowOffset = { width: s.dx - s2, height: -s.dy - s2 }
+		layer.shadowRadius = s.blur
 		layer.shadowOpacity = 1
 		node.shadowApplied = true
+		if (outsets.length > 1) {
+			const warned = (node.shadowWarnings ??= new Set<string>())
+			if (!warned.has('self')) {
+				warned.add('self')
+				console.warn('[macos-css] root view: only the first outset box-shadow paints')
+			}
+		}
 	} else if (node.shadowApplied) {
 		layer.shadowOpacity = 0
 		layer.shadowPath = null
 		node.shadowApplied = false
 	}
-
-	if (inset && typeof CAShapeLayer !== 'undefined') {
-		view.wantsLayer = true
-		const shape = (node.insetShadowLayer ??= CAShapeLayer.alloc().init())
-		if (shape.superlayer !== layer) {
-			layer.addSublayer(shape)
+	if (!outsets.length || !superlayer) {
+		for (const host of node.outsetShadowHosts ?? []) {
+			host.removeFromSuperlayer()
 		}
+		node.outsetShadowHosts = undefined
+	}
 
-		shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
-		// Ring = outer outline + inner outline inset by spread (offset shifts
-		// the inner edge; blur is not representable and is dropped).
-		const edge = Math.max(0, inset.spread)
-		const inner = {
-			topLeft: Math.max(0, radii.topLeft - edge),
-			topRight: Math.max(0, radii.topRight - edge),
-			bottomRight: Math.max(0, radii.bottomRight - edge),
-			bottomLeft: Math.max(0, radii.bottomLeft - edge),
+	if (insets.length && typeof CAShapeLayer !== 'undefined') {
+		const host = (node.insetShadowHost ??= CALayer.alloc().init())
+		if (host.superlayer !== layer) {
+			layer.insertSublayerAtIndex(host, node.bgHost ? 1 : 0)
 		}
-
-		const ring = roundedBoxCGPath(w, h, radii)
-		if (ring) {
-			roundedBoxCGPath(w - 2 * edge, h - 2 * edge, inner, edge + inset.dx, edge - inset.dy, ring)
+		host.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
+		const shapes = (node.insetShadowShapes ??= [])
+		insets.forEach((s, index) => {
+			const shape = (shapes[index] ??= CAShapeLayer.alloc().init())
+			if (shape.superlayer !== host) {
+				host.addSublayer(shape)
+			}
+			shape.zPosition = insets.length - index
+			shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
+			shape.masksToBounds = true
+			const spread = s.spread
+			const inner = {
+				topLeft: Math.max(0, radii.topLeft - spread),
+				topRight: Math.max(0, radii.topRight - spread),
+				bottomRight: Math.max(0, radii.bottomRight - spread),
+				bottomLeft: Math.max(0, radii.bottomLeft - spread),
+			}
+			// The wall fills everything except a hole = the box inset by
+			// spread. Positive spread leaves a visible solid ring — the
+			// shadow's hard core — and the cast shadow continues fading into
+			// the hole. Negative spread pushes the caster edge outside.
+			const path = CGPathCreateMutable()
+			const pad = Math.abs(s.dx) + Math.abs(s.dy) + Math.abs(s.blur) * 4 + Math.abs(spread) + 32
+			roundedBoxCGPath(w + 2 * pad, h + 2 * pad, ZERO_RADII, -pad, -pad, path)
+			roundedBoxCGPath(Math.max(0, w - 2 * spread), Math.max(0, h - 2 * spread), inner, spread, spread, path)
+			shape.path = path
+			shape.fillRule = 'even-odd'
+			shape.fillColor = borderNSColor(node, s.color)?.CGColor ?? null
+			shape.shadowColor = shape.fillColor
+			shape.shadowOffset = { width: s.dx, height: -s.dy }
+			shape.shadowRadius = s.blur
+			shape.shadowOpacity = 1
+		})
+		for (let i = insets.length; i < shapes.length; i++) {
+			shapes[i].removeFromSuperlayer()
 		}
-
-		shape.path = ring
-		shape.fillRule = 'even-odd'
-		shape.fillColor = borderNSColor(node, inset.color)?.CGColor ?? null
-		shape.hidden = false
-	} else if (node.insetShadowLayer) {
-		node.insetShadowLayer.removeFromSuperlayer()
-		node.insetShadowLayer = null
+		shapes.length = insets.length
+	} else if (node.insetShadowHost) {
+		node.insetShadowHost.removeFromSuperlayer()
+		node.insetShadowHost = null
+		node.insetShadowShapes = undefined
 	}
 }
 
@@ -8956,6 +9051,11 @@ function destroy(node: ElementNode) {
 	node.borderSideMasks = undefined
 	node.borderBandShapes = undefined
 	node.cornerMask = undefined
+	for (const host of node.outsetShadowHosts ?? []) host.removeFromSuperlayer()
+	node.outsetShadowHosts = undefined
+	node.insetShadowHost?.removeFromSuperlayer()
+	node.insetShadowHost = null
+	node.insetShadowShapes = undefined
 	node.insetShadowLayer = null
 
 	layoutHandlers.delete(node.layoutObservedView)
