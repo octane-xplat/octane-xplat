@@ -16,6 +16,10 @@ export function Canvas(props: CanvasProps): unknown @{
 	<masonview
 		id={props.id}
 		className={props.className}
-		style={{ display: 'grid', width: props.width, height: props.height, ...props.style }}
+		style={
+			typeof props.style === 'string'
+				? props.style
+				: { display: 'grid', width: props.width, height: props.height, ...props.style }
+		}
 	/>
 }

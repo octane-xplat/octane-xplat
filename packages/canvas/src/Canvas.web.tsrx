@@ -27,11 +27,15 @@ export function Canvas(props: CanvasProps): JSX.Element @{
 	<canvas
 		id={props.id}
 		className={props.className}
-		style={{
-			width: typeof props.width === 'string' ? props.width : undefined,
-			height: typeof props.height === 'string' ? props.height : undefined,
-			...props.style,
-		}}
+		style={
+			typeof props.style === 'string'
+				? props.style
+				: {
+						width: typeof props.width === 'string' ? props.width : undefined,
+						height: typeof props.height === 'string' ? props.height : undefined,
+						...props.style,
+					}
+		}
 		width={typeof props.width === 'number' ? props.width : undefined}
 		height={typeof props.height === 'number' ? props.height : undefined}
 		ref={canvasRef}

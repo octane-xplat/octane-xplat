@@ -5,7 +5,7 @@
 			"inputs": [
 				"$TURBO_DEFAULT$",
 				"../../packages/demos/src/auth-guide/**",
-				"../../packages/ui/src/store.ts"
+				"../../packages/ui/src/data/store.ts"
 			]
 		}
 	}

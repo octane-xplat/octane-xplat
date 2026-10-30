@@ -36,7 +36,7 @@ export function StorageControls() @{
 	<View className="sink-section">
 		<Text className="section-label">Ordinary settings</Text>
 		<Text>Use non-secret text. Save, flush, restart the app and read to check persistence. Remove deletes only this demo key. No storage operation runs on mount.</Text>
-		<TextInput label="Demo setting" value={draft} maxLength={1024}
+		<TextInput label="Demo setting" value={draft}
 			onChange={(value) => { latest.current = value; setDraft(value) }} />
 		<HStack className="gap-3 items-center">
 			<Pressable className="btn btn-secondary" onPress={() => action('save')}><Text>Save</Text></Pressable>

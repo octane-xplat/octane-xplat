@@ -184,7 +184,7 @@
 	}
 
 	/* Absolute children share one origin on every renderer. */
-	@platform web, macos, windows {
+	@platform web, macos {
 		.vx-absolute {
 			position: relative;
 		}

@@ -1,13 +1,20 @@
-.vx-lightbox-thumbnails { overflow: hidden; }
 .vx-lightbox-thumbnails-row {
-	position: relative;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 }
 .vx-lightbox-thumbnail { flex-shrink: 0; }
-.vx-lightbox-thumbnail-indicator {
-	position: absolute;
-	left: 0;
-	top: 0;
+
+/* Positioned strip geometry — honored by DOM and Mason-family renderers,
+   dropped by the NS CSS parser on ios/android/windows. */
+@platform web, macos, gtk, linux {
+	.vx-lightbox-thumbnails { overflow: hidden; }
+	.vx-lightbox-thumbnails-row {
+		position: relative;
+	}
+	.vx-lightbox-thumbnail-indicator {
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
 }

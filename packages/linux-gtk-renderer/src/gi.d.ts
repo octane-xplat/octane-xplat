@@ -255,6 +255,26 @@ declare module 'gi://Gtk?version=4.0' {
 			constructor()
 		}
 
+		// Legacy is required for cancellable key-up: EventControllerKey's
+		// ::key-released signal is void. Used by packages/shortcuts.
+		class EventControllerLegacy extends EventController {
+			constructor()
+			set_propagation_phase(phase: number): void
+		}
+
+		const PropagationPhase: {
+			NONE: number
+			CAPTURE: number
+			BUBBLE: number
+			TARGET: number
+			[key: string]: number
+		}
+
+		// Editable is a GTK4 interface; class-declared for instanceof checks.
+		class Editable extends Widget {}
+		class TextView extends Widget {}
+		class DropDown extends Widget {}
+
 		class CssProvider {
 			constructor()
 			load_from_string(css: string): void
@@ -369,6 +389,26 @@ declare module 'gi://GLib' {
 
 declare module 'gi://Gdk?version=4.0' {
 	namespace Gdk {
+		const EventType: {
+			KEY_PRESS: number
+			KEY_RELEASE: number
+			[key: string]: number
+		}
+
+		const ModifierType: {
+			SHIFT_MASK: number
+			LOCK_MASK: number
+			CONTROL_MASK: number
+			ALT_MASK: number
+			SUPER_MASK: number
+			HYPER_MASK: number
+			META_MASK: number
+			[key: string]: number
+		}
+
+		function keyval_name(keyval: number): string | null
+		function keyval_to_unicode(keyval: number): number
+
 		class Rectangle {
 			constructor(fields?: { x?: number; y?: number; width?: number; height?: number })
 			x: number

@@ -59,7 +59,7 @@ const cellPaddings = new WeakMap()
 const writers = runSlice(
 	source.slice(
 		source.indexOf('function syncNodeFont'),
-		source.indexOf('// CSS angles run clockwise'),
+		source.indexOf('const BORDER_SIDES'),
 	) + '\n({ syncNodeFont, syncLabelPadding, syncVisibility, isCollapsed })',
 	{
 		labelPaddings: cellPaddings,
@@ -197,7 +197,7 @@ const cursorWarnings: string[] = []
 const cursorSlice = runSlice(
 	source.slice(
 		source.indexOf('// CSS cursor keywords'),
-		source.indexOf('// CSS angles run clockwise'),
+		source.indexOf('const BORDER_SIDES'),
 	) + '\n({ syncCursor, syncUserSelect, CSS_CURSORS })',
 	{
 		console: { warn: (m: string) => cursorWarnings.push(m) },
@@ -261,7 +261,7 @@ test('user-select toggles selectable on labels and restores htmlview default', (
 const { outlineSpec } = runSlice(
 	source.slice(
 		source.indexOf('// `outline`/`outline-*` draws'),
-		source.indexOf('// CSS angles run clockwise'),
+		source.indexOf('const BORDER_SIDES'),
 	) + '\n({ outlineSpec })',
 	{
 		nativeColor: (color: any) => ({ CGColor: 'cg:' + color }),
