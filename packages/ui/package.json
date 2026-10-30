@@ -33,71 +33,29 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"windows": {
-				"types": "./types/generated/index.windows.d.ts",
-				"default": "./src/index.windows.ts"
-			},
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/index.linux.d.ts",
-				"default": "./src/index.linux.ts"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"gtk": {
-				"types": "./types/generated/index.gtk.d.ts",
-				"default": "./src/index.gtk.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.mobile.d.ts",
-				"default": "./src/index.mobile.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"windows": "./src/index.windows.ts",
+			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.linux.ts",
+			"web": "./src/index.web.ts",
+			"gtk": "./src/index.gtk.ts",
+			"native": "./src/index.mobile.ts",
 			"default": "./src/index.ts"
 		},
 		"./routing": {
-			"macos": {
-				"types": "./types/generated/routing/index.macos.d.ts",
-				"default": "./src/routing/index.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/routing/index.web.d.ts",
-				"default": "./src/routing/index.web.ts"
-			},
-			"web": {
-				"types": "./types/generated/routing/index.web.d.ts",
-				"default": "./src/routing/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/routing/index.d.ts",
-				"default": "./src/routing/index.ts"
-			},
 			"types": "./types/generated/routing/index.d.ts",
+			"macos": "./src/routing/index.macos.ts",
+			"linux": "./src/routing/index.web.ts",
+			"web": "./src/routing/index.web.ts",
+			"native": "./src/routing/index.ts",
 			"default": "./src/routing/index.ts"
 		},
 		"./data": {
-			"macos": {
-				"types": "./types/generated/data/index.macos.d.ts",
-				"default": "./src/data/index.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/data/index.web.d.ts",
-				"default": "./src/data/index.web.ts"
-			},
-			"web": {
-				"types": "./types/generated/data/index.web.d.ts",
-				"default": "./src/data/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/data/index.d.ts",
-				"default": "./src/data/index.ts"
-			},
 			"types": "./types/generated/data/index.d.ts",
+			"macos": "./src/data/index.macos.ts",
+			"linux": "./src/data/index.web.ts",
+			"web": "./src/data/index.web.ts",
+			"native": "./src/data/index.ts",
 			"default": "./src/data/index.ts"
 		},
 		"./data/dev": {
@@ -105,59 +63,26 @@
 			"default": "./src/data/dev.ts"
 		},
 		"./routing/dev": {
-			"macos": {
-				"types": "./types/generated/routing/dev.macos.d.ts",
-				"default": "./src/routing/dev.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/routing/dev.web.d.ts",
-				"default": "./src/routing/dev.web.ts"
-			},
-			"web": {
-				"types": "./types/generated/routing/dev.web.d.ts",
-				"default": "./src/routing/dev.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/routing/dev.d.ts",
-				"default": "./src/routing/dev.ts"
-			},
 			"types": "./types/generated/routing/dev.d.ts",
+			"macos": "./src/routing/dev.macos.ts",
+			"linux": "./src/routing/dev.web.ts",
+			"web": "./src/routing/dev.web.ts",
+			"native": "./src/routing/dev.ts",
 			"default": "./src/routing/dev.ts"
 		},
 		"./markdown": {
-			"web": {
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.web.ts"
-			},
-			"macos": {
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/markdown/index.d.ts",
-				"default": "./src/markdown/index.web.ts"
-			},
 			"types": "./types/generated/markdown/index.d.ts",
+			"web": "./src/markdown/index.web.ts",
+			"macos": "./src/markdown/index.macos.ts",
+			"linux": "./src/markdown/index.web.ts",
 			"default": "./src/markdown/index.ts"
 		},
 		"./chat": {
-			"macos": {
-				"types": "./types/generated/chat/index.d.ts",
-				"default": "./src/chat/index.ts"
-			},
-			"linux": {
-				"types": "./types/generated/chat/index.web.d.ts",
-				"default": "./src/chat/index.web.ts"
-			},
-			"web": {
-				"types": "./types/generated/chat/index.web.d.ts",
-				"default": "./src/chat/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/chat/index.d.ts",
-				"default": "./src/chat/index.ts"
-			},
 			"types": "./types/generated/chat/index.d.ts",
+			"macos": "./src/chat/index.ts",
+			"linux": "./src/chat/index.web.ts",
+			"web": "./src/chat/index.web.ts",
+			"native": "./src/chat/index.ts",
 			"default": "./src/chat/index.ts"
 		},
 		"./ios": {

@@ -18,43 +18,25 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"web": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
+			"web": "./src/index.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
 		"./ios": {
 			"types": "./types/generated/ios/index.d.ts",
-			"native": {
-				"types": "./types/generated/ios/index.d.ts",
-				"default": "./src/ios/index.ts"
-			}
+			"native": "./src/ios/index.ts"
 		},
 		"./android": {
 			"types": "./types/generated/android/index.d.ts",
-			"native": {
-				"types": "./types/generated/android/index.d.ts",
-				"default": "./src/android/index.ts"
-			}
+			"native": "./src/android/index.ts"
 		},
 		"./web": {
 			"types": "./types/generated/web/index.d.ts",
-			"web": {
-				"types": "./types/generated/web/index.d.ts",
-				"default": "./src/web/index.ts"
-			}
+			"web": "./src/web/index.ts"
 		},
 		"./macos": {
 			"types": "./types/generated/macos/index.d.ts",
-			"macos": {
-				"types": "./types/generated/macos/index.d.ts",
-				"default": "./src/macos/index.ts"
-			}
+			"macos": "./src/macos/index.ts"
 		}
 	},
 	"publishConfig": {

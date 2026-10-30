@@ -35,18 +35,9 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"macos": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		}
 	},

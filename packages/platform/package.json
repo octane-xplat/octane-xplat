@@ -34,19 +34,10 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.ts",
+			"web": "./src/index.web.ts",
 			"default": "./src/index.ts"
 		},
 		"./host": {
@@ -78,27 +69,18 @@
 			"default": "./src/*.ts"
 		},
 		"./breakpoints": {
-			"macos": {
-				"types": "./types/generated/breakpoints.macos.d.ts",
-				"default": "./src/breakpoints.macos.tsrx"
-			},
 			"types": "./types/generated/breakpoints.d.ts",
+			"macos": "./src/breakpoints.macos.tsrx",
 			"default": "./src/breakpoints"
 		},
 		"./breakpoints.tsrx": {
-			"macos": {
-				"types": "./types/generated/breakpoints.macos.d.ts",
-				"default": "./src/breakpoints.macos.tsrx"
-			},
 			"types": "./types/generated/breakpoints.d.ts",
+			"macos": "./src/breakpoints.macos.tsrx",
 			"default": "./src/breakpoints.tsrx"
 		},
 		"./breakpoints.ts": {
-			"macos": {
-				"types": "./types/generated/breakpoints.macos.d.ts",
-				"default": "./src/breakpoints.macos.tsrx"
-			},
 			"types": "./types/generated/breakpoints.d.ts",
+			"macos": "./src/breakpoints.macos.tsrx",
 			"default": "./src/breakpoints.tsrx"
 		},
 		"./breakpoints.web.ts": {
@@ -106,27 +88,18 @@
 			"default": "./src/breakpoints.web.tsrx"
 		},
 		"./lifecycle": {
-			"macos": {
-				"types": "./types/generated/lifecycle.macos.d.ts",
-				"default": "./src/lifecycle.macos.tsrx"
-			},
 			"types": "./types/generated/lifecycle.d.ts",
+			"macos": "./src/lifecycle.macos.tsrx",
 			"default": "./src/lifecycle"
 		},
 		"./lifecycle.tsrx": {
-			"macos": {
-				"types": "./types/generated/lifecycle.macos.d.ts",
-				"default": "./src/lifecycle.macos.tsrx"
-			},
 			"types": "./types/generated/lifecycle.d.ts",
+			"macos": "./src/lifecycle.macos.tsrx",
 			"default": "./src/lifecycle.tsrx"
 		},
 		"./lifecycle.ts": {
-			"macos": {
-				"types": "./types/generated/lifecycle.macos.d.ts",
-				"default": "./src/lifecycle.macos.tsrx"
-			},
 			"types": "./types/generated/lifecycle.d.ts",
+			"macos": "./src/lifecycle.macos.tsrx",
 			"default": "./src/lifecycle.tsrx"
 		},
 		"./lifecycle.web.ts": {
@@ -134,27 +107,18 @@
 			"default": "./src/lifecycle.web.tsrx"
 		},
 		"./safe-area": {
-			"macos": {
-				"types": "./types/generated/safe-area.macos.d.ts",
-				"default": "./src/safe-area.macos.tsrx"
-			},
 			"types": "./types/generated/safe-area.d.ts",
+			"macos": "./src/safe-area.macos.tsrx",
 			"default": "./src/safe-area"
 		},
 		"./safe-area.tsrx": {
-			"macos": {
-				"types": "./types/generated/safe-area.macos.d.ts",
-				"default": "./src/safe-area.macos.tsrx"
-			},
 			"types": "./types/generated/safe-area.d.ts",
+			"macos": "./src/safe-area.macos.tsrx",
 			"default": "./src/safe-area.tsrx"
 		},
 		"./safe-area.ts": {
-			"macos": {
-				"types": "./types/generated/safe-area.macos.d.ts",
-				"default": "./src/safe-area.macos.tsrx"
-			},
 			"types": "./types/generated/safe-area.d.ts",
+			"macos": "./src/safe-area.macos.tsrx",
 			"default": "./src/safe-area.tsrx"
 		},
 		"./safe-area.web.ts": {
@@ -162,27 +126,18 @@
 			"default": "./src/safe-area.web.tsrx"
 		},
 		"./screen": {
-			"macos": {
-				"types": "./types/generated/screen.macos.d.ts",
-				"default": "./src/screen.macos.tsrx"
-			},
 			"types": "./types/generated/screen.d.ts",
+			"macos": "./src/screen.macos.tsrx",
 			"default": "./src/screen"
 		},
 		"./screen.tsrx": {
-			"macos": {
-				"types": "./types/generated/screen.macos.d.ts",
-				"default": "./src/screen.macos.tsrx"
-			},
 			"types": "./types/generated/screen.d.ts",
+			"macos": "./src/screen.macos.tsrx",
 			"default": "./src/screen.tsrx"
 		},
 		"./screen.ts": {
-			"macos": {
-				"types": "./types/generated/screen.macos.d.ts",
-				"default": "./src/screen.macos.tsrx"
-			},
 			"types": "./types/generated/screen.d.ts",
+			"macos": "./src/screen.macos.tsrx",
 			"default": "./src/screen.tsrx"
 		},
 		"./screen.web.ts": {
@@ -222,71 +177,41 @@
 			"default": "./src/types/windows.ts"
 		},
 		"./environment": {
-			"macos": {
-				"types": "./types/generated/environment.macos.d.ts",
-				"default": "./src/environment.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/environment.web.d.ts",
-				"default": "./src/environment.web.ts"
-			},
-			"windows": {
-				"types": "./types/generated/environment.d.ts",
-				"default": "./src/environment.ts"
-			},
-			"web": {
-				"types": "./types/generated/environment.web.d.ts",
-				"default": "./src/environment.web.ts"
-			},
 			"types": "./types/generated/environment.d.ts",
+			"macos": "./src/environment.macos.ts",
+			"linux": "./src/environment.web.ts",
+			"windows": "./src/environment.ts",
+			"web": "./src/environment.web.ts",
 			"default": "./src/environment.ts"
 		},
 		"./locale": {
-			"macos": {
-				"types": "./types/generated/locale.macos.d.ts",
-				"default": "./src/locale.macos.ts"
-			},
 			"types": "./types/generated/locale.d.ts",
+			"macos": "./src/locale.macos.ts",
 			"default": "./src/locale"
 		},
 		"./locale.ts": {
-			"macos": {
-				"types": "./types/generated/locale.macos.d.ts",
-				"default": "./src/locale.macos.ts"
-			},
 			"types": "./types/generated/locale.d.ts",
+			"macos": "./src/locale.macos.ts",
 			"default": "./src/locale.ts"
 		},
 		"./device": {
-			"macos": {
-				"types": "./types/generated/device.macos.d.ts",
-				"default": "./src/device.macos.ts"
-			},
 			"types": "./types/generated/device.d.ts",
+			"macos": "./src/device.macos.ts",
 			"default": "./src/device"
 		},
 		"./device.ts": {
-			"macos": {
-				"types": "./types/generated/device.macos.d.ts",
-				"default": "./src/device.macos.ts"
-			},
 			"types": "./types/generated/device.d.ts",
+			"macos": "./src/device.macos.ts",
 			"default": "./src/device.ts"
 		},
 		"./system-bars": {
-			"macos": {
-				"types": "./types/generated/system-bars.macos.d.ts",
-				"default": "./src/system-bars.macos.ts"
-			},
 			"types": "./types/generated/system-bars.d.ts",
+			"macos": "./src/system-bars.macos.ts",
 			"default": "./src/system-bars"
 		},
 		"./system-bars.ts": {
-			"macos": {
-				"types": "./types/generated/system-bars.macos.d.ts",
-				"default": "./src/system-bars.macos.ts"
-			},
 			"types": "./types/generated/system-bars.d.ts",
+			"macos": "./src/system-bars.macos.ts",
 			"default": "./src/system-bars.ts"
 		}
 	},

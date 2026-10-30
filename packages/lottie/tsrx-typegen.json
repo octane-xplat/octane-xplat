@@ -7,8 +7,14 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": ["./src/index.macos.ts", "./src/index.web.ts", "./src/index.ts"],
-					"types": ["./types/generated/index.d.ts", "./types/generated/index.web.d.ts"]
+					"runtime": [
+						"./src/index.macos.ts",
+						"./src/index.web.ts",
+						"./src/index.ts"
+					],
+					"types": [
+						"./types/generated/index.d.ts"
+					]
 				}
 			}
 		}

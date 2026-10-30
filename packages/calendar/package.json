@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/calendar",
 	"version": "0.18.0",
-	"description": "Device calendar for Octane xplat \u2014 event store reads and writes via EventKit/CalendarContract",
+	"description": "Device calendar for Octane xplat — event store reads and writes via EventKit/CalendarContract",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -28,19 +28,10 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"macos": "./src/index.macos.ts",
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": {

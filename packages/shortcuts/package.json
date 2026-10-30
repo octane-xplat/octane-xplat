@@ -17,26 +17,11 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./dist/index.macos.js"
-			},
-			"gtk": {
-				"types": "./types/generated/index.gtk.d.ts",
-				"default": "./dist/index.gtk.js"
-			},
-			"windows": {
-				"types": "./types/generated/index.windows.d.ts",
-				"default": "./dist/index.windows.js"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./dist/index.web.js"
-			},
-			"browser": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./dist/index.web.js"
-			},
+			"macos": "./dist/index.macos.js",
+			"gtk": "./dist/index.gtk.js",
+			"windows": "./dist/index.windows.js",
+			"web": "./dist/index.web.js",
+			"browser": "./dist/index.web.js",
 			"default": "./dist/index.js"
 		}
 	},

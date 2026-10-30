@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/barcode-scanner",
 	"version": "0.18.0",
-	"description": "Barcode and QR scanning for Octane xplat \u2014 ML Kit camera preview + still decode on iOS/Android, Vision still decode on macOS, BarcodeDetector on web",
+	"description": "Barcode and QR scanning for Octane xplat — ML Kit camera preview + still decode on iOS/Android, Vision still decode on macOS, BarcodeDetector on web",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -30,19 +30,10 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"macos": "./src/index.macos.ts",
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": {

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/geolocation",
 	"version": "0.18.0",
-	"description": "Device geolocation for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Device geolocation for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -31,11 +31,8 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"macos": "./src/index.macos.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": {

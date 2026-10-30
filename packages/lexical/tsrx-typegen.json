@@ -13,8 +13,6 @@
 						"./src/index.ts"
 					],
 					"types": [
-						"./types/generated/index.macos.d.ts",
-						"./types/generated/index.web.d.ts",
 						"./types/generated/index.d.ts"
 					]
 				}

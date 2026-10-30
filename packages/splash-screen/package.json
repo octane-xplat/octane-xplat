@@ -27,26 +27,11 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"linux": {
-				"types": "./types/generated/index.linux.d.ts",
-				"default": "./src/index.linux.ts"
-			},
-			"windows": {
-				"types": "./types/generated/index.windows.d.ts",
-				"default": "./src/index.windows.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.linux.ts",
+			"windows": "./src/index.windows.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		}
 	},

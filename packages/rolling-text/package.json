@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/rolling-text",
 	"version": "0.18.0",
-	"description": "Rolling/slot-machine text label for Octane xplat \u2014 per-unit roll with survivor matching on web, iOS and Android",
+	"description": "Rolling/slot-machine text label for Octane xplat — per-unit roll with survivor matching on web, iOS and Android",
 	"keywords": [
 		"android",
 		"animated-text",
@@ -34,18 +34,9 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"macos": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		}
 	},

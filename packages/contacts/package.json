@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/contacts",
 	"version": "0.18.0",
-	"description": "Device address book for Octane xplat \u2014 contact reads and writes on iOS/Android, Contact Picker API on web",
+	"description": "Device address book for Octane xplat — contact reads and writes on iOS/Android, Contact Picker API on web",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -28,19 +28,10 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"macos": "./src/index.macos.ts",
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": {

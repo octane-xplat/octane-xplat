@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lexical",
 	"version": "0.18.0",
-	"description": "Unified rich-text editor facade for Octane xplat \u2014 live lexical on web/AppKit, Aztec + lexical document model on iOS/Android",
+	"description": "Unified rich-text editor facade for Octane xplat — live lexical on web/AppKit, Aztec + lexical document model on iOS/Android",
 	"keywords": [
 		"cross-platform",
 		"editor",
@@ -30,19 +30,10 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"macos": "./src/index.macos.ts",
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		}
 	},

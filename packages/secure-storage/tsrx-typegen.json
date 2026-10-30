@@ -7,18 +7,32 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.macos.ts",
-					"runtime": ["./src/index.windows.ts", "./src/index.macos.ts", "./src/index.ts"],
-					"types": ["./types/index.macos.d.ts", "./types/generated/index.d.ts"]
+					"runtime": [
+						"./src/index.windows.ts",
+						"./src/index.macos.ts",
+						"./src/index.ts"
+					],
+					"types": [
+						"./types/generated/index.d.ts"
+					]
 				},
 				"./*": {
 					"source": "src/index.ts",
-					"runtime": ["./src/*"],
-					"types": ["./types/generated/*.d.ts"]
+					"runtime": [
+						"./src/*"
+					],
+					"types": [
+						"./types/generated/*.d.ts"
+					]
 				},
 				"./*.ts": {
 					"source": "src/index.ts",
-					"runtime": ["./src/*.ts"],
-					"types": ["./types/generated/*.d.ts"]
+					"runtime": [
+						"./src/*.ts"
+					],
+					"types": [
+						"./types/generated/*.d.ts"
+					]
 				}
 			}
 		}

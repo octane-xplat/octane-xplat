@@ -15,10 +15,6 @@
 						"./src/index.ts"
 					],
 					"types": [
-						"./types/generated/index.web.d.ts",
-						"./types/generated/index.macos.d.ts",
-						"./types/generated/index.linux.d.ts",
-						"./types/generated/index.windows.d.ts",
 						"./types/generated/index.d.ts"
 					]
 				}

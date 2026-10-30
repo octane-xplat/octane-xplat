@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/camera",
 	"version": "0.18.0",
-	"description": "Live camera preview for Octane xplat \u2014 web getUserMedia + native capture (AVCapture / CameraX)",
+	"description": "Live camera preview for Octane xplat — web getUserMedia + native capture (AVCapture / CameraX)",
 	"keywords": [
 		"android",
 		"camera",
@@ -33,18 +33,9 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"linux": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
+			"linux": "./src/index.web.ts",
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		}
 	},

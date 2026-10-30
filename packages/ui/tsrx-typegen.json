@@ -16,10 +16,6 @@
 						"./src/index.ts"
 					],
 					"types": [
-						"./types/generated/index.windows.d.ts",
-						"./types/generated/index.macos.d.ts",
-						"./types/generated/index.web.d.ts",
-						"./types/generated/index.mobile.d.ts",
 						"./types/generated/index.d.ts"
 					]
 				},
@@ -31,9 +27,7 @@
 						"./src/routing/index.ts"
 					],
 					"types": [
-						"./types/generated/routing/index.d.ts",
-						"./types/generated/routing/index.web.d.ts",
-						"./types/generated/routing/index.macos.d.ts"
+						"./types/generated/routing/index.d.ts"
 					]
 				},
 				"./data": {
@@ -44,14 +38,14 @@
 						"./src/data/index.ts"
 					],
 					"types": [
-						"./types/generated/data/index.d.ts",
-						"./types/generated/data/index.web.d.ts",
-						"./types/generated/data/index.macos.d.ts"
+						"./types/generated/data/index.d.ts"
 					]
 				},
 				"./data/dev": {
 					"source": "src/data/dev.ts",
-					"runtime": ["./src/data/dev.ts"],
+					"runtime": [
+						"./src/data/dev.ts"
+					],
 					"types": "./types/generated/data/dev.d.ts"
 				},
 				"./routing/dev": {
@@ -62,9 +56,7 @@
 						"./src/routing/dev.ts"
 					],
 					"types": [
-						"./types/generated/routing/dev.d.ts",
-						"./types/generated/routing/dev.web.d.ts",
-						"./types/generated/routing/dev.macos.d.ts"
+						"./types/generated/routing/dev.d.ts"
 					]
 				},
 				"./markdown": {
@@ -78,62 +70,89 @@
 				},
 				"./chat": {
 					"source": "src/chat/index.ts",
-					"runtime": ["./src/chat/index.ts", "./src/chat/index.web.ts"],
-					"types": ["./types/generated/chat/index.d.ts", "./types/generated/chat/index.web.d.ts"]
+					"runtime": [
+						"./src/chat/index.ts",
+						"./src/chat/index.web.ts"
+					],
+					"types": [
+						"./types/generated/chat/index.d.ts"
+					]
 				},
 				"./ios": {
 					"source": "src/ios/index.ts",
-					"runtime": ["./src/ios/index.ts"],
+					"runtime": [
+						"./src/ios/index.ts"
+					],
 					"types": "./types/generated/ios/index.d.ts"
 				},
 				"./android": {
 					"source": "src/android/index.ts",
-					"runtime": ["./src/android/index.ts"],
+					"runtime": [
+						"./src/android/index.ts"
+					],
 					"types": "./types/generated/android/index.d.ts"
 				},
 				"./nativescript": {
 					"source": "src/nativescript/index.ts",
-					"runtime": ["./src/nativescript/index.ts"],
+					"runtime": [
+						"./src/nativescript/index.ts"
+					],
 					"types": "./types/generated/nativescript/index.d.ts"
 				},
 				"./web": {
 					"source": "src/web/index.ts",
-					"runtime": ["./src/web/index.ts"],
+					"runtime": [
+						"./src/web/index.ts"
+					],
 					"types": "./types/generated/web/index.d.ts"
 				},
 				"./macos": {
 					"source": "src/macos/index.ts",
-					"runtime": ["./src/macos/index.ts"],
+					"runtime": [
+						"./src/macos/index.ts"
+					],
 					"types": "./types/generated/macos/index.d.ts"
 				},
 				"./linux": {
 					"source": "src/linux/index.ts",
-					"runtime": ["./src/linux/index.ts"],
+					"runtime": [
+						"./src/linux/index.ts"
+					],
 					"types": "./types/generated/linux/index.d.ts"
 				},
 				"./parity": {
 					"source": "src/parity/index.ts",
-					"runtime": ["./dist/parity/index.js"],
+					"runtime": [
+						"./dist/parity/index.js"
+					],
 					"types": "./types/generated/parity/index.d.ts"
 				},
 				"./parity/check-helpers": {
 					"source": "src/parity/check-helpers.ts",
-					"runtime": ["./dist/parity/check-helpers.js"],
+					"runtime": [
+						"./dist/parity/check-helpers.js"
+					],
 					"types": "./types/generated/parity/check-helpers.d.ts"
 				},
 				"./nativescript/keyboard": {
 					"source": "src/nativescript/keyboard.ts",
-					"runtime": ["./src/nativescript/keyboard.ts"],
+					"runtime": [
+						"./src/nativescript/keyboard.ts"
+					],
 					"types": "./types/generated/nativescript/keyboard.d.ts"
 				},
 				"./routing/web-host": {
 					"source": "src/routing/web-host.web.ts",
-					"runtime": ["./src/routing/web-host.web.ts"],
+					"runtime": [
+						"./src/routing/web-host.web.ts"
+					],
 					"types": "./types/generated/routing/web-host.web.d.ts"
 				},
 				"./routing/core": {
 					"source": "src/routing/core.ts",
-					"runtime": ["./src/routing/core.ts"],
+					"runtime": [
+						"./src/routing/core.ts"
+					],
 					"types": "./types/generated/routing/core.d.ts"
 				}
 			}

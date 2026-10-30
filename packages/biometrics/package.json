@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/biometrics",
 	"version": "0.18.0",
-	"description": "Biometric verification (FaceID/TouchID/fingerprint) for Octane xplat \u2014 matching web + NativeScript implementations",
+	"description": "Biometric verification (FaceID/TouchID/fingerprint) for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"biometrics",
@@ -31,11 +31,8 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
 			"types": "./types/generated/index.d.ts",
+			"macos": "./src/index.macos.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": {

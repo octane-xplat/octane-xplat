@@ -7,202 +7,372 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.macos.ts",
-					"runtime": ["./src/index.macos.ts", "./src/index.ts", "./src/index.web.ts"],
+					"runtime": [
+						"./src/index.macos.ts",
+						"./src/index.ts",
+						"./src/index.web.ts"
+					],
 					"types": [
-						"./types/generated/index.macos.d.ts",
-						"./types/generated/index.d.ts",
-						"./types/generated/index.web.d.ts"
+						"./types/generated/index.d.ts"
 					]
 				},
 				"./host": {
 					"source": "src/host-protocol.ts",
-					"runtime": ["./src/host-protocol.ts"],
-					"types": ["./types/generated/host-protocol.d.ts"]
+					"runtime": [
+						"./src/host-protocol.ts"
+					],
+					"types": [
+						"./types/generated/host-protocol.d.ts"
+					]
 				},
 				"./host/web": {
 					"source": "src/host-runtime.web.ts",
-					"runtime": ["./src/host-runtime.web.ts"],
-					"types": ["./types/generated/host-runtime.web.d.ts"]
+					"runtime": [
+						"./src/host-runtime.web.ts"
+					],
+					"types": [
+						"./types/generated/host-runtime.web.d.ts"
+					]
 				},
 				"./host/services": {
 					"source": "src/host-services.ts",
-					"runtime": ["./src/host-services.ts"],
-					"types": ["./types/generated/host-services.d.ts"]
+					"runtime": [
+						"./src/host-services.ts"
+					],
+					"types": [
+						"./types/generated/host-services.d.ts"
+					]
 				},
 				"./testing": {
 					"source": "src/testing.mobile.ts",
-					"runtime": ["./src/testing.mobile.ts"],
-					"types": ["./types/generated/testing.mobile.d.ts"]
+					"runtime": [
+						"./src/testing.mobile.ts"
+					],
+					"types": [
+						"./types/generated/testing.mobile.d.ts"
+					]
 				},
 				"./dev-actions": {
 					"source": "src/dev-actions.ts",
-					"runtime": ["./src/dev-actions.ts"],
-					"types": ["./types/generated/dev-actions.d.ts"]
+					"runtime": [
+						"./src/dev-actions.ts"
+					],
+					"types": [
+						"./types/generated/dev-actions.d.ts"
+					]
 				},
 				"./environment": {
 					"source": "src/environment.macos.ts",
-					"runtime": ["./src/environment.ts", "./src/environment.web.ts", "./src/environment.macos.ts"],
-					"types": ["./types/generated/environment.d.ts", "./types/generated/environment.web.d.ts", "./types/generated/environment.macos.d.ts"]
+					"runtime": [
+						"./src/environment.ts",
+						"./src/environment.web.ts",
+						"./src/environment.macos.ts"
+					],
+					"types": [
+						"./types/generated/environment.d.ts"
+					]
 				},
 				"./*": {
 					"source": "src/index.ts",
-					"runtime": ["./src/*"],
-					"types": ["./types/generated/*.d.ts"]
+					"runtime": [
+						"./src/*"
+					],
+					"types": [
+						"./types/generated/*.d.ts"
+					]
 				},
 				"./*.ts": {
 					"source": "src/index.ts",
-					"runtime": ["./src/*.ts"],
-					"types": ["./types/generated/*.d.ts"]
+					"runtime": [
+						"./src/*.ts"
+					],
+					"types": [
+						"./types/generated/*.d.ts"
+					]
 				},
 				"./breakpoints.ts": {
 					"source": "src/breakpoints.tsrx",
-					"runtime": ["./src/breakpoints.tsrx"],
-					"types": ["./types/generated/breakpoints.d.ts"]
+					"runtime": [
+						"./src/breakpoints.tsrx"
+					],
+					"types": [
+						"./types/generated/breakpoints.d.ts"
+					]
 				},
 				"./breakpoints.web.ts": {
 					"source": "src/breakpoints.web.tsrx",
-					"runtime": ["./src/breakpoints.web.tsrx"],
-					"types": ["./types/generated/breakpoints.web.d.ts"]
+					"runtime": [
+						"./src/breakpoints.web.tsrx"
+					],
+					"types": [
+						"./types/generated/breakpoints.web.d.ts"
+					]
 				},
 				"./lifecycle.ts": {
 					"source": "src/lifecycle.tsrx",
-					"runtime": ["./src/lifecycle.tsrx"],
-					"types": ["./types/generated/lifecycle.d.ts"]
+					"runtime": [
+						"./src/lifecycle.tsrx"
+					],
+					"types": [
+						"./types/generated/lifecycle.d.ts"
+					]
 				},
 				"./lifecycle.web.ts": {
 					"source": "src/lifecycle.web.tsrx",
-					"runtime": ["./src/lifecycle.web.tsrx"],
-					"types": ["./types/generated/lifecycle.web.d.ts"]
+					"runtime": [
+						"./src/lifecycle.web.tsrx"
+					],
+					"types": [
+						"./types/generated/lifecycle.web.d.ts"
+					]
 				},
 				"./safe-area.ts": {
 					"source": "src/safe-area.tsrx",
-					"runtime": ["./src/safe-area.tsrx"],
-					"types": ["./types/generated/safe-area.d.ts"]
+					"runtime": [
+						"./src/safe-area.tsrx"
+					],
+					"types": [
+						"./types/generated/safe-area.d.ts"
+					]
 				},
 				"./safe-area.web.ts": {
 					"source": "src/safe-area.web.tsrx",
-					"runtime": ["./src/safe-area.web.tsrx"],
-					"types": ["./types/generated/safe-area.web.d.ts"]
+					"runtime": [
+						"./src/safe-area.web.tsrx"
+					],
+					"types": [
+						"./types/generated/safe-area.web.d.ts"
+					]
 				},
 				"./screen.ts": {
 					"source": "src/screen.tsrx",
-					"runtime": ["./src/screen.tsrx"],
-					"types": ["./types/generated/screen.d.ts"]
+					"runtime": [
+						"./src/screen.tsrx"
+					],
+					"types": [
+						"./types/generated/screen.d.ts"
+					]
 				},
 				"./screen.web.ts": {
 					"source": "src/screen.web.tsrx",
-					"runtime": ["./src/screen.web.tsrx"],
-					"types": ["./types/generated/screen.web.d.ts"]
+					"runtime": [
+						"./src/screen.web.tsrx"
+					],
+					"types": [
+						"./types/generated/screen.web.d.ts"
+					]
 				},
 				"./breakpoints": {
 					"source": "src/breakpoints.tsrx",
-					"runtime": ["./src/breakpoints.macos.tsrx", "./src/breakpoints"],
-					"types": ["./types/generated/breakpoints.d.ts", "./types/generated/breakpoints.macos.d.ts"]
+					"runtime": [
+						"./src/breakpoints.macos.tsrx",
+						"./src/breakpoints"
+					],
+					"types": [
+						"./types/generated/breakpoints.d.ts"
+					]
 				},
 				"./breakpoints.tsrx": {
 					"source": "src/breakpoints.tsrx",
-					"runtime": ["./src/breakpoints.macos.tsrx", "./src/breakpoints.tsrx"],
-					"types": ["./types/generated/breakpoints.d.ts", "./types/generated/breakpoints.macos.d.ts"]
+					"runtime": [
+						"./src/breakpoints.macos.tsrx",
+						"./src/breakpoints.tsrx"
+					],
+					"types": [
+						"./types/generated/breakpoints.d.ts"
+					]
 				},
 				"./lifecycle": {
 					"source": "src/lifecycle.tsrx",
-					"runtime": ["./src/lifecycle.macos.tsrx", "./src/lifecycle"],
-					"types": ["./types/generated/lifecycle.d.ts", "./types/generated/lifecycle.macos.d.ts"]
+					"runtime": [
+						"./src/lifecycle.macos.tsrx",
+						"./src/lifecycle"
+					],
+					"types": [
+						"./types/generated/lifecycle.d.ts"
+					]
 				},
 				"./lifecycle.tsrx": {
 					"source": "src/lifecycle.tsrx",
-					"runtime": ["./src/lifecycle.macos.tsrx", "./src/lifecycle.tsrx"],
-					"types": ["./types/generated/lifecycle.d.ts", "./types/generated/lifecycle.macos.d.ts"]
+					"runtime": [
+						"./src/lifecycle.macos.tsrx",
+						"./src/lifecycle.tsrx"
+					],
+					"types": [
+						"./types/generated/lifecycle.d.ts"
+					]
 				},
 				"./safe-area": {
 					"source": "src/safe-area.tsrx",
-					"runtime": ["./src/safe-area.macos.tsrx", "./src/safe-area"],
-					"types": ["./types/generated/safe-area.d.ts", "./types/generated/safe-area.macos.d.ts"]
+					"runtime": [
+						"./src/safe-area.macos.tsrx",
+						"./src/safe-area"
+					],
+					"types": [
+						"./types/generated/safe-area.d.ts"
+					]
 				},
 				"./safe-area.tsrx": {
 					"source": "src/safe-area.tsrx",
-					"runtime": ["./src/safe-area.macos.tsrx", "./src/safe-area.tsrx"],
-					"types": ["./types/generated/safe-area.d.ts", "./types/generated/safe-area.macos.d.ts"]
+					"runtime": [
+						"./src/safe-area.macos.tsrx",
+						"./src/safe-area.tsrx"
+					],
+					"types": [
+						"./types/generated/safe-area.d.ts"
+					]
 				},
 				"./screen": {
 					"source": "src/screen.tsrx",
-					"runtime": ["./src/screen.macos.tsrx", "./src/screen"],
-					"types": ["./types/generated/screen.d.ts", "./types/generated/screen.macos.d.ts"]
+					"runtime": [
+						"./src/screen.macos.tsrx",
+						"./src/screen"
+					],
+					"types": [
+						"./types/generated/screen.d.ts"
+					]
 				},
 				"./screen.tsrx": {
 					"source": "src/screen.tsrx",
-					"runtime": ["./src/screen.macos.tsrx", "./src/screen.tsrx"],
-					"types": ["./types/generated/screen.d.ts", "./types/generated/screen.macos.d.ts"]
+					"runtime": [
+						"./src/screen.macos.tsrx",
+						"./src/screen.tsrx"
+					],
+					"types": [
+						"./types/generated/screen.d.ts"
+					]
 				},
 				"./locale": {
 					"source": "src/locale.ts",
-					"runtime": ["./src/locale.macos.ts", "./src/locale"],
-					"types": ["./types/generated/locale.d.ts", "./types/generated/locale.macos.d.ts"]
+					"runtime": [
+						"./src/locale.macos.ts",
+						"./src/locale"
+					],
+					"types": [
+						"./types/generated/locale.d.ts"
+					]
 				},
 				"./locale.ts": {
 					"source": "src/locale.ts",
-					"runtime": ["./src/locale.macos.ts", "./src/locale.ts"],
-					"types": ["./types/generated/locale.d.ts", "./types/generated/locale.macos.d.ts"]
+					"runtime": [
+						"./src/locale.macos.ts",
+						"./src/locale.ts"
+					],
+					"types": [
+						"./types/generated/locale.d.ts"
+					]
 				},
 				"./device": {
 					"source": "src/device.ts",
-					"runtime": ["./src/device.macos.ts", "./src/device"],
-					"types": ["./types/generated/device.d.ts", "./types/generated/device.macos.d.ts"]
+					"runtime": [
+						"./src/device.macos.ts",
+						"./src/device"
+					],
+					"types": [
+						"./types/generated/device.d.ts"
+					]
 				},
 				"./device.ts": {
 					"source": "src/device.ts",
-					"runtime": ["./src/device.macos.ts", "./src/device.ts"],
-					"types": ["./types/generated/device.d.ts", "./types/generated/device.macos.d.ts"]
+					"runtime": [
+						"./src/device.macos.ts",
+						"./src/device.ts"
+					],
+					"types": [
+						"./types/generated/device.d.ts"
+					]
 				},
 				"./system-bars": {
 					"source": "src/system-bars.ts",
-					"runtime": ["./src/system-bars.macos.ts", "./src/system-bars"],
-					"types": ["./types/generated/system-bars.d.ts", "./types/generated/system-bars.macos.d.ts"]
+					"runtime": [
+						"./src/system-bars.macos.ts",
+						"./src/system-bars"
+					],
+					"types": [
+						"./types/generated/system-bars.d.ts"
+					]
 				},
 				"./system-bars.ts": {
 					"source": "src/system-bars.ts",
-					"runtime": ["./src/system-bars.macos.ts", "./src/system-bars.ts"],
-					"types": ["./types/generated/system-bars.d.ts", "./types/generated/system-bars.macos.d.ts"]
+					"runtime": [
+						"./src/system-bars.macos.ts",
+						"./src/system-bars.ts"
+					],
+					"types": [
+						"./types/generated/system-bars.d.ts"
+					]
 				},
 				"./use-keep-awake.macos.ts": {
 					"source": "src/use-keep-awake.macos.tsrx",
-					"runtime": ["./src/use-keep-awake.macos.tsrx"],
-					"types": ["./types/generated/use-keep-awake.macos.d.ts"]
+					"runtime": [
+						"./src/use-keep-awake.macos.tsrx"
+					],
+					"types": [
+						"./types/generated/use-keep-awake.macos.d.ts"
+					]
 				},
 				"./use-keep-awake.ts": {
 					"source": "src/use-keep-awake.tsrx",
-					"runtime": ["./src/use-keep-awake.tsrx"],
-					"types": ["./types/generated/use-keep-awake.d.ts"]
+					"runtime": [
+						"./src/use-keep-awake.tsrx"
+					],
+					"types": [
+						"./types/generated/use-keep-awake.d.ts"
+					]
 				},
 				"./use-keep-awake.web.ts": {
 					"source": "src/use-keep-awake.web.tsrx",
-					"runtime": ["./src/use-keep-awake.web.tsrx"],
-					"types": ["./types/generated/use-keep-awake.web.d.ts"]
+					"runtime": [
+						"./src/use-keep-awake.web.tsrx"
+					],
+					"types": [
+						"./types/generated/use-keep-awake.web.d.ts"
+					]
 				},
 				"./*.tsrx": {
 					"source": "src/index.ts",
-					"runtime": ["./src/*.tsrx"],
-					"types": ["./types/generated/*.d.ts"]
+					"runtime": [
+						"./src/*.tsrx"
+					],
+					"types": [
+						"./types/generated/*.d.ts"
+					]
 				},
 				"./ios": {
 					"source": "src/types/ios.ts",
-					"runtime": ["./src/types/ios.ts"],
-					"types": ["./types/generated/types/ios.d.ts"]
+					"runtime": [
+						"./src/types/ios.ts"
+					],
+					"types": [
+						"./types/generated/types/ios.d.ts"
+					]
 				},
 				"./android": {
 					"source": "src/types/android.ts",
-					"runtime": ["./src/types/android.ts"],
-					"types": ["./types/generated/types/android.d.ts"]
+					"runtime": [
+						"./src/types/android.ts"
+					],
+					"types": [
+						"./types/generated/types/android.d.ts"
+					]
 				},
 				"./macos": {
 					"source": "src/types/macos.macos.ts",
-					"runtime": ["./src/types/macos.macos.ts"],
-					"types": ["./types/generated/types/macos.macos.d.ts"]
+					"runtime": [
+						"./src/types/macos.macos.ts"
+					],
+					"types": [
+						"./types/generated/types/macos.macos.d.ts"
+					]
 				},
 				"./windows": {
 					"source": "src/types/windows.ts",
-					"runtime": ["./src/types/windows.ts"],
-					"types": ["./types/generated/types/windows.d.ts"]
+					"runtime": [
+						"./src/types/windows.ts"
+					],
+					"types": [
+						"./types/generated/types/windows.d.ts"
+					]
 				}
 			}
 		}

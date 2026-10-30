@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/canvas",
 	"version": "0.18.0",
-	"description": "Canvas/GPU surface for Octane xplat \u2014 web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)",
+	"description": "Canvas/GPU surface for Octane xplat — web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)",
 	"keywords": [
 		"canvas",
 		"cross-platform",
@@ -32,18 +32,9 @@
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"macos": {
-				"types": "./types/generated/index.macos.d.ts",
-				"default": "./src/index.macos.ts"
-			},
-			"native": {
-				"types": "./types/generated/index.d.ts",
-				"default": "./src/index.ts"
-			},
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.macos.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		}
 	},
