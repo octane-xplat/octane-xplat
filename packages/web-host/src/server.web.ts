@@ -61,8 +61,11 @@ function renderTemplate(template: string, slots: Record<'head' | 'app' | 'script
 export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 	options: WebHandlerOptions<Catalog>,
 ): {
+	/** Render page content for a request — redirects and error statuses return a Response directly. */
 	render: (request: Request) => Promise<WebRenderedPage | Response>
+	/** Assemble the final HTML document Response for a rendered page; verifies the page matches the request URL. */
 	document: (page: WebRenderedPage, request: Request) => Promise<Response>
+	/** Resolve a route destination to its public pathname. */
 	href(
 		destination: DestinationFor<ContractsOf<Catalog>, keyof ContractsOf<Catalog> & string, string>,
 	): string

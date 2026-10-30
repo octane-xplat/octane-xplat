@@ -1,4 +1,6 @@
-/** A native capability callable from an app-owned desktop webview. */
+/** A native capability callable from an app-owned desktop webview. The
+ *  signature stays `any[]`/`unknown` — concrete types flow through the
+ *  caller's `HostServiceMap` generic instead of this fallback shape. */
 export type HostServiceMethod = (...args: any[]) => unknown
 
 /** Services registered in the native JavaScript host. */
@@ -98,6 +100,7 @@ export interface HostClient<
 	Services extends object = HostServiceMap,
 	Events extends object = HostEventMap,
 > {
+	/** Invoke a host service method over the transport; resolves with the awaited result, rejects on host errors or disposal. */
 	call<Service extends keyof Services & string, Method extends keyof Services[Service] & string>(
 		/** Target service name. */
 		service: Service,

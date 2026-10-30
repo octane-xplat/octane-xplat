@@ -13,6 +13,9 @@ function read(): WindowSize {
 	}
 }
 
+/** Window size in CSS px plus derived orientation; re-renders on change.
+ *  Inside a desktop webview this follows host `window.resize` events; in a
+ *  browser it listens for window resize/orientationchange. */
 export function useWindowSize(): WindowSize {
 	const bootstrap = desktopHostBootstrap()
 	const [size, setSize] = useState<WindowSize>(bootstrap?.windowSize ?? read)

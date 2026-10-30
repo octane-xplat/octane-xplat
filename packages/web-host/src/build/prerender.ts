@@ -4,22 +4,31 @@ import { resolve, dirname, join, relative, isAbsolute } from 'node:path'
 
 /** A public rendered page, independent of the current build's document and assets. */
 export interface StaticPage {
+	/** Payload schema version; currently always 1. */
 	version: 1
+	/** Pathname + search the page was rendered for. */
 	url: string
+	/** HTTP status the rendered document carried; prerender only keeps 200. */
 	status: number
+	/** Response headers as name/value pairs; only content-type and cache-control survive static hosting. */
 	headers: [string, string][]
 }
 
 /** One concrete route and its content revision. null always renders again. */
 export interface StaticPath<Destination> {
+	/** Route destination resolved to a concrete pathname by the renderer's href(). */
 	destination: Destination
+	/** Content revision key enabling reuse; `null` always renders again. Must cover every data dependency of the page. */
 	key: string | null
 }
 
 /** Build-time renderer, normally returned by createWebRenderer in a compiled server entry. */
 export interface StaticRenderer<Destination, Page extends StaticPage> {
+	/** Resolve a route destination to its public pathname. */
 	href(destination: Destination): string
+	/** Render page content for a request; may return a Response for redirects/errors. */
 	render(request: Request): Promise<Page | Response>
+	/** Assemble the final HTML document for a rendered page. */
 	document(page: Page, request: Request): Promise<Response>
 }
 
@@ -27,10 +36,15 @@ export interface StaticRenderer<Destination, Page extends StaticPage> {
  * revision must change with route, loader, guard, App or renderer code. Content keys
  * must include every data dependency. Reuse skips preparation, guards and rendering. */
 export interface PrerenderOptions<Destination> {
+	/** Output directory — exclusively owned by the prerenderer and replaced atomically. */
 	outDir: string
+	/** Content-key cache enabling reuse across runs; must live outside outDir. */
 	cacheFile?: string
+	/** HTTP(S) origin used to build request URLs — no path, query or credentials. */
 	origin: string
+	/** Renderer revision; must change with route, loader, guard, App or renderer code. */
 	revision: string
+	/** Concrete routes to emit, or an async enumerator for them. */
 	paths:
 		| Iterable<StaticPath<Destination>>
 		| (() => Iterable<StaticPath<Destination>> | Promise<Iterable<StaticPath<Destination>>>)

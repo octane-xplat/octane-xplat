@@ -76,6 +76,8 @@ function watchAndroidInsets(update: (insets: Insets) => void): () => void {
 	return () => decorView.setOnApplyWindowInsetsListener(null)
 }
 
+/** Current safe-area insets in DIPs; re-renders on rotation, resume, and
+ *  (Android) window-inset application. Zeroes on platforms without insets. */
 export function useSafeAreaInsets(): Insets {
 	const [insets, setInsets] = useState<Insets>(readInsets)
 	useEffect(() => {

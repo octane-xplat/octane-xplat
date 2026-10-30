@@ -85,6 +85,13 @@ export interface MountXplatOptions {
 // previous root's native tree while its subscriptions and timers stay live.
 const liveMounts = new Set<() => Promise<void>>()
 
+/**
+ * Mount an Octane component into the unit-test runner's host surface and
+ * resolve once the view is loaded and laid out. Mounting unmounts any earlier
+ * mountXplat root first — the runner shares one host. Returns the rendered
+ * ContentView plus an idempotent unmount; `options.autoUnmount` (default
+ * true) also unmounts when the current test finishes.
+ */
 export async function mountXplat<P extends object>(
 	component: (props: P) => unknown,
 	props?: P,

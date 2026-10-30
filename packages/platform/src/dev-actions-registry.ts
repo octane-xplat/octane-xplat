@@ -141,11 +141,14 @@ export interface DevActionSpec {
 	 * knowing app route structure. Dev actions only.
 	 */
 	route?: string | ((input: Record<string, unknown>) => string)
+	/** The handler. May return a Promise; the awaited result is validated
+	 *  against the declared `result` contract, so `unknown` is honest here. */
 	run(input: Record<string, unknown>, context: DevActionContext): unknown
 }
 
 /** Handle for a running dev action. */
 export interface DevActionHandle {
+	/** Remove this registration's declaration/attachment; idempotent. */
 	dispose(): void
 }
 
@@ -160,13 +163,17 @@ export type DevEffectDeclaration = Omit<DevActionDeclaration, 'result'>
 
 /** A declared dev action: the announced contract plus its disposal handle. */
 export interface DevActionDefinition extends DevActionHandle {
+	/** The declared action id. */
 	readonly id: string
+	/** Discriminates from a dev-effect definition. */
 	readonly kind: 'action'
 }
 
 /** A declared dev effect: every attached handler runs on each invocation. */
 export interface DevEffectDefinition extends DevActionHandle {
+	/** The declared effect id. */
 	readonly id: string
+	/** Discriminates from a dev-action definition. */
 	readonly kind: 'effect'
 }
 
@@ -265,8 +272,11 @@ export type DevNavigationResult =
  * `@octane-xplat/ui/routing/dev`. @internal
  */
 export interface DevActionNavigator {
+	/** Navigate to a route; resolves with the outcome the router reports. */
 	navigate(url: string, signal: AbortSignal): Promise<DevNavigationResult>
+	/** Current route snapshot; undefined when the router has no location yet. */
 	location(): { route: string | null; modal: boolean } | undefined
+	/** Subscribe to route changes; returns an unsubscribe. */
 	subscribe(listener: () => void): () => void
 }
 
@@ -326,9 +336,13 @@ interface InvocationRequest {
 
 /** Bridge the dev host uses to reach actions. */
 export interface DevActionBridge {
+	/** Per-app-instance identifier announced to the dev server. */
 	readonly instanceId: string
+	/** Bridge lifecycle: connecting → live → degraded/stopped; 'unavailable' when the host has no endpoint. */
 	readonly state: 'connecting' | 'live' | 'degraded' | 'stopped' | 'unavailable'
+	/** Most recent transport/polling error, when in 'degraded' state. */
 	readonly lastError?: string
+	/** Stop announcing and polling; idempotent. */
 	stop(): void
 }
 

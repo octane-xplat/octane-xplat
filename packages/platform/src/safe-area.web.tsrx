@@ -24,6 +24,8 @@ function measure(): Insets {
 	return insets
 }
 
+/** Current safe-area insets in CSS px, measured from `env(safe-area-inset-*)`;
+ *  re-renders on window resize. Zeroes where the env() variables are unset. */
 export function useSafeAreaInsets(): Insets {
 	const [insets, setInsets] = useState<Insets>({ top: 0, bottom: 0, left: 0, right: 0 })
 	useEffect(() => {

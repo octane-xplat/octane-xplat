@@ -14,6 +14,8 @@ function read(): WindowSize {
 	}
 }
 
+/** Main-screen size in DIPs plus derived orientation; re-renders on
+ *  orientation changes. */
 export function useWindowSize(): WindowSize {
 	const [size, setSize] = useState<WindowSize>(read)
 	useEffect(() => {

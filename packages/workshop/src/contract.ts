@@ -34,8 +34,11 @@ export type StoryTargets = 'all' | readonly WorkshopTarget[]
  * `AbortController`/`signal.throwIfAborted` being the underlying mechanism.
  */
 export interface CancellationSignal {
+	/** True once the generation's cancellation has been requested. */
 	readonly aborted: boolean
+	/** Subscribe to cancellation; the listener fires once when the generation retires. */
 	addEventListener(type: 'abort', listener: () => void): void
+	/** Detach a previously registered abort listener. */
 	removeEventListener(type: 'abort', listener: () => void): void
 }
 
@@ -58,6 +61,7 @@ export interface FixtureContext {
 	onCleanup(cleanup: StoryCleanup): void
 }
 
+/** Prepares one generation's fixture — may return a Promise; the result is injected as the `fixture` prop. */
 export type FixtureFactory<F> = (context: FixtureContext) => F | Promise<F>
 
 /** A compiler-produced Octane component. Kept opaque to transport/tooling. */
@@ -67,7 +71,12 @@ export type StoryComponent<P> = (props: P) => unknown
  * An ordered provider wrapper. Consumer presets wrap story providers;
  * each receives the typed fixture result and `children`.
  */
-export type StoryProvider<F> = (props: { fixture: F; children?: unknown }) => unknown
+export type StoryProvider<F> = (props: {
+	/** The typed fixture result for this generation. */
+	fixture: F
+	/** The wrapped story content. */
+	children?: unknown
+}) => unknown
 
 /** Toggle control. */
 export interface BooleanControl {
@@ -95,6 +104,7 @@ export interface NumberControl {
 	step?: number
 }
 
+/** Single-choice control over an explicit option list. */
 export interface EnumControl<T> {
 	/** Control kind discriminator. */
 	type: 'enum'
@@ -112,26 +122,70 @@ type ControlValue<T> = 0 extends 1 & T
 				? StringControl | EnumControl<T>
 				: never
 
+/** Unset option for an optional prop. */
+interface StoryControlUnset {
+	/** 'Unset' removes the key from the next props bag rather than merging a stale value. */
+	allowUnset?: boolean
+}
+/** Unset prohibition for a required prop. */
+interface StoryControlNoUnset {
+	/** Always false on required props — a required key cannot be unset. */
+	allowUnset?: false
+}
+
 /**
  * Controls may be declared only for explicitly declared, portable-valued
  * props. `allowUnset` is legal only on optional props — Unset removes the
  * key from the next props bag rather than merging a stale value.
  */
 export type StoryControl<T, Optional extends boolean> = ControlValue<T> &
-	(Optional extends true ? { allowUnset?: boolean } : { allowUnset?: false })
+	(Optional extends true ? StoryControlUnset : StoryControlNoUnset)
 
+/** Editable inputs per declared prop, keyed by prop name. */
 export type StoryControls<P> = {
 	[K in keyof P]?: StoryControl<NonNullable<P[K]>, undefined extends P[K] ? true : false>
 }
 
+/** Injected state prop for a stateful story. */
+interface InjectedStateProp<S> {
+	/** Fresh state store injected into the component per generation. */
+	state: Store<S>
+}
+/** Injected fixture prop for a fixture-bearing story. */
+interface InjectedFixtureProp<F> {
+	/** Typed fixture result injected into the component per generation. */
+	fixture: F
+}
+
 /** Props the runner injects beyond `args`: fresh state store + fixture. */
-export type InjectedStoryProps<S, F> = (S extends void ? unknown : { state: Store<S> }) &
-	(F extends void ? unknown : { fixture: F })
+export type InjectedStoryProps<S, F> = (S extends void ? unknown : InjectedStateProp<S>) &
+	(F extends void ? unknown : InjectedFixtureProp<F>)
 
 type ReservedStoryKeys = 'state' | 'fixture'
 
 /** Reserved injected prop names cannot collide with declared props. */
 type PropsWithoutReserved<P> = Extract<keyof P, ReservedStoryKeys> extends never ? P : never
+
+/** State field for a stateless story — must stay undeclared. */
+interface StoryStateAbsent {
+	/** Reserved injected prop — must stay undeclared when the story has no state. */
+	state?: never
+}
+/** State factory for a stateful story. */
+interface StoryStateField<S> {
+	/** Fresh-state factory run per generation; the result is injected as the `state` prop. */
+	state: () => S
+}
+/** Fixture field for a fixture-less story — must stay undeclared. */
+interface StoryFixtureAbsent {
+	/** Reserved injected prop — must stay undeclared when the story has no fixture. */
+	fixture?: never
+}
+/** Fixture factory for a fixture-bearing story. */
+interface StoryFixtureField<F> {
+	/** Fixture factory run per generation; the result is injected as the `fixture` prop. */
+	fixture: FixtureFactory<F>
+}
 
 /**
  * A complete story declaration. `id`, `title`, `targets`, and `capabilities`
@@ -157,8 +211,8 @@ export type StoryDefinition<P = Record<string, never>, S = void, F = void> = {
 	fixtureTimeout?: number
 	/** Ordered wrappers applied around the component for each generation. */
 	providers?: readonly StoryProvider<F extends void ? undefined : F>[]
-} & (S extends void ? { state?: never } : { state: () => S }) &
-	(F extends void ? { fixture?: never } : { fixture: FixtureFactory<F> })
+} & (S extends void ? StoryStateAbsent : StoryStateField<S>) &
+	(F extends void ? StoryFixtureAbsent : StoryFixtureField<F>)
 
 /** Declare a story. Validates cheap authoring rules eagerly. */
 export function defineStory<P = Record<string, never>, S = void, F = void>(

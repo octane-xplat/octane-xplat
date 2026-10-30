@@ -34,6 +34,7 @@ export interface MobileWorkshopRuntime {
 	controller: NativeWorkshopController
 	/** Host page/screen. */
 	page: Page
+	/** Tear down the workshop — disposes the controller and detaches the stage; idempotent. */
 	dispose(): Promise<void>
 }
 

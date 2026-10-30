@@ -53,22 +53,32 @@ export interface SessionSnapshot {
 }
 
 export interface MountRequest {
+	/** The story definition being mounted. */
 	story: StoryDefinition<any, any, any>
+	/** The component to render. */
 	component: (props: any) => unknown
+	/** Resolved props for this generation. */
 	props: Record<string, unknown>
+	/** Ordered provider wrappers applied around the component. */
 	providers: readonly unknown[]
+	/** The settled fixture value for this generation. */
 	fixture: unknown
+	/** Aborted when the generation retires — mount work must stop. */
 	signal: CancellationSignal
+	/** Render-failure callback reported by the host boundary. */
 	onRenderError: (error: unknown) => void
 }
 
 export interface MountedStory {
+	/** Push updated props into the mounted story. */
 	update(props: Record<string, unknown>): void
+	/** Tear down the mounted story; may be async. */
 	unmount(): void | Promise<void>
 }
 
 /** Host adapter seam — the web adapter supplies createRoot mounting. */
 export interface StageHost {
+	/** Mount a generation's story into the host stage. */
 	mount(request: MountRequest): MountedStory | Promise<MountedStory>
 }
 

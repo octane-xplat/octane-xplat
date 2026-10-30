@@ -13,6 +13,7 @@ import {
 
 type ReadyProbe = Exclude<DevActionAvailability['ready'], boolean | undefined>
 
+/** Options for the useDevAction/useDevEffect hooks. */
 export interface DevActionHookOptions {
 	/** false detaches the handler without unmounting (e.g. an unfocused tab). Default true. */
 	enabled?: boolean

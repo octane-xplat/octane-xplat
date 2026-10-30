@@ -16,6 +16,7 @@ export interface NativeShellState {
 	missingId: string | null
 	/** Active search/filter text. */
 	query: string
+	/** Catalog group ids the user collapsed. */
 	collapsedGroups: ReadonlySet<string>
 	/** Panel visibility/selection. */
 	panel: 'stories' | 'controls' | null
@@ -23,7 +24,9 @@ export interface NativeShellState {
 	stageOnly: boolean
 	/** Controller display mode. */
 	mode: ShellMode
+	/** Wide mode only — the story catalog column is hidden. */
 	catalogCollapsed: boolean
+	/** Wide mode only — the controls column is hidden. */
 	controlsCollapsed: boolean
 	/** Unsaved control edits. */
 	drafts: Record<string, string>
@@ -31,6 +34,7 @@ export interface NativeShellState {
 	errors: Record<string, string>
 	/** Catalog load failure. */
 	catalogError: string
+	/** Stage chrome: backdrop theme and whether the story gets bounded bounds. */
 	stage: { background: 'default' | 'dark'; size: 'available' | 'bounded' }
 	/** The workshop session being controlled. */
 	session: SessionSnapshot
@@ -52,7 +56,9 @@ export function shellMode(width: number, height: number): ShellMode {
  * hosts and tests working against the same shape.
  */
 export class NativeWorkshopController {
+	/** The workshop session being controlled. */
 	readonly session: WorkshopSession
+	/** Backing store for shell state; the chrome reads it with `useStore`. */
 	readonly store: Store<NativeShellState>
 	private generation = 0
 	private disposed = false
@@ -100,6 +106,7 @@ export class NativeWorkshopController {
 		this.session.subscribe((snapshot) => this.set({ session: snapshot }))
 	}
 
+	/** Current shell-state snapshot. */
 	get state(): NativeShellState {
 		return this.store.getSnapshot()
 	}
@@ -110,46 +117,57 @@ export class NativeWorkshopController {
 
 	// Property accessors — the same names the mobile and macOS controllers
 	// exposed, forwarded to the store so chrome/tests stay identical.
+	/** Discovered story catalog. */
 	get catalog(): readonly CatalogEntry[] {
 		return this.state.catalog
 	}
+	/** Currently selected story id, or null when nothing is selected. */
 	get selectedId(): string | null {
 		return this.state.selectedId
 	}
+	/** Selected id absent from the current catalog, or null. */
 	get missingId(): string | null {
 		return this.state.missingId
 	}
+	/** Active search/filter text. */
 	get query() {
 		return this.state.query
 	}
 	set query(value: string) {
 		this.set({ query: value })
 	}
+	/** Active side panel in compact/phone mode, or null when closed. */
 	get panel() {
 		return this.state.panel
 	}
 	set panel(value: 'stories' | 'controls' | null) {
 		this.set({ panel: value })
 	}
+	/** Stage-only display flag — hides all chrome. */
 	get stageOnly() {
 		return this.state.stageOnly
 	}
 	set stageOnly(value: boolean) {
 		this.set({ stageOnly: value })
 	}
+	/** Current display mode derived from window geometry. */
 	get mode(): ShellMode {
 		return this.state.mode
 	}
+	/** Unsaved control edits by control key. */
 	get drafts(): Record<string, string> {
 		return this.state.drafts
 	}
+	/** Collected control errors by control key. */
 	get errors(): Record<string, string> {
 		return this.state.errors
 	}
+	/** Catalog load failure message; empty when healthy. */
 	get catalogError(): string {
 		return this.state.catalogError
 	}
 
+	/** Recompute the display mode from window geometry — shell presentation only, never remounts the story. */
 	resize(width: number, height: number): void {
 		const mode = shellMode(width, height)
 		if (mode !== this.state.mode) {
@@ -157,6 +175,7 @@ export class NativeWorkshopController {
 		}
 	}
 
+	/** Toggle a side panel: collapses the column in wide mode, selects/closes the panel in compact and phone modes. */
 	toggle(panel: 'stories' | 'controls'): void {
 		if (this.state.mode === 'wide') {
 			if (panel === 'stories') {
@@ -169,6 +188,7 @@ export class NativeWorkshopController {
 		}
 	}
 
+	/** Select and mount a story by catalog id; missing or inapplicable ids surface a `catalogError` instead of mounting. `revision` reloads the mounted story's module. */
 	async select(id: string, revision?: string): Promise<void> {
 		if (this.disposed) {
 			return
@@ -227,6 +247,7 @@ export class NativeWorkshopController {
 		}
 	}
 
+	/** Replace the discovered catalog (e.g. after HMR). Diagnostics become a `catalogError`; a still-valid selection reloads, a vanished one unmounts. */
 	updateCatalog(
 		/** Discovered story catalog. */
 		catalog: readonly CatalogEntry[],
@@ -278,6 +299,7 @@ export class NativeWorkshopController {
 		return null
 	}
 
+	/** Apply a control edit to the mounted story; returns the error message or undefined on success. Pass `UNSET` to remove the key from the props bag. */
 	control(key: string, input: ControlValueInput): string | undefined {
 		const story = this.session.currentStory
 		const control = story?.controls?.[key]
@@ -307,11 +329,13 @@ export class NativeWorkshopController {
 		return result.error?.message
 	}
 
+	/** Clear drafts/errors and remount the story generation. */
 	async reset(): Promise<void> {
 		this.set({ drafts: {}, errors: {} })
 		await this.session.reset()
 	}
 
+	/** Tear down the session and ignore further work; idempotent. */
 	async dispose(): Promise<void> {
 		this.disposed = true
 		++this.generation

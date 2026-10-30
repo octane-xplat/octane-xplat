@@ -9,6 +9,10 @@ function browserAppState(): AppState {
 	return document.visibilityState === 'visible' ? 'active' : 'background'
 }
 
+/** Current app lifecycle state; re-renders when it changes. Inside a desktop
+ *  webview this follows the host window's `app.state.change` events; in a
+ *  browser it maps visibilitychange/pagehide/pageshow onto 'active',
+ *  'background', and 'inactive'. */
 export function useAppState(): AppState {
 	const bootstrap = desktopHostBootstrap()
 	const [state, setState] = useState<AppState>(bootstrap?.appState ?? browserAppState())

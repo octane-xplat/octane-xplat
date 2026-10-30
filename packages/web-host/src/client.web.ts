@@ -18,9 +18,13 @@ import {
 import { bootstrapId, rootId, identifierPrefix, serializePublic } from './transfer'
 import type { WebBootstrap, WebClientOptions } from './props'
 
+/** Live handles from a started web app — router, octane root and teardown. */
 export type StartWebAppResult<Catalog extends ContractRouteManifest> = {
+	/** The browser router driving navigation. */
 	router: RouterInstance<ContractsOf<Catalog>, string, RouteTransitionName>
+	/** The octane root mounted on the app container. */
 	root: Root
+	/** Unmount the root and dispose the router; idempotent-per-owner teardown. */
 	dispose(): void
 }
 

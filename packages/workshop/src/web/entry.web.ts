@@ -40,7 +40,9 @@ export interface WorkshopRuntime {
 	session: WorkshopSession
 	/** Mount the stage host element. */
 	mountHost: HTMLElement
+	/** Load and select a catalog entry; stale loads are dropped by generation. */
 	selectEntry(entry: CatalogEntry): Promise<void>
+	/** Replace the catalog (HMR reload); diagnostics surface as a session error. */
 	updateCatalog(entries: CatalogEntry[], diagnostics?: readonly { message: string }[]): void
 	/** Bump when a new catalog loads. */
 	loadGeneration: number
