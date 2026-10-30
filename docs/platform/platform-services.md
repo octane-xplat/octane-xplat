@@ -546,7 +546,7 @@ const versionLabel = appInfo.supported
 Read the values after host startup. The Windows adapter reads lazily, so an
 early unavailable read is not cached. Packaged values and app integration still
 need Windows qualification; see the
-[Windows evidence record](../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md#windows-app-metadata-candidate).
+[Windows evidence record](../../.agents/docs/exploration.md#operational-evidence).
 
 ## Open settings
 

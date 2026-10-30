@@ -30,6 +30,38 @@ Rules of the road:
   evidence type (`desk-source` vs `lab-experiment`) so we know what's proven vs
   inferred.
 
+## Operational evidence
+
+Keep operational state out of Git: run histories, pass/fail totals, pending
+checks, component dispositions, inventories, capture files, and generated reports
+belong in Silo or local files. Git holds durable constraints, rationale, reusable
+tooling/fixtures, and documentation requirements. Update conclusions in place
+instead of appending another checkpoint log.
+
+Use existing qualification/audit tables for structured state. Large file data
+belongs in ignored `research/` storage or an external local artifact directory.
+Silo's `local_artifacts` indexes preserved files by logical `artifact_key`, exact
+`sha256`, `local_path`, source revision, and byte size. It records provenance, not
+a qualification verdict. Former tracked paths serve as lookup keys.
+
+```sh
+silo context
+silo table show local_artifacts
+silo sql "SELECT artifact_key, local_path, sha256, source_commit FROM local_artifacts ORDER BY artifact_key"
+```
+
+Narrow by a topic or filename when looking up a report:
+
+```sh
+silo sql "SELECT artifact_key, local_path, sha256 FROM local_artifacts WHERE artifact_key LIKE '%appkit%' ORDER BY artifact_key"
+```
+
+Local paths are machine-specific. Check availability and hash before relying on
+a file; missing local data is unavailable evidence, not a passing check. Keep
+structured qualification results in their owning tables, separate from artifact
+metadata. Do not copy files back into tracked paths or cite Git history as the
+operational store.
+
 ## Silo conventions
 
 Database is git-scoped to this workspace (stored under Silo's app-data dir;
@@ -46,6 +78,7 @@ here are visible to parallel agents immediately. Tables:
 | `recipe_audit`          | a per-criterion recipe assessment                 | per-recipe state; `optimistic_revision` enforced       |
 | `gtk_recipe_checks`     | a GTK per-criterion recipe assessment              | per reviewed commit; `optimistic_revision` enforced    |
 | `windows_recipe_checks` | a native Windows per-criterion recipe assessment   | per reviewed commit; `optimistic_revision` enforced    |
+| `local_artifacts`       | one preserved local file at an exact content hash | file location/provenance; no qualification verdict |
 | `feedback_observations` | one local agent report of an expectation mismatch | append-only; no triage status                          |
 
 - Natural keys: topic `slug`, decision `num`. Update rows in place; don't

@@ -572,7 +572,7 @@ are claimed before release, and late handles cannot overwrite a newer source.
 This bypass controls framework caching, not platform-internal NSImage/resource
 storage or displayed bitmap lifetime. Sixteen added byte/view/adapter/CoreImage/
 prop-dispatch cases are authored, unrun; native and packed qualification remains
-separate in the [target note](../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-per-image-cache-bypass).
+separate in the [target note](../../.agents/docs/exploration.md#operational-evidence).
 
 ```tsx
 import { Image } from '@octane-xplat/ui'

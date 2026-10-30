@@ -2,9 +2,11 @@ import { readFileSync, readdirSync, existsSync, statSync, writeFileSync } from '
 import { resolve, dirname, relative, join } from 'node:path'
 import { createRequire } from 'node:module'
 import { execFileSync } from 'node:child_process'
+import { localOutputFile } from './local-output.mjs'
 
 // Run from the repository root after pnpm install. Static inspection only.
 const root = process.cwd()
+const outputPath = localOutputFile(process.argv[2] ?? 'research/desktop-audit/inventory.json', root)
 const require = createRequire(join(root, 'packages/cli/package.json'))
 const { parseModule } = await import(require.resolve('@tsrx/core'))
 const targets = ['web', 'windows', 'macos', 'gtk']
@@ -648,10 +650,7 @@ const output = {
 	dependencyGraphs,
 }
 
-writeFileSync(
-	process.argv[2] ?? 'research/desktop-audit/inventory.json',
-	JSON.stringify(output, null, 2) + '\n',
-)
+writeFileSync(outputPath, JSON.stringify(output, null, 2) + '\n')
 
 console.log(
 	JSON.stringify(

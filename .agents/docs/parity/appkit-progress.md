@@ -5,10 +5,9 @@ changing a platform claim. Source, unit tests, packaged runtime, OS input, and
 assistive technology qualify different things. Never infer full support from an
 export inventory or a passing object-driver test.
 
-The [dated qualification report](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md)
-retains feature-by-feature investigations, commits, commands, artifacts, failed
-predecessors, and bounded results. It is historical evidence, not an instruction
-to repeat old approval gates or treat an earlier failure as current.
+Operational state and raw reports live in Silo/local files. Use
+[evidence lookup](../exploration.md#operational-evidence) instead of maintaining
+a tracked run history.
 
 ## Find the owning guidance
 
@@ -52,9 +51,8 @@ Decision #134 sets the intended desktop subset:
 | Pull-to-refresh | Unsupported; provide a visible refresh action |
 | Rich-text editing | WKWebView-hosted editors are the accepted path; native editing is separate work |
 
-Still-image barcode decoding is not a hardware exclusion. The report records a
-Vision implementation but only authored stub tests at that checkpoint. Native
-symbol values, image orientation, decoding behavior, and the live-camera subset
+Still-image barcode decoding is not a hardware exclusion. Assess its Vision
+implementation and tests on the current revision. Native symbol values, image orientation, decoding behavior, and the live-camera subset
 need their own qualification; the desktop applicability decision does not close
 them.
 
@@ -62,28 +60,23 @@ them.
 
 Decision #135 requires Intel and Apple Silicon support. Universal packaging
 carries both executable slices and architecture-specific metadata; do not restore
-an arm64-only rejection. The dated report records Intel execution of the JSC
-fixture, native-leaf values, and the renderer/Mason motion fixture. These bounded
-results do not qualify every packaged workflow or notarization.
+an arm64-only rejection. JSC fixtures, native-leaf values, renderer/Mason behavior,
+packaged workflows, and notarization need independent evidence.
 
 [The build-host record](appkit-intel.md) supersedes the earlier assumption that
 all Intel native-leaf build hosts lack a usable libclang. Check the host's actual
 CLT architecture and Swift/SDK compatibility. Keep the NativeScript runtimes
 CMake workaround until the pinned upstream supports the requested architectures;
-the report records the owning source and removal condition.
+the build-host reference records the owning source and removal condition.
 
-## Verification status and remaining gates
+## Find local evidence
 
-The report contains successive suite and typecheck results. The later
-[test-debt record](appkit-test-debt.md) records 664/664 renderer tests passing,
-repairs the keyboard typegen ordering gap, and corrects the earlier theory that
-foreign-realm equality explained most failures. Its branch/revision and evidence
-scope matter; it does not establish runtime qualification or a green result for
-a different checkout.
+Look up AppKit reports in Silo's `local_artifacts` using the filename/topic,
+following [operational evidence lookup](../exploration.md#operational-evidence).
+Test-harness conclusions live in [the harness reference](appkit-test-debt.md);
+pass counts, failures, pending checks, and artifact identities stay in Silo/local
+reports. Verify the current checkout before repeating a historical diagnosis.
 
 Keep packaged smoke, OS input, VoiceOver, layout, memory, installed consumers,
-and universal distribution gates explicit. A later 30-assertion smoke pass in
-the report supersedes earlier interrupted runs for that revision only. Use the
-maintained verification guide for commands, and inspect the current checkout
-before attributing a historical blocker to it. Recipe coverage and execution
-remain separate assessments in Silo.
+and universal distribution as separate gates. Recipe coverage and execution
+remain independent assessments in Silo.

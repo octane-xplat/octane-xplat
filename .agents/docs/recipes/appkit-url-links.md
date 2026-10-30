@@ -20,4 +20,4 @@ A native desktop screen has an external help link and app-relative navigation.
 - AC1: [AppKit URL guide](../../../docs/app/navigation.md#open-links-on-appkit) and [authored helper cases](../../../packages/ui/src/components/navigation/nav-href.macos.mobile.test.tsrx). Tests unrun.
 - AC2: The same guide and [authored Link cases](../../../packages/ui/src/components/navigation/link.macos.mobile.test.tsrx).
 - AC3: The same guide/cases cover function injection precedence, navigation ownership and unsafe handoff rejection.
-- AC4: [Target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-url-dispatch-and-link-composition) records exact deferred commands and native evidence limits.
+- AC4: [Target note](../exploration.md#operational-evidence) records exact deferred commands and native evidence limits.

@@ -20,6 +20,6 @@ recipient behavior was observed; these findings come from source inspection.
 
 ## Documentation
 
-- AC1–AC4: [Package guide](../../../packages/share/README.md#native-appkit-sharing), Octane services reference, fix note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-owned-sharing-completion).
+- AC1–AC4: [Package guide](../../../packages/share/README.md#native-appkit-sharing), Octane services reference, fix note and [target note](../exploration.md#operational-evidence).
 - AC1–AC4: [Facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m), [metadata verifier](../../../packages/share/tests/verify-macos.mjs) and [consumer lanes](../../../packages/share/tests/packed-consumer.mjs), authored but unrun.
 - AC4: [Manual fixture](../../../examples/probes/share.macos.tsrx); mounting it performs no file write, share action, OS UI or delivery.

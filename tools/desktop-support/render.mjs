@@ -1,12 +1,22 @@
 // Run from the repository root after collect.mjs. This does not execute platform code.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-const directory = 'tools/desktop-support'
-const data = JSON.parse(
-	readFileSync(process.argv[2] ?? 'research/desktop-audit/inventory.json', 'utf8'),
-)
+import { dirname, join, resolve } from 'node:path'
+import { localOutputFile } from './local-output.mjs'
 
-const findings = JSON.parse(readFileSync(`${directory}/findings.json`, 'utf8'))
+const inventory = process.argv[2] ?? 'research/desktop-audit/inventory.json'
+const findingsPath = process.argv[3]
+if (!findingsPath) {
+	throw new Error(
+		'Usage: node tools/desktop-support/render.mjs INVENTORY FINDINGS [OUTPUT_DIRECTORY]',
+	)
+}
+
+const directory = process.argv[4] ?? dirname(resolve(inventory))
+const output = (name) => localOutputFile(join(directory, name))
+const data = JSON.parse(readFileSync(inventory, 'utf8'))
+
+const findings = JSON.parse(readFileSync(findingsPath, 'utf8'))
 for (const f of findings) {
 	for (const path of f.evidence) {
 		if (!existsSync(path)) {
@@ -136,7 +146,7 @@ for (const target of ['windows', 'macos', 'gtk']) {
 		)
 	}
 
-	writeFileSync(`${directory}/${target}.tsv`, lines.join('\n') + '\n')
+	writeFileSync(output(`${target}.tsv`), lines.join('\n') + '\n')
 	summary.counts[target] = data.rows.reduce(
 		(acc, r) => ((acc[r.targets[target].status] = (acc[r.targets[target].status] ?? 0) + 1), acc),
 		{},
@@ -155,8 +165,8 @@ for (const [target, graph] of Object.entries(data.dependencyGraphs)) {
 	)
 }
 
-writeFileSync(`${directory}/dependency-candidates.json`, JSON.stringify(candidates, null, 2) + '\n')
-writeFileSync(`${directory}/snapshot.json`, JSON.stringify(summary, null, 2) + '\n')
+writeFileSync(output('dependency-candidates.json'), JSON.stringify(candidates, null, 2) + '\n')
+writeFileSync(output('snapshot.json'), JSON.stringify(summary, null, 2) + '\n')
 console.log(
 	JSON.stringify({
 		revision: data.revision,

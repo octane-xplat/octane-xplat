@@ -11,7 +11,7 @@ rechecked. This candidate is not integrated into the canonical package patch.
 
 ## Reproduction and ownership
 
-The existing Windows record in [windows-ui.md](windows-ui.md#content-ownership-separate-normalization-text-slots-and-rich-text)
+The existing Windows record in [windows-ui.md](windows-ui.md#qualify-a-control)
 shows Label rejecting Span insertion. The local upstream driver reproduction
 fails at the same insertion. The maintained suite against the current installed
 package has eight failures and one explicit-FormattedString pass before repair.
@@ -151,7 +151,7 @@ it never changed guest state or acquired the lease. Its isolated mobile test
 packages did not replace workspace packages; probe processes and reverse
 mappings are cleaned by the runner.
 
-[Sanitized evidence and candidate hashes](../../tools/platform-qualification/windows-rich-text/evidence.json)
+[Sanitized evidence and candidate hashes](exploration.md#operational-evidence)
 retain the native assertions and measurements without local checkout paths or
 device identifiers. Silo experiment `a448a683-eb61-48c3-8cdd-f2ba21b5cc34`
 records source/mobile validation; `fff3b1d6-2dca-424e-b7ba-b3835fd7e009` records

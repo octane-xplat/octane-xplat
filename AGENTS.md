@@ -27,8 +27,10 @@ when moving existing workspaces so package-name filters continue to work.
 
 Keep `.agents/` for guidance and durable memory: skills, contributor rules,
 recipes, decisions, and investigation conclusions. Plans are maintained elsewhere.
-Put executable fixtures, audit runners, patch sources, and raw reports under
-`tools/` (or their owning package); link to them from the relevant note.
+Put reusable executable fixtures, audit runners, and patch sources under `tools/`
+(or their owning package). Keep operational state in Silo and raw reports,
+inventories, logs, and captures in ignored local storage; do not commit them.
+Guidance carries durable conclusions and lookup instructions, not run histories.
 Repository formatters and linters ignore `.agents/`; documentation and recipe
 checks still validate their respective contracts.
 

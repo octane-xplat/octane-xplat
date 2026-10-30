@@ -138,7 +138,7 @@ capture, cancellation/recovery and the real shared Slider's controlled numeric
 pointer path. Native Slider keyboard and RangeValue checks are separate engine
 feasibility evidence, not public Slider support. Detailed artifacts, prior
 failures, package-patch round-trip checks and deferred commands are in the
-[target progress note](../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md#v26-qualifies-windows-mouse-pan-and-slider-engine-prerequisites).
+[target progress note](exploration.md#operational-evidence).
 
 The three earlier source commits and source patch above remain historical.
 The current distributed repair lives in

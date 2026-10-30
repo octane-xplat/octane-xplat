@@ -21,7 +21,7 @@ prerequisite was repaired first; none of this is native input evidence.
 
 ## Documentation
 
-- AC1–AC4: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../packages/context-menu/README.md), Octane primitives reference, feature note and [target progress](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-native-context-menu-ownership-and-restoration).
+- AC1–AC4: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../packages/context-menu/README.md), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).
 - AC1: [Owner-model cases](../../../packages/context-menu/tests/context-menu-owner.macos.test.mjs), authored but unrun.
 - AC2: [Actual renderer-branch cases](../../../packages/macos-renderer/test/context-menu.test.ts), authored but unrun; simulated menu slots/actions do not prove native responder propagation or tracking.
 - AC3: [Maintained demo](../../../packages/demos/src/NativeContextMenuDemo.macos.tsrx) and [idle probe](../../../examples/probes/native-context-menu.macos.tsrx), authored but unrun. The delayed operation starts only after an explicit button action; no menu/input operation runs automatically.

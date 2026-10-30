@@ -23,7 +23,7 @@ native failure or evidence of qualified support.
 
 ## Documentation
 
-- AC1–AC4: [Public native date workflow](../../../docs/platform/date-picker.md#native-macos-selection-lifecycle), [package README](../../../packages/date-picker/README.md), Octane primitives reference, feature note and [target progress](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-native-date-picker-selection-and-bridge-lifecycle).
+- AC1–AC4: [Public native date workflow](../../../docs/platform/date-picker.md#native-macos-selection-lifecycle), [package README](../../../packages/date-picker/README.md), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).
 - AC1–AC2: [Owner model cases](../../../packages/date-picker/tests/date-picker-owner.macos.test.mjs), authored but unrun.
 - AC3: [Renderer branch cases](../../../packages/macos-renderer/test/date-picker.test.ts), six new cases plus three prior cases, all unrun in this task. Mocked native objects do not prove actual NSDatePicker input/constraint behavior.
 - AC4: [Maintained demo](../../../packages/demos/src/NativeDatePickerDemo.macos.tsrx) and [idle manual probe](../../../examples/probes/native-date-picker.macos.tsrx), authored but unrun; mounting is not input or layout qualification.

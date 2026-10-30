@@ -23,7 +23,7 @@ for an authentic window sheet. None of these findings is native runtime proof.
 
 ## Documentation
 
-- AC1–AC4: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../packages/sheet/README.md#native-macos-window-sheets), Octane overlays reference and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-native-window-sheet-ownership).
+- AC1–AC4: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../packages/sheet/README.md#native-macos-window-sheets), Octane overlays reference and [target note](../exploration.md#operational-evidence).
 - AC1: [Owner-model cases](../../../packages/sheet/tests/sheet-owner.macos.test.mjs), authored but unrun.
 - AC2: [Native controller-model cases](../../../packages/macos-renderer/test/sheet.test.ts) and [actual renderer factory cases](../../../packages/macos-renderer/test/sheet-native-bridge.test.ts), authored but unrun. The factory cases exercise the actual classes/bridge against fakes, not the ObjC ABI.
 - AC3: [Maintained demo](../../../packages/demos/src/NativeSheetDemo.macos.tsrx) and [idle probe](../../../examples/probes/native-sheet.macos.tsrx), authored but unrun. No sheet/input action runs automatically.

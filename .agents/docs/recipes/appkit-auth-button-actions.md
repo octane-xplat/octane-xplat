@@ -21,6 +21,6 @@ These are source findings, not observed native input/sign-in failures.
 
 ## Documentation
 
-- AC1–AC4: [Button guide](../../../packages/auth/README.md#appkit-button-action-ownership), Octane services reference, fix note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-provider-button-action-ownership).
+- AC1–AC4: [Button guide](../../../packages/auth/README.md#appkit-button-action-ownership), Octane services reference, fix note and [target note](../exploration.md#operational-evidence).
 - AC1–AC2, AC4: [Action model](../../../packages/auth/tests/button-action.macos.test.mjs), authored but unrun.
 - AC3–AC4: [Native renderer branch cases](../../../packages/macos-renderer/test/button-state.test.ts) and [manual fixture](../../../examples/probes/auth-buttons.macos.tsrx), authored but unrun. Direct branch dispatch is not native keyboard or AX input proof.

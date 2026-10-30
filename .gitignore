@@ -43,3 +43,9 @@ packages/*/platforms/android/*.aar
 
 # Private native fingerprint build records.
 .xplat/
+
+# Operational state belongs in Silo or local files, never source snapshots.
+/tools/platform-qualification/evidence/
+/tools/platform-qualification/windows-rich-text/evidence.json
+/tools/desktop-support/*.json
+/tools/desktop-support/*.tsv

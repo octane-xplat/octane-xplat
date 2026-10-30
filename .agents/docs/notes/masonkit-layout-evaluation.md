@@ -278,7 +278,7 @@ on the second forward seek. Runtime inspection showed MasonKit `Scroll` without
 expects; Xplat's `scrollview` remapping did not supply an equivalent port.
 The first seek only found an already mounted row, so it does not prove movement.
 Both variants need a compatible scroll-host contract before native recycling
-benefits can be measured. See the [versioned evidence](../../../tools/platform-qualification/evidence/lists/recycling-list-2026-10-19.json).
+benefits can be measured. See the [versioned evidence](../exploration.md#operational-evidence).
 This finding does not qualify gestures, screen readers, or release performance.
 
 Upstream capability request: [triniwiz/nativescript-mason#132](https://github.com/triniwiz/nativescript-mason/issues/132)

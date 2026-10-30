@@ -19,6 +19,6 @@ examples, including an embedded action. AppKit support remains experimental.
 
 - AC1: [Guide](../../../docs/app/search-selection.md#remove-appkit-tokens-with-empty-input-backspace), [target leaf](../../../packages/ui/src/components/forms/Tokenizer.macos.tsrx), seven [authored cases](../../../packages/ui/src/components/forms/tokenizer-keys.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/tokenizer-keys.macos.tsrx). All cases unrun.
 - AC2: The same source/cases document current identities, callback-driven focus, handle replacement/teardown and delayed embedded-focus blur. Fake hosts do not prove actual AppKit focus ordering.
-- AC3: [Target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-tokenizer-empty-input-backspace-and-current-selection) records exact deferred checks and qualification gaps. No evidence gate is satisfied by source inspection.
+- AC3: [Target note](../exploration.md#operational-evidence) records exact deferred checks and qualification gaps. No evidence gate is satisfied by source inspection.
 
 The separate [overflow recipe](appkit-token-overflow.md) covers native viewport/counter source wiring; the keyboard cases do not qualify token truncation.

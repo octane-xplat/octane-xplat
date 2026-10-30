@@ -16,4 +16,4 @@ A search or text field with a clear affordance and an existing value.
 ## Documentation
 
 - AC1: [Clear guide](../../../docs/app/primitives.md#clear-and-continue-typing-on-appkit) and [authored source cases](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx). Tests unrun.
-- AC2: The same guide/cases plus [target progress](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-text-clear-focus) record source scope, remaining native gates and exact deferred commands.
+- AC2: The same guide/cases plus [target progress](../exploration.md#operational-evidence) record source scope, remaining native gates and exact deferred commands.

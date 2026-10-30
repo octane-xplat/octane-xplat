@@ -20,6 +20,6 @@ book title/year fields; no runtime failure was observed.
 
 ## Documentation
 
-- AC1–AC3: [Public absolute-date workflow](../../../docs/app/power-search.md#edit-native-appkit-absolute-dates), Octane primitives reference, feature note and [target progress](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-powersearch-absolute-date-validation).
+- AC1–AC3: [Public absolute-date workflow](../../../docs/app/power-search.md#edit-native-appkit-absolute-dates), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).
 - AC1–AC2: [Date model cases](../../../packages/ui/src/components/forms/power-search-absolute-date.macos.mobile.test.ts), authored but unrun.
 - AC2–AC3: [Scalar mocked-control cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-scalars.macos.tsrx), authored but unrun; not native input/calendar/AX evidence.

@@ -2,7 +2,13 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { writeFileSync } from 'node:fs'
+import { localOutputFile } from './local-output.mjs'
 const root = process.cwd()
+const outputPath = localOutputFile(
+	process.argv[2] ?? 'research/desktop-audit/windows-resolution.json',
+	root,
+)
+
 const req = createRequire(resolve(root, 'apps/windows/package.json'))
 const { createServer } = await import(req.resolve('vite'))
 process.chdir(resolve(root, 'apps/windows'))
@@ -67,10 +73,7 @@ try {
 		),
 	)
 
-	writeFileSync(
-		resolve(root, 'research/desktop-audit/windows-resolution.json'),
-		JSON.stringify(results, null, 2) + '\n',
-	)
+	writeFileSync(outputPath, JSON.stringify(results, null, 2) + '\n')
 } finally {
 	await server.close()
 }

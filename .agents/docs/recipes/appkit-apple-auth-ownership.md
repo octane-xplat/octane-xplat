@@ -21,5 +21,5 @@ found these paths; no OS sign-in or credential failure was observed.
 
 ## Documentation
 
-- AC1–AC4: [Apple guide](../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window), [provider setup](../../../docs/platform/platform-services.md#macos-provider-sign-in), Octane services reference, fix note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-apple-authorization-presenter-ownership).
+- AC1–AC4: [Apple guide](../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window), [provider setup](../../../docs/platform/platform-services.md#macos-provider-sign-in), Octane services reference, fix note and [target note](../exploration.md#operational-evidence).
 - AC1–AC4: [Model cases](../../../packages/auth/tests/macos.test.mjs), authored but unrun, and [official-button fixture](../../../examples/probes/apple-auth.macos.tsrx). The fixture displays status only; mounting controls does not qualify consent, entitlements or a credential exchange.

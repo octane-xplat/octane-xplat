@@ -19,5 +19,5 @@ modal containment or converting empty regions into Tab stops.
 
 ## Documentation
 
-- AC1–AC4: [Region guide](../../../docs/app/navigation-ui.md#move-between-appkit-screen-regions), Octane navigation reference, feature note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-landmark-region-navigation-source-path).
+- AC1–AC4: [Region guide](../../../docs/app/navigation-ui.md#move-between-appkit-screen-regions), Octane navigation reference, feature note and [target note](../exploration.md#operational-evidence).
 - AC2–AC4: [Routing/compiler cases](../../../packages/ui/src/internal/accessibility/landmark-state.macos.test.ts), [containment query](../../../packages/ui/src/internal/accessibility/focus-scope-state.macos.test.ts) and [manual fixture](../../../examples/probes/landmark.macos.tsrx), all unrun. Native dispatch callbacks are not OS input proof.

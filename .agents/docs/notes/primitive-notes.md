@@ -1354,7 +1354,7 @@ a hypothesis, with no native engine change justified by this pass.
 
 The input trace now retains the worst measured leading/trailing/internal gap and its row bounds;
 JavaScript sample timing stays explicitly separate from display frame pacing.
-The [machine-readable evidence](../../../tools/platform-qualification/evidence/lists/virtual-list-q30-2026-09-30.json) retains
+The [machine-readable evidence](../exploration.md#operational-evidence) retains
 the fresh web results and native verification limits.
 The [VirtualList guide](../../../docs/app/virtual-list.md) states the supported vertical contract
 and the remaining performance-sensitive feed/chat gaps.
@@ -1480,7 +1480,7 @@ The probe also needed MasonKit's event path: its `tap` aliases to an Observable
 both paths, rejects unloaded targets, and labels the mechanism
 `event-handler-dispatch`. This remains synthesized input. See the
 [host/plugin integration record](masonkit-layout-evaluation.md#native-host-integration-correction-2026-10-19)
-and [historical and follow-through evidence](../../../tools/platform-qualification/evidence/lists/recycling-list-2026-10-19.json).
+and [historical and follow-through evidence](../exploration.md#operational-evidence).
 
 The repaired iOS and Android comparisons then exposed a list integration failure:
 `scrollview` maps to MasonKit `Scroll`, which has no `verticalOffset` or

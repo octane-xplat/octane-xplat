@@ -33,4 +33,4 @@ checks TextInput/TextArea object handles, native focus/blur, stable native ident
 when secure mode changes, and ref clearing on unmount. Other ref forms and
 replacement are covered by the shared ref suites above.
 
-- AC4: [AppKit date focus guide](../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action), private date-field-handle adapter, three policy/six object-driver cases, [maintained fixture](../../../examples/probes/date-focus.macos.tsrx), skill reference and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-date-family-ref-handles). All cases/fixture and native qualification remain unrun; hasAutoFocus remains separate.
+- AC4: [AppKit date focus guide](../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action), private date-field-handle adapter, three policy/six object-driver cases, [maintained fixture](../../../examples/probes/date-focus.macos.tsrx), skill reference and [target note](../exploration.md#operational-evidence). All cases/fixture and native qualification remain unrun; hasAutoFocus remains separate.

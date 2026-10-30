@@ -1,40 +1,33 @@
 # Native Windows maintenance and qualification
 
-Use this page to scope changes to the experimental WinUI target. The
-[dated qualification report](../../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md)
-retains exact revisions, MSIX versions, input groups, boot/launch identities,
-artifact paths, and failed predecessors. Historical candidate descriptions and
-approval gates are not current setup instructions.
+Use this page to scope changes to the experimental WinUI target. Keep run
+histories, inventories, component dispositions, and pending checks in Silo/local
+files. Use [operational evidence lookup](../exploration.md#operational-evidence)
+to locate historical reports without treating them as current instructions.
 
 ## Find the owning guidance
 
 | Task | Read |
 | --- | --- |
 | Set up or build the host | [Windows host runbook](../windows-test-host.md), [lab findings](../windows-lab.md) |
-| Change a shared control | [Windows UI contracts](../windows-ui.md), [component inventory](../../../tools/platform-qualification/evidence/windows-ui-inventory.json) |
+| Change a shared control | [Windows UI contracts](../windows-ui.md), [component inventory](../exploration.md#operational-evidence) |
 | Change input, pointer, layout, or text plumbing | [Input repair](../windows-input-contracts-repair.md), [pointer repair](../windows-pointer-repair.md), [layout repair](../windows-layout-repair.md), [rich-text repair](../windows-rich-text-repair.md) |
 | Inspect retained source repairs and fixtures | [Qualification tooling](../../../tools/platform-qualification/README.md) |
-| Assess export presence | [Dated desktop source audit](native-desktop-support.md) |
+| Assess export presence | [Desktop source audit method](native-desktop-support.md) |
 | Change routing or modal ownership | [Routing contracts](../notes/routing-contracts.md), [navigation checks](../navigation-checks.md) |
 
 ## Evidence that must remain bounded
 
-The report records real x64 OS-input/UIA qualification for common flows,
-Switch, CheckboxInput, CheckboxList, Slider, RadioList, and SegmentedControl.
-Each result applies to its named fixture, package, revision, and input groups.
-It does not establish full component prop coverage or general Windows parity.
+Read `windows_checks` before choosing or qualifying a control. Exact source
+revision, packaged artifact, architecture, input mechanism, and bounded assertions
+belong with each execution record. A successful common-flow fixture does not
+establish the full component props, Field/lifecycle, or platform matrix.
 
-| Checkpoint | Recorded result and boundary |
-| --- | --- |
-| Merged main `838b4cf9b`, MSIX 1.0.0.41 | Common text/keyboard/modal/scroll/filesystem flows 15/15, RadioList 11/11, SegmentedControl 12/12; declaration tasks still failed at that checkpoint |
-| Windows text wrapping | Production candidate repaired the nested foreign-text frame and intrinsic measurement; matched 220×40-DIP wrapping in three cases; the broader comparator was 83/91, not a full pass |
-| MasonKit beta.129 adoption | See the report's adopted-package wrapping/UIA evidence and typecheck comparison; candidate DLL results alone are not adoption evidence |
-| Clean frozen install at `a57b1b8729bb976a851569c779f5efacd782fb79` | Fresh Windows worktree passed with exit 0 and 37/37 postinstall tasks; supersedes the earlier install failure, but does not qualify an MSIX build or a component |
-
-Narrator, hardware touch/pen, visual parity, the complete Field/props/lifecycle
-matrices, packed downstream consumers, other architectures, and other Windows
-versions retain their own gates. Mocked RTL/Home/End/Ctrl-arrow contracts are
-not OS-input results. Static UIA names and boxes are not Narrator evidence.
+Keep handler dispatch, OS input/UIA, Narrator, hardware touch/pen, geometry, visual
+parity, downstream consumers, other architectures, and other Windows versions as
+independent evidence. Mocked keyboard contracts are not OS-input results; static
+UIA names/boxes are not Narrator evidence. A clean install is a separate gate
+from component behavior or MSIX production.
 
 ## Keep upstream repairs visible
 
@@ -43,18 +36,17 @@ Retained source patches and fixtures live under
 `packages/cli/patches/`. Keep their owning NativeScript preview commits and
 removal conditions with the relevant repair note and patch manifest.
 
-The report distinguishes explicit synchronous filesystem bridge calls from
+Distinguish explicit synchronous filesystem bridge calls from
 projection failures; do not turn a failed existence query into “missing file.”
 Input subscriptions, pointer capture, composition, controlled rollback, and
 modal focus restoration require lifecycle cleanup and stale-work rejection.
 Use the linked repair notes for each contract rather than reconstructing it
 from a successful launch or an export declaration.
 
-Mason's shared component path differs from NativeScript FlexboxLayout. The
-reported shared padding/shrink probe did not reproduce the old Flexbox overlap;
-do not carry an unrelated binary repair into that path. The text wrapping
-investigation identifies the affected MasonKit beta.126 foreign-leaf measurement
-and records the later beta.129 adoption separately.
+Mason's shared component path differs from NativeScript FlexboxLayout. Do not carry a Flexbox-specific binary repair into the shared Mason path without
+a reproduction. The foreign-text measurement investigation examined beta.126;
+check the adopted MasonKit source and current bounds before retaining a fix or
+claiming it is no longer needed.
 
 ## Continue qualification
 

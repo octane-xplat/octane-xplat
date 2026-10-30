@@ -24,8 +24,8 @@ the auth-session service.
 ## Documentation
 
 - AC1–AC3: [Package subset and migration](../../../packages/web-browser/README.md#experimental-appkit-subset), [app guide](../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window), public type comments and Octane service reference.
-- AC2, AC4: Five [owner cases](../../../packages/web-browser/tests/browser-owner.macos.test.ts), [manual fixture](../../../apps/macos/test/fixtures/browser-service.macos.tsrx) and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-owned-in-app-browser-source-path), all unrun.
+- AC2, AC4: Five [owner cases](../../../packages/web-browser/tests/browser-owner.macos.test.ts), [manual fixture](../../../apps/macos/test/fixtures/browser-service.macos.tsrx) and [target note](../exploration.md#operational-evidence), all unrun.
 - AC4: AppKit package dependency and manual lock importer link include the native service; the scoped Turbo package task orders app/CLI prerequisites without entering normal PR checks. Installs, task execution/graph validation, Swift/native execution, VoiceOver and relocated/package/signing checks remain deferred. Capability and opened are not runtime qualification.
-- AC5: [Manual page](../../../apps/macos/test/fixtures/browser-dialogs.html), package subset and [dialog source note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-browser-javascript-dialog-source-path). No dialog automation or native execution has run.
+- AC5: [Manual page](../../../apps/macos/test/fixtures/browser-dialogs.html), package subset and [dialog source note](../exploration.md#operational-evidence). No dialog automation or native execution has run.
 
-- AC6: [Manual file controls](../../../apps/macos/test/fixtures/browser-file-selection.html), package subset and [file-control source note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-browser-file-control-source-path). No native picker or upload was executed.
+- AC6: [Manual file controls](../../../apps/macos/test/fixtures/browser-file-selection.html), package subset and [file-control source note](../exploration.md#operational-evidence). No native picker or upload was executed.

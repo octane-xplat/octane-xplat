@@ -2735,7 +2735,7 @@ nativeEvent/consumption payload is not the portable KeyboardEvent contract;
 portable hardware-key support stays disabled until normalization is implemented
 and the adapter is qualified. Do not turn source/mocked dispatch into a claim
 that menus, dialogs, IME or OS focus work. The
-[Windows key record](../../../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md#windows-raw-key-event-prerequisite)
+[Windows key record](../../../docs/exploration.md#operational-evidence)
 tracks source, adoption and native gates separately.
 
 Windows useLayer selects a dedicated NativeScript leaf using Popover/RootLayout
@@ -2843,7 +2843,7 @@ Packaged x64 pointer/Tab/Space, TogglePattern, group/default/mixed select-all,
 guards, context updates and remount checks are bounded evidence. Keep full
 Field/props, group announcements, Narrator/visual and consumer qualification
 open; see [Windows list limits](../../../../docs/platform/windows-setup.md#checkbox-lists)
-and the [timing evidence](../../../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md#measurement-timing-qualification).
+and the [timing evidence](../../../docs/exploration.md#operational-evidence).
 
 ## Experimental Windows Slider
 

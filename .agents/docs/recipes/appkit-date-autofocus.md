@@ -19,4 +19,4 @@ initial focus. Other input or modal focus remains user-owned.
 
 - AC1: [AppKit date focus guide](../../../docs/platform/date-picker.md#request-initial-appkit-date-or-time-focus), [private request owner](../../../packages/ui/src/internal/accessibility/auto-focus.macos.ts) and [policy cases](../../../packages/ui/src/internal/accessibility/auto-focus.macos.test.ts). All cases unrun.
 - AC2: The same guide/cases plus [component cases](../../../packages/ui/src/components/forms/date-autofocus.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/date-autofocus.macos.tsrx). Object cases use native fakes and mock away Popover, so they do not prove layer behavior.
-- AC3: [Target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-date-and-time-autofocus-requests) records exact deferred commands and limits; no native gate closes from source coverage.
+- AC3: [Target note](../exploration.md#operational-evidence) records exact deferred commands and limits; no native gate closes from source coverage.

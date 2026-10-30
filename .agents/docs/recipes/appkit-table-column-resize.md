@@ -19,5 +19,5 @@ widths, and sticky columns retain native cells.
 
 ## Documentation
 
-- AC1–AC4: [AppKit resize guide](../../../docs/tables.md#resize-columns-on-appkit), primitive skill, existing feature note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-table-resize-handle-source-path).
+- AC1–AC4: [AppKit resize guide](../../../docs/tables.md#resize-columns-on-appkit), primitive skill, existing feature note and [target note](../exploration.md#operational-evidence).
 - AC2–AC4: Six [state cases](../../../packages/ui/src/table/column-resize-state.macos.test.ts), one [splitter case](../../../packages/macos-renderer/test/common-control-accessibility.test.ts), two [handle compiler cases](../../../packages/ui/tests/table-universal.test.mjs) and [manual fixture](../../../examples/probes/table-scroll.macos.tsrx), all unrun. Native callback dispatch is not OS input/AX proof.

@@ -5,7 +5,7 @@ not a public usage guide. The component inventory dispositions are unchanged.
 
 ## Reproduction and owning seams
 
-The existing [content evidence](windows-ui.md#content-ownership-separate-normalization-text-slots-and-rich-text)
+The existing [content evidence](windows-ui.md#qualify-a-control)
 and inventory report ordinary JSX AvatarGroup max2 rendering all three avatars,
 a decimal List putting two children under one marker, and bare Kbd text producing
 an empty zero-height Layout. Explicit arrays were diagnostic comparisons, not
