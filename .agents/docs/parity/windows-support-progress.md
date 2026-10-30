@@ -3708,3 +3708,40 @@ The earlier disk-full condition was relieved by removing owned intermediates
 and obsolete dependency trees. Shared-cache pruning was intentionally stopped
 after sufficient space returned; it did not complete. Dirty source checkouts,
 signing material and retained evidence were preserved.
+
+### Isolated layout driver: shrink passes; responsive widths fail
+
+The isolated qualification host built on Windy with **39/39 Turbo tasks** and
+was packaged, signed and installed as MSIX **1.0.0.76**. Its source is
+`9b4fa8616eb42cd7030807575c7ec7249eaf49ba` plus the retained private harness
+overlay. The resumed frozen install exited 0, but this diagnostic checkout is
+not the final clean-main qualification. The loaded Mason DLL matches published
+beta.129 (`A97E75B65BE69DC94996F42EF7AAA032B3E058C96083E664176266606D3CDB7C`).
+
+The driver's first attempt missed a ready event despite successful startup.
+Its `ReadAllLines` reader silently ignored an `IOException` while NativeScript
+kept the writer open. An independent open-writer check reproduced that sharing
+failure; an explicit shared-stream reader recovered the event. With that
+reader, launch **mvvadzad** passed all seven preflight checks and executed all
+eight layout cases. The app was stopped and no cleanup error was reported.
+
+The exact maintained `view-shrinking-row` fixture passed **22/22 assertions**,
+including its geometry checks before and after remount: two 85-DIP children
+meet inside a 170-DIP row, with zero overlap. Silo records that bounded scenario
+as `scenario:windows-core20-shrink`; complete flex sizing and the View component
+remain unqualified. The broader foundation checkbox stays open.
+
+The other seven cases failed. Text, VStack, HStack, Stack and Section did not
+reduce their fixture widths after resizing. View and Center failed their
+initial 200×60-DIP frame checks, measuring 110×60 and 80×60 DIP respectively.
+The native Page did resize from 747 to 307 DIP. The viewport's `width: 50%`
+rule is present in the packaged bundle, but its frame remained content-sized;
+the cause is still under investigation. No component qualification row or
+issue checkbox advanced.
+
+Raw results, exact driver/reader snapshots, native frames and UIA captures:
+`research/windows61/core20-run76/retries/01/`. The signed package is retained
+at `research/windows61/core20-run76/packages/core20-76.msix`; reproducible app
+inputs are in `research/windows61/core20-build76-inputs/`. Shared-host runs now
+[reuse one persistent source checkout](../host-artifacts.md#reuse-the-hosts-source-checkout)
+by default, keeping per-run scripts, packages and logs disposable.
