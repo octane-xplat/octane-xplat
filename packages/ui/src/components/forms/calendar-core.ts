@@ -30,14 +30,17 @@ import type { DateRange, DayOfWeek, DayOfWeekName, ISODateString } from '../../p
 
 export { isSameDay, isDateInRange, getWeekNumber }
 
+/** ISO-string day equality. */
 function isSameDay(a: ISODateString, b: ISODateString): boolean {
 	return a === b
 }
 
+/** Whether `iso` falls inside `range` (inclusive). */
 function isDateInRange(iso: ISODateString, range: DateRange): boolean {
 	return iso >= range.start && iso <= range.end
 }
 
+/** ISO week number for `iso`. */
 function getWeekNumber(iso: ISODateString): number {
 	const pd = plainDateFromISO(iso)
 	return pd ? plainDateGetWeekNumber(pd) : 0
@@ -51,15 +54,25 @@ function getWeekNumber(iso: ISODateString): number {
  * One cell of a `CalendarMonthGrid` — ISO `date` plus in-range/in-month/selected flags.
  */
 export interface CalendarDay {
+	/** The cell's date. */
 	readonly date: PlainDate
+	/** ISO form of `date`. */
 	readonly iso: ISODateString
+	/** Day number within the month (padding cells keep their own month's numbering). */
 	readonly dayOfMonth: number
+	/** True when the cell is today. */
 	readonly isToday: boolean
+	/** Padding cell from the adjacent month. */
 	readonly isOutsideMonth: boolean
+	/** Saturday/Sunday per the calendar's week start. */
 	readonly isWeekend: boolean
+	/** Used for week-start alignment and styling. */
 	readonly isSunday: boolean
+	/** Used for week-start alignment and styling. */
 	readonly isMonday: boolean
+	/** Marks the week's boundaries for range-band rounding. */
 	readonly isFirstWeekOfMonth: boolean
+	/** Marks the month's final row for layout continuity. */
 	readonly isLastWeekOfMonth: boolean
 }
 
@@ -67,8 +80,11 @@ export interface CalendarDay {
  * A computed month for `Calendar` — weeks of `CalendarDay` cells.
  */
 export interface CalendarMonthGrid {
+	/** Calendar year of the month. */
 	readonly year: number
+	/** 0-based month index. */
 	readonly month: number
+	/** Rows of 7 cells; outside-month padding fills partial weeks. */
 	readonly weeks: CalendarDay[][]
 	/** Short standalone weekday labels, ordered from `weekStartsOn`. */
 	readonly dayNames: string[]
@@ -143,10 +159,15 @@ export function monthLabel(year: number, month: number, locale?: string): string
 // ---------------------------------------------------------------------------
 
 export interface CalendarConstraintsInput {
+	/** Earliest selectable date. */
 	min?: ISODateString
+	/** Latest selectable date. */
 	max?: ISODateString
+	/** Additional predicates — a date is disabled when any returns false. */
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
+	/** Longest selectable range, in days. */
 	maxRangeSpan?: number
+	/** Shortest selectable range, in days. */
 	minRangeSpan?: number
 	/** In-progress range anchor (range mode). */
 	rangeAnchor?: ISODateString | null
@@ -323,7 +344,9 @@ export function getInitialFocusDate(input: {
 }
 
 export interface NavigationBounds {
+	/** Whether paging backward stays within min. */
 	canNavigatePrevious: boolean
+	/** Whether paging forward stays within max. */
 	canNavigateNext: boolean
 }
 
@@ -355,13 +378,19 @@ export function navigationBounds(
 // duplicate the styling of the real day in the adjacent pane).
 // ---------------------------------------------------------------------------
 
+/** Selection/disabled flags for one calendar cell, resolved by `computeDayCellState`. */
 export interface DayCellState {
+	/** Picked in single mode, or either endpoint in range mode. */
 	isSelected: boolean
+	/** First endpoint of a committed range. */
 	isRangeStart: boolean
+	/** Last endpoint of a committed range. */
 	isRangeEnd: boolean
+	/** Strictly inside a committed range (endpoints excluded). */
 	isInRange: boolean
 	/** Anchored but uncommitted first pick in range mode. */
 	isPendingStart: boolean
+	/** Blocked by min/max/dateConstraints — rendering dims the cell. */
 	isDisabled: boolean
 }
 
