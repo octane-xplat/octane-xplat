@@ -136,3 +136,128 @@ index b9386f4..69c33c2 100644
    set(TARGET_PLATFORM_SPEC "macos-arm64_x86_64")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTARGET_PLATFORM_MACOS")
  
+diff --git a/NativeScript/ffi/napi/ObjCBridge.h b/NativeScript/ffi/napi/ObjCBridge.h
+index 6e7eb19a0928a764d2ee2dc21212da8b272ac535..9ed741a7c30f6f89bba3d4aba5933d6efe6ae368 100644
+--- a/NativeScript/ffi/napi/ObjCBridge.h
++++ b/NativeScript/ffi/napi/ObjCBridge.h
+@@ -435,16 +435,3 @@ class ObjCBridgeState {
+-
++
+-    if (objectRefs.find(object) != objectRefs.end()) {
+-      return true;
+-    }
+-
+-    uintptr_t objectKey = NormalizeHandleKey((void*)object);
+-    uintptr_t objectClassKey = NormalizeHandleKey((void*)object_getClass(object));
+-    for (const auto& entry : objectRefs) {
+-      if (NormalizeHandleKey((void*)entry.first) == objectKey &&
+-          NormalizeHandleKey((void*)object_getClass(entry.first)) == objectClassKey) {
+-        return true;
+-      }
+-    }
+-
+-    return false;
++    return findObjectRefLocked(object) != objectRefs.end();
+   }
+@@ -895,2 +882,22 @@ class ObjCBridgeState {
+-
++
++    // Ordinary objects cannot match a registered constructor. Some N-API
++    // engines expose constructors as objects rather than functions; those
++    // constructors have their own non-configurable prototype property.
++    napi_valuetype valueType = napi_undefined;
++    if (napi_typeof(env, value, &valueType) != napi_ok) {
++      return false;
++    }
++    if (valueType != napi_function) {
++      if (valueType != napi_object) {
++        return false;
++      }
++      napi_value prototypeKey = nullptr;
++      bool hasPrototype = false;
++      if (napi_create_string_utf8(env, "prototype", NAPI_AUTO_LENGTH, &prototypeKey) != napi_ok ||
++          napi_has_own_property(env, value, prototypeKey, &hasPrototype) != napi_ok ||
++          !hasPrototype) {
++        return false;
++      }
++    }
++
+     Class bridgedClass = nil;
+@@ -984,28 +991,41 @@ class ObjCBridgeState {
+-
++
+-  inline void storeObjectRef(id object, napi_ref ref) noexcept {
+-    std::lock_guard<std::mutex> lock(objectRefsMutex);
+-    objectRefs[object] = ref;
+-    bumpObjectRefsGeneration();
+-  }
+-
+-  inline napi_value getNormalizedObjectRef(napi_env env, id object) const {
+-    std::lock_guard<std::mutex> lock(objectRefsMutex);
+-
++  // The caller holds objectRefsMutex. Index normalized addresses, retaining
++  // the live class comparison for aliases whose exact pointer bits differ.
++  inline std::unordered_map<id, napi_ref>::const_iterator findObjectRefLocked(id object) const {
+     auto exact = objectRefs.find(object);
+     if (exact != objectRefs.end()) {
+-      return get_ref_value(env, exact->second);
++      return exact;
+     }
+-
++
+-    uintptr_t objectKey = NormalizeHandleKey((void*)object);
+-    uintptr_t objectClassKey = NormalizeHandleKey((void*)object_getClass(object));
+-    for (const auto& entry : objectRefs) {
+-      if (NormalizeHandleKey((void*)entry.first) != objectKey ||
+-          NormalizeHandleKey((void*)object_getClass(entry.first)) != objectClassKey) {
+-        continue;
++    auto candidates = normalizedObjectRefs.equal_range(NormalizeHandleKey((void*)object));
++    if (candidates.first == candidates.second) {
++      return objectRefs.end();
++    }
++    uintptr_t classKey = NormalizeHandleKey((void*)object_getClass(object));
++    for (auto candidate = candidates.first; candidate != candidates.second; ++candidate) {
++      auto ref = objectRefs.find(candidate->second);
++      if (ref != objectRefs.end() &&
++          NormalizeHandleKey((void*)object_getClass(ref->first)) == classKey) {
++        return ref;
+       }
++    }
++    return objectRefs.end();
++  }
+-
++
+-      return get_ref_value(env, entry.second);
++  inline void storeObjectRef(id object, napi_ref ref) noexcept {
++    std::lock_guard<std::mutex> lock(objectRefsMutex);
++    auto inserted = objectRefs.emplace(object, ref);
++    if (inserted.second) {
++      normalizedObjectRefs.emplace(NormalizeHandleKey((void*)object), object);
++    } else {
++      inserted.first->second = ref;
+     }
++    bumpObjectRefsGeneration();
++  }
+-
++
+-    return nullptr;
++  inline napi_value getNormalizedObjectRef(napi_env env, id object) const {
++    std::lock_guard<std::mutex> lock(objectRefsMutex);
++
++    auto ref = findObjectRefLocked(object);
++    return ref != objectRefs.end() ? get_ref_value(env, ref->second) : nullptr;
+   }
+@@ -1026,2 +1046,9 @@ class ObjCBridgeState {
+     napi_ref ref = exact->second;
++    auto candidates = normalizedObjectRefs.equal_range(NormalizeHandleKey((void*)object));
++    for (auto candidate = candidates.first; candidate != candidates.second; ++candidate) {
++      if (candidate->second == object) {
++        normalizedObjectRefs.erase(candidate);
++        break;
++      }
++    }
+     objectRefs.erase(exact);
+@@ -1034,2 +1061,3 @@ class ObjCBridgeState {
+   std::unordered_map<id, RoundTripCacheEntry> recentRoundTripCache;
++  std::unordered_multimap<uintptr_t, id> normalizedObjectRefs;
+   std::atomic<uint64_t> objectRefsGeneration{1};
