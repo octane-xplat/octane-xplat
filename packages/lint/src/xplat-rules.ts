@@ -239,6 +239,10 @@ const isReference = (node, parent) => {
 		case 'TSTypeParameterDeclaration':
 		case 'TSTypeParameter':
 			return false
+		case 'TSEnumMember':
+			return parent.id !== node
+		case 'TSParameterProperty':
+			return parent.parameter !== node
 		default:
 			return true
 	}
@@ -249,6 +253,15 @@ const isReference = (node, parent) => {
 function locallyBoundIdentifiers(program) {
 	const root = { parent: null, bindings: new Set(), functionScope: true }
 	const scopes = new WeakMap()
+	// Type-space signatures whose params are visible only inside the node —
+	// they get their own scope so a param named `window` or `document` never
+	// leaks a suppression into real code.
+	const TS_TYPE_SCOPE =
+		/^(TSFunctionType|TSConstructorType|TSMethodSignature|TSConstructSignatureDeclaration|TSCallSignatureDeclaration|TSIndexSignature|TSDeclareFunction)$/
+	// TypeScript declarations that bind their id in the enclosing scope, like
+	// FunctionDeclaration and ClassDeclaration already do.
+	const TS_DECLARATION =
+		/^(TSInterfaceDeclaration|TSTypeAliasDeclaration|TSEnumDeclaration|TSModuleDeclaration|TSDeclareFunction)$/
 	const patternNames = (pattern, out: any[] = []) => {
 		if (!pattern) {
 			return out
@@ -288,6 +301,8 @@ function locallyBoundIdentifiers(program) {
 			(node.type === 'BlockStatement' ||
 				node.type === 'CatchClause' ||
 				node.type === 'ClassBody' ||
+				node.typeParameters ||
+				TS_TYPE_SCOPE.test(node.type) ||
 				/^(ArrowFunctionExpression|FunctionDeclaration|FunctionExpression)$/.test(node.type))
 		) {
 			current = {
@@ -311,7 +326,11 @@ function locallyBoundIdentifiers(program) {
 			bind(current, node.param)
 		}
 
-		if (node.type === 'FunctionDeclaration' || node.type === 'ClassDeclaration') {
+		if (
+			node.type === 'FunctionDeclaration' ||
+			node.type === 'ClassDeclaration' ||
+			TS_DECLARATION.test(node.type)
+		) {
 			bind(scope, node.id)
 		}
 
@@ -323,6 +342,31 @@ function locallyBoundIdentifiers(program) {
 			for (const param of node.params ?? []) {
 				bind(current, param)
 			}
+		}
+
+		// A generic declaration binds its type parameters; the node opened a
+		// scope above when typeParameters is present, so `<Node extends …>`
+		// stays confined to its own declaration. TSTypeParameter.name is an
+		// Identifier in current TSESTree, a plain string in older shapes.
+		if (node.type === 'TSTypeParameter') {
+			if (typeof node.name === 'string') {
+				current.bindings.add(node.name)
+			} else {
+				bind(current, node.name)
+			}
+		}
+
+		// Param names in type-position signatures (`(window: NSWindow) => …`)
+		// are annotation text, not global reads — the node's own scope keeps
+		// the suppression from leaking into real code.
+		if (TS_TYPE_SCOPE.test(node.type)) {
+			for (const param of node.params ?? node.parameters ?? []) {
+				bind(current, param)
+			}
+		}
+
+		if (node.type === 'TSParameterProperty') {
+			bind(current, node.parameter)
 		}
 
 		if (node.type === 'VariableDeclarator') {
