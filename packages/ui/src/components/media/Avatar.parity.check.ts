@@ -4,7 +4,7 @@ import { dims } from '../../parity/check-helpers.ts'
 export const CHECKS: ParityCheck[] = [
 	{
 		fixture: 'avatar-fallback',
-		targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
 		elements: { avatar: 'parity-avatar-root' },
 		equal: ['avatar.box.w', 'avatar.box.h', 'avatar.style.backgroundColor'],
 		check: (m) => [dims(m('avatar'), 40, 40)],

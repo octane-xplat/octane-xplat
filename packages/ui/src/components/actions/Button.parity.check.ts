@@ -30,7 +30,7 @@ export const CHECKS: ParityCheck[] = [
 
 	{
 		fixture: 'button-natural',
-		targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
 		elements: { btn: 'parity-button-natural', label: 'parity-txt' },
 		equal: buttonNaturalEqual,
 		check: (m) => buttonNaturalRows(m),

@@ -13,6 +13,15 @@ function StackLayoutFixture() @{
 	</Absolute>
 }
 
+// Child-authored offsets still win over the shared absolute origin.
+function StackOffsetFixture() @{
+	<Absolute className="parity-stack-root" style={{ width: 96, height: 48 }}>
+		<View className="parity-stack-base" style={{ width: 48, height: 32 }} />
+		<View className="parity-stack-offset" style={{ width: 20, height: 10, left: 10, top: 5 }} />
+	</Absolute>
+}
+
 export const PARITY: ParityFixture[] = [
 	{ name: 'stack-overlay-layout', component: 'Stack', renderer: StackLayoutFixture, props: {} },
+	{ name: 'stack-overlay-offset', component: 'Stack', renderer: StackOffsetFixture, props: {} },
 ]

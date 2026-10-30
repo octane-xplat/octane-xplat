@@ -55,7 +55,9 @@ const requestedTargets = targetsArg
 	: null
 
 const unknownTargets =
-	requestedTargets?.filter((target) => !['web', 'ios', 'android', 'macos'].includes(target)) ?? []
+	requestedTargets?.filter(
+		(target) => !['web', 'ios', 'android', 'macos', 'windows'].includes(target),
+	) ?? []
 
 if (unknownTargets.length) {
 	console.error(`[parity] unknown target(s): ${unknownTargets.join(', ')}`)

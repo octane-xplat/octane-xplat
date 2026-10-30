@@ -34,7 +34,7 @@ export const CHECKS: ParityCheck[] = [
 
 	{
 		fixture: 'text-class-2xl',
-		targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
 		equal: textEqual,
 		elements: { text: 'parity-text' },
 		check: (m) => textClassRows(m, 28, 36),
@@ -66,7 +66,7 @@ export const CHECKS: ParityCheck[] = [
 
 	{
 		fixture: 'text-small',
-		targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
 		elements: { text: 'parity-text' },
 		equal: textEqual,
 		check: (m) => textRows(m, 16),

@@ -69,7 +69,7 @@ export const CHECKS: ParityCheck[] = [
 
 	{
 		fixture: 'percent-size-layout',
-		targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
 		elements: { root: 'parity-percent-root' },
 		equal: ['root.box.x', 'root.box.y', 'root.box.w', 'root.box.h'],
 		check: (m) => [dims(m('root'), 110, 32, 1)],

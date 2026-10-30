@@ -62,6 +62,44 @@ function resolvedFontOf(view: any) {
 		}
 	}
 
+	if (!Application.ios) {
+		// Windows leaf: read the XAML TextBlock/Control's resolved font
+		// (FontFamily.Source, FontSize, FontWeight.Weight, LineHeight) plus
+		// Foreground color. Guarded — non-text controls have no font surface.
+		try {
+			if (!nativeView) {
+				return undefined
+			}
+
+			const family = nativeView.FontFamily?.Source
+			const size = Number(nativeView.FontSize)
+			const weight = Number(nativeView.FontWeight?.Weight)
+			const lineHeight = Number(nativeView.LineHeight)
+			const color = nativeView.Foreground?.Color
+			const hex =
+				color && typeof color.A === 'number'
+					? '#' +
+						(((color.A << 24) | (color.R << 16) | (color.G << 8) | color.B) >>> 0)
+							.toString(16)
+							.padStart(8, '0')
+					: undefined
+
+			if (family === undefined && !Number.isFinite(size)) {
+				return undefined
+			}
+
+			return {
+				family: family ? String(family) : undefined,
+				size: Number.isFinite(size) ? round(size) : undefined,
+				weight: Number.isFinite(weight) ? weight : undefined,
+				lineHeight: Number.isFinite(lineHeight) && lineHeight > 0 ? round(lineHeight) : undefined,
+				color: hex,
+			}
+		} catch {
+			return undefined
+		}
+	}
+
 	const font = nativeView?.font ?? nativeView?.searchTextField?.font
 	if (!font) {
 		return undefined
@@ -92,7 +130,26 @@ function rootLayoutFor(view: any): RootLayout | undefined {
 	return getRootLayout()
 }
 
-function styleOf(view: any): Record<string, string> {
+// Windows style facets arrive as Length ({value, unit}) / Color ({hex})
+// objects — serialize them so they compare with web the way scalar values
+// do. Other platforms keep the plain String(v) path byte-identical.
+function facetScalar(v: any, windows: boolean): string {
+	if (windows && typeof v === 'object' && v !== null) {
+		if (typeof v.value === 'number' && (v.unit === 'dip' || v.unit === 'px')) {
+			return String(
+				round(v.unit === 'px' ? Utils.layout.toDeviceIndependentPixels(v.value) : v.value),
+			)
+		}
+
+		if (typeof v.hex === 'string') {
+			return v.hex
+		}
+	}
+
+	return String(v)
+}
+
+function styleOf(view: any, windows: boolean): Record<string, string> {
 	const out: Record<string, string> = {}
 	const s = view?.style ?? {}
 	for (const f of STYLE_FACETS) {
@@ -101,8 +158,22 @@ function styleOf(view: any): Record<string, string> {
 			v = view?.[f]
 		}
 
+		// Windows keeps a `padding` shorthand in the style bag while the
+		// per-side keys stay 0 — fall back to the effective (computed) inset.
+		if (
+			windows &&
+			(v === 0 || v === '0' || v === undefined || v === null) &&
+			f.startsWith('padding')
+		) {
+			const edge = f.slice('padding'.length)
+			const eff = view?.[`effectivePadding${edge}`]
+			if (eff !== undefined && eff !== null && eff !== 0) {
+				v = eff
+			}
+		}
+
 		if (v !== undefined && v !== null && v !== '') {
-			out[f] = String(v)
+			out[f] = facetScalar(v, windows)
 		}
 	}
 
@@ -136,7 +207,7 @@ function contentBoxOf(
 	}
 }
 
-function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
+function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }, windows: boolean) {
 	const loc = view.getLocationOnScreen?.()
 	const size = view.getActualSize?.()
 	const classes: string[] = view?.cssClasses ? [...view.cssClasses] : []
@@ -157,7 +228,7 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 						h: round(size.height),
 					}
 				: null,
-		style: styleOf(view),
+		style: styleOf(view, windows),
 		text: typeof view?.text === 'string' && view.text ? view.text : undefined,
 		resolvedFont,
 		contentBox: textControl && loc && size ? contentBoxOf(view, loc, size, boxLoc) : undefined,
@@ -204,7 +275,7 @@ function hasClass(view: any, cls: string) {
 	return view?.cssClasses?.has?.(cls) === true
 }
 
-export function measureTree(stageView: any) {
+export function measureTree(stageView: any, target: string) {
 	const cells: Record<string, any[]> = {}
 	const rootNodes = childrenOf(rootLayoutFor(stageView))
 	for (const v of childrenOf(stageView)) {
@@ -222,18 +293,39 @@ export function measureTree(stageView: any) {
 		const marker = `parity-portal--${name}`
 		const portalRoot = rootNodes.find((c) => hasClass(c, marker))
 		const portalNodes = portalRoot ? [portalRoot, ...childrenOf(portalRoot)] : []
-		cells[name] = [box, ...childrenOf(box), ...portalNodes].map((c) => nodeFor(c, box, boxLoc))
+		cells[name] = [box, ...childrenOf(box), ...portalNodes].map((c) =>
+			nodeFor(c, box, boxLoc, target === 'windows'),
+		)
 	}
 
-	return { target: Application.android ? 'android' : 'ios', cells }
+	return { target, cells }
 }
 
 /** Same seam as the web leaf — the sweep calls __xplatParity() once the
- *  parity route is pushed on the root stack. */
-export function installParityDump() {
+ *  parity route is pushed on the root stack. Each platform leaf supplies
+ *  the host view containing #parity-stage (ios/android: the current
+ *  stack page; windows: the app root). */
+export function installParityDumpFor(target: string, hostOf: () => any) {
 	;(globalThis as any).__xplatParity = () => {
-		const page = getStack('root')?.currentPage as any
-		const stage = page?.getViewById?.('parity-stage')
-		return stage ? measureTree(stage) : null
+		const host = hostOf()
+		const stage = host?.getViewById?.('parity-stage')
+		return stage ? measureTree(stage, target) : null
 	}
+}
+
+// Measured-dump seam — the nativescript default leaf serves ios/android
+// and windows (no measure.windows.ts sibling: the windows harness app
+// mounts ParityStage without a router, so its stage is found from the app
+// root view instead of the root stack). Same JSON shape as measure.web.ts.
+export function installParityDump() {
+	const windows = Boolean(Application.windows) || Boolean((globalThis as any).__WINDOWS__)
+	const target = Application.android ? 'android' : windows ? 'windows' : 'ios'
+	installParityDumpFor(target, () => {
+		if (windows) {
+			return (Application.getRootView?.() ?? getRootLayout()) as any
+		}
+
+		const page = getStack('root')?.currentPage as any
+		return page
+	})
 }
