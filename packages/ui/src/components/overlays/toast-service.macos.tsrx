@@ -59,7 +59,7 @@ function ensureFallbackViewport(): void {
 	}
 }
 
-export const showToast: ShowToastFn = (options: ToastOptions) => {
+export const showToast: ShowToastFn = (options) => {
 	ensureFallbackViewport()
 	return toastHandleFor(pushToast(options, FALLBACK_TOAST_VIEWPORT))
 }
