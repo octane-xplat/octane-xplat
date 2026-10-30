@@ -390,3 +390,12 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
 - `useMediaQuery` evaluates the css-engine environment (largest live host size, scheme, reduced-motion): `pointer`/`hover` are fixed `fine`/`hover`, and width/height track the window not the screen.
 - `copyText`/`useClipboard` write text only; there is no read or format API.
 - Multi-value `font-family` stacks from generated theme CSS trip the GTK declaration parser ('Junk at end of value for font-family') — token values should use single-family strings for now.
+### Focus and keyboard (slice F)
+- `onKeyDown`/`onKeyUp` exist on every element but the component prop surfaces (`View`/`Pressable`/`TextInput` etc.) do not carry them — spread `keyboardProps`/`focusProps`/`focusWithinProps`/`landmarkProps` onto host intrinsics, or cast when spreading onto components (`as any` in fixtures; the hook prop types are DOM-flavored, not NativeEvent-flavored).
+- `KeyEvent.code` is `''` (Gdk reports hardware keycodes, not DOM code names); `repeat`/`isComposing` stay `false`; `relatedTarget` is `null` — GTK4 reports none on leave, and focus is not cancelable (same as DOM focus/blur).
+- A `preventDefault`/`stopPropagation` claim is synchronous — if the driver defers dispatch (`applyingDepth > 0` mid-batch) the claim is silently dropped and the key falls through to the target widget.
+- Focus-visible modality is real but approximate: keyboard = unmodified key press (bare Ctrl/Alt/Meta/Super excluded — GTK reports `state` without the just-pressed bit; Shift counts like web), pointer = mouse button or touch begin, window deactivation = unknown. Touch-seat behavior is unproven on the Xvfb harness.
+- The F12 test ack is itself a key press — after every input phase modality reads `keyboard`; assert pointer modality from an ordered event log, never from post-phase state.
+- `GtkEntry` focus delegates to the inner `GtkText` — `window.get_focus()` returns the delegate; compare via a parent-chain walk, not `===`.
+- `Gtk.Label` reports `get_can_focus() === true` inside realized cells — grid cells must be the *outermost* focusable descendants (a cell's own children are part of the cell).
+- `useLandmark` F6 region cycling is web-only — the shared native leaf is semantic-only by contract (role + label forwarding, which the landmark `A11Y_ROLES` additions now honor).

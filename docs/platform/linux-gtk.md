@@ -113,7 +113,9 @@ theme/environment surface (Theme, useTheme, useThemeName,
 useThemeScheme, getThemeScheme, useThemePreference, setThemePreference,
 getThemePreference, onThemeSchemeChange, themeSchemeClasses,
 applyThemeClasses, useColorScheme, getColorScheme, useMediaQuery,
-useClipboard, copyText, useAnnounce) —
+useClipboard, copyText, useAnnounce), and focus/keyboard hooks
+(useFocus, useFocusRing, useFocusVisible, isFocusVisible,
+useFocusWithin, useLandmark, useKeyboard, useGridFocus) —
 behave identically to native; slot-bearing hooks (useCalendarDays,
 useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
 are not yet exposed.
@@ -1075,6 +1077,12 @@ it works from any directory without a source checkout, Node, or pnpm.
   stacks are corner overlay layers rather than per-edge windows, and
   `Lightbox` video falls back to alt text (the video widget lives in
   `@octane-xplat/video`).
+- `KeyEvent.code` is empty (Gdk reports hardware keycodes, not DOM code
+  names), `repeat`/`isComposing` are always `false`, and focus events carry
+  `relatedTarget: null`. `useLandmark` forwards roles/labels only — F6
+  region cycling is a web-only convention. Focus-visible modality tracks
+  real input (unmodified key → keyboard, button/touch press → pointer,
+  deactivation → unknown); touch-seat pointer modality is unproven.
 - Broad pointer/keyboard coverage, Wayland, assistive technology, visual parity
   and the complete shared UI remain unqualified. Primitive checks establish
   only the named Mason allocations and X11 pointer behavior; counter and

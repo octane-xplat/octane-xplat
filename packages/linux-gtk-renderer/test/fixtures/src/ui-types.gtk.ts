@@ -431,3 +431,35 @@ type UseClipboardResultContract = Assert<
 type AnnouncePolitenessContract = Assert<
 	Equal<GtkUI.AnnouncePoliteness, NativeUI.AnnouncePoliteness>
 >
+type FocusEventPayloadContract = Assert<
+	Equal<GtkUI.FocusEventPayload, NativeUI.FocusEventPayload>
+>
+type UseFocusOptionsContract = Assert<Equal<GtkUI.UseFocusOptions, NativeUI.UseFocusOptions>>
+type UseFocusRingResultContract = Assert<
+	Equal<GtkUI.UseFocusRingResult, NativeUI.UseFocusRingResult>
+>
+type FocusInputModalityContract = Assert<
+	Equal<GtkUI.FocusInputModality, NativeUI.FocusInputModality>
+>
+type UseFocusVisibleResultContract = Assert<
+	Equal<GtkUI.UseFocusVisibleResult, NativeUI.UseFocusVisibleResult>
+>
+type UseFocusWithinOptionsContract = Assert<
+	Equal<GtkUI.UseFocusWithinOptions, NativeUI.UseFocusWithinOptions>
+>
+type UseFocusWithinResultContract = Assert<
+	Equal<GtkUI.UseFocusWithinResult, NativeUI.UseFocusWithinResult>
+>
+type UseLandmarkOptionsContract = Assert<
+	Equal<GtkUI.UseLandmarkOptions, NativeUI.UseLandmarkOptions>
+>
+type LandmarkPropsContract = Assert<Equal<GtkUI.LandmarkProps, NativeUI.LandmarkProps>>
+type KeyboardEventContract = Assert<Equal<GtkUI.KeyboardEvent, NativeUI.KeyboardEvent>>
+type UseKeyboardOptionsContract = Assert<
+	Equal<GtkUI.UseKeyboardOptions, NativeUI.UseKeyboardOptions>
+>
+type UseKeyboardResultContract = Assert<
+	Equal<GtkUI.UseKeyboardResult, NativeUI.UseKeyboardResult>
+>
+type GridFocusOptionsContract = Assert<Equal<GtkUI.GridFocusOptions, NativeUI.GridFocusOptions>>
+type GridFocusResultContract = Assert<Equal<GtkUI.GridFocusResult, NativeUI.GridFocusResult>>

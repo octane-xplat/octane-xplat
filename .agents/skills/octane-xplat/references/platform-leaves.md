@@ -367,3 +367,10 @@ software-keyboard overlay to host.
 - `use-media-query.gtk.tsrx` — bridge `matchMedia` runs the same `evalMediaQuery`/environment instance the cascade uses; `onMediaChange` fires on `GdkSurface::layout` (real resizes, incl. WM-driven) and settings notifies. `notify::default-width` fires before the surface resizes — never read env from it.
 - `clipboard-write.gtk.ts` — `Gdk.ContentProvider.new_for_bytes('text/plain;charset=utf-8')` + `set_content`; GTK 4 has no `gdk_clipboard_set_text`. Members go through `any` (typed typelibs predate them).
 - `announce-service.ts`/`.gtk.ts` — a ui indirection between the shared leaves (`use-clipboard.tsrx`, `use-announce.ts`) and `@octane-xplat/platform`: platform's index does not tree-shake under the GTK shim (`Screen` missing), so the `.gtk` sibling posts through the bridge's `GtkAccessible.announce` instead (GTK >= 4.14, `any`-cast — the enum is absent from typed typelibs).
+### Focus and keyboard (slice F)
+- `use-focus-visible.gtk.tsrx` — subscribes the renderer's `__octaneGtkHost` modality bridge (`getInputModality`/`onInputModalityChange`); the watch lives in `wireContainerWindow` (capture key + `EventControllerLegacy` pointer + `is-active`).
+- `use-focus-within.gtk.tsrx` — wraps the shared leaf and reports `isSubtreeTrackingSupported: true`; `Gtk.EventControllerFocus` enter/leave are real boundary events on containers.
+- `use-keyboard.gtk.ts` — `keyboardProps` carries the renderer's capture-phase `onKeyDown`/`onKeyUp`; `isSupported: true`.
+- `use-grid-focus.gtk.ts` — arrow/Home/End navigation over the host's outermost focusable descendants; claims handled keys so GTK directional nav cannot double-move.
+- `useFocus`/`useFocusRing`/`useLandmark` need no leaf — shared impls ride `onFocus`/`onBlur` props and the landmark roles added to `A11Y_ROLES`.
+- `key-event.ts` (renderer) — `normalizeKeyEvent` maps `keyval_to_unicode` + `KEY_NAMES` to DOM key names; the dispatched event must be the normalize result itself (`eventName`/`object` attached) — a spread copy breaks `preventDefault`/`stopPropagation` closures.

@@ -3179,3 +3179,108 @@ and Escape closes it.
 
 Logs: guest `/tmp/gtk-run.log`; limits unchanged (X11/Xvfb only; no
 Wayland, pixel, IME or AT-client evidence).
+
+## Slice F evidence — focus and keyboard hooks
+
+- `onKeyDown`/`onKeyUp` are real host props (`CommonEvents` in
+  `packages/jsx/shared.d.ts` gains the public `KeyEvent` contract).
+  `connectEvent` wires them through a **capture-phase**
+  `Gtk.EventControllerKey` per element: an ancestor sees keys bound for
+  any focused descendant before the target widget handles them, so
+  `preventDefault()`/`stopPropagation()` genuinely claim the key —
+  `key-event.ts` `normalizeKeyEvent` maps `keyval_to_unicode` +
+  `KEY_NAMES` to DOM-style `key` names and modifier flags.
+- The dispatched event is the normalize result itself with
+  `eventName`/`object` attached — spreading it into a fresh object broke
+  claims (the guard methods close over the inner object; a spread
+  copies the flags but never the writes). Fixed; verified by real
+  insertion suppression (`x`/`z` claimed, `y` inserted, on GJS + GTK
+  4.14.5 + xdotool).
+- Focus/blur payloads now merge `FocusEventPayload` fields
+  (`type`/`target`/`currentTarget`/`relatedTarget: null`/
+  `preventDefault`/`stopPropagation`) into the NativeEvent dispatch —
+  both contract views hold. `useFocus`/`useFocusWithin` ride the
+  existing `Gtk.EventControllerFocus` enter/leave, which have true
+  subtree boundary semantics on containers (single enter on boundary
+  crossing, quiet between descendants — verified with real Tab moves
+  and in-process `grab_focus`).
+- Focus-visible modality lives in `wireContainerWindow`: a capture-phase
+  key watch (unmodified key → `keyboard`, bare Ctrl/Alt/Meta/Super
+  presses excluded — GTK reports `state` without the just-pressed
+  modifier bit, Shift still counts like web), an
+  `EventControllerLegacy` pointer watch (`BUTTON_PRESS`/`TOUCH_BEGIN` →
+  `pointer`; an observer that never claims — a capture-phase
+  `Gtk.GestureClick` would have stolen presses from descendants), and
+  `notify::is-active` (window deactivate → `unknown`). JS reads it via
+  `__octaneGtkHost.getInputModality`/`onInputModalityChange`.
+- `useFocusWithin.gtk.tsrx` reports `isSubtreeTrackingSupported: true`
+  (real boundary events); `useFocusVisible`/`isFocusVisible` report
+  `isSupported: true`; `useKeyboard` `isSupported: true`;
+  `useLandmark` needs no leaf — the shared leaf forwards role+label
+  and `A11Y_ROLES` gained the landmark set (main/navigation/search/
+  form/region/banner/contentinfo/complementary) verified through
+  `XplatMason.test_accessible_*`.
+- `useGridFocus.gtk.ts` navigates the hosts **outermost focusable
+## Slice F evidence — focus and keyboard hooks
+
+- `onKeyDown`/`onKeyUp` are real host props (`CommonEvents` in
+  `packages/jsx/shared.d.ts` gains the public `KeyEvent` contract).
+  `connectEvent` wires them through a **capture-phase**
+  `Gtk.EventControllerKey` per element: an ancestor sees keys bound for
+  any focused descendant before the target widget handles them, so
+  `preventDefault()`/`stopPropagation()` genuinely claim the key —
+  `key-event.ts` `normalizeKeyEvent` maps `keyval_to_unicode` +
+  `KEY_NAMES` to DOM-style `key` names and modifier flags.
+- The dispatched event is the normalize result itself with
+  `eventName`/`object` attached — spreading it into a fresh object broke
+  claims (the guard methods close over the inner object; a spread
+  copies the flags but never the writes). Fixed; verified by real
+  insertion suppression (`x`/`z` claimed, `y` inserted, on GJS + GTK
+  4.14.5 + xdotool).
+- Focus/blur payloads now merge `FocusEventPayload` fields
+  (`type`/`target`/`currentTarget`/`relatedTarget: null`/
+  `preventDefault`/`stopPropagation`) into the NativeEvent dispatch —
+  both contract views hold. `useFocus`/`useFocusWithin` ride the
+  existing `Gtk.EventControllerFocus` enter/leave, which have true
+  subtree boundary semantics on containers (single enter on boundary
+  crossing, quiet between descendants — verified with real Tab moves
+  and in-process `grab_focus`).
+- Focus-visible modality lives in `wireContainerWindow`: a capture-phase
+  key watch (unmodified key → `keyboard`, bare Ctrl/Alt/Meta/Super
+  presses excluded — GTK reports `state` without the just-pressed
+  modifier bit, Shift still counts like web), an
+  `EventControllerLegacy` pointer watch (`BUTTON_PRESS`/`TOUCH_BEGIN` →
+  `pointer`; an observer that never claims — a capture-phase
+  `Gtk.GestureClick` would have stolen presses from descendants), and
+  `notify::is-active` (window deactivate → `unknown`). JS reads it via
+  `__octaneGtkHost.getInputModality`/`onInputModalityChange`.
+- `useFocusWithin.gtk.tsrx` reports `isSubtreeTrackingSupported: true`
+  (real boundary events); `useFocusVisible`/`isFocusVisible` report
+  `isSupported: true`; `useKeyboard` `isSupported: true`;
+  `useLandmark` needs no leaf — the shared leaf forwards role+label
+  and `A11Y_ROLES` gained the landmark set (main/navigation/search/
+  form/region/banner/contentinfo/complementary) verified through
+  `XplatMason.test_accessible_*`.
+- `useGridFocus.gtk.ts` navigates the host's **outermost focusable
+  descendants** — a cell's own descendants (labels inside cells report
+  `get_can_focus() === true` under GTK) are part of the cell, not
+  separate cells. Arrows step one cell, Down/Up jump `columns`,
+  Home/End jump edges; every handled key is claimed so GTK's own
+  directional focus does not double-move.
+- `GtkEntry` focus delegates to its inner `GtkText` —
+  `window.get_focus()` returns the delegate, so focus assertions walk
+  the parent chain.
+
+Fixture: `ui-focus` (71 assertions, real X11 input: Tab traversal,
+key presses, ctrl/shift chords, clicks) + in-process emit coverage.
+Siblings re-verified green after the key wiring (ui-layers 49,
+ui-overlays 23, ui-popover 73, ui-press-keys 51).
+
+Limits: `code` is `''` (Gdk gives hardware codes, not DOM code names),
+`repeat`/`isComposing` always `false`, `relatedTarget` is `null`,
+pointer modality covers mouse buttons and touch-begin (touch unproven
+on the Xvfb seat), a claim made while the driver defers event dispatch
+(`applyingDepth > 0`) is dropped, and F6 landmark cycling stays
+web-only (the shared native leaf is semantic-only by contract).
+
+Logs: guest `/tmp/gtk-run.log`, `/tmp/gtk-focus-dbg.log`.

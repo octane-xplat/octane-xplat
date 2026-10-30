@@ -48,6 +48,7 @@ import { bindPicture } from './picture.js'
 import { popoverChromeUsers } from './popover-instance.js'
 import { bindOverlayHost } from './overlay-host.js'
 import { bindPublicInstance } from './public-instance.js'
+import { normalizeKeyEvent } from './key-event.js'
 
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
 import { resolveTransform, cssTransformText } from './transform-style.js'
@@ -184,6 +185,9 @@ export interface GtkContainer {
 	overlayLayerHandles?: Set<any>
 	layerKeySink?: ((event: any) => void) | null
 	layerKeyController?: any
+	/** Focus-visible modality controllers on the window root — capture-phase
+	 *  key + pointer-press watches feeding the shared inputModality state. */
+	modalityControllers?: any[]
 	/** Service roots mount inside a host's overlay layer (toast stack) —
 	 *  they live in `liveGtkContainers` for restyle but never become the
 	 *  `__octaneGtkHost` bridge's layer target. */
@@ -232,6 +236,8 @@ const EVENT_PROP_TYPE: Record<
 	onReturnPress: { type: 'submit', priority: 'discrete' },
 	onFocus: { type: 'focus', priority: 'default' },
 	onBlur: { type: 'blur', priority: 'default' },
+	onKeyDown: { type: 'keydown', priority: 'discrete' },
+	onKeyUp: { type: 'keyup', priority: 'discrete' },
 	onLoaded: { type: 'loaded', priority: 'default' },
 	onUnloaded: { type: 'unloaded', priority: 'default' },
 	onScroll: { type: 'scroll', priority: 'continuous' },
@@ -1346,6 +1352,42 @@ let settingsObserved = false
 // query can re-check even when no registered stylesheet moved.
 const colorSchemeListeners = new Set<() => void>()
 const mediaListeners = new Set<() => void>()
+// Input-modality tracking for focus-visible — the web leaf listens on DOM
+// window keydown/pointerdown/blur; GTK has no :focus-visible, so the honest
+// counterpart watches the same boundaries on each window root (installed in
+// wireContainerWindow): an unmodified non-modifier key press means keyboard
+// modality, a pointer press means pointer, and window deactivation returns
+// to unknown. JS reads it through the __octaneGtkHost bridge.
+let inputModality: 'keyboard' | 'pointer' | 'unknown' = 'unknown'
+const inputModalityListeners = new Set<() => void>()
+function setInputModality(next: 'keyboard' | 'pointer' | 'unknown') {
+	if (next === inputModality) {
+		return
+	}
+	inputModality = next
+	for (const listener of inputModalityListeners) {
+		listener()
+	}
+}
+const SHORTCUT_MODIFIERS =
+	Gdk.ModifierType.CONTROL_MASK |
+	Gdk.ModifierType.ALT_MASK |
+	Gdk.ModifierType.SUPER_MASK |
+	Gdk.ModifierType.META_MASK
+// GTK reports the key-pressed `state` without the just-pressed key's own
+// bit, so a bare Control/Alt/Meta press would read as an unmodified key —
+// the web leaf excludes those through the event's own modifier flags.
+// Shift is intentionally absent: the web leaf counts a bare Shift press.
+const MODIFIER_KEYVALS = new Set([
+	Gdk.KEY_Control_L,
+	Gdk.KEY_Control_R,
+	Gdk.KEY_Alt_L,
+	Gdk.KEY_Alt_R,
+	Gdk.KEY_Meta_L,
+	Gdk.KEY_Meta_R,
+	Gdk.KEY_Super_L,
+	Gdk.KEY_Super_R,
+])
 let emittedScheme: string | null = null
 function notifyAppearance() {
 	const scheme = cssSchemeName()
@@ -1424,6 +1466,49 @@ function wireContainerWindow(container: GtkContainer) {
 		container.layerKeyController = keys
 	}
 	const ids: number[] = []
+	// Focus-visible input modality — capture-phase so the watch sees input
+	// before the target widget. Chorded shortcuts do not count as keyboard
+	// modality (same rule as the web leaf's meta/alt/ctrl exclusion — the
+	// modifier mask carries the just-pressed key, so a bare Control/Alt/Meta
+	// press is excluded while Shift alone still counts, exactly like web).
+	// The pointer watch is an EventControllerLegacy: it observes without ever
+	// claiming, where a capture-phase Gtk.GestureClick would steal presses
+	// from every descendant's gesture.
+	if (!container.modalityControllers) {
+		const keys = new Gtk.EventControllerKey()
+		keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+		keys.connect(
+			'key-pressed',
+			(_controller: any, keyval: number, _code: number, modifiers: number) => {
+				if (!MODIFIER_KEYVALS.has(keyval) && (modifiers & SHORTCUT_MODIFIERS) === 0) {
+					setInputModality('keyboard')
+				}
+				return false
+			},
+		)
+		const pointer = new Gtk.EventControllerLegacy()
+		pointer.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+		pointer.connect('event', (_controller: any, event: any) => {
+			const type = event?.get_event_type?.()
+			if (type === Gdk.EventType.BUTTON_PRESS || type === Gdk.EventType.TOUCH_BEGIN) {
+				setInputModality('pointer')
+			}
+		})
+		root.add_controller(keys)
+		root.add_controller(pointer)
+		container.modalityControllers = [keys, pointer]
+		try {
+			ids.push(
+				root.connect('notify::is-active', () => {
+					if (!root.is_active) {
+						setInputModality('unknown')
+					}
+				}),
+			)
+		} catch {
+			// pre-window roots — modality stays at its last observed value
+		}
+	}
 	for (const signal of [
 		'notify::default-width',
 		'notify::default-height',
@@ -1881,6 +1966,17 @@ const A11Y_ROLES: Record<string, number> = {
 	switch: Gtk.AccessibleRole.SWITCH,
 	radio: Gtk.AccessibleRole.RADIO,
 	radiogroup: Gtk.AccessibleRole.RADIO_GROUP,
+	// Landmark roles for useLandmark — GTK4's AccessibleRole carries the ARIA
+	// landmark set. The shared `Role` union omits them, so they only arrive
+	// through free-string role props (landmarkProps, layer props).
+	main: Gtk.AccessibleRole.MAIN,
+	navigation: Gtk.AccessibleRole.NAVIGATION,
+	search: Gtk.AccessibleRole.SEARCH,
+	form: Gtk.AccessibleRole.FORM,
+	region: Gtk.AccessibleRole.REGION,
+	banner: Gtk.AccessibleRole.BANNER,
+	contentinfo: Gtk.AccessibleRole.CONTENTINFO,
+	complementary: Gtk.AccessibleRole.COMPLEMENTARY,
 }
 
 function setAccessibleRole(node: ElementNode, value: unknown) {
@@ -3183,6 +3279,22 @@ function payloadFor(node: ElementNode, type: string): unknown {
 				scrollY: scrolled?.vadjustment?.value ?? 0,
 			}
 		}
+		case 'focus':
+		case 'blur':
+			// Merge the NativeEvent identity with the FocusEventPayload
+			// contract so both host views of the same event hold. Focus is
+			// not cancelable on GTK (same as DOM focus/blur), and GTK4
+			// reports no relatedTarget on leave — null is the honest value.
+			return {
+				eventName: type,
+				object: view,
+				type,
+				target: view,
+				currentTarget: view,
+				relatedTarget: null,
+				preventDefault() {},
+				stopPropagation() {},
+			}
 		default:
 			return { eventName: type, object: view }
 	}
@@ -3420,6 +3532,30 @@ function connectEvent(
 				],
 				controllers: [controller],
 			}
+		}
+		case 'keydown':
+		case 'keyup': {
+			// Widget-scoped key events in CAPTURE phase — the controller sees
+			// keys bound for the widget or any focused descendant before the
+			// target handles them, so preventDefault/stopPropagation genuinely
+			// suppress the default action (text insertion, focus moves).
+			const controller = new Gtk.EventControllerKey()
+			controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+			const signalId = controller.connect(
+				type === 'keydown' ? 'key-pressed' : 'key-released',
+				(_controller: any, keyval: number, _keycode: number, modifiers: number) => {
+					// Attach onto the normalized event rather than spreading it —
+					// preventDefault/stopPropagation close over that object, so a
+					// spread copy would discard every claim the handler makes.
+					const event = normalizeKeyEvent(keyval, modifiers) as Record<string, any>
+					event.eventName = type
+					event.object = view
+					dispatch(event)
+					return event.defaultPrevented === true || event.cancelBubble === true
+				},
+			)
+			view.add_controller(controller)
+			return { connections: [{ emitter: controller, signalId }], controllers: [controller] }
 		}
 		case 'change': {
 			if (view instanceof Gtk.TextView) {
@@ -4269,6 +4405,17 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 			mediaListeners.add(listener)
 			return () => {
 				mediaListeners.delete(listener)
+			}
+		},
+		// Focus-visible input modality — the last observed input kind on any
+		// window root ('keyboard' | 'pointer' | 'unknown'). ui's
+		// use-focus-visible.gtk subscribes here instead of inventing its own
+		// GTK tracking.
+		getInputModality: () => inputModality,
+		onInputModalityChange: (listener: () => void) => {
+			inputModalityListeners.add(listener)
+			return () => {
+				inputModalityListeners.delete(listener)
 			}
 		},
 		// Named-theme token rules register with the shared css-engine — the

@@ -164,6 +164,26 @@ export interface ItemEvent<TElement> extends NativeEvent<TElement> {
 	readonly view: HostObject
 }
 
+/** Hardware key press/release — `key` is the logical DOM-style key
+ *  name, `code` the physical DOM code name (empty when the host cannot
+ *  supply one). preventDefault()/stopPropagation() map to the host's
+ *  handled-propagation mechanism where the driver wires it. GTK wires
+ *  these on every element (capture-phase Gtk.EventControllerKey);
+ *  drivers that do not wire them simply never emit. */
+export interface KeyEvent<TElement> extends NativeEvent<TElement> {
+	readonly key: string
+	readonly code: string
+	readonly altKey: boolean
+	readonly ctrlKey: boolean
+	readonly metaKey: boolean
+	readonly shiftKey: boolean
+	readonly repeat: boolean
+	readonly isComposing: boolean
+	readonly defaultPrevented: boolean
+	preventDefault(): void
+	stopPropagation(): void
+}
+
 /** WebView navigation payloads (`loadStarted`/`loadFinished`/`loadError`). */
 export interface WebViewEvent<TElement> extends NativeEvent<TElement> {
 	readonly url?: string
@@ -259,6 +279,8 @@ export interface CommonEvents<TElement> {
 	onSubmit?: HostHandler<NativeEvent<TElement>>
 	onFocus?: HostHandler<NativeEvent<TElement>>
 	onBlur?: HostHandler<NativeEvent<TElement>>
+	onKeyDown?: HostHandler<KeyEvent<TElement>>
+	onKeyUp?: HostHandler<KeyEvent<TElement>>
 	onLoaded?: HostHandler<NativeEvent<TElement>>
 	onUnloaded?: HostHandler<NativeEvent<TElement>>
 	onLayoutChanged?: HostHandler<NativeEvent<TElement>>

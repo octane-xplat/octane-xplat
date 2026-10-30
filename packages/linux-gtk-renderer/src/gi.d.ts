@@ -475,6 +475,43 @@ declare module 'gi://Gdk?version=4.0' {
 		const KEY_Page_Down: number
 		const KEY_Home: number
 		const KEY_End: number
+		const KEY_Tab: number
+		const KEY_ISO_Left_Tab: number
+		const KEY_BackSpace: number
+		const KEY_Delete: number
+		const KEY_Insert: number
+		const KEY_KP_Delete: number
+		const KEY_KP_Insert: number
+		const KEY_KP_Home: number
+		const KEY_KP_End: number
+		const KEY_KP_Page_Up: number
+		const KEY_KP_Page_Down: number
+		const KEY_KP_Left: number
+		const KEY_KP_Right: number
+		const KEY_KP_Up: number
+		const KEY_KP_Down: number
+		const KEY_Shift_L: number
+		const KEY_Shift_R: number
+		const KEY_Control_L: number
+		const KEY_Control_R: number
+		const KEY_Alt_L: number
+		const KEY_Alt_R: number
+		const KEY_Meta_L: number
+		const KEY_Meta_R: number
+		const KEY_Super_L: number
+		const KEY_Super_R: number
+		const KEY_Caps_Lock: number
+		const KEY_Num_Lock: number
+		const KEY_Scroll_Lock: number
+		const KEY_Pause: number
+		const KEY_Print: number
+		const KEY_Menu: number
+		const KEY_a: number
+		const KEY_x: number
+		const KEY_y: number
+		const KEY_z: number
+		function keyval_name(keyval: number): string
+		function keyval_to_unicode(keyval: number): number
 		const ModifierType: {
 			SHIFT_MASK: number
 			LOCK_MASK: number

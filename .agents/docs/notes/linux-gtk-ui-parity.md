@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 239 runtime values and 324 types in index.gtk.ts, including
+Current availability is 247 runtime values and 338 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1567,3 +1567,40 @@ source is the app-settable prefer-dark flag plus the `-dark`
 theme-name heuristic; the media environment is the largest live host
 size with `pointer`/`hover` fixed `fine`/`hover`; multi-value
 `font-family` stacks in generated theme CSS warn in the GTK parser.
+
+### Focus and keyboard hooks (slice F)
+
+The full React Aria focus family is public on GTK — `useFocus`,
+`useFocusRing`, `useFocusVisible`, `isFocusVisible`, `useFocusWithin`,
+`useLandmark`, `useKeyboard`, `useGridFocus` plus fourteen sibling
+types. Availability is 247 values and 338 types.
+
+`onKeyDown`/`onKeyUp` are new public element props (`KeyEvent` in
+`shared.d.ts`); the renderer dispatches DOM-normalized key events from
+a capture-phase `Gtk.EventControllerKey` per element, so
+`preventDefault()`/`stopPropagation()` suppress the target widget's own
+handling (verified: claimed keys never reach a text field's
+insertion). `useFocusVisible`/`isFocusVisible` read a real modality
+watch the renderer installs on each window root (key press → keyboard,
+button/touch press → pointer, window deactivation → unknown) through
+the `__octaneGtkHost` bridge — keyboard focus shows a ring, pointer
+focus does not. `useFocusWithin` reports true subtree tracking
+(`Gtk.EventControllerFocus` boundary semantics). `useLandmark` needs no
+leaf — the shared leaf's role+label forwarding lands on the new
+landmark roles in `A11Y_ROLES`. `useKeyboard`/`useGridFocus` get GTK
+leaves; `useFocus`/`useFocusRing` use the shared leaf unchanged.
+
+`ui-focus.test.mjs` runs 71 assertions with real X11 input: normalized
+key fields (key/code/modifiers), real preventDefault/stopPropagation
+insertion suppression, `useKeyboard` on an ancestor seeing descendant
+keys, `useFocus`/`useFocusWithin` on real Tab boundaries, ring visible
+on keyboard focus vs hidden on pointer focus, `isFocusVisible`
+modality, landmark role+label on the realized widget, and
+`useGridFocus` arrow/Home/End navigation plus imperative `onFocusCell`.
+
+Limits: `code` is `''` (Gdk reports hardware keycodes, not DOM code
+names), `repeat`/`isComposing` stay `false`, `relatedTarget` is `null`
+(focus is not cancelable on GTK, same as DOM), pointer modality covers
+mouse buttons + touch-begin (touch unproven on the Xvfb seat), a claim
+fired while the driver defers dispatch (`applyingDepth > 0`) is
+dropped, and F6 landmark cycling remains web-only.
