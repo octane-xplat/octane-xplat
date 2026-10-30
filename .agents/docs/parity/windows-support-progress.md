@@ -3484,14 +3484,71 @@ seam. The remaining failures are in the mobile and Windows typecheck programs
 and concern existing AppKit source. The comparison is recorded in
 `research/windows61/core-text-app-typecheck-comparison.json`.
 
-Pending: the three new wrapping fixtures on Windows, a production DLL without
-diagnostic logging, resize/update/remount and OS/UIA checks, publication and
-dependency adoption, and the final fresh-install run required by the plan.
-The candidate above still contains temporary native diagnostics. No MasonKit
-version has been published for this repair. Only x64 Windows and web were run;
-there is no new ARM64, iOS, Android, Narrator, or visual qualification.
+This first candidate still contained temporary native diagnostics. The later
+production candidate and three Windows wrapping cases are recorded below.
+The 37-fixture capture does not qualify resize, updates, remount, OS input,
+Narrator, other architectures or platforms, or visual parity.
 
 Raw evidence: `research/windows61/mason126-{baseline,nested-frame}-dump.json`,
 their console logs, `mason126-measure-trace.log`,
 `mason126-arrange-trace.log`, and `core-text-*.log`. The immutable local feedback
 observation is `9a4f47dc-e2e4-40d8-a960-f240bd60fb52`.
+
+## Core-component plan: production text wrapping (2026-10-30)
+
+The production candidate also repairs foreign wrapping text's intrinsic
+measurement. A shrinking row previously received the full 376-DIP line as
+its automatic minimum. Start/center columns could fit the text into two lines
+but report only the longest rendered line (204 DIP), rather than the offered
+220 DIP. The candidate measures the widest unbreakable segment for minimum
+content, and clamps maximum content to the offered width for fit content.
+It recognizes NativeScript Label's Border/TextBlock wrapper and includes its
+horizontal padding, border and margins.
+
+```tsrx
+<View style={{ display: 'flex', width: 220, flexDirection: 'row' }}>
+	<Text style={{ fontSize: 14, lineHeight: 20, flexShrink: 1 }}>
+		Shared typography should wrap within the available space.
+	</Text>
+</View>
+```
+
+Mason fork source [b8d904e2](https://github.com/octane-xplat/nativescript-mason/commit/b8d904e2da07694415b3fbe0896667634936f4db)
+contains the repair against published beta.126. Temporary native logging was
+removed before the production build. The release candidate DLL's SHA-256 is
+`9DB0034839E8CBE9E7EF7F92F11A74349DB4A44C9E096B557E2CCB52169BE212`.
+
+| Packaged x64 evidence | Result |
+| --- | --- |
+| MSIX 1.0.0.67, launch `mvul1hz4`, earlier frame repair | Start/center wrap at 204×40; row still 376×20 inside 220 DIP |
+| MSIX 1.0.0.68, launch `mvulbxak`, minimum-content repair | Row becomes 220×40; columns still report 204 DIP |
+| Production MSIX 1.0.0.69, launch `mvulofw3` | All three fixtures report 220×40, matching web; all nine maintained wrapping/width/bounds assertions pass |
+| UIA in 1.0.0.69 | Three Text controls have the full content as their names, finite 220×40-DIP bounds, and are not offscreen |
+| Published beta.126 DLL in MSIX 1.0.0.70, launch `mvulqlcf`, versus production DLL in 1.0.0.71, launch `mvultxpb` | Same 40-fixture app bundle: only the four intended text fixtures change; all other 36 fixtures retain identical boxes |
+
+The baseline package archive was fetched from npm and its SHA-512 integrity
+verified before extracting the x64 DLL and metadata. Its DLL SHA-256 is
+`C8EBBEED44BFDDC10D1798E360F5CC3D9AE197099FD67F86E4D12D8DAA584A9E`.
+The full Windows comparator reports **83/91**, including the nine new passes:
+six required fixtures are absent from this bounded capture, and two existing
+Stack-origin/inset assertions fail on the unchanged diagnostic checkout too.
+These results are not a complete parity-suite pass.
+
+The app was built from owned `3fc071664` with task-owned dependency, resolver
+and fixture changes. Vite and the Windows app/MSBuild task succeeded; the
+outer Turbo run remains nonzero because seven unrelated declaration tasks
+fail in that older checkout. The isolated-engine regression passes through
+`turbo run test:native-runtime --filter=@octane-xplat/cli` (4/4 tests).
+CLI/dependent typechecks pass 53/55 tasks with no new diagnostics against the
+recorded `4ee5f838e` baseline. Documentation structure checks pass; existing
+macOS README examples and unrelated recipe checks still fail.
+
+This proves bounded x64 wrapping and static UIA geometry. Matching release
+artifacts, publication/adoption, a fresh frozen install of final main, and
+component resize/update/remount and OS-input qualification remain required.
+It adds no ARM64 runtime, mobile, Narrator or visual evidence.
+
+Raw evidence: `research/windows61/mason126-{published,repaired}-full-dump.json`,
+`mason126-same-bundle-comparison.json`, `mason126-production-exact-{dump,uia}.json`,
+`text-wrap-exact-{web-checks,windows-green}.log`, and
+`windows-wrap-app-build-engine-fixed.log`.
