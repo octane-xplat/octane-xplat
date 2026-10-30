@@ -9,16 +9,20 @@ import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
 	macOSHostArch,
 	hostBundle,
-	hostRoot,
 	validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import {
+	buildMacOSNative,
+	writeNativeBootstrap,
+} from '../../../packages/cli/src/macos/native.ts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
 await mkdir(scratch, { recursive: true })
 const directory = await mkdtemp(join(scratch, 'macos-overlays-'))
 const bootstrap = join(directory, 'bootstrap.js')
-await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+const artifact = await buildMacOSNative(appRoot)
+await writeNativeBootstrap(artifact, bootstrap)
 const config = await createMacOSConfig({
 	packaged: true,
 	rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
@@ -29,6 +33,7 @@ const config = await createMacOSConfig({
 	await writeFile(
 		entry,
 		[
+			`import 'virtual:bamboo.css'`,
 			`import { runOverlayFixture } from ${JSON.stringify(join(appRoot, 'test/overlay-fixture.macos.tsx'))}`,
 			`NSApplication.sharedApplication`,
 			`void runOverlayFixture()`,
@@ -55,7 +60,7 @@ const config = await createMacOSConfig({
 		[
 			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			bundle,
-			join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+			artifact.metadata[macOSHostArch()],
 			bootstrap,
 		],
 		{
