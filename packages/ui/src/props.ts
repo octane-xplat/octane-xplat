@@ -5886,8 +5886,18 @@ export type RouterMatch<Contracts = RegisteredRouteContracts> =
 /** Animation settlement is independent from a successful navigation commit. */
 export type RouteTransitionResult =
 	| { /** Completed discriminator — the transition finished. */ status: 'completed' }
-	| { /** Skipped discriminator — no transition ran. */ status: 'skipped'; /** Why the transition was skipped. */ reason: 'disabled' | 'reduced-motion' | 'unsupported' | 'interrupted' }
-	| { /** Failed discriminator — the transition errored. */ status: 'failed'; /** The thrown failure value. */ error: unknown }
+	| {
+			/** Skipped discriminator — no transition ran. */
+			status: 'skipped'
+			/** Why the transition was skipped. */
+			reason: 'disabled' | 'reduced-motion' | 'unsupported' | 'interrupted'
+	  }
+	| {
+			/** Failed discriminator — the transition errored. */
+			status: 'failed'
+			/** The thrown failure value. */
+			error: unknown
+	  }
 
 /** Motion receives prepared matches; it cannot decide when navigation commits. */
 export interface RouteTransitionContext {
@@ -5949,7 +5959,12 @@ export interface AppKitTransitionOptions {
 /** Platform leaves return the same definition contract. A skipped leaf is an
  * explicit fallback for a target without the application's visual effect. */
 export type TransitionDefinition =
-	| { /** Web view-transition discriminator. */ readonly kind: 'web'; /** View-transition options for the web leaf. */ readonly options: Readonly<WebTransitionOptions> }
+	| {
+			/** Web view-transition discriminator. */
+			readonly kind: 'web'
+			/** View-transition options for the web leaf. */
+			readonly options: Readonly<WebTransitionOptions>
+	  }
 	| { /** Skip discriminator — no transition runs. */ readonly kind: 'skip' }
 	| NativeTransitionDefinition
 
@@ -5981,18 +5996,41 @@ export type NavigationResult<Contracts = RegisteredRouteContracts> =
 			/** Resolves when the transition animation completes. */
 			finished: Promise<RouteTransitionResult>
 	  }
-	| Exclude<RoutePreparationResult, { /** Committed discriminator for navigation outcomes. */ status: 'ready' }>
-	| { /** Ready discriminator — the navigation prepared successfully. */ status: 'failed'; /** Phase that failed (commit). */ phase: 'commit'; /** The thrown failure value. */ error: unknown }
-	| { /** Failed discriminator — the navigation threw during commit. */ status: 'blocked'; /** Why the host could not commit. */ reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
-	| { /** Blocked discriminator — a blocker is holding the navigation. */ status: 'unsupported'; /** Operation the host rejected. */ operation: string }
-	| { /** Unsupported discriminator — the host cannot perform the action. */ status: 'at-base' | 'not-modal' | 'unmatched' }
+	| Exclude<RoutePreparationResult, {
+			/** Statuses this result reuses from preparation. */
+			status: 'ready'
+	  }>
+	| {
+			/** Failed discriminator — the navigation threw during commit. */
+			status: 'failed'
+			/** Phase that failed (commit). */
+			phase: 'commit'
+			/** The thrown failure value. */
+			error: unknown
+	  }
+	| {
+			/** Blocked discriminator — the host is holding the navigation. */
+			status: 'blocked'
+			/** Why the host could not commit. */
+			reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy'
+	  }
+	| {
+			/** Unsupported discriminator — the host cannot perform the action. */
+			status: 'unsupported'
+			/** Operation the host rejected. */
+			operation: string
+	  }
+	| {
+			/** Refusal discriminator — the navigation pattern itself is invalid here. */
+			status: 'at-base' | 'not-modal' | 'unmatched'
+	  }
 
 /** A navigation refusal or failure suitable for local recovery UI. Error
  * objects remain local; expected missing/forbidden outcomes need no exception. */
 export type NavigationFailure = Extract<
 	NavigationResult,
 	{
-		/** /** Failure discriminator — why the navigation did not commit. */ */
+		/** Failure discriminator — why the navigation did not commit. */
 		status: 'failed' | 'not-found' | 'forbidden' | 'invalid-input' | 'blocked' | 'unsupported'
 	}
 >
@@ -6017,7 +6055,7 @@ export type NavigationDestinationSnapshot = Omit<
  * if (navigation.status === 'failed') console.error(navigation.result.status)
  */
 export type RouterNavigationState =
-	| { /** `pending` while a navigation is in flight. */ readonly status: 'idle' }
+	| { /** `idle` while no navigation is in flight. */ readonly status: 'idle' }
 	| {
 			/** `pending` while a navigation is in flight. */
 			readonly status: 'pending'
@@ -6054,7 +6092,7 @@ export interface NavigationBlockerOptions {
  * if (blocker.status === 'blocked') blocker.reset()
  */
 export type NavigationBlockerState =
-	| { /** `blocked` — a guard is holding the navigation pending a decision. */ readonly status: 'idle' }
+	| { /** `idle` — no navigation is being held. */ readonly status: 'idle' }
 	| {
 			/** `blocked` — a guard is holding the navigation pending a decision. */
 			readonly status: 'blocked'
@@ -6446,11 +6484,36 @@ export type RouterHostResult =
 			/** Resolves when the transition completes. */
 			finished?: Promise<RouteTransitionResult>
 	  }
-	| { /** Blocked discriminator — the host is holding the command. */ status: 'blocked'; /** Why the host could not commit. */ reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
-	| { /** Unsupported discriminator — the host cannot perform the action. */ status: 'unsupported'; /** Operation the host rejected. */ operation: string }
-	| { /** Cancelled discriminator — the command was superseded. */ status: 'cancelled'; /** Why the command was cancelled. */ reason: 'superseded' | 'disposed' | 'aborted' | 'registry-changed' }
-	| Exclude<RoutePreparationResult, { /** Ready discriminator — the host committed. */ status: 'ready' }>
-	| { /** Failed discriminator — commit threw. */ status: 'failed'; /** Phase that failed (commit). */ phase: 'commit'; /** The thrown failure value. */ error: unknown }
+	| {
+			/** Blocked discriminator — the host is holding the command. */
+			status: 'blocked'
+			/** Why the host could not commit. */
+			reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy'
+	  }
+	| {
+			/** Unsupported discriminator — the host cannot perform the action. */
+			status: 'unsupported'
+			/** Operation the host rejected. */
+			operation: string
+	  }
+	| {
+			/** Cancelled discriminator — the command was superseded. */
+			status: 'cancelled'
+			/** Why the command was cancelled. */
+			reason: 'superseded' | 'disposed' | 'aborted' | 'registry-changed'
+	  }
+	| Exclude<RoutePreparationResult, {
+			/** Statuses this result reuses from preparation. */
+			status: 'ready'
+	  }>
+	| {
+			/** Failed discriminator — commit threw. */
+			status: 'failed'
+			/** Phase that failed (commit). */
+			phase: 'commit'
+			/** The thrown failure value. */
+			error: unknown
+	  }
 
 /** @internal Prepared retained content; never a URL or serialized host payload. */
 export type RouterHostPreparation =
@@ -6468,9 +6531,24 @@ export type RouterHostPreparation =
 			/** True when a guard redirected during preparation. */
 			redirected: boolean
 	  }
-	| Exclude<RoutePreparationResult, { /** Ready discriminator for host preparations. */ status: 'ready' }>
-	| { /** Unsupported discriminator — the host cannot prepare the command. */ status: 'unsupported'; /** Operation the host rejected. */ operation: string }
-	| { /** Failed discriminator — preparation threw. */ status: 'failed'; /** Phase that failed (commit). */ phase: 'commit'; /** The thrown failure value. */ error: unknown }
+	| Exclude<RoutePreparationResult, {
+			/** Statuses this result reuses from preparation. */
+			status: 'ready'
+	  }>
+	| {
+			/** Unsupported discriminator — the host cannot prepare the command. */
+			status: 'unsupported'
+			/** Operation the host rejected. */
+			operation: string
+	  }
+	| {
+			/** Failed discriminator — preparation threw. */
+			status: 'failed'
+			/** Phase that failed (commit). */
+			phase: 'commit'
+			/** The thrown failure value. */
+			error: unknown
+	  }
 
 /** Platform boundary for an isolated instance. Core never reads browser globals,
  * Frames, or renderer state. Adapters declare history/reset capabilities rather
@@ -7344,7 +7422,12 @@ export interface WindowHandle {
 export type AnimationResult =
 	| { /** Finished discriminator — the animation completed. */ status: 'finished' }
 	| { /** Cancelled discriminator — the animation was interrupted. */ status: 'cancelled' }
-	| { /** Failed discriminator — the animation threw. */ status: 'failed'; /** The thrown failure value. */ error: unknown }
+	| {
+			/** Failed discriminator — the animation threw. */
+			status: 'failed'
+			/** The thrown failure value. */
+			error: unknown
+	  }
 
 /**
  * Value returned by `useAnimation(initial, prop)`. On web, `prop` supports
@@ -7365,9 +7448,23 @@ export interface AnimatedValue {
 	/** Attach to a shared view ref; pass null to detach and cancel. */
 	ref(el: HostElement): void
 	/** Duration is milliseconds. Invalid inputs throw before replacing playback. */
-	to(target: number, opts?: { /** Tween duration in ms for `to`-style updates. */ duration?: number }): Promise<AnimationResult>
+	to(
+		target: number,
+		opts?: {
+			/** Tween duration in ms for `to`-style updates. */
+			duration?: number
+		},
+	): Promise<AnimationResult>
 	/** Animates toward `target` with spring physics. */
-	spring(target: number, opts?: { /** Spring damping — higher settles sooner with less overshoot. */ damping?: number; /** Spring stiffness — higher tracks faster. */ stiffness?: number }): Promise<AnimationResult>
+	spring(
+		target: number,
+		opts?: {
+			/** Spring damping — higher settles sooner with less overshoot. */
+			damping?: number
+			/** Spring stiffness — higher tracks faster. */
+			stiffness?: number
+		},
+	): Promise<AnimationResult>
 	/** Halts the current animation at its latest value. */
 	stop(): void
 }
