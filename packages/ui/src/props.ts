@@ -5615,7 +5615,10 @@ type ContractForSpec<Spec, Baked = Record<string, unknown>> = Spec extends {
 	readonly [routeDefinitionTypes]: infer Contract
 }
 	? Contract
-	: Spec extends { /** Route path pattern. */ path: infer Path extends string }
+	: Spec extends {
+			/** Route path pattern. */
+			path: infer Path extends string
+	  }
 		? FileRouteContract<
 				Path,
 				Spec,
@@ -7288,7 +7291,10 @@ type RouteParamRecord<Path extends string> = Simplify<
 >
 
 type SpecPaths<Specs extends readonly RouteSpec[]> = Specs[number] extends infer S
-	? S extends { path: infer P extends string }
+	? S extends {
+			/** Spec path captured for name/param inference. */
+			path: infer P extends string
+	  }
 		? P
 		: never
 	: never
@@ -7355,9 +7361,19 @@ export type ManifestRouteParams<M> = M extends { readonly [routeCatalogTypes]: i
 				Path in keyof Contracts & string as {} extends Record<Path, never>
 					? never
 					: RouteNameOfPath<Path>
-			]: Contracts[Path] extends { /** Param record captured for manifest inference. */ params: infer Params } ? Params : never
+			]: Contracts[Path] extends {
+				/** Param record captured for manifest inference. */
+				params: infer Params
+		  }
+				? Params
+				: never
 		}
-	: M extends { readonly [specRouteTypes]: { /** Param record captured for manifest inference. */ params: infer P } }
+	: M extends {
+				readonly [specRouteTypes]: {
+					/** Param record captured for manifest inference. */
+					params: infer P
+				}
+		  }
 		? P
 		: {}
 
@@ -7368,7 +7384,10 @@ export type ManifestRouteNames<M> = keyof ManifestRouteParams<M> & string
 /** name → presentation map extracted from a `defineRoutes` manifest brand — `{}` for untagged manifests.
  */
 export type ManifestRoutePresentations<M> = M extends {
-	readonly [specRouteTypes]: { /** Presentation map captured for manifest inference. */ presentations: infer P }
+	readonly [specRouteTypes]: {
+		/** Presentation map captured for manifest inference. */
+		presentations: infer P
+	}
 }
 	? P
 	: {}
@@ -7406,7 +7425,9 @@ export interface OpenWindowOptions {
 	/** Requested content size in px/dips; hosts may clamp. */
 	size?: {
 		/** Requested window width in px. */
-		width: number; /** Requested window height in px. */ height: number
+		width: number
+		/** Requested window height in px. */
+		height: number
 	}
 	/** Owning window for 'dialog'/'popup' kinds — a `WindowHandle` returned
 	 *  by `openWindow` or the host's own window/controller object.
@@ -7439,7 +7460,9 @@ export interface WindowHandle {
 	setTitle?(title: string): void
 	/** Resize the window's content area. Present only on hosts that support
 	 *  resizing (macOS, Linux, script-opened web popups). */
-	setSize?(size: { /** Current window width in px. */ width: number; /** Current window height in px. */ height: number }): void
+	setSize?(size: { /** Current window width in px. */ width: number
+		/** Current window height in px. */
+		height: number }): void
 	/** Veto a user-initiated close request — the callback returning false
 	 *  cancels the close. Present only on hosts that report close requests
 	 *  (macOS). Returns an unsubscribe function. */
@@ -14602,7 +14625,10 @@ export interface PowerSearchDefInfo<Defs extends readonly FieldDefinition[]> {
 
 /** The enum `value` union a definition declares — `as const` definitions
  *  keep literal values; a non-literal `enumValues` degrades to `string`. */
-type EnumValuesOf<D> = D extends { readonly enumValues: infer E extends readonly EnumItem[] }
+type EnumValuesOf<D> = D extends {
+	/** Generated enum values tuple captured for union extraction. */
+	readonly enumValues: infer E extends readonly EnumItem[]
+}
 	? E[number]['value']
 	: string
 
