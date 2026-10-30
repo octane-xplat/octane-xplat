@@ -26,5 +26,7 @@ export function FileActions(props: { onRename: () => void }) {
 
 Menus open as anchored popovers. `ContextMenu` triggers on long-press
 (the shared native gesture — right-click/Menu-key/Shift+F10 are web-only).
-`presentation="bottom-sheet"` throws until `BottomSheet` is qualified.
+`presentation="bottom-sheet"` opens a real `BottomSheet`;
+`presentation="adaptive"` picks the sheet on touch seats and the popover on
+fine-pointer desktops.
 [GTK setup and limits](https://octane-xplat.goddardai.org/linux-gtk).

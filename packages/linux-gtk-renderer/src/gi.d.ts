@@ -500,6 +500,22 @@ declare module 'gi://Gdk?version=4.0' {
 			width: number
 			height: number
 		}
+		const SeatCapability: {
+			NONE: number
+			POINTER: number
+			TOUCH: number
+			TABLET_STYLUS: number
+			KEYBOARD: number
+			ALL_POINTING: number
+			ALL: number
+		}
+		class Seat {
+			get_capabilities(): number
+		}
+		class Display {
+			static get_default(): Display | null
+			list_seats(): Seat[]
+		}
 	}
 
 	export default Gdk

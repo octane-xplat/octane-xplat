@@ -373,3 +373,13 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
 - GJS lacks `AbortController`; the palette leaf installs a minimal shim for `command-palette-state`.
 - Anchored toasts live in a Popover surface, so their bounds are a separate Gdk surface — compare `surface.get_position`, not window-space bounds.
 - `presentation="bottom-sheet"` still throws (slice D2b); `Lightbox` `type:"video"` renders the alt-text fallback.
+
+### Overlays D2b (bottom sheets / menu-sheet)
+- `view.on("pan")` emits **numeric** states `began=1, moved=2, ended=3, cancelled=0` with cumulative `dx/dy` and px/s `vx/vy` — the `connectEvent` dispatcher sends strings but `public-instance` remaps them in the emit wrapper.
+- Sheets with `snapPoints` rest at the SMALLEST detent on entry (shared `enter()` parks `cur=0`), matching native — do not assert the top detent.
+- The X11 harness cannot produce `>500px/s` release velocity (`DETENT_FLICK_VELOCITY`) — tested snaps all land on the nearest-detent branch; the fling branch is untested.
+- `SwitcherPanel` must not `useStore` — the GTK portal shares one root, and a store subscription inside it re-rendered ~30x/s and starved the main loop. The active spec arrives by prop.
+- `bottomSheetHost()` returns `null` on GTK and is not a barrel export — it lives on the `./nativescript`/`./macos` host subpaths only, so a GTK export would break the Names contract.
+- Interpolated `<Text>` children split into separate Gtk labels — imperative sheet content needs a single computed string for text-based lookups.
+- `Gdk.Display.list_seats()`/`SeatCapability.TOUCH` drives `'adaptive'` menu resolution; X11 desktops report pointer/tablet only so adaptive stays a popover.
+- Sheet release animates `translateY` off-window (translate-only); there is no opacity/scrim modulation exit animation.

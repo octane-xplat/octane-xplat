@@ -563,3 +563,19 @@ export type {
 	UseLightboxReturn,
 	DrawerProps,
 } from './props'
+
+export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
+export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service'
+export { useImperativeBottomSheet } from './use-imperative-bottom-sheet'
+export type {
+	BottomSheetHandle,
+	BottomSheetOpenOptions,
+	BottomSheetProps,
+	BottomSheetSnapPoint,
+	BottomSheetSwitcherProps,
+	OpenBottomSheet,
+	ImperativeBottomSheetReturn,
+	HostedComponent,
+	HostedComponentProps,
+	ModalOpenResult,
+} from './props'

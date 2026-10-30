@@ -60,7 +60,12 @@ export function MenuProbe() @{
 	</>
 }
 
-// presentation="bottom-sheet" must fail with the clear slice-D error on GTK.
+// presentation="bottom-sheet" presents the menu inside a real BottomSheet on GTK.
 export function SheetProbe() @{
-	<MoreMenu id="sheet" label="Sheet" presentation="bottom-sheet" items={[]} />
+	<MoreMenu
+		id="sheet"
+		label="Sheet"
+		presentation="bottom-sheet"
+		items={[{ type: "action", key: "s1", label: "SheetMenuAction", onSelect: () => {} }]}
+	/>
 }

@@ -214,15 +214,17 @@ async function run() {
 	await ready({ key: 'Escape' })
 	await pump(150)
 
-	// presentation="bottom-sheet" must fail with the clear slice-D error.
-	let sheetError = ''
-	try {
-		root.render(SheetProbe, {})
-		await pump(100)
-	} catch (e) {
-		sheetError = String(e && (e.message || e))
-	}
-	check('bottom-sheet presentation fails with a clear error', sheetError.includes('bottom-sheet'))
+	// presentation="bottom-sheet" renders the menu in a real BottomSheet.
+	root.render(SheetProbe, {})
+	await pump(150)
+	const sheetTrigger = findView('sheet')
+	await clickAt(sheetTrigger)
+	await pump(350)
+	check('bottom-sheet presentation opens a sheet', !!findLabel('SheetMenuAction'))
+	check('bottom-sheet presentation uses an overlay layer', ((container as any).overlayLayers?.size ?? 0) >= 1)
+	await ready({ key: 'Escape' })
+	await pump(250)
+	check('bottom-sheet menu closes on Escape', !findLabel('SheetMenuAction'))
 
 	// Teardown — unmounting releases every node and returns chrome refcounts.
 	root.unmount()

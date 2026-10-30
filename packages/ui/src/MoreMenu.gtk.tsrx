@@ -2,6 +2,9 @@
 import { useState } from 'octane'
 import type { MoreMenuProps, MoreMenuPlacement } from './props'
 import { DropdownMenu } from './DropdownMenu'
+import { Button } from './Button'
+import { Pressable } from './Pressable'
+import { BottomSheet } from './BottomSheet'
 import { Icon } from './Icon'
 import { cx } from '@octane-xplat/lib'
 
@@ -25,11 +28,14 @@ function popoverPlacement(placement?: MoreMenuPlacement): any {
 	return placement
 }
 
-// MoreMenu — GTK leaf. Identical to the shared leaf minus the BottomSheet
-// branch: 'adaptive' resolves to popover on fine-pointer GTK desktops, and an
-// explicit 'bottom-sheet' throws a clear error (slice D, unqualified).
+// MoreMenu — GTK leaf. Identical to the shared leaf except the sheet
+// branch: only an explicit 'bottom-sheet' presents the BottomSheet;
+// 'adaptive' resolves to the anchored popover on fine-pointer desktops
+// (menu-sheet.gtk owns the coarse-pointer answer for Dropdown/Context
+// menus — MoreMenu's inline branch mirrors that split).
 export function MoreMenu(props: MoreMenuProps) @{
 	const [localOpen, setLocalOpen] = useState(false)
+	const MenuItemView: any = Pressable
 	const open = props.isMenuOpen ?? localOpen
 	const presentation = props.presentation ?? 'popover'
 	const setOpen = (next: boolean) => {
@@ -38,10 +44,6 @@ export function MoreMenu(props: MoreMenuProps) @{
 		}
 
 		props.onOpenChange?.(next)
-	}
-
-	if (presentation === 'bottom-sheet') {
-		throw new Error('linux-gtk: presentation="bottom-sheet" requires slice D (BottomSheet is not qualified on GTK)')
 	}
 
 	const icon =
@@ -63,18 +65,52 @@ export function MoreMenu(props: MoreMenuProps) @{
 		className: 'vx-more-menu-trigger',
 	} as const
 
-	<DropdownMenu
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		items={props.items}
-		isDisabled={props.isDisabled}
-		isOpen={open}
-		onOpenChange={setOpen}
-		placement={popoverPlacement(props.placement)}
-		alignment={props.alignment}
-		label={label}
-		hasChevron={false}
-		button={button}
-	/>
+	@if (presentation === 'bottom-sheet') {
+		<>
+			<Button {...button} id={props.id} style={props.style} clickAction={() => setOpen(!open)} />
+			<BottomSheet
+				isOpen={open}
+				onOpenChange={setOpen}
+				label={props.label ?? 'More options'}
+				snapPoints={[0.5, 1]}
+				className="vx-more-menu-sheet"
+			>
+				<masonview className="vx-more-menu-sheet-list" style={{ display: 'flex' }}>
+					{props.items.map((item) => (
+						<MenuItemView
+							key={item.key}
+							className={cx('vx-menu-item', item.isDisabled && 'vx-menu-item--disabled')}
+							disabled={item.isDisabled}
+							onPress={() => {
+								if (item.isDisabled) {
+									return
+								}
+
+								setOpen(false)
+								item.onSelect?.()
+							}}
+						>
+							{item.icon ? <Icon name={item.icon} /> : null}
+							<label text={item.label ?? ''} />
+						</MenuItemView>
+					))}
+				</masonview>
+			</BottomSheet>
+		</>
+	} @else {
+		<DropdownMenu
+			id={props.id}
+			className={props.className}
+			style={props.style}
+			items={props.items}
+			isDisabled={props.isDisabled}
+			isOpen={open}
+			onOpenChange={setOpen}
+			placement={popoverPlacement(props.placement)}
+			alignment={props.alignment}
+			label={label}
+			hasChevron={false}
+			button={button}
+		/>
+	}
 }

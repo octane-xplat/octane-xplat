@@ -1459,3 +1459,55 @@ Portal children are not registered in `container.nodes` — fixture lookups
 use the widget tree (`get_name`, label text). Limits unchanged: X11/Xvfb
 only; `view.animate` stays translate-only (lightbox zoom writes scale
 directly); `presentation="bottom-sheet"` still throws (slice D2b).
+
+### Bottom sheets and menu-sheet (slice D2b)
+
+`BottomSheet`, `BottomSheetSwitcher`, `openBottomSheet`, `closeBottomSheet`
+and `useImperativeBottomSheet` are now public GTK exports (10 sibling
+types beside). Availability is 222 values and 315 types.
+
+`BottomSheet.gtk.tsrx` drops the NativeScript GridLayout host for the
+renderer overlay host: a hidden sentinel view calls
+`createOverlayLayer({ modal, scrim, align: { h: fill, v: end } })`, and
+`createPortal` mounts `GtkSheetPanel` into `layer.target`. The panel is a
+bottom-docked vertical box — grabber row (`id + -grabber`), scrollable
+content region, theme classes — with `useLayerDismissal` for Escape and
+`LayerDepthProvider` for stacking. `height` resolves via
+`sheetHeightDips` (`hug`/`capped`/`tall`/number/percent against the layer
+target height); `snapPoints` runs through shared `normalizeSnapPoints`
+into `sheet-detents.gtk.ts`, which drives `translateY` on
+`view.on("pan")` and releases into `view.animate` (translate-only — a
+`Promise`-returning GLib timeout, so the same `animateTo`/`closeNow`
+contract as native works verbatim). Sheets with detents rest at the
+smallest stop like native; releases snap to the nearest detent and
+dismiss below the peek stop. The grabber is the only drag target, same
+as native.
+
+`BottomSheetSwitcher` registers children through the shared
+`BottomSheetSwitcherContext` store and mounts ONE portaled
+`GtkSheetPanel` whose `resetKey` re-enters on swap — the panel passes
+its spec by prop rather than `useStore`, because a store subscription
+inside the portal re-rendered continuously and starved the main loop
+(the GTK portal is one root, unlike the native RootLayout host).
+
+`openBottomSheet` mounts a service root through
+`__octaneGtkHost.createOverlayLayer` + `mountServiceRoot` (or
+`owner.createRoot` for `useImperativeBottomSheet`), tracking the active
+set so `closeBottomSheet` resolves the newest sheet. `bottomSheetHost()`
+returns `null` and is NOT exported from `index.gtk.ts` — the shared
+barrel only surfaces it on the `./nativescript`/`./macos` host
+subpaths, and a GTK barrel export would violate the Names contract.
+
+`menu-sheet.gtk.tsrx` is a real `MenuSheet` (MenuProvider + MenuData in a
+`height="hug"` sheet); `useMenuSheet` resolves `'adaptive'` from
+`Gdk.Display` seat capabilities (TOUCH → sheet; desktop X11 → popover).
+`MoreMenu.gtk.tsrx` renders its direct item list in the sheet branch.
+
+`ui-sheet.test.mjs` runs 79 assertions with real X11 input (clicks,
+grabs, drags, Escape, scrim taps). Siblings re-verified green: ui-menus
+34 (its slice-D throw check now asserts the sheet opens), ui-overlays
+23, ui-toast 37, ui-popover 73, ui-layers 49. Limits: X11/Xvfb only;
+harness drags cannot produce `>500px/s` release velocity, so the
+fling branch of `snapDetentIndex` is untested (nearest-detent path is
+proven); no exit animation beyond the drag slide-out; no scrim opacity
+modulation; keyboard-overlay host remains inert on X11.

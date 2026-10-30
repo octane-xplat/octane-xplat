@@ -3070,3 +3070,71 @@ containers out of the layer target.
 
 Logs: guest `/tmp/gtk-run.log`; limits unchanged (X11/Xvfb only; no
 Wayland, pixel, IME or AT-client evidence).
+
+## Slice D2b evidence — bottom sheets and menu-sheet
+
+`ui-sheet.test.mjs` (79 checks) passes with real X11 input on
+GJS 1.80.2 / GTK 4.14.5 / Xvfb. Siblings re-verified: ui-menus 34,
+ui-overlays 23, ui-toast 37, ui-popover 73, ui-layers 49.
+
+Mechanics proven this slice:
+
+- The declarative `BottomSheet.gtk.tsrx` creates a modal scrim layer via
+  `createOverlayLayer({ modal, scrim, align: { h: 'fill', v: 'end' } })` on a
+  hidden sentinel view, and portals a `GtkSheetPanel` into `layer.target`.
+  `useLayerDismissal` + `LayerDepthProvider` carry Escape and stack
+  depth; `release()` translates the panel off-window before disposing.
+- Height semantics resolve against the layer target height: `hug` wraps
+  content, `capped` bounds at 62% of the window, `tall` fills to ~92%,
+  and number/percent values resolve as dips / window fraction
+  (`sheetHeightDips`).
+- `sheet-detents.gtk.ts` ports the shared attach/detent contract onto
+  `view.on('pan')` + translate-only `view.animate`. The renderer emits
+  **numeric** gesture states `began=1, moved=2, ended=3, cancelled=0`
+  with cumulative `dx/dy` and instantaneous px/s `vx/vy`
+  (`public-instance.ts` emit wrapper) — not the string states the raw
+  `connectEvent` dispatcher sends.
+- Sheets with `snapPoints` rest at the SMALLEST detent on entry (the
+  shared `enter()` parks `cur=0`); releases snap to the nearest detent
+  via `snapDetentIndex` and dismiss below the peek stop. The harness
+  cannot produce `>DETENT_FLICK_VELOCITY` — all tested snaps land on the
+  nearest-detent path (fling math is shared and untested at speed).
+- `BottomSheetSwitcher` mounts one shared portal and re-enters the same
+  `GtkSheetPanel` on swap (`resetKey` re-attaches detents and slides in).
+  Registration runs through the shared `BottomSheetSwitcherContext`
+  store — `SwitcherPanel` must NOT `useStore` on GTK (the portal keeps
+  one root; a store subscription inside the portal re-rendered ~30x/s
+  and starved the loop). The spec arrives by prop instead.
+- `bottom-sheet-service.gtk.tsrx` mounts imperative sheets the same way
+  the toast service does: `__octaneGtkHost.createOverlayLayer` +
+  `mountServiceRoot` (or `owner.createRoot` for `useImperativeBottomSheet`).
+  `closeBottomSheet` resolves the newest active sheet.
+  `bottomSheetHost()` returns `null` on GTK and stays off the barrel —
+  the shared barrel only exposes it on the `./nativescript`/`./macos`
+  host subpaths, so exporting it from `index.gtk.ts` would break the
+  Names contract.
+- `menu-sheet.gtk.tsrx` is a real `MenuSheet` now (MenuProvider +
+  MenuData inside `BottomSheet height="hug"`); `useMenuSheet` is true
+  for `'bottom-sheet'` and for `'adaptive'` when a `Gdk.Seat`
+  reports `SeatCapability.TOUCH` — desktop X11 reports pointer/tablet
+  only, so adaptive stays a popover there.
+- `MoreMenu.gtk.tsrx` renders its direct item list inside the sheet
+  branch (it does not use `MenuSheet`); `DropdownMenu`/`ContextMenu`
+  use `MenuSheet` + `MenuData`.
+
+Fixture harness additions for this slice: `clickAt`/`dragAt` tolerate
+missing/detached widgets (`get_native()` can return null after a
+dismiss); `check`/`ready` flush a `/tmp/gtk-sheet-dbg.log` progress log
+so a hung run still reports which check stopped the driver.
+Interpolated `Text` children split into separate labels — imperative
+sheet content needs a single computed string for `findGtkText`.
+
+Leaves this slice: `BottomSheet.gtk.tsrx` (+ exported `GtkSheetPanel`),
+`bottom-sheet-service.gtk.tsrx`, `sheet-detents.gtk.ts`,
+`menu-sheet.gtk.tsrx`, `MoreMenu.gtk.tsrx`. Renderer `gi.d.ts` gained
+`Gdk.Display`/`Gdk.Seat`/`SeatCapability` for coarse-pointer detection.
+The ui-menus fixture's slice-D throw check now asserts the sheet opens
+and Escape closes it.
+
+Logs: guest `/tmp/gtk-run.log`; limits unchanged (X11/Xvfb only; no
+Wayland, pixel, IME or AT-client evidence).

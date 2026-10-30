@@ -396,3 +396,23 @@ type CommandPaletteMenuItemContract = Assert<
 	Equal<GtkUI.CommandPaletteMenuItem, NativeUI.CommandPaletteMenuItem>
 >
 type DrawerPropsContract = Assert<Equal<GtkUI.DrawerProps, NativeUI.DrawerProps>>
+type BottomSheetHandleContract = Assert<Equal<GtkUI.BottomSheetHandle, NativeUI.BottomSheetHandle>>
+type BottomSheetOpenOptionsContract = Assert<
+	Equal<GtkUI.BottomSheetOpenOptions, NativeUI.BottomSheetOpenOptions>
+>
+type BottomSheetPropsContract = Assert<Equal<GtkUI.BottomSheetProps, NativeUI.BottomSheetProps>>
+type BottomSheetSnapPointContract = Assert<
+	Equal<GtkUI.BottomSheetSnapPoint, NativeUI.BottomSheetSnapPoint>
+>
+type BottomSheetSwitcherPropsContract = Assert<
+	Equal<GtkUI.BottomSheetSwitcherProps, NativeUI.BottomSheetSwitcherProps>
+>
+type OpenBottomSheetContract = Assert<Equal<GtkUI.OpenBottomSheet, NativeUI.OpenBottomSheet>>
+type ImperativeBottomSheetReturnContract = Assert<
+	Equal<GtkUI.ImperativeBottomSheetReturn, NativeUI.ImperativeBottomSheetReturn>
+>
+type HostedComponentContract = Assert<Equal<GtkUI.HostedComponent, NativeUI.HostedComponent>>
+type HostedComponentPropsContract = Assert<
+	Equal<GtkUI.HostedComponentProps, NativeUI.HostedComponentProps>
+>
+type ModalOpenResultContract = Assert<Equal<GtkUI.ModalOpenResult, NativeUI.ModalOpenResult>>
