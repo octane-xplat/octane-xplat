@@ -28,9 +28,11 @@ import {
 
 import {
 	computeCascade,
+	evalMediaQuery,
 	INHERITED_CSS_PROPERTIES,
 	onStylesheetsChanged,
 	refreshMediaQueries,
+	registerStylesheet,
 	sampleKeyframeAnimation,
 	setStyleEnvironment,
 	stylesheetPseudoClasses,
@@ -203,6 +205,7 @@ export interface GtkContainer {
 	windowSignalIds?: number[]
 	rootSignalId?: number
 	window?: Gtk.Window
+	surfaceWired?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -1336,6 +1339,28 @@ setStyleEnvironment(() => {
 // media-gated rules. Settings exist only after Gtk.init — connect lazily on
 // the first container, once.
 let settingsObserved = false
+// JS-facing environment subscriptions — `ui` reaches these through the
+// `__octaneGtkHost` bridge (mirroring __xplatAppKit on macOS). Scheme
+// listeners fire on a real scheme diff; media listeners on every
+// debounced environment re-eval (resize or settings notify), so a JS
+// query can re-check even when no registered stylesheet moved.
+const colorSchemeListeners = new Set<() => void>()
+const mediaListeners = new Set<() => void>()
+let emittedScheme: string | null = null
+function notifyAppearance() {
+	const scheme = cssSchemeName()
+	const flipped = scheme !== emittedScheme
+	emittedScheme = scheme
+	if (flipped) {
+		for (const listener of colorSchemeListeners) {
+			listener()
+		}
+	}
+	for (const listener of mediaListeners) {
+		listener()
+	}
+}
+
 // ---- Media queries on resize -------------------------------------------------
 
 let lastOrientation = ''
@@ -1344,7 +1369,7 @@ function onWindowResize() {
 	if (resizeQueued) {
 		return
 	}
-	resizeQueued = true
+	resizeQueued = false
 	Promise.resolve().then(() => {
 		resizeQueued = false
 		const orientation = cssOrientation()
@@ -1352,6 +1377,9 @@ function onWindowResize() {
 		lastOrientation = orientation
 		if (refreshMediaQueries() || flipped) {
 			restyleAllContainers()
+		}
+		for (const listener of mediaListeners) {
+			listener()
 		}
 	})
 }
@@ -1408,6 +1436,31 @@ function wireContainerWindow(container: GtkContainer) {
 			// older GTK lacks some signals — keep the rest
 		}
 	}
+	const wireSurface = () => {
+		if (container.surfaceWired) {
+			return
+		}
+		try {
+			const surface = root.get_surface?.()
+			if (!surface) {
+				return
+			}
+			container.surfaceWired = true
+			// GdkSurface::layout fires once the new size is live — after a
+			// set_default_size request AND for WM-driven resizes that never
+			// touch the default-width property — so the media env reads
+			// fresh numbers.
+			ids.push(surface.connect('layout', () => onWindowResize()))
+		} catch {
+			// no surface access — the default-size notifies above still cover it
+		}
+	}
+	wireSurface()
+	try {
+		ids.push(root.connect('realize', wireSurface))
+	} catch {
+		// older GTK — covered by the default-size notifies above
+	}
 	container.windowSignalIds = ids
 	container.window = root
 }
@@ -1430,7 +1483,10 @@ function observeGtkSettings() {
 		'notify::gtk-enable-animations',
 	]) {
 		try {
-			settings.connect(signal, () => restyleAllContainers())
+			settings.connect(signal, () => {
+				restyleAllContainers()
+				notifyAppearance()
+			})
 		} catch {
 			// signal unknown on this GTK — skip it
 		}
@@ -4191,6 +4247,64 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 				if (container.layerKeySink === handler) { container.layerKeySink = null }
 			}
 		},
+		// Environment + host services for ui's theme/environment leaves —
+		// the scheme source is the same Gtk.Settings read the cascade uses
+		// and media eval is the same engine instance, so JS answers cannot
+		// diverge from styled behavior.
+		getColorScheme: () => cssSchemeName(),
+		onColorSchemeChange: (listener: () => void) => {
+			colorSchemeListeners.add(listener)
+			return () => {
+				colorSchemeListeners.delete(listener)
+			}
+		},
+		matchMedia: (query: string) => {
+			try {
+				return evalMediaQuery(String(query))
+			} catch {
+				return false
+			}
+		},
+		onMediaChange: (listener: () => void) => {
+			mediaListeners.add(listener)
+			return () => {
+				mediaListeners.delete(listener)
+			}
+		},
+		// Named-theme token rules register with the shared css-engine — the
+		// same registration a bundled stylesheet gets.
+		registerStylesheet: (name: string, css: string) => {
+			try {
+				registerStylesheet(String(name), String(css))
+				return true
+			} catch {
+				return false
+			}
+		},
+		// AT announcement on the app root's host widget — GtkAccessible.announce
+		// posts to the AT backend (AT-SPI) on GTK >= 4.14; absent there this
+		// reports false so callers record the miss rather than throw.
+		announce: (text: string, politeness?: string) => {
+			try {
+				const last =
+					[...liveGtkContainers].filter((c) => !c.service).at(-1) ??
+					[...liveGtkContainers].at(-1)
+				const widget = last?.host
+				// GtkAccessible.announce + priority enum are GTK >= 4.14; the
+				// vendored GI types predate them, so read through `any` like the
+				// gtk-interface-color-scheme watch above.
+				const Priority = (Gtk as any).AccessibleAnnouncementPriority
+				if (typeof widget?.announce !== 'function' || Priority === undefined) {
+					return false
+				}
+				const priority =
+					politeness === 'assertive' ? Priority.HIGH : Priority.MEDIUM
+				widget.announce(String(text), priority)
+				return true
+			} catch {
+				return false
+			}
+		},
 		// Service surfaces with no declaring node (the toast fallback stack)
 		// mount a dedicated universal root inside an overlay layer's target —
 		// the macOS presentSurface equivalent. The root unmounts with the
@@ -4226,6 +4340,7 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 	// resize diff compares against a baseline, not an empty cache.
 	refreshMediaQueries()
 	lastOrientation = cssOrientation()
+	emittedScheme = cssSchemeName()
 	return container
 }
 

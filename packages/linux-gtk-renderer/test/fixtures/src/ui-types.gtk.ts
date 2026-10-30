@@ -416,3 +416,18 @@ type HostedComponentPropsContract = Assert<
 	Equal<GtkUI.HostedComponentProps, NativeUI.HostedComponentProps>
 >
 type ModalOpenResultContract = Assert<Equal<GtkUI.ModalOpenResult, NativeUI.ModalOpenResult>>
+type ThemePreferenceContract = Assert<Equal<GtkUI.ThemePreference, NativeUI.ThemePreference>>
+type ThemeSchemeContract = Assert<Equal<GtkUI.ThemeScheme, NativeUI.ThemeScheme>>
+type ThemeClassHostContract = Assert<Equal<GtkUI.ThemeClassHost, NativeUI.ThemeClassHost>>
+type ThemePropsContract = Assert<Equal<GtkUI.ThemeProps, NativeUI.ThemeProps>>
+type UseThemeReturnContract = Assert<Equal<GtkUI.UseThemeReturn, NativeUI.UseThemeReturn>>
+type ColorSchemeContract = Assert<Equal<GtkUI.ColorScheme, NativeUI.ColorScheme>>
+type UseClipboardOptionsContract = Assert<
+	Equal<GtkUI.UseClipboardOptions, NativeUI.UseClipboardOptions>
+>
+type UseClipboardResultContract = Assert<
+	Equal<GtkUI.UseClipboardResult, NativeUI.UseClipboardResult>
+>
+type AnnouncePolitenessContract = Assert<
+	Equal<GtkUI.AnnouncePoliteness, NativeUI.AnnouncePoliteness>
+>

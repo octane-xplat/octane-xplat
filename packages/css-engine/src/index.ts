@@ -12,6 +12,7 @@ export {
 } from './cascade.ts'
 
 export {
+	evalMediaQuery,
 	registerStylesheet,
 	unregisterStylesheet,
 	stylesheetScope,

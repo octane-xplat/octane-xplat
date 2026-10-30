@@ -359,3 +359,11 @@ software-keyboard overlay to host.
 - `bottom-sheet-service.gtk.tsrx` — imperative sheets via `__octaneGtkHost.createOverlayLayer` + `mountServiceRoot`/`owner.createRoot`, newest-first `closeBottomSheet`; `bottomSheetHost()` is `null` and deliberately unexported (host-subpath only on the shared barrel).
 - `menu-sheet.gtk.tsrx` — real `MenuSheet` (MenuProvider + MenuData in a `height="hug"` sheet); `useMenuSheet` resolves `'adaptive'` via `Gdk.Seat` TOUCH capability.
 - `MoreMenu.gtk.tsrx` — direct item list inside `BottomSheet` for `'bottom-sheet'`; `'adaptive'` stays a popover on fine-pointer desktops.
+
+### Theme and environment (slice E)
+- `theme/colorScheme.gtk.ts` — reads the renderer `__octaneGtkHost` bridge (`getColorScheme`/`onColorSchemeChange`), the same `Gtk.Settings` detection the cascade uses for `ns-dark`/`ns-light`, so hook answers cannot diverge from styled behavior. Mirrors `colorScheme.macos.ts`'s `__xplatAppKit` pattern.
+- `theme/theme-scheme.gtk.ts` — macOS-leaf mirror; `setThemePreference` writes `gtk-application-prefer-dark-theme` (an app-owned opt-in flag on GTK < 4.20 — the OS does not write it; `'light'`/`'system'` clear it, matching the macOS leaf clearing its `NSApp.appearance` override).
+- `theme/theme-css-inject.gtk.ts` — registers `generateThemeCss` output via the bridge's `registerStylesheet` (shared css-engine); retries when no root is live yet.
+- `use-media-query.gtk.tsrx` — bridge `matchMedia` runs the same `evalMediaQuery`/environment instance the cascade uses; `onMediaChange` fires on `GdkSurface::layout` (real resizes, incl. WM-driven) and settings notifies. `notify::default-width` fires before the surface resizes — never read env from it.
+- `clipboard-write.gtk.ts` — `Gdk.ContentProvider.new_for_bytes('text/plain;charset=utf-8')` + `set_content`; GTK 4 has no `gdk_clipboard_set_text`. Members go through `any` (typed typelibs predate them).
+- `announce-service.ts`/`.gtk.ts` — a ui indirection between the shared leaves (`use-clipboard.tsrx`, `use-announce.ts`) and `@octane-xplat/platform`: platform's index does not tree-shake under the GTK shim (`Screen` missing), so the `.gtk` sibling posts through the bridge's `GtkAccessible.announce` instead (GTK >= 4.14, `any`-cast — the enum is absent from typed typelibs).

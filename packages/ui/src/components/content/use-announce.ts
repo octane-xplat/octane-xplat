@@ -1,4 +1,4 @@
-import { announce } from '@octane-xplat/platform'
+import { announce } from './announce-service'
 /** Requested announcement urgency; native service ignores this preference. */
 export type AnnouncePoliteness = 'polite' | 'assertive'
 const announceNative = (message: string, _politeness?: AnnouncePoliteness): void => {

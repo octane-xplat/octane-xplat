@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 193 runtime values and 252 types in index.gtk.ts, including
+Current availability is 239 runtime values and 324 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1511,3 +1511,59 @@ harness drags cannot produce `>500px/s` release velocity, so the
 fling branch of `snapDetentIndex` is untested (nearest-detent path is
 proven); no exit animation beyond the drag slide-out; no scrim opacity
 modulation; keyboard-overlay host remains inert on X11.
+
+### Theme and environment (slice E)
+
+The full theme/environment surface is public on GTK — `useThemeScheme`,
+`getThemeScheme`, `useThemePreference`, `setThemePreference`,
+`getThemePreference`, `onThemeSchemeChange`, `themeSchemeClasses`,
+`applyThemeClasses`, `Theme`, `useTheme`, `useThemeName`,
+`useColorScheme`, `getColorScheme`, `useMediaQuery`, `useClipboard`,
+`copyText`, `useAnnounce` plus nine sibling types. Availability is 239
+values and 324 types.
+
+The leaves mirror the macOS `__xplatAppKit` pattern: the renderer's
+`__octaneGtkHost` bridge now exposes `getColorScheme`/
+`onColorSchemeChange` (fired on a real scheme diff inside
+`notifyAppearance`), `matchMedia`/`onMediaChange` (the same
+`evalMediaQuery`/environment instance the cascade uses),
+`registerStylesheet` (theme CSS delivery) and `announce`
+(`GtkAccessible.announce` on the root host widget — GTK >= 4.14,
+`any`-cast since the enum postdates the typed typelibs). A new
+`GdkSurface::layout` watch, wired on `realize`, re-evaluates media
+queries on every real resize including WM-driven ones —
+`notify::default-width` fires *before* the surface resizes, so the
+environment would otherwise be read stale. `evalMediaQuery` is now
+exported from the css-engine index for the bridge.
+
+`theme/theme-scheme.gtk.ts` mirrors the macOS leaf:
+`setThemePreference` writes `gtk-application-prefer-dark-theme`, the
+app-owned appearance opt-in on GTK < 4.20 — explicit `'dark'` pins it,
+`'light'`/`'system'` clear it, matching the macOS leaf clearing the
+`NSApp.appearance` override. On GTK 4.20+ the OS-fed
+`gtk-interface-color-scheme` still wins inside scheme detection.
+
+`use-clipboard.tsrx` and `use-announce.ts` now import
+`./announce-service` — a ui indirection whose `.gtk` sibling posts to
+the bridge. Routing them through `@octane-xplat/platform`'s index does
+not work on GTK: the index does not tree-shake (`screen.tsrx`/
+`breakpoints.tsrx` need `Screen`, absent from the native-core shim), so
+the whole platform barrel would fail the bundle. A platform-side
+`a11y.gtk.ts` was tried first and removed for this reason.
+
+`ui-theme.test.mjs` runs 53 assertions with real X11 input: hook and
+imperative scheme reads, an OS-scheme flip via the settings flag,
+preference-over-system resolution, the generated theme's light/dark
+token rules resolving in the cascade (`computedStyle.color` on real
+widgets), media queries re-evaluating on a programmatic window resize,
+clipboard write→read round-trips (hook click and `copyText`), announce
+delivery proven by a spy on the host widget's `announce`, and
+`applyThemeClasses` live restamping. Siblings re-verified green:
+ui-overlays 23, ui-popover 73, ui-toast 37, ui-layers 49. Limits:
+announcement reaches `GtkAccessible.announce` only — AT-client speech
+is unverified under `GTK_A11Y=test`; `politeness` is ignored (same as
+native); clipboard is write-only text; on GTK < 4.20 the "system"
+source is the app-settable prefer-dark flag plus the `-dark`
+theme-name heuristic; the media environment is the largest live host
+size with `pointer`/`hover` fixed `fine`/`hover`; multi-value
+`font-family` stacks in generated theme CSS warn in the GTK parser.

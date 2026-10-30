@@ -3071,6 +3071,47 @@ containers out of the layer target.
 Logs: guest `/tmp/gtk-run.log`; limits unchanged (X11/Xvfb only; no
 Wayland, pixel, IME or AT-client evidence).
 
+## Slice E evidence — theme and environment
+
+- The `__octaneGtkHost` bridge now serves the environment surface in
+  addition to overlay layers: `getColorScheme`/`onColorSchemeChange`,
+  `matchMedia`/`onMediaChange`, `registerStylesheet`, and `announce`.
+  Scheme reads share `cssSchemeName()` with the cascade so the JS
+  answer cannot diverge from `ns-dark`/`ns-light` restyling; media
+  eval shares `evalMediaQuery` + `setStyleEnvironment`'s env.
+- `notifyAppearance()` diffs `cssSchemeName()` and fires scheme
+  listeners only on a real flip; media listeners fire on every
+  debounced environment re-eval so a JS query re-checks even when no
+  registered stylesheet moved. `emittedScheme` is primed per container.
+- Resize watches gained `GdkSurface::layout`, connected lazily on the
+  window's `realize` (the surface does not exist when
+  `wireContainerWindow` first runs, and `notify::root` retry already
+  re-enters it). `layout` fires only after the new size is live — the
+  `notify::default-width` handlers see the OLD allocation — and also
+  covers WM-driven resizes that never touch the property.
+- `announce` posts to `widget.announce` (GtkAccessible.announce, GTK
+  >= 4.14) on the newest non-service root's host, mapping polite→
+  MEDIUM/assertive→HIGH through `Gtk.AccessibleAnnouncementPriority`
+  (`any`-cast — the enum postdates the typed typelibs). Returns false
+  when the method/enum is absent instead of throwing.
+- `setThemePreference` in ui's `theme-scheme.gtk.ts` writes
+  `gtk-application-prefer-dark-theme` directly (gi://Gtk) — the flag
+  is app-owned on GTK < 4.20, so the app pinning it does not clobber
+  an OS signal; `gtk-interface-color-scheme` (4.20+) still wins in
+  `cssSchemeName`.
+- Fixture pitfalls recorded in STATUS: `hasText` must recurse
+  `node.children` (label text lives on a child node); call
+  `root.unmount()` before `loop.quit()` or teardown trips GC-sweep
+  CRITICALs; generated theme CSS needs single-family `font-family`
+  values on GTK (the astryx stack warns 'Junk at end of value'); the
+  result JSON must carry `osInput`/`gtk` fields.
+
+`ui-theme.test.mjs`: 53 assertions, real OS input, guest GJS 1.80.2 /
+GTK 4.14.5 — scheme reads, OS flip, preference-over-system, theme
+scope classes + generated CSS in the cascade, media re-eval on real
+resize, clipboard round-trips, announce delivery, applyThemeClasses.
+Logs: guest `/tmp/gtk-run.log`, `/tmp/gtk-run-e2.log`.
+
 ## Slice D2b evidence — bottom sheets and menu-sheet
 
 `ui-sheet.test.mjs` (79 checks) passes with real X11 input on

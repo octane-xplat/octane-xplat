@@ -383,3 +383,10 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
 - Interpolated `<Text>` children split into separate Gtk labels — imperative sheet content needs a single computed string for text-based lookups.
 - `Gdk.Display.list_seats()`/`SeatCapability.TOUCH` drives `'adaptive'` menu resolution; X11 desktops report pointer/tablet only so adaptive stays a popover.
 - Sheet release animates `translateY` off-window (translate-only); there is no opacity/scrim modulation exit animation.
+
+### Theme and environment (slice E)
+- `useAnnounce` delivers through `GtkAccessible.announce` (GTK >= 4.14) — proven to reach the real widget method; AT-client speech receipt is unverified (fixture uses `GTK_A11Y=test`). `politeness` is ignored, same as the native leaf.
+- On GTK < 4.20 the "system" scheme source is the app-owned `gtk-application-prefer-dark-theme` flag plus the `-dark` theme-name heuristic — there is no read-only OS dark signal until `gtk-interface-color-scheme` (4.20+). `setThemePreference('light'|'system')` clears the flag, so a host shell that signals dark only through it must re-assert after a preference change.
+- `useMediaQuery` evaluates the css-engine environment (largest live host size, scheme, reduced-motion): `pointer`/`hover` are fixed `fine`/`hover`, and width/height track the window not the screen.
+- `copyText`/`useClipboard` write text only; there is no read or format API.
+- Multi-value `font-family` stacks from generated theme CSS trip the GTK declaration parser ('Junk at end of value for font-family') — token values should use single-family strings for now.

@@ -143,6 +143,29 @@ export {
 	defaultThemeTokens,
 } from './theme/defined-theme'
 export { generateThemeCss } from './theme/theme-css'
+export {
+	useThemeScheme,
+	getThemeScheme,
+	useThemePreference,
+	setThemePreference,
+	getThemePreference,
+	onThemeSchemeChange,
+} from './theme/theme-scheme'
+export type { ThemePreference, ThemeScheme } from './theme/theme-scheme'
+export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
+export type { ThemeClassHost } from './theme/theme-host'
+export { Theme } from './theme/Theme'
+export type { ThemeProps } from './theme/Theme'
+export { useTheme, useThemeName } from './theme/use-theme'
+export type { UseThemeReturn } from './theme/use-theme'
+export { useColorScheme, getColorScheme } from './theme/colorScheme'
+export type { ColorScheme } from './theme/colorScheme'
+export { useMediaQuery } from './use-media-query'
+export { useClipboard } from './use-clipboard'
+export type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
+export { copyText } from './clipboard-write'
+export { useAnnounce } from './use-announce'
+export type { AnnouncePoliteness } from './use-announce'
 export { InternationalizationProvider } from './InternationalizationProvider.tsrx'
 export {
 	useLocale,

@@ -108,7 +108,12 @@ LayerProvider, LayerContext, useLayerContext), toasts
 (Toast, ToastViewport, showToast, useToast), the Lightbox media viewer
 (Lightbox, useLightbox), the CommandPalette command surface, the
 edge-docked Drawer, and bottom sheets (BottomSheet, BottomSheetSwitcher,
-openBottomSheet, closeBottomSheet, useImperativeBottomSheet) —
+openBottomSheet, closeBottomSheet, useImperativeBottomSheet), and the
+theme/environment surface (Theme, useTheme, useThemeName,
+useThemeScheme, getThemeScheme, useThemePreference, setThemePreference,
+getThemePreference, onThemeSchemeChange, themeSchemeClasses,
+applyThemeClasses, useColorScheme, getColorScheme, useMediaQuery,
+useClipboard, copyText, useAnnounce) —
 behave identically to native; slot-bearing hooks (useCalendarDays,
 useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
 are not yet exposed.
@@ -1056,8 +1061,10 @@ it works from any directory without a source checkout, Node, or pnpm.
 
 - No desktop entry, per-user installer, or URI scheme handling — those are
   features of the WebKitGTK host, and they land with runtime qualification.
-- No device services (clipboard, secure storage, notifications, files) —
-  the GTK host mounts widgets only.
+- Clipboard coverage is text-only writes (`copyText`/`useClipboard`
+  claim the display clipboard); reads and other formats are not exposed.
+  Secure storage, notifications and files remain unqualified — the GTK
+  host mounts widgets only.
 - `FocusScope` reports all capabilities `false` via
   `getFocusScopeCapabilities()` — per-scope containment is not qualified yet;
   the overlay host's modal suppression carries the modal-input contract.
