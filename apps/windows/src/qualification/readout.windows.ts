@@ -1,4 +1,4 @@
-import { Application, TextBase, type View } from '@nativescript/core'
+import { Application, Image, TextBase, type View } from '@nativescript/core'
 
 /** Numeric host readout complements UIA; it does not establish accessibility. */
 export function layoutReadout() {
@@ -17,6 +17,14 @@ export function layoutReadout() {
 			label: view.accessibilityLabel,
 			requestedWidth: view.width,
 			masonWidth: (view as any)._styleHelper?.width,
+			image:
+				view instanceof Image
+					? {
+							width: view.imageSource?.width ?? 0,
+							height: view.imageSource?.height ?? 0,
+							isLoading: view.isLoading,
+						}
+					: undefined,
 			box: location
 				? { x: location.x, y: location.y, width: size.width, height: size.height }
 				: null,

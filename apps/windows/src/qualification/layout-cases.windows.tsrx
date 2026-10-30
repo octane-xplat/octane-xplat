@@ -2,6 +2,8 @@
 import { createContext, useContext, useEffect, useState } from 'octane'
 import { knownFolders, File } from '@nativescript/core'
 import { layoutReadout } from './readout.windows'
+import { DisplayCases, displayCases, type DisplayCase } from './display-cases.windows'
+import { LegacyLayout } from './legacy-layout.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
 import {
 	Text,
@@ -71,6 +73,9 @@ export function Qualification() @{
 	const [scene, setScene] = useState('layout')
 	const [layoutCase, setLayoutCase] = useState<(typeof layoutCases)[number]>('text')
 	const [disabled, setDisabled] = useState(false)
+	const [displayCase, setDisplayCase] = useState<DisplayCase>('card')
+	const [avatarImage, setAvatarImage] = useState(false)
+	const [bannerDetails, setBannerDetails] = useState(false)
 	const [actionCase, setActionCase] = useState('all')
 	const [implicitNames, setImplicitNames] = useState(false)
 	const [routedLink, setRoutedLink] = useState(false)
@@ -126,6 +131,19 @@ export function Qualification() @{
 					case 'disabled':
 						setDisabled(command.value === true)
 						break
+					case 'display-case':
+						if (!displayCases.includes(command.value)) {
+							throw new Error('Unknown display case')
+						}
+
+						setDisplayCase(command.value)
+						break
+					case 'avatar-image':
+						setAvatarImage(command.value === true)
+						break
+					case 'banner-details':
+						setBannerDetails(command.value === true)
+						break
 					case 'action-case':
 						if (!['all', 'button', 'pressable', 'link'].includes(command.value)) {
 							throw new Error('Unknown action case')
@@ -141,7 +159,7 @@ export function Qualification() @{
 						setDestination('/')
 						break
 					case 'scene':
-						if (command.value === 'layout' || command.value === 'actions') {
+						if (['layout', 'actions', 'display', 'legacy-layout'].includes(command.value)) {
 							setScene(command.value)
 						}
 
@@ -172,7 +190,25 @@ export function Qualification() @{
 			<Text id="core20-destination">{`Destination ${destination}`}</Text>
 		}
 		@if (mounted) {
-			@if (scene === 'layout') {
+			@if (scene === 'display' || scene === 'legacy-layout') {
+				@try {
+					@if (scene === 'display') {
+						<DisplayCases
+							caseName={displayCase}
+							revision={revision}
+							disabled={disabled}
+							image={avatarImage}
+							details={bannerDetails}
+							onActivate={activate}
+						/>
+					} @else {
+						<LegacyLayout revision={revision} />
+					}
+				} @catch (error) {
+					record('render-error', { message: String(error) })
+					<Text>{`Display render error: ${String(error)}`}</Text>
+				}
+			} @else if (scene === 'layout') {
 				<View className="core20-viewport">
 					@if (layoutCase === 'vstack') {
 						<VStack
@@ -263,7 +299,7 @@ export function Qualification() @{
 						>
 							<Text
 								id="core20-text"
-								style={{ fontSize: 14, lineHeight: 20, flexShrink: 1 }}
+								style={{ fontSize: 14, lineHeight: '20px', flexShrink: 1 }}
 							>
 								{revision === 1
 									? 'Updated typography should wrap within the available space.'

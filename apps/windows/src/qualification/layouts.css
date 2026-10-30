@@ -1,3 +1,7 @@
 .core20-viewport {
 	width: 50%;
 }
+
+.core20-legacy-host {
+	width: 240px;
+}
