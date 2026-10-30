@@ -3395,3 +3395,40 @@ Artifacts: `windy-main-setup-838b4cf9b.log`, `windy-native-main-838b4cf9b{,-b}.l
 `windy-main-838b4cf9b-{build-exit,turbo-run,installed-package,current-boot-console,segmented-os-results}.json`,
 `windy-os-main-{common,radio,segmented}-838b4cf9b.log` and
 `windy-main-838b4cf9b-os-interactive-*.log`.
+
+## Core-component plan: Phase 0 prerequisites
+
+Plan: `~/dev/plans/octane-xplat/windows-core-components.md` (tracker #79).
+
+**0a clean install.** `e6e9af6a3` adds the 14 missing
+`packages/platform/tsrx-typegen.json` entrypoints. A fresh windy worktree of
+`3fc071664` plus that change ran `pnpm install --frozen-lockfile` with no
+harness overrides: platform typegen passed (504 declarations), 58/59 turbo
+tasks passed, and only `@octane-xplat/ui#typegen` failed (exit 1, 57 min).
+That failure is 11 AppKit `.macos.tsrx` files with a module-scope `<style>`
+block, which octane 0.16.3's Volar layer rejects as TSRX3007 while the build
+compiler accepts it. A later `tsc` heap exhaustion (about 2 GB) follows those
+diagnostics. A separate task owns that fix; 0a stays open until a clean install
+exits 0. Logs: `research/windows61/windy-0a-{frozen-install,ui-typegen}-3fc071664.log`.
+
+**0b/0c layout prerequisites.** The shared layout components render
+`<masonview>` through full MasonKit on Windows; no shared non-test UI source
+uses NativeScript `FlexboxLayout`, where the original padding and shrink
+defects were found. A packaged parity probe (MSIX 1.0.0.43, 40 fixtures, every
+node with a non-null `getLocationOnScreen`/`getActualSize` box) measured:
+
+| Case | Web | Windows |
+| --- | --- | --- |
+| Padding 17/7/13/11, fixed 200×60 | child 170×10 at 17,7 | identical |
+| Same padding, auto height, one 10-high child | root 200×28 | identical |
+| Same padding, auto height, empty | root 200×18 | identical |
+| 170-wide row, two 100-wide children, default shrink | not comparable (web View reported `display: block`) | 100 + 100, 30 DIP overflow, no overlap |
+| Same with `flexShrink: 1` | not comparable | 85 + 85 |
+
+The padding numbers match web, and the shrink results follow the documented
+`flex-shrink: 0` default (`docs/testing/known-limits.md`). The 15-DIP overlap
+does not reproduce. Neither binary repair is needed for the shared component
+path. The maintained regression is the Windows target of the existing View,
+row/column, Spacer and percent-size parity checks once they are enabled for
+Windows. Artifacts: `research/windows61/windy-parity-console-838b4cf9b.log`,
+`research/windows61/parity-check-windows-out.txt`.
