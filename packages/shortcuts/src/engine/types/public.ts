@@ -731,7 +731,7 @@ export type ShortcutRuntime = {
 	 */
 	isAvailable(input: RunnableInput): boolean
 
-	/** Returns a snapshot of all registered bindings in runtime precedence order. */
+	/** Returns registered bindings in registration-slot order, with earlier slots first. */
 	getBindings(): readonly BindingSnapshot[]
 
 	/** Returns non-expired sequence states. */

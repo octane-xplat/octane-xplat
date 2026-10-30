@@ -39,6 +39,7 @@ export const GROUPS = [
 			'animation-gestures',
 			'keyboard-clipboard',
 			'keyboard-shortcuts',
+			'keyboard-shortcuts-api',
 			'software-keyboard',
 			'movie-capture',
 			'virtual-list',

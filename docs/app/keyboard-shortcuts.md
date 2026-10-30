@@ -6,6 +6,9 @@ Start with a running web app. The optional `@octane-xplat/shortcuts` package
 also has adapters for experimental AppKit, GTK4, and WinUI hosts. It handles
 input inside your app; operating-system global hotkeys require a separate service.
 
+For exact signatures, defaults, result fields and lifecycle rules, see the
+[keyboard shortcuts API reference](keyboard-shortcuts-api.md).
+
 ## Open your command menu
 
 After the package's first framework release, run this in your app directory.

@@ -10,6 +10,11 @@
 		"typecheck": {
 			"dependsOn": ["typegen", "^typegen"]
 		},
+		"test:docs": {
+			"dependsOn": ["typegen"],
+			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/app/keyboard-shortcuts-api.md"],
+			"outputs": []
+		},
 		"test:e2e": {
 			"dependsOn": ["typegen", "build"],
 			"cache": false

@@ -62,7 +62,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Change colors, spacing, and fonts               | [Styling screens](app/styling.md)                      |
 | Make a screen work with assistive technology    | [Accessible screens](app/accessibility.md)             |
 | Let someone type into a form                    | [Enter and submit text](app/text-entry.md)             |
-| Add scoped keyboard commands | [Keyboard shortcuts](app/keyboard-shortcuts.md) |
+| Add scoped keyboard commands | [Keyboard shortcuts](app/keyboard-shortcuts.md); [API reference](app/keyboard-shortcuts-api.md) |
 | Migrate changed UI value and unit props         | [UI API migrations](app/ui-api-migrations.md)          |
 | Move between screens                            | [Moving between screens](app/navigation.md)            |
 | Run a deferrable refresh                        | [Background work](platform/background-work.md)       |

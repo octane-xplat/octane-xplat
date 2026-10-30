@@ -32,6 +32,7 @@
 		"typegen": "tsc -p tsconfig.build.json --emitDeclarationOnly",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
+		"test:docs": "node tests/docs-reference.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:e2e": "node tests/browser.web.mjs",

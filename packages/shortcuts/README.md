@@ -42,3 +42,6 @@ system-wide hotkeys are unsupported. Missing host support throws at creation.
 Read [Add keyboard shortcuts](../../docs/app/keyboard-shortcuts.md) for native
 ownership, scopes, recording, rebinding, and host limits. The maintained
 [workspace installer](examples/workspace.ts) shows a shared service.
+
+Use the [complete API reference](../../docs/app/keyboard-shortcuts-api.md) to
+look up every method, option, result type, default, and lifecycle rule.

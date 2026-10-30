@@ -4,7 +4,10 @@
 leases and the `@casbin/expression-eval` engine dependency. UI neither depends
 on it nor re-exports it. `@octane-xplat/keyboard` continues to own software
 keyboard geometry and avoidance. The public workflow is
-[Add keyboard shortcuts](../../docs/app/keyboard-shortcuts.md).
+[Add keyboard shortcuts](../../docs/app/keyboard-shortcuts.md); the complete
+[API reference](../../docs/app/keyboard-shortcuts-api.md) owns method, option and
+result lookup. Its examples and exported-type coverage are checked by
+`turbo run test:docs --filter=@octane-xplat/shortcuts`.
 
 ## Engine and API boundaries
 
