@@ -511,11 +511,18 @@ export async function inspectMacOSNative(appRoot) {
 		)
 	}
 
-	const sdk = await run(
-		'xcrun',
-		['--sdk', 'macosx', '--show-sdk-path'],
-		'locate macOS SDK; install/select Xcode',
-	)
+	// XPLAT_MACOS_SDK pins the SDK for hosts whose toolchain predates the
+	// newest installed SDK (e.g. an older swiftc that cannot parse a newer
+	// Swift.swiftmodule). Accepts a path or an `xcrun --sdk` name.
+	const sdkEnv = process.env.XPLAT_MACOS_SDK
+	const sdk =
+		sdkEnv && sdkEnv.startsWith('/')
+			? sdkEnv
+			: await run(
+					'xcrun',
+					['--sdk', sdkEnv || 'macosx', '--show-sdk-path'],
+					'locate macOS SDK; install/select Xcode',
+				)
 
 	const clang = await run('xcrun', ['--find', 'clang'], 'locate Xcode compiler')
 	const swift = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.swift'))

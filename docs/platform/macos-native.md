@@ -27,6 +27,10 @@ sources; the maintained fixture uses Zig 0.16. The CLI ships its pinned metadata
 generator, which loads Command Line Tools' `libclang`. App builds need neither
 CMake nor an upstream runtime checkout. `pnpm xplat doctor` checks the native
 packages and loads the generator to diagnose missing or incompatible tools.
+`xcrun --sdk macosx` selects the newest installed SDK; on a host whose
+toolchain predates it (for example an older `swiftc` against a newer
+`Swift.swiftmodule`), pin a compatible SDK with `XPLAT_MACOS_SDK` — a path or
+an `xcrun --sdk` name.
 
 For CLI-owned development, add the following to the app's existing
 `xplat.targets.macos` configuration:
