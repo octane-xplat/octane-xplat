@@ -30,6 +30,7 @@ import { Separator } from '../feedback/Separator'
 import { Popover } from './Popover'
 import { MenuSurface } from './MenuSurface'
 
+/** One selectable action inside a DropdownMenu/ContextMenu (and BreadcrumbMenu overflow). */
 export function DropdownMenuItem(props: MenuItemProps): unknown @{
 	const menu = useDropdownMenuContext()
 	if (!menu) {
@@ -71,6 +72,7 @@ export function DropdownMenuItem(props: MenuItemProps): unknown @{
 	</Pressable>
 }
 
+/** Menu item with a checkbox — toggles an independent on/off value. */
 export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps): unknown @{
 	const menu = useDropdownMenuContext()
 	if (!menu) {
@@ -114,6 +116,7 @@ export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps): unknown 
 	</Pressable>
 }
 
+/** Groups radio items under one value — selecting an item replaces the group's value. */
 export function DropdownMenuRadioGroup(props: MenuRadioGroupProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultValue)
 	const context: MenuRadioGroupProps = {
@@ -147,6 +150,7 @@ export function DropdownMenuRadioGroup(props: MenuRadioGroupProps): unknown @{
 	</View>
 }
 
+/** One option inside a MenuRadioGroup — checked when it matches the group value. */
 export function DropdownMenuRadioItem(props: MenuRadioItemProps): unknown @{
 	const group = useContext(MenuRadioContext)
 	const menu = useDropdownMenuContext()
@@ -201,6 +205,7 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps): unknown @{
 	</Pressable>
 }
 
+/** Visual divider between menu items or sections. */
 export function DropdownMenuSeparator(props: MenuSeparatorProps): unknown @{
 	<Separator {...props} />
 }
@@ -210,12 +215,14 @@ export function DropdownMenuDivider(props: MenuSeparatorProps): unknown @{
 	<DropdownMenuSeparator {...props} />
 }
 
+/** Labeled group of related menu items — renders items under a section heading. */
 export function DropdownMenuSection(props: MenuSectionProps): unknown @{
 	<View id={props.id} accessibilityRole="group" accessibilityLabel={props.label}>
 		{props.children}
 	</View>
 }
 
+/** Menu item that navigates to a route — select closes the menu and pushes the destination. */
 export function DropdownMenuLink<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
@@ -253,6 +260,7 @@ export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkPro
 	</Pressable>
 }
 
+/** Nested menu inside another menu — opens a child surface beside its trigger item. */
 export function DropdownMenuSubMenu<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
