@@ -452,9 +452,15 @@ test('workflow dependencies keep ci independent and stable bound to the release 
 		assert.equal(checkout.with.ref, '${{ env.TESTED_SHA }}')
 	}
 	assert.equal(release.jobs.qualify.uses, './.github/workflows/stable.yml')
-	assert.equal(release.jobs.qualify.with.sha, '${{ needs.gate.outputs.sha }}')
+	assert.equal(release.jobs.qualify.with.sha, '${{ needs.gate.outputs.lockstep_sha }}')
 	assert.deepEqual(dependencies(release.jobs.lockstep), ['gate', 'qualify'])
 	assert.equal(release.jobs.docs.if, "needs.gate.outputs.channel == 'ci'")
-	assert.equal(release.jobs['tsrx-typegen'].if, "needs.gate.outputs.channel == 'ci'")
+	assert.match(
+		release.jobs['tsrx-typegen'].if,
+		/needs\.tsrx-typegen-resume\.result == 'success'/,
+	)
+	assert.deepEqual(dependencies(release.jobs['tsrx-typegen']), ['gate', 'tsrx-typegen-resume'])
+	assert.equal(release.jobs['tsrx-typegen-resume'].concurrency.group, 'release-tsrx-typegen')
+	assert.equal(release.jobs['tsrx-typegen'].concurrency.group, 'release-tsrx-typegen')
 	assert.equal(release.jobs.nightly.if, "needs.nightly-gate.outputs.publish == 'true'")
 })

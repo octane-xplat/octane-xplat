@@ -49,9 +49,19 @@ jobs:
       channel: ${{ steps.evidence.outputs.channel }}
       sha: ${{ steps.evidence.outputs.sha }}
       lockstep_pending: ${{ steps.pending.outputs.pending }}
+      lockstep_state: ${{ steps.pending.outputs.state }}
+      # An unfinished publication resumes from the tagged commit; anything
+      # else publishes the CI-tested sha.
+      lockstep_sha: >-
+        ${{ steps.pending.outputs.state == 'unpublished' && steps.pending.outputs.tag_sha ||
+          steps.evidence.outputs.sha }}
       version: ${{ steps.pending.outputs.version }}
       tag: ${{ steps.pending.outputs.tag }}
-      qualified: ${{ steps.qualification.outputs.channel == 'stable' }}
+      # A tag is only pushed after qualification, so 'unpublished' is already
+      # qualified; 'untagged' still needs stable evidence or the qualify job.
+      qualified: >-
+        ${{ steps.qualification.outputs.channel == 'stable' ||
+          steps.pending.outputs.state == 'unpublished' }}
     # The revision CI actually tested — publish must consume evidence for
     # this sha and build the tested code, not whatever main has moved to.
     env:
@@ -86,13 +96,16 @@ jobs:
       - name: Check for a pending merged release
         if: steps.evidence.outputs.channel == 'ci'
         id: pending
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/release-version.ts pending lockstep >> "$GITHUB_OUTPUT"
 
       # A merged release tree that already passed Stable CI on the release PR
       # publishes immediately; `channel=none` here is expected and queues the
-      # qualify job below instead of failing.
+      # qualify job below instead of failing. Only an untagged release needs
+      # the lookup — a pushed tag implies qualification already ran.
       - name: Verify stable qualification for this tree
-        if: steps.pending.outputs.pending == 'true'
+        if: steps.pending.outputs.state == 'untagged'
         id: qualification
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -138,15 +151,109 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-  # tsrx-typegen ships on its own cadence — its commits never move the
-  # lockstep version, and its releases don't touch the other packages. It has
-  # no nightly channel; a green main run releases immediately when
-  # bump-eligible commits exist under packages/tsrx-typegen/**.
-  tsrx-typegen:
-    name: Publish tsrx-typegen
+  # The GitHub Release is the completion marker: the tag is pushed before
+  # publish, so "tag exists, release missing" means an unfinished publication.
+  # This job resumes it — pnpm skips the version when it did reach npm, and
+  # release creation is skipped when the release already exists.
+  tsrx-typegen-resume:
+    name: Resume an unfinished tsrx-typegen release
     needs: gate
     runs-on: ubuntu-latest
     if: needs.gate.outputs.channel == 'ci'
+    concurrency:
+      group: release-tsrx-typegen
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout the tested revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
+          fetch-depth: 0
+
+      # Read the version manifest from origin/main so a newer release commit
+      # resolves too; main's version is the one that may be unfinished.
+      - name: Check for an unfinished release
+        id: pending
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -o pipefail
+          git fetch origin main --tags
+          node scripts/release-version.ts pending tsrx-typegen --ref origin/main \
+            | tee -a "$GITHUB_OUTPUT"
+
+      - name: Check out the tagged release
+        if: steps.pending.outputs.state == 'unpublished'
+        run: git checkout --detach "${{ steps.pending.outputs.tag }}"
+
+      - name: Setup pnpm
+        if: steps.pending.outputs.state == 'unpublished'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        if: steps.pending.outputs.state == 'unpublished'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Restore trusted-publisher checks
+        id: trusted-publishers-cache
+        if: steps.pending.outputs.state == 'unpublished'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            trusted-publishers-${{ github.job }}-${{ hashFiles('scripts/check-trusted-publishers.ts', '.github/workflows/release.yml') }}-
+
+      - name: Verify npm trusted publishing
+        if: steps.pending.outputs.state == 'unpublished'
+        env:
+          TRUSTED_PUBLISHERS_CACHE: ${{ runner.temp }}/trusted-publishers.json
+        run: node scripts/check-trusted-publishers.ts tsrx-typegen
+
+      - name: Save trusted-publisher checks
+        if: steps.pending.outputs.state == 'unpublished'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/trusted-publishers.json
+          key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
+
+      - name: Install dependencies
+        if: steps.pending.outputs.state == 'unpublished'
+        run: pnpm install --frozen-lockfile
+
+      - name: Publish to npm
+        if: steps.pending.outputs.state == 'unpublished'
+        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance
+
+      - name: Create GitHub Release
+        if: steps.pending.outputs.state == 'unpublished'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.pending.outputs.version }}
+          TAG: ${{ steps.pending.outputs.tag }}
+        run: |
+          node scripts/release-notes.ts extract tsrx-typegen "$VERSION" > .release-notes.md
+          gh release view "$TAG" > /dev/null 2>&1 || \
+            gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
+
+  # tsrx-typegen ships on its own cadence — its commits never move the
+  # lockstep version, and its releases don't touch the other packages. It has
+  # no nightly channel; a green main run releases immediately when
+  # bump-eligible commits exist under packages/tsrx-typegen/**. Runs after the
+  # resume check so a failed publication finishes before a new bump is cut.
+  tsrx-typegen:
+    name: Publish tsrx-typegen
+    needs: [gate, tsrx-typegen-resume]
+    runs-on: ubuntu-latest
+    if: >-
+      always() &&
+      needs.gate.outputs.channel == 'ci' &&
+      needs.tsrx-typegen-resume.result == 'success'
     concurrency:
       group: release-tsrx-typegen
       cancel-in-progress: false
@@ -289,7 +396,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/stable.yml
     with:
-      sha: ${{ needs.gate.outputs.sha }}
+      sha: ${{ needs.gate.outputs.lockstep_sha }}
 
   # Lockstep release: every publishable package except tsrx-typegen ships at
   # the same version. The release commit already bumped versions and consumed
@@ -312,7 +419,7 @@ jobs:
       id-token: write
       actions: write
     env:
-      TESTED_SHA: ${{ needs.gate.outputs.sha }}
+      TESTED_SHA: ${{ needs.gate.outputs.lockstep_sha }}
       VERSION: ${{ needs.gate.outputs.version }}
       TAG: ${{ needs.gate.outputs.tag }}
     steps:

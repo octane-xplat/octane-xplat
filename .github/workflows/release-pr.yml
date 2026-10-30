@@ -61,11 +61,13 @@ jobs:
       # reopening would preview the version that is already shipping.
       - name: Check for a pending merged release
         id: pending
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/release-version.ts pending lockstep >> "$GITHUB_OUTPUT"
 
       - name: Stop while a release awaits publication
         if: steps.pending.outputs.pending == 'true'
-        run: echo "::notice::${{ steps.pending.outputs.tag }} merged and awaiting publication — the release PR resumes once the tag lands."
+        run: echo "::notice::${{ steps.pending.outputs.tag }} awaits publication (${{ steps.pending.outputs.state }}) — the release PR resumes once its GitHub Release exists."
 
       - name: Find the open release PR
         if: steps.pending.outputs.pending != 'true'

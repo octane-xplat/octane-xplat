@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -121,47 +121,92 @@ export function resolveRelease(root: string, release: Release, override = '') {
 	return { shouldRelease: !git('tag', '--list', tag), version, tag }
 }
 
-// A merged release commit carries the next version in its manifests before
-// the tag exists; between merge and tag the release is pending publication.
-// The tag check asks origin first so a not-yet-fetched tag can't read as
-// pending, and falls back to fetched tags when no remote is reachable.
-export function pendingRelease(root: string, release: Release) {
-	const version =
-		release === 'lockstep'
-			? JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json'), 'utf8'))
-					.frameworkVersion
-			: JSON.parse(
-					readFileSync(join(root, `packages/${release}/package.json`), 'utf8'),
-				).version
-	const tag = `${RELEASES[release].prefix}${version}`
-	let tagged: boolean
-	try {
-		tagged =
-			execFileSync('git', ['ls-remote', '--tags', 'origin', `refs/tags/${tag}`], {
-				cwd: root,
-				encoding: 'utf8',
-				stdio: ['ignore', 'pipe', 'pipe'],
-			}).trim().length > 0
-	} catch {
-		tagged =
-			execFileSync('git', ['tag', '--list', tag], { cwd: root, encoding: 'utf8' }).trim()
-				.length > 0
+// The GitHub Release is the completion marker: both release jobs create it
+// only after `pnpm publish` succeeds, so a tag without its release means an
+// unfinished publication, not a shipped one.
+function defaultReleaseExists(tag: string): boolean {
+	const repo = process.env.GITHUB_REPOSITORY ?? 'octane-xplat/octane-xplat'
+	const run = spawnSync('gh', ['api', `repos/${repo}/releases/tags/${tag}`], {
+		encoding: 'utf8',
+		stdio: ['ignore', 'pipe', 'pipe'],
+	})
+	if (run.status === 0) {
+		return true
 	}
-	return { pending: !tagged, version, tag }
+	if (/HTTP 404|Not Found/.test(run.stderr)) {
+		return false
+	}
+	throw new Error(
+		`could not check the GitHub release for ${tag}: ${run.stderr.trim() || `exit ${run.status}`}`,
+	)
+}
+
+// A merged release commit carries the next version in its manifests before
+// publication completes. Three states: 'untagged' (the version was merged but
+// the tag is missing on origin), 'unpublished' (the tag exists but its
+// GitHub Release does not — publication stopped partway), and 'released'.
+// pending means the version still owes a publication step in either
+// incomplete state. The tag check asks origin first so a not-yet-fetched tag
+// can't read as untagged, and falls back to fetched tags when no remote is
+// reachable.
+export function pendingRelease(
+	root: string,
+	release: Release,
+	{ ref, releaseExists }: { ref?: string; releaseExists?: (tag: string) => boolean } = {},
+) {
+	const git = (...args: string[]) =>
+		execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+			.trim()
+	const path =
+		release === 'lockstep'
+			? 'packages/create/compatibility.json'
+			: `packages/${release}/package.json`
+	const manifest = JSON.parse(
+		ref ? git('show', `${ref}:${path}`) : readFileSync(join(root, path), 'utf8'),
+	)
+	const version = release === 'lockstep' ? manifest.frameworkVersion : manifest.version
+	const tag = `${RELEASES[release].prefix}${version}`
+
+	let tagSha = ''
+	try {
+		const remote = git('ls-remote', '--tags', 'origin', `refs/tags/${tag}`, `refs/tags/${tag}^{}`)
+		const lines = remote.split('\n').filter(Boolean)
+		// Annotated tags list the tag object plus a peeled ^{commit} line.
+		tagSha = (lines.find((line) => line.endsWith('^{}')) ?? lines[0] ?? '').split(/\s+/)[0] ?? ''
+	} catch {
+		tagSha = ''
+	}
+	if (!tagSha) {
+		try {
+			tagSha = git('rev-parse', '--verify', '--quiet', `${tag}^{commit}`)
+		} catch {
+			tagSha = ''
+		}
+	}
+
+	if (!tagSha) {
+		return { pending: true, state: 'untagged' as const, version, tag, tagSha: '' }
+	}
+	const state = (releaseExists ?? defaultReleaseExists)(tag) ? 'released' : 'unpublished'
+	return { pending: state !== 'released', state, version, tag, tagSha }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
 	try {
-		const [command, name] = process.argv.slice(2)
+		const [command, name, ...rest] = process.argv.slice(2)
 		if (command === 'pending') {
+			const refIndex = rest.indexOf('--ref')
+			const ref = refIndex >= 0 ? rest[refIndex + 1] : undefined
 			assert.equal(
-				process.argv.length,
+				process.argv.length - (refIndex >= 0 ? 2 : 0),
 				4,
-				'usage: node scripts/release-version.ts pending <lockstep|tsrx-typegen>',
+				'usage: node scripts/release-version.ts pending <lockstep|tsrx-typegen> [--ref <ref>]',
 			)
 
-			const result = pendingRelease(process.cwd(), releaseName(name))
-			console.log(`pending=${result.pending}\nversion=${result.version}\ntag=${result.tag}`)
+			const result = pendingRelease(process.cwd(), releaseName(name), { ref })
+			console.log(
+				`pending=${result.pending}\nstate=${result.state}\nversion=${result.version}\ntag=${result.tag}\ntag_sha=${result.tagSha}`,
+			)
 		} else {
 			assert.equal(
 				process.argv.length,

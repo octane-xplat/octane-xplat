@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { parse } from 'yaml'
 import { extractNotes, prepareNotes, readNotes, renderNotes } from './release-notes.ts'
-import { commitBump, releaseVersion, resolveRelease } from './release-version.ts'
+import { commitBump, pendingRelease, releaseVersion, resolveRelease } from './release-version.ts'
 
 const workflow = parse(readFileSync('.github/workflows/release.yml', 'utf8'))
 const versionScript = resolve('scripts/release-version.ts')
@@ -346,6 +346,69 @@ test('extract rebuilds the prepared GitHub notes from the committed logs', (t) =
 	})
 	assert.equal(cli.status, 0, cli.stderr)
 	assert.equal(cli.stdout, prepared.github)
+})
+
+test('pendingRelease reports untagged, unpublished, and released states', (t) => {
+	const root = fixture(t)
+	const remote = join(root, 'origin.git')
+	const work = join(root, 'work')
+	mkdirSync(work)
+	init(work)
+	write(work, 'packages/create/compatibility.json', JSON.stringify({ frameworkVersion: '0.5.0' }))
+	write(work, 'packages/tsrx-typegen/package.json', JSON.stringify({ version: '0.6.0' }))
+	commit(work, 'chore: version manifests', null)
+	const head = git(work, 'rev-parse', 'HEAD')
+	git(root, 'init', '--bare', '-q', remote)
+	git(work, 'remote', 'add', 'origin', remote)
+	git(work, 'push', '-q', 'origin', 'HEAD:main')
+
+	const never = () => {
+		throw new Error('release check should not run without a tag')
+	}
+	assert.deepEqual(pendingRelease(work, 'lockstep', { releaseExists: never }), {
+		pending: true,
+		state: 'untagged',
+		version: '0.5.0',
+		tag: 'v0.5.0',
+		tagSha: '',
+	})
+
+	// An annotated tag lists the tag object plus a peeled ^{commit} line —
+	// tagSha must be the commit, not the tag object.
+	git(work, 'tag', '-a', 'v0.5.0', '-m', 'release 0.5.0')
+	git(work, 'push', '-q', 'origin', 'v0.5.0')
+	assert.notEqual(git(work, 'rev-parse', 'v0.5.0'), head)
+	assert.deepEqual(pendingRelease(work, 'lockstep', { releaseExists: () => false }), {
+		pending: true,
+		state: 'unpublished',
+		version: '0.5.0',
+		tag: 'v0.5.0',
+		tagSha: head,
+	})
+	assert.deepEqual(pendingRelease(work, 'lockstep', { releaseExists: () => true }), {
+		pending: false,
+		state: 'released',
+		version: '0.5.0',
+		tag: 'v0.5.0',
+		tagSha: head,
+	})
+
+	assert.throws(
+		() =>
+			pendingRelease(work, 'lockstep', {
+				releaseExists: () => {
+					throw new Error('registry unreachable')
+				},
+			}),
+		/registry unreachable/,
+	)
+
+	// --ref reads the manifest at that ref, ignoring the dirty worktree.
+	write(work, 'packages/create/compatibility.json', JSON.stringify({ frameworkVersion: '9.9.9' }))
+	assert.equal(
+		pendingRelease(work, 'lockstep', { ref: 'HEAD', releaseExists: () => true }).version,
+		'0.5.0',
+	)
 })
 
 test('extract handles a fixes-only release and a missing heading', (t) => {
