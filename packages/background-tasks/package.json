@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/background-tasks",
 	"version": "0.18.0",
-	"description": "OS-scheduled periodic background work for Octane xplat — BGTaskScheduler and WorkManager",
+	"description": "OS-scheduled periodic background work for Octane xplat \u2014 BGTaskScheduler and WorkManager",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -48,7 +48,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"test": "node --test tests/*.test.mjs",
+		"test": "node --test tests/*.test.ts",
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",

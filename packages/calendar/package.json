@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/calendar",
 	"version": "0.18.0",
-	"description": "Device calendar for Octane xplat — event store reads and writes via EventKit/CalendarContract",
+	"description": "Device calendar for Octane xplat \u2014 event store reads and writes via EventKit/CalendarContract",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -50,7 +50,8 @@
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "node ../../scripts/typecheck.ts"
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "node --test tests/*.test.ts"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

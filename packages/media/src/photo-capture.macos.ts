@@ -7,6 +7,56 @@ interface PhotoSheet {
 	discard(uri: string): void
 }
 
+/** Photos add-only save through the bridged Photos.framework. The write is
+ *  best-effort like the mobile capture path: a denied request or a failed
+ *  PHAssetChangeRequest warns and still returns the captured file — the shot
+ *  itself is valid output. */
+function saveToPhotosLibrary(path: string): void {
+	try {
+		const host = globalThis as any
+		const library = host.PHPhotoLibrary?.sharedPhotoLibrary?.()
+		const addOnly = host.PHAccessLevelAddOnly ?? 1
+		const status = host.PHPhotoLibrary?.authorizationStatusForAccessLevel?.(addOnly)
+		const write = () => {
+			const url = host.NSURL.fileURLWithPath(path)
+			library.performChangesCompletionHandler(
+				() => {
+					host.PHAssetChangeRequest.creationRequestForAssetFromImageAtFileURL(url)
+				},
+				(succeeded: boolean, error: any) => {
+					if (!succeeded) {
+						console.warn(
+							`[media] saveToGallery could not write to Photos: ${error?.localizedDescription ?? error ?? 'unknown error'}`,
+						)
+					}
+				},
+			)
+		}
+
+		if (!library) {
+			console.warn('[media] saveToGallery: PhotoKit is unavailable on this host')
+			return
+		}
+
+		// PHAuthorizationStatus: 3 authorized; 0 notDetermined prompts first.
+		if (status === 3) {
+			write()
+		} else if (status === 0) {
+			host.PHPhotoLibrary.requestAuthorizationForAccessLevelHandler(addOnly, (next: number) => {
+				if (next === 3) {
+					write()
+				} else {
+					console.warn('[media] saveToGallery: Photos add access was not granted')
+				}
+			})
+		} else {
+			console.warn(`[media] saveToGallery: Photos add access is ${status}`)
+		}
+	} catch (error: any) {
+		console.warn(`[media] saveToGallery failed: ${error?.message ?? error}`)
+	}
+}
+
 declare const XplatPhotoCaptureSheet: { alloc(): { init(): PhotoSheet } }
 
 let active: PhotoSheet | undefined
@@ -32,10 +82,6 @@ export async function ensureCamera(): Promise<PermissionResult> {
 
 /** Call from a user action. The sheet owns its preview until it settles. */
 export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<PickedImage | null> {
-	if (options.saveToGallery) {
-		throw new Error('unsupported: saveToGallery is unavailable for macOS still-photo capture')
-	}
-
 	if (active || typeof XplatPhotoCaptureSheet === 'undefined') {
 		return null
 	}
@@ -70,6 +116,10 @@ export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<P
 
 			settled = true
 			deliveredUri = image?.uri
+			if (image && options.saveToGallery) {
+				saveToPhotosLibrary(image.uri)
+			}
+
 			if (image) {
 				// Shared with the AppKit file picker and files.release; never register
 				// a user-owned original or a rejected/late capture result. Only the

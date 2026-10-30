@@ -119,9 +119,38 @@ export interface AppInfo {
 	bundleId: string | null
 }
 
+/** Permission or preference area a settings deep-link can target. Platforms
+ *  without pane routing open their app-level settings page for any value. */
+export type SettingsPane =
+	| 'general'
+	| 'privacy'
+	| 'notifications'
+	| 'camera'
+	| 'microphone'
+	| 'photos'
+	| 'contacts'
+	| 'calendars'
+	| 'reminders'
+	| 'location'
+	| 'bluetooth'
+	| 'accessibility'
+	| 'screenCapture'
+	| 'fullDiskAccess'
+	| 'filesAndFolders'
+	| 'inputMonitoring'
+	| 'speechRecognition'
+	| 'media'
+	| 'automation'
+	| 'home'
+	| 'motion'
+	| 'passkeys'
+	| 'localNetwork'
+	| 'wifi'
+	| 'network'
+
 /** Settings-opening contract. */
 export interface OpenSettingsImpl {
-	open(): boolean
+	open(pane?: SettingsPane): boolean
 }
 
 /**

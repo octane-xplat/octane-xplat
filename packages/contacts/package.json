@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/contacts",
 	"version": "0.18.0",
-	"description": "Device address book for Octane xplat — contact reads and writes on iOS/Android, Contact Picker API on web",
+	"description": "Device address book for Octane xplat \u2014 contact reads and writes on iOS/Android, Contact Picker API on web",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -50,7 +50,8 @@
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "node ../../scripts/typecheck.ts"
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "node --test tests/*.test.ts"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

@@ -94,6 +94,23 @@ test('rejected or throwing launches return false and each open resolves a fresh 
 	}
 })
 
+test('a settings pane routes through the x-apple.systempreferences URL before the app fallback', () => {
+	const env = fixture({ url: { kind: 'settings-application' } })
+	env.context.NSURL = { URLWithString: (url) => ({ url }) }
+	assert.equal(env.leaf.openSettings.open('camera'), true)
+	assert.equal(env.opens.length, 1)
+	assert.equal(
+		env.opens[0].url,
+		'x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Camera',
+	)
+
+	// A rejected or malformed pane URL falls back to the bare settings app.
+	env.opens.length = 0
+	env.context.NSURL = { URLWithString: () => null }
+	assert.equal(env.leaf.openSettings.open('microphone'), true)
+	assert.deepEqual(env.opens, [{ kind: 'settings-application' }]) // bare app URL, no pane target
+})
+
 test('outbound links still delegate to the live host independently of settings support', () => {
 	const env = load()
 	assert.equal(env.leaf.openUrl('https://example.test'), false)

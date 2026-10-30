@@ -54,8 +54,9 @@ export interface MediaImpl {
 	 * shot is canceled, permission is denied, no camera exists, or the result cannot be
 	 * read or persisted — call
 	 * `requestPermissions('camera')` from a user action to check permission separately.
-	 * AppKit rejects saveToGallery:true before permission or UI; it never writes
-	 * to Photos or requests microphone access. Use @octane-xplat/camera for movies.
+	 * AppKit saveToGallery writes the captured file to the Photos library
+	 * (add-only access); the shot still resolves when that write is denied or
+	 * fails. Use @octane-xplat/camera for movies.
 	 */
 	capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null>
 	/** Read the current permission state for a domain without prompting. */

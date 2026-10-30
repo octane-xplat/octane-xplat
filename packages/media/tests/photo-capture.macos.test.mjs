@@ -87,12 +87,40 @@ const image = {
 
 const imageRef = { name: image.name, uri: image.uri }
 
-test('import is passive; gallery save rejects before allocation, permission or UI', async () => {
+test('import is passive; the first capture allocates the sheet', async () => {
 	const api = await load()
 	assert.deepEqual(api.events, [])
-	await assert.rejects(api.capturePhoto({ saveToGallery: true }), /unsupported.*saveToGallery/)
-	assert.equal(api.hosts.length, 0)
-	assert.deepEqual(api.events, [])
+	const pending = api.capturePhoto()
+	assert.deepEqual(api.events, ['present'])
+	api.hosts[0].reply(null)
+	assert.equal(await pending, null)
+})
+
+test('saveToGallery requests an add-only Photos write for the captured file', async () => {
+	const api = await load()
+	const saves = []
+	api.context.PHAccessLevelAddOnly = 1
+	api.context.NSURL = { fileURLWithPath: (path) => ({ path }) }
+	api.context.PHPhotoLibrary = {
+		sharedPhotoLibrary: () => ({
+			performChangesCompletionHandler: (change, reply) => {
+				change()
+				reply(true, null)
+			},
+		}),
+		authorizationStatusForAccessLevel: (level) => {
+			saves.push(level)
+			return 3
+		},
+	}
+	api.context.PHAssetChangeRequest = {
+		creationRequestForAssetFromImageAtFileURL: (url) => saves.push(url),
+	}
+	const pending = api.capturePhoto({ saveToGallery: true })
+	api.hosts[0].reply(JSON.stringify(image))
+	assert.deepEqual(JSON.parse(JSON.stringify(await pending)), imageRef)
+	assert.equal(saves[0], 1)
+	assert.deepEqual(saves[1], { path: image.uri })
 })
 
 test('cancel, denied, missing camera and failure retain null; a retry is admitted', async () => {
