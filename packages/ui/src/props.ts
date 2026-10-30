@@ -4884,7 +4884,10 @@ interface RouteCancellationSignalLike {
  * core never imports a DOM API or fabricates a standard signal. */
 export type RouteCancellationSignal = typeof globalThis extends {
 	/** Captures the platform AbortSignal interface for typing. */
-	AbortSignal: { prototype: infer Signal }
+	AbortSignal: {
+		/** Prototype slot captured for signal-type inference. */
+		prototype: infer Signal
+	}
 }
 	? Signal & RouteCancellationSignalLike
 	: RouteCancellationSignalLike
@@ -5023,7 +5026,10 @@ export type RouteResolution =
 			/** Resolved URL. */
 			href: string
 	  }
-	| Extract<RoutePreparationResult, { /** Matched discriminator — the URL resolved to a route. */ status: 'not-found' | 'invalid-input' }>
+	| Extract<RoutePreparationResult, {
+			/** Statuses this result reuses from preparation. */
+			status: 'not-found' | 'invalid-input'
+	  }>
 
 declare const validatedDestinationTypes: unique symbol
 /** Opaque, instance-bound destination produced by validateDestination(). Pass
@@ -5051,7 +5057,10 @@ export type DestinationValidationResult<Value = ValidatedDestination> =
 			/** Resolved URL for the destination. */
 			href: string
 	  }
-	| Extract<RoutePreparationResult, { /** Valid discriminator — the destination passed validation. */ status: 'not-found' | 'invalid-input' | 'cancelled' }>
+	| Extract<RoutePreparationResult, {
+			/** Statuses this result reuses from preparation. */
+			status: 'not-found' | 'invalid-input' | 'cancelled'
+	  }>
 	| {
 			/** Failed discriminator — validation threw. */
 			status: 'failed'
@@ -5069,7 +5078,10 @@ export type RoutePreloadResult =
 			/** Resolved URL that was preloaded. */
 			href: string
 	  }
-	| Extract<RoutePreparationResult, { /** Preloaded discriminator — module and data are warm. */ status: 'not-found' | 'invalid-input' | 'cancelled' }>
+	| Extract<RoutePreparationResult, {
+			/** Statuses this result reuses from preparation. */
+			status: 'not-found' | 'invalid-input' | 'cancelled'
+	  }>
 	| {
 			/** Failed discriminator — preload threw. */
 			status: 'failed'
