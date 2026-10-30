@@ -10463,3 +10463,32 @@ packages' `typegen` tasks also failed in this worktree's run. These are
 unrelated to this change but still block the merge-qualification typecheck.
 No public API or recipe behavior changed. Temporary sweep/ancestry
 diagnostics were reverted before commit.
+
+### Deferred suite runs and packed-consumer repair (2026-10-30)
+
+Local runs against the landed scroll-bound fix:
+
+- `turbo run test --filter=@octane-xplat/files`: 91 vitest tests + 7
+  node:test cases pass, including `files.macos.test.ts` (11) and the AppKit
+  pick-filter, file-input and bridge suites. Source-level coverage only —
+  NSOpenPanel/NSSavePanel runtime qualification stays open.
+- `turbo run test --filter=@octane-xplat/macos-renderer`: 645 pass / 19 fail
+  in files unrelated to the scroll change (`text-value`, `applyProps`,
+  `image-fit`, table truncation, `letterSpacing`, field-editor adapters).
+  Several look environmental (for example `deepStrictEqual` reporting
+  "same structure but not reference-equal" on plain `{location,length}`
+  objects) but the set needs an owner before it counts as green.
+- `ui` `test:macos` lane: `macos-value-exports`, `query-storage`,
+  `table-universal` (29 node tests), `thumbhash`, `macos-barrel` and
+  `packed-consumer --macos-only` all pass after two repairs —
+  `4eceb4f18` retarget the consumer's `jsxImportSource` from
+  `macos-renderer` (whose jsx-runtime entries were removed in `308c14c58`)
+  to `@octane-xplat/jsx` and count all seven keyboard-inset doc examples;
+  `5536b92ba` drops css side-effect imports from generated
+  declarations so `tsrx-typegen --pack-check` reports "packed exports and
+  declaration graph are valid" instead of 18 unresolved `.css` references.
+
+`turbo run pack:check --filter=@octane-xplat/ui` is green. The
+`macos-renderer` typecheck (25 errors in unrelated files) and the 19
+renderer test failures remain the open verification blockers recorded
+above; both predate the scroll-bound change.
