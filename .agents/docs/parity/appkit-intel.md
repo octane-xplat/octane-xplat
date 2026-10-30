@@ -95,7 +95,8 @@ deprecated-tier and failed to install; `~/dev/tools/` carries tarball cmake
 | Consumer `xplat build --targets macos` → universal app + DMG | andromeda | PASS — 4 leaves, universal `NativeFixture.app`, ad-hoc signed, `codesign --verify --deep --strict` OK |
 | Relocated app run | andromeda (x86_64) + skymac (arm64) | PASS both — `NATIVE_VALUES c=40 objc=42 swift=43 zig=44`, exit 0 |
 | `verify-macos-native-consumer.mjs` end-to-end | andromeda | BLOCKED at `xplat doctor` — fixture's non-macOS rows fail (`packageManager` missing, `@tsrx/oxc` peer; all macOS rows pass). Same gate documented on main; the build/run evidence above was gathered by running its steps directly. |
-| `@xplat/macos` smoke | andromeda | pending |
+| `@xplat/macos` smoke | andromeda | BLOCKED — toolchain vintage, not arch: leaf builds now proceed (env passes through since `b6ac16e46`) but the vendored Lottie Swift leaf needs a newer `swiftc` than andromeda's CLT 5.10 (`extensions must not contain stored properties`). An Intel host with a current toolchain is the remaining qualification. |
+| `apps/macos` universal package for an Intel sweep | skymac | BLOCKED — `rolldown` build errors in `apps/macos#build` on current main (unrelated to this change; 39/40 tasks ok) |
 
 ## What stays unverified / boundaries
 
@@ -112,5 +113,11 @@ deprecated-tier and failed to install; `~/dev/tools/` carries tarball cmake
   andromeda's CLT is 15.3. The claim needed for support is narrower: the
   host's own slice must exist, which holds for any CLT install.
 - **Notarization** of universal builds remains open (#78).
-- The packaged `apps/macos` harness sweep was fixed for the stall on main
-  (scroll-bound commits); an Intel smoke run is the remaining runtime row.
+- **Andromeda's toolchain vintage caps the smoke:** the dev sweep needs all 13
+  `apps/macos` leaves, and vendored Lottie Swift sources exceed swiftc 5.10.
+  A newer CLT/Xcode on Intel is the remaining requirement — no arch-specific
+  blocker observed.
+- `verify-macos-native-consumer.mjs`'s `xplat doctor` step fails on the
+  fixture's non-macOS rows (`packageManager`, `@tsrx/oxc` peer) — pre-existing
+  on main, unrelated to macOS; its build/package/run steps were exercised
+  directly instead.
