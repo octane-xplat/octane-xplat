@@ -125,7 +125,8 @@ export function Qualification() @{
 		}
 	}, [])
 
-	<VStack gap={2} padding={4} style={{ flexGrow: 1 }}>
+	// The Page is not a flex parent; percentages need an explicit root width.
+	<VStack width="100%" gap={2} padding={4} style={{ flexGrow: 1 }}>
 		<Text id="core20-status">{`Core20 ${scene} case=${layoutCase} revision=${revision} mounted=${mounted} activations=${activations}`}</Text>
 		@if (mounted) {
 			@if (scene === 'layout') {

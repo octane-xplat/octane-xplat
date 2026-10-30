@@ -3745,3 +3745,40 @@ at `research/windows61/core20-run76/packages/core20-76.msix`; reproducible app
 inputs are in `research/windows61/core20-build76-inputs/`. Shared-host runs now
 [reuse one persistent source checkout](../host-artifacts.md#reuse-the-hosts-source-checkout)
 by default, keeping per-run scripts, packages and logs disposable.
+
+### Explicit harness root width: all layout cases pass
+
+Diagnostic MSIX **1.0.0.79**, launch **mvvbyoz1**, passed **251/251 assertions**:
+seven preflight checks and 244 checks across Text, VStack, HStack, Stack, View,
+Center, Section and the maintained shrink regression. This includes the
+driver's prop updates, unmount/remount and resize checks. Cleanup reported no
+errors. The loaded Mason DLL remains published beta.129.
+
+The earlier width failures came from the private host's root sizing. MSIX77
+confirmed the requested percentages reached the engine's style buffer. MSIX78
+then showed the auto-sized root's computed and desired width at 432 DIP while
+WinUI assigned 747 DIP. MSIX79 changed only that root's width to `100%`; all
+component fixtures and assertions remained unchanged. The viewport then shrank
+from 357.5 to 137.5 DIP, and wrapping text grew from 40 to 60 DIP. View and
+Center both recovered their expected 200×60-DIP default frames. This resolves
+the harness setup mismatch without a new engine binary.
+
+The maintained host now supplies the same width through `VStack.width`. The
+[driver guide](../../../tools/windows-qualification/README.md) explains the
+root setup. The diagnostic package reused the existing native build and
+applied retained JavaScript replacements; it is not a fresh source build.
+No core20 component qualification row or issue checkbox advanced. The final
+clean-main frozen install and single packaged qualification run remain open.
+
+Raw inputs, exact driver, UIA/native captures, signed MSIX and assertion
+summary are retained in `research/windows61/core20-run79/`. The original
+expectation-mismatch observation remains unchanged in Silo. The harness
+scenario is passed separately from component qualification.
+
+The completed harness and host-file guidance were rebased and fast-forwarded
+into local main at `7434bfcac`. The required UI/dependent and Windows
+typechecks report 68/72 tasks on both that revision and base `2429f1a4c`, with
+the same 81 diagnostics and no additions or removals. The failing tasks are
+Table, docs, mobile and Windows; the retained comparison lists every baseline
+diagnostic in `research/windows61/core20-rebased-typecheck-comparison.json`.
+Documentation structure and links pass for 165 files.

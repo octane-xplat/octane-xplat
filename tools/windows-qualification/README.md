@@ -4,9 +4,8 @@ This private driver collects UI Automation (UIA) and numeric host-frame evidence
 for the seven layout/text components and the maintained fixed-width shrink
 regression in the Windows core-component plan.
 [Progress and limits](../../.agents/docs/parity/windows-support-progress.md#core-component-harness-first-packaged-uia-run)
-record the current runtime evidence. The first complete diagnostic execution
-passed the shrink case and failed the other seven layout cases. A diagnostic
-result is not a component qualification.
+record the current runtime evidence. The corrected diagnostic execution passed
+all eight cases. A diagnostic result is not a component qualification.
 
 ## Prepare the package
 
@@ -28,6 +27,21 @@ This selects `apps/windows/src/qualification/index.ts` and package identity
 source worktree was dirty when Vite loaded the configuration. NativeScript's
 application-directory output must then be packaged, signed and installed as an
 MSIX. Keep the package version and build source commit with that artifact.
+
+The fixture root requests `100%` width so child percentages have a definite
+containing width. `flexGrow` alone does not establish that width under a
+NativeScript Page, which is not a Mason flex parent. Use the same root setup
+when adding responsive fixtures:
+
+```tsrx
+import { Text, VStack } from '@octane-xplat/ui'
+
+export function ProbeRoot() @{
+  <VStack width="100%">
+    <Text>Root width follows the native page.</Text>
+  </VStack>
+}
+```
 
 ## Collect evidence
 
