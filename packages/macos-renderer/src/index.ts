@@ -4393,24 +4393,26 @@ function outlineSpec(style: PropBag) {
 	if (width == null || width <= 0 || styleName === 'none' || styleName === 'hidden') {
 		return null
 	}
-	// AppKit draws one solid ring; decorative outline styles approximate to it.
-	if (styleName != null && styleName !== 'solid' && styleName !== 'auto') {
-		console.warn(
-			'[macos-css] unsupported outline-style ' + JSON.stringify(styleName) + '; drawing solid',
-		)
-	}
 	return {
 		width,
+		style: styleName === 'auto' || styleName == null ? 'solid' : styleName,
 		color:
-			color != null ? nativeColor(color).CGColor : NSColor.keyboardFocusIndicatorColor?.CGColor,
+			color != null ? nativeColor(color) : NSColor.keyboardFocusIndicatorColor,
 		offset: Number.isFinite(offset) ? offset : 0,
 	}
 }
 
+// `outline`/`outline-*` draws a ring outside the border edge — a layer framing
+// the bounds expanded by offset + width. Solid keeps the CALayer border fast
+// path; dashed/dotted stroke the centered rounded path like uniform-pattern
+// borders; double/groove/ridge/inset/outset paint the same shaded per-side
+// bands borders use, on the expanded box. `none`/`hidden` clear.
 function syncOutline(node: ElementNode) {
 	const view = node.view!
 	node.outlineLayer?.removeFromSuperlayer()
 	node.outlineLayer = null
+	node.outlineShapes = undefined
+	node.outlineMask = undefined
 	if (node.outlineObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
 		node.outlineObserver = null
@@ -4419,23 +4421,85 @@ function syncOutline(node: ElementNode) {
 	if (!spec || !view.layer) {
 		return
 	}
-	view.wantsLayer = true
-	const layer = CALayer.alloc().init()
-	node.outlineLayer = layer
-	layer.backgroundColor = null
-	layer.borderWidth = spec.width
-	layer.borderColor = spec.color
-	view.layer.addSublayer(layer)
-	const resize = () => {
-		const grow = spec.offset + spec.width
-		layer.frame = {
-			origin: { x: -grow, y: -grow },
-			size: {
-				width: Number(view.bounds.size.width) + grow * 2,
-				height: Number(view.bounds.size.height) + grow * 2,
-			},
+	const layers = typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
+	if (!layers && spec.style !== 'solid') {
+		const warned = (node.outlineWarnings ??= new Set<string>())
+		if (!warned.has(spec.style)) {
+			warned.add(spec.style)
+			console.warn('[macos-css] outline layers unavailable; drawing solid')
 		}
-		layer.cornerRadius = Number(view.layer.cornerRadius) + grow
+	}
+	const style = layers ? spec.style : 'solid'
+	if (!['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset'].includes(style)) {
+		const warned = (node.outlineWarnings ??= new Set<string>())
+		if (!warned.has(style)) {
+			warned.add(style)
+			console.warn('[macos-css] unsupported outline-style ' + JSON.stringify(spec.style) + '; drawing solid')
+		}
+	}
+	view.wantsLayer = true
+	const host = CALayer.alloc().init()
+	node.outlineLayer = host
+	host.backgroundColor = null
+	view.layer.addSublayer(host)
+	const outline = spec
+	const resize = () => {
+		const grow = outline.offset + outline.width
+		const w = Math.max(0, Number(view.bounds.size.width))
+		const h = Math.max(0, Number(view.bounds.size.height))
+		const W = w + grow * 2
+		const H = h + grow * 2
+		host.frame = { origin: { x: -grow, y: -grow }, size: { width: W, height: H } }
+		const specBorder = node.borderSpec
+		const scaled = scaleBorderRadii(correctProjectionRadii(view, resolveBorderRadii(specBorder?.radii, w, h), specBorder?.radii), w, h)
+		const outerRadii = Object.fromEntries(BORDER_CORNERS.map((c) => [c, scaled[c] + grow])) as Record<BorderCorner, number>
+		if (style === 'solid' || !BORDER_STYLE_WORDS.has(style)) {
+			host.borderWidth = outline.width
+			host.borderColor = outline.color?.CGColor ?? null
+			host.cornerRadius = Number(view.layer.cornerRadius) + grow
+			return
+		}
+		host.borderWidth = 0
+		host.borderColor = null
+		host.cornerRadius = 0
+		const stroke = borderStrokeStyle(style, outline.width)
+		if (stroke) {
+			const shape = ((node.outlineShapes ??= {}).stroke ??= CAShapeLayer.alloc().init())
+			if (shape.superlayer !== host) host.addSublayer(shape)
+			shape.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
+			shape.fillColor = null
+			shape.strokeColor = outline.color?.CGColor ?? null
+			shape.lineWidth = outline.width
+			shape.lineDashPattern = stroke.pattern.map((v) => NSNumber.numberWithDouble(v))
+			shape.lineDashPhase = 0
+			shape.lineCap = stroke.cap
+			shape.path = borderStrokeCGPath(W, H, outerRadii, outline.width)
+			for (const side of BORDER_SIDES) for (const extra of node.outlineShapes?.[side] ?? []) extra.hidden = true
+			return
+		}
+		// Decorative styles: per-side shaded bands on the expanded box, masked
+		// to the outer rounded outline. Inner band edges stay straight at
+		// rounded corners — the same limit the border bands carry.
+		const mask = (node.outlineMask ??= CAShapeLayer.alloc().init())
+		mask.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
+		mask.path = roundedBoxCGPath(W, H, outerRadii)
+		host.mask = mask
+		if (node.outlineShapes?.stroke) node.outlineShapes.stroke.hidden = true
+		const widths = { top: outline.width, right: outline.width, bottom: outline.width, left: outline.width }
+		for (const side of BORDER_SIDES) {
+			const bands = borderBands(style, side, outline.width)
+			const shapes = ((node.outlineShapes ??= {})[side] ??= [] as any[])
+			for (let i = 0; i < bands.length; i++) {
+				const shape = (shapes[i] ??= CAShapeLayer.alloc().init())
+				if (shape.superlayer !== host) host.addSublayer(shape)
+				shape.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
+				shape.hidden = false
+				shape.strokeColor = null
+				shape.path = borderBandCGPath(borderBandPoints(side, W, H, widths, bands[i].from, bands[i].to))
+				shape.fillColor = bands[i].shade === 'dark' ? darkOutlineColor(outline.color, view)?.CGColor ?? outline.color?.CGColor : outline.color?.CGColor
+			}
+			for (let i = bands.length; i < shapes.length; i++) shapes[i].hidden = true
+		}
 	}
 	resize()
 	view.postsFrameChangedNotifications = true
@@ -4445,6 +4509,13 @@ function syncOutline(node: ElementNode) {
 		null,
 		resize,
 	)
+}
+
+function darkOutlineColor(base: NSColor | null, view: NSView): NSColor | null {
+	const components = base && srgbComponents(base, view.effectiveAppearance)
+	if (!components) return base
+	const dark = darkBorderComponents(components)
+	return NSColor.colorWithSRGBRedGreenBlueAlpha(dark.red, dark.green, dark.blue, dark.alpha) ?? base
 }
 
 // ---- Background layers -----------------------------------------------------
