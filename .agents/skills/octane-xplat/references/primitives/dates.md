@@ -297,7 +297,7 @@ export function ClosingTime() {
 ```
 
 The maintained native-date demo replaces its placeholder; an idle probe mounts
-that same demo. 
+that same demo.
 Native NSDatePicker editing/IME/Tab/VoiceOver, focus/layout, calendar/clock settings,
 actual callback timing and clean installed consumers require separate target qualification. Renderer
 bridge returns update/detach (its ambient signature was previously void). No new

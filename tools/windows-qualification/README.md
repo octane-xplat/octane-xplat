@@ -3,9 +3,9 @@
 This private driver collects UI Automation (UIA) and numeric host-frame evidence
 for the seven layout/text components and the maintained fixed-width shrink
 regression in the Windows core-component plan.
-[Progress and limits](../../.agents/docs/parity/windows-support-progress.md#core-component-harness-first-packaged-uia-run)
-record the current runtime evidence. The corrected diagnostic execution passed
-all eight cases. A diagnostic result is not a component qualification.
+[Qualification host constraints](../../.agents/docs/parity/windows-support-progress.md#qualification-host-constraints)
+explain root sizing, measurement, and evidence boundaries. Current runtime
+qualification lives in Silo; a diagnostic result is not component qualification.
 
 ## Prepare the package
 
