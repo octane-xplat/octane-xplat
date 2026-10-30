@@ -262,3 +262,40 @@ the live Core view tree does. This is experimental support, and the complete
 Field/props, Narrator/visual and consumer matrices remain open. Read the
 [Windows radio boundary](../../../../../docs/platform/windows-setup.md#radio-choices)
 before broadening platform claims.
+
+## Experimental Windows actions
+
+Use the shared action exports. Windows places native Button/HyperlinkButton
+peers over the shared drawing; their Click event owns keyboard, mouse and
+Invoke activation. Do not add another tap listener to the drawing. An explicit
+accessibility label overrides the name collected from the rendered text.
+
+```tsrx
+import { Button, Pressable, Text } from '@octane-xplat/ui'
+
+export function Actions() @{
+  <>
+    <Button clickAction={() => console.log('Saved')}>Save</Button>
+    <Pressable accessibilityLabel="Refresh" onPress={() => console.log('Refreshed')}>
+      <Text>Refresh</Text>
+    </Pressable>
+  </>
+}
+```
+
+Native Link normalizes primitive children into a text host. Keep custom `as`
+or LinkProvider adapters as compiled function components and preserve their
+link semantics; the adapter owns navigation:
+
+```tsrx
+import { Link, type LinkProps } from '@octane-xplat/ui'
+
+export function HelpLink(props: { routerLink: LinkProps['as'] }) @{
+  <Link as={props.routerLink} href="/help">Help</Link>
+}
+```
+
+The
+[Windows action guide](../../../../../docs/platform/windows-setup.md#buttons-and-links)
+shows the injection contract. The packaged checks are bounded x64 evidence;
+the final clean-main core20, full props, Narrator and visual gates remain open.

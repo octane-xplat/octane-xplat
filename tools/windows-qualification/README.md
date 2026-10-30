@@ -1,8 +1,9 @@
-# Windows layout qualification driver
+# Windows component qualification drivers
 
-This private driver collects UI Automation (UIA) and numeric host-frame evidence
+These private drivers collect UI Automation (UIA) and numeric host-frame evidence
 for the seven layout/text components and the maintained fixed-width shrink
-regression in the Windows core-component plan.
+regression, plus native Button, Pressable and Link input in the Windows
+core-component plan.
 [Qualification host constraints](../../.agents/docs/parity/windows-support-progress.md#qualification-host-constraints)
 explain root sizing, measurement, and evidence boundaries. Current runtime
 qualification lives in Silo; a diagnostic result is not component qualification.
@@ -102,5 +103,47 @@ recorded in the preflight checks.
 
 Exit 0 means the driver's current assertions passed. `qualification` remains
 `pending-completion-audit`: review the plan's full acceptance criteria before
-updating a component row in Silo. This driver currently covers layout/text;
-actions, display, collections and navigation require their own OS-input checks.
+updating a component row in Silo. Display, collections, menus and tabs require
+their own OS-input checks.
+
+## Run action checks
+
+Use the same installed qualification package and reservation as above. Run
+`actions.ps1` in a fresh PowerShell process inside the signed-in desktop
+session, using a new output directory:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File .\tools\windows-qualification\actions.ps1 `
+  -ExpectedCommit $sourceCommit `
+  -ExpectedPackageVersion 1.0.0.81 `
+  -OutputDirectory "$runRoot\actions"
+```
+
+The driver first checks all three controls together: Button/Hyperlink roles,
+names, Invoke, peer/drawing frames, the 8-DIP sibling gap and physical Tab
+navigation. It then isolates each control for Enter/Space, mouse and Invoke,
+prop changes, remount and resize. Button and Pressable also reject disabled
+focus, keys, Tab, mouse and Invoke, and update their implicit names from text.
+Link's disabled check is not applicable because its public props have no
+disabled flag. Its injected router component must receive the exact `href`
+once and publish the destination after each input method.
+
+`action-uia.ps1` performs focus and Invoke operations in a bounded MTA process.
+Both helpers verify the owned window/process. Keyboard and mouse use Win32
+input only while that window is foreground. Input is never dispatched through
+fixture commands. Cleanup restores the pointer and window position and stops
+the owned app. Retain the per-operation `uia-actions/` output as well as UIA
+captures, native frames, app events and `result.json`.
+
+Keep exact run counts, package identities and remaining qualification gates
+in Silo. When monitoring live files, use
+[read/write sharing](../../.agents/docs/windows-test-host.md#read-live-diagnostic-files-without-locking-their-writers)
+so observation does not block the writer.
+
+Controller and compiled-leaf regressions run without a Windows desktop:
+
+```sh
+pnpm exec turbo run test:windows --filter=@octane-xplat/ui
+```
+
+Those tests do not establish OS input, layout or UIA behavior.

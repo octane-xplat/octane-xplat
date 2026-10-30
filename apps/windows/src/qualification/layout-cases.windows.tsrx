@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useEffect, useState } from 'octane'
+import { createContext, useContext, useEffect, useState } from 'octane'
 import { knownFolders, File } from '@nativescript/core'
 import { layoutReadout } from './readout.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
@@ -15,6 +15,8 @@ import {
 	Pressable,
 	Link,
 } from '@octane-xplat/ui'
+
+import type { LinkProps } from '@octane-xplat/ui'
 
 declare const __WINDOWS_QUALIFICATION_SOURCE__: { commit: string; dirty: boolean }
 
@@ -44,12 +46,35 @@ const bootId = Date.now().toString(36)
 const record = (event: string, data: Record<string, unknown> = {}) =>
 	console.log('[windows-core20] ' + JSON.stringify({ bootId, event, ...data }))
 
+const NavigationContext = createContext<((href: string) => void) | null>(null)
+
+/** Exercise Link's public router-component injection without opening another app. */
+function QualificationRouteLink(
+	props: Pick<LinkProps, 'href' | 'onPress' | 'children'>,
+): unknown @{
+	const navigate = useContext(NavigationContext)
+
+	<Pressable
+		accessibilityRole="link"
+		onPress={() => {
+			props.onPress?.()
+			navigate?.(props.href)
+		}}
+	>
+		<Text>{props.children}</Text>
+	</Pressable>
+}
+
 export function Qualification() @{
 	const [revision, setRevision] = useState(0)
 	const [mounted, setMounted] = useState(true)
 	const [scene, setScene] = useState('layout')
 	const [layoutCase, setLayoutCase] = useState<(typeof layoutCases)[number]>('text')
 	const [disabled, setDisabled] = useState(false)
+	const [actionCase, setActionCase] = useState('all')
+	const [implicitNames, setImplicitNames] = useState(false)
+	const [routedLink, setRoutedLink] = useState(false)
+	const [destination, setDestination] = useState('/')
 	const [activations, setActivations, getActivations] = useState(0)
 	const activate = (source: string) => {
 		const count = getActivations() + 1
@@ -101,6 +126,20 @@ export function Qualification() @{
 					case 'disabled':
 						setDisabled(command.value === true)
 						break
+					case 'action-case':
+						if (!['all', 'button', 'pressable', 'link'].includes(command.value)) {
+							throw new Error('Unknown action case')
+						}
+
+						setActionCase(command.value)
+						break
+					case 'implicit-names':
+						setImplicitNames(command.value === true)
+						break
+					case 'routed-link':
+						setRoutedLink(command.value === true)
+						setDestination('/')
+						break
 					case 'scene':
 						if (command.value === 'layout' || command.value === 'actions') {
 							setScene(command.value)
@@ -126,8 +165,12 @@ export function Qualification() @{
 	}, [])
 
 	// The Page is not a flex parent; percentages need an explicit root width.
+
 	<VStack width="100%" gap={2} padding={4} style={{ flexGrow: 1 }}>
 		<Text id="core20-status">{`Core20 ${scene} case=${layoutCase} revision=${revision} mounted=${mounted} activations=${activations}`}</Text>
+		@if (scene === 'actions') {
+			<Text id="core20-destination">{`Destination ${destination}`}</Text>
+		}
 		@if (mounted) {
 			@if (scene === 'layout') {
 				<View className="core20-viewport">
@@ -233,23 +276,65 @@ export function Qualification() @{
 					}
 				</View>
 			} @else {
-				<>
-					<Button
-						isDisabled={disabled}
-						accessibilityLabel={`Button ${revision}`}
-						clickAction={() => activate('button')}
-					>
-						Button content
-					</Button>
-					<Pressable
-						disabled={disabled}
-						accessibilityLabel={`Pressable ${revision}`}
-						onPress={() => activate('pressable')}
-					>
-						<Text>Pressable content</Text>
-					</Pressable>
-					<Link href="" onPress={() => activate('link')}>{`Link ${revision}`}</Link>
-				</>
+				@try {
+					<>
+						@if (
+							actionCase === 'all' ||
+							actionCase === 'button'
+						) {
+							<Button
+								id="core20-button"
+								isDisabled={disabled}
+								accessibilityLabel={
+									implicitNames ? undefined : `Button ${revision}`
+								}
+								clickAction={() => activate('button')}
+							>
+								{`Button content ${revision}`}
+							</Button>
+						}
+						@if (
+							actionCase === 'all' ||
+							actionCase === 'pressable'
+						) {
+							<Pressable
+								id="core20-pressable"
+								disabled={disabled}
+								accessibilityLabel={
+									implicitNames ? undefined : `Pressable ${revision}`
+								}
+								onPress={() => activate('pressable')}
+							>
+								<Text>{`Pressable content ${revision}`}</Text>
+							</Pressable>
+						}
+						@if (
+							actionCase === 'all' ||
+							actionCase === 'link'
+						) {
+							<NavigationContext
+								value={(href: string) => {
+									setDestination(href)
+									record('navigation', { href })
+								}}
+							>
+								<Link
+									id="core20-link"
+									as={routedLink ? QualificationRouteLink : undefined}
+									href={routedLink ? '/details' : ''}
+									onPress={() => activate('link')}
+								>{`Link ${revision}`}</Link>
+							</NavigationContext>
+						}
+					</>
+				} @catch (error) {
+					record('render-error', {
+						message:
+							error instanceof Error ? (error.stack ?? error.message) : String(error),
+					})
+
+					<Text>{`Action render error: ${String(error)}`}</Text>
+				}
 			}
 		}
 	</VStack>

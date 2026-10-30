@@ -24,6 +24,11 @@ export function Leaf(props: ViewProps) @{
   They have one content slot. Use a multi-child layout host. Existing imperative
   NativeScript `GridLayout` host construction is separate from the authored
   JSX vocabulary; it does not make `<gridlayout>` a supported JSX tag.
+- **Keep native host tag names literal.** A string-valued variable used as
+  `<Tag />` takes the compiled-function component path and fails at runtime
+  with the pinned compiler. Use literal tags in conditional branches, as in
+  the [native host example and evidence](../../../../docs/toolchain.md#native-host-names-need-literal-jsx-tags).
+  A variable holding a compiled function component remains supported.
 - **`className` must reach intrinsics as a space-joined string** — the
   driver applies it via `String(value)`, so a raw array arrives
   comma-joined ("a,b") and matches nothing. `cx()` from `@octane-xplat/lib` flattens

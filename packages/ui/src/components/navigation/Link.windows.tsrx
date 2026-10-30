@@ -1,0 +1,46 @@
+/** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from '../../internal/layout/style-merge'
+import { Utils } from '@nativescript/core'
+import type { LinkProps } from '../../props'
+import { Pressable } from '../actions/Pressable'
+import { TextSlot } from '../forms/text-slot'
+import { useLinkComponent } from './use-link-component.tsrx'
+
+/**
+ * URL anchor — external/navigation links. For in-app routes use `NavLink`. Import from `@octane-xplat/ui`.
+ * `as` prop or a `LinkProvider` component replaces the default pressable —
+ * the injected component receives `href`/`onPress` and owns navigation.
+ *
+ * @see LinkProps, NavLinkProps.
+ */
+export function Link(props: LinkProps): unknown @{
+	const Injected: any = useLinkComponent(props.as)
+	if (typeof Injected === 'function') {
+		return (
+			<Injected
+				id={props.id}
+				href={props.href}
+				onPress={props.onPress}
+				className={props.className}
+				style={props.style}
+			>
+				{props.children}
+			</Injected>
+		)
+	}
+
+	<Pressable
+		id={props.id}
+		accessibilityRole={props.accessibilityRole ?? 'link'}
+		className={props.className}
+		style={props.style}
+		onPress={() => {
+			props.onPress?.()
+			Utils.openUrl(props.href)
+		}}
+	>
+		<masonview style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}>
+			<TextSlot>{props.children}</TextSlot>
+		</masonview>
+	</Pressable>
+}

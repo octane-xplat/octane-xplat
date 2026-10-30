@@ -666,6 +666,34 @@ The formatter still handles the rest of the file. Remove the directive when
 the compiler accepts the formatted keyed loops; do not remove the loop keys
 or widen component props to hide the generated diagnostic.
 
+## Native host names need literal JSX tags
+
+With Octane 0.16.3's universal renderer, `<Tag />` with a string-valued `Tag`
+compiles as `universalComponent(renderer, Tag, props)`. That path requires a
+compiler-defined function component; a native host name such as `'label'`
+fails with `Universal roots accept only compiler-defined universal components.`
+Typechecking and bundling do not catch this mismatch. The
+[upstream component contract](https://github.com/octanejs/octane/blob/octane%400.16.3/packages/octane/src/universal-core.ts)
+and `packages/ui/tests/windows-pressable.test.mjs` establish the boundary.
+
+Use literal native tags in conditional branches. Variables holding compiled
+function components, including Link's router adapter, remain a separate path.
+
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Caption(props: { compact: boolean; text: string }) @{
+  @if (props.compact) {
+    <label text={props.text} />
+  } @else {
+    <masonview><label text={props.text} /></masonview>
+  }
+}
+```
+
+The compiled Windows leaf regressions preserve this boundary. Keep literal
+native host tags until the compiler/runtime supports string-valued variable
+host tags. Packaged scenario results and artifact identities belong in Silo.
+
 ## UI Heading parser failure in browser compilation
 
 On 2026-10-28, the lightbox repair fixture failed through the normal public UI

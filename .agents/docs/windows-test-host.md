@@ -87,6 +87,25 @@ Keep the host's resource reservation for the entire phase. Configure only the
 helper's registered task. Allow enough time for installation and compilation,
 and verify that owned child processes have stopped before a retry.
 
+## Read live diagnostic files without locking their writers
+
+Use explicit read/write sharing when inspecting a live console or stage file.
+`ReadAllText` opens a reader that can briefly deny the next stage-file write,
+causing the capture to fail even though the app is healthy. Keep observation
+separate from the writer's progress:
+
+```powershell
+$stream = [IO.FileStream]::new($path, [IO.FileMode]::Open, [IO.FileAccess]::Read,
+  ([IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete))
+$reader = [IO.StreamReader]::new($stream, [Text.Encoding]::UTF8, $true)
+try { $contents = $reader.ReadToEnd() }
+finally { $reader.Dispose(); $stream.Dispose() }
+```
+
+The action-driver retry reproduced the restrictive-reader failure and verified
+that this sharing mode permits the same stage write. Driver assertions and
+the installed app were unchanged.
+
 ## Current status
 
 The Windows-specific NativeScript doctor checks, generated WinUI build, and

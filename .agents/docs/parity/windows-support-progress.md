@@ -66,7 +66,7 @@ For percentage-width layout cases, give the private host root an explicit
 content-sized even when WinUI assigns a wider frame, making responsive child
 cases appear broken. Check numeric host frames as well as UIA bounds:
 content-sized accessibility groups do not necessarily describe container frames.
-See the [layout driver guide](../../../tools/windows-qualification/README.md).
+See the [component driver guide](../../../tools/windows-qualification/README.md).
 
 Read a command/event file held open by NativeScript with explicit shared-stream
 access; do not silently ignore sharing exceptions. Bound each external UIA read
@@ -79,3 +79,24 @@ are separate from a fresh source build and final clean-main packaged run.
 Harness/scenario qualification does not advance component or issue-wide gates.
 Use the [shared-host artifact convention](../host-artifacts.md) and reuse the
 host's persistent source checkout while keeping per-run artifacts disposable.
+
+
+## Native action contracts
+
+Use the [Windows action guide](../../../docs/platform/windows-setup.md#buttons-and-links)
+for the shared Button, Pressable and Link surface, and the
+[maintained action driver](../../../tools/windows-qualification/README.md#run-action-checks)
+for keyboard, pointer, Invoke, state/lifecycle and numeric-frame checks. Native
+Click owns activation; do not add a second tap handler to the Mason drawing.
+
+Find the bounded action scenario and exact artifact identities in Silo:
+
+```sh
+silo row get windows_checks scenario:windows-core20-actions
+```
+
+Keep the final clean-main component rows separate from this diagnostic scenario.
+Link has no public disabled prop; injected navigation and external URL launching
+need separate evidence. The Windows-only no-callback Tab-stop guard also needs
+inclusion in the next source build. Source/controller tests do not establish a
+packaged path that has not been run.

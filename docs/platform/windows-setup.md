@@ -52,6 +52,50 @@ Windows UI Automation. This is bounded wrapping evidence. Text updates,
 remount, resizing, glyph parity and Narrator remain unqualified; ARM64 has
 build evidence only.
 
+## Buttons and links
+
+In the configured Windows harness, `Button` and `Pressable` support native
+keyboard focus, Enter/Space, mouse clicks and UI Automation Invoke. This
+example increments the visible count from either action:
+
+```tsrx
+import { useState } from 'octane'
+import { Button, Pressable, Text, VStack } from '@octane-xplat/ui'
+
+export function WindowsActions() @{
+  const [count, setCount, getCount] = useState(0)
+  const activate = () => setCount(getCount() + 1)
+  <VStack width="100%" gap={2}>
+    <Text>{`Activated ${count} times`}</Text>
+    <Button clickAction={activate}>Save</Button>
+    <Pressable accessibilityLabel="Refresh" onPress={activate}>
+      <Text>Refresh</Text>
+    </Pressable>
+  </VStack>
+}
+```
+
+`Link` exposes a native Hyperlink with Invoke, and primitive children supply
+its text. When your app already supplies a compiled router-link component,
+pass it through `as`; that component receives `href` and owns navigation:
+
+```tsrx
+import { Link, type LinkProps } from '@octane-xplat/ui'
+
+export function HelpLink(props: { routerLink: LinkProps['as'] }) @{
+  <Link as={props.routerLink} href="/help">Help</Link>
+}
+```
+
+Bounded packaged x64 OS/UIA checks cover the three actions, including updates,
+remounts, resizing and disabled input for Button
+and Pressable. Link has no public disabled prop; its injected navigation
+callback passed keyboard, mouse and Invoke checks. External URL launching,
+Narrator, visual review, touch/pen, other architectures and the full props
+matrix remain unqualified. The final clean-main core-component run and
+downstream setup remain open. See the
+[action evidence and limits](../../.agents/docs/parity/windows-support-progress.md#native-action-contracts).
+
 ## Media-query candidate
 
 The repository has an experimental Windows `useMediaQuery` leaf for DIP
