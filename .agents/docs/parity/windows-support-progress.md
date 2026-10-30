@@ -3599,8 +3599,9 @@ unapproved Sentry build-script policy, so it is not fresh-install evidence.
 
 A fresh detached Windows worktree at local main
 `a57b1b8729bb976a851569c779f5efacd782fb79`, with no `node_modules`, passed
-`pnpm install --frozen-lockfile` on windy: **exit 0**, **37/37 postinstall
-Turbo tasks**, 10m58.5s total. No dependency-check override or skipped lifecycle
+`pnpm install --frozen-lockfile` on windy: **exit 0**, **78/78 type-generation
+tasks and 37/37 app-generation tasks**, 10m58.5s total. Both postinstall Turbo
+invocations completed. No dependency-check override or skipped lifecycle
 scripts were used. The checkout remained clean. This satisfies phase 0a;
 it does not qualify a component or prove an MSIX build.
 
