@@ -272,12 +272,14 @@ const { outlineSpec } = runSlice(
 test('outline shorthand and longhands resolve to a ring spec', () => {
 	assert.deepEqual(plain(outlineSpec({ outline: '1.5px solid #ff0000' })), {
 		width: 1.5,
-		color: 'cg:#ff0000',
+		style: 'solid',
+		color: { CGColor: 'cg:#ff0000' },
 		offset: 0,
 	})
 	assert.deepEqual(plain(outlineSpec({ outlineWidth: 2, outlineOffset: -1 })), {
 		width: 2,
-		color: 'cg:focus',
+		style: 'solid',
+		color: { CGColor: 'cg:focus' },
 		offset: -1,
 	})
 	assert.equal(outlineSpec({ outline: 'none' }), null)
