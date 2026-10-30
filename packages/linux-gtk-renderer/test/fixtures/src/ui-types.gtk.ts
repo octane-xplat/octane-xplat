@@ -326,3 +326,29 @@ type ContextRenderPropsContract = Assert<Equal<GtkUI.ContextRenderProps, NativeU
 type FixedRenderPropsContract = Assert<Equal<GtkUI.FixedRenderProps, NativeUI.FixedRenderProps>>
 type UsePopoverOptionsContract = Assert<Equal<GtkUI.UsePopoverOptions, NativeUI.UsePopoverOptions>>
 type UsePopoverReturnContract = Assert<Equal<GtkUI.UsePopoverReturn, NativeUI.UsePopoverReturn>>
+
+type OverlayPropsContract = Assert<Equal<GtkUI.OverlayProps, NativeUI.OverlayProps>>
+type DialogPropsContract = Assert<Equal<GtkUI.DialogProps, NativeUI.DialogProps>>
+type DialogHeaderPropsContract = Assert<
+	Equal<GtkUI.DialogHeaderProps, NativeUI.DialogHeaderProps>
+>
+type DialogOptionsContract = Assert<Equal<GtkUI.DialogOptions, NativeUI.DialogOptions>>
+type ImperativeDialogReturnContract = Assert<
+	Equal<GtkUI.ImperativeDialogReturn, NativeUI.ImperativeDialogReturn>
+>
+type AlertDialogPropsContract = Assert<
+	Equal<GtkUI.AlertDialogProps, NativeUI.AlertDialogProps>
+>
+type ImperativeAlertDialogReturnContract = Assert<
+	Equal<GtkUI.ImperativeAlertDialogReturn, NativeUI.ImperativeAlertDialogReturn>
+>
+type FocusScopePropsContract = Assert<Equal<GtkUI.FocusScopeProps, NativeUI.FocusScopeProps>>
+type FocusScopeCapabilitiesContract = Assert<
+	Equal<GtkUI.FocusScopeCapabilities, NativeUI.FocusScopeCapabilities>
+>
+type LayerProviderPropsContract = Assert<
+	Equal<GtkUI.LayerProviderProps, NativeUI.LayerProviderProps>
+>
+type LayerContextValueContract = Assert<
+	Equal<GtkUI.LayerContextValue, NativeUI.LayerContextValue>
+>

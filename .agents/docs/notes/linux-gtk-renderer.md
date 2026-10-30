@@ -2993,3 +2993,35 @@ Shift+F10 are web-only (shared native-desktop gap, also on macOS).
 
 Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only; no Wayland,
 visual/pixel, IME or AT-client evidence.
+
+## GTK overlay host qualification
+
+`ui-overlays.test.mjs` drives `fixtures/src/ui-overlays-main.ts`: 23 checks,
+all passing, real X11 input. The fixture covers the in-window overlay
+contract — uncontrolled `defaultOpen` mount, controlled `isOpen` toggle,
+modal scrim claiming outside presses (background counter stays 0) and
+dismissing when allowed, Escape closing only the top layer, imperative
+`useImperativeDialog`/`useImperativeAlertDialog` show+resolve through
+`{dialog.element}`, `AlertDialog` declarative action resolution,
+`LayerContext`/`useLayerContext`, `FocusScope` mount, and teardown
+(overlay layers removed, chrome refcount 0, `can_focus`/`can_target`
+restored, bridge cleared on last root dispose).
+
+Renderer additions: `createGtkContainer` wraps each root in a
+renderer-owned `Gtk.Overlay` (content in the main child — the
+RootLayout-equivalent); `overlay-host.ts` `createOverlayLayer` returns
+`{target, setVisible, dispose}` with modal scrim + lower-layer
+`can_focus`/`can_target` suppression + capture/restore focus; the
+`__octaneGtkHost` bridge exposes `createOverlayLayer` + `installKeyMonitor`
+(ui never imports the renderer). Escape routing: `layer-keys.gtk.ts`
+registers a sink on an eager window-level key controller — binding a
+host-level controller fails because modal suppression can leave nothing
+inside the host focused, so events target the window root itself.
+
+Leaves: `Overlay.gtk.tsrx`, `Dialog.gtk.tsrx`, `layer-provider.gtk.tsrx`,
+`FocusScope.gtk.tsrx`, `layer-keys.gtk.ts`. Root teardown disposes layer
+handles, detaches the overlay (host empties exactly as before), and clears
+the bridge after the last root.
+
+Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only; no Wayland,
+visual/pixel, IME or AT-client evidence.

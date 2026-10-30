@@ -508,3 +508,24 @@ export type {
 	UsePopoverOptions,
 	UsePopoverReturn,
 } from './props'
+
+export { Overlay } from './Overlay'
+export { Dialog, DialogHeader } from './Dialog'
+export { useImperativeDialog } from './use-imperative-dialog'
+export { AlertDialog } from './AlertDialog'
+export { useImperativeAlertDialog } from './use-imperative-alert-dialog'
+export { FocusScope, getFocusScopeCapabilities } from './FocusScope'
+export { LayerProvider, LayerContext, useLayerContext } from './layer-provider'
+export type {
+	OverlayProps,
+	DialogProps,
+	DialogHeaderProps,
+	DialogOptions,
+	ImperativeDialogReturn,
+	AlertDialogProps,
+	ImperativeAlertDialogReturn,
+	FocusScopeProps,
+	FocusScopeCapabilities,
+	LayerProviderProps,
+	LayerContextValue,
+} from './props'

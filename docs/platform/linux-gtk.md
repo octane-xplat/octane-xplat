@@ -100,7 +100,11 @@ List, ListItem, Toolbar, Step, Stepper, Pagination, FieldLabel,
 FieldStatus, images (Image, Thumbnail, thumbHashUri) and the Avatar family
 (Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, User), menus
 (DropdownMenu, ContextMenu, MoreMenu, DropdownMenuContext,
-useDropdownMenuContext) —
+useDropdownMenuContext), anchored layers (Breadcrumbs, BreadcrumbItem,
+HoverCard, useHoverCard, usePopover, useLayer), and in-window overlays
+(Overlay, Dialog, DialogHeader, AlertDialog, useImperativeDialog,
+useImperativeAlertDialog, FocusScope, getFocusScopeCapabilities,
+LayerProvider, LayerContext, useLayerContext) —
 behave identically to native; slot-bearing hooks (useCalendarDays,
 useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
 are not yet exposed.
@@ -1050,6 +1054,11 @@ it works from any directory without a source checkout, Node, or pnpm.
   features of the WebKitGTK host, and they land with runtime qualification.
 - No device services (clipboard, secure storage, notifications, files) —
   the GTK host mounts widgets only.
+- `FocusScope` reports all capabilities `false` via
+  `getFocusScopeCapabilities()` — per-scope containment is not qualified yet;
+  the overlay host's modal suppression carries the modal-input contract.
+- `presentation="bottom-sheet"` throws until the BottomSheet slice; toast,
+  drawer, lightbox and command-palette hosts land with their own slices.
 - Broad pointer/keyboard coverage, Wayland, assistive technology, visual parity
   and the complete shared UI remain unqualified. Primitive checks establish
   only the named Mason allocations and X11 pointer behavior; counter and
@@ -1162,6 +1171,39 @@ Content keeps its Octane context and updates while open. `placement` picks a
 side, `alignment` lines it up, and `offset` takes a number or px string.
 GTK flips sides and clamps to the window when the popup would not fit.
 Pointer and keyboard dispatch stay with the top layer when popovers nest.
+
+## Dialogs and overlays
+
+`Dialog`, `AlertDialog`, `Overlay` and the imperative hooks render in an
+in-window layer above the root content — the GTK equivalent of the native
+`RootLayout` host. A modal dialog dims the background, claims outside
+presses, captures focus on open and restores it on close, and Escape
+closes only the topmost layer. Imperative `useImperativeDialog` /
+`useImperativeAlertDialog` mount content without a declaring node; the
+shared layer stack keeps dialogs, popovers and menus ordered.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { AlertDialog, Button, Dialog, DialogHeader, Text, useImperativeDialog } from '@octane-xplat/ui'
+
+export function Flow() {
+  const [open, setOpen] = useState(false)
+  const confirm = useImperativeDialog()
+  return (
+    <>
+      <Button label="Edit" clickAction={() => setOpen(true)} />
+      <Dialog isOpen={open} onOpenChange={setOpen}>
+        <DialogHeader title="Edit profile" />
+        <Text>Dialog content portals above the window.</Text>
+      </Dialog>
+      <Button label="Delete" clickAction={() =>
+        confirm.show(<AlertDialog isOpen title="Delete item?" actionLabel="Delete" onAction={() => confirm.hide()} />)} />
+      {confirm.element}
+    </>
+  )
+}
+```
 
 ## Choose one or many options
 

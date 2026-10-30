@@ -44,6 +44,7 @@ import { physicalView } from './physical-view.js'
 import { makeTextView, takeTextViewControl, type TextViewControl } from './text-view.js'
 import { bindPicture } from './picture.js'
 import { popoverChromeUsers } from './popover-instance.js'
+import { bindOverlayHost } from './overlay-host.js'
 import { bindPublicInstance } from './public-instance.js'
 
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
@@ -173,6 +174,14 @@ export interface GtkContainer {
 	/** The GTK widget the tree mounts into — a container (Gtk.Box, Gtk.Fixed)
 	 *  or the window's content widget. */
 	host: GtkView
+	/** The renderer-owned `Gtk.Overlay` inside `host` — overlay layers stack
+	 *  above `contentHost` (the root's render target). */
+	overlay?: any
+	contentHost?: GtkView
+	overlayLayers?: Set<any>
+	overlayLayerHandles?: Set<any>
+	layerKeySink?: ((event: any) => void) | null
+	layerKeyController?: any
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
 	root: GtkRoot | null
@@ -1363,6 +1372,24 @@ function wireContainerWindow(container: GtkContainer) {
 		}
 
 		return
+	}
+	// The window-level Escape sink for the shared layer stack. The window
+	// root is always in the key propagation path — when modal suppression
+	// leaves nothing inside the host focused, events target the root itself
+	// and a host-level controller would never fire. Bound eagerly so the
+	// controller is part of the root's baseline, not a per-layer add-on.
+	if (!container.layerKeyController) {
+		const keys = new Gtk.EventControllerKey()
+		keys.connect('key-pressed', (_controller: any, keyval: number) => {
+			if (keyval !== Gdk.KEY_Escape) { return false }
+			const sink = container.layerKeySink
+			if (!sink) { return false }
+			let prevented = false
+			sink({ key: 'Escape', isComposing: false, preventDefault: () => { prevented = true } })
+			return prevented
+		})
+		root.add_controller(keys)
+		container.layerKeyController = keys
 	}
 	const ids: number[] = []
 	for (const signal of [
@@ -2711,7 +2738,7 @@ function hostViewOf(container: GtkContainer, parent: ElementNode | null): GtkVie
 	while (cur !== null && cur.view === null && !cur.portalHost) {
 		cur = cur.parent
 	}
-	return cur?.portalHost ?? cur?.view ?? container.host
+	return cur?.portalHost ?? cur?.view ?? container.contentHost ?? container.host
 }
 
 /** Flattened view position of `node` within its effective parent: count of
@@ -4102,8 +4129,23 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 }
 
 export function createGtkContainer(host: GtkView): GtkContainer {
+	// A renderer-owned Gtk.Overlay inside the host — the RootLayout
+	// equivalent. The root content mounts into its main child; overlay layers
+	// (dialogs, sheets, toasts) stack above it via `add_overlay`.
+	const overlay = new Gtk.Overlay()
+	const contentHost = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+	overlay.set_child(contentHost)
+	// Attach the overlay to whatever widget the caller handed in — Box
+	// `append`, Fixed `put`, Grid `attach`, or a content-view `set_child`.
+	if (host instanceof Gtk.Box) { host.append(overlay) }
+	else if (host instanceof Gtk.Fixed) { host.put(overlay, 0, 0) }
+	else if (host instanceof Gtk.Grid) { host.attach(overlay, 0, 0, 1, 1) }
+	else { host.set_child?.(overlay) }
 	const container: GtkContainer = {
 		host,
+		overlay,
+		contentHost,
+		overlayLayers: new Set(),
 		nodes: new Map(),
 		children: [],
 		root: null,
@@ -4113,6 +4155,34 @@ export function createGtkContainer(host: GtkView): GtkContainer {
 		popoverChromeUsers: () => popoverChromeUsers(host.get_display()),
 	}
 	liveGtkContainers.add(container)
+	// The imperative overlay bridge — `ui` resolves `globalThis.__octaneGtkHost`
+	// instead of importing the renderer (mirrors macOS `appKitHost()`); it
+	// targets the most recently presented live root.
+	// `contentHost` is the raw Gtk.Box the bridge layers from — it is not a
+	// public-instance view, so the overlay factory is bound on it directly.
+	bindOverlayHost(contentHost, container)
+	;(globalThis as any).__octaneGtkHost = {
+		createOverlayLayer: (options: any) => {
+			const last = [...liveGtkContainers].at(-1)
+			const layer = last?.contentHost?.createOverlayLayer?.(options)
+			if (!layer) {
+				throw new Error('linux-gtk overlay bridge: no live root with an overlay host.')
+			}
+			return layer
+		},
+		// Window-level Escape dispatch for the shared layer stack — ui's
+		// `layer-keys.gtk` installs one monitor that routes key events through
+		// `dispatchLayerKey` so the topmost overlay/dialog layer handles them
+		// (popover sessions keep their own popup-events path).
+		installKeyMonitor: (handler: (event: any) => void) => {
+			// The eager window controller (wired per root) forwards Escape to
+			// the registered sink; registering swaps the handler only.
+			container.layerKeySink = handler
+			return () => {
+				if (container.layerKeySink === handler) { container.layerKeySink = null }
+			}
+		},
+	}
 	// Gtk.Settings exists only after Gtk.init — the first container is the
 	// earliest point appearance watches can connect.
 	observeGtkSettings()
@@ -4141,6 +4211,23 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
 		...options,
 	}) as GtkRoot
 	container.root = root
+	// Root teardown also releases the renderer-owned overlay host: live
+	// layers are disposed, the Gtk.Overlay is detached so the caller's host
+	// empties exactly as before, and the imperative bridge is cleared once
+	// the last root goes away.
+	const universalUnmount = root.unmount.bind(root)
+	;(root as any).unmount = () => {
+		universalUnmount()
+		for (const layer of Array.from(container.overlayLayerHandles ?? [])) { layer.dispose() }
+		const overlay = container.overlay
+		if (overlay) {
+			const parent = overlay.get_parent?.()
+			if (parent === host && (host instanceof Gtk.Box || host instanceof Gtk.Fixed || host instanceof Gtk.Grid)) { host.remove(overlay) }
+			else if (parent === host) { host.set_child?.(null) }
+		}
+		liveGtkContainers.delete(container)
+		if (liveGtkContainers.size === 0) { delete (globalThis as any).__octaneGtkHost }
+	}
 	return { root, container }
 }
 

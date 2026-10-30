@@ -1387,3 +1387,33 @@ it) and `MoreMenu.gtk.tsrx` (the same minus the BottomSheet branch).
 `keyboard-overlay-host.gtk.ts` is an honest inert stub — X11 has no
 software-keyboard overlay. ContextMenu opens on long-press like the shared
 native leaf — right-click/Menu-key/Shift+F10 are web-only.
+
+### In-window overlay host and dialogs
+
+`Overlay`, `Dialog`, `DialogHeader`, `AlertDialog`, `useImperativeDialog`,
+`useImperativeAlertDialog`, `FocusScope`, `getFocusScopeCapabilities`,
+`LayerProvider`, `LayerContext` and `useLayerContext` are now public GTK
+exports (11 types beside). Availability is 209 values and 281 types.
+
+Every GTK root gains a renderer-owned `Gtk.Overlay` (the in-window
+`RootLayout` equivalent); `view.createOverlayLayer` returns
+`{target, setVisible, dispose}` — a full-size `Gtk.Box` portal target with
+a modal scrim, lower-layer `can_focus`/`can_target` suppression, and
+capture/restore focus. The `__octaneGtkHost` bridge mirrors `appKitHost()`
+for imperative services with no declaring node. Escape routes through an
+eager window-level key controller into `layer-stack` via
+`layer-keys.gtk.ts` — a host-level controller never sees keys when modal
+suppression leaves nothing inside the host focused, so the sink binds on
+the window root itself.
+
+`ui-overlays.test.mjs` runs 23 checks with real X11 input: controlled and
+`defaultOpen` dialogs, scrim claiming/dismiss, topmost-layer Escape,
+imperative show+resolve, `AlertDialog` action resolution, `LayerContext`
+values, `FocusScope` mount and full teardown (overlay children removed,
+`can_focus`/`can_target` restored, bridge cleared). Root teardown detaches
+the overlay so the host empties exactly as before.
+
+Leaves: `Overlay.gtk.tsrx`, `Dialog.gtk.tsrx`, `layer-provider.gtk.tsrx`,
+`FocusScope.gtk.tsrx`, `layer-keys.gtk.ts`. `presentation="bottom-sheet"`
+still throws (slice D2); `NavigationMenu` remains deferred to slice G.
+Limits: X11/Xvfb only — no Wayland, visual/pixel, IME or AT evidence.
