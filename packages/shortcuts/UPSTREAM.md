@@ -3,7 +3,6 @@
 `src/engine/`, `tests/runtime.web.test.ts`, and `tests/presets.test.ts` derive from
 [alloc/powerkeys](https://github.com/alloc/powerkeys) 0.2.5, examined at
 [`18ee1fd0`](https://github.com/alloc/powerkeys/tree/18ee1fd0eeee5e4430b193a55e93247d7698d758).
-The original MIT license is preserved in [POWERKEYS-LICENSE](POWERKEYS-LICENSE).
 
 Powerkeys supplies the binding parser, scope and conflict ordering, sequence
 machine, expression evaluation, context, binding sets, recording, diagnostics,
