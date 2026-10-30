@@ -68,6 +68,7 @@
 		"build": "vite build",
 		"prepack": "pnpm build",
 		"test": "node --test --test-concurrency=2 test/*.test.mjs test/*.test.ts",
+		"test:native-runtime": "node --test test/vite-native-runtime.test.mjs",
 		"test:markdown": "node --test test/markdown-rich.test.ts",
 		"test:css-platform": "node --test test/css-platform.test.mjs",
 		"test:updates": "node --test test/updates.test.mjs",

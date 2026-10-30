@@ -166,6 +166,56 @@ export { View, Style }
 			},
 		)
 
+		await t.test('Windows resolves renderer Mason imports through the app engine', async () => {
+			const full = '@octane-xplat/nativescript-masonkit'
+			makePackage(full, { version: '0.0.0', main: 'index' }, '')
+			const directory = join(root, 'node_modules', full)
+			writeFileSync(join(directory, 'index.windows.js'), "export const View = 'full-windows'")
+			writeFileSync(join(directory, 'style.js'), "export const Style = 'full-style'")
+			writeFileSync(
+				join(root, 'package.json'),
+				JSON.stringify({ name: 'windows-app', dependencies: { [full]: 'file:./full.tgz' } }),
+			)
+			// A pnpm-isolated renderer cannot walk up to the consuming app's engine.
+			const isolated = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-isolated-renderer-')))
+			try {
+				const entry = join(isolated, 'driver.js')
+				writeFileSync(
+					entry,
+					`import { View } from '${full}'
+import { Style } from '${full}/style'
+export { View, Style }`,
+				)
+				assert.throws(() => createRequire(entry).resolve(`${full}/style`), {
+					code: 'MODULE_NOT_FOUND',
+				})
+				process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
+				const config = await xplatNative('production')
+				const { build } = await import('vite')
+				const result = await build({
+					...config,
+					configFile: false,
+					logLevel: 'silent',
+					build: {
+						...config.build,
+						write: false,
+						minify: false,
+						lib: { entry, formats: ['es'] },
+					},
+				})
+				const code = [result]
+					.flat()
+					.flatMap((bundle) => bundle.output)
+					.filter((chunk) => chunk.type === 'chunk')
+					.map((chunk) => chunk.code)
+					.join('\n')
+				assert.ok(code.includes('full-windows'))
+				assert.ok(code.includes('full-style'))
+			} finally {
+				rmSync(isolated, { recursive: true, force: true })
+			}
+		})
+
 		await t.test(
 			'Windows conditions select the desktop UI root before native mobile exports',
 			async () => {

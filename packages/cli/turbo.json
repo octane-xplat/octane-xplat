@@ -6,6 +6,10 @@
 			"dependsOn": [],
 			"outputs": []
 		},
+		"test:native-runtime": {
+			"dependsOn": ["build"],
+			"outputs": []
+		},
 		"test:css-platform": {
 			"dependsOn": ["build"],
 			"outputs": []

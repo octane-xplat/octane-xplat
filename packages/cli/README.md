@@ -352,11 +352,13 @@ import { xplatNative } from '@octane-xplat/cli/vite'
 export default defineConfig(({ mode }) => xplatNative(mode))
 ```
 
-When the app explicitly declares the Mason core package, this same
-preset resolves the canonical renderer patch's MasonKit imports to that app's
-core installation, including the style subpath. Keep the canonical renderer
-patch; no edited renderer copy is needed. Core and full MasonKit cannot share
-an app. This opt-in applies to iOS/Android; it does not change starter defaults.
+The preset resolves the canonical renderer patch's MasonKit imports through
+the app's declared layout engine, including the style subpath: Mason core on
+iOS/Android, or full MasonKit in the repository's experimental Windows harness.
+This also works with pnpm's isolated linker. Keep the canonical renderer patch;
+no edited renderer copy is needed. Core and full MasonKit cannot share an app.
+See [Windows support status](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md)
+before choosing Windows; a downstream Windows setup is not documented yet.
 
 ```ts
 // With the core dependency shown under Compatible versions:

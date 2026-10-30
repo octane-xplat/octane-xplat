@@ -984,14 +984,14 @@ export async function xplatNative(env, opts = {}) {
 				alias: [
 					{ find: /^octane$/, replacement: 'octane/universal/native' },
 					// The canonical renderer patch keeps full MasonKit imports.
-					// On mobile they always resolve to the app's core
-					// installation, including /style, under pnpm's isolated
-					// dependency layout.
-					...(engine === masonCorePackage
+					// Resolve them through the app's selected engine, including
+					// /style: an isolated renderer cannot resolve the app's core
+					// or Windows full-kit installation through its own ancestors.
+					...(declared[engine]
 						? [
 								{
 									find: /^@octane-xplat\/nativescript-masonkit(?=\/|$)/,
-									replacement: dirname(appRequire.resolve(`${masonCorePackage}/package.json`)),
+									replacement: dirname(appRequire.resolve(`${engine}/package.json`)),
 								},
 							]
 						: []),
