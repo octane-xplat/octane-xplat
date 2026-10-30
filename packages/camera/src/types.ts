@@ -414,7 +414,10 @@ export interface CameraSession {
 	 *  default. */
 	focusAtPoint(point: CameraPreviewPoint): void
 	/** Replaces configuration while idle. Validates against current
-	 *  capabilities and rejects with `invalidState` during an attempt. */
+	 *  capabilities and rejects with `invalidState` during an attempt,
+	 *  including one admitted while capability discovery was pending.
+	 *  Camera changes during recording are unsupported; rejection leaves
+	 *  the take running and does not request stop. */
 	configure(config: Partial<CameraSessionConfig>): Promise<void>
 	/** Admits one capture attempt. Throws `CameraCaptureError` before
 	 *  admission for invalid arguments, busy, invalid state, or

@@ -182,6 +182,22 @@ afterEach(() => {
 })
 
 describe('android adapter onReady admission', () => {
+	it('does not rebind the native source when auto-recording overtakes configure', async () => {
+		const { session, bridge, takes, events, detach } = await attachReadySession()
+		const configuring = session.configure({ audio: true })
+		bridge.readyValue = true
+		bridge.emit('ready', 'true')
+		expect(takes).toHaveLength(1)
+		await expect(configuring).rejects.toMatchObject({ kind: 'invalidState' })
+		expect(bridge.attachArgs).toHaveLength(1)
+		expect(bridge.stop).not.toHaveBeenCalled()
+		expect(events.filter((event) => event.type === 'finished')).toHaveLength(0)
+		settleTake(bridge, clip)
+		await expect(takes[0].completion).resolves.toMatchObject({ kind: 'clip' })
+		detach()
+		await session.dispose()
+	})
+
 	it('withholds onReady until the availability event lands, then admits recording', async () => {
 		const { session, bridge, takes, errors, detach } = await attachReadySession()
 		expect(bridge.attachArgs).toHaveLength(1)

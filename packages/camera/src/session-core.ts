@@ -381,7 +381,7 @@ export class SharedCameraSession implements CameraSession {
 		})
 	}
 
-	async configure(next: Partial<CameraSessionConfig>): Promise<void> {
+	private assertConfigurable() {
 		if (this.disposed || this.disposeRequested) {
 			throw issue('invalidState', 'configure', 'CameraSession is disposed')
 		}
@@ -389,9 +389,16 @@ export class SharedCameraSession implements CameraSession {
 		if (this.state !== 'idle') {
 			throw issue('invalidState', 'configure', `CameraSession cannot configure while ${this.state}`)
 		}
+	}
 
+	async configure(next: Partial<CameraSessionConfig>): Promise<void> {
+		this.assertConfigurable()
 		const merged: CameraSessionConfig = { ...this.config, ...next }
 		const capabilities = await this.capabilities()
+		// Preview readiness can admit auto-recording (or the owner can
+		// dispose) while capability discovery is pending. Never reconfigure
+		// that live attempt using an earlier idle-state observation.
+		this.assertConfigurable()
 		this.validateCameraSelection(merged.camera, capabilities)
 		this.config = merged
 		this.backend.configure?.(merged)

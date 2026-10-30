@@ -17,6 +17,23 @@ import { Avatar } from '@octane-xplat/ui'
 export function Person() {
 	return <Avatar name="Ada Lovelace" size="lg" />
 }
+
+```
+
+## Camera selection and recording
+
+Keep camera selection idle-only, including for apps that auto-record from
+preview readiness. Do not remove the recording guard, replace the preview
+session or stop/restart the take to imitate a live flip. No current adapter
+exports same-take switching. Await configuration before arming recording and
+persist selection only after success. See the [consumer guide](../../../../../docs/app/movie-capture.md#camera-selection-and-orientation)
+and [recorder investigation](../../../../docs/camera-recording-switch.md)
+when assessing a live-switch implementation.
+
+```ts
+import { createCameraSession } from '@octane-xplat/camera'
+const session = createCameraSession({ camera: 'back' })
+await session.configure({ camera: 'front' }) // Before enabling auto-record.
 ```
 
 ## Native macOS images

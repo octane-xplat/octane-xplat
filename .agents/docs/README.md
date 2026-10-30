@@ -30,6 +30,8 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 - [Local versioned docs retrieval](docs-retrieval.md) — search/version boundaries,
   model loading constraints, and host verification.
+- [Camera changes during a movie take](camera-recording-switch.md) — native
+  switching constraints, Expo prior art, and auto-record consumer integration.
 
 - [Docs UI and host boundaries](docs-site.md) — shared presentation components
   and the remaining browser integrations.

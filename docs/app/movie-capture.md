@@ -257,6 +257,28 @@ if (capabilities.output.destinationFileUrl) {
 
 ## Camera selection and orientation
 
+Camera selection is idle-only on every target. Changing cameras during a take
+is unsupported. A configuration rejected with `invalidState` leaves the take
+running; it does not request stop or create a new clip. Choose the camera before
+arming automatic recording. Keep a selection control disabled while record
+admission, recording, saving, or another selection is pending. The handler
+should also check the current session state and report configuration errors.
+
+```ts
+// Continue with the session created above. Call before arming auto-record.
+async function chooseFrontCamera() {
+	if (session.snapshot().state !== 'idle') {
+		return
+	}
+	try {
+		await session.configure({ camera: 'front' })
+		// Persist the choice only after configuration succeeds.
+	} catch (error) {
+		console.error('Could not select the front camera', error)
+	}
+}
+```
+
 Use capability-listed camera IDs when selecting a particular device. Browser
 front/back requests use exact facing constraints and fail when the source
 cannot satisfy them; an ordinary webcam is selected with `default` or its ID.
