@@ -3654,3 +3654,21 @@ The maintained explicit-width shrink fixture is commit `0ae78ad30`: six web
 assertions pass, including two 85-DIP children meeting inside a 170-DIP row.
 Its native execution remains pending. No public starter or app-building recipe
 has changed; this work adds private qualification coverage.
+
+The next local revision prepares a reusable driver in
+`tools/windows-qualification/layouts.ps1`. It binds collected evidence to the
+bundle's embedded commit/dirty state, installed MSIX version and loaded Mason
+DLL hash. Its layout cases are isolated; the shrink case mounts the maintained
+`view-shrinking-row` fixture directly. The driver and command-path correction
+remain unverified on Windows and uncommitted pending that execution.
+
+The latest Windows-program check reports 37/38 tasks and the same 46 baseline
+diagnostics, with no additions. Documentation structure/links pass for 165
+files; doc examples retain the two existing macOS renderer README failures,
+and recipe-check output is byte-identical to the adoption checkpoint.
+Source hashes and comparisons are in
+`research/windows61/core20-{offline-preparation.json,maintained-shrink-typecheck-comparison.json}`.
+Windy answers a Tailscale transport ping, while SSH port 22 times out over both
+tailnet and direct LAN routes. Restoring SSH access is required for the pending
+Windows run; no component's qualification state has advanced from this local
+preparation.
