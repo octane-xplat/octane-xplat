@@ -1,5 +1,7 @@
 import { expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { compile } from 'octane/compiler'
 import { createAppKitLandmarks } from './landmark-state.macos'
 function setup() {
@@ -81,7 +83,7 @@ it('native focus rejection can fall through and focus callbacks cannot recursive
 })
 for (const hmr of [false, true]) {
 	it(`landmark hook compiles for the universal AppKit renderer with HMR ${hmr}`, () => {
-		const filename = 'use-landmark.macos.tsrx', source = readFileSync(new URL('./use-landmark.macos.tsrx', import.meta.url), 'utf8')
+		const filename = 'use-landmark.macos.tsrx', source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), filename), 'utf8')
 		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-renderer', target: 'universal', server: 'unsupported', text: 'host' } })
 	})
 }
