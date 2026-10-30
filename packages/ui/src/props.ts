@@ -5939,8 +5939,8 @@ export type RouterRootContext<Contracts> =
 		: object
 
 type RouterContextOptions<Context extends object> = {} extends Context
-	? { context?: Context | (() => Context | Promise<Context>) }
-	: { context: Context | (() => Context | Promise<Context>) }
+	? { /** Request context — optional when the catalog needs none. */ context?: Context | (() => Context | Promise<Context>) }
+	: { /** Request context — required by this catalog's contracts. */ context: Context | (() => Context | Promise<Context>) }
 
 /** Inferred match union. A route identity narrows params, search and loader data
  * together; callers cannot select arbitrary data with a generic assertion. */
@@ -6434,6 +6434,7 @@ export interface RouterInstance<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > extends RouterNavigator<Contracts, Stacks, Transitions> {
+	/** Navigator scoped to one configured stack. */
 	forStack(stack: Stacks): RouterNavigator<Contracts, Stacks, Transitions>
 	/** Runtime layers do not widen this instance's compile-time destination union.
 	 * Reusing an id replaces that contribution; an older disposer stays inert. */
@@ -14929,7 +14930,10 @@ type PowerSearchFieldFilter<D extends FieldDefinition> = D extends {
 											/** String-list operand for the field/operator pair. */
 											readonly value: FilterValueStringList
 										}
-									: never) & { readonly isReadOnly?: boolean }
+									: never) & {
+			/** Blocks editing of the committed filter. */
+			readonly isReadOnly?: boolean
+	  }
 	: never
 
 /** The filter union a schema accepts — pass the `config` from
