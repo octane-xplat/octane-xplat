@@ -177,7 +177,8 @@ allowBuilds:
   '@nativescript/firebase-analytics': true
   # core-js's postinstall only prints a funding banner.
   core-js: false
-  '@sentry/cli': set this to true or false
+  # Sentry CLI resolves its platform optional binary; skip its fallback CDN download.
+  '@sentry/cli': false
 # Canonical copies live in packages/cli/patches/ — manifest.json there carries
 # why/dropWhen per entry and feeds `xplat patches apply`. Regenerate a patch with `pnpm
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`

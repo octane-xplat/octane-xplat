@@ -70,6 +70,19 @@ packageExtensions:
       glob: 10.5.0
 ```
 
+Sentry CLI 3.8.2 resolves its binary from the matching optional platform package
+at runtime. Its [install script](https://github.com/getsentry/sentry-cli/blob/3.8.2/scripts/install.js)
+exits when that package is present and otherwise downloads a fallback from its
+CDN. The repository sets `allowBuilds['@sentry/cli']` to `false` to skip that
+fallback. Keep optional dependencies enabled. Recheck the policy when updating
+Sentry's binary-distribution mechanism. The installed macOS platform binary
+reports `sentry-cli 3.8.2` without running the install script.
+
+```yaml
+allowBuilds:
+  '@sentry/cli': false
+```
+
 Drive-by improvements to `packages/lint/` are allowed when they improve the
 experience of agents writing Octane-xplat code effectively.
 
