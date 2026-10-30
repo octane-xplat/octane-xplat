@@ -45,6 +45,14 @@
 			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": ["dist/**", "types/**"]
 		},
+		"test:executable": {
+			"dependsOn": ["build:executable"],
+			"cache": false
+		},
+		"build:executable": {
+			"dependsOn": ["build", "^build"],
+			"cache": false
+		},
 		"build:assets": {
 			"dependsOn": ["^typegen"],
 			"inputs": ["$TURBO_DEFAULT$", "../richtext/build-browser.ts"],

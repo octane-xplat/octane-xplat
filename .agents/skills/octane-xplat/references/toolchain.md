@@ -34,7 +34,8 @@ Keep the supplied catalog and managed patches together. The compatibility
 manifest, installed package versions, and doctor/upgrade output own the current
 version set; exact pins copied into prose go stale. Within this repository,
 workspace dependencies use `"workspace:*"` and packages declare every import.
-Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
+The npm CLI runs under Bun >=1.4.3; standalone executables embed it.
+Other Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
 consumer bundlers still compile framework runtime source.
 
 ```sh

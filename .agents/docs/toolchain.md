@@ -3,6 +3,36 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
+## CLI runtime and executable packaging
+
+`xplat` uses Bun >=1.4.3. Keep pnpm for dependency management and Turbo tasks;
+Node remains required by app and repository tooling. Vite/MCP subpath exports
+retain per-module ESM for Node consumers.
+
+`packages/cli/standalone/build.mjs` embeds the installed production dependency
+closure and source assets in a host-specific Bun executable. It keeps package
+boundaries because native loaders, `createRequire`, and spawned siblings rely
+on real files. Build on the destination platform; Bun cross-compilation alone
+cannot retarget the native dependency payload. Registry package contents are
+already publication-filtered; workspace payloads use their declared `files`.
+
+Bun 1.4.3 compiled-mode dynamic imports of the extracted CLI failed to resolve
+`@alloc/cmd-ts`, despite the package and links being present; running that same
+entry through `BUN_BE_BUN=1` succeeded on macOS arm64. The launcher therefore
+starts its embedded runtime in that mode, inherits stdio, forwards termination
+signals, and preserves exit status. Child helpers inherit the mode so
+`process.execPath` and `fork()` execute scripts rather than the launcher.
+Recheck this constraint before attempting to collapse the launcher and CLI
+into one process.
+
+The cache is keyed by the embedded archive hash and populated through a private
+staging directory and atomic rename. Dependency links use relative symlinks on
+POSIX and junctions on Windows; Bun Archive skips symlinks on Windows, so links
+are reconstructed from the embedded layout instead of stored in the archive.
+Run `test:executable` through Turbo for concurrent extraction, native formatting,
+and helper-process checks. The release workflow attaches executable/checksum
+pairs; npm still ships the Node-compatible ESM exports and Bun bin launcher.
+
 ## Runtime dependency compatibility
 
 The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and

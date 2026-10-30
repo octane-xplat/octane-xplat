@@ -12,9 +12,12 @@ Windows, and Linux apps. Desktop setup and support depend on the selected
 host; check [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets)
 before adding one to an app.
 
-For an existing app:
+The npm command runs with **Bun 1.4.3 or later**. Install Bun using its
+[installation guide](https://bun.sh/docs/installation), then check it before
+adding the CLI to an existing app:
 
 ```sh
+bun --version
 pnpm add -D @octane-xplat/cli
 ```
 
@@ -60,6 +63,45 @@ pnpm xplat build --targets web,android
 Linux packaging and its required manifest settings are documented in
 [Package a Linux app](https://octane-xplat.goddardai.org/linux-package). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
+
+## Single-file executable
+
+The CLI executables workflow attaches standalone executables to
+[GitHub Releases](https://github.com/octane-xplat/octane-xplat/releases), named `xplat-<platform>-<architecture>` (with
+`.exe` on Windows), alongside SHA-256 checksums. These contain Bun and the
+CLI dependencies; a separate Bun installation is unnecessary. App builds still
+need Node, pnpm, and the toolchains for their selected platforms.
+
+For example, after downloading the macOS Apple Silicon executable, run from
+its download folder:
+
+```sh
+chmod +x ./xplat-darwin-arm64
+./xplat-darwin-arm64 --help
+```
+
+The first launch extracts its embedded packages into a content-addressed cache
+under `~/.cache/octane-xplat/cli` (`$XDG_CACHE_HOME` on Unix or
+`%LOCALAPPDATA%` on Windows, when set). Later launches reuse that payload.
+Set `XPLAT_CLI_CACHE` to choose a writable cache directory:
+
+```sh
+XPLAT_CLI_CACHE=./.xplat-cli-cache ./xplat-darwin-arm64 catalog --json
+```
+
+Repository contributors can build and check an executable for the current
+host. Bun 1.4.3, pnpm, and `tar` must be available. These commands prepare the
+package outputs and write `packages/cli/dist/xplat` (`xplat.exe` on Windows):
+
+```sh
+pnpm exec turbo run build:executable --filter=@octane-xplat/cli
+pnpm exec turbo run test:executable --filter=@octane-xplat/cli
+```
+
+Build on each destination OS and architecture so the native parser and
+formatter dependencies match that host; changing only Bun's compile target
+would leave incompatible native modules. The CLI executables workflow does
+this for macOS and Linux arm64/x64 and Windows x64.
 
 ## App testing
 

@@ -28,7 +28,9 @@
 		"src",
 		"dist",
 		"bin",
-		"patches"
+		"patches",
+		"!dist/xplat",
+		"!dist/xplat.exe"
 	],
 	"type": "module",
 	"exports": {
@@ -73,7 +75,9 @@
 		"test:css-platform": "node --test test/css-platform.test.mjs",
 		"test:updates": "node --test test/updates.test.mjs",
 		"test:postcss-consumer": "node test/postcss-consumer.mjs",
-		"typecheck": "tsc -p tsconfig.json"
+		"typecheck": "tsc -p tsconfig.json",
+		"build:executable": "bun standalone/build.mjs",
+		"test:executable": "node --test standalone/test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

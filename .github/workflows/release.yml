@@ -131,6 +131,9 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -193,6 +196,9 @@ jobs:
         if: steps.pending.outputs.state == 'unpublished'
         uses: pnpm/action-setup@v4
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
       - name: Setup Node
         if: steps.pending.outputs.state == 'unpublished'
         uses: actions/setup-node@v5
@@ -283,6 +289,9 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -487,6 +496,9 @@ jobs:
         if: steps.unpublished.outputs.exists != 'true'
         uses: pnpm/action-setup@v4
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
       - name: Setup Node
         if: steps.unpublished.outputs.exists != 'true'
         uses: actions/setup-node@v5
@@ -636,6 +648,9 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
       - name: Setup Node
         uses: actions/setup-node@v5
         with:

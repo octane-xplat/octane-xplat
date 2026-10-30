@@ -6,7 +6,8 @@ Related APIs: xplat lint, xplat lint --fix, xplat fmt, xplat-lint, @octane-xplat
 
 ## Starting point
 
-An app or component library has the Xplat CLI installed. The reader runs
+An app or component library has the Xplat CLI installed with Bun >=1.4.3
+available, or uses a standalone executable with Bun embedded. The reader runs
 commands from the project directory. These are host-side code checks; they
 do not establish runtime behavior on a browser or device.
 
@@ -19,7 +20,7 @@ do not establish runtime behavior on a browser or device.
 
 ## Acceptance criteria
 
-- AC1: A project with only the CLI installed can lint regular source and TSRX without a lint config or direct Oxlint dependency; the reader can identify the rule coverage of each pass.
+- AC1: With the documented CLI runtime available, a project with only the CLI installed can lint regular source and TSRX without a lint config or direct Oxlint dependency; the reader can identify the rule coverage of each pass.
 - AC2: Linting leaves source unchanged by default; safe fixes are opt-in, remaining errors fail the command, and warnings remain advisory.
 - AC3: Files and directories select the same scope in both passes, with matching Git/config ignores and consistent output-directory, symlink and nested-repository boundaries.
 - AC4: The reader can use a strict JSON project config, extend the bundled preset, and override Xplat rule severities/options for matching files; unsupported config formats and invocation-root scope are explicit.
@@ -28,7 +29,7 @@ do not establish runtime behavior on a browser or device.
 
 ## Documentation
 
-- AC1: [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [rule coverage](../../../packages/lint/README.md#what-gets-checked), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
+- AC1: [CLI runtime and standalone executable](../../../packages/cli/README.md#single-file-executable), [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [rule coverage](../../../packages/lint/README.md#what-gets-checked), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
 - AC2: [Lint behavior and exit codes](../../../packages/cli/README.md#lint-and-format), [fixes](../../../docs/testing/testing.md#lint-and-format-source), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
 - AC3: [Selection and ignores](../../../packages/lint/README.md#what-gets-checked) and the [selection, ignore and boundary tests](../../../packages/cli/test/lint.test.mjs).
 - AC4: [Project configuration](../../../packages/lint/README.md#project-configuration) and the [configuration parity tests](../../../packages/cli/test/lint.test.mjs).

@@ -4,10 +4,12 @@
 
 ## Create and run
 
-You need two tools on your computer:
+You need three tools on your computer:
 
 - **Node.js** runs the tools that prepare your app. Install version 22.22.2
   or later from the [Node.js download page](https://nodejs.org/en/download).
+- **Bun** runs the Xplat CLI. Install version 1.4.3 or later using the
+  [Bun installation guide](https://bun.sh/docs/installation).
 - **pnpm** downloads the packages your app uses and runs its project commands.
   Follow the [pnpm installation guide](https://pnpm.io/installation). This
   checkout's starter uses pnpm 11.24.0.
@@ -18,10 +20,11 @@ text fields. You don't need phone development tools to start in the browser.
 1. Open a terminal: Terminal on macOS, PowerShell on Windows, or your Linux
    terminal app. This is where you type commands. Your code editor may also
    have a terminal panel.
-2. Check that both tools are available. Run each line separately:
+2. Check that all three tools are available. Run each line separately:
 
    ```sh
    node --version
+   bun --version
    pnpm --version
    ```
 

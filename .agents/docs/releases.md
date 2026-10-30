@@ -140,6 +140,19 @@ cache path:
 TRUSTED_PUBLISHERS_CACHE= node scripts/check-trusted-publishers.ts
 ```
 
+## CLI executables
+
+`cli-executables.yml` builds and smoke-tests the standalone CLI on macOS and
+Linux arm64/x64 and Windows x64, then attaches executables and SHA-256 checksums
+to published lockstep releases. Edits to the moving nightly release refresh its
+assets. Manual dispatch retains artifacts without uploading to a release.
+The normal checks job also runs the Linux executable smoke test, without a
+browser or device. Build on each host to select matching native dependencies;
+see [executable packaging](toolchain.md#cli-runtime-and-executable-packaging)
+and [consumer installation](../../packages/cli/README.md#single-file-executable).
+Binaries are excluded from npm tarballs: the npm bin requires installed Bun,
+while Vite and MCP exports remain per-module ESM.
+
 ## Add a publishable package
 
 [`scripts/publishable.ts`](../../scripts/publishable.ts) discovers every

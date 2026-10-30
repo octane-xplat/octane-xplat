@@ -1,5 +1,15 @@
 # Use xplat as an agent
 
+The npm `xplat` command requires Bun >=1.4.3 on PATH. Standalone release
+executables embed Bun and unpack their production payload into a writable
+local cache; they still require the app's Node/pnpm/platform toolchains.
+See [CLI installation and executable builds](../../../../packages/cli/README.md#single-file-executable).
+
+```sh
+bun --version
+pnpm xplat --help
+```
+
 Use the app's installed CLI for discovery and supported operations. It
 complements source editing; it is not an arbitrary shell/evaluation service or
 a deployment tool. Choose the commands needed for the task instead of running

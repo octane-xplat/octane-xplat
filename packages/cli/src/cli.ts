@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { binary, subcommands, run, command } from '@alloc/cmd-ts'
 import { AGENT_HEADS, dispatchAgent } from './agent/dispatch.ts'

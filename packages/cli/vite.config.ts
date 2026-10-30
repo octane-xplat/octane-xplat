@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 import { createRequire } from 'node:module'
 import { build, defineConfig } from 'vite'
 
-// The CLI runs under plain Node — emit per-module ESM mirroring src/ so bins,
+// The CLI runs under Bun — emit per-module ESM mirroring src/ so bins,
 // spawned entries, and subpath exports resolve inside the published tarball.
 export default defineConfig({
 	build: {
