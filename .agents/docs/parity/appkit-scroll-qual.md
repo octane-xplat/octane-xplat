@@ -12,11 +12,12 @@ produced this round (see "Remaining" at the end).
 1. **`scripts/probe/runner.ts` passed the whole `{arm64,x86_64}` metadata map to
    the JSC host** (universal-metadata regression). Every `--target macos` probe
    exited `metadata.nsmd not found`. Now selects `artifact.metadata[macOSHostArch()]`
-   like `dev.ts`/`webview-dev.ts`. (`5b485bd25`)
+   like `dev.ts`/`webview-dev.ts`. Independently fixed on main as `957c00f3d`
+   (identical change); the local commit dropped as a duplicate on rebase.
 2. **`scrollable-area.macos.tsrx` fixture**: trailing `style={{display:'flex'}}`
    overrode the content size passed through `getContentProps`, so the document
    stayed at clip size and the fixture timed out after 9 assertions. Merging the
-   styles restored the intended geometry — 20/20 assertions now pass. (`6139be070`)
+   styles restored the intended geometry — 20/20 assertions now pass. (`691135fa2`)
 3. **JS class methods were never registered as ObjC methods.** The pinned
    NativeScript runtime only exports *enumerable* prototype members as new
    methods; ES class methods are non-enumerable. Proven live:
@@ -44,21 +45,21 @@ produced this round (see "Remaining" at the end).
      `MasonLayoutView.layout`, `intrinsicContentSize` getters, KVO
      `observeValueForKeyPath` etc. kept working and the gap stayed hidden.
    - Fixes: `AppDelegate` enumerates its prototype before `NativeClass`
-     (`e00ea2907`); `HoverTrackingTarget` uses `registerGestureClass` plus
-     colon keys in `ObjCExposedMethods` (`11a5b36c6`). After the fix,
+     (`2e798bc5c`); `HoverTrackingTarget` uses `registerGestureClass` plus
+     colon keys in `ObjCExposedMethods` (`642aa8bde`). After the fix,
      `windowDidResize` fires on real resizes and all three tracking
      selectors respond.
 4. **Newly-live `applicationDidFinishLaunching` killed the external runloop.**
    Its `app.stop(this)` + manual pump assumes the stock `app.run()` loop owns
    dispatch; under `OCTANE_MACOS_EXTERNAL_RUNLOOP` the host owns the loop and
    `-stop:` terminated it (host exited 0 before the case ran). Now gated on
-   the env flag. (`e00ea2907`)
+   the env flag. (`2e798bc5c`)
 5. **Windows could not be resized at all.** `createAppKitWindow` pinned the
    content view at 640×420 at *required* priority (deliberate anti-grow fix,
    but it hardcoded the size): `setContentSize` snapped back, `fitWindowToContent`
    was a no-op, and user resizing was impossible. The pins now track the last
    applied window size via `windowDidResize` — anti-grow protection kept,
-   explicit/user resizes take. (`e00ea2907`)
+   explicit/user resizes take. (`2e798bc5c`)
 
 ## Runtime evidence by #78 row
 
