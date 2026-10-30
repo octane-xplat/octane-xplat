@@ -3,6 +3,35 @@ import { near, dims } from '../../parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
 	{
+		fixture: 'view-shrinking-row',
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
+		elements: {
+			root: 'parity-shrink-root',
+			first: 'parity-shrink-first',
+			second: 'parity-shrink-second',
+		},
+		equal: ['root.box.w', 'first.box.w', 'second.box.w'],
+		check: (m) => {
+			const root = m('root')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(root, 170, 20),
+				dims(first, 85, 20),
+				dims(second, 85, 20),
+				['first child starts at the row origin', near(first.box.x - root.box.x, 0, 1)],
+				[
+					'shrinking children meet without overlap',
+					near(second.box.x - first.box.x - first.box.w, 0, 1),
+				],
+				[
+					'second child ends at the row edge',
+					near(second.box.x + second.box.w - root.box.x - root.box.w, 0, 1),
+				],
+			]
+		},
+	},
+	{
 		fixture: 'view-layout',
 		elements: {
 			root: 'parity-view-root',
