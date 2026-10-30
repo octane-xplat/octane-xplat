@@ -10527,3 +10527,19 @@ ordering gap in the leaf-declaration refactor landed on main
 (`89794c053`…`a5fcfea3d`), not in this task's AppKit work. A second full
 smoke sweep after the typecheck repairs passed 30/30 assertions in 4m31s
 (`/tmp/appkit-post-typecheck-smoke.log`).
+
+### Renderer suite failure root cause identified (2026-10-30)
+
+The 17 remaining `macos-renderer` failures are dominated by one mechanism:
+the vm-slice harness (`runInNewContext` in `test/mock-globals.ts` and direct
+calls in image/picker tests) evaluates source fragments in a fresh JS realm,
+so objects the slice creates carry that realm's `Object.prototype`.
+`assert.deepEqual`/`deepStrictEqual` then reports "Values have same
+structure but are not reference-equal" for structurally identical values.
+The fix is per-assertion: spread or field-wise compare at the failing sites
+(`{ ...editor.selectedRange }` style). Running slices in the main realm is
+**not** viable — `runInThisContext` leaks top-level `var`/`function`
+declarations into `globalThis` and breaks hundreds of tests (attempted and
+reverted). Owner needed for the per-site edits; the `applyProps`/`testID`
+cluster and the action-metadata/inventory cases should be re-inspected
+after the realm fixes in case they share the cause.
