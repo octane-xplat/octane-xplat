@@ -9,7 +9,7 @@ import {
 	writeNativeBootstrap,
 } from '../dist/macos/native.js'
 
-import { hostBundle } from '../dist/macos/jsc-host/runtime.js'
+import { hostBundle, macOSHostArch } from '../dist/macos/jsc-host/runtime.js'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const scratch = join(repo, 'research')
@@ -59,12 +59,15 @@ console.log('MACOS_NATIVE_LANGUAGES_OK');
 `,
 )
 
+const hostArch = macOSHostArch()
 const result = spawnSync(
-	join(hostBundle, 'host'),
+	'arch',
 	[
+		`-${hostArch}`,
+		join(hostBundle, 'host'),
 		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 		script,
-		first.metadata,
+		first.metadata[hostArch],
 		bootstrap,
 	],
 	{ encoding: 'utf8', timeout: 10_000 },
