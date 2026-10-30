@@ -20,10 +20,10 @@ A form choosing one plan, using option data or child parts.
 
 ## Documentation
 
-- AC1: [AppKit radio guide](../../../docs/app/components.md#radio-choices-on-appkit) and [authored composition cases](../../../packages/ui/src/components/forms/radio-list.macos.mobile.test.tsrx). Tests unrun.
+- AC1: [AppKit radio guide](../../../docs/app/components.md#radio-choices-on-appkit) and [authored composition cases](../../../packages/ui/src/components/forms/radio-list.macos.mobile.test.tsrx).
 - AC2: The same guide/cases and [target leaves](../../../packages/ui/src/components/forms/RadioGroup.macos.tsrx); the macOS export points to RadioListItem.macos.tsrx.
 - AC3: [Maintained fixture](../../../examples/probes/radio-list.macos.tsrx) checks direct selection state only; [target progress](../exploration.md#operational-evidence) records native gaps and exact deferred commands.
 
-- AC4: [Shared native choice controller](../../../packages/ui/src/components/forms/choice-focus.macos.ts), [radio registration/guard/observer cases](../../../packages/ui/src/components/forms/radio-list.macos.mobile.test.tsrx) and [manual/automatic focus cases](../../../packages/ui/src/components/collections/tab-list.macos.mobile.test.tsrx). Native keyboard/Tab/focus/reveal/VoiceOver remain unqualified; the fixture run hook is still direct selection only.
+- AC4: [Shared native choice controller](../../../packages/ui/src/components/forms/choice-focus.macos.ts), [radio registration/guard/observer cases](../../../packages/ui/src/components/forms/radio-list.macos.mobile.test.tsrx) and [manual/automatic focus cases](../../../packages/ui/src/components/collections/tab-list.macos.mobile.test.tsrx). Native keyboard/Tab/focus/reveal/VoiceOver require separate target qualification; the fixture run hook is still direct selection only.
 
-- AC5: [Current selection guidance](../../../docs/app/components.md#radio-choices-on-appkit), eight [authored ownership cases](../../../packages/ui/src/components/forms/radio-ownership.macos.mobile.test.tsrx) and the extended [fixture](../../../examples/probes/radio-list.macos.tsrx), all unrun. [Target note](../exploration.md#operational-evidence) records exact deferred commands and separates fake dispatch from native qualification.
+- AC5: [Current selection guidance](../../../docs/app/components.md#radio-choices-on-appkit), eight [authored ownership cases](../../../packages/ui/src/components/forms/radio-ownership.macos.mobile.test.tsrx) and the extended [fixture](../../../examples/probes/radio-list.macos.tsrx). [Target note](../exploration.md#operational-evidence) records exact deferred commands and separates fake dispatch from native qualification.

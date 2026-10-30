@@ -36,4 +36,4 @@ unverified targets.
 - AC4: [Framework suite](../../../apps/mobile/src/tests/counter.spec.ts), [starter spec](../../../packages/create/template/src/app.spec.tsrx), [failure reporting](../../../packages/create/template/src/failure-reporting.spec.ts), [native bridge](../../../packages/create/template/src/native-runtime.spec.ts)
 - AC5: [CI lane](../../../.github/workflows/ci.yml), [qualification notes](../testing.md#on-device-unit-tests-ns-test-vitest)
 
-- AC6: [Android qualification command](../android-starter-tests.md#check-the-packed-android-starter), [current gate](../android-lab.md#consumer-test-qualification-gate-2026-10-13), [gate checks](../../../scripts/verify-android-tests.test.mjs)
+- AC6: [Android qualification command](../android-starter-tests.md#check-the-packed-android-starter), [current gate](../android-lab.md#consumer-test-qualification), [gate checks](../../../scripts/verify-android-tests.test.mjs)

@@ -24,15 +24,15 @@ A finite option picker supports single/multiple choices and optional save action
 
 ## Documentation
 
-- AC1: [AppKit selection guide](../../../docs/app/search-selection.md#appkit-finite-option-selection) and [authored object-driver cases](../../../packages/ui/src/components/forms/select.macos.mobile.test.tsrx). Tests unrun.
+- AC1: [AppKit selection guide](../../../docs/app/search-selection.md#appkit-finite-option-selection) and [authored object-driver cases](../../../packages/ui/src/components/forms/select.macos.mobile.test.tsrx).
 - AC2: The same guide/cases cover native-host guards, pending rollback and selection semantics.
-- AC3: The guide/cases cover custom/default content and missing-option fallback; native anchor/search lifetime remains unqualified.
+- AC3: The guide/cases cover custom/default content and missing-option fallback; native anchor/search lifetime requires separate target qualification.
 - AC4: [Target note](../exploration.md#operational-evidence) records exact deferred commands and remaining native evidence.
 
-- AC5: [AppKit keyboard guide](../../../docs/app/search-selection.md#use-selector-keys-on-appkit), [authored key-policy cases](../../../packages/ui/src/components/forms/select-keyboard.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/select-keyboard.macos.tsrx). All unrun.
+- AC5: [AppKit keyboard guide](../../../docs/app/search-selection.md#use-selector-keys-on-appkit), [authored key-policy cases](../../../packages/ui/src/components/forms/select-keyboard.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/select-keyboard.macos.tsrx)..
 - AC6: The guide, appended inline-popup wiring case, [choice-helper cases](../../../packages/ui/src/components/collections/tab-list.macos.mobile.test.tsrx) and [target note](../exploration.md#operational-evidence) record ownership/return intent and exact deferred checks. No native return result is claimed.
 
-- AC7: [AppKit metadata guide](../../../docs/app/search-selection.md#appkit-selector-field-metadata), appended source cases and [target note](../exploration.md#operational-evidence). Tests unrun; native relationships/geometry/replay remain unqualified.
+- AC7: [AppKit metadata guide](../../../docs/app/search-selection.md#appkit-selector-field-metadata), appended source cases and [target note](../exploration.md#operational-evidence). Native relationships/geometry/replay require separate target qualification.
 
 
-- AC8: [Badge guide](../../../docs/app/search-selection.md#remove-selected-values-on-appkit), appended [object-driver cases](../../../packages/ui/src/components/forms/select.macos.mobile.test.tsrx), [maintained fixture](../../../examples/probes/select-keyboard.macos.tsrx) and [target note](../exploration.md#operational-evidence). Cases and fixture remain unrun.
+- AC8: [Badge guide](../../../docs/app/search-selection.md#remove-selected-values-on-appkit), appended [object-driver cases](../../../packages/ui/src/components/forms/select.macos.mobile.test.tsrx), [maintained fixture](../../../examples/probes/select-keyboard.macos.tsrx) and [target note](../exploration.md#operational-evidence).

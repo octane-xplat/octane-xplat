@@ -32,5 +32,5 @@ Argent dependency is required.
 AppKit source extension: TextInput/TextArea/SearchInput now forward testID to
 the editable field. Appended text-controls.macos.mobile.test.tsrx cases cover
 retained identity/update/removal and parent Field/shell/clear separation, but
-remain unrun. This extends AC2/AC4 source coverage, not native discovery or replay
+require separate execution evidence. This extends AC2/AC4 source coverage, not native discovery or replay
 qualification. Exact deferred commands are in the AppKit target progress note.

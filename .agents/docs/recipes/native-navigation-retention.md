@@ -46,5 +46,5 @@ content and animator fallback. ScrollableArea, VirtualList and chat share a
 native offset helper using the generated NSView.flipped property; measurement
 uses the same property. [Geometry regression source](../../../packages/ui/src/internal/platform/appkit-scroll-geometry.mobile.test.ts)
 and [viewport object-driver cases](../../../packages/ui/src/components/layout/scrollable-area-appkit.mobile.test.tsrx)
-are authored but unrun. Route retention, actual scroll/animation/focus and
+provide source coverage only. Route retention, actual scroll/animation/focus and
 packaging remain separate qualification gates.

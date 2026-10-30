@@ -16,6 +16,6 @@ A self-drawn choice is disabled or read-only on mount and enabled later.
 
 ## Documentation
 
-- AC1: [Click ownership contract](../../../packages/macos-renderer/README.md#update-self-drawn-click-actions) and [authored lifecycle source cases](../../../packages/macos-renderer/test/click-action-lifecycle.test.ts). Tests unrun.
+- AC1: [Click ownership contract](../../../packages/macos-renderer/README.md#update-self-drawn-click-actions) and [authored lifecycle source cases](../../../packages/macos-renderer/test/click-action-lifecycle.test.ts).
 - AC2: The same contract/cases and [queued press guard case](../../../packages/macos-renderer/test/gestures.test.ts); actual raw disabled updates still require native verification.
 - AC3: [Target note](../exploration.md#operational-evidence) records teardown source scope and exact deferred commands. No native lifecycle/OS input evidence is claimed.

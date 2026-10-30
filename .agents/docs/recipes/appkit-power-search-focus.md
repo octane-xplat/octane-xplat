@@ -17,6 +17,6 @@ PowerSearchSearchWithTable. AppKit support remains experimental.
 
 ## Documentation
 
-- AC1: [Guide](../../../docs/app/power-search.md#request-initial-appkit-search-focus), [target view](../../../packages/ui/src/components/forms/PowerSearchView.macos.tsrx), five [authored cases](../../../packages/ui/src/components/forms/power-search-focus.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-focus.macos.tsrx). All cases unrun; existing private autofocus policy reused.
+- AC1: [Guide](../../../docs/app/power-search.md#request-initial-appkit-search-focus), [target view](../../../packages/ui/src/components/forms/PowerSearchView.macos.tsrx), five [authored cases](../../../packages/ui/src/components/forms/power-search-focus.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-focus.macos.tsrx). existing private autofocus policy reused.
 - AC2: The same source/cases cover callback replacement/current blocking/foreign blur/teardown. No null callback notification or new shared input autofocus prop is introduced.
 - AC3: [Target note](../exploration.md#operational-evidence) records exact deferred commands. Popover is mocked away in the object-driver cases, so modal behavior is not established.

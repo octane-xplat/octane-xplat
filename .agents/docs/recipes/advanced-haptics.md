@@ -28,6 +28,6 @@ selection service. Package publication is outside this workflow.
 - AC2: [Advanced haptics](../../../docs/platform/media-services.md#advanced-haptics). Gap: The probe uses press-in/out; a complete gesture cancellation and teardown example is still missing.
 - AC3: [Advanced haptics](../../../docs/platform/media-services.md#advanced-haptics).
 
-Physical preset/pattern/realtime output remains unqualified in this recheck; see
+Physical preset/pattern/realtime output requires separate target qualification; see
 [qualification boundaries](../notes/optional-service-qualification.md). Adapter
 capability reports and emulator calls do not prove physical output.

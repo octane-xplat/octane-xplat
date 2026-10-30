@@ -164,7 +164,7 @@ the whole default-threading transaction. The [launcher](../../../packages/sqlite
 requires an explicitly owned, booted host. Do not await a queued close after a
 stalled transaction; the isolated process owns teardown.
 
-Runtime execution is blocked by the [standing emulator/simulator restriction](../android-lab.md#consumer-test-qualification-gate-2026-10-13)
+Runtime execution is blocked by the [standing emulator/simulator restriction](../android-lab.md#consumer-test-qualification)
 and the absence of an authorized physical host. After explicit authorization,
 reserve the host and native-build capacity, set `XPLAT_SQLITE_ANDROID_DEVICE` to
 its ID, and run the existing task (which retains the case/target locks):

@@ -22,6 +22,6 @@ contract as other targets. Distinguish implemented handlers from actual OS input
 
 ## Documentation
 
-- AC1: [AppKit segments](../../../docs/app/components.md#appkit-segmented-control), [maintained probe](../../../examples/probes/segmented-control.macos.tsrx) and the sandbox's [child-item example](../../../apps/astryx-sandbox/src/examples/segmented/SegmentedControlItemBasic.tsrx). Gap: actual AppKit control rendering and selection have not run.
+- AC1: [AppKit segments](../../../docs/app/components.md#appkit-segmented-control), [maintained probe](../../../examples/probes/segmented-control.macos.tsrx) and the sandbox's [child-item example](../../../apps/astryx-sandbox/src/examples/segmented/SegmentedControlItemBasic.tsrx). Gap: actual AppKit control rendering and selection require execution evidence.
 - AC2: [AppKit segments](../../../docs/app/components.md#appkit-segmented-control) and [key adapter regressions](../../../packages/ui/src/components/actions/segmented-control-keys.macos.test.ts). Gap: OS keys, Tab entry, focus visibility and repeated mount/unmount require runtime qualification.
-- AC3: [AppKit segments](../../../docs/app/components.md#appkit-segmented-control) and [renderer accessibility regressions](../../../packages/macos-renderer/test/checkbox-accessibility.test.ts). Gap: VoiceOver and real accessibility delivery have not run.
+- AC3: [AppKit segments](../../../docs/app/components.md#appkit-segmented-control) and [renderer accessibility regressions](../../../packages/macos-renderer/test/checkbox-accessibility.test.ts). Gap: VoiceOver and real accessibility delivery require execution evidence.

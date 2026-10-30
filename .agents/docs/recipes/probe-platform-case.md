@@ -38,6 +38,6 @@ platform evidence without changing the kitchen-sink harness.
 
 ## Verification gaps
 
-Linux runtime checks require a real Linux host and remain unrun in this macOS
+Linux runtime checks require a real Linux host and require separate execution evidence in this macOS
 workspace. The shared Silo `recipe_audit.target` schema currently excludes Linux;
 its audit cannot be recorded there without a schema change. Keep this gap explicit.

@@ -21,7 +21,7 @@ limits instead of assuming web behavior proves native delivery.
 - AC2: Keyboard order/activation, invalid-field focus, icon-only action names, disabled and asynchronous loading/failure states have concrete implementation and checks.
 - AC3: Status remains visible, announcements do not steal focus and urgency/clearing differences are explicit across web/native.
 - AC4: A named modal has a dismissal/focus procedure with native restoration/isolation limitations and an explicit recovery path.
-- AC5: Reduced motion, text size, contrast and localization have bounded checks; actual VoiceOver/TalkBack/browser delivery and unrun targets are recorded separately from DOM/source assertions.
+- AC5: Reduced motion, text size, contrast and localization have bounded checks; actual VoiceOver/TalkBack/browser delivery and unverified targets are recorded separately from DOM/source assertions.
 
 ## Documentation
 

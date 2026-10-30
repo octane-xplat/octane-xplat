@@ -17,6 +17,6 @@ caller-owned navigation. Native support is experimental and unqualified.
 
 ## Documentation
 
-- AC1: [Pager guide](../../../packages/pager/README.md#platform-support), [native leaf](../../../packages/pager/src/Pager.macos.tsrx) and [authored state cases](../../../packages/pager/src/pager-state.macos.mobile.test.ts). All cases unrun.
+- AC1: [Pager guide](../../../packages/pager/README.md#platform-support), [native leaf](../../../packages/pager/src/Pager.macos.tsrx) and [authored state cases](../../../packages/pager/src/pager-state.macos.mobile.test.ts).
 - AC2: [User-scroll owner](../../../packages/pager/src/pager-scroll-events.macos.ts), [authored event cases](../../../packages/pager/src/pager-scroll-events.macos.mobile.test.ts), [object-driver composition cases](../../../packages/pager/src/Pager.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/pager.macos.tsrx). Public UI peer is mocked to the real AppKit leaf in unit cases; production barrel selection remains unproven.
 - AC3: [Target note](../exploration.md#operational-evidence) records exact deferred commands and outstanding native gates. Existing web/iOS/Android parity target declarations remain unchanged.

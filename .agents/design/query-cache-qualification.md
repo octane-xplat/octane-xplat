@@ -1,29 +1,8 @@
-# Shared query cache qualification
+# Verify the shared query cache
 
-This is the validation record for [the query cache plan](query-cache-plan.md).
-The current qualification scope is headless tests, as requested on 2026-10-23.
-Device runs, desktop application launches, and OS lifecycle qualification are
-deferred. Earlier isolated native experiments remain in the
-[engine decision](query-cache-engine.md); they do not establish parity for the
-composed application workflow.
-
-## Verified results
-
-On 2026-10-23, the focused cache/inspection suite passed 67 tests and the
-composed component suite passed two tests. The UI/app dependent typecheck
-passed all 53 tasks with concurrency 1, including the focused browser fixture.
-The docs build passed 27 tasks; recipe links, purpose barrels, and root script
-types also passed. The headless application journey passed all 11 assertions,
-including exact-instance CLI inspection and browser offline/online recovery.
-The small Chromium cache fixture passed 20 assertions, including shared
-reader leases, concurrent receipts, persistence and collection of 1,000 entries.
-
-The first application browser attempt loaded the full demo harness and was
-interrupted during a compiler metadata error in an unrelated context-menu
-module. The maintained check now imports only the two query screens. Its
-first focused attempt exposed a missing explicit CLI app selection; the test
-now uses `--app apps/web` and the bridge's `appRoot` option, without changing
-saved user preferences. The corrected focused task passed and exited cleanly.
+Use these maintained checks for the [ownership contract](query-cache-engine.md).
+Record target, reviewed revision, result, and remaining gaps in Silo/local
+reports. This guide defines the evidence each check can establish.
 
 ## Maintained checks
 
@@ -52,17 +31,20 @@ loads only the two maintained query screens, starts its own Vite server and
 browser context, closes both, and selects the
 inspection action by the app instance ID and registry revision.
 
-## Remaining evidence gaps
 
-The composed application has no current iOS, Android, macOS, Linux, or Windows
-runtime qualification. Native object-driver and platform adapter tests check
-contracts without establishing OS foreground/background, connectivity, storage,
-or input behavior. Browser reconnect checks use browser offline/online events;
-actual native connectivity transitions and OS activity recovery remain deferred.
-The runtime fixture resolves workspace public entrypoints; packed-consumer
-compilation is separate evidence, not an installed-tarball runtime journey.
+## Evidence boundaries
 
-The feature scope still excludes durable offline mutation replay, SSR
-hydration transfer, cross-tab synchronization, implicit entity normalization,
-and a visual cache panel. The [public comparison](../../docs/app/data.md#tanstack-query-as-an-opt-in)
-keeps these reasons to choose another cache visible.
+Native object-driver and platform adapter tests do not establish actual OS
+foreground/background, connectivity, storage, or input behavior. Browser
+reconnect checks use browser offline/online events; native connectivity and OS
+activity recovery require their own checks. Workspace entrypoint runtime checks
+and packed-consumer compilation do not establish an installed-tarball journey.
+
+Feature scope excludes durable offline mutation replay, SSR hydration transfer,
+cross-tab synchronization, implicit entity normalization, and a visual cache
+panel. The [public comparison](../../docs/app/data.md#tanstack-query-as-an-opt-in)
+explains when another cache fits.
+
+Historical results are indexed by `local_artifacts` key
+`.agents/design/query-cache-qualification.md`; use
+[operational evidence](../docs/exploration.md#operational-evidence) for lookup.

@@ -17,5 +17,5 @@ An AppKit note/composer field that accepts typing, pastes and composed text.
 ## Documentation
 
 - AC1: [Length semantics](../../../docs/app/primitives.md#grow-a-multiline-field) and [range/source regressions](../../../packages/macos-renderer/test/text-limit.test.ts).
-- AC2: [Native editing contract](../../../packages/macos-renderer/README.md#bound-multiline-user-edits) and [nonvisual direct-API probe](../../../examples/probes/text-limit.macos.tsrx). These artifacts are authored and have not run.
+- AC2: [Native editing contract](../../../packages/macos-renderer/README.md#bound-multiline-user-edits) and [nonvisual direct-API probe](../../../examples/probes/text-limit.macos.tsrx). These artifacts are authored and require execution evidence.
 - AC3: [Correction and qualification boundaries](../../../packages/macos-renderer/README.md#bound-multiline-user-edits), [delegate/selection regressions](../../../packages/macos-renderer/test/text-limit.test.ts) and [leaf forwarding source](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx). Tests, native probes, physical IME/undo and packaging are deferred.

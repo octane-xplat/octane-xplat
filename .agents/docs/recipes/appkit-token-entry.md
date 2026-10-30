@@ -17,7 +17,7 @@ examples, including an embedded action. AppKit support remains experimental.
 
 ## Documentation
 
-- AC1: [Guide](../../../docs/app/search-selection.md#remove-appkit-tokens-with-empty-input-backspace), [target leaf](../../../packages/ui/src/components/forms/Tokenizer.macos.tsrx), seven [authored cases](../../../packages/ui/src/components/forms/tokenizer-keys.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/tokenizer-keys.macos.tsrx). All cases unrun.
+- AC1: [Guide](../../../docs/app/search-selection.md#remove-appkit-tokens-with-empty-input-backspace), [target leaf](../../../packages/ui/src/components/forms/Tokenizer.macos.tsrx), seven [authored cases](../../../packages/ui/src/components/forms/tokenizer-keys.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/tokenizer-keys.macos.tsrx).
 - AC2: The same source/cases document current identities, callback-driven focus, handle replacement/teardown and delayed embedded-focus blur. Fake hosts do not prove actual AppKit focus ordering.
 - AC3: [Target note](../exploration.md#operational-evidence) records exact deferred checks and qualification gaps. No evidence gate is satisfied by source inspection.
 

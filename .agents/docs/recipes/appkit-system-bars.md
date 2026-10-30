@@ -18,7 +18,7 @@ boundary explicit. Avoid phone helpers and do not imply a desktop chrome effect.
 ## Acceptance criteria
 
 - AC1: Root and canonical/existing .ts subpaths select the same dedicated AppKit object and paired generated types, expose both shared void methods with matching arguments, avoid phone Application/Color dependencies and preserve other-target defaults. Calls emit only a fixed warning; diagnostics failure cannot turn them into app failures or expose argument data.
-- AC2: Guide, README, known limits, skill, fix note and target note distinguish the import/shape repair from native styling or an accepted not-applicable decision. Author three source models and expand isolated packed runtime/declaration checks; keep them unrun and record exact deferred commands and native/installed qualification limits.
+- AC2: Guide, README, known limits, skill, fix note and target note distinguish the import/shape repair from native styling or an accepted not-applicable decision. Author three source models and expand isolated packed runtime/declaration checks; record execution separately, including exact qualification commands and native/installed qualification limits.
 
 ## Documentation
 

@@ -148,7 +148,7 @@ It has no recycling pool, feed/chat callbacks, indexed scroll handle, sticky
 rows, grid, or masonry. Native variable-height momentum, long-session memory,
 and display frame pacing remain Q30 gates; historical evidence is not a fresh
 runtime pass. See the [measured support boundary](../app/virtual-list.md#measured-support-boundary)
-and [readiness evidence](../../.agents/docs/notes/primitive-notes.md#virtuallist-readiness-recheck-q30-2026-09-30).
+and [list evidence boundaries](../../.agents/docs/notes/primitive-notes.md#virtuallist-evidence-boundaries).
 
 ```tsx
 import { VirtualList, Text } from '@octane-xplat/ui'

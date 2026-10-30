@@ -188,7 +188,7 @@ Windows flag and MasonKit metadata, while Android's binding generator could not
 find a MasonKit class. The follow-through repaired the host runtime dependency
 graph and compile-time flag, then added MasonKit's click-listener dispatch to the
 probe. Both native hosts now build and load actual rows. Details and attribution
-are in the [MasonKit integration record](../docs/notes/masonkit-layout-evaluation.md#native-host-integration-correction-2026-10-19).
+are in the [MasonKit integration record](../docs/notes/masonkit-layout-evaluation.md#native-host-integration).
 
 A repeat Chromium run passes 145 assertions (including aggregate trial
 completion) with the same construction counts: 204 versus 12 row mounts and

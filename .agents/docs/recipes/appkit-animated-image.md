@@ -19,4 +19,4 @@ Core Image is a static image path; the optional GIF package owns animation.
 ## Documentation
 
 - AC1–AC4: [Package subset](../../../packages/gif/README.md#experimental-appkit-subset), Octane primitive reference, shared demo and [target note](../exploration.md#operational-evidence).
-- AC3–AC4: Six [ownership cases](../../../packages/gif/tests/animated-image-owner.macos.test.ts) and [manual fixture](../../../examples/probes/animated-image.macos.tsrx), all unrun. Existing packed suite checks declarations and cannot prove native animation.
+- AC3–AC4: Six [ownership cases](../../../packages/gif/tests/animated-image-owner.macos.test.ts) and [manual fixture](../../../examples/probes/animated-image.macos.tsrx). Existing packed suite checks declarations and cannot prove native animation.

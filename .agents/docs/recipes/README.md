@@ -189,6 +189,12 @@ they never count as complete coverage.
 
 ## Audit state in Silo
 
+Recipe files own requirements, documentation links, and evidence boundaries.
+They do not record which runs passed, failed, or remain pending. A linked test
+or fixture identifies maintained coverage; it makes no claim that it ran at the
+current revision. Store execution status and reports in Silo/local storage,
+following [operational evidence](../exploration.md#operational-evidence).
+
 Run `silo context`, then inspect `silo table show recipe_audit` before writing.
 The existing `docs_audit` table remains the page-level audit; `recipe_audit`
 records one criterion assessment per recipe, target, and reviewed revision.

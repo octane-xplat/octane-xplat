@@ -34,9 +34,6 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Image manipulation](notes/image-manipulator.md) — frame/output ownership,
   platform boundaries, and programmatic pixel evidence.
 
-- [October 2026 documentation audit](documentation-audit.md) — recurring reader
-  problems, the maintenance system, and refinement boundaries.
-
 - [Native drawer dependency review](native-drawer.md) — optional plugin boundary, gesture value, and follow-up acceptance criteria.
 
 - [Screen layers](screen-layers.md) — retained-screen composition, consumer evidence, and geometry fixture.

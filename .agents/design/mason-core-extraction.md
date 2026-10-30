@@ -257,7 +257,7 @@ invalidation. The percentage regression uses a definite containing block and
 explicit engine scale; removing only its cache correction fails the same test.
 The final 17-test suite also passes on the API 35 emulator, with no skips. These results do not qualify OS input or the full package's native
 behavior.
-See the [recorded Android findings](../docs/notes/masonkit-layout-evaluation.md#core-extraction-android-style-synchronization-2026-10-22).
+See the [recorded Android findings](../docs/notes/masonkit-layout-evaluation.md#android-style-synchronization).
 The 86 unchanged Kotlin/Java modules moved with `git mv`; the full Gradle
 project adds only their shared source set. Full implementation bytes, Rust
 crates and JNI binding remain unchanged.
@@ -367,7 +367,7 @@ The current C measurement callbacks are excluded on Android, which uses the
 existing JNI binding instead. Do not infer Android foreign-view support from
 the host C consumer. The staged C header also needs platform guards that the
 existing Apple-oriented generated header omits; see the
-[recorded source limitations](../docs/notes/masonkit-layout-evaluation.md#core-extraction-c-interface-boundaries-2026-10-22).
+[recorded source limitations](../docs/notes/masonkit-layout-evaluation.md#core-c-interface-boundaries).
 
 The initial review examined the fork pinned at `1.0.0-beta.125` and the local
 [renderer patch](../../packages/cli/patches/@nativescript-community__octane@0.2.5.patch).
@@ -399,7 +399,7 @@ failure; core excludes that renderer. After the native moves, all 28 execute
 with exactly the same one failing test identifier and zero skips; core remains
 15/15 on iOS and 17/17 on Android. Both compiled consumers pass actual OS input.
 The move commit is `6a51ad04` in the Mason fork. See the
-[full iOS baseline finding](../docs/notes/masonkit-layout-evaluation.md#core-extraction-full-ios-baseline-2026-10-22).
+[full iOS baseline finding](../docs/notes/masonkit-layout-evaluation.md#nested-roots-and-ios-measurement).
 
 The normal build requires explicit native artifact preparation; it does not
 silently compile native projects. Pinned SDK generators install independently

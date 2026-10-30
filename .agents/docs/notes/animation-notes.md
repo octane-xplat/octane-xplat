@@ -1,718 +1,30 @@
-# Animation and gesture notes
-
-> Detailed record of the animation and gesture surface. Shared surface = intent-level API (`animateTo`, `spring`, gestures as event
-> streams). Implementation = per-platform drivers. The JS-on-UI-thread model of
-> NativeScript means this can be _simpler_ than the RN equivalent — no worklet
-> boundary.
->
-> **Owns:** #5 animation/gesture facade · **Status:** v1 implemented; physical-device validation is partial · **Blocks on:**
-> physical iOS reduced-motion evidence and physical Android gesture/cancellation/
-> Presence checks · **Decisions:** #10 · **Validation goal:** a dragged element
-> that settles without per-frame renders. These probes do not establish a 60fps
-> guarantee or physical-device frame pacing.
-
-## Current implementation
-
-`@octane-xplat/motion` is the leaf for declarative hosts and numeric values.
-See the [guide](../../../docs/app/animation-gestures.md) and [pinned compatibility record](../../../packages/motion/UPSTREAM.md).
-It reuses Motion 12.42.2 numeric generators with platform frame scheduling.
-UI's `useAnimation` keeps its smaller millisecond/ref contract and now shares
-an elapsed-time, unit-mass spring controller across web, NativeScript and AppKit.
-It does not import the motion leaf or its dependencies. This matrix separates simulator and emulator runs
-from physical handset observations; older `useAnimation` results do not
-validate the new leaf.
-
-```tsx
-import { motion } from '@octane-xplat/motion'
-
-export function Fade() {
-	return <motion.View initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
-}
-```
-
-## Motion v1 validation record — 2026-09-29
-
-The iOS simulator and Android emulator rows exercise NativeScript's platform
-drivers, but do not stand in for physical-device input or frame pacing.
-
-| Case                                  | Web and host-neutral evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | iOS simulator and device                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Android emulator and device                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Build and launch                      | Motion tests: 23 standard and 3 native-config tests passed; UI package build and native UI tests passed.                                                                                                                                                                                                                                                                                                                                                                                              | iOS 26.5 simulator: the normal mobile entry builds, installs, launches, and mounts Home. The auth-session presentation delegate uses NativeScript's `NSObject.extend()` API. The physical iPhone motion suite still used a temporary direct `MotionProbe` entry and Xcode UI-test host; the phone re-locked before the latest rerun.                                                                                                                                                                                                                                                                | Android API 35 emulator: temporary direct `MotionProbe` entry built, installed, and launched. The full mobile app also builds for Android; the iOS delegate remains behind the runtime's `NSObject` availability guard. Physical CPH2551 / Android 16: build, install, and launch passed in an earlier run; ADB now sees the handset, but its keyguard is locked, so no physical test ran this round.                          |
-| Tween, spring, retarget               | `engine.test.ts` checks tween endpoints, irregular-time spring samples, and velocity-preserving retarget. Host tests check final numeric values and completion.                                                                                                                                                                                                                                                                                                                                       | iOS 26.5 simulator previously reached `100` and `-40`, including a tween interrupted by a spring. On the physical iPhone, a tween to `100` was interrupted by a spring retarget to `40` and completed at `40`.                                                                                                                                                                                                                                                                                                                                                                                      | CPH2551 previously reached `100`, then `-40`. The API 35 emulator completed a tween at `100` and a mid-flight spring retarget at `-40`.                                                                                                                                                                                                                                                                                        |
-| Cancellation and disposal             | Engine tests verify one cancellation result, no completion callback after cancellation, and channel cleanup on disposal.                                                                                                                                                                                                                                                                                                                                                                              | Earlier iOS 26.5 simulator run: MotionValue cancellation resolved `cancelled`; unmount disposal resolved `job cancelled`. The physical iPhone confirmed explicit `MotionValue.stop()` cancellation; component-disposal confirmation remains simulator/object-driver evidence.                                                                                                                                                                                                                                                                                                                       | API 35 emulator: MotionValue cancellation resolved `cancelled`; unmount disposal resolved `job cancelled`. Physical handset checks remain pending.                                                                                                                                                                                                                                                                             |
-| Pan and release velocity              | Headless Chromium smoke: pointer begin/move/end reports nonzero CSS px/s release velocity and spring-settles at `x=0`; pointer cancellation settles at `x=0`. It exposed a web hook that dropped active gestures when a re-render replaced the callback and zeroed release velocity at unchanged pointer-up coordinates; the hook now keeps its listener across callback changes and retains fresh velocity samples. This validates DOM pointer plumbing, not OS recognizer delivery or frame pacing. | The iOS 26.5 simulator reported `began → moved → ended`, settled at `x=0`, and release velocity `396`. Sending Home during a held swipe produced `began → moved → cancelled`. On the physical iPhone, an XCUITest swipe delivered `began → moved → ended`, reported nonzero release velocity, and spring-settled at `x=0`; physical cancellation remains open.                                                                                                                                                                                                                                      | The API 35 emulator reported `began → moved → ended` and settled at `x=0`; ADB-injected swipes reported release velocity `0`, so they do not establish natural release velocity. A native UI regression test now distinguishes Android `ACTION_CANCEL` from NativeScript's `ended` state and verifies zero cancellation velocity plus tracker cleanup; physical gesture cancellation and natural release velocity remain open. |
-| Presence identity, input, and removal | Web and native object-driver tests cover retained child identity, input blocking, reversal, and exactly-once cleanup.                                                                                                                                                                                                                                                                                                                                                                                 | The iOS 26.5 simulator retained a counter at `1` through a focused exit and reversal, released focus, allowed refocus after re-entry, and reported one removal. On the physical iPhone, a focus-triggered exit/reversal retained the counter at `1` and blurred the field; after re-entry the field accepted a new focus and typed text, then exit dismissed the keyboard and reported `removals=1`. A temporary test incorrectly expected the keyboard to remain open immediately after the focus-triggered reversal; that assertion failed while the later refocus and removal checks passed.     | The API 35 emulator cleared focus on a completed Presence exit and reported `removals=1`. A later reversal attempt did not produce a stable accessibility snapshot (`uiautomator` could not reach idle), so reversal remains unverified.                                                                                                                                                                                       |
-| Live reduced motion                   | The web test changes `matchMedia` while mounted and verifies immediate transform settlement and listener cleanup.                                                                                                                                                                                                                                                                                                                                                                                     | On iOS 26.5 simulator, toggling system Reduce Motion while mounted changed `useReducedMotion` from false to true and back. With it enabled, a target change immediately moved the accessibility frame by the full `x=-100` offset while the opacity tween was still completing; the system setting was restored to false. On the physical iPhone, a temporary test opened Settings and tapped Reduce Motion, then returned to an app label reading false; because it did not capture the switch's before/after values and its assertion failed, the physical preference transition is inconclusive. | On the API 35 emulator, setting global `animator_duration_scale` from its absent/default value to `0` changed the mounted probe label from false to true; a Tween tap then showed `completed at -100` and a translated accessibility bound in the next idle snapshot. Deleting the setting restored the default and the label returned to false. The idle snapshot does not establish frame-accurate settlement time.          |
-
-The motion-specific simulator, emulator, and physical iPhone checks used a
-temporary direct `MotionProbe` entry to avoid loading unrelated app routes;
-that entry was removed afterward. Separately, the normal mobile entry built
-and mounted on the iOS simulator with the auth-session delegate implemented via
-NativeScript's `NSObject.extend()` API. The
-physical iPhone checks used the direct entry under an Xcode UI-test host. A
-corrected live reduced-motion check needs to record the Settings switch before
-and after the toggle. The Android phone is ADB-visible but currently
-keyguard-locked, so natural pan velocity and cancellation remain open there.
-On Android, injected taps on blank or label chrome left the input focused,
-although Presence exit cleared it. Do not infer Android tap-to-blur or reversal
-parity from the successful exit case. Web and object-driver tests do not close
-the remaining physical-device gaps.
-
-## iOS Simulator rerun — 2026-09-30
-
-A fresh `pnpm --filter @xplat/mobile build:ios` installed and launched the
-normal mobile app on the iPhone 17 Pro simulator (iOS 26.5). A temporary
-XCUITest host exercised the existing working-tree Motion probe; all five
-checks passed:
-
-| Check                        | Result                                                                                                                                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Tween and spring destination | The tween reached its destination; a following spring prop change reached the expected opposite-side target. This rerun did not retest mid-flight replacement.                                               |
-| MotionValue cancellation     | `stop()` resolved the animation as `cancelled`.                                                                                                                                                              |
-| Pan                          | The native recognizer reported `began → moved → ended`, a nonzero release velocity, and settled at `x=0.0`.                                                                                                  |
-| Presence                     | A focused exit/reversal preserved the counter state. A later completed exit incremented removal once; re-entry mounted a fresh counter. This is child-state evidence, not direct UIKit host-object identity. |
-| Live reduced motion          | The Settings switch changed from off to on; the mounted probe updated from `false` to `true`. The test restored the switch to off and the probe returned to `false`.                                         |
-
-`pnpm test` also passed: 55 web tests, 23 Motion tests, and 7 native UI
-object-driver tests. This rerun is simulator evidence only. It does not change
-the physical-device gaps above, and Android was not tested in this pass.
-
-## Delegated-driver research — 2026-10-02 (desk-source)
-
-Source: vendored NativeScript tree at `research/nativescript/packages/core`,
-installed `@nativescript-community/gesturehandler@2.0.45`, and the pinned
-`motion-dom@12.42.2` dist. Findings behind decision #89.
-
-**Frame scheduling.** NS `requestAnimationFrame` chains frames through
-`FPSCallback` — `Choreographer.postFrameCallback` on Android (with a
-`__postFrameCallback` runtime fast path) and `CADisplayLink` on iOS, registered
-in both `NSDefaultRunLoopMode` and `UITrackingRunLoopMode` so it ticks during
-scroll. A rAF requested outside a frame instead goes through `queueMacrotask`
-→ `dispatchToMainThread`, so the first frame of an animation is not
-vsync-aligned and carries a `getTimeInFrameBase()` timestamp; subsequent
-vsync-aligned frames carry the Choreographer nanos / `CADisplayLink.timestamp`
-(both monotonic). Frame timestamps are the natural frame-pacing instrumentation
-points.
-
-```ts
-// NativeScript contributor instrumentation; timestamps are supplied by the host.
-const frame = requestAnimationFrame((timestamp) => console.log('frame timestamp', timestamp))
-// Cancel if the owner is disposed before the callback runs.
-cancelAnimationFrame(frame)
-```
-
-**Clock.** NS's own frame base is `System.nanoTime()` on Android and
-`global.__time || Date.now` (`profiling.time`) on iOS — both monotonic.
-`CACurrentMediaTime()` is also directly callable on iOS.
-
-```ts
-// NativeScript injects these OS globals; use one clock consistently per run.
-const platform = globalThis as any
-const milliseconds = platform.android
-	? platform.java.lang.System.nanoTime() / 1e6
-	: platform.CACurrentMediaTime() * 1000
-console.log(milliseconds)
-```
-
-**Reduced motion.** iOS has a posted notification and NS wraps observation:
-`Application.ios.addNotificationObserver(UIAccessibilityReduceMotionStatusDidChangeNotification, cb)`
-— no polling needed on iOS. Android has no event; `ValueAnimator.areAnimatorsEnabled()`
-(API 26; app minSdk is 24, so gate it) covers the framework check and the
-`Settings.Global` read stays as the <26/OEM fallback. Polling remains
-Android-only.
-
-```ts
-import { Application } from '@nativescript/core'
-
-export function observeIOSReducedMotion(changed: () => void) {
-	const name = (globalThis as any).UIAccessibilityReduceMotionStatusDidChangeNotification
-	const observer = Application.ios.addNotificationObserver(name, changed)
-	return () => Application.ios.removeNotificationObserver(observer, name)
-}
-const platform = globalThis as any
-if (platform.android?.os.Build.VERSION.SDK_INT >= 26) {
-	console.log(platform.android.animation.ValueAnimator.areAnimatorsEnabled())
-}
-```
-
-**iOS animation internals.** `view.animate` adds `CABasicAnimation`/
-`CAAnimationGroup` to `nativeView.layer` — render-server driven — and uses
-`_suspendPresentationLayerUpdates` so model writes don't clobber the
-presentation layer. Its "spring" is `UIView.animateWithDuration...
-UsingSpringWithDamping` with hardcoded damping `0.2` — unsuitable, as
-previously recorded. NS composes all transform channels into one
-`layer.transform` `CATransform3D` (`ui/core/view/index.ios.ts` `_updateTransform`),
-so a delegated iOS run must drive that keypath and resync the model props at
-completion. `CASpringAnimation` exposes mass/stiffness/damping/initialVelocity —
-a direct param match to our `Transition`; `CAMediaTimingFunction(controlPoints:)`
-covers cubic-bezier tweens. Interruption reads `layer.presentation()`.
-
-```ts
-import type { View } from '@nativescript/core'
-
-export function presentationLayer(view: View) {
-	return view.nativeViewProtected.layer.presentation()
-}
-```
-
-**Android animation internals.** Platform `view.animate()`
-(`ViewPropertyAnimator`, a method on every `View` — zero new deps) covers
-`translationX/Y`, `scaleX/Y`, `rotation`, `alpha` with `PathInterpolatorCompat`
-for beziers (androidx.core is on the classpath), updates the readable property
-continuously, and cancels cleanly. `androidx.dynamicanimation` (`SpringAnimation`)
-is **not** on the NS classpath — bundled set is appcompat/core/fragment/
-activity/transition/viewpager2/exifinterface/documentfile; adding it needs a
-plugin `include.gradle` (precedent: gesturehandler ships one). Decision: keep
-springs on the JS engine (velocity-exact retargets, gesture settle) and
-delegate only tweens.
-
-```ts
-import type { View } from '@nativescript/core'
-
-// Contributor experiment on Android: duration is milliseconds, alpha is 0–1.
-export function nativeFade(view: View) {
-	const animator = view.nativeViewProtected.animate().alpha(0.5).setDuration(200)
-	animator.start()
-	return () => animator.cancel()
-}
-```
-
-**Gestures.** Shared `onPan` uses NS built-ins: real `UIPanGestureRecognizer`
-on iOS (the shared `UIGestureRecognizerDelegate` already supports
-`shouldRecognizeSimultaneously`/`requireFailureOf`, wired only for double-tap)
-and `CustomPanGestureDetector` on Android, which starts tracking on the first
-`ACTION_MOVE` — no touch slop — and nothing calls
-`requestDisallowInterceptTouchEvent`, so pan inside `ScrollView` is currently
-unhandled. `@nativescript-community/gesturehandler` is owned by the optional
-`@octane-xplat/drawer` package for mobile drawers; `@octane-xplat/ui` does not
-declare it as a peer. It ports RNGH semantics
-(`Manager`, `PanGestureHandler` with `minDist`/`activeOffset*`/`failOffset*`,
-`NativeViewGestureHandler` with `shouldActivateOnStart`/`disallowInterruption`).
-Adopting it for the gesture surface replaces building arbitration on raw NS
-gestures.
-
-```tsx
-import { View } from '@octane-xplat/ui'
-
-export function PanProbe() {
-	return <View onPan={(event) => console.log(event.state, event.dx, event.dy)} />
-}
-```
-
-**Web.** The pinned `motion-dom` ships the full WAAPI layer
-(`startWaapiAnimation`, `NativeAnimation`, `acceleratedValues`,
-`mapEasingToNativeEasing`); the adapter bypassed it until the web delegation
-recorded below landed — a direct `element.animate` driver proved sufficient,
-so the motion-dom helpers remain unused.
-
-**Retained probe.** `examples/probes/motion.tsrx` is now the maintained
-MotionProbe replacement (the previous physical-device probe was a temporary
-entry). It drives tween→destination, mid-flight spring retarget, `MotionValue`
-cancellation, pan began→moved→ended→spring-settle via PointerEvent dispatch on
-web and the pan gesture observer (`GestureTypes.pan`) on iOS/Android, Presence
-increment/exit/re-entry, and disposal cancellation. Passing: web (Chromium) and
-iOS simulator, 2026-10-02. Gesture dispatch is observer-level — real recognizer
-delivery remains a manual/device check.
-
-## Delegated drivers — landed 2026-10-02
-
-The seam is `HostAdapter.delegate(request) → DelegatedRun` in `host-types.ts`;
-`Controller.animate` delegates declarative tweens (`type` unset, `duration>0`,
-not reduced) and keeps springs, reduced-motion runs, and gesture-linked
-`MotionValue.animate` on the JS engine. The run exposes `sample()`/`cancel()`;
-a per-frame sampler tracks presentation values into the channel MotionValues so
-an interrupted delegated run hands off value and velocity exactly. Scale folds
-into scaleX/scaleY for native props; `scale` and `scaleX` both in a target stay
-consistent through the fold.
-
-```ts
-// Contributor example in packages/motion/src: these are internal types.
-import type { HostAdapter, DelegatedRequest } from './host-types'
-
-export async function delegatedSample(adapter: HostAdapter, request: DelegatedRequest) {
-	const run = adapter.delegate?.(request)
-	if (!run) return null // caller uses the JS engine
-	const sample = run.sample()
-	run.cancel()
-	return { sample, result: await run.finished }
-}
-```
-
-- **iOS**: `UIViewPropertyAnimator` + `UICubicTimingParameters` (CSS bezier
-  control points) on `view.transform`/`view.alpha` (`src/driver.ts`).
-  `sample()` reads `layer.presentationLayer()` and decomposes the affine
-  subset; `cancel()` freezes at presentation (`stopAnimation(true)`) and syncs
-  the model via the adapter. Model props land at the destination when
-  animations are added, which is why interruption must write back before
-  stopping.
-- **Android**: `ViewPropertyAnimator` on `translationX/Y`, `scaleX/Y`,
-  `rotation`, `alpha`, with `PathInterpolatorCompat` for bezier eases (no new
-  dependency; androidx.core is already on the classpath). Properties stay
-  readable mid-flight, so `sample()` is a direct getter read. Cancel fires
-  `onAnimationCancel` then `onAnimationEnd` — the end callback only commits the
-  destination when the run actually finished.
-- **Web**: `element.animate` with an explicit `from`/`to` keyframe pair —
-  transform channels share one matched function list
-  (`translateX/translateY/scaleX/scaleY/rotate`, same composition order as the
-  adapter's writes) so WAAPI interpolates each channel numerically, and
-  `opacity` animates as its own property (`src/driver.web.ts`). One
-  `cubic-bezier()` timing per run, `fill: 'forwards'`. `sample()` reads
-  `getComputedStyle` and decomposes the resolved matrix/matrix3d, peeling the
-  `transform-origin` offset back off so rotation and scale don't leak into
-  x/y. `cancel()` samples before `animation.cancel()` — cancel reverts to
-  base styles synchronously — then writes the frozen values through the
-  adapter so the next run's `from` keyframe continues the same frame. On
-  finish the destination is committed to base styles before the fill is
-  released, so later adapter writes still apply.
-- `__xplatMotionDelegations` on `globalThis` counts
-  started/finished/cancelled/fallback so probes can distinguish real delegation
-  from silent fallback without widening the public API. Web increments the
-  same counters through `src/delegation.ts`.
-
-Verification: `delegation.test.ts` covers delegation, scale folding,
-interruption handoff, spring bypass, reduced-motion bypass, and stop semantics
-on a scripted driver (6 tests), plus a web WAAPI section driving a fake
-`Animation` through the real web adapter — keyframe/options shape, matrix and
-matrix3d decomposition with transform-origin correction, cancel-before-sample
-ordering, mid-flight value/velocity handoff, and bezier-only gating (11 tests).
-The retained probe on the iOS 26.5 simulator
-passed with `started=8 finished=4 cancelled=3 fallback=0`; JS-engine pacing
-there ran 44 frames, 0 >34ms gaps, 16ms mean. Android runtime is unverified —
-no device/emulator was reachable.
-
-Web delegation evidence (2026-10-02): the retained probe passes 17 assertions
-on headless Chromium with `started=14 finished=10 cancelled=4 fallback=0` —
-the same counters as the iOS rerun — covering the mount tween, mid-flight
-spring retargets, variants stagger, whileTap engage/restore, and the Presence
-exit tween through `element.animate`. Interruption frees the MotionValues at
-the sampled frame; spring retargets land at the expected destination. The DOM
-dispatch path does not establish compositor scheduling or OS input.
-
-## Bounded variants — decision #93
-
-Variant labels and arrays now resolve to the existing numeric target contract.
-Each host owns its map and optional `custom` resolver argument. Later array
-entries overwrite earlier channels; the last defined variant transition wins.
-A root-local context provides initial/animate labels to motion children without
-an explicit animate control. The scheduler handles numeric delayChildren,
-staggerChildren, and beforeChildren/afterChildren sequencing on animate runs;
-children with their own animate form independent subtrees. Exit and interaction
-labels stay local to each host, preserving Presence's per-host registration.
-
-```tsx
-import { motion } from '@octane-xplat/motion'
-
-export function Variants() {
-	return (
-		<motion.View
-			initial="hidden"
-			animate={['visible', 'selected']}
-			custom={40}
-			variants={{
-				hidden: { opacity: 0 },
-				visible: { opacity: 1 },
-				selected: (x: number) => ({ x }),
-			}}
-		>
-			<motion.View variants={{ visible: { y: 0 }, selected: { scale: 1.1 } }} />
-		</motion.View>
-	)
-}
-```
-
-The scheduler strips tree metadata and adds child delay before Controller.animate,
-so the platform delegation gate remains unchanged. Generations cancel queued
-phases after replacement or unmount. Sequencing waits for actual completion
-(including springs/repeats), rather than estimating duration. An infinite repeat
-therefore holds the corresponding sequencing barrier until interrupted.
-See [the guide](../../../docs/app/animation-gestures.md#coordinate-variants) and
-[exact compatibility boundaries](../../../packages/motion/UPSTREAM.md#variants-decision-93).
-
-```tsx
-import { motion } from '@octane-xplat/motion'
-
-export function Sequenced() {
-	return (
-		<motion.View
-			animate="visible"
-			variants={{
-				visible: {
-					opacity: 1,
-					transition: { when: 'beforeChildren', staggerChildren: 0.1, delayChildren: 0.2 },
-				},
-			}}
-		>
-			<motion.View variants={{ visible: { x: 20 } }} />
-		</motion.View>
-	)
-}
-```
-
-Verification (2026-10-02): 60 standard tests and 5 native object-driver tests
-passed, along with web/native builds, packed export checks and packed consumers
-in Bundler/NodeNext modes. The maintained motion probe passed 11 assertions on
-Chromium and the requested iOS simulator: inherited custom targets landed at
-20/40, completion order was parent → A → B, and iOS platform delegation engaged
-(14 starts, 9 finishes, 4 cancellations, 0 fallbacks across the whole probe).
-These are host/observer dispatch checks, not physical input or hit-testing.
-Android runtime was unavailable and remains unverified for this expansion.
-The component-motion recipe adds AC5 for variants; coverage is complete, with
-Android execution limited to native build/type evidence.
-
-## Upstream API-shape expansion — landed 2026-10-02 (decision #92)
-
-`@octane-xplat/motion` now honors the upstream prop/transition vocabulary where
-it maps onto the bounded numeric contract:
-
-- **Transition**: the full named-ease set (`circIn/circOut/circInOut`,
-  `backIn/backOut/backInOut`, `anticipate`) passes through to motion-dom;
-  springs accept the duration/bounce spec; `repeat`/`repeatType`
-  (`loop`/`reverse`/`mirror`)/`repeatDelay` wrap the generator per leg.
-  Per-channel overrides use upstream's `{x: {…}, default: {…}}` form
-  (`TransitionOrchestration`, resolved per key in `Controller.animate`).
-- **Delegation gates**: non-bezier eases, springs, `repeat`, and per-key
-  orchestration refuse platform delegation — the native drivers take one
-  bezier timing curve per run — and fall to the JS engine on every target.
-- **Interaction props**: `whileTap`/`whileFocus` (+ `…Transition` overrides)
-  go through a `HostAdapter.gesture(kind, callbacks)` seam — PointerEvents on
-  web, NativeScript `touch`/`focus`/`blur` on native. The component snapshots
-  the declarative `animate` target before the interaction run and restores it
-  on release/blur. `whileHover` is deliberately excluded (touch has no hover);
-  `whileInView` waits on a native visibility observer.
-- **Callbacks**: `onAnimationStart(definition)`, `onAnimationComplete()`,
-  `onUpdate(latest)` fire per run through the controller.
-- **`motion.create(Component)`** wraps any leaf that takes
-  `bind`/`style`/`children`; implemented via a top-level `MotionLeaf` because
-  the universal compiler rejects JSX inside non-component module functions.
-- **`useAnimate()`** returns `[scope, animate]`; `bind` accepts callback refs
-  and `{current}` scope objects; a WeakMap registry resolves host nodes to
-  controllers so `animate(node, target, transition)` and
-  `animate(target, transition)` both work.
-
-Not implemented (documented in UPSTREAM.md): keyframe
-arrays, CSS strings, `motion.<tag>` DOM proxy, `AnimatePresence` naming.
-
-Probe evidence (2026-10-02): web + iOS simulator runs cover `whileTap` via
-PointerEvents/`GestureTypes.touch` observer dispatch — engage to `scale: 0.6`,
-release restores `scale: 1` through the delegated driver. iOS delegations:
-11 started / 7 finished / 4 cancelled. The native `touch` listener is a
-GesturesObserver (GestureTypes.touch = 128), not a plain `notify` event —
-synthetic dispatch must call the observer callback directly.
-
-## Bounded declarative drag — decision #94
-
-The gesture-arbitration half of #89 lands with `drag`, numeric constraints,
-scalar `dragElastic` (default 0.35), `dragMomentum`, and drag callbacks.
-[Drag setup and behavior](../../../docs/app/animation-gestures.md#drag-a-component) owns the
-consumer workflow; [compatibility](../../../packages/motion/UPSTREAM.md#bounded-declarative-drag)
-lists the covered and excluded upstream semantics.
-
-```tsx
-import { motion } from '@octane-xplat/motion'
-
-export function Drag() {
-	return (
-		<motion.View
-			drag="x"
-			dragConstraints={{ left: -40, right: 40 }}
-			dragElastic={0.35}
-			onDragEnd={(_event, info) => {
-				if (!info.cancelled) console.log(info.velocity.x)
-			}}
-		/>
-	)
-}
-```
-
-Native uses `@nativescript-community/gesturehandler@2.0.45` as an optional
-motion peer, with explicit app-owned `install()` before Page/Frame creation.
-The mobile app already declared this dependency but had not installed its
-Manager/root hooks. Motion does not call `install(true)` or change `onPan`.
-The probe host also installs the plugin before root creation and keeps plugin
-imports external in case bundles so they resolve to the host's single instance.
-
-```ts
-// Native entry: install before Page/Frame/root construction.
-import { install } from '@nativescript-community/gesturehandler'
-
-install()
-```
-
-The PanGestureHandler configuration uses minDist 8 DIP for both-axis drag;
-horizontal drag activates outside ±8 x and fails outside ±8 y before activation
-(vertical is symmetric). Android 2.0.45's option converters are getter-only,
-so the adapter passes explicit device-pixel thresholds; touch payloads are
-already DIP. Android single-axis handlers disable the default radial slop
-alternative to activation so only the selected axis activates. NativeViewGestureHandler/waitFor/simultaneous graphs for nested
-controls remain out of scope. This policy addresses the raw Android pan
-first-MOVE/no-disallow-intercept seam without reimplementing RNGH arbitration.
-
-All drag writes and release springs run through JS MotionValues/motion-dom.
-Momentum projects velocity 0.2 seconds, clamps the destination, and settles
-with stiffness 200/damping 30. Hard bounds clamp samples before notification;
-elastic bounds permit overflow and spring back. Cancellation drops velocity;
-reduced motion snaps settlement. This is intentionally not upstream inertia.
-
-```tsx
-import { motion } from '@octane-xplat/motion'
-
-export function BoundedDrag() {
-	return (
-		<motion.View
-			drag="x"
-			dragConstraints={{ left: -40, right: 40 }}
-			dragElastic={false}
-			dragMomentum
-		/>
-	)
-}
-```
-
-Verification (2026-10-02): 51 shared/web tests and 6 native object-driver/handler
-tests pass, along with web/native builds, pack checks, packed consumers, and
-source lint/formatting. The retained motion probe passes 14 assertions on
-Chromium and 14 on iOS simulator 0F6290B1-8BF6-4D0D-AD40-3966591ECDCA.
-Both runs cover drag live writes, momentum to x=40, hard constraints over every
-sample, callbacks, and cancellation. iOS dispatches through the actual plugin
-handler; release velocity was 250 DIP/s. Existing onPan/tap/Presence/delegation
-checks still pass (iOS: 11 delegated starts, 7 finishes, 4 cancellations).
-These are synthetic pointer/handler dispatch results, not OS input or
-ScrollView arbitration evidence. Android runtime was unavailable.
-
-## The load-bearing fact
-
-On NativeScript your JS **runs on the UI thread**: a `touch` move event can
-mutate `view.style`/native props synchronously in the same frame. RN needed
-Reanimated worklets + a serialized channel for exactly this; we don't. On web,
-pointer events → DOM style is equally synchronous. So:
-
-- Gesture-driven, interruptible animation is achievable with **plain JS** on
-  both targets — no worklet runtime, no "native driver" flag semantics.
-- The primitive contract is: animations and gestures write _imperatively_ to
-  the leaf view (via ref/style), while Octane state stays declarative. Rule:
-  **animation writes imperative, app state writes declarative** — don't route
-  per-frame values through `useState` (it's correct but wasteful; compiled
-  renders still cost more than a style write).
-
-## Original layered design (historical)
-
-```
-packages/ui/anim (shared API)
-├── useAnimation() → controller { to(), spring(), stop(), value }
-├── useGesture('pan' | 'pinch' | 'tap'…) → normalized event stream
-└── curves: named easings + cubic-bezier + spring params
-        │                    │
-   .web impl            unsuffixed native default
-   WAAPI / @octanejs/   view.animate() /
-   motion               view.style per-frame in touch handlers
-```
-
-The following sketch predates the shipped API. In particular, `useGesture`
-and style-binding the old `useAnimation` return value are not current usage
-instructions. Use [motion and gestures](../../../docs/app/animation-gestures.md) and its
-maintained examples for the current binding and lifecycle contract.
-
-### Shared API shape (Flutter-flavored)
-
-```tsx
-// Proposed API only: these declarations model the original sketch.
-import { View } from '@octane-xplat/ui'
-declare function useProposedAnimation(initial: number): {
-	to(target: number, options: { duration: number; curve: string }): void
-	spring(target: number, options: { damping: number }): void
-	value: number
-}
-export function ProposedMotion() {
-	const x = useProposedAnimation(0)
-	return (
-		<View
-			style={{ translateX: x.value }}
-			onPan={(event) => {
-				if (event.state === 'began') x.to(100, { duration: 250, curve: 'easeOut' })
-				if (event.state === 'ended') x.spring(0, { damping: 14 })
-			}}
-		/>
-	)
-}
-```
-
-- The proposed `useAnimation` would return a value usable inside `style` objects — leaf impl
-  subscribes and writes to the underlying view each tick.
-- `interpolate(value, [in], [out])`, `Sequence`/`Stagger` later — keep v1 to
-  `to`/`spring`/`interpolate`.
-
-### Per-target drivers
-
-|                          | Web                                                              | Native                                                                                                                                                                                                      |
-| ------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tweened props            | WAAPI `el.animate()` (compositor-friendly) or `@octanejs/motion` | `view.animate({…})` → UIView/ViewPropertyAnimator; `Animation` class for multi-view                                                                                                                         |
-| Per-frame/gesture-linked | `requestAnimationFrame` + direct style                           | `touch` handler + direct style — synchronous                                                                                                                                                                |
-| Declarative loops        | CSS `@keyframes`                                                 | NS CSS `@keyframes` — **verified set is ~12 props** (opacity, translate/scale/rotate, width/height, background-color, perspective, transform); unsupported props silently dropped                           |
-| Curves                   | easing strings/cubic-bezier                                      | `curve` param — **normalize to named/cubic-bezier only**; `spring` maps to UIKit spring on iOS vs BounceInterpolator on Android (divergent — facade must implement springs itself or accept the divergence) |
-
-`@octanejs/motion` exists but is DOM-only — treat it as the web driver's
-implementation detail, not a shared dependency.
-
-**`view.animate` contract traps** (verified via ns-view-animations):
-transforms are **absolute destinations** (scale:0.5 then scale:1 is "to 1",
-not "double") — the facade must track current values itself; cancel resolves
-on Android but leaves the promise **pending forever on iOS** — never `await`
-a cancellable animation; `iterations: 0` diverges (iOS=none, Android
-degenerate) — facade exposes `iterations: 'infinite'` explicitly.
-
-**Animation driver verified on iOS:** `useAnimation()` → `{ value, to, spring, stop, ref }`
-works as a plain exported function in a `.tsrx` file — hooks called inside an
-active component render resolve via implicit slots
-(`implicit:${owner.implicitSlot++}`), so custom hooks don't need `@{ }`
-bodies; they just need stable call order. The value attaches through a `ref`
-prop forwarded by the leaf to its host and writes `view[prop]` per rAF frame — no re-render.
-`to(80,{300ms})` hit exactly 80; JS spring integrator settled to |−1.4|.
-
-```tsx
-import { useEffect } from 'octane'
-import { View, Pressable, Text, useAnimation } from '@octane-xplat/ui'
-
-export function LegacyTween() {
-	const x = useAnimation(0)
-	useEffect(() => () => x.stop(), [])
-	return (
-		<>
-			<View ref={x.ref} />
-			<Pressable onPress={() => x.to(80, { duration: 300 })}>
-				<Text>Move</Text>
-			</Pressable>
-		</>
-	)
-}
-```
-
-## Gesture normalization
-
-| Shared                 | Web                                     | Native                                                                  |
-| ---------------------- | --------------------------------------- | ----------------------------------------------------------------------- |
-| `onPress`              | click/pointerup w/ press geometry       | `tap` (already aliased by driver)                                       |
-| `useGesture('pan')`    | pointerdown/move/up + setPointerCapture | `touch`/`pan` events (`getX/getY` in dip — convert to same units)       |
-| long-press             | timer over pointerdown                  | `longPress`                                                             |
-| `hover`/`focus` states | real CSS                                | N/A — omit or no-op; NS pseudo-states limited (`:highlighted` — verify) |
-
-Normalize to: `{ x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled', target }`.
-Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).
-
-```tsx
-import { View } from '@octane-xplat/ui'
-
-export function GestureStatus() {
-	return (
-		<View onPan={(event) => console.log(event.state, event.dx, event.dy, event.vx, event.vy)} />
-	)
-}
-```
-
-**Verified on iOS:** `onPan`/`onSwipe` props on a `<flexboxlayout>` map
-through the driver's generic `onX` → event-name rule and deliver full
-payloads (`deltaX/deltaY/state`, `direction`) — one observer per gesture,
-verified via `getGestureObservers()`. **Seam:** gesture events are NOT on
-the plain event list — `view.on('tap')` routes to `GesturesObserver`, so
-`view.notify({eventName:'tap'})` never reaches handlers (unlike `textChange`
-which is a real event). Programmatic probing must call
-`observer.callback(args)`; real-recognizer delivery was verified manually
-(taps + typing).
-
-**Verified:** payload normalization landed in the shared pan plumbing
-(`pan`/`pan.web`) — View, HStack, and Pressable all take
-`onPan`/`onSwipe`/`ref`. NS `{deltaX,deltaY,state:int}` →
-`{x,y,dx,dy,vx,vy,state:'began'|...'}`; enum map is
-`cancelled=0,began=1,changed→moved=2,ended=3`. Web leaves attach raw
-pointer listeners via the `ref` ref — **`pointermove` is not in octane's
-delegated-event set**, so declarative `onPointerMove` props can't drive a
-drag; the leaf owns the listeners. Velocity is computed from web pointer
-samples; native iOS reads `velocityInView`, and native Android uses
-`VelocityTracker` over the MotionEvents and converts px/sec to dip/sec.
-The demosweep exercises pan programmatically (observer callbacks on iOS
-sim — the Reorder step); real-recognizer delivery stays manual.
-
-```tsx
-import { View, setTranslate } from '@octane-xplat/ui'
-import { useRef } from 'octane'
-
-export function Pan() {
-	const host = useRef<any>(null)
-	return (
-		<View
-			ref={(view) => {
-				host.current = view
-			}}
-			onPan={(event) => {
-				if (event.state === 'moved') setTranslate(host.current, event.dx, event.dy)
-				if (event.state === 'ended' || event.state === 'cancelled') setTranslate(host.current, 0, 0)
-			}}
-		/>
-	)
-}
-```
-
-## Choreography patterns proven in ns-octane
-
-- **Interruptible drawer**: `@nativescript-community/ui-drawer` +
-  `translationFunction` — gesture progress drives the whole tree of
-  transforms (parallax, backdrop dim) synchronously. Model for all
-  gesture-linked animation.
-- **Keyboard-synced composer**: input-accessory plugin drives frame-aligned
-  movement; the pattern is "listen to native channel, write styles
-  per-frame." Web analog: `visualViewport` + rAF.
-- **Mount-swap via `visibility`**: all states mounted, `collapse` toggles —
-  reliable where layout re-measure is fragile.
-
-## What we deliberately don't build (v1)
-
-- Shared-element transitions / hero animations — platform extras later.
-- A physics sim library — `spring` semantics need JS anyway (native `spring`
-  curve diverges iOS/Android), so a small JS integrator for `x.spring()` is
-  the portable path; keyframe/`view.animate` springs stay platform quirks we
-  don't expose.
-- CSS `transition`-style implicit animation — **verified absent on NS**; the
-  facade owns state→state animation explicitly (`x.to(...)`) or via keyframe
-  classes.
+# Animation implementation constraints
+
+The [motion guide](../../../docs/app/animation-gestures.md) owns usage and support
+limits; the [service reference](../../skills/octane-xplat/references/services.md)
+owns agent implementation choices. This note records driver ownership and
+upstream seams. Historical validation lives in Silo/local artifacts.
+
+## Frame and gesture ownership
+
+NativeScript JavaScript executes on the UI thread. Drive per-frame presentation
+through imperative handles; declarative application state describes destinations
+and durable state, rather than publishing a render update for every frame.
+`ui` cannot depend on `motion`, because `motion` depends on `ui`.
+
+Normalize pan coordinates and velocity to DIP and use began/moved/ended/cancelled
+states. Native gesture observers and Observable notifications are different
+mechanisms. On web, pointer-move handlers need owned raw listeners and cleanup;
+they are not supplied by the ordinary delegated event path.
 
 ## AppKit imperative animation
 
-AppKit `useAnimation` previously committed targets immediately and wrote
-NativeScript property names onto NSView. It now uses the shared UI numeric
-controller, mapping opacity to `alphaValue` and transforms to Core Animation
-layer key paths. Explicit samples disable implicit layer actions. The hook owns
-its controller and cancels work on disposal; detached refs stop playback.
-
-Motion's host delegation remains iOS/Android-specific. UI cannot depend on
-motion: motion depends on UI and owns motion-dom. The smaller UI controller
-uses a linear tween and an exact unit-mass damped spring solution with existing
-UI defaults and rest tolerances (speed and displacement below 0.5). Both APIs
-sample elapsed time, but their options, units and rest behavior remain distinct
-existing contracts. No new motion-style API is introduced in UI.
-
-Verification: `node --test packages/ui/tests/animated-value.test.mjs` checks
-irregular elapsed samples, all damping regimes, replacement, stale callbacks,
-stop, detach, disposal, native mapping, and reduced-motion changes.
-`node apps/macos/test/verify-animation.mjs` builds an isolated fixture and runs
-it in the real AppKit/JSC host. It reads intermediate `alphaValue` and layer
-translation, exact spring settlement, hook identity after render, cancellation,
-and unmount cleanup. The recorded run had system Reduce Motion off; preference
-changes are covered with an injected deterministic host, not an OS setting
-toggle. No handler dispatch, OS input, screenshot, or frame-pacing test is
-implied. Scheduling uses the existing main-run-loop 16ms timer shim, not a
-screen-synchronized display link; this is not a 60fps guarantee.
-
-UI web/native builds, declaration generation, native regression tests (86 plus
-7 Node tests), recipe links, and the docs site build pass. A scoped packed
-animation consumer passes web/native/macOS source and publish export maps in
-Bundler and NodeNext, including rejected string duration/damping options.
-That tarball was built in isolation with prepack omitted: the normal pack gate
-still reports unrelated missing macOS declarations, Meter's unresolved svg
-reference, and undeclared drawer/octane declaration imports. The broad native
-consumer also encounters missing ListItem.Leading/Content declarations. Those
-checks remain unchanged and are not claimed as passing. Motion's independent
-suite reports 47 passing tests and a components.web.test.tsrx module failure
-because motion.create is undefined. The repository-wide TSRX spacing pass has
-existing failures outside this change; changed animation files pass.
+AppKit owns alpha through NSView and transforms through Core Animation. Explicit
+sampled writes disable implicit layer actions. Controllers belong to their bound
+ref and must detach/dispose without retaining a view or overwriting a newer owner.
+The main-runloop 16 ms timer is not screen-synchronized and makes no frame-pacing
+promise. Linear and damped-spring imperative controllers have their own units and
+rest conditions; they are not the Motion engine.
 
 ## Decision #130 — layout projection (web, iOS, Android, macOS)
 
@@ -749,24 +61,8 @@ transforms and scroll offsets. macOS observes renderer batches (including existi
 roots when subscribing), forces AppKit layout before measuring, and compensates
 for layer anchors. AppKit `isFlipped` is called when exposed as a method.
 
-The maintained macOS runtime fixture loads Mason through the CLI native bootstrap.
-On 2026-10-28 it passed resize origin, intermediate parent width (134.75pt), nested
-child width (50pt), transform restoration, and keyed reorder origin/settle checks.
-Layer-coordinate measurements are nonvisual evidence, not OS input or pixel parity.
-The Chromium fixture also passes scrolling between updates in nested overflow
-containers without spurious motion.
 
-Runtime evidence (2026-10-27, `pnpm probe run examples/probes/motion-layout.tsrx
---target ios|android`; probe geometry evidence only, not visual capture or OS
-input): iOS 27.0 sim — first frame w 100.23 with raw layout 200, mid 155.81
-with child 50, settle 200, identity transforms, reorder starts at before
-positions; Android 15 emulator — first frame 100 with raw 200, mid 167.43 with
-child 50.0, settle 200, reorder starts at before positions, reorder ops
-`["move"]`. Phase 0 findings P1–P7 are summarized in
-`~/dev/plans/octane-xplat/motion-layout-projection.md`; raw probe logs live in
-gitignored `research/`.
-
-The maintained probe is now `examples/probes/motion-layout.mobile.tsrx`; the
+The maintained mobile probe is `examples/probes/motion-layout.mobile.tsrx`; the
 `.mobile` suffix marks its iOS/Android-only native imports and elements.
 
 `examples/probes/intl-shim.ts` exists because ui's table module evaluates
@@ -789,8 +85,7 @@ stops constructing `Intl` objects at module scope.
   Scope: batch observation only; no command mutation; a throwing observer is
   logged and cannot abort the batch. Upstream:
   [nativescript-community/octane#17](https://github.com/nativescript-community/octane/pull/17)
-  proposes the same API and semantics (filed 2026-10-27, unit-tested
-  upstream only). Drop the local hunk when a release ships it.
+  proposes the same API and semantics (upstream proposal). Drop the local hunk when a release ships it.
 - NativeScript `layoutChanged` does not fire on keyed reorder or parent moves
   (P3, verified on iOS 27.0 sim + Android 15 emulator), so it can't drive
   commit detection.
@@ -819,23 +114,8 @@ Presence joins channel-exit and shared-exit promises; re-entry cancels pending
 removal and promotes from the currently presented box. Group inheritance only
 controls namespaces because every registered layout host already observes commits.
 
-Runtime qualification on 2026-10-28 is nonvisual geometry evidence:
 
-| Target | Evidence |
-| --- | --- |
-| Chromium | Browser tests cover parent/child sizing, nested scrolling, shared geometry, crossfade, reversal, group isolation, and reduced-motion snap. |
-| iOS 27.0 simulator | `examples/probes/motion-shared.tsrx`: 18 assertions pass, including an unmounted underline source, retained crossfade/reversal, isolation, and reduced-motion snap. |
-| Android 15 emulator | The same 18 probe assertions pass. Mid-handoff source/destination widths agree within 0.00001 DIP. |
-| AppKit | `tests/layout.macos.tsx` covers resize/reorder origins, nested correction, shared geometry/crossfade/reversal, isolation, and reduced-motion snap. |
-
-These checks do not qualify OS input or pixel parity. Rounded corners/shadows,
-fixed layout roots, and root/anchor APIs remain outside this phase. The probe's
-Intl shim only permits UI module initialization; production Intl support is
-separate work. Recipe criteria AC6 and AC7 in `motion-patterns` cover the layout
-and shared-element workflows.
-
-
-### Phase 3 paint correction
+### Paint correction
 
 Projection uses Motion's numeric corner and single-shadow correction on web.
 NativeScript corrects resolved radius lengths and parsed shadow objects;
@@ -845,12 +125,8 @@ Scalar native radii and blur/spread are exact only under uniform scale. Web
 multiple shadows retain Motion's fallback; percentage radii retain proportional
 behavior on web and NativeScript.
 
-Focused web-host and projection tests, native object-driver tests, and all 350
-AppKit renderer tests pass. The AppKit runtime harness verifies a 100→200 uniform
-resize keeps a 20pt corner radius and 12pt shadow blur, including intermediate
-frames and restoration. These assertions inspect layer geometry, not pixels.
 
-### Phase 3 scroll containers
+### Scroll containers
 
 Measurements retain ancestor scroll readers through source removal. Shared stack
 snapshots and coordinate transfer read current offsets instead of the source's
@@ -866,7 +142,7 @@ an adapter reset gap: returning transform ownership with no channel values must
 clear the last projection transform.
 
 
-### Phase 4 drag and layout
+### Drag and layout
 
 Projection blocks new layout animation while dragging, transfers a running
 animation to the selected channels at its presentation, and compensates viewport
@@ -874,11 +150,6 @@ layout shifts before drawing. Ancestors can continue animating; absolute target
 projection holds the card at the pointer, including release before the ancestor
 settles. Cleanup and cancellation clear the block. Numeric constraints retain
 their translation-coordinate meaning; this does not implement `Reorder`.
-
-Focused kernel/drag tests and the 25 native object-driver tests pass. Chromium
-verifies synthetic pointer movement through an ancestor move, continued movement,
-early release and final settlement. This is browser geometry and pointer-handler
-evidence, not physical input or hit-testing evidence.
 
 
 ### Mason core paint integration
@@ -891,50 +162,17 @@ compensates those engine values directly for Mason views, preserving Core cascad
 state. Standard NativeScript views retain the length/array path. This private
 `_styleHelper` seam is scoped and versioned in motion's UPSTREAM.md.
 
-The combined container probe now passes 23 assertions each on the iPhone 18 Pro
-simulator and Android phase0-probe AVD: numeric paint correction/restoration,
-scrolling without spurious projection, root/anchor movement, pickup during an active layout animation, drag through
-ancestor layout, continued movement, early release, and disabled-drag cleanup.
-It reads native boxes and paint-engine values and dispatches gesture handlers;
-it does not qualify painted pixels, physical touch, or OS hit-testing.
 
-### Phase 3–4 final verification (2026-10-28)
+## Verification and evidence lookup
 
-| Evidence | Result |
-| --- | --- |
-| Motion unit tests that compile with the current parser | 142 pass across 14 files; four existing web component TSRX suites remain blocked by the parser error reproduced on pre-feature main |
-| Native object-driver tests | 28 pass across seven files |
-| AppKit renderer unit tests | 350 pass, including paint ownership and percentage-radius preservation |
-| Chromium container geometry | Five tests pass: corrected paint in nested scrollers, scrolled source removal/handoff, active-animation drag pickup, moving ancestors/early release, root/anchor positioning, and intentional user-scale preservation |
-| iOS native container probe | 23 assertions pass on iPhone 18 Pro simulator `91D40099-A056-497D-A572-ADDDFD6A8F23` |
-| Android native container probe | 23 assertions pass on phase0-probe AVD `emulator-5586`, one emulator CPU core |
-| AppKit runtime | Layout, corrected paint, shared reversal, drag/early release, root/anchor and scrolled source handoff markers all pass |
-| Required package/dependent typechecks | All 66 tasks pass, including lint dependents; 41 Motion/dependent tasks pass again after the final pickup fixtures; Turbo concurrency one |
-| Native shadow lint rule | Regression passes for supported boxShadow and rejected float; native fixtures use mobile file boundaries |
-| Packed consumers | Web/native/macOS, both resolver modes and maintained new guide examples pass against the shared JSX facade |
-| Full docs site build | Blocked by `ParserOperationalError: unsupported TSRX parser shape: reachable synthetic ESTree span`, also observed in existing web suites; no full-site pass claimed |
+Maintained mobile projection cases live in `examples/probes/motion-layout.mobile.tsrx`,
+`motion-shared.tsrx`, and `packages/motion/tests/containers.mobile.tsrx`; check their current
+filenames and runner requirements before execution. Browser container cases live
+in `tools/visual/src/`; AppKit runtime cases live with the Motion package.
+Geometry, paint-engine values, synthetic pointer events, and handler dispatch
+qualify their respective mechanisms. They do not establish painted pixels,
+physical input, OS hit-testing, or assistive-technology behavior.
 
-Paint correction compensates only layout scale, preserving intentional user
-scale throughout projection and after release. Browser and native driver
-regressions verify the corner/shadow values before, during, and after a resize.
-
-The native probe inspects boxes and paint-engine values and dispatches handlers;
-it does not establish OS input, hit-testing, or pixel parity. Owned simulators
-and the emulator were shut down and reservations released. Nonuniform native
-corners and scalar blur/spread retain the documented approximation. Explicit
-layoutScroll, measured drag-ref constraints, Reorder, and route transitions remain
-outside this implementation. Recipe motion-patterns AC8 and AC9 cover the new
-container and drag workflow; prior AC1–AC7 evidence remains historical.
-
-
-### Integration after rebasing onto main
-
-The Phase 3–4 commits rebased onto `024d2b604`. The container browser test
-now lives in `tools/visual/src/`, matching the harness move on main. After
-syncing this worktree's dependencies with the rebased lockfile, all 68 required
-package/dependent typecheck tasks pass, along with all 211 Motion tests across
-18 files, 28 native driver tests, 350 AppKit renderer tests, 10 lint-rule tests,
-and five Chromium container tests. The earlier four-suite parser blocker no
-longer reproduces in the full Motion suite with main's updated compiler. The
-full docs build and device runtime probes were not repeated for this rebase;
-the preceding device results describe the pre-rebase qualification.
+Use Silo `local_artifacts` key `.agents/docs/notes/animation-notes.md` for the
+preserved validation records. Follow [operational evidence](../exploration.md#operational-evidence);
+keep current target results outside tracked guidance.

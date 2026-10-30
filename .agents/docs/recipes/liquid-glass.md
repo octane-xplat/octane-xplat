@@ -26,5 +26,5 @@ this recipe does not claim shared glass parity.
 
 - AC1: [Material and fallback](../../../docs/app/liquid-glass.md) and [acceptance](../../../docs/app/liquid-glass.md#acceptance-on-a-device).
 - AC2: [Default interaction and device acceptance](../../../docs/app/liquid-glass.md) and [Glass demo](../../../packages/demos/src/GlassDemo.ios.tsrx).
-- AC3: [Explicit interaction limit and device acceptance](../../../docs/app/liquid-glass.md) and [Glass demo](../../../packages/demos/src/GlassDemo.ios.tsrx). Real OS touch delivery remains unqualified.
+- AC3: [Explicit interaction limit and device acceptance](../../../docs/app/liquid-glass.md) and [Glass demo](../../../packages/demos/src/GlassDemo.ios.tsrx). Real OS touch delivery requires separate target qualification.
 - AC4: [iOS imports and container fallback](../../../docs/app/liquid-glass.md).

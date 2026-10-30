@@ -1,28 +1,9 @@
-# Android emulator lab log
+# Android probe host setup
 
-Internal host setup and verification record. Use [single-case probing](probing.md)
-for the runner contract; this note supplies the local Android setup it expects.
-
-## Host inventory (2026-10-02)
-
-- macOS arm64. `ANDROID_HOME` and `ANDROID_SDK_ROOT` point to
-  `$HOME/Library/Android/sdk`.
-- SDK command-line tools 22.0, emulator 37.1.11, platform-tools 37.0.1.
-  `sdkmanager` and `avdmanager` are in `cmdline-tools/latest/bin`;
-  the emulator exists in `emulator/` but was absent from PATH.
-- Platforms 34–37 and build-tools 34–36.1 are installed. The only installed
-  system image is `system-images;android-35;google_apis;arm64-v8a` (revision 9).
-  API 34 has a platform package, but no emulator system image.
-- JDK 21.0.12.1 (Temurin) is installed in the user Library. JDK 25 is also
-  installed; the runner selects JDK 21 on macOS when `JAVA_HOME` is unset.
-  An explicit `JAVA_HOME` is preserved, including an unregistered Homebrew JDK;
-  the doctor validates that the selected Java reports major version 21.
-- Both `avdmanager list avd` and `emulator -list-avds` initially returned no
-  AVDs. The former `tiptap-verify` AVD was absent. Created
-  `octane-prime-larkspur` with the installed API 35 arm64 image.
-- adb servers already listen on 5037 and 5039. A physical phone was also
-  listed on 5037, so choosing that server alone does **not** isolate devices.
-  All device operations below select `emulator-5556`. Port 5039 was untouched.
+Use [single-case probing](probing.md) for runner behavior and
+[Android starter tests](android-starter-tests.md) for packed-consumer checks.
+This guide describes an isolated host; inspect current tools and devices rather
+than relying on a saved machine inventory.
 
 ## Working recipe
 
@@ -54,10 +35,11 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21
    adb devices -l
    ```
 
-2. If your own AVD does not exist, create it using the installed image:
+2. If your own AVD does not exist, create it using an installed image (this
+   example requires the API 35 Google APIs arm64 image):
 
    ```sh
-   printf 'no\n' | avdmanager create avd --name octane-prime-larkspur \
+   printf 'no\n' | avdmanager create avd --name xplat-probe \
      --package 'system-images;android-35;google_apis;arm64-v8a'
    ```
 
@@ -66,15 +48,17 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21
    or accepted licenses are missing, report that setup blocker rather than
    silently installing system components or accepting licenses.
 
-3. Boot in a separate terminal with the same shell environment, after checking
-   that console port 5556 and adb port 5557 are free:
+3. Reserve the owned emulator, then boot it in a terminal with the same shell
+   environment after checking that ports 5556 and 5557 are free. In Goddard,
+   start a reserved shell and run the remaining boot/probe/shutdown steps there:
 
    ```sh
-   emulator -avd octane-prime-larkspur -port 5556 \
-     -no-window -no-audio -no-snapshot -gpu swiftshader
+   goddard-agent resource run --json '{"resources":{"resident_devices":1,"exclusive":["android:xplat-probe"]},"purpose":"Android probe"}' -- zsh
+   emulator -avd xplat-probe -port 5556 \
+     -no-window -no-audio -no-snapshot -gpu swiftshader &
    ```
 
-   This headless run needs no screenshots. Check readiness in the first terminal:
+   This headless run needs no screenshots. Check readiness in the reserved shell:
 
    ```sh
    adb -s emulator-5556 wait-for-device
@@ -105,114 +89,41 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21
    adb -s emulator-5556 emu kill
    ```
 
-   Keep the AVD for future runs. Do not kill adb servers or stop other devices.
+   Keep the AVD for future runs. Exit the reserved shell after shutdown. Do not
+   kill adb servers or stop other devices. Reserve `native_builds: 1` for a compilation phase when
+   needed; release build capacity when compilation ends.
+
 
 ## Build and session pitfalls
 
-- NativeScript's build doctor invokes `$ANDROID_HOME/emulator/emulator -help`.
-  An installed emulator that cannot execute can block even a build-only lane.
-  `NS_SKIP_ENV_CHECK=1 pnpm exec ns build android` is the supported escape for
-  build-only work after prerequisites are checked; it does not boot a device,
-  establish runtime evidence, or fix missing SDK/JDK components.
-- The runner takes `/tmp/octane-xplat-android.lock` through
-  `scripts/with-native-target-lock.py`. iOS has a separate lock. A busy Android
-  target must wait for its owner; do not delete shared lockfiles. The runner
-  also owns its case lock, app lifetime, and adb reverse mapping.
-- NativeScript extracts bundled assets on first install. `adb install -r`
-  preserves that extraction and can execute stale code. The isolated runner
-  fingerprints native builds into distinct app IDs and installs an absent app;
-  it does not automatically uninstall existing apps. For a manually rebuilt
-  app with the same ID, uninstall **only your disposable probe app** and perform
-  a clean install. Uninstalling deletes its data; never do this to a shared app.
-- A fresh checkout's frozen install initially failed because `pnpm-lock.yaml`
-  repeated `@octane-xplat/ui` under `packages/files` devDependencies. Removing
-  the identical duplicate fixes parsing without dependency resolution changes.
-  Postinstall then needed `git submodule update --init` for the pinned SVG and
-  Lottie vendor checkouts.
-- After submodule initialization, dependency installation completed but the
-  repository postinstall still failed in `packages/icons` typegen:
-  `TS2875` for `@xplat/macos/renderer/jsx-runtime`, and `TS2786` for the macOS
-  `Image` component. This is a remaining full-workspace setup gap; the Android
-  lane uses the installed dependencies and does not establish a successful
-  clean workspace install.
+- Use JDK 21 and explicit device selection. A connected physical device can share
+  an adb server with emulators; a server port does not isolate the target.
+- NativeScript's build doctor invokes the emulator executable even for some
+  build-only lanes. A build result never establishes runtime behavior or repairs
+  missing SDK/JDK components.
+- The runner owns target/case locks, app lifetime, and adb reverse mappings.
+  Wait for another owner; never delete shared lockfiles. Allow interrupted
+  processes to complete cleanup before releasing ownership.
+- NativeScript extracts assets on first install. `adb install -r` can preserve
+  stale extracted code. Use the runner's fingerprinted disposable app identity.
+  A manual clean install may remove only your disposable probe app, with its
+  data loss understood; never uninstall a shared app to refresh a fixture.
+- Initialize pinned submodules before a frozen install. A focused Android lane
+  does not establish that full-workspace postinstall or other platforms pass.
 
-## Runtime evidence
+## Consumer test qualification
 
-Evidence type: `lab-experiment`, Android API 35 Google APIs arm64 on
-`octane-prime-larkspur` / `emulator-5556`, 2026-10-02. No visual analysis,
-physical-device interaction, or iOS run was used for this verification.
+Use `scripts/verify-consumer.ts --test-android` through its maintained workflow;
+`scripts/verify-android-tests.ts` owns target selection, readiness, disposable
+identity, and teardown. Qualification requires the complete component/native API
+suite, an ordinary deliberately failing assertion returning nonzero, repeated
+cleanup, and a suite/app completion result. A build or daemon interruption is
+not that result. Report gesture-observer dispatch separately from actual OS
+input. Follow the current task's device permissions, not historical lab directives.
 
-The initial `examples/probes/signals.ts` run built, installed, and launched a
-fresh APK and returned `status: "pass"`, one passing assertion
-(`signal updates in the target runtime`, actual/expected `2`), and no result
-errors. NativeScript also logged a CSS error for `cache/probe.css` outside
-`files/app`; this was nonfatal and did not prevent the signal assertion.
-The probe host now writes CSS into `knownFolders.currentApp()` and loads
-`~/probe.css`, satisfying Android's app-root path requirement.
+## Evidence lookup
 
-The rebuilt host's signals run passed the same assertion (86 ms) without the
-CSS path error in its process log. Successful completion was captured both
-in the runner JSON and Android logcat. A network error appeared during
-shutdown after the result had arrived; it was not an assertion failure.
-
-Shutdown exposed a separate lock-wrapper problem: Python's `subprocess.call`
-received `KeyboardInterrupt`, killed the child before cleanup finished, and
-left the owned adb reverse mappings. The wrapper now forwards interruption
-signals and waits for the child while holding its lock. A maintained process
-regression test verifies that another session cannot acquire the lock during
-cleanup and can acquire it afterward.
-
-The maintained counter example initially failed compilation because it still
-imported the removed `Column` alias. It now uses the current `VStack` export.
-
-After the fixes, `examples/probes/counter.tsrx` returned `status: "pass"`
-(exit 0, 360 ms) with two passing assertions: `initial count` (`"0"`) and
-`count after press` (`"1"`), and no result errors. The interaction mechanism
-was `gesture-observer-dispatch`. The app process was absent after shutdown,
-`adb -s emulator-5556 reverse --list` was empty, and stderr contained no
-Python interruption traceback. The two mappings leaked by earlier runs
-were explicitly removed only on this task's emulator.
-
-Validation: 12 tests passed across `scripts/probe.test.mjs` and
-`scripts/native-target-lock.test.mjs`; focused JavaScript lint, formatting,
-`git diff --check`, and `pnpm check:recipes` passed. The affected recipe is
-`probe-platform-case` (Android setup, current maintained example, and session
-cleanup). Watch edits, extra dependency/resource integrations, other Android
-API levels, OS touch input, hit-testing, and visual layout were not verified.
-The counter inspection returned zero geometry while confirming text changes;
-this is not layout evidence. Full-workspace postinstall remains blocked by
-the macOS icon type-generation errors above.
-
-## Consumer test qualification gate (2026-10-13)
-
-Android consumer testing remains **unqualified**. The attempted run produced no
-spec summary or completion result before daemon interruption. The subsequent
-standing human directive prohibits emulator/simulator verification; no physical
-device is authorized for this assignment. Build evidence below does not close
-that runtime gate, and no OS input or visual analysis was performed.
-
-The prepared consumer uses packed Xplat 0.14.0 packages, NativeScript runner
-5.0.0, Vitest 4.1.11, core 9.1.3, vite integration 8.0.17, Android runtime
-9.1.1, CLI 9.1.1, Octane 0.11.0, and native renderer 0.2.4. The attempted host
-was API 35 Google APIs arm64 image revision 9, emulator 37.1.11, Temurin
-21.0.12.1, and Gradle 8.14.3. These are candidate versions, not a newly
-qualified supported combination.
-
-The focused packed consumer passed lint, shared web/native typechecking, and
-web build. The all-package build and pack gates failed in unchanged
-`packages/lottie/src/Lottie.tsrx:150` (`TS2322`, `any[]` versus `string`). The
-focused consumer used only its nine-package Xplat dependency closure; it is
-not a release-wide packed-consumer pass.
-
-The maintained qualification gate is `scripts/verify-android-tests.ts`, called
-by `scripts/verify-consumer.ts --test-android`. Its host tests cover explicit
-selection, boot readiness, disposable identity reuse, assertion failure, zero
-tests, and process teardown. Scaffold specs now include the native filesystem
-bridge, expected assertion failure, subscription/timer cleanup, and automatic
-cleanup between cases. They remain unexecuted on Android.
-
-Still required on an explicitly authorized real host: the complete component
-and native API suite, an ordinary deliberately failing assertion returning
-nonzero, repeated cleanup, and app/process completion. Report gesture observer
-dispatch separately from OS input. Do not launch a virtual host while the
-standing prohibition remains in force.
+Past machine inventories, attempted runs, and setup failures are indexed by Silo
+`local_artifacts` key `.agents/docs/android-lab.md`. Follow
+[operational evidence](exploration.md#operational-evidence); keep new results in
+Silo and local reports.

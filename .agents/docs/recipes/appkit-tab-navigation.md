@@ -18,8 +18,8 @@ A controlled settings/detail tab strip, including disabled tabs and overflow.
 
 ## Documentation
 
-- AC1: [AppKit tab guide](../../../docs/app/components.md#tab-strips-on-appkit), [focus controller](../../../packages/ui/src/components/forms/choice-focus.macos.ts) and [authored cases](../../../packages/ui/src/components/collections/tab-list.macos.mobile.test.tsrx). Tests are unrun.
+- AC1: [AppKit tab guide](../../../docs/app/components.md#tab-strips-on-appkit), [focus controller](../../../packages/ui/src/components/forms/choice-focus.macos.ts) and [authored cases](../../../packages/ui/src/components/collections/tab-list.macos.mobile.test.tsrx).
 - AC2: [Reveal helper](../../../packages/ui/src/components/collections/tab-reveal.macos.ts), the same guide/tests and [maintained fixture](../../../examples/probes/tab-list.macos.tsrx). The run hook checks direct selection dispatch only, not keyboard or actual scroll visibility.
 - AC3: [Renderer semantics](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility) and [target progress](../exploration.md#operational-evidence) record source scope, native gates and exact deferred commands.
 
-- AC4: [Overflow-tab guide](../../../docs/app/components.md#overflow-tabs-on-appkit), six object-driver cases, [maintained fixture](../../../examples/probes/tab-menu.macos.tsrx), skill guidance and [target note](../exploration.md#operational-evidence). All cases/fixture and native qualification remain unrun. Shared-menus AC13 now adds repair policy/surface cases and an appended TabMenu removal case, also unrun.
+- AC4: [Overflow-tab guide](../../../docs/app/components.md#overflow-tabs-on-appkit), six object-driver cases, [maintained fixture](../../../examples/probes/tab-menu.macos.tsrx), skill guidance and [target note](../exploration.md#operational-evidence). Shared-menus AC13 now adds repair policy/surface cases and an appended TabMenu removal case.

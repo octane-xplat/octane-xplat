@@ -29,7 +29,7 @@ space through form and overlay lifecycles.
 
 - AC1: [Control a field](../../../docs/app/text-entry.md#control-a-field) and [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately).
 - AC2: [Editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
-- AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md#later--finer).
+- AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md).
 - AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), [sticky composers](../../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard), the maintained [form example](../../../packages/keyboard/examples/KeyboardFormDemo.tsrx), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
 - AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
 - AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../packages/ui/examples/KeyboardSpaceDemo.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mjs), the [compiled cross-root hook test](../../../packages/ui/src/internal/keyboard/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mjs).
@@ -57,7 +57,7 @@ AppKit source follow-up: the shared TextArea leaf now forwards `onSubmit` for
 `done`/`send`, suppresses blocked edit/submit callbacks, and the native multiline
 delegate leaves marked-text confirmation to AppKit. [Component regressions](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx)
 and [delegate regressions](../../../packages/macos-renderer/test/text-controls.test.ts)
-are authored but unrun. Real keyboard, composition and full AC2 qualification
+provide source coverage only. Real keyboard, composition and full AC2 qualification
 remain open; source dispatch is not evidence of physical input.
 
 
@@ -66,7 +66,7 @@ field chrome and reuse of an enclosing Field; see [text and keyboard actions](..
 and the [object-driver field regressions](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx).
 Default Field layout is a column and authored CSS strings are retained. These
 are source/documentation claims only; actual layout, label interaction, keyboard
-activation and VoiceOver remain unqualified. Other native-control families and
+activation and VoiceOver require separate target qualification. Other native-control families and
 SearchInput icon semantics are not qualified by these text-control repairs.
 
 
@@ -88,7 +88,7 @@ unset/teardown and selection clamping. The renderer uses the live field editor
 for textfields and the textview itself for multiline input. Raw NSSearchField's
 separate text API is outside this source repair. [Writer/adapter regressions](../../../packages/macos-renderer/test/text-value.test.ts)
 and the [manual native fixture](../../../examples/probes/controlled-text.macos.tsrx)
-are authored but have not run.
+provide source coverage only.
 
 For later real-keyboard qualification, open the maintained fixture and test both
 fields with an input source that composes characters (for example Japanese):
@@ -136,5 +136,5 @@ authored object/array/CSS-string styles; removing it releases that default while
 an explicit authored placeholderColor remains. See [search and text examples](../../../docs/app/primitives.md#when-a-screen-needs-more)
 and the existing [controlled-text fixture](../../../examples/probes/controlled-text.macos.tsrx),
 which adds a manual color toggle. No test or probe ran; actual native placeholder
-painting/theme/layout remains unqualified. This small leaf repair reuses existing
+painting/theme/layout requires separate target qualification. This small leaf repair reuses existing
 renderer style application/removal and adds no native selector or public API.

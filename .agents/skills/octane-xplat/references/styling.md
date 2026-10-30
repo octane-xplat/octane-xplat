@@ -103,7 +103,7 @@ On iOS/Android, class-authored dimensions and centering use the same cascade
 as inline overrides, including foreign native hosts such as SVGView. Keep
 static sizes in classes; do not add a Mason wrapper just to carry width and
 height. The renderer patch bridges resolved leaf layout styles. See the
-[implementation and evidence boundary](../../../docs/notes/masonkit-layout-evaluation.md#foreign-leaf-layout-regression-issue-31).
+[implementation and evidence boundary](../../../docs/notes/masonkit-layout-evaluation.md#foreign-leaf-style-synchronization).
 
 ```tsx
 <Image src={svgMarkup} className="profile-icon" alt="Profile" />

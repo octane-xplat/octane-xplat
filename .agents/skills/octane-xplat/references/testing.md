@@ -83,7 +83,7 @@ The iOS/Android probe host includes Mason core because the locally patched
 renderer imports it (through its `nativescript-masonkit` specifiers) for
 container layout. Keep native host plugins in runtime
 `dependencies`: JavaScript resolution from a devDependency does not include the
-plugin binaries in `ns prepare`. See the [host integration contract](../../../../.agents/docs/notes/masonkit-layout-evaluation.md#native-host-integration-correction-2026-10-19).
+plugin binaries in `ns prepare`. See the [host integration contract](../../../../.agents/docs/notes/masonkit-layout-evaluation.md#native-host-integration).
 
 The isolated runner’s `ctx.press(id)` supports loaded core tap observers and
 MasonKit’s click listener (its tap alias). It reports `event-handler-dispatch`;

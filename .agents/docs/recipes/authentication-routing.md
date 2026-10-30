@@ -65,4 +65,4 @@ guards remain separate from server authorization and application cache cleanup.
   include this protocol. Native auth URL requests occur inside running apps.
   Generated client cold startup and OS URL delivery have separate evidence;
   their combination with real providers, OS auth dialogs, physical input and
-  assistive technology remains unqualified.
+  assistive technology requires separate target qualification.
