@@ -12,20 +12,30 @@ import { useFocusVisible } from './use-focus-visible'
  */
 
 export interface UseFocusOptions {
+	/** Suppresses the handlers and focused state. */
 	isDisabled?: boolean
+	/** Fires when the element gains focus. */
 	onFocus?: (event?: FocusEventPayload) => void
+	/** Fires when the element loses focus. */
 	onBlur?: (event?: FocusEventPayload) => void
+	/** Fires on every focused-state transition with the new value. */
 	onFocusChange?: (isFocused: boolean) => void
 }
 
 /** Portable shape of a web focus event. Native and macOS text controls may
  *  invoke focus callbacks without an event payload. */
 export interface FocusEventPayload {
+	/** Event kind — 'focus' or 'blur'. */
 	readonly type: string
+	/** Element the event fired on. */
 	readonly target: unknown
+	/** Element the handler is attached to. */
 	readonly currentTarget: unknown
+	/** Related element across the focus transition (previous/next focused element). */
 	readonly relatedTarget: unknown
+	/** Blocks the platform's default focus behavior. */
 	preventDefault(): void
+	/** Stops the event reaching ancestor handlers. */
 	stopPropagation(): void
 }
 
@@ -35,6 +45,7 @@ export interface FocusEventPayload {
  * @see useFocusWithin, useFocusRing.
  */
 export function useFocus(options: UseFocusOptions = {}): {
+	/** Bound focus/blur handlers for the host — empty when `isDisabled`. */
 	focusProps:
 		| {
 				onFocus?: undefined

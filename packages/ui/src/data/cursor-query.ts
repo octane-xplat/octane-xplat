@@ -10,25 +10,37 @@ import {
 
 /** A server page. Undefined cursors mean that direction has ended; null is a valid cursor. */
 export interface CursorPage<T, C extends QueryKeyPart> {
+	/** Items in this page, in server order. */
 	readonly items: readonly T[]
+	/** Cursor reaching the newer page; undefined ends that direction. */
 	readonly nextCursor?: C
+	/** Cursor reaching the older page; undefined ends that direction. */
 	readonly previousCursor?: C
 }
 
 /** One shared feed record, including the exact parameters used for retained pages. */
 export interface CursorQueryData<T, C extends QueryKeyPart> {
+	/** Retained pages, newest-fetch order. */
 	readonly pages: readonly CursorPage<T, C>[]
+	/** The exact cursor each retained page was fetched with. */
 	readonly pageParams: readonly C[]
+	/** Cursor for the next page, when the feed has one. */
 	readonly nextCursor?: C
+	/** Cursor for the previous page, when the feed has one. */
 	readonly previousCursor?: C
+	/** Whether `fetchNextPage` can request another page. */
 	readonly hasNextPage: boolean
+	/** Whether `fetchPreviousPage` can request another page. */
 	readonly hasPreviousPage: boolean
 }
 
 /** Cursor request input. Every request uses the shared cache's abort signal. */
 export interface CursorPageContext<C extends QueryKeyPart> {
+	/** Cursor identifying the requested page. */
 	readonly cursor: C
+	/** Shared abort signal — aborted when the request is superseded. */
 	readonly signal: AbortSignal
+	/** Why this page is being fetched. */
 	readonly direction: 'initial' | 'refresh' | 'next' | 'previous'
 }
 
@@ -36,6 +48,7 @@ export interface CursorPageContext<C extends QueryKeyPart> {
 export interface CursorQueryOptions<T, C extends QueryKeyPart> extends QueryOptions<
 	CursorQueryData<T, C>
 > {
+	/** Cursor used for the first load and refreshes. */
 	readonly initialCursor: C
 	/** Maximum retained pages; adding next/previous drops the opposite end. @default Infinity */
 	readonly maxPages?: number
@@ -57,6 +70,7 @@ export interface CursorQueryDefinition<
 	T,
 	C extends QueryKeyPart,
 > extends QueryDefinition<A, CursorQueryData<T, C>> {
+	/** Branded engine slot carrying the page loader and cursor policy. */
 	readonly [CURSOR_QUERY]: CursorEngine<A, T, C>
 }
 
@@ -119,6 +133,7 @@ async function page<A extends QueryKeyPart, T, C extends QueryKeyPart>(
  *   return response.json() as Promise<{ items: string[]; nextCursor?: string }>
  * }, { initialCursor: '', maxPages: 5 })
  */
+/** Builds a paged query definition — page loader keyed by cursor plus the usual query policies. */
 export function defineCursorQuery<A extends QueryKeyPart, T, C>(
 	key: QueryKey,
 	loadPage: CursorEngine<A, T, C & QueryKeyPart>['loadPage'],
@@ -165,6 +180,7 @@ export function defineCursorQuery<A extends QueryKeyPart, T, C>(
 }
 
 /** @internal Build one page operation for the cache's existing request scheduler. */
+/** Adapts a cursor definition's page loader to the plain `QueryDefinition.load` shape. */
 export function cursorPageLoader<A extends QueryKeyPart, T, C extends QueryKeyPart>(
 	definition: CursorQueryDefinition<A, T, C>,
 	direction: 'next' | 'previous',
