@@ -14,7 +14,7 @@ const OUTBOX_LIMIT = 100
 
 /** Removes and returns the queued page→host values as a JSON array.
  *  `globalThis` so it evaluates inside any document global. */
-export const WEBVIEW_DRAIN_SCRIPT = `(() => {
+export const WEBVIEW_DRAIN_SCRIPT: string = `(() => {
 	const o = globalThis.${WEBVIEW_OUTBOX_KEY};
 	return o && o.length ? JSON.stringify(o.splice(0, o.length)) : null;
 })()`
