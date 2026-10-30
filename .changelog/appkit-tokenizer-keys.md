@@ -1,3 +1,5 @@
+### Backspace removes the last AppKit token
+
 Experimental AppKit token fields can request removal of the current last token
 with Backspace when both query and native editor text are empty. Composing and
 modified keys preserve editing; current read-only/disabled state blocks removal.

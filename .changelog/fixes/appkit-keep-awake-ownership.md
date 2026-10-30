@@ -1,4 +1,4 @@
-# Keep macOS display-sleep requests with their owners
+### Keep macOS display-sleep requests with their owners
 
 AppKit keep-awake tokens now retain the process object and release method that
 created them. Partial bridges report unavailable, and failed releases remain

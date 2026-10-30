@@ -1,3 +1,5 @@
+### Prefetch and manage AppKit image bytes
+
 AppKit image helpers now prefetch HTTP(S) bytes without decoding, report memory
 or disk presence, and evict or clear image-owned caches. Displayed images use
 the same byte cache. Failed or non-cacheable prefetch resolves false; native

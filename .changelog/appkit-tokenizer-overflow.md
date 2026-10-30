@@ -1,3 +1,5 @@
+### Native AppKit tokenizer overflow counting
+
 Experimental AppKit token fields now use native bounds and rectangle conversion
 for collapsed-row counts, with the counter outside the clipped token viewport.
 Layer token copies use separate refs, and widening the field can reclaim the

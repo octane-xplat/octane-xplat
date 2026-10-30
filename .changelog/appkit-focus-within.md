@@ -1,3 +1,5 @@
+### AppKit focus-within tracking
+
 AppKit can now track focus entering and leaving a group of native controls with
 `useFocusWithin`. Attach its handlers to a raw native container; moving between
 its fields keeps the group focused.

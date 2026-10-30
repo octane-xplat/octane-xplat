@@ -1,3 +1,5 @@
+### Account for scrolling in layout transitions
+
 Shared layout transitions now account for scrolling that happens before the source is removed. Fixed-position web containers ignore scrolling outside their fixed tree.
 
 ```tsx

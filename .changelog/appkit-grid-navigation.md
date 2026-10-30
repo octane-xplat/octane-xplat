@@ -1,3 +1,5 @@
+### Navigate GridList rows with keys on AppKit
+
 AppKit `GridList` now implements arrow/Home/End navigation with one roving Tab
 stop. Enter activates a row; Space selects it, and Shift+Space extends a range
 without selecting disabled keys. Focused rows scroll into view.

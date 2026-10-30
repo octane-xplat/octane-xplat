@@ -1,3 +1,5 @@
+### Steady corners and shadows during layout animation
+
 Layout animations now keep numeric rounded corners and shadows steady during resizing. Authored styles are restored when projection ends.
 
 ```tsx

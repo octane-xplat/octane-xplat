@@ -1,3 +1,5 @@
+### AppKit typeahead suggestion roles and links
+
 Experimental AppKit typeahead fields now declare combo/list/option roles and
 link their current native suggestion list and highlighted pending row. Closing,
 blocking, replacing or removing the field restores previous native metadata.

@@ -221,7 +221,7 @@ application, removal, glyphs and layout remain unqualified.
 ```tsx
 // A computed declaration string reaches the same native style vocabulary.
 const points = 20
-<label style={`font-size:${points}px;letter-spacing:1px`} text="Preview" />
+const preview = <label style={`font-size:${points}px;letter-spacing:1px`} text="Preview" />
 ```
 
 
@@ -1524,12 +1524,14 @@ map `listbox` to `AXList` and `option` to `AXRow`; option selection uses the exi
 native selected-state getter.
 
 ```tsx
-<textfield accessibilityRole="combobox" accessibilityLabel="Choose a person"
-	accessibilityState={{ expanded: true }} />
-<masonview accessibilityRole="listbox" accessibilityLabel="People">
-	<masonview accessibilityRole="option" accessibilityLabel="Ada"
-		accessibilityState={{ selected: true }} />
-</masonview>
+<>
+	<textfield accessibilityRole="combobox" accessibilityLabel="Choose a person"
+		accessibilityState={{ expanded: true }} />
+	<masonview accessibilityRole="listbox" accessibilityLabel="People">
+		<masonview accessibilityRole="option" accessibilityLabel="Ada"
+			accessibilityState={{ selected: true }} />
+	</masonview>
+</>
 ```
 
 Roles alone do not link the controls. The shared AppKit typeahead adds native

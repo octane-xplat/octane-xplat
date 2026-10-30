@@ -1,4 +1,4 @@
-# Keep native macOS network subscriptions independent
+### Keep native macOS network subscriptions independent
 
 AppKit route updates now reach other subscribers when one listener throws.
 Monitored reads reuse the latest sample, and failed native cleanup cannot keep

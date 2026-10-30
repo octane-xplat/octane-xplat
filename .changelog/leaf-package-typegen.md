@@ -1,5 +1,5 @@
 ---
-release: "@octane-xplat/*"
+release: lockstep
 ---
 
 ### Leaf packages ship generated declarations

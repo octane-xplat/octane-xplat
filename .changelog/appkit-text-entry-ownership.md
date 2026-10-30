@@ -1,3 +1,5 @@
+### Owned AppKit text entry state
+
 Experimental AppKit text fields now use current editable state and callbacks
 for edits, submit and clear. Clear preserves callback-chosen focus; retained
 handles and handlers become inert after removal. Composing drafts still report

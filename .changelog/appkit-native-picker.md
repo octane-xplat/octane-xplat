@@ -1,4 +1,4 @@
-# Choose values with a native macOS pop-up button
+### Choose values with a native macOS pop-up button
 
 The new `@octane-xplat/picker/macos` entry exports `AppKitPicker` for native
 AppKit apps. It uses the system pop-up button with stable string selection IDs,

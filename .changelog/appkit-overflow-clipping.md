@@ -1,3 +1,5 @@
+### Clip overflowing AppKit containers
+
 Experimental AppKit containers now request native bounds clipping for hidden or
 clipped overflow on both axes. Removing the style restores the view's original
 clipping setting, including OS and specialized-view defaults.

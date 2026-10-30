@@ -1,3 +1,5 @@
+### Keep dragging through layout changes
+
 Dragging now works through layout changes. A dragged host takes over from its current animated position and stays at the pointer while the host or its ancestors move.
 
 ```tsx

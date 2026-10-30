@@ -1,3 +1,5 @@
+### Open System Settings on macOS
+
 AppKit `openSettings` can now open the installed System Settings application.
 Check support and availability from an explicit user action:
 

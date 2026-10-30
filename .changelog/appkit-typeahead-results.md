@@ -1,3 +1,5 @@
+### Source-owned AppKit suggestion panel
+
 Experimental AppKit search suggestions now use a source-owned panel in the
 field's native window, with bounded scrolling and anchor-based sizing. Custom
 result content keeps the field's providers. Typeahead and Tokenizer inherit the

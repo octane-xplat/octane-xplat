@@ -1,3 +1,5 @@
+### Move Motion containers with layout roots and anchors
+
 Motion containers can now use `layoutRoot` to move immediately while their children animate relative to them. Use `layoutAnchor` to choose where a child attaches inside a resizing parent.
 
 ```tsx

@@ -1,4 +1,4 @@
-# Use native macOS window and lifecycle hooks through platform entries
+### Use native macOS window and lifecycle hooks through platform entries
 
 AppKit now selects the same native implementations through the platform root
 and screen, lifecycle, safe-area and breakpoint subpaths. Hook calls live in

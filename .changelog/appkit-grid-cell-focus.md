@@ -1,4 +1,4 @@
-# Navigate custom native macOS cell grids
+### Navigate custom native macOS cell grids
 
 `useGridFocus` now has an AppKit source implementation for marked native cells.
 It reuses the native grid focus and scrolling engine, supports bounded arrow

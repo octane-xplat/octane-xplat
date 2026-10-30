@@ -1,4 +1,4 @@
-# Keep AppKit settings and saved-query removal consistent
+### Keep AppKit settings and saved-query removal consistent
 
 Native macOS settings now retain pending writes and removals when a host hook
 is missing, and report an unconfirmed flush until those changes are handed

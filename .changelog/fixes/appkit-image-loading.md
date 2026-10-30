@@ -1,3 +1,5 @@
+### Fix AppKit image load lifecycle
+
 AppKit images now release pending loads when their last view leaves, share
 concurrent requests, and reject HTTP error payloads. Remote processing is queued
 through AppKit's main operation queue. Cancelled completions cannot replace a

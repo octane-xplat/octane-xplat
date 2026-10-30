@@ -1,3 +1,5 @@
+### Focus AppKit PowerSearch once its input attaches
+
 Experimental AppKit PowerSearch now waits for its first native input attachment
 when initial focus is requested. User activity, a newer focus owner, blocking,
 filter editing and removal cancel stale requests.

@@ -1,4 +1,4 @@
-# Keep native macOS sheets attached to their owning window
+### Keep native macOS sheets attached to their owning window
 
 `AppKitSheet` now owns current dismissal callbacks, waits for its window and
 portal content, and cleans up queued or presented sessions on close or owner

@@ -1,3 +1,5 @@
+### Compute clipped AppKit image fit rectangles
+
 AppKit `Image` now computes clipped fit rectangles for cover, contain, fill,
 none and scale-down, with shared keyword, point and percentage positions.
 The optional image package uses the same native path.

@@ -1,3 +1,5 @@
+### Fix center serialization in image positions
+
 Image position objects containing `center` now serialize to a valid 50%
 edge offset instead of the invalid `centerpx` length.
 
