@@ -97,8 +97,8 @@ export function createAppKitFocusScopeManager(
 			return true
 		} finally { moving = false }
 	}
-	const fallback = (scope: Scope) => {
-		const candidates = stops(scope)
+	const fallback = (scope: Scope, released?: NSView) => {
+		const candidates = stops(scope).filter((view) => !released || !contains(released, view))
 		return scope.last && candidates.includes(scope.last) ? scope.last : (candidates[0] ?? scope.root)
 	}
 	const synchronize = (window?: NSWindow) => {
@@ -237,7 +237,7 @@ export function createAppKitFocusScopeManager(
 						!newerIndependent) {
 						const previous = scope.previous
 						if (previous?.window === owner && eligible(previous) && (!parent || contains(parent.root, previous))) {owner.makeFirstResponder(previous)}
-						else if (parent) {focus(parent, fallback(parent))}
+						else if (parent) {focus(parent, fallback(parent, scope.root))}
 					}
 				} catch {
 					// Restoration is best effort; native failure must not retain the owner.
