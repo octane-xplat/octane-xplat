@@ -10327,14 +10327,14 @@ pnpm check:changelog
 ### Smoke stall investigation after migration (2026-10-29)
 
 The authorized dev-mode comparison first exposed two current-`main` compile
-failures. Commit `763bd6134` adapts the AppKit WebView message to the shared
+failures. Commit `e65e5bc85` adapts the AppKit WebView message to the shared
 `{ data, url }` payload and restores the files export leaf's missing
 `MIME_EXTENSIONS` import. UI and files declaration generation then passed.
 Targeted WebView and smoke-runner lint passed; files lint still reports eight
 pre-existing brace-rule errors outside the import change.
 
 The first runtime attempt did not launch its host: its 120-second deadline
-expired while compiling native leaves. Commit `9166ff625` adds an explicit
+expired while compiling native leaves. Commit `151903bbf` adds an explicit
 cold-build timeout override, preserving the 120-second default and all 30
 required assertions:
 
@@ -10360,7 +10360,11 @@ cancelled the workload with `resource workload cancelled or task ownership
 lost` before a final summary. This is an interrupted run, not a 30-assertion
 pass or a timeout result. `dev.sample.txt` shows active Mason work during
 startup; `dev-idle.sample.txt` shows AppKit constraint updating after the tab
-action. A low instantaneous CPU reading alone does not prove a timer failure.
+action. A low instantaneous CPU reading alone does not prove a timer failure. A separate temporary
+engine-call profiler counted 434 engine nodes and 22,085 style submissions,
+10,284 dirty calls and 867 compute/layout pairs by 96 seconds. These counts
+identify repeated subtree synchronization as a useful next measurement target;
+they do not establish which invalidations are unnecessary.
 
 Broad checks remain outside the narrowly authorized stall investigation; no
 new merge qualification is claimed. Before integration, run:
