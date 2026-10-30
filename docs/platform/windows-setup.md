@@ -96,6 +96,22 @@ matrix remain unqualified. The final clean-main core-component run and
 downstream setup remain open. See the
 [action evidence and limits](../../.agents/docs/parity/windows-support-progress.md#native-action-contracts).
 
+## Badge text candidate
+
+Windows `Badge` keeps text and numbers in native text controls, including the
+number zero. Supplied components keep their own content:
+
+```tsx
+import { Badge } from '@octane-xplat/ui'
+
+export function PendingCount() {
+  return <Badge>{0}</Badge>
+}
+```
+
+Compiled component checks cover content updates and mixed children. Packaged
+UIA, geometry and the final clean-main qualification remain pending.
+
 ## Banner candidate
 
 Use `Banner` for a titled notice with supporting text, a trailing action and

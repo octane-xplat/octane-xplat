@@ -84,6 +84,14 @@ const slot = compiled('text-slot', read('forms/text-slot.tsrx'), {
 	'../../internal/rendering/child-array': support,
 })
 
+const badge = compiled('badge', read('feedback/Badge.windows.tsrx'), {
+	'@octane-xplat/lib': support,
+	'../overlays/escape-props': support,
+	'../forms/text-slot': slot,
+})
+
+const { Badge } = await import(badge)
+
 const link = compiled('link', read('navigation/Link.windows.tsrx'), {
 	'../../internal/layout/style-merge': support,
 	'@nativescript/core': support,
@@ -332,6 +340,43 @@ export function WithSlots(props) @{
 		assert.ok(text(f).includes('Changed title'))
 		assert.ok(text(f).includes('Changed body'))
 		assert.ok(!text(f).includes('Composed title'))
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows Badge preserves zero, primitive runs and children precedence through updates', () => {
+	const f = mount(Badge, { id: 'badge', children: 'Ready', label: 'Ignored' })
+	try {
+		assert.deepEqual(text(f), ['Ready'])
+		f.render({ id: 'badge', children: 0, label: 'Ignored' })
+		assert.deepEqual(text(f), ['0'])
+		assert.equal(f.nodes().filter((node) => node.type === 'label').length, 1)
+		f.render({ id: 'badge', children: ['Count ', 0, 12n], label: 'Ignored' })
+		assert.deepEqual(text(f), ['Count 012'])
+		f.render({ id: 'badge', label: 0 })
+		assert.deepEqual(text(f), ['0'])
+		f.render({ id: 'badge', children: '', label: 'Ignored' })
+		assert.ok(!text(f).includes('Ignored'))
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows Badge preserves component children between primitive runs', async () => {
+	const fixture = compiled(
+		'badge-slots',
+		`import {Badge} from ${JSON.stringify(badge)};
+export function BadgeWithSlots(props) @{
+  <Badge>{'Count '}{props.count}<label text="Composed" />{props.suffix}</Badge>
+}`,
+	)
+	const { BadgeWithSlots } = await import(fixture)
+	const f = mount(BadgeWithSlots, { count: 0, suffix: ' total' })
+	try {
+		assert.deepEqual(text(f), ['Count 0', 'Composed', ' total'])
+		f.render({ count: 2, suffix: ' ready' })
+		assert.deepEqual(text(f), ['Count 2', 'Composed', ' ready'])
 	} finally {
 		f.root.unmount()
 	}
