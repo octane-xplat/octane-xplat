@@ -7,31 +7,47 @@ import type { TableColumn } from '../props'
 
 /** Definition of a column for the settings UI. */
 export interface ColumnSettingsOption<TColumnKey extends string = string> {
+	/** Column identity — matches the `TableColumn.key` it controls. */
 	key: TColumnKey
+	/** Display name in the settings UI. */
 	label: string
 	/** Column cannot be hidden (toggle is disabled). @default false */
 	isAlwaysVisible?: boolean
+	/** Settings-UI grouping bucket for related columns. */
 	group?: string
 }
 
 export interface UseTableColumnSettingsStateConfig<TColumnKey extends string = string> {
+	/** All settable columns in display order. */
 	columns: ReadonlyArray<ColumnSettingsOption<TColumnKey>>
+	/** Controlled visible/order list. */
 	activeColumnKeys: ReadonlyArray<TColumnKey>
+	/** Reports requested visibility/order changes — the controlled pair for `activeColumnKeys`. */
 	onChangeActiveColumnKeys: (keys: ReadonlyArray<TColumnKey>) => void
+	/** Keys restored by `resetToDefault`; defaults to the initial `activeColumnKeys`. */
 	defaultColumnKeys?: ReadonlyArray<TColumnKey>
 }
 
+/** Config shape accepted by the column-settings plugin — identical to the state hook's config. */
 export type UseTableColumnSettingsConfig<TColumnKey extends string = string> =
 	UseTableColumnSettingsStateConfig<TColumnKey>
 
 export interface UseTableColumnSettingsStateReturn<TColumnKey extends string = string> {
+	/** Config to pass through to `useTableColumnSettings`/the Table plugin. */
 	columnSettingsConfig: UseTableColumnSettingsStateConfig<TColumnKey>
+	/** Currently active column keys, in display order. */
 	activeColumnKeys: ReadonlyArray<TColumnKey>
+	/** Flips one column's visibility (no-op on always-visible columns). */
 	toggleColumn: (key: TColumnKey) => void
+	/** Whether a column is currently active. */
 	isColumnActive: (key: TColumnKey) => boolean
+	/** Whether a column may be hidden — false for always-visible columns. */
 	isColumnToggleable: (key: TColumnKey) => boolean
+	/** Activates every column. */
 	showAllColumns: () => void
+	/** Restores `defaultColumnKeys`. */
 	resetToDefault: () => void
+	/** Sets the active list directly (accepts plain strings for settings UIs). */
 	setActiveColumnKeys: (keys: string[]) => void
 }
 
