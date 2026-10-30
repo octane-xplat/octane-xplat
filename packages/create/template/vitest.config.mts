@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config'
 import { nativeScript } from '@nativescript/unit-test-runner'
 
-// `pnpm test:ios` / `pnpm test:android` (ns test) drive this config: the
+// `bun run test:ios` / `bun run test:android` (ns test) drive this config: the
 // plugin launches `ns run <platform> --no-hmr --env.unitTesting` and
 // orchestrates spec execution on-device over a loopback WebSocket — Vitest
 // stays the orchestrator on the host.

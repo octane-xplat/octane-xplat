@@ -30,8 +30,8 @@ try {
 		const output = join(temporary, 'pack', name)
 		mkdirSync(output, { recursive: true })
 		run(
-			'pnpm',
-			['pack', '--config.ignore-scripts=true', '--pack-destination', output],
+			'bun',
+			['pm', 'pack', '--ignore-scripts', '--destination', output],
 			join(root, 'packages', name),
 		)
 

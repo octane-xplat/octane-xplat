@@ -17,11 +17,11 @@ who produced the app; the store checks it before accepting an upload.
 Run the app's checks and inspect the installed command's options:
 
 ```sh
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm exec xplat doctor
-pnpm exec xplat build --help
+bun run lint
+bun run typecheck
+bun run test
+bun run xplat doctor
+bun run xplat build --help
 ```
 
 Resolve failures before packaging. A passing browser test does not establish
@@ -40,7 +40,7 @@ export default {
 	id: 'com.example.packing',
 	appPath: 'src',
 	appResourcesPath: 'App_Resources',
-	cli: { packageManager: 'pnpm' },
+	cli: { packageManager: 'bun' },
 	android: { v8Flags: '--expose_gc', markingMode: 'none' },
 	bundler: 'vite',
 	bundlerConfigPath: 'vite.config.native.mts',
@@ -106,9 +106,9 @@ Choose a declared target explicitly so a release job does not build every
 platform in the app:
 
 ```sh
-pnpm exec xplat build --targets android --release
+bun run xplat build --targets android --release
 # On a Mac with the iOS toolchain:
-pnpm exec xplat build --targets ios --release
+bun run xplat build --targets ios --release
 ```
 
 Xplat regenerates routes and calls NativeScript's release build. Watch the
@@ -122,7 +122,7 @@ For the distribution steps below, regenerate routes first, then invoke the
 NativeScript CLI installed in the app:
 
 ```sh
-pnpm exec xplat routes
+bun run xplat routes
 ```
 
 This preserves route generation when you use the more detailed native command.
@@ -159,7 +159,7 @@ read -s ANDROID_KEY_PASSWORD
 Use your real key path and alias. Run the signed build in that same shell:
 
 ```sh
-pnpm exec ns build android --release --aab \
+bun run ns build android --release --aab \
   --key-store-path "$ANDROID_UPLOAD_KEYSTORE" \
   --key-store-alias "$ANDROID_UPLOAD_ALIAS" \
   --key-store-password "$ANDROID_KEYSTORE_PASSWORD" \
@@ -191,8 +191,8 @@ The bundle ID comes from `nativescript.config.ts`.
 Prepare the release project from the app directory:
 
 ```sh
-pnpm exec xplat routes
-pnpm exec ns prepare ios --release
+bun run xplat routes
+bun run ns prepare ios --release
 ```
 
 Open the generated `.xcworkspace` under `platforms/ios/` in Xcode; use the

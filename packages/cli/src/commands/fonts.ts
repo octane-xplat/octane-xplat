@@ -52,7 +52,7 @@ const add = command({
 		}),
 		install: flag({
 			long: 'install',
-			description: 'pnpm add a Fontsource package that is not installed yet',
+			description: 'bun add a Fontsource package that is not installed yet',
 		}),
 	},
 	handler: async ({ inputs, dir, name, token, subset, weights, install }) => {
@@ -78,7 +78,7 @@ const add = command({
 		}
 
 		for (const spec of report.installed ?? []) {
-			p.log.success(`pnpm add ${spec}`)
+			p.log.success(`bun add ${spec}`)
 		}
 
 		for (const file of report.copied) {

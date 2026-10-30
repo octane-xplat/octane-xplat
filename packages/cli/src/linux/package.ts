@@ -98,7 +98,7 @@ export async function packageLinux(appRoot) {
 		const manifest = require.resolve('vite/package.json')
 		vite = join(dirname(manifest), JSON.parse(readFileSync(manifest, 'utf8')).bin.vite)
 	} catch {
-		throw new Error('Declare vite in this app and run pnpm install before building Linux.')
+		throw new Error('Declare vite in this app and run bun install before building Linux.')
 	}
 
 	const output = join(appRoot, 'dist', 'linux')

@@ -6,7 +6,7 @@ API with an Octane permission hook. Use [`media`](../media/README.md) when you
 only need the system picker or camera.
 
 ```sh
-pnpm add @octane-xplat/media-library
+bun add @octane-xplat/media-library
 ```
 
 Start in an existing Xplat app. Add the iOS purpose strings below before asking
@@ -276,7 +276,7 @@ app. It bounds working pixels, exports a JPEG, and releases the library export.
 The caller owns the returned image result until preview/upload finishes.
 
 ```sh
-pnpm add @octane-xplat/image-manipulator
+bun add @octane-xplat/image-manipulator
 ```
 
 ```ts

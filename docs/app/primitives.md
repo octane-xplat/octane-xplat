@@ -260,8 +260,8 @@ Existing apps need the current framework patches (`xplat patches apply`) and
 a reinstall before relying on the NativeScript placement correction.
 
 ```sh
-pnpm exec xplat patches apply
-pnpm install
+bun run xplat patches apply
+bun install
 ```
 
 ### Platform controls
@@ -983,7 +983,7 @@ export function Items() {
 ```
 
 `Pager` gives paged horizontal swiping — onboarding flows, media galleries.
-It ships as the `@octane-xplat/pager` leaf — `pnpm add @octane-xplat/pager`
+It ships as the `@octane-xplat/pager` leaf — `bun add @octane-xplat/pager`
 and import `Pager` from that package; the `ui-pager` plugin travels as the
 leaf's own dependency, so apps declare nothing extra. It takes `items` +
 `renderItem` (the same contract as the platform lists),
@@ -1423,7 +1423,7 @@ laid-out view wins (the `srcset` model; web emits a real `srcset`):
 `seekTo`/`currentTime`/`duration`. All transport chrome is self-drawn —
 tap the frame to show/hide it — so the controls are identical on every
 target while the video pixels stay in each platform's player engine.
-`Video` ships as the `@octane-xplat/video` leaf — `pnpm add
+`Video` ships as the `@octane-xplat/video` leaf — `bun add
 @octane-xplat/video` and import `Video` from that package; the
 `@nstudio/nativescript-exoplayer` plugin travels as the leaf's own
 dependency, so apps declare nothing extra.
@@ -1477,7 +1477,7 @@ bundle paths, absolute files, `res://` names, `.lottie` containers, and raw
 `playing`, `progress` (normalized 0..1), `speed`, `fit`
 (`contain`/`cover`/`fill`), `onLoaded`/`onEnded`/`onError`, and a `ref`
 handle (`play`/`pause`/`stop`/`seekTo`/`setSpeed`/`progress`/`duration`/
-`isPlaying`). It ships as the `@octane-xplat/lottie` leaf — `pnpm add
+`isPlaying`). It ships as the `@octane-xplat/lottie` leaf — `bun add
 @octane-xplat/lottie`. `lottie-web` is a real dependency; the NativeScript
 plugin is vendored in the leaf (`src/vendor/ui-lottie` — a git submodule of
 `octane-xplat/ui-lottie`, branch `xplat-vendored`). AppKit compiles Airbnb
@@ -1527,7 +1527,7 @@ source boundary and runtime evidence.
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
 `active` to start/stop, `onReady`/`onError`, and a `ref` handle for the
 platform view. Add `@octane-xplat/camera` to the app with
-`pnpm add @octane-xplat/camera` and import `CameraView` from that package. The
+`bun add @octane-xplat/camera` and import `CameraView` from that package. The
 leaf requests permission when the preview starts and includes the iOS camera
 usage description and Android camera permission in its platform files; no
 separate camera plugin is needed. Setting `active` to `false` stops the

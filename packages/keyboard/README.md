@@ -4,7 +4,7 @@ Keep a form above the phone keyboard while it moves. Add the optional keyboard
 package around the existing UI wrapper:
 
 ```sh
-pnpm add @octane-xplat/keyboard
+bun add @octane-xplat/keyboard
 ```
 
 ```tsx

@@ -7,7 +7,7 @@ for Touch ID. Web reports `supported: false` because WebAuthn requires
 a registered credential and an authentication ceremony.
 
 ```sh
-pnpm add @octane-xplat/biometrics
+bun add @octane-xplat/biometrics
 ```
 
 ```ts

@@ -307,7 +307,7 @@ intervals are not frame-rate measurements.
 Linux WebKitGTK batches ResizeObserver measurements into the next animation
 frame before updating the row window. This avoids changing observed layout
 inside resize delivery. The Linux harness checks mounted-row bounds, emptying,
-and unhandled resize errors with `pnpm --filter @xplat/linux smoke` on a Linux
+and unhandled resize errors with `bun run --filter @xplat/linux smoke` on a Linux
 host with GTK/WebKit and Xvfb. This smoke does not establish Linux anchor
 accuracy, frame pacing, or the full benchmark contract below.
 
@@ -319,7 +319,7 @@ layout and listen to its exact `layoutChanged` event. Measured row heights updat
 positioned cells even when the same rows stay visible. AppKit keeps retained
 keyed views in native stack order when items are sorted or reordered.
 
-Run a case with `pnpm probe run packages/ui/tests/virtual-list.web.tsrx --target web`.
+Run a case with `bun run probe run packages/ui/tests/virtual-list.web.tsrx --target web`.
 For iOS, use `virtual-list.mobile.tsrx`, `--target ios`, and `--device` with a
 booted simulator ID. For AppKit, use `virtual-list.macos.tsrx --target macos`.
 The current focused checks cover Chromium, iOS, and AppKit; they do not establish
@@ -328,9 +328,9 @@ failures.
 
 ## Run the nonvisual gates
 
-From the repo root, install with `pnpm install --frozen-lockfile`, then:
+From the repo root, install with `bun install --frozen-lockfile`, then:
 
-1. Build the harness: `pnpm exec turbo run build --filter=@xplat/web`.
+1. Build the harness: `bun run turbo run build --filter=@xplat/web`.
 2. From `apps/web`, run `node scripts/bench-virtual-list-contract.ts`.
    It fails on anchor drift greater than 2 pixels, lost keyed state, unbounded
    mounts, or failed empty/disposal checks.

@@ -1,0 +1,13 @@
+diff --git a/dist/android-tools-info.js b/dist/android-tools-info.js
+index ed84fd1c23bbc3161d40fdd7c65dbd842704696c..ef647fb6b834a5fdf4d09da5e920e8befce1e6f2 100644
+--- a/dist/android-tools-info.js
++++ b/dist/android-tools-info.js
+@@ -383,7 +383,7 @@ class AndroidToolsInfo {
+             });
+             if (foundRuntime) {
+                 let version = content.devDependencies[foundRuntime];
+-                if (version.includes("tgz")) {
++                if (version.includes("tgz") || version.startsWith("catalog:")) {
+                     try {
+                         const packagePath = require.resolve(`${foundRuntime}/package.json`, {
+                             paths: [projectDir],

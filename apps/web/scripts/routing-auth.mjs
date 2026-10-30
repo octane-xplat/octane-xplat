@@ -21,8 +21,8 @@ const check = (name, actual, expected) => {
 let server, browser
 try {
 	const checked = spawnSync(
-		'pnpm',
-		['exec', 'tsrx-tsc', '--noEmit', '-p', 'tests/fixtures/routing-auth/tsconfig.json'],
+		'bun',
+		['run', 'tsrx-tsc', '--noEmit', '-p', 'tests/fixtures/routing-auth/tsconfig.json'],
 		{ cwd: fileURLToPath(new URL('../', import.meta.url)), encoding: 'utf8', timeout: 60000 },
 	)
 

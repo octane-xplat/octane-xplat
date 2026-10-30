@@ -50,7 +50,7 @@ try {
 	for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop']) {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-		run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], root)
+		run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
 		tarballs[manifest.name] =
 			`file:${join(pack, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 	}
@@ -78,14 +78,12 @@ try {
 		),
 	)
 
-	write(
-		'pnpm-workspace.yaml',
-		`packages: []\noverrides:\n${Object.entries(tarballs)
-			.map(([name, path]) => `  '${name}': '${path}'`)
-			.join('\n')}\n`,
-	)
+	const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+	manifest.overrides = tarballs
+	manifest.packageManager = 'bun@1.4.4'
+	write('package.json', JSON.stringify(manifest))
 
-	run('pnpm', ['install', '--ignore-scripts'])
+	run('bun', ['install', '--ignore-scripts'])
 	for (const name of ['ui', 'workshop', 'cli']) {
 		assert.ok(
 			realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work),
@@ -93,12 +91,12 @@ try {
 		)
 	}
 
-	const initialized = run('pnpm', ['exec', 'xplat', 'workshop', 'init'])
+	const initialized = run('bun', ['run', 'xplat', 'workshop', 'init'])
 	assert.match(initialized, /created workshop.config.ts/)
 	const config = readFileSync(join(consumer, 'workshop.config.ts'), 'utf8')
-	run('pnpm', ['exec', 'xplat', 'workshop', 'init'])
+	run('bun', ['run', 'xplat', 'workshop', 'init'])
 	assert.equal(readFileSync(join(consumer, 'workshop.config.ts'), 'utf8'), config)
-	const doctor = run('pnpm', ['exec', 'xplat', 'workshop', 'doctor', '--json'])
+	const doctor = run('bun', ['run', 'xplat', 'workshop', 'doctor', '--json'])
 	const targetReport = JSON.parse(doctor.slice(doctor.indexOf('{')))
 	assert.equal(Object.keys(targetReport.targets).length, 6)
 	assert.equal(targetReport.targets.web.status, 'available')
@@ -111,7 +109,7 @@ try {
 	// Use the maintained acceptance catalog, without the init example.
 	rmSync(join(consumer, 'src/workshop'), { recursive: true })
 	cpSync(join(repo, 'apps/workshop-demo/src'), join(consumer, 'src'), { recursive: true })
-	const list = run('pnpm', ['exec', 'xplat', 'workshop', 'list', '--json'])
+	const list = run('bun', ['run', 'xplat', 'workshop', 'list', '--json'])
 	assert.match(list, /counter\/basic/)
 	assert.match(list, /ios-only/)
 	assert.equal(
@@ -142,7 +140,7 @@ try {
 		}),
 	)
 
-	run('pnpm', ['exec', 'tsc', '--noEmit'])
+	run('bun', ['run', 'tsc', '--noEmit'])
 	const req = createRequire(join(consumer, 'package.json'))
 	const { WORKSHOP_CONTRACT_VERSION } = await import(req.resolve('@octane-xplat/workshop'))
 	assert.equal(WORKSHOP_CONTRACT_VERSION, 1)
@@ -169,8 +167,8 @@ try {
 
 	const url = await new Promise((accept, reject) => {
 		server = spawn(
-			'pnpm',
-			['exec', 'xplat', 'workshop', 'dev', '--target', 'web', '--port', String(port)],
+			'bun',
+			['run', 'xplat', 'workshop', 'dev', '--target', 'web', '--port', String(port)],
 			{ cwd: consumer, detached: true, stdio: ['ignore', 'pipe', 'pipe'] },
 		)
 
@@ -377,7 +375,7 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
 		readFileSync(join(repo, 'packages/create/template/vite.config.ts'), 'utf8'),
 	)
 
-	run('pnpm', ['exec', 'vite', 'build'])
+	run('bun', ['run', 'vite', 'build'])
 	function files(dir) {
 		return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
 			entry.isDirectory() ? files(join(dir, entry.name)) : [join(dir, entry.name)],

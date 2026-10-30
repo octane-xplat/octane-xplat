@@ -274,3 +274,75 @@ test('configuration helper modules evaluate freshly without mutating Node module
 		delete process.env.XPLAT_FINGERPRINT_TEST_ID
 	}
 })
+
+test('Bun locks fingerprint native resolutions and local patches while ignoring unrelated JS locks', async (t) => {
+	const { root, write } = await fixture(t)
+	const { rm } = await import('node:fs/promises')
+	await rm(join(root, 'pnpm-lock.yaml'))
+	const lock = {
+		lockfileVersion: 3,
+		workspaces: { '': {}, 'packages/native': { name: '@xplat/native-fixture', version: '1.0.0' } },
+		packages: { 'pure-js': ['pure-js@1.0.0', '', {}, 'js-integrity'] },
+	}
+	await write('bun.lock', JSON.stringify(lock))
+	const first = await createFingerprintAsync(root)
+	lock.packages['pure-js'][3] = 'changed-js-integrity'
+	await write('bun.lock', JSON.stringify(lock))
+	assert.deepEqual(await createFingerprintAsync(root), first)
+	const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
+	pkg.packageManager = 'bun@1.4.4'
+	pkg.patchedDependencies = { '@xplat/native-fixture@1.0.0': 'patches/native.patch' }
+	await write('package.json', pkg)
+	await write('patches/native.patch', 'native patch one')
+	const patched = await createFingerprintAsync(root)
+	assert.notEqual(patched.hash, first.hash)
+	await write('patches/native.patch', 'native patch two')
+	assert.notEqual((await createFingerprintAsync(root)).hash, patched.hash)
+})
+
+test('Bun native archive resolutions hash integrity without checkout paths and reject version drift', async (t) => {
+	const a = await fixture(t),
+		b = await fixture(t)
+	const { rm } = await import('node:fs/promises')
+	for (const f of [a, b]) {
+		await rm(join(f.root, 'pnpm-lock.yaml'))
+		await f.write(
+			'bun.lock',
+			JSON.stringify({
+				lockfileVersion: 3,
+				workspaces: { '': {} },
+				packages: {
+					'@xplat/native-fixture': [
+						'@xplat/native-fixture@' + join(f.root, 'native.tgz'),
+						{},
+						'sha512-native-one',
+					],
+				},
+			}),
+		)
+	}
+	const one = await createFingerprintAsync(a.root)
+	assert.deepEqual(await createFingerprintAsync(b.root), one)
+	await b.write(
+		'bun.lock',
+		JSON.stringify({
+			packages: {
+				'@xplat/native-fixture': [
+					'@xplat/native-fixture@' + join(b.root, 'native.tgz'),
+					{},
+					'sha512-native-two',
+				],
+			},
+		}),
+	)
+	assert.notEqual((await createFingerprintAsync(b.root)).hash, one.hash)
+	await b.write(
+		'bun.lock',
+		JSON.stringify({
+			packages: {
+				'@xplat/native-fixture': ['@xplat/native-fixture@9.0.0', '', {}, 'sha512-native-one'],
+			},
+		}),
+	)
+	await assert.rejects(createFingerprintAsync(b.root), /disagrees with Bun lock metadata/)
+})

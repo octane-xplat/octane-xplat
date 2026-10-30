@@ -10,10 +10,10 @@ generation, `--check` freshness, override mapping, and `--pack-check`.
 Scripts double as the test steps:
 
 ```sh
-pnpm exec turbo run typegen --filter=tsrx-typegen-fixture          # emit types/generated
-pnpm exec turbo run typegen:check --filter=tsrx-typegen-fixture    # --check freshness gate
-pnpm exec turbo run typecheck:consumer --filter=tsrx-typegen-fixture  # plain-tsc consumer
-pnpm exec turbo run test:packed --filter=tsrx-typegen-fixture      # packed-tarball consumer
+bun run turbo run typegen --filter=tsrx-typegen-fixture          # emit types/generated
+bun run turbo run typegen:check --filter=tsrx-typegen-fixture    # --check freshness gate
+bun run turbo run typecheck:consumer --filter=tsrx-typegen-fixture  # plain-tsc consumer
+bun run turbo run test:packed --filter=tsrx-typegen-fixture      # packed-tarball consumer
 ```
 
 `consumer.typecheck.ts` is the compile-only consumer the typecheck and

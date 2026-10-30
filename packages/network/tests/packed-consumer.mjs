@@ -23,7 +23,7 @@ function run(command, args, cwd) {
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', temp], root)
+	run('bun', ['pm', 'pack', '--destination', temp], root)
 	const tarball = join(
 		temp,
 		readdirSync(temp).find((name) => name.endsWith('.tgz')),

@@ -270,7 +270,7 @@ Framework contributors can run it from the Octane Xplat repository root
 with dependencies and the Playwright Chromium browser installed:
 
 ```sh
-pnpm exec turbo run input:readiness --filter=@xplat/web
+bun run turbo run input:readiness --filter=@xplat/web
 ```
 
 This is a repository harness check, not a command included in a created app.

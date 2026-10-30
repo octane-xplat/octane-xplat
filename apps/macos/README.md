@@ -89,9 +89,9 @@ when no renderer is selected.
 ```
 
 The independent protocol proof runs with
-`pnpm --filter @xplat/macos webview:proof`; it verifies framework services,
+`bun run --filter @xplat/macos webview:proof`; it verifies framework services,
 capability discovery, an app-defined service and event, and deep-link delivery
-inside a real WKWebView. `pnpm --filter @xplat/macos webview:dev` launches that
+inside a real WKWebView. `bun run --filter @xplat/macos webview:dev` launches that
 proof fixture for manual development. The configured renderer uses the full
 shared app from `apps/web/src/main.tsrx`.
 
@@ -156,8 +156,8 @@ addon. The package supplies TypeScript declarations and its license. This uses
 Vite's bundle watcher and Octane's component HMR API; it does not use
 NativeScript's `/ns-hmr` HTTP-ESM transport.
 
-From `apps/macos`, run `pnpm xplat dev macos` to launch it, or
-`pnpm xplat build --targets macos` to create the `.app` and `.dmg`. The app's
+From `apps/macos`, run `bun run xplat dev macos` to launch it, or
+`bun run xplat build --targets macos` to create the `.app` and `.dmg`. The app's
 `package.json` opts in with `xplat.targets.macos.runtime: "appkit-node-api"`
 and supplies product/package metadata under `xplat.targets.macos.package`.
 The app's `dev` script is `xplat dev macos`, which launches the CLI's own dev
@@ -173,18 +173,18 @@ and system JavaScriptCore; it does not download or bundle Node.
 
 ```sh
 # Run from apps/macos.
-pnpm xplat doctor
-pnpm xplat dev macos
-pnpm xplat build --targets macos
+bun run xplat doctor
+bun run xplat dev macos
+bun run xplat build --targets macos
 ```
 
 With `OCTANE_MACOS_AUTOMATION=1`, the dev host runs the adapted macOS harness
 sweep through the AppKit renderer's debug interface. It reports route and
 interaction assertions in the process log, and accepts `tap`, `press`,
 `snapshot`, and `parity` commands on stdin. Run
-`pnpm --filter @xplat/macos parity` to write AppKit geometry and selected style
+`bun run --filter @xplat/macos parity` to write AppKit geometry and selected style
 measurements to `parity-report/macos.json`. From the workspace root,
-`pnpm parity:macos` rebuilds the web and macOS measurements and compares their
+`bun run parity:macos` rebuilds the web and macOS measurements and compares their
 shared fixtures. The sweep compares geometry and selected style values.
 For a focused HMR check, run `node apps/macos/scripts/verify-hmr.ts` from the
 repository root.
@@ -196,10 +196,10 @@ submodules and install before checking the harness:
 
 ```sh
 git submodule update --init
-pnpm install --frozen-lockfile
-pnpm typecheck:macos
-pnpm --filter @xplat/macos build
-pnpm smoke:macos
+bun install --frozen-lockfile
+bun run typecheck:macos
+bun run --filter @xplat/macos build
+bun run smoke:macos
 ```
 
 `smoke:macos` requires all 30 assertions in the existing shared harness sweep,
@@ -215,7 +215,7 @@ height, repeated solver passes, and window resize without host shrinkage or
 repositioning. Run it independently with:
 
 ```sh
-pnpm --filter @xplat/macos test:layout-placement
+bun run --filter @xplat/macos test:layout-placement
 ```
 
 Lottie has an explicit macOS leaf: it displays an unsupported label, calls
@@ -226,15 +226,15 @@ manifest. UI ref animation is checked independently and does not establish
 support for `@octane-xplat/motion`. Home uses the shared Bamboo probe class;
 its generated stylesheet ships in the bundle with the app CSS.
 
-Measured on 2026-10-25 with `pnpm --filter @xplat/web parity`,
-`pnpm --filter @xplat/macos parity`, and
+Measured on 2026-10-25 with `bun run --filter @xplat/web parity`,
+`bun run --filter @xplat/macos parity`, and
 `node scripts/parity-check.ts --targets=web,macos`: loading CSS raised the
 AppKit result from 913 to 963 of 1145 checks, and no check that passed before
 fails. (The pre-CSS build needed the `Screen` export fix to run.) The macOS
 sweep took 182 s, against 172 s before CSS.
 
 After adding or changing a platform route, run
-`pnpm --filter @xplat/app exec xplat routes` so the eager manifest excludes
+`bun run --cwd packages/app xplat routes` so the eager manifest excludes
 overridden files before bundling them. Install runs declaration generation;
 checking while postinstall is still running can report stale route types.
 Published declaration verification is a separate boundary from these source
@@ -271,7 +271,7 @@ and stack children get per-side margins via a transparent wrapper view
 This CLI target does not add macOS to the `create-octane-xplat` starter or the
 supported web/iOS/Android release contract.
 
-`pnpm --filter @xplat/macos bench:virtual-list` compares the all-rows fallback
+`bun run --filter @xplat/macos bench:virtual-list` compares the all-rows fallback
 with an AppKit-only fixed-height windowing prototype at 500, 2,000, and 5,000
 items. The prototype slices the array around the scroll position and inserts
 spacer views. It uses an internal AppKit scroll callback; it does not change the
@@ -283,7 +283,7 @@ or `OCTANE_MACOS_VLIST_MODES=windowed` to run only the windowing probe.
 For example, run just the windowed probe at 500 and 1,000 items:
 
 ```sh
-OCTANE_MACOS_VLIST_SIZES=500,1000 OCTANE_MACOS_VLIST_MODES=windowed pnpm --filter @xplat/macos bench:virtual-list
+OCTANE_MACOS_VLIST_SIZES=500,1000 OCTANE_MACOS_VLIST_MODES=windowed bun run --filter @xplat/macos bench:virtual-list
 ```
 
 These figures were collected before the JavaScriptCore dev-host migration and
@@ -314,7 +314,7 @@ or long-session behavior. The results show that bounded AppKit mounting is
 feasible for fixed-height rows, but do not establish production `VirtualList`
 behavior.
 
-`pnpm --filter @xplat/macos bench:virtual-list-scroll` adds a 5,000-row
+`bun run --filter @xplat/macos bench:virtual-list-scroll` adds a 5,000-row
 variable-height probe (32/48/64pt rows) with 180 programmatic 8pt offset
 updates at about 16ms intervals, followed by midpoint and end seeks. In the
 latest Apple Silicon run, the document stayed at its expected 309,970pt height,
@@ -351,7 +351,7 @@ API.
 
 ## Packaging proof
 
-`pnpm --filter @xplat/macos package` delegates to the CLI to build a universal
+`bun run --filter @xplat/macos package` delegates to the CLI to build a universal
 `.app` and compressed `.dmg` for Apple Silicon and Intel Macs. Every build verifies SHA-256 checksums
 of the pinned host, NativeScript framework, and metadata before running Vite.
 The statically linked host lives in `Contents/MacOS`, loads system
@@ -470,7 +470,7 @@ xcrun notarytool store-credentials octane-notary --apple-id "$APPLE_ID" --team-i
 unset APPLE_ID TEAM_ID
 export MACOS_SIGNING_IDENTITY="Developer ID Application: Example Company (ABCDE12345)"
 export MACOS_NOTARY_PROFILE=octane-notary
-pnpm xplat build --targets macos
+bun run xplat build --targets macos
 ```
 
 Run the build from `apps/macos`; the CLI signs and verifies the app and disk
@@ -488,11 +488,11 @@ the in-repository sweep covers its shared harness, not every AppKit API.
 
 The shared `@octane-xplat/ui` `WebView` embeds WKWebView inside an AppKit screen;
 it is separate from the system WebView app-shell backend above.
-Run `pnpm --filter @xplat/macos exec node test/verify-webview.mjs` from the
+Run `bun run --cwd apps/macos node test/verify-webview.mjs` from the
 repository root for the isolated compiled component fixture. It exercises real
 WebKit load callbacks, reload, HTML replacement, local-file history and errors,
 content measurement and unmount cleanup without screenshots. Delegate tests run with
-`pnpm --filter @octane-xplat/macos-renderer test`. Those simulated callbacks do
+`bun run --filter @octane-xplat/macos-renderer test`. Those simulated callbacks do
 not establish OS input or hit-testing.
 
 ## In-app browser source fixture
@@ -503,7 +503,7 @@ starts with an empty address and opens only after an explicit action. Its runner
 records controls mounting, not browser presentation or network behavior.
 
 ```sh
-pnpm probe run apps/macos/test/fixtures/browser-service.macos.tsrx --target macos --watch
+bun run probe run apps/macos/test/fixtures/browser-service.macos.tsrx --target macos --watch
 ```
 
 A scoped Turbo package task orders app and CLI build prerequisites before the
@@ -512,7 +512,7 @@ operation, separate from ordinary PR checks. Swift/class discovery, actual
 navigation/close/AX and clean packaged consumers remain unqualified.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit native package"}' -- bun run turbo run package --filter=@xplat/macos
 ```
 
 The idle dialog page lets a human check website labels, alert/confirm results,

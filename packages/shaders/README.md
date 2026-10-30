@@ -11,7 +11,7 @@ parameters, options, and the returned instance's methods — `update(id, props)`
 upstream's.
 
 ```sh
-pnpm add @octane-xplat/shaders
+bun add @octane-xplat/shaders
 ```
 
 ## Usage

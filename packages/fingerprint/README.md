@@ -6,11 +6,11 @@ inputs. The API follows [Expo Fingerprint](https://docs.expo.dev/versions/latest
 names while collecting NativeScript inputs instead of Expo or React Native inputs.
 
 This is a **Node build tool**, not an app runtime module. Install it in your
-app's development dependencies with Node 22.22.2 or newer and pnpm:
+app's development dependencies with Node 22.22.2 or newer and Bun:
 
 ```sh
-pnpm add -D @octane-xplat/fingerprint
-pnpm exec xplat-fingerprint --dir . --platform ios > native-inputs.json
+bun add -D @octane-xplat/fingerprint
+bun run xplat-fingerprint --dir . --platform ios > native-inputs.json
 ```
 
 The command prints JSON containing `hash` and `sources`. Compare it after a
@@ -18,7 +18,7 @@ change; each difference names an added, removed or changed input. Ordinary
 app JavaScript changes do not change the native identity.
 
 ```sh
-pnpm exec xplat-fingerprint --dir . --platform ios --diff native-inputs.json
+bun run xplat-fingerprint --dir . --platform ios --diff native-inputs.json
 ```
 
 ## Use in a build script
@@ -41,7 +41,7 @@ console.log(await diffFingerprintChangesAsync(before, '.', { platforms: ['ios'] 
 ```
 
 The defaults collect iOS and Android inputs together. Select a single platform
-when comparing native binaries. Installed dependencies and a resolved pnpm
+when comparing native binaries. Installed dependencies and a resolved Bun or pnpm
 lockfile are required. Missing or ambiguous native dependency metadata fails
 the operation rather than producing a compatibility claim.
 
@@ -64,7 +64,7 @@ out of Git. Use that record to reproduce the build's compiler context on a
 publishing machine; a source-only invocation has a different context.
 
 ```sh
-pnpm exec xplat-fingerprint --dir . \
+bun run xplat-fingerprint --dir . \
   --build-record .xplat/fingerprints/ios.json \
   --diff .xplat/fingerprints/ios.json
 ```
@@ -95,7 +95,7 @@ can exclude extra inputs, but excluding an automatic native input is an error.
 ```
 
 The collector includes evaluated NativeScript configuration, custom resources,
-declared `NativeSource` files, native plugin files and versions, relevant pnpm
+declared `NativeSource` files, native plugin files and versions, relevant Bun or pnpm
 resolutions and patches, hooks, native declarations and available Pod/SwiftPM/
 Gradle lock records. It executes the app's trusted NativeScript configuration
 as build code, including relative configuration helpers. Declare any extra

@@ -5,7 +5,7 @@ your app fires itself. For server-delivered (APNs/FCM) push, use
 [`@octane-xplat/push`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/push/README.md).
 
 ```sh
-pnpm add @octane-xplat/notifications
+bun add @octane-xplat/notifications
 ```
 
 ```ts

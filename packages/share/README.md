@@ -9,7 +9,7 @@ useful; native macOS uses the package’s compiled AppKit bridge and
 `NSSharingServicePicker`.
 
 ```sh
-pnpm add @octane-xplat/share
+bun add @octane-xplat/share
 ```
 
 ```ts
@@ -134,5 +134,5 @@ contracts. The native Services screen exercises explicit text/link actions;
 the idle maintained fixture separates file preparation from its share action:
 
 ```sh
-pnpm probe run examples/probes/share.macos.tsrx --target macos --watch
+bun run probe run examples/probes/share.macos.tsrx --target macos --watch
 ```

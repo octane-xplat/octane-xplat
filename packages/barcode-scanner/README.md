@@ -11,7 +11,7 @@ when the app needs to choose or capture a photo first.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/barcode-scanner
+bun add @octane-xplat/barcode-scanner
 ```
 
 Call this function with a readable image: a native path or image source on

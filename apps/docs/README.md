@@ -4,7 +4,7 @@ The site renders the Markdown files in `docs/`. From the repository root,
 run the preview command:
 
 ```sh
-pnpm --filter @xplat/docs dev
+bun run --filter @xplat/docs dev
 ```
 
 Guides live in `docs/start/`, `docs/app/`, `docs/platform/`, and
@@ -67,7 +67,7 @@ The front page (`docs/README.md`, served at `/`) uses highlights for key phrases
 and its first-app link. Build and check the rendered site with:
 
 ```sh
-pnpm exec turbo run smoke --filter=@xplat/docs
+bun run turbo run smoke --filter=@xplat/docs
 ```
 
 ## Shared UI and browser host

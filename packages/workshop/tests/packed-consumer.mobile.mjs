@@ -32,7 +32,7 @@ const tarballs = {}
 for (const dir of ['cli', 'lib', 'ui', 'workshop']) {
 	const root = join(repo, 'packages', dir)
 	const p = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-	run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', packs], root)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], root)
 	tarballs[p.name] =
 		`file:${join(packs, `${p.name.replace('@', '').replace('/', '-')}-${p.version}.tgz`)}`
 }
@@ -63,14 +63,12 @@ write(
 	}),
 )
 
-write(
-	'pnpm-workspace.yaml',
-	`packages: []\noverrides:\n${Object.entries(tarballs)
-		.map(([name, path]) => `  '${name}': '${path}'`)
-		.join('\n')}\n`,
-)
+const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+manifest.overrides = tarballs
+manifest.packageManager = 'bun@1.4.4'
+write('package.json', JSON.stringify(manifest))
 
-run('pnpm', ['install', '--ignore-scripts'])
+run('bun', ['install', '--ignore-scripts'])
 const req = createRequire(join(consumer, 'package.json'))
 for (const name of ['ui', 'workshop', 'cli']) {
 	assert.ok(realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work))
@@ -220,7 +218,7 @@ write(
 	}),
 )
 
-run('pnpm', ['exec', 'tsc', '--noEmit'])
+run('bun', ['run', 'tsc', '--noEmit'])
 console.log(
 	'PASS packed v1/negative types, single Octane, native source compilation without DOM imports, production excludes tooling/stories',
 )

@@ -24,31 +24,28 @@ bun --version
 bun install --frozen-lockfile
 ```
 
-pnpm 11.24.0 remains necessary for packed-consumer checks and publishing with
-provenance. The generated `pnpm-workspace.yaml` exists for that packaging path;
-use Bun to install the repository. After changing root workspace patterns or
-catalogs, regenerate its packaging metadata and verify patches:
+Bun handles development, package tarballs, and consumer checks. Releases upload
+Bun tarballs with npm trusted publishing and provenance; npm is only needed by
+the release job. pnpm is optional, for a manual patch-compatibility check:
 
 ```sh
-bun run sync:workspace
-bun run check:workspace
-bun run check:patches
+bun run turbo run test:patches-pnpm --filter=@octane-xplat/cli
 ```
 
 Run these from the repository root after `bun install --frozen-lockfile`:
 
-| Task                                                       | Command                                                                              |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Task                                                       | Command                                                                                 |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | Start a harness target                                     | `bun run dev:web`, `dev:ios`, `dev:android`, `dev:macos`, `dev:linux`, or `dev:windows` |
 | Build a harness target                                     | `bun run build:web`, `build:ios`, `build:macos`, `build:linux`, or `build:windows`      |
-| Work on the docs site                                      | `bun run dev:docs` or `bun run build:docs`                                                 |
+| Work on the docs site                                      | `bun run dev:docs` or `bun run build:docs`                                              |
 | Build workspace packages                                   | `bun run build:packages`                                                                |
 | Run lint and repository checks                             | `bun run check`                                                                         |
 | Generate declarations and typecheck every target           | `bun run typecheck`                                                                     |
 | Run unit, repository-checker, and typegen tests            | `bun run test`                                                                          |
 | Run checks, typechecks, and tests in order                 | `bun run validate`                                                                      |
 | Verify packed UI, GIF, auth, and typegen-fixture consumers | `bun run test:packed`                                                                   |
-| Build and browser-smoke the harness or docs                | `bun run smoke:web` or `bun run smoke:docs`                                                |
+| Build and browser-smoke the harness or docs                | `bun run smoke:web` or `bun run smoke:docs`                                             |
 
 Individual `typecheck:web`, `typecheck:mobile`, `typecheck:macos`,
 `typecheck:linux`, `typecheck:windows`, and `typecheck:docs` commands are also

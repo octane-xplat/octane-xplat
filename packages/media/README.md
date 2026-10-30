@@ -9,7 +9,7 @@ for existing images and an app-owned Capture/Cancel sheet for still photos.
 Photos-library browsing and gallery saving remain unsupported.
 
 ```sh
-pnpm add @octane-xplat/media @octane-xplat/files
+bun add @octane-xplat/media @octane-xplat/files
 ```
 
 ```ts

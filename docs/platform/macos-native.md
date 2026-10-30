@@ -25,7 +25,7 @@ Build on a Mac running macOS arm64 or x86_64 (Apple Silicon or Intel). Select
 Xcode, Command Line Tools installed, and Node 22.17 or later. Zig is needed only when a dependency ships `.zig`
 sources; the maintained fixture uses Zig 0.16. The CLI ships its pinned metadata
 generator, which loads Command Line Tools' `libclang`. App builds need neither
-CMake nor an upstream runtime checkout. `pnpm xplat doctor` checks the native
+CMake nor an upstream runtime checkout. `bun run xplat doctor` checks the native
 packages and loads the generator to diagnose missing or incompatible tools.
 `xcrun --sdk macosx` selects the newest installed SDK; on a host whose
 toolchain predates it (for example an older `swiftc` against a newer
@@ -113,9 +113,9 @@ export function add(left: number, right: number) {
 Install it as a runtime dependency and start development:
 
 ```sh
-pnpm add ./native-math
-pnpm xplat doctor
-pnpm xplat dev macos
+bun add ./native-math
+bun run xplat doctor
+bun run xplat dev macos
 ```
 
 In the macOS entry, `import { add } from '@example/native-math'` followed by
@@ -260,7 +260,7 @@ with the NativeScript C/ObjC metadata bridge.
 
 ## Rebuild, package, and diagnose
 
-`pnpm xplat dev macos` compiles native dependencies before launching.
+`bun run xplat dev macos` compiles native dependencies before launching.
 Native source, header, and package configuration edits rebuild metadata and
 libraries, then restart the host. Uncached metadata generation can take a few
 minutes; unchanged builds reuse the artifact cache. A failed native rebuild reports the stage and
@@ -275,7 +275,7 @@ import { runMacOSDev } from '@octane-xplat/cli/macos'
 await runMacOSDev(process.cwd())
 ```
 
-`pnpm xplat build --targets macos` compiles or reuses native artifacts, builds JS,
+`bun run xplat build --targets macos` compiles or reuses native artifacts, builds JS,
 and copies the libraries into `Contents/Frameworks`. The bootstrap loads them
 relative to the `.app`, so moving or renaming the bundle does not depend on
 development paths. Libraries are signed before the containing app. Developer ID
@@ -291,7 +291,7 @@ and metadata are checked against their recorded hashes. Package-manager copies
 of tools are verified and copied to the app cache before executable permissions
 are set, preserving the shared package store.
 
-Stop dev before running `pnpm xplat clean`. It removes generated caches and
+Stop dev before running `bun run xplat clean`. It removes generated caches and
 build outputs while preserving authored `platforms/macos/` files. A corrupt
 cache diagnostic identifies a specific generated directory; remove that
 directory and rebuild. No-native-leaf apps continue using shipped metadata and

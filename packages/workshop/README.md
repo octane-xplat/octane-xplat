@@ -14,10 +14,10 @@ exclusion workflow.
 Inside a configured Xplat app, keep its existing matching compiler/runtime:
 
 ```sh
-pnpm add -D @octane-xplat/workshop @octane-xplat/cli @octanejs/vite-plugin vite
-pnpm exec xplat workshop init
-pnpm exec xplat workshop doctor
-pnpm exec xplat workshop dev --target web
+bun add -D @octane-xplat/workshop @octane-xplat/cli @octanejs/vite-plugin vite
+bun run xplat workshop init
+bun run xplat workshop doctor
+bun run xplat workshop dev --target web
 ```
 
 Open the printed URL and choose **Workshop / Counter**. Increment, edit step,

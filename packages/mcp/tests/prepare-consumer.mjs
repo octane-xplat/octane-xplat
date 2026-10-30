@@ -58,5 +58,5 @@ if (import.meta.env.DEV) {
 )
 
 console.log(
-	`Scaffolded ${dir}. Run pnpm --dir ${dir} install, then tests/consumer-workflow.mjs ${dir}.`,
+	`Scaffolded ${dir}. Run bun --cwd ${dir} install, then tests/consumer-workflow.mjs ${dir}.`,
 )

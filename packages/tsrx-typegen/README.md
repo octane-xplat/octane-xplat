@@ -31,10 +31,10 @@ Install `tsrx-typegen` as a development tool alongside `typescript` and
 `@tsrx/typescript-plugin`, then run it against a named target:
 
 ```sh
-pnpm add -D tsrx-typegen typescript @tsrx/typescript-plugin
-pnpm exec tsrx-typegen --target octane          # generate declarations
-pnpm exec tsrx-typegen --target octane --check  # verify output is fresh
-pnpm exec tsrx-typegen --pack-check             # validate the packed tarball
+bun add -D tsrx-typegen typescript @tsrx/typescript-plugin
+bun run tsrx-typegen --target octane          # generate declarations
+bun run tsrx-typegen --target octane --check  # verify output is fresh
+bun run tsrx-typegen --pack-check             # validate the packed tarball
 ```
 
 Each target in `tsrx-typegen.json` names its renderer, project config,
@@ -173,7 +173,7 @@ scripts disabled, and verifies that package and `publishConfig` export paths
 exist in the tarball. It also compares runtime and declaration value exports
 and checks that relative declaration references resolve to declarations inside
 the package and bare package imports are declared dependencies or peers. The command needs
-`pnpm` and the system `tar` utility. It checks package structure; keep a plain
+`Bun` and the system `tar` utility. It checks package structure; keep a plain
 TypeScript consumer test for the module-resolution modes and public prop
 contracts your package supports.
 
@@ -182,7 +182,7 @@ maps and mixed Node tooling exports without type entries need separate
 package-specific validation.
 
 ```sh
-pnpm exec tsrx-typegen --pack-check
+bun run tsrx-typegen --pack-check
 ```
 
 A target with `"emit": false` exists only to drive packed-package
@@ -213,13 +213,13 @@ for source-published packages, the `.ts` source itself.
 }
 ```
 
-Run the same gate from `prepack` so `pnpm pack` and publication share it:
+Run the same gate from `prepack` so `bun pm pack` and publication share it:
 
 ```json
 {
 	"scripts": {
 		"typegen": "tsrx-typegen --target octane",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check"
+		"prepack": "bun run typegen && tsrx-typegen --pack-check"
 	}
 }
 ```
@@ -229,7 +229,7 @@ delegates to `tsrx-typegen --pack-check` and returns a failing exit status if
 that declaration gate fails.
 
 ```sh
-pnpm exec xplat doctor
+bun run xplat doctor
 ```
 
 ## Backend and inference

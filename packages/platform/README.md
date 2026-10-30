@@ -6,7 +6,7 @@
 > Status: `0.x` — the API surface is still moving.
 
 ```sh
-pnpm add @octane-xplat/platform octane
+bun add @octane-xplat/platform octane
 ```
 
 `octane` is a required peer; the `@nativescript/*` peers are optional and

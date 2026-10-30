@@ -48,7 +48,7 @@ function ArticleSummary() {
 	return (
 		<>
 			<Blockquote cite="Release notes">A portable quotation.</Blockquote>
-			<Code>pnpm add @octane-xplat/ui</Code>
+			<Code>bun add @octane-xplat/ui</Code>
 			<CodeBlock code="const ready = true" language="typescript" hasCopyButton={true} />
 			<MetadataList columns={2}>
 				<MetadataListItem label="Status">

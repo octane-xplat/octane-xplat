@@ -6,7 +6,7 @@ follow Expo Crypto 58.0.7. The initial AES subset uses a 12-byte nonce and a
 16-byte authentication tag on every supported host.
 
 ```sh
-pnpm add @octane-xplat/crypto
+bun add @octane-xplat/crypto
 ```
 
 Start in an existing Xplat app. Rebuild iOS and AppKit apps after installation to

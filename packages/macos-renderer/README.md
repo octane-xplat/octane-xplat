@@ -453,7 +453,7 @@ export function AccountPage() {
 
 The label renders `Account: Avery` inside the `rootlayout` and reads the same
 provider value as its declaring tree. Run the maintained portal fixture with
-`pnpm probe run packages/macos-renderer/test/fixtures/portal-lifecycle.macos.tsrx --target macos` to check context,
+`bun run probe run packages/macos-renderer/test/fixtures/portal-lifecycle.macos.tsrx --target macos` to check context,
 provider updates, and native child cleanup.
 
 Use [the packaging guide](https://octane-xplat.goddardai.org/toolchain#experimental-appkit-target)
@@ -940,11 +940,11 @@ export default config
 From this repository:
 
 ```sh
-pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
-pnpm probe run packages/macos-renderer/test/fixtures/text-overflow.macos.tsrx --target macos
-pnpm probe run packages/macos-renderer/test/fixtures/text-wrap.macos.tsrx --target macos
-pnpm probe run packages/macos-renderer/test/fixtures/portal-lifecycle.macos.tsrx --target macos
-pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+bun run turbo run test --filter=@octane-xplat/macos-renderer
+bun run probe run packages/macos-renderer/test/fixtures/text-overflow.macos.tsrx --target macos
+bun run probe run packages/macos-renderer/test/fixtures/text-wrap.macos.tsrx --target macos
+bun run probe run packages/macos-renderer/test/fixtures/portal-lifecycle.macos.tsrx --target macos
+bun run turbo run test:packed --filter=@octane-xplat/macos-renderer
 ```
 
 Font and layout-channel integration checks live in the
@@ -968,7 +968,7 @@ The maintained nonvisual fixture checks Objective-C gesture target dispatch;
 physical OS input remains a separate manual check.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm probe run packages/macos-renderer/test/fixtures/gestures.macos.tsrx --target macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- bun run probe run packages/macos-renderer/test/fixtures/gestures.macos.tsrx --target macos
 ```
 
 

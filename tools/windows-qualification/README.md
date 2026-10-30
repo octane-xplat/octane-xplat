@@ -20,7 +20,7 @@ Build the dedicated host from the repository root on Windows:
 ```powershell
 $env:XPLAT_WINDOWS_QUALIFICATION = '1'
 $sourceCommit = (git rev-parse HEAD).Trim()
-pnpm exec turbo run build:windows --filter=@xplat/windows --concurrency=1
+bun run turbo run build:windows --filter=@xplat/windows --concurrency=1
 ```
 
 This selects `apps/windows/src/qualification/index.ts` and package identity

@@ -167,37 +167,39 @@ if (noInstall) {
 	process.exit(0)
 }
 
-const install = spawnSync('pnpm', ['install'], {
+const install = spawnSync('bun', ['install'], {
 	cwd: dir,
 	stdio: 'inherit',
 	shell: process.platform === 'win32',
 })
 
 if (install.status !== 0) {
-	console.log(`\nInstall didn't finish (pnpm missing?). To run manually:`)
+	console.log(`\nInstall didn't finish (Bun missing?). To run manually:`)
 	printNextSteps(dir, ids, templateArg)
 	process.exit(install.status ?? 1)
 }
 
 if (templateArg === 'app' && ids.includes('web')) {
 	console.log('\n✓ installed — starting dev server (Ctrl+C to stop)\n')
-	spawnSync('pnpm', ['dev'], { cwd: dir, stdio: 'inherit', shell: process.platform === 'win32' })
+	spawnSync('bun', ['dev'], { cwd: dir, stdio: 'inherit', shell: process.platform === 'win32' })
 } else {
 	console.log('\n✓ installed. Next steps:')
 	printNextSteps(dir, ids, templateArg)
 }
 
 function printNextSteps(dir, ids, template) {
-	console.log(`  cd ${dir}\n  pnpm install`)
+	console.log(`  cd ${dir}\n  bun install`)
 	if (template === 'library') {
-		console.log('  pnpm typecheck\n  pnpm lint\n  pnpm typegen\n  pnpm test\n  pnpm test:packed')
+		console.log(
+			'  bun run typecheck\n  bun run lint\n  bun run typegen\n  bun run test\n  bun run test:packed',
+		)
 		return
 	}
 
 	if (ids.includes('web')) {
-		console.log('  pnpm dev')
+		console.log('  bun run dev')
 	} else {
 		// No web entry — `xplat dev` discovers whichever native targets exist.
-		console.log('  pnpm xplat dev')
+		console.log('  bun run xplat dev')
 	}
 }

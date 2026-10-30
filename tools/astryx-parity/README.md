@@ -15,17 +15,17 @@ here.
 
 ## Run it
 
-1. Install dependencies from the repo root: `pnpm install`.
+1. Install dependencies from the repo root: `bun install`.
 2. Install the Chromium build Playwright 1.63 expects (once per machine):
 
    ```sh
-   pnpm --filter @xplat/astryx-parity exec playwright install chromium
+   bun run --cwd tools/astryx-parity playwright install chromium
    ```
 
 3. Run the comparison:
 
    ```sh
-   pnpm exec turbo run parity --filter=@xplat/astryx-parity
+   bun run turbo run parity --filter=@xplat/astryx-parity
    ```
 
    This builds and `vite preview`s both sides (reference on 127.0.0.1:4310,

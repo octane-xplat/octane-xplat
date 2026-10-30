@@ -15,7 +15,7 @@
 # XPLAT_MASON_CORE_MODE=host uses the macOS dev-host archive). Produce the
 # artifact in the mason checkout first:
 #   rustup run stable cargo generate-lockfile
-#   pnpm exec nx run nativescript-mason-core:build.native.desktop
+#   bun run nx run nativescript-mason-core:build.native.desktop
 #
 # Requires: a C compiler, pkg-config, gtk4, json-glib-1.0, and
 # gobject-introspection (g-ir-scanner + g-ir-compiler). Artifacts land in

@@ -23,7 +23,7 @@ const ALL = ['web', 'ios', 'android']
 
 test('published scaffold entry resolves to a built file', () => {
 	const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
-	for (const target of Object.values(manifest.publishConfig.exports)) {
+	for (const target of Object.values(manifest.exports)) {
 		const entry = typeof target === 'string' ? target : target.default
 		assert.ok(
 			existsSync(new URL(`../${entry}`, import.meta.url)),
@@ -42,13 +42,7 @@ test('composing the full target set reproduces the template byte-for-byte', (t) 
 	const dir = project(t)
 	composeTargets(ALL, dir)
 
-	for (const rel of [
-		'package.json',
-		'pnpm-workspace.yaml',
-		'tsconfig.json',
-		'vite.config.ts',
-		'nativescript.config.ts',
-	]) {
+	for (const rel of ['package.json', 'tsconfig.json', 'vite.config.ts', 'nativescript.config.ts']) {
 		assert.equal(
 			readFileSync(join(dir, rel), 'utf8'),
 			readFileSync(join(TEMPLATE_DIR, rel), 'utf8'),
@@ -61,16 +55,20 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 	const dir = project(t)
 	composeTargets(['web'], dir)
 
-	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
-	assert.ok(yaml.includes(`octane@${managedSpecifier('octane')}:`))
+	const yaml = readFileSync(join(dir, 'package.json'), 'utf8')
+	assert.ok(yaml.includes(`octane@${managedSpecifier('octane')}`))
 	assert.match(yaml, /@tsrx\/typescript-plugin@0\.4\.11/)
-	assert.match(yaml, /configDependencies:[\s\S]*@octane-xplat\/patches/)
+	const pkg = JSON.parse(yaml)
+	assert.equal(pkg.packageManager, 'bun@1.4.4')
+	for (const path of Object.values(pkg.patchedDependencies)) {
+		assert.ok(existsSync(join(dir, path)))
+	}
 	assert.doesNotMatch(yaml, /@nativescript\/core@9\.1\.3/)
 	assert.doesNotMatch(yaml, /@nativescript\/vite@8\.0\.17/)
 
 	const native = project(t)
 	composeTargets(['ios'], native)
-	const nativeYaml = readFileSync(join(native, 'pnpm-workspace.yaml'), 'utf8')
+	const nativeYaml = readFileSync(join(native, 'package.json'), 'utf8')
 	assert.match(nativeYaml, /@nativescript\/core@9\.1\.3/)
 })
 
@@ -193,8 +191,8 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 	assert.equal(manifest.dependencies['@nativescript/core'], TPL.dependencies['@nativescript/core'])
 
 	// The web-only scaffold's yaml lacked native patch entries — add restores
-	// them so the next `pnpm install` doesn't miss the framework patches.
-	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
+	// them so the next `bun install` doesn't miss the framework patches.
+	const yaml = readFileSync(join(dir, 'package.json'), 'utf8')
 	assert.match(yaml, /@nativescript\/core@9\.1\.3/)
 	assert.ok(
 		yaml.includes(
@@ -270,7 +268,7 @@ test('default testing includes only enabled platforms with framework-managed ver
 		assert.equal(existsSync(join(dir, 'src/app.web.test.tsx')), web)
 		assert.equal(existsSync(join(dir, 'src/app.spec.tsrx')), native)
 		assert.equal(existsSync(join(dir, 'vitest.config.mts')), native)
-		assert.match(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'), /vitest: 4/)
+		assert.match(readFileSync(join(dir, 'package.json'), 'utf8'), /"vitest": "4/)
 	}
 })
 

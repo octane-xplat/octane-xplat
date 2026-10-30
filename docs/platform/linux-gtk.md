@@ -22,8 +22,8 @@ has published. Keep Xplat packages on the same release; the one-time `0.0.1`
 registry stub has no supported API.
 
 ```sh
-pnpm add @octane-xplat/linux-gtk @octane-xplat/ui octane
-pnpm add -D @octane-xplat/cli @octanejs/vite-plugin vite
+bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
+bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
 ```
 
 The npm package includes JavaScript and declarations. GJS and GTK4 come from
@@ -202,7 +202,7 @@ On Ubuntu 24.04, install GJS and the GTK4 introspection data:
 
 ```sh
 sudo apt install gjs gir1.2-gtk-4.0
-pnpm exec xplat doctor
+bun run xplat doctor
 ```
 
 `xplat doctor` validates the target configuration and, on a Linux host,
@@ -222,7 +222,7 @@ loop you maintain — for example, a Vite build followed by `gjs -m`:
 Build the distributable app with the CLI:
 
 ```sh
-pnpm exec xplat build --targets linux
+bun run xplat build --targets linux
 ```
 
 For the example above, output is:

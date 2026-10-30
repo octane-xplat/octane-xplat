@@ -40,7 +40,7 @@ The webview loads one of two URLs, chosen by `gjs-host.js` args:
   `crypto.subtle`) and module/font fetches work.
 - `http://localhost:5201` — dev; vite serves, HMR rides real HTTP.
 
-`pnpm --filter @xplat/linux build` invokes the CLI packager and emits
+`bun run --filter @xplat/linux build` invokes the CLI packager and emits
 `apps/linux/dist/linux/octane-xplat/` plus `octane-xplat-0.0.0.tar.gz`.
 The launcher resolves host and bundle paths independently of the caller's
 working directory. The installer generates the desktop entry at its destination;
@@ -52,7 +52,7 @@ On Andromeda, the OrbStack `octane-linux` machine runs Ubuntu 24.04 x86-64.
 With the repository and dependencies in `/home/alec/octane-xplat`, run:
 
 ```sh
-ssh andromeda.local '/usr/local/bin/orb -m octane-linux bash -lc "cd /home/alec/octane-xplat && PATH=/home/alec/.local/share/pnpm/bin:$PATH pnpm --filter @xplat/linux smoke"'
+ssh andromeda.local '/usr/local/bin/orb -m octane-linux bash -lc "cd /home/alec/octane-xplat && PATH=/home/alec/.local/share/pnpm/bin:$PATH bun run --filter @xplat/linux smoke"'
 ```
 
 The maintained [smoke runner](../scripts/smoke.ts) builds through the CLI and
@@ -104,7 +104,7 @@ and `/dev/fuse` for the documents portal — untested there.
 Run the harness:
 
 ```sh
-pnpm --filter @xplat/linux dev      # vite on :5201
+bun run --filter @xplat/linux dev      # vite on :5201
 apps/linux/host/run.sh --self-test  # build + launch + bridge round-trip check
 ```
 

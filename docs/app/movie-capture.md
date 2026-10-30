@@ -12,7 +12,7 @@ this guide.
 Install the camera package from your app's folder:
 
 ```sh
-pnpm add @octane-xplat/camera
+bun add @octane-xplat/camera
 ```
 
 ## Show the shared preview
@@ -321,13 +321,13 @@ delayed storage, failure cleanup, early and repeated Stop, track loss, denied
 audio, and oversized timers.
 
 ```sh
-pnpm exec turbo run test --filter=@octane-xplat/camera
+bun run turbo run test --filter=@octane-xplat/camera
 node packages/camera/tests/browser-conformance.web.mjs
-pnpm probe run packages/camera/tests/movie-capture.android.tsrx \
+bun run probe run packages/camera/tests/movie-capture.android.tsrx \
   --target android --device DEVICE_ID --deps @octane-xplat/camera --timeout 130000
-pnpm probe run packages/camera/tests/movie-capture.macos.tsrx \
+bun run probe run packages/camera/tests/movie-capture.macos.tsrx \
   --target macos --deps @octane-xplat/camera --timeout 120000
-pnpm exec turbo run test:camera-webview --filter=@xplat/macos
+bun run turbo run test:camera-webview --filter=@xplat/macos
 ```
 
 The Android case needs camera permission granted to its isolated test app and

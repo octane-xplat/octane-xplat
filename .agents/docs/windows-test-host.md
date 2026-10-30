@@ -31,7 +31,7 @@ Check that Node, pnpm, and .NET are available in the same PowerShell session:
 
 ```powershell
 node --version
-pnpm --version
+bun --version
 dotnet --version
 ```
 
@@ -51,10 +51,10 @@ and retained evidence outside that disposable tree.
 From the repository root, the intended checks are:
 
 ```powershell
-pnpm install
-pnpm --filter @xplat/windows exec xplat doctor
+bun install
+bun run --cwd apps/windows xplat doctor
 $env:NODE_OPTIONS = '--max-old-space-size=4096'
-pnpm exec turbo run build:windows typecheck --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful
+bun run turbo run build:windows typecheck --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful
 ```
 
 Turbo generates the app before building. The 4 GB Node heap and sequential

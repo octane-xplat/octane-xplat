@@ -519,3 +519,42 @@ test('a private nested copy of a managed package is not the app contract', (t) =
 	install(nativescript, 'typescript', '5.7.3')
 	assert.ok(inspectCompatibility(root, tools).every((row) => row.ok))
 })
+
+test('Bun upgrade writes named catalogs and local patch bytes, preserves workspace policy and is idempotent', (t) => {
+	const root = project(t, {
+		packageManager: 'bun@1.4.4',
+		workspaces: { packages: ['apps/*'], catalogs: { custom: { example: '1.0.0' } } },
+		overrides: { example: '2.0.0' },
+	})
+	const app = join(root, 'apps/web')
+	writeJson(join(app, 'package.json'), { dependencies: { octane: '0.10.0' } })
+	const plan = planUpgrade(app)
+	assert.equal(plan.root, root)
+	assert.ok(plan.files.every((file) => !file.path.endsWith('pnpm-workspace.yaml')))
+	applyUpgrade(plan)
+	const owner = json(join(root, 'package.json'))
+	assert.equal(owner.workspaces.catalogs.xplat.octane, managedSpecifier('octane'))
+	assert.deepEqual(owner.workspaces.catalogs.custom, { example: '1.0.0' })
+	assert.equal(owner.overrides.example, '2.0.0')
+	for (const path of Object.values(owner.patchedDependencies)) {
+		assert.ok(existsSync(join(root, path)))
+	}
+	assert.equal(json(join(app, 'package.json')).dependencies.octane, 'catalog:xplat')
+	assert.equal(planUpgrade(app).files.length, 0)
+	const rows = inspectCompatibility(app, { node: tools.node, bun: compatibility.tools.bun })
+	assert.ok(
+		rows.find((row) => row.name === 'compatibility Bun' || row.name === 'compatibility bun').ok,
+	)
+	assert.ok(rows.find((row) => row.name === 'compatibility packageManager').ok)
+})
+
+test('Bun upgrade retains top-level named catalog ownership', (t) => {
+	const root = project(t, {
+		packageManager: 'bun@1.4.4',
+		catalogs: { xplat: { octane: '0.10.0' } },
+		dependencies: { octane: 'catalog:xplat' },
+	})
+	applyUpgrade(planUpgrade(root))
+	assert.equal(json(join(root, 'package.json')).catalogs.xplat.octane, managedSpecifier('octane'))
+	assert.equal(planUpgrade(root).files.length, 0)
+})

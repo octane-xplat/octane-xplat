@@ -24,7 +24,7 @@ try {
 			await rm(join(packed, file))
 		}
 	}
-	run('pnpm', ['pack', '--config.ignore-scripts=true', '--pack-destination', packed], root)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packed], root)
 	const archive = (await readdir(packed)).find((file) => file.endsWith('.tgz'))
 	assert.ok(archive)
 	run('tar', ['-xzf', join(packed, archive), '-C', packed], root)
@@ -37,13 +37,13 @@ try {
 			dependencies: { '@octane-xplat/fingerprint': 'file:' + join(packed, archive) },
 		}),
 	)
-	run('pnpm', ['install', '--ignore-scripts', '--ignore-workspace'], temporary)
+	run('bun', ['install', '--ignore-scripts'], temporary)
 	const project = join(temporary, 'app')
 	await mkdir(join(project, 'App_Resources/iOS'), { recursive: true })
 	await writeFile(join(project, 'package.json'), '{}')
 	await writeFile(
-		join(project, 'pnpm-lock.yaml'),
-		'lockfileVersion: 9.0\nimporters: {.: {}}\npackages: {}\n',
+		join(project, 'bun.lock'),
+		'{"lockfileVersion": 3, "workspaces": {"": {}}, "packages": {},}',
 	)
 	await writeFile(join(project, 'nativescript.config.ts'), "export default { id: 'consumer.test' }")
 	await writeFile(join(project, 'App_Resources/iOS/Probe.swift'), '// Native fixture')

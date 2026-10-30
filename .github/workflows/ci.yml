@@ -23,11 +23,6 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
@@ -62,7 +57,7 @@ jobs:
 
       - name: Repo checks
         run: >-
-          bun run check:workspace && bun run check:compatibility && bun run check:patches && bun run check:ui-barrels && bun run check:css &&
+          bun run check:compatibility && bun run check:patches && bun run check:ui-barrels && bun run check:css &&
           bun run check:suffix-resolution && bun run check:changelog && bun run check:doc-examples
 
       - name: Typecheck web
@@ -72,7 +67,7 @@ jobs:
         run: bun run typecheck:mobile
 
       # @xplat/visual runs browser-mode vitest (Playwright) — excluded here;
-      # it runs locally via the same `pnpm test` script.
+      # it runs locally via the same `bun run test` script.
       - name: Test
         run: >-
           bun run turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
@@ -86,7 +81,7 @@ jobs:
       - name: Prepare packages
         run: bun run build:packages
 
-      - name: Check Bun and pnpm patch installs
+      - name: Check Bun patch installs
         run: bun run turbo run test:patches-install --filter=@octane-xplat/cli
 
       - name: Check standalone CLI executable
@@ -117,8 +112,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          # No pnpm in this job — disable v5's auto package-manager cache,
-          # which would otherwise invoke pnpm for the detected lockfile.
+          # Bun owns the dependency cache; disable setup-node's automatic caching.
           package-manager-cache: false
       - name: Check public docs and package READMEs
         run: node scripts/check-docs.ts
@@ -137,8 +131,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          # No pnpm in this job — disable v5's auto package-manager cache,
-          # which would otherwise invoke pnpm for the detected lockfile.
+          # Bun owns the dependency cache; disable setup-node's automatic caching.
           package-manager-cache: false
       - name: Record CI evidence
         env:

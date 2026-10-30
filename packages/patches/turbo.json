@@ -9,7 +9,7 @@
 				"../create/compatibility.*",
 				"../create/scaffold.ts",
 				"../create/template/**",
-				"../create/library-template/pnpm-workspace.yaml"
+				"../create/library-template/**"
 			]
 		},
 		"test:packed": {

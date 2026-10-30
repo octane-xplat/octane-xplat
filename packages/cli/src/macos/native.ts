@@ -210,7 +210,7 @@ export function discoverMacOSNative(appRoot) {
 				}
 
 				throw new Error(
-					`[macos-native] ${manifest.name}: dependency ${name} is not installed; run pnpm install`,
+					`[macos-native] ${manifest.name}: dependency ${name} is not installed; run bun install`,
 				)
 			}
 
@@ -731,9 +731,7 @@ export async function buildMacOSNative(
 							toolchain.clang,
 							[
 								...common,
-								...(extname(source) === '.m' || extname(source) === '.mm'
-									? ['-fobjc-arc']
-									: []),
+								...(extname(source) === '.m' || extname(source) === '.mm' ? ['-fobjc-arc'] : []),
 								'-c',
 								source,
 								'-o',
@@ -885,10 +883,7 @@ export async function buildMacOSNative(
 			'-target',
 			`${arch}-apple-macos${minimumSystemVersion}`,
 			...leaves.flatMap((leaf) => leaf.defines.map((define) => `-D${define}`)),
-			...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => [
-				'-I',
-				path,
-			]),
+			...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => ['-I', path]),
 		]
 
 		const generatorEnv = {

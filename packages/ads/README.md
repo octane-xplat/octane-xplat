@@ -8,7 +8,7 @@ Web and desktop report `supported: false`.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/ads
+bun add @octane-xplat/ads
 ```
 
 Before launching, configure the AdMob **app ID** in the native host:

@@ -1,3 +1,4 @@
+import { packageManagerFor } from '../package-manager.ts'
 import { command, flag } from '@alloc/cmd-ts'
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
@@ -12,7 +13,7 @@ const runtime: NodeJS.Process = createRequire(import.meta.url)('node:process')
 export const upgrade = command({
 	name: 'upgrade',
 	description:
-		'Align workspace pins and patches with this CLI release, then install (use pnpm dlx @octane-xplat/cli@<version> upgrade for another release)',
+		'Align workspace pins and patches with this CLI release, then install (use bunx @octane-xplat/cli@<version> upgrade for another release)',
 	args: {
 		check: flag({
 			long: 'check',
@@ -20,7 +21,7 @@ export const upgrade = command({
 		}),
 		noInstall: flag({
 			long: 'no-install',
-			description: 'Write the compatibility set without installing; run pnpm install afterward',
+			description: 'Write the compatibility set without installing; run bun install afterward',
 		}),
 	},
 	handler: ({ check, noInstall }) => {
@@ -54,21 +55,25 @@ export const upgrade = command({
 			applyUpgrade(plan)
 			if (noInstall) {
 				console.log(
-					'Compatibility files updated. Run pnpm install --no-frozen-lockfile, then pnpm xplat doctor.',
+					`Compatibility files updated. Run ${packageManagerFor(plan.root)} install --no-frozen-lockfile, then xplat doctor.`,
 				)
 
 				return
 			}
 
-			const install = spawnSync('pnpm', ['install', '--no-frozen-lockfile'], {
-				shell: process.platform === 'win32',
-				cwd: plan.root,
-				stdio: 'inherit',
-			})
+			const install = spawnSync(
+				packageManagerFor(process.cwd()),
+				['install', '--no-frozen-lockfile'],
+				{
+					shell: process.platform === 'win32',
+					cwd: plan.root,
+					stdio: 'inherit',
+				},
+			)
 
 			if (install.status !== 0) {
 				throw new Error(
-					'Compatibility files were updated, but pnpm install failed. Resolve the install error, then rerun pnpm install --no-frozen-lockfile and pnpm xplat doctor.',
+					'Compatibility files were updated, but bun install failed. Resolve the install error, then rerun bun install --no-frozen-lockfile and bun run xplat doctor.',
 				)
 			}
 

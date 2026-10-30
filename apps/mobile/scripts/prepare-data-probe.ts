@@ -49,7 +49,7 @@ await writeFile(
 
 await writeFile(
 	resolve(output, 'nativescript.config.ts'),
-	"export default { id: 'org.octanexplat.datareadiness', appPath: 'src', appResourcesPath: 'App_Resources', cli: { packageManager: 'pnpm' }, bundler: 'vite', bundlerConfigPath: 'vite.config.mts' }\n",
+	"export default { id: 'org.octanexplat.datareadiness', appPath: 'src', appResourcesPath: 'App_Resources', cli: { packageManager: 'bun' }, bundler: 'vite', bundlerConfigPath: 'vite.config.mts' }\n",
 )
 
 console.log(output)

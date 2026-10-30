@@ -38,7 +38,7 @@ space through form and overlay lifecycles.
 
 ## macOS verification
 
-Run `pnpm --filter @xplat/macos test:text-controls` for the maintained
+Run `bun run --filter @xplat/macos test:text-controls` for the maintained
 [AppKit fixture](../../../apps/macos/test/text-controls-fixture.macos.tsx). It checks
 text-control handles and responder callbacks, secure-mode updates while focused,
 and submit dispatch distinct from text changes. Multiline action Return uses
@@ -123,7 +123,7 @@ records initial formatted text and a handler-driven option toggle only.
 Use the explicit target mode for the component cases:
 
 ```sh
-XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos bun run turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
 ```
 
 No test/probe has run in this slice. Actual formatted/partial/locale edits, IME,

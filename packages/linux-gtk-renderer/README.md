@@ -8,8 +8,8 @@ OS input, or production use.
 After the first stable automated release, install matching Xplat releases in your app:
 
 ```sh
-pnpm add @octane-xplat/linux-gtk @octane-xplat/ui octane
-pnpm add -D @octane-xplat/cli @octanejs/vite-plugin vite
+bun add @octane-xplat/linux-gtk @octane-xplat/ui octane
+bun add -D @octane-xplat/cli @octanejs/vite-plugin vite
 sudo apt install gjs gir1.2-gtk-4.0
 ```
 

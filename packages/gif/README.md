@@ -6,7 +6,7 @@ Animated images (GIF, animated WebP) for Octane xplat apps: a plain
 NSImageView source implementation; native compilation and playback remain unqualified.
 
 ```sh
-pnpm add @octane-xplat/gif
+bun add @octane-xplat/gif
 ```
 
 ```tsx

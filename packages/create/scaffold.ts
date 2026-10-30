@@ -13,8 +13,7 @@ import {
 
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument } from 'yaml'
-import { ensureCompatibilityCatalog } from './compatibility.ts'
+import { ensureCompatibilityCatalog, compatibilityRoot } from './compatibility.ts'
 
 const moduleDir = dirname(fileURLToPath(import.meta.url))
 // dist/ emit sits one level deeper than the root sources it mirrors.
@@ -46,7 +45,7 @@ export const targets: Record<string, any> = {
 		files: ['App_Resources/iOS'],
 		scripts: ['dev:ios', 'build:ios', 'test:ios'],
 		devDeps: ['@nativescript/ios'],
-		note: 'needs macOS + Xcode — `pnpm xplat doctor` checks the toolchain',
+		note: 'needs macOS + Xcode — `bun run xplat doctor` checks the toolchain',
 	},
 	android: {
 		label: 'Android (NativeScript)',
@@ -54,12 +53,12 @@ export const targets: Record<string, any> = {
 		files: ['App_Resources/Android'],
 		scripts: ['dev:android', 'build:android', 'test:android'],
 		devDeps: ['@nativescript/android'],
-		note: 'needs Android SDK + a compatible JDK — `pnpm xplat doctor` checks the toolchain',
+		note: 'needs Android SDK + a compatible JDK — `bun run xplat doctor` checks the toolchain',
 	},
 	// Shared NativeScript machinery pulled in by ios/android. Not user-
 	// selectable on its own. `patches` names the packages whose
-	// patchedDependencies entries in pnpm-workspace.yaml belong to this
-	// fragment — pnpm hard-fails installs on unused patch entries, so a
+	// patchedDependencies entries in package.json belong to this
+	// fragment — Bun hard-fails installs on unused patch entries, so a
 	// scaffold must not carry patches for deps it doesn't install.
 	'native-shared': {
 		hidden: true,
@@ -100,7 +99,7 @@ export const targets: Record<string, any> = {
 
 export const selectableTargets = Object.keys(targets).filter((id) => !targets[id].hidden)
 
-/** `pnpm create` without --targets and `xplat add`'s prompt default. */
+/** `bun create` without --targets and `xplat add`'s prompt default. */
 export const defaultTargets = ['web', 'ios', 'android']
 
 const BASE_TYPECHECK = 'xplat typecheck'
@@ -240,143 +239,66 @@ export function composeManifest(ids) {
 		delete manifest.main
 	}
 
-	return manifest
-}
-
-// --- pnpm-workspace.yaml patchedDependencies --------------------------------
-// Patch entries look like `  octane@0.6.3: <path>` or
-// `  "@nativescript/core@9.1.2": <path>`, each preceded by a comment block.
-// Ownership comes from each target's `patches` list; unclaimed entries are
-// base and ship in every scaffold.
-const PATCH_ENTRY = /^\s+"?(@?[\w./-]+@[\w.-]+)"?:\s+\S+\s*$/
-
-const patchPkg = (key) => key.replace(/@[^@]+$/, '')
-
-/** The pnpm-workspace.yaml a given target set produces. */
-export function composeWorkspaceYaml(ids) {
-	const resolved = new Set(resolveTargets(ids))
-	const drop = new Set<string>()
-	for (const [id, t] of Object.entries(targets)) {
-		if (!resolved.has(id)) {
-			for (const name of t.patches ?? []) {
-				drop.add(name)
-			}
-		}
-	}
-
-	const lines = readFileSync(join(TEMPLATE_DIR, 'pnpm-workspace.yaml'), 'utf8').split('\n')
-	const out: string[] = []
-	let inPatches = false
-	let pending: string[] = []
-	for (const line of lines) {
-		if (/^\S/.test(line)) {
-			out.push(...pending, line)
-			pending = []
-			inPatches = line.startsWith('patchedDependencies')
-			continue
-		}
-
-		if (!inPatches) {
-			out.push(line)
-			continue
-		}
-
-		const m = line.match(PATCH_ENTRY)
-		if (!m) {
-			pending.push(line) // comment/blank inside the section
-			continue
-		}
-
-		if (drop.has(patchPkg(m[1]))) {
-			pending = []
-			continue
-		}
-
-		out.push(...pending, line)
-		pending = []
-	}
-
-	out.push(...pending)
-	const doc = parseDocument(out.join('\n'))
-	const manifest = composeManifest(ids)
+	const drop = new Set(
+		Object.entries(targets)
+			.filter(([id]) => !resolved.includes(id))
+			.flatMap(([, target]) => target.patches ?? []),
+	)
+	manifest.patchedDependencies = Object.fromEntries(
+		Object.entries(tpl.patchedDependencies).filter(
+			([key]) => !drop.has(key.slice(0, key.indexOf('@', 1))),
+		),
+	)
 	const used = new Set([
 		...Object.keys(manifest.dependencies),
 		...Object.keys(manifest.devDependencies),
 	])
-	for (const name of Object.keys(doc.toJS().catalogs?.xplat ?? {})) {
-		if (!used.has(name)) {
-			doc.deleteIn(['catalogs', 'xplat', name])
-		}
+	manifest.workspaces = {
+		...tpl.workspaces,
+		catalogs: {
+			...tpl.workspaces.catalogs,
+			xplat: Object.fromEntries(
+				Object.entries(tpl.workspaces.catalogs.xplat).filter(([name]) => used.has(name)),
+			),
+		},
 	}
-	return String(doc)
+	return manifest
 }
 
-/**
- * Add the patch entries that `enabledIds` owns to the owning workspace's
- * pnpm-workspace.yaml. Entries already present (by package name, any
- * version) are kept. Returns true if the file changed.
- */
-function ensurePatchEntries(appRoot, enabledIds) {
-	const needed = new Set()
-	for (const id of enabledIds) {
-		for (const name of targets[id].patches ?? []) {
-			needed.add(name)
-		}
-	}
-
-	if (!needed.size) {
-		return false
-	}
-
-	// Match catalog ownership: adding a target must not split an existing
-	// monorepo into a new, nested workspace.
-	let workspace = resolve(appRoot)
-	while (!existsSync(join(workspace, 'pnpm-workspace.yaml')) && dirname(workspace) !== workspace) {
-		workspace = dirname(workspace)
-	}
-	if (!existsSync(join(workspace, 'pnpm-workspace.yaml'))) {
-		workspace = appRoot
-	}
-	const yamlPath = join(workspace, 'pnpm-workspace.yaml')
-	const appText = existsSync(yamlPath) ? readFileSync(yamlPath, 'utf8') : ''
-	if (!appText.trim()) {
-		writeFileSync(yamlPath, composeWorkspaceYaml(enabledIds))
-		return true
-	}
-
-	const doc = parseDocument(appText)
-	if (doc.errors.length) {
-		throw new Error(`${yamlPath}: ${doc.errors[0].message}`)
-	}
-	const present = new Set(Object.keys(doc.toJS()?.patchedDependencies ?? {}).map(patchPkg))
-	const template = parseDocument(
-		readFileSync(join(TEMPLATE_DIR, 'pnpm-workspace.yaml'), 'utf8'),
-	).toJS()
+/** Add target-owned local patches before installing newly enabled dependencies. */
+function ensurePatchEntries(appRoot, enabledIds, manifest) {
+	const root = compatibilityRoot(appRoot)
+	const file = join(root, 'package.json')
+	const pkg = root === resolve(appRoot) ? manifest : JSON.parse(readFileSync(file, 'utf8'))
+	const needed = new Set(enabledIds.flatMap((id) => targets[id].patches ?? []))
+	const template = templateManifest()
+	const present = new Set(
+		Object.keys(pkg.patchedDependencies ?? {}).map((key) => key.slice(0, key.indexOf('@', 1))),
+	)
 	let changed = false
-	for (const [key, path] of Object.entries(template.patchedDependencies)) {
-		const name = patchPkg(key)
-		if (needed.has(name) && !present.has(name)) {
-			doc.setIn(['patchedDependencies', key], path)
-			changed = true
+	pkg.patchedDependencies ??= {}
+	for (const [specifier, path] of Object.entries(template.patchedDependencies) as [
+		string,
+		string,
+	][]) {
+		const name = specifier.slice(0, specifier.indexOf('@', 1))
+		if (!needed.has(name) || present.has(name)) {
+			continue
 		}
-	}
-
-	// Template paths are relative to the owning workspace. pnpm installs the
-	// config package there before resolving its patch files on the first install.
-	for (const [name, spec] of Object.entries(template.configDependencies)) {
-		const prefix = `node_modules/.pnpm-config/${name}/`
-		const usesPackage = Object.values(doc.toJS()?.patchedDependencies ?? {}).some(
-			(path) => typeof path === 'string' && path.startsWith(prefix),
-		)
-
-		if (usesPackage && !doc.hasIn(['configDependencies', name])) {
-			doc.setIn(['configDependencies', name], spec)
-			changed = true
+		const source = join(TEMPLATE_DIR, path)
+		const destination = join(root, path)
+		if (existsSync(destination) && !readFileSync(source).equals(readFileSync(destination))) {
+			throw new Error(
+				`Custom patch ${destination} differs from the framework patch; reconcile it first`,
+			)
 		}
+		mkdirSync(dirname(destination), { recursive: true })
+		cpSync(source, destination)
+		pkg.patchedDependencies[specifier] = path
+		changed = true
 	}
-
-	if (changed) {
-		writeFileSync(yamlPath, String(doc))
+	if (changed && root !== resolve(appRoot)) {
+		writeFileSync(file, JSON.stringify(pkg, null, '\t') + '\n')
 	}
 	return changed
 }
@@ -407,7 +329,7 @@ export function composeTargets(ids, dir) {
 	mkdirSync(dir, { recursive: true })
 
 	for (const rel of walk(TEMPLATE_DIR)) {
-		if (rel === 'package.json' || rel === 'pnpm-workspace.yaml' || rel === 'tsconfig.json') {
+		if (rel === 'package.json' || rel === 'tsconfig.json') {
 			continue // generated below
 		}
 
@@ -422,7 +344,6 @@ export function composeTargets(ids, dir) {
 	}
 
 	writeFileSync(join(dir, 'package.json'), JSON.stringify(composeManifest(ids), null, '\t') + '\n')
-	writeFileSync(join(dir, 'pnpm-workspace.yaml'), composeWorkspaceYaml(ids))
 	writeFileSync(join(dir, 'tsconfig.json'), composeTsconfig(ids))
 	return [...resolved]
 }
@@ -549,7 +470,6 @@ export function applyTarget(appRoot, id) {
 		depsAdded: [],
 	}
 
-	let touched = false
 	for (const tid of resolveTargets([id])) {
 		if (targetEnabled(appRoot, tid)) {
 			report.already.push(tid)
@@ -603,20 +523,18 @@ export function applyTarget(appRoot, id) {
 			// NativeScript entry that a web-only scaffold skips.
 			report.tsconfigUpdated = enableNativeInTsconfig(appRoot)
 		}
-
-		touched = true
 	}
 
 	// Newly enabled targets may carry patch entries the scaffolded
-	// pnpm-workspace.yaml never had — without them the next install misses the
+	// package.json never had — without them the next install misses the
 	// framework patches. enabled+already covers the yaml-missing case, where
 	// the file is regenerated for the whole enabled set.
-	if (ensurePatchEntries(appRoot, [...report.enabled, ...report.already])) {
+	if (ensurePatchEntries(appRoot, [...report.enabled, ...report.already], manifest)) {
 		report.patchesAdded = true
 	}
 	ensureCompatibilityCatalog(appRoot, manifest)
 
-	if (touched) {
+	if (JSON.stringify(manifest) !== JSON.stringify(JSON.parse(raw))) {
 		// Match the file's existing indent so diffs stay minimal.
 		const indent = raw.match(/\n(\s+)"/)?.[1] ?? '\t'
 		writeFileSync(manifestPath, JSON.stringify(manifest, null, indent) + '\n')

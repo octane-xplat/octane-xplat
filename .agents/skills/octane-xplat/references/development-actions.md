@@ -151,8 +151,8 @@ later reruns; inspect an uncertain outcome before retrying. Independently assert
 the resulting screen state using supported inspection or app tests.
 
 ```sh
-pnpm exec xplat actions list --json
+bun run xplat actions list --json
 # Use identities and contracts from the listing; replace all placeholders.
-pnpm exec xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
-pnpm exec xplat actions status JOB_ID --json
+bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
+bun run xplat actions status JOB_ID --json
 ```

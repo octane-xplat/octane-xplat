@@ -97,7 +97,7 @@ the platform file-suffix boundary for divergent imports.
   the web-only customization boundary;
   [`LexicalEditor.web.test.tsrx`](../../../packages/lexical/src/LexicalEditor.web.test.tsrx)
   covers the component contract. Run
-  `pnpm --filter @xplat/web smoke:lexical-editor` to exercise real Chromium
+  `bun run --filter @xplat/web smoke:lexical-editor` to exercise real Chromium
   keyboard input, history, controlled updates, focus, custom nodes, read-only
   mode, and remount lifecycle without inspecting screenshots.
 

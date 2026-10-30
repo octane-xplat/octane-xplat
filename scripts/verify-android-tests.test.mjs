@@ -16,7 +16,7 @@ function fixture(t, overrides = {}) {
 	const calls = []
 	const run = (cmd, args, cwd, env) => {
 		calls.push({ cmd, args, cwd, env })
-		if (cmd === 'pnpm') {
+		if (cmd === 'bun') {
 			return {
 				status: overrides.testStatus ?? 0,
 				stdout: overrides.summary ?? 'Test Files 3 passed (3)\nTests 10 passed (10)',
@@ -79,7 +79,7 @@ test('repeated runs reset only the disposable identity and stop it', (t) => {
 		assert.equal(c.args.at(-1), id)
 	}
 
-	assert.equal(f.calls.filter((c) => c.cmd === 'pnpm').length, 2)
+	assert.equal(f.calls.filter((c) => c.cmd === 'bun').length, 2)
 })
 
 test('assertion failure still stops the owned app and returns non-success', (t) => {

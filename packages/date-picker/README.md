@@ -10,7 +10,7 @@ pending. For a shared form API, use `Calendar`, `DateInput`,
 From an existing Xplat app, install the package before using the example:
 
 ```sh
-pnpm add @octane-xplat/date-picker
+bun add @octane-xplat/date-picker
 ```
 
 ```tsx
@@ -32,12 +32,12 @@ These native entries have platform-specific contracts.
 The old `@octane-xplat/date-picker/web` `DateInput` subpath was removed because
 its browser-only string contract conflicted with the shared `DateInput` API.
 
-In an existing app, install the package with pnpm. The macOS entry needs a
+In an existing app, install the package with Bun. The macOS entry needs a
 [native AppKit app](../../docs/platform/macos-native.md); the renderer supplies
 its native attachment automatically.
 
 ```sh
-pnpm add @octane-xplat/date-picker
+bun add @octane-xplat/date-picker
 ```
 
 ```tsx

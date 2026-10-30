@@ -50,7 +50,7 @@ try {
 		filter: (source) => !['node_modules', '.turbo', 'generated'].includes(basename(source)),
 	})
 
-	for (const file of ['tsconfig.base.json', 'pnpm-workspace.yaml']) {
+	for (const file of ['tsconfig.base.json', 'package.json']) {
 		cpSync(join(root, file), join(workspaceRoot, file))
 	}
 
@@ -60,12 +60,14 @@ try {
 		'dir',
 	)
 
+	symlinkSync(join(root, 'packages/jsx'), join(workspaceRoot, 'packages/jsx'), 'dir')
+
 	symlinkSync(join(root, 'node_modules'), join(workspaceRoot, 'node_modules'), 'dir')
 	symlinkSync(join(fixtureRoot, 'node_modules'), join(packageRoot, 'node_modules'), 'dir')
 
-	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
+	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
 	const tarball = readdirSync(packOutput).find((name) => name.endsWith('.tgz'))
-	assert.ok(tarball, 'pnpm pack produced a tarball')
+	assert.ok(tarball, 'bun pm pack produced a tarball')
 	run('tar', ['-xzf', join(packOutput, tarball), '-C', packageOutput], temporary)
 	const extracted = join(packageOutput, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(extracted, 'package.json'), 'utf8'))
@@ -190,8 +192,8 @@ void value
 		rmSync(defaultedSource)
 	}
 
-	run('pnpm', ['typegen:check'], packageRoot)
-	run('pnpm', ['exec', 'tsrx-typegen', '--target', 'octane', '--check'], packageRoot)
+	run('bun', ['typegen:check'], packageRoot)
+	run('bun', ['run', 'tsrx-typegen', '--target', 'octane', '--check'], packageRoot)
 
 	const includedDeclaration = join(packageRoot, 'src/IncludedDeclaration.d.ts')
 	const declarationReader = join(packageRoot, 'src/DeclarationReader.ts')
@@ -213,7 +215,7 @@ export function readIncluded(value: Included): Included { return value }
 `,
 		)
 
-		run('pnpm', ['typegen'], packageRoot)
+		run('bun', ['typegen'], packageRoot)
 		assert.equal(
 			readFileSync(join(packageRoot, 'types/generated/IncludedDeclaration.d.ts'), 'utf8'),
 			readFileSync(includedDeclaration, 'utf8').replace(
@@ -227,7 +229,7 @@ export function readIncluded(value: Included): Included { return value }
 			/['"]\.\/IncludedDeclaration\.js['"]/,
 		)
 
-		run('pnpm', ['exec', 'tsrx-typegen', '--pack-check'], packageRoot)
+		run('bun', ['run', 'tsrx-typegen', '--pack-check'], packageRoot)
 		writeFileSync(
 			includedDeclaration,
 			'export interface Included { value: string; extra?: number }\n',
@@ -252,7 +254,7 @@ export function readIncluded(value: Included): Included { return value }
 		rmSync(dirname(declarationIndex), { recursive: true, force: true })
 	}
 
-	run('pnpm', ['typegen'], packageRoot)
+	run('bun', ['typegen'], packageRoot)
 
 	const collisionName = `collision-${process.pid}`
 	const collidingSources = [
@@ -355,7 +357,7 @@ export function readIncluded(value: Included): Included { return value }
 			overrideText,
 		)
 
-		run('pnpm', ['typegen:check'], packageRoot)
+		run('bun', ['typegen:check'], packageRoot)
 	} finally {
 		writeFileSync(overrideConfigPath, originalConfig)
 		for (const source of collidingSources) {
@@ -365,7 +367,7 @@ export function readIncluded(value: Included): Included { return value }
 		rmSync(overrideSource, { force: true })
 	}
 
-	run('pnpm', ['typegen'], packageRoot)
+	run('bun', ['typegen'], packageRoot)
 
 	const invalidSource = join(packageRoot, 'src/Invalid.tsrx')
 	const generatedBeforeFailure = readFileSync(generatedEntry, 'utf8')
@@ -384,7 +386,7 @@ export function readIncluded(value: Included): Included { return value }
 		rmSync(invalidSource, { force: true })
 	}
 
-	run('pnpm', ['typegen:check'], packageRoot)
+	run('bun', ['typegen:check'], packageRoot)
 
 	const factorySource = join(packageRoot, 'src/Factory.tsrx')
 	const factoryOriginal = readFileSync(factorySource, 'utf8')
@@ -451,7 +453,7 @@ Badge({ label: 42 })
 		rmSync(factoryConfig, { force: true })
 	}
 
-	run('pnpm', ['typegen'], packageRoot)
+	run('bun', ['typegen'], packageRoot)
 
 	console.log(
 		'packed consumer: declarations resolve with plain TypeScript in bundler and NodeNext modes',

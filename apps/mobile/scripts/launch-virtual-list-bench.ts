@@ -58,7 +58,7 @@ if (target === 'android') {
 		}
 	}
 
-	await run('pnpm', ['exec', 'ns', 'run', 'android', '--no-hmr', '--no-watch', '--device', device])
+	await run('bun', ['run', 'ns', 'run', 'android', '--no-hmr', '--no-watch', '--device', device])
 } else {
 	const devices = JSON.parse(
 		execFileSync('xcrun', ['simctl', 'list', 'devices', '--json'], { encoding: 'utf8' }),
@@ -86,7 +86,7 @@ if (target === 'android') {
 	}
 
 	// Build without rebooting the shared simulator; only install this benchmark ID.
-	await run('pnpm', ['exec', 'ns', 'build', 'ios', '--emulator'])
+	await run('bun', ['run', 'ns', 'build', 'ios', '--emulator'])
 	const buildDir = path.resolve('platforms/ios/build/Debug-iphonesimulator')
 	const apps = readdirSync(buildDir).filter((name) => name.endsWith('.app'))
 	if (apps.length !== 1) {

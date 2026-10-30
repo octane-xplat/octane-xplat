@@ -135,11 +135,11 @@ void google
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
+	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
 	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
+	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
-	run('pnpm', ['pack', '--pack-destination', packOutput], join(repoRoot, 'packages/platform'))
+	run('bun', ['pm', 'pack', '--destination', packOutput], join(repoRoot, 'packages/platform'))
 	const platformTarball = readdirSync(packOutput).find(
 		(name) => name.startsWith('octane-xplat-platform-') && name.endsWith('.tgz'),
 	)

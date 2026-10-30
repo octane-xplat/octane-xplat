@@ -43,7 +43,7 @@ engine on native (Glide on Android, SDWebImage on iOS) with a sized memory +
 disk cache and decode-to-view-size, instead of the 5 MB cache in the core
 component that evicts visible images mid-scroll. Apps scaffolded with iOS or
 Android targets already have the package; a web-only app renders a plain
-`<img>` either way, so `pnpm add @octane-xplat/image` is optional there. Core
+`<img>` either way, so `bun add @octane-xplat/image` is optional there. Core
 `Image` remains the baseline for SVG sources, which the engine cannot decode.
 
 ```tsrx

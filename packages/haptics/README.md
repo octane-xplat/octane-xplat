@@ -8,7 +8,7 @@ engine: named presets, timed `playPattern` envelopes (`{duration, points:
 (`startRealtime()` → `{update, stop}`), and cancellation.
 
 ```sh
-pnpm add @octane-xplat/haptics
+bun add @octane-xplat/haptics
 ```
 
 ```ts

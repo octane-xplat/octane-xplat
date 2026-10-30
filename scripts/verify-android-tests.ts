@@ -35,7 +35,7 @@ export function verifyAndroidTests({ appDir, work, device, run }) {
 
 	let r
 	try {
-		r = run('pnpm', ['test:android'], appDir, { NS_DEVICE: device })
+		r = run('bun', ['test:android'], appDir, { NS_DEVICE: device })
 	} finally {
 		const stop = adb(['shell', 'am', 'force-stop', id])
 		assert.equal(stop.status, 0, 'could not stop the owned consumer app')

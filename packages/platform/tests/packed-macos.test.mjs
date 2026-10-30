@@ -17,28 +17,32 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 		return result.stdout
 	}
 
-	const output = run('pnpm', ['pack', '--pack-destination', directory], root)
-	// `pnpm pack` runs prepack (typegen + pack-check) whose progress lines can
+	const output = run('bun', ['pm', 'pack', '--quiet', '--destination', directory], root)
+	// `bun pm pack` runs prepack (typegen + pack-check) whose progress lines can
 	// land after the tarball path — take the last .tgz line, not the last line.
 	const tarball = output
 		.trim()
 		.split('\n')
 		.reverse()
 		.find((line) => line.trim().endsWith('.tgz'))
-	assert.ok(tarball, `no tarball path in pnpm pack output:\n${output}`)
+	assert.ok(tarball, `no tarball path in bun pm pack output:\n${output}`)
 	const modules = join(directory, 'node_modules/@octane-xplat/platform')
 	mkdirSync(modules, { recursive: true })
 	run('tar', ['-xzf', tarball, '--strip-components=1', '-C', modules], directory)
 
 	// platform's declarations reference the capability contract in
 	// @octane-xplat/lib — a real install pulls it in as a dependency.
-	const libOutput = run('pnpm', ['pack', '--pack-destination', directory], resolve(root, '../lib'))
+	const libOutput = run(
+		'bun',
+		['pm', 'pack', '--quiet', '--destination', directory],
+		resolve(root, '../lib'),
+	)
 	const libTarball = libOutput
 		.trim()
 		.split('\n')
 		.reverse()
 		.find((line) => line.trim().endsWith('.tgz'))
-	assert.ok(libTarball, `no tarball path in pnpm pack output:\n${libOutput}`)
+	assert.ok(libTarball, `no tarball path in bun pm pack output:\n${libOutput}`)
 	const libModules = join(directory, 'node_modules/@octane-xplat/lib')
 	mkdirSync(libModules, { recursive: true })
 	run('tar', ['-xzf', libTarball, '--strip-components=1', '-C', libModules], directory)
@@ -125,9 +129,19 @@ random.fill(16)
 		realpathSync(join(modules, 'types/generated/index.d.ts')),
 	)
 
-	for (const service of ['device', 'locale', 'system-bars']) for (const suffix of ['', '.ts']) {
-		const selected = ts.resolveModuleName(`@octane-xplat/platform/${service}${suffix}`, entry, options, ts.sys)
-		assert.equal(selected.resolvedModule?.resolvedFileName, realpathSync(join(modules, `types/generated/${service}.d.ts`)))
+	for (const service of ['device', 'locale', 'system-bars']) {
+		for (const suffix of ['', '.ts']) {
+			const selected = ts.resolveModuleName(
+				`@octane-xplat/platform/${service}${suffix}`,
+				entry,
+				options,
+				ts.sys,
+			)
+			assert.equal(
+				selected.resolvedModule?.resolvedFileName,
+				realpathSync(join(modules, `types/generated/${service}.d.ts`)),
+			)
+		}
 	}
 
 	const example = join(directory, 'announce-status.ts')

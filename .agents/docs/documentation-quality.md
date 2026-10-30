@@ -80,11 +80,11 @@ claims and examples it changes.
 Run from the repository root:
 
 ```sh
-pnpm check:docs
-pnpm check:doc-examples
-pnpm check:recipes
-pnpm exec turbo run test:docs --filter=//
-pnpm exec turbo run build test --filter=@xplat/docs
+bun run check:docs
+bun run check:doc-examples
+bun run check:recipes
+bun run turbo run test:docs --filter=//
+bun run turbo run build test --filter=@xplat/docs
 ```
 
 `check:docs` covers all public Markdown guides and package READMEs, plus the
@@ -122,7 +122,7 @@ pages that have accumulated several reader jobs. The contributor performing
 the release or audit owns that review; it is not implied to run automatically.
 
 ```sh
-pnpm check:docs --inventory
+bun run check:docs --inventory
 silo context
 silo table show docs_audit
 silo table show recipe_audit

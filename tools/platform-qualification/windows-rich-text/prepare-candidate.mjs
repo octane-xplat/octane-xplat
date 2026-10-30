@@ -74,7 +74,7 @@ writeFileSync(
 	}) + '\n',
 )
 
-run('pnpm', ['exec', 'tsc', '-p', join(target, 'tsconfig.driver.json')])
+run('bun', ['run', 'tsc', '-p', join(target, 'tsconfig.driver.json')])
 const installed = dirname(dirname(req.resolve('@nativescript-community/octane')))
 const packaged = join(target, 'package')
 cpSync(installed, packaged, { recursive: true })

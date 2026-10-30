@@ -112,8 +112,8 @@ one engine. Starters include them; existing apps receive them through the
 upgrade command:
 
 ```sh
-pnpm dlx @octane-xplat/cli@latest upgrade
-pnpm install
+bunx @octane-xplat/cli@latest upgrade
+bun install
 ```
 
 See

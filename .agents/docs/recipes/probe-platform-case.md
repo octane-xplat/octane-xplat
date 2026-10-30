@@ -2,7 +2,7 @@
 
 ID: probe-platform-case
 Targets: web, ios, android, macos, linux
-Related APIs: pnpm probe, ProbeContext, scrub, --watch, --fresh-process, --deps, --resources
+Related APIs: bun run probe, ProbeContext, scrub, --watch, --fresh-process, --deps, --resources
 
 ## Starting point
 

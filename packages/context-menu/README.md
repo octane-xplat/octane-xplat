@@ -14,12 +14,12 @@ that renders a control, then import `SwiftUIContextMenu` from
 `@octane-xplat/context-menu/web`, or `AppKitContextMenu` from
 `@octane-xplat/context-menu/macos` in the matching platform-suffixed file.
 
-Install in your existing app with pnpm. The macOS entry requires a
+Install in your existing app with Bun. The macOS entry requires a
 [native AppKit app](https://octane-xplat.goddardai.org/macos-native); the renderer supplies
 its native menu attachment.
 
 ```sh
-pnpm add @octane-xplat/context-menu
+bun add @octane-xplat/context-menu
 ```
 
 ```tsx

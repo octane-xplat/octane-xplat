@@ -44,7 +44,7 @@ Run the generator from your app directory after adding or renaming route files.
 The development and build commands also generate routes.
 
 ```sh
-pnpm exec xplat routes --dir src/app
+bun run xplat routes --dir src/app
 ```
 
 Replace the starter’s `src/App.tsrx` with the following component; both starter
@@ -323,7 +323,7 @@ Vite's [conventional configuration files](https://vite.dev/config/), including
 require conversion to TypeScript.
 
 ```sh
-pnpm exec xplat dev web
+bun run xplat dev web
 ```
 
 Use `routes --watch` when you run your dev server separately. For routes owned
@@ -331,9 +331,9 @@ by a shared workspace package, run the watcher from that package once rather
 than starting a generator in every platform shell.
 
 ```sh
-pnpm exec xplat routes --watch
-# From the workspace root, replace the name with your route package.
-pnpm --filter @my/shared-app exec xplat routes --watch
+bun run xplat routes --watch
+# From the workspace root, replace the path with your route package’s directory.
+bun run --cwd packages/shared-app xplat routes --watch
 ```
 
 The watcher follows the route tree, `xplat.routes.json`, and the source modules
@@ -354,7 +354,7 @@ need explicit regeneration. Watch mode updates generated artifacts; runtime
 screen updates still use the selected platform's dev-server reload mechanism.
 
 ```sh
-pnpm exec xplat routes
+bun run xplat routes
 ```
 
 ## Recheck history after account changes
@@ -2037,8 +2037,8 @@ in the baked screen. For dynamic paths, bake a table and select its row from
 refresh contracts without executing loaders or replacing existing baked data.
 
 ```sh
-pnpm exec xplat routes
-pnpm exec xplat typecheck
+bun run xplat routes
+bun run xplat typecheck
 ```
 
 
@@ -2130,7 +2130,7 @@ A server integration needs reusable executable catalogs and request isolation
 in addition to this description.
 
 ```sh
-pnpm exec xplat routes
+bun run xplat routes
 cat src/routes.gen.manifest.json
 ```
 

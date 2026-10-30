@@ -225,14 +225,14 @@ try {
 			execFileSync('xcrun', ['simctl', 'bootstatus', device, '-b'])
 		}
 
-		await run('pnpm', ['gen:app'], repository)
+		await run('bun', ['gen:app'], repository)
 		phase = 'ios-build'
 		// Changing the config's environment-selected ID does not update an already
 		// materialized Xcode project. Limit the override to this generated app target.
 		if (!existsSync(projectPath)) {
 			await run(
-				'pnpm',
-				['exec', 'ns', 'prepare', 'ios', '--env.unitTesting'],
+				'bun',
+				['run', 'ns', 'prepare', 'ios', '--env.unitTesting'],
 				join(repository, 'apps/mobile'),
 				{
 					XPLAT_VLIST_APP_ID: process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat',
@@ -255,8 +255,8 @@ try {
 		// ns run can reuse a binary built under the ordinary harness bundle ID.
 		// Build the isolated visual ID first; the runner then injects its live port.
 		await run(
-			'pnpm',
-			['exec', 'ns', 'build', 'ios', '--env.unitTesting'],
+			'bun',
+			['run', 'ns', 'build', 'ios', '--env.unitTesting'],
 			join(repository, 'apps/mobile'),
 			{
 				XPLAT_VLIST_APP_ID: 'org.nativescript.xplat.visual',
@@ -265,8 +265,8 @@ try {
 
 		phase = 'ios-capture'
 		await run(
-			'pnpm',
-			['exec', 'vitest', 'run', 'src/tests/visual/capture.ios.spec.tsrx'],
+			'bun',
+			['run', 'vitest', 'run', 'src/tests/visual/capture.ios.spec.tsrx'],
 			join(repository, 'apps/mobile'),
 			{
 				NS_PLATFORM: 'ios',
@@ -277,7 +277,7 @@ try {
 	}
 
 	phase = 'web-capture'
-	await run('pnpm', ['exec', 'vitest', 'run', 'capture.test'], root)
+	await run('bun', ['run', 'vitest', 'run', 'capture.test'], root)
 	phase = 'stability'
 	for (const index of webOnly ? [] : [1, 2]) {
 		const a = validateCapture(captures.get('ios-0'), manifest)
@@ -315,9 +315,9 @@ try {
 		)
 	} else {
 		phase = 'regression'
-		await run('pnpm', ['exec', 'vitest', 'run', 'web.test', '--update=false'], root)
+		await run('bun', ['run', 'vitest', 'run', 'web.test', '--update=false'], root)
 		for (const index of [0, 1, 2]) {
-			await run('pnpm', ['exec', 'vitest', 'run', 'ios-regression.test', '--update=false'], root, {
+			await run('bun', ['run', 'vitest', 'run', 'ios-regression.test', '--update=false'], root, {
 				VIS_ROOT: 'vis/ios',
 				VIS_IOS_CAPTURE: join(output, `ios-${index}.json`),
 			})

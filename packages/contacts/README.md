@@ -9,7 +9,7 @@ contacts. Browser access is read-only and limited to the person's selection.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/contacts
+bun add @octane-xplat/contacts
 ```
 
 Configure the native contacts permission and usage description before running.

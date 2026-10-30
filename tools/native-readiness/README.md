@@ -15,8 +15,8 @@ build tasks at a time.
 
 ```sh
 export PATH="$PWD/apps/mobile/node_modules/.bin:$PATH"
-pnpm exec turbo run check:native-readiness --filter=// -- --target ios --device OWNED_UDID
-pnpm exec turbo run check:native-readiness --filter=// -- --target android --device OWNED_SERIAL
+bun run turbo run check:native-readiness --filter=// -- --target ios --device OWNED_UDID
+bun run turbo run check:native-readiness --filter=// -- --target android --device OWNED_SERIAL
 ```
 
 Assertions cover shared UI subscription updates, preserving playback, an

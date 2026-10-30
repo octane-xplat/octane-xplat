@@ -23,7 +23,7 @@ export function Example() {
 
 ## Install and import
 
-Run `pnpm add @octane-xplat/picker` from your app folder. Import the
+Run `bun add @octane-xplat/picker` from your app folder. Import the
 platform-specific component from the matching target entry:
 
 - `SwiftUIPicker` from `@octane-xplat/picker/ios` in `.ios.ts` or `.ios.tsrx`.

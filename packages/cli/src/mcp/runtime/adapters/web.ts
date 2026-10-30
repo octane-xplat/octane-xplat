@@ -96,9 +96,15 @@ export function createWebAdapter() {
 			report({ phase: 'building' })
 			const { code, error } = await child.exit
 			if (error) {
-				throw contractError('prerequisite_missing', `Could not run pnpm: ${error.message}`, {
-					recovery: { action: 'Install pnpm and the app\u2019s dependencies.' },
-				})
+				throw contractError(
+					'prerequisite_missing',
+					`Could not run the app package manager: ${error.message}`,
+					{
+						recovery: {
+							action: 'Install the selected package manager and the app\u2019s dependencies.',
+						},
+					},
+				)
 			}
 
 			if (code !== 0) {

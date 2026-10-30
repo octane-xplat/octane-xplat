@@ -7,7 +7,7 @@ both NativeScript and browsers support (`xplatPortablePreset` and the
 utilities sit under the app's own CSS. A Vite plugin emits the stylesheet.
 
 ```sh
-pnpm add -D @octane-xplat/bamboo
+bun add -D @octane-xplat/bamboo
 ```
 
 Two entry points:

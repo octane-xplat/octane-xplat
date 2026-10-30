@@ -28,7 +28,7 @@ HTTP server. Open the printed address: the product name is already in the HTML,
 and the “Add to bag” button works after browser startup.
 
 ```sh
-pnpm exec turbo run build:example --filter=@octane-xplat/web-host
+bun run turbo run build:example --filter=@octane-xplat/web-host
 node packages/web-host/example/serve.mjs
 # Open http://localhost:4174/products/coat
 ```
@@ -141,7 +141,7 @@ before page requests reach `handle`. Install it in your server app, then connect
 the compiled handler as in the [maintained server](../../packages/web-host/example/serve.mjs).
 
 ```sh
-pnpm add srvx
+bun add srvx
 ```
 
 ```js
@@ -303,7 +303,7 @@ harness, and local HTTP through srvx. Streaming and hosting-provider deployments
 need separate qualification:
 
 ```sh
-pnpm exec turbo run test typecheck --filter=@octane-xplat/web-host
+bun run turbo run test typecheck --filter=@octane-xplat/web-host
 ```
 
 
@@ -315,7 +315,7 @@ reports `reused: 2` when the server bundle and content keys are unchanged.
 Use `STATIC=1` to serve those files before falling back to request-time rendering.
 
 ```sh
-pnpm exec turbo run build:example --filter=@octane-xplat/web-host --force
+bun run turbo run build:example --filter=@octane-xplat/web-host --force
 STATIC=1 node packages/web-host/example/serve.mjs
 # Open http://localhost:4174/products/coat
 ```

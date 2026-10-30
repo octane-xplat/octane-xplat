@@ -66,7 +66,7 @@ clone `holepunchto/libjsc` (`8ebb40f`), `libjs` (`7031ca1`), `libnapi`
 (`b4c5a66`), and `NativeScript/runtimes` (`5b697b3`) into
 `research/bare-macos/`. Apply `patches/libjsc.patch` and
 `patches/nativescript-runtimes.patch` in their respective clones. Install
-`libjsc` and `libnapi` development dependencies with `pnpm install --dir`,
+`libjsc` and `libnapi` development dependencies with `bun install --dir`,
 and `bare-compat-napi@1.4.1` under `research/bare-macos/node_modules`.
 `CMakeLists.txt` points at those clones through `SPIKE_DEPS_DIR`.
 
@@ -107,7 +107,7 @@ supplies `exports`, `require`, `module`, and path arguments, then calls it.
 `Buffer.from`, and the four `node:` modules this bundle imports. Font SHA-256
 uses the bridged `CC_SHA256` function; font files use Foundation's file APIs.
 Reproduce the
-conditional bundle boot after running `pnpm exec vite build --config
+conditional bundle boot after running `bun run vite build --config
 vite.package.config.mjs` in `apps/macos`:
 
 `class-registration.js` isolates the `NativeClass` path that previously

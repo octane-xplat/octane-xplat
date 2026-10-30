@@ -9,8 +9,8 @@ drivers, browser input, native callbacks and OS input establish different things
 1. Install the locked workspace dependencies and build the web harness:
 
    ```sh
-   pnpm install --frozen-lockfile
-   pnpm --filter @xplat/web build
+   bun install --frozen-lockfile
+   bun run --filter @xplat/web build
    node apps/web/scripts/navigation.ts
    ```
 
@@ -21,7 +21,7 @@ drivers, browser input, native callbacks and OS input establish different things
 2. Run the isolated CSR contract fixture:
 
    ```sh
-   pnpm --filter @xplat/web smoke:routing
+   bun run --filter @xplat/web smoke:routing
    ```
 
    Its generated startup supplies the catalog, context, stacks and incoming-link
@@ -86,7 +86,7 @@ foreign-history correction. Correction falls back to the admitted URL and a
 new owned base if the browser refuses or fails to acknowledge the traversal.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts src/routing-core.test.ts src/default-router-runtime.test.ts src/routing-package.test.ts src/browser-route-transitions.web.test.ts
+bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts src/routing-core.test.ts src/default-router-runtime.test.ts src/routing-package.test.ts src/browser-route-transitions.web.test.ts
 node apps/web/scripts/routing-contract.mjs
 ```
 
@@ -122,7 +122,7 @@ state; superseded history guards cannot reveal their old target. Packed
 exports, lint and recipe-link checks also pass.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/render-router-host.mobile.test.tsrx src/native-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/router-hooks.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/render-router-host.mobile.test.tsrx src/native-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/router-hooks.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx
 node apps/macos/test/verify-routing.mjs
 ```
 
@@ -149,7 +149,7 @@ that a guard refuses before the Activity can pop the Frame. Packed exports and
 the declaration graph pass.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/native-router-host.mobile.test.tsrx src/render-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx src/router-hooks.mobile.test.tsrx
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/native-router-host.mobile.test.tsrx src/render-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/client-route-entry.mobile.test.tsrx src/router-hooks.mobile.test.tsrx
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
 ```
 
@@ -175,8 +175,8 @@ catalog maps, computed declared paths and incompatible default setup. Shared
 renderer cases check explicit-instance ownership and missing-instance errors.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts src/router-instance.test.ts src/route-registry.test.ts src/define-route.test.ts src/router-hooks.web.test.tsrx
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/routing-package.test.ts src/router-instance.test.ts src/route-registry.test.ts src/define-route.test.ts src/router-hooks.web.test.tsrx
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
 node --test packages/cli/test/route-generation.test.mjs
 ```
 
@@ -189,8 +189,8 @@ the declaration graph passed. These are not fresh desktop runtime runs;
 Windows still has no VM available.
 
 ```sh
-pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
-pnpm --filter @octane-xplat/ui pack:check
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
+bun run --filter @octane-xplat/ui pack:check
 ```
 
 ## Runtime destinations from data
@@ -202,8 +202,8 @@ check async search validation, cancellation, opaque ownership, stale registry
 handling, and real `NavLink` components consuming the intact value through `to`.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/routing-core.test.ts src/router-instance.test.ts src/default-router-runtime.test.ts src/validated-destination.web.test.tsrx src/routing-package.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/validated-destination.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/routing-core.test.ts src/router-instance.test.ts src/default-router-runtime.test.ts src/validated-destination.web.test.tsrx src/routing-package.test.ts
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/validated-destination.mobile.test.tsrx
 ```
 
 Production Chromium passed **44 checks**, iOS passed **134 release assertions**,
@@ -216,8 +216,8 @@ packed exports. Desktop evidence for this refinement is source/type checking;
 Windows has no VM. Owned simulators/emulators were shut down afterward.
 
 ```sh
-pnpm --filter @xplat/web smoke:routing
-pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/web --concurrency=2
+bun run --filter @xplat/web smoke:routing
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/web --concurrency=2
 ```
 
 ## Scoped search editing
@@ -229,8 +229,8 @@ suffixes enabled. The production fixture checks both installed declarations
 and authored sources, preventing hook forwarding from silently erasing types.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/router-instance.test.ts src/router-hooks.web.test.tsrx src/routing-package.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/router-instance.test.ts src/router-hooks.web.test.tsrx src/routing-package.test.ts
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
 ```
 
 Runtime checks passed **50 Chromium**, **140 iOS**, **153 Android** and **56
@@ -264,8 +264,8 @@ values, including web module-suffix resolution. A cancellation test confirms
 that a prevented menu selection neither loads nor closes its surface.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/navigation-item.web.test.tsrx src/menu-family.web.test.tsrx src/tablist.web.test.tsrx src/nav-link.web.test.tsrx src/router-hooks.web.test.tsrx src/routing-package.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/navigation-item.mobile.test.tsrx src/validated-destination.mobile.test.tsrx src/router-hooks.mobile.test.tsrx src/menu-family.mobile.test.tsrx src/tablist.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/navigation-item.web.test.tsrx src/menu-family.web.test.tsrx src/tablist.web.test.tsrx src/nav-link.web.test.tsrx src/router-hooks.web.test.tsrx src/routing-package.test.ts
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/navigation-item.mobile.test.tsrx src/validated-destination.mobile.test.tsrx src/router-hooks.mobile.test.tsrx src/menu-family.mobile.test.tsrx src/tablist.mobile.test.tsrx
 ```
 
 Production checks passed **62 Chromium**, **164 iOS**, **177 Android**, and
@@ -294,8 +294,8 @@ reject ambient typed reads under custom catalogs while allowing inherited
 status and Back availability.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/router-instance.test.ts src/default-router-runtime.test.ts src/router-hooks.web.test.tsrx src/nav-link.web.test.tsrx src/navigation-item.web.test.tsrx src/menu-family.web.test.tsrx src/tablist.web.test.tsrx src/routing-package.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/router-instance.test.ts src/default-router-runtime.test.ts src/router-hooks.web.test.tsrx src/nav-link.web.test.tsrx src/navigation-item.web.test.tsrx src/menu-family.web.test.tsrx src/tablist.web.test.tsrx src/routing-package.test.ts
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
 ```
 
 Runtime checks passed **67 production Chromium**, **167 iOS release**, **180
@@ -326,7 +326,7 @@ The queued bootstrap is tied to its mounting lifetime. Browser URLs and
 application-owned stores are preserved.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts
+bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/router-instance.test.ts
 node apps/web/scripts/routing-contract.mjs
 ```
 
@@ -363,7 +363,7 @@ below. GTK and Windows report the `view` subset as `skipped`/`unsupported`;
 Windows has no VM here, so that path has source/type evidence only.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/browser-route-transitions.web.test.ts src/browser-router-host.web.test.tsrx src/route-scroll.web.test.tsrx src/route-tabs.web.test.tsrx src/nav-link.web.test.tsrx
+bun run --cwd packages/ui vitest run src/browser-route-transitions.web.test.ts src/browser-router-host.web.test.tsrx src/route-scroll.web.test.tsrx src/route-tabs.web.test.tsrx src/nav-link.web.test.tsrx
 ```
 
 ## Refined native adapter checks
@@ -430,7 +430,7 @@ fixture checks its consumer types, builds production JS and runs the
 JavaScriptCore/AppKit host.
 
 ```sh
-pnpm --filter @xplat/macos test:routing
+bun run --filter @xplat/macos test:routing
 ```
 
 The current canonical fixture passed **202 checks** with a locally built
@@ -456,8 +456,8 @@ owner removal. The fixture enables motion explicitly for deterministic samples;
 system reduced-motion skips and live preference changes use deterministic tests.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/appkit-route-transition.test.ts
-pnpm --filter @xplat/macos test:routing
+bun run --cwd packages/ui vitest run src/appkit-route-transition.test.ts
+bun run --filter @xplat/macos test:routing
 ```
 
 The helper uses the existing numeric controller and AppKit writer. These are
@@ -476,7 +476,7 @@ host with the maintained harness script on a Linux machine with its documented
 GJS, GTK, libadwaita and WebKitGTK dependencies installed:
 
 ```sh
-pnpm --filter @xplat/linux build
+bun run --filter @xplat/linux build
 XPLAT_PROBE_APP_ID=org.octane.xplat.routing.cutover \
 XPLAT_SELFTEST_SCRIPT="$PWD/apps/linux/host/harness-selftest.web.js" \
 xvfb-run -a dbus-run-session -- \
@@ -505,9 +505,9 @@ reject unknown paths, missing/wrong params and undeclared flows. These checks do
 not depend on a Linux runtime.
 
 ```sh
-pnpm --filter @octane-xplat/linux-gtk typecheck
+bun run --filter @octane-xplat/linux-gtk typecheck
 node --test packages/linux-gtk-renderer/test/build.test.mjs
-pnpm --filter @octane-xplat/linux-gtk exec vite build --config test/fixtures/vite.routing.config.mjs
+bun run --cwd packages/linux-gtk-renderer vite build --config test/fixtures/vite.routing.config.mjs
 ```
 
 On a Linux host with GJS, GTK4, Xvfb and D-Bus, execute the resulting module.
@@ -534,7 +534,7 @@ old Frame returns to the declaring Page, and delayed cleanup notifications
 that must not cancel the new owner's attempt. Run the focused suite with:
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/native-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/router-hooks.mobile.test.tsrx
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/native-router-host.mobile.test.tsrx src/native-modal-router-host.mobile.test.tsrx src/router-hooks.mobile.test.tsrx
 ```
 
 The suite passed **48 checks**. The release fixture replaces an owner with fresh
@@ -559,7 +559,7 @@ named/default sibling output, Markdown contracts, type-only generation and
 preservation of the previous valid artifact after an invalid bake.
 
 ```sh
-pnpm --filter @octane-xplat/cli build
+bun run --filter @octane-xplat/cli build
 node --test packages/cli/test/route-data.test.mjs packages/cli/test/route-generation.test.mjs
 ```
 
@@ -572,7 +572,7 @@ it. Linux and Windows have source/type evidence for this refinement; Windows
 runtime remains unavailable.
 
 ```sh
-pnpm --filter @xplat/web build
+bun run --filter @xplat/web build
 node apps/web/scripts/navigation.ts
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_ID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
@@ -584,7 +584,7 @@ node apps/macos/test/verify-routing.mjs
 Run the contract regressions from the repository root:
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/define-route.test.ts src/route-table.test.ts src/routing-core.test.ts src/router-instance.test.ts src/routing-package.test.ts
+bun run --cwd packages/ui vitest run src/define-route.test.ts src/route-table.test.ts src/routing-core.test.ts src/router-instance.test.ts src/routing-package.test.ts
 ```
 
 The callable-schema cases exercise synchronous and asynchronous protocol
@@ -615,8 +615,8 @@ describe TypeScript, not target runtime speed.
 Run the shared controlled sign-in example in unit tests and production Chromium:
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/authentication-routing.web.test.tsrx
-pnpm --filter @xplat/web smoke:routing-auth
+bun run --cwd packages/ui vitest run src/authentication-routing.web.test.tsrx
+bun run --filter @xplat/web smoke:routing-auth
 ```
 
 The four Octane DOM renderer/jsdom cases and **20 production Chromium checks**
@@ -646,7 +646,7 @@ their other navigation cases and settlement waits. The native object-driver
 suite passes 79 tests, including this same authentication protocol.
 
 ```sh
-pnpm --filter @octane-xplat/ui test:native
+bun run --filter @octane-xplat/ui test:native
 ```
 
 These native auth checks request URLs in an already running application and
@@ -682,8 +682,8 @@ the native navigation fixture does not qualify every renderer boundary,
 accessibility behavior or unrelated UI component.
 
 ```sh
-pnpm typecheck:windows
-pnpm typecheck:linux
+bun run typecheck:windows
+bun run typecheck:linux
 ```
 
 
@@ -695,7 +695,7 @@ checks exercise both imperative Back and actual browser history traversal into
 a modal redirect without restoring the rejected target.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/routing-core.test.ts src/router-instance.test.ts src/browser-router-host.web.test.tsrx src/router-hooks.web.test.tsrx src/default-router-runtime.test.ts src/routing-package.test.ts
+bun run --cwd packages/ui vitest run src/routing-core.test.ts src/router-instance.test.ts src/browser-router-host.web.test.tsrx src/router-hooks.web.test.tsrx src/default-router-runtime.test.ts src/routing-package.test.ts
 node apps/web/scripts/routing-contract.mjs
 ```
 
@@ -720,8 +720,8 @@ evidence for this refinement; there is no Windows VM. The earlier Linux
 WebKitGTK runtime result remains historical.
 
 ```sh
-pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/macos --concurrency=2
-pnpm --filter @octane-xplat/ui pack:check
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@xplat/mobile --filter=...@xplat/macos --concurrency=2
+bun run --filter @octane-xplat/ui pack:check
 ```
 
 
@@ -736,9 +736,9 @@ caller-selected baked metadata without actual input. A runtime live/baked mode
 retains its output union, and erased optional loaders remain unknown.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/route-table.test.ts src/define-route.test.ts src/routing-core.test.ts src/routing-package.test.ts
+bun run --cwd packages/ui vitest run src/route-table.test.ts src/define-route.test.ts src/routing-core.test.ts src/routing-package.test.ts
 node --test packages/cli/test/route-generation.test.mjs
-pnpm --filter @octane-xplat/ui pack:check
+bun run --filter @octane-xplat/ui pack:check
 ```
 
 The **53-task package/dependent gate** and UI packed declaration check passed.
@@ -748,7 +748,7 @@ behavior for the programmatic map example. The earlier rendered baked-file
 checks remain separate evidence.
 
 ```sh
-pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
+bun run turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/cli --filter=...@xplat/mobile --concurrency=2
 ```
 
 
@@ -849,8 +849,8 @@ this does not qualify OS input or the separate GTK/GJS renderer. The 50-task
 dependent typecheck gate passes. Windows evidence is source/types; no VM was available.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/navigation-blocker.test.ts src/router-instance-blocker.test.ts src/router-instance.test.ts src/router-hooks.web.test.tsrx src/browser-router-host.web.test.tsrx src/routing-package.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/navigation-blocker.test.ts src/router-instance-blocker.test.ts src/router-instance.test.ts src/router-hooks.web.test.tsrx src/browser-router-host.web.test.tsrx src/routing-package.test.ts
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/router-hooks.mobile.test.tsrx
 ```
 
 ## AppKit routed modals in an attached window
@@ -895,7 +895,7 @@ starts a real Vite HTTP server and verifies contract updates and process shutdow
 It launches no browser engine and captures no images.
 
 ```sh
-pnpm --filter @octane-xplat/cli build
+bun run --filter @octane-xplat/cli build
 node --test packages/cli/test/route-watch*.test.mjs packages/cli/test/route-generation*.test.mjs packages/cli/test/route-data.test.mjs
 node --test packages/cli/test/web-targets.test.mjs
 ```
@@ -933,7 +933,7 @@ rendered through the generated client without restarting the server; removed
 destinations stopped matching. Browser and generation error arrays were empty.
 
 ```sh
-pnpm --filter @xplat/web smoke:routing-watch
+bun run --filter @xplat/web smoke:routing-watch
 ```
 
 The fixture uses the real watcher and generator against its own temporary files,
@@ -959,8 +959,8 @@ usable. Explicit instances accept only their target catalog's paths. Plain
 TypeScript/JavaScript helpers cannot create phantom screen contracts.
 
 ```sh
-pnpm --filter @octane-xplat/ui typegen
-pnpm --filter @octane-xplat/cli build
+bun run --filter @octane-xplat/ui typegen
+bun run --filter @octane-xplat/cli build
 node --test packages/cli/test/route-platform-contracts.test.mjs
 ```
 
@@ -973,7 +973,7 @@ renderer or establish Windows OS behavior. `XPLAT_ROUTING_UI_PACKAGE` can point
 the same fixture at an extracted UI package for declaration/export-map checks.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts src/route-table.test.ts src/route-registry.test.ts src/routing-core.test.ts src/router-instance.test.ts src/define-route.test.ts src/default-router-runtime.test.ts
+bun run --cwd packages/ui vitest run src/routing-package.test.ts src/route-table.test.ts src/route-registry.test.ts src/routing-core.test.ts src/router-instance.test.ts src/define-route.test.ts src/default-router-runtime.test.ts
 ```
 
 The main public routing-consumer fixture also checks all five compiler
@@ -985,7 +985,7 @@ checks, including for Windows.
 
 ```sh
 XPLAT_ROUTING_UI_PACKAGE=/absolute/path/to/extracted/package \
-  pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts
+  bun run --cwd packages/ui vitest run src/routing-package.test.ts
 ```
 
 At the routing-cutover qualification pass on 2026-10-20, all five platform-contract fixtures passed through workspace and
@@ -1020,7 +1020,7 @@ authoring contract. The existing packed UI artifact is reused when only the CLI'
 generated constraints change; this does not imply a newly packed UI build.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/route-table.test.ts src/define-route.test.ts src/routing-core.test.ts src/routing-package.test.ts src/router-instance.test.ts
+bun run --cwd packages/ui vitest run src/route-table.test.ts src/define-route.test.ts src/routing-core.test.ts src/routing-package.test.ts src/router-instance.test.ts
 ```
 
 ## Check large route catalogs
@@ -1032,8 +1032,8 @@ loaders, and consumes the generated application registration. There is no handwr
 module augmentation or unchecked destination cast in the fixture.
 
 ```sh
-pnpm bench:routing-types --output research/routing-types.json
-pnpm bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows
+bun run bench:routing-types --output research/routing-types.json
+bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows
 ```
 
 Each catalog includes an index, a static route, an optional parameter, a splat,
@@ -1044,18 +1044,18 @@ destination, show a typed loader property, and update its properties after a rea
 loader-return edit. Five repeated requests measure cached destination completions.
 
 ```sh
-pnpm bench:routing-types --sizes 32,128,512,1024 --output research/routing-types.json
+bun run bench:routing-types --sizes 32,128,512,1024 --output research/routing-types.json
 ```
 
 The default consumes workspace package declarations through the public export map.
 To repeat against a package tarball, extract it and supply its `package/` directory;
 its declared dependencies/peers must resolve as they would in an installed consumer.
-The qualification run used an actual `pnpm pack` archive and the installed workspace
+The qualification run used an actual `bun pm pack` archive and the installed workspace
 dependencies, without source aliases. The command below assumes that archive has
 already been extracted into `research/routing-package/`.
 
 ```sh
-pnpm bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows \
+bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows \
   --ui-package research/routing-package/package --output research/routing-packed-types.json
 ```
 
@@ -1083,7 +1083,7 @@ timings, type/instantiation counts and process peak RSS. This is a manual contri
 check outside the lightweight PR gate.
 
 ```sh
-pnpm bench:routing-types --help
+bun run bench:routing-types --help
 ```
 
 These checks exercise TypeScript's language service on TSX, not a running editor,
@@ -1102,8 +1102,8 @@ A connected opener receives focus on dismissal; a stable DOM ID can locate its
 replacement after revalidation. A remaining parent modal supplies the fallback.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx
-pnpm --filter @xplat/web smoke:routing
+bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx
+bun run --filter @xplat/web smoke:routing
 ```
 
 The focused suite passed 49 tests. It covers dialog naming, per-flow focus
@@ -1130,8 +1130,8 @@ focusable and preserves authored tabindex changes. Each rendered entry supplies
 its own DOM container, so hidden outlet/staging content does not become the target.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx src/browser-route-effects.web.test.ts
-pnpm --filter @xplat/web smoke:routing
+bun run --cwd packages/ui vitest run src/browser-router-host.web.test.tsrx src/modal-focus.web.test.tsrx src/browser-route-effects.web.test.ts
+bun run --filter @xplat/web smoke:routing
 ```
 
 The focused suite passed 55 tests. The production Chromium suite passed 108
@@ -1156,7 +1156,7 @@ readiness check; the routing bundle is unchanged. The next command prints a
 `linuxArtifactDirectory` for the host.
 
 ```sh
-XPLAT_ROUTING_ARTIFACT_DIR="$PWD/research/routing-effects" pnpm --filter @xplat/web smoke:routing
+XPLAT_ROUTING_ARTIFACT_DIR="$PWD/research/routing-effects" bun run --filter @xplat/web smoke:routing
 node apps/linux/scripts/routing-effects-build.mjs \
   "/absolute/path/from/artifactDirectory" "$PWD/research/routing-effects"
 ```
@@ -1194,8 +1194,8 @@ released refs. The shared protocol is
 python3 apps/mobile/scripts/check-navigation.py ios DEVICE_UDID
 python3 apps/mobile/scripts/check-navigation.py android DEVICE_ID
 node apps/macos/test/verify-routing.mjs
-pnpm --filter @octane-xplat/ui exec vitest run src/scrollable-area-offset.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/scrollable-area-offset.test.ts
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
 ```
 
 Reserve the selected build/device resources using the mobile commands described
@@ -1238,10 +1238,10 @@ mode asserts that resolution reaches the supplied archive's files, preventing an
 ancestor workspace package from silently satisfying the check.
 
 ```sh
-pnpm --filter @octane-xplat/ui typegen
-pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts src/define-route.test.ts
+bun run --filter @octane-xplat/ui typegen
+bun run --cwd packages/ui vitest run src/routing-package.test.ts src/define-route.test.ts
 XPLAT_ROUTING_UI_PACKAGE="/absolute/path/to/extracted/package" \
-  pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts
+  bun run --cwd packages/ui vitest run src/routing-package.test.ts
 XPLAT_ROUTING_UI_PACKAGE="/absolute/path/to/extracted/package" \
   node --test packages/cli/test/route-platform-contracts.test.mjs
 ```
@@ -1260,8 +1260,8 @@ completion 0.9–1.1 seconds and peak process RSS 853–971 MiB. This measures t
 language service on macOS; it does not execute the target OS.
 
 ```sh
-pnpm bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows
-pnpm bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows \
+bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows
+bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows \
   --ui-package "/absolute/path/to/extracted/package"
 ```
 
@@ -1286,8 +1286,8 @@ scalar roots. Runtime preparation rejects exotic JavaScript outputs before
 its guards/loaders and accepts plain or null-prototype field objects.
 
 ```sh
-pnpm --filter @octane-xplat/cli build
-pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts src/define-route.test.ts src/routing-core.test.ts
+bun run --filter @octane-xplat/cli build
+bun run --cwd packages/ui vitest run src/routing-package.test.ts src/define-route.test.ts src/routing-core.test.ts
 node --test packages/cli/test/route-generation.test.mjs packages/cli/test/route-platform-contracts.test.mjs
 ```
 
@@ -1314,8 +1314,8 @@ providers, independent histories, explicit modal refusal, and flow cleanup.
 The creator disposes the instance; removing one pane leaves another usable.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/RouterPane.web.test.tsrx src/routing-package.test.ts
-pnpm --filter @xplat/web smoke:routing
+bun run --cwd packages/ui vitest run src/RouterPane.web.test.tsrx src/routing-package.test.ts
+bun run --filter @xplat/web smoke:routing
 ```
 
 Qualification on 2026-10-20 passed 244 focused routing tests, 78 native
@@ -1346,8 +1346,8 @@ link the workspace peers before running it from the repository root.
 routing_ui_package='/absolute/path/to/disposable/extracted/package'
 ln -s "$PWD/packages/ui/node_modules" "$routing_ui_package/node_modules"
 XPLAT_ROUTING_UI_PACKAGE="$routing_ui_package" \
-  pnpm --filter @octane-xplat/ui exec vitest run src/routing-package.test.ts
-pnpm --filter @xplat/web smoke:routing-pane-packed "$routing_ui_package"
+  bun run --cwd packages/ui vitest run src/routing-package.test.ts
+bun run --filter @xplat/web smoke:routing-pane-packed "$routing_ui_package"
 ```
 
 The shared fixture uses module-level JSX components. The installed universal
@@ -1367,9 +1367,9 @@ starter, adds the guides as `.xplat-docs/`, runs your agent command, then
 grades the result. The agent never sees the graders.
 
 ```sh
-pnpm eval:routing --mode reference
-pnpm eval:routing --mode baseline
-pnpm eval:routing --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
+bun run eval:routing --mode reference
+bun run eval:routing --mode baseline
+bun run eval:routing --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
 ```
 
 The six tasks are a first typed detail route, validated search with history-

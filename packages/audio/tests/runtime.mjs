@@ -17,7 +17,7 @@ await new Promise((resolve, reject) => {
 
 try {
 	const child = spawn(
-		'pnpm',
+		'bun',
 		[
 			'probe',
 			'run',

@@ -22,9 +22,9 @@ to run them:
 
 | Command          | What it checks                                              |
 | ---------------- | ----------------------------------------------------------- |
-| `pnpm lint`      | Looks for code patterns that can cause mistakes.            |
-| `pnpm typecheck` | Checks that values and options match what the code expects. |
-| `pnpm build`     | Checks that the browser app can be prepared for release.    |
+| `bun run lint`      | Looks for code patterns that can cause mistakes.            |
+| `bun run typecheck` | Checks that values and options match what the code expects. |
+| `bun run build`     | Checks that the browser app can be prepared for release.    |
 
 Each command should finish without errors. If one fails, copy the error
 into your agent and ask it to fix the cause, then run the check again.
@@ -47,7 +47,7 @@ your app on a selected simulator or device.
 For a web app, run the sample counter check:
 
 ```sh
-pnpm test:web
+bun run test:web
 ```
 
 It renders the starter screen, presses its increment button, and checks the
@@ -64,13 +64,13 @@ the samples. See below for phone test commands and their limits.
 
 ## Lint and format source
 
-The starter's `pnpm lint` runs `xplat lint`: it checks JavaScript, TypeScript,
+The starter's `bun run lint` runs `xplat lint`: it checks JavaScript, TypeScript,
 and screen files for code patterns that can break across platforms. It does
 not change your source. To check just one folder, pass its path:
 
 ```sh
-pnpm lint
-pnpm exec xplat lint src
+bun run lint
+bun run xplat lint src
 ```
 
 Use `--fix` to apply safe automatic fixes. The command still fails if errors
@@ -79,9 +79,9 @@ framework's `xplat/*` rules; automatic lint fixes apply to regular
 JavaScript and TypeScript files. Formatting is a separate command:
 
 ```sh
-pnpm lint:fix
-pnpm format
-pnpm exec xplat fmt --check
+bun run lint:fix
+bun run format
+bun run xplat fmt --check
 ```
 
 Both lint passes honor `.gitignore`, `.eslintignore`, and the root lint
@@ -90,8 +90,8 @@ repositories. New apps need no lint config or separate Oxlint installation.
 For an existing app with the CLI installed, the same commands work directly:
 
 ```sh
-pnpm exec xplat lint
-pnpm exec xplat lint --fix
+bun run xplat lint
+bun run xplat lint --fix
 ```
 
 When you are ready to customize rules, follow the
@@ -107,7 +107,7 @@ caught here, not after release.
 
 ```sh
 xcrun simctl boot DEVICE_UDID    # start a simulator once
-pnpm test:ios -- --device DEVICE_UDID
+bun run test:ios -- --device DEVICE_UDID
 ```
 
 A spec mounts a component, acts through the same gesture handlers as real
@@ -189,7 +189,7 @@ Before releasing an app for other people to use:
 2. Try what happens when something goes wrong: decline camera access,
    cancel a file picker, or load data without a network connection. The app
    should explain the problem and offer a useful next action.
-3. Build the release version with `pnpm xplat build --release` from the app
+3. Build the release version with `bun run xplat build --release` from the app
    folder. This prepares the web app and uses NativeScript release builds
    for configured phone targets. Phone signing must already be set up;
    uploading to an app store is a separate step.

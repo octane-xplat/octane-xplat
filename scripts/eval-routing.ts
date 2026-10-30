@@ -206,7 +206,7 @@ function prepare(task: Task, base: string, trial: number) {
 const prompt = (task: Task) =>
 	[
 		'You are working in an Octane Xplat app in the current directory.',
-		'Use only these sources: the app files, AGENTS.md and .agents/skills in this app, the public guides in .xplat-docs/, and the output of `pnpm typecheck`, `pnpm lint`, `pnpm test:web` and `pnpm exec xplat routes`.',
+		'Use only these sources: the app files, AGENTS.md and .agents/skills in this app, the public guides in .xplat-docs/, and the output of `bun run typecheck`, `bun run lint`, `bun run test:web` and `bun run xplat routes`.',
 		'Do not search for or read framework source code outside type errors and declarations shown by the compiler.',
 		'',
 		readFileSync(join(harness, 'tasks', task.id, 'prompt.md'), 'utf8').trim(),
@@ -241,7 +241,7 @@ function applyReference(task: Task, app: string) {
 		throw new Error('The reference App patch no longer matches the starter App.tsrx')
 	}
 	writeFileSync(file, patched)
-	const routes = run('pnpm', ['exec', 'xplat', 'routes'], app)
+	const routes = run('bun', ['run', 'xplat', 'routes'], app)
 	if (!routes.ok) {
 		throw new Error('Reference route generation failed:\n' + routes.output)
 	}
@@ -305,7 +305,7 @@ function grade(task: Task, app: string): Check[] {
 		checks.push({ name, pass, detail })
 
 	const before = readGenerated(app)
-	const routes = run('pnpm', ['exec', 'xplat', 'routes'], app)
+	const routes = run('bun', ['run', 'xplat', 'routes'], app)
 	const after = readGenerated(app)
 	const stale = [...new Set([...before.keys(), ...after.keys()])].filter(
 		(path) => before.get(path) !== after.get(path),
@@ -337,9 +337,9 @@ function grade(task: Task, app: string): Check[] {
 	}
 	record('no casts, suppressions or augmentation', findings.length === 0, findings.join('\n'))
 
-	const typecheck = run('pnpm', ['exec', 'xplat', 'typecheck'], app)
+	const typecheck = run('bun', ['run', 'xplat', 'typecheck'], app)
 	record('app typecheck', typecheck.ok, typecheck.ok ? undefined : tail(typecheck.output))
-	const lint = run('pnpm', ['exec', 'xplat', 'lint', 'src'], app)
+	const lint = run('bun', ['run', 'xplat', 'lint', 'src'], app)
 	record('app lint', lint.ok, lint.ok ? undefined : tail(lint.output))
 
 	const manifestPath = join(app, 'src/routes.gen.manifest.json')
@@ -355,7 +355,7 @@ function grade(task: Task, app: string): Check[] {
 	const hidden = join(app, 'src/__eval__')
 	mkdirSync(hidden, { recursive: true })
 	cpSync(join(harness, 'tasks', task.id, 'grader', 'types.eval.ts'), join(hidden, 'types.eval.ts'))
-	const contract = run('pnpm', ['exec', 'xplat', 'typecheck'], app)
+	const contract = run('bun', ['run', 'xplat', 'typecheck'], app)
 	record('hidden type contract', contract.ok, contract.ok ? undefined : tail(contract.output))
 	rmSync(join(hidden, 'types.eval.ts'))
 
@@ -366,14 +366,14 @@ function grade(task: Task, app: string): Check[] {
 		}
 	}
 	const behavior = run(
-		'pnpm',
-		['exec', 'vitest', 'run', '--config', 'vitest.web.config.mts', 'src/__eval__'],
+		'bun',
+		['run', 'vitest', 'run', '--config', 'vitest.web.config.mts', 'src/__eval__'],
 		app,
 	)
 	record('hidden runtime behavior', behavior.ok, behavior.ok ? undefined : tail(behavior.output))
 	const starter = run(
-		'pnpm',
-		['exec', 'vitest', 'run', '--config', 'vitest.web.config.mts', 'src/app.web.test.tsx'],
+		'bun',
+		['run', 'vitest', 'run', '--config', 'vitest.web.config.mts', 'src/app.web.test.tsx'],
 		app,
 	)
 	record('starter counter test', starter.ok, starter.ok ? undefined : tail(starter.output))

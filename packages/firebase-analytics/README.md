@@ -9,7 +9,7 @@ JavaScript SDK. macOS and Windows report unsupported.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/firebase-analytics
+bun add @octane-xplat/firebase-analytics
 ```
 
 Register the app in Firebase first. Native setup needs the matching

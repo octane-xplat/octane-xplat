@@ -8,7 +8,7 @@ the pixels while all chrome is self-drawn, so `controls` looks identical
 on every target.
 
 ```sh
-pnpm add @octane-xplat/video
+bun add @octane-xplat/video
 ```
 
 ```tsx

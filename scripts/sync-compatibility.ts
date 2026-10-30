@@ -2,7 +2,6 @@
 import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument } from 'yaml'
 import {
 	compatibility,
 	dependencySections,
@@ -41,7 +40,7 @@ export function syncCompatibility(check = false) {
 	for (const template of ['template', 'library-template']) {
 		const base = `packages/create/${template}`
 		const pkg = JSON.parse(readFileSync(join(repo, base, 'package.json'), 'utf8'))
-		const ws = parseDocument(readFileSync(join(repo, base, 'pnpm-workspace.yaml'), 'utf8'))
+		const ws = (pkg.workspaces ??= { packages: [] })
 		const pins: Record<string, string> = {}
 		for (const section of dependencySections) {
 			for (const name of Object.keys(pkg[section] ?? {})) {
@@ -51,14 +50,8 @@ export function syncCompatibility(check = false) {
 
 				pkg[section][name] = `catalog:${managedCatalog()}`
 				pins[name] = managedSpecifier(name)!
-				if (ws.hasIn(['catalog', name])) {
-					ws.deleteIn(['catalog', name])
-				}
+				delete ws.catalog?.[name]
 			}
-		}
-
-		if (ws.has('catalog') && Object.keys(ws.toJS().catalog ?? {}).length === 0) {
-			ws.delete('catalog')
 		}
 
 		for (const name of Object.keys(pkg.peerDependencies ?? {})) {
@@ -67,19 +60,20 @@ export function syncCompatibility(check = false) {
 			}
 		}
 
-		pkg.packageManager = `pnpm@${compatibility.tools.pnpm}`
-		pkg.engines = { ...pkg.engines, node: `>=${compatibility.tools.nodeMinimum}` }
-		ws.setIn(['catalogs', managedCatalog()], Object.fromEntries(Object.entries(pins).sort()))
-		for (const [selector, version] of Object.entries(compatibility.overrides)) {
-			ws.setIn(['overrides', selector], version)
+		pkg.packageManager = `bun@${compatibility.tools.bun}`
+		pkg.engines = {
+			...pkg.engines,
+			node: `>=${compatibility.tools.nodeMinimum}`,
+			bun: `>=${compatibility.tools.bun}`,
 		}
-
-		if (ws.hasIn(['configDependencies', '@octane-xplat/patches'])) {
-			ws.setIn(['configDependencies', '@octane-xplat/patches'], compatibility.frameworkVersion)
+		ws.catalogs ??= {}
+		ws.catalogs[managedCatalog()] = Object.fromEntries(Object.entries(pins).sort())
+		for (const [selector, version] of Object.entries(compatibility.overrides)) {
+			pkg.overrides ??= {}
+			pkg.overrides[selector] = version
 		}
 
 		sync(`${base}/package.json`, JSON.stringify(pkg, null, '\t') + '\n')
-		sync(`${base}/pnpm-workspace.yaml`, String(ws))
 	}
 
 	return stale
@@ -95,7 +89,7 @@ if (
 	if (stale.length) {
 		console.error(`${check ? 'compatibility drift' : 'synced'}: ${stale.join(', ')}`)
 		if (check) {
-			console.error('Run pnpm sync:compatibility to regenerate the starter pins.')
+			console.error('Run bun run sync:compatibility to regenerate the starter pins.')
 			process.exitCode = 1
 		}
 	} else {

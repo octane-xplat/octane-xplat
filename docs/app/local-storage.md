@@ -48,7 +48,7 @@ lifecycle; ordinary preferences are never a fallback for secrets.
 Install the database package in your app:
 
 ```sh
-pnpm add @octane-xplat/sqlite
+bun add @octane-xplat/sqlite
 ```
 
 Create `src/packing-list.ts` below. A **table** holds rows; each row has a stable

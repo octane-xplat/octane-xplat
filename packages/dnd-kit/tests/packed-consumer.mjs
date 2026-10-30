@@ -25,7 +25,7 @@ function run(command, args, cwd) {
 }
 
 try {
-	run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', temporary], root)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', temporary], root)
 	const tarball = readdirSync(temporary).find((name) => name.endsWith('.tgz'))
 	run('tar', ['-xzf', join(temporary, tarball), '-C', temporary], root)
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))

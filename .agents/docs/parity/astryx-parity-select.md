@@ -359,11 +359,11 @@ assets is evidence of coverage intent, not a claim that their tests passed here.
 Attempted focused check:
 
 ```sh
-pnpm --filter @xplat/web exec vitest run --config vitest.config.mts packages/ui/src/components/forms/SearchInput.web.test.tsrx packages/ui/src/components/forms/typeahead-source.test.ts packages/ui/src/components/forms/power-search-config.test.ts
+bun run --cwd apps/web vitest run --config vitest.config.mts packages/ui/src/components/forms/SearchInput.web.test.tsrx packages/ui/src/components/forms/typeahead-source.test.ts packages/ui/src/components/forms/power-search-config.test.ts
 ```
 
 It could not run: `Command "vitest" not found` in this workspace’s pnpm environment.
-No dependencies were installed for this audit. `pnpm exec oxfmt --check docs/.agents/docs/parity/astryx-parity-select.md`
+No dependencies were installed for this audit. `bun run oxfmt --check docs/.agents/docs/parity/astryx-parity-select.md`
 also could not run because `oxfmt` was not found. Local Markdown link/reference
 checks and Git whitespace checks passed. Runtime targets run: **none**.
 No screenshots or other visual analysis were used. Component code, dependencies,

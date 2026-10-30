@@ -6,7 +6,7 @@ and `transition`, or `drag` with numeric translation bounds. Bound motion
 values update hosts without rendering each frame.
 
 ```sh
-pnpm add @octane-xplat/motion
+bun add @octane-xplat/motion
 ```
 
 ```tsx
@@ -73,9 +73,9 @@ export function LayoutCard({ expanded }: { expanded: boolean }) {
 For movement between components and crossfading content, follow the
 [shared-element guide](https://octane-xplat.goddardai.org/animation-gestures#move-an-element-between-components).
 
-Generate declarations with `pnpm exec turbo run typegen --filter=@octane-xplat/motion`;
+Generate declarations with `bun run turbo run typegen --filter=@octane-xplat/motion`;
 run DOM/engine and universal lifecycle tests with
-`pnpm exec turbo run test test:native --filter=@octane-xplat/motion`.
+`bun run turbo run test test:native --filter=@octane-xplat/motion`.
 Native compilation and object-driver tests are not physical-device evidence.
 
 macOS has [package-boundary acceptance and focused native-channel checks](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/UPSTREAM.md#macos-package-boundary),

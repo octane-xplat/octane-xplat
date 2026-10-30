@@ -6,7 +6,7 @@ Custom Tabs on Android, and an experimental owned WebKit window on AppKit.
 page loaded. Use the auth-session service for callback-based authentication.
 
 ```sh
-pnpm add @octane-xplat/web-browser
+bun add @octane-xplat/web-browser
 ```
 
 ```ts

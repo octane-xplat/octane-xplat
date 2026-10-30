@@ -12,7 +12,7 @@ for a complete browser filtering/artifact path and native qualification limits.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/sentry
+bun add @octane-xplat/sentry
 ```
 
 Use a Sentry test project. Its DSN is the address the SDK uses to send reports.

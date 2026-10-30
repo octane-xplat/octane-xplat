@@ -7,7 +7,7 @@ locale detection. The JSX side of Lingui (`@lingui/react`) is not used —
 components subscribe through `useLingui()`/`useLocale()`.
 
 ```sh
-pnpm add @octane-xplat/lingui @lingui/core
+bun add @octane-xplat/lingui @lingui/core
 ```
 
 ```ts

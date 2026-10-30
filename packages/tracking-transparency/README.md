@@ -11,7 +11,7 @@ complete the native setup below, and rebuild the native app. A JavaScript-only
 refresh cannot install the bridge or change native permission configuration.
 
 ```sh
-pnpm add @octane-xplat/tracking-transparency
+bun add @octane-xplat/tracking-transparency
 ```
 
 In your iOS app's `App_Resources/iOS/Info.plist`, add a purpose string describing

@@ -1,0 +1,4 @@
+[install]
+# NativeScript resolves plugins from the app’s flat dependency tree.
+linker = "hoisted"
+exact = true

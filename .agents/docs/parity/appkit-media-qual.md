@@ -6,7 +6,7 @@ AnimatedImage, Pager, Lightbox zoom/swipe/video) and **Overlays** (Popover +
 typeahead window layer, Tooltip).
 
 **Host unless noted:** local Apple Silicon Mac, macOS 27.2 (Darwin 27.2.0),
-AppKit/JavaScriptCore host via `pnpm probe run … --target macos` and the
+AppKit/JavaScriptCore host via `bun run probe run … --target macos` and the
 `@xplat/macos` verify fixtures. `skymac.local` (arm64 iMac, macOS 26.6.2, ~9 GB
 free) was verified reachable but not yet used. `press`/`setText` are
 action-dispatch; NSEvent posting goes through the real event queue; neither is
@@ -143,8 +143,8 @@ Research probes (gitignored `research/probes-cases/`):
 ## Commands
 
 ```sh
-pnpm probe run examples/probes/charts.macos.tsrx --target macos --deps @octane-xplat/charts
-pnpm probe run examples/probes/media-runtime… --deps @octane-xplat/video,@octane-xplat/gif,@octane-xplat/pager
-pnpm --filter @xplat/macos test:overlays   # currently blocked by the GC crash
-pnpm --filter @octane-xplat/ui test:color:macos test:overlay-keyboard:macos
+bun run probe run examples/probes/charts.macos.tsrx --target macos --deps @octane-xplat/charts
+bun run probe run examples/probes/media-runtime… --deps @octane-xplat/video,@octane-xplat/gif,@octane-xplat/pager
+bun run --filter @xplat/macos test:overlays   # currently blocked by the GC crash
+bun run --filter @octane-xplat/ui test:color:macos test:overlay-keyboard:macos
 ```

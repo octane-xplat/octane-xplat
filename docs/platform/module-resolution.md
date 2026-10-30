@@ -139,13 +139,13 @@ the shared `routes.gen.types.ts`. iOS and Android route files can override a
 `.mobile` route; macOS routes can override the unsuffixed route.
 
 ```sh
-pnpm xplat routes
+bun run xplat routes
 ```
 
 ## TypeScript
 
 TypeScript checks that the selected component accepts the options your screen
-gives it. In a created app, run `pnpm typecheck` from the app folder to check
+gives it. In a created app, run `bun run typecheck` from the app folder to check
 all platform files in one program. If you're using an agent, ask it to
 fix any errors and run the check again.
 
@@ -236,7 +236,7 @@ This repo's `@tsrx/typescript-plugin` patch enables Volar's
 `resolveHiddenExtensions`, which maps each `.d.ts` probe — including
 `moduleSuffixes`-rewritten ones — back to the `.tsrx` source, so `tsrx-tsc`
 resolves `import './Leaf'` to `Leaf.web.tsrx` / `Leaf.ios.tsrx` /
-`Leaf.mobile.tsrx` (measured by `pnpm check:suffix-resolution`). Lanes that
+`Leaf.mobile.tsrx` (measured by `bun run check:suffix-resolution`). Lanes that
 run unpatched TypeScript — plain `tsc`, or a consumer that didn't materialize
 the patch set — still need a same-name `.ts` shim re-exporting the component
 (`Card.mobile.ts` → `Card.mobile.tsrx`) or an explicit `.tsrx` specifier; the
@@ -257,9 +257,9 @@ project's chain. Upstream emits `['.<platform>', '.native', '']` — no
 iOS/Android/visionOS, so `.mobile` leaves resolve under the build-time check
 too.
 
-In a scaffolded app, run `pnpm typecheck` for its combined program.
-Framework contributors use `pnpm typecheck:web`, `pnpm typecheck:mobile`, and
-`pnpm typecheck:macos` in this repository. The mobile config covers both iOS
+In a scaffolded app, run `bun run typecheck` for its combined program.
+Framework contributors use `bun run typecheck:web`, `bun run typecheck:mobile`, and
+`bun run typecheck:macos` in this repository. The mobile config covers both iOS
 and Android.
 
 For the resolver implementation and the historical experiments that led to

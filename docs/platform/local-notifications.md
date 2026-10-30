@@ -12,7 +12,7 @@ use the separate [push guide](push-notifications.md).
 In your app directory, install the leaf package:
 
 ```sh
-pnpm add @octane-xplat/notifications
+bun add @octane-xplat/notifications
 ```
 
 Call this function from a button's press handler. Asking after a press gives
@@ -70,8 +70,8 @@ Silicon Mac with Xcode selected. Keep this leaf in the app's runtime
 `dependencies`, then run these commands from the app directory:
 
 ```sh
-pnpm xplat doctor
-pnpm xplat build --targets macos
+bun run xplat doctor
+bun run xplat build --targets macos
 ```
 
 Rebuild the native host after upgrading: the read path requires the new
@@ -123,5 +123,5 @@ fixture performs none of those actions. Run it only during authorized native
 qualification:
 
 ```sh
-pnpm probe run examples/probes/notification-permissions.macos.tsrx --target macos --watch
+bun run probe run examples/probes/notification-permissions.macos.tsrx --target macos --watch
 ```

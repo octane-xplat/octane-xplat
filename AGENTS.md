@@ -54,24 +54,24 @@ When adding or revising material:
 Read the relevant reference before acting in that area. These files carry the
 working agreements and detail moved out of this entry point.
 
-| Task                                                    | Reference                                                                                                            |
-| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Locate packages, harnesses, or design records           | [Repository orientation](.agents/docs/repository.md)                                                                 |
-| Find source, callers, or change impact                  | [Source context](.agents/docs/source-context.md)                                                                     |
-| Implement components or platform variants               | [Implementation invariants](.agents/docs/architecture.md)                                                            |
-| Build, install dependencies, patch upstream, or lint    | [Toolchain](.agents/docs/toolchain.md)                                                                               |
-| Use shared hosts or create temporary host artifacts    | [Temporary host files](.agents/docs/host-artifacts.md)                                                               |
-| Investigate one case or add lasting test coverage       | [Probes and tests](.agents/docs/testing.md)                                                                          |
-| Write or review docs; change public behavior or setup   | [Documentation audience and coverage](.agents/docs/documentation.md)                                                 |
-| Audit or maintain public docs and package READMEs      | [Documentation quality system](.agents/docs/documentation-quality.md)                                               |
-| Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
-| Record upstream limitations or local workarounds        | [Upstream limitations](.agents/docs/upstream-limitations.md)                                                         |
-| Plan Coreframe's role on Xplat or an app migration      | [Coreframe role](.agents/docs/coreframe-role.md)                                                                     |
-| Extract Mason core or change MasonKit package boundaries | [Mason core extraction design](.agents/design/mason-core-extraction.md)                                            |
-| Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
-| Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
-| Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
-| Write release notes or explain new terminology          | [Release-note authoring](.agents/docs/releases.md#write-a-release-note); [terminology in context](.agents/docs/documentation.md#terminology) |
+| Task                                                     | Reference                                                                                                                                    |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Locate packages, harnesses, or design records            | [Repository orientation](.agents/docs/repository.md)                                                                                         |
+| Find source, callers, or change impact                   | [Source context](.agents/docs/source-context.md)                                                                                             |
+| Implement components or platform variants                | [Implementation invariants](.agents/docs/architecture.md)                                                                                    |
+| Build, install dependencies, patch upstream, or lint     | [Toolchain](.agents/docs/toolchain.md)                                                                                                       |
+| Use shared hosts or create temporary host artifacts      | [Temporary host files](.agents/docs/host-artifacts.md)                                                                                       |
+| Investigate one case or add lasting test coverage        | [Probes and tests](.agents/docs/testing.md)                                                                                                  |
+| Write or review docs; change public behavior or setup    | [Documentation audience and coverage](.agents/docs/documentation.md)                                                                         |
+| Audit or maintain public docs and package READMEs        | [Documentation quality system](.agents/docs/documentation-quality.md)                                                                        |
+| Explore a seam, record evidence, or update decisions     | [Exploration and Silo](.agents/docs/exploration.md)                                                                                          |
+| Record upstream limitations or local workarounds         | [Upstream limitations](.agents/docs/upstream-limitations.md)                                                                                 |
+| Plan Coreframe's role on Xplat or an app migration       | [Coreframe role](.agents/docs/coreframe-role.md)                                                                                             |
+| Extract Mason core or change MasonKit package boundaries | [Mason core extraction design](.agents/design/mason-core-extraction.md)                                                                      |
+| Work with Octane signals                                 | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md)                         |
+| Add or publish a package                                 | [Releases](.agents/docs/releases.md)                                                                                                         |
+| Prepare a release, packaging change, or docs deployment  | [Releases](.agents/docs/releases.md)                                                                                                         |
+| Write release notes or explain new terminology           | [Release-note authoring](.agents/docs/releases.md#write-a-release-note); [terminology in context](.agents/docs/documentation.md#terminology) |
 
 ## Framework principles
 
@@ -123,8 +123,8 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   ordering mechanism — `//#submodules` initializes vendor checkouts and
   `^typegen`/`^build` produce generated types and dists first. Raw commands
   skip all of that and fail on missing vendor sources or dist outputs.
-- Use **Bun 1.4.4** for repository installs and scripts. Retain pnpm only for
-  packaging/publishing and pnpm consumer qualification. Declare every imported dependency; workspace dependencies
+- Use **Bun 1.4.4** for repository installs and scripts. Use npm only to publish Bun tarballs with provenance; pnpm is optional for
+  manual patch compatibility qualification. Declare every imported dependency; workspace dependencies
   use `"workspace:*"`. `packages/ui` takes **no new external dependencies or peers** (internal workspace packages are fine);
   plugin-backed features belong in leaf packages. A leaf package is warranted
   when a feature owns an external cost or a separate system lifecycle — a

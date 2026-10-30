@@ -8,7 +8,7 @@ Read and edit the device calendar on iOS and Android. Web and desktop report
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/calendar
+bun add @octane-xplat/calendar
 ```
 
 Configure the app's calendar privacy declarations before requesting access.

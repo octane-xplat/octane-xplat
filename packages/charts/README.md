@@ -10,7 +10,7 @@ Start with a [configured Xplat app](https://octane-xplat.goddardai.org/toolchain
 then install from its directory:
 
 ```sh
-pnpm add @octane-xplat/charts
+bun add @octane-xplat/charts
 ```
 
 Put this component in a `.tsx` or `.tsrx` screen. Each series has a name and

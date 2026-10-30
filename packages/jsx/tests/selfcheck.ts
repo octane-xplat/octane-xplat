@@ -1,6 +1,6 @@
 /**
  * Package self-check — exercises the shared contract surface through the same
- * module specifiers consumers use, so `pnpm typecheck` catches declaration
+ * module specifiers consumers use, so `bun run typecheck` catches declaration
  * drift that skipLibCheck would otherwise mask. The packed-consumer fixture
  * (tests/packed-consumer.mjs) proves resolution from a real tarball.
  *

@@ -3,20 +3,20 @@
 // Packed-artifact consumer verification — proves a scaffolded starter app
 // installs, lints, typechecks, and builds against the PACKED packages, not
 // the workspace symlinks. It also checks the packed creator's app and library
-// scaffolds. This is the release-evidence path for `pnpm create octane-xplat`.
+// scaffolds. This is the release-evidence path for `bun create octane-xplat`.
 //
 // Phases (each is a gate — the first failure stops the run):
 //   build    generate declarations and required package assets
 //            (--no-build reuses prepared packages and skips prepack hooks;
 //            run build:packages and check:pack first)
-//   pack     pnpm pack every publishable package into <work>/pack
+//   pack     bun pm pack every publishable package into <work>/pack
 //   scaffold run the PACKED create-octane-xplat bin for app and library,
 //            then rewrite the app's @octane-xplat/* specifiers (dependencies,
-//            devDependencies, pnpm-workspace.yaml configDependencies) to
+//            devDependencies and root override policy) to
 //            file: tarballs
-//   install  pnpm install in the consumer — isolated, outside the workspace
-//   checks   pnpm lint, pnpm typecheck (web + native), pnpm build (web),
-//            pnpm exec xplat doctor; install and check the library starter
+//   install  bun install in the consumer — isolated, outside the workspace
+//   checks   bun run lint, bun run typecheck (web + native), bun run build (web),
+//            bun run xplat doctor; install and check the library starter
 //   smoke    --smoke web: playwright drives `vite preview` of the built app
 //   native   --native ios,android: `ns build <platform>` inside the consumer
 //   sim      --smoke-ios: install + launch the built .app on an iOS sim,
@@ -40,6 +40,7 @@
 //        [--native ios,android] [--smoke-ios] [--test-ios] [--test-android] [--keep]
 //        --quick: packed web starter install + plain tsc + dev/prod compilation;
 //                 skips platform enablement and the full app/library checks.
+import { readBunLock } from '../packages/cli/src/package-manager.ts'
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
 import {
@@ -56,7 +57,6 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument } from 'yaml'
 
 import { lockstepPackages } from './publishable.ts'
 import { verifyAndroidTests } from './verify-android-tests.ts'
@@ -191,7 +191,7 @@ try {
 	// ---- build ------------------------------------------------------------
 	if (doBuild) {
 		await gate('package declarations and assets', 20 * 60 * 1000, () => {
-			const r = run('pnpm', ['build:packages'], repoRoot)
+			const r = run('bun', ['build:packages'], repoRoot)
 
 			assert.equal(r.status, 0, 'package preparation failed')
 		})
@@ -199,23 +199,24 @@ try {
 
 	// ---- pack -------------------------------------------------------------
 	const tarballs = new Map()
-	await gate('pnpm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
+	await gate('bun pm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
 		for (const pkg of lockstepPackages(repoRoot)) {
 			// Quick mode and --no-build consume prepared artifacts. The caller
 			// gates pack:check separately; never rebuild through lifecycle hooks
 			// when the caller explicitly requested --no-build.
 			const r = run(
-				'pnpm',
+				'bun',
 				[
-					...(quick || !doBuild ? ['--config.ignore-scripts=true'] : []),
+					'pm',
 					'pack',
-					'--pack-destination',
+					...(quick || !doBuild ? ['--ignore-scripts'] : []),
+					'--destination',
 					packDir,
 				],
 				join(repoRoot, pkg.dir),
 			)
 
-			assert.equal(r.status, 0, `pnpm pack failed for ${pkg.name}`)
+			assert.equal(r.status, 0, `bun pm pack failed for ${pkg.name}`)
 			const expected = join(packDir, tarballName(pkg))
 			assert.ok(existsSync(expected), `expected tarball ${tarballName(pkg)} for ${pkg.name}`)
 			tarballs.set(pkg.name, expected)
@@ -233,7 +234,7 @@ try {
 		() => {
 			const createTarball = tarballs.get('create-octane-xplat')
 			assert.ok(createTarball, 'create-octane-xplat tarball missing')
-			// Install the creator as pnpm create does: its published JavaScript
+			// Install the creator as bun create does: its published JavaScript
 			// entry and declared runtime dependencies must work outside the repo.
 			writeFileSync(
 				join(extractDir, 'package.json'),
@@ -242,11 +243,8 @@ try {
 					dependencies: { 'create-octane-xplat': `file:${createTarball}` },
 				}),
 			)
-			writeFileSync(
-				join(extractDir, 'pnpm-workspace.yaml'),
-				'nodeLinker: isolated\npackageImportMethod: copy\n',
-			)
-			const install = run('pnpm', ['install', '--ignore-scripts'], extractDir)
+			writeFileSync(join(extractDir, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
+			const install = run('bun', ['install', '--ignore-scripts'], extractDir)
 			assert.equal(install.status, 0, 'packed creator install failed')
 			const creator = join(extractDir, 'node_modules/create-octane-xplat')
 			const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
@@ -331,70 +329,34 @@ try {
 
 		writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
 
-		// @octane-xplat/patches travels as a pnpm configDependency — that path
-		// demands an exact registry semver (file: tarballs carry no integrity),
-		// so the packed tarball can't stand in there. Materialize the tarball's
-		// contents into node_modules/.pnpm-config instead and drop the
-		// configDependencies entry; patchedDependencies then resolves the same
-		// files a registry install would produce.
-		const patchesTarball = tarballs.get('@octane-xplat/patches')
-		assert.ok(patchesTarball, 'no tarball for @octane-xplat/patches')
-		const configDir = join(appDir, 'node_modules', '.pnpm-config', '@octane-xplat', 'patches')
-		mkdirSync(configDir, { recursive: true })
-		const untar = run(
-			'tar',
-			['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'],
-			work,
-		)
-
-		assert.equal(untar.status, 0, 'patches tarball extraction failed')
-
-		const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
-		const workspaceYaml = readFileSync(workspaceFile, 'utf8')
-		const updated = workspaceYaml.replace(/\n?configDependencies:\n([ \t]+(?!#)\S[^\n]*\n?)+/, '\n')
-
-		assert.notEqual(updated, workspaceYaml, 'configDependencies rewrite found no entry')
-
-		// Deps can also enter the graph after this gate — xplat add writes
-		// registry specs, and create-octane-xplat is a runtime dep of the packed
-		// CLI outside @octane-xplat/*. Pin every packed tarball via workspace
-		// overrides so late-resolving deps still hit the packed artifacts.
-		const workspace = parseDocument(updated)
+		// Late additions and transitive framework dependencies use these same tarballs.
+		manifest.overrides ??= {}
 		for (const [name, tarball] of tarballs) {
-			workspace.setIn(['overrides', name], `file:${tarball}`)
+			manifest.overrides[name] = `file:${tarball}`
 		}
-		writeFileSync(workspaceFile, String(workspace))
-		return `${rewritten} deps + materialized .pnpm-config`
+		writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
+		return `${rewritten} deps + packed dependency overrides`
 	})
 
 	// ---- install ------------------------------------------------------------
-	await gate('pnpm install — consumer resolves registry + packed artifacts', 15 * 60 * 1000, () => {
-		const r = run('pnpm', ['install'], appDir)
-		assert.equal(r.status, 0, 'pnpm install failed')
+	await gate('bun install — consumer resolves registry + packed artifacts', 15 * 60 * 1000, () => {
+		const r = run('bun', ['install'], appDir)
+		assert.equal(r.status, 0, 'bun install failed')
 	})
 
 	await gate(
 		'default web starter includes web tests without unused features or the macOS SDK',
 		60 * 1000,
 		() => {
-			// Read the installed graph without assuming pnpm's store directory layout.
-			const listing = spawnSync('pnpm', ['list', '--depth', 'Infinity', '--json'], {
-				shell: process.platform === 'win32',
-				cwd: appDir,
-				encoding: 'utf8',
-				maxBuffer: 64 * 1024 * 1024,
-			})
-			assert.equal(listing.status, 0, listing.stderr || listing.error?.message)
 			const installed = new Set<string>()
-			const visit = (pkg) => {
-				for (const section of ['dependencies', 'devDependencies', 'optionalDependencies']) {
-					for (const [name, dependency] of Object.entries(pkg[section] ?? {})) {
-						installed.add(name)
-						visit(dependency)
-					}
+			const graph = readBunLock(appDir)
+			assert.ok(graph?.packages, 'Bun lockfile must describe the installed packages')
+			for (const entry of Object.values(graph.packages) as any[]) {
+				if (Array.isArray(entry)) {
+					installed.add(entry[0].slice(0, entry[0].indexOf('@', 1)))
 				}
 			}
-			JSON.parse(listing.stdout).forEach(visit)
+
 			for (const name of [
 				'@octane-xplat/effects',
 				'@octane-xplat/image',
@@ -424,10 +386,12 @@ try {
 			const manifest = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8'))
 			for (const target of ['web', 'native', 'macos', 'linux']) {
 				const entry = manifest.exports['.'][target]
-				assert.ok(entry.default.startsWith('./src/'), `${target} runtime must use source`)
-				assert.ok(entry.types.endsWith('.d.ts'), `${target} types must use declarations`)
-				assert.ok(existsSync(join(installed, entry.default)), `${target} source missing`)
-				assert.ok(existsSync(join(installed, entry.types)), `${target} declarations missing`)
+				const runtime = typeof entry === 'string' ? entry : entry.default
+				const types = typeof entry === 'string' ? manifest.exports['.'].types : entry.types
+				assert.ok(runtime.startsWith('./src/'), `${target} runtime must use source`)
+				assert.ok(types.endsWith('.d.ts'), `${target} types must use declarations`)
+				assert.ok(existsSync(join(installed, runtime)), `${target} source missing`)
+				assert.ok(existsSync(join(installed, types)), `${target} declarations missing`)
 			}
 		},
 	)
@@ -462,7 +426,7 @@ void props
 			}),
 		)
 		try {
-			const result = run('pnpm', ['exec', 'tsc', '--project', config], appDir)
+			const result = run('bun', ['run', 'tsc', '--project', config], appDir)
 			assert.equal(result.status, 0, 'plain TypeScript could not consume packed declarations')
 		} finally {
 			rmSync(source, { force: true })
@@ -476,16 +440,9 @@ void props
 			'xplat add ios android --no-install, then install — platform and test setup on packed CLI',
 			15 * 60 * 1000,
 			() => {
-				const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android', '--no-install'], appDir)
+				const r = run('bun', ['run', 'xplat', 'add', 'ios', 'android', '--no-install'], appDir)
 				assert.equal(r.status, 0, `xplat add exited ${r.status}`)
-				// add restores the registry configDependency for newly enabled
-				// native patches. Keep using the already materialized packed
-				// payload: this revision's patches are not published yet.
-				const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
-				const workspace = parseDocument(readFileSync(workspaceFile, 'utf8'))
-				workspace.delete('configDependencies')
-				writeFileSync(workspaceFile, String(workspace))
-				const install = run('pnpm', ['install', '--no-frozen-lockfile'], appDir)
+				const install = run('bun', ['install', '--no-frozen-lockfile'], appDir)
 				assert.equal(install.status, 0, 'platform dependencies failed to install')
 				assert.ok(
 					existsSync(join(appDir, 'nativescript.config.ts')),
@@ -523,7 +480,7 @@ import { join } from 'node:path'
 const server = await createServer({ server: { middlewareMode: true, watch: null, hmr: false } })
 try {
   const root = realpathSync('node_modules/@octane-xplat/ui')
-  const file = join(root, 'src/Text.web.tsrx')
+  const file = join(root, 'src/components/content/Text.web.tsrx')
   const source = readFileSync(file, 'utf8')
   assert.match(source, /@\\{/)
   const result = await server.transformRequest('/@fs/' + file)
@@ -544,16 +501,16 @@ try {
 	for (const [name, argv] of [
 		...(!quick
 			? [
-					['pnpm lint', ['lint']],
-					['pnpm typecheck (web + native)', ['typecheck']],
+					['bun run lint', ['lint']],
+					['bun run typecheck (web + native)', ['typecheck']],
 				]
 			: []),
-		['pnpm test:web — default component test', ['test:web']],
-		['pnpm build — web bundle from packed ui', ['build']],
-		...(!quick ? [['pnpm xplat doctor', ['exec', 'xplat', 'doctor']]] : []),
+		['bun run test:web — default component test', ['test:web']],
+		['bun run build — web bundle from packed ui', ['build']],
+		...(!quick ? [['bun run xplat doctor', ['xplat', 'doctor']]] : []),
 	]) {
 		await gate(name, 10 * 60 * 1000, () => {
-			const r = run('pnpm', argv, appDir)
+			const r = run('bun', ['run', ...argv], appDir)
 			assert.equal(r.status, 0, `${name} exited ${r.status}`)
 		})
 	}
@@ -604,15 +561,15 @@ try {
 					`import { router } from '@octane-xplat/ui/routing'\nvoid router.push({ to: '/items/:id' })\n`,
 				)
 
-				const denied = run('pnpm', ['exec', 'xplat', 'typecheck'], appDir)
+				const denied = run('bun', ['run', 'xplat', 'typecheck'], appDir)
 				assert.notEqual(denied.status, 0, 'router.push without params must fail typecheck')
 				rmSync(negative, { force: true })
 
-				const routes = run('pnpm', ['exec', 'xplat', 'routes'], appDir)
+				const routes = run('bun', ['run', 'xplat', 'routes'], appDir)
 				assert.equal(routes.status, 0, `xplat routes failed for snippets: ${written.join(', ')}`)
-				const typecheck = run('pnpm', ['exec', 'xplat', 'typecheck'], appDir)
+				const typecheck = run('bun', ['run', 'xplat', 'typecheck'], appDir)
 				assert.equal(typecheck.status, 0, 'skill snippets failed typecheck')
-				const lint = run('pnpm', ['exec', 'xplat', 'lint', 'src'], appDir)
+				const lint = run('bun', ['run', 'xplat', 'lint', 'src'], appDir)
 				assert.equal(lint.status, 0, 'skill snippets failed lint')
 			} finally {
 				rmSync(source, { recursive: true, force: true })
@@ -627,29 +584,13 @@ try {
 			'library starter installs and publishes source with isolated declarations',
 			15 * 60 * 1000,
 			() => {
-				const workspaceFile = join(libraryDir, 'pnpm-workspace.yaml')
-				const workspace = parseDocument(readFileSync(workspaceFile, 'utf8'))
-				const configDir = join(
-					libraryDir,
-					'node_modules',
-					'.pnpm-config',
-					'@octane-xplat',
-					'patches',
-				)
-				mkdirSync(configDir, { recursive: true })
-				const patchesTarball = tarballs.get('@octane-xplat/patches')
-				assert.ok(patchesTarball, 'no tarball for @octane-xplat/patches')
-				const untar = run(
-					'tar',
-					['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'],
-					work,
-				)
-				assert.equal(untar.status, 0, 'library patches tarball extraction failed')
-				workspace.delete('configDependencies')
+				const file = join(libraryDir, 'package.json')
+				const manifest = JSON.parse(readFileSync(file, 'utf8'))
+				manifest.overrides ??= {}
 				for (const [name, tarball] of tarballs) {
-					workspace.setIn(['overrides', name], `file:${tarball}`)
+					manifest.overrides[name] = `file:${tarball}`
 				}
-				writeFileSync(workspaceFile, String(workspace))
+				writeFileSync(file, JSON.stringify(manifest, null, '\t') + '\n')
 
 				for (const argv of [
 					['install'],
@@ -659,8 +600,8 @@ try {
 					['test'],
 					['test:packed'],
 				]) {
-					const r = run('pnpm', argv, libraryDir)
-					assert.equal(r.status, 0, `library pnpm ${argv.join(' ')} exited ${r.status}`)
+					const r = run('bun', argv[0] === 'install' ? argv : ['run', ...argv], libraryDir)
+					assert.equal(r.status, 0, `library bun run ${argv.join(' ')} exited ${r.status}`)
 				}
 			},
 		)
@@ -680,8 +621,8 @@ try {
 			})
 
 			const preview = spawn(
-				'pnpm',
-				['exec', 'vite', 'preview', '--port', String(port), '--strictPort'],
+				'bun',
+				['run', 'vite', 'preview', '--port', String(port), '--strictPort'],
 				{
 					shell: process.platform === 'win32',
 					cwd: appDir,
@@ -771,8 +712,8 @@ try {
 			30 * 60 * 1000,
 			() => {
 				const r = run(
-					'pnpm',
-					['exec', 'ns', 'build', platform],
+					'bun',
+					['run', 'ns', 'build', platform],
 					appDir,
 					platform === 'android' && process.env.VERIFY_JAVA_HOME
 						? { JAVA_HOME: process.env.VERIFY_JAVA_HOME }
@@ -887,7 +828,7 @@ try {
 				const boot = run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work)
 				assert.equal(boot.status, 0, `simctl bootstatus failed: ${boot.stderr}`)
 
-				const r = run('pnpm', ['test:ios'], appDir, { NS_DEVICE: sim.udid })
+				const r = run('bun', ['test:ios'], appDir, { NS_DEVICE: sim.udid })
 				assert.equal(r.status, 0, `ns test ios exited ${r.status}`)
 
 				const summary = r.stdout

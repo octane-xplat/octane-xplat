@@ -38,7 +38,7 @@ for (const name of [
 ]) {
 	const dir = join(repo, 'packages', name)
 	const manifest = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'))
-	run('pnpm', ['pack', '--pack-destination', packs], dir)
+	run('bun', ['pm', 'pack', '--destination', packs], dir)
 	dependencies[manifest.name] =
 		`file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 }
@@ -69,10 +69,17 @@ await writeFile(
 	),
 )
 
-await writeFile(
-	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@octane-xplat/platform': ${JSON.stringify(dependencies['@octane-xplat/platform'])}\n  '@octane-xplat/css-engine': ${JSON.stringify(dependencies['@octane-xplat/css-engine'])}\n  '@octane-xplat/lib': ${JSON.stringify(dependencies['@octane-xplat/lib'])}\n  '@octane-xplat/jsx': ${JSON.stringify(dependencies['@octane-xplat/jsx'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
-)
+const consumerFile = join(app, 'package.json')
+const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
+consumerConfig.overrides = {
+	...dependencies,
+	'@tiptap/core': '3.28.0',
+	'@tiptap/pm': '3.28.0',
+	'@tiptap/starter-kit': '3.28.0',
+}
+consumerConfig.packageManager = 'bun@1.4.4'
+await writeFile(consumerFile, JSON.stringify(consumerConfig))
+await writeFile(join(app, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
 
 await writeFile(
 	join(app, 'tsconfig.json'),
@@ -159,19 +166,19 @@ export default async ({mode}) => { const config = await xplatMacOS(mode, {root: 
 )
 
 console.log('[packed editors] installing tarball consumer')
-run('pnpm', ['install', '--ignore-scripts'])
-run('pnpm', ['exec', 'xplat', 'patches', 'apply'])
+run('bun', ['install', '--ignore-scripts'])
+run('bun', ['run', 'xplat', 'patches', 'apply'])
 // patches apply registers patchedDependencies, so this install must update
 // the lockfile — frozen installs (CI default) would reject the config change.
-run('pnpm', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
-run('pnpm', ['exec', 'tsc', '--noEmit'])
+run('bun', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
+run('bun', ['run', 'tsc', '--noEmit'])
 console.log('[packed editors] macos declarations pass including negative JSON cases')
 if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
 	console.log('[packed editors] skipping AppKit build/run — needs an Apple Silicon Mac')
 	process.exit(0)
 }
 
-run('pnpm', ['exec', 'xplat', 'build', '--targets', 'macos'])
+run('bun', ['run', 'xplat', 'build', '--targets', 'macos'])
 console.log('[packed editors] production AppKit build and native metadata pass')
 const executable = join(
 	app,

@@ -790,7 +790,7 @@ No screenshots or pixel-parity checks are used.
 Recipes extended: `localization` AC7 (subtree UI locale) and
 `accessibility-announcements` AC4 (UI hook and host limits). Coverage and
 verification are recorded separately in Silo for the landed revision.
-`pnpm check:recipes` checks structure and local links only.
+`bun run check:recipes` checks structure and local links only.
 
 Final production-preview results: **12/12 checks passed in each of Chromium,
 Firefox and WebKit**, with no browser runtime errors. This includes the running

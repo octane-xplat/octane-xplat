@@ -1,4 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+import { packageManagerFor } from '../package-manager.ts'
 import { command, flag, restPositionals, string } from '@alloc/cmd-ts'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
@@ -23,13 +24,20 @@ export const add = command({
 		}),
 		noInstall: flag({
 			long: 'no-install',
-			description: 'Apply file and manifest changes without running pnpm install',
+			description: 'Apply file and manifest changes without running bun install',
 		}),
 	},
 	handler: async (args) => {
 		const cwd = process.cwd()
 		if (!existsSync(join(cwd, 'package.json'))) {
 			p.log.error('No package.json here — run `xplat add` inside an app')
+			process.exit(1)
+		}
+
+		if (packageManagerFor(cwd) !== 'bun') {
+			p.log.error(
+				'Platform additions require a Bun project. Configure Bun before running xplat add; xplat patches remains available for pnpm.',
+			)
 			process.exit(1)
 		}
 
@@ -115,20 +123,24 @@ export const add = command({
 		}
 
 		if (args.noInstall) {
-			p.log.info('Skipped install — run `pnpm install` to fetch the new deps')
+			p.log.info('Skipped install — run `bun install` to fetch the new deps')
 			return
 		}
 
 		// add rewrites deps and patchedDependencies — the lockfile must update,
 		// so frozen installs (the default under CI) have to be opted out of.
-		const install = spawnSync('pnpm', ['install', '--no-frozen-lockfile'], {
-			shell: process.platform === 'win32',
-			cwd,
-			stdio: 'inherit',
-		})
+		const install = spawnSync(
+			packageManagerFor(process.cwd()),
+			['install', '--no-frozen-lockfile'],
+			{
+				shell: process.platform === 'win32',
+				cwd,
+				stdio: 'inherit',
+			},
+		)
 
 		if (install.status !== 0) {
-			p.log.error('pnpm install failed — run it manually to finish enabling the target')
+			p.log.error('bun install failed — run it manually to finish enabling the target')
 			process.exit(install.status ?? 1)
 		}
 

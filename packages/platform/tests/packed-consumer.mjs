@@ -29,7 +29,7 @@ const temporary = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-platform-source
 const modules = join(temporary, 'node_modules/@octane-xplat')
 
 try {
-	execFileSync('pnpm', ['pack', '--pack-destination', temporary], {
+	execFileSync('bun', ['pm', 'pack', '--destination', temporary], {
 		cwd: root,
 		stdio: 'pipe',
 		shell: process.platform === 'win32',
@@ -41,7 +41,7 @@ try {
 	// the published version, which predates ./capability — pin the in-repo pack.
 	const libPack = join(temporary, 'lib-pack')
 	mkdirSync(libPack)
-	execFileSync('pnpm', ['pack', '--pack-destination', libPack], {
+	execFileSync('bun', ['pm', 'pack', '--destination', libPack], {
 		cwd: join(root, '../lib'),
 		stdio: 'pipe',
 		shell: process.platform === 'win32',
@@ -58,19 +58,13 @@ try {
 		}),
 	)
 
-	// pnpm overrides do not reach into file:-packed dependency graphs — rewrite
-	// the packed manifest's lib spec through the readPackage hook instead.
-	writeFileSync(
-		join(temporary, '.pnpmfile.cjs'),
-		`module.exports = { hooks: { readPackage(pkg) {
-			if (pkg.dependencies?.['@octane-xplat/lib']) {
-				pkg.dependencies['@octane-xplat/lib'] = 'file:${join(libPack, libTarball)}'
-			}
-			return pkg
-		} } }\n`,
-	)
+	const file = join(temporary, 'package.json')
+	const consumer = JSON.parse(readFileSync(file, 'utf8'))
+	consumer.overrides = { '@octane-xplat/lib': `file:${join(libPack, libTarball)}` }
+	writeFileSync(file, JSON.stringify(consumer))
 
-	execFileSync('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], {
+	writeFileSync(join(temporary, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
+	execFileSync('bun', ['install', '--ignore-scripts', '--no-peer'], {
 		shell: process.platform === 'win32',
 		cwd: temporary,
 		stdio: 'pipe',
@@ -78,10 +72,14 @@ try {
 
 	const installed = realpathSync(join(modules, 'platform'))
 	assert.ok(installed.startsWith(temporary + '/'), 'consumer uses its installed tarball')
-	const store = join(temporary, 'node_modules/.pnpm')
+	const store = join(temporary, 'node_modules/.bun')
 	assert.ok(!existsSync(join(temporary, 'node_modules/@nativescript/macos-node-api')))
 	assert.ok(
-		!readdirSync(store).some((name) => name.startsWith('@nativescript+macos-node-api@')),
+		!readdirSync(store).some(
+			(name) =>
+				name.startsWith('@nativescript+macos-node-api@') ||
+				name.startsWith('@nativescript/macos-node-api@'),
+		),
 		'platform services must not install a macOS host SDK in every app',
 	)
 
@@ -122,7 +120,12 @@ try {
 														}
 													: nativeScriptRenderer,
 										},
-										rules: [{ include: target === 'macos' ? '**/*.{tsx,tsrx}' : '**/*.{ts,tsx,tsrx}', renderer }],
+										rules: [
+											{
+												include: target === 'macos' ? '**/*.{tsx,tsrx}' : '**/*.{ts,tsx,tsrx}',
+												renderer,
+											},
+										],
 									},
 								}
 							: {},
@@ -164,11 +167,24 @@ try {
 		for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
 			subpaths.push(`/${service}`)
 		}
-		if (target !== 'macos') subpaths.push('/clipboard', '/keep-awake')
-		else subpaths.push('/use-keep-awake', '/connectivity', '/storage')
+		if (target !== 'macos') {
+			subpaths.push('/clipboard', '/keep-awake')
+		} else {
+			subpaths.push('/use-keep-awake', '/connectivity', '/storage')
+		}
 
-		const purposeContents = ['/locale', '/device', '/locale.ts', '/device.ts', '/system-bars', '/system-bars.ts']
-			.map((subpath, i) => `import * as purpose${i} from '@octane-xplat/platform${subpath}'; console.log(purpose${i});`)
+		const purposeContents = [
+			'/locale',
+			'/device',
+			'/locale.ts',
+			'/device.ts',
+			'/system-bars',
+			'/system-bars.ts',
+		]
+			.map(
+				(subpath, i) =>
+					`import * as purpose${i} from '@octane-xplat/platform${subpath}'; console.log(purpose${i});`,
+			)
 			.join('\n')
 		// Keep purpose imports separate from the root, so root re-exports cannot mask a
 		// broken purpose condition. Includes canonical and existing .ts spellings.
@@ -178,7 +194,11 @@ try {
 				assert.ok(purposes.files.includes(`${installed}/src/${service}.macos.ts`))
 				assert.ok(!purposes.files.includes(`${installed}/src/${service}.ts`))
 			}
-			assert.doesNotMatch(purposes.code, /@nativescript\/core/, 'AppKit purpose imports avoid phone Device/Color imports')
+			assert.doesNotMatch(
+				purposes.code,
+				/@nativescript\/core/,
+				'AppKit purpose imports avoid phone Device/Color imports',
+			)
 		}
 
 		const contents = subpaths
@@ -194,11 +214,20 @@ try {
 			'consumer compiles installed source',
 		)
 
-		assert.ok(result.files.some((file) => file.endsWith('.tsrx')), 'hook sources enter the compiler')
+		assert.ok(
+			result.files.some((file) => file.endsWith('.tsrx')),
+			'hook sources enter the compiler',
+		)
 		if (target === 'macos') {
 			for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
-				assert.ok(result.files.includes(`${installed}/src/${service}.macos.tsrx`), `${service} selects AppKit`)
-				assert.ok(!result.files.includes(`${installed}/src/${service}.tsrx`), `${service} excludes the phone hook`)
+				assert.ok(
+					result.files.includes(`${installed}/src/${service}.macos.tsrx`),
+					`${service} selects AppKit`,
+				)
+				assert.ok(
+					!result.files.includes(`${installed}/src/${service}.tsrx`),
+					`${service} excludes the phone hook`,
+				)
 			}
 		}
 
@@ -238,7 +267,10 @@ try {
 		// Check them separately so they cannot mask a canonical subpath regression.
 		const legacy =
 			target === 'macos'
-				? ['screen', 'safe-area', 'lifecycle', 'breakpoints'].flatMap(service => [`/${service}.ts`, `/${service}.tsrx`])
+				? ['screen', 'safe-area', 'lifecycle', 'breakpoints'].flatMap((service) => [
+						`/${service}.ts`,
+						`/${service}.tsrx`,
+					])
 				: ['screen', 'safe-area', 'lifecycle', 'breakpoints'].flatMap((service) => [
 						`/${service}.ts`,
 						`/${service}.tsrx`,
@@ -264,7 +296,10 @@ try {
 			}
 		}
 
-		writeFileSync(join(temporary, 'consumer.ts'), contents + '\n' + legacyContents + '\n' + purposeContents)
+		writeFileSync(
+			join(temporary, 'consumer.ts'),
+			contents + '\n' + legacyContents + '\n' + purposeContents,
+		)
 		for (const mode of [ts.ModuleResolutionKind.Bundler, ts.ModuleResolutionKind.NodeNext]) {
 			const program = ts.createProgram([join(temporary, 'consumer.ts')], {
 				strict: true,

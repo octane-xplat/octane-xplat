@@ -11,10 +11,10 @@ Worker.
 From the repository root, install this workspace and apply the local migration:
 
 ```sh
-pnpm --filter @xplat/feedback-worker install --ignore-scripts
+bun install --filter @xplat/feedback-worker --ignore-scripts
 cd tools/feedback-worker
-pnpm exec wrangler d1 migrations apply FEEDBACK --local
-pnpm dev
+bun run wrangler d1 migrations apply FEEDBACK --local
+bun run dev
 ```
 
 Send a fictional report to the local server. Reports must exclude secrets,
@@ -47,8 +47,8 @@ existing handler. Run these commands from `tools/feedback-worker`:
 1. Authenticate and create the database once:
 
    ```sh
-   pnpm exec wrangler login
-   pnpm exec wrangler d1 create octane-xplat-feedback
+   bun run wrangler login
+   bun run wrangler d1 create octane-xplat-feedback
    ```
 
 2. Replace `REPLACE_WITH_D1_DATABASE_ID` in `wrangler.toml` with the returned
@@ -56,7 +56,7 @@ existing handler. Run these commands from `tools/feedback-worker`:
    in this account; change it if needed. Then apply the production migration:
 
    ```sh
-   pnpm exec wrangler d1 migrations apply FEEDBACK --remote
+   bun run wrangler d1 migrations apply FEEDBACK --remote
    ```
 
 3. Deploy the Worker:
@@ -81,7 +81,7 @@ existing handler. Run these commands from `tools/feedback-worker`:
 Use authenticated Wrangler access, not a public endpoint. From this directory:
 
 ```sh
-pnpm exec wrangler d1 execute FEEDBACK --remote \
+bun run wrangler d1 execute FEEDBACK --remote \
   --command 'SELECT id, created_at, target, impact, goal FROM feedback_observations ORDER BY created_at DESC LIMIT 50'
 ```
 
@@ -123,7 +123,7 @@ may retain its own infrastructure metadata under the account's settings.
 From the repository root:
 
 ```sh
-pnpm exec turbo run test typecheck build --filter=@xplat/feedback-worker
+bun run turbo run test typecheck build --filter=@xplat/feedback-worker
 ```
 
 Tests execute the handler against the actual SQL migration using in-memory

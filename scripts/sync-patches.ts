@@ -6,9 +6,9 @@
 //                                      packages/cli/patches/ directly — no
 //                                      second copy lives at the repo root.
 //   2. packages/patches/               generated package files, consumed by
-//                                      pnpm configDependencies.
-//   3. packages/create/template/       configDependencies + patchedDependencies
-//                                      point into node_modules/.pnpm-config.
+//                                      optional manual compatibility checks.
+//   3. creator templates               local patch files + Bun registrations,
+//                                      available before the first install.
 //
 // `bun run sync:patches` rewrites these outputs. `bun run check:patches` diffs and
 // exits 1 on drift.
@@ -31,20 +31,12 @@ import {
 
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument, Scalar } from 'yaml'
 import { managedPackage } from '../packages/create/compatibility.ts'
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_PATCHES = join(repo, 'packages/cli/patches')
-const TEMPLATE = join(repo, 'packages/create/template')
 const PATCH_PACKAGE = join(repo, 'packages/patches')
 const PATCH_PACKAGE_FILES = join(PATCH_PACKAGE, 'patches')
-const PATCH_PACKAGE_NAME = '@octane-xplat/patches'
-const PATCH_PACKAGE_VERSION = JSON.parse(
-	readFileSync(join(PATCH_PACKAGE, 'package.json'), 'utf8'),
-).version
-
-const PATCH_CONFIG_PATH = `node_modules/.pnpm-config/${PATCH_PACKAGE_NAME}`
 const CHECK = process.argv.includes('--check')
 const PACKAGE_ONLY = process.argv.includes('--package-only')
 for (const arg of process.argv.slice(2)) {
@@ -54,80 +46,6 @@ for (const arg of process.argv.slice(2)) {
 }
 
 const manifest = JSON.parse(readFileSync(join(CLI_PATCHES, 'manifest.json'), 'utf8')).patches
-
-const wrap = (text, width = 88) => {
-	const words = text.split(' ')
-	const lines = []
-	let line = ''
-	for (const w of words) {
-		if (line && line.length + w.length + 1 > width) {
-			lines.push(line)
-			line = w
-		} else {
-			line = line ? `${line} ${w}` : w
-		}
-	}
-
-	if (line) {
-		lines.push(line)
-	}
-
-	return lines.join('\n ')
-}
-
-// Rebuild the patchedDependencies block in-place: fresh map (per-entry `why`
-// comments from the manifest), standard header comment on the key. Everything
-// else in the document — comments included — is untouched.
-const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
-	const doc = parseDocument(readFileSync(file, 'utf8'))
-	if (withConfigDependency) {
-		const configDependencies = doc.createNode({})
-		configDependencies.set(new Scalar(PATCH_PACKAGE_NAME), PATCH_PACKAGE_VERSION)
-
-		doc.set('configDependencies', configDependencies)
-		doc.set('allowUnusedPatches', true)
-	}
-
-	// The starter must declare only patches its own matrix can resolve —
-	// pnpm fails `pnpm install` on declared-but-unused patches.
-	const map = doc.createNode({})
-	for (const patch of manifest) {
-		if (withConfigDependency && patch.template === false) {
-			continue
-		}
-
-		const at = patch.specifier.indexOf('@', 1)
-		const pin = managedPackage(patch.specifier.slice(0, at))
-		if (withConfigDependency && pin && pin.version !== patch.specifier.slice(at + 1)) {
-			continue
-		}
-
-		const key = new Scalar(patch.specifier)
-		key.commentBefore = ' ' + wrap(patch.why)
-		map.set(key, `${pathPrefix}/${patch.file}`)
-	}
-
-	doc.set(new Scalar('patchedDependencies'), map)
-	const pair = doc.contents.items.find((i) => i.key?.value === 'patchedDependencies')
-
-	pair.key.commentBefore = ' ' + wrap(header)
-	return String(doc)
-}
-
-const TEMPLATE_HEADER =
-	'Framework patches are supplied by the @octane-xplat/patches config dependency and applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.'
-
-const syncYaml = (file, pathPrefix, header, failures, withConfigDependency = false) => {
-	const rendered = renderYaml(file, pathPrefix, header, withConfigDependency)
-	if (readFileSync(file, 'utf8') === rendered) {
-		return
-	}
-
-	failures.push(`${relative(file)} — patchedDependencies block is stale`)
-	if (!CHECK) {
-		writeFileSync(file, rendered)
-	}
-}
 
 const relative = (f) => f.slice(repo.length + 1)
 
@@ -163,25 +81,6 @@ const syncPatchPackageFiles = (failures) => {
 	}
 }
 
-const removeTemplatePatchCopies = (failures) => {
-	const dir = join(TEMPLATE, 'patches')
-	for (const file of existsSync(dir) ? readdirSync(dir) : []) {
-		if (!file.endsWith('.patch')) {
-			continue
-		}
-
-		const path = join(dir, file)
-		failures.push(`${relative(path)} — obsolete template patch copy`)
-		if (!CHECK) {
-			rmSync(path)
-		}
-	}
-
-	if (!CHECK && existsSync(dir) && !readdirSync(dir).length) {
-		rmSync(dir, { recursive: true })
-	}
-}
-
 const failures = []
 if (!PACKAGE_ONLY) {
 	const file = join(repo, 'package.json')
@@ -206,23 +105,49 @@ if (!PACKAGE_ONLY) {
 		}
 	}
 
-	syncYaml(
-		join(TEMPLATE, 'pnpm-workspace.yaml'),
-		`${PATCH_CONFIG_PATH}/patches`,
-		TEMPLATE_HEADER,
-		failures,
-		true,
-	)
-
-	syncYaml(
-		join(repo, 'packages/create/library-template/pnpm-workspace.yaml'),
-		`${PATCH_CONFIG_PATH}/patches`,
-		TEMPLATE_HEADER,
-		failures,
-		true,
-	)
-
-	removeTemplatePatchCopies(failures)
+	for (const template of ['template', 'library-template']) {
+		const base = join(repo, 'packages/create', template)
+		const file = join(base, 'package.json')
+		const pkg = JSON.parse(readFileSync(file, 'utf8'))
+		const patches = manifest.filter((patch) => {
+			const at = patch.specifier.indexOf('@', 1)
+			const pin = managedPackage(patch.specifier.slice(0, at))
+			return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
+		})
+		pkg.patchedDependencies = Object.fromEntries(
+			patches.map((patch) => [patch.specifier, `patches/${patch.file}`]),
+		)
+		const after = JSON.stringify(pkg, null, '\t') + '\n'
+		if (after !== readFileSync(file, 'utf8')) {
+			failures.push(`${relative(file)} — patch registrations are stale`)
+			if (!CHECK) {
+				writeFileSync(file, after)
+			}
+		}
+		const destination = join(base, 'patches')
+		if (!CHECK) {
+			mkdirSync(destination, { recursive: true })
+		}
+		const wanted = new Set(patches.map((patch) => patch.file))
+		for (const name of existsSync(destination) ? readdirSync(destination) : []) {
+			if (!wanted.has(name)) {
+				failures.push(`${relative(destination)}/${name} — obsolete starter patch`)
+				if (!CHECK) {
+					rmSync(join(destination, name))
+				}
+			}
+		}
+		for (const patch of patches) {
+			const src = join(CLI_PATCHES, patch.file)
+			const dst = join(destination, patch.file)
+			if (!existsSync(dst) || !readFileSync(src).equals(readFileSync(dst))) {
+				failures.push(`${relative(dst)} — starter patch is stale`)
+				if (!CHECK) {
+					copyFileSync(src, dst)
+				}
+			}
+		}
+	}
 }
 
 syncPatchPackageFiles(failures)

@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/fingerprint, createFingerprintAsync, createProjectHa
 
 ## Starting point
 
-A NativeScript phone app with installed dependencies, a pnpm lockfile and a
+A NativeScript phone app with installed dependencies, a Bun lockfile and a
 working native release build. The app owns signing and OTA backend deployment.
 
 ## Requirements

@@ -58,7 +58,7 @@ try {
 	]) {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-		run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], root)
+		run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
 		tarballs[manifest.name] =
 			`file:${join(pack, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 	}
@@ -87,14 +87,12 @@ try {
 		),
 	)
 
-	write(
-		'pnpm-workspace.yaml',
-		`packages: []\noverrides:\n${Object.entries(tarballs)
-			.map(([name, path]) => `  '${name}': '${path}'`)
-			.join('\n')}\n`,
-	)
+	const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+	manifest.overrides = tarballs
+	manifest.packageManager = 'bun@1.4.4'
+	write('package.json', JSON.stringify(manifest))
 
-	run('pnpm', ['install', '--ignore-scripts'])
+	run('bun', ['install', '--ignore-scripts'])
 	for (const name of ['ui', 'workshop', 'cli', 'linux-gtk']) {
 		assert.ok(
 			realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work),
@@ -102,12 +100,12 @@ try {
 		)
 	}
 
-	run('pnpm', ['exec', 'xplat', 'workshop', 'init'])
+	run('bun', ['run', 'xplat', 'workshop', 'init'])
 	// The maintained acceptance catalog, without the init example.
 	rmSync(join(consumer, 'src/workshop'), { recursive: true })
 	cpSync(join(repo, 'apps/workshop-demo/src'), join(consumer, 'src'), { recursive: true })
 
-	const doctor = run('pnpm', ['exec', 'xplat', 'workshop', 'doctor', '--json'])
+	const doctor = run('bun', ['run', 'xplat', 'workshop', 'doctor', '--json'])
 	const report = JSON.parse(doctor.slice(doctor.indexOf('{')))
 	const linux = report.targets.linux
 	assert.ok(linux, 'doctor reports a linux row')
@@ -154,7 +152,7 @@ export default env => xplatLinuxGtk(env, { entry: 'src/gtk-entry.ts', outDir: 'd
 `,
 	)
 
-	run('pnpm', ['exec', 'vite', 'build', '--config', 'vite.gtk.config.mjs'])
+	run('bun', ['run', 'vite', 'build', '--config', 'vite.gtk.config.mjs'])
 	assert.ok(readFileSync(join(consumer, 'dist-gtk/app.js'), 'utf8').includes('gi://Gtk'))
 	console.log('PASS packed renderer and CLI preset build')
 	write(
@@ -186,14 +184,14 @@ void options; void invalid
 		}),
 	)
 
-	run('pnpm', ['exec', 'tsc', '-p', 'tsconfig.gtk.json'])
+	run('bun', ['run', 'tsc', '-p', 'tsconfig.gtk.json'])
 	console.log('PASS packed GTK declarations')
 
 	// Catalog: .stories.gtk.* leaves apply on the linux target; .stories.linux.*
 	// produces a discovery diagnostic pointing at the GTK rename.
 	const listRun = spawnSync(
-		'pnpm',
-		['exec', 'xplat', 'workshop', 'list', '--target', 'linux', '--json'],
+		'bun',
+		['run', 'xplat', 'workshop', 'list', '--target', 'linux', '--json'],
 		{ cwd: consumer, encoding: 'utf8' },
 	)
 
@@ -214,8 +212,8 @@ void options; void invalid
 	)
 
 	const diagRun = spawnSync(
-		'pnpm',
-		['exec', 'xplat', 'workshop', 'list', '--target', 'linux', '--json'],
+		'bun',
+		['run', 'xplat', 'workshop', 'list', '--target', 'linux', '--json'],
 		{ cwd: consumer, encoding: 'utf8' },
 	)
 

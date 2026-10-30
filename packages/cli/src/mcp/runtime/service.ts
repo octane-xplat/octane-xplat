@@ -5,7 +5,7 @@
 // contract behavior: explicit app+target binding, target-busy contention,
 // job dedupe/cancellation, ownership-safe cleanup, bounded logs, and
 // capability-matrix entries. Spawned commands are always the app's own
-// toolchain (`pnpm exec vite`, `ns run`, the app's installed CLI), so a
+// toolchain (`bun run vite`, `ns run`, the app's installed CLI), so a
 // session behaves like the app's installed framework version.
 
 import { randomUUID } from 'node:crypto'

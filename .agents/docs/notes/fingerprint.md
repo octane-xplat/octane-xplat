@@ -18,15 +18,20 @@ load afresh per call without changing Node's global module cache. A prepare hook
 can supply NativeScript's already evaluated `projectData.nsConfig`.
 
 Collected inputs include selected App_Resources, evaluated config, named
-NativeSource globs, native plugin files/hooks/declarations, relevant pnpm
+NativeSource globs, native plugin files/hooks/declarations, relevant Bun or pnpm
 resolutions/patches and available Podfile.lock, Package.resolved and Gradle lock
 records. `nativescript.platforms` compatibility alone does not make a pure JS
 wrapper native. Native runtime/SDK inputs are explicit. Installed native copies
 with conflicting bytes or absent/ambiguous lock metadata fail closed. Input
 symlinks cannot escape the declared source root; extras declare custom costs.
 
-pnpm 11 stores patch digests in the lockfile and patch paths in workspace YAML;
-these are distinct inputs. File-directory resolutions are matched to installed
+Bun reads text `bun.lock` (JSONC) and root `package.json.patchedDependencies`.
+The collector follows importer-specific package records into native dependencies;
+registry versions must match the installed version. Local archive identities use
+the lockfile integrity without absolute checkout paths. Workspace and directory
+sources use logical identities plus the existing native source collection. pnpm
+11 stores patch digests in its lockfile and patch paths in workspace YAML;
+these remain supported as distinct inputs. File-directory resolutions are matched to installed
 source roots but recorded as logical package identities, so identical checkouts
 do not differ solely by path. Native lock records omit derived Podfile checksums
 and Swift originHash, and sort Swift pins by identity. Local Pod source trees

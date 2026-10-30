@@ -9,7 +9,7 @@ reporting; your app owns the interaction (hold-to-record, limits,
 transcription, insertion).
 
 ```sh
-pnpm add @octane-xplat/recorder
+bun add @octane-xplat/recorder
 ```
 
 ```ts

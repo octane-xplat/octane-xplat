@@ -48,7 +48,7 @@ try {
 	const extracted = join(temporary, 'extracted')
 	mkdirSync(pack)
 	mkdirSync(extracted)
-	run('pnpm', ['pack', '--pack-destination', pack], packageRoot)
+	run('bun', ['pm', 'pack', '--destination', pack], packageRoot)
 	const tarball = readdirSync(pack).find((name) => name.endsWith('.tgz'))
 	assert.ok(tarball)
 	run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)

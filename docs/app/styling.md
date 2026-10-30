@@ -531,11 +531,11 @@ override the token at the stylesheet boundary.
 variable file, several static weights of a family, or a Fontsource package:
 
 ```sh
-pnpm xplat fonts add path/to/AcmeSans-Variable.ttf           # --font-sans
-pnpm xplat fonts add path/to/JetBrainsMono.ttf --token mono  # --font-mono
-pnpm xplat fonts add ./downloads/inter-latin-wght.woff2      # woff/woff2 are converted to ttf
-pnpm xplat fonts add @fontsource-variable/inter --install    # Fontsource package
-pnpm xplat fonts add @fontsource/roboto --weights 400,700    # static family, chosen weights
+bun run xplat fonts add path/to/AcmeSans-Variable.ttf           # --font-sans
+bun run xplat fonts add path/to/JetBrainsMono.ttf --token mono  # --font-mono
+bun run xplat fonts add ./downloads/inter-latin-wght.woff2      # woff/woff2 are converted to ttf
+bun run xplat fonts add @fontsource-variable/inter --install    # Fontsource package
+bun run xplat fonts add @fontsource/roboto --weights 400,700    # static family, chosen weights
 ```
 
 It reads the font's own metadata (family, PostScript name, `fvar` weight range),
@@ -552,7 +552,7 @@ block — so teammates and CI get the font binaries and registration together.
 [Fontsource](https://fontsource.org) publishes free fonts — most of Google
 Fonts and more — as npm packages: `@fontsource/<family>` for static families
 and `@fontsource-variable/<family>` for variable ones. A Fontsource package
-must be installed in the app (`--install` runs `pnpm add` when missing). The
+must be installed in the app (`--install` runs `bun add` when missing). The
 web side imports the package's own CSS in `fonts.css` (Fontsource already ships
 per-subset `@font-face` with `unicode-range`); the package's font files are
 converted and staged under `src/fonts` for iOS/Android. Variable packages pick

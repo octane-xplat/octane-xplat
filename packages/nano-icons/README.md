@@ -18,10 +18,10 @@ arbitrary SVG fidelity (gradients, filters, `<defs>` paint servers) keep using
 Generate a font set from a directory of SVGs:
 
 ```sh
-pnpm add @octane-xplat/nano-icons
+bun add @octane-xplat/nano-icons
 
 # writes src/icons-font/MyIcons.ttf/.woff2/.glyphmap.json/MyIcons.ts
-pnpm exec nano-icons build --input assets/icons --out src/icons-font --family MyIcons --web
+bun run nano-icons build --input assets/icons --out src/icons-font --family MyIcons --web
 ```
 
 Every artifact is content-hashed into the family (`MyIcons-<hash>`), so regenerated sets
@@ -194,19 +194,19 @@ platform bags (`ios`, `android`, `macos`, `web`) still reach the underlying host
 Package checks:
 
 ```sh
-pnpm exec turbo run build --filter=@octane-xplat/nano-icons
-pnpm exec turbo run typecheck --filter=@octane-xplat/nano-icons
-pnpm exec turbo run test --filter=@octane-xplat/nano-icons
-pnpm exec turbo run pack:check --filter=@octane-xplat/nano-icons
+bun run turbo run build --filter=@octane-xplat/nano-icons
+bun run turbo run typecheck --filter=@octane-xplat/nano-icons
+bun run turbo run test --filter=@octane-xplat/nano-icons
+bun run turbo run pack:check --filter=@octane-xplat/nano-icons
 ```
 
 Maintained probes (nonvisual: font registration, layer structure, sizing, tint):
 
 ```sh
-pnpm probe doctor
-pnpm probe run examples/probes/nano-icons.tsrx --target web --deps @octane-xplat/nano-icons
-pnpm probe run examples/probes/nano-icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/nano-icons
-pnpm probe run examples/probes/nano-icons.macos.tsrx --target macos --deps @octane-xplat/nano-icons
+bun run probe doctor
+bun run probe run examples/probes/nano-icons.tsrx --target web --deps @octane-xplat/nano-icons
+bun run probe run examples/probes/nano-icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/nano-icons
+bun run probe run examples/probes/nano-icons.macos.tsrx --target macos --deps @octane-xplat/nano-icons
 ```
 
 Host/source assertions are not pixel parity or OS accessibility traversal evidence — run

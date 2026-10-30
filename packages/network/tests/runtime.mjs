@@ -15,7 +15,7 @@ if (process.argv.includes('web')) {
 
 	try {
 		const child = spawn(
-			'pnpm',
+			'bun',
 			[
 				'probe',
 				'run',

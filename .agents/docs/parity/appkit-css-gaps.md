@@ -138,7 +138,7 @@ inset.
 
 ## Runtime evidence
 
-- **Local host (arm64, macOS 26.6.2):** `pnpm exec turbo run smoke --filter=@xplat/macos`
+- **Local host (arm64, macOS 26.6.2):** `bun run turbo run smoke --filter=@xplat/macos`
   → **30/30 assertions passed** (mounting, action dispatch, routing, lists)
   under `XPLAT_MACOS_SMOKE_TIMEOUT_MS=600000` + `goddard-agent resource run`.
   Proves no regression on covered paths; does NOT exercise the new CSS

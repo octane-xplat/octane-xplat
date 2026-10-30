@@ -13,7 +13,7 @@ or later. Complete [iOS configuration](#configure-ios) before trying a lock
 on an iPhone or iPad.
 
 ```sh
-pnpm add @octane-xplat/screen-orientation
+bun add @octane-xplat/screen-orientation
 ```
 
 Call this function from an existing button's tap/click handler and display its

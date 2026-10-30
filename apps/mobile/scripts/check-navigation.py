@@ -100,14 +100,14 @@ with open('/tmp/octane-xplat-' + target + '.lock', 'a') as lock:
     # Check the same package declarations an installed app consumes. Source
     # package checks run separately; a cold checkout must generate declarations.
     with open(report_dir / 'types.log', 'w') as type_log:
-        run(['pnpm', 'exec', 'turbo', 'run', 'typegen', '--filter=@octane-xplat/ui',
+        run(['bun', 'run', 'turbo', 'run', 'typegen', '--filter=@octane-xplat/ui',
              '--concurrency=2'], stdout=type_log, stderr=subprocess.STDOUT)
     with open(report_dir / 'generation.log', 'w') as generation_log:
-        run(['pnpm', '--filter', '@octane-xplat/cli', 'build'], stdout=generation_log, stderr=subprocess.STDOUT)
+        run(['bun', 'run', 'turbo', 'run', 'build', '--filter=@octane-xplat/cli'], stdout=generation_log, stderr=subprocess.STDOUT)
         run(['node', 'scripts/generate-navigation-routes.mjs'], stdout=generation_log, stderr=subprocess.STDOUT)
 
     with tempfile.TemporaryDirectory(prefix='xplat-nav-signing-') as signing:
-        build = ['pnpm', 'exec', 'ns', 'build', target, '--release', '--path', str(project)]
+        build = ['bun', 'run', 'ns', 'build', target, '--release', '--path', str(project)]
         if target == 'ios':
             build += ['--for-device', 'false']
         else:

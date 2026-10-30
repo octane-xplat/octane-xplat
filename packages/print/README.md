@@ -7,7 +7,7 @@ platform document engines. Browsers can open a print dialog, but cannot return
 a PDF file through this API.
 
 ```sh
-pnpm add @octane-xplat/print
+bun add @octane-xplat/print
 ```
 
 Start in an existing Xplat app. Rebuild your native app after installing: a

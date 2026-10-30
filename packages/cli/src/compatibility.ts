@@ -10,6 +10,7 @@ import {
 
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { parseDocument } from 'yaml'
+import { packageManagerFor, packageManagerRoot, readProjectWorkspace } from './package-manager.ts'
 import {
 	compatibility,
 	dependencySections,
@@ -28,19 +29,12 @@ export const readPackage = (path: string) => JSON.parse(readFileSync(path, 'utf8
 export const localSpecifier = (spec: string) => /^(workspace:|link:|file:|portal:)/.test(spec)
 const patchPrefix = 'node_modules/.pnpm-config/@octane-xplat/patches/patches/'
 
-export function workspaceRoot(dir: string) {
-	for (let at = resolve(dir); ; at = dirname(at)) {
-		if (existsSync(join(at, 'pnpm-workspace.yaml'))) {
-			return at
-		}
-
-		if (dirname(at) === at) {
-			return resolve(dir)
-		}
-	}
-}
+export const workspaceRoot = packageManagerRoot
 
 export function readWorkspace(root: string) {
+	if (packageManagerFor(root) === 'bun') {
+		return parseDocument(JSON.stringify(readProjectWorkspace(root, 'bun')))
+	}
 	const path = join(root, 'pnpm-workspace.yaml')
 	const doc = parseDocument(existsSync(path) ? readFileSync(path, 'utf8') : '{}\n')
 	if (doc.errors.length) {
@@ -61,7 +55,7 @@ export function resolveCatalog(spec: string, name: string, config: Record<string
 	)
 }
 
-/** Match pnpm package globs, including nested directories and exclusions. */
+/** Match workspace package globs, including nested directories and exclusions. */
 function workspacePackages(root: string, patterns: string[] = []) {
 	const included = patterns.filter((pattern) => !pattern.startsWith('!'))
 	const excluded = patterns
@@ -100,6 +94,7 @@ const formatPackage = (pkg: any, raw: string) =>
 /** Pure preflight: no writes, installs, or package code execution. */
 export function planUpgrade(dir: string): UpgradePlan {
 	const root = workspaceRoot(dir)
+	const manager = packageManagerFor(root)
 	const ws = readWorkspace(root)
 	const config = ws.toJS() ?? {}
 	const paths = workspacePackages(root, config.packages)
@@ -222,9 +217,12 @@ export function planUpgrade(dir: string): UpgradePlan {
 				Object.keys(pkg[section] ?? {}).some((name) => applicable.has(name)),
 			)
 		) {
-			pkg.packageManager = `pnpm@${compatibility.tools.pnpm}`
+			pkg.packageManager = `${manager}@${compatibility.tools[manager]}`
 			pkg.engines ??= {}
 			pkg.engines.node ??= `>=${compatibility.tools.nodeMinimum}`
+			if (manager === 'bun') {
+				pkg.engines.bun ??= `>=${compatibility.tools.bun}`
+			}
 		}
 	}
 
@@ -265,6 +263,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 
 	const oldPatches = {
 		...rootPackage?.pkg.pnpm?.patchedDependencies,
+		...rootPackage?.pkg.patchedDependencies,
 		...config.patchedDependencies,
 	}
 	const wanted = loadPatchManifest().filter((patch) => {
@@ -298,7 +297,14 @@ export function planUpgrade(dir: string): UpgradePlan {
 		}
 	}
 	for (const patch of wanted) {
-		oldPatches[patch.specifier] ??= `${patchPrefix}${patch.file}`
+		oldPatches[patch.specifier] ??=
+			manager === 'bun' ? `patches/${patch.file}` : `${patchPrefix}${patch.file}`
+		if (manager === 'bun') {
+			change(
+				join(root, oldPatches[patch.specifier]),
+				readFileSync(join(canonicalPatchesDir, patch.file), 'utf8'),
+			)
+		}
 	}
 	if (Object.keys(oldPatches).length) {
 		ws.set('patchedDependencies', oldPatches)
@@ -311,6 +317,28 @@ export function planUpgrade(dir: string): UpgradePlan {
 		delete rootPackage.pkg.pnpm.patchedDependencies
 	}
 
+	if (manager === 'bun' && rootPackage) {
+		const result = ws.toJS()
+		const owner = rootPackage.pkg
+		if (Array.isArray(owner.workspaces)) {
+			owner.workspaces = { packages: owner.workspaces }
+		}
+		owner.workspaces ??= { packages: [] }
+		for (const key of ['catalog', 'catalogs']) {
+			if (result[key]) {
+				if (Object.hasOwn(owner, key)) {
+					owner[key] = result[key]
+				} else {
+					owner.workspaces[key] = result[key]
+				}
+			}
+		}
+		for (const key of ['overrides', 'patchedDependencies']) {
+			if (result[key]) {
+				owner[key] = result[key]
+			}
+		}
+	}
 	for (const { file, raw, pkg } of packages) {
 		const after = formatPackage(pkg, raw)
 		// Avoid reformatting package files whose values did not change.
@@ -318,7 +346,9 @@ export function planUpgrade(dir: string): UpgradePlan {
 			change(file, after)
 		}
 	}
-	change(join(root, 'pnpm-workspace.yaml'), String(ws))
+	if (manager === 'pnpm') {
+		change(join(root, 'pnpm-workspace.yaml'), String(ws))
+	}
 	return plan
 }
 

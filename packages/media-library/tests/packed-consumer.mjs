@@ -21,7 +21,7 @@ const chunks = (result) =>
 try {
 	const packed = join(temporary, 'packed')
 	await mkdir(packed)
-	run('pnpm', ['pack', '--config.ignore-scripts=true', '--pack-destination', packed], packageRoot)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packed], packageRoot)
 	const tarballs = (await readdir(packed)).filter((name) => name.endsWith('.tgz'))
 	assert.equal(tarballs.length, 1)
 	const modules = join(temporary, 'node_modules')

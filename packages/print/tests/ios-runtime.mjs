@@ -54,7 +54,7 @@ const driver = await createDialogDriver(device)
 const flatten = (node) =>
 	!node || typeof node !== 'object' ? [] : [node, ...(node.children ?? []).flatMap(flatten)]
 const child = spawn(
-	'pnpm',
+	'bun',
 	[
 		'probe',
 		'run',

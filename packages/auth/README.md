@@ -10,7 +10,7 @@ hosted sign-in ceremony with Bearer session transport for apps whose
 backend issues and redeems sign-in attempts.
 
 ```sh
-pnpm add @octane-xplat/auth
+bun add @octane-xplat/auth
 ```
 
 ```ts
@@ -112,7 +112,7 @@ Tab/keyboard/VoiceOver, Apple attachment replacement, native layout/disabled sta
 controller/browser lifetime and clean consumers remain unqualified.
 
 ```sh
-pnpm probe run examples/probes/auth-buttons.macos.tsrx --target macos --watch
+bun run probe run examples/probes/auth-buttons.macos.tsrx --target macos --watch
 ```
 
 ## macOS provider setup
@@ -176,7 +176,7 @@ and [cancel contract](https://developer.apple.com/documentation/authenticationse
 No sign-in occurs when the fixture mounts:
 
 ```sh
-pnpm probe run examples/probes/apple-auth.macos.tsrx --target macos --watch
+bun run probe run examples/probes/apple-auth.macos.tsrx --target macos --watch
 ```
 
 For a complete configured path, follow [Add sign-in and maintain a session](https://octane-xplat.goddardai.org/authentication), including the maintained Auth0 adapter and verified API example.

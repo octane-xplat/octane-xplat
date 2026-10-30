@@ -33,7 +33,7 @@ function run(command: string, args: string[], cwd = app) {
 
 async function pack(root: string) {
 	const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
-	run('pnpm', ['pack', '--pack-destination', packs], root)
+	run('bun', ['pm', 'pack', '--destination', packs], root)
 	return `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 }
 
@@ -205,10 +205,18 @@ await writeFile(
 	),
 )
 
-await writeFile(
-	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/lib': ${JSON.stringify(lib)}\n  '@octane-xplat/lint': ${JSON.stringify(lint)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n  '@octane-xplat/css-engine': ${JSON.stringify(cssEngine)}\n`,
-)
+const consumerFile = join(app, 'package.json')
+const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
+consumerConfig.overrides = {
+	'create-octane-xplat': create,
+	'@octane-xplat/lib': lib,
+	'@octane-xplat/lint': lint,
+	'@octane-xplat/platform': platform,
+	'@octane-xplat/css-engine': cssEngine,
+}
+consumerConfig.packageManager = 'bun@1.4.4'
+await writeFile(consumerFile, JSON.stringify(consumerConfig))
+await writeFile(join(app, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
 
 await writeFile(
 	join(app, 'tsconfig.json'),
@@ -236,13 +244,13 @@ await writeFile(
 )
 
 console.log('[packed renderer] installing independent tarball consumer')
-run('pnpm', ['install', '--ignore-scripts'])
-run('pnpm', ['exec', 'xplat', 'patches', 'apply'])
+run('bun', ['install', '--ignore-scripts'])
+run('bun', ['run', 'xplat', 'patches', 'apply'])
 // patches apply registers patchedDependencies, so this install must update
 // the lockfile — frozen installs (CI default) would reject the config change.
-run('pnpm', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
-run('pnpm', ['exec', 'tsc', '--noEmit'])
-run('pnpm', ['exec', 'vite', 'build'])
+run('bun', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
+run('bun', ['run', 'tsc', '--noEmit'])
+run('bun', ['run', 'vite', 'build'])
 const bundled = await readFile(join(app, 'dist/package-build/main.cjs'), 'utf8')
 assert.doesNotMatch(bundled, /Geist|__XPLAT_GEIST|packages\/app\/src/)
 console.log('[packed renderer] types and production build pass without harness assets')
@@ -251,7 +259,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
 	console.log('[packed renderer] AppKit runtime and HMR require macOS; not run')
 } else {
 	console.log('[packed renderer] packaging and launching the standalone app')
-	run('pnpm', ['exec', 'xplat', 'build', '--targets', 'macos'])
+	run('bun', ['run', 'xplat', 'build', '--targets', 'macos'])
 	assert.ok(
 		existsSync(
 			join(
@@ -331,7 +339,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
 	)
 
 	console.log('[packed renderer] verifying retained-root HMR')
-	const dev = spawn('pnpm', ['exec', 'xplat', 'dev', '--targets', 'macos'], {
+	const dev = spawn('bun', ['run', 'xplat', 'dev', '--targets', 'macos'], {
 		shell: process.platform === 'win32',
 		cwd: app,
 		stdio: ['ignore', 'pipe', 'pipe'],

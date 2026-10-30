@@ -14,7 +14,7 @@ does not configure an existing app.
 In an already configured Xplat app, install the UI package and its Octane peer:
 
 ```sh
-pnpm add @octane-xplat/ui octane
+bun add @octane-xplat/ui octane
 ```
 
 Keep the required structural stylesheet in your app entry. The starter already

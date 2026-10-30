@@ -39,10 +39,10 @@ checks library object identity across both cycles. It deliberately does not
 pin the unsupported column composition's version-dependent shrink result.
 
 ```sh
-pnpm probe doctor
-pnpm probe run examples/probes/screen-layers.tsrx --target web
-pnpm probe run examples/probes/screen-layers.tsrx --target ios --device DEVICE_UDID --watch
-pnpm probe run examples/probes/screen-layers.tsrx --target android --device DEVICE_ID --watch
+bun run probe doctor
+bun run probe run examples/probes/screen-layers.tsrx --target web
+bun run probe run examples/probes/screen-layers.tsrx --target ios --device DEVICE_UDID --watch
+bun run probe run examples/probes/screen-layers.tsrx --target android --device DEVICE_ID --watch
 ```
 
 Reserve native build/device resources and boot an owned simulator before the

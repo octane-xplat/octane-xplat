@@ -8,7 +8,7 @@ Send product events and read feature flags through PostHog. Native apps use
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/posthog
+bun add @octane-xplat/posthog
 ```
 
 Copy the project API key and host from your PostHog project settings. Pass them

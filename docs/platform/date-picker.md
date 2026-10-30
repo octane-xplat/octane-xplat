@@ -572,7 +572,7 @@ or a clean installed consumer. Repository maintainers can open this fixture for
 later target qualification:
 
 ```sh
-pnpm probe run examples/probes/native-date-picker.macos.tsrx --target macos --watch
+bun run probe run examples/probes/native-date-picker.macos.tsrx --target macos --watch
 ```
 
 The web entry was removed because its browser-specific `DateInput` value and

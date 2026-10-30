@@ -6,7 +6,7 @@ and an experimental native `NSPopUpButton` on macOS.
 Use it when you want the OS-authentic control rather than a shared look.
 
 ```sh
-pnpm add @octane-xplat/picker
+bun add @octane-xplat/picker
 ```
 
 There is no shared picker API at the package root. Each platform entry exports

@@ -10,7 +10,7 @@ try {
 	vitePath = require.resolve('vite')
 } catch {
 	throw new Error(
-		'Cannot resolve Vite from the macOS app. Declare vite in devDependencies and run pnpm install.',
+		'Cannot resolve Vite from the macOS app. Declare vite in devDependencies and run bun install.',
 	)
 }
 

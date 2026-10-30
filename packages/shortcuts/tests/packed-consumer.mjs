@@ -23,7 +23,7 @@ const run = (command, args, cwd = temporary) =>
 		maxBuffer: 4 * 1024 * 1024,
 	})
 try {
-	run('pnpm', ['pack', '--config.ignore-scripts=true', '--pack-destination', temporary], root)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', temporary], root)
 	const tarball = readdirSync(temporary).find((name) => name.endsWith('.tgz'))
 	run('tar', ['-xzf', join(temporary, tarball), '-C', temporary])
 	const scope = join(temporary, 'node_modules/@octane-xplat')

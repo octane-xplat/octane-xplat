@@ -9,7 +9,7 @@ identical interaction or rendering on every target.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/maps
+bun add @octane-xplat/maps
 ```
 
 Configure a Google Maps project and an API key for each platform. The native

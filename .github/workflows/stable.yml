@@ -43,9 +43,6 @@ jobs:
         with:
           ref: ${{ env.TESTED_SHA }}
           submodules: true
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
@@ -77,11 +74,6 @@ jobs:
         with:
           ref: ${{ env.TESTED_SHA }}
           submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -122,11 +114,6 @@ jobs:
         with:
           ref: ${{ env.TESTED_SHA }}
           submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -178,11 +165,6 @@ jobs:
         with:
           ref: ${{ env.TESTED_SHA }}
           submodules: true
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
 
       - name: Setup Temurin JDK 21
         uses: actions/setup-java@v4
@@ -237,8 +219,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          # No pnpm in this job — disable v5's auto package-manager cache,
-          # which would otherwise invoke pnpm for the detected lockfile.
+          # Bun owns the dependency cache; disable setup-node's automatic caching.
           package-manager-cache: false
       - name: Record stable qualification
         id: evidence

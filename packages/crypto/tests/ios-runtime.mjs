@@ -20,7 +20,7 @@ await cp(
 	join(resources, 'iOS/src/XplatCryptoEngine.swift'),
 )
 const result = spawnSync(
-	'pnpm',
+	'bun',
 	[
 		'probe',
 		'run',

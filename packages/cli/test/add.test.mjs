@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -76,4 +76,18 @@ test('xplat add rejects unknown targets and bare non-TTY calls', (t) => {
 	assert.notEqual(run(['add', 'windows'], dir).status, 0)
 	assert.notEqual(run(['add', 'testing'], dir).status, 0)
 	assert.notEqual(run(['add'], dir).status, 0)
+})
+
+test('xplat add rejects pnpm configuration before writing Bun starter metadata', (t) => {
+	const dir = scaffold(t, ['web'])
+	const file = join(dir, 'package.json')
+	const pkg = JSON.parse(readFileSync(file, 'utf8'))
+	pkg.packageManager = 'pnpm@11.24.0'
+	const before = JSON.stringify(pkg, null, '\t') + '\n'
+	writeFileSync(file, before)
+	const result = run(['add', 'ios', '--no-install'], dir)
+	assert.equal(result.status, 1)
+	assert.match(result.stdout + result.stderr, /Platform additions require a Bun project/)
+	assert.equal(readFileSync(file, 'utf8'), before)
+	assert.ok(!existsSync(join(dir, 'nativescript.config.ts')))
 })

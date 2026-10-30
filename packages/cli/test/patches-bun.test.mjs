@@ -138,3 +138,49 @@ test('an explicit Bun selection reads its catalogs even with pnpm metadata retai
 		'applied',
 	)
 })
+
+test('Bun lock metadata resolves workspace and aliased importer versions for documentation binding', async (t) => {
+	const { bunLockedVersions } = await import('../dist/package-manager.js')
+	const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs')
+	const { tmpdir } = await import('node:os')
+	const { join } = await import('node:path')
+	const root = mkdtempSync(join(tmpdir(), 'bun-binding-'))
+	t.after(() => rmSync(root, { recursive: true, force: true }))
+	writeFileSync(
+		join(root, 'package.json'),
+		JSON.stringify({ packageManager: 'bun@1.4.4', workspaces: ['apps/*'] }),
+	)
+	const app = join(root, 'apps/web')
+	mkdirSync(app, { recursive: true })
+	writeFileSync(
+		join(app, 'package.json'),
+		JSON.stringify({
+			name: 'web',
+			dependencies: { octane: '*', '@octane-xplat/ui': 'workspace:*' },
+		}),
+	)
+	writeFileSync(
+		join(root, 'bun.lock'),
+		JSON.stringify({
+			workspaces: {
+				'apps/web': { name: 'web' },
+				'packages/ui': { name: '@octane-xplat/ui', version: '9.0.0' },
+			},
+			packages: {
+				octane: ['octane@0.1.0', '', {}, 'hash'],
+				'web/octane': ['octane@0.16.3', '', {}, 'hash'],
+				'@octane-xplat/ui': ['@octane-xplat/ui@workspace:packages/ui'],
+			},
+		}),
+	)
+	assert.deepEqual(bunLockedVersions(app), { octane: '0.16.3', '@octane-xplat/ui': '9.0.0' })
+})
+
+test('projects without manager metadata default to Bun; explicit pnpm workspace settings remain supported', (t) => {
+	const root = mkdtempSync(join(tmpdir(), 'xplat-default-manager-'))
+	t.after(() => rmSync(root, { recursive: true, force: true }))
+	writeFileSync(join(root, 'package.json'), '{}')
+	assert.equal(packageManagerFor(root), 'bun')
+	writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages: []\n')
+	assert.equal(packageManagerFor(root), 'pnpm')
+})

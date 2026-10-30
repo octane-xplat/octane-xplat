@@ -8,7 +8,7 @@ AppKit compiles its pinned Swift source as part of the app's native leaf build;
 apps do not add another engine dependency.
 
 ```sh
-pnpm add @octane-xplat/lottie
+bun add @octane-xplat/lottie
 ```
 
 ```tsx

@@ -297,7 +297,7 @@ export async function prepare(target, caseFile, extra = [], resources) {
 				id: appId,
 				appPath: 'src',
 				appResourcesPath: 'App_Resources',
-				cli: { packageManager: 'pnpm' },
+				cli: { packageManager: 'bun' },
 				bundler: 'vite',
 				bundlerConfigPath: 'vite.host.config.mts',
 			})}\n`,

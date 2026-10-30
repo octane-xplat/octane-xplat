@@ -14,7 +14,7 @@ import { generateRoutes } from '../packages/cli/src/commands/routes.ts'
 const repository = fileURLToPath(new URL('../', import.meta.url))
 const args = process.argv.slice(2)
 if (args.includes('--help')) {
-	console.log(`Usage: pnpm bench:routing-types [options]
+	console.log(`Usage: bun run bench:routing-types [options]
   --sizes 32,128,512,1024      Total destinations per generated catalog (8–4096)
   --conditions web            Comma-separated web,native,macos,linux,windows
   --ui-package DIRECTORY      Consume declarations from an extracted UI package

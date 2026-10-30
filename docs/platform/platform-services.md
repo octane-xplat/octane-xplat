@@ -15,9 +15,9 @@ and compiler context; keep it out of app imports. Generate the prepare hook,
 rebuild the binary, and retain its private build record with the payload.
 
 ```sh
-pnpm add @octane-xplat/updates
-pnpm add -D @octane-xplat/fingerprint
-pnpm exec xplat updates init
+bun add @octane-xplat/updates
+bun add -D @octane-xplat/fingerprint
+bun run xplat updates init
 ```
 
 ## Choose a useful feature
@@ -448,7 +448,7 @@ console.log(status)
 
 Use `@octane-xplat/secure-storage` for secrets such as a token returned by your
 sign-in flow. A token is a private string your app sends to its server to identify
-a signed-in session. Install the leaf with `pnpm add @octane-xplat/secure-storage`.
+a signed-in session. Install the leaf with `bun add @octane-xplat/secure-storage`.
 Use it from a setup function or event handler:
 
 ```ts
@@ -1186,7 +1186,7 @@ lifetime, credential security, VoiceOver and packaged hosts remain unqualified.
 The fixture uses example.com and cannot prove a real sign-in or token exchange:
 
 ```sh
-pnpm probe run examples/probes/auth-session.macos.tsrx --target macos --watch
+bun run probe run examples/probes/auth-session.macos.tsrx --target macos --watch
 ```
 
 ### Register and check a hosted callback
@@ -1419,7 +1419,7 @@ provider registration, and hosted endpoints.
 Declare the optional NativeScript plugin peers used by platform services
 in the app’s dependencies. This differs from leaf-owned implementation
 dependencies such as the video plugin, which travel with their leaf package. Run
-`pnpm xplat doctor` from the app root for warning-only checks on missing
+`bun run xplat doctor` from the app root for warning-only checks on missing
 declarations. `connectivity` comes from `@nativescript/core` and needs no
 plugin.
 

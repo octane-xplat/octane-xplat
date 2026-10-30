@@ -86,7 +86,7 @@ export async function main(argv = process.argv.slice(2)) {
 	const args = argumentsFor(argv)
 	if (args.command === 'help') {
 		process.stdout.write(
-			'Usage: pnpm probe doctor\n       pnpm probe run <case.ts|case.tsrx> [--target web|ios|android|macos|linux]\n       pnpm probe run <case> --targets web,ios,android,macos,linux\nOptions: --watch --fresh-process --device ID --ios-device ID --android-device ID\n         --deps package,package --resources DIR --timeout MS --startup-timeout MS --verbose\n',
+			'Usage: bun run probe doctor\n       bun run probe run <case.ts|case.tsrx> [--target web|ios|android|macos|linux]\n       bun run probe run <case> --targets web,ios,android,macos,linux\nOptions: --watch --fresh-process --device ID --ios-device ID --android-device ID\n         --deps package,package --resources DIR --timeout MS --startup-timeout MS --verbose\n',
 		)
 
 		return

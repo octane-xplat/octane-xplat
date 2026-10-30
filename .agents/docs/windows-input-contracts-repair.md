@@ -57,7 +57,7 @@ line from the previous canonical patch remains in the regenerated patch. The
 input JS delta was applied to an edit tree containing that complete patch;
 pointer and layout source were not replaced by an unpatched compilation.
 
-`pnpm check:patches`, `pnpm check:recipes`, focused test-file lint/format, and
+`bun run check:patches`, `bun run check:recipes`, focused test-file lint/format, and
 frozen-lockfile validation pass. The frozen install intentionally disables
 scripts and strict ignored-build rejection; it does not establish postinstall
 success. Normal postinstall reaches type generation but fails on the existing

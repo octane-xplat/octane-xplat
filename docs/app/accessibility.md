@@ -187,7 +187,7 @@ motion leaf and observe the user's preference for imperative movement. This
 example jumps to the new position when reduced motion is requested:
 
 ```sh
-pnpm add @octane-xplat/motion
+bun add @octane-xplat/motion
 ```
 
 ```tsx

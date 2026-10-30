@@ -120,6 +120,6 @@ public docs, maintained example, and skill in the same change. Pure refactors
 ordinarily need no recipe change. Never weaken criteria to hide a limitation.
 
 Record coverage separately from verification in Silo `recipe_audit` (or the
-appropriate desktop table) and run `pnpm check:recipes`. At handoff, name affected
+appropriate desktop table) and run `bun run check:recipes`. At handoff, name affected
 recipes and remaining gaps, or explain why none is affected. A public workflow
 change is unfinished until documentation is reconciled and any gap is explicit.

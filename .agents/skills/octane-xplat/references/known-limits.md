@@ -49,6 +49,6 @@ and [native setup](../../../../packages/linux-gtk-renderer/README.md#optional-na
 Do not treat publication or AT-SPI names as production qualification.
 
 ```sh
-pnpm add -D @octane-xplat/linux-gtk
-pnpm exec xplat workshop doctor
+bun add -D @octane-xplat/linux-gtk
+bun run xplat workshop doctor
 ```

@@ -173,7 +173,7 @@ port in the meantime.
 - Full lightbox suites: 66 web/shared and 41 native object-driver tests passed,
   with at most two workers per suite. UI modal focus tests passed 11 cases.
 - The touched UI/lightbox packages and their dependents passed 60 Turbo
-  typecheck tasks. Recipe structure and local links passed `pnpm check:recipes`.
+  typecheck tasks. Recipe structure and local links passed `bun run check:recipes`.
 - Remote WebKit 2359 / Playwright 1.63.0 on andromeda.local passed 11 focused
   numeric checks through **isolated real UI leaves**: fitted opening bounds,
   source hiding, dialog name/description associations, paging, disabled zoom
@@ -193,9 +193,9 @@ port in the meantime.
 Reproduce the narrow browser checks on the remote test checkout:
 
 ```sh
-XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox --concurrency=2 -- --audit
+XPLAT_WEB_BROWSER=webkit bun run turbo run test:e2e --filter=@octane-xplat/lightbox --concurrency=2 -- --audit
 # Explicit isolation while the unrelated barrel parser failure remains:
-XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox --concurrency=2 -- --audit --isolate-ui
+XPLAT_WEB_BROWSER=webkit bun run turbo run test:e2e --filter=@octane-xplat/lightbox --concurrency=2 -- --audit --isolate-ui
 ```
 
 Remote logs: `/tmp/lightbox-audit-webkit-debug.log` (normal barrel failure) and

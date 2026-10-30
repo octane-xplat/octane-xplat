@@ -5,6 +5,7 @@ import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { minimatch } from 'minimatch'
 import { parse } from 'yaml'
+import { parse as parseJsonc, type ParseError } from 'jsonc-parser'
 import { nativeResolutions } from './native-resolutions.ts'
 import { configValue, readNativeConfig } from './native-config.ts'
 export { captureNativeToolchainAsync } from './toolchain.ts'
@@ -376,25 +377,73 @@ export async function createFingerprintAsync(
 	}
 	await tree(root, join(root, 'hooks'), 'hooks/', 'application native build hooks')
 	let lockRoot = root
-	while (!existsSync(join(lockRoot, 'pnpm-lock.yaml')) && dirname(lockRoot) !== lockRoot) {
+	while (
+		!existsSync(join(lockRoot, 'bun.lock')) &&
+		!existsSync(join(lockRoot, 'pnpm-lock.yaml')) &&
+		dirname(lockRoot) !== lockRoot
+	) {
 		lockRoot = dirname(lockRoot)
 	}
-	const lock = existsSync(join(lockRoot, 'pnpm-lock.yaml'))
-		? parse(await readFile(join(lockRoot, 'pnpm-lock.yaml'), 'utf8'))
-		: null
-	if (!lock?.packages || typeof lock.packages !== 'object') {
-		throw new Error('A resolved pnpm lockfile is required for native fingerprints')
-	}
-	const workspace = existsSync(join(lockRoot, 'pnpm-workspace.yaml'))
-		? parse(await readFile(join(lockRoot, 'pnpm-workspace.yaml'), 'utf8'))
+	const owner = existsSync(join(lockRoot, 'package.json'))
+		? await json(join(lockRoot, 'package.json'))
 		: {}
-	const patchMap = {
-		...workspace?.patchedDependencies,
-		...app.pnpm?.patchedDependencies,
+	const manager = owner.packageManager?.split('@')[0]
+	const bun = manager === 'bun' || (manager !== 'pnpm' && existsSync(join(lockRoot, 'bun.lock')))
+	const lockFile = join(lockRoot, bun ? 'bun.lock' : 'pnpm-lock.yaml')
+	let lock: any = null
+	if (existsSync(lockFile)) {
+		const text = await readFile(lockFile, 'utf8')
+		if (bun) {
+			const errors: ParseError[] = []
+			lock = parseJsonc(text, errors, { allowTrailingComma: true })
+			if (errors.length) {
+				throw new Error(`Invalid Bun lockfile: ${lockFile}`)
+			}
+			lock.importers = lock.workspaces
+		} else {
+			lock = parse(text)
+		}
 	}
+	if (!lock?.packages || typeof lock.packages !== 'object') {
+		throw new Error('A resolved Bun or pnpm lockfile is required for native fingerprints')
+	}
+	const workspace =
+		!bun && existsSync(join(lockRoot, 'pnpm-workspace.yaml'))
+			? parse(await readFile(join(lockRoot, 'pnpm-workspace.yaml'), 'utf8'))
+			: {}
+	const patchMap = bun
+		? (owner.patchedDependencies ?? {})
+		: {
+				...workspace?.patchedDependencies,
+				...app.pnpm?.patchedDependencies,
+			}
+
 	const visited = new Set<string>()
 	const nativeIdentities = new Map<string, string>()
-	async function visit(packageRoot: string, requiredName: string): Promise<void> {
+	async function visit(
+		packageRoot: string,
+		requiredName: string,
+		parent = app.name ?? '',
+	): Promise<void> {
+		let bunKey = requiredName
+		let bunEntry: any
+		if (bun) {
+			for (
+				let prefix = parent;
+				;
+				prefix = prefix.includes('/') ? prefix.slice(0, prefix.lastIndexOf('/')) : ''
+			) {
+				const key = prefix ? `${prefix}/${requiredName}` : requiredName
+				if (lock.packages[key]) {
+					bunKey = key
+					bunEntry = lock.packages[key]
+					break
+				}
+				if (!prefix) {
+					break
+				}
+			}
+		}
 		if (visited.has(packageRoot)) {
 			return
 		}
@@ -416,26 +465,56 @@ export async function createFingerprintAsync(
 		if (native) {
 			const identity = `${pkg.name}@${pkg.version}`,
 				prefix = `node_modules/${pkg.name}/`
-			const lockEntries = Object.entries(lock.packages)
-				.filter(([key, raw]) => {
-					if (key === identity || key.startsWith(identity + '(')) {
-						return true
-					}
-					const entry = raw as { resolution?: { type?: string; directory?: string } }
-					return (
-						key.startsWith(pkg.name + '@file:') &&
-						entry.resolution?.type === 'directory' &&
-						typeof entry.resolution.directory === 'string' &&
-						existsSync(resolve(lockRoot, entry.resolution.directory)) &&
-						realpathSync(resolve(lockRoot, entry.resolution.directory)) === packageRoot
+			const lockEntries: any[] = bun
+				? []
+				: Object.entries(lock.packages)
+						.filter(([key, raw]) => {
+							if (key === identity || key.startsWith(identity + '(')) {
+								return true
+							}
+							const entry = raw as { resolution?: { type?: string; directory?: string } }
+							return (
+								key.startsWith(pkg.name + '@file:') &&
+								entry.resolution?.type === 'directory' &&
+								typeof entry.resolution.directory === 'string' &&
+								existsSync(resolve(lockRoot, entry.resolution.directory)) &&
+								realpathSync(resolve(lockRoot, entry.resolution.directory)) === packageRoot
+							)
+						})
+						.map(([key, raw]) => {
+							const entry = raw as { resolution?: { type?: string } }
+							return entry.resolution?.type === 'directory'
+								? [identity + ':directory', { ...entry, resolution: { type: 'directory' } }]
+								: [key, entry]
+						})
+			if (bunEntry) {
+				const source = String(bunEntry[0])
+				const at = source.indexOf('@', 1)
+				const spec = source.slice(at + 1)
+				if (
+					source.slice(0, at) !== pkg.name ||
+					(/^\d+\.\d+\.\d+/.test(spec) && spec !== pkg.version)
+				) {
+					throw new Error(
+						`Native dependency ${identity} disagrees with Bun lock metadata ${source}`,
 					)
-				})
-				.map(([key, raw]) => {
-					const entry = raw as { resolution?: { type?: string } }
-					return entry.resolution?.type === 'directory'
-						? [identity + ':directory', { ...entry, resolution: { type: 'directory' } }]
-						: [key, entry]
-				})
+				}
+				// Integrity identifies local archives without hashing checkout-specific paths.
+				const local =
+					/^(?:file:|link:|workspace:|\/|[A-Za-z]:)/.test(spec) ||
+					(spec.endsWith('.tgz') && !/^https?:/.test(spec))
+				lockEntries.push([
+					identity,
+					{
+						source: local ? '<local>' : source,
+						integrity:
+							bunEntry.find(
+								(value: unknown) => typeof value === 'string' && /^sha(?:256|512)-/.test(value),
+							) ?? null,
+					},
+				])
+			}
+
 			if (
 				!lockEntries.length &&
 				!Object.prototype.hasOwnProperty.call(
@@ -522,7 +601,7 @@ export async function createFingerprintAsync(
 				Boolean(pkg.optionalDependencies?.[name] && !pkg.dependencies?.[name]),
 			)
 			if (dependency) {
-				await visit(dependency, name)
+				await visit(dependency, name, bunKey)
 			}
 		}
 	}

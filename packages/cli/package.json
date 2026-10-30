@@ -78,6 +78,7 @@
 		"typecheck": "tsc -p tsconfig.json",
 		"build:executable": "bun standalone/build.mjs",
 		"test:executable": "node --test standalone/test.mjs",
+		"test:patches-pnpm": "node --test standalone/patches-pnpm.test.mjs",
 		"test:patches-install": "node --test test/patches-*.test.mjs standalone/patches-install.test.mjs"
 	},
 	"dependencies": {

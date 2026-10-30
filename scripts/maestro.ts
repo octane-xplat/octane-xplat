@@ -5,7 +5,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const help = `Usage: pnpm test:maestro --target ios|android --device <id>
+const help = `Usage: bun run test:maestro --target ios|android --device <id>
   --artifact <path>  Install an existing .app (iOS simulator) or .apk; skip build
   --flow <path>      Flow file or directory (default: .maestro/counter.yaml)
   --app-id <id>      Installed app ID (default: org.nativescript.xplat.maestro)
@@ -118,9 +118,9 @@ try {
 		}
 
 		run(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'run',
 				'ns',
 				'build',
 				target,

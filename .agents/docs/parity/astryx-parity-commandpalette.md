@@ -285,7 +285,7 @@ keyboard occlusion. No screenshot/visual analysis was performed.
    for internal/external close and unmount. Acceptance: late results never
    repopulate a closed palette, group render/navigation order agrees, aliases
    work, and loading/no matches/error are distinguishable. Reconcile the demo,
-   maintained tests, docs and affected recipes; run `pnpm check:recipes`.
+   maintained tests, docs and affected recipes; run `bun run check:recipes`.
 3. **Adapt mobile presentation using the same model (P1).** Build the search-sheet
    analog, touch row activation, visible cancel/clear, soft-keyboard submit
    policy, keyboard-aware scrolling and native accessibility. Acceptance:
@@ -306,13 +306,13 @@ first-class navigation semantics exceed the audited Astryx built-in contract.
 
 ## Report validation
 
-- `pnpm check:recipes` passed structure and local-link checks; it does not verify
+- `bun run check:recipes` passed structure and local-link checks; it does not verify
   coverage or runtime behavior. No existing recipe changes are needed for this
   report-only audit.
 - All 10 local file links resolve; all 14 distinct pinned raw upstream links
   returned HTTP 200. Git whitespace checks passed.
-- `pnpm build:docs` was attempted but blocked before compilation by missing
-  `vite` dependencies in this worktree. `pnpm exec oxfmt
+- `bun run build:docs` was attempted but blocked before compilation by missing
+  `vite` dependencies in this worktree. `bun run oxfmt
 docs/.agents/docs/parity/astryx-parity-commandpalette.md` was unavailable (`oxfmt` not found).
   Formatting was reviewed manually; site rendering remains unverified.
 - The highlighted-Enter documentation mismatch and macOS submit/dismiss wrapper

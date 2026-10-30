@@ -27,7 +27,7 @@ function run(command, args, cwd) {
 
 function pack(source, destination) {
 	mkdirSync(destination, { recursive: true })
-	run('pnpm', ['pack', '--config.ignore-scripts=true', '--pack-destination', destination], source)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', destination], source)
 	const tarball = readdirSync(destination).find((file) => file.endsWith('.tgz'))
 	run('tar', ['-xzf', join(destination, tarball), '-C', destination], destination)
 	return join(destination, 'package')
@@ -84,7 +84,7 @@ void view
 			}),
 		)
 
-		run('pnpm', ['exec', 'tsc', '-p', join(temporary, 'tsconfig.json')], packageRoot)
+		run('bun', ['run', 'tsc', '-p', join(temporary, 'tsconfig.json')], packageRoot)
 	}
 
 	const webEntry = join(temporary, 'web-entry.ts')

@@ -25,9 +25,9 @@ type Options = { run?: Operation }
 
 ```sh
 # From the app directory; use only scripts present in package.json.
-pnpm build
-pnpm build:ios
-pnpm build:android
+bun run build
+bun run build:ios
+bun run build:android
 ```
 
 Keep the supplied catalog and managed patches together. The compatibility
@@ -35,14 +35,14 @@ manifest, installed package versions, and doctor/upgrade output own the current
 version set; exact pins copied into prose go stale. Within this repository,
 workspace dependencies use `"workspace:*"` and packages declare every import.
 The npm CLI runs under Bun; standalone executables embed it. Repository
-installs require Bun 1.4.4. Consumer starters retain pnpm, while `xplat patches`
+installs require Bun 1.4.4. Consumer starters also use Bun, while `xplat patches`
 and development/build commands select either Bun or pnpm from the project.
 Other Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
 consumer bundlers still compile framework runtime source.
 
 ```sh
-pnpm xplat doctor
-pnpm dlx @octane-xplat/cli@latest upgrade --check
+bun run xplat doctor
+bunx @octane-xplat/cli@latest upgrade --check
 ```
 
 Mason core is the only supported iOS/Android layout engine. Scaffolded apps
@@ -67,8 +67,8 @@ managed pin; `xplat upgrade` aligns it when present. NativeScript handles the
 linking, and native dependency updates require an application rebuild.
 
 ```sh
-pnpm xplat upgrade
-pnpm build:ios
+bun run xplat upgrade
+bun run build:ios
 ```
 
 ```json
@@ -97,20 +97,20 @@ package's packed-consumer check catches known stale bridge methods. See the
 
 ```sh
 # Repository root: prepare declared package outputs and check exports.
-pnpm build:packages
-pnpm check:pack
-pnpm exec turbo run test:packed --filter=@octane-xplat/updates
-pnpm check:consumer --no-build --quick
+bun run build:packages
+bun run check:pack
+bun run turbo run test:packed --filter=@octane-xplat/updates
+bun run check:consumer --no-build --quick
 ```
 
 For native patch delivery, run the dedicated tarball and registry-style install
-checks. They preserve pnpm's config-dependency fetch and verify every generated
+checks. They verify starter-local patch files and every generated
 native patch reference. A checkout's version may still name the previous release;
 after local dependency upgrades, registry consumers need the next published
 lockstep set rather than that checkout's unchanged version number.
 
 ```sh
-pnpm exec turbo run pack:check test:packed --filter=@octane-xplat/patches
+bun run turbo run pack:check test:packed --filter=@octane-xplat/patches
 ```
 
 `--no-build` skips package builds and packing lifecycle hooks; prepare and
@@ -135,10 +135,10 @@ type acceptance as source compilation or native runtime qualification.
 tsrx-typegen needs an explicit type on every export (for example `): JSX.Element`); it neither infers across files nor type-checks, so keep `typecheck` in the loop.
 
 ```sh
-pnpm create octane-xplat travel-controls --template library --name @acme/travel-controls
+bun create octane-xplat travel-controls --template library --name @acme/travel-controls
 # In the generated package:
-pnpm typegen
-pnpm test:packed
+bun run typegen
+bun run test:packed
 ```
 
 The repository's focused non-browser qualification packs the creator/framework,
@@ -146,7 +146,7 @@ installs an independent library and consuming web app, checks plain TypeScript
 conditions and compiles the installed library into production output:
 
 ```sh
-pnpm exec turbo run test:library --filter=create-octane-xplat
+bun run turbo run test:library --filter=create-octane-xplat
 ```
 
 ## Linked native source packages
@@ -201,5 +201,5 @@ combined typecheck environments; do not infer runtime platform selection from
 TypeScript's fixed suffix order.
 
 ```sh
-pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+bun run turbo run typecheck --filter=...@octane-xplat/ui
 ```

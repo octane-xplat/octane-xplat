@@ -163,7 +163,7 @@ header/body sizing, native wheel/trackpad/RTL, nested scrolling, plugin ref
 lifetimes, accessibility and clean packaged consumers remain unqualified.
 
 ```sh
-pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+bun run probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
 ```
 
 
@@ -256,7 +256,7 @@ loop. Disabling/removing the hook, hiding/detaching cells or replacing the
 viewport releases owned placement and restores layout/order.
 
 ```sh
-pnpm probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
+bun run probe run examples/probes/table-scroll.macos.tsrx --target macos --watch
 ```
 
 Three simulated native-pin/order cases, six geometry/observer cases and two compiler

@@ -35,7 +35,6 @@ function stage(t, npmStub) {
 		'packages/create/compatibility.json',
 		...['template', 'library-template'].flatMap((template) => [
 			`packages/create/${template}/package.json`,
-			`packages/create/${template}/pnpm-workspace.yaml`,
 		]),
 	]
 	for (const directory of readdirSync(join(repo, 'packages'))) {
@@ -66,7 +65,10 @@ function stage(t, npmStub) {
 const typegenVersion = readJson(join(repo, 'packages/tsrx-typegen/package.json')).version
 
 test('release bumps regenerate framework catalogs and patch config pins without moving external tool versions or consumer ranges', (t) => {
-	const { root, bump } = stage(t, `#!/bin/sh\nif [ "$1" = view ]; then echo '"${typegenVersion}"'; exit 0; fi\nexit 1\n`)
+	const { root, bump } = stage(
+		t,
+		`#!/bin/sh\nif [ "$1" = view ]; then echo '"${typegenVersion}"'; exit 0; fi\nexit 1\n`,
+	)
 	const before = readJson(join(root, 'packages/create/compatibility.json'))
 	const library = readJson(join(root, 'packages/create/library-template/package.json'))
 	const version = '987.0.0-test.1'
@@ -80,18 +82,16 @@ test('release bumps regenerate framework catalogs and patch config pins without 
 	const rest = ({ 'tsrx-typegen': _skip, ...packages }) => packages
 	assert.deepEqual(rest(after.packages), rest(before.packages))
 	for (const template of ['template', 'library-template']) {
-		const ws = parse(
-			readFileSync(join(root, 'packages/create', template, 'pnpm-workspace.yaml'), 'utf8'),
-		)
+		const ws = parse(readFileSync(join(root, 'packages/create', template, 'package.json'), 'utf8'))
 
-		assert.equal(ws.catalogs.xplat['@octane-xplat/cli'], version)
-		assert.equal(ws.catalogs.xplat['@tsrx/oxc'], before.packages['@tsrx/oxc'].version)
-		assert.equal(ws.configDependencies['@octane-xplat/patches'], version)
+		assert.equal(ws.workspaces.catalogs.xplat['@octane-xplat/cli'], version)
+		assert.equal(ws.workspaces.catalogs.xplat['@tsrx/oxc'], before.packages['@tsrx/oxc'].version)
+		assert.equal(ws.packageManager, `bun@${before.tools.bun}`)
 	}
 	const libraryWs = parse(
-		readFileSync(join(root, 'packages/create/library-template/pnpm-workspace.yaml'), 'utf8'),
+		readFileSync(join(root, 'packages/create/library-template/package.json'), 'utf8'),
 	)
-	assert.equal(libraryWs.catalogs.xplat['tsrx-typegen'], typegenVersion)
+	assert.equal(libraryWs.workspaces.catalogs.xplat['tsrx-typegen'], typegenVersion)
 	const nextLibrary = readJson(join(root, 'packages/create/library-template/package.json'))
 	assert.equal(nextLibrary.peerDependencies.octane, library.peerDependencies.octane)
 	assert.equal(nextLibrary.peerDependencies['@octane-xplat/ui'], `^${version}`)
@@ -101,10 +101,10 @@ test('release bumps regenerate framework catalogs and patch config pins without 
 			encoding: 'utf8',
 		})
 	assert.equal(check().status, 0)
-	const path = join(root, 'packages/create/template/pnpm-workspace.yaml')
+	const path = join(root, 'packages/create/template/package.json')
 	const drifted = readFileSync(path, 'utf8').replace(
-		`octane: ${before.packages.octane.version}`,
-		'octane: 0.0.1',
+		`"octane": "${before.packages.octane.version}"`,
+		'"octane": "0.0.1"',
 	)
 	writeFileSync(path, drifted)
 	const failed = check()
@@ -123,7 +123,10 @@ test('release bumps keep the tsrx-typegen pin when the in-repo version is not pu
 	assert.equal(after.packages['tsrx-typegen'].version, before.packages['tsrx-typegen'].version)
 	assert.deepEqual(after.packages, before.packages)
 	const ws = parse(
-		readFileSync(join(root, 'packages/create/library-template/pnpm-workspace.yaml'), 'utf8'),
+		readFileSync(join(root, 'packages/create/library-template/package.json'), 'utf8'),
 	)
-	assert.equal(ws.catalogs.xplat['tsrx-typegen'], before.packages['tsrx-typegen'].version)
+	assert.equal(
+		ws.workspaces.catalogs.xplat['tsrx-typegen'],
+		before.packages['tsrx-typegen'].version,
+	)
 })

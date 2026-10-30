@@ -9,7 +9,7 @@ function fixture(t) {
 	const dir = mkdtempSync(join(tmpdir(), 'xplat-maestro-'))
 	t.after(() => rmSync(dir, { recursive: true, force: true }))
 	const log = join(dir, 'commands.jsonl')
-	for (const executable of ['maestro', 'adb', 'xcrun', 'pnpm']) {
+	for (const executable of ['maestro', 'adb', 'xcrun', 'bun']) {
 		const file = join(dir, executable)
 		writeFileSync(
 			file,
@@ -145,8 +145,8 @@ test('default iOS path builds a simulator bundle without HMR and stops on build 
 
 	assert.equal(result.status, 9)
 	assert.deepEqual(
-		f.commands().find((args) => args[0] === 'pnpm'),
-		['pnpm', 'exec', 'ns', 'build', 'ios', '--no-hmr', '--for-device', 'false'],
+		f.commands().find((args) => args[0] === 'bun'),
+		['bun', 'run', 'ns', 'build', 'ios', '--no-hmr', '--for-device', 'false'],
 	)
 
 	assert.equal(

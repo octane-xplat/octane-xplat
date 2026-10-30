@@ -62,10 +62,10 @@ your effort stays focused on your app.
 
 ## Start building
 
-With [Node.js, Bun, and pnpm installed](docs/start/toolchain.md#create-and-run):
+With [Node.js, Bun, and bun installed](docs/start/toolchain.md#create-and-run):
 
 ```sh
-pnpm create octane-xplat my-app
+bun create octane-xplat my-app
 ```
 
 The creator installs dependencies and starts the web development server.

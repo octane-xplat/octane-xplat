@@ -6,7 +6,7 @@ shaders (iOS 17+) through `@nativescript/swift-ui`; Android uses AGSL
 `RuntimeShader`.
 
 ```sh
-pnpm add @octane-xplat/effects
+bun add @octane-xplat/effects
 ```
 
 There is no root export — import the platform entry in the matching

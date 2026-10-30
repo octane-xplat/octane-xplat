@@ -23,8 +23,8 @@ the private upload token used later. From your app directory, install the
 versions used by the maintained example:
 
 ```sh
-pnpm add @sentry/browser@11.9.0
-pnpm add -D @sentry/cli@3.8.2
+bun add @sentry/browser@11.9.0
+bun add -D @sentry/cli@3.8.2
 ```
 
 Copy [reporting.web.ts](../../packages/sentry/examples/reporting.web.ts) into
@@ -204,9 +204,9 @@ export SENTRY_ORG=YOUR_ORG_SLUG
 export SENTRY_PROJECT=YOUR_PROJECT_SLUG
 export SENTRY_RELEASE='packing@0.1.0+1'
 export SENTRY_DIST='web-1'
-pnpm exec vite build
-pnpm exec sentry-cli sourcemaps inject dist
-pnpm exec sentry-cli sourcemaps upload --release "$SENTRY_RELEASE" --dist "$SENTRY_DIST" dist
+bun run vite build
+bun run sentry-cli sourcemaps inject dist
+bun run sentry-cli sourcemaps upload --release "$SENTRY_RELEASE" --dist "$SENTRY_DIST" dist
 ```
 
 Run these in the app directory with the private upload token already supplied
@@ -219,7 +219,7 @@ Remove only generated maps from this fresh output before deployment:
 
 ```sh
 find dist -type f -name '*.map' -delete
-pnpm exec vite preview
+bun run vite preview
 ```
 
 Open the preview, enable reporting and send another handled check. Find its ID
@@ -234,7 +234,7 @@ The Xplat native wrapper uses `@nativescript-community/sentry`. Install it in a
 phone app and initialize once at native startup, before work you want to report:
 
 ```sh
-pnpm add @octane-xplat/sentry
+bun add @octane-xplat/sentry
 ```
 
 The wrapper supports explicit build identity, handled errors and breadcrumbs.
@@ -276,7 +276,7 @@ For readable native reports, preserve the exact installed release artifact:
   do not substitute JavaScript maps for Java/Kotlin or native symbols.
 
 ```sh
-pnpm exec sentry-cli debug-files upload ./Packing.xcarchive/dSYMs
+bun run sentry-cli debug-files upload ./Packing.xcarchive/dSYMs
 ```
 
 Use build-only upload credentials and the intended project. Symbols must match
@@ -295,7 +295,7 @@ plugin's JS registration import ([#75](https://github.com/octane-xplat/octane-xp
 Until corrected, declare the plugin directly and load it at native bootstrap:
 
 ```sh
-pnpm add @octane-xplat/firebase-crashlytics @nativescript/firebase-crashlytics@5.0.2
+bun add @octane-xplat/firebase-crashlytics @nativescript/firebase-crashlytics@5.0.2
 ```
 
 This import belongs in a native entry, before using the configured service:

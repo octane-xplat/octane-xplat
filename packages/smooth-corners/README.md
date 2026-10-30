@@ -10,7 +10,7 @@ In a [configured Xplat app](https://octane-xplat.goddardai.org/toolchain#create-
 install the package:
 
 ```sh
-pnpm add @octane-xplat/smooth-corners
+bun add @octane-xplat/smooth-corners
 ```
 
 Put the component in a `.tsx` or `.tsrx` screen. The `corners` prop owns the

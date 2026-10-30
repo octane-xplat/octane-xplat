@@ -22,7 +22,7 @@ async function loadWorkshop(cwd) {
 		)
 	} catch {
 		p.log.error(
-			'@octane-xplat/workshop is not installed — add it with `pnpm add -D @octane-xplat/workshop`',
+			'@octane-xplat/workshop is not installed — add it with `bun add -D @octane-xplat/workshop`',
 		)
 
 		process.exit(1)

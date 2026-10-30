@@ -49,5 +49,5 @@ input, hit-testing, hold timing, and nested-control arbitration remain unverifie
 Web and mobile implementations are unchanged.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm probe run packages/macos-renderer/test/fixtures/gestures.macos.tsrx --target macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- bun run probe run packages/macos-renderer/test/fixtures/gestures.macos.tsrx --target macos
 ```

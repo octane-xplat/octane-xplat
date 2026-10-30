@@ -34,22 +34,14 @@
 	],
 	"type": "module",
 	"exports": {
-		"./scaffold": "./scaffold.ts",
+		"./scaffold": "./dist/scaffold.js",
 		"./compatibility": {
 			"types": "./compatibility.ts",
-			"default": "./compatibility.ts"
+			"default": "./dist/compatibility.js"
 		},
 		"./compatibility.json": "./compatibility.json"
 	},
 	"publishConfig": {
-		"exports": {
-			"./scaffold": "./dist/scaffold.js",
-			"./compatibility": {
-				"types": "./compatibility.ts",
-				"default": "./dist/compatibility.js"
-			},
-			"./compatibility.json": "./compatibility.json"
-		},
 		"access": "public"
 	},
 	"scripts": {

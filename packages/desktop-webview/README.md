@@ -7,7 +7,7 @@ in system WebKit while the existing JavaScriptCore + NativeScript host
 keeps serving native APIs — no bundled Chromium.
 
 ```sh
-pnpm add @octane-xplat/desktop-webview
+bun add @octane-xplat/desktop-webview
 ```
 
 ```ts

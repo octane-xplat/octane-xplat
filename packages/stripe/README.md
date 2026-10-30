@@ -7,7 +7,7 @@ iOS and Android use the official PaymentSheet; web uses Stripe.js Payment Elemen
 inside an app-owned dialog. Card details stay inside Stripe's UI.
 
 ```sh
-pnpm add @octane-xplat/stripe
+bun add @octane-xplat/stripe
 ```
 
 Start with a running Xplat app and an authenticated server that creates

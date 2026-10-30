@@ -56,7 +56,7 @@
 		"typecheck:docs": "turbo run typecheck --filter=@xplat/docs",
 		"typecheck": "turbo run typegen && turbo run typecheck",
 		"typecheck:apps": "turbo run typegen && turbo run typecheck --filter='./apps/*'",
-		"check": "bun run check:workspace && bun run lint && bun run check:css && bun run check:docs && bun run check:doc-examples && bun run check:recipes && bun run check:changelog && bun run check:compatibility && bun run check:patches && bun run check:ui-barrels && bun run check:decisions && bun run check:suffix-resolution && bun run check:metallib && bun run check:vendored",
+		"check": "bun run lint && bun run check:css && bun run check:docs && bun run check:doc-examples && bun run check:recipes && bun run check:changelog && bun run check:compatibility && bun run check:patches && bun run check:ui-barrels && bun run check:decisions && bun run check:suffix-resolution && bun run check:metallib && bun run check:vendored",
 		"validate": "bun run check && bun run typecheck && bun run test",
 		"smoke:web": "bun run --filter @xplat/web smoke",
 		"smoke:docs": "bun run --filter @xplat/docs smoke",
@@ -77,9 +77,7 @@
 		"check:native-readiness": "node tools/native-readiness/run.mjs",
 		"check:docs": "node scripts/check-docs.ts",
 		"check:doc-examples": "node scripts/check-doc-examples.ts",
-		"test:docs": "node --test scripts/check-docs.test.mjs",
-		"sync:workspace": "node scripts/sync-workspace.ts",
-		"check:workspace": "node scripts/sync-workspace.ts --check"
+		"test:docs": "node --test scripts/check-docs.test.mjs"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",

@@ -8,7 +8,7 @@ Related APIs: @octane-xplat/motion, motion.View, motion.Row, useMotionValue, use
 
 An Octane Xplat app with the motion package installed and a working screen.
 The live reference is the Fancy components showcase in the harness app —
-`pnpm dev:web`, `pnpm dev:ios`, or `pnpm dev:android`, then
+`bun run dev:web`, `bun run dev:ios`, or `bun run dev:android`, then
 Apps → Fancy components.
 
 ## Requirements

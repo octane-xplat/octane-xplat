@@ -6,7 +6,7 @@ Related APIs: xplat upgrade, xplat upgrade --check, xplat upgrade --no-install, 
 
 ## Starting point
 
-An app or library uses Xplat packages. It may belong to a pnpm workspace and
+An app or library uses Xplat packages. It may belong to a Bun workspace and
 may have app-specific dependencies, library consumer peers, or custom patches.
 
 ## Requirements
@@ -19,11 +19,11 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 
 ## Acceptance criteria
 
-- AC1: App and library starters obtain exact managed pins and Node/pnpm requirements from one release compatibility manifest; optional tool/platform dependencies are not installed solely because they appear in the manifest.
+- AC1: App and library starters obtain exact managed pins and Node/Bun requirements from one release compatibility manifest; optional tool/platform dependencies are not installed solely because they appear in the manifest.
 - AC2: The reader can select the executing CLI release, preview without writes, apply across a workspace, defer installation, and recover from install failure without mistaking updated metadata for a successful install.
 - AC3: Upgrade selects matching patch versions without trusting a stale lockfile, replaces obsolete framework config mappings, preserves custom patches, and stops before any writes on conflicting patch/override/source choices.
 - AC4: User catalogs, unrelated dependencies/scripts, local development links and library consumer peer ranges survive; Windows preview and mobile pins remain separate and unsupported mixed packages fail preflight.
-- AC5: Doctor compares declarations and reachable installed versions, reports physical duplicate runtime paths including equal-version copies, checks Node/pnpm, and exits nonzero for managed compatibility failures without changing project files.
+- AC5: Doctor compares declarations and reachable installed versions, reports physical duplicate runtime paths including equal-version copies, checks Node/Bun, and exits nonzero for managed compatibility failures without changing project files.
 - AC6: The reader runs their own tests and target builds after alignment; host checks and simulated Windows metadata tests do not establish browser/device/native runtime support.
 - AC7: An isolated mobile app's explicit Mason core beta dependency survives upgrades without adding full MasonKit; doctor reports conflicting native engines, duplicate core installations, or unsupported Windows selection.
 

@@ -133,7 +133,7 @@ AC12 regression checks: renderer `test/appearance.test.ts`, UI
 `tests/color-scheme.macos.test.mjs`, and the maintained native case:
 
 ```sh
-pnpm probe run examples/probes/appearance.macos.ts --target macos
+bun run probe run examples/probes/appearance.macos.ts --target macos
 ```
 
 The native case exercises real AppKit effective-appearance KVO and disposal by
@@ -155,4 +155,4 @@ Maintained coverage: [Native geometry fixture](../../../apps/macos/test/layout-c
 and [renderer reconciliation tests](../../../packages/macos-renderer/test/style-reconcile.test.ts).
 The [panel placement fixture](../../../apps/macos/test/layout-placement-fixture.macos.tsx)
 also checks nested absolute/grid geometry, growing scroll height, repeated
-solver passes, and host size/position after resizing; `pnpm smoke:macos` includes it.
+solver passes, and host size/position after resizing; `bun run smoke:macos` includes it.

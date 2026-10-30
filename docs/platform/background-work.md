@@ -25,7 +25,7 @@ see [WorkManager intervals](https://developer.android.com/develop/background-wor
 Start with a running app and install the packages:
 
 ```sh
-pnpm add @octane-xplat/background-tasks @octane-xplat/platform
+bun add @octane-xplat/background-tasks @octane-xplat/platform
 ```
 
 Copy the maintained [refresh.ts example](../../packages/background-tasks/examples/refresh.ts)

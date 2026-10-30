@@ -6,7 +6,7 @@ throttle display and report no outcome, so `requestReview()` is
 fire-and-forget; ask at success moments, not on a timer.
 
 ```sh
-pnpm add @octane-xplat/store-review
+bun add @octane-xplat/store-review
 ```
 
 ```ts

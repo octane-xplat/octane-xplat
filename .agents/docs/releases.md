@@ -64,11 +64,11 @@ running prepack hooks in either mode; run `check:pack` first. The full gate also
 iOS/Android and validates the app and library workflows:
 
 ```sh
-pnpm build:packages
-pnpm check:pack
-pnpm exec turbo run test:packed --filter=@octane-xplat/updates
-pnpm check:consumer --no-build --quick
-pnpm check:consumer --no-build
+bun run build:packages
+bun run check:pack
+bun run turbo run test:packed --filter=@octane-xplat/updates
+bun run check:consumer --no-build --quick
+bun run check:consumer --no-build
 ```
 
 The Updates consumer check validates its bootstrap payload and six target
@@ -79,14 +79,14 @@ The patches package has a dedicated `pack:check` in the normal packed-artifact
 gate. It packs without lifecycle hooks, compares every file with the CLI's
 canonical manifest, and checks both starter configurations and generated default
 native references. Release jobs repeat it after aligning versions, before tagging
-or publishing. Its `test:packed` also serves that tarball through an isolated local
-registry, keeps pnpm `configDependencies` enabled, and installs the starter's
+or publishing. Its `test:packed` also compares starter-local patch files with the
+tarball and installs the starter's
 upstream dependencies plus optional patched packages with scripts disabled. It
-checks locked patch hashes and installed snapshots; it does not qualify devices
+checks locked patch registrations and repeats a frozen install; it does not qualify devices
 or the framework runtime tarballs covered by the full consumer gate.
 
 ```sh
-pnpm exec turbo run pack:check test:packed --filter=@octane-xplat/patches
+bun run turbo run pack:check test:packed --filter=@octane-xplat/patches
 ```
 
 Checkout manifests retain the previous release number until the release PR
@@ -142,18 +142,18 @@ TRUSTED_PUBLISHERS_CACHE= node scripts/check-trusted-publishers.ts
 
 ## Repository installs and publication
 
-Use Bun 1.4.4 with `bun install --frozen-lockfile`. Bun owns the workspace
-catalogs in root `package.json` and the committed `bun.lock`. pnpm remains the
-publication tool because it applies `publishConfig.exports`, rewrites
-workspace/catalog ranges, and supports the existing OIDC/provenance path.
-The root `pnpm-workspace.yaml` is generated packaging metadata; it is not an
-installation configuration. Run `bun run check:workspace` before packaging.
+Use Bun 1.4.4 with `bun install --frozen-lockfile`. Root `package.json`
+owns catalogs and `bun.lock` records resolutions. `bun pm pack` creates
+release tarballs; `scripts/publish-release.ts` uploads them with `npm publish`
+using trusted publishing and provenance. It packs all missing versions before
+uploading any and skips existing exact versions on retry. It preserves the
+independent `tsrx-typegen` track and nightly dist-tag. npm is a release uploader;
+repository installs and consumer qualification use Bun.
 
 Release version changes must refresh `bun.lock` with
 `bun install --lockfile-only --ignore-scripts`. The release PR and independent
 typegen release commit that refreshed lockfile; nightlies refresh it in their
-uncommitted publication checkout. Keep the pinned pnpm version in publishing
-and pnpm consumer CI jobs even though their installs use Bun.
+uncommitted publication checkout.
 
 ## CLI executables
 
@@ -218,20 +218,20 @@ Before the first automated release:
    repository and workflow before publishing.
 
 3. Add the package to `packages/create/template/package.json` only if newly
-   scaffolded apps need it. Run `pnpm sync:compatibility` after adding a
+   scaffolded apps need it. Run `bun run sync:compatibility` after adding a
    lockstep package; its generated package-name list makes doctor/upgrade
    recognize it. The release bump regenerates framework/catalog/patch-config
    pins through the same compatibility manifest. External engine/tool pins
    change only when explicitly edited in that manifest — except
    `tsrx-typegen`, whose pin the release bump moves to the in-repo version
    once that version is published. Run
-   `pnpm check:compatibility` and `pnpm check:patches` to check both outputs.
+   `bun run check:compatibility` and `bun run check:patches` to check both outputs.
 4. Reconcile the package's public setup and usage with its documentation, any
-   affected recipes, and maintained examples. Run `pnpm check:recipes` when
+   affected recipes, and maintained examples. Run `bun run check:recipes` when
    user-facing workflows change.
 
 Declare dependencies in the package manifest and verify the packed consumer
-surface with `pnpm check:consumer`. Do not hand-publish real releases or bump
+surface with `bun run check:consumer`. Do not hand-publish real releases or bump
 package versions: CI builds, aligns lockstep versions, and publishes them.
 
 `tsrx-typegen` releases on its own cadence with `tsrx-typegen-v*` tags. Only
@@ -329,7 +329,7 @@ a separate terminology lookup.
 Validate pending files and preview one release without editing the logs:
 
 ```sh
-pnpm check:changelog
+bun run check:changelog
 node scripts/release-notes.ts preview lockstep 0.18.0
 node scripts/release-notes.ts preview tsrx-typegen 0.3.0
 ```
@@ -398,7 +398,7 @@ Check version selection without publishing, and run the tooling regressions:
 
 ```sh
 node scripts/release-version.ts lockstep
-pnpm exec turbo run test:release --filter=//
+bun run turbo run test:release --filter=//
 ```
 
 The experimental GTK renderer has a package-specific [readiness audit and exact

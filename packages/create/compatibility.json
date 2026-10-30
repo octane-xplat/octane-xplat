@@ -1,9 +1,10 @@
 {
-	"$comment": "Release compatibility set, shared by create-octane-xplat and xplat doctor/upgrade. Edit external pins here, then run pnpm sync:compatibility. Framework package names are generated from the lockstep release set. Optional packages are managed only when declared; library consumer peer ranges remain app-owned.",
+	"$comment": "Release compatibility set, shared by create-octane-xplat and xplat doctor/upgrade. Edit external pins here, then run bun run sync:compatibility. Framework package names are generated from the lockstep release set. Optional packages are managed only when declared; library consumer peer ranges remain app-owned.",
 	"schemaVersion": 1,
 	"frameworkVersion": "0.18.0",
 	"tools": {
 		"nodeMinimum": "22.22.2",
+		"bun": "1.4.4",
 		"pnpm": "11.24.0"
 	},
 	"frameworkPackages": [

@@ -12,7 +12,7 @@ audience with values registered in your own test project. No client secret or
 signing key belongs in this server configuration. Start the API:
 
 ```sh
-pnpm dev
+bun run dev
 ```
 
 It listens only on `127.0.0.1:8788`. An anonymous request returns 401. Use the
@@ -25,8 +25,8 @@ physical devices and production. It is not a general application backend.
 From the framework repository root:
 
 ```sh
-pnpm exec turbo run test typecheck --filter=@xplat/auth-guide
-pnpm exec turbo run test typecheck --filter=@octane-xplat/auth
+bun run turbo run test typecheck --filter=@xplat/auth-guide
+bun run turbo run test typecheck --filter=@octane-xplat/auth
 ```
 
 The tests sign real JWTs with local test keys, reject invalid signatures/claims,

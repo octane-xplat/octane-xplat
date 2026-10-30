@@ -73,7 +73,7 @@ function host(code, executable = join(hostBundle, 'host'), cwd = temporary) {
 }
 
 try {
-	command('pnpm', ['pack', '--pack-destination', pack], root)
+	command('bun', ['pm', 'pack', '--destination', pack], root)
 	command(
 		'tar',
 		[
@@ -119,8 +119,8 @@ try {
 	)
 
 	command(
-		'pnpm',
-		['exec', 'vite', 'build', '--config', config],
+		'bun',
+		['run', 'vite', 'build', '--config', config],
 		fileURLToPath(new URL('../../../apps/macos/', import.meta.url)),
 	)
 

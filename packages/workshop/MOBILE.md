@@ -12,8 +12,8 @@ framework versions, NativeScript resources, styles and plugins. Install the
 workshop as a development dependency, then create a local counter story:
 
 ```sh
-pnpm add -D @octane-xplat/workshop
-pnpm exec xplat workshop init
+bun add -D @octane-xplat/workshop
+bun run xplat workshop init
 ```
 
 Wrap the result of your existing native Vite configuration with
@@ -36,7 +36,7 @@ filename alone.
 
 ```sh
 # Your existing production build remains unchanged.
-pnpm exec ns build android
+bun run ns build android
 ```
 
 ## Select one real host
@@ -47,9 +47,9 @@ setup is present, not that a host acceptance check passed. SDK-directory checks
 are preliminary; the NativeScript launch reports invalid SDK/toolchain setup.
 
 ```sh
-pnpm exec xplat workshop doctor --json
-pnpm exec xplat workshop list --target ios
-pnpm exec xplat workshop list --target android
+bun run xplat workshop doctor --json
+bun run xplat workshop list --target ios
+bun run xplat workshop list --target android
 ```
 
 When you are authorized to use an actual host, supply its device ID explicitly.
@@ -59,8 +59,8 @@ CLI and development-session reload loop. Replace the sample IDs below with the
 IDs of your authorized devices; NativeScript may start the selected device.
 
 ```sh
-pnpm exec xplat workshop dev --target ios --device YOUR_IOS_DEVICE_ID --story workshop/counter-basic
-pnpm exec xplat workshop dev --target android --device YOUR_ANDROID_DEVICE_ID --story workshop/counter-basic
+bun run xplat workshop dev --target ios --device YOUR_IOS_DEVICE_ID --story workshop/counter-basic
+bun run xplat workshop dev --target android --device YOUR_ANDROID_DEVICE_ID --story workshop/counter-basic
 ```
 
 Select **Workshop / Counter**, then press **Increment**. Open **Controls**, edit

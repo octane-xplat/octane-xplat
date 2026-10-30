@@ -236,11 +236,11 @@ Audit checks:
 - All Markdown local links resolve, and every linked Astryx raw source exists
   in the fetched revision's source snapshot.
 - `git diff --check` passes for the report.
-- Attempted `pnpm --filter @xplat/web exec vitest run
+- Attempted `bun run --cwd apps/web vitest run
 packages/ui/src/components/forms/datetime.test.ts packages/ui/src/date-entry.test.tsx`;
   execution was blocked because `vitest` is unavailable in this worktree.
   Existing test cases were inspected, not executed.
-- Attempted `pnpm exec oxfmt --check docs/.agents/docs/parity/astryx-parity-date-inputs.md`;
+- Attempted `bun run oxfmt --check docs/.agents/docs/parity/astryx-parity-date-inputs.md`;
   execution was blocked because `oxfmt` is unavailable. Markdown was reviewed
   directly; no dependency installation was performed for this audit.
 - Targets run: none. No browser, native, or packaged-consumer behavior is
@@ -286,7 +286,7 @@ Checks for this follow-up:
   the platform-file lint convention.
 - Native universal-runtime suite: **81 tests passed**. This is renderer/store
   regression evidence, not date-picker device or accessibility coverage.
-- `pnpm --filter @octane-xplat/ui build`: web/native bundles, declaration emit,
+- `bun run --filter @octane-xplat/ui build`: web/native bundles, declaration emit,
   and native-dist import guard pass.
 - Scoped `tsrx-tsc --noEmit` checks for the five date component roots pass on
   web and mobile; the maintained web example also passes. App-wide web/mobile/
@@ -304,7 +304,7 @@ Checks for this follow-up:
 - macOS probe: build blocked by the existing `svg.mobile.ts` platform-boundary
   error; no AppKit runtime assertions executed. Android is unavailable (no
   authorized device); Linux was not run.
-- `pnpm check:recipes`, changed TSRX component rule/spacing checks, new helper
+- `bun run check:recipes`, changed TSRX component rule/spacing checks, new helper
   and DOM-test lint, and `git diff --check` pass. Existing spacing violations
   elsewhere in `calendar-core.ts` remain; its unchanged sections were preserved.
 

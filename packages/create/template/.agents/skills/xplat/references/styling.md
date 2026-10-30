@@ -76,12 +76,12 @@ export function ThemePreview() {
 
 System fonts are the default. Add a custom font when your app needs one.
 
-`pnpm xplat fonts add <file>` registers a font everywhere: stages a `.ttf`
+`bun run xplat fonts add <file>` registers a font everywhere: stages a `.ttf`
 into `src/fonts` (iOS/Android pick it up from there; `.woff`/`.woff2` inputs
 are converted), writes the web `@font-face` into `src/fonts.css`, and wires
 `--font-sans` (or another token via `--token mono|none|<name>`) in
 `style.css`. Fontsource packages work too —
-`pnpm xplat fonts add @fontsource-variable/inter --install` imports the
+`bun run xplat fonts add @fontsource-variable/inter --install` imports the
 package's own CSS on web and stages its converted files natively (upright
 faces only — italic files are skipped). Variable
 fonts carry their weight range — `font-weight` on `Text` selects the matching
@@ -90,6 +90,6 @@ file itself. See the styling guide at
 https://octane-xplat.goddardai.org/styling for the per-target table.
 
 ```sh
-pnpm xplat fonts add ./Inter.ttf
-pnpm xplat fonts add @fontsource-variable/inter --install
+bun run xplat fonts add ./Inter.ttf
+bun run xplat fonts add @fontsource-variable/inter --install
 ```

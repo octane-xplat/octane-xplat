@@ -30,7 +30,7 @@ function run(command, args, cwd = app) {
 
 async function pack(root) {
 	const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
-	run('pnpm', ['pack', '--pack-destination', packs], root)
+	run('bun', ['pm', 'pack', '--destination', packs], root)
 	return join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)
 }
 
@@ -54,16 +54,12 @@ manifest.dependencies = {
 
 manifest.devDependencies = { '@octane-xplat/cli': `file:${cliPack}`, vite: '8.3.0' }
 await writeFile(join(app, 'package.json'), JSON.stringify(manifest, null, 2))
-await writeFile(
-	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\npackageImportMethod: copy\noverrides:\n${Object.entries(
-		leafPacks,
-	)
-		.map(([name, value]) => `  ${name}: ${JSON.stringify(value)}`)
-		.join('\n')}\n`,
-)
+manifest.overrides = leafPacks
+manifest.packageManager = 'bun@1.4.4'
+await writeFile(join(app, 'package.json'), JSON.stringify(manifest, null, 2))
+await writeFile(join(app, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
 
-run('pnpm', ['install', '--ignore-scripts'])
+run('bun', ['install', '--ignore-scripts'])
 const cli = join(app, 'node_modules/@octane-xplat/cli/dist/cli.js')
 const doctor = run(process.execPath, [cli, 'doctor'])
 assert.match(doctor, /macOS native leaf toolchain/)

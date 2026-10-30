@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Managed child processes. Runtime adapters spawn the consumer app's own
-// toolchain (pnpm exec vite / ns run / dev scripts) — never repo internals.
+// toolchain (bun run vite / ns run / dev scripts) — never repo internals.
 // Every child is tracked so session end, cooperative cancel, and server
 // shutdown can release exactly the resources that session created.
 

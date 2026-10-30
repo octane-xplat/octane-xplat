@@ -8,7 +8,7 @@ Related APIs: @octane-xplat/motion, Presence, motion.View, MotionConfig, useRedu
 
 An Octane Xplat app with the motion package installed and a working screen.
 The live reference is the Motion patterns showcase in the harness app —
-`pnpm dev:web`, `pnpm dev:ios`, or `pnpm dev:android`, then
+`bun run dev:web`, `bun run dev:ios`, or `bun run dev:android`, then
 Apps → Motion patterns → Activity overview.
 The experimental macOS layout fixture is `packages/motion/tests/layout.macos.tsx`.
 

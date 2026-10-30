@@ -54,7 +54,7 @@ const packageDirFor = (name) =>
 
 // ---- scaffold via the packed create bin ------------------------------------
 const createPkg = readJson(join(frameworkRoot, 'packages/create/package.json'))
-run('pnpm', ['pack', '--pack-destination', packDir], join(frameworkRoot, 'packages/create'))
+run('bun', ['pm', 'pack', '--destination', packDir], join(frameworkRoot, 'packages/create'))
 const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
 const createTarball = join(packDir, tarballName(createPkg))
 run('tar', ['-xzf', createTarball, '-C', extractDir])
@@ -114,7 +114,7 @@ const tarballs = new Map()
 for (const name of [...needed].sort()) {
 	const dir = join(frameworkRoot, 'packages', packageDirFor(name))
 	const pkg = readJson(join(dir, 'package.json'))
-	run('pnpm', ['pack', '--pack-destination', packDir], dir)
+	run('bun', ['pm', 'pack', '--destination', packDir], dir)
 	const tarball = join(packDir, tarballName(pkg))
 	if (!existsSync(tarball)) {
 		throw new Error(`expected tarball ${tarball}`)
@@ -141,25 +141,15 @@ manifest.devDependencies['@octane-xplat/mcp'] = `file:${tarballs.get('@octane-xp
 writeFileSync(appManifestPath, JSON.stringify(manifest, null, '\t') + '\n')
 console.log(`[prepare] rewrote ${rewritten} deps + @octane-xplat/mcp to file: tarballs`)
 
-// @octane-xplat/patches travels as a configDependency demanding registry
-// semver; materialize the tarball where patchedDependencies expects it.
-const patchesTarball = tarballs.get('@octane-xplat/patches')
-const configDir = join(appDir, 'node_modules', '.pnpm-config', '@octane-xplat', 'patches')
-mkdirSync(configDir, { recursive: true })
-run('tar', ['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'])
-const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
-const workspaceYaml = readFileSync(workspaceFile, 'utf8')
-const stripped = workspaceYaml.replace(/\n?configDependencies:\n([ \t]+(?!#)\S[^\n]*\n?)+/, '\n')
-if (stripped === workspaceYaml) {
-	throw new Error('configDependencies rewrite found no entry')
+// All late and transitive framework resolutions use the packed artifacts.
+manifest.overrides ??= {}
+for (const [name, tarball] of tarballs) {
+	manifest.overrides[name] = `file:${tarball}`
 }
-
-const overrides = [...tarballs].map(([name, tarball]) => `  "${name}": file:${tarball}`).join('\n')
-
-writeFileSync(workspaceFile, `${stripped}\noverrides:\n${overrides}\n`)
+writeFileSync(appManifestPath, JSON.stringify(manifest, null, '\t') + '\n')
 
 // ---- install + fixture --------------------------------------------------------
-run('pnpm', ['install'], appDir)
+run('bun', ['install'], appDir)
 
 const entry = join(appDir, 'src/main.web.tsrx')
 writeFileSync(

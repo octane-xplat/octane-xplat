@@ -20,7 +20,7 @@ const run = (command, args, options = {}) =>
 try {
 	const extracted = join(directory, 'extracted')
 	mkdirSync(extracted)
-	run('pnpm', ['pack', '--pack-destination', directory], { cwd: root })
+	run('bun', ['pm', 'pack', '--destination', directory], { cwd: root })
 	const tarball = readdirSync(directory).find((name) => name.endsWith('.tgz'))
 	run('tar', ['-xzf', join(directory, tarball), '-C', extracted])
 	const fixture = join(directory, 'fixture.mp4')

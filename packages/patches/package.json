@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/patches",
 	"version": "0.18.0",
-	"description": "pnpm config dependency carrying the framework patch files",
+	"description": "Canonical framework patch files for Bun and pnpm",
 	"keywords": [
 		"framework",
 		"octane",

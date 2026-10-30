@@ -65,7 +65,7 @@ an isolated fixture using the prebuilt host; it performs JavaScript bundling
 and no native compilation. From the repository root, run:
 
 ```sh
-pnpm --filter @octane-xplat/rolling-text test:macos-runtime
+bun run --filter @octane-xplat/rolling-text test:macos-runtime
 ```
 
 The fixture mounts the public workspace import in a real
@@ -103,7 +103,7 @@ ready to operate the setting and restore it.
    `macos:rolling-text-qualification` through the resource broker.
 
    ```sh
-   pnpm --filter @octane-xplat/rolling-text test:macos-runtime -- --human-reduced-motion
+   bun run --filter @octane-xplat/rolling-text test:macos-runtime -- --human-reduced-motion
    ```
 
 3. Confirm `ROLLING_TEXT_HUMAN_BASELINE` matches the recorded setting. If the
@@ -131,5 +131,5 @@ To validate the live fixture's bundle without launching a host or waiting for
 input, use:
 
 ```sh
-pnpm --filter @octane-xplat/rolling-text test:macos-runtime -- --human-reduced-motion --build-only
+bun run --filter @octane-xplat/rolling-text test:macos-runtime -- --human-reduced-motion --build-only
 ```

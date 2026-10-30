@@ -34,7 +34,7 @@ try {
 		filter: (path) => !path.includes('node_modules') && !path.includes('/locales'),
 	})
 
-	run('pnpm', ['pack', '--pack-destination', pack], root)
+	run('bun', ['pm', 'pack', '--destination', pack], root)
 	const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 	const octane = JSON.parse(readFileSync(join(root, 'node_modules/octane/package.json'), 'utf8'))
@@ -53,7 +53,7 @@ try {
 		}),
 	)
 
-	run('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], app)
+	run('bun', ['install', '--ignore-scripts', '--no-peer'], app)
 	writeFileSync(
 		join(app, 'check.mjs'),
 		`
@@ -79,7 +79,7 @@ assert.equal(typeof babelExtractor.extract, 'function')
    assert.equal(typeof Intl.RelativeTimeFormat, 'undefined')
   `,
 	})
-	run('pnpm', ['exec', 'lingui', 'extract'], app)
+	run('bun', ['run', 'lingui', 'extract'], app)
 	const catalog = JSON.parse(readFileSync(join(app, 'locales/en/messages.json'), 'utf8'))
 	const entries = Object.values(catalog)
 	assert.ok(entries.some((entry) => entry.message === 'Extraction control from tsx'))

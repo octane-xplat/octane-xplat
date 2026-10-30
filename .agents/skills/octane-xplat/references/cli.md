@@ -1,13 +1,13 @@
 # Use xplat as an agent
 
-The npm `xplat` command requires Bun >=1.4.3 on PATH. Standalone release
+The npm `xplat` command requires Bun >=1.4.4 on PATH. Standalone release
 executables embed Bun and unpack their production payload into a writable
-local cache; they still require the app's Node/pnpm/platform toolchains.
+local cache; they still require the app's Node/Bun/platform toolchains.
 See [CLI installation and executable builds](../../../../packages/cli/README.md#single-file-executable).
 
 ```sh
 bun --version
-pnpm xplat --help
+bun run xplat --help
 ```
 
 Use the app's installed CLI for discovery and supported operations. It
@@ -40,10 +40,10 @@ upgrade, lint, and formatting, own their reference in `--help`; do not assume
 they accept the agent commands' `--json` or `--schema` flags.
 
 ```sh
-pnpm exec xplat --help
-pnpm exec xplat catalog --json
-pnpm exec xplat session --help
-pnpm exec xplat session start --schema
+bun run xplat --help
+bun run xplat catalog --json
+bun run xplat session --help
+bun run xplat session start --schema
 ```
 
 The catalog is a command directory for the installed CLI version, not a live
@@ -55,10 +55,10 @@ discovery to distinguish declared targets from available toolchains and supporte
 operations; discovery does not boot devices or launch apps.
 
 ```sh
-pnpm exec xplat status --json
-pnpm exec xplat capabilities --json
-pnpm exec xplat targets --json
-pnpm exec xplat permissions --json
+bun run xplat status --json
+bun run xplat capabilities --json
+bun run xplat targets --json
+bun run xplat permissions --json
 ```
 
 Read `ok`, `data` or `error`, and `context` in the JSON envelope. Command acceptance
@@ -72,7 +72,7 @@ be available. A mixed valid/unavailable selection fails before code generation
 or process launch. Use the error's available-kind list to correct the command.
 
 ```sh
-pnpm exec xplat build --targets web,android
+bun run xplat build --targets web,android
 ```
 
 For an exact development device, use `--device` with the returned target ID.
@@ -81,8 +81,8 @@ simulators through `simctl`; it does not need Simulator.app. Physical-device
 launch remains NativeScript's responsibility.
 
 ```sh
-pnpm exec xplat dev ios --device DEVICE_UDID
-pnpm exec xplat dev android --device DEVICE_SERIAL
+bun run xplat dev ios --device DEVICE_UDID
+bun run xplat dev android --device DEVICE_SERIAL
 ```
 
 ## Bind the app and retrieve context
@@ -94,9 +94,9 @@ preference. Keep independent agents' preferences separate with `--client` or
 `XPLAT_AGENT_CLIENT` when persistent selection is needed.
 
 ```sh
-pnpm exec xplat status --app APP_ID --json
-pnpm exec xplat app select APP_ID --client skill-task --json
-pnpm exec xplat guidance --client skill-task --json
+bun run xplat status --app APP_ID --json
+bun run xplat app select APP_ID --client skill-task --json
+bun run xplat guidance --client skill-task --json
 ```
 
 Retrieve docs for the selected app's installed versions. Open search refs rather
@@ -107,11 +107,11 @@ framework code; it is not a historical release snapshot.
 
 ```sh
 # From the intended app directory, or with the chosen --app/--client on each call:
-pnpm exec xplat guidance --json
-pnpm exec xplat docs search "navigation" --json
-pnpm exec xplat docs read --ref DOC_REF --json
-pnpm exec xplat code search "RouteOutlet" --corpus framework --mode exact --json
-pnpm exec xplat code read --ref CODE_REF --json
+bun run xplat guidance --json
+bun run xplat docs search "navigation" --json
+bun run xplat docs read --ref DOC_REF --json
+bun run xplat code search "RouteOutlet" --corpus framework --mode exact --json
+bun run xplat code read --ref CODE_REF --json
 ```
 
 ## Choose an app-building operation
@@ -122,23 +122,23 @@ OTA configuration can change the workspace. Keep them within the task. Start
 with check modes when inspecting compatibility or source quality.
 
 ```sh
-pnpm exec xplat doctor --help
-pnpm exec xplat upgrade --check
-pnpm exec xplat fmt --check
-pnpm exec xplat lint --help
-pnpm exec xplat routes --help
-pnpm exec xplat add --help
+bun run xplat doctor --help
+bun run xplat upgrade --check
+bun run xplat fmt --check
+bun run xplat lint --help
+bun run xplat routes --help
+bun run xplat add --help
 ```
 
 Run platform additions from the intended app directory. In a monorepo, `add`
-fills missing catalogs and patch configuration in the nearest enclosing pnpm
+fills missing catalogs and patch configuration in the owning Bun
 workspace while preserving existing settings. Review that shared file along
 with the app changes; keep the app in its owning workspace.
 
 ```sh
-pnpm exec xplat add ios --no-install
+bun run xplat add ios --no-install
 git diff
-pnpm install
+bun install
 ```
 
 For setup/build/package tasks, follow [getting started](getting-started.md) and
@@ -157,9 +157,9 @@ development bridge. Native log output includes only what the toolchain forwards;
 OS reports have a separate discovery result.
 
 ```sh
-pnpm exec xplat diagnostics --platform ios --json
-pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --limit 50 --json
-pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
+bun run xplat diagnostics --platform ios --json
+bun run xplat diagnostics --session SESSION_ID --cursor 0 --limit 50 --json
+bun run xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
 ```
 
 Read log pages from `data.logs` and keep `logs.nextCursor` with its run ID.
@@ -169,7 +169,7 @@ caused the failure. Discovering reports may write bounded local retained copies;
 it does not start profiling or install a crash handler.
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --report REPORT_ID --json
+bun run xplat diagnostics --session SESSION_ID --report REPORT_ID --json
 ```
 
 Report IDs belong to the selected run; they are separate from log cursors.
@@ -189,9 +189,9 @@ build merely because the first response was lost. Use a task-specific request ke
 requests; keys do not deduplicate arbitrary later reruns.
 
 ```sh
-pnpm exec xplat runtime build --platform web --request-key packing-web-build --json
-pnpm exec xplat job status JOB_ID --json
-pnpm exec xplat diagnostics --job JOB_ID --limit 50 --json
+bun run xplat runtime build --platform web --request-key packing-web-build --json
+bun run xplat job status JOB_ID --json
+bun run xplat diagnostics --job JOB_ID --limit 50 --json
 ```
 
 Start a session only when the task needs a running app. Choose a returned target
@@ -201,11 +201,11 @@ Poll the returned session ID for launch progress and readiness; the session then
 compatible user-owned session already exists instead of restarting it.
 
 ```sh
-pnpm exec xplat session list --json
-pnpm exec xplat session start TARGET_ID --json
-pnpm exec xplat session status SESSION_ID --json
+bun run xplat session list --json
+bun run xplat session start TARGET_ID --json
+bun run xplat session status SESSION_ID --json
 # Alternative: bind an existing compatible target instead of starting another.
-pnpm exec xplat session attach --platform web --target TARGET_ID --json
+bun run xplat session attach --platform web --target TARGET_ID --json
 ```
 
 Use `logs.nextCursor` to continue bounded reads and disclose truncation or dropped
@@ -217,12 +217,12 @@ CLI and MCP, even after the owner exits. End requests go to the owner; an
 unreachable owner is reported without signaling a guessed process.
 
 ```sh
-pnpm exec xplat session status SESSION_ID --json
-pnpm exec xplat diagnostics --session SESSION_ID --limit 50 --json
-pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
+bun run xplat session status SESSION_ID --json
+bun run xplat diagnostics --session SESSION_ID --limit 50 --json
+bun run xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
 # When the task is done, or after requesting cancellation of its pending work:
-pnpm exec xplat job cancel JOB_ID --json
-pnpm exec xplat session end SESSION_ID --json
+bun run xplat job cancel JOB_ID --json
+bun run xplat session end SESSION_ID --json
 ```
 
 ## Inspect and assert supported behavior
@@ -235,9 +235,9 @@ A delivery record alone is not an app-state assertion. Re-inspect on stale
 identity instead of replaying against an old document.
 
 ```sh
-pnpm exec xplat inspect SESSION_ID --testid packing.add-item --json
-pnpm exec xplat interact SESSION_ID --document DOCUMENT_ID --testid packing.add-item --mechanism dom-event --json
-pnpm exec xplat inspect SESSION_ID --testid packing.item-count --json
+bun run xplat inspect SESSION_ID --testid packing.add-item --json
+bun run xplat interact SESSION_ID --document DOCUMENT_ID --testid packing.add-item --mechanism dom-event --json
+bun run xplat inspect SESSION_ID --testid packing.item-count --json
 ```
 
 `dom-event` input is not proof of OS input. The separately qualified `os-input`
@@ -256,10 +256,10 @@ To add actions or diagnose missing registration, read
 and platform qualification limits.
 
 ```sh
-pnpm exec xplat actions list --json
+bun run xplat actions list --json
 # Replace the input JSON with the selected action's declared payload.
-pnpm exec xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key packing-action --json
-pnpm exec xplat actions status JOB_ID --json
+bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key packing-action --json
+bun run xplat actions status JOB_ID --json
 ```
 
 ## Recover and keep evidence scoped
@@ -271,9 +271,9 @@ refresh discovery first. For an unknown mutation outcome, inspect the session,
 job, and logs before retrying with a new request key.
 
 ```sh
-pnpm exec xplat job status JOB_ID --json
-pnpm exec xplat diagnostics --job JOB_ID --limit 50 --json
-pnpm exec xplat evidence list --json
+bun run xplat job status JOB_ID --json
+bun run xplat diagnostics --job JOB_ID --limit 50 --json
+bun run xplat evidence list --json
 ```
 
 Artifacts are session-scoped unless retained. Retain only evidence the task
@@ -283,7 +283,7 @@ current-task approval, even when CLI permissions technically allow them. Help
 and schema can be read without taking a screenshot.
 
 ```sh
-pnpm exec xplat evidence retain --help
-pnpm exec xplat evidence delete --help
-pnpm exec xplat capture --schema
+bun run xplat evidence retain --help
+bun run xplat evidence delete --help
+bun run xplat capture --schema
 ```

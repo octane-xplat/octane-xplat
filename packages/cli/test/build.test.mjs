@@ -10,7 +10,7 @@ import test from 'node:test'
 const exec = promisify(execFile)
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
 
-async function fixture(t, { android = false, web = true, manager = 'pnpm' } = {}) {
+async function fixture(t, { android = false, web = true, manager = 'bun' } = {}) {
 	const root = await mkdtemp(join(tmpdir(), 'xplat-build-selection-'))
 	t.after(() => rm(root, { recursive: true, force: true }))
 	await mkdir(join(root, 'bin'))
@@ -85,8 +85,8 @@ test('accepts trimmed duplicate kinds once and forwards release to the declared 
 	assert.equal(result.code, 0, result.output)
 	assert.match(result.output, /Build complete/)
 	assert.deepEqual(await project.calls(), [
-		['exec', 'vite', 'build'],
-		['exec', 'ns', 'build', 'android', '--release'],
+		['run', 'vite', 'build'],
+		['run', 'ns', 'build', 'android', '--release'],
 	])
 })
 
@@ -95,8 +95,8 @@ test('noninteractive implicit selection still builds all declared kinds', async 
 	const result = await project.run()
 	assert.equal(result.code, 0, result.output)
 	assert.deepEqual(await project.calls(), [
-		['exec', 'vite', 'build'],
-		['exec', 'ns', 'build', 'android'],
+		['run', 'vite', 'build'],
+		['run', 'ns', 'build', 'android'],
 	])
 })
 

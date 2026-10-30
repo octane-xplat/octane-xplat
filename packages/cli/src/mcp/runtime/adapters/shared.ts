@@ -63,12 +63,12 @@ export function appCliFile(app, exportPath, siblingFile) {
 	}
 }
 
-/** `pnpm exec …` — resolves binaries from the app's installed dependencies. */
+/** `bun run …` — resolves binaries from the app's installed dependencies. */
 export const appExec = (args, app) =>
-	app?.root ? packageManagerExec(app.root, args) : { cmd: 'pnpm', args: ['exec', ...args] }
+	app?.root ? packageManagerExec(app.root, args) : { cmd: 'bun', args: ['run', ...args] }
 
 export const appScript = (name, app) => ({
-	cmd: app?.root ? packageManagerFor(app.root) : 'pnpm',
+	cmd: app?.root ? packageManagerFor(app.root) : 'bun',
 	args: ['run', name],
 })
 
@@ -77,7 +77,7 @@ export const hasScript = (app, name) => typeof appManifest(app).scripts?.[name] 
 
 /** Common launch-time prerequisites: the app's package manager must run. */
 export function packageManagerPrerequisite({ exec = execText } = {}, app) {
-	const manager = app?.root ? packageManagerFor(app.root) : 'pnpm'
+	const manager = app?.root ? packageManagerFor(app.root) : 'bun'
 	const out = exec(manager, ['--version'])
 	return out
 		? { id: manager, name: manager, status: 'satisfied', detail: out.trim() }
@@ -89,12 +89,12 @@ export function packageManagerPrerequisite({ exec = execText } = {}, app) {
 			}
 }
 
-/** `pnpm exec ns run <platform> [--device <id>]` — the same command `xplat dev` spawns. */
+/** `bun run ns run <platform> [--device <id>]` — the same command `xplat dev` spawns. */
 export function nsRunCommand(platform, targetId, app) {
 	return appExec(['ns', 'run', platform, ...(targetId ? ['--device', targetId] : [])], app)
 }
 
-/** `pnpm exec ns build <platform>` — the same command `xplat build` spawns. */
+/** `bun run ns build <platform>` — the same command `xplat build` spawns. */
 export function nsBuildCommand(platform, app) {
 	return appExec(['ns', 'build', platform], app)
 }

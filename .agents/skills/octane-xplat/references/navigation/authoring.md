@@ -26,9 +26,9 @@ export { Changelog as default } from '../screens/changelog'
 ```
 
 ```sh
-pnpm exec xplat routes --watch
+bun run xplat routes --watch
 # Repository harness: one shared watcher alongside platform dev servers.
-pnpm --filter @xplat/app routes:watch
+bun run --filter @xplat/app routes:watch
 ```
 
 The repository's live browser watcher check covers route edits/additions/renames/
@@ -37,7 +37,7 @@ occur; retained HMR state and native/device HMR remain separate qualifications.
 The TSX fixture currently emits the documented nonfatal JSX dependency-scan warning.
 
 ```sh
-pnpm --filter @xplat/web smoke:routing-watch
+bun run --filter @xplat/web smoke:routing-watch
 ```
 
 

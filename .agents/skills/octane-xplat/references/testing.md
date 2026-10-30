@@ -8,9 +8,9 @@ phone tests require a selected simulator/device and the native toolchain. Follow
 the samples or adding a target.
 
 ```sh
-pnpm test:web
-pnpm test:ios -- --device DEVICE_UDID
-pnpm test:android -- --device DEVICE_SERIAL
+bun run test:web
+bun run test:ios -- --device DEVICE_UDID
+bun run test:android -- --device DEVICE_SERIAL
 ```
 
 Give meaningful controls and asserted state stable semantic `testID` values.
@@ -46,8 +46,8 @@ browser path is separate from actual-host/OS-input qualification; a target name
 or compiled story does not qualify a native workshop.
 
 ```sh
-pnpm exec xplat workshop doctor
-pnpm exec xplat workshop dev --target web --story counter/basic
+bun run xplat workshop doctor
+bun run xplat workshop dev --target web --story counter/basic
 ```
 
 ## Framework investigations
@@ -58,20 +58,20 @@ supports web, iOS, Android, macOS, and Linux, not Windows. Read
 [probing](../../../docs/probing.md) for target-specific prerequisites.
 
 ```sh
-pnpm probe doctor
-pnpm probe run examples/probes/counter.tsrx --target web --watch
+bun run probe doctor
+bun run probe run examples/probes/counter.tsrx --target web --watch
 ```
 
 Choose the narrowest maintained layer that can establish the claim:
 
 | Layer                    | Repository command                                           | Evidence boundary                                                        |
 | ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| Package types            | `pnpm exec turbo run typecheck --filter=...@octane-xplat/ui` | Types for the touched package and dependents; no runtime claim           |
-| Shared/native unit tests | `pnpm exec turbo run test:native --filter=@octane-xplat/ui`                 | Node and compiled object-driver regressions; no OS host/input claim      |
-| DOM seam check           | `pnpm lint`                                                  | Forbidden DOM usage in native/shared code                                |
-| Web harness smoke        | `pnpm smoke:web`                                             | Browser behavior covered by the local smoke script                       |
-| Packed starter           | `pnpm check:consumer --no-build --quick`                     | Prepared tarballs, isolated install, declarations, and compilation       |
-| Optional adapters        | `pnpm check:optional-services --types-only`                  | Adapter types; `--browser` explicitly adds local browser probes          |
+| Package types            | `bun run turbo run typecheck --filter=...@octane-xplat/ui` | Types for the touched package and dependents; no runtime claim           |
+| Shared/native unit tests | `bun run turbo run test:native --filter=@octane-xplat/ui`                 | Node and compiled object-driver regressions; no OS host/input claim      |
+| DOM seam check           | `bun run lint`                                                  | Forbidden DOM usage in native/shared code                                |
+| Web harness smoke        | `bun run smoke:web`                                             | Browser behavior covered by the local smoke script                       |
+| Packed starter           | `bun run check:consumer --no-build --quick`                     | Prepared tarballs, isolated install, declarations, and compilation       |
+| Optional adapters        | `bun run check:optional-services --types-only`                  | Adapter types; `--browser` explicitly adds local browser probes          |
 | Native probe/device test | Probe runner or maintained `ns test` suite                   | Only the assertions and target actually executed                         |
 
 When testing asynchronous query updates with Octane 0.14 or newer, allow a host
@@ -116,8 +116,8 @@ modal cancellation/success and return intents. It does not contact an identity
 provider. Keep browser engines out of PR checks.
 
 ```sh
-pnpm --filter @xplat/web smoke:routing
-pnpm --filter @xplat/web smoke:routing-auth
+bun run --filter @xplat/web smoke:routing
+bun run --filter @xplat/web smoke:routing-auth
 ```
 
 For separate native Frame/pane/modal commands and measured target limits, use
@@ -128,7 +128,7 @@ object driver. These checks use explicit URL requests inside running apps;
 real providers and OS authentication dialogs require separate qualification.
 
 ```sh
-pnpm --filter @octane-xplat/ui test:native
+bun run --filter @octane-xplat/ui test:native
 ```
 
 The native release fixtures also run `route-retention-example.tsrx` on root
@@ -140,8 +140,8 @@ OS/assistive input remain separate from these programmatic checks. See
 for the measured targets and portable-handle regressions.
 
 ```sh
-pnpm --filter @octane-xplat/ui exec vitest run src/scrollable-area-offset.test.ts
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
+bun run --cwd packages/ui vitest run src/scrollable-area-offset.test.ts
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/scrollable-area-handle.mobile.test.tsrx
 ```
 
 The general demo-sweep gates below do not describe the canonical router's
@@ -178,8 +178,8 @@ self-driving harness timers. Choose a device explicitly and follow the
 [device ownership guidance](../../../docs/testing.md#mobile-end-to-end-tests-with-maestro).
 
 ```sh
-pnpm test:maestro --target ios --device DEVICE_UDID
-pnpm test:maestro --target android --device DEVICE_SERIAL
+bun run test:maestro --target ios --device DEVICE_UDID
+bun run test:maestro --target android --device DEVICE_SERIAL
 ```
 
 For agent-driven browser/device interaction, use the optional
@@ -198,7 +198,7 @@ hash. The Node-test prelude and task prerequisites still run. This mode does
 not launch an OS app or prove native input/layout/VoiceOver/packaging.
 
 ```sh
-XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos bun run turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
 ```
 
 Read [test-layer guidance](../../../docs/testing.md#appkit-component-tests) for

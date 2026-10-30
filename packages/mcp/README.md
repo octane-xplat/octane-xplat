@@ -18,7 +18,7 @@ Add the server to a consumer app and point the agent's MCP client at the
 installed `xplat-mcp` bin:
 
 ```sh
-pnpm add -D @octane-xplat/mcp
+bun add -D @octane-xplat/mcp
 ```
 
 ```json
@@ -35,7 +35,7 @@ pnpm add -D @octane-xplat/mcp
 A one-off run without a devDependency also works:
 
 ```sh
-pnpm dlx @octane-xplat/mcp --workspace /path/to/app-workspace
+bunx @octane-xplat/mcp --workspace /path/to/app-workspace
 ```
 
 For development inside this repository — `start` runs the TypeScript source
@@ -43,8 +43,8 @@ directly (Node ≥22.18 strips types); `test` and `prepack` run `vite build` so
 the checked and packed surface is the emitted `dist/`:
 
 ```sh
-pnpm --filter @octane-xplat/mcp start -- --workspace <path>
-pnpm exec turbo run test --filter=@octane-xplat/mcp
+bun run --filter @octane-xplat/mcp start -- --workspace <path>
+bun run turbo run test --filter=@octane-xplat/mcp
 ```
 
 Transport is stdio; stdout is protocol-clean (diagnostics go to stderr).
@@ -124,8 +124,8 @@ The service layer lives in `packages/cli/src/mcp/` — the `xplat` CLI projects
 the same contracts through its agent commands (`xplat catalog --json` is the
 entry point). `packages/mcp/src/` holds the stdio transport adapter: tool
 registration wraps the shared services, and the published `.d.ts` contract
-surface stays here under `types/contracts/`. Sources are TypeScript; `pnpm
-build` emits the runnable ESM to `dist/` (`pnpm test` builds first).
+surface stays here under `types/contracts/`. Sources are TypeScript; `bun run
+build` emits the runnable ESM to `dist/` (`bun run test` builds first).
 
 ## Contract surface (`@octane-xplat/mcp/contracts/*`)
 
@@ -179,8 +179,8 @@ carry the runtime values and stores (re-exported from `@octane-xplat/cli`).
 The shared `runtime/` service (in `packages/cli/src/mcp/runtime/`, re-exported
 here) implements build/launch/attach/logs/cleanup for consumer apps
 on all six platforms. Adapters (`runtime/adapters/*`) own platform
-mechanics and always spawn the app's own toolchain — `pnpm exec vite`,
-`pnpm exec ns run …`, the app's installed `@octane-xplat/cli` dev entry, or
+mechanics and always spawn the app's own toolchain — `bun run vite`,
+`bun run ns run …`, the app's installed `@octane-xplat/cli` dev entry, or
 its `dev` script — so a session behaves like the app's installed framework
 version. The shared `runtime/service` module owns the contract behavior: explicit
 app+target binding, `target_busy` contention, job dedupe/cooperative
@@ -188,11 +188,11 @@ cancel, ownership-safe cleanup, bounded logs, and capability-matrix entries.
 
 | Platform       | Launch                                                            | Attach                                             | Host gate  |
 | -------------- | ----------------------------------------------------------------- | -------------------------------------------------- | ---------- |
-| web / Chromium | `pnpm exec vite` + headless Chromium (devtools endpoint reported) | probe common dev ports — identity heuristic        | none       |
+| web / Chromium | `bun run vite` + headless Chromium (devtools endpoint reported) | probe common dev ports — identity heuristic        | none       |
 | iOS            | `ns run ios --device <udid>`                                      | booted sim + app running → `simctl log stream` tap | macOS      |
 | Android        | `ns run android --device <serial>`                                | package running → `adb logcat --pid` tap           | none (adb) |
-| macOS          | `xplat.targets.macos.dev` → CLI dev entry, else `pnpm run dev`    | pgrep on app root — no scrollback                  | macOS      |
-| Linux          | `pnpm run dev` (app-owned script)                                 | pgrep on app root                                  | Linux      |
+| macOS          | `xplat.targets.macos.dev` → CLI dev entry, else `bun run dev`    | pgrep on app root — no scrollback                  | macOS      |
+| Linux          | `bun run dev` (app-owned script)                                 | pgrep on app root                                  | Linux      |
 | Windows        | `ns run windows`                                                  | not yet qualified                                  | Windows    |
 
 Readiness is probe/marker-confirmed (`ready` session state) — HTTP 200 for
@@ -283,7 +283,7 @@ the fixture declaration and handler are absent from production artifacts.
 
 ```sh
 node packages/mcp/tests/prepare-consumer.mjs /tmp/new-xplat-mcp-app
-pnpm --dir /tmp/new-xplat-mcp-app install
+bun run --cwd /tmp/new-xplat-mcp-app install
 node packages/mcp/tests/consumer-workflow.mjs /tmp/new-xplat-mcp-app
 ```
 

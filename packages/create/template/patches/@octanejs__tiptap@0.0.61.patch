@@ -1,0 +1,12 @@
+diff --git a/src/useEditor.ts b/src/useEditor.ts
+index c30a55e..f550fce 100644
+--- a/src/useEditor.ts
++++ b/src/useEditor.ts
+@@ -7,6 +7,7 @@ import { useEditorState, type UseEditorStateOptions } from './useEditorState';
+ type DependencyList = readonly unknown[];
+ type MutableRefObject<T> = { current: T };
+
++declare const process: { env: { NODE_ENV?: string } };
+ const isDev = process.env.NODE_ENV !== 'production';
+ const isSSR = typeof window === 'undefined';
+ const isNext = isSSR || Boolean(typeof window !== 'undefined' && (window as any).next);

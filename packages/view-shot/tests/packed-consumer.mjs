@@ -14,7 +14,7 @@ const run = (cmd, args, cwd) => {
 try {
 	const pack = join(temporary, 'pack')
 	await mkdir(pack)
-	run('pnpm', ['pack', '--config.ignore-scripts=true', '--pack-destination', pack], root)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
 	const archive = (await readdir(pack)).find((name) => name.endsWith('.tgz'))
 	assert.ok(archive)
 	run('tar', ['-xzf', join(pack, archive), '-C', pack], root)

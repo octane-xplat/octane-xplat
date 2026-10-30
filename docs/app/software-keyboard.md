@@ -6,7 +6,7 @@ Add the optional keyboard package when a phone form needs to follow keyboard
 movement. It works with the existing UI wrapper. Run this in your app directory:
 
 ```sh
-pnpm add @octane-xplat/keyboard
+bun add @octane-xplat/keyboard
 ```
 
 Wrap your form in `KeyboardProvider`. On supported native hosts, the wrapper's

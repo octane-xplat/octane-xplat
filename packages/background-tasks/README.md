@@ -16,7 +16,7 @@ launch-time registration, disable and execution checks.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/background-tasks @octane-xplat/platform
+bun add @octane-xplat/background-tasks @octane-xplat/platform
 ```
 
 Define tasks at module scope in a module imported at native startup. Keep their

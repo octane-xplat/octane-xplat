@@ -7,7 +7,7 @@ macOS uses a package-owned AVPlayer bridge. Web uses an
 `HTMLAudioElement` plus the Media Session API for system controls.
 
 ```sh
-pnpm add @octane-xplat/audio
+bun add @octane-xplat/audio
 ```
 
 ```ts
@@ -93,9 +93,9 @@ emulator with `--target android`). Its local HTTP addresses target virtual
 devices; physical media acceptance needs a reachable server and a separate run:
 
 ```sh
-pnpm exec turbo run test:browser --filter=@octane-xplat/audio -- --foreground-budgets
-pnpm exec turbo run test:runtime --filter=@octane-xplat/audio -- --foreground-budgets --target ios --device OWNED_UDID
-pnpm exec turbo run test:macos-budgets --filter=@octane-xplat/audio
+bun run turbo run test:browser --filter=@octane-xplat/audio -- --foreground-budgets
+bun run turbo run test:runtime --filter=@octane-xplat/audio -- --foreground-budgets --target ios --device OWNED_UDID
+bun run turbo run test:macos-budgets --filter=@octane-xplat/audio
 ```
 
 | Measurement | Fixture ceiling |

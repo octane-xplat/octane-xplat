@@ -12,7 +12,7 @@ apps after installation so their capture bridge is included. A JavaScript-only
 refresh cannot install native code.
 
 ```sh
-pnpm add @octane-xplat/view-shot
+bun add @octane-xplat/view-shot
 ```
 
 Add this component to a screen. Press **Capture card** after the card has

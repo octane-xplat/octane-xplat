@@ -6,7 +6,7 @@ import { join } from 'node:path'
 
 const temporaryRoot = mkdtempSync(join(tmpdir(), 'xplat-vis-mock-'))
 function run(label, env, expectedStatus, expectedMessage) {
-	const result = spawnSync('pnpm', ['exec', 'vitest', 'run', 'mock.test'], {
+	const result = spawnSync('bun', ['run', 'vitest', 'run', 'mock.test'], {
 		shell: process.platform === 'win32',
 		encoding: 'utf8',
 		timeout: 60000,

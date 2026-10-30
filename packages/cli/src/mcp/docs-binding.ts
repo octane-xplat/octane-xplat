@@ -9,6 +9,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, resolve, sep } from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { bunLockedVersions } from '../package-manager.ts'
 import { releaseMapping } from './release-map.ts'
 import { installedPackageRoot } from '../package-root.ts'
 
@@ -23,8 +24,12 @@ const readJson = (path) => {
 	}
 }
 
-/** Versions a pnpm-lock.yaml records for this importer (empty when absent). */
+/** Versions the selected lockfile records for this importer (empty when absent). */
 function lockfileVersions(projectRoot) {
+	const bun = bunLockedVersions(projectRoot)
+	if (bun) {
+		return bun
+	}
 	const file = join(projectRoot, 'pnpm-lock.yaml')
 	if (!existsSync(file)) {
 		return {}
@@ -213,7 +218,11 @@ export function resolveInstallations(projectRoot) {
 export function developmentDocsDir(installPath) {
 	let dir = resolve(realpathSync(installPath))
 	for (let i = 0; i < 8; i++) {
-		if (existsSync(join(dir, 'pnpm-workspace.yaml')) || existsSync(join(dir, '.git'))) {
+		if (
+			existsSync(join(dir, 'bun.lock')) ||
+			existsSync(join(dir, 'pnpm-workspace.yaml')) ||
+			existsSync(join(dir, '.git'))
+		) {
 			const docs = join(dir, 'docs')
 			return existsSync(docs) ? docs : null
 		}

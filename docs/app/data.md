@@ -642,10 +642,10 @@ the exact instance and revision from the listing. Read the completed job's
 not fetch or change data. Remove the registration before disposing its inspector.
 
 ```sh
-pnpm exec xplat actions list --json
+bun run xplat actions list --json
 # Replace these placeholders with the identities from that listing.
-pnpm exec xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key query-inspect-1 --json
-pnpm exec xplat actions status JOB_ID --json
+bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key query-inspect-1 --json
+bun run xplat actions status JOB_ID --json
 ```
 
 The bridge is qualified on web and one Android device. iOS transport remains

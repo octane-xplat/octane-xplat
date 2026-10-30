@@ -6,9 +6,9 @@ includes this package and Oxlint; no separate lint installation or config is
 needed for its defaults:
 
 ```sh
-pnpm exec xplat lint
-pnpm exec xplat lint src
-pnpm exec xplat lint --fix src
+bun run xplat lint
+bun run xplat lint src
+bun run xplat lint --fix src
 ```
 
 The standalone `xplat-lint` command remains available with the same arguments.
@@ -16,8 +16,8 @@ It includes Oxlint, so it also works when invoked directly through Node
 without `node_modules/.bin` on `PATH`:
 
 ```sh
-pnpm add -D @octane-xplat/lint
-pnpm exec xplat-lint --fix src
+bun add -D @octane-xplat/lint
+bun run xplat-lint --fix src
 node node_modules/@octane-xplat/lint/bin/lint.mjs src
 ```
 
@@ -29,8 +29,8 @@ built-in rules or apply automatic fixes. `--fix` applies safe Oxlint fixes
 and leaves unresolved findings visible. Use `fmt` for formatting:
 
 ```sh
-pnpm exec xplat lint --fix
-pnpm exec xplat fmt
+bun run xplat lint --fix
+bun run xplat fmt
 ```
 
 With no paths, both passes discover source recursively from the current
@@ -40,14 +40,14 @@ directory. Explicit files and directories follow the same ignores:
 are skipped. Paths must stay inside the current directory:
 
 ```sh
-pnpm exec xplat lint src/Screen.tsrx src/components
+bun run xplat lint src/Screen.tsrx src/components
 ```
 
 Exit codes are `0` when no errors remain, `1` for lint errors, and `2` for
 command or setup failures. Warning-level findings do not fail the command:
 
 ```sh
-pnpm exec xplat lint --help
+bun run xplat lint --help
 ```
 
 ## Routing migration rules
@@ -78,7 +78,7 @@ both passes; nested configs are not loaded. To keep the preset while changing
 one rule, add the lint package as a direct development dependency:
 
 ```sh
-pnpm add -D @octane-xplat/lint
+bun add -D @octane-xplat/lint
 ```
 
 Then create `.oxlintrc.json`. Oxlint resolves inherited plugin paths from the

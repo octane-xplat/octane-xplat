@@ -10,7 +10,7 @@ for those targets.
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/firebase-crashlytics @nativescript/firebase-crashlytics@5.0.2
+bun add @octane-xplat/firebase-crashlytics @nativescript/firebase-crashlytics@5.0.2
 ```
 
 Follow [production error reporting](https://octane-xplat.goddardai.org/production-errors#use-crashlytics-as-a-native-alternative)

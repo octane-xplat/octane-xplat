@@ -19,7 +19,7 @@ for (const args of [['--device', 'phone'], ['android', '--device', 'phone'], ['p
 		writeFileSync(join(root, 'nativescript.config.ts'), 'export default {}')
 		for (const [name, body] of Object.entries({
 			adb: "console.log('List of devices attached\\nphone\\tdevice\\nother\\tdevice')",
-			pnpm: `require('node:fs').writeFileSync(${JSON.stringify(join(root, 'args.json'))}, JSON.stringify(process.argv.slice(2)))`,
+			bun: `require('node:fs').writeFileSync(${JSON.stringify(join(root, 'args.json'))}, JSON.stringify(process.argv.slice(2)))`,
 		})) {
 			const path = join(root, 'bin', name)
 			writeFileSync(path, `#!${process.execPath}\n${body}\n`)
@@ -33,7 +33,7 @@ for (const args of [['--device', 'phone'], ['android', '--device', 'phone'], ['p
 		})
 		assert.equal(result.status, 0, result.stdout + result.stderr)
 		assert.deepEqual(JSON.parse(readFileSync(join(root, 'args.json'), 'utf8')), [
-			'exec',
+			'run',
 			'ns',
 			'run',
 			'android',

@@ -81,8 +81,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          # No pnpm in this job — disable v5's auto package-manager cache,
-          # which would otherwise invoke pnpm for the detected lockfile.
+          # Bun owns the dependency cache; disable setup-node's automatic caching.
           package-manager-cache: false
 
       - name: Verify CI release evidence
@@ -128,11 +127,6 @@ jobs:
           ref: ${{ needs.gate.outputs.sha }}
           submodules: true
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
@@ -158,7 +152,7 @@ jobs:
 
   # The GitHub Release is the completion marker: the tag is pushed before
   # publish, so "tag exists, release missing" means an unfinished publication.
-  # This job resumes it — pnpm skips the version when it did reach npm, and
+  # This job resumes it — the publisher skips the version when it did reach npm, and
   # release creation is skipped when the release already exists.
   tsrx-typegen-resume:
     name: Resume an unfinished tsrx-typegen release
@@ -193,12 +187,6 @@ jobs:
       - name: Check out the tagged release
         if: steps.pending.outputs.state == 'unpublished'
         run: git checkout --detach "${{ steps.pending.outputs.tag }}"
-
-      - name: Setup pnpm
-        if: steps.pending.outputs.state == 'unpublished'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -238,7 +226,7 @@ jobs:
 
       - name: Publish to npm
         if: steps.pending.outputs.state == 'unpublished'
-        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance
+        run: node scripts/publish-release.ts --package tsrx-typegen
 
       - name: Create GitHub Release
         if: steps.pending.outputs.state == 'unpublished'
@@ -289,11 +277,6 @@ jobs:
           fetch-depth: 0
           submodules: true
           token: ${{ secrets.RELEASE_TOKEN }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -388,7 +371,7 @@ jobs:
 
       - name: Publish to npm
         if: steps.version.outputs.should_release == 'true'
-        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance
+        run: node scripts/publish-release.ts --package tsrx-typegen
 
       - name: Create GitHub Release
         if: steps.version.outputs.should_release == 'true'
@@ -499,12 +482,6 @@ jobs:
           path: ${{ runner.temp }}/trusted-publishers.json
           key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
 
-      - name: Setup pnpm
-        if: steps.unpublished.outputs.exists != 'true'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
@@ -530,14 +507,12 @@ jobs:
           git tag "$TAG" "$TESTED_SHA"
           git push origin "$TAG"
 
-      # pnpm publish (not npm): publishConfig export remapping and workspace:*
-      # rewriting are pnpm behaviors. No NODE_AUTH_TOKEN/NPM_TOKEN is set —
-      # pnpm mints per-package tokens from the OIDC id token via npm's trusted
-      # publishing exchange and attaches provenance automatically. Reruns
-      # rely on recursive publish skipping versions already on the registry.
+      # Bun creates tarballs with resolved workspace/catalog versions. npm uploads
+      # them through trusted publishing and generates provenance. No static token.
+      # The helper skips registry versions already published when resuming a release.
       - name: Publish to npm
         if: steps.unpublished.outputs.exists != 'true'
-        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance
+        run: node scripts/publish-release.ts
 
       # The release commit consumed the pending notes into the root logs;
       # extract rebuilds the same GitHub body from the recorded heading. A
@@ -596,8 +571,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24
-          # No pnpm in this job — disable v5's auto package-manager cache,
-          # which would otherwise invoke pnpm for the detected lockfile.
+          # Bun owns the dependency cache; disable setup-node's automatic caching.
           package-manager-cache: false
 
       - name: Verify CI release evidence
@@ -654,11 +628,6 @@ jobs:
           submodules: true
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.24.0
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
@@ -703,7 +672,7 @@ jobs:
         run: bun run turbo run pack:check --filter=@octane-xplat/patches
 
       - name: Publish nightly to npm
-        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance --tag nightly
+        run: node scripts/publish-release.ts --tag nightly
 
       # Checkout persists the RELEASE_TOKEN credential — retagging a workflow
       # change requires Workflows: write, which GITHUB_TOKEN cannot hold.
@@ -716,4 +685,4 @@ jobs:
           git push --force origin refs/tags/nightly
           gh release delete nightly --yes 2>/dev/null || true
           gh release create nightly --title nightly --prerelease \
-            --notes "Nightly prerelease of ${TESTED_SHA} — install with \`pnpm add @octane-xplat/<pkg>@nightly\` (published as $VERSION)."
+            --notes "Nightly prerelease of ${TESTED_SHA} — install with \`bun add @octane-xplat/<pkg>@nightly\` (published as $VERSION)."

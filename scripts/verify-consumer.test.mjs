@@ -43,7 +43,7 @@ test(
 			const log = join(directory, 'commands.jsonl')
 			mkdirSync(bin)
 			writeFileSync(
-				join(bin, 'pnpm'),
+				join(bin, 'bun'),
 				`#!/usr/bin/env node
 import { appendFileSync } from 'node:fs'
 appendFileSync(process.env.CONSUMER_COMMAND_LOG, JSON.stringify(process.argv.slice(2)) + '\\n')
@@ -65,18 +65,14 @@ process.exit(1)
 			// Stop at the first pack request: the shim must never execute a real
 			// build or pack, and its arguments establish the lifecycle contract.
 			assert.notEqual(result.status, 0)
-			assert.match(result.stderr, /pnpm pack failed/)
+			assert.match(result.stderr, /bun pm pack failed/)
 			const commands = readFileSync(log, 'utf8')
 				.trim()
 				.split('\n')
 				.map((line) => JSON.parse(line))
 
 			assert.equal(commands.length, 1)
-			assert.deepEqual(commands[0].slice(0, 3), [
-				'--config.ignore-scripts=true',
-				'pack',
-				'--pack-destination',
-			])
+			assert.deepEqual(commands[0].slice(0, 3), ['pm', 'pack', '--ignore-scripts'])
 		} finally {
 			rmSync(directory, { recursive: true, force: true })
 		}

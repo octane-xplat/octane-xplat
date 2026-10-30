@@ -11,7 +11,7 @@ The app creator configures this package. For an existing custom setup, add it
 as a development dependency alongside the app's existing Octane dependency:
 
 ```sh
-pnpm add -D @octane-xplat/jsx
+bun add -D @octane-xplat/jsx
 ```
 
 ## Select a JSX source

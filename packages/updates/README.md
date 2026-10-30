@@ -13,9 +13,9 @@ native prepare hook. Commit that hook and rebuild the binary before sending
 updates. Keep the fingerprint tool in development dependencies.
 
 ```sh
-pnpm add @octane-xplat/updates
-pnpm add -D @octane-xplat/fingerprint
-pnpm exec xplat updates init
+bun add @octane-xplat/updates
+bun add -D @octane-xplat/fingerprint
+bun run xplat updates init
 git add -f hooks/after-prepare/xplat-updates.cjs
 ```
 

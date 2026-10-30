@@ -33,7 +33,7 @@ app’s Rename or Delete action when you connect it to real data.
 
 ## Install and import
 
-Run `pnpm add @octane-xplat/context-menu` from your app folder. Import
+Run `bun add @octane-xplat/context-menu` from your app folder. Import
 the platform-specific component from the matching target entry:
 
 - `SwiftUIContextMenu` from `@octane-xplat/context-menu/ios` in `.ios.ts` or `.ios.tsrx`.
@@ -244,7 +244,7 @@ responder propagation, tracking/cancellation, focus, VoiceOver, lifecycle timing
 or clean installed consumers.
 
 ```sh
-pnpm probe run examples/probes/native-context-menu.macos.tsrx --target macos --watch
+bun run probe run examples/probes/native-context-menu.macos.tsrx --target macos --watch
 ```
 
 ## Port notes — what carried over

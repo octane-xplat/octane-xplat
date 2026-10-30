@@ -75,8 +75,8 @@ checks first-mount bounds, one safe-area padding, stable relayout and a later
 Screen mount. Run it in a fresh process to expose session-first behavior:
 
 ```sh
-pnpm probe doctor
-pnpm probe run examples/probes/screen-safe-area.ios.tsrx --target ios --device SIMULATOR_UDID --fresh-process
+bun run probe doctor
+bun run probe run examples/probes/screen-safe-area.ios.tsrx --target ios --device SIMULATOR_UDID --fresh-process
 ```
 
 Verified on 2026-10-23 with iOS 27.0, an iPhone 18 Pro simulator (402 × 874pt),

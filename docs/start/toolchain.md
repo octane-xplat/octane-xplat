@@ -4,15 +4,12 @@
 
 ## Create and run
 
-You need three tools on your computer:
+You need two tools on your computer:
 
 - **Node.js** runs the tools that prepare your app. Install version 22.22.2
   or later from the [Node.js download page](https://nodejs.org/en/download).
-- **Bun** runs the Xplat CLI. Install version 1.4.3 or later using the
-  [Bun installation guide](https://bun.sh/docs/installation).
-- **pnpm** downloads the packages your app uses and runs its project commands.
-  Follow the [pnpm installation guide](https://pnpm.io/installation). This
-  checkout's starter uses pnpm 11.24.0.
+- **Bun** runs Xplat, downloads packages, and runs project commands. Install
+  [Bun 1.4.4 or later](https://bun.com/docs/installation).
 
 A **package** is a bundle of code your app uses, such as Xplat's buttons and
 text fields. You don't need phone development tools to start in the browser.
@@ -25,7 +22,7 @@ text fields. You don't need phone development tools to start in the browser.
    ```sh
    node --version
    bun --version
-   pnpm --version
+   bun --version
    ```
 
    Each should print a version number. If you see “command not found” or
@@ -36,7 +33,7 @@ text fields. You don't need phone development tools to start in the browser.
    a Desktop folder inside your current folder. Create the app:
 
    ```sh
-   pnpm create octane-xplat my-app
+   bun create octane-xplat my-app
    ```
 
    `my-app` is the new folder's name; you can choose another name. Use a
@@ -45,11 +42,11 @@ text fields. You don't need phone development tools to start in the browser.
    copies the matching starter files, installs its packages, and starts a
    **development server**: a local process that serves your app to the
    browser and watches for edits. Pass `--targets` to skip the prompt
-   (`pnpm create octane-xplat my-app --targets web` scaffolds web only);
+   (`bun create octane-xplat my-app --targets web` scaffolds web only);
    non-interactive runs without it keep all three.
 
    A platform skipped at create time can be enabled later from the app
-   directory — `pnpm xplat add ios` copies its files, adds its packages and
+   directory — `bun run xplat add ios` copies its files, adds its packages and
    scripts, and installs. `xplat add` never overwrites files or manifest
    entries you have already edited.
 
@@ -62,14 +59,14 @@ again, move into your app's folder and run:
 
 ```sh
 cd my-app
-pnpm dev
+bun run dev
 ```
 
 `cd my-app` means “change into the my-app folder.” If your terminal is already
-there, run only `pnpm dev`.
+there, run only `bun run dev`.
 
 If setup stops with “Install didn't finish,” enter `my-app` and run
-`pnpm install`. Resolve its reported error before running `pnpm dev`; you
+`bun install`. Resolve its reported error before running `bun run dev`; you
 can give the error to your agent for help. If the browser cannot connect,
 check that the server is still running and open the address it printed.
 
@@ -91,7 +88,7 @@ give it this prompt:
 > with a trip packing checklist. Let me add items, mark them packed, remove
 > them, and see how many are still to pack. Keep the list only while the app
 > is open; it should reset on reload. Use shared Xplat components so it can
-> also run on iOS and Android. Run pnpm lint, pnpm typecheck, and pnpm build.
+> also run on iOS and Android. Run bun run lint, bun run typecheck, and bun run build.
 > Explain what changed, report any failures, and say where you ran the app.
 
 You can make the same change yourself in `src/App.tsrx`. A `.tsrx` file
@@ -154,8 +151,8 @@ Open a second terminal in the app folder so the browser server can keep
 running. Check the setup with:
 
 ```sh
-pnpm exec ns doctor
-pnpm xplat doctor
+bun run ns doctor
+bun run xplat doctor
 ```
 
 The first checks NativeScript's development tools; the second checks your
@@ -166,31 +163,31 @@ continuing.
 Run the command for the phone platform you set up:
 
 ```sh
-pnpm dev:ios
+bun run dev:ios
 ```
 
 Or, for Android:
 
 ```sh
-pnpm dev:android
+bun run dev:android
 ```
 
 The `dev:*` scripts exist for every platform enabled at create time —
-`pnpm xplat add <platform>` adds one that was skipped. These start the app
+`bun run xplat add <platform>` adds one that was skipped. These start the app
 on a simulator, emulator, or connected device. Once it
 opens, try the same checklist actions you tried in the browser.
 
 To launch multiple platforms together instead, stop the existing development
-commands with Ctrl+C and run `pnpm xplat dev`. It offers a choice of available
+commands with Ctrl+C and run `bun run xplat dev`. It offers a choice of available
 targets. Choose one device with `--device` and its identifier from
-`pnpm xplat targets --json`. For iOS simulators, Xplat waits for the simulator to
+`bun run xplat targets --json`. For iOS simulators, Xplat waits for the simulator to
 boot through `simctl`, so the Simulator desktop app is optional.
 
 ```sh
-pnpm xplat dev macos
-pnpm xplat dev ios --device DEVICE_UDID
-pnpm xplat dev android --device DEVICE_SERIAL
-pnpm xplat dev -t web,ios
+bun run xplat dev macos
+bun run xplat dev ios --device DEVICE_UDID
+bun run xplat dev android --device DEVICE_SERIAL
+bun run xplat dev -t web,ios
 ```
 
 Replace `DEVICE_UDID` or `DEVICE_SERIAL` with the exact device identifier.
@@ -208,7 +205,7 @@ while you're developing; they do not sync data between devices or update
 apps you have already released. A shared `.tsrx` edit has been checked in
 the browser and an iOS simulator; check your own platforms too.
 
-Start phone development through `pnpm dev:ios` or `pnpm dev:android` so the
+Start phone development through `bun run dev:ios` or `bun run dev:android` so the
 live-update connection attaches. Opening an installed app by hand can load
 its bundled code without that connection. Changing native configuration
 or packages can require a rebuild. If an edit does not appear, see
@@ -229,32 +226,39 @@ separately. Ask your agent to use examples that match your app's package
 versions; examples for another framework may need changes.
 
 The framework supplies a compatible set of package versions. The starter's
-`package.json` lists the packages your app uses; `pnpm-workspace.yaml` stores
-their versions in a named **catalog**, a shared version list. The lockfile
-records what pnpm installed. Keep all three files in Git.
+`package.json` owns a named **catalog**, a shared list of exact versions, and
+patch registrations. `bun.lock` records what Bun installed. Keep both files
+and the scaffold's `patches/` directory in Git.
 
 ```json
 {
 	"dependencies": { "octane": "catalog:xplat" },
-	"devDependencies": { "@tsrx/oxc": "catalog:xplat" }
+	"workspaces": {
+		"packages": [],
+		"catalogs": { "xplat": { "octane": "0.16.3" } }
+	}
 }
 ```
 
-An app can also live inside a pnpm **workspace** — a repo where several
-apps and packages share one install. Move the scaffolded app under a folder
-the workspace covers (for example `apps/mobile`) and list the packages in
-the root `pnpm-workspace.yaml`. With `nodeLinker: hoisted`, pnpm installs
-all dependencies at the workspace root and the app's own `node_modules`
-stays nearly empty; the dev server resolves packages upward the same way
-Node does, so iOS/Android dev sessions work unchanged. Keep the catalog,
-patches, and `allowBuilds` settings in the root `pnpm-workspace.yaml` —
-workspace members read them from there.
+An app can live inside a Bun **workspace**, where several apps and packages
+share one install. List member folders in root `package.json`. Move their
+catalogs, overrides, trusted dependencies, and patch registrations to that
+root too, and copy the local patch files there. Paths are relative to the root.
 
-```yaml
-# pnpm-workspace.yaml at the workspace root
-packages:
-  - 'apps/*'
-nodeLinker: hoisted
+```json
+{
+	"private": true,
+	"workspaces": { "packages": ["apps/*", "packages/*"] }
+}
+```
+
+Keep the starter's `bunfig.toml` settings at the workspace root. Its hoisted
+linker puts dependencies in a flat tree for NativeScript's plugin lookup.
+
+```toml
+[install]
+linker = "hoisted"
+exact = true
 ```
 
 ### Upgrade framework packages
@@ -265,21 +269,21 @@ a committed working app so you can review the changes and return to it.
 Preview the latest published CLI's version set, then apply it:
 
 ```sh
-pnpm dlx @octane-xplat/cli@latest upgrade --check
-pnpm dlx @octane-xplat/cli@latest upgrade
-pnpm xplat doctor
-pnpm typecheck
-pnpm build
+bunx @octane-xplat/cli@latest upgrade --check
+bunx @octane-xplat/cli@latest upgrade
+bun run xplat doctor
+bun run typecheck
+bun run build
 ```
 
 The preview writes nothing and exits `1` when changes are needed. Applying
 updates the framework packages, compiler, bundler, enabled test/native tools,
-and matching patches, then runs pnpm install. It keeps app-specific packages
+and matching patches, then runs bun install. It keeps app-specific packages
 and local links. A custom patch or conflicting override stops the command
 before any file changes; reconcile the named conflict and run it again.
 
 ```sh
-pnpm xplat upgrade --check
+bun run xplat upgrade --check
 ```
 
 This shorter command aligns to the CLI already installed in your app; it does
@@ -292,8 +296,8 @@ upgrading also aligns its version with Mason core. Rebuild the app so its
 installed native code matches the new packages.
 
 ```sh
-pnpm test                 # if your app has a test script
-pnpm build:ios            # if iOS is configured and its tools are installed
+bun run test                 # if your app has a test script
+bun run build:ios            # if iOS is configured and its tools are installed
 ```
 
 See the [CLI version-management reference](../../packages/cli/README.md#compatible-versions)
@@ -306,15 +310,15 @@ install-failure recovery. Framework maintainers keep the shared set in the
 A **build** prepares your code to run outside the development server. Run
 these from the app folder for the platforms you have set up:
 
-| Command              | Result                                                    |
-| -------------------- | --------------------------------------------------------- |
-| `pnpm build`         | Prepares the browser app.                                 |
-| `pnpm build:ios`     | Builds the iOS app; requires the iOS tools.               |
-| `pnpm build:android` | Builds the Android app; requires the Android tools.       |
-| `pnpm typecheck`     | Checks the app's web and phone TypeScript configurations. |
-| `pnpm lint`          | Checks shared code patterns without changing source.      |
-| `pnpm lint:fix`      | Applies safe lint fixes and reports remaining findings.   |
-| `pnpm format`        | Formats JS/TS/JSX/TSX and `.tsrx` files in place.         |
+| Command                 | Result                                                    |
+| ----------------------- | --------------------------------------------------------- |
+| `bun run build`         | Prepares the browser app.                                 |
+| `bun run build:ios`     | Builds the iOS app; requires the iOS tools.               |
+| `bun run build:android` | Builds the Android app; requires the Android tools.       |
+| `bun run typecheck`     | Checks the app's web and phone TypeScript configurations. |
+| `bun run lint`          | Checks shared code patterns without changing source.      |
+| `bun run lint:fix`      | Applies safe lint fixes and reports remaining findings.   |
+| `bun run format`        | Formats JS/TS/JSX/TSX and `.tsrx` files in place.         |
 
 The starter's lint scripts use `xplat lint`, with Oxlint and the framework
 rules included in the CLI. You can also check just your screen folder; the
@@ -322,8 +326,8 @@ rules included in the CLI. You can also check just your screen folder; the
 formatting, and configuration:
 
 ```sh
-pnpm exec xplat lint src
-pnpm exec xplat lint --fix src
+bun run xplat lint src
+bun run xplat lint --fix src
 ```
 
 ### Preview and publish Web
@@ -331,10 +335,10 @@ pnpm exec xplat lint --fix src
 Start by trying the built app locally. From the app folder, run:
 
 ```sh
-pnpm lint
-pnpm typecheck
-pnpm build
-pnpm exec vite preview --host 127.0.0.1
+bun run lint
+bun run typecheck
+bun run build
+bun run vite preview --host 127.0.0.1
 ```
 
 Open the local address printed in the terminal. This preview serves the files
@@ -344,7 +348,7 @@ main actions, open a link directly to a screen, and reload that screen.
 A **static host** serves your built HTML, JavaScript, CSS and other files.
 To publish the app at your site's root:
 
-1. Configure the host's build command as `pnpm build` and output folder as
+1. Configure the host's build command as `bun run build` and output folder as
    `dist`, or upload the contents of `dist` after building locally.
 2. Enable HTTPS. Device permissions, passkeys and other browser services can
    require a secure connection.
@@ -363,7 +367,7 @@ rewrites, caching and deployment updates. Local browser and packed-starter
 checks do not verify those settings on your published site.
 
 Choose the browser versions and devices your app supports, then test them.
-The framework's browser checks run locally (`pnpm test:e2e` in the
+The framework's browser checks run locally (`bun run test:e2e` in the
 repository) across managed Chromium, Firefox and WebKit engines; they do not
 qualify actual iOS Safari or screen-reader interaction. See the
 [Web support boundary](spec.md#choose-your-targets) and the
@@ -377,7 +381,7 @@ produce a signed distribution artifact, and deliver it to store testers. Choose
 the target explicitly for an ordinary release build:
 
 ```sh
-pnpm exec xplat build --targets android --release
+bun run xplat build --targets android --release
 ```
 
 The release guide explains the additional NativeScript signing/artifact steps
@@ -386,7 +390,7 @@ and why a successful build still needs testing through the distribution channel.
 Some native features require a **plugin**, a package that connects to device
 code. The starter includes common UI plugins. If your app imports a platform
 service that uses an optional plugin, declare it in the app's `package.json`
-according to that service's setup guide. `pnpm xplat doctor` warns about
+according to that service's setup guide. `bun run xplat doctor` warns about
 missing direct declarations. Plugins owned by add-on packages travel with
 those packages instead; see [device features](../platform/platform-services.md).
 
@@ -396,10 +400,10 @@ If you need to prepare the project files before installing packages or
 starting a server, run:
 
 ```sh
-pnpm create octane-xplat my-app --no-install
+bun create octane-xplat my-app --no-install
 ```
 
-You will still need to run `pnpm install` and `pnpm dev` from the new folder
+You will still need to run `bun install` and `bun run dev` from the new folder
 before you can use the app. For the usual first-app setup, use the
 [create and run steps](#create-and-run).
 
@@ -416,8 +420,8 @@ desktop setup and are separate from creating your first browser or phone app.
 ## Experimental AppKit target
 
 The CLI can also run the in-repository experimental macOS AppKit Node-API app
-with `pnpm xplat dev macos` and package it with
-`pnpm xplat build --targets macos`. Packaged apps are universal: one `.app`
+with `bun run xplat dev macos` and package it with
+`bun run xplat build --targets macos`. Packaged apps are universal: one `.app`
 runs on Apple Silicon and Intel Macs. You can package on either kind of Mac,
 and apps with native leaves build on either kind too — the metadata generator
 loads the Command Line Tools `libclang` for the build host's architecture. This target is
@@ -574,7 +578,7 @@ framework contributors, not downstream apps. See [Windows support status](../pla
 ## Experimental Linux target (WebKitGTK webview)
 
 Declare `xplat.targets.linux.runtime: 'webkitgtk'` and Linux package settings.
-`pnpm xplat build --targets linux` builds the static frontend and ships the
+`bun run xplat build --targets linux` builds the static frontend and ships the
 GJS host, relocatable launcher, per-user installer, desktop entry, and tar archive.
 Follow [Package a Linux WebKitGTK app](../platform/linux-package.md) for the complete
 configuration, prerequisites, installation, URI handling, and verification flow.

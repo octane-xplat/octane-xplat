@@ -43,7 +43,7 @@ uncached because the native fixture has side effects. After this task receives
 explicit human verification authorization, the exact deferred command is:
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit text-controls fixture"}' -- pnpm exec turbo run test:text-controls --filter=@xplat/macos
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit text-controls fixture"}' -- bun run turbo run test:text-controls --filter=@xplat/macos
 ```
 
 This command require separate execution evidence. Resource admission is not visual-analysis approval.

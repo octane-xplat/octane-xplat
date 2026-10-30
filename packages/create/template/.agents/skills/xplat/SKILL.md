@@ -8,7 +8,7 @@ description: Build and review code in an Octane Xplat app — one TypeScript cod
 Every `src/*.tsrx` file compiles twice: once to the DOM renderer, once to
 NativeScript views. The common failure mode is **silent divergence** — code
 that compiles and works on web but no-ops or crashes on native. The rules
-below prevent that; `pnpm lint` enforces most of them.
+below prevent that; `bun run lint` enforces most of them.
 
 ## Non-negotiables
 
@@ -141,10 +141,10 @@ export function BrowserGreeting() { return <p>Hello</p> }
 
 | Command                             | Catches                                                                  |
 | ----------------------------------- | ------------------------------------------------------------------------ |
-| `pnpm lint`                         | vocabulary / DOM-global / style violations — its output is authoritative |
-| `pnpm typecheck`                    | `tsconfig.json` + every environment declared in `tsconfig.envs.json`     |
-| `pnpm dev`                          | web behavior                                                             |
-| `pnpm dev:ios` / `pnpm dev:android` | the platform where behavior actually differs                             |
+| `bun run lint`                         | vocabulary / DOM-global / style violations — its output is authoritative |
+| `bun run typecheck`                    | `tsconfig.json` + every environment declared in `tsconfig.envs.json`     |
+| `bun run dev`                          | web behavior                                                             |
+| `bun run dev:ios` / `bun run dev:android` | the platform where behavior actually differs                             |
 
 ## Read next (only when needed)
 

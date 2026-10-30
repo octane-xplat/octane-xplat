@@ -13,7 +13,7 @@ function run(command, args) {
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', temporary])
+	run('bun', ['pm', 'pack', '--destination', temporary])
 	const tarball = readdirSync(temporary).find((file) => file.endsWith('.tgz'))
 	mkdirSync(join(temporary, 'unpacked'))
 	run('tar', ['-xzf', join(temporary, tarball), '-C', join(temporary, 'unpacked')])
@@ -43,16 +43,7 @@ void [role, row, indexedRow, forwardedAccessibility, forwardedLayout]
 `,
 	)
 
-	run('pnpm', [
-		'exec',
-		'tsc',
-		'--noEmit',
-		'--module',
-		'NodeNext',
-		'--target',
-		'ES2020',
-		typeFixture,
-	])
+	run('bun', ['run', 'tsc', '--noEmit', '--module', 'NodeNext', '--target', 'ES2020', typeFixture])
 
 	const {
 		cx,

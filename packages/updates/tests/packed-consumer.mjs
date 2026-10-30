@@ -28,7 +28,7 @@ const run = (cmd, args, cwd) => {
 try {
 	mkdirSync(join(temporary, 'pack'))
 	mkdirSync(join(temporary, 'unpacked'))
-	run('pnpm', ['pack', '--pack-destination', join(temporary, 'pack')], root)
+	run('bun', ['pm', 'pack', '--destination', join(temporary, 'pack')], root)
 	const tarball = readdirSync(join(temporary, 'pack')).find((name) => name.endsWith('.tgz'))
 	run('tar', ['-xzf', join(temporary, 'pack', tarball), '-C', join(temporary, 'unpacked')], root)
 	const packed = join(temporary, 'unpacked/package')

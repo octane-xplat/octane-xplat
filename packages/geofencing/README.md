@@ -10,7 +10,7 @@ Install in an existing Xplat app and configure foreground/background location
 permissions and usage descriptions for its native targets:
 
 ```sh
-pnpm add @octane-xplat/geofencing
+bun add @octane-xplat/geofencing
 ```
 
 Call this from a user action that explains why the feature needs location.

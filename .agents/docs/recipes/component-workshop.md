@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/workshop, defineStory, defineWorkshopConfig, WORKSHO
 
 ## Starting point
 
-An existing Octane Xplat consumer with its matching compiler, renderer and pnpm
+An existing Octane Xplat consumer with its matching compiler, renderer and Bun
 setup. This recipe covers the browser preview, the Linux GTK4 renderer host
 and the macOS AppKit/JavaScriptCore host — the same story catalog, controls and
 lifecycle in each. The other three real-host workshops remain separate delivery

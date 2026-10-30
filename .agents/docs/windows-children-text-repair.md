@@ -60,7 +60,7 @@ No dependencies or peers were added to UI.
 
 ## Verification
 
-- `pnpm --filter @octane-xplat/ui test:native`: 7 Node tests plus 97 Vitest
+- `bun run --filter @octane-xplat/ui test:native`: 7 Node tests plus 97 Vitest
   tests in 18 files passed. This is local universal/native-driver evidence,
   not Windows or mobile-device runtime evidence.
 - The eight focused collection tests cover ordinary JSX sibling boundaries,

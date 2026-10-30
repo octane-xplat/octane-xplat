@@ -6,7 +6,7 @@ host's Secret Service adapter. Experimental packaged Windows apps have a
 Credential Locker leaf. Plain browsers report `supported: false`.
 
 ```sh
-pnpm add @octane-xplat/secure-storage
+bun add @octane-xplat/secure-storage
 ```
 
 ```ts
@@ -43,15 +43,15 @@ per-target availability: [platform notes](https://github.com/octane-xplat/octane
 ## macOS AppKit
 
 Install the leaf as an app runtime dependency. Use the CLI-owned
-`pnpm xplat dev macos` or `pnpm xplat build --targets macos` workflow;
+`bun run xplat dev macos` or `bun run xplat build --targets macos` workflow;
 it compiles the bundled Foundation/Security sources and loads their metadata
 before your JavaScript. See [native prerequisites](https://octane-xplat.goddardai.org/macos-native#prepare-the-app).
 No new UI dependency, host adapter, or runtime permission request is needed.
 A custom host without the complete callable get/set/remove bridge reports unsupported.
 
 ```sh
-pnpm add @octane-xplat/secure-storage
-pnpm xplat dev macos
+bun add @octane-xplat/secure-storage
+bun run xplat dev macos
 ```
 
 Keychain generic-password items use this leaf's service namespace. Packaged apps
@@ -110,9 +110,9 @@ across launches and bundle identity isolation, plus a Vite public-import build.
 It does not test UI input or locked-Keychain/signing policies.
 
 ```sh
-pnpm exec turbo run test:macos --filter=@octane-xplat/secure-storage
-pnpm exec turbo run test:packed --filter=@octane-xplat/secure-storage
-pnpm exec turbo run test:macos-runtime --filter=@octane-xplat/secure-storage
+bun run turbo run test:macos --filter=@octane-xplat/secure-storage
+bun run turbo run test:packed --filter=@octane-xplat/secure-storage
+bun run turbo run test:macos-runtime --filter=@octane-xplat/secure-storage
 ```
 
 The six newly authored bridge cases (nine total) remain UNRUN for the current
@@ -164,5 +164,5 @@ access-policy failures and production app integration remain unqualified.
 The focused mocked contracts run through Turbo without building the app:
 
 ```sh
-pnpm exec turbo run test:windows --filter=@octane-xplat/secure-storage
+bun run turbo run test:windows --filter=@octane-xplat/secure-storage
 ```

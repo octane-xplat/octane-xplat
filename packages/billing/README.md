@@ -10,7 +10,7 @@ For the complete purchase/restore path, follow [Sell and restore an in-app purch
 Install in an existing Xplat app:
 
 ```sh
-pnpm add @octane-xplat/billing
+bun add @octane-xplat/billing
 ```
 
 Register a non-consumable product and test account first, following the

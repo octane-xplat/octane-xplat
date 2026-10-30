@@ -89,7 +89,7 @@ native-sheet, segmented-control (1/1 — AXRadioButton role after
 action-dispatch press), switch (1/1), slider (2/2 — AX values 20/80),
 toggle-button (1/1 — AXValue 1 after press).
 
-Maintained scripts: `pnpm --filter @octane-xplat/ui test:color:macos` PASS
+Maintained scripts: `bun run --filter @octane-xplat/ui test:color:macos` PASS
 (exit 0); `test:overlay-keyboard:macos` PASS (exit 0). These run the real
 AppKit host; assertions within remain action-dispatch tier.
 

@@ -224,7 +224,7 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 
 	it('does not redirect a pnpm sibling-installed package', async () => {
 		const root = makeProject()
-		// dep-main imports 'installed-dep', which pnpm installs as a sibling
+		// dep-main imports 'installed-dep', which bun installs as a sibling
 		// inside `.pnpm/dep-main@1.0.0/node_modules/` — a REAL dependency of
 		// the importer, so the alias must keep default resolution.
 		const siblings = join(root, 'node_modules/.pnpm/dep-main@1.0.0/node_modules')

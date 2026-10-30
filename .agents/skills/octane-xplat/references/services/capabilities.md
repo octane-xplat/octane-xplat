@@ -87,10 +87,10 @@ publisher refuses changed native inputs and debug payloads; do not edit a stamp
 to bypass that check. Current Android runtime qualification remains deferred.
 
 ```sh
-pnpm add @octane-xplat/updates
-pnpm add -D @octane-xplat/fingerprint
-pnpm exec xplat updates init
-pnpm exec xplat-fingerprint --dir . \
+bun add @octane-xplat/updates
+bun add -D @octane-xplat/fingerprint
+bun run xplat updates init
+bun run xplat-fingerprint --dir . \
   --build-record .xplat/fingerprints/ios.json \
   --diff .xplat/fingerprints/ios.json
 ```
@@ -213,5 +213,5 @@ provider callbacks, audible output, or background execution. Keep those gates
 separate when interpreting a passing consumer run.
 
 ```sh
-pnpm exec turbo run check:native-readiness --filter=// -- --target ios --device OWNED_UDID
+bun run turbo run check:native-readiness --filter=// -- --target ios --device OWNED_UDID
 ```

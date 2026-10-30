@@ -225,7 +225,7 @@ export function FruitList() {
 
 V1 completion should mean maintained examples plus behavior coverage on web, iOS, and Android: sorting/filtering/page transitions; disabled and indeterminate selection; data replacement; focus/activation; stable row IDs through list recycling; variable-height custom cells; and accessible ordinals/counts. Validate macOS separately before promising its runtime behavior. State tests alone do not prove controls, OS input, hit-testing, screen-reader output, or recycled row correctness. No prior-session runtime claims are used as verification in this audit.
 
-This audit changes no public behavior, setup, or supported workflow, so no recipe criteria or Silo recipe coverage require changes. The phased implementation would need its own recipe/example reconciliation and `pnpm check:recipes`; that is future work, not completed parity.
+This audit changes no public behavior, setup, or supported workflow, so no recipe criteria or Silo recipe coverage require changes. The phased implementation would need its own recipe/example reconciliation and `bun run check:recipes`; that is future work, not completed parity.
 
 ## Implementation follow-through
 

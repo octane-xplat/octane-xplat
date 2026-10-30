@@ -288,13 +288,12 @@ export async function workshopInit({ cwd, scripts = true } = {}) {
 	}
 
 	if (!hasWorkshop) {
-		console.log('  next: pnpm add -D @octane-xplat/workshop')
+		console.log('  next: bun add -D @octane-xplat/workshop')
 	}
 
-	console.log('  run: pnpm exec xplat workshop dev --target web')
+	console.log('  run: bun run xplat workshop dev --target web')
 	return { created, skipped }
 }
-
 
 // ---------- dev ----------
 

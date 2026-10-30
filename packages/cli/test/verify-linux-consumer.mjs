@@ -21,16 +21,16 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
 manifest.devDependencies['@octane-xplat/cli'] = `file:${resolve(cliTarball)}`
 manifest.dependencies['@octane-xplat/platform'] = `file:${resolve(platformTarball)}`
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
-writeFileSync(
-	join(app, 'pnpm-workspace.yaml'),
-	'packages: [.]\noverrides:\n  esbuild: 0.27.7\nallowBuilds:\n  esbuild: true\n',
-)
+manifest.overrides = { esbuild: '0.27.7' }
+manifest.trustedDependencies = ['esbuild']
+manifest.packageManager = 'bun@1.4.4'
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
 
 const run = (cmd, args, options = {}) =>
 	execFileSync(cmd, args, { cwd: app, stdio: 'inherit', ...options })
 
-run('pnpm', ['install'])
-run('pnpm', ['exec', 'xplat', 'build', '--targets', 'linux'])
+run('bun', ['install'])
+run('bun', ['run', 'xplat', 'build', '--targets', 'linux'])
 const relocated = join(root, 'relocated app')
 mkdirSync(relocated)
 run('tar', ['-xzf', join(app, 'dist/linux/linux-proof-1.0.0.tar.gz'), '-C', relocated])
@@ -42,7 +42,7 @@ const installed = join(data, 'org.octane.LinuxProof/linux-proof')
 manifest.xplat.targets.linux.package.applicationId = 'org.octane.LinuxOther'
 manifest.xplat.targets.linux.package.executableName = 'linux-other'
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
-run('pnpm', ['exec', 'xplat', 'build', '--targets', 'linux'])
+run('bun', ['run', 'xplat', 'build', '--targets', 'linux'])
 const other = join(app, 'dist/linux/linux-other/linux-other')
 const configHome = join(root, 'config')
 mkdirSync(configHome)
@@ -86,7 +86,7 @@ try {
  execFileSync('gnome-keyring-daemon', ['--unlock', '--components=secrets'], {input: 'xplat-fixture-keyring-password'})
  const notifications = spawn('/usr/lib/notification-daemon/notification-daemon', [], {stdio:'ignore'})
  await new Promise(r => setTimeout(r, 500))
- execFileSync('pnpm', ['exec', 'xplat', 'doctor'], { cwd:${JSON.stringify(app)},stdio:'inherit', shell: process.platform === 'win32' })
+ execFileSync('bun', ['run', 'xplat', 'doctor'], { cwd:${JSON.stringify(app)},stdio:'inherit', shell: process.platform === 'win32' })
  const selftest = launch(${JSON.stringify(installed)}, ['--self-test', 'linux-proof://cold-start/deep-link'])
  await wait(selftest, 'SELFTEST_RESULT {"checks":24,"failed":[]}')
  await new Promise(r => selftest.child.exitCode === null ? selftest.child.once('exit', r) : r())

@@ -31,7 +31,7 @@ export function Actions() {
 
 ## Install and import
 
-Run `pnpm add @octane-xplat/sheet` from your app folder. Import the
+Run `bun add @octane-xplat/sheet` from your app folder. Import the
 platform-specific component from the matching target entry:
 
 - `SwiftUIBottomSheet` from `@octane-xplat/sheet/ios` in `.ios.ts` or `.ios.tsrx`.

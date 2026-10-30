@@ -12,42 +12,42 @@ Windows, and Linux apps. Desktop setup and support depend on the selected
 host; check [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets)
 before adding one to an app.
 
-The npm command runs with **Bun 1.4.3 or later**. Install Bun using its
+The npm command runs with **Bun 1.4.4 or later**. Install Bun using its
 [installation guide](https://bun.sh/docs/installation), then check it before
 adding the CLI to an existing app:
 
 ```sh
 bun --version
-pnpm add -D @octane-xplat/cli
+bun add -D @octane-xplat/cli
 ```
 
 ```sh
-pnpm xplat dev          # pick available targets
-pnpm xplat dev macos    # single-target shorthand (kind or device id)
-pnpm xplat add ios      # enable a platform skipped at create time
-pnpm xplat build        # production builds
-pnpm xplat build -t macos # experimental AppKit .app + .dmg (universal: Apple Silicon and Intel)
-pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
-pnpm xplat doctor       # environment, installed versions, runtime copies + patches
-pnpm xplat upgrade --check # preview alignment to this CLI's compatibility set
-pnpm xplat upgrade      # align workspace versions and patches, then install
-pnpm xplat typecheck    # web + native tsconfigs
-pnpm xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
-pnpm xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
-pnpm xplat patches apply  # install the framework's pnpm patch set into this app
-pnpm xplat patches check  # verify the patch set is registered and unmodified
-pnpm xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + fonts.css + --font-* token
-pnpm xplat fonts add @fontsource-variable/inter --install  # Fontsource package
+bun run xplat dev          # pick available targets
+bun run xplat dev macos    # single-target shorthand (kind or device id)
+bun run xplat add ios      # enable a platform skipped at create time
+bun run xplat build        # production builds
+bun run xplat build -t macos # experimental AppKit .app + .dmg (universal: Apple Silicon and Intel)
+bun run xplat build -t linux # experimental GTK/WebKit app directory + tar archive
+bun run xplat doctor       # environment, installed versions, runtime copies + patches
+bun run xplat upgrade --check # preview alignment to this CLI's compatibility set
+bun run xplat upgrade      # align workspace versions and patches, then install
+bun run xplat typecheck    # web + native tsconfigs
+bun run xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
+bun run xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
+bun run xplat patches apply  # install the framework's bun patch set into this app
+bun run xplat patches check  # verify the patch set is registered and unmodified
+bun run xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + fonts.css + --font-* token
+bun run xplat fonts add @fontsource-variable/inter --install  # Fontsource package
 ```
 
-The scaffolded app's `pnpm dev` / `pnpm build` / `pnpm dev:ios` scripts drive
+The scaffolded app's `bun run dev` / `bun run build` / `bun run dev:ios` scripts drive
 the supported targets directly; `xplat` is the multi-target front end. The
 experimental macOS target is configured by the app and packaged by `xplat`.
 
 ```sh
-pnpm dev
-pnpm build
-pnpm dev:ios
+bun run dev
+bun run build
+bun run dev:ios
 ```
 
 With `xplat build --targets`, every requested kind must be available for that
@@ -57,7 +57,7 @@ Without `--targets`, the interactive picker or noninteractive all-target
 selection still applies.
 
 ```sh
-pnpm xplat build --targets web,android
+bun run xplat build --targets web,android
 ```
 
 Linux packaging and its required manifest settings are documented in
@@ -70,7 +70,7 @@ The CLI executables workflow attaches standalone executables to
 [GitHub Releases](https://github.com/octane-xplat/octane-xplat/releases), named `xplat-<platform>-<architecture>` (with
 `.exe` on Windows), alongside SHA-256 checksums. These contain Bun and the
 CLI dependencies; a separate Bun installation is unnecessary. App builds still
-need Node, pnpm, and the toolchains for their selected platforms.
+need Node, Bun, and the toolchains for their selected platforms.
 
 For example, after downloading the macOS Apple Silicon executable, run from
 its download folder:
@@ -108,8 +108,8 @@ this for macOS and Linux arm64/x64 and Windows x64.
 Read output from an earlier `xplat dev` run, even after its process exits:
 
 ```sh
-pnpm xplat diagnostics --json                  # list this app's retained sessions
-pnpm xplat diagnostics --session SESSION_ID --json     # replace SESSION_ID with a returned sessionId
+bun run xplat diagnostics --json                  # list this app's retained sessions
+bun run xplat diagnostics --session SESSION_ID --json     # replace SESSION_ID with a returned sessionId
 ```
 
 See [development diagnostics](https://octane-xplat.goddardai.org/diagnostics) for platform
@@ -119,7 +119,7 @@ New apps include test setup for their enabled platforms, with framework-managed
 runner versions. Run the web tests from your app directory:
 
 ```sh
-pnpm test:web
+bun run test:web
 ```
 
 Vitest, configuration, and sample tests are included by default.
@@ -128,26 +128,26 @@ Web includes jsdom and `test:web`; iOS/Android include NativeScript's test runne
 phone suite with an explicit device:
 
 ```sh
-pnpm test:ios -- --device DEVICE_UDID
-pnpm test:android -- --device DEVICE_SERIAL
+bun run test:ios -- --device DEVICE_UDID
+bun run test:android -- --device DEVICE_SERIAL
 ```
 
-Adding a platform later includes its test setup. Inside a pnpm workspace (several
+Adding a platform later uses the Bun starter configuration and includes its test setup. Inside a Bun workspace (several
 packages sharing one install), the command adds missing version pins and patch
-settings to the nearest enclosing `pnpm-workspace.yaml`. Existing settings stay
+settings to the owning workspace’s root `package.json`. Existing settings stay
 intact, and the app stays in that workspace:
 
 ```sh
-pnpm xplat add ios
+bun run xplat add ios
 ```
 
 To review the file and workspace changes before installing dependencies, run
 these commands from the app directory:
 
 ```sh
-pnpm xplat add ios --no-install
+bun run xplat add ios --no-install
 git diff
-pnpm install
+bun install
 ```
 
 Existing files, dependency specifications, and scripts are preserved. Review
@@ -165,9 +165,9 @@ set, run these from your app directory; a workspace upgrade covers all of its
 packages, including when invoked inside one member:
 
 ```sh
-pnpm dlx @octane-xplat/cli@latest upgrade --check
-pnpm dlx @octane-xplat/cli@latest upgrade
-pnpm xplat doctor
+bunx @octane-xplat/cli@latest upgrade --check
+bunx @octane-xplat/cli@latest upgrade
+bun run xplat doctor
 ```
 
 `upgrade` uses the **executing CLI's release**, without a separate latest-version
@@ -177,9 +177,9 @@ and writes nothing. `--no-install` writes the plan for review and leaves the
 install to you:
 
 ```sh
-pnpm xplat upgrade --no-install
-pnpm install --no-frozen-lockfile
-pnpm xplat doctor
+bun run xplat upgrade --no-install
+bun install --no-frozen-lockfile
+bun run xplat doctor
 ```
 
 | Managed together when declared                                      | Kept under application/library ownership                              |
@@ -207,11 +207,11 @@ qualification limits.
 ```
 
 Dependencies remain declared in each package. Their exact build/runtime pins
-move to `catalog:xplat` in `pnpm-workspace.yaml`; Windows preview packages use
+move to `catalog:xplat` in root `package.json.workspaces.catalogs`; Windows preview packages use
 `catalog:xplat-windows` so mobile pins cannot replace their snapshot URLs.
 The command adds Octane's missing `@tsrx/oxc` compiler peer, but does not add
 undeclared test tools or platform runtimes. The manifest also supplies Node's
-minimum version and the pnpm version; existing app Node engine restrictions
+minimum version and the Bun version; existing app Node engine restrictions
 are preserved.
 
 ```json
@@ -228,8 +228,8 @@ framework config-package mappings are replaced. A failed install leaves the
 updated files available for review. Fix its error and repeat the install:
 
 ```sh
-pnpm install --no-frozen-lockfile
-pnpm xplat doctor
+bun install --no-frozen-lockfile
+bun run xplat doctor
 ```
 
 `doctor` checks declarations and the reachable installed dependency graph,
@@ -238,8 +238,8 @@ including export-restricted packages. Managed version failures make it exit
 use the package named in the report to find which dependency brought it in:
 
 ```sh
-pnpm why octane
-pnpm xplat doctor
+bun why octane
+bun run xplat doctor
 ```
 
 These are host checks; run your tests and relevant target builds after an
@@ -255,11 +255,11 @@ passes. `--fix` applies safe Oxlint fixes to regular source and reports errors
 that still need attention. Formatting is a separate step:
 
 ```sh
-pnpm exec xplat lint
-pnpm exec xplat lint src
-pnpm exec xplat lint --fix src
-pnpm exec xplat fmt
-pnpm exec xplat fmt --check
+bun run xplat lint
+bun run xplat lint src
+bun run xplat lint --fix src
+bun run xplat fmt
+bun run xplat fmt --check
 ```
 
 Lint exits `0` when no errors remain, `1` for lint errors, and `2` for command
@@ -269,7 +269,7 @@ skip build output, symlinks and nested repositories, and accept files or
 directories. Shell-expanded file lists work too:
 
 ```sh
-pnpm exec xplat lint src/*.ts src/*.tsrx
+bun run xplat lint src/*.ts src/*.tsrx
 ```
 
 TSRX runs the `xplat/*` rules through its own parser; Oxlint's built-in rules
@@ -279,7 +279,7 @@ and automatic fixes run on regular JS/TS/JSX/TSX source. A project-root
 and override individual rules. Existing `xplat-lint` scripts still work:
 
 ```sh
-pnpm exec xplat-lint --fix src
+bun run xplat-lint --fix src
 ```
 
 ## Agents
@@ -351,8 +351,8 @@ Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolcha
 
 ## Framework patches
 
-The creator and `xplat upgrade` continue to manage pnpm app setup. Bun users
-can use the patch workflow below and run existing development/build targets.
+The creator generates Bun apps and libraries with local patch files.
+`xplat upgrade` aligns their catalogs and patches before installing.
 
 The same canonical patch files work with **Bun 1.4.4 or later** and **pnpm**.
 Run from your app directory. The CLI selects the workspace root and uses its
@@ -375,7 +375,7 @@ pnpm xplat patches check
 ```
 
 pnpm 11 ignores `package.json.pnpm.patchedDependencies`; rerun `apply` to move
-framework registration into the YAML configuration. Fresh pnpm starters still
+framework registration into the YAML configuration. Existing pnpm projects can still
 use the `@octane-xplat/patches` config dependency. If the package manager is not
 yet declared, or both lockfiles remain during migration, select it explicitly:
 

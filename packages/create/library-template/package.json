@@ -17,6 +17,27 @@
 		"url": "https://github.com/your-org/your-library",
 		"directory": "."
 	},
+	"workspaces": {
+		"packages": [],
+		"catalogs": {
+			"xplat": {
+				"@nativescript-community/octane": "0.2.5",
+				"@nativescript/core": "9.1.3",
+				"@nativescript/types": "9.1.4",
+				"@octane-xplat/cli": "0.18.0",
+				"@octane-xplat/jsx": "0.18.0",
+				"@octane-xplat/ui": "0.18.0",
+				"@octanejs/vite-plugin": "0.5.0",
+				"@tsrx/oxc": "0.20.0",
+				"@tsrx/typescript-plugin": "0.4.11",
+				"octane": "0.16.3",
+				"tsrx-typegen": "0.2.2",
+				"typescript": "5.9.3",
+				"vite": "8.3.0",
+				"vitest": "4.1.11"
+			}
+		}
+	},
 	"files": [
 		"src",
 		"types",
@@ -50,8 +71,8 @@
 		"lint:fix": "xplat lint --fix",
 		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
-		"pack:check": "pnpm test:packed",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
+		"pack:check": "bun run test:packed",
 		"format": "xplat fmt"
 	},
 	"devDependencies": {
@@ -85,8 +106,78 @@
 			"optional": true
 		}
 	},
-	"packageManager": "pnpm@11.24.0",
+	"overrides": {
+		"@lexical/a11y": "0.52.0",
+		"@lexical/code": "0.52.0",
+		"@lexical/devtools-core": "0.52.0",
+		"@lexical/dragon": "0.52.0",
+		"@lexical/extension": "0.52.0",
+		"@lexical/hashtag": "0.52.0",
+		"@lexical/history": "0.52.0",
+		"@lexical/html": "0.52.0",
+		"@lexical/internal": "0.52.0",
+		"@lexical/link": "0.52.0",
+		"@lexical/list": "0.52.0",
+		"@lexical/mark": "0.52.0",
+		"@lexical/markdown": "0.52.0",
+		"@lexical/overflow": "0.52.0",
+		"@lexical/plain-text": "0.52.0",
+		"@lexical/rich-text": "0.52.0",
+		"@lexical/selection": "0.52.0",
+		"@lexical/table": "0.52.0",
+		"@lexical/text": "0.52.0",
+		"@lexical/utils": "0.52.0",
+		"@lexical/yjs": "0.52.0",
+		"@nativescript-community/vite-octane>esbuild": "0.27.7",
+		"@nativescript/vite>esbuild": "0.27.7",
+		"@tiptap/core": "3.32.0",
+		"@tiptap/extension-blockquote": "3.32.0",
+		"@tiptap/extension-bold": "3.32.0",
+		"@tiptap/extension-bullet-list": "3.32.0",
+		"@tiptap/extension-code": "3.32.0",
+		"@tiptap/extension-code-block": "3.32.0",
+		"@tiptap/extension-document": "3.32.0",
+		"@tiptap/extension-dropcursor": "3.32.0",
+		"@tiptap/extension-gapcursor": "3.32.0",
+		"@tiptap/extension-hard-break": "3.32.0",
+		"@tiptap/extension-heading": "3.32.0",
+		"@tiptap/extension-horizontal-rule": "3.32.0",
+		"@tiptap/extension-italic": "3.32.0",
+		"@tiptap/extension-link": "3.32.0",
+		"@tiptap/extension-list": "3.32.0",
+		"@tiptap/extension-list-item": "3.32.0",
+		"@tiptap/extension-list-keymap": "3.32.0",
+		"@tiptap/extension-ordered-list": "3.32.0",
+		"@tiptap/extension-paragraph": "3.32.0",
+		"@tiptap/extension-strike": "3.32.0",
+		"@tiptap/extension-text": "3.32.0",
+		"@tiptap/extension-underline": "3.32.0",
+		"@tiptap/extensions": "3.32.0",
+		"@tiptap/pm": "3.32.0",
+		"@tiptap/starter-kit": "3.32.0",
+		"@tiptap/static-renderer": "3.32.0",
+		"lexical": "0.52.0",
+		"regenerate": "1.5.0",
+		"vite>esbuild": "0.27.7"
+	},
 	"engines": {
+		"bun": ">=1.4.4",
 		"node": ">=22.22.2"
-	}
+	},
+	"packageManager": "bun@1.4.4",
+	"patchedDependencies": {
+		"octane@0.16.3": "patches/octane@0.16.3.patch",
+		"@nativescript/core@9.1.3": "patches/@nativescript__core@9.1.3.patch",
+		"css@3.0.0": "patches/css@3.0.0.patch",
+		"@nativescript/vite@8.0.20": "patches/@nativescript__vite@8.0.20.patch",
+		"@nativescript-community/octane@0.2.5": "patches/@nativescript-community__octane@0.2.5.patch",
+		"@nativescript-community/vite-octane@0.2.1": "patches/@nativescript-community__vite-octane@0.2.1.patch",
+		"@tsrx/typescript-plugin@0.4.11": "patches/@tsrx__typescript-plugin@0.4.11.patch",
+		"@octanejs/tiptap@0.0.61": "patches/@octanejs__tiptap@0.0.61.patch",
+		"@nativescript/doctor@2.0.18": "patches/@nativescript__doctor@2.0.18.patch"
+	},
+	"trustedDependencies": [
+		"esbuild",
+		"@parcel/watcher"
+	]
 }

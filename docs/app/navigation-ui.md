@@ -445,5 +445,5 @@ function-key delivery. Six model cases, one containment-query case and two
 compiler cases plus a manual fixture are authored but unrun.
 
 ```sh
-pnpm probe run examples/probes/landmark.macos.tsrx --target macos --watch
+bun run probe run examples/probes/landmark.macos.tsrx --target macos --watch
 ```

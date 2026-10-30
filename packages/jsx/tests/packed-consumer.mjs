@@ -430,9 +430,9 @@ function linkDependencies(modules, names) {
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
+	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
 	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
+	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 

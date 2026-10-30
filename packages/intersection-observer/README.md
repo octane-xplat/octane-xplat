@@ -6,7 +6,7 @@ Cross-platform visibility tracking for Octane xplat, mirroring the DOM
 From an existing Xplat app, install the package before using the example:
 
 ```sh
-pnpm add @octane-xplat/intersection-observer
+bun add @octane-xplat/intersection-observer
 ```
 
 ```tsx

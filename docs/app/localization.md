@@ -19,8 +19,8 @@ by the build with a translation lookup.
 ## Setup
 
 ```sh
-pnpm add @octane-xplat/lingui @lingui/core
-pnpm add -D @lingui/cli @lingui/vite-plugin @lingui/babel-plugin-lingui-macro @lingui/format-json
+bun add @octane-xplat/lingui @lingui/core
+bun add -D @lingui/cli @lingui/vite-plugin @lingui/babel-plugin-lingui-macro @lingui/format-json
 ```
 
 `@lingui/core` is a direct app dependency on purpose: macro-expanded code

@@ -15,7 +15,7 @@ After the package's first framework release, run this in your app directory.
 Keep its version aligned with your other Xplat packages.
 
 ```sh
-pnpm add @octane-xplat/shortcuts
+bun add @octane-xplat/shortcuts
 ```
 
 Add this installer to a `.web.ts` file and call it from your browser entry.

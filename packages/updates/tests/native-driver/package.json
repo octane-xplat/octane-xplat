@@ -6,5 +6,5 @@
 		"test:native-guard": "node --test ../native-guard.test.mjs",
 		"test:native-lifecycle": "node ../native-lifecycle.mjs --target ios --device $XPLAT_IOS_DEVICE"
 	},
-	"packageManager": "pnpm@11.24.0"
+	"packageManager": "bun@1.4.4"
 }

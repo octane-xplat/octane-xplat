@@ -11,7 +11,7 @@ On Windows only, it runs bounded, read-only .NET SDK and Developer Mode checks.
 It does not install tools, launch a device, or change settings.
 
 ```sh
-pnpm exec xplat workshop doctor --json
+bun run xplat workshop doctor --json
 ```
 
 | Windows status          | Meaning                                                                                                                |
@@ -36,7 +36,7 @@ qualified. An unsupported leaf stays visible with a reason rather than being
 evaluated on the wrong host.
 
 ```sh
-pnpm exec xplat workshop list --target windows --json
+bun run xplat workshop list --target windows --json
 ```
 
 Launching Windows currently fails with a setup or qualification diagnostic,
@@ -44,7 +44,7 @@ before loading consumer configuration, importing stories, or starting a server.
 There is no automatic web fallback.
 
 ```sh
-pnpm exec xplat workshop dev --target windows
+bun run xplat workshop dev --target windows
 ```
 
 ## Remaining delivery gates

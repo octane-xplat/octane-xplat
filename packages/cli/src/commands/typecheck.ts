@@ -1,4 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+import { packageManagerExec } from '../package-manager.ts'
 import { command } from '@alloc/cmd-ts'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
@@ -41,7 +42,8 @@ export const typecheck = command({
 
 		for (const c of configs) {
 			try {
-				await runTagged('tsc', 'pnpm', ['exec', 'tsrx-tsc', '--noEmit', '-p', c], cwd)
+				const command = packageManagerExec(cwd, ['tsrx-tsc', '--noEmit', '-p', c])
+				await runTagged('tsc', command.cmd, command.args, cwd)
 			} catch (e) {
 				p.log.error(String(e))
 				process.exit(1)

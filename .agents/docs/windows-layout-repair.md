@@ -87,7 +87,7 @@ the package patch to the pinned package, preserving the existing framework
 patches. Integration in `magic-grouse` combines the package changes with the
 pointer repair in the canonical preview patch, synchronizes the config-package
 copy, and regenerates the lockfile and build-approval hash. Both installed-package
-regression checks, `pnpm check:patches`, and `pnpm check:recipes` pass locally.
+regression checks, `bun run check:patches`, and `bun run check:recipes` pass locally.
 Both source patches pass reverse `git apply --check` against the repaired
 checkout. The package patch applies to the original JS and produces the exact
 runtime-tested candidate.

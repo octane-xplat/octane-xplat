@@ -31,7 +31,8 @@ const pack = join(work, 'pack')
 mkdirSync(consumer)
 mkdirSync(pack)
 let succeeded = false
-const onDarwinMac = process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64')
+const onDarwinMac =
+	process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64')
 function run(command, args, cwd = consumer, options = {}) {
 	const result = spawnSync(command, args, {
 		cwd,
@@ -67,7 +68,7 @@ try {
 	]) {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-		run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], root)
+		run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
 		tarballs[manifest.name] =
 			`file:${join(pack, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 	}
@@ -97,14 +98,12 @@ try {
 		),
 	)
 
-	write(
-		'pnpm-workspace.yaml',
-		`packages: []\noverrides:\n${Object.entries(tarballs)
-			.map(([name, path]) => `  '${name}': '${path}'`)
-			.join('\n')}\n`,
-	)
+	const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+	manifest.overrides = tarballs
+	manifest.packageManager = 'bun@1.4.4'
+	write('package.json', JSON.stringify(manifest))
 
-	run('pnpm', ['install', '--ignore-scripts'])
+	run('bun', ['install', '--ignore-scripts'])
 	for (const name of ['ui', 'workshop', 'cli', 'macos-renderer']) {
 		assert.ok(
 			realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work),
@@ -120,8 +119,8 @@ try {
 	// canonical set into the app and registers patchedDependencies; a second
 	// install applies them. The macOS universal runtime needs the octane
 	// patch (renderer-owned Children lives there).
-	run('pnpm', ['exec', 'xplat', 'patches', 'apply'])
-	run('pnpm', ['install', '--ignore-scripts'])
+	run('bun', ['run', 'xplat', 'patches', 'apply'])
+	run('bun', ['install', '--ignore-scripts'])
 	const req = createRequire(join(consumer, 'package.json'))
 	assert.match(
 		realpathSync(req.resolve('octane')),
@@ -137,13 +136,13 @@ try {
 
 	console.log('PASS xplat patches apply registers the octane patch and reinstall applies it')
 
-	const initialized = run('pnpm', ['exec', 'xplat', 'workshop', 'init'])
+	const initialized = run('bun', ['run', 'xplat', 'workshop', 'init'])
 	assert.match(initialized, /created workshop.config.ts/)
 	const config = readFileSync(join(consumer, 'workshop.config.ts'), 'utf8')
-	run('pnpm', ['exec', 'xplat', 'workshop', 'init'])
+	run('bun', ['run', 'xplat', 'workshop', 'init'])
 	assert.equal(readFileSync(join(consumer, 'workshop.config.ts'), 'utf8'), config)
 
-	const doctor = run('pnpm', ['exec', 'xplat', 'workshop', 'doctor', '--json'])
+	const doctor = run('bun', ['run', 'xplat', 'workshop', 'doctor', '--json'])
 	const report = JSON.parse(doctor.slice(doctor.indexOf('{')))
 	assert.equal(Object.keys(report.targets).length, 6)
 	const macos = report.targets.macos
@@ -167,7 +166,7 @@ try {
 	rmSync(join(consumer, 'src/workshop'), { recursive: true })
 	cpSync(join(repo, 'apps/workshop-demo/src'), join(consumer, 'src'), { recursive: true })
 
-	const list = run('pnpm', ['exec', 'xplat', 'workshop', 'list', '--target', 'macos', '--json'])
+	const list = run('bun', ['run', 'xplat', 'workshop', 'list', '--target', 'macos', '--json'])
 	const entries = JSON.parse(list.slice(list.indexOf('{'))).entries
 	const byId = new Map(entries.map((e) => [e.id, e]))
 	assert.equal(byId.get('counter/basic')?.applicable, true)
@@ -243,7 +242,7 @@ void NativeWorkshopController
 		}),
 	)
 
-	run('pnpm', ['exec', 'tsc', '--noEmit'])
+	run('bun', ['run', 'tsc', '--noEmit'])
 
 	write(
 		'tsconfig.json',
@@ -269,7 +268,7 @@ void NoSuchWorkshopExport
 `,
 	)
 
-	const negative = spawnSync('pnpm', ['exec', 'tsc', '--noEmit'], {
+	const negative = spawnSync('bun', ['run', 'tsc', '--noEmit'], {
 		shell: process.platform === 'win32',
 		cwd: consumer,
 		encoding: 'utf8',
@@ -324,7 +323,7 @@ await build({ ...settings, configFile: false })
 `,
 	)
 
-	run('pnpm', ['exec', 'node', 'prod-build.mjs'], consumer, { timeout: 120_000 })
+	run('bun', ['run', 'node', 'prod-build.mjs'], consumer, { timeout: 120_000 })
 	const files = (dir) =>
 		readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
 			entry.isDirectory() ? files(join(dir, entry.name)) : [join(dir, entry.name)],

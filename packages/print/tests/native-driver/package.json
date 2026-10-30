@@ -8,5 +8,5 @@
 		"test:macos-engine": "node ../macos-engine.mjs",
 		"test:ios-bridge": "node ../ios-bridge.mjs"
 	},
-	"packageManager": "pnpm@11.24.0"
+	"packageManager": "bun@1.4.4"
 }

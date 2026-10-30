@@ -18,14 +18,14 @@ goBack({ into: 'demos' })
   `routes.gen.*` per target.
 - Screens worth knowing: `Home` (demo gallery host), `Services` and
   `MediaServices` (device-service and media leaves), `Probes` +
-  `probes-host.*` (the `pnpm probe` fixture host), `HumanQA`, and
+  `probes-host.*` (the `bun run probe` fixture host), `HumanQA`, and
   `VirtualListBenchmark`.
 - `platform/` carries the app's own file-boundary splits (nav, file pick,
   benchmarks) — the pattern the framework asks consumers to follow.
 
 The demo screens it routes to live in
 [`@xplat/demos`](../demos/README.md); the entry shells and vite configs
-live in `apps/web` + `apps/mobile`. Run it with `pnpm probe run <case>
+live in `apps/web` + `apps/mobile`. Run it with `bun run probe run <case>
 --target <target> --watch` for investigations — see
 [`.agents/docs/probing.md`](../../.agents/docs/probing.md) and
 [`docs/testing/testing.md`](../../docs/testing/testing.md).

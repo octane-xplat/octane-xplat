@@ -5,7 +5,6 @@ import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSyn
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument } from 'yaml'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const work = mkdtempSync(join(tmpdir(), 'xplat-library-guide-'))
@@ -25,7 +24,7 @@ function run(command, args, cwd) {
 const tarballs = new Map()
 function packPackage(root) {
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-	run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], root)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
 	const path = join(
 		pack,
 		`${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`,
@@ -34,22 +33,16 @@ function packPackage(root) {
 	return path
 }
 function prepare(root) {
-	const path = join(root, 'pnpm-workspace.yaml')
-	const config = parseDocument(readFileSync(path, 'utf8'))
-	const patches = join(root, 'node_modules/.pnpm-config/@octane-xplat/patches')
-	mkdirSync(patches, { recursive: true })
-	run(
-		'tar',
-		['-xzf', tarballs.get('@octane-xplat/patches'), '-C', patches, '--strip-components=1'],
-		work,
-	)
-	config.delete('configDependencies')
+	const path = join(root, 'package.json')
+	const config = JSON.parse(readFileSync(path, 'utf8'))
+	config.overrides ??= {}
 	for (const [name, path] of tarballs) {
-		config.setIn(['overrides', name], `file:${path}`)
+		config.overrides[name] = `file:${path}`
 	}
-	writeFileSync(path, String(config))
-	run('pnpm', ['install'], root)
+	writeFileSync(path, JSON.stringify(config, null, '\t') + '\n')
+	run('bun', ['install'], root)
 }
+
 try {
 	for (const dir of [
 		'create',
@@ -71,8 +64,7 @@ try {
 			dependencies: { 'create-octane-xplat': `file:${tarballs.get('create-octane-xplat')}` },
 		}),
 	)
-	writeFileSync(join(work, 'pnpm-workspace.yaml'), 'packages: []\n')
-	run('pnpm', ['install', '--ignore-scripts'], work)
+	run('bun', ['install', '--ignore-scripts'], work)
 	const creator = join(work, 'node_modules/create-octane-xplat/dist/index.js')
 	const library = join(work, 'travel-controls')
 	const app = join(work, 'travel-app')
@@ -94,9 +86,9 @@ try {
 	writeFileSync(join(library, 'src/assets/packing.txt'), 'Passport\nCharger\n')
 	prepare(library)
 	for (const task of ['typegen', 'typecheck', 'lint', 'test', 'test:packed']) {
-		run('pnpm', [task], library)
+		run('bun', ['run', task], library)
 	}
-	run('pnpm', ['exec', 'tsrx-typegen', '--target', 'octane', '--check'], library)
+	run('bun', ['run', 'tsrx-typegen', '--target', 'octane', '--check'], library)
 	const artifact = packPackage(library)
 	const listing = run('tar', ['-tzf', artifact], work)
 	for (const path of [
@@ -139,7 +131,7 @@ createRoot(document.getElementById('root')!).render(<Badge label="Packed library
 	)
 	prepare(app)
 	for (const task of ['typecheck', 'build']) {
-		run('pnpm', [task], app)
+		run('bun', ['run', task], app)
 	}
 	const output = readdirSync(join(app, 'dist/assets'))
 		.filter((name) => name.endsWith('.js'))

@@ -10,10 +10,10 @@ verification pending, and a WebKitGTK webview host. See
 [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 The framework is `0.x` and its API surface is still changing.
 
-With Node.js and pnpm 11.24.0 installed:
+With Node.js and Bun 1.4.4 installed:
 
 ```sh
-pnpm create octane-xplat my-app
+bun create octane-xplat my-app
 ```
 
 The starter's `tsconfig.json` selects the shared native JSX types from its
@@ -35,11 +35,11 @@ when adding a native or browser implementation.
 To start a reusable package instead of an app, select the library template:
 
 ```sh
-pnpm create octane-xplat my-controls --template library
+bun create octane-xplat my-controls --template library
 cd my-controls
-pnpm typecheck
-pnpm typegen
-pnpm test:packed
+bun run typecheck
+bun run typegen
+bun run test:packed
 ```
 
 The library starter publishes source for web, iOS, and Android, which the
@@ -57,15 +57,15 @@ The creator asks which platforms to target — web, iOS, and Android are all
 pre-selected. Pass `--targets` to skip the prompt:
 
 ```sh
-pnpm create octane-xplat my-app --targets web          # web only
-pnpm create octane-xplat my-app --targets web,android  # web + Android
+bun create octane-xplat my-app --targets web          # web only
+bun create octane-xplat my-app --targets web,android  # web + Android
 ```
 
-Platforms skipped here can be enabled later with `pnpm xplat add <platform>`
+Platforms skipped here can be enabled later with `bun run xplat add <platform>`
 inside the app. (Non-interactive runs without `--targets` scaffold all
 three.)
 
-The creator copies the template, installs dependencies with pnpm, and starts
+The creator copies the template, installs dependencies with Bun, and starts
 the web dev server when the web target is included. Open the printed URL and
 open `my-app` in your agent.
 Ask it to read `AGENTS.md` and `.agents/skills/xplat/SKILL.md`, then build a
@@ -76,9 +76,9 @@ clear the list in this in-memory version. The
 [first-flow guide](https://octane-xplat.goddardai.org/toolchain#build-and-check-your-first-flow)
 includes the full prompt and failure checks.
 
-The generated app pins pnpm 11.24.0. Its `pnpm-workspace.yaml` loads
-`@octane-xplat/patches` as a `configDependencies` package, making the
-framework patches available during the first install.
+The generated app pins Bun 1.4.4. Its `package.json` owns named catalogs
+and patch registrations. Local `patches/` files are available before the first
+install; keep them and `bun.lock` in Git.
 
 Apps start with the runtime, build packages, and tests their selected platforms
 need. Feature packages are added when you use them.
@@ -89,9 +89,9 @@ New apps include Vitest, configuration, sample tests, and scripts. From your
 app's folder, run the command for a platform you enabled:
 
 ```sh
-pnpm test:web            # when web is enabled
-pnpm test:ios -- --device DEVICE_UDID  # when iOS is enabled
-pnpm test:android -- --device DEVICE_SERIAL  # when Android is enabled
+bun run test:web            # when web is enabled
+bun run test:ios -- --device DEVICE_UDID  # when iOS is enabled
+bun run test:android -- --device DEVICE_SERIAL  # when Android is enabled
 ```
 
 Web tests use jsdom, which simulates a browser's
@@ -113,9 +113,9 @@ preview and apply a published CLI release's set, then check the installed
 packages:
 
 ```sh
-pnpm dlx @octane-xplat/cli@latest upgrade --check
-pnpm dlx @octane-xplat/cli@latest upgrade
-pnpm xplat doctor
+bunx @octane-xplat/cli@latest upgrade --check
+bunx @octane-xplat/cli@latest upgrade
+bun run xplat doctor
 ```
 
 An upgrade covers the workspace's managed dependencies and patches. Your
@@ -128,19 +128,19 @@ app directory:
 
 ```sh
 cd my-app
-pnpm dev            # web
+bun run dev            # web
 ```
 
 From that directory, these commands run other targets or check the app — the
 `dev:*`/`build:*` entries exist only for platforms chosen at create time
-(`pnpm xplat add` adds the rest later):
+(`bun run xplat add` adds the rest later):
 
 ```sh
-pnpm dev:ios        # needs macOS, Xcode, and NativeScript setup
-pnpm dev:android    # needs Android SDK, compatible JDK, and NativeScript setup
-pnpm lint
-pnpm typecheck      # tsconfig.json + every declared environment
-pnpm build          # web production bundle
+bun run dev:ios        # needs macOS, Xcode, and NativeScript setup
+bun run dev:android    # needs Android SDK, compatible JDK, and NativeScript setup
+bun run lint
+bun run typecheck      # tsconfig.json + every declared environment
+bun run build          # web production bundle
 ```
 
 [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)

@@ -27,7 +27,7 @@ try {
 			lib: { entry, name: 'ReportingGuide', formats: ['iife'], fileName: () => 'reporting.js' },
 		},
 	})
-	const injected = spawnSync('pnpm', ['exec', 'sentry-cli', 'sourcemaps', 'inject', output], {
+	const injected = spawnSync('bun', ['run', 'sentry-cli', 'sourcemaps', 'inject', output], {
 		cwd: root,
 		encoding: 'utf8',
 	})
@@ -49,7 +49,7 @@ try {
 			.split('\n')
 			[original.originalLine].includes('Xplat reporting check'),
 	)
-	const help = spawnSync('pnpm', ['exec', 'sentry-cli', 'sourcemaps', 'upload', '--help'], {
+	const help = spawnSync('bun', ['run', 'sentry-cli', 'sourcemaps', 'upload', '--help'], {
 		cwd: root,
 		encoding: 'utf8',
 	})

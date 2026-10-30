@@ -28,5 +28,5 @@ retained pointer suite. By default it resolves installed patched core. Set
 without modifying any installed dependency. It is not an app/WinRT test.
 
 ```sh
-pnpm exec turbo run test:keyboard --filter=@xplat/windows
+bun run turbo run test:keyboard --filter=@xplat/windows
 ```

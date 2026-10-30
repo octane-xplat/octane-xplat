@@ -5,7 +5,7 @@
 A **library** shares components between apps. It has exports and types but no
 app window of its own. Start with the library template's `Badge`, show it in a
 separate browser app, then check its tarball before publishing. You need the
-[Node and pnpm setup](../start/toolchain.md#create-and-run) and basic familiarity
+[Node and Bun setup](../start/toolchain.md#create-and-run) and basic familiarity
 with editing a component. A coding agent can perform the file edits with you.
 
 This starter targets web, iOS and Android. Its desktop export conditions are
@@ -19,12 +19,12 @@ is an example scoped npm name: replace `acme` with a scope you own before
 publishing. The directory can keep the shorter name `travel-controls`.
 
 ```sh
-pnpm create octane-xplat travel-controls --template library --name @acme/travel-controls
+bun create octane-xplat travel-controls --template library --name @acme/travel-controls
 cd travel-controls
-pnpm typecheck
-pnpm test
-pnpm typegen
-pnpm test:packed
+bun run typecheck
+bun run test
+bun run typegen
+bun run test:packed
 ```
 
 Creation installs the package's development tools; it does not start a server.
@@ -73,7 +73,7 @@ export function Badge(props: BadgeProps): JSX.Element {
 Give every exported function an explicit return type, like `: JSX.Element`
 above. `tsrx-typegen` writes each file's type declarations on its own, without
 reading the rest of the package, so it can't work out a return type you leave
-off. When one is missing, `pnpm typegen` names the file and line to fix.
+off. When one is missing, `bun run typegen` names the file and line to fix.
 
 The browser sibling uses the same props and component body, with
 `/** @jsxImportSource @octane-xplat/jsx/dom */` as its first line. Export the
@@ -96,16 +96,16 @@ the actual filename printed by `pack` if you chose another name or version.
 ```sh
 # In travel-controls:
 mkdir -p ../artifacts
-pnpm pack --pack-destination ../artifacts
+bun pm pack --destination ../artifacts
 cd ..
-pnpm create octane-xplat travel-app --targets web
+bun create octane-xplat travel-app --targets web
 ```
 
 Stop the app's initial development server with Ctrl+C, then install the tarball:
 
 ```sh
 cd travel-app
-pnpm add ../artifacts/acme-travel-controls-0.1.0.tgz
+bun add ../artifacts/acme-travel-controls-0.1.0.tgz
 ```
 
 In `travel-app/src/App.tsrx`, replace the starter component with:
@@ -122,10 +122,10 @@ Run the app and read the label. Then stop the server and check its production
 bundle and types. Fix failures here before publishing:
 
 ```sh
-pnpm dev
+bun run dev
 # After stopping the server:
-pnpm typecheck
-pnpm build
+bun run typecheck
+bun run build
 ```
 
 The app compiles installed `.ts`, `.tsx` and `.tsrx` runtime source with its
@@ -142,10 +142,10 @@ For frequent edits, an app can link the sibling package instead:
 
 ```sh
 # In travel-controls, regenerate after public source changes:
-pnpm typegen
+bun run typegen
 # In travel-app:
-pnpm add link:../travel-controls
-pnpm why octane
+bun add link:../travel-controls
+bun why octane
 ```
 
 Keep Octane and renderer packages as library peers and development dependencies,
@@ -165,8 +165,8 @@ file and doctor output for the installed release, rather than independently
 upgrading compiler pieces:
 
 ```sh
-pnpm exec xplat doctor
-pnpm dlx @octane-xplat/cli@latest upgrade --check
+bun run xplat doctor
+bunx @octane-xplat/cli@latest upgrade --check
 ```
 
 The current isolated install also reports an optional lint-checker peer mismatch:
@@ -177,7 +177,7 @@ tracks carrying the repository's compatible version into generated workspaces.
 Inspect the install rather than silently ignoring a peer warning:
 
 ```sh
-pnpm peers check
+bun pm ls --all
 ```
 
 For TSRX, follow [current compiler limits](../testing/known-limits.md#same-edge-on-every-target).
@@ -236,7 +236,7 @@ Charger
 Then inspect the packed files:
 
 ```sh
-pnpm pack --pack-destination ../artifacts
+bun pm pack --destination ../artifacts
 tar -tzf ../artifacts/acme-travel-controls-0.1.0.tgz
 ```
 
@@ -249,10 +249,10 @@ outputs. Generated `.js` specifiers within declarations resolve to sibling
 or `allowArbitraryExtensions` to read the public types.
 
 ```sh
-pnpm typegen
-pnpm exec tsrx-typegen --target octane --check
-pnpm exec tsrx-typegen --pack-check
-pnpm test:packed
+bun run typegen
+bun run tsrx-typegen --target octane --check
+bun run tsrx-typegen --pack-check
+bun run test:packed
 ```
 
 `--check` reports stale or missing output without rewriting it. Ignore generated
@@ -265,7 +265,7 @@ consumer typechecks. The template's `prepack` regenerates and checks the archive
 {
   "scripts": {
     "typegen": "tsrx-typegen --project tsconfig.types.json",
-    "prepack": "pnpm typegen && tsrx-typegen --pack-check"
+    "prepack": "bun run typegen && tsrx-typegen --pack-check"
   }
 }
 ```
@@ -285,11 +285,11 @@ ranges you actually tested, update the README's first use, and run the bounded
 checks again:
 
 ```sh
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm test:packed
-pnpm pack --pack-destination ../artifacts
+bun run typecheck
+bun run lint
+bun run test
+bun run test:packed
+bun pm pack --destination ../artifacts
 ```
 
 Open the archive listing; it should contain both runtime leaves, their reachable
@@ -300,7 +300,7 @@ for your account's publishing rights and authentication. The reader-performed
 publication step, from the library directory, is:
 
 ```sh
-pnpm publish --access public
+npm publish --access public
 ```
 
 For repeat releases, consider [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/)

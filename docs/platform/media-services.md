@@ -18,10 +18,10 @@ From your app folder, install the package for the feature you need:
 
 | Feature                            | Command                           |
 | ---------------------------------- | --------------------------------- |
-| Advanced vibration patterns        | `pnpm add @octane-xplat/haptics`  |
-| Short sound effects                | `pnpm add @octane-xplat/sounds`   |
-| Audio tracks and playback controls | `pnpm add @octane-xplat/audio`    |
-| Microphone recording to WAV        | `pnpm add @octane-xplat/recorder` |
+| Advanced vibration patterns        | `bun add @octane-xplat/haptics`  |
+| Short sound effects                | `bun add @octane-xplat/sounds`   |
+| Audio tracks and playback controls | `bun add @octane-xplat/audio`    |
+| Microphone recording to WAV        | `bun add @octane-xplat/recorder` |
 
 The packages include their JavaScript and Android plugin dependencies.
 Advanced haptics on iOS also needs the Pulsar Swift package and source

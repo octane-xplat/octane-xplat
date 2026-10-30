@@ -6,11 +6,9 @@ export default {
 		: (process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat'),
 	appPath: 'src',
 	appResourcesPath: 'App_Resources',
-	// The workspace is pnpm-managed — without this the CLI defaults to npm
-	// and spawns bundlers with --preserve-symlinks, which breaks isolated
-	// node_modules resolution (symlinked packages can't find their deps).
+	// Keep NativeScript's installs on the same package manager as the app.
 	cli: {
-		packageManager: 'pnpm',
+		packageManager: 'bun',
 	},
 	android: {
 		v8Flags: '--expose_gc',

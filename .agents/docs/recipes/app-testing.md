@@ -20,7 +20,7 @@ can verify. Keep unused feature dependencies out of default apps.
 ## Acceptance criteria
 
 - AC1: Creating an app includes framework-managed test dependencies, files, and scripts for enabled platforms while omitting unused feature plugins and other platforms' test tooling.
-- AC2: A web app runs the sample counter interaction with `pnpm test:web`; docs explain the file convention and distinguish jsdom checks from browser layout and real input.
+- AC2: A web app runs the sample counter interaction with `bun run test:web`; docs explain the file convention and distinguish jsdom checks from browser layout and real input.
 - AC3: Adding a platform preserves user test scripts, files, and dependency specifications and reports conflicts; adding an enabled platform again leaves them unchanged. In a monorepo, missing catalog pins and patch configuration belong to the enclosing workspace, preserving its existing settings without creating a child workspace.
 - AC4: Adding a platform supplies its test setup while preserving existing tests; phone commands select an explicit device and link to platform qualification limits.
 

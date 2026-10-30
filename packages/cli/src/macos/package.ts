@@ -53,7 +53,7 @@ function viteExecutable(appRoot) {
 		manifest = JSON.parse(readFileSync(join(viteRoot, 'package.json'), 'utf8'))
 	} catch {
 		throw new Error(
-			'Cannot resolve Vite from the macOS app. Declare vite in devDependencies and run pnpm install.',
+			'Cannot resolve Vite from the macOS app. Declare vite in devDependencies and run bun install.',
 		)
 	}
 
@@ -279,7 +279,7 @@ export async function packageMacOS(appRoot) {
 	const octaneRoot = installedPackageRoot(appRoot, 'octane')
 	if (!octaneRoot) {
 		throw new Error(
-			'Cannot resolve octane from the app. Declare it in dependencies and run pnpm install.',
+			'Cannot resolve octane from the app. Declare it in dependencies and run bun install.',
 		)
 	}
 	const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')

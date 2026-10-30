@@ -1,4 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+import { packageManagerFor, packageManagerExec } from '../package-manager.ts'
 import { command } from '@alloc/cmd-ts'
 import { inspectCompatibility } from '../compatibility-check.ts'
 import { workspaceRoot } from '../compatibility.ts'
@@ -329,12 +330,17 @@ export const doctor = command({
 		let declarationPackCheckFailed = false
 		let declarationPackCheckOutput = ''
 		if (existsSync(join(cwd, 'tsrx-typegen.json'))) {
-			const declarations = check('pnpm', ['exec', 'tsrx-typegen', '--pack-check'], cwd, 120000)
+			const declarations = check(
+				packageManagerFor(cwd),
+				packageManagerExec(cwd, ['tsrx-typegen', '--pack-check']).args,
+				cwd,
+				120000,
+			)
 			row(
 				'tsrx package declarations',
 				declarations.ok,
 				declarations.out,
-				'run pnpm exec tsrx-typegen --pack-check and resolve the reported package issue',
+				'run bun run tsrx-typegen --pack-check and resolve the reported package issue',
 			)
 
 			declarationPackCheckFailed = !declarations.ok
@@ -342,12 +348,13 @@ export const doctor = command({
 		}
 
 		row('node', check('node', ['--version']).ok, check('node', ['--version']).out)
-		row('pnpm', check('pnpm', ['--version']).ok, check('pnpm', ['--version']).out)
+		const manager = packageManagerFor(cwd)
+		row(manager, check(manager, ['--version']).ok, check(manager, ['--version']).out)
 		if (native) {
 			row(
 				'ns CLI',
-				check('pnpm', ['exec', 'ns', '--version']).ok,
-				check('pnpm', ['exec', 'ns', '--version']).out,
+				check(packageManagerFor(cwd), packageManagerExec(cwd, ['ns', '--version']).args, cwd).ok,
+				check(packageManagerFor(cwd), packageManagerExec(cwd, ['ns', '--version']).args, cwd).out,
 				'add the nativescript devDep (the starter ships it)',
 			)
 
@@ -404,7 +411,7 @@ export const doctor = command({
 			if (typeof runtimeVersion !== 'string') {
 				runtimeHint = `declare ${macOSRuntimePackageName} in dependencies`
 			} else if (!runtimeInspection.packageManifest) {
-				runtimeHint = `declared ${runtimeVersion}, but its installed package.json is missing or unreadable; run pnpm install`
+				runtimeHint = `declared ${runtimeVersion}, but its installed package.json is missing or unreadable; run bun install`
 			} else if (runtimeInspection.missingPaths.length) {
 				runtimeHint = `installed ${runtimeInspection.packageManifest.version ?? runtimeVersion} is missing required files: ${runtimeInspection.missingPaths.join(', ')}; install a compatible ${macOSRuntimePackageName} release`
 			}
@@ -469,7 +476,9 @@ export const doctor = command({
 			row(
 				'macOS JavaScriptCore package host',
 				jscHost.issues.length === 0,
-				jscHost.issues.length ? jscHost.issues.join('; ') : 'pinned universal host and addon verified',
+				jscHost.issues.length
+					? jscHost.issues.join('; ')
+					: 'pinned universal host and addon verified',
 				'reinstall @octane-xplat/cli or rebuild its pinned macOS host artifacts',
 			)
 
@@ -588,7 +597,7 @@ export const doctor = command({
 				`patch ${patch.specifier}`,
 				patch.state === 'applied',
 				patchStateDetail(patch.state),
-				patch.state === 'not-installed' ? 'run `pnpm install`' : 'run `xplat patches apply`',
+				patch.state === 'not-installed' ? 'run `bun install`' : 'run `xplat patches apply`',
 			)
 		}
 

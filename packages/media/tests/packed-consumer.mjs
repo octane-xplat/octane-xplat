@@ -182,9 +182,9 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
+	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
 	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
+	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
@@ -245,7 +245,7 @@ try {
 	const filesExtracted = join(temporary, 'files-extracted')
 	mkdirSync(filesPack)
 	mkdirSync(filesExtracted)
-	run('pnpm', ['pack', '--pack-destination', filesPack], join(repoRoot, 'packages/files'))
+	run('bun', ['pm', 'pack', '--destination', filesPack], join(repoRoot, 'packages/files'))
 	const filesTarballs = readdirSync(filesPack).filter((name) => name.endsWith('.tgz'))
 	assert.equal(filesTarballs.length, 1)
 	run('tar', ['-xzf', join(filesPack, filesTarballs[0]), '-C', filesExtracted], temporary)

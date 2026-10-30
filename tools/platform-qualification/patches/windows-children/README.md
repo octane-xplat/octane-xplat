@@ -11,7 +11,7 @@ The package integration is in the existing canonical
 universal declarations expose `Children.toArray` and `Children.map`. All canonical
 sections outside `universal-core` were verified byte-for-byte unchanged. The
 normalizer is emitted from the retained TypeScript source; it is not a UI-side
-plan interpreter. `pnpm sync:patches` maintains the config-package copy and yaml
+plan interpreter. `bun run sync:patches` maintains the config-package copy and yaml
 metadata. The lockfile changes only the Octane patch hash.
 
 Collection regression coverage lives in `packages/ui/src/internal/rendering/children.mobile.test.ts`

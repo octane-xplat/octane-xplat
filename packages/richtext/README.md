@@ -9,7 +9,7 @@ the [`@octane-xplat/tiptap`](https://github.com/octane-xplat/octane-xplat/blob/m
 From an existing Xplat app, install the package before using the example:
 
 ```sh
-pnpm add @octane-xplat/richtext
+bun add @octane-xplat/richtext
 ```
 
 ```tsx

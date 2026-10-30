@@ -101,7 +101,7 @@ await new Promise((resolve, reject) => {
 const port = server.address().port
 // Reuse the maintained probe runtime and its installed native engines.
 // The probe runner links installed packages rather than producing a lockfile;
-// ask pnpm to resolve that exact source graph without replacing those links.
+// ask Bun to resolve that exact source graph without replacing those links.
 const projectPackage = JSON.parse(await readFile(join(project.root, 'package.json'), 'utf8'))
 const buildToolRoot = resolve(
 	dirname(createRequire(import.meta.url).resolve('@octane-xplat/fingerprint')),
@@ -114,7 +114,7 @@ projectPackage.devDependencies['@octane-xplat/fingerprint'] = JSON.parse(
 const overrides = Object.fromEntries(
 	[...selected.resolved].map(([name, path]) => [name, 'file:' + path]),
 )
-// pnpm also resolves development edges of directory dependencies while making
+// Directory dependencies may contain development edges of directory dependencies while making
 // the lockfile. Resolve their workspace references from this checkout too.
 for (const entry of await readdir(join(repo, 'packages'), { withFileTypes: true })) {
 	const directory = join(repo, 'packages', entry.name)
@@ -146,22 +146,18 @@ try {
 		throw error
 	}
 }
-await writeFile(join(project.root, 'package.json'), JSON.stringify(projectPackage, null, 2))
-const workspace = await readFile(join(repo, 'pnpm-workspace.yaml'), 'utf8')
-const { parse, stringify } = await import(
-	pathToFileURL(createRequire(join(buildToolRoot, 'package.json')).resolve('yaml')).href
-)
-const catalog = parse(workspace).catalog
+const repoPackage = JSON.parse(await readFile(join(repo, 'package.json'), 'utf8'))
+const catalog = repoPackage.workspaces.catalog
 for (const [name, version] of Object.entries(catalog)) {
 	if (!Object.hasOwn(overrides, name)) {
 		overrides[name] = version
 	}
 }
-await writeFile(
-	join(project.root, 'pnpm-workspace.yaml'),
-	stringify({ packages: ['.'], catalog, overrides }),
-)
-await command('pnpm', ['install', '--lockfile-only', '--ignore-scripts'], {
+projectPackage.packageManager = 'bun@1.4.4'
+projectPackage.workspaces = { packages: [], catalog }
+projectPackage.overrides = overrides
+await writeFile(join(project.root, 'package.json'), JSON.stringify(projectPackage, null, 2))
+await command('bun', ['install', '--lockfile-only', '--ignore-scripts'], {
 	cwd: project.root,
 	timeout: 120000,
 })

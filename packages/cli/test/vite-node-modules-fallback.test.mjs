@@ -134,7 +134,7 @@ describe('patched NativeScript Vite node_modules fallback', () => {
 		})
 	})
 
-	for (const workspaceKind of ['pnpm', 'package-json', 'hook-linked']) {
+	for (const workspaceKind of ['bun', 'package-json', 'hook-linked']) {
 		it(`serves a transitive plugin from a linked ${workspaceKind} workspace package`, async () => {
 			const projectRoot = makeProject({
 				name: 'app',

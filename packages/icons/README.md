@@ -8,7 +8,7 @@ this package ships no icon data, default collection, or Iconify API client.
 In an Octane-xplat app with `@octane-xplat/ui` already configured:
 
 ```sh
-pnpm add @octane-xplat/icons @iconify-json/heroicons
+bun add @octane-xplat/icons @iconify-json/heroicons
 ```
 
 Register bundled JSON before mounting the app, then use `prefix:name`:
@@ -163,13 +163,13 @@ The maintained [icon probe](https://github.com/octane-xplat/octane-xplat/blob/ma
 sets, sizing, aliases, missing names, and mounted registration/prop updates:
 
 ```sh
-pnpm probe doctor
-pnpm probe run examples/probes/icons.macos.tsrx --target macos --deps @octane-xplat/icons
-pnpm probe run examples/probes/icons.tsrx --target web --deps @octane-xplat/icons
-pnpm probe run examples/probes/icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/icons
+bun run probe doctor
+bun run probe run examples/probes/icons.macos.tsrx --target macos --deps @octane-xplat/icons
+bun run probe run examples/probes/icons.tsrx --target web --deps @octane-xplat/icons
+bun run probe run examples/probes/icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/icons
 ```
 
-For package checks, run `pnpm exec turbo run typegen --filter=@octane-xplat/icons`, `typecheck`,
+For package checks, run `bun run turbo run typegen --filter=@octane-xplat/icons`, `typecheck`,
 `test`, and `pack:check`. Runtime evidence is recorded separately from builds;
 the probe proves host/source updates, not pixel parity or OS accessibility
 traversal. Run it on each target you ship.

@@ -6,7 +6,7 @@ Live camera preview for Octane xplat apps: `getUserMedia` video on web,
 `MediaCapture` + `CaptureElement` on the Windows (WinUI 3) target.
 
 ```sh
-pnpm add @octane-xplat/camera
+bun add @octane-xplat/camera
 ```
 
 ```tsx

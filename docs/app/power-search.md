@@ -297,7 +297,7 @@ all unrun. No actual native control, popover sizing, keyboard, IME, VoiceOver,
 clock/calendar semantics or clean installed-consumer behavior is qualified.
 
 ```sh
-pnpm probe run examples/probes/power-search-range.macos.tsrx --target macos --watch
+bun run probe run examples/probes/power-search-range.macos.tsrx --target macos --watch
 ```
 
 ## Edit native AppKit entity filters
@@ -380,7 +380,7 @@ layout, host cancellation timing and installed consumers remain unqualified.
 Web/mobile entity built-ins and complete nested/custom parity remain open.
 
 ```sh
-pnpm probe run examples/probes/power-search-entities.macos.tsrx --target macos --watch
+bun run probe run examples/probes/power-search-entities.macos.tsrx --target macos --watch
 ```
 
 ## Validate native AppKit numeric filters
@@ -454,7 +454,7 @@ lets a maintainer replace text/number filters and try missing keys; run it only
 when native verification is authorized.
 
 ```sh
-pnpm probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
+bun run probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
 ```
 
 ## Edit native AppKit absolute dates
@@ -517,5 +517,5 @@ remain unqualified. The scalar fixture now offers timestamp and date-only button
 its automated entry only mounts controls.
 
 ```sh
-pnpm probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
+bun run probe run examples/probes/power-search-scalars.macos.tsrx --target macos --watch
 ```

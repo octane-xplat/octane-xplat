@@ -1,12 +1,12 @@
 # @octane-xplat/patches
 
-The pnpm patch files used by freshly scaffolded Octane-xplat apps. Apps do not
-install this package directly — create templates declare it as a pnpm
-`configDependencies` package so the patches are in place before regular app
-dependencies install.
+The canonical patch bundle, shared by Bun and pnpm compatibility checks.
+New apps and libraries include local `patches/` files in their scaffold, so
+Bun can apply them during the first install. Existing pnpm consumers can
+continue using this package as a config dependency.
 
 The canonical patch files and their rationale live in
-`packages/cli/patches/manifest.json`. `pnpm sync:patches` generates this
+`packages/cli/patches/manifest.json`. `bun run sync:patches` generates this
 package's `patches/` directory from that source. Do not edit the copies here
 by hand.
 

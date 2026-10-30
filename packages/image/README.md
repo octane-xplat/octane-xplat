@@ -14,7 +14,7 @@ for `@octane-xplat/ui`'s `Image` — the same name and the same prop contract
 `ios`/`android`/`web` bags). Switching engines is an import-path change:
 
 ```sh
-pnpm add @octane-xplat/image
+bun add @octane-xplat/image
 ```
 
 ```tsx

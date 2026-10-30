@@ -5,7 +5,7 @@ web, iOS, and Android. For app-fired local notifications, use
 [`@octane-xplat/notifications`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/notifications/README.md).
 
 ```sh
-pnpm add @octane-xplat/push
+bun add @octane-xplat/push
 ```
 
 - **iOS/Android** — `@nativescript/firebase-core` + `@nativescript/firebase-messaging`

@@ -70,10 +70,10 @@ development. `xplat doctor` validates the selected renderer and its configured
 paths. The current host requires macOS 13.5 or later.
 
 ```sh
-pnpm xplat doctor
-pnpm xplat dev macos
+bun run xplat doctor
+bun run xplat dev macos
 # After stopping development:
-pnpm xplat build --targets macos
+bun run xplat build --targets macos
 ```
 
 ## Share typed host services
@@ -231,12 +231,12 @@ methods and four proof-owned methods, and directly invokes the framework calls
 that can run without user interaction: bootstrap state, clipboard, app state,
 window size, file reads, secure storage, host storage, appearance, app-defined
 calls/events, deep links, and a secondary webview window's close event. Run it
-with `pnpm --filter @xplat/macos webview:proof`; the verifier reports
+with `bun run --filter @xplat/macos webview:proof`; the verifier reports
 `[webview-proof] verified 28 typed host methods`. The
 [camera webview proof](../../apps/macos/webview-camera-proof/main.web.ts)
 verifies the `camera` service end to end inside a signed bundle — permission
 status and request, app-private movie storage round-trip, private-root
 containment, and the session backend's host-storage switch. Run it with
-`pnpm exec turbo run test:camera-webview --filter=@xplat/macos`. The full shared frontend used
+`bun run turbo run test:camera-webview --filter=@xplat/macos`. The full shared frontend used
 by the configured macOS renderer starts from
 [`apps/web/src/main.tsrx`](../../apps/web/src/main.tsrx).

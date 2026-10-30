@@ -33,6 +33,7 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
+		"jsonc-parser": "3.3.1",
 		"minimatch": "10.2.6",
 		"typescript": "catalog:",
 		"yaml": "2.9.1"

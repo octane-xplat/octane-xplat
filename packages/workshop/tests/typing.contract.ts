@@ -1,5 +1,5 @@
 /**
- * Compile-only contract assertions — run via `pnpm test:types`.
+ * Compile-only contract assertions — run via `bun run test:types`.
  * Every @ts-expect-error line must produce a type error if the contract
  * regresses.
  */

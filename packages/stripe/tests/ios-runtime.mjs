@@ -73,7 +73,7 @@ await cp(
 	join(resources, 'iOS/src/XplatStripePaymentSheet.swift'),
 )
 const result = spawnSync(
-	'pnpm',
+	'bun',
 	[
 		'probe',
 		'run',

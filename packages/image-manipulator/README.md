@@ -6,7 +6,7 @@ ImageManipulator API and uses Octane hooks. Image picking remains in
 `@octane-xplat/media`; crop selection remains in `@octane-xplat/image-crop`.
 
 ```sh
-pnpm add @octane-xplat/image-manipulator
+bun add @octane-xplat/image-manipulator
 ```
 
 In an existing Xplat app, call this helper from your photo attachment action.

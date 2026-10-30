@@ -375,7 +375,7 @@ for (const s of scenarios) {
 console.log('')
 if (failures) {
 	console.log(
-		`FAIL — ${failures} expectation(s) drifted. Check whether the workspace patches still apply (pnpm install), then revisit the recorded expectations (Q25).`,
+		`FAIL — ${failures} expectation(s) drifted. Check whether the workspace patches still apply (bun install), then revisit the recorded expectations (Q25).`,
 	)
 
 	process.exit(1)

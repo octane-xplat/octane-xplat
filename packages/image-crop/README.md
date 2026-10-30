@@ -7,7 +7,7 @@ coordinates; it does not produce a cropped image file or open a modal.
 ## Install and use
 
 ```sh
-pnpm add @octane-xplat/image-crop
+bun add @octane-xplat/image-crop
 ```
 
 Use the existing Octane Xplat renderer setup; no extra NativeScript plugin or
@@ -119,12 +119,12 @@ export function saveSelection(
 From the monorepo root:
 
 ```sh
-pnpm exec turbo run test --filter=@octane-xplat/image-crop
-pnpm exec turbo run typecheck --filter=@octane-xplat/image-crop
-pnpm exec turbo run typegen --filter=@octane-xplat/image-crop
-pnpm probe doctor
-pnpm probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
-pnpm probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop
+bun run turbo run test --filter=@octane-xplat/image-crop
+bun run turbo run typecheck --filter=@octane-xplat/image-crop
+bun run turbo run typegen --filter=@octane-xplat/image-crop
+bun run probe doctor
+bun run probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
+bun run probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop
 ```
 
 The mounted probe checks handles and records geometry. It does not establish

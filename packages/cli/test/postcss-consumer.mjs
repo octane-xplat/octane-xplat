@@ -24,7 +24,7 @@ const run = (command, args) =>
 		cwd: root,
 		stdio: 'pipe',
 		timeout: 120_000,
-		shell: command === 'pnpm' && process.platform === 'win32',
+		shell: command === 'bun' && process.platform === 'win32',
 	})
 
 try {
@@ -59,8 +59,8 @@ try {
 		},
 	})
 
-	writeFileSync(join(root, 'pnpm-workspace.yaml'), 'nodeLinker: isolated\n')
-	run('pnpm', ['install', '--ignore-scripts'])
+	writeFileSync(join(root, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
+	run('bun', ['install', '--ignore-scripts'])
 	const consumer = createRequire(join(root, 'package.json'))
 	const vite = createRequire(consumer.resolve('vite'))
 	const installedCli = realpathSync(join(root, 'node_modules/@octane-xplat/cli'))

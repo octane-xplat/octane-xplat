@@ -672,8 +672,8 @@ export function checkPackedPackage(projectRoot, ts) {
 	mkdirSync(extractedRoot)
 	try {
 		const packed = spawnSync(
-			'pnpm',
-			['--config.ignore-scripts=true', 'pack', '--pack-destination', packOutput],
+			'bun',
+			['pm', 'pack', '--ignore-scripts', '--destination', packOutput],
 			{ cwd: projectRoot, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 },
 		)
 
@@ -690,7 +690,7 @@ export function checkPackedPackage(projectRoot, ts) {
 		}
 
 		if (packed.status !== 0) {
-			throw new Error(`pnpm pack exited with ${packed.status}`)
+			throw new Error(`bun pm pack exited with ${packed.status}`)
 		}
 
 		const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))

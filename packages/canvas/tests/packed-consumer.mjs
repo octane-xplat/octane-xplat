@@ -244,9 +244,9 @@ export { getGPU }
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
+	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
 	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
+	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
@@ -254,7 +254,7 @@ try {
 	assert.equal(
 		packedManifest.exports['.'].macos,
 		'./src/index.macos.ts',
-		'pnpm pack retains the published macOS entry',
+		'bun pm pack retains the published macOS entry',
 	)
 
 	const exportMaps = [

@@ -19,7 +19,7 @@ Start with the fade below. For a specific interaction, jump to
 From your app folder, install the optional motion package:
 
 ```sh
-pnpm add @octane-xplat/motion
+bun add @octane-xplat/motion
 ```
 
 It works alongside `@octane-xplat/ui`. Import
@@ -377,7 +377,7 @@ export function DragCard() {
 ```
 
 Native apps install the optional motion peer with
-`pnpm add @nativescript-community/gesturehandler@2.0.45`. In the native entry,
+`bun add @nativescript-community/gesturehandler@2.0.45`. In the native entry,
 call its `install()` before creating any Page, Frame, or root view:
 
 ```ts
@@ -886,8 +886,8 @@ export function IndependentHighlight() {
 
 Common product interactions — switching views, revealing a list, settling a
 total, rotating supporting copy — are compositions of the pieces above, not new
-primitives. The harness app ships a working showcase: run `pnpm dev:web` (or
-`pnpm dev:ios` / `pnpm dev:android` with the native toolchain set up) and open
+primitives. The harness app ships a working showcase: run `bun run dev:web` (or
+`bun run dev:ios` / `bun run dev:android` with the native toolchain set up) and open
 **Apps → Motion patterns**. Each pattern has a focused view there with its own
 reduced-motion preview, and the maintained source is
 [`MotionPatterns.tsrx`](../../packages/demos/src/MotionPatterns.tsrx).

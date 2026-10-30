@@ -174,7 +174,7 @@ consulting framework source or relying on maintainer knowledge. Covering every
 API name is insufficient. Seed new recipes from actual developer workflows,
 including undocumented ones, rather than just the existing page inventory.
 
-Run `pnpm check:recipes` (also part of `pnpm lint`). It checks structure, IDs,
+Run `bun run check:recipes` (also part of `bun run lint`). It checks structure, IDs,
 criterion mappings, and local links/Markdown heading anchors. Regression tests run with `node --test scripts/check-recipes.test.mjs`.
 It does not judge prose completeness, execute examples, or require access to Silo.
 

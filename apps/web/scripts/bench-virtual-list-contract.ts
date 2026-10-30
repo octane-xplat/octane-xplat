@@ -4,7 +4,7 @@ import { chromium } from 'playwright'
 import assert from 'node:assert/strict'
 
 // Nonvisual regression gate for Q28/Q29 and window disposal.
-const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', '5218', '--strictPort'], {
+const preview = spawn('bun', ['run', 'vite', 'preview', '--port', '5218', '--strictPort'], {
 	shell: process.platform === 'win32',
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,

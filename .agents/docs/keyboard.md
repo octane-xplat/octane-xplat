@@ -542,8 +542,8 @@ the host's `idb` CLI with AX-identifier `ui wait`/`ui describe` and
 `ui tap --api hid` support; a build without those commands is insufficient.
 
 ```sh
-pnpm --filter @octane-xplat/keyboard test:os-input --target ios --device IOS_UDID
-pnpm --filter @octane-xplat/keyboard test:os-input --target android --device ANDROID_SERIAL
+bun run --filter @octane-xplat/keyboard test:os-input --target ios --device IOS_UDID
+bun run --filter @octane-xplat/keyboard test:os-input --target android --device ANDROID_SERIAL
 ```
 
 | Target | Runtime evidence | Limits |
@@ -561,8 +561,8 @@ hardware-key APIs coexist with the new software-keyboard service. Chat policy
 and panel-height types are included, with invalid policies required to fail.
 
 ```sh
-pnpm --filter @octane-xplat/keyboard test:packed
-pnpm --filter @octane-xplat/ui test:native
+bun run --filter @octane-xplat/keyboard test:packed
+bun run --filter @octane-xplat/ui test:native
 ```
 
 The native UI suite has 40 Node tests and 283 component tests across 64

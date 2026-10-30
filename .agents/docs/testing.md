@@ -125,8 +125,8 @@ the host and a WebSocket bridge executes specs inside the real app runtime
 `ns run <platform> --no-hmr --env.unitTesting`.
 
 ```sh
-pnpm --filter @xplat/mobile test:ios -- --device DEVICE_UDID
-pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
+bun run --filter @xplat/mobile test:ios -- --device DEVICE_UDID
+bun run --filter @xplat/mobile test:android -- --device DEVICE_ID
 # or directly: cd apps/mobile && NS_PLATFORM=ios npx vitest run
 ```
 

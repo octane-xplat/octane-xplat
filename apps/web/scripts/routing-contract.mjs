@@ -15,7 +15,7 @@ for (const args of [
 	['--filter', '@octane-xplat/ui', 'typegen'],
 	['--filter', '@octane-xplat/cli', 'build'],
 ]) {
-	const built = spawnSync('pnpm', args, {
+	const built = spawnSync('bun', args, {
 		cwd: workspace,
 		encoding: 'utf8',
 		timeout: 120000,
@@ -29,8 +29,8 @@ const { generateRoutes } = await import('../../../packages/cli/dist/commands/rou
 await generateRoutes(root, 'app', 'routes.gen', { bake: false })
 for (const project of ['tsconfig.json', 'tsconfig.source.json']) {
 	const checked = spawnSync(
-		'pnpm',
-		['exec', 'tsrx-tsc', '--noEmit', '-p', 'tests/fixtures/routing-contract/' + project],
+		'bun',
+		['run', 'tsrx-tsc', '--noEmit', '-p', 'tests/fixtures/routing-contract/' + project],
 		{
 			shell: process.platform === 'win32',
 			cwd: fileURLToPath(new URL('../', import.meta.url)),

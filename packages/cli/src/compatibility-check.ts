@@ -2,6 +2,7 @@ import { existsSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, relative, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
+import { packageManagerFor } from './package-manager.ts'
 import { dependencySections, projectProfile } from 'create-octane-xplat/compatibility'
 import { masonCorePackage, masonFullPackage, masonLegacyPackage } from './mason-engine.ts'
 
@@ -59,10 +60,11 @@ function commandVersion(command: string, cwd: string) {
 /** Declarations and the reachable installed graph are independent checks. */
 export function inspectCompatibility(
 	dir: string,
-	tools?: { node: string; pnpm: string },
+	tools?: { node: string; bun?: string; pnpm?: string },
 ): CompatibilityCheck[] {
 	dir = realpathSync(resolve(dir))
 	const root = workspaceRoot(dir)
+	const manager = packageManagerFor(root)
 	const config = readWorkspace(root).toJS() ?? {}
 	const pkg = readPackage(join(dir, 'package.json'))
 	const profile = projectProfile(pkg)
@@ -71,9 +73,12 @@ export function inspectCompatibility(
 		name: string,
 		ok: boolean,
 		detail: string,
-		hint = 'run xplat upgrade, then pnpm xplat doctor',
+		hint = 'run xplat upgrade, then bun run xplat doctor',
 	) => rows.push({ name, ok, detail, ...(!ok && { hint }) })
-	const runtime = tools ?? { node: commandVersion('node', dir), pnpm: commandVersion('pnpm', dir) }
+	const runtime = tools ?? {
+		node: commandVersion('node', dir),
+		[manager]: commandVersion(manager, dir),
+	}
 	row(
 		'compatibility Node',
 		atLeast(runtime.node, compatibility.tools.nodeMinimum),
@@ -81,17 +86,19 @@ export function inspectCompatibility(
 		`install Node >=${compatibility.tools.nodeMinimum}`,
 	)
 	row(
-		'compatibility pnpm',
-		runtime.pnpm === compatibility.tools.pnpm,
-		`${runtime.pnpm}; expected ${compatibility.tools.pnpm}`,
-		`use pnpm ${compatibility.tools.pnpm}`,
+		`compatibility ${manager}`,
+		manager === 'bun'
+			? atLeast(runtime.bun ?? '', compatibility.tools.bun)
+			: runtime.pnpm === compatibility.tools.pnpm,
+		`${runtime[manager]}; expected ${compatibility.tools[manager]}`,
+		`use ${manager} ${compatibility.tools[manager]}`,
 	)
 	const rootPkg = existsSync(join(root, 'package.json'))
 		? readPackage(join(root, 'package.json'))
 		: pkg
 	row(
 		'compatibility packageManager',
-		rootPkg.packageManager?.split('+')[0] === `pnpm@${compatibility.tools.pnpm}`,
+		rootPkg.packageManager?.split('+')[0] === `${manager}@${compatibility.tools[manager]}`,
 		rootPkg.packageManager ?? 'packageManager is missing',
 	)
 
@@ -109,7 +116,7 @@ export function inspectCompatibility(
 				`compatibility mason engine ${name}`,
 				false,
 				`${name} was replaced by ${engine}; both ship the native Mason framework`,
-				'run pnpm xplat upgrade',
+				'run bun run xplat upgrade',
 			)
 		}
 	}
@@ -146,7 +153,7 @@ export function inspectCompatibility(
 			`compatibility mason engine ${engine}`,
 			false,
 			`the NativeScript driver requires ${engine} for container layout`,
-			'run pnpm xplat upgrade (or add the catalog pin)',
+			'run bun run xplat upgrade (or add the catalog pin)',
 		)
 	}
 
@@ -174,7 +181,7 @@ export function inspectCompatibility(
 					`compatibility installed ${name}`,
 					false,
 					`package is not installed (required by ${relative(dir, from) || '.'})`,
-					'run pnpm install',
+					'run bun install',
 				)
 			}
 
@@ -246,7 +253,7 @@ export function inspectCompatibility(
 			copies.size === 1
 				? 'one runtime copy'
 				: `${copies.size} runtime copies: ${[...copies].map(([path, version]) => `${version} (${relative(dir, path)})`).join(', ')}`,
-			'align dependency pins and remove nested runtime copies; run pnpm why ' + name,
+			'align dependency pins and remove nested runtime copies; run bun why ' + name,
 		)
 	}
 	return rows

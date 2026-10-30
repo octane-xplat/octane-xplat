@@ -18,9 +18,9 @@ app's existing matching Octane/compiler versions; the app template already
 provides Octane's compiler peers, including `@tsrx/oxc`.
 
 ```sh
-pnpm add -D @octane-xplat/workshop @octane-xplat/cli @octanejs/vite-plugin vite
-pnpm exec xplat workshop init
-pnpm exec xplat workshop dev --target web
+bun add -D @octane-xplat/workshop @octane-xplat/cli @octanejs/vite-plugin vite
+bun run xplat workshop init
+bun run xplat workshop dev --target web
 ```
 
 Open the printed URL and choose **Workshop / Counter**. Press **Increment**:
@@ -32,9 +32,9 @@ optional package script. Existing files and app entries remain intact. Run it
 again to check that the configuration is already present.
 
 ```sh
-pnpm exec xplat workshop init
-pnpm exec xplat workshop doctor
-pnpm exec xplat workshop list
+bun run xplat workshop init
+bun run xplat workshop doctor
+bun run xplat workshop list
 ```
 
 ## Declaring stories
@@ -166,7 +166,7 @@ If those cannot recover cleanly, stop and restart the development target.
 
 ```sh
 # Stop the running development command with Ctrl+C, then:
-pnpm exec xplat workshop dev --target web --story counter/basic
+bun run xplat workshop dev --target web --story counter/basic
 ```
 
 ## Linux host
@@ -177,8 +177,8 @@ On Linux the workshop renders chrome and stories directly with GTK4 through
 NativeScript-dialect renderer, then drives the window over stdin.
 
 ```sh
-pnpm exec xplat workshop dev --target linux
-pnpm exec xplat workshop dev --target linux --story counter/basic
+bun run xplat workshop dev --target linux
+bun run xplat workshop dev --target linux --story counter/basic
 ```
 
 This is currently a repository development path: the GTK renderer is private
@@ -229,7 +229,7 @@ preview settings, separate from component props; changing them keeps the session
 The target menu lists all six real host statuses without simulating a host.
 
 ```sh
-pnpm exec xplat workshop dev --target web --story counter/basic
+bun run xplat workshop dev --target web --story counter/basic
 ```
 
 The browser chrome follows the system light/dark preference and existing app
@@ -247,7 +247,7 @@ stage visibly stale; correcting it restores a fresh successful revision.
 
 ```sh
 # Keep this command running while saving src/counter.stories.tsrx:
-pnpm exec xplat workshop dev --target web --story counter/basic
+bun run xplat workshop dev --target web --story counter/basic
 ```
 
 The DOM-host adapter uses the pinned Storybook 10.6.5 `composeStory` subset
@@ -266,7 +266,7 @@ macOS dependencies (`@octane-xplat/macos-renderer` and
 `mountSheet` are workshop-owned and close when the story generation retires.
 
 ```sh
-pnpm exec xplat workshop dev --target macos
+bun run xplat workshop dev --target macos
 ```
 
 Set `OCTANE_WORKSHOP_OFFSCREEN=1` to run the window without desktop focus, and
@@ -279,10 +279,10 @@ Set `OCTANE_WORKSHOP_OFFSCREEN=1` to run the window without desktop focus, and
 Run these from the consuming package, rather than the monorepo root.
 
 ```sh
-pnpm exec xplat workshop init
-pnpm exec xplat workshop doctor
-pnpm exec xplat workshop list
-pnpm exec xplat workshop dev --target web --story counter/basic
+bun run xplat workshop init
+bun run xplat workshop doctor
+bun run xplat workshop list
+bun run xplat workshop dev --target web --story counter/basic
 ```
 
 Configure includes/excludes, global provider modules and static assets explicitly.
@@ -308,7 +308,7 @@ ordinary app to ship it; installing workshop as a development dependency alone
 does not exclude a story explicitly imported by production code.
 
 ```sh
-pnpm run build
+bun run build
 ```
 
 For repository maintainers, the packed regression compiles source in an external consumer,
@@ -316,12 +316,12 @@ runs the same browser acceptance catalog, measures warm HMR, and checks a normal
 production bundle for story/fixture/workshop markers. Generate dependency declarations first.
 
 ```sh
-pnpm exec turbo run typegen --filter=@octane-xplat/lib
-pnpm exec turbo run typegen --filter=@octane-xplat/ui
-pnpm exec turbo run typegen --filter=@octane-xplat/workshop
-pnpm exec turbo run test --filter=@octane-xplat/workshop
-pnpm exec turbo run test:packed --filter=@octane-xplat/workshop
-pnpm exec turbo run test:packed:linux --filter=@octane-xplat/workshop
+bun run turbo run typegen --filter=@octane-xplat/lib
+bun run turbo run typegen --filter=@octane-xplat/ui
+bun run turbo run typegen --filter=@octane-xplat/workshop
+bun run turbo run test --filter=@octane-xplat/workshop
+bun run turbo run test:packed --filter=@octane-xplat/workshop
+bun run turbo run test:packed:linux --filter=@octane-xplat/workshop
 ```
 
 The packed checks compile the published source with the consumer's toolchain.

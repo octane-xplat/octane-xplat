@@ -95,7 +95,7 @@ Silo experiment `0f78465d-7f5e-4f52-b09d-55353c146b21`.
 
 ## Packaging checks and lab cleanup
 
-`pnpm check:patches`, `pnpm check:recipes`, and the focused test-file lint and
+`bun run check:patches`, `bun run check:recipes`, and the focused test-file lint and
 format checks pass. Frozen lockfile validation passes with dependency scripts
 intentionally disabled and the command's strict dependency-build check disabled;
 that check does not establish postinstall execution. Normal postinstall reached

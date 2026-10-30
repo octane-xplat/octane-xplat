@@ -164,8 +164,8 @@ and your app share one engine. Starters include them; existing apps receive
 them through the upgrade command:
 
 ```sh
-pnpm dlx @octane-xplat/cli@latest upgrade
-pnpm install
+bunx @octane-xplat/cli@latest upgrade
+bun install
 ```
 
 `@lexical/link`'s ICU-dependent URL-matcher literal is compiled away at bundle

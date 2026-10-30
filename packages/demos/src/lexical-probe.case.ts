@@ -1,7 +1,7 @@
 import type { ProbeContext } from '../../../scripts/probe/context'
 import { runLexicalProbe } from './lexical-probe'
 
-/** `pnpm probe run` entry for the lexical import-hygiene probe — the screen
+/** `bun run probe run` entry for the lexical import-hygiene probe — the screen
  *  version lives at demos id `lexical-probe`; this runs the same steps
  *  standalone per target, then exercises the leaf's shipped json-bridge
  *  (deep source import keeps the octane-bound component out of the case

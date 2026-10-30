@@ -570,7 +570,7 @@ if (result === 'unavailable') console.log('Sharing unavailable')
 - **Deep imports under `@nativescript/core/ui/*`** bundle as a second
   module instance — import from `@nativescript/core` only. Lint-enforced.
   — 0.5.0.
-- **Plain `.ts` files escape the compiler's DOM-global checks** — `pnpm
+- **Plain `.ts` files escape the compiler's DOM-global checks** — `bun run
 lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
   leaves where possible. — 0.5.0.
 - **No `PLATFORM` constant** — platform divergence goes through leaf

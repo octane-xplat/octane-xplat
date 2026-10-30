@@ -27,7 +27,7 @@ for (const [name, source] of [
 }
 
 const result = spawnSync(
-	'pnpm',
+	'bun',
 	[
 		'probe',
 		'run',

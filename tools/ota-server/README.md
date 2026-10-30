@@ -56,7 +56,7 @@ and payload from the same release job together.
 
 ```sh
 cd tools/ota-server
-pnpm publish:bundle -- --dir /path/to/built/app --project-dir /path/to/source-app \
+bun run publish:bundle -- --dir /path/to/built/app --project-dir /path/to/source-app \
   --platform ios --version 1.4.2 --channel staging --dry-run
 ```
 
@@ -85,5 +85,5 @@ Run them through Turbo from the repository root. Device cold-launch testing is
 separate, as described in the phone update guide.
 
 ```sh
-pnpm exec turbo run typecheck test --filter=@xplat/ota-server
+bun run turbo run typecheck test --filter=@xplat/ota-server
 ```

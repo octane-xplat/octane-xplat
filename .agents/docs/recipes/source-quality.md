@@ -6,7 +6,7 @@ Related APIs: xplat lint, xplat lint --fix, xplat fmt, xplat-lint, @octane-xplat
 
 ## Starting point
 
-An app or component library has the Xplat CLI installed with Bun >=1.4.3
+An app or component library has the Xplat CLI installed with Bun >=1.4.4
 available, or uses a standalone executable with Bun embedded. The reader runs
 commands from the project directory. These are host-side code checks; they
 do not establish runtime behavior on a browser or device.

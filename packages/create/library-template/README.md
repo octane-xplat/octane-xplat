@@ -9,7 +9,7 @@ and check the artifact that will be published.
 Install this package in an Octane Xplat app:
 
 ```sh
-pnpm add octane-xplat-library
+bun add octane-xplat-library
 ```
 
 Render the example component from your app:
@@ -27,12 +27,12 @@ export function Welcome() {
 Run these commands from the package directory:
 
 ```sh
-pnpm typecheck
-pnpm lint
-pnpm lint:fix
-pnpm test
-pnpm typegen
-pnpm test:packed
+bun run typecheck
+bun run lint
+bun run lint:fix
+bun run test
+bun run typegen
+bun run test:packed
 ```
 
 Linting uses the CLI's bundled framework defaults. Apply safe lint fixes with
@@ -40,16 +40,16 @@ Linting uses the CLI's bundled framework defaults. Apply safe lint fixes with
 without changing files:
 
 ```sh
-pnpm format
-pnpm exec xplat fmt --check
+bun run format
+bun run xplat fmt --check
 ```
 
 The package publishes authored source for the app's bundler to compile.
-`pnpm typegen` generates `.d.ts` files so consumers' type checkers use
-declarations. `pnpm test:packed` packs the package, places that artifact into
+`bun run typegen` generates `.d.ts` files so consumers' type checkers use
+declarations. `bun run test:packed` packs the package, places that artifact into
 small web and native TypeScript consumers, and checks both export conditions.
 
-The package sets `nodeLinker: hoisted` in `pnpm-workspace.yaml` because the
+The package sets `linker = "hoisted"` in `bunfig.toml` because the
 NativeScript bundler expects a flat dependency tree.
 
 Its `catalog:xplat` build dependencies and patches follow one framework
@@ -57,9 +57,9 @@ compatibility set. Update that set together; consumer `peerDependencies`
 ranges are preserved for you to maintain:
 
 ```sh
-pnpm dlx @octane-xplat/cli@latest upgrade --check
-pnpm dlx @octane-xplat/cli@latest upgrade
-pnpm xplat doctor
+bunx @octane-xplat/cli@latest upgrade --check
+bunx @octane-xplat/cli@latest upgrade
+bun run xplat doctor
 ```
 
 ## Platform files
@@ -79,7 +79,7 @@ metadata to this package.
 
 Before publishing, replace the generated package name and repository metadata
 in `package.json`, fill in the year and copyright holder in `LICENSE`, and
-confirm that every runtime import is declared. `pnpm test:packed` checks the
+confirm that every runtime import is declared. `bun run test:packed` checks the
 package tarball's web and native type exports; it does not build or launch a
 consuming app on a device.
 

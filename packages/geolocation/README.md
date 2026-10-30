@@ -6,7 +6,7 @@ AppKit target uses Core Location through a package-owned native facade. Hosts
 without that facade or location purpose strings report `supported: false`.
 
 ```sh
-pnpm add @octane-xplat/geolocation
+bun add @octane-xplat/geolocation
 ```
 
 ```ts

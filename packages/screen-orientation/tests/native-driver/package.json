@@ -5,5 +5,5 @@
 	"scripts": {
 		"test:ios-runtime": "node ../ios-runtime.mjs"
 	},
-	"packageManager": "pnpm@11.24.0"
+	"packageManager": "bun@1.4.4"
 }

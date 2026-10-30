@@ -18,7 +18,10 @@ for (const multiDocument of [false, true]) {
 		const patch = loadPatchManifest()[0]
 		const name = specifierPackage(patch.specifier)
 		const version = patch.specifier.slice(name.length + 1)
-		writeFileSync(join(root, 'package.json'), JSON.stringify({ dependencies: { [name]: version } }))
+		writeFileSync(
+			join(root, 'package.json'),
+			JSON.stringify({ packageManager: 'pnpm@11.24.0', dependencies: { [name]: version } }),
+		)
 		assert.equal(applyPatches(root).conflicts.length, 0)
 		const sections = [
 			{ lockfileVersion: '9.0', importers: { '.': { dependencies: { [name]: { version } } } } },

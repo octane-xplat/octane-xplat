@@ -253,7 +253,7 @@ and its failures carry the router's `navigation_blocked`/`navigation_failed`
 codes verbatim.
 
 ```sh
-pnpm exec xplat actions invoke --action xplat.navigate \
+bun run xplat actions invoke --action xplat.navigate \
   --instance INSTANCE_ID --revision REVISION \
   --input '{"url":"/checkout"}' --json
 ```
@@ -321,8 +321,8 @@ succeeds; keep the returned session ID for inspection and
 cleanup. A launch request alone does not establish app readiness.
 
 ```sh
-pnpm exec xplat session start --platform web --json
-pnpm exec xplat job status LAUNCH_JOB_ID --json
+bun run xplat session start --platform web --json
+bun run xplat job status LAUNCH_JOB_ID --json
 ```
 
 With the dev app running, inspect the live registry before invoking: it reports
@@ -331,8 +331,8 @@ input contracts, effects, and availability. An empty registry differs from a
 disconnected app. Installed help and schemas describe the exact command contract.
 
 ```sh
-pnpm exec xplat actions list --json
-pnpm exec xplat actions invoke --schema
+bun run xplat actions list --json
+bun run xplat actions invoke --schema
 ```
 
 Replace `INSTANCE_ID` and `REVISION` below with values from that listing.
@@ -342,14 +342,14 @@ list again before retrying.
 The response's `data.job.jobId` identifies the accepted job, not a completed action.
 
 ```sh
-pnpm exec xplat actions invoke \
+bun run xplat actions invoke \
   --action fixtures.set-counter \
   --instance INSTANCE_ID \
   --revision REVISION \
   --input '{"count":3}' \
   --request-key counter-setup-1 \
   --json
-pnpm exec xplat actions status JOB_ID --json
+bun run xplat actions status JOB_ID --json
 ```
 
 Replace `JOB_ID` with the returned job ID and poll until terminal. Require
@@ -367,7 +367,7 @@ still appear live during that 15-second window. Run `actions list` immediately
 before invoking, using its instance and revision:
 
 ```sh
-pnpm exec xplat actions list --json
+bun run xplat actions list --json
 ```
 
 An ordinary heartbeat keeps the revision unchanged. Registry changes can make
@@ -382,8 +382,8 @@ app's tests when CLI inspection is unavailable. End the session you started
 after checking; this releases its owned browser and dev server.
 
 ```sh
-pnpm exec xplat inspect SESSION_ID --testid counter.value --json
-pnpm exec xplat session end SESSION_ID --json
+bun run xplat inspect SESSION_ID --testid counter.value --json
+bun run xplat session end SESSION_ID --json
 ```
 
 ## Choose what your actions cover

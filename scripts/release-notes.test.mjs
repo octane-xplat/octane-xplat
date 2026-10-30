@@ -161,7 +161,7 @@ test('preview preserves Markdown and prepare consumes only the selected release'
 	write(root, 'FIXLOG.md', '# Fixlog\n\nBug fixes.\n')
 	write(root, '.changelog/.gitkeep', '')
 	const example =
-		'Show the change.\n\n```sh\n# A comment inside an example\npnpm xplat doctor\n```\n\n[Documentation](https://octane-xplat.goddardai.org/toolchain)'
+		'Show the change.\n\n```sh\n# A comment inside an example\nbun run xplat doctor\n```\n\n[Documentation](https://octane-xplat.goddardai.org/toolchain)'
 	write(root, '.changelog/b-feature.md', note('lockstep', 'Second feature'))
 	write(root, '.changelog/a-feature.md', note(undefined, 'First feature', example))
 	write(root, '.changelog/fixes/repair.md', note(undefined, 'A repair'))
@@ -333,8 +333,7 @@ test('extract rebuilds the prepared GitHub notes from the committed logs', (t) =
 	const root = fixture(t)
 	write(root, 'CHANGELOG.md', '# Changelog\n\n## [0.1.0] - 2026-01-01\n\nOriginal history.\n')
 	write(root, 'FIXLOG.md', '# Fixlog\n')
-	const fenced =
-		'Description.\n\n```md\n## A heading inside a fence\n\nText.\n```\n\nMore.'
+	const fenced = 'Description.\n\n```md\n## A heading inside a fence\n\nText.\n```\n\nMore.'
 	write(root, '.changelog/fenced.md', note('lockstep', 'Fenced feature', fenced))
 	write(root, '.changelog/fixes/repair.md', note('lockstep', 'A repair'))
 	const prepared = prepareNotes(root, 'lockstep', '0.2.0', '2026-10-23')

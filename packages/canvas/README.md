@@ -5,7 +5,7 @@ A GPU/canvas surface for Octane xplat apps: the DOM `<canvas>` on web and
 WebGPU/WGSL context kinds behind one `getContext` contract.
 
 ```sh
-pnpm add @octane-xplat/canvas
+bun add @octane-xplat/canvas
 ```
 
 ```tsx

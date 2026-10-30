@@ -152,7 +152,7 @@ async function handleDialog() {
 }
 async function probe() {
 	const child = spawn(
-		'pnpm',
+		'bun',
 		[
 			'probe',
 			'run',

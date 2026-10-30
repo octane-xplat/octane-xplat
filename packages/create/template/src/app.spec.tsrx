@@ -1,4 +1,4 @@
-// Starter spec — `pnpm test:ios` / `pnpm test:android` run in the real mobile runtime
+// Starter spec — `bun run test:ios` / `bun run test:android` run in the real mobile runtime
 // (same renderer, native views, and services your app uses).
 //
 // mountXplat() renders a component onto the test host page and unmounts it

@@ -27,7 +27,7 @@ The installed Windows percentage-sizing regression is part of the root scripts
 suite, which runs through Turbo:
 
 ```sh
-pnpm exec turbo run test:scripts --filter=//
+bun run turbo run test:scripts --filter=//
 ```
 
 Native probes and device builds require the repository's resource reservations.

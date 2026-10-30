@@ -931,7 +931,7 @@ export const LEGACY_COMMANDS = [
 		name: 'patches',
 		effect: 'mutate-workspace',
 		output: 'human',
-		summary: 'Apply/check the framework pnpm patch set',
+		summary: 'Apply/check the framework Bun or pnpm patch set',
 	},
 	{ name: 'fonts', effect: 'mutate-workspace', output: 'human', summary: 'Install font files' },
 	{

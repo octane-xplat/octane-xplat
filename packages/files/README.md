@@ -12,7 +12,7 @@ default for a custom source such as cloud storage.
 From an existing Xplat app, install the package before using the example:
 
 ```sh
-pnpm add @octane-xplat/files
+bun add @octane-xplat/files
 ```
 
 ```tsrx

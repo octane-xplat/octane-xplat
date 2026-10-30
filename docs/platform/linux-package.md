@@ -113,7 +113,7 @@ On Ubuntu 24.04, install the runtime and installer tools:
 ```sh
 sudo apt install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 \
   gir1.2-secret-1 python3 desktop-file-utils xdg-utils
-pnpm exec xplat doctor
+bun run xplat doctor
 ```
 
 Camera capture additionally needs GStreamer encoder plugins — `video/mp4`
@@ -149,7 +149,7 @@ if (host) {
 Build with the CLI, rather than making its Linux target call your build script:
 
 ```sh
-pnpm exec xplat build --targets linux
+bun run xplat build --targets linux
 ```
 
 For the example above, output is:
@@ -226,14 +226,14 @@ app IDs, and second-instance link delivery. From the repository root:
 
 ```sh
 mkdir -p /tmp/xplat-linux-packs
-pnpm --dir packages/cli pack --pack-destination /tmp/xplat-linux-packs
-pnpm --dir packages/platform pack --pack-destination /tmp/xplat-linux-packs
+bun run --cwd packages/cli pack --pack-destination /tmp/xplat-linux-packs
+bun run --cwd packages/platform pack --pack-destination /tmp/xplat-linux-packs
 node packages/cli/test/verify-linux-consumer.mjs \
   /tmp/xplat-linux-packs/octane-xplat-cli-0.7.3.tgz \
   /tmp/xplat-linux-packs/octane-xplat-platform-0.7.3.tgz
 ```
 
-Use the actual tarball versions printed by `pnpm pack` if they differ.
+Use the actual tarball versions printed by `bun pm pack` if they differ.
 The verifier runs on Linux and leaves its app and runtime evidence in the
 printed temporary directory. It keeps WebKit's sandbox enabled. It creates its own temporary keyring; it
 does not read or change your desktop keyring.

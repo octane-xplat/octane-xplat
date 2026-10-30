@@ -56,15 +56,15 @@ journey uses DOM, input and computed styles without capturing images; the
 packed mobile check compiles consumer entries without launching a device.
 
 ```sh
-pnpm exec turbo run typecheck --filter=...@octane-xplat/workshop
-pnpm --filter @octane-xplat/workshop test
-pnpm --filter @xplat/workshop-demo test:e2e
-pnpm --filter @xplat/workshop-demo test:e2e:macos
-pnpm --filter @xplat/workshop-demo test:e2e:gtk
-pnpm --filter @octane-xplat/workshop test:packed
-pnpm --filter @octane-xplat/workshop test:packed:macos
-pnpm --filter @octane-xplat/workshop test:packed:linux
-pnpm --filter @octane-xplat/workshop test:packed:mobile
-pnpm check:recipes
-pnpm check:css
+bun run turbo run typecheck --filter=...@octane-xplat/workshop
+bun run --filter @octane-xplat/workshop test
+bun run --filter @xplat/workshop-demo test:e2e
+bun run --filter @xplat/workshop-demo test:e2e:macos
+bun run --filter @xplat/workshop-demo test:e2e:gtk
+bun run --filter @octane-xplat/workshop test:packed
+bun run --filter @octane-xplat/workshop test:packed:macos
+bun run --filter @octane-xplat/workshop test:packed:linux
+bun run --filter @octane-xplat/workshop test:packed:mobile
+bun run check:recipes
+bun run check:css
 ```

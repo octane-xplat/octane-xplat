@@ -23,9 +23,9 @@ changes. The fingerprint package runs in Node during builds, outside the app's
 runtime graph. Some starters ignore `hooks/`, so explicitly stage this file.
 
 ```sh
-pnpm add @octane-xplat/updates
-pnpm add -D @octane-xplat/fingerprint
-pnpm exec xplat updates init
+bun add @octane-xplat/updates
+bun add -D @octane-xplat/fingerprint
+bun run xplat updates init
 git add -f hooks/after-prepare/xplat-updates.cjs
 ```
 
@@ -35,8 +35,8 @@ signing setup when making an Android release; simulator iOS builds are useful
 for development but do not qualify a signed device release.
 
 ```sh
-pnpm exec ns build ios --release
-pnpm exec ns build android --release
+bun run ns build ios --release
+bun run ns build android --release
 ```
 
 The hook supports the standard NativeScript iOS Objective-C startup and
@@ -53,8 +53,8 @@ their previous server contract until replaced.
 
 ```sh
 # After reviewing and removing the previous generated hook:
-pnpm exec xplat updates init
-pnpm exec ns build ios --release
+bun run xplat updates init
+bun run ns build ios --release
 ```
 
 ## Create one client
@@ -157,7 +157,7 @@ inputs change. Ordinary JavaScript changes can keep the same native identity.
 
 ```sh
 # From the framework repository's tools/ota-server directory:
-pnpm publish:bundle -- --dir /path/to/built/app --platform ios \
+bun run publish:bundle -- --dir /path/to/built/app --platform ios \
   --project-dir /path/to/source-app --version 2.0.0 --channel staging --dry-run
 ```
 
@@ -172,7 +172,7 @@ refused. An empty diff means collected inputs match the record.
 
 ```sh
 # In the source app directory:
-pnpm exec xplat-fingerprint --dir . \
+bun run xplat-fingerprint --dir . \
   --build-record .xplat/fingerprints/ios.json \
   --diff .xplat/fingerprints/ios.json
 ```
@@ -193,10 +193,10 @@ sequence with a local fixture server; it does not qualify a hosted deployment.
 ```sh
 # From the framework repository, choose your own test device IDs:
 node scripts/with-target-lock.ts ios -- \
-  pnpm exec turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
+  bun run turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
   --target ios --device SIMULATOR_UDID
 node scripts/with-target-lock.ts android -- \
-  pnpm exec turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
+  bun run turbo run test:native-lifecycle --filter=@octane-xplat/updates -- \
   --target android --device EMULATOR_SERIAL
 ```
 

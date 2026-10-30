@@ -8,7 +8,7 @@ it does not establish OS input, visual parity, or every grid configuration.
 Run the focused check from the repository root:
 
 ```sh
-pnpm --filter @xplat/macos test:layout-placement
+bun run --filter @xplat/macos test:layout-placement
 ```
 
 ## Packed consumers and overlays
@@ -24,7 +24,7 @@ like the removed native DockLayout. The fill view pins all four edges
 explicitly. This fixture must not be reported as sequential docking coverage.
 
 ```sh
-pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+bun run turbo run test:packed --filter=@octane-xplat/macos-renderer
 ```
 
 AppKit layout uses points for numeric lengths, native measurements, and CSS
@@ -67,8 +67,8 @@ These are source and build checks; they do not establish physical OS input or
 nested-theme color parity.
 
 ```sh
-pnpm exec turbo run test:macos-exports --filter=@octane-xplat/ui --concurrency=1
-pnpm exec turbo run test:macos --filter=@octane-xplat/ui --concurrency=1
+bun run turbo run test:macos-exports --filter=@octane-xplat/ui --concurrency=1
+bun run turbo run test:macos --filter=@octane-xplat/ui --concurrency=1
 ```
 
 Patched Octane 0.14.0 rejects JSX inside data-returning hooks with
@@ -85,7 +85,7 @@ nested-JSX probes. The [routing contract notes](notes/routing-contract.md)
 record the related Octane 0.11.0 limitation.
 
 The isolated AppKit overlay fixture previously passed its overlay assertions
-(`pnpm --filter @xplat/macos test:overlays`); that qualifies handler dispatch,
+(`bun run --filter @xplat/macos test:overlays`); that qualifies handler dispatch,
 not physical OS input. See the
 [renderer setup and verification boundary](../../packages/macos-renderer/README.md).
 

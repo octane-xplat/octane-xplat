@@ -76,8 +76,8 @@ In a separate directory from your app, create the API project:
 ```sh
 mkdir packing-api
 cd packing-api
-pnpm init
-pnpm add jose@6
+bun init
+bun add jose@6
 ```
 
 Copy [api.ts](../../tools/auth-guide/src/api.ts) and
@@ -125,7 +125,7 @@ Auth0 Management API identifier as the audience for this example.
 Install the app dependencies from your Xplat app directory:
 
 ```sh
-pnpm add @octane-xplat/auth @octane-xplat/platform
+bun add @octane-xplat/auth @octane-xplat/platform
 ```
 
 The auth package brings its secure-storage implementation. Add this filter

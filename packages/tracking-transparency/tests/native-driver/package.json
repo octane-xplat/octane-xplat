@@ -8,5 +8,5 @@
 		"build:windows-contract": "node ../build-windows-contract.mjs",
 		"test:windows-contract": "node ../windows-contract.mjs"
 	},
-	"packageManager": "pnpm@11.24.0"
+	"packageManager": "bun@1.4.4"
 }

@@ -7,7 +7,7 @@ alerts — not long-form playback. iOS/Android decode and mix through
 voice and reuses the loaded bytes.
 
 ```sh
-pnpm add @octane-xplat/sounds
+bun add @octane-xplat/sounds
 ```
 
 ```ts

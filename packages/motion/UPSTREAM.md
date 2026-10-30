@@ -381,8 +381,8 @@ Both keep the shared `types/index.d.ts` contract. Runtime consumers select
 components for the macOS renderer. Run these commands from the repository root:
 
 ```sh
-pnpm --filter @octane-xplat/motion test:packed
-pnpm --filter @octane-xplat/rolling-text test:packed
+bun run --filter @octane-xplat/motion test:packed
+bun run --filter @octane-xplat/rolling-text test:packed
 ```
 
 Each check packs the package, checks both export maps in Bundler and NodeNext
@@ -398,7 +398,7 @@ samples, retargeting, scale composition, units and restoration. It passed on
 macOS 27.0.1 arm64 using the AppKit/JSC host. From the repository root, run:
 
 ```sh
-pnpm --filter @octane-xplat/motion test:macos-runtime
+bun run --filter @octane-xplat/motion test:macos-runtime
 ```
 
 The fixture opens no window and changes no system preference. Success prints

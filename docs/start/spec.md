@@ -32,7 +32,7 @@ you can add phone targets after the first screen works.
 
 | Target  | What you get                                                                                                          | Extra setup                                                                                                                    |
 | ------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Web     | The starter runs in a browser. Device features vary by browser.                                                       | Node.js, pnpm, and a browser; see [create and run](toolchain.md#create-and-run).                                               |
+| Web     | The starter runs in a browser. Device features vary by browser.                                                       | Node.js, Bun, and a browser; see [create and run](toolchain.md#create-and-run).                                               |
 | iOS     | The starter uses native iOS views and device features through NativeScript.                                           | A Mac, Xcode, and [NativeScript setup](toolchain.md#run-on-ios-and-android). Real-device and release builds also need signing. |
 | Android | The starter uses native Android views and device features through NativeScript.                                       | Android development tools, JDK 21, and an emulator or device; see [phone setup](toolchain.md#run-on-ios-and-android).          |
 | macOS   | Experimental native AppKit app or system WebView app; separate from the starter.                                      | Apple Silicon or Intel, macOS 13.5+, and separate app configuration. See [macOS setup](../../apps/macos/README.md).                     |
@@ -50,7 +50,7 @@ have been checked in running apps.
 
 Web CI typechecks and tests the DOM renderer, builds the production bundle,
 and verifies a packed starter's checks. Browser coverage runs locally instead:
-`pnpm test:e2e` installs Playwright-managed Chromium, Firefox, and WebKit,
+`bun run test:e2e` installs Playwright-managed Chromium, Firefox, and WebKit,
 then smoke-tests the built bundle and a packed starter in all three engines.
 This does not set a minimum browser-version
 floor or qualify iOS Safari and screen readers; apps must define those targets

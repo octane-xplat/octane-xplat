@@ -7,7 +7,7 @@ The package owns its mobile plugins; you do not need to declare ui-drawer or
 gesturehandler separately.
 
 ```sh
-pnpm add @octane-xplat/drawer
+bun add @octane-xplat/drawer
 ```
 
 Use the same `Drawer` import on web, iOS, Android, macOS, and Windows. On phones,

@@ -27,6 +27,8 @@ export function readProjectWorkspace(root: string, selectedManager?: string): Re
 		packages: Array.isArray(workspace) ? workspace : (workspace?.packages ?? []),
 		catalog: pkg.catalog ?? workspace?.catalog ?? {},
 		catalogs: pkg.catalogs ?? workspace?.catalogs ?? {},
+		overrides: pkg.overrides ?? {},
+		patchedDependencies: pkg.patchedDependencies ?? {},
 	}
 }
 
@@ -70,9 +72,7 @@ export function packageManagerFor(dir: string, explicit?: string): 'bun' | 'pnpm
 			return declared
 		}
 
-		throw new Error(
-			`Xplat supports Bun and pnpm projects; found packageManager ${declared}.`,
-		)
+		throw new Error(`Xplat supports Bun and pnpm projects; found packageManager ${declared}.`)
 	}
 	const bun = existsSync(join(root, 'bun.lock')) || existsSync(join(root, 'bun.lockb'))
 	const pnpm = existsSync(join(root, 'pnpm-lock.yaml'))
@@ -87,7 +87,10 @@ export function packageManagerFor(dir: string, explicit?: string): 'bun' | 'pnpm
 	if (pnpm) {
 		return 'pnpm'
 	}
-	return pkg.patchedDependencies ? 'bun' : 'pnpm'
+	if (pkg.patchedDependencies) {
+		return 'bun'
+	}
+	return existsSync(join(root, 'pnpm-workspace.yaml')) ? 'pnpm' : 'bun'
 }
 
 /** Parse Bun's text lockfile (JSON with comments and trailing commas). */
@@ -114,4 +117,44 @@ export function readBunLock(root: string): Record<string, any> | null {
 export function packageManagerExec(dir: string, args: string[]): { cmd: string; args: string[] } {
 	const cmd = packageManagerFor(dir)
 	return { cmd, args: [cmd === 'bun' ? 'run' : 'exec', ...args] }
+}
+
+/** Versions selected for this importer, without executing dependency code. */
+export function bunLockedVersions(dir: string): Record<string, string> | undefined {
+	const root = packageManagerRoot(dir)
+	if (!existsSync(join(root, 'bun.lock'))) {
+		return undefined
+	}
+	const lock = readBunLock(root)
+	if (!lock) {
+		return undefined
+	}
+	const pkg = readProjectPackage(dir)
+	const importer =
+		lock.workspaces?.[
+			Object.keys(lock.workspaces ?? {}).find((path) => resolve(root, path) === resolve(dir)) ?? ''
+		]
+	const owner = importer?.name ?? pkg.name
+	const versions: Record<string, string> = {}
+	for (const name of Object.keys({
+		...pkg.dependencies,
+		...pkg.devDependencies,
+		...pkg.optionalDependencies,
+	})) {
+		const entry = lock.packages?.[`${owner}/${name}`] ?? lock.packages?.[name]
+		const identity = Array.isArray(entry) ? entry[0] : undefined
+		if (typeof identity !== 'string') {
+			continue
+		}
+		const spec = identity.slice(identity.indexOf('@', 1) + 1)
+		if (spec.startsWith('workspace:')) {
+			const member = lock.workspaces?.[spec.slice('workspace:'.length)]
+			if (member?.version) {
+				versions[name] = member.version
+			}
+		} else if (/^\d+\.\d+\.\d+/.test(spec)) {
+			versions[name] = spec
+		}
+	}
+	return versions
 }

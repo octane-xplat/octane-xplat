@@ -1,4 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+import { packageManagerFor } from './package-manager.ts'
 import {
 	copyFileSync,
 	existsSync,
@@ -368,17 +369,17 @@ export async function prepareFontsource(appDir, spec, { subset = 'latin', weight
 	let wasInstalled = false
 	if (!existsSync(join(pkgDir, 'package.json'))) {
 		if (!install) {
-			return { error: `${spec} is not installed — run \`pnpm add ${spec}\` or pass --install` }
+			return { error: `${spec} is not installed — run \`bun add ${spec}\` or pass --install` }
 		}
 
-		const added = spawnSync('pnpm', ['add', spec], {
+		const added = spawnSync(packageManagerFor(appDir), ['add', spec], {
 			cwd: appDir,
 			stdio: 'inherit',
 			shell: process.platform === 'win32',
 		})
 
 		if (added.status !== 0) {
-			return { error: `pnpm add ${spec} failed` }
+			return { error: `bun add ${spec} failed` }
 		}
 
 		if (!existsSync(join(pkgDir, 'package.json'))) {

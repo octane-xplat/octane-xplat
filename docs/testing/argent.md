@@ -10,7 +10,7 @@ no Argent runtime dependency or framework package. Follow the
 for editor setup. This guide uses version **0.27.0**.
 
 To configure MCP without a global installation, an editor entry can launch
-`pnpm dlx` directly. Adapt the top-level key to your editor using the
+`bunx` directly. Adapt the top-level key to your editor using the
 [official MCP guide](https://docs.swmansion.com/argent/docs/fundamentals/mcp-server/).
 This is optional configuration guidance; the qualified runtime checks use the
 CLI, not an editor adapter. The setup wizard defaults to global installation,
@@ -20,8 +20,8 @@ so do not run it when global changes are prohibited.
 {
 	"mcpServers": {
 		"argent": {
-			"command": "pnpm",
-			"args": ["dlx", "@swmansion/argent@0.27.0", "mcp"],
+			"command": "bunx",
+			"args": ["@swmansion/argent@0.27.0", "mcp"],
 			"env": { "DO_NOT_TRACK": "1" }
 		}
 	}
@@ -39,8 +39,8 @@ so do not run it when global changes are prohibited.
    below with the selected simulator UUID, emulator serial, or Chromium ID.
 
    ```sh
-   DO_NOT_TRACK=1 pnpm dlx @swmansion/argent@0.27.0 run describe --udid DEVICE_ID --json
-   DO_NOT_TRACK=1 pnpm dlx @swmansion/argent@0.27.0 flow run flows/counter.yaml --device DEVICE_ID --json
+   DO_NOT_TRACK=1 bunx @swmansion/argent@0.27.0 run describe --udid DEVICE_ID --json
+   DO_NOT_TRACK=1 bunx @swmansion/argent@0.27.0 flow run flows/counter.yaml --device DEVICE_ID --json
    ```
 
 3. Write a bounded flow that starts from known state, uses unique IDs, waits

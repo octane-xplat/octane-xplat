@@ -13,9 +13,9 @@ binary so it contains the UIKit/Android bridge. JavaScript updates alone cannot
 install that bridge. Keep the app's existing launch storyboard and Android theme.
 
 ```sh
-pnpm add @octane-xplat/splash-screen
-pnpm exec ns build ios --release
-pnpm exec ns build android --release
+bun add @octane-xplat/splash-screen
+bun run ns build ios --release
+bun run ns build android --release
 ```
 
 Create `src/splash.mobile.ts` with the following code. Import it before the

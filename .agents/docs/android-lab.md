@@ -72,10 +72,10 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21
 
    ```sh
    git submodule update --init
-   pnpm install --frozen-lockfile
-   pnpm probe doctor
-   pnpm probe run examples/probes/signals.ts --target android --device emulator-5556 --verbose
-   pnpm probe run examples/probes/counter.tsrx --target android --device emulator-5556 --verbose
+   bun install --frozen-lockfile
+   bun run probe doctor
+   bun run probe run examples/probes/signals.ts --target android --device emulator-5556 --verbose
+   bun run probe run examples/probes/counter.tsrx --target android --device emulator-5556 --verbose
    ```
 
    Success is exit 0 and JSON with `target: "android"`,

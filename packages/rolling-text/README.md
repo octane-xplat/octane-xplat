@@ -8,7 +8,7 @@ Android. macOS has the nonvisual qualification limits below.
 From an existing Xplat app, install the package before using the example:
 
 ```sh
-pnpm add @octane-xplat/rolling-text
+bun add @octane-xplat/rolling-text
 ```
 
 ```tsx

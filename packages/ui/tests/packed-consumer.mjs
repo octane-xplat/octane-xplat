@@ -70,12 +70,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 			? ['octane', '@octanejs/vite-plugin', '@octane-xplat/camera', '@octane-xplat/jsx']
 			: peers === 'required'
 				? ['octane']
-				: [
-						'octane',
-						'@nativescript-community/octane',
-						'@nativescript/core',
-						'@nativescript/types',
-					]
+				: ['octane', '@nativescript-community/octane', '@nativescript/core', '@nativescript/types']
 
 	// Internal utilities are runtime dependencies on every target.
 	dependencies.push('@octane-xplat/lib', '@octane-xplat/platform')
@@ -663,28 +658,29 @@ if (import.meta.env.DEV) {
 
 try {
 	if (macosOnly || overlaysOnly) {
-		run('pnpm', ['build'], packageRoot)
+		run('bun', ['build'], packageRoot)
 	}
 
 	// The isolated macOS gate builds first, then packs without running the
 	// all-platform prepack checker. The default gate still runs that checker.
 	if (macosOnly) {
-		run('pnpm', ['typegen'], packageRoot)
+		run('bun', ['typegen'], packageRoot)
 	}
 
 	run(
-		'pnpm',
+		'bun',
 		[
+			'pm',
 			'pack',
-			...(macosOnly || overlaysOnly ? ['--config.ignore-scripts=true'] : []),
-			'--pack-destination',
+			...(macosOnly || overlaysOnly ? ['--ignore-scripts'] : []),
+			'--destination',
 			packOutput,
 		],
 		packageRoot,
 	)
 
 	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
+	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 	// Node tools consume these exports without the app's source compiler.

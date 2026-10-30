@@ -1,8 +1,7 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, globSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument } from 'yaml'
 
 /** One supported external version, optionally using a preview tarball specifier. */
 export type ManagedPackage = {
@@ -16,7 +15,7 @@ export type ManagedPackage = {
 export type Compatibility = {
 	schemaVersion: number
 	frameworkVersion: string
-	tools: { nodeMinimum: string; pnpm: string }
+	tools: { nodeMinimum: string; bun: string; pnpm: string }
 	frameworkPackages: string[]
 	packages: Record<string, ManagedPackage>
 	profiles: Record<string, Record<string, Partial<ManagedPackage>>>
@@ -44,13 +43,13 @@ export function managedPackage(name: string, profile = 'default'): ManagedPackag
 	return base ? { ...base, ...compatibility.profiles[profile]?.[name] } : undefined
 }
 
-/** Return the pnpm specifier, keeping preview URLs separate from package versions. */
+/** Return the install specifier, keeping preview URLs separate from package versions. */
 export function managedSpecifier(name: string, profile = 'default') {
 	const entry = managedPackage(name, profile)
 	return entry?.specifier ?? entry?.version
 }
 
-/** Named pnpm catalog reserved for this compatibility profile. */
+/** Named catalog reserved for this compatibility profile. */
 export const managedCatalog = (profile = 'default') =>
 	profile === 'default' ? 'xplat' : `xplat-${profile}`
 
@@ -74,36 +73,51 @@ export function projectProfile(pkg: Record<string, any>): string {
 	return windows ? 'windows' : 'default'
 }
 
-/** Add missing pins when enabling a target in an older scaffold. Existing pins stay intact. */
-export function ensureCompatibilityCatalog(appRoot: string, pkg: Record<string, any>) {
-	let at = resolve(appRoot)
-	while (!existsSync(join(at, 'pnpm-workspace.yaml')) && dirname(at) !== at) {
-		at = dirname(at)
+/** Find the Bun workspace that owns this app, respecting package membership. */
+export function compatibilityRoot(appRoot: string) {
+	const app = resolve(appRoot)
+	for (let at = dirname(app); dirname(at) !== at; at = dirname(at)) {
+		const file = join(at, 'package.json')
+		if (!existsSync(file)) {
+			continue
+		}
+		const pkg = JSON.parse(readFileSync(file, 'utf8'))
+		const patterns = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages
+		if (!patterns?.length) {
+			continue
+		}
+		const included = patterns.filter((p) => !p.startsWith('!'))
+		const exclude = [
+			'**/node_modules/**',
+			...patterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1)),
+		]
+		if (globSync(included, { cwd: at, exclude }).some((p) => resolve(at, p) === app)) {
+			return at
+		}
 	}
-	const workspace = existsSync(join(at, 'pnpm-workspace.yaml')) ? at : appRoot
-	const path = join(workspace, 'pnpm-workspace.yaml')
-	const before = existsSync(path) ? readFileSync(path, 'utf8') : ''
-	const doc = parseDocument(before || '{}\n')
-	if (doc.errors.length) {
-		throw new Error(`${path}: ${doc.errors[0].message}`)
-	}
+	return app
+}
 
+/** Add missing Bun catalog pins when enabling a target. Existing pins stay intact. */
+export function ensureCompatibilityCatalog(appRoot: string, pkg: Record<string, any>) {
+	const root = compatibilityRoot(appRoot)
+	const file = join(root, 'package.json')
+	const owner = root === resolve(appRoot) ? pkg : JSON.parse(readFileSync(file, 'utf8'))
+	if (Array.isArray(owner.workspaces)) {
+		owner.workspaces = { packages: owner.workspaces }
+	}
+	owner.workspaces ??= { packages: [] }
+	const catalogs = owner.catalogs ?? (owner.workspaces.catalogs ??= {})
 	const profile = projectProfile(pkg)
+	const catalog = (catalogs[managedCatalog(profile)] ??= {})
 	for (const section of dependencySections) {
 		for (const [name, spec] of Object.entries(pkg[section] ?? {})) {
-			if (spec !== `catalog:${managedCatalog(profile)}`) {
-				continue
-			}
-
-			const key = ['catalogs', managedCatalog(profile), name]
-			if (!doc.hasIn(key)) {
-				doc.setIn(key, managedSpecifier(name, profile))
+			if (spec === `catalog:${managedCatalog(profile)}`) {
+				catalog[name] ??= managedSpecifier(name, profile)
 			}
 		}
 	}
-
-	const after = String(doc)
-	if (after !== before) {
-		writeFileSync(path, after)
+	if (owner !== pkg) {
+		writeFileSync(file, JSON.stringify(owner, null, '\t') + '\n')
 	}
 }

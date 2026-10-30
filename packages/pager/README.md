@@ -4,7 +4,7 @@ A paged horizontal swipe container for Octane Xplat apps — onboarding flows,
 media galleries. Each page fills the host; the user swipes between pages.
 
 ```sh
-pnpm add @octane-xplat/pager
+bun add @octane-xplat/pager
 ```
 
 ```tsx

@@ -8,7 +8,7 @@ Rendering goes through shared ui primitives (`VirtualList` windowing on every
 target), so one column/state contract covers web, iOS/Android, and macOS.
 
 ```sh
-pnpm add @octane-xplat/table
+bun add @octane-xplat/table
 ```
 
 ```tsx
@@ -385,14 +385,14 @@ export function ServerPage({
 
 ## Verification and remaining parity gaps
 
-Run `pnpm exec turbo run typecheck --filter=@octane-xplat/table`, `test`, `test:native`, `build`, and
+Run `bun run turbo run typecheck --filter=@octane-xplat/table`, `test`, `test:native`, `build`, and
 `test:packed`. The source typecheck covers web and the iOS native resolution lane;
 the native build uses the same shared controls for iOS/Android. Run the fixture:
 
 ```sh
-pnpm probe run packages/table/examples/interactive.tsrx --target web --deps @octane-xplat/table
-pnpm probe run packages/table/examples/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
-pnpm probe run packages/table/examples/geometry.tsrx --target macos --deps @octane-xplat/table
+bun run probe run packages/table/examples/interactive.tsrx --target web --deps @octane-xplat/table
+bun run probe run packages/table/examples/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
+bun run probe run packages/table/examples/geometry.tsrx --target macos --deps @octane-xplat/table
 ```
 
 The geometry fixture isolates bounded row sorting and column resize/reorder from
@@ -401,7 +401,7 @@ The iOS and Android selection fixtures currently hit an unrelated Unicode
 property-regex parse failure before assertions; the direct VirtualList iOS geometry case passes. The full
 AppKit fixture has an unresolved filter-input timeout.
 
-Use a real booted simulator ID from `pnpm probe doctor`. Results are handler
+Use a real booted simulator ID from `bun run probe doctor`. Results are handler
 or pointer dispatch, not proof of OS input, hit-testing, or screen-reader
 navigation. See the [audit implementation record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/parity/astryx-parity-table.md#implementation-follow-through)
 for the actual targets/results and known probe blockers.

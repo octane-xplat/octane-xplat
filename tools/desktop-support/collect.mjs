@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { execFileSync } from 'node:child_process'
 import { localOutputFile } from './local-output.mjs'
 
-// Run from the repository root after pnpm install. Static inspection only.
+// Run from the repository root after bun install. Static inspection only.
 const root = process.cwd()
 const outputPath = localOutputFile(process.argv[2] ?? 'research/desktop-audit/inventory.json', root)
 const require = createRequire(join(root, 'packages/cli/package.json'))

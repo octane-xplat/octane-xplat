@@ -6,7 +6,7 @@ a real `NSWindow` sheet (`beginSheet`) on macOS. Use it when you want the
 OS-authentic sheet rather than a shared look.
 
 ```sh
-pnpm add @octane-xplat/sheet
+bun add @octane-xplat/sheet
 ```
 
 There is no shared sheet API at the package root. Each platform entry exports

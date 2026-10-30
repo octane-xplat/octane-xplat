@@ -14,7 +14,7 @@ drop-in replacement for the upstream hook signatures.
 In an Octane Xplat app with `@octane-xplat/ui` and its renderer configured:
 
 ```sh
-pnpm add @octane-xplat/dnd-kit
+bun add @octane-xplat/dnd-kit
 ```
 
 Import from the root package; web/native/macos export conditions select the
@@ -315,13 +315,13 @@ and no virtualized offscreen target discovery — only mounted, measurable
 targets participate. Use a separate DndContext in each
 native renderer root (pages and sheets do not share context).
 
-Package checks: `pnpm exec turbo run typecheck --filter=@octane-xplat/dnd-kit`, `test`,
+Package checks: `bun run turbo run typecheck --filter=@octane-xplat/dnd-kit`, `test`,
 `build`, and `pack:check`. Core tests use native-shaped geometry and the real
 abstract core — they do not establish OS input delivery or hit-testing. The web
-regression runs with `pnpm exec turbo run test --filter=@xplat/web` (pointer events through
+regression runs with `bun run turbo run test --filter=@xplat/web` (pointer events through
 bound Views, drop and cancellation). The AppKit regression runs with
-`pnpm probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos`
-(action dispatch, layer feedback, layout, auto-scroll, cleanup). `pnpm probe
+`bun run probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos`
+(action dispatch, layer feedback, layout, auto-scroll, cleanup). `bun run probe
 doctor` reports available runtime targets. Do not infer Android runtime support
 from a native library build.
 

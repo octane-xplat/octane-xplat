@@ -15,7 +15,7 @@ mkdirSync(consumer)
 mkdirSync(packs)
 
 function run(args, cwd = consumer) {
-	const result = spawnSync('pnpm', args, {
+	const result = spawnSync('bun', args, {
 		cwd,
 		encoding: 'utf8',
 		maxBuffer: 16 * 1024 * 1024,
@@ -24,7 +24,7 @@ function run(args, cwd = consumer) {
 	assert.equal(
 		result.status,
 		0,
-		`pnpm ${args.join(' ')} failed:\n${result.stdout}\n${result.stderr}`,
+		`bun ${args.join(' ')} failed:\n${result.stdout}\n${result.stderr}`,
 	)
 
 	return result.stdout
@@ -35,7 +35,7 @@ try {
 	for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop']) {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-		run(['--config.ignore-scripts=true', 'pack', '--pack-destination', packs], root)
+		run(['pm', 'pack', '--ignore-scripts', '--destination', packs], root)
 		tarballs[manifest.name] =
 			`file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 	}
@@ -56,17 +56,16 @@ try {
 		}),
 	)
 
-	writeFileSync(
-		join(consumer, 'pnpm-workspace.yaml'),
-		`packages: []\noverrides:\n${Object.entries(tarballs)
-			.map(([name, file]) => `  '${name}': '${file}'`)
-			.join('\n')}\n`,
-	)
+	const file = join(consumer, 'package.json')
+	const manifest = JSON.parse(readFileSync(file, 'utf8'))
+	manifest.overrides = tarballs
+	manifest.packageManager = 'bun@1.4.4'
+	writeFileSync(file, JSON.stringify(manifest))
 
 	run(['install', '--ignore-scripts'])
 	const require = createRequire(join(consumer, 'package.json'))
 	assert.ok(realpathSync(require.resolve('@octane-xplat/workshop/node')).startsWith(work))
-	const reportText = run(['exec', 'xplat', 'workshop', 'doctor', '--json'])
+	const reportText = run(['run', 'xplat', 'workshop', 'doctor', '--json'])
 	const report = JSON.parse(reportText.slice(reportText.indexOf('{')))
 	assert.equal(report.targets.windows.executionHost.current, process.platform)
 	assert.equal(report.targets.windows.qualification, 'unverified')
@@ -80,7 +79,7 @@ export const Basic = defineStory({ id: '${id}', title: 'Examples / ${id}', targe
 
 	writeFileSync(join(consumer, 'native.stories.windows.tsrx'), story('native/basic', 'windows'))
 	writeFileSync(join(consumer, 'browser.stories.web.tsrx'), story('browser/basic', 'web'))
-	const listText = run(['exec', 'xplat', 'workshop', 'list', '--target', 'windows', '--json'])
+	const listText = run(['run', 'xplat', 'workshop', 'list', '--target', 'windows', '--json'])
 	const list = JSON.parse(listText.slice(listText.indexOf('{')))
 	assert.equal(list.diagnostics.length, 0)
 	assert.equal(list.entries.find((entry) => entry.id === 'native/basic').applicable, true)
@@ -91,7 +90,7 @@ export const Basic = defineStory({ id: '${id}', title: 'Examples / ${id}', targe
 		'throw new Error("unexpected config evaluation")',
 	)
 
-	const blocked = spawnSync('pnpm', ['exec', 'xplat', 'workshop', 'dev', '--target', 'windows'], {
+	const blocked = spawnSync('bun', ['run', 'xplat', 'workshop', 'dev', '--target', 'windows'], {
 		shell: process.platform === 'win32',
 		cwd: consumer,
 		encoding: 'utf8',

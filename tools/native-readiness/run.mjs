@@ -14,7 +14,6 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseDocument } from 'yaml'
 import { audioResponse } from '../../packages/audio/tests/fixture-server.mjs'
 
 const repo = fileURLToPath(new URL('../../', import.meta.url))
@@ -95,8 +94,8 @@ for (const name of [
 	include(name)
 }
 
-run('pnpm', [
-	'exec',
+run('bun', [
+	'run',
 	'turbo',
 	'run',
 	'build',
@@ -110,7 +109,7 @@ mkdirSync(pack)
 const tarballs = new Map()
 for (const name of selected) {
 	const { directory, manifest } = packages.get(name)
-	run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], directory)
+	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], directory)
 	tarballs.set(
 		name,
 		join(pack, `${name.replace(/^@/, '').replace('/', '-')}-${manifest.version}.tgz`),
@@ -127,12 +126,9 @@ writeFileSync(
 	}),
 )
 
-writeFileSync(
-	join(bootstrap, 'pnpm-workspace.yaml'),
-	'nodeLinker: isolated\npackageImportMethod: copy\n',
-)
+writeFileSync(join(bootstrap, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
 
-run('pnpm', ['install', '--ignore-scripts'], bootstrap)
+run('bun', ['install', '--ignore-scripts'], bootstrap)
 const creator = join(bootstrap, 'node_modules/create-octane-xplat')
 const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
 const app = join(work, 'listening-app')
@@ -163,23 +159,13 @@ for (const name of ['@octane-xplat/audio', '@octane-xplat/network', '@octane-xpl
 }
 
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
-const workspacePath = join(app, 'pnpm-workspace.yaml')
-const workspace = parseDocument(readFileSync(workspacePath, 'utf8'))
-workspace.delete('configDependencies')
+manifest.overrides ??= {}
 for (const [name, file] of tarballs) {
-	workspace.setIn(['overrides', name], `file:${file}`)
+	manifest.overrides[name] = `file:${file}`
 }
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
 
-writeFileSync(workspacePath, String(workspace))
-const patches = join(app, 'node_modules/.pnpm-config/@octane-xplat/patches')
-mkdirSync(patches, { recursive: true })
-run(
-	'tar',
-	['-xzf', tarballs.get('@octane-xplat/patches'), '-C', patches, '--strip-components=1'],
-	work,
-)
-
-run('pnpm', ['install'], app)
+run('bun', ['install'], app)
 for (const name of [
 	'@octane-xplat/audio',
 	'@octane-xplat/network',
@@ -225,9 +211,9 @@ source = source
 
 writeFileSync(fixture, source)
 try {
-	run('pnpm', ['exec', 'xplat', 'typecheck'], app)
+	run('bun', ['run', 'xplat', 'typecheck'], app)
 	const child = spawn(
-		'pnpm',
+		'bun',
 		[
 			'probe',
 			'run',

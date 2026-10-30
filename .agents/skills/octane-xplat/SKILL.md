@@ -13,7 +13,7 @@ platform example. Platform divergence belongs at file boundaries.
 ## Core constraints
 
 - Use the project's selected package manager. This repository uses Bun 1.4.4;
-  consumer starters use pnpm. Declare every imported dependency; repository
+  consumer starters also use Bun. Declare every imported dependency; repository
   workspace dependencies use `"workspace:*"`.
 - Keep one Octane runtime per app. Hooks belong in `.tsx`/`.tsrx` inside the
   renderer include glob. Keep runtime imports from `octane`; the native preset

@@ -52,7 +52,7 @@ product is not a reason to substitute a hardcoded price.
 Install the billing package in your app:
 
 ```sh
-pnpm add @octane-xplat/billing
+bun add @octane-xplat/billing
 ```
 
 Copy [purchases.ts](../../packages/demos/src/billing-guide/purchases.ts) and

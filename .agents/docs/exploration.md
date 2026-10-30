@@ -88,7 +88,7 @@ here are visible to parallel agents immediately. Tables:
   another worktree won the number — retry with the next). Then write the
   `decisions.md` row using the allocated `num` in the same commit. Never pick
   a `#` in the doc before the Silo row exists.
-- `pnpm check:decisions` verifies the mirror: doc `#`s missing from Silo and
+- `bun run check:decisions` verifies the mirror: doc `#`s missing from Silo and
   status mismatches are errors; Silo `num`s ahead of the local doc are
   warnings (in-flight work in other worktrees — do not delete or renumber
   them to satisfy the check).

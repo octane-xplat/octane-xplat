@@ -55,7 +55,7 @@ for (const barrel of barrels) {
 		console.log(`UI web barrel ${barrel} in sync`)
 	} else if (check) {
 		console.error(
-			`packages/ui/src/${join(dirname(barrel), webName)} is stale; run pnpm sync:ui-barrels`,
+			`packages/ui/src/${join(dirname(barrel), webName)} is stale; run bun run sync:ui-barrels`,
 		)
 
 		stale++

@@ -7,7 +7,7 @@ selected targets' output from startup while continuing to print it in your
 terminal. For example, start just the web target:
 
 ```sh
-pnpm exec xplat dev web
+bun run xplat dev web
 ```
 
 In another terminal, list that app's recorded sessions. Each retained session identifies one target execution. A new start creates a
@@ -15,15 +15,15 @@ new session ID, which `xplat dev` also prints in the terminal. You can
 filter the list by platform, including `ios`, `android`, or `macos`:
 
 ```sh
-pnpm exec xplat diagnostics --json
-pnpm exec xplat diagnostics --platform ios --json
+bun run xplat diagnostics --json
+bun run xplat diagnostics --platform ios --json
 ```
 
 Read a session using its returned `sessionId`. Replace `SESSION_ID` below with that exact
 value. Reads work without an agent connection and after the app exits:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --limit 50 --json
+bun run xplat diagnostics --session SESSION_ID --limit 50 --json
 ```
 
 Agents can launch the same kind of retained session directly. Replace
@@ -32,9 +32,9 @@ Agents can launch the same kind of retained session directly. Replace
 readiness. There is no separate launch job or diagnostic run ID:
 
 ```sh
-pnpm exec xplat targets --json
-pnpm exec xplat session start TARGET_ID --json
-pnpm exec xplat session status SESSION_ID --json
+bun run xplat targets --json
+bun run xplat session start TARGET_ID --json
+bun run xplat session status SESSION_ID --json
 ```
 
 The optional positional accepts an exact target ID or a platform name. Platform
@@ -44,8 +44,8 @@ when exactly one eligible target matches; otherwise the error lists candidates.
 `session start` has no `--platform` or `--target` flags:
 
 ```sh
-pnpm exec xplat session start ios --json
-pnpm exec xplat session start --json
+bun run xplat session start ios --json
+bun run xplat session start --json
 ```
 
 Session status distinguishes `starting`, `ready`, `failed`, `stopped`, and
@@ -54,8 +54,8 @@ failure includes `session.launch.error`. A lost capture owner is disconnected;
 its last-known readiness is not evidence of a healthy running app:
 
 ```sh
-pnpm exec xplat session status SESSION_ID --json
-pnpm exec xplat diagnostics --session SESSION_ID --json
+bun run xplat session status SESSION_ID --json
+bun run xplat diagnostics --session SESSION_ID --json
 ```
 
 End a session to cancel a pending launch or release its owned resources. This
@@ -65,7 +65,7 @@ user-owned apps remain running. An unreachable owner reports unconfirmed
 cleanup instead of signaling a possibly reused process ID:
 
 ```sh
-pnpm exec xplat session end SESSION_ID --json
+bun run xplat session end SESSION_ID --json
 ```
 
 The first read returns the newest matching records. To continue, reuse the
@@ -73,8 +73,8 @@ same session ID and the returned `logs.nextCursor`; replace `NEXT_CURSOR` below 
 that number. Use cursor `0` to start at the oldest retained record instead:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
-pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --stream stderr --json
+bun run xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --limit 50 --json
+bun run xplat diagnostics --session SESSION_ID --cursor 0 --stream stderr --json
 ```
 
 If your workspace has several apps, select the intended app explicitly.
@@ -82,9 +82,9 @@ Retained diagnostics belong to that app's directory; a session ID from another a
 rejected. Standalone build jobs keep their own output captures:
 
 ```sh
-pnpm exec xplat diagnostics --app APP_ID --json
-pnpm exec xplat diagnostics --session SESSION_ID --json
-pnpm exec xplat diagnostics --job JOB_ID --json
+bun run xplat diagnostics --app APP_ID --json
+bun run xplat diagnostics --session SESSION_ID --json
+bun run xplat diagnostics --job JOB_ID --json
 ```
 
 ## What is captured
@@ -125,7 +125,7 @@ the session read to discover reports that arrive later, even when the log cursor
 has reached the end:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --json
+bun run xplat diagnostics --session SESSION_ID --cursor NEXT_CURSOR --json
 ```
 
 The response separates these two kinds of evidence. The example below shows
@@ -156,7 +156,7 @@ device disconnects. Report selection cannot be combined with log pagination
 or stream filters:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --report REPORT_ID --json
+bun run xplat diagnostics --session SESSION_ID --report REPORT_ID --json
 ```
 
 | Target        | Report source                                                                                    | Limit                                                                                                                                                     |
@@ -173,7 +173,7 @@ times use the device's current time zone. Review `associationReason` when
 interpreting a report:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --json
+bun run xplat diagnostics --session SESSION_ID --json
 ```
 
 `coverage.nativeReports.status` distinguishes `available`, `none-found`,
@@ -184,7 +184,7 @@ A missing device, app identity, directory access, or tool never becomes an
 empty successful coverage claim:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --json
+bun run xplat diagnostics --session SESSION_ID --json
 ```
 
 Native identity is recorded during a new `xplat dev` run. Mobile identity comes
@@ -196,8 +196,8 @@ of which transport launched them. Standalone build jobs retain their existing
 job IDs and output captures, with native lookup explicitly unavailable:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --json
-pnpm exec xplat diagnostics --job JOB_ID --json
+bun run xplat diagnostics --session SESSION_ID --json
+bun run xplat diagnostics --job JOB_ID --json
 ```
 
 ## Retention and missing evidence
@@ -222,7 +222,7 @@ in their text.
 This command requests all still-retained history so any eviction is explicit:
 
 ```sh
-pnpm exec xplat diagnostics --session SESSION_ID --cursor 0 --json
+bun run xplat diagnostics --session SESSION_ID --cursor 0 --json
 ```
 
 Capture does not recover output from before startup or from an app launched
@@ -253,5 +253,5 @@ selector is removed; both launch paths use durable session IDs. Consumers of eit
 transport read log pages from `data.logs`, including `data.logs.nextCursor`:
 
 ```sh
-pnpm exec xplat diagnostics --schema
+bun run xplat diagnostics --schema
 ```

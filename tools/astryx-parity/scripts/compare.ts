@@ -32,8 +32,8 @@ function runSameframe(): Promise<{ result: unknown; exitCode: number }> {
 	// requests to them never get answered.
 	return new Promise((resolvePromise, reject) => {
 		const child = spawn(
-			'pnpm',
-			['exec', 'sameframe', 'compare', '--config', 'sameframe.yaml', '--json'],
+			'bun',
+			['run', 'sameframe', 'compare', '--config', 'sameframe.yaml', '--json'],
 			{ cwd: appDir },
 		)
 		const stdout: Buffer[] = []

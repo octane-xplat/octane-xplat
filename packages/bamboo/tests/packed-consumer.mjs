@@ -28,7 +28,7 @@ const run = (cmd, args, cwd) => {
 try {
 	mkdirSync(join(temporary, 'pack'))
 	mkdirSync(join(temporary, 'unpacked'))
-	run('pnpm', ['pack', '--pack-destination', join(temporary, 'pack')], root)
+	run('bun', ['pm', 'pack', '--destination', join(temporary, 'pack')], root)
 	const tarball = readdirSync(join(temporary, 'pack')).find((name) => name.endsWith('.tgz'))
 	run('tar', ['-xzf', join(temporary, 'pack', tarball), '-C', join(temporary, 'unpacked')], root)
 	const packed = join(temporary, 'unpacked/package')
@@ -116,7 +116,7 @@ void plugins; void layers
 	for (const directory of ['cli', 'create', 'lint', 'lib']) {
 		const pack = join(temporary, directory)
 		mkdirSync(pack)
-		run('pnpm', ['pack', '--pack-destination', pack], join(repo, 'packages', directory))
+		run('bun', ['pm', 'pack', '--destination', pack], join(repo, 'packages', directory))
 		const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
 		const name = JSON.parse(readFileSync(join(repo, 'packages', directory, 'package.json'))).name
 		overrides[name] = `file:${join(pack, archive)}`
@@ -125,22 +125,10 @@ void plugins; void layers
 	dependencies['@octane-xplat/cli'] = overrides['@octane-xplat/cli']
 	writeFileSync(
 		join(app, 'package.json'),
-		JSON.stringify({ private: true, dependencies, pnpm: { overrides } }),
+		JSON.stringify({ private: true, dependencies, overrides }),
 	)
 
-	// pnpm overrides do not reach into file:-packed dependency graphs — rewrite
-	// the packed cli's lib spec through the readPackage hook instead.
-	writeFileSync(
-		join(app, '.pnpmfile.cjs'),
-		`module.exports = { hooks: { readPackage(pkg) {
-			if (pkg.dependencies?.['@octane-xplat/lib']) {
-				pkg.dependencies['@octane-xplat/lib'] = '${overrides['@octane-xplat/lib']}'
-			}
-			return pkg
-		} } }\n`,
-	)
-
-	run('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], app)
+	run('bun', ['install', '--ignore-scripts', '--no-peer'], app)
 	writeFileSync(
 		join(app, 'vite.config.native.mts'),
 		`

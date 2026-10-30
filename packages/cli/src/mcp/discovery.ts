@@ -4,6 +4,7 @@
 // runtime prerequisites. Every check degrades quietly — discovery never claims
 // a missing toolchain or device is ready.
 
+import { bunLockedVersions } from '../package-manager.ts'
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
@@ -150,8 +151,19 @@ function installedVersions(dir, declared) {
 		})
 }
 
-/** The versions the nearest pnpm lockfile recorded for this importer. */
+/** The versions the nearest workspace lockfile recorded for this importer. */
 function lockedVersions(workspaceRoot, appDir, declared) {
+	const bun = bunLockedVersions(appDir)
+	if (bun) {
+		return Object.keys(declared)
+			.filter((name) => XPLAT_DEP.test(name))
+			.map((name) => ({
+				name,
+				version: bun[name] ?? null,
+				source: 'lockfile',
+				declared: declared[name],
+			}))
+	}
 	let dir = appDir
 	while (true) {
 		const lockfile = join(dir, 'pnpm-lock.yaml')
@@ -310,15 +322,15 @@ const prerequisiteChecks = [
 		probe: () => ({ status: 'satisfied', detail: process.version }),
 	},
 	{
-		id: 'pnpm',
-		name: 'pnpm',
+		id: 'bun',
+		name: 'bun',
 		probe: () =>
-			run('pnpm', ['--version'])
-				? { status: 'satisfied', detail: run('pnpm', ['--version'])?.trim() }
+			run('bun', ['--version'])
+				? { status: 'satisfied', detail: run('bun', ['--version'])?.trim() }
 				: {
 						status: 'missing',
 						remedy:
-							'Install pnpm — runtime sessions spawn the app\u2019s toolchain through `pnpm exec`.',
+							'Install Bun — runtime sessions spawn the app\u2019s toolchain through `bun run`.',
 					},
 	},
 	{

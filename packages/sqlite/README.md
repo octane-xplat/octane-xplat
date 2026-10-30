@@ -7,7 +7,7 @@ SQLite Wasm Worker with OPFS persistence where available. AppKit has an
 experimental system-SQLite adapter; Windows is unsupported.
 
 ```sh
-pnpm add @octane-xplat/sqlite
+bun add @octane-xplat/sqlite
 ```
 
 In an app-owned async action, open a connection, check its durability, then close

@@ -83,7 +83,9 @@ void bad
 `,
 }
 
-consumers.macos = consumers.native + `
+consumers.macos =
+	consumers.native +
+	`
 import type { ShareFileOptions } from '@octane-xplat/share'
 const options: ShareFileOptions = { subject: 'Android only', mimeType: 'text/plain' }
 void options
@@ -177,16 +179,19 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
+	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
 	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
+	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
 	for (const file of ['include/XplatShare.h', 'src/XplatShare.m']) {
-		assert.ok(existsSync(join(packedRoot, 'platforms/macos', file)), `Missing native share file: ${file}`)
+		assert.ok(
+			existsSync(join(packedRoot, 'platforms/macos', file)),
+			`Missing native share file: ${file}`,
+		)
 	}
 	assert.deepEqual(packedManifest.xplat?.macos?.frameworks, ['Foundation', 'AppKit'])
 

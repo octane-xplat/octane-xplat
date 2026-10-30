@@ -10,7 +10,7 @@ After the package's first framework release, install the version matching your
 other Xplat packages. No UI dependency or Octane hook is required.
 
 ```sh
-pnpm add @octane-xplat/shortcuts
+bun add @octane-xplat/shortcuts
 ```
 
 In a browser entry file, register a command and keep its cleanup with the app.

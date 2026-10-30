@@ -20,7 +20,7 @@ unverified targets.
 
 ## Acceptance criteria
 
-- AC1: A scaffolded app includes test setup by default and runs `pnpm test:ios` on a selected simulator without another setup command.
+- AC1: A scaffolded app includes test setup by default and runs `bun run test:ios` on a selected simulator without another setup command.
 - AC2: Mount an Xplat component, drive tap and text entry, and assert on rendered text or testID using the packaged helper — no copying framework internals.
 - AC3: Unmount between specs is automatic; repeated mounts cannot leak subscriptions or delayed work into the next case.
 - AC4: Maintained examples cover a counter, a controlled text input, conditional mounting, and async loading/error states, plus a native runtime/import contract and an explicit failure-reporting expectation.

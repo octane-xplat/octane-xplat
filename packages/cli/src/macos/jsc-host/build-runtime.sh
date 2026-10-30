@@ -57,13 +57,13 @@ apply_patch_once runtimes "$host_dir/patches/nativescript-runtimes.patch"
 
 for name in libjsc libjs libnapi libutf libintrusive; do
   if [[ -f "$source_dir/$name/package.json" ]]; then
-    pnpm install --dir "$source_dir/$name" --no-frozen-lockfile
+    bun install --cwd "$source_dir/$name" --no-frozen-lockfile
   fi
 done
 if [[ ! -f "$scratch/package.json" ]]; then
   printf '{"private":true}\n' > "$scratch/package.json"
 fi
-pnpm add --dir "$scratch" --save-exact bare-compat-napi@1.4.1
+bun add --cwd "$scratch" --exact bare-compat-napi@1.4.1
 
 # Build each architecture in its own configure: the host embeds no metadata,
 # while each NativeScript slice embeds that arch's nsmd through

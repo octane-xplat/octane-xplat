@@ -185,16 +185,14 @@ experience of agents writing Octane-xplat code effectively.
   `catalog:` references in member manifests. `bunfig.toml` selects the
   isolated linker, and root `trustedDependencies` permits only the intended
   install hooks. Explicit root `tslib` replaces the former public hoist.
-  Every workspace must still declare what it imports. pnpm remains installed
-  for packed-consumer qualification and provenance publishing; the generated
-  `pnpm-workspace.yaml` mirrors only package lists/catalogs for those commands.
-  Run `bun run sync:workspace` after changing workspace patterns/catalogs;
-  `bun run check:workspace` rejects drift. Do not use pnpm to install this repo.
+  Every workspace must still declare what it imports. Bun packs publishable
+  packages; npm uploads the tarballs with trusted publishing and provenance.
+  pnpm is optional for `test:patches-pnpm`, a manual compatibility check.
 - **Keep patch source identities exact.** Bun keys tarball patches by URL,
   while pnpm keys the Windows previews by the package version. The canonical
   manifest's `bunSpecifiers` records the verified URL identities; it does not
   change patch bytes. `bun run sync:patches` updates root Bun registrations,
-  the patch package, and the pnpm starter configurations. `xplat patches`
+  the patch package, and starter-local patch files and Bun registrations. `xplat patches`
   accepts either manager and checks its own selected lockfile/configuration.
   pnpm 11 ignores `package.json.pnpm`, so standalone applications also need
   a `pnpm-workspace.yaml`; do not restore the old JSON fallback.
@@ -202,18 +200,21 @@ experience of agents writing Octane-xplat code effectively.
   canonical `@nativescript/vite@8.0.21` patch with `EINVAL (fstatat)` in both
   an isolated dependency and the full workspace. The identical patch applied
   with 1.4.4. Retain the patch; retest before lowering this requirement.
-  This is host installation evidence, not native/device qualification. After failed 1.4.3 attempts, a
+  This is host installation evidence, not native/device qualification. Failed 1.4.3 attempts left a
   cached patched Vite 8.0.20 artifact that Node rejected with `Illegal return
   statement`; the same patch installed with 1.4.4 and a separate cold cache
   parsed correctly and passed the native-Vite regressions. If an earlier
   attempt left corrupt cached output, reinstall with `bun install --force
   --cache-dir <temporary-cache>` rather than changing the canonical patch.
 
-- **Publishing remains pnpm-backed.** Bun 1.4.4's packer preserved
-  `publishConfig.exports` instead of remapping the creator's published
-  exports. Bun also rejects requested provenance rather than generating it.
-  Keep the existing pnpm OIDC publication path and its generated workspace
-  metadata. See [Bun publishing](https://bun.com/docs/pm/cli/publish).
+- **Publishing uses Bun tarballs and npm trusted publishing.** Creator exports
+  point explicitly at built JavaScript in `package.json`; do not reintroduce
+  `publishConfig.exports`, which Bun 1.4.4 does not remap. Bun resolves
+  workspace/catalog references during packing. `scripts/publish-release.ts`
+  packs all pending packages before uploading any, fails registry lookups other
+  than E404, and skips exact versions already published when retrying. npm
+  generates provenance; Bun does not support it yet. Never use `bun publish`
+  for this release contract. See [Bun publishing](https://bun.com/docs/pm/cli/publish).
 - Keep the CLI's public Vite declarations independent of its PostCSS
   implementation. With TypeScript 5.9.3, CLI PostCSS 8.5.28 and Vite 8.3.0
   resolving PostCSS 8.5.31, re-exporting `xplatCss` from `css-platform.ts`
@@ -229,7 +230,7 @@ experience of agents writing Octane-xplat code effectively.
   the declaration boundary remains appropriate even if the comparison improves.
 
   ```sh
-  pnpm exec turbo run test:postcss-consumer --filter=@octane-xplat/cli
+  bun run turbo run test:postcss-consumer --filter=@octane-xplat/cli
   ```
 
 - MCP's source shims import the CLI's `mcp/*` exports from `dist/`, so its
@@ -434,9 +435,9 @@ experience of agents writing Octane-xplat code effectively.
   asserts that it is absent from the installed graph.
 - Published app/library starters and `xplat doctor`/`upgrade` share
   `packages/create/compatibility.json`. Edit supported external pins there;
-  `pnpm sync:compatibility` generates `catalog:xplat` starter references and
-  exact pins, and `pnpm check:compatibility` rejects drift. Existing apps use
-  `pnpm dlx @octane-xplat/cli@<release> upgrade` to adopt that release's pins
+  `bun run sync:compatibility` generates `catalog:xplat` starter references and
+  exact pins, and `bun run check:compatibility` rejects drift. Existing apps use
+  `bunx @octane-xplat/cli@<release> upgrade` to adopt that release's pins
   and patch config package together. Library consumer peer ranges and local
   workspace/link/file dependencies stay under their owner's control. Windows
   preview specs use the manifest's Windows profile, never the mobile pins.
@@ -448,7 +449,7 @@ experience of agents writing Octane-xplat code effectively.
   sibling-checkout symlink) yields the `node_modules` symlink but no
   `node_modules/.bin` shims — `xplat`/`xplat-lint` come back `command not
 found` — and reinstalls stay "Already up to date" (GH#16). Heal by
-  reinstalling once the path exists (`rm -rf node_modules && pnpm install`)
+  reinstalling once the path exists (`rm -rf node_modules && bun install`)
   or by running `node node_modules/@octane-xplat/cli/src/link-bins.ts` from
   the app root; wiring that into the consumer's `postinstall` covers fresh
   installs. pnpm 12 re-resolves and is unaffected. `xplat-lint` resolves
@@ -512,7 +513,7 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   retargeting for installed packages. `prepack` prepares declarations;
   Node tooling and embedded browser documents retain asset builds. See the
   [publish model](notes/toolchain-notes.md#shared-packages-publish-model).
-- Lint: `pnpm lint [paths...]` and `pnpm lint:fix [paths...]` use the same
+- Lint: `bun run lint [paths...]` and `bun run lint:fix [paths...]` use the same
   `@octane-xplat/lint` runner as consumer apps. Oxlint handles regular source;
   a `@tsrx/core` companion pass handles `.tsrx`. Rule checks live once in
   `packages/lint/src/xplat-rules.ts`; severities/options come from
@@ -523,8 +524,8 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   the silent-failure half of the invariants. `xplat/no-dom-globals` enforces
   DOM boundaries; the older standalone regex sweep has been removed.
   tsrx suppressions: `xplat-disable[-line|-next-line]` comments.
-  CI invokes `pnpm lint` so error-level code rules block releases while
-  warning-level findings remain advisory. `pnpm check` composes lint with
+  CI invokes `bun run lint` so error-level code rules block releases while
+  warning-level findings remain advisory. `bun run check` composes lint with
   `check:css`, `check:recipes`, and repository integrity checks. CSS stays a
   separate blocking CI check; recipe structure runs in the PR hygiene job.
   Consumer apps and libraries use `xplat lint [paths...] [--fix]`; the CLI
@@ -537,7 +538,7 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   selection is rooted at cwd; nested configs and JS/TS/JSONC configs are
   unsupported. TSRX checks only `xplat/*` and has no lint autofixes. See the
   [consumer contract](../../packages/lint/README.md).
-- Format: `pnpm format` delegates to `xplat fmt`
+- Format: `bun run format` delegates to `xplat fmt`
   (`packages/cli/src/commands/fmt.ts`, engine `@octane-xplat/fmt` — in-process
   safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc
   Rust libraries; JS/TS/JSX/TSX and `.tsrx`). The formatter owns blank-line
@@ -546,10 +547,10 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   `--check` exits 1 without writes, `--stdin-filepath` pipes stdin to stdout.
 
 ```sh
-pnpm lint packages/ui
-pnpm lint:fix packages/lint/src
-pnpm check:css
-pnpm check:recipes
+bun run lint packages/ui
+bun run lint:fix packages/lint/src
+bun run check:css
+bun run check:recipes
 ```
 
 ## Portable source configuration
@@ -590,7 +591,7 @@ nor changes other commands. Recheck it when cmd-ts retains empty argv values
 or distinguishes an option without a value from an absent option.
 
 ```sh
-pnpm xplat build --targets '' # exits with an unavailable/empty target error
+bun run xplat build --targets '' # exits with an unavailable/empty target error
 ```
 
 ## TSX dependency-scan warning
@@ -605,7 +606,7 @@ Octane transforms still rendered the app, and all seven route edit/add/rename/re
 configured-context and manifest DOM assertions passed without browser errors.
 
 ```sh
-pnpm --filter @xplat/web smoke:routing-watch
+bun run --filter @xplat/web smoke:routing-watch
 ```
 
 Evidence is the maintained temporary TSX fixture in
@@ -672,7 +673,7 @@ an `@{}` function followed by `@if`, reporting `TSRX_LIFT: formatted TSRX
 structure differs from the input`. Parenthesizing the initializer lets the same
 source format successfully. `packages/ui/src/components/overlays/modal-focus.web.test.tsrx` uses
 this workaround; keep it until the formatter accepts the unparenthesized form.
-This was verified through the formatter's Node API and `pnpm format`, not a
+This was verified through the formatter's Node API and `bun run format`, not a
 renderer runtime test.
 
 ```tsrx
@@ -744,7 +745,7 @@ The failure reproduced locally in component tests and remotely in WebKit
 2359/Playwright 1.63.0 before the fixture mounted. No visual analysis was used.
 
 ```sh
-XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox -- --audit
+XPLAT_WEB_BROWSER=webkit bun run turbo run test:e2e --filter=@octane-xplat/lightbox -- --audit
 ```
 
 The lightbox fixture has an explicit `--audit --isolate-ui` mode that imports
@@ -754,7 +755,7 @@ are test-isolation measures, not a production workaround or consumer-import
 qualification. The production dependency and normal fixture remain unchanged.
 
 ```sh
-XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox -- --audit --isolate-ui
+XPLAT_WEB_BROWSER=webkit bun run turbo run test:e2e --filter=@octane-xplat/lightbox -- --audit --isolate-ui
 ```
 
 Recheck the normal fixture after the parser/compiler or Heading syntax changes.

@@ -9,15 +9,15 @@ published `xplat` CLI. Windows is excluded.
 From the repository root:
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm probe doctor
-pnpm probe run examples/probes/signals.ts --target web
-pnpm probe run examples/probes/counter.tsrx --target macos
-pnpm probe run examples/probes/counter.tsrx --targets web,ios,android,macos,linux
+bun install --frozen-lockfile
+bun run probe doctor
+bun run probe run examples/probes/signals.ts --target web
+bun run probe run examples/probes/counter.tsrx --target macos
+bun run probe run examples/probes/counter.tsrx --targets web,ios,android,macos,linux
 ```
 
 The doctor reports prerequisites and device IDs. Web needs Playwright Chromium
-(`pnpm --dir apps/web exec playwright install chromium`). iOS needs Xcode, a
+(`bun run --cwd apps/web playwright install chromium`). iOS needs Xcode, a
 booted simulator, and Ruby's `xcodeproj` gem. Android needs an authorized device,
 the SDK, and a compatible JDK (the runner selects JDK 21 on macOS). Mobile builds
 need the NativeScript CLI on PATH. For the local macOS emulator setup, see the
@@ -30,8 +30,8 @@ does not provision machines or substitute macOS WebKit for Linux.
 Select a device explicitly when more than one is active:
 
 ```sh
-pnpm probe run examples/probes/signals.ts --target ios --device SIMULATOR_UDID
-pnpm probe run examples/probes/counter.tsrx --target android --device DEVICE_SERIAL
+bun run probe run examples/probes/signals.ts --target ios --device SIMULATOR_UDID
+bun run probe run examples/probes/counter.tsrx --target android --device DEVICE_SERIAL
 ```
 
 For both mobile targets use `--ios-device` and `--android-device`. Boot your
@@ -117,8 +117,8 @@ exercises handlers; it does not send OS input or test hit-testing.
 ## Iterate without harness edits
 
 ```sh
-pnpm probe run examples/probes/counter.tsrx --target web --watch
-pnpm probe run examples/probes/counter.tsrx --target macos --watch --fresh-process
+bun run probe run examples/probes/counter.tsrx --target web --watch
+bun run probe run examples/probes/counter.tsrx --target macos --watch --fresh-process
 ```
 
 Watch accepts one target. It watches imported source, reruns after edits, and
@@ -138,7 +138,7 @@ Additional packages must already be installed. Pass their names to make them
 available in the isolated project:
 
 ```sh
-pnpm probe run examples/probes/signals.ts --target android --deps @octane-xplat/platform
+bun run probe run examples/probes/signals.ts --target android --deps @octane-xplat/platform
 ```
 
 Mobile probes always build against `@octane-xplat/nativescript-mason-core` —

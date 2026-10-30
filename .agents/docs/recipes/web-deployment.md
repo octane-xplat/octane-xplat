@@ -2,7 +2,7 @@
 
 ID: web-deployment
 Targets: web
-Related APIs: pnpm build, vite preview, xplatWeb, @octane-xplat/cli/vite, xplat lint, xplat build --targets
+Related APIs: bun run build, vite preview, xplatWeb, @octane-xplat/cli/vite, xplat lint, xplat build --targets
 
 ## Starting point
 

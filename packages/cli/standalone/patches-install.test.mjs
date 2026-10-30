@@ -7,7 +7,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { applyPatches, inspectPatches } from '../dist/patches.js'
 
-for (const manager of ['bun', 'pnpm']) {
+for (const manager of [process.env.XPLAT_PATCH_MANAGER ?? 'bun']) {
 	test(`${manager} installs canonical patches and repeats a frozen install`, (t) => {
 		const root = mkdtempSync(join(tmpdir(), `xplat-patch-install-${manager}-`))
 		t.after(() => rmSync(root, { recursive: true, force: true }))

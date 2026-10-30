@@ -6,7 +6,7 @@ the global fetch implementation. It is a byte-stream API, not a drop-in Fetch
 implementation or a Coreframe/Rouzer client adapter.
 
 ```sh
-pnpm add @octane-xplat/network
+bun add @octane-xplat/network
 ```
 
 Read non-2xx status before consuming the body. For small JSON responses, the
@@ -101,6 +101,6 @@ need an owned, booted device and the normal broker reservation. Turbo forwards
 the native SDK variables for this task.
 
 ```sh
-pnpm exec turbo run test typecheck --filter=@octane-xplat/network
-pnpm exec turbo run test:runtime --filter=@octane-xplat/network -- --target web
+bun run turbo run test typecheck --filter=@octane-xplat/network
+bun run turbo run test:runtime --filter=@octane-xplat/network -- --target web
 ```

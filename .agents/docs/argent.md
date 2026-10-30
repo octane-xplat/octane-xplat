@@ -7,9 +7,9 @@ pinned Argent journey. The latter launches isolated headless Chromium on CDP
 port 19329, saves text/JSON locally, and closes its browser/server.
 
 ```sh
-pnpm --filter @xplat/web exec node scripts/test-id.mjs
-pnpm --filter @xplat/web exec node scripts/test-id.mjs --argent
-pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/test-id.mobile.test.tsrx
+bun run --cwd apps/web node scripts/test-id.mjs
+bun run --cwd apps/web node scripts/test-id.mjs --argent
+bun run --cwd packages/ui vitest run --config vitest.native.config.mts src/test-id.mobile.test.tsrx
 ```
 
 The maintained fixture is [TestID.tsrx](../../packages/ui/tests/fixtures/TestID.tsrx);

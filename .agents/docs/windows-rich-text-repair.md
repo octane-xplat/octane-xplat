@@ -69,9 +69,9 @@ Prepare a fresh candidate from the repository root:
 node tools/platform-qualification/windows-rich-text/prepare-candidate.mjs \
   "$(opensrc path @nativescript-community/octane@0.2.4)"
 RICH_TEXT_DRIVER=research/windows-rich-text/candidate/packages/octane/src/driver.ts \
-  pnpm exec vitest run --config tools/platform-qualification/windows-rich-text/vitest.config.mts
+  bun run vitest run --config tools/platform-qualification/windows-rich-text/vitest.config.mts
 RICH_TEXT_DRIVER=research/windows-rich-text/candidate/package/dist/driver.js \
-  pnpm exec vitest run --config tools/platform-qualification/windows-rich-text/vitest.config.mts
+  bun run vitest run --config tools/platform-qualification/windows-rich-text/vitest.config.mts
 ```
 
 The helper refuses to overwrite an existing output directory; pass a new third
@@ -91,7 +91,7 @@ reproduce the installed driver's failure.
 | Android physical native case                    | Pass               | TextView text and actual CustomTypefaceSpan typefaces; reactive text/formatting, ordered spans, rich removal |
 | iOS simulator native case                       | Pass               | UILabel attributed text and native bold/bold-italic font traits; formatting update and rich removal          |
 | Windows native run/geometry case                | Parked             | SSH handshake blocker; no candidate Windows runtime evidence                                                 |
-| `pnpm check:patches`, `pnpm check:recipes`      | Pass               | Patch synchronization and recipe structure                                                                   |
+| `bun run check:patches`, `bun run check:recipes`      | Pass               | Patch synchronization and recipe structure                                                                   |
 
 The compiled Text test retains two component mounts across updates/reorder,
 observes one cleanup on keyed removal and the second on conditional removal,

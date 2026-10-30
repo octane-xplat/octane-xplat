@@ -67,9 +67,9 @@ matching, iframe realms and disposal. Native adapter unit fixtures use models. T
 exercise the actual native adapters and their engine.
 
 ```sh
-pnpm exec turbo run test pack:check test:packed --filter=@octane-xplat/shortcuts
-pnpm exec turbo run typecheck --filter=...@octane-xplat/shortcuts
-pnpm exec turbo run test:e2e --filter=@octane-xplat/shortcuts
+bun run turbo run test pack:check test:packed --filter=@octane-xplat/shortcuts
+bun run turbo run typecheck --filter=...@octane-xplat/shortcuts
+bun run turbo run test:e2e --filter=@octane-xplat/shortcuts
 ```
 
 The Chromium check uses browser keyboard input, asserts native-default text
@@ -83,7 +83,7 @@ assertions; accessibility behavior was not tested.
 ```sh
 SHORTCUTS_GTK_HOST=andromeda.local SHORTCUTS_GTK_VM=octane-linux \
   goddard-agent resource run --json '{"resources":{"exclusive":["linux:octane-linux"],"resident_devices":1},"purpose":"isolated GTK shortcut input"}' \
-  -- pnpm exec turbo run test:gtk-runtime --filter=@octane-xplat/shortcuts
+  -- bun run turbo run test:gtk-runtime --filter=@octane-xplat/shortcuts
 ```
 
 For a direct Linux SSH host, omit SHORTCUTS_GTK_VM. The runner only removes its
@@ -104,7 +104,7 @@ input or IMEs.
 ```sh
 SHORTCUTS_MACOS_HOST=skymac.local \
   goddard-agent resource run --json '{"resources":{"exclusive":["device:skymac"],"desktop_input":1},"purpose":"AppKit shortcut queue"}' \
-  -- pnpm exec turbo run test:shortcuts-runtime --filter=@xplat/macos
+  -- bun run turbo run test:shortcuts-runtime --filter=@xplat/macos
 ```
 
 The WinUI runner uses a compiled NativeScript Windows runtime directory on the
@@ -123,7 +123,7 @@ required. The path below names an existing compiled runtime, not a new build.
 SHORTCUTS_WINDOWS_HOST=windy \
 SHORTCUTS_WINDOWS_RUNTIME='C:\Users\alecs\dev\octane-xplat\apps\windows\platforms\windows\windows\bin\x64\Release\net10.0-windows10.0.26100.0\win-x64' \
   goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"],"desktop_input":1},"purpose":"WinUI shortcut input"}' \
-  -- pnpm exec turbo run test:windows-runtime --filter=@octane-xplat/shortcuts
+  -- bun run turbo run test:windows-runtime --filter=@octane-xplat/shortcuts
 ```
 
 All IMEs/layouts, physical AppKit input, Wayland and installed desktop consumers

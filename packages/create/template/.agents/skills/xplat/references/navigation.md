@@ -22,7 +22,7 @@ Regenerate the catalog after adding or renaming route files (the dev and
 build commands also run it):
 
 ```sh
-pnpm exec xplat routes --dir src/app
+bun run xplat routes --dir src/app
 ```
 
 Import the generated client once in your entry module and place `RouteOutlet`
