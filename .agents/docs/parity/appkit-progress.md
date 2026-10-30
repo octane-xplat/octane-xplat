@@ -10411,3 +10411,55 @@ This is an internal bridge optimization with no public API, recipe or agent
 workflow change. No startup-speed or stall-fix claim is made without the native
 comparison. The dependent typecheck above now includes `macos-renderer`;
 merging remains deferred until those required checks can run.
+
+### Scroll-container bounds and first complete sweep (2026-10-30)
+
+Commit `8211f9a90` fixes the root cause shared by the `vlist` assertion
+failure and the observed sweep stall. On AppKit, a `<scrollview>` Mason leaf
+measured its full document size, and every column flex ancestor carried an
+unbounded content-based minimum. A `flex-1` scroll view plus the
+screen/tabs/tab-pane/route-pane chain therefore expanded to full document
+height instead of the window bound. `VirtualList` then read a viewport equal
+to the whole document and mounted all 500 rows; the ensuing mount, layout and
+bridge/GC churn presented as the earlier stall (a CPU sample showed the main
+thread inside one timer callback's microtask drain under JavaScriptCore
+garbage collection and `ObjCObjectTypeConv::toJS` conversions).
+
+Two complementary changes restore the bound:
+
+- `mason.ts`: a scrollview's automatic minimum size is zero along its scroll
+  axis unless the author sets an explicit min dimension. This also bounds
+  flex-1 scroll areas such as the Test tab's `test-scroll`.
+- `tokens.css`, `app.css`, `RoutePane.macos.tsrx`: `min-width`/`min-height: 0`
+  and `flex-shrink: 1` on the macOS `.vx-screen`/`.vx-tabs`/`.vx-tabpane`/
+  `.vx-app` chain and the active route pane, so the window bound reaches the
+  scroller. Mason computes a container's content minimum from child measures
+  rather than child min styles, so per-level min rules are required.
+
+Verified locally on Apple Silicon macOS 27.2:
+
+```sh
+XPLAT_MACOS_SMOKE_TIMEOUT_MS=600000 pnpm exec turbo run smoke --filter=@xplat/macos --only
+```
+
+— 30 assertions, 0 failures in 3m18s. This is the first complete local AppKit
+sweep: the VirtualList windowed the 500-row list (3 rows mounted at assertion
+time), the drop-first mutation passed, and the sweep finished through the Test
+tab. `pnpm exec turbo run test:mason --filter=@octane-xplat/macos-renderer`
+passes 22/22. The assertion line is action-dispatch evidence; OS input,
+hit-testing and pixels remain unqualified.
+
+Ablations: with only the `mason.ts` change the ancestors still expanded and
+the assertion failed (500 mounted, `vp=24031`); with only the CSS/route
+changes the scrollview leaf itself still overflowed its bounded parent
+(500 mounted, `vp=27541`). Both are required.
+
+The dependent typecheck command above currently fails in `macos-renderer`
+with 25 pre-existing errors in `index.ts`, `keyboard.ts`,
+`outline-headings.ts`, `image-fit.ts` and `context-pointer.ts` — none in the
+files changed here; several look like stale or incomplete generated
+declarations (for example `NSAccessibilityPostNotification`). Several
+packages' `typegen` tasks also failed in this worktree's run. These are
+unrelated to this change but still block the merge-qualification typecheck.
+No public API or recipe behavior changed. Temporary sweep/ancestry
+diagnostics were reverted before commit.
