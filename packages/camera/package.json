@@ -87,6 +87,9 @@
 		},
 		"octane": {
 			"optional": true
+		},
+		"@nativescript/macos-node-api": {
+			"optional": true
 		}
 	},
 	"nativescript": {

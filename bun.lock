@@ -584,6 +584,7 @@
       "optionalPeers": [
         "@nativescript-community/octane",
         "@nativescript/core",
+        "@nativescript/macos-node-api",
         "octane",
       ],
     },
