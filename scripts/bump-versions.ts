@@ -8,6 +8,7 @@
 //
 // Usage: node scripts/bump-versions.ts <version>
 
+import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { lockstepPackages } from './publishable.ts'
 import { compatibility } from '../packages/create/compatibility.ts'
@@ -35,5 +36,29 @@ for (const { name, dir } of lockstepPackages()) {
 }
 
 compatibility.frameworkVersion = version
+
+// The tsrx-typegen starter pin follows the in-repo version once that version
+// is on the registry; an unpublished version keeps the previous pin.
+const typegenVersion = JSON.parse(
+	readFileSync('packages/tsrx-typegen/package.json', 'utf8'),
+).version
+let published: string | undefined
+try {
+	published = JSON.parse(
+		execFileSync('npm', ['view', `tsrx-typegen@${typegenVersion}`, 'version', '--json'], {
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'pipe'],
+		}),
+	)
+} catch {
+	published = undefined
+}
+if (published === typegenVersion) {
+	compatibility.packages['tsrx-typegen'].version = typegenVersion
+	console.log('tsrx-typegen starter pin -> ' + typegenVersion)
+} else {
+	console.warn(`tsrx-typegen ${typegenVersion} is not published — keeping the existing starter pin`)
+}
+
 syncCompatibility()
 console.log('compatibility set and starter pins -> ' + version)

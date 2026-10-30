@@ -192,7 +192,9 @@ Before the first automated release:
    lockstep package; its generated package-name list makes doctor/upgrade
    recognize it. The release bump regenerates framework/catalog/patch-config
    pins through the same compatibility manifest. External engine/tool pins
-   change only when explicitly edited in that manifest. Run
+   change only when explicitly edited in that manifest — except
+   `tsrx-typegen`, whose pin the release bump moves to the in-repo version
+   once that version is published. Run
    `pnpm check:compatibility` and `pnpm check:patches` to check both outputs.
 4. Reconcile the package's public setup and usage with its documentation, any
    affected recipes, and maintained examples. Run `pnpm check:recipes` when
