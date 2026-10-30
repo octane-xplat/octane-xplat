@@ -23,75 +23,122 @@
  *  resolve() throws for missing nodes, so a check that reads el.box can
  *  assume the cell produced a frame. */
 export interface MeasuredBox {
+	/** Left edge, relative to the fixture's .parity-box. */
 	x: number
+	/** Top edge, relative to the fixture's .parity-box. */
 	y: number
+	/** Width in the dump's logical units. */
 	w: number
+	/** Height in the dump's logical units. */
 	h: number
 }
 
 export interface MeasuredNode {
+	/** Element tag as the leaf reports it. */
 	tag?: string
+	/** Element id, when the leaf captured one. */
 	id?: string
+	/** Resolved class list. */
 	classes?: string[]
+	/** Shared content geometry — alignment rect on AppKit, border box elsewhere. */
 	box: MeasuredBox
+	/** Raw platform frame (NSView allocation on macOS); internal padding included. */
 	frameBox?: MeasuredBox
+	/** Resolved style key/value pairs for the node. */
 	style: Record<string, string>
+	/** Text content, for leaves that capture it. */
 	text?: string
+	/** Per-line horizontal advances for shaped text. */
 	textLineAdvances?: number[]
+	/** Number of laid-out text lines. */
 	textLineCount?: number
+	/** Content-area geometry inside padding. */
 	contentBox: MeasuredBox
+	/** Font as the platform resolved it after shaping/fallback. */
 	resolvedFont: {
+		/** Resolved family name. */
 		family?: string
+		/** Concrete face/style within the family. */
 		face?: string
+		/** Point size used for shaping. */
 		size?: number
+		/** Resolved line height. */
 		lineHeight?: number
+		/** Resolved numeric weight. */
 		weight?: number
+		/** Extra spacing added per line (Android-style metrics). */
 		lineSpacingExtra?: number
+		/** Line-spacing multiplier (Android-style metrics). */
 		lineSpacingMultiplier?: number
+		/** Line height used by the actual layout pass. */
 		layoutLineHeight?: number
+		/** Runtime-measured layout details for multi-line text. */
 		actualLayout?: {
+			/** Lines actually laid out. */
 			lineCount?: number
+			/** Total laid-out height. */
 			height?: number
+			/** Per-line vertical extents. */
 			lines?: { top?: number; bottom?: number }[]
+			/** Measured text height vs the view's allocated height. */
 			measuredHeight?: number
+			/** View's allocated height. */
 			viewHeight?: number
 		}
 	}
+	/** Placeholder text, for input leaves that capture it. */
 	placeholder?: string
+	/** Placeholder geometry — a zero box when no placeholder renders. */
 	placeholderBox: MeasuredBox
+	/** Resolved placeholder styling. */
 	placeholderStyle?: { color: string; opacity: string }
 }
 
 export interface ParityDump {
+	/** Target name the dump was produced on (web/ios/android/macos). */
 	target: string
+	/** Fixture cell name → measured nodes, in fixture order. */
 	cells?: Record<string, MeasuredNode[]>
 }
 
+/** One assertion row emitted by a check — name, pass flag, optional detail. */
 export type CheckRow = [name: string, ok: boolean, detail?: unknown]
+/** Resolves a logical element name to its measured node; throws when missing. */
 export type Resolve = (name: string) => MeasuredNode
+/** A cross-target equality path — 'el.box.<f>'/'el.style.<f>' style selectors,
+ *  optionally with absolute/relative tolerances. */
 export type EqualRule = string | { path: string; tolerance?: number; relativeTolerance?: number }
 
 export interface ParityCheck {
+	/** Cell name in the sibling <Component>.parity.tsrx fixture. */
 	fixture: string
+	/** Logical element name → vx-* class inside the fixture cell. */
 	elements: Record<string, string>
+	/** Paths that must agree across applicable targets (skipped with one dump). */
 	equal?: EqualRule[]
+	/** Target allowlist; omitted checks run against every dump. */
 	targets?: string[]
+	/** Allowlist for cross-target equality; defaults to `targets`. */
 	equalTargets?: string[]
+	/** Per-target invariant assertions. */
 	check: (m: Resolve, target: string, dump: ParityDump) => CheckRow[]
 }
 
+/** Absolute-tolerance numeric comparison — parity checks tolerate sub-pixel drift. */
 export const near = (
 	a: number | null | undefined,
 	b: number | null | undefined,
 	tol = 0.51,
 ): boolean => a != null && b != null && Math.abs(a - b) <= tol
 
+/** CheckRow asserting a node's box is exactly w×h (within tol). */
 export const dims = (el: MeasuredNode, w: number, h: number, tol?: number): CheckRow => [
 	`${w}×${h}`,
 	near(el.box?.w, w, tol) && near(el.box?.h, h, tol),
 	`${el.box?.w}×${el.box?.h}`,
 ]
 
+/** CheckRow asserting a node reads as circular — 50% radius or radius ≥ w/2. */
 export const circular = (el: MeasuredNode): CheckRow => {
 	const radius = String(el.style?.borderTopLeftRadius ?? '')
 	const width = el.box?.w
@@ -103,8 +150,10 @@ export const circular = (el: MeasuredNode): CheckRow => {
 	return ['thumb corners form a circle', round, `${radius} on ${width}×${height}`]
 }
 
+/** Selector string for an EqualRule — used for reporting/skip lists. */
 export const equalPath = (rule: EqualRule): string => (typeof rule === 'string' ? rule : rule.path)
 
+/** Cross-target equality rules for short text fixtures. */
 export const textEqual: EqualRule[] = [
 	// Font shaping varies slightly by renderer; exact size, weight, line height,
 	// and color checks below keep larger typography changes visible.
@@ -116,10 +165,12 @@ export const textEqual: EqualRule[] = [
 	'text.style.color',
 ]
 
+/** Equality rules for long/multi-line text — drops rules shaping can't hold. */
 export const textLongEqual: EqualRule[] = textEqual.filter(
 	(rule) => equalPath(rule) !== 'text.box.h',
 )
 
+/** Equality rules for heading fixtures. */
 export const headingEqual: EqualRule[] = [
 	'heading.box.x',
 	'heading.box.y',
@@ -130,6 +181,7 @@ export const headingEqual: EqualRule[] = [
 	'heading.style.color',
 ]
 
+/** Asserts heading metrics for the given font size. */
 export function headingRows(m: Resolve, size: number): CheckRow[] {
 	const heading = m('heading')
 	const weight = String(heading.style?.fontWeight ?? '').toLowerCase()
@@ -153,6 +205,7 @@ export function headingRows(m: Resolve, size: number): CheckRow[] {
 	]
 }
 
+/** Asserts class-applied text size and line height. */
 export function textClassRows(m: Resolve, size: number, lineHeight: number): CheckRow[] {
 	const text = m('text')
 	return [
@@ -169,6 +222,7 @@ export function textClassRows(m: Resolve, size: number, lineHeight: number): Che
 	]
 }
 
+/** Asserts body-text height (and width when supplied). */
 export function textRows(m: Resolve, height: number, width?: number): CheckRow[] {
 	const text = m('text')
 	const rows: CheckRow[] = [
@@ -183,6 +237,7 @@ export function textRows(m: Resolve, height: number, width?: number): CheckRow[]
 	return rows
 }
 
+/** Asserts multi-line text layout for the target. */
 export function textLongRows(m: Resolve, target: string): CheckRow[] {
 	const text = m('text')
 	const styleLineHeight = Number.parseFloat(text.style?.lineHeight)
@@ -219,6 +274,7 @@ export function textLongRows(m: Resolve, target: string): CheckRow[] {
 
 // Native font engines report different label bounds; buttonRows checks each
 // target still lays out a visible, centered label inside the same button box.
+/** Equality rules for button fixtures. */
 export const buttonEqual: EqualRule[] = [
 	'btn.style.justifyContent',
 	'btn.style.alignItems',
@@ -235,6 +291,7 @@ export const buttonEqual: EqualRule[] = [
 	'label.style.color',
 ]
 
+/** Equality rules for unstyled (natural) button fixtures. */
 export const buttonNaturalEqual: EqualRule[] = [
 	'btn.box.x',
 	'btn.box.y',
@@ -249,6 +306,7 @@ export const buttonNaturalEqual: EqualRule[] = [
 	'label.style.color',
 ]
 
+/** Asserts styled-button geometry. */
 export function buttonRows(m: Resolve, width: number, height: number): CheckRow[] {
 	const btn = m('btn')
 	const label = m('label')
@@ -270,6 +328,7 @@ export function buttonRows(m: Resolve, width: number, height: number): CheckRow[
 	]
 }
 
+/** Asserts platform-natural button geometry. */
 export function buttonNaturalRows(m: Resolve): CheckRow[] {
 	const btn = m('btn')
 	const label = m('label')
@@ -295,6 +354,7 @@ export function buttonNaturalRows(m: Resolve): CheckRow[] {
 	]
 }
 
+/** Equality rules for text-input fixtures. */
 export const inputEqual: EqualRule[] = [
 	'field.box.x',
 	'field.box.y',
@@ -311,25 +371,30 @@ export const inputEqual: EqualRule[] = [
 	'field.style.color',
 ]
 
+/** Equality rules for platform-natural inputs — drops style-driven rules. */
 export const inputNaturalEqual: EqualRule[] = inputEqual.filter(
 	(rule) => !['field.box.h', 'field.contentBox.h'].includes(equalPath(rule)),
 )
 
+/** Equality rules for textarea fixtures, derived from the input set. */
 export const textAreaEqual: EqualRule[] = inputEqual.map((rule) => {
 	const path = equalPath(rule)
 	return ['field.box.h', 'field.contentBox.h'].includes(path) ? { path, tolerance: 1 } : rule
 })
 
+/** Equality rules shared by small controls (checkbox/switch/radio). */
 export const controlEqual: EqualRule[] = [
 	'control.box.w',
 	'control.box.h',
 	'control.style.backgroundColor',
 ]
 
+/** Asserts small-control geometry. */
 export const controlRows = (m: Resolve, width: number, height: number): CheckRow[] => [
 	dims(m('control'), width, height, 1),
 ]
 
+/** Asserts styled-input geometry and placeholder placement. */
 export function inputRows(m: Resolve): CheckRow[] {
 	const field = m('field')
 	const rows: CheckRow[] = [
@@ -344,6 +409,7 @@ export function inputRows(m: Resolve): CheckRow[] {
 	return rows
 }
 
+/** Asserts platform-natural input geometry for the target. */
 export function inputNaturalRows(m: Resolve, target: string): CheckRow[] {
 	const field = m('field')
 	// Since the field-chrome rework the input carries Astryx's 14px/20px text
@@ -375,6 +441,7 @@ export function inputNaturalRows(m: Resolve, target: string): CheckRow[] {
 	return rows
 }
 
+/** Asserts textarea geometry for the target. */
 export function textAreaRows(m: Resolve, target: string): CheckRow[] {
 	const field = m('field')
 	const rows: CheckRow[] = [
@@ -398,6 +465,7 @@ export function textAreaRows(m: Resolve, target: string): CheckRow[] {
 	return rows
 }
 
+/** Asserts intrinsic textarea height for the target. */
 export function textAreaRowsIntrinsic(m: Resolve, target: string, height: number): CheckRow[] {
 	const field = m('field')
 	const rows: CheckRow[] = [
