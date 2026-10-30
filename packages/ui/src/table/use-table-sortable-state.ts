@@ -8,12 +8,19 @@ export interface UseTableSortableStateConfig<
 	T extends Record<string, unknown>,
 	TSortKey extends string = string,
 > {
+	/** Rows to sort — the hook returns a sorted copy, never mutates. */
 	data: T[]
+	/** Initial sort for uncontrolled usage. */
 	defaultSort?: TableSortState<TSortKey>
+	/** Controlled sort state. */
 	sort?: TableSortState<TSortKey>
+	/** Fires with the requested sort state — pair with `sort` for controlled usage. */
 	onSortChange?: (sort: TableSortState<TSortKey>) => void
+	/** Per-column comparators; columns without one use natural (numeric-aware) collation. */
 	comparators?: Partial<Record<TSortKey, TableSortComparator<T>>>
+	/** Allows cycling back to no sort instead of pinning one direction. */
 	allowUnsortedState?: boolean
+	/** Allows multi-column sort (shift-click semantics). */
 	isMultiSortEnabled?: boolean
 }
 
@@ -21,9 +28,13 @@ export interface UseTableSortableStateResult<
 	T extends Record<string, unknown>,
 	TSortKey extends string = string,
 > {
+	/** `data` with the active sort applied — a new array. */
 	sortedData: T[]
+	/** Current sort state. */
 	sort: TableSortState<TSortKey>
+	/** Resolved sort config for passing to Table's sorting props. */
 	sortConfig: UseTableSortableConfig<TSortKey>
+	/** Applies the current sort to an arbitrary row set (e.g. filtered views). */
 	applySort: (data: T[]) => T[]
 }
 
@@ -98,6 +109,7 @@ function defaultCompare<T extends Record<string, unknown>>(a: T, b: T, sortKey: 
 	return compareStrings(toSortableString(aVal), toSortableString(bVal))
 }
 
+/** Sorts `data` per `sort` + `comparators` — the pure core used by the hook; returns a new array. */
 export function sortTableData<T extends Record<string, unknown>, TSortKey extends string = string>(
 	data: T[],
 	sortState: TableSortState<TSortKey>,
