@@ -25,6 +25,7 @@
 		},
 		"smoke": {
 			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"passThroughEnv": ["XPLAT_MACOS_SMOKE_TIMEOUT_MS"],
 			"cache": false
 		},
 		"verify-hmr": {
