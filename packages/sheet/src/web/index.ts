@@ -1,4 +1,4 @@
 import './styles.css'
 
 export { BottomSheet } from '../BottomSheet.web.tsrx'
-export type { BottomSheetProps } from './types'
+export type { BottomSheetProps, WebFocusTarget } from './types'

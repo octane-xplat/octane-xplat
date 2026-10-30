@@ -16,7 +16,7 @@ import type {
 } from './types'
 
 /** Whether geometry-backed observation is available on iOS and Android. */
-export const supported = true
+export const supported: boolean = true
 
 interface Margin {
 	top: number

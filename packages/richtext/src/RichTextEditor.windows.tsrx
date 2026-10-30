@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { RichTextEditorProps } from './types'
 
-export const supported = false
+export const supported: boolean = false
 
 /** Windows bring-up is deferred — renders the placeholder so a shared
  *  screen still mounts. */

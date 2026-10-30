@@ -5,7 +5,7 @@ import { EditorContent, useEditor } from '@octanejs/tiptap'
 import { activeFormats, bindEditorHandle, resolveExtensions } from './editor-core.web'
 import type { TiptapEditorHandle, TiptapEditorProps } from './types'
 
-export const supported = true
+export const supported: boolean = true
 
 /** Unified editor facade, web half — a thin adapter over the published
  *  `@octanejs/tiptap` binding (useEditor + EditorContent + StarterKit). */

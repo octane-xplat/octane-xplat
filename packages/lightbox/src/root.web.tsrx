@@ -103,7 +103,7 @@ export const InternalTriggersContext: Context<Map<number, Set<HTMLElement>> | nu
 
 export const SlideContext: Context<SlideCtx | null> = createContext<SlideCtx | null>(null)
 
-export function useLightboxCtx(): JSX.Element {
+export function useLightboxCtx(): LightboxCtx {
 	const ctx = useContext(LightboxContext)
 	if (!ctx) {
 		throw new Error('Lightbox parts must be used inside <Lightbox.Root>.')
@@ -112,7 +112,7 @@ export function useLightboxCtx(): JSX.Element {
 	return ctx
 }
 
-export function useSlideCtx(): JSX.Element {
+export function useSlideCtx(): SlideCtx {
 	const slide = useContext(SlideContext)
 	if (!slide) {
 		throw new Error('<Lightbox.Image> must be inside <Lightbox.Slide>.')
@@ -492,7 +492,7 @@ export function Trigger(props: LightboxTriggerPartProps): JSX.Element {
 	)
 }
 
-export function Backdrop(props: LightboxPartProps): JSX.Element {
+export function Backdrop(props: LightboxPartProps): JSX.Element | null {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	if (ctx.phase === 'closed') {
@@ -530,7 +530,7 @@ export function Backdrop(props: LightboxPartProps): JSX.Element {
 const isEditable = (t: EventTarget | null) =>
 	t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))
 
-export function Popup(props: LightboxPartProps): JSX.Element {
+export function Popup(props: LightboxPartProps): JSX.Element | null {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	useLayoutEffect(() => {

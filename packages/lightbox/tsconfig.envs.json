@@ -6,7 +6,7 @@
 		"types": ["@nativescript/types"],
 		"paths": {
 			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"],
-			"@octane-xplat/motion": ["../motion/types/index.d.ts"]
+			"@octane-xplat/motion": ["../motion/types/generated/index.d.ts"]
 		}
 	},
 	"environments": {

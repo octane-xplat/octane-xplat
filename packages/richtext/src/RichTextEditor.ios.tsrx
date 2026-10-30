@@ -36,7 +36,7 @@ declare module '@octane-xplat/jsx/intrinsics' {
 
 registerElement('xplatrichtext', AztecEditor)
 
-export const supported = true
+export const supported: boolean = true
 
 /** WordPress AztecEditor-iOS surface — a UITextView-backed native editor,
  *  not a WebView. Content in/out is HTML (`setHTML`/`getHTML`); JSON

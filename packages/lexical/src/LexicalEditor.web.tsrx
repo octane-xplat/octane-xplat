@@ -23,7 +23,7 @@ import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html'
 import { SHARED_NODES, activeFormats, bindEditorHandle, flatOffset } from './editor-core.web'
 import type { LexicalEditorHandle, LexicalEditorProps } from './types'
 
-export const supported = true
+export const supported: boolean = true
 
 /** The facade's default node set — Aztec's capability surface plus
  *  AutoLinkNode (parsing safety for docs produced by fuller editors). The

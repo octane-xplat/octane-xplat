@@ -15,7 +15,7 @@ const boundsChanged =
 	appKit.NSViewBoundsDidChangeNotification ?? 'NSViewBoundsDidChangeNotification'
 
 /** Whether geometry-backed observation is available on the AppKit host. */
-export const supported = true
+export const supported: boolean = true
 
 interface Margin {
 	top: number

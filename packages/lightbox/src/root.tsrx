@@ -121,7 +121,7 @@ export const InternalTriggersProvider = InternalTriggersContext as unknown as Na
 	Map<number, Set<any>>
 >
 
-export function useLightboxCtx(): unknown @{
+export function useLightboxCtx(): LightboxCtx @{
 	const ctx = useContext(LightboxContext)
 	if (!ctx) {
 		throw new Error('Lightbox parts must be used inside <Lightbox.Root>.')
@@ -130,7 +130,7 @@ export function useLightboxCtx(): unknown @{
 	return ctx
 }
 
-export function useSlideCtx(): unknown @{
+export function useSlideCtx(): SlideCtx @{
 	const slide = useContext(SlideContext)
 	if (!slide) {
 		throw new Error('<Lightbox.Image> must be inside <Lightbox.Slide>.')

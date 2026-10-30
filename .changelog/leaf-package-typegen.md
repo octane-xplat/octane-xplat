@@ -21,3 +21,9 @@ export declare function Badge(props: BadgeProps): unknown
 Source imports and subpath layouts are unchanged; update any code that typed a
 component value as `UniversalComponent<P>` to use `typeof Badge` or the props
 type directly.
+
+A few platforms are typed more honestly than the facades they replace: web
+components now return `JSX.Element` (or `null` where the source returns it),
+unsupported-platform stubs declare their real `() => never` signatures, and
+`IntersectionObserver` exports its class type rather than a constructor
+interface.

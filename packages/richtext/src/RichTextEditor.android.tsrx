@@ -67,7 +67,7 @@ declare module '@octane-xplat/jsx/intrinsics' {
 
 registerElement('xplatrichtext', AztecEditor)
 
-export const supported = true
+export const supported: boolean = true
 
 /** Active formats at the selection, mapped back to facade spellings. */
 const activeFormats = (editor: any): RichTextFormat[] => {

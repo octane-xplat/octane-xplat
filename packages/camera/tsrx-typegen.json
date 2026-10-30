@@ -18,5 +18,8 @@
 				}
 			}
 		}
+	},
+	"overrides": {
+		"index.d.ts": "types/overrides/index.d.ts"
 	}
 }

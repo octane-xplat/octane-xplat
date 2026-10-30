@@ -32,7 +32,7 @@
 				"../ui/types/generated/index.d.ts"
 			],
 			"@octane-xplat/motion": [
-				"../motion/types/index.d.ts"
+				"../motion/types/generated/index.d.ts"
 			]
 		}
 	},

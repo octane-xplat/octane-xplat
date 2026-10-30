@@ -1,6 +1,6 @@
 import type { RichTextEditorProps } from './types'
 
-export const supported = false
+export const supported: boolean = false
 
 /** Web routes through @octane-xplat/tiptap — this leaf only exists for the
  *  native (Aztec) surface. */
