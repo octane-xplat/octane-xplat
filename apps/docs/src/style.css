@@ -822,10 +822,19 @@ body {
 	opacity: 0.04;
 }
 
-.constellation > svg {
+.constellation-layer {
+	position: absolute;
+	inset: 0;
+}
+
+.constellation-layer svg {
 	display: block;
 	width: 100%;
 	height: 100%;
+}
+
+.doc-top-sentinel {
+	height: 1px;
 }
 
 .content {

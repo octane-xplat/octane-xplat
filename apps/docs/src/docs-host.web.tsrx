@@ -1,22 +1,9 @@
 import { useEffect, useState, useRef } from 'octane'
 import { openUrl } from '@octane-xplat/platform'
 import type { ScrollableAreaHandle, WebViewMessageEvent } from '@octane-xplat/ui'
-import { animateConstellation } from './constellation'
 
 // The docs currently have a browser host. These integrations have no shared
 // UI equivalent; keep them out of the presentation components.
-
-export function useConstellation() {
-	useEffect(() => {
-		const host = document.querySelector<SVGSVGElement>('.constellation')
-		const content = document.getElementById('doc-content')
-		if (!host || !content) {
-			return
-		}
-
-		return animateConstellation(host, content)
-	}, [])
-}
 
 export function useDocsKeyboard(options: { isOpen: boolean; open(): void }) {
 	useEffect(() => {

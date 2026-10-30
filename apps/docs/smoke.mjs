@@ -44,6 +44,8 @@ for (const k of [
 
 globalThis.requestAnimationFrame = (cb) => setTimeout(cb, 16)
 window.requestAnimationFrame = globalThis.requestAnimationFrame
+globalThis.cancelAnimationFrame = (id) => clearTimeout(id)
+window.cancelAnimationFrame = globalThis.cancelAnimationFrame
 window.scrollTo = () => {}
 window.matchMedia ??= () => ({
 	matches: false,

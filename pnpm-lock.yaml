@@ -195,6 +195,12 @@ importers:
 
   apps/docs:
     dependencies:
+      '@octane-xplat/intersection-observer':
+        specifier: workspace:*
+        version: link:../../packages/intersection-observer
+      '@octane-xplat/motion':
+        specifier: workspace:*
+        version: link:../../packages/motion
       '@octane-xplat/platform':
         specifier: workspace:*
         version: link:../../packages/platform

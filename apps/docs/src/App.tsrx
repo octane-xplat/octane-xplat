@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'octane'
 import {
 	View,
 	Image,
-	Icon,
 	Link,
 	Theme,
 	IconRegistryProvider,
@@ -27,7 +26,8 @@ import { DocNavigationProvider } from './DocPage.tsrx'
 import { searchDocs, type SearchHit } from './search'
 import { resetDocScroll } from './scroll'
 import { readThemePreference, saveThemePreference } from './docs-preferences'
-import { useConstellation, useDocsKeyboard, restoreMenu, animateMenuDismiss } from './docs-host'
+import { useDocsKeyboard, restoreMenu, animateMenuDismiss } from './docs-host'
+import { ConstellationMark, DocTopSentinel } from './ConstellationMark.tsrx'
 
 import logoMark from './assets/logo-mark.svg'
 import wordmark from './assets/wordmark.svg'
@@ -178,7 +178,6 @@ export function App() @{
 		[],
 	)
 
-	useConstellation()
 	useDocsKeyboard({ isOpen: paletteOpen, open: openPalette })
 
 	const renderDoc = (d: DocPage) => (
@@ -272,8 +271,9 @@ export function App() @{
 				<HStack className="body">
 					<View className="side">{navTree()}</View>
 					<View className="card">
-						<Icon name="docs-constellation" registry={docsIcons} className="constellation" />
+						<ConstellationMark />
 						<ScrollableArea id="doc-content" className="content">
+							<DocTopSentinel />
 							<DocNavigationProvider value={{ leaving, selectDoc }}>
 								<RouteOutlet />
 							</DocNavigationProvider>

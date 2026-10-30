@@ -1,14 +1,25 @@
 import { createIconRegistry } from '@octane-xplat/ui'
 import constellation from './assets/constellation.svg?raw'
+import { constellationLayers } from './constellation-layers'
 
 /** App-owned SVG artwork rendered through the shared Icon component. */
 export const docsIcons = createIconRegistry()
+
+// The constellation twinkles per layer: each registered glyph is an
+// interleaved subset of the source polygons, so a layer's opacity fade reads
+// as scattered stars dimming together.
+export const CONSTELLATION_LAYERS = constellationLayers(constellation, 16).map(
+	(markup, index) => ({ name: `docs-constellation-${index}`, markup }),
+)
+
 docsIcons.registerIcons({
 	'docs-markdown': { text: 'M↓' },
-	'docs-constellation': {
-		viewBox: '0 0 524 524',
-		markup: constellation.replace(/^[\s\S]*?<svg\b[^>]*>/, '').replace(/<\/svg>\s*$/, ''),
-	},
+	...Object.fromEntries(
+		CONSTELLATION_LAYERS.map((layer) => [
+			layer.name,
+			{ viewBox: '0 0 524 524', markup: layer.markup },
+		]),
+	),
 	'docs-copy-surface': {
 		viewBox: '0 0 162 30',
 		markup:

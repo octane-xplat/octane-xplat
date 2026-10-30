@@ -16,6 +16,8 @@
 		"gen": "xplat routes"
 	},
 	"dependencies": {
+		"@octane-xplat/intersection-observer": "workspace:*",
+		"@octane-xplat/motion": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@xplat/demos": "workspace:*",
