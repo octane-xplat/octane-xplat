@@ -96,6 +96,34 @@ matrix remain unqualified. The final clean-main core-component run and
 downstream setup remain open. See the
 [action evidence and limits](../../.agents/docs/parity/windows-support-progress.md#native-action-contracts).
 
+## Banner candidate
+
+Use `Banner` for a titled notice with supporting text, a trailing action and
+optional dismissal. Its body starts behind a Details button; set
+`collapsible={false}` to keep the body visible:
+
+```tsx
+import { Banner, Button, Text } from '@octane-xplat/ui'
+
+export function SavedNotice() {
+  return <Banner
+    title="Changes saved"
+    description="Your draft is ready."
+    isDismissable
+    collapsible={false}
+    onDismiss={() => console.log('Notice dismissed')}
+    endContent={<Button label="Review" clickAction={() => console.log('Review draft')} />}
+  >
+    <Text>You can continue editing.</Text>
+  </Banner>
+}
+```
+
+The Windows leaf uses the native action controls for dismissal and Details.
+Compiled component tests cover content updates, composed slots, details and
+dismissal lifecycle. Packaged Banner input, geometry, screen-reader and visual
+qualification remain pending.
+
 ## Media-query candidate
 
 The repository has an experimental Windows `useMediaQuery` leaf for DIP

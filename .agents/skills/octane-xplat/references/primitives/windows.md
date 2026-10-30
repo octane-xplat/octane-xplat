@@ -299,3 +299,21 @@ The
 [Windows action guide](../../../../../docs/platform/windows-setup.md#buttons-and-links)
 shows the injection contract. The packaged checks are bounded x64 evidence;
 the final clean-main core20, full props, Narrator and visual gates remain open.
+
+## Experimental Windows Banner
+
+Use the shared Banner for Windows notices. Its dismiss and Details controls
+select the Windows action leaf; keep that ownership when extending the
+component instead of adding label tap handlers:
+
+```tsx
+import { Banner } from '@octane-xplat/ui'
+
+export function SavedNotice() {
+  return <Banner title="Changes saved" description="Your draft is ready." isDismissable />
+}
+```
+
+The [Windows Banner guide](../../../../../docs/platform/windows-setup.md#banner-candidate)
+separates compiled content/lifecycle coverage from pending packaged input,
+geometry, Narrator and visual qualification.
