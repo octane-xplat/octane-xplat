@@ -32,7 +32,7 @@ test('HTTP errors, transport failures and rejected writes cannot claim disk succ
 	for (const failure of ['http', 'transport', 'write', 'read', 'queue', 'resume', 'setup']) {
 		const env = imageCacheFixture(), cache = createImageByteCache(() => env.native)
 		env.writable(failure !== 'write'); env.readable(failure !== 'read');
-		if (failure === 'queue') env.native.NSOperationQueue.mainQueue.addOperationWithBlock = () => { throw Error('queue unavailable') }
+		if (failure === 'queue') {env.native.NSOperationQueue.mainQueue.addOperationWithBlock = () => { throw Error('queue unavailable') }}
 		env.failStart(failure === 'setup'); env.failResume(failure === 'resume')
 		const warm = cache.prefetch(src); await env.start()
 		if (!['resume', 'setup'].includes(failure)) { env.tasks[0].handler('bytes', { statusCode: failure === 'http' ? 404 : 200 }, failure === 'transport' ? {} : null); env.flush() }

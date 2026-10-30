@@ -29,7 +29,7 @@ it('exposes portable fields and live prevention without leaking native targets',
 	expect(received).toMatchObject({ key: 'k', code: 'KeyK', metaKey: true })
 	expect(received.defaultPrevented).toBe(true)
 	expect(stopped).toBe(true)
-	for (const field of ['object', 'target', 'currentTarget', 'native']) expect(field in received).toBe(false)
+	for (const field of ['object', 'target', 'currentTarget', 'native']) {expect(field in received).toBe(false)}
 })
 
 it('does not attach absent callbacks and forwards key-up independently', () => {

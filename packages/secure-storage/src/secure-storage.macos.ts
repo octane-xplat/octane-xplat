@@ -13,9 +13,9 @@ interface NativeSecureStorage {
 function native(): NativeSecureStorage | null {
 	try {
 		const bridge = (globalThis as any).XplatSecureStorage
-		if (!bridge) return null
+		if (!bridge) {return null}
 		const get = bridge.get, set = bridge.set, remove = bridge.remove
-		if (typeof get !== 'function' || typeof set !== 'function' || typeof remove !== 'function') return null
+		if (typeof get !== 'function' || typeof set !== 'function' || typeof remove !== 'function') {return null}
 		return {
 			get: key => get.call(bridge, key),
 			set: options => set.call(bridge, options),
@@ -29,7 +29,7 @@ function native(): NativeSecureStorage | null {
 
 function requireNative(): NativeSecureStorage {
 	const store = native()
-	if (!store) throw new UnavailabilityError('secureStorage')
+	if (!store) {throw new UnavailabilityError('secureStorage')}
 	return store
 }
 
@@ -42,10 +42,10 @@ export const secureStorage: Service<SecureStore> = {
 			const result = store.get(key), read = result?.objectForKey
 			if (typeof read === 'function') {
 				const status = read.call(result, 'status')
-				if (status === -25300) return null // errSecItemNotFound only
+				if (status === -25300) {return null} // errSecItemNotFound only
 				if (status === 0) {
 					const value = read.call(result, 'value')
-					if (typeof value === 'string') return value
+					if (typeof value === 'string') {return value}
 				}
 			}
 		} catch {

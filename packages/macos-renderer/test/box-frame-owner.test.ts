@@ -19,7 +19,7 @@ function fixture() {
 	const api = runSlice(code + '\n({ observeBoxFrame, clearBoxFrameObserver })', {
 		NSNotificationCenter: Center, NSViewFrameDidChangeNotification: 'frame',
 		console: { warn: (message: string) => warnings.push(message) },
-		syncBoxGeometry() { updates++; if (failUpdate) throw Error('private update payload') },
+		syncBoxGeometry() { updates++; if (failUpdate) {throw Error('private update payload')} },
 	})
 	const view = {}, node: any = { view }
 	return { ...api, node, view, tokens, center, Center, warnings, updates: () => updates, fail: (value: boolean) => { failUpdate = value } }

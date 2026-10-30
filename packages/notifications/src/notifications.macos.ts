@@ -13,9 +13,9 @@ declare const XplatLocalNotifications: NativeNotifications
 
 const native = (): NativeNotifications | undefined => {
 	try {
-		if (typeof XplatLocalNotifications === 'undefined') return
+		if (typeof XplatLocalNotifications === 'undefined') {return}
 		const bridge = XplatLocalNotifications
-		if (![bridge.isAvailable, bridge.getStatus, bridge.ensure, bridge.notifyBody].every((method) => typeof method === 'function')) return
+		if (![bridge.isAvailable, bridge.getStatus, bridge.ensure, bridge.notifyBody].every((method) => typeof method === 'function')) {return}
 		const available = bridge.isAvailable()
 		return available === true || available === 1 ? bridge : undefined
 	} catch { return undefined }
@@ -37,7 +37,7 @@ export const notifications: Permissioned<NotificationsImpl> = {
 	requestPermissions: () => permission('ensure'),
 	notify(title, body) {
 		const bridge = native()
-		if (!bridge) throw new UnavailabilityError('notifications')
+		if (!bridge) {throw new UnavailabilityError('notifications')}
 		bridge.notifyBody(title, body ?? '')
 	},
 }

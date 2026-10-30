@@ -70,29 +70,29 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
 		catch { reportScrollGeometryFailure('[macos-scroll] Geometry observer cleanup failed') }
 	}
 	const detach = () => {
-		if (disposed) return
+		if (disposed) {return}
 		disposed = true
 		queued = null
-		if (node.scrollGeometryDetach === detach) node.scrollGeometryDetach = null
-		if (node.scrollGeometrySchedule === schedule) node.scrollGeometrySchedule = null
+		if (node.scrollGeometryDetach === detach) {node.scrollGeometryDetach = null}
+		if (node.scrollGeometrySchedule === schedule) {node.scrollGeometrySchedule = null}
 		// Tombstone every handle before native removal can reenter.
-		for (const observer of observers.splice(0)) remove(observer)
+		for (const observer of observers.splice(0)) {remove(observer)}
 	}
 	const hasCurrentViews = () => {
-		if (!isCurrent()) return false
-		if (node.view === scroll && scroll.contentView === clip && scroll.documentView === document) return true
+		if (!isCurrent()) {return false}
+		if (node.view === scroll && scroll.contentView === clip && scroll.documentView === document) {return true}
 		detach()
 		return false
 	}
 	const schedule = () => {
-		if (queued || !isCurrent()) return
+		if (queued || !isCurrent()) {return}
 		const task = queued = {}
 		queueMicrotask(() => {
-			if (!isCurrent() || queued !== task) return
+			if (!isCurrent() || queued !== task) {return}
 			try {
-				if (!hasCurrentViews()) return
+				if (!hasCurrentViews()) {return}
 				scroll.layoutSubtreeIfNeeded?.()
-				if (!hasCurrentViews()) return
+				if (!hasCurrentViews()) {return}
 				// Notifications during the solve coalesce here. Later consumer work
 				// may schedule another task without this task clearing its lease.
 				queued = null
@@ -101,7 +101,7 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
 				const width = Number(bounds.size.width), height = Number(bounds.size.height)
 				const contentWidth = Number(size.width), contentHeight = Number(size.height)
 				const originX = Number(bounds.origin.x), originY = Number(bounds.origin.y)
-				if (!hasCurrentViews()) return
+				if (!hasCurrentViews()) {return}
 				if (![width, height, contentWidth, contentHeight, originX, originY].every(Number.isFinite)
 					|| [width, height, contentWidth, contentHeight].some(value => value < 0)) {
 					reportScrollGeometryFailure('[macos-scroll] Invalid geometry frame')
@@ -113,20 +113,20 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
 				const x = inline ? clamp(originX, maxX) : 0
 				const initial = node.props.orientation != null && !node.scrollInitialPositioned
 				const y = !block || initial ? (flipped ? 0 : maxY) : clamp(originY, maxY)
-				if (!hasCurrentViews()) return
+				if (!hasCurrentViews()) {return}
 				if (x !== originX || y !== originY) {
 					clip.scrollToPoint({ x, y })
-					if (!hasCurrentViews()) return
+					if (!hasCurrentViews()) {return}
 					scroll.reflectScrolledClipView(clip)
 				}
-				if (!hasCurrentViews()) return
+				if (!hasCurrentViews()) {return}
 				// A failed native scroll must not consume initial-position readiness.
-				if (width > 0 && height > 0) node.scrollInitialPositioned = true
+				if (width > 0 && height > 0) {node.scrollInitialPositioned = true}
 				notify()
 			} catch {
-				if (isCurrent()) reportScrollGeometryFailure('[macos-scroll] Geometry update failed')
+				if (isCurrent()) {reportScrollGeometryFailure('[macos-scroll] Geometry update failed')}
 			} finally {
-				if (queued === task) queued = null
+				if (queued === task) {queued = null}
 			}
 		})
 	}
@@ -135,11 +135,11 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
 	node.scrollGeometrySchedule = schedule
 	try {
 		previous?.()
-		if (!isCurrent()) return detach
+		if (!isCurrent()) {return detach}
 		scroll = node.view
 		clip = scroll?.contentView
 		document = scroll?.documentView
-		if (!scroll || !clip || !document || !target) throw new Error('AppKit scroll geometry views are unavailable')
+		if (!scroll || !clip || !document || !target) {throw new Error('AppKit scroll geometry views are unavailable')}
 		center = NSNotificationCenter.defaultCenter
 		const addObserver = center.addObserverForNameObjectQueueUsingBlock
 		removeObserver = center.removeObserver
@@ -148,11 +148,11 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
 		}
 		for (const view of new Set([target, clip, document])) {
 			view.postsFrameChangedNotifications = true
-			if (!isCurrent()) return detach
+			if (!isCurrent()) {return detach}
 			const observer = addObserver.call(center,
 				NSViewFrameDidChangeNotification, view, null, schedule,
 			)
-			if (observer == null) throw new Error('AppKit scroll geometry observer is unavailable')
+			if (observer == null) {throw new Error('AppKit scroll geometry observer is unavailable')}
 			if (!isCurrent()) { remove(observer); return detach }
 			observers.push(observer)
 		}

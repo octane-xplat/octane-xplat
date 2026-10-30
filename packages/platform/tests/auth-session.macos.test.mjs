@@ -40,12 +40,12 @@ function load({ failure, start = true, presentationWindow = { visible: true }, a
 		NSOperationQueue: { mainQueue: {} },
 		NSNotificationCenter: { defaultCenter: {
 			addObserverForNameObjectQueueUsingBlock(name, object, queue, callback) {
-				if (failure === 'observe' || (failure === 'observe-second' && observers.size === 1)) throw Error('observer failed')
+				if (failure === 'observe' || (failure === 'observe-second' && observers.size === 1)) {throw Error('observer failed')}
 				const token = { name, object, callback }; observers.add(token); onObserve?.(token)
 				return token
 			},
 			removeObserver(token) {
-				if (failure === 'remove') throw Error('remove failed')
+				if (failure === 'remove') {throw Error('remove failed')}
 				observers.delete(token)
 			},
 		} },
@@ -87,7 +87,7 @@ function load({ failure, start = true, presentationWindow = { visible: true }, a
 
 	vm.runInNewContext(source, context)
 	return { auth: context.exports.authSession, sessions, observers, app: context.NSApplication.sharedApplication,
-		post(name, object) { for (const token of [...observers]) if (token.name === name && (token.object == null || token.object === object)) token.callback({ object }) },
+		post(name, object) { for (const token of [...observers]) {if (token.name === name && (token.object == null || token.object === object)) {token.callback({ object })}} },
 	}
 }
 
@@ -249,7 +249,7 @@ test('macOS constructor/setup reentry cannot start or retain a retired native se
 		h = load({ onExtend: stage === 'extend' ? close : undefined, onAnchor: stage === 'anchor' ? close : undefined,
 			onConstruct: stage === 'construct' ? close : undefined,
 			onEphemeral: stage === 'ephemeral' ? close : undefined,
-			onProvider: stage === 'provider' ? (_session, value) => { if (value) close() } : undefined })
+			onProvider: stage === 'provider' ? (_session, value) => { if (value) {close()} } : undefined })
 		assert.equal((await open(h)).type, 'cancel')
 		if (stage === 'extend' || stage === 'anchor') { assert.equal(h.sessions.length, 0); assert.equal(h.observers.size, 0); continue }
 		assert.equal(h.sessions[0].starts, 0); assert.equal(h.sessions[0].cancels, 1)
@@ -263,6 +263,6 @@ test('macOS synchronous completion wins over a failed start and cleanup failures
 	assert.equal(h.sessions[0].cancels, 0)
 	const oldTokens = [...h.observers]
 	assert.equal((await open(h)).type, 'success')
-	for (const token of oldTokens) token.callback()
+	for (const token of oldTokens) {token.callback()}
 	assert.equal(h.sessions[1].cancels, 0)
 })

@@ -29,7 +29,7 @@ describe('AppKit controlled table width plan', () => {
 	it('reads current config, supports zero/removal and does not mutate frozen caller columns or echo callbacks', () => {
 		let calls = 0, config: UseTableColumnResizeConfig = { columnWidths: { name: 0 }, onColumnResizeEnd: () => calls++ }
 		const columns = source(), resize = createAppKitColumnResizePlugin<Person>(() => config)
-		for (const column of columns) Object.freeze(column)
+		for (const column of columns) {Object.freeze(column)}
 		Object.freeze(columns)
 		expect(plan(columns, [resize]).columns[0]!.width).toEqual(pixel(0))
 		config = { ...config, columnWidths: { name: 500 } }

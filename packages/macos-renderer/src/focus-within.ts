@@ -35,7 +35,7 @@ function focusedView(window: any): FocusView | null {
 	return target?.window === window ? target : null
 }
 function contains(root: FocusView, target: FocusView | null): boolean {
-	for (let view = target; view; view = view.superview ?? null) if (view === root) return true
+	for (let view = target; view; view = view.superview ?? null) {if (view === root) {return true}}
 	return false
 }
 
@@ -50,23 +50,23 @@ export function createAppKitFocusWithinDispatcher(native: () => Record<string, a
 	const available = () => !failed && typeof native().NSNotificationCenter?.defaultCenter?.addObserverForNameObjectQueueUsingBlock === 'function' &&
 		typeof native().NSNotificationCenter?.defaultCenter?.removeObserver === 'function'
 	const synchronize = (window: any) => {
-		if (!window) return
+		if (!window) {return}
 		const target = focusedView(window)
 		const previous = targets.get(window) ?? null
 		targets.set(window, target)
 		for (const binding of [...bindings.values()]) {
-			if (bindings.get(binding.view) !== binding) continue
+			if (bindings.get(binding.view) !== binding) {continue}
 			const owner = binding.view.window
-			if (owner !== window && binding.window !== window) continue
+			if (owner !== window && binding.window !== window) {continue}
 			const within = owner === window && contains(binding.view, target)
 			const last = binding.target
 			const changed = binding.within !== within
 			binding.window = owner
 			binding.within = within
 			binding.target = within ? target : null
-			if (!changed) continue
+			if (!changed) {continue}
 			const focused = within ? target : last
-			if (!focused) continue
+			if (!focused) {continue}
 			const type = within ? 'focus' : 'blur'
 			binding.handlers[within ? 'onFocus' : 'onBlur']?.({
 				type, eventName: type, object: binding.view, currentTarget: binding.view,
@@ -83,7 +83,7 @@ export function createAppKitFocusWithinDispatcher(native: () => Record<string, a
 		targets = new WeakMap()
 	}
 	const attach = () => {
-		if (token != null || !available()) return
+		if (token != null || !available()) {return}
 		try {
 			const host = native()
 			center = host.NSNotificationCenter.defaultCenter
@@ -91,7 +91,7 @@ export function createAppKitFocusWithinDispatcher(native: () => Record<string, a
 				host.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification', null, null,
 				(notification: any) => synchronize(notification.object),
 			)
-			if (token == null) throw new Error('AppKit focus observation unavailable')
+			if (token == null) {throw new Error('AppKit focus observation unavailable')}
 		} catch { failed = true }
 	}
 	return {
@@ -100,16 +100,16 @@ export function createAppKitFocusWithinDispatcher(native: () => Record<string, a
 		set(view: FocusView, handlers?: FocusHandlers): void {
 			if (!handlers?.onFocus && !handlers?.onBlur) {
 				bindings.delete(view)
-				if (!bindings.size) release()
+				if (!bindings.size) {release()}
 				return
 			}
 			const existing = bindings.get(view)
-			if (existing) existing.handlers = handlers
-			else bindings.set(view, { view, handlers, window: view.window, within: false, target: null })
+			if (existing) {existing.handlers = handlers}
+			else {bindings.set(view, { view, handlers, window: view.window, within: false, target: null })}
 			attach()
 			if (!existing && token != null) {
 				// Props are installed during host commit; notify after that commit.
-				Promise.resolve().then(() => { if (bindings.has(view) && token != null) synchronize(view.window) })
+				Promise.resolve().then(() => { if (bindings.has(view) && token != null) {synchronize(view.window)} })
 			}
 		},
 		dispose(): void { bindings.clear(); release() },

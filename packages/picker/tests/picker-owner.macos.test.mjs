@@ -9,10 +9,10 @@ function fixture(initial = {}) {
 	const entries = [], selections = [], statuses = []
 	props.onSelectionChange ??= (id) => selections.push(id)
 	const owner = createPickerOwner({ props: () => props, status: (next) => statuses.push(next), attach: () => available ? (view, plan, callback) => {
-		if (fail) throw Error('private native details')
+		if (fail) {throw Error('private native details')}
 		const entry = { view, plan, callback, detached: 0, updates: [] }
 		entries.push(entry); callback('') // Construction is not selection.
-		return { update(next) { if (updateFail) throw Error('private update details'); entry.plan = next; entry.updates.push(next); if (echo) callback('') }, detach() { entry.detached++; callback('') } }
+		return { update(next) { if (updateFail) {throw Error('private update details');} entry.plan = next; entry.updates.push(next); if (echo) {callback('')} }, detach() { entry.detached++; callback('') } }
 	} : undefined })
 	owner.bind({})
 	return { owner, entries, selections, statuses, set: (patch) => { props = { ...props, ...patch } }, props: () => props,

@@ -14,21 +14,21 @@ interface ImageCacheBridge {
 export function createAppKitImageCache(bridge: () => ImageCacheBridge | undefined = () => Reflect.get(globalThis, '__xplatAppKit')?.imageCache) {
 	return {
 		initialize(config?: ImageCacheConfig): void {
-			if (config && Object.values(config).some((value) => value !== undefined)) throw new TypeError('AppKit image cache configuration options are not implemented')
+			if (config && Object.values(config).some((value) => value !== undefined)) {throw new TypeError('AppKit image cache configuration options are not implemented')}
 			bridge()?.initialize()
 		},
 		async prefetch(srcs: string | string[], options?: PrefetchOptions): Promise<boolean> {
-			if (options?.headers && Object.keys(options.headers).length) return false
+			if (options?.headers && Object.keys(options.headers).length) {return false}
 			try {
 				const cache = bridge()
-				if (!cache) return false
+				if (!cache) {return false}
 				return await prefetchBatch(srcs, options?.concurrency, (source) => cache.prefetch(source))
 			} catch { return false }
 		},
 		async evict(source: string): Promise<boolean> { try { return bridge()?.evict(source) === true } catch { return false } },
 		async clear(): Promise<void> {
 			const cache = bridge()
-			if (cache && !cache.clear()) throw new Error('AppKit image cache could not be cleared')
+			if (cache && !cache.clear()) {throw new Error('AppKit image cache could not be cleared')}
 		},
 		async query(srcs: string | readonly string[], options?: ImageCacheQueryOptions): Promise<Record<string, ImageCacheState>> {
 			const states: Record<string, ImageCacheState> = {}
@@ -46,8 +46,8 @@ export function createAppKitImageCache(bridge: () => ImageCacheBridge | undefine
 
 /** Reject unsupported requests before a persistent display load can begin. */
 export function validateAppKitImageOptions(options: { cachePolicy?: string; headers?: Record<string, string> }): void {
-	if (options.cachePolicy != null && options.cachePolicy !== 'none' && options.cachePolicy !== 'memory-disk') throw new TypeError('Invalid AppKit Image cache policy')
-	if (options.headers && Object.keys(options.headers).length) throw new TypeError('AppKit Image request headers are not implemented')
+	if (options.cachePolicy != null && options.cachePolicy !== 'none' && options.cachePolicy !== 'memory-disk') {throw new TypeError('Invalid AppKit Image cache policy')}
+	if (options.headers && Object.keys(options.headers).length) {throw new TypeError('AppKit Image request headers are not implemented')}
 }
 
 /** Private typed handoff to CoreImage, preserving its layout/source normalization. */

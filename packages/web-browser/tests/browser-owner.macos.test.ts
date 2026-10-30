@@ -13,7 +13,7 @@ function fixture() {
 }
 test('capability is conditional and invalid/non-HTTP URLs never create a window or launch an external browser', async () => {
 	const f = fixture(); assert.equal(f.browser.supported, true)
-	for (const url of ['not a URL', 'file:///tmp/page.html', 'javascript:alert(1)', 'mailto:test@example.invalid']) assert.deepEqual(await f.browser.openBrowser(url), { type: 'cancel' })
+	for (const url of ['not a URL', 'file:///tmp/page.html', 'javascript:alert(1)', 'mailto:test@example.invalid']) {assert.deepEqual(await f.browser.openBrowser(url), { type: 'cancel' })}
 	assert.equal(f.views.length, 0); f.unavailable(); assert.equal(f.browser.supported, false); assert.deepEqual(await f.browser.openBrowser('https://example.invalid'), { type: 'cancel' }); assert.equal(f.views.length, 0)
 	await f.browser.warmUp(); await f.browser.coolDown(); await f.browser.mayInitWithUrl('https://example.invalid'); assert.equal(f.views.length, 0)
 })

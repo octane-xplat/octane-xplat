@@ -17,7 +17,7 @@ const originals = new WeakMap<HeadingView, Original>()
 export function syncHeadingAccessibility(view: HeadingView, props: Record<string, unknown>) {
 	if (props.accessibilityRole !== 'heading') {
 		const original = originals.get(view)
-		if (!original) return
+		if (!original) {return}
 		originals.delete(view)
 		view.accessibilityRole = original.role
 		view.accessibilityTitle = original.title

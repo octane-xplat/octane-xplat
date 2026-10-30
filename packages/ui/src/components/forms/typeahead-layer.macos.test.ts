@@ -16,7 +16,7 @@ function fixture() {
 	const host: any = { showLayer(options: any) {
 		const target = { window }, root = options.createContentRoot(target)
 		const layer = { options, target, root, closed: false, point: null as any,
-			show: vi.fn(), close: vi.fn(() => { if (layer.closed) return; layer.closed = true; root.unmount() }),
+			show: vi.fn(), close: vi.fn(() => { if (layer.closed) {return;} layer.closed = true; root.unmount() }),
 			update: vi.fn(() => root.whenCommitted(() => { layer.point = options.position({ left: bounds.origin.x, top: bounds.origin.y, ...bounds.size }, { width: 220, height: 100 }, { left: 0, top: 0, ...viewport.size }) })),
 		}
 		layers.push(layer); layer.update(); return layer
@@ -24,7 +24,7 @@ function fixture() {
 	const options = { state: () => state, publish: (target: any, retired?: object) => publications.push({ target, retired }), resize: (size: any) => sizes.push(size), dismiss, canDismiss }
 	const controller = createAppKitTypeaheadLayer(options, () => host, () => native)
 	const token = () => [...publications].reverse().find((entry) => entry.target)?.target.token
-	const notify = (object = window) => { for (const callback of [...observers.values()]) callback({ object }) }
+	const notify = (object = window) => { for (const callback of [...observers.values()]) {callback({ object })} }
 	return { controller, options, state, input, anchor, window, bounds, viewport, publications, sizes, dismiss, canDismiss, layers, observers, host, token, notify }
 }
 
@@ -90,15 +90,15 @@ it('late attachment waits for the current window and ignores unrelated notificat
 it('missing and legacy hosts fail explicitly instead of rendering a detached or inline copy', () => {
 	for (const legacy of [false, true]) {
 		const f = fixture()
-		if (legacy) f.host.showLayer = () => ({ closed: false, show() {}, update() {}, close() {} })
-		else delete f.host.showLayer
+		if (legacy) {f.host.showLayer = () => ({ closed: false, show() {}, update() {}, close() {} })}
+		else {delete f.host.showLayer}
 		try { expect(() => f.controller.update()).toThrow(/source.outlet|source-owned/); expect(f.controller.isPresent()).toBe(false); expect(f.observers.size).toBe(0) }
 		finally { f.controller.dispose() }
 	}
 })
 it('disposal during source publication closes a late returned handle and never republishes', () => {
 	const f = fixture(), publish = f.options.publish
-	f.options.publish = (target, retired) => { publish(target, retired); if (target) f.controller.dispose() }
+	f.options.publish = (target, retired) => { publish(target, retired); if (target) {f.controller.dispose()} }
 	f.controller.update(); const count = f.publications.length; expect(f.layers[0].closed).toBe(true); expect(f.observers.size).toBe(0)
 	f.layers[0].root.unmount(); f.controller.committed(f.token()); f.controller.update(); expect(f.publications).toHaveLength(count)
 })

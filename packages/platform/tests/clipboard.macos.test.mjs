@@ -14,8 +14,8 @@ function load() {
 	const cache = new Map()
 	function require(name) {
 		const key = name.replace(/^\.\//, '')
-		if (!compiled[key]) return {}
-		if (cache.has(key)) return cache.get(key)
+		if (!compiled[key]) {return {}}
+		if (cache.has(key)) {return cache.get(key)}
 		const exports = {}
 		cache.set(key, exports)
 		vm.runInContext(`(function(exports, require) {${compiled[key]}\n})`, context)(exports, require)

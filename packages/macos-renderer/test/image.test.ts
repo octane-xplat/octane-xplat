@@ -127,5 +127,5 @@ test('remote sources use owned transport; placeholders paint while pending and r
 		env.tasks[3].handler({ remote: 'old-bytes' }, { statusCode: 200 }, null); env.flush(); await env.start()
 		assert.deepEqual(swapped.image, { data: { value: 'Yg==', options: 0 } })
 		const empty = view(); env.updateImage(empty, '', placeholder); assert.deepEqual(empty.image, expected)
-	} finally { for (const field of views) env.disposeImage(field) }
+	} finally { for (const field of views) {env.disposeImage(field)} }
 })

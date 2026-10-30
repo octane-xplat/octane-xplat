@@ -5,13 +5,13 @@ import { createAppKitLandmarks } from './landmark-state.macos'
 function setup() {
 	let callback: (event: any) => any = (event) => event, boundary: any, mode = 'ok', dispatch: any = {}, retained = 0, removed = 0, registered = 0
 	const window: any = { isKeyWindow: true, firstResponder: null, contentView: null, makeFirstResponder: (view: any) => {
-		if (view.reject) return false
+		if (view.reject) {return false}
 		window.firstResponder = view; return true
 	} }
 	const view = (name: string, focusable = false, children: any[] = []): any => {
 		const result: any = { name, window, children, hidden: false, enabled: true, acceptsFirstResponder: focusable, canBecomeKeyView: focusable,
 			subviews: { get count() { return children.length }, objectAtIndex: (i: number) => children[i] } }
-		for (const child of children) child.superview = result
+		for (const child of children) {child.superview = result}
 		return result
 	}
 	const aStop = view('a-stop', true), bStop = view('b-stop', true), a = view('a', false, [aStop]), b = view('b', false, [bStop]), root = view('root', false, [a, b])

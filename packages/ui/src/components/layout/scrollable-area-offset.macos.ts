@@ -10,7 +10,7 @@ export function scrollableAreaOffset(
 	const clip = view?.contentView
 	const document = view?.documentView
 	const inline = Number.isFinite(offset.inline), block = Number.isFinite(offset.block)
-	if (!clip || !document || (!inline && !block)) return
+	if (!clip || !document || (!inline && !block)) {return}
 	const metrics = scrollableAreaMetrics(view)
 	const clamp = (value: number, maximum: number) =>
 		Math.max(0, Math.min(value, Number.isFinite(maximum) ? Math.max(0, maximum) : 0))

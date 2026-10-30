@@ -4,8 +4,8 @@ import { appKitFileTypeClass, appKitTypeForExtension, appKitTypesForMIME } from 
 
 const types = new Map<string, string>()
 for (const [mime, extensions] of Object.entries(MIME_EXTENSIONS)) {
-	if (mime.includes('*')) continue
-	for (const extension of extensions) if (!types.has(extension)) types.set(extension, mime)
+	if (mime.includes('*')) {continue}
+	for (const extension of extensions) {if (!types.has(extension)) {types.set(extension, mime)}}
 }
 
 /** Default FileInput metadata only. Filename MIME hints are not content inspection. */
@@ -27,16 +27,16 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
 			} catch { /* MIME metadata is optional, like the size snapshot below. */ }
 		}
 		mime ??= types.get(extension)
-		if (mime) result.mimeType = mime
+		if (mime) {result.mimeType = mime}
 	}
-	if (result.size != null) return result
+	if (result.size != null) {return result}
 
 	const host = globalThis as any
 	let url: any, scoped = false
 	try {
 		url = file.uri.startsWith('/') ? host.NSURL?.fileURLWithPath(file.uri) :
 			file.uri.startsWith('file:') ? host.NSURL?.URLWithString(file.uri) : null
-		if (!url?.isFileURL || !url.path) return result
+		if (!url?.isFileURL || !url.path) {return result}
 		scoped = url.startAccessingSecurityScopedResource?.() ?? false
 		const attributes = host.NSFileManager?.defaultManager?.attributesOfItemAtPathError?.(url.path, null)
 		const value = attributes?.objectForKey?.(host.NSFileSize ?? 'NSFileSize')
@@ -44,7 +44,7 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
 		const raw = typeof value?.unsignedLongLongValue === 'function' ? value.unsignedLongLongValue() : value?.unsignedLongLongValue ?? value
 		if (raw != null) {
 			const size = Number(raw)
-			if (Number.isSafeInteger(size) && size >= 0) result.size = size
+			if (Number.isSafeInteger(size) && size >= 0) {result.size = size}
 		}
 	} catch {
 		// Metadata is optional; a later file read still owns its own errors/grant.

@@ -6,7 +6,7 @@ const validRange = (range: TextRange | undefined, length: number): range is Text
 
 /** Find only the excess insertion; never remove the unchanged suffix. */
 export function excessTextRange(before: string, after: string, maximum: unknown, proposed?: TextRange): TextRange | null {
-	if (typeof maximum !== 'number' || !Number.isSafeInteger(maximum) || maximum < 0 || after.length <= maximum) return null
+	if (typeof maximum !== 'number' || !Number.isSafeInteger(maximum) || maximum < 0 || after.length <= maximum) {return null}
 	let start = 0, end = before.length
 	if (validRange(proposed, before.length) && after.length >= before.length - proposed.length &&
 		after.startsWith(before.slice(0, proposed.location)) && after.endsWith(before.slice(proposed.location + proposed.length))) {
@@ -14,16 +14,16 @@ export function excessTextRange(before: string, after: string, maximum: unknown,
 		end = start + proposed.length
 	} else {
 		// Undo, find/replace and text-system edits can omit the delegate range.
-		while (start < before.length && start < after.length && before[start] === after[start]) start++
-		while (end > start && after.length - (before.length - end) > start && before[end - 1] === after[after.length - (before.length - end) - 1]) end--
+		while (start < before.length && start < after.length && before[start] === after[start]) {start++}
+		while (end > start && after.length - (before.length - end) > start && before[end - 1] === after[after.length - (before.length - end) - 1]) {end--}
 	}
-	if (start > 0 && /[\uD800-\uDBFF]/.test(before[start - 1]) && /[\uDC00-\uDFFF]/.test(before[start] ?? '')) start--
-	if (end > start && end < before.length && /[\uD800-\uDBFF]/.test(before[end - 1]) && /[\uDC00-\uDFFF]/.test(before[end])) end++
+	if (start > 0 && /[\uD800-\uDBFF]/.test(before[start - 1]) && /[\uDC00-\uDFFF]/.test(before[start] ?? '')) {start--}
+	if (end > start && end < before.length && /[\uD800-\uDBFF]/.test(before[end - 1]) && /[\uDC00-\uDFFF]/.test(before[end])) {end++}
 	const inserted = after.length - (before.length - end) - start
 	let allowed = Math.min(inserted, Math.max(0, maximum - (before.length - (end - start))))
 	const cut = start + allowed
 	// Do not leave half of a surrogate pair at the cap. This is not a grapheme cap.
-	if (allowed > 0 && /[\uD800-\uDBFF]/.test(after[cut - 1]) && /[\uDC00-\uDFFF]/.test(after[cut] ?? '')) allowed--
+	if (allowed > 0 && /[\uD800-\uDBFF]/.test(after[cut - 1]) && /[\uDC00-\uDFFF]/.test(after[cut] ?? '')) {allowed--}
 	return inserted > allowed ? { location: start + allowed, length: inserted - allowed } : null
 }
 
@@ -44,7 +44,7 @@ export const isNormalizingTextLimit = (view: object): boolean => normalizing.has
 
 /** Programmatic values are allowed to exceed the cap, matching web maxlength. */
 export function rememberTextLimitValue(view: TextView, initialOnly = false): void {
-	if (initialOnly && pending.has(view)) return
+	if (initialOnly && pending.has(view)) {return}
 	if (!normalizing.has(view) && !marked(view)) {
 		const text = String(view.string ?? '')
 		pending.set(view, { before: text })
@@ -56,13 +56,13 @@ export function recordTextLimitEdit(view: TextView, range: TextRange): void {
 	if (!normalizing.has(view) && !marked(view)) {
 		const before = String(view.string ?? '')
 		pending.set(view, { before, range: { ...range } })
-		if (!reported.has(view)) reported.set(view, before)
+		if (!reported.has(view)) {reported.set(view, before)}
 	}
 }
 
 /** Called after edits or explicit composition commit, before the public change. */
 export function enforceTextLimit(view: TextView, maximum: unknown): boolean {
-	if (normalizing.has(view) || marked(view)) return false
+	if (normalizing.has(view) || marked(view)) {return false}
 	const text = String(view.string ?? '')
 	const previous = pending.get(view)
 	const excess = excessTextRange(previous?.before ?? text, text, maximum, previous?.range)
@@ -93,7 +93,7 @@ export function enforceTextLimit(view: TextView, maximum: unknown): boolean {
  * have reported temporary text, so its restoration still needs a callback. */
 export function reportTextLimitChange(view: TextView): boolean {
 	const text = String(view.string ?? '')
-	if (reported.get(view) === text) return false
+	if (reported.get(view) === text) {return false}
 	reported.set(view, text)
 	return true
 }

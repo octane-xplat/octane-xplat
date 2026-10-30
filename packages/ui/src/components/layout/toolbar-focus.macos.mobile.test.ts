@@ -6,7 +6,7 @@ function fixture() {
 	const state = { orientation: 'horizontal' as 'horizontal' | 'vertical', supported: true, allow: true,
 		onFocus: () => {}, onAcquire: () => {}, onObserve: () => {}, failRelease: false, releases: 0 }
 	const window = (): any => ({ firstResponder: null, recalculateKeyViewLoop() {}, makeFirstResponder(view: any) {
-		if (!state.allow || view.window !== this) return false
+		if (!state.allow || view.window !== this) {return false}
 		this.firstResponder = view; state.onFocus(); return true
 	} })
 	const firstWindow = window()
@@ -20,8 +20,8 @@ function fixture() {
 	root.children = [a, b, c]
 	const bridge = { get keyboardEventsSupported() { return state.supported }, suppressTabStop(target: any) {
 		leases.set(target, (leases.get(target) ?? 0) + 1); state.onAcquire()
-		return () => { state.releases++; const count = leases.get(target) ?? 0; if (count <= 1) leases.delete(target); else leases.set(target, count - 1)
-			if (state.failRelease) throw new Error('bridge removal') }
+		return () => { state.releases++; const count = leases.get(target) ?? 0; if (count <= 1) {leases.delete(target);} else {leases.set(target, count - 1)}
+			if (state.failRelease) {throw new Error('bridge removal')} }
 	} }
 	const center = { addObserverForNameObjectQueueUsingBlock(_name: string, _object: unknown, _queue: unknown, notify: (note: any) => void) {
 		const token = {}; observers.set(token, notify); state.onObserve(); return token
@@ -29,7 +29,7 @@ function fixture() {
 	let nativeCenter: any = center
 	const focus = createAppKitToolbarFocus({ orientation: () => state.orientation }, () => bridge,
 		() => ({ NSNotificationCenter: { defaultCenter: nativeCenter }, NSWindowDidUpdateNotification: 'update' }))
-	const notify = (owner = root.window) => { for (const callback of [...observers.values()]) callback({ object: owner }) }
+	const notify = (owner = root.window) => { for (const callback of [...observers.values()]) {callback({ object: owner })} }
 	const key = (name: string, extra = {}) => {
 		const event = { key: name, code: '', altKey: false, ctrlKey: false, metaKey: false, shiftKey: false, repeat: false,
 			isComposing: false, defaultPrevented: false, stopped: false,
@@ -96,7 +96,7 @@ it('toolbar window migration releases old entries and leaves unrelated windows a
 	const f = fixture(); f.focus.bind(f.root); await Promise.resolve()
 	try {
 		const previous = f.root.window, next = f.window()
-		for (const view of [f.root, f.a, f.b, f.c]) view.window = next
+		for (const view of [f.root, f.a, f.b, f.c]) {view.window = next}
 		f.notify(previous); expect(next.firstResponder).toBeNull(); expect(f.leases.size).toBe(2)
 		next.firstResponder = f.b; f.key('ArrowRight'); expect(next.firstResponder).toBe(f.c)
 		const releases = f.state.releases; f.notify(f.window()); expect(f.state.releases).toBe(releases)
@@ -115,7 +115,7 @@ it('teardown uses the captured observer remover and leaves held delivery/keys in
 it('missing observation or keyboard capability preserves natural stops and unconsumed keys', async () => {
 	for (const missingObserver of [true, false]) {
 		const f = fixture()
-		if (missingObserver) f.setCenter(undefined); else f.state.supported = false
+		if (missingObserver) {f.setCenter(undefined);} else {f.state.supported = false}
 		f.focus.bind(f.root); await Promise.resolve()
 		try { f.root.window.firstResponder = f.a; expect(f.leases.size).toBe(0); expect(f.key('ArrowRight').defaultPrevented).toBe(false) }
 		finally { f.focus.dispose() }
@@ -125,8 +125,8 @@ it('missing observation or keyboard capability preserves natural stops and uncon
 it('late observer and Tab acquisitions after reentrant teardown release their own handles', async () => {
 	for (const stage of ['observer', 'tab']) {
 		const f = fixture()
-		if (stage === 'observer') f.state.onObserve = () => f.focus.dispose()
-		else f.state.onAcquire = () => f.focus.dispose()
+		if (stage === 'observer') {f.state.onObserve = () => f.focus.dispose()}
+		else {f.state.onAcquire = () => f.focus.dispose()}
 		f.focus.bind(f.root); await Promise.resolve()
 		expect(f.observers.size).toBe(0); expect(f.leases.size).toBe(0)
 		f.focus.dispose()

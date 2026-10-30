@@ -54,13 +54,13 @@ const ANGLE = /^([+-]?(?:\d+\.?\d*|\.\d+))(deg|turn|rad|grad)$/i
 
 function parseLengthToken(token: string): { frac: number } | { len: number } | null {
 	const m = /^([+-]?(?:\d+\.?\d*|\.\d+))(px|dip|pt|%)?$/i.exec(token)
-	if (!m || !Number.isFinite(Number(m[1])) || (!m[2] && Number(m[1]) !== 0)) return null
+	if (!m || !Number.isFinite(Number(m[1])) || (!m[2] && Number(m[1]) !== 0)) {return null}
 	return m[2] === '%' ? { frac: Number(m[1]) / 100 } : { len: Number(m[1]) }
 }
 
 function parseAngle(token: string): number | null {
 	const m = ANGLE.exec(token)
-	if (!m) return null
+	if (!m) {return null}
 	const v = Number(m[1])
 	switch (m[2].toLowerCase()) {
 		case 'deg': return v
@@ -77,8 +77,8 @@ const GRADIENT_RE = /^(repeating-)?(linear|radial|conic)-gradient\((.*)\)$/s
  *  null → recognized-but-empty (`none`); undefined → unparseable. */
 export function parseBgImageTerm(term: string): BgImage | null | undefined {
 	const t = term.trim()
-	if (!t) return undefined
-	if (t === 'none' || t === 'initial' || t === 'unset' || t === 'auto') return null
+	if (!t) {return undefined}
+	if (t === 'none' || t === 'initial' || t === 'unset' || t === 'auto') {return null}
 	const url = /^url\(\s*(['"]?)(.*?)\1\s*\)$/s.exec(t)
 	if (url) {
 		const src = url[2].trim()
@@ -97,7 +97,7 @@ function parseStops(parts: string[]): BgStop[] | null {
 	const stops: BgStop[] = []
 	for (const part of parts) {
 		const tokens = splitStyleTokens(part)
-		if (!tokens.length) return null
+		if (!tokens.length) {return null}
 		const positions: ({ frac: number } | { len: number })[] = []
 		let colorEnd = tokens.length
 		for (let i = 1; i < tokens.length; i++) {
@@ -107,7 +107,7 @@ function parseStops(parts: string[]): BgStop[] | null {
 			if (positions.length === 2) { colorEnd = i + 1; break }
 		}
 		const color = tokens.slice(0, colorEnd).slice(0, tokens.length - positions.length).join(' ') || tokens[0]
-		if (positions.length && tokens.slice(1).length !== positions.length) return null
+		if (positions.length && tokens.slice(1).length !== positions.length) {return null}
 		if (positions.length === 2) {
 			stops.push({ color, at: positions[0] }, { color, at: positions[1] })
 		} else {
@@ -127,7 +127,7 @@ const LINEAR_DIRECTIONS: Record<string, number> = {
 
 function parseGradient(type: 'linear' | 'radial' | 'conic', args: string, repeating: boolean): BgGradient | null {
 	const parts = splitTopLevelCommas(args)
-	if (parts.length < 2) return null
+	if (parts.length < 2) {return null}
 	const out: BgGradient = {
 		type, repeating,
 		angle: type === 'linear' ? 180 : 0,
@@ -160,7 +160,7 @@ function parseGradient(type: 'linear' | 'radial' | 'conic', args: string, repeat
 				out.angle = LINEAR_DIRECTIONS[clause]
 			} else {
 				const angle = parseAngle(clause)
-				if (angle == null) return null
+				if (angle == null) {return null}
 				out.angle = angle
 			}
 		} else {
@@ -169,7 +169,7 @@ function parseGradient(type: 'linear' | 'radial' | 'conic', args: string, repeat
 			const at = tokens.findIndex((t) => t.toLowerCase() === 'at')
 			if (at >= 0) {
 				const pos = parseImagePosition(tokens.slice(at + 1).join(' '))
-				if (!pos) return null
+				if (!pos) {return null}
 				out.center = pos
 				tokens.length = at
 			}
@@ -178,7 +178,7 @@ function parseGradient(type: 'linear' | 'radial' | 'conic', args: string, repeat
 				if (t === 'circle' || t === 'ellipse') { out.shape = t; continue }
 				if (t === 'from' && type === 'conic') {
 					const angle = parseAngle(tokens[++i] ?? '')
-					if (angle == null) return null
+					if (angle == null) {return null}
 					out.angle = angle
 					continue
 				}
@@ -192,11 +192,11 @@ function parseGradient(type: 'linear' | 'radial' | 'conic', args: string, repeat
 				}
 				return null
 			}
-			if (out.shape === 'circle' && out.ry != null) return null
+			if (out.shape === 'circle' && out.ry != null) {return null}
 		}
 	}
 	const stops = parseStops(stopParts)
-	if (!stops) return null
+	if (!stops) {return null}
 	out.stops = stops
 	return out
 }
@@ -204,9 +204,9 @@ function parseGradient(type: 'linear' | 'radial' | 'conic', args: string, repeat
 /** Parse `background-image`'s comma list. `null` = nothing usable.
  *  `warnings` collects one message per rejected term. */
 export function parseBackgroundImage(value: any, warnings: string[]): BgImage[] | null {
-	if (value == null) return null
+	if (value == null) {return null}
 	const text = String(value).trim()
-	if (!text || text === 'none' || text === 'initial' || text === 'unset') return null
+	if (!text || text === 'none' || text === 'initial' || text === 'unset') {return null}
 	const layers: BgImage[] = []
 	for (const term of splitTopLevelCommas(text)) {
 		const image = parseBgImageTerm(term)
@@ -214,38 +214,38 @@ export function parseBackgroundImage(value: any, warnings: string[]): BgImage[] 
 			warnings.push(term)
 			continue
 		}
-		if (image) layers.push(image)
+		if (image) {layers.push(image)}
 	}
 	return layers
 }
 
 function repeatMode(value: any): { x: RepeatMode; y: RepeatMode } | null {
 	const text = String(value ?? '').trim().toLowerCase()
-	if (!text) return null
-	if (text === 'repeat-x') return { x: 'repeat', y: 'no-repeat' }
-	if (text === 'repeat-y') return { x: 'no-repeat', y: 'repeat' }
+	if (!text) {return null}
+	if (text === 'repeat-x') {return { x: 'repeat', y: 'no-repeat' }}
+	if (text === 'repeat-y') {return { x: 'no-repeat', y: 'repeat' }}
 	const tokens = text.split(/\s+/)
-	if (tokens.length > 2 || tokens.some((t) => !REPEATS.has(t))) return null
+	if (tokens.length > 2 || tokens.some((t) => !REPEATS.has(t))) {return null}
 	const x = (tokens[0] === 'no-repeat' ? 'no-repeat' : tokens[0]) as RepeatMode
 	return { x, y: (tokens[1] ?? tokens[0]) as RepeatMode }
 }
 
 function sizeToken(token: string): BgSizeToken | null {
-	if (token === 'auto') return { kind: 'auto' }
+	if (token === 'auto') {return { kind: 'auto' }}
 	const len = parseLengthToken(token)
-	if (!len) return null
+	if (!len) {return null}
 	return 'frac' in len ? { kind: 'frac', v: len.frac } : { kind: 'len', v: len.len }
 }
 
 function bgSize(value: any): BgSize | null {
 	const text = String(value ?? '').trim().toLowerCase()
-	if (!text) return null
-	if (text === 'cover' || text === 'contain') return text
-	if (text === 'auto') return 'auto'
+	if (!text) {return null}
+	if (text === 'cover' || text === 'contain') {return text}
+	if (text === 'auto') {return 'auto'}
 	const tokens = text.split(/\s+/).filter(Boolean)
-	if (tokens.length > 2) return null
+	if (tokens.length > 2) {return null}
 	const w = sizeToken(tokens[0])
-	if (!w) return null
+	if (!w) {return null}
 	return { w, h: tokens.length > 1 ? (sizeToken(tokens[1]) ?? { kind: 'auto' }) : { kind: 'auto' } }
 }
 
@@ -298,7 +298,7 @@ interface BgSlots {
 export function parseBackgroundShorthand(value: any): BgSlots {
 	const slots: BgSlots = {}
 	const text = String(value ?? '').trim()
-	if (!text) return slots
+	if (!text) {return slots}
 	const layerTexts = splitTopLevelCommas(text)
 	const images: string[] = []
 	const repeats: string[] = []
@@ -322,8 +322,8 @@ export function parseBackgroundShorthand(value: any): BgSlots {
 			let slash = -1
 			for (let j = 0; j < token.length; j++) {
 				const c = token[j]
-				if (c === '(') depth++
-				else if (c === ')') depth = Math.max(0, depth - 1)
+				if (c === '(') {depth++}
+				else if (c === ')') {depth = Math.max(0, depth - 1)}
 				else if (c === '/' && depth === 0) { slash = j; break }
 			}
 			const afterSlash: string[] = []
@@ -353,19 +353,19 @@ export function parseBackgroundShorthand(value: any): BgSlots {
 			}
 		}
 		images.push(image ?? 'none')
-		if (positionTokens.length) positions[index] = positionTokens.join(' ')
-		if (sizeTokens.length) sizes[index] = sizeTokens.join(' ')
-		if (repeatTokens.length) repeats[index] = repeatTokens.join(' ')
-		if (boxTokens[0]) origins[index] = boxTokens[0]
-		if (boxTokens[1]) clips[index] = boxTokens[1]
-		if (index === layerTexts.length - 1 && color != null) slots.color = color
+		if (positionTokens.length) {positions[index] = positionTokens.join(' ')}
+		if (sizeTokens.length) {sizes[index] = sizeTokens.join(' ')}
+		if (repeatTokens.length) {repeats[index] = repeatTokens.join(' ')}
+		if (boxTokens[0]) {origins[index] = boxTokens[0]}
+		if (boxTokens[1]) {clips[index] = boxTokens[1]}
+		if (index === layerTexts.length - 1 && color != null) {slots.color = color}
 	})
 	slots.image = images.join(', ')
-	if (positions.length) slots.position = layerTexts.map((_, i) => positions[i] ?? '0% 0%').join(', ')
-	if (sizes.length) slots.size = layerTexts.map((_, i) => sizes[i] ?? 'auto auto').join(', ')
-	if (repeats.length) slots.repeat = layerTexts.map((_, i) => repeats[i] ?? 'repeat').join(', ')
-	if (origins.length) slots.origin = layerTexts.map((_, i) => origins[i] ?? 'padding-box').join(', ')
-	if (clips.length) slots.clip = layerTexts.map((_, i) => clips[i] ?? 'border-box').join(', ')
+	if (positions.length) {slots.position = layerTexts.map((_, i) => positions[i] ?? '0% 0%').join(', ')}
+	if (sizes.length) {slots.size = layerTexts.map((_, i) => sizes[i] ?? 'auto auto').join(', ')}
+	if (repeats.length) {slots.repeat = layerTexts.map((_, i) => repeats[i] ?? 'repeat').join(', ')}
+	if (origins.length) {slots.origin = layerTexts.map((_, i) => origins[i] ?? 'padding-box').join(', ')}
+	if (clips.length) {slots.clip = layerTexts.map((_, i) => clips[i] ?? 'border-box').join(', ')}
 	return slots
 }
 
@@ -378,17 +378,17 @@ export function collectBackground(style: Record<string, any>, warnings: string[]
 	const slots: BgSlots = {}
 	let touched = false
 	for (const [name, value] of Object.entries(style)) {
-		if (value == null) continue
+		if (value == null) {continue}
 		switch (name) {
 			case 'background': {
 				const parsed = parseBackgroundShorthand(value)
-				if (parsed.color != null) slots.color = parsed.color
-				if (parsed.image != null) slots.image = parsed.image
-				if (parsed.repeat != null) slots.repeat = parsed.repeat
-				if (parsed.position != null) slots.position = parsed.position
-				if (parsed.size != null) slots.size = parsed.size
-				if (parsed.origin != null) slots.origin = parsed.origin
-				if (parsed.clip != null) slots.clip = parsed.clip
+				if (parsed.color != null) {slots.color = parsed.color}
+				if (parsed.image != null) {slots.image = parsed.image}
+				if (parsed.repeat != null) {slots.repeat = parsed.repeat}
+				if (parsed.position != null) {slots.position = parsed.position}
+				if (parsed.size != null) {slots.size = parsed.size}
+				if (parsed.origin != null) {slots.origin = parsed.origin}
+				if (parsed.clip != null) {slots.clip = parsed.clip}
 				touched = true
 				break
 			}
@@ -405,7 +405,7 @@ export function collectBackground(style: Record<string, any>, warnings: string[]
 				break
 		}
 	}
-	if (!touched && slots.color == null) return null
+	if (!touched && slots.color == null) {return null}
 	const imageTerms = slots.image == null ? [] : splitTopLevelCommas(String(slots.image))
 	const images: BgImage[] = []
 	for (const term of imageTerms) {
@@ -414,7 +414,7 @@ export function collectBackground(style: Record<string, any>, warnings: string[]
 			warnings.push(term)
 			continue
 		}
-		if (image) images.push(image)
+		if (image) {images.push(image)}
 	}
 	const perLayer = (value: any): string[] => (value == null ? [] : splitTopLevelCommas(String(value)))
 	const repeatList = perLayer(slots.repeat).map(repeatMode).filter(Boolean) as { x: RepeatMode; y: RepeatMode }[]
@@ -422,7 +422,7 @@ export function collectBackground(style: Record<string, any>, warnings: string[]
 	const sizeList = perLayer(slots.size).map(bgSize).filter(Boolean) as BgSize[]
 	const originList = perLayer(slots.origin).map(boxValue).filter(Boolean) as BgBox[]
 	const clipList = perLayer(slots.clip).map(boxValue).filter(Boolean) as BgBox[]
-	if (slots.clip != null && String(slots.clip).includes('text')) warnings.push('unsupported background-clip: text')
+	if (slots.clip != null && String(slots.clip).includes('text')) {warnings.push('unsupported background-clip: text')}
 	const layers = buildLayers(
 		images,
 		repeatList,
@@ -431,7 +431,7 @@ export function collectBackground(style: Record<string, any>, warnings: string[]
 		originList,
 		clipList,
 	)
-	if (!layers.length && slots.color == null) return null
+	if (!layers.length && slots.color == null) {return null}
 	return { color: slots.color, layers }
 }
 
@@ -441,7 +441,7 @@ export interface BoxEdges { top: number; right: number; bottom: number; left: nu
 
 /** The box a layer's position/size resolve against, in host (view-bounds) coordinates. */
 export function positioningBox(box: BgBox, w: number, h: number, border: BoxEdges, padding: BoxEdges): ImageRect {
-	if (box === 'border-box') return { x: 0, y: 0, width: w, height: h }
+	if (box === 'border-box') {return { x: 0, y: 0, width: w, height: h }}
 	const x = border.left + (box === 'content-box' ? padding.left : 0)
 	const y = border.top + (box === 'content-box' ? padding.top : 0)
 	const width = Math.max(0, w - border.left - border.right - (box === 'content-box' ? padding.left + padding.right : 0))
@@ -451,19 +451,19 @@ export function positioningBox(box: BgBox, w: number, h: number, border: BoxEdge
 
 /** Drawn size of one image instance inside `box`. */
 export function resolveImageSize(size: BgSize, iw: number, ih: number, box: { width: number; height: number }): { w: number; h: number } {
-	if (!(iw > 0) || !(ih > 0)) return { w: 0, h: 0 }
+	if (!(iw > 0) || !(ih > 0)) {return { w: 0, h: 0 }}
 	if (size === 'cover' || size === 'contain') {
 		const scale = size === 'cover' ? Math.max(box.width / iw, box.height / ih) : Math.min(box.width / iw, box.height / ih)
 		return { w: iw * scale, h: ih * scale }
 	}
-	if (size === 'auto') return { w: iw, h: ih }
+	if (size === 'auto') {return { w: iw, h: ih }}
 	const axisLen = (token: BgSizeToken, extent: number) =>
 		token.kind === 'len' ? token.v : token.kind === 'frac' ? token.v * extent : null
 	let w = axisLen(size.w, box.width)
 	let h = axisLen(size.h, box.height)
-	if (w == null && h == null) return { w: iw, h: ih }
-	if (w == null) w = (iw * h!) / ih
-	if (h == null) h = (ih * w) / iw
+	if (w == null && h == null) {return { w: iw, h: ih }}
+	if (w == null) {w = (iw * h!) / ih}
+	if (h == null) {h = (ih * w) / iw}
 	return { w, h }
 }
 
@@ -483,13 +483,13 @@ export function anchorRect(position: ImagePosition, w: number, h: number, box: I
 export function tileRects(layer: Pick<BgLayerSpec, 'repeat' | 'position'>, drawn: { w: number; h: number }, box: ImageRect): ImageRect[] {
 	const anchor = anchorRect(layer.position, drawn.w, drawn.h, box)
 	const axis = (mode: RepeatMode, a0: number, tile: number, extent: number): { start: number; step: number; count: number; size: number } => {
-		if (!(tile > 0) || !(extent > 0)) return { start: a0, step: tile, count: 0, size: tile }
+		if (!(tile > 0) || !(extent > 0)) {return { start: a0, step: tile, count: 0, size: tile }}
 		switch (mode) {
 			case 'no-repeat':
 				return { start: a0, step: tile, count: 1, size: tile }
 			case 'space': {
 				const count = Math.floor(extent / tile)
-				if (count < 1) return { start: a0, step: tile, count: 1, size: tile }
+				if (count < 1) {return { start: a0, step: tile, count: 1, size: tile }}
 				const step = count > 1 ? tile + (extent - count * tile) / (count - 1) : tile
 				return { start: count > 1 ? 0 : (extent - tile) / 2, step, count, size: tile }
 			}
@@ -533,24 +533,24 @@ export function resolveStops(stops: BgStop[], extent: number, repeating: boolean
 	out[out.length - 1].at ??= extent
 	let previous = 0
 	for (let i = 1; i < out.length; i++) {
-		if (out[i].at == null) continue
+		if (out[i].at == null) {continue}
 		out[i].at = Math.max(out[previous].at!, out[i].at!)
 		for (let j = previous + 1; j < i; j++) {
 			out[j].at = out[previous].at! + ((out[i].at! - out[previous].at!) * (j - previous)) / (i - previous)
 		}
 		previous = i
 	}
-	for (let j = previous + 1; j < out.length; j++) out[j].at = out[previous].at!
-	if (!repeating) return out.map((s) => ({ color: s.color, at: extent > 0 ? s.at! / extent : 0 }))
+	for (let j = previous + 1; j < out.length; j++) {out[j].at = out[previous].at!}
+	if (!repeating) {return out.map((s) => ({ color: s.color, at: extent > 0 ? s.at! / extent : 0 }))}
 	// Tile the [first..last] pattern until it covers [0, extent].
 	const first = out[0].at!, last = out[out.length - 1].at!
 	const period = last - first
-	if (!(period > 0)) return out.map((s) => ({ color: s.color, at: extent > 0 ? s.at! / extent : 0 }))
+	if (!(period > 0)) {return out.map((s) => ({ color: s.color, at: extent > 0 ? s.at! / extent : 0 }))}
 	const tiled: { color: string; at: number }[] = []
 	for (let copy = Math.floor(-first / period) - 1; (first + copy * period) <= extent + period; copy++) {
 		for (const s of out) {
 			const pos = s.at! + copy * period
-			if (pos >= -period && pos <= extent + period) tiled.push({ color: s.color, at: pos })
+			if (pos >= -period && pos <= extent + period) {tiled.push({ color: s.color, at: pos })}
 		}
 	}
 	return tiled.map((s) => ({ color: s.color, at: Math.min(1, Math.max(0, extent > 0 ? s.at / extent : 0)) }))

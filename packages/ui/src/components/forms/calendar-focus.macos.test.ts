@@ -6,14 +6,14 @@ function fixture(two = false, supported = true) {
 	const state: any = { months: [buildMonthGrid(2026, 3, 1), ...(two ? [buildMonthGrid(2026, 4, 1)] : [])],
 		value: '2026-03-05', mode: 'single', rangeAnchor: null, direction: 'ltr', isDisabled: () => false }
 	const window: any = { firstResponder: null, recalculateKeyViewLoop: vi.fn(), makeFirstResponder(view: any) {
-		if (view.window !== this || view.hidden || !view.isAccessibilityEnabled()) return false
+		if (view.window !== this || view.hidden || !view.isAccessibilityEnabled()) {return false}
 		this.firstResponder = view; return true
 	} }
 	let children: any[] = [], releases: (() => void)[] = []
 	const root: any = { window, hidden: false, subviews: { get count() { return children.length }, objectAtIndex: (i: number) => children[i] } }
 	const bridge = { keyboardEventsSupported: supported, suppressTabStop(view: object) {
 		claims.set(view, (claims.get(view) ?? 0) + 1)
-		return () => { const n = (claims.get(view) ?? 1) - 1; if (n) claims.set(view, n); else claims.delete(view) }
+		return () => { const n = (claims.get(view) ?? 1) - 1; if (n) {claims.set(view, n);} else {claims.delete(view)} }
 	} }
 	const native = { NSNotificationCenter: { defaultCenter: {
 		addObserverForNameObjectQueueUsingBlock(_name: string, _owner: unknown, _queue: unknown, fn: (note: any) => void) { const token = {}; observers.set(token, fn); return token },
@@ -23,7 +23,7 @@ function fixture(two = false, supported = true) {
 	const focus = createAppKitCalendarFocus({ current: () => state, navigate, pick: picked, cancelRange: cancel }, () => bridge, () => native)
 	const views = new Map<string, any>()
 	const render = () => {
-		for (const off of releases) off()
+		for (const off of releases) {off()}
 		releases = []; children = []; views.clear()
 		for (const day of state.months.flatMap((month: any) => month.weeks.flat()).filter((day: any) => !day.isOutsideMonth)) {
 			const view = { window: root.window, superview: root, hidden: false, bounds: {}, scrollRectToVisible: vi.fn(), isAccessibilityEnabled: () => !state.isDisabled(day.date) }
@@ -119,7 +119,7 @@ it('hidden or detached calendars release day claims and cancel queued page focus
 		expect(f.claims.size).toBe(0)
 		f.root.hidden = false; f.state.months = [buildMonthGrid(2026, 4, 1)]; f.render(); await flush()
 		expect(f.window.firstResponder).toBe(old)
-		f.root.window = null; for (const notify of f.observers.values()) notify({ object: f.window })
+		f.root.window = null; for (const notify of f.observers.values()) {notify({ object: f.window })}
 		expect(f.claims.size).toBe(0)
 	} finally { f.focus.dispose() }
 })

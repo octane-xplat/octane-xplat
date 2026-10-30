@@ -12,14 +12,14 @@ function fixture() {
 	const bridge: any = { showLayer(options: any) {
 		const source = options.createContentRoot({ window }), layer: any = { options, source, closed: false,
 			show: vi.fn(), update: vi.fn((_props: any, next: any) => { layer.latest = next; source.whenCommitted(() => {}) }),
-			close: vi.fn(() => { if (layer.closed) return; layer.closed = true; source.unmount(); options.onClose() }),
+			close: vi.fn(() => { if (layer.closed) {return;} layer.closed = true; source.unmount(); options.onClose() }),
 		}
 		layers.push(layer); layer.update(); duringAcquire?.(); return layer
 	} }
 	const owner = createAppKitPopoverOwner({ state: () => state, publish: (target, retired) => targets.push({ target, retired }), dismiss, canDismiss }, () => bridge, () => native)
 	const token = () => targets.findLast((entry) => entry.target)?.target.token
 	return { state, anchor, window, owner, layers, targets, token, dismiss, canDismiss, observers, center, native, remove, bridge,
-		duringAcquire(callback: () => void) { duringAcquire = callback }, notify() { for (const callback of [...observers.values()]) callback({ object: state.anchor?.window }) },
+		duringAcquire(callback: () => void) { duringAcquire = callback }, notify() { for (const callback of [...observers.values()]) {callback({ object: state.anchor?.window })} },
 	}
 }
 it('keeps content hidden until its current source commit and reads current physical position, alignment and offset', () => {

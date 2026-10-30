@@ -58,8 +58,8 @@ function machineryApi(extra: Record<string, any> = {}) {
 		onStylesheetsChanged,
 		appKitContainers: new Set(),
 		restyleContainer: (container: any) => {
-			for (const child of container.children ?? []) ctx.api.markStyleDirty(child, true)
-			for (const entry of container.portalTargets?.values?.() ?? []) ctx.api.markStyleDirty(entry.root, true)
+			for (const child of container.children ?? []) {ctx.api.markStyleDirty(child, true)}
+			for (const entry of container.portalTargets?.values?.() ?? []) {ctx.api.markStyleDirty(entry.root, true)}
 			ctx.api.flushStyleDirty(container)
 		},
 		// Records + routes warnings the way applyStyle's unsupported branch does.
@@ -364,8 +364,8 @@ test('AppKit reveal cascades hover/focus into actions while nested containers re
 	const action = sliceNode('masonview', { parent: outer, container })
 	const inner = sliceNode('masonview', { parent: outer, container })
 	const innerAction = sliceNode('masonview', { parent: inner, container })
-	for (const view of [outer, inner]) api.applyClassName(view, 'vx-appkit-reveal-container')
-	for (const view of [action, innerAction]) api.applyClassName(view, 'vx-appkit-reveal-content')
+	for (const view of [outer, inner]) {api.applyClassName(view, 'vx-appkit-reveal-container')}
+	for (const view of [action, innerAction]) {api.applyClassName(view, 'vx-appkit-reveal-content')}
 	await tick()
 	assert.equal(action.computedStyle.opacity, 0)
 	assert.equal(innerAction.computedStyle.opacity, 0)
@@ -396,7 +396,7 @@ test('CSS focus observer capability requires a token, retries failure and scopes
 	const api = runSlice(code + '\n({ installFocusObserver, available: () => focusObserverInstalled })', {
 		NSNotificationCenter: { defaultCenter: { addObserverForNameObjectQueueUsingBlock: (_name: unknown, _object: unknown, _queue: unknown, next: typeof callback) => {
 			attempts++; callback = next
-			if (mode === 'throw') throw Error('simulated registration failure')
+			if (mode === 'throw') {throw Error('simulated registration failure')}
 			return mode === 'nil' ? null : {}
 		} } },
 		NSWindowDidUpdateNotification: 'window-update', appKitContainers: new Set([first, second]),
@@ -432,7 +432,7 @@ test('CSS :focus-visible modality observer tracks keyboard/pointer input without
 	assert.equal(api.modality(), 'keyboard', 'Shift+keyDown counts so Shift+Tab shows focus')
 	pointerNotify({ type: 2, modifierFlags: 0 })
 	assert.equal(api.modality(), 'keyboard', 'non-down pointer events are ignored')
-	for (const type of [3, 25]) pointerNotify({ type, modifierFlags: 0 })
+	for (const type of [3, 25]) {pointerNotify({ type, modifierFlags: 0 })}
 	assert.equal(api.modality(), 'pointer', 'right/other mouse down mark pointer modality')
 })
 

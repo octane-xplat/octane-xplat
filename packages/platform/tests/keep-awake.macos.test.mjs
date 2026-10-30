@@ -79,7 +79,7 @@ test('AppKit failed release retains its token for retry without reallocating a d
 	native.owner.endActivity = function(token) {
 		assert.equal(this, native.owner)
 		attempts++
-		if (failing) throw new Error('release unavailable')
+		if (failing) {throw new Error('release unavailable')}
 		native.ended.push(token)
 	}
 	const h = load({ NSProcessInfo: { processInfo: native.owner } })
@@ -99,7 +99,7 @@ test('AppKit rejected or throwing activation leaves no held tag and can retry', 
 	for (const throws of [false, true]) {
 		const native = processOwner(), begin = native.owner.beginActivityWithOptionsReason
 		native.owner.beginActivityWithOptionsReason = () => {
-			if (throws) throw new Error('activity unavailable')
+			if (throws) {throw new Error('activity unavailable')}
 			return null
 		}
 		const h = load({ NSProcessInfo: { processInfo: native.owner } })
@@ -119,10 +119,10 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
 	vm.runInNewContext(compiled['use-keep-awake.macos.tsrx'], {
 		exports, console: { warn: (message) => warnings.push(message) },
 		require(name) {
-			if (name === 'octane') return {
+			if (name === 'octane') {return {
 				useId: () => 'generated', useRef: () => optionsRef,
 				useEffect: (run, dependencies) => { pending = { run, dependencies: [...dependencies] } },
-			}
+			}}
 			return { keepAwake: {
 				activate: async (tag) => { calls.push(['activate', tag]); return true },
 				deactivate: (tag) => { calls.push(['deactivate', tag]); return deactivate(tag) },
@@ -130,7 +130,7 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
 					listeners.push(listener)
 					return () => {
 						calls.push(['remove'])
-						if (removeThrows) throw new Error('listener cleanup failed')
+						if (removeThrows) {throw new Error('listener cleanup failed')}
 					}
 				},
 			} }
@@ -140,7 +140,7 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
 		calls, listeners, warnings,
 		render: (tag, options) => exports.useKeepAwake(tag, options),
 		commit() {
-			if (mounted && pending.dependencies.every((value, i) => value === mounted.dependencies[i])) return
+			if (mounted && pending.dependencies.every((value, i) => value === mounted.dependencies[i])) {return}
 			mounted?.cleanup()
 			mounted = { dependencies: pending.dependencies, cleanup: pending.run() }
 		},

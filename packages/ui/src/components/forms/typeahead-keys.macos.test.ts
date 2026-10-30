@@ -21,7 +21,7 @@ it('wraps highlight and Home/End without changing first responder or selecting u
 })
 it('closed ArrowDown opens only eligible results and preserves other closed-state editing keys', () => {
 	const f = fixture(); f.state.open = false; f.state.entriesOnFocus = false
-	for (const key of ['ArrowDown', 'ArrowUp', 'Home', 'End', 'Enter', 'Escape']) expect(f.key(key).defaultPrevented).toBe(false)
+	for (const key of ['ArrowDown', 'ArrowUp', 'Home', 'End', 'Enter', 'Escape']) {expect(f.key(key).defaultPrevented).toBe(false)}
 	f.state.query = 'a'; expect(f.key('ArrowDown').defaultPrevented).toBe(true); expect(f.calls).toEqual(['open'])
 })
 it('Escape consumes only an open result list; Tab/Shift+Tab close without cancelling native traversal', () => {
@@ -31,8 +31,8 @@ it('Escape consumes only an open result list; Tab/Shift+Tab close without cancel
 })
 it('composition, native marked editors, modified selection/shortcuts and ordinary editing retain defaults', () => {
 	const f = fixture()
-	for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { shiftKey: true }]) expect(f.key('ArrowDown', extra).defaultPrevented).toBe(false)
-	for (const key of [' ', 'Backspace', 'ArrowLeft', 'ArrowRight']) expect(f.key(key).defaultPrevented).toBe(false)
+	for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { shiftKey: true }]) {expect(f.key('ArrowDown', extra).defaultPrevented).toBe(false)}
+	for (const key of [' ', 'Backspace', 'ArrowLeft', 'ArrowRight']) {expect(f.key(key).defaultPrevented).toBe(false)}
 	const editor = { hasMarkedText: () => true }; f.view.currentEditor = () => editor; f.window.firstResponder = editor
 	expect(f.key('Enter').defaultPrevented).toBe(false); editor.hasMarkedText = () => false; f.key('ArrowDown'); expect(f.calls).toEqual([1])
 })
@@ -46,12 +46,12 @@ it('consumer cancellation and current state changes precede internal intent; rec
 it('foreign targets, detached/hidden/replaced inputs and transferred responders cannot dispatch retained handlers', () => {
 	for (const reason of ['target', 'currentTarget', 'detach', 'hidden', 'replace', 'focus']) {
 		const f = fixture(), extra: any = {}
-		if (reason === 'target') extra.target = {}
-		if (reason === 'currentTarget') extra.currentTarget = {}
-		if (reason === 'detach') f.view.window = null
-		if (reason === 'hidden') f.view.hiddenOrHasHiddenAncestor = () => true
-		if (reason === 'replace') f.input = {}
-		if (reason === 'focus') f.window.firstResponder = {}
+		if (reason === 'target') {extra.target = {}}
+		if (reason === 'currentTarget') {extra.currentTarget = {}}
+		if (reason === 'detach') {f.view.window = null}
+		if (reason === 'hidden') {f.view.hiddenOrHasHiddenAncestor = () => true}
+		if (reason === 'replace') {f.input = {}}
+		if (reason === 'focus') {f.window.firstResponder = {}}
 		f.key('ArrowDown', extra); expect(f.calls).toEqual([])
 	}
 })

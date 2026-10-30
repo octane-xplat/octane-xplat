@@ -15,10 +15,10 @@ function load(globals = {}) {
 	const context = vm.createContext({ ...globals })
 	const cache = new Map()
 	function require(name) {
-		if (name === '@octane-xplat/lib/capability') return requireLib(name)
+		if (name === '@octane-xplat/lib/capability') {return requireLib(name)}
 		const key = name.replace(/^\.\//, '')
-		if (!compiled[key]) return {}
-		if (cache.has(key)) return cache.get(key)
+		if (!compiled[key]) {return {}}
+		if (cache.has(key)) {return cache.get(key)}
 		const exports = {}
 		cache.set(key, exports)
 		vm.runInContext(`(function(exports, require) {${compiled[key]}\n})`, context)(exports, require)
@@ -32,12 +32,12 @@ function fixture({ url = {}, accepted = true, fail } = {}) {
 	const workspace = {
 		URLForApplicationWithBundleIdentifier(id) {
 			lookups.push(id)
-			if (fail === 'lookup') throw new Error('lookup failed')
+			if (fail === 'lookup') {throw new Error('lookup failed')}
 			return url
 		},
 		openURL(value) {
 			opens.push(value)
-			if (fail === 'open') throw new Error('open failed')
+			if (fail === 'open') {throw new Error('open failed')}
 			return accepted
 		},
 	}

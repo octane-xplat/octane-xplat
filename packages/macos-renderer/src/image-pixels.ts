@@ -5,7 +5,7 @@ export function imagePixelSize(image: { representations?: unknown }): { width: n
 	try {
 		const reps: any = image.representations
 		const count = Array.isArray(reps) ? reps.length : Number(reps?.count ?? 0)
-		if (!Number.isSafeInteger(count) || count < 0) return { width, height }
+		if (!Number.isSafeInteger(count) || count < 0) {return { width, height }}
 		for (let index = 0; index < count; index++) {
 			const rep = Array.isArray(reps) ? reps[index] : reps.objectAtIndex(index)
 			const w = Number(rep?.pixelsWide), h = Number(rep?.pixelsHigh)

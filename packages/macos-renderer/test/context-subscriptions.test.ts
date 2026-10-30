@@ -34,6 +34,6 @@ test('node teardown releases every context lease without skipping other hooks; f
 	assert.equal(f.entries[0].handler({}), false); assert.equal(f.entries[1].handler({}), true)
 	assert.equal(f.errors.length, 1); assert.equal(f.node.destroyHooks.length, 1)
 	let other = 0; f.node.destroyHooks.push(() => other++)
-	for (const hook of f.node.destroyHooks) hook()
+	for (const hook of f.node.destroyHooks) {hook()}
 	assert.deepEqual(f.entries.map((entry) => entry.released), [1, 1]); assert.equal(other, 1)
 })

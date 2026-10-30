@@ -25,12 +25,12 @@ function readSrc(rel) {
 /** Keys of a top-level `const x = { ... }` object literal, line-based. */
 function objectKeys(src, marker) {
 	const start = src.indexOf(marker)
-	if (start < 0) throw new Error(`marker not found: ${marker}`)
+	if (start < 0) {throw new Error(`marker not found: ${marker}`)}
 	const open = src.indexOf('{', start)
 	let depth = 0
 	let end = -1
 	for (let i = open; i < src.length; i++) {
-		if (src[i] === '{') depth++
+		if (src[i] === '{') {depth++}
 		else if (src[i] === '}') {
 			depth--
 			if (depth === 0) {
@@ -42,9 +42,9 @@ function objectKeys(src, marker) {
 	const keys = []
 	for (const line of src.slice(open + 1, end).split('\n')) {
 		const t = line.trim().replace(/,$/, '')
-		if (!t || t.startsWith('//')) continue
+		if (!t || t.startsWith('//')) {continue}
 		const m = t.match(/^([A-Za-z_$][\w$]*|'[^']+'|"[^"]+")\s*(:|$)/)
-		if (m) keys.push(m[1].replace(/^['"]|['"]$/g, ''))
+		if (m) {keys.push(m[1].replace(/^['"]|['"]$/g, ''))}
 	}
 	return keys
 }
@@ -60,7 +60,7 @@ function buildRows() {
 	const portedPages = new Set(pageKeys)
 	const portedFixed = new Set(['/', '/components-patterns/', '/themes/', '/tools/', '/templates/', '/404/'])
 	const statusOf = (row) => {
-		if (blockers.has(row.route)) return 'blocked'
+		if (blockers.has(row.route)) {return 'blocked'}
 		if (
 			(row.kind === 'template-block' || row.kind === 'template-page') &&
 			row.name &&
@@ -68,7 +68,7 @@ function buildRows() {
 		) {
 			return 'ported'
 		}
-		if (portedFixed.has(row.route) || portedPages.has(row.route)) return 'ported'
+		if (portedFixed.has(row.route) || portedPages.has(row.route)) {return 'ported'}
 		return 'pending'
 	}
 	return pinnedRoutes.map((row) => ({ ...row, status: statusOf(row) }))
@@ -77,7 +77,7 @@ function buildRows() {
 export async function verifyCoverage(page, baseUrl, check) {
 	const rows = buildRows()
 	const counts = { ported: 0, blocked: 0, pending: 0 }
-	for (const row of rows) counts[row.status]++
+	for (const row of rows) {counts[row.status]++}
 	check(
 		`coverage join reconciles ${pinnedStats.total} routes`,
 		rows.length === pinnedStats.total,
@@ -99,7 +99,7 @@ export async function verifyCoverage(page, baseUrl, check) {
 				const state = await page
 					.waitForFunction(
 						() => {
-							if (document.querySelector('.sb-pending')) return 'pending'
+							if (document.querySelector('.sb-pending')) {return 'pending'}
 							// Icon/skeleton-only examples carry no text — any rendered
 							// element inside the embed root counts. Overlay examples
 							// (CommandPalette) portal to body level outside the root.
@@ -153,7 +153,7 @@ export async function verifyCoverage(page, baseUrl, check) {
 		}
 		if (!ok) {
 			failures++
-			if (detail.length < 40) detail.push(`${row.route}(${row.status}): ${why}`)
+			if (detail.length < 40) {detail.push(`${row.route}(${row.status}): ${why}`)}
 		}
 	}
 	check(

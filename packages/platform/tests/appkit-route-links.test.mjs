@@ -24,21 +24,21 @@ function load({ initial = null, pending = [], navigate = async () => ({ status: 
 		exports: {}, __meta: { hot: { dispose: callback => hot.push(callback) } },
 		console: { warn: message => warnings.push(message) },
 		require(name) {
-			if (name === '@octane-xplat/platform') return {
+			if (name === '@octane-xplat/platform') {return {
 				onDeepLink(listener) {
 					listeners.push(listener)
-					for (const url of pending) listener(url)
+					for (const url of pending) {listener(url)}
 					onSubscribe?.(context.exports.bindAppKitRouteLinks)
 					if (subscribeFailure) { subscribeFailure = false; throw new Error('subscribe failed') }
-					return () => { removed++; listener('xplat://late-cleanup'); if (removeFailure) throw new Error('cleanup failed') }
+					return () => { removed++; listener('xplat://late-cleanup'); if (removeFailure) {throw new Error('cleanup failed')} }
 				},
 				consumeInitialUrl() {
 					if (consumeFailure) { consumeFailure = false; throw new Error('consume failed') }
 					consumed++
 					return consumed === 1 ? initial : null
 				},
-			}
-			if (name === '@octane-xplat/ui/routing') return { router: { navigateUrl(url) { calls.push(url); return navigate(url) } } }
+			}}
+			if (name === '@octane-xplat/ui/routing') {return { router: { navigateUrl(url) { calls.push(url); return navigate(url) } } }}
 			throw new Error('Unexpected import')
 		},
 	}
@@ -85,13 +85,13 @@ test('AppKit route setup failure retires delivered callbacks and remains retryab
 
 test('AppKit route rejection/refusal/synchronous throw is contained without exposing URL or error data', async () => {
 	const h = load({ navigate(url) {
-		if (url.endsWith('reject')) return Promise.reject(new Error('private error payload'))
-		if (url.endsWith('throw')) throw new Error('private error payload')
-		if (url.endsWith('blocked')) return Promise.resolve({ status: 'blocked', error: 'private error payload' })
+		if (url.endsWith('reject')) {return Promise.reject(new Error('private error payload'))}
+		if (url.endsWith('throw')) {throw new Error('private error payload')}
+		if (url.endsWith('blocked')) {return Promise.resolve({ status: 'blocked', error: 'private error payload' })}
 		return Promise.resolve({ status: 'committed' })
 	} })
 	const stop = h.bind(); await tick()
-	for (const name of ['reject', 'throw', 'blocked', 'good']) h.listeners[0](`xplat://${name}`)
+	for (const name of ['reject', 'throw', 'blocked', 'good']) {h.listeners[0](`xplat://${name}`)}
 	await tick()
 	assert.equal(h.calls.length, 4)
 	assert.deepEqual(h.warnings, ['[macos] Incoming link navigation failed', '[macos] Incoming link navigation failed',
@@ -106,7 +106,7 @@ test('AppKit forwards later URLs immediately and leaves overlapping admission/ca
 	h.listeners[0]('xplat://first'); h.listeners[0]('xplat://second')
 	assert.deepEqual(h.calls, ['xplat://first', 'xplat://second'])
 	stop()
-	for (const finish of finishes) finish({ status: 'blocked' })
+	for (const finish of finishes) {finish({ status: 'blocked' })}
 	await tick()
 	assert.equal(h.warnings.length, 0)
 })
@@ -156,13 +156,13 @@ test('AppKit entry binds in the root effect, forwards props and returns the bind
 	const App = () => null, props = { parentWindow: {}, children: 'content' }
 	let effect, bound = 0, removed = 0
 	const context = { exports: {}, console: { warn() {} }, require(name) {
-		if (name === 'octane') return { useEffect: callback => { effect = callback } }
-		if (name === '@xplat/app') return { App }
-		if (name === '@xplat/app/appkit-route-links.macos') return {
+		if (name === 'octane') {return { useEffect: callback => { effect = callback } }}
+		if (name === '@xplat/app') {return { App }}
+		if (name === '@xplat/app/appkit-route-links.macos') {return {
 			bindAppKitRouteLinks() { bound++; return () => { removed++ } },
-		}
-		if (name.endsWith('jsx-runtime')) return { jsx: (type, props) => ({ type, props }) }
-		if (name === './styles') return {}
+		}}
+		if (name.endsWith('jsx-runtime')) {return { jsx: (type, props) => ({ type, props }) }}
+		if (name === './styles') {return {}}
 		throw new Error('Unexpected import')
 	} }
 	vm.runInNewContext(compiled, context)

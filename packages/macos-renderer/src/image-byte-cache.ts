@@ -12,7 +12,7 @@ export function createImageByteCache(native: () => Record<string, any>) {
 		return value
 	}
 	const requestFor = (source: string) => {
-		if (!/^https?:\/\//i.test(source)) return null
+		if (!/^https?:\/\//i.test(source)) {return null}
 		const host = native(), url = host.NSURL?.URLWithString(source)
 		return url ? host.NSURLRequest?.requestWithURLCachePolicyTimeoutInterval(url, 1, 60) : null
 	}
@@ -20,28 +20,28 @@ export function createImageByteCache(native: () => Record<string, any>) {
 		const host = native()
 		if (!session) {
 			const configuration = host.NSURLSessionConfiguration?.ephemeralSessionConfiguration
-			if (!configuration || !host.NSOperationQueue?.mainQueue?.addOperationWithBlock) return false
+			if (!configuration || !host.NSOperationQueue?.mainQueue?.addOperationWithBlock) {return false}
 			configuration.URLCache = null; configuration.HTTPCookieStorage = null
 			configuration.URLCredentialStorage = null; configuration.HTTPShouldSetCookies = false
 			configuration.requestCachePolicy = 1
 			session = host.NSURLSession?.sessionWithConfiguration(configuration)
-			if (!session) return false
+			if (!session) {return false}
 		}
 		return true
 	}
 	const initialize = () => {
-		if (!ensureSession()) return false
+		if (!ensureSession()) {return false}
 		const host = native()
-		if (storage) return true
+		if (storage) {return true}
 		try {
 			const manager = host.NSFileManager?.defaultManager
 			// NSSearchPathDirectory.Caches (13), user domain (1).
 			const base = manager?.URLForDirectoryInDomainAppropriateForURLCreateError(13, 1, null, true, null)
 			const identifier = host.NSBundle?.mainBundle?.bundleIdentifier
-			if (!base || typeof identifier !== 'string' || !/^[a-z\d][a-z\d._-]*$/i.test(identifier)) return false
+			if (!base || typeof identifier !== 'string' || !/^[a-z\d][a-z\d._-]*$/i.test(identifier)) {return false}
 			const directory = base.URLByAppendingPathComponentIsDirectory('octane-xplat-images-v1', true)
 				?.URLByAppendingPathComponentIsDirectory(identifier, true)
-			if (!directory || !manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(directory, true, null, null)) return false
+			if (!directory || !manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(directory, true, null, null)) {return false}
 			storage = host.NSURLCache?.alloc().initWithMemoryCapacityDiskCapacityDirectoryURL(0, 64 * 1024 * 1024, directory)
 		} catch { return false }
 		return !!storage
@@ -57,10 +57,10 @@ export function createImageByteCache(native: () => Record<string, any>) {
 			if (keys?.count != null) {
 				for (let index = 0; index < Number(keys.count); index++) {
 					const key = keys.objectAtIndex(index)
-					if (String(key).toLowerCase() === name) return String(headers.objectForKey(key) ?? '')
+					if (String(key).toLowerCase() === name) {return String(headers.objectForKey(key) ?? '')}
 				}
 			}
-			for (const key of Object.keys(headers ?? {})) if (key.toLowerCase() === name) return String(headers[key] ?? '')
+			for (const key of Object.keys(headers ?? {})) {if (key.toLowerCase() === name) {return String(headers[key] ?? '')}}
 			return ''
 		}
 		// URL-only identity cannot safely persist Vary/protected responses. A
@@ -73,7 +73,7 @@ export function createImageByteCache(native: () => Record<string, any>) {
 		const ownedEpoch = epoch, ownedVersion = cacheAllowed ? version(source) : undefined
 		const current = () => cacheAllowed && epoch === ownedEpoch && versions.get(source) === ownedVersion
 		const settle = (result: ImageBytes | null) => {
-			if (cacheAllowed && versions.get(source) === ownedVersion) versions.delete(source)
+			if (cacheAllowed && versions.get(source) === ownedVersion) {versions.delete(source)}
 			complete(result)
 		}
 		const host = native(), queue = host.NSOperationQueue?.mainQueue
@@ -81,17 +81,17 @@ export function createImageByteCache(native: () => Record<string, any>) {
 		let active = true, task: any, timer: ReturnType<typeof setTimeout> | undefined
 		timer = setTimeout(() => {
 			timer = undefined
-			if (!active) return
+			if (!active) {return}
 			try {
-				if (cacheAllowed) initialize(); else ensureSession()
+				if (cacheAllowed) {initialize();} else {ensureSession()}
 				if (!session) { settle(null); return }
 				let hit: ImageBytes | null = null
-				try { if (cacheAllowed) hit = cached(request) } catch {}
+				try { if (cacheAllowed) {hit = cached(request)} } catch {}
 				if (hit) { settle({ ...hit, stored: current() }); return }
 				task = session.dataTaskWithRequestCompletionHandler(request, (data: any, response: any, error: any) => {
-					if (!active) return
+					if (!active) {return}
 					const deliver = () => {
-						if (!active) return
+						if (!active) {return}
 						const status = Number(response?.statusCode ?? 0)
 						if (!data || error || status < 200 || status >= 300) { settle(null); return }
 						let stored = false
@@ -108,13 +108,13 @@ export function createImageByteCache(native: () => Record<string, any>) {
 						settle({ data, stored, source: 'network' })
 					}
 					try { queue.addOperationWithBlock(deliver) } catch {
-						timer = setTimeout(() => { timer = undefined; if (active) settle(null) }, 0)
+						timer = setTimeout(() => { timer = undefined; if (active) {settle(null)} }, 0)
 					}
 				})
 				task.resume()
 			} catch { active = false; try { task?.cancel() } catch {}; settle(null) }
 		}, 0)
-		return () => { active = false; if (cacheAllowed && versions.get(source) === ownedVersion) versions.delete(source); if (timer !== undefined) clearTimeout(timer); task?.cancel() }
+		return () => { active = false; if (cacheAllowed && versions.get(source) === ownedVersion) {versions.delete(source);} if (timer !== undefined) {clearTimeout(timer);} task?.cancel() }
 	}
 	const requests = createImageRequests<ImageBytes>((source, complete) => load(source, complete, true), 0)
 	const bypass = createImageRequests<ImageBytes>((source, complete) => load(source, complete, false), 0)
@@ -133,14 +133,14 @@ export function createImageByteCache(native: () => Record<string, any>) {
 		evict(source: string): boolean {
 			versions.delete(source); requests.evict(source)
 			const request = requestFor(source)
-			if (!request) return !/^https?:\/\//i.test(source)
-			if (!initialize()) return false
+			if (!request) {return !/^https?:\/\//i.test(source)}
+			if (!initialize()) {return false}
 			storage.removeCachedResponseForRequest(request)
 			return !cached(request)
 		},
 		clear(): boolean {
 			epoch = {}; versions = new Map(); requests.clear()
-			if (!initialize()) return false
+			if (!initialize()) {return false}
 			storage.removeAllCachedResponses()
 			return true
 		},

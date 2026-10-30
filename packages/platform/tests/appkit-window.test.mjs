@@ -68,7 +68,7 @@ test('AppKit resize subscriptions read new dimensions and clean up', async () =>
 	const observed = []
 	const off = host.onWindowResize(() => observed.push(host.windowSize.width))
 	window.contentView.bounds.size.width = 500
-	for (const notify of services.windowResizeListeners) notify(window)
+	for (const notify of services.windowResizeListeners) {notify(window)}
 	assert.deepEqual(observed, [500])
 	off()
 	assert.equal(services.windowResizeListeners.size, 0)

@@ -125,10 +125,10 @@ random.fill(16)
 		realpathSync(join(modules, 'types/generated/index.d.ts')),
 	)
 
-	for (const service of ['device', 'locale', 'system-bars']) for (const suffix of ['', '.ts']) {
+	for (const service of ['device', 'locale', 'system-bars']) {for (const suffix of ['', '.ts']) {
 		const selected = ts.resolveModuleName(`@octane-xplat/platform/${service}${suffix}`, entry, options, ts.sys)
 		assert.equal(selected.resolvedModule?.resolvedFileName, realpathSync(join(modules, `types/generated/${service}.d.ts`)))
-	}
+	}}
 
 	const example = join(directory, 'announce-status.ts')
 	writeFileSync(

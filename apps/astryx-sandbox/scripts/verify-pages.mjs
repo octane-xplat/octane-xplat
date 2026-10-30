@@ -134,10 +134,10 @@ try {
 	}
 
 	for (const [name, strings, imgCount] of PAGES) {
-		if (only && !only.has(name)) continue
+		if (only && !only.has(name)) {continue}
 		await test(`${name}: rendered content`, async () => {
 			await go(name)
-			for (const text of strings) await has(text)
+			for (const text of strings) {await has(text)}
 			assert.equal(await page.locator('.sb-pending').count(), 0, 'still pending')
 			if (imgCount > 0) {
 				assert.equal(await page.locator('img').count(), imgCount, 'image count')

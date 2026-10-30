@@ -217,7 +217,7 @@ test('reentrant replacement releases the old late handle without clobbering the 
 	await tick()
 	assert.equal(oldCalls, 0)
 	assert.equal(nextCalls, 1)
-	for (const observer of observers) observer.callback()
+	for (const observer of observers) {observer.callback()}
 	await tick()
 	assert.equal(nextCalls, 2)
 	latest()
@@ -234,7 +234,7 @@ test('cleanup attempts every native removal once and held callbacks cannot reviv
 	try {
 		const stop = observeScrollGeometry(node, node.view, () => calls++)
 		stop(); stop()
-		for (const observer of observers) observer.callback()
+		for (const observer of observers) {observer.callback()}
 		await tick()
 		assert.equal(removals, 3)
 		assert.equal(calls, 0)
@@ -251,8 +251,8 @@ test('layout teardown or view replacement prevents stale clamping and notificati
 		let calls = 0
 		const stop = observeScrollGeometry(node, node.view, () => calls++)
 		node.view.layoutSubtreeIfNeeded = () => {
-			if (replace) node.view = { ...node.view, documentView: {} }
-			else stop()
+			if (replace) {node.view = { ...node.view, documentView: {} }}
+			else {stop()}
 		}
 		await tick()
 		assert.equal(clip.bounds.origin.y, 0)
@@ -265,11 +265,11 @@ test('layout teardown or view replacement prevents stale clamping and notificati
 test('failed layout and consumer notification release the queued task for later attempts', async () => {
 	const { node, observers } = fixture()
 	let layoutFails = true, notifyFails = true, calls = 0
-	node.view.layoutSubtreeIfNeeded = () => { if (layoutFails) throw Error('private layout payload') }
+	node.view.layoutSubtreeIfNeeded = () => { if (layoutFails) {throw Error('private layout payload')} }
 	const warn = console.warn, warnings: string[] = []
 	console.warn = message => { warnings.push(String(message)) }
 	try {
-		const stop = observeScrollGeometry(node, node.view, () => { calls++; if (notifyFails) throw Error('private consumer payload') })
+		const stop = observeScrollGeometry(node, node.view, () => { calls++; if (notifyFails) {throw Error('private consumer payload')} })
 		await tick()
 		assert.equal(calls, 0)
 		layoutFails = false
@@ -292,7 +292,7 @@ test('invalid geometry never reaches native scrolling and failed positioning rem
 	clip.scrollToPoint = function(point: any) {
 		writes++
 		assert.ok(Number.isFinite(point.x) && Number.isFinite(point.y))
-		if (fail) throw Error('private scroll payload')
+		if (fail) {throw Error('private scroll payload')}
 		scroll.call(this, point)
 	}
 	const warn = console.warn, warnings: string[] = []
@@ -327,7 +327,7 @@ test('consumer-scheduled geometry keeps its own task while former cleanup leaves
 	let calls = 0
 	const first = observeScrollGeometry(node, node.view, () => {
 		calls++
-		if (calls === 1) node.scrollGeometrySchedule()
+		if (calls === 1) {node.scrollGeometrySchedule()}
 	})
 	await tick(); await tick()
 	assert.equal(calls, 2)
@@ -384,7 +384,7 @@ test('renderer layout unbinding preserves a newer subscription acquired during n
 	await tick()
 	assert.equal(oldCalls, 0)
 	assert.equal(nextCalls, 1)
-	for (const observer of observers) observer.callback()
+	for (const observer of observers) {observer.callback()}
 	await tick()
 	assert.equal(nextCalls, 2)
 	node.scrollGeometryDetach()

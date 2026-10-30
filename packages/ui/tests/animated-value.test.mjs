@@ -230,5 +230,5 @@ test('AppKit reduced motion reads live property and receiver-bound getter forms 
 		workspace.accessibilityDisplayShouldReduceMotion = false; assert.equal(readReducedMotion(), false)
 		workspace.accessibilityDisplayShouldReduceMotion = true; assert.equal(readReducedMotion(), true)
 		globalThis.NSWorkspace = undefined; assert.equal(readReducedMotion(), false)
-	} finally { if (original === undefined) delete globalThis.NSWorkspace; else globalThis.NSWorkspace = original }
+	} finally { if (original === undefined) {delete globalThis.NSWorkspace;} else {globalThis.NSWorkspace = original} }
 })

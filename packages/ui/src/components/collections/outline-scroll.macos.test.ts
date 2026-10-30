@@ -13,8 +13,8 @@ function fixture(flipped = true) {
 	const records = [heading('intro', 0), heading('details', 250)]
 	const nav: any = { window, enclosingScrollView: view }
 	const native = { NSNotificationCenter: { defaultCenter: { addObserverForNameObjectQueueUsingBlock(name: string, object: any, _queue: unknown, callback: () => void) { const token = { name, object, callback, removed: false }; observers.push(token); return token }, removeObserver(token: any) { token.removed = true } } } }
-	const control = createAppKitOutlineScroll({ props: () => props, root: () => nav, active: () => props.activeId ?? active, change(id) { if (props.activeId === undefined) active = id; events.push(`active:${id}`); props.onActiveIdChange?.(id) }, reducedMotion: () => reduced }, () => native, () => ({ readOutlineHeadings: () => records }), { set(callback) { const id = ++nextTimer; timers.set(id, callback); return id }, clear(timer) { timers.delete(timer as number) } })
-	const emit = (name: string, object: any) => { for (const token of [...observers]) if (!token.removed && token.name === name && (token.object == null || token.object === object)) token.callback({ object }) }
+	const control = createAppKitOutlineScroll({ props: () => props, root: () => nav, active: () => props.activeId ?? active, change(id) { if (props.activeId === undefined) {active = id;} events.push(`active:${id}`); props.onActiveIdChange?.(id) }, reducedMotion: () => reduced }, () => native, () => ({ readOutlineHeadings: () => records }), { set(callback) { const id = ++nextTimer; timers.set(id, callback); return id }, clear(timer) { timers.delete(timer as number) } })
+	const emit = (name: string, object: any) => { for (const token of [...observers]) {if (!token.removed && token.name === name && (token.object == null || token.object === object)) {token.callback({ object })}} }
 	const tick = () => { const entry = timers.entries().next().value; expect(entry).toBeDefined(); timers.delete(entry![0]); entry![1]() }
 	control.sync()
 	return { control, view, clip, document, nav, records, events, moves, observers, timers, emit, tick, active: () => active, reduce: () => { reduced = true }, update(next: Partial<OutlineProps>) { props = { ...props, ...next }; control.sync() } }
@@ -57,7 +57,7 @@ it('live-scroll interruption and replacement retire timers/observers and use cur
 it('reentrant navigation in start callback retires its outer attempt and leaves only the new timer owner', () => {
 	const f = fixture()
 	try {
-		f.update({ onNavigateStart: (id) => { f.events.push(`start:${id}`); if (id === 'details') f.control.activate('intro') } }); f.control.activate('details')
+		f.update({ onNavigateStart: (id) => { f.events.push(`start:${id}`); if (id === 'details') {f.control.activate('intro')} } }); f.control.activate('details')
 		expect(f.events.filter((event) => event === 'end:details')).toHaveLength(1); expect(f.moves).toHaveLength(1); expect(f.timers.size).toBe(1); f.tick(); expect(f.events.filter((event) => event === 'end:intro')).toHaveLength(1)
 	} finally { f.control.dispose() }
 })
@@ -65,5 +65,5 @@ it('disposal during navigation start balances once, releases every observer and 
 	const f = fixture()
 	f.update({ onNavigateStart: (id) => { f.events.push(`start:${id}`); f.control.dispose() } }); f.control.activate('details')
 	expect(f.moves).toHaveLength(0); expect(f.events.filter((event) => event === 'end:details')).toHaveLength(1); expect(f.observers.every((token) => token.removed)).toBe(true); expect(f.timers.size).toBe(0)
-	const count = f.events.length; for (const token of f.observers) token.callback({ object: token.object }); f.control.activate('intro'); f.control.sync(); expect(f.events).toHaveLength(count)
+	const count = f.events.length; for (const token of f.observers) {token.callback({ object: token.object });} f.control.activate('intro'); f.control.sync(); expect(f.events).toHaveLength(count)
 })

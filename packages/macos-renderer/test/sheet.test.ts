@@ -7,27 +7,27 @@ function fixture(attached = true) {
 	const events: string[] = [], observers: any[] = [], windows: any[] = []
 	let changed = () => {}, fit: any = { width: 500, height: 230 }, fail = '', completed = () => {}
 	const parent: any = {
-		beginSheetCompletionHandler(window: any, callback: () => void) { events.push('begin'); completed = callback; if (fail === 'begin') throw Error('private detail') },
+		beginSheetCompletionHandler(window: any, callback: () => void) { events.push('begin'); completed = callback; if (fail === 'begin') {throw Error('private detail')} },
 		endSheet() { events.push('end'); completed() },
 	}
 	const view: any = { window: attached ? parent : null }, content = {}
 	const handle = createNativeSheet(view, { onDismissed: () => events.push('dismissed'), onUnavailable: () => events.push('unavailable') }, {
 		makeContent: () => content,
 		makeWindow(target, size, cancel) {
-			if (fail === 'make') throw Error('private detail')
+			if (fail === 'make') {throw Error('private detail')}
 			const window = { target, size, cancel, attachedSheet: null as any, contentViewController: {}, orderOut() { events.push('out') }, close() { events.push('close'); notify(window) } }
 			windows.push(window); return window
 		},
 		releaseWindow: () => events.push('release'),
 		watchWindow(_view, callback) { changed = callback; return () => { events.push('unwatch') } },
 		observeClose(window, callback) {
-			if (fail === 'observe' && window !== parent) throw Error('private detail')
+			if (fail === 'observe' && window !== parent) {throw Error('private detail')}
 			const entry = { window, callback, active: true }; observers.push(entry)
 			return () => { entry.active = false; events.push('unobserve') }
 		},
 		fittingSize: () => fit,
 	})!
-	function notify(window: any) { for (const o of observers) if (o.active && o.window === window) o.callback() }
+	function notify(window: any) { for (const o of observers) {if (o.active && o.window === window) {o.callback()}} }
 	return { handle, view, parent, content, windows, events, observers, notify,
 		changed: () => changed(), complete: () => completed(), fit: (next: any) => { fit = next }, fail: (next: string) => { fail = next } }
 }
@@ -63,7 +63,7 @@ test('native cancel respects a child sheet; native close then cancels the parent
 test('parent close or anchor retarget ends only the owned session, never reparents it', () => {
 	for (const mode of ['close', 'detach', 'retarget']) {
 		const f = fixture(); f.handle.present()
-		if (mode === 'close') f.notify(f.parent)
+		if (mode === 'close') {f.notify(f.parent)}
 		else { f.view.window = mode === 'detach' ? null : {}; f.changed() }
 		f.complete(); assert.equal(f.events.filter((e) => e === 'dismissed').length, 1)
 		assert.equal(f.windows.length, 1); assert.equal(f.handle.present(), false)
@@ -77,7 +77,7 @@ test('construction, observation and begin failures clean partial resources and r
 	for (const mode of ['make', 'observe', 'begin']) {
 		const f = fixture(); f.fail(mode); assert.equal(f.handle.present(), false); f.complete(); f.handle.close()
 		assert.ok(f.observers.every((o) => !o.active)); assert.equal(f.events.filter((e) => e === 'unavailable').length, 1)
-		assert.ok(!f.events.includes('dismissed')); if (f.windows[0]) assert.equal(f.windows[0].contentViewController, null)
+		assert.ok(!f.events.includes('dismissed')); if (f.windows[0]) {assert.equal(f.windows[0].contentViewController, null)}
 	}
 })
 test('invalid measurements use finite native minima; unsupported parents fail without a window', () => {

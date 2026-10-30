@@ -298,5 +298,5 @@ test('rich paragraph height uses host defaults and removes fixed height for norm
 	assert.equal(paragraph(undefined, 20).minimumLineHeight, 20)
 	assert.equal(paragraph('normal', 20).minimumLineHeight, undefined)
 	assert.equal(paragraph(undefined).maximumLineHeight, undefined)
-	for (const height of [0, -1, NaN, Infinity]) assert.equal(paragraph(height).minimumLineHeight, undefined)
+	for (const height of [0, -1, NaN, Infinity]) {assert.equal(paragraph(height).minimumLineHeight, undefined)}
 })

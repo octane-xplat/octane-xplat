@@ -30,7 +30,7 @@ test('source flags land before load, ready is deferred/once and unchanged paused
 	try {
 		assert.deepEqual(env.n.calls.slice(0, 4), [['muted', true], ['loop', true], ['fit', 'cover'], ['source', '/clip.mp4']]); assert.deepEqual(ready, [])
 		env.n.value.status = 'ready'; env.n.value.duration = 3000; env.tick(); assert.deepEqual(ready, [3000]); assert.equal(env.timers.size, 0)
-		for (let i = 0; i < 20; i++) env.owner.sync()
+		for (let i = 0; i < 20; i++) {env.owner.sync()}
 		assert.equal(env.timers.size, 0); assert.equal(env.n.calls.filter(([name]) => name === 'source').length, 1)
 		env.n.value.position = 1250; assert.equal(env.owner.handle.currentTime(), 1250); assert.equal(env.owner.handle.duration(), 3000)
 	} finally { env.owner.dispose() }
@@ -47,7 +47,7 @@ test('loading/playing poll at 250ms; a paused ready surface stops and current pl
 test('ready callback source replacement retires an old ended event and owns subsequent metadata', () => {
 	let env: ReturnType<typeof fixture>, ends = 0
 	const ready: number[] = []
-	env = fixture({ onReady: (event) => { ready.push(event.duration!); if (ready.length === 1) env.update({ src: '/next.mp4' }) }, onEnded: () => ends++ })
+	env = fixture({ onReady: (event) => { ready.push(event.duration!); if (ready.length === 1) {env.update({ src: '/next.mp4' })} }, onEnded: () => ends++ })
 	try {
 		env.n.value.status = 'ended'; env.n.value.duration = 1000; env.tick(); assert.deepEqual(ready, [1000]); assert.equal(ends, 0)
 		env.n.value.status = 'ready'; env.n.value.duration = 2000; env.tick(); assert.deepEqual(ready, [1000, 2000]); assert.equal(ends, 0)
@@ -63,7 +63,7 @@ test('current callbacks replace old ones and consumer exceptions do not become p
 test('native failure reports once; explicit play retries while rerenders do not, and source replacement can recover', () => {
 	const errors: string[] = [], env = fixture({ onError: (event) => errors.push(event.message!) })
 	try {
-		env.n.value.status = 'failed'; env.n.value.message = 'private source URI'; env.tick(); if (env.timers.size) env.tick()
+		env.n.value.status = 'failed'; env.n.value.message = 'private source URI'; env.tick(); if (env.timers.size) {env.tick()}
 		assert.deepEqual(errors, ['Video playback failed']); assert.equal(env.timers.size, 0); env.owner.sync(); assert.equal(env.timers.size, 0)
 		env.owner.handle.play(); assert.equal(env.n.calls.filter(([name]) => name === 'source').length, 2); env.n.value.status = 'ready'; env.n.value.playing = true; env.tick()
 		env.update({ src: '/recovered.mp4' }); env.n.value.status = 'ready'; env.tick(); assert.equal(errors.length, 1); assert.equal(env.n.calls.filter(([name]) => name === 'source').length, 3)

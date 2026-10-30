@@ -23,7 +23,7 @@ function load(tag, intlOverride) {
 	function require(name) {
 		const file = files.find(file => './' + file.slice(0, -3) === name)
 		if (!file) {
-			if (name.startsWith('./') || name === '@octane-xplat/lib/capability') return {}
+			if (name.startsWith('./') || name === '@octane-xplat/lib/capability') {return {}}
 			throw new Error('Unexpected metadata import')
 		}
 		if (!cache[file]) {
@@ -43,7 +43,7 @@ test('AppKit metadata separates script/region and retains canonical full locale 
 		['en-US-u-ca-gregory', { tag: 'en-US-u-ca-gregory', language: 'en', region: 'US' }],
 		['fr', { tag: 'fr', language: 'fr', region: '' }],
 		['zh-Hant', { tag: 'zh-Hant', language: 'zh', region: '' }],
-	]) assert.deepEqual(plain(load(tag).require('./locale.macos').locale), expected)
+	]) {assert.deepEqual(plain(load(tag).require('./locale.macos').locale), expected)}
 })
 
 test('AppKit metadata has a valid documented fallback without a usable Intl locale', () => {
@@ -53,7 +53,7 @@ test('AppKit metadata has a valid documented fallback without a usable Intl loca
 	for (const intl of [null, {}, { DateTimeFormat() { throw new Error('unavailable') } },
 		{ DateTimeFormat() { return { resolvedOptions() { throw new Error('unavailable') } } } },
 		{ DateTimeFormat() { return { resolvedOptions: () => ({ locale: 'zh-TW' }) } } },
-	]) assert.deepEqual(plain(load(undefined, intl).require('./locale.macos').locale), { tag: 'en', language: 'en', region: '' })
+	]) {assert.deepEqual(plain(load(undefined, intl).require('./locale.macos').locale), { tag: 'en', language: 'en', region: '' })}
 	for (const tag of [undefined, null, 123, '', 'not_a_valid_locale_!']) {
 		assert.deepEqual(plain(load(tag).require('./locale.macos').locale), { tag: 'en', language: 'en', region: '' })
 	}
@@ -74,10 +74,10 @@ test('AppKit root and purpose metadata share one snapshot and retain the truthfu
 
 test('AppKit metadata export conditions select matching runtime/types and preserve other targets', async () => {
 	const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
-	for (const service of ['locale', 'device']) for (const suffix of ['', '.ts']) {
+	for (const service of ['locale', 'device']) {for (const suffix of ['', '.ts']) {
 		const entry = manifest.exports[`./${service}${suffix}`]
 		assert.equal(entry.macos, `./src/${service}.macos.ts`)
 		assert.equal(entry.types, `./types/generated/${service}.d.ts`)
 		assert.equal(entry.default, `./src/${service}${suffix}`)
-	}
+	}}
 })

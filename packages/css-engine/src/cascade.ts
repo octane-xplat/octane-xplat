@@ -413,12 +413,12 @@ export function computeCascade(
 			for (let index = 0; index < declarations.length; index++) {
 				const declaration = declarations[index]
 				if ((declaration.property === 'animation' || declaration.property === 'animation-name') &&
-					String(declaration.value).trim().toLowerCase() === 'none') resetAt = index
+					String(declaration.value).trim().toLowerCase() === 'none') {resetAt = index}
 			}
 			parsed = { infos: keyframeAnimationsFromCSSDeclarations(declarations.slice(resetAt + 1)), reset: resetAt >= 0 }
 			rulesetAnimations.set(ruleset, parsed)
 		}
-		if (parsed.reset) animations.length = 0
+		if (parsed.reset) {animations.length = 0}
 		for (const info of parsed.infos ?? []) {
 			attachKeyframes(info)
 			animations.push(info)

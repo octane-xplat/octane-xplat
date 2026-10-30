@@ -124,7 +124,7 @@ it('dissolves distant slides, interpolates progress, and restores temporary styl
 		...object,
 		getPublicInstance(container, id) {
 			const view = object.getPublicInstance(container, id)
-			if (view) Object.assign(view, { parent, getActualSize: parent.getActualSize, getChildAt: (i: number) => slides[i] })
+			if (view) {Object.assign(view, { parent, getActualSize: parent.getActualSize, getChildAt: (i: number) => slides[i] })}
 			return view
 		},
 	})

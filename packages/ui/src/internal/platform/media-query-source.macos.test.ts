@@ -14,7 +14,7 @@ describe('AppKit media query source', () => {
 		expect(source.getSnapshot()).toBe(true)
 		expect(source.getSnapshot()).toBe(true) // Fresh host objects never escape.
 		width = 700
-		for (const notify of listeners) notify()
+		for (const notify of listeners) {notify()}
 		expect(observed).toEqual([false])
 		off()
 		expect(listeners.size).toBe(0)

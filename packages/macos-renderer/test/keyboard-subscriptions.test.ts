@@ -39,7 +39,7 @@ test('one node destroy hook releases every lease without skipping independent te
 	first(); f.observeViewKeys(f.view, { onKeyDown: () => {} })
 	assert.equal(f.node.destroyHooks.length, 1)
 	let unrelated = 0; f.node.destroyHooks.push(() => unrelated++)
-	for (const hook of f.node.destroyHooks) hook()
+	for (const hook of f.node.destroyHooks) {hook()}
 	assert.deepEqual(f.entries.map((entry) => entry.released), [1, 1, 1])
 	assert.equal(unrelated, 1)
 })
@@ -51,5 +51,5 @@ test('bridge ignores unknown/empty attachments and catches subscriber exceptions
 	f.observeViewKeys(f.view, { onKeyDown: () => { throw new Error('handler') } })
 	f.entries[0].handlers.onKeyDown({})
 	assert.equal(f.errors.length, 1)
-	for (const hook of f.node.destroyHooks) hook()
+	for (const hook of f.node.destroyHooks) {hook()}
 })

@@ -147,7 +147,7 @@ export function composeAttributedText(
 		const kern = Number(style.letterSpacing)
 		// Match plain labels: zero/normal reset inherited spacing by omitting
 		// an explicit kern attribute on this newly constructed run.
-		if (Number.isFinite(kern) && kern !== 0) attributes[native.NSKernAttributeName] = kern
+		if (Number.isFinite(kern) && kern !== 0) {attributes[native.NSKernAttributeName] = kern}
 
 		result.appendAttributedString(
 			native.NSAttributedString.alloc().initWithStringAttributes(run.text, attributes),

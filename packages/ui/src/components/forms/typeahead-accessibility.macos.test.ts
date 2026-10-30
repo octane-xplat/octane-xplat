@@ -10,7 +10,7 @@ function fixture() {
 		addObserverForNameObjectQueueUsingBlock(_: string, __: unknown, ___: unknown, callback: any) { const token = {}; observers.set(token, callback); return token }, removeObserver(token: object) { observers.delete(token) },
 	} } }
 	const controller = createAppKitTypeaheadAccessibility(() => state, () => host), flush = async () => { controller.update(); await Promise.resolve() }
-	const notify = (object = window) => { for (const callback of [...observers.values()]) callback({ object }) }
+	const notify = (object = window) => { for (const callback of [...observers.values()]) {callback({ object })} }
 	return { window, label, previous, input, list, row, state, observers, notifications, controller, flush, notify }
 }
 it('links current native input/list, preserves unrelated links and exposes pending selection without moving focus', async () => {

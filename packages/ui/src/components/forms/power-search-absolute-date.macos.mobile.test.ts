@@ -22,7 +22,7 @@ it('date-only deliberately drops time to midnight UTC and rejects typed time com
 	const unixSeconds = Date.parse('2026-10-29T12:30:01.123Z') / 1000
 	expect(absoluteFilterText(unixSeconds, true)).toBe('2026-10-29')
 	expect(absoluteFilterValue('2026-10-29', { type: 'date_absolute', isDateOnly: true }, { type: 'date_absolute', unixSeconds }).value?.unixSeconds).toBe(Date.parse('2026-10-29T00:00:00Z') / 1000)
-	for (const text of ['2026-10-29T00:00Z', '2026-10-29 00:00', '2026-02-30']) expect(absoluteFilterValue(text, { type: 'date_absolute', isDateOnly: true }).value).toBeNull()
+	for (const text of ['2026-10-29T00:00Z', '2026-10-29 00:00', '2026-02-30']) {expect(absoluteFilterValue(text, { type: 'date_absolute', isDateOnly: true }).value).toBeNull()}
 })
 it('date-only handles stored expanded years and pre-epoch sub-millisecond days without truncation rollover', () => {
 	for (const [unixSeconds, text, midnight] of [[Date.parse('+010000-06-01T12:34:56.789Z') / 1000, '+010000-06-01', Date.parse('+010000-06-01T00:00:00Z') / 1000], [-0.00001, '1969-12-31', -86400]] as const) {

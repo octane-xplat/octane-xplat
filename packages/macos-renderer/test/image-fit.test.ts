@@ -26,7 +26,7 @@ test('image position percentages use free space, including negative crop space; 
 test('all public keyword positions and shared edge-offset strings parse without CSS/DOM dependencies', () => {
 	for (const value of ['center', 'top', 'bottom', 'left', 'right', 'top left', 'top center', 'top right',
 		'right top', 'right center', 'right bottom', 'bottom left', 'bottom center', 'bottom right', 'left top', 'left center', 'left bottom',
-		'top 50% left 50%', 'bottom 10px right 25%', 'top 0px left 10px']) assert.ok(parseImagePosition(value), value)
+		'top 50% left 50%', 'bottom 10px right 25%', 'top 0px left 10px']) {assert.ok(parseImagePosition(value), value)}
 	assert.deepEqual(parseImagePosition(10), parseImagePosition('10px'))
 	assert.deepEqual(parseImagePosition('top left'), parseImagePosition('left top'))
 	assert.deepEqual(parseImagePosition('center right'), parseImagePosition('right center'))

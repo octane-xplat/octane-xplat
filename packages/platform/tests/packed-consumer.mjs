@@ -164,8 +164,8 @@ try {
 		for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
 			subpaths.push(`/${service}`)
 		}
-		if (target !== 'macos') subpaths.push('/clipboard', '/keep-awake')
-		else subpaths.push('/use-keep-awake', '/connectivity', '/storage')
+		if (target !== 'macos') {subpaths.push('/clipboard', '/keep-awake')}
+		else {subpaths.push('/use-keep-awake', '/connectivity', '/storage')}
 
 		const purposeContents = ['/locale', '/device', '/locale.ts', '/device.ts', '/system-bars', '/system-bars.ts']
 			.map((subpath, i) => `import * as purpose${i} from '@octane-xplat/platform${subpath}'; console.log(purpose${i});`)

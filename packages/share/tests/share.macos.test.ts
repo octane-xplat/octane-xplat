@@ -39,12 +39,12 @@ it('maps only terminal native outcomes and does not invent a clipboard fallback'
 it('normalizes absolute paths and encoded local file URLs; ignores Android-only file options', async () => {
 	const paths: string[] = []
 	globals.XplatShare = { shareKindValueSubjectCompletion(k: string, v: string, s: string, done: (result: string) => void) { expect(k).toBe('file'); expect(s).toBe(''); paths.push(v); done('shared') } }
-	for (const path of ['/tmp/a b.txt', 'file:///tmp/a%20b.txt', 'FILE://LOCALHOST/tmp/a%20b.txt', 'file:///tmp/a%23b%3Fc.txt']) await share.file(path, { subject: 'Android chooser', mimeType: 'text/plain' })
+	for (const path of ['/tmp/a b.txt', 'file:///tmp/a%20b.txt', 'FILE://LOCALHOST/tmp/a%20b.txt', 'file:///tmp/a%23b%3Fc.txt']) {await share.file(path, { subject: 'Android chooser', mimeType: 'text/plain' })}
 	expect(paths).toEqual(['/tmp/a b.txt', '/tmp/a b.txt', '/tmp/a b.txt', '/tmp/a#b?c.txt'])
 })
 it('rejects unsupported/malformed file paths before native presentation', async () => {
 	globals.XplatShare = { shareKindValueSubjectCompletion() { throw Error('native must not run') } }
-	for (const path of ['', 'relative.txt', 'https://example.com/a', 'content://example/a', 'file://remote/tmp/a', 'file://%2Ftmp/a', 'file://localhost', 'file:///tmp/%ZZ', 'file:///tmp/a?query', 'file:///tmp/a#fragment', 'file:///tmp/a%00b', '/tmp/a\0b']) await expect(share.file(path)).rejects.toThrow()
+	for (const path of ['', 'relative.txt', 'https://example.com/a', 'content://example/a', 'file://remote/tmp/a', 'file://%2Ftmp/a', 'file://localhost', 'file:///tmp/%ZZ', 'file:///tmp/a?query', 'file:///tmp/a#fragment', 'file:///tmp/a%00b', '/tmp/a\0b']) {await expect(share.file(path)).rejects.toThrow()}
 })
 it('native invocation failures reject instead of claiming an outcome', async () => {
 	globals.XplatShare = { shareKindValueSubjectCompletion() { throw Error('bridge failure') } }

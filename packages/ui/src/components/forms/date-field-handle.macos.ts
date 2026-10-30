@@ -16,13 +16,13 @@ export function createAppKitDateFieldHandle(options: {
 		focus() {
 			const view = options.primary(), window = view?.window
 			if (!view || !window || options.blocked() || read(view, 'hidden') || read(view, 'hiddenOrHasHiddenAncestor') ||
-				!enabled(view, 'enabled') || !enabled(view, 'isEnabled') || !enabled(view, 'isAccessibilityEnabled')) return
+				!enabled(view, 'enabled') || !enabled(view, 'isEnabled') || !enabled(view, 'isAccessibilityEnabled')) {return}
 			window.makeFirstResponder(view)
 		},
 		blur() {
 			for (const view of options.fields?.() ?? [options.primary()]) {
 				const window = view?.window, responder = window?.firstResponder
-				if (!view || !window || !responder) continue
+				if (!view || !window || !responder) {continue}
 				if (responder === view || responder === read(view, 'currentEditor')) {
 					window.makeFirstResponder(null)
 					return

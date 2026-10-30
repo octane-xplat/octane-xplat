@@ -37,7 +37,7 @@ describe('AppKit files bridge', () => {
 		} })
 		vi.stubGlobal('NSData', { dataWithBytesLength: (buffer: ArrayBuffer, length: number) => ({
 			writeToURLAtomically: () => {
-				if (writeOK) writes.push(new Uint8Array(buffer, 0, length).slice())
+				if (writeOK) {writes.push(new Uint8Array(buffer, 0, length).slice())}
 				return writeOK
 			},
 		}) })

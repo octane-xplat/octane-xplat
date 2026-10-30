@@ -120,7 +120,7 @@ test('AppKit initial URL-handler failure removes its registration and restores f
 test('AppKit retry does not replay pending URLs delivered before a later handler failure', () => {
 	const h = load(['xplat://first', 'xplat://second']), observed = []
 	assert.throws(() => h.host.onDeepLink(url => {
-		if (url === 'xplat://second') throw new Error('second failed')
+		if (url === 'xplat://second') {throw new Error('second failed')}
 		observed.push(url)
 	}), /second failed/)
 	assert.deepEqual(observed, ['xplat://first'])

@@ -21,8 +21,8 @@ test('border styles expand CSS side order and preserve explicit shorthand/side o
 test('pattern metrics scale with width and hidden styles remain separate from solid painting', () => {
 	assert.deepEqual(borderStrokeStyle('dashed', 2), { pattern: [6, 6], cap: 'butt' })
 	assert.deepEqual(borderStrokeStyle('dotted', 1.5), { pattern: [0, 3], cap: 'round' })
-	for (const width of [0, -1, NaN, Infinity, Number.MAX_VALUE]) assert.equal(borderStrokeStyle('dashed', width), null)
-	for (const style of ['solid', 'none', 'hidden', 'double']) assert.equal(borderStrokeStyle(style, 2), null)
+	for (const width of [0, -1, NaN, Infinity, Number.MAX_VALUE]) {assert.equal(borderStrokeStyle('dashed', width), null)}
+	for (const style of ['solid', 'none', 'hidden', 'double']) {assert.equal(borderStrokeStyle(style, 2), null)}
 	assert.equal(hiddenBorderStyle('none'), true)
 	assert.equal(hiddenBorderStyle('hidden'), true)
 	assert.equal(hiddenBorderStyle('dashed'), false)

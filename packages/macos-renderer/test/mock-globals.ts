@@ -76,13 +76,13 @@ export function runSlice(code: string, context?: Record<string, any>) {
 export function spySliceContext(target: Record<string, any> = {}) {
 	const sandbox = new Proxy(target, {
 		has(t, key) {
-			if (typeof key !== 'string') return key in t
+			if (typeof key !== 'string') {return key in t}
 			return key in t || key in globalThis || !SLICE_STUB_NAMES.has(key)
 		},
 		get(t, key) {
-			if (key in t) return (t as any)[key]
-			if (typeof key !== 'string') return undefined
-			if (key in globalThis) return (globalThis as any)[key]
+			if (key in t) {return (t as any)[key]}
+			if (typeof key !== 'string') {return undefined}
+			if (key in globalThis) {return (globalThis as any)[key]}
 			const calls: any[][] = []
 			// A `function` (not an arrow) stays a valid `instanceof` right side.
 			const spy: any = function (...args: any[]) {

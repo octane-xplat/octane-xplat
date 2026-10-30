@@ -936,7 +936,7 @@ test('double borders paint two bands per side and retire the extras with the sty
 	const extras = item.borderBandShapes
 	setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'dashed' })
 	assert.equal(item.borderStroke.hidden, false, 'uniform dashed strokes through borderStroke')
-	for (const side of ['top', 'right', 'bottom', 'left']) assert.equal(extras[side][0].hidden, true)
+	for (const side of ['top', 'right', 'bottom', 'left']) {assert.equal(extras[side][0].hidden, true)}
 })
 
 test('an unknown decorative border style warns once and paints solid', () => {

@@ -17,7 +17,7 @@ function load(warn) {
 	function require(name) {
 		const file = files.find(file => './' + file.slice(0, -3) === name)
 		if (!file) {
-			if (name.startsWith('./') || name === '@octane-xplat/lib/capability') return {}
+			if (name.startsWith('./') || name === '@octane-xplat/lib/capability') {return {}}
 			throw new Error('Unexpected system-bars import')
 		}
 		if (!cache[file]) {

@@ -111,7 +111,7 @@ function fixture() {
 	textNodesByView.set(view, node)
 	const target = new api.ButtonActionTarget()
 	return { ...api, view, node, target, scopes, actionHandlers, textNodesByView, writers, observers,
-		runJobs() { for (const job of jobs.splice(0)) if (!cancelled.has(job)) job() },
+		runJobs() { for (const job of jobs.splice(0)) {if (!cancelled.has(job)) {job()}} },
 	}
 }
 

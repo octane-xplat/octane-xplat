@@ -7,12 +7,12 @@ export function appKitDroppedFiles(uris: readonly string[], accept?: string, nat
 	for (const uri of new Set(uris)) {
 		let url: any, scoped = false
 		try {
-			if (!uri.startsWith('file:')) continue
+			if (!uri.startsWith('file:')) {continue}
 			url = native.NSURL?.URLWithString(uri)
-			if (!url?.isFileURL || !url.path || !url.lastPathComponent) continue
+			if (!url?.isFileURL || !url.path || !url.lastPathComponent) {continue}
 			scoped = url.startAccessingSecurityScopedResource?.() ?? false
 			const attributes = native.NSFileManager?.defaultManager?.attributesOfItemAtPathError?.(url.path, null)
-			if (String(attributes?.objectForKey?.(native.NSFileType ?? 'NSFileType')) !== String(native.NSFileTypeRegular ?? 'NSFileTypeRegular')) continue
+			if (String(attributes?.objectForKey?.(native.NSFileType ?? 'NSFileType')) !== String(native.NSFileTypeRegular ?? 'NSFileTypeRegular')) {continue}
 			const value = attributes.objectForKey(native.NSFileSize ?? 'NSFileSize')
 			const raw = typeof value?.unsignedLongLongValue === 'function' ? value.unsignedLongLongValue() : value?.unsignedLongLongValue ?? value
 			const size = raw == null ? undefined : Number(raw)

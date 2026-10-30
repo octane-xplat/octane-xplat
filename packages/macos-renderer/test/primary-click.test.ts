@@ -58,8 +58,8 @@ test('a root without a superview consumes window coordinates and invalid points 
 })
 
 test('boundary classification preserves disabled widgets, native editors and hosted surfaces but not display content', () => {
-	for (const type of ['button', 'textfield', 'textview', 'searchbar', 'slider', 'webview', 'htmlview']) assert.equal(isPrimaryClickBoundary(type, undefined, false), true)
-	for (const role of ['button', 'checkbox', 'radio', 'link', 'combobox', 'tablist']) assert.equal(isPrimaryClickBoundary('masonview', role, false), true)
-	for (const type of ['masonview', 'label', 'image', 'progress']) assert.equal(isPrimaryClickBoundary(type, 'group', false), false)
+	for (const type of ['button', 'textfield', 'textview', 'searchbar', 'slider', 'webview', 'htmlview']) {assert.equal(isPrimaryClickBoundary(type, undefined, false), true)}
+	for (const role of ['button', 'checkbox', 'radio', 'link', 'combobox', 'tablist']) {assert.equal(isPrimaryClickBoundary('masonview', role, false), true)}
+	for (const type of ['masonview', 'label', 'image', 'progress']) {assert.equal(isPrimaryClickBoundary(type, 'group', false), false)}
 	assert.equal(isPrimaryClickBoundary('masonview', undefined, true), true)
 })

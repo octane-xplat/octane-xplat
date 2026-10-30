@@ -15,9 +15,9 @@ const plain = value => JSON.parse(JSON.stringify(value))
 function load(owner) {
 	const context = vm.createContext({ __xplatAppKit: owner }), cache = {}
 	function require(name) {
-		if (name === 'octane') return { useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot() }
+		if (name === 'octane') {return { useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot() }}
 		const base = name.replace('./', ''), file = files.find(file => file.replace(/\.(ts|tsrx)$/, '') === base)
-		if (!file) return {}
+		if (!file) {return {}}
 		if (!cache[file]) {
 			const exports = cache[file] = {}
 			vm.runInContext(`(function(exports, require) {${compiled[file]}\n})`, context)(exports, require)
@@ -84,11 +84,11 @@ test('AppKit duplicate readers own independent subscriptions and method receiver
 	const listener = () => { calls++ }
 	const first = source.subscribe(listener), second = source.subscribe(listener)
 	assert.equal(windows.size, 2)
-	for (const notify of [...windows]) notify()
+	for (const notify of [...windows]) {notify()}
 	assert.equal(calls, 2)
 	first(); first()
 	assert.equal(windows.size, 1)
-	for (const notify of [...windows]) notify()
+	for (const notify of [...windows]) {notify()}
 	assert.equal(calls, 3)
 	second()
 	assert.equal(windows.size, 0)
@@ -101,10 +101,10 @@ test('AppKit native callback and cleanup failures cannot revive readers or block
 	let calls = 0
 	const first = source.subscribe(() => { throw new Error('reader failed') })
 	const second = source.subscribe(() => { calls++ })
-	for (const notify of [...windows]) assert.doesNotThrow(notify)
+	for (const notify of [...windows]) {assert.doesNotThrow(notify)}
 	assert.equal(calls, 1)
 	assert.doesNotThrow(first); assert.doesNotThrow(second)
-	for (const notify of [...windows]) notify()
+	for (const notify of [...windows]) {notify()}
 	assert.equal(calls, 1)
 })
 
@@ -114,7 +114,7 @@ test('AppKit registration failure retires held callbacks and a later store selec
 	host.onAppStateChange = listener => {
 		held = listener
 		listener()
-		if (failing) throw new Error('not ready')
+		if (failing) {throw new Error('not ready')}
 		return () => { removed++ }
 	}
 	const h = load(host), failed = h.appKitActivitySource()
@@ -154,7 +154,7 @@ test('AppKit root and purpose hooks use identical implementations and neutral de
 	const { host } = owner(), h = load(host), root = h.require('./index.macos')
 	for (const [module, names] of [['screen', ['useWindowSize']], ['lifecycle', ['useAppState', 'useBackHandler']],
 		['safe-area', ['useSafeAreaInsets']], ['breakpoints', ['useBreakpoints$']]]) {
-		for (const name of names) assert.equal(root[name], h.require(`./${module}.macos`)[name])
+		for (const name of names) {assert.equal(root[name], h.require(`./${module}.macos`)[name])}
 	}
 	assert.equal(root.useWindowSize().width, 800)
 	assert.equal(root.useAppState(), 'active')

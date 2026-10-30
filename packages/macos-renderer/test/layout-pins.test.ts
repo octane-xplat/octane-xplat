@@ -141,7 +141,7 @@ test('sticky native sibling ordering puts shifted start/end cells above ordinary
 		subviews: children.map((node) => node.view),
 		addSubviewPositionedRelativeTo: (view: object) => calls.push(view),
 	}
-	for (const node of children) Object.assign(node.view, { superview: host })
+	for (const node of children) {Object.assign(node.view, { superview: host })}
 	const parent = { children }
 	Object.assign(start, { parent })
 	const code = source.slice(source.indexOf('function orderStickySiblings'), source.indexOf('const stickyPlacements ='))

@@ -8,11 +8,11 @@ export function createTabStopSuppression() {
 			owners.set(view, (owners.get(view) ?? 0) + 1)
 			let active = true
 			return () => {
-				if (!active) return
+				if (!active) {return}
 				active = false
 				const count = (owners.get(view) ?? 1) - 1
-				if (count > 0) owners.set(view, count)
-				else owners.delete(view)
+				if (count > 0) {owners.set(view, count)}
+				else {owners.delete(view)}
 			}
 		},
 	}
