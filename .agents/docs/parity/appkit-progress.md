@@ -10370,7 +10370,7 @@ Broad checks remain outside the narrowly authorized stall investigation; no
 new merge qualification is claimed. Before integration, run:
 
 ```sh
-pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/files --filter=...@xplat/macos
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/files --filter=...@octane-xplat/macos-renderer --filter=...@xplat/macos
 ```
 
 No public API or recipe behavior changed in these compile and harness fixes.
@@ -10378,3 +10378,36 @@ The native input, VoiceOver, presentation and notarization gaps above remain
 open. Local Silo feedback preserves the compile and cold-deadline expectation
 mismatches (`a7b30cd8-bfd1-4319-bd57-ddd17a53b01c`,
 `53a5dcff-3031-42a2-8cc3-ad8983818de7`).
+
+
+### Unchanged Mason style submissions (2026-10-29)
+
+Commit `44f9967c1` caches the last successful native style dictionary for each
+renderer node. Repeated subtree synchronization skips unchanged style writes.
+Temporary root and scroll-content sizing use the same cache, so an ancestor
+pass restores authored dimensions. Style removal, native handle recreation and
+failed writes invalidate or replace the cached value. Leaf measurement dirty
+calls and layout scheduling retain their existing behavior.
+
+The focused `test:mason` task executes source against fake native hosts; it
+needs no generated SDK declarations or native process. All 22 tests pass,
+including repeated style synchronization, root resizing, scroll-content sizing,
+property removal, reused native handles and recovery from failed style writes:
+
+```sh
+pnpm exec turbo run test:mason --filter=@octane-xplat/macos-renderer
+```
+
+Targeted lint passes with the existing unused `make` warning in `mason.ts`.
+The attempted native comparison was cancelled by the resource broker after
+4m49s, during dependency preparation, with `resource workload cancelled or
+task ownership lost`. It never launched the host. Output is local in
+`/tmp/appkit-mason-smoke.log`; focused test output is in
+`/tmp/appkit-mason-tests4.log`. This second broker cancellation does not prove
+a timeout, runtime regression or runtime improvement. The full 30-assertion
+sweep remains required, and no native qualification checkbox closes here.
+
+This is an internal bridge optimization with no public API, recipe or agent
+workflow change. No startup-speed or stall-fix claim is made without the native
+comparison. The dependent typecheck above now includes `macos-renderer`;
+merging remains deferred until those required checks can run.
