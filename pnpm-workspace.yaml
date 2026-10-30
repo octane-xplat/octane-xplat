@@ -193,8 +193,8 @@ patchedDependencies:
   # native map reorders retain host identity, state, and portal content. Rebased against the
   # registry 0.16.3 tarball; upstream Children and binding-bag implementations are
   # preserved. Also normalizes `queueRefAttach`'s scope-or-block argument — descriptor host
-  # mounts pass the owner Block through `setHostProps`, leaving queued ref attaches with `block:
-  # undefined` and crashing `drainQueuedRefAttaches` in `comparePostOrder`.
+  # mounts pass the owner Block through `setHostProps`, leaving queued ref attaches with
+  # `block: undefined` and crashing `drainQueuedRefAttaches` in `comparePostOrder`.
   octane@0.16.3: packages/cli/patches/octane@0.16.3.patch
   # Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size
   # flex alignment, so those hunks are removed. Retains the unshipped parent-padding
