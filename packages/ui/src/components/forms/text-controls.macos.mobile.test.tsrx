@@ -91,16 +91,15 @@ it('an enclosing AppKit Field owns text chrome and inherited state without nesti
 	} finally { env.root.unmount() }
 })
 
-it('AppKit Field preserves inline CSS strings and hidden labels keep the accessible name', () => {
+it('AppKit Field preserves authored styles and hidden labels keep the accessible name', () => {
 	function Parent() {
-		return <FormField label="Secret" isLabelHidden style="width:240px;min-width:120px">
+		return <FormField label="Secret" isLabelHidden style={{ width: 240, minWidth: 120 }}>
 			<TextArea />
 		</FormField>
 	}
 	const env = mount(Parent, {})
 	try {
-		expect(env.find('masonview').props.style).toContain('flex-direction:column')
-		expect(env.find('masonview').props.style).toContain('width:240px;min-width:120px')
+		expect(env.find('masonview').props.style).toMatchObject({ display: 'flex', flexDirection: 'column', width: 240, minWidth: 120 })
 		expect(env.all().filter((node) => node.type === 'label')).toHaveLength(0)
 		expect(env.find('textview').props.accessibilityLabel).toBe('Secret')
 	} finally { env.root.unmount() }

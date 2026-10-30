@@ -6,7 +6,7 @@ import type { PowerSearchConfig } from '../../props'
 // Mock child controls to retain the editor's exact callbacks. This covers
 // editor ownership, not TextInput/Button native event translation or input.
 vi.mock('./text-controls.macos.tsrx', () => ({ TextInput: (props: any) => <textfield ref={(view: any) => props.ref?.(view ? { native: view, focus() {}, blur() {} } : null)} text={props.value} onTextChange={props.onChange} /> }))
-vi.mock('../actions/controls.macos.tsrx', () => ({ Button: (props: any) => <button text={props.label} onPress={props.clickAction} isEnabled={!props.isDisabled} /> }))
+vi.mock('../actions/controls.macos.tsrx', () => ({ Button: (props: any) => <button text={props.label} onTap={props.clickAction} isEnabled={!props.isDisabled} /> }))
 vi.mock('./SegmentedControl.macos.tsrx', () => ({ SegmentedControl: () => <masonview /> }))
 vi.mock('./Tokenizer.macos.tsrx', () => ({ Tokenizer: () => <masonview /> }))
 const config: PowerSearchConfig = { name: 'range', fields: [{ key: 'created', label: 'Created', operators: [
@@ -17,7 +17,7 @@ function mount() {
 	const container = createObjectContainer('nativescript'), root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const base = { config, filter: filter(), mode: 'edit', onSave: vi.fn(), onCancel: vi.fn() }
 	const all = (): any[] => { const visit = (node: any): any[] => [node, ...(node.children?.flatMap(visit) ?? [])]; return container.children.flatMap(visit) }
-	const button = (label: string) => all().find((node) => node.type === 'button' && node.props?.text === label)?.props.onPress
+	const button = (label: string) => all().find((node) => node.type === 'button' && node.props?.text === label)?.props.onTap
 	const fields = () => all().filter((node) => node.type === 'textfield')
 	const render = (props: any) => flushUniversalSync(() => root.render(PowerSearchFilterEditor, props))
 	const flush = () => flushUniversalSync(() => {})

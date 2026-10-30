@@ -115,7 +115,7 @@ function GeometryReader() {
 				<label text="Reserved header trial: 64 points" />
 			</masonview>
 			<scrollview id="pull-refresh-geometry" ref={scroller} orientation="vertical"
-				style={{ flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0 }}
+				style={{ flexGrow: 1, flexShrink: 1, height: 0, minHeight: 0 }}
 				onScroll={() => controls.current?.sample('bounds')}
 				onLayoutChanged={() => controls.current?.sample('layout')}>
 				<masonview style={{ width: 320, height: tall ? 900 : 80 }}>

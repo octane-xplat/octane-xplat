@@ -15,7 +15,7 @@ export default function TextOverflowCssProbe() {
 		<Text>Manual AppKit text overflow fixture. Change CSS modes, width, content and the explicit line limit. Native drawing, resize, copying, VoiceOver and installed behavior remain unqualified. Visual comparison requires separate authorization.</Text>
 		<masonview id="text-overflow-css-preview" className="text-overflow-frame" style={{ width: wide ? 320 : 160, direction: rtl ? 'rtl' : 'ltr' }}>
 			<label className={classes} text={short ? 'Short title' : title} maxLines={limit ? 2 : undefined} style={{ textAlign: alignments[alignment] }} />
-			<label className={classes} maxLines={limit ? 2 : undefined} style={{ lineHeight: 24, textAlign: alignments[alignment] }}>
+			<label className={classes} maxLines={limit ? 2 : undefined} style={{ lineHeight: '24px', textAlign: alignments[alignment] }}>
 				<formattedstring><span text={short ? 'Short ' : title} /><span text=" Formatted suffix" style={{ fontWeight: 700 }} /></formattedstring>
 			</label>
 		</masonview>

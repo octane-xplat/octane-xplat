@@ -12,7 +12,7 @@ export default function ImageLoadingProbe() {
 				contentFit="contain" className={['image-frame', { selected: second }]}
 				style={{ width: 48, height: 48 }} />
 			{second ? <Image id="image-second" src={pixel} alt="Second image" flexGrow={1}
-				contentFit="contain" style="width:48px;height:48px" /> : null}
+				contentFit="contain" style={{ width: 48, height: 48 }} /> : null}
 		</HStack>
 		<Button id="toggle-image" label="Toggle second image" clickAction={() => setSecond((value) => !value)} />
 		<Text>Both views use one source. Toggle the second view to exercise removal and reuse.</Text>

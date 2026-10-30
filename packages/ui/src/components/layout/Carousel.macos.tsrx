@@ -304,7 +304,7 @@ function AppKitCarouselSlide(props: {
 		)}
 		accessibilityRole="group"
 		accessibilityLabel={`Slide ${props.index + 1} of ${props.count}`}
-		style={{ width: props.width, flexBasis: props.width ?? 'auto' }}
+		style={{ width: props.width }}
 	>
 		{props.children}
 	</masonview>
