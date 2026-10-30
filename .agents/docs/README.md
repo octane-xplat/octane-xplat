@@ -44,7 +44,7 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 - [Native Screen bounds](screen-safe-area.md) — first layout, prepared Pages, and inset ownership.
 - [Software keyboard handling](keyboard.md) — native movement and focused-input feasibility boundaries.
-- [Keyboard shortcuts](shortcuts.md) — Powerkeys engine boundary and desktop input evidence.
+- [Keyboard shortcuts](shortcuts.md) — Shared engine boundaries and desktop input evidence.
 - [Implementation notes](notes/README.md) — current implementation observations and evidence.
 - [Recipes](recipes/README.md) — internal workflow specifications and coverage contracts.
 - [Platform parity records](parity/README.md) — parity coverage and platform investigations.

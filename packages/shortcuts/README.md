@@ -3,10 +3,9 @@
 > Add scoped keyboard commands, multi-step sequences, and user-recorded bindings
 > to web and experimental native desktop apps.
 
-`@octane-xplat/shortcuts` follows [Powerkeys](https://github.com/alloc/powerkeys).
-It owns keyboard matching and availability; your app keeps its command registry,
-menus, labels, and saved preferences. It is separate from the software-keyboard
-layout package, `@octane-xplat/keyboard`.
+`@octane-xplat/shortcuts` owns keyboard matching and availability; your app
+keeps its command registry, menus, labels, and saved preferences. It is separate
+from the software-keyboard layout package, `@octane-xplat/keyboard`.
 
 ## Install and try
 
@@ -46,4 +45,3 @@ system-wide hotkeys are unsupported. Missing host support throws at creation.
 Read [Add keyboard shortcuts](../../docs/app/keyboard-shortcuts.md) for native
 ownership, scopes, recording, rebinding, and host limits. The maintained
 [workspace installer](examples/workspace.ts) shows a shared service.
-See [upstream attribution](UPSTREAM.md) for the engine's origin and changes.

@@ -6,19 +6,13 @@ on it nor re-exports it. `@octane-xplat/keyboard` continues to own software
 keyboard geometry and avoidance. The public workflow is
 [Add keyboard shortcuts](../../docs/app/keyboard-shortcuts.md).
 
-## Engine origin and API choices
+## Engine and API boundaries
 
-The local engine derives from Powerkeys 0.2.5 at
-[`18ee1fd0`](https://github.com/alloc/powerkeys/tree/18ee1fd0eeee5e4430b193a55e93247d7698d758).
-Its direct DOM `instanceof` checks, target listeners and platform detection
-prevent using that runtime unchanged in AppKit/GJS/WinUI. Source inspection is
-the evidence for this upstream boundary. The local fork injects only host
-events, boundaries, editable detection, timers and platform identity; retain
-upstream scope, sequence, reservation, recording and binding-set behavior.
-See [attribution and local changes](../../packages/shortcuts/UPSTREAM.md).
-Remove the fork when an upstream host-neutral engine can pass the retained suite.
+The shared engine handles parsing, scopes, conflicts, sequences, reservations,
+recording and binding sets. Host adapters supply events, boundaries, editable
+detection, timers and platform identity.
 
-Keep the Powerkeys operation names and separate `combo`/`sequence` descriptors.
+Keep separate `combo`/`sequence` descriptors.
 The shared target is an opaque host object, and callbacks expose a structural
 event without DOM types. An optional `platform` override makes `Mod` resolution
 deterministic without changing defaults. Explicit physical codes must not fall
@@ -64,7 +58,7 @@ concerns.
 
 ## Verification
 
-The retained Powerkeys suite and local regressions exercise registration,
+The engine suite and host regressions exercise registration,
 availability, conflicts, sequences, blocklists, recording, rebinding, physical
 matching, iframe realms and disposal. Native adapter unit fixtures use models. The separate desktop runners below
 exercise the actual native adapters and their engine.

@@ -58,7 +58,7 @@ A combo is one key press with modifiers; a sequence is several presses.
 Letter names such as `k` follow the keyboard layout. Explicit codes such as
 `KeyK`, `Digit1`, `Slash`, and `NumpadEnter` follow physical positions.
 `Plus` names the `+` character. Alt+letter/digit bindings also match their
-physical position, preserving Powerkeys' handling of Option-generated symbols.
+physical position, including when Option produces a symbol.
 
 ```ts
 // Continue with an existing shortcuts runtime.
@@ -69,7 +69,7 @@ shortcuts.bind('Shift+Plus', () => console.log('Increase size'))
 
 Bindings ignore editable targets and held-key repeats by default. Opt in for
 commands that belong in text fields. Composition events never dispatch bindings;
-recording still observes delivered composition events, as in Powerkeys.
+recording still observes delivered composition events.
 
 ```ts
 shortcuts.bind({

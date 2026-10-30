@@ -9,8 +9,7 @@
 		"directory": "packages/shortcuts"
 	},
 	"files": [
-		"dist",
-		"UPSTREAM.md"
+		"dist"
 	],
 	"type": "module",
 	"sideEffects": false,

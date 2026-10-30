@@ -34,7 +34,7 @@ function withPlatform<T>(platform: string, run: () => T): T {
 	}
 }
 
-describe('powerkeys', () => {
+describe('shortcuts', () => {
 	afterEach(() => {
 		document.body.innerHTML = ''
 	})
