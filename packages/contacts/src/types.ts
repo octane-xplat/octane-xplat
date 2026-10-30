@@ -130,18 +130,18 @@ export interface Contacts {
 	 *  post-request grant state, 'unsupported' when the store can't be reached. */
 	ensure(): Promise<PermissionResult>
 	/** Fetch contacts in pages. */
-getAll(options?: GetContactsOptions): Promise<Contact[]>
+	getAll(options?: GetContactsOptions): Promise<Contact[]>
 	/** Substring search over display names. */
-getByName(predicate: string, fields?: ContactField[]): Promise<Contact[]>
+	getByName(predicate: string, fields?: ContactField[]): Promise<Contact[]>
 	/** iOS: direct id fetch. Android: the plugin ships no id lookup, so this
 	 *  fetches the full store and filters — read-all cost, call sparingly. */
 	getById(id: string, fields?: ContactField[]): Promise<Contact | null>
 	/** Insert a contact; resolves the store-assigned id. */
-add(contact: NewContact): Promise<string>
+	add(contact: NewContact): Promise<string>
 	/** Patch fields of an existing contact by id. */
-update(id: string, contact: NewContact): Promise<string>
+	update(id: string, contact: NewContact): Promise<string>
 	/** Delete a contact by id. */
-remove(id: string): Promise<void>
+	remove(id: string): Promise<void>
 }
 
 export declare const contacts: Contacts

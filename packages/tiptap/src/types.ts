@@ -80,21 +80,21 @@ export interface TiptapEditorHandle {
 	 * See the platform subset in docs/app/rich-text.md. */
 	apply(format: TiptapFormat): void
 	/** Apply a link to the current selection. */
-linkTo(url: string, anchor?: string): void
+	linkTo(url: string, anchor?: string): void
 	/** Strip the link covering the current selection. */
-removeLink(): void
+	removeLink(): void
 	/** Query whether a mark/node type is active at the selection. */
-isActive(format: TiptapFormat): boolean
+	isActive(format: TiptapFormat): boolean
 	/** Undo the last edit. */
-undo(): void
+	undo(): void
 	/** Redo the last undone edit. */
-redo(): void
+	redo(): void
 	/** Programmatically focus the editor. */
-focus(): void
+	focus(): void
 	/** Programmatically blur the editor. */
-blur(): void
+	blur(): void
 	/** Whether the editor currently has focus. */
-isFocused(): boolean
+	isFocused(): boolean
 	/** The platform surface — a tiptap `Editor` on web, `AztecText` on
 	 *  Android. */
 	/** AppKit: the XplatEditorHost transport, not the browser engine instance. */
