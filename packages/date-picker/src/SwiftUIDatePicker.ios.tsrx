@@ -27,7 +27,7 @@ registerSwiftUI(
 )
 
 /** Renders a SwiftUI DatePicker through NativeScript's SwiftUI bridge. */
-export function SwiftUIDatePicker(props: SwiftUIDatePickerProps) @{
+export function SwiftUIDatePicker(props: SwiftUIDatePickerProps): unknown @{
 	const controlled = props.selection !== undefined
 	const [internalSelection, setInternalSelection] = useState<Date | undefined>(
 		props.defaultSelection,

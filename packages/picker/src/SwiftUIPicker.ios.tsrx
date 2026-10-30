@@ -27,7 +27,7 @@ registerSwiftUI(
 )
 
 /** Renders a menu-style SwiftUI Picker through NativeScript's SwiftUI bridge. */
-export function SwiftUIPicker(props: SwiftUIPickerProps) @{
+export function SwiftUIPicker(props: SwiftUIPickerProps): unknown @{
 	const controlled = props.selection !== undefined
 	const [internalSelection, setInternalSelection] = useState(
 		props.defaultSelection ?? props.options[0]?.id ?? '',

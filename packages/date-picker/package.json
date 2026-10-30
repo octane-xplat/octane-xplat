@@ -8,7 +8,7 @@
 		"directory": "packages/date-picker"
 	},
 	"files": [
-		"types",
+		"types/generated",
 		"src",
 		"platforms",
 		"!src/**/*.test.*",
@@ -17,22 +17,37 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./types/index.d.ts",
-			"web": "./src/index.ts",
-			"native": "./src/index.ts",
+			"types": "./types/generated/index.d.ts",
+			"web": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
 			"default": "./src/index.ts"
 		},
 		"./ios": {
-			"types": "./types/ios/index.d.ts",
-			"native": "./src/ios/index.ts"
+			"types": "./types/generated/ios/index.d.ts",
+			"native": {
+				"types": "./types/generated/ios/index.d.ts",
+				"default": "./src/ios/index.ts"
+			}
 		},
 		"./android": {
-			"types": "./types/android/index.d.ts",
-			"native": "./src/android/index.ts"
+			"types": "./types/generated/android/index.d.ts",
+			"native": {
+				"types": "./types/generated/android/index.d.ts",
+				"default": "./src/android/index.ts"
+			}
 		},
 		"./macos": {
-			"types": "./types/macos/index.d.ts",
-			"macos": "./src/macos/index.ts"
+			"types": "./types/generated/macos/index.d.ts",
+			"macos": {
+				"types": "./types/generated/macos/index.d.ts",
+				"default": "./src/macos/index.ts"
+			}
 		}
 	},
 	"publishConfig": {
@@ -43,7 +58,8 @@
 		"test": "node --test tests/date-picker-owner.macos.test.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typegen": "tsc -p tsconfig.types.json"
+		"typegen": "tsrx-typegen --target date-picker",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",
@@ -58,7 +74,8 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -81,5 +98,6 @@
 			"android": "9.1.0",
 			"ios": "9.1.0"
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

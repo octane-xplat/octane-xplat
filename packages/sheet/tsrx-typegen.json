@@ -1,7 +1,56 @@
 {
 	"targets": {
-		"pack": {
-			"emit": false
+		"sheet": {
+			"renderer": "@octane-xplat/jsx",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": [
+						"./src/index.ts"
+					],
+					"types": [
+						"./types/generated/index.d.ts"
+					]
+				},
+				"./ios": {
+					"source": "src/ios/index.ts",
+					"runtime": [
+						"./src/ios/index.ts"
+					],
+					"types": [
+						"./types/generated/ios/index.d.ts"
+					]
+				},
+				"./android": {
+					"source": "src/android/index.ts",
+					"runtime": [
+						"./src/android/index.ts"
+					],
+					"types": [
+						"./types/generated/android/index.d.ts"
+					]
+				},
+				"./web": {
+					"source": "src/web/index.ts",
+					"runtime": [
+						"./src/web/index.ts"
+					],
+					"types": [
+						"./types/generated/web/index.d.ts"
+					]
+				},
+				"./macos": {
+					"source": "src/macos/index.ts",
+					"runtime": [
+						"./src/macos/index.ts"
+					],
+					"types": [
+						"./types/generated/macos/index.d.ts"
+					]
+				}
+			}
 		}
 	}
 }

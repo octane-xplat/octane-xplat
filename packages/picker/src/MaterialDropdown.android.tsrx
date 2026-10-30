@@ -33,7 +33,7 @@ registerJetpackCompose(
 )
 
 /** Renders a Material 3 dropdown through the NativeScript Jetpack Compose bridge. */
-export function MaterialDropdown(props: MaterialDropdownProps) @{
+export function MaterialDropdown(props: MaterialDropdownProps): unknown @{
 	const controlled = props.selectedKey !== undefined
 	const [internalKey, setInternalKey] = useState(
 		props.defaultSelectedKey ?? props.items[0]?.key ?? '',

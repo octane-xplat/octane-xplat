@@ -73,7 +73,7 @@ let seq = 0
 /** Renders a SwiftUI .contextMenu whose trigger and optional preview portal
  *  from the declaring Octane tree into NativeScript hosts. Menu items arrive
  *  as serialized data. */
-export function SwiftUIContextMenu(props: SwiftUIContextMenuProps) @{
+export function SwiftUIContextMenu(props: SwiftUIContextMenuProps): unknown @{
 	const triggerId = useRef<string>('')
 	if (!triggerId.current) {
 		triggerId.current = `ctxmenu${++seq}`

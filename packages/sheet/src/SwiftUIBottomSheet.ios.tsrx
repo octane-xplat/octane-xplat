@@ -65,7 +65,7 @@ let seq = 0
  *  tree into a NativeScript host resolved through NativeScriptViewFactory.
  *  `fitToContents` uses the
  *  ported size-reader → `.presentationDetents([.height(size)])`. */
-export function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps) @{
+export function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps): unknown @{
 	const contentId = useRef<string>('')
 	if (!contentId.current) {
 		contentId.current = `xplatsheet${++seq}`

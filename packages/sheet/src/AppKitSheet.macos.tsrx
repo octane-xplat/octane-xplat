@@ -15,26 +15,44 @@ function ContentRoot(props: AppKitSheetProps) @{
 }
 
 /** Portals from the declaring tree into its anchor's document-modal window sheet. */
-export function AppKitSheet(props: AppKitSheetProps) @{
-	const live = useRef(props); live.current = props
+export function AppKitSheet(props: AppKitSheetProps): unknown @{
+	const live = useRef(props)
+	live.current = props
 	const [, rerender] = useState(0)
-	const owner = useMemo(() => createSheetOwner({
-		props: () => live.current,
-		prepare: () => typeof host().presentSheet === 'function' ? host().presentSheet as SheetPrepare : undefined,
-		changed: () => rerender((n) => n + 1),
-	}), [])
+	const owner = useMemo(
+		() =>
+			createSheetOwner({
+				props: () => live.current,
+				prepare: () =>
+					typeof host().presentSheet === 'function'
+						? (host().presentSheet as SheetPrepare)
+						: undefined,
+				changed: () => rerender((n) => n + 1),
+			}),
+		[],
+	)
+
 	useLayoutEffect(() => owner.update(), null)
 	useEffect(() => () => owner.dispose(), [])
 	const target = owner.getTarget()
 	// The portal must commit before native fitting-size measurement/presentation.
-	useEffect(() => { if (target) owner.commit(target) }, [target])
+	useEffect(() => {
+		if (target) {
+			owner.commit(target)
+		}
+	}, [target])
 
 	<>
 		<masonview ref={owner.bind} id={props.id} className="xplat-appkit-sheet-anchor">
 			@if (props.open && owner.getStatus() === 'unavailable') {
-				<label text="This sheet is unavailable in this app. Close and reopen to retry." accessibilityLiveRegion="polite" />
+				<label
+					text="This sheet is unavailable in this app. Close and reopen to retry."
+					accessibilityLiveRegion="polite"
+				/>
 			}
 		</masonview>
-		{props.open && target ? createPortal(<ContentRoot {...props} /> as UniversalRenderable, target) : null}
+		{props.open && target
+			? createPortal((<ContentRoot {...props} />) as UniversalRenderable, target)
+			: null}
 	</>
 }

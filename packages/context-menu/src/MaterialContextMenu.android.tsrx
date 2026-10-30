@@ -52,7 +52,7 @@ function createPortal(children: unknown, target: unknown) {
 
 /** Renders a Material 3 DropdownMenu anchored to a NativeScript-hosted
  *  trigger subtree portaled from the declaring Octane tree. */
-export function MaterialContextMenu(props: MaterialContextMenuProps) @{
+export function MaterialContextMenu(props: MaterialContextMenuProps): unknown @{
 	const triggerId = useRef<string>('')
 	if (!triggerId.current) {
 		triggerId.current = `ctxmenu${++seq}`

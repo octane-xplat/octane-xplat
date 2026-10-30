@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { Fragment, useLayoutEffect, useRef, useState } from 'octane'
 import type { ContextMenuProps } from './web/types'
 
 /** Web context menu: the trigger subtree renders inline; right-click (or
  *  long-press via the `activation` prop's 'singlePress' = click) opens an
  *  in-page menu at the pointer. */
-export function ContextMenu(props: ContextMenuProps) @{
+export function ContextMenu(props: ContextMenuProps): JSX.Element @{
 	const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
 	const [active, setActive] = useState(0)
 	const listRef = useRef<HTMLUListElement | null>(null)

@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useState } from 'octane'
 import type { SelectProps } from './web/types'
 
 /** Renders a labeled browser select. */
-export function Select(props: SelectProps) @{
+export function Select(props: SelectProps): JSX.Element @{
 	const controlled = props.value !== undefined
 	const [internalValue, setInternalValue] = useState(
 		props.defaultValue ?? props.options[0]?.value ?? '',

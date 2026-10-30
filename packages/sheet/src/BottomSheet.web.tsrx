@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useRef } from 'octane'
 import type { BottomSheetProps, WebFocusTarget } from './web/types'
 
@@ -29,7 +30,7 @@ function tabStops(panel: HTMLElement): HTMLElement[] {
 
 /** Web bottom sheet: a modal browser dialog. `open` controls visibility;
  *  `onDismissed` fires for enabled Escape, scrim, and drag dismissals. */
-export function BottomSheet(props: BottomSheetProps) @{
+export function BottomSheet(props: BottomSheetProps): JSX.Element @{
 	const dialog = useRef<HTMLDialogElement | null>(null)
 	const panel = useRef<HTMLDivElement | null>(null)
 	const drag = useRef<{ pointerId: number; startY: number; offsetY: number } | null>(null)

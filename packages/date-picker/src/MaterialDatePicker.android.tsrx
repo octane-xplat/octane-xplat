@@ -32,7 +32,7 @@ registerJetpackCompose(
 )
 
 /** Renders a Material 3 DatePicker/TimePicker through the NativeScript Jetpack Compose bridge. */
-export function MaterialDatePicker(props: MaterialDatePickerProps) @{
+export function MaterialDatePicker(props: MaterialDatePickerProps): unknown @{
 	const data = {
 		initialDate: props.initialDate?.getTime() ?? null,
 		variant: props.variant ?? 'picker',

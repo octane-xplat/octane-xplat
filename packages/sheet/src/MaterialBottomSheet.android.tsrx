@@ -51,7 +51,7 @@ function createPortal(children: unknown, target: unknown) {
 
 /** Renders a Material 3 ModalBottomSheet whose content portals from the
  *  declaring tree through XplatViewRegistry + AndroidView into the dialog. */
-export function MaterialBottomSheet(props: MaterialBottomSheetProps) @{
+export function MaterialBottomSheet(props: MaterialBottomSheetProps): unknown @{
 	const contentId = useRef<string>('')
 	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
 	if (!contentId.current) {
