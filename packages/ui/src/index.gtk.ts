@@ -614,3 +614,138 @@ export type {
 	HostedComponentProps,
 	ModalOpenResult,
 } from './props'
+
+// Slice G — navigation, app chrome, screens, windows. Shared leaves back
+// every component; GTK leaves cover host seams only (insets, keyboard,
+// href opening, window service, resizable basis/persist, screen shell).
+export { Screen } from './Screen'
+export { Tabs } from './Tabs'
+export type { TabSpec } from './Tabs'
+export { SafeArea } from './SafeArea'
+export { KeyboardAvoiding } from './KeyboardAvoiding'
+export { useSafeAreaInsets } from './safeAreaInsets'
+export type { SafeAreaInsets } from './safeAreaInsets'
+export { useKeyboardInset } from './use-keyboard-inset.tsrx'
+export { useContainerReveal } from './use-container-reveal'
+export { useImageMode } from './use-image-mode'
+export { openWindow } from './windows'
+export { RouteOutlet } from './RouteOutlet'
+export { useResizable, ResizeHandle } from './Resizable'
+export { AppShell } from './AppShell'
+export { AppShellMobileContext } from './AppShell'
+export {
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	TopNavMenu,
+	TopNavMegaMenu,
+	TopNavMegaMenuItem,
+	TopNavMegaMenuFeaturedCard,
+	TopNavRenderContext,
+	useTopNavRenderMode,
+} from './TopNav'
+export {
+	SideNav,
+	SideNavSection,
+	SideNavHeading,
+	SideNavItem,
+	SideNavCollapseButton,
+	useSideNavCollapse,
+	SideNavRenderContext,
+	useSideNavRenderMode,
+} from './SideNav'
+export { MobileNav, MobileNavToggle, useAppShellMobile } from './MobileNav'
+export { NavIcon } from './NavIcon'
+export {
+	NavHeadingMenu,
+	NavHeadingMenuItem,
+	NavHeadingMenuContext,
+	NavHeadingCloseContext,
+	useNavHeadingMenuContext,
+	useNavHeadingCloseContext,
+} from './NavMenu'
+export { TabList, Tab, TabMenu, useTabListContext } from './TabList'
+export { NavigationMenu } from './NavigationMenu'
+export { NavLink } from './NavLink'
+export type {
+	ScreenProps,
+	ScreenComponent,
+	TabsProps,
+	SafeAreaProps,
+	SafeAreaEdge,
+	KeyboardAvoidingProps,
+	UseKeyboardInsetOptions,
+	UseContainerRevealOptions,
+	UseContainerRevealReturn,
+	UseImageModeOptions,
+	ImageSampleRegion,
+	OpenWindowOptions,
+	WindowHandle,
+	RouteOutletProps,
+	ResizableConfig,
+	ResizableDirection,
+	ResizablePercentSize,
+	ResizablePixelSize,
+	ResizableMinConfig,
+	ResizableMaxConfig,
+	ResizableRegionSizing,
+	ResizableProps,
+	ResizableRegion,
+	ResizableRegionConfig,
+	ResizableSize,
+	ResizeHandleProps,
+	UseResizableMultiConfig,
+	UseResizableSingleOptions,
+	UseResizableSingleConfig,
+	AppShellProps,
+	AppShellMobileContextValue,
+	AppShellVariant,
+	AppShellBreakpoint,
+	MobileNavConfig,
+	MobileNavProps,
+	MobileNavToggleProps,
+	NavElementSize,
+	NavHeadingMenuSize,
+	NavHeadingCloseContextValue,
+	NavHeadingMenuContextValue,
+	NavHeadingMenuItemProps,
+	NavHeadingMenuProps,
+	NavIconProps,
+	NavItemSize,
+	SideNavCollapseButtonProps,
+	SideNavCollapseState,
+	SideNavCollapsibleConfig,
+	SideNavControlledCollapsible,
+	SideNavImperativeCollapseHandle,
+	SideNavRenderMode,
+	SideNavHeadingProps,
+	SideNavItemProps,
+	SideNavProps,
+	SideNavSectionProps,
+	TabListContextValue,
+	TabListLayout,
+	TabListOverflow,
+	TabListPattern,
+	TabListSize,
+	TabListProps,
+	TabMenuOption,
+	TabMenuProps,
+	TabProps,
+	TopNavHeadingProps,
+	TopNavItemProps,
+	TopNavMenuItemData,
+	TopNavMenuProps,
+	TopNavMegaMenuFeaturedCardProps,
+	TopNavMegaMenuItemProps,
+	TopNavMegaMenuProps,
+	TopNavProps,
+	TopNavRenderMode,
+	TopNavSlot,
+	NavigationMenuItem,
+	NavigationMenuProps,
+	NavLinkComponentType,
+	NavLinkProps,
+	NavigationActivationEvent,
+	NavigationTargetProps,
+	NavigationLinkTargetProps,
+} from './props'

@@ -1604,3 +1604,61 @@ names), `repeat`/`isComposing` stay `false`, `relatedTarget` is `null`
 mouse buttons + touch-begin (touch unproven on the Xvfb seat), a claim
 fired while the driver defers dispatch (`applyingDepth > 0`) is
 dropped, and F6 landmark cycling remains web-only.
+
+### Navigation and app chrome (slice G)
+
+The navigation/app-chrome family is public on GTK — `Screen`, `Tabs`,
+`TabList`/`Tab`/`TabMenu`/`useTabListContext`, `RouteOutlet`,
+`NavigationMenu`, `NavLink`, `NavIcon`, `AppShell` +
+`AppShellMobileContext` + `useAppShellMobile`, the `TopNav`/`SideNav`
+families (headings, items, sections, collapse button/context/handle,
+render-mode contexts and hooks), `MobileNav`/`MobileNavToggle`,
+`NavHeadingMenu` + item + both contexts/hooks, `SafeArea`,
+`useSafeAreaInsets`, `KeyboardAvoiding`, `useKeyboardInset`,
+`useContainerReveal`, `useImageMode`, `useResizable`, `ResizeHandle`,
+and `openWindow`, plus roughly eighty sibling prop/state/config types.
+Availability is about 285 values and 421 types.
+
+Host-seam GTK leaves: `Screen.gtk.tsrx` renders a real Mason grid shell
+(shared `rootlayout` is viewless on this target), `safeAreaInsets`/
+`use-keyboard-inset`/`KeyboardAvoiding` report honest zeros (no display
+cutouts or software keyboard on desktop GTK), `nav-href.gtk.ts` routes
+app paths through `navigateUrl` and external URLs through a new
+`__octaneGtkHost.openUri` bridge (`Gtk.show_uri_full`),
+`resize-basis.gtk.ts` measures via `getActualSize` +
+`layoutChanged`/`getWindowSize`, `resize-persist.gtk.ts` is in-memory,
+and `windows.gtk.ts` + the renderer `GtkWindowService` open a real
+`Gtk.Window` per `openWindow` call with `createGtkRoot` inside.
+`Tabs`, `RouteOutlet`, `TabList`, `AppShell`, `TopNav`, `SideNav`,
+`MobileNav`, `NavMenu`, `NavigationMenu`, `NavLink`, `NavIcon`, and
+`useResizable`/`ResizeHandle` run the shared leaves unchanged.
+
+Two maintained fixtures qualify the slice with real X11 input.
+`ui-nav.test.mjs` (29 assertions): `Screen` mount, `NavigationMenu`
+`to=` typed-destination navigation to `/docs` and back, `NavLink` route
+mode, external `href` reaching the openUri seam, standalone `TabList`
+`layout="fill"` selection, `TabMenu` popover open+pick, `Tabs`
+activation with pane retention (a counter survives the switch),
+`RouteOutlet` initial/commit rendering with covered-pane hidden
+retention, and `NavIcon`. `ui-appshell.test.mjs` (41 assertions):
+`AppShell`/`TopNav`/`SideNav`/`SafeArea`/`KeyboardAvoiding` mounts,
+`TopNavItem`/`SideNavItem` real clicks, `TopNavMenu` and
+`NavHeadingMenu` open+pick+close, `useResizable`/`ResizeHandle` real
+xdotool drag resizing (+24px and panel width follows), SideNav collapse
+(240→48 rail) and expand through the imperative `handleRef`,
+mobile-breakpoint flip to `isMobile` with `MobileNavToggle` opening the
+drawer and backdrop dismiss, zero safe-area/keyboard insets,
+`useContainerReveal`/`useImageMode` fallback shape, and `openWindow`
+regular+dialog windows with handle `setTitle`/`setSize`/`close`/`closed`.
+
+Limits: a standalone `TabList` in default `layout="hug"` wraps the
+strip in a horizontal scrollview whose hit region is not reliable in
+the fixture — `layout="fill"` works (what `Tabs` itself uses). The
+auto `SideNavCollapseButton` inside the collapsed rail is positionally
+unreliable in a stylesheet-less bundle — expand is proven through the
+shared collapse context and imperative `handleRef` instead. External
+URI opening reaches the `Gtk.show_uri_full` seam; the OS-side open is
+not verifiable under Xvfb. `openWindow` needs a content source
+(`setWindowContentResolver` or the internal `component` option). Safe
+area and keyboard inset are structural zeros by design. Recipes are
+unchanged.

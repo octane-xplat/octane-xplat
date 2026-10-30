@@ -463,3 +463,172 @@ type UseKeyboardResultContract = Assert<
 >
 type GridFocusOptionsContract = Assert<Equal<GtkUI.GridFocusOptions, NativeUI.GridFocusOptions>>
 type GridFocusResultContract = Assert<Equal<GtkUI.GridFocusResult, NativeUI.GridFocusResult>>
+// ---------- slice G: navigation, app chrome, screens, windows ----------
+type ScreenPropsContract = Assert<Equal<GtkUI.ScreenProps, NativeUI.ScreenProps>>
+type TabsPropsContract = Assert<Equal<GtkUI.TabsProps, NativeUI.TabsProps>>
+type TabSpecContract = Assert<Equal<GtkUI.TabSpec, NativeUI.TabSpec>>
+type SafeAreaPropsContract = Assert<Equal<GtkUI.SafeAreaProps, NativeUI.SafeAreaProps>>
+type SafeAreaInsetsContract = Assert<Equal<GtkUI.SafeAreaInsets, NativeUI.SafeAreaInsets>>
+type SafeAreaEdgeContract = Assert<Equal<GtkUI.SafeAreaEdge, NativeUI.SafeAreaEdge>>
+type KeyboardAvoidingPropsContract = Assert<
+	Equal<GtkUI.KeyboardAvoidingProps, NativeUI.KeyboardAvoidingProps>
+>
+type UseKeyboardInsetOptionsContract = Assert<
+	Equal<GtkUI.UseKeyboardInsetOptions, NativeUI.UseKeyboardInsetOptions>
+>
+type UseContainerRevealOptionsContract = Assert<
+	Equal<GtkUI.UseContainerRevealOptions, NativeUI.UseContainerRevealOptions>
+>
+type UseContainerRevealReturnContract = Assert<
+	Equal<GtkUI.UseContainerRevealReturn, NativeUI.UseContainerRevealReturn>
+>
+type UseImageModeOptionsContract = Assert<
+	Equal<GtkUI.UseImageModeOptions, NativeUI.UseImageModeOptions>
+>
+type ImageSampleRegionContract = Assert<
+	Equal<GtkUI.ImageSampleRegion, NativeUI.ImageSampleRegion>
+>
+type OpenWindowOptionsContract = Assert<
+	Equal<GtkUI.OpenWindowOptions, NativeUI.OpenWindowOptions>
+>
+type WindowHandleContract = Assert<Equal<GtkUI.WindowHandle, NativeUI.WindowHandle>>
+type RouteOutletPropsContract = Assert<
+	Equal<GtkUI.RouteOutletProps, NativeUI.RouteOutletProps>
+>
+type ResizableConfigContract = Assert<Equal<GtkUI.ResizableConfig, NativeUI.ResizableConfig>>
+type ResizableDirectionContract = Assert<
+	Equal<GtkUI.ResizableDirection, NativeUI.ResizableDirection>
+>
+type ResizablePropsContract = Assert<Equal<GtkUI.ResizableProps, NativeUI.ResizableProps>>
+type ResizableRegionContract = Assert<Equal<GtkUI.ResizableRegion, NativeUI.ResizableRegion>>
+type ResizableRegionConfigContract = Assert<
+	Equal<GtkUI.ResizableRegionConfig, NativeUI.ResizableRegionConfig>
+>
+type ResizableSizeContract = Assert<Equal<GtkUI.ResizableSize, NativeUI.ResizableSize>>
+type ResizeHandlePropsContract = Assert<
+	Equal<GtkUI.ResizeHandleProps, NativeUI.ResizeHandleProps>
+>
+type UseResizableMultiConfigContract = Assert<
+	Equal<GtkUI.UseResizableMultiConfig, NativeUI.UseResizableMultiConfig>
+>
+type UseResizableSingleConfigContract = Assert<
+	Equal<GtkUI.UseResizableSingleConfig, NativeUI.UseResizableSingleConfig>
+>
+type UseResizableSingleOptionsContract = Assert<
+	Equal<GtkUI.UseResizableSingleOptions, NativeUI.UseResizableSingleOptions>
+>
+type AppShellPropsContract = Assert<Equal<GtkUI.AppShellProps, NativeUI.AppShellProps>>
+type AppShellMobileContextValueContract = Assert<
+	Equal<GtkUI.AppShellMobileContextValue, NativeUI.AppShellMobileContextValue>
+>
+type AppShellVariantContract = Assert<Equal<GtkUI.AppShellVariant, NativeUI.AppShellVariant>>
+type AppShellBreakpointContract = Assert<
+	Equal<GtkUI.AppShellBreakpoint, NativeUI.AppShellBreakpoint>
+>
+type MobileNavConfigContract = Assert<Equal<GtkUI.MobileNavConfig, NativeUI.MobileNavConfig>>
+type MobileNavPropsContract = Assert<Equal<GtkUI.MobileNavProps, NativeUI.MobileNavProps>>
+type MobileNavTogglePropsContract = Assert<
+	Equal<GtkUI.MobileNavToggleProps, NativeUI.MobileNavToggleProps>
+>
+type NavElementSizeContract = Assert<Equal<GtkUI.NavElementSize, NativeUI.NavElementSize>>
+type NavHeadingMenuSizeContract = Assert<
+	Equal<GtkUI.NavHeadingMenuSize, NativeUI.NavHeadingMenuSize>
+>
+type NavHeadingCloseContextValueContract = Assert<
+	Equal<GtkUI.NavHeadingCloseContextValue, NativeUI.NavHeadingCloseContextValue>
+>
+type NavHeadingMenuContextValueContract = Assert<
+	Equal<GtkUI.NavHeadingMenuContextValue, NativeUI.NavHeadingMenuContextValue>
+>
+type NavHeadingMenuItemPropsContract = Assert<
+	Equal<GtkUI.NavHeadingMenuItemProps, NativeUI.NavHeadingMenuItemProps>
+>
+type NavHeadingMenuPropsContract = Assert<
+	Equal<GtkUI.NavHeadingMenuProps, NativeUI.NavHeadingMenuProps>
+>
+type NavIconPropsContract = Assert<Equal<GtkUI.NavIconProps, NativeUI.NavIconProps>>
+type NavItemSizeContract = Assert<Equal<GtkUI.NavItemSize, NativeUI.NavItemSize>>
+type SideNavCollapseButtonPropsContract = Assert<
+	Equal<GtkUI.SideNavCollapseButtonProps, NativeUI.SideNavCollapseButtonProps>
+>
+type SideNavCollapseStateContract = Assert<
+	Equal<GtkUI.SideNavCollapseState, NativeUI.SideNavCollapseState>
+>
+type SideNavCollapsibleConfigContract = Assert<
+	Equal<GtkUI.SideNavCollapsibleConfig, NativeUI.SideNavCollapsibleConfig>
+>
+type SideNavControlledCollapsibleContract = Assert<
+	Equal<GtkUI.SideNavControlledCollapsible, NativeUI.SideNavControlledCollapsible>
+>
+type SideNavImperativeCollapseHandleContract = Assert<
+	Equal<GtkUI.SideNavImperativeCollapseHandle, NativeUI.SideNavImperativeCollapseHandle>
+>
+type SideNavRenderModeContract = Assert<
+	Equal<GtkUI.SideNavRenderMode, NativeUI.SideNavRenderMode>
+>
+type SideNavHeadingPropsContract = Assert<
+	Equal<GtkUI.SideNavHeadingProps, NativeUI.SideNavHeadingProps>
+>
+type SideNavItemPropsContract = Assert<
+	Equal<GtkUI.SideNavItemProps, NativeUI.SideNavItemProps>
+>
+type SideNavPropsContract = Assert<Equal<GtkUI.SideNavProps, NativeUI.SideNavProps>>
+type SideNavSectionPropsContract = Assert<
+	Equal<GtkUI.SideNavSectionProps, NativeUI.SideNavSectionProps>
+>
+type TabListContextValueContract = Assert<
+	Equal<GtkUI.TabListContextValue, NativeUI.TabListContextValue>
+>
+type TabListLayoutContract = Assert<Equal<GtkUI.TabListLayout, NativeUI.TabListLayout>>
+type TabListOverflowContract = Assert<Equal<GtkUI.TabListOverflow, NativeUI.TabListOverflow>>
+type TabListPatternContract = Assert<Equal<GtkUI.TabListPattern, NativeUI.TabListPattern>>
+type TabListSizeContract = Assert<Equal<GtkUI.TabListSize, NativeUI.TabListSize>>
+type TabListPropsContract = Assert<Equal<GtkUI.TabListProps, NativeUI.TabListProps>>
+type TabMenuOptionContract = Assert<Equal<GtkUI.TabMenuOption, NativeUI.TabMenuOption>>
+type TabMenuPropsContract = Assert<Equal<GtkUI.TabMenuProps, NativeUI.TabMenuProps>>
+type TabPropsContract = Assert<Equal<GtkUI.TabProps, NativeUI.TabProps>>
+type TopNavHeadingPropsContract = Assert<
+	Equal<GtkUI.TopNavHeadingProps, NativeUI.TopNavHeadingProps>
+>
+type TopNavItemPropsContract = Assert<
+	Equal<GtkUI.TopNavItemProps, NativeUI.TopNavItemProps>
+>
+type TopNavMenuItemDataContract = Assert<
+	Equal<GtkUI.TopNavMenuItemData, NativeUI.TopNavMenuItemData>
+>
+type TopNavMenuPropsContract = Assert<
+	Equal<GtkUI.TopNavMenuProps, NativeUI.TopNavMenuProps>
+>
+type TopNavMegaMenuFeaturedCardPropsContract = Assert<
+	Equal<GtkUI.TopNavMegaMenuFeaturedCardProps, NativeUI.TopNavMegaMenuFeaturedCardProps>
+>
+type TopNavMegaMenuItemPropsContract = Assert<
+	Equal<GtkUI.TopNavMegaMenuItemProps, NativeUI.TopNavMegaMenuItemProps>
+>
+type TopNavMegaMenuPropsContract = Assert<
+	Equal<GtkUI.TopNavMegaMenuProps, NativeUI.TopNavMegaMenuProps>
+>
+type TopNavPropsContract = Assert<Equal<GtkUI.TopNavProps, NativeUI.TopNavProps>>
+type TopNavRenderModeContract = Assert<
+	Equal<GtkUI.TopNavRenderMode, NativeUI.TopNavRenderMode>
+>
+type TopNavSlotContract = Assert<Equal<GtkUI.TopNavSlot, NativeUI.TopNavSlot>>
+type NavigationMenuItemContract = Assert<
+	Equal<GtkUI.NavigationMenuItem, NativeUI.NavigationMenuItem>
+>
+type NavigationMenuPropsContract = Assert<
+	Equal<GtkUI.NavigationMenuProps, NativeUI.NavigationMenuProps>
+>
+type NavLinkComponentTypeContract = Assert<
+	Equal<GtkUI.NavLinkComponentType, NativeUI.NavLinkComponentType>
+>
+type NavLinkPropsContract = Assert<Equal<GtkUI.NavLinkProps, NativeUI.NavLinkProps>>
+type NavigationActivationEventContract = Assert<
+	Equal<GtkUI.NavigationActivationEvent, NativeUI.NavigationActivationEvent>
+>
+type NavigationTargetPropsContract = Assert<
+	Equal<GtkUI.NavigationTargetProps, NativeUI.NavigationTargetProps>
+>
+type NavigationLinkTargetPropsContract = Assert<
+	Equal<GtkUI.NavigationLinkTargetProps, NativeUI.NavigationLinkTargetProps>
+>

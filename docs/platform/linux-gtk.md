@@ -942,6 +942,59 @@ Source-harness row, growth and X11 keyboard/wheel checks are recorded in the
 [renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
 the renderer reports that limit once when returnKeyType is supplied.
 
+## Navigation and app chrome
+
+Build the app shell from the shared navigation family — `Screen`, `Tabs`,
+`TabList`/`Tab`/`TabMenu`, `RouteOutlet`, `NavigationMenu`, `NavLink`,
+`NavIcon`, `AppShell`/`TopNav`/`SideNav`/`MobileNav`, `NavHeadingMenu`,
+`useResizable`/`ResizeHandle`, `SafeArea`, `KeyboardAvoiding`, and
+`openWindow` are all exported through the GTK root.
+
+```tsx
+import { Screen, Tabs } from "@octane-xplat/ui"
+
+export function Workbench() {
+	return (
+		<Screen>
+			<Tabs
+				tabs={[
+					{ key: "files", title: "Files", render: () => <FilePane /> },
+					{ key: "search", title: "Search", render: () => <SearchPane /> },
+				]}
+			/>
+		</Screen>
+	)
+}
+```
+
+`Screen` is a real GTK widget shell (the shared `rootlayout` variant is
+viewless on this target, so the GTK leaf renders a Mason grid instead).
+`Tabs` uses `TabList` for the strip and `RoutePane` panes — the inactive
+pane stays mounted and hidden, so its widget state survives a round trip.
+`RouteOutlet` is the shared client outlet over the pane host from the
+routing section: back-stack entries are retained mounted, not rebuilt.
+App-relative `href` targets resolve through `navigateUrl`; external `http(s)`
+targets call `Gtk.show_uri_full` through the host bridge.
+
+`AppShell` measures its own width and flips `TopNav`/`SideNav` into the
+mobile render modes below the configured breakpoint, where
+`MobileNavToggle` opens the `MobileNav` drawer. `SideNav` is collapsible
+(240 → 48 rail) and resizable through `useResizable`/`ResizeHandle` —
+drag the divider to change the region size; persistence is in-memory for
+the session. `openWindow` creates a real second `Gtk.Window` per call
+(`kind: "regular" | "dialog" | "popup"`) and the handle exposes
+`id`, `closed`, `isClosed`, `close()`, `setTitle`, `setSize`, and
+`onCloseRequested`; window content is supplied through
+`__octaneGtkHost.setWindowContentResolver` (app-to-host seam) or the
+internal `component` option.
+
+`SafeArea` and `useSafeAreaInsets` report zero insets and
+`KeyboardAvoiding`/`useKeyboardInset` report zero — desktop GTK has no
+display cutouts or software keyboard, and both still normalize their
+children and props. `useContainerReveal` returns the shared prop-getter
+bag; `useImageMode` falls back to its configured mode when no host
+sampling exists.
+
 ## Add retained route panes
 
 Use an explicit programmatic catalog and pane host for native GTK routing.
@@ -1083,6 +1136,14 @@ it works from any directory without a source checkout, Node, or pnpm.
   region cycling is a web-only convention. Focus-visible modality tracks
   real input (unmodified key → keyboard, button/touch press → pointer,
   deactivation → unknown); touch-seat pointer modality is unproven.
+- Navigation caveats: a standalone `TabList` in its default
+  `layout="hug"` mode wraps the strip in a horizontal scroll view whose
+  scrolled hit region is not yet reliable in fixtures — use
+  `layout="fill"` (the `Tabs` component already does). The
+  `SideNavCollapseButton` in the collapsed 48px rail requires the theme
+  stylesheet for correct positioning; without it the auto button floats
+  outside the rail. `openWindow` needs a content source — install
+  `setWindowContentResolver` on the host bridge before calling it.
 - Broad pointer/keyboard coverage, Wayland, assistive technology, visual parity
   and the complete shared UI remain unqualified. Primitive checks establish
   only the named Mason allocations and X11 pointer behavior; counter and

@@ -49,6 +49,7 @@ import { popoverChromeUsers } from './popover-instance.js'
 import { bindOverlayHost } from './overlay-host.js'
 import { bindPublicInstance } from './public-instance.js'
 import { normalizeKeyEvent } from './key-event.js'
+import { createGtkWindowService, type GtkWindowService } from './window-service.js'
 
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
 import { resolveTransform, cssTransformText } from './transform-style.js'
@@ -240,6 +241,7 @@ const EVENT_PROP_TYPE: Record<
 	onKeyUp: { type: 'keyup', priority: 'discrete' },
 	onLoaded: { type: 'loaded', priority: 'default' },
 	onUnloaded: { type: 'unloaded', priority: 'default' },
+	onLayoutChanged: { type: 'layoutChanged', priority: 'continuous' },
 	onScroll: { type: 'scroll', priority: 'continuous' },
 	onPan: { type: 'pan', priority: 'continuous' },
 	onSwipe: { type: 'swipe', priority: 'discrete' },
@@ -1311,6 +1313,33 @@ function applyStyle(node: ElementNode, style: PropBag) {
 
 /** Every live container — stylesheet and appearance changes restyle them all. */
 const liveGtkContainers = new Set<GtkContainer>()
+
+/** The app's primary window — the most recently mounted non-service
+ *  container's Gtk root. openWindow 'dialog'/'popup' parenting, openUri's
+ *  transient parent, and the resizable window-size basis all read it. */
+function mainGtkWindow(): Gtk.Window | null {
+	const last = [...liveGtkContainers].filter((c) => !c.service).at(-1)
+	const root = last?.host?.get_root?.()
+	return root instanceof Gtk.Window ? root : null
+}
+
+// `openWindow` from @octane-xplat/ui reaches the host through the
+// __octaneGtkHost bridge (windows.gtk) — the GTK counterpart of the macOS
+// __xplatAppKitOpenWindow + setWindowContentResolver seam. The service is
+// app-global: windows and the content resolver outlive any one root.
+let gtkWindowService: GtkWindowService | null = null
+function windowService(): GtkWindowService {
+	if (gtkWindowService === null) {
+		gtkWindowService = createGtkWindowService({
+			mount: (host) => {
+				const mounted = createGtkRoot(host)
+				return { root: mounted.root }
+			},
+			parentWindow: mainGtkWindow,
+		})
+	}
+	return gtkWindowService
+}
 
 function restyleAllContainers() {
 	for (const container of liveGtkContainers) {
@@ -3640,6 +3669,22 @@ function connectEvent(
 				connections: [{ emitter: view, signalId: view.connect('activate', handler) }],
 				controllers: [],
 			}
+		case 'layoutChanged': {
+			// Ref-level synthetic event — the public instance's tick-callback
+			// bounds watch in public-instance.ts, not a Gtk signal. Wire through
+			// view.on so the shared AppShell/resizable leaves see the same
+			// { eventName, object } payload native layoutChanged carries.
+			view.on('layoutChanged', handler)
+			return {
+				connections: [
+					{
+						emitter: { disconnect: () => view.off('layoutChanged', handler) },
+						signalId: 0,
+					},
+				],
+				controllers: [],
+			}
+		}
 		case 'loaded':
 			return {
 				connections: [{ emitter: view, signalId: view.connect('map', handler) }],
@@ -4475,6 +4520,39 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 					try { mounted.root.unmount() } catch { }
 				},
 			}
+		},
+		// `openWindow` from @octane-xplat/ui (windows.gtk) — a Gtk.Window per
+		// call with its own universal root, the GTK counterpart of the macOS
+		// __xplatAppKitOpenWindow + setWindowContentResolver seam.
+		openWindow: (options: any) => windowService().openWindow(options ?? {}),
+		setWindowContentResolver: (resolve: any) =>
+			windowService().setWindowContentResolver(resolve),
+		// External-URL open seam for ui's nav-href.gtk — Gtk.show_uri_full on
+		// the app's main window (GTK >= 4.10). Returns false when the request
+		// cannot be made so callers surface the failure instead of assuming
+		// the OS took it.
+		openUri: (uri: string) => {
+			try {
+				const show = (Gtk as any).show_uri_full
+				if (typeof show !== 'function') {
+					return false
+				}
+				show(mainGtkWindow(), String(uri), null, () => {})
+				return true
+			} catch {
+				return false
+			}
+		},
+		// Viewport basis for resizable regions without a containerRef — the
+		// main window's content size, the screen-fallback analog.
+		getWindowSize: () => {
+			const win = mainGtkWindow()
+			if (!win) {
+				return null
+			}
+			const width = win.get_width?.() ?? 0
+			const height = win.get_height?.() ?? 0
+			return width > 0 && height > 0 ? { width, height } : null
 		},
 	}
 	// Gtk.Settings exists only after Gtk.init — the first container is the
