@@ -16,9 +16,13 @@ export interface ListDataOptions<T> {
 	 *  `useListData` builds the store on first render and ignores later
 	 *  option values. */
 	initialItems?: Iterable<T>
+	/** Initial selection — a Selection, key iterable, or 'all'. */
 	initialSelectedKeys?: Selection | Iterable<Key>
+	/** Initial query applied through `filter`. */
 	initialFilterText?: string
+	/** Item identity extractor — defaults to `defaultItemKey` (`id`/`key` fields). */
 	getKey?: (item: T) => Key
+	/** Predicate applied to items against `filterText`. */
 	filter?: (item: T, filterText: string) => boolean
 }
 
@@ -26,8 +30,11 @@ export interface ListDataOptions<T> {
  * Immutable snapshot of a `ListData` — filtered `items`, `filterText`, `selectedKeys`.
  */
 export interface ListSnapshot<T> {
+	/** Unfiltered item array at commit time. */
 	readonly items: readonly T[]
+	/** Query text applied by `filter` on read. */
 	readonly filterText: string
+	/** Selection — a key Set or 'all'. */
 	readonly selectedKeys: Selection
 }
 
@@ -39,21 +46,37 @@ export interface ListData<T> extends ReadableStore<ListSnapshot<T>> {
 	 *  snapshot read, not a subscription; `useListData`/`useStore` is the
 	 *  reactive read. */
 	readonly items: readonly T[]
+	/** Query text — a snapshot read, not a subscription. */
 	readonly filterText: string
+	/** Selection — a snapshot read, not a subscription. */
 	readonly selectedKeys: Selection
+	/** Sets the query text; items re-filter on the next read. */
 	setFilterText(filterText: string): void
+	/** Replaces the selection — a Selection, key iterable, or 'all'. */
 	setSelectedKeys(keys: Selection | Iterable<Key>): void
+	/** Item by key; undefined when absent. */
 	getItem(key: Key): T | undefined
+	/** Inserts values at `index`. */
 	insert(index: number, ...values: T[]): void
+	/** Inserts values before `key`; no-op when the key is absent. */
 	insertBefore(key: Key, ...values: T[]): void
+	/** Inserts values after `key`; no-op when the key is absent. */
 	insertAfter(key: Key, ...values: T[]): void
+	/** Appends values at the end. */
 	append(...values: T[]): void
+	/** Prepends values at the start. */
 	prepend(...values: T[]): void
+	/** Removes items by key; removed keys leave the selection. */
 	remove(...keys: Key[]): void
+	/** Removes every selected item ('all' empties the list). */
 	removeSelectedItems(): void
+	/** Moves `key` to index `toIndex`. */
 	move(key: Key, toIndex: number): void
+	/** Moves `keys` before `key`; preserves relative order. */
 	moveBefore(key: Key, keys: Iterable<Key>): void
+	/** Moves `keys` after `key`; preserves relative order. */
 	moveAfter(key: Key, keys: Iterable<Key>): void
+	/** Replaces the item at `key`; no-op when absent. */
 	update(key: Key, value: T): void
 }
 
@@ -70,6 +93,7 @@ export function defaultItemKey<T>(item: T): Key {
 	return key
 }
 
+/** Coerces 'all' | iterable | undefined into a Selection — undefined becomes an empty Set. */
 export function normalizeSelection(keys: 'all' | Iterable<Key> | undefined): Selection {
 	if (keys === 'all') {
 		return 'all'
@@ -91,13 +115,17 @@ function pruneSelection(selection: Selection, removed: ReadonlySet<Key>): Select
 	return next
 }
 
+/** Creates an immutable `ListData` store — every mutator commits a fresh snapshot and notifies subscribers. */
 export function createListData<T>(options: ListDataOptions<T> = {}): ListData<T> {
 	return createListDataController(options).list
 }
 
 /** @internal Atomic collection replacement for the async-list owner. */
 export function createListDataController<T>(options: ListDataOptions<T> = {}): {
+	/** The list store. */
 	list: ListData<T>
+	/** Atomic collection replacement — preserves selection for keys still
+	 *  present unless `selectedKeys` overrides it. */
 	replace(items: readonly T[], selectedKeys?: Selection | Iterable<Key>): void
 } {
 	const getKey = options.getKey ?? defaultItemKey

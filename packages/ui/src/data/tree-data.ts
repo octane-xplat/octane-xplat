@@ -13,9 +13,13 @@ export type { Key, Selection }
  * One node in a `TreeData` store — wraps the item `value` with `key`, `parentKey`, and resolved `children`.
  */
 export interface TreeNode<T> {
+	/** Item identity — resolved through `getKey`. */
 	readonly key: Key
+	/** Parent node key; null at the root level. */
 	readonly parentKey: Key | null
+	/** The original item. */
 	readonly value: T
+	/** Resolved child nodes — empty for leaves. */
 	readonly children: readonly TreeNode<T>[]
 }
 
@@ -27,8 +31,11 @@ export interface TreeDataOptions<T> {
 	 *  `useTreeData` builds the store on first render and ignores later
 	 *  option values. */
 	initialItems?: Iterable<T>
+	/** Initial selection — a Selection, key iterable, or 'all'. */
 	initialSelectedKeys?: Selection | Iterable<Key>
+	/** Item identity extractor — defaults to `defaultItemKey` (`id`/`key` fields). */
 	getKey?: (item: T) => Key
+	/** Child extractor — defaults to the item's `children` field. */
 	getChildren?: (item: T) => Iterable<T>
 }
 
@@ -36,7 +43,9 @@ export interface TreeDataOptions<T> {
  * Immutable snapshot of a `TreeData` — nodes and expansion at read time.
  */
 export interface TreeSnapshot<T> {
+	/** Root-level nodes at commit time. */
 	readonly items: readonly TreeNode<T>[]
+	/** Selection — a key Set or 'all'. */
 	readonly selectedKeys: Selection
 }
 
@@ -47,19 +56,31 @@ export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
 	/** Snapshot reads — they never subscribe; `useTreeData`/`useStore` is
 	 *  the reactive read. */
 	readonly items: readonly TreeNode<T>[]
+	/** Selection — a snapshot read, not a subscription. */
 	readonly selectedKeys: Selection
+	/** Replaces the selection — a Selection, key iterable, or 'all'. */
 	setSelectedKeys(keys: Selection | Iterable<Key>): void
+	/** Node by key; undefined when absent. */
 	getItem(key: Key): TreeNode<T> | undefined
+	/** Children of `key`; root level when null. */
 	getChildren(key: Key | null): readonly TreeNode<T>[]
+	/** Inserts values under `parentKey` at `index`; null targets the root. */
 	insert(parentKey: Key | null, index: number, ...values: T[]): void
+	/** Inserts values as siblings before `key`; no-op when absent. */
 	insertBefore(key: Key, ...values: T[]): void
+	/** Inserts values as siblings after `key`; no-op when absent. */
 	insertAfter(key: Key, ...values: T[]): void
+	/** Appends values at the end of `parentKey`'s children; null targets the root. */
 	append(parentKey: Key | null, ...values: T[]): void
+	/** Prepends values at the start of `parentKey`'s children; null targets the root. */
 	prepend(parentKey: Key | null, ...values: T[]): void
+	/** Removes nodes by key, with their subtrees; removed keys leave the selection. */
 	remove(...keys: Key[]): void
+	/** Removes every selected node ('all' empties the tree). */
 	removeSelectedItems(): void
 	/** Move a subtree atomically. Self, descendant, or missing parents are no-ops. */
 	move(key: Key, toParentKey: Key | null, toIndex: number): void
+	/** Replaces the value at `key`, keeping its children; no-op when absent. */
 	update(key: Key, value: T): void
 }
 
@@ -67,6 +88,7 @@ function defaultGetChildren<T>(item: T): Iterable<T> {
 	return ((item as { children?: Iterable<T> }).children ?? []) as Iterable<T>
 }
 
+/** Creates an immutable `TreeData` store — mutators commit fresh snapshots and notify subscribers. */
 export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T> {
 	const getKey = options.getKey ?? defaultItemKey
 	const getChildren = options.getChildren ?? defaultGetChildren
