@@ -352,3 +352,47 @@ type LayerProviderPropsContract = Assert<
 type LayerContextValueContract = Assert<
 	Equal<GtkUI.LayerContextValue, NativeUI.LayerContextValue>
 >
+type ShowToastFnContract = Assert<Equal<GtkUI.ShowToastFn, NativeUI.ShowToastFn>>
+type ToastCollisionBehaviorContract = Assert<
+	Equal<GtkUI.ToastCollisionBehavior, NativeUI.ToastCollisionBehavior>
+>
+type ToastContentRenderFnContract = Assert<
+	Equal<GtkUI.ToastContentRenderFn, NativeUI.ToastContentRenderFn>
+>
+type ToastContentRenderPropsContract = Assert<
+	Equal<GtkUI.ToastContentRenderProps, NativeUI.ToastContentRenderProps>
+>
+type ToastDismissFnContract = Assert<Equal<GtkUI.ToastDismissFn, NativeUI.ToastDismissFn>>
+type ToastDismissReasonContract = Assert<
+	Equal<GtkUI.ToastDismissReason, NativeUI.ToastDismissReason>
+>
+type ToastHandleContract = Assert<Equal<GtkUI.ToastHandle, NativeUI.ToastHandle>>
+type ToastEntryContract = Assert<Equal<GtkUI.ToastEntry, NativeUI.ToastEntry>>
+type ToastOptionsContract = Assert<Equal<GtkUI.ToastOptions, NativeUI.ToastOptions>>
+type ToastPositionContract = Assert<Equal<GtkUI.ToastPosition, NativeUI.ToastPosition>>
+type ToastPropsContract = Assert<Equal<GtkUI.ToastProps, NativeUI.ToastProps>>
+type ToastTypeContract = Assert<Equal<GtkUI.ToastType, NativeUI.ToastType>>
+type ToastViewportPropsContract = Assert<
+	Equal<GtkUI.ToastViewportProps, NativeUI.ToastViewportProps>
+>
+type LayerToastConfigContract = Assert<Equal<GtkUI.LayerToastConfig, NativeUI.LayerToastConfig>>
+type LightboxMediaContract = Assert<Equal<GtkUI.LightboxMedia, NativeUI.LightboxMedia>>
+type LightboxMediaTypeContract = Assert<Equal<GtkUI.LightboxMediaType, NativeUI.LightboxMediaType>>
+type LightboxPropsContract = Assert<Equal<GtkUI.LightboxProps, NativeUI.LightboxProps>>
+type LightboxTriggerPropsContract = Assert<
+	Equal<GtkUI.LightboxTriggerProps, NativeUI.LightboxTriggerProps>
+>
+type UseLightboxOptionsContract = Assert<
+	Equal<GtkUI.UseLightboxOptions, NativeUI.UseLightboxOptions>
+>
+type UseLightboxReturnContract = Assert<Equal<GtkUI.UseLightboxReturn, NativeUI.UseLightboxReturn>>
+type CommandPalettePropsContract = Assert<
+	Equal<GtkUI.CommandPaletteProps, NativeUI.CommandPaletteProps>
+>
+type CommandPaletteItemContract = Assert<
+	Equal<GtkUI.CommandPaletteItem, NativeUI.CommandPaletteItem>
+>
+type CommandPaletteMenuItemContract = Assert<
+	Equal<GtkUI.CommandPaletteMenuItem, NativeUI.CommandPaletteMenuItem>
+>
+type DrawerPropsContract = Assert<Equal<GtkUI.DrawerProps, NativeUI.DrawerProps>>

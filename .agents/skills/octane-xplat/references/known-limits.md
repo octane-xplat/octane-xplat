@@ -363,3 +363,13 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
 - `NavigationMenu` is deferred to slice G — `useNavigationItem` needs a router context the GTK slice does not provide.
 - `useLayer`/`useHoverCard` shared leaves gate on `appKitHost()` (`showLayer`/`observeHover`); the GTK `.gtk` leaves substitute the renderer Popover session and `Gtk.EventControllerMotion`. `HoverCard.tsrx` imports the hook by extension, so `HoverCard.gtk.tsrx` is required for the `.gtk` hook to resolve.
 - `useLayer` fixed mode places the panel at page-coordinate x/y via the Popover`s fixedPosition internal prop (a zero-size pointing rect in host space).
+
+### Overlays D2a (toast / lightbox / palette / drawer)
+- `ref.animate` is translate-only on GTK; `Lightbox` zoom writes `scaleX`/`scaleY`/`translate` directly (instant, same contract).
+- `can_target=false` is never a pass-through: `gtk_widget_can_be_picked` skips the widget AND its subtree. Scrim-free pass-through uses edge-docked, content-hugging overlay layers (`align` on the layer widget).
+- `Gtk.GestureDrag` claims sequences — bind `onPan` only when it should win over `GestureSwipe` (the lightbox binds it only while zoomed).
+- Focus grabs on unmapped layer targets are no-ops: bind capture-phase key controllers on the window root (lightbox arrows) or re-grab on `map` (palette entry).
+- Portal children are not in `container.nodes` — tests locate them via the widget tree (`get_name`/label text), not the node registry.
+- GJS lacks `AbortController`; the palette leaf installs a minimal shim for `command-palette-state`.
+- Anchored toasts live in a Popover surface, so their bounds are a separate Gdk surface — compare `surface.get_position`, not window-space bounds.
+- `presentation="bottom-sheet"` still throws (slice D2b); `Lightbox` `type:"video"` renders the alt-text fallback.

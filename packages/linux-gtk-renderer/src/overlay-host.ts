@@ -9,6 +9,20 @@ export interface OverlayLayerOptions {
 	 *  dismiss gesture). Defaults to `modal`. */
 	scrim?: boolean
 	onScrimPress?: () => void
+	/** Alignment of the portal target inside the layer. Centered panels
+	 *  (dialogs, palettes) keep the default; edge-docked surfaces (toast
+	 *  stacks, sheets) pick start/end/fill per axis. On scrim-free layers the
+	 *  layer widget itself hugs the aligned edge — its bounds shrink to the
+	 *  target's content so presses in empty regions fall through to the
+	 *  content below. */
+	align?: { h?: 'start' | 'center' | 'end' | 'fill'; v?: 'start' | 'center' | 'end' | 'fill' }
+}
+
+const ALIGN: Record<string, any> = {
+	start: Gtk.Align.START,
+	center: Gtk.Align.CENTER,
+	end: Gtk.Align.END,
+	fill: Gtk.Align.FILL,
 }
 
 /** The layer handle: `target` is the portal container, `setVisible` toggles
@@ -41,15 +55,25 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 		const modal = options.modal === true
 		const useScrim = options.scrim ?? modal
 
-		// The layer container — a full-size surface stacked above content.
-		const layer = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
-		layer.set_hexpand(true)
-		layer.set_vexpand(true)
+		// The layer container — a Gtk.Overlay so the scrim underlays the portal
+		// target in true stacking order (a Box packs an expanding scrim over the
+		// whole window and shoves the target to the bottom edge). Scrim layers
+		// fill the window so the scrim can claim input everywhere; scrim-free
+		// layers with an explicit `align` dock to that edge and hug their
+		// content, so empty window regions have no widget over them to pick.
+		const layer = new Gtk.Overlay()
 		layer.add_css_class('vx-overlay-layer')
+		if (useScrim || !options.align) {
+			layer.set_hexpand(true)
+			layer.set_vexpand(true)
+		} else {
+			layer.set_halign(ALIGN[options.align.h ?? 'fill'])
+			layer.set_valign(ALIGN[options.align.v ?? 'fill'])
+		}
 
 		// The modal scrim claims pointer presses (nothing underneath receives
-		// input) and forwards the dismiss gesture. Placed as the layer's first
-		// child so it sits under the layer's content.
+		// input) and forwards the dismiss gesture. It is the overlay's main
+		// child — under the target — so a press outside the surface lands here.
 		let scrim: any = null
 		if (useScrim) {
 			scrim = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
@@ -61,14 +85,15 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 				press.connect('pressed', () => options.onScrimPress?.())
 				scrim.add_controller(press)
 			}
-			layer.append(scrim)
+			layer.set_child(scrim)
 		}
 
-		// The portal target — content mounts here.
+		// The portal target — an overlay child above the scrim, positioned by
+		// alignment (centered by default; start/end/fill dock to an edge).
 		const target = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
-		target.set_halign(Gtk.Align.CENTER)
-		target.set_valign(Gtk.Align.CENTER)
-		layer.append(target)
+		target.set_halign(ALIGN[options.align?.h ?? 'center'])
+		target.set_valign(ALIGN[options.align?.v ?? 'center'])
+		layer.add_overlay(target)
 
 		// While a modal layer is open, suppress input on the root content and
 		// on lower layers so background controls do not receive it.

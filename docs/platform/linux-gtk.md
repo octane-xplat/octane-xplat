@@ -104,7 +104,10 @@ useDropdownMenuContext), anchored layers (Breadcrumbs, BreadcrumbItem,
 HoverCard, useHoverCard, usePopover, useLayer), and in-window overlays
 (Overlay, Dialog, DialogHeader, AlertDialog, useImperativeDialog,
 useImperativeAlertDialog, FocusScope, getFocusScopeCapabilities,
-LayerProvider, LayerContext, useLayerContext) —
+LayerProvider, LayerContext, useLayerContext), toasts
+(Toast, ToastViewport, showToast, useToast), the Lightbox media viewer
+(Lightbox, useLightbox), the CommandPalette command surface, and the
+edge-docked Drawer —
 behave identically to native; slot-bearing hooks (useCalendarDays,
 useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
 are not yet exposed.
@@ -1057,8 +1060,11 @@ it works from any directory without a source checkout, Node, or pnpm.
 - `FocusScope` reports all capabilities `false` via
   `getFocusScopeCapabilities()` — per-scope containment is not qualified yet;
   the overlay host's modal suppression carries the modal-input contract.
-- `presentation="bottom-sheet"` throws until the BottomSheet slice; toast,
-  drawer, lightbox and command-palette hosts land with their own slices.
+- `presentation="bottom-sheet"` throws until the BottomSheet slice; the
+  shared toast/drawer/lightbox/palette contracts are covered, but the toast
+  edge stacks are corner overlay layers rather than per-edge windows, and
+  `Lightbox` video falls back to alt text (the video widget lives in
+  `@octane-xplat/video`).
 - Broad pointer/keyboard coverage, Wayland, assistive technology, visual parity
   and the complete shared UI remain unqualified. Primitive checks establish
   only the named Mason allocations and X11 pointer behavior; counter and

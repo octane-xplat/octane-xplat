@@ -471,6 +471,8 @@ declare module 'gi://Gdk?version=4.0' {
 		const KEY_Down: number
 		const KEY_Left: number
 		const KEY_Right: number
+		const KEY_Page_Up: number
+		const KEY_Page_Down: number
 		const KEY_Home: number
 		const KEY_End: number
 		const ModifierType: {

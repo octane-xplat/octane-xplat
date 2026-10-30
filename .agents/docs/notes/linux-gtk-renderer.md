@@ -3025,3 +3025,48 @@ the bridge after the last root.
 
 Log: guest `/tmp/gtk-run.log`. Limits: X11/Xvfb only; no Wayland,
 visual/pixel, IME or AT-client evidence.
+
+## Slice D2a evidence — toasts, lightbox, palette, drawer
+
+`ui-toast.test.mjs` (37 checks), `ui-lightbox.test.mjs` (20),
+`ui-palette.test.mjs` (16) and `ui-drawer.test.mjs` (17) all pass with real
+X11 input on GJS 1.80.2 / GTK 4.14.5 / Xvfb. Siblings re-verified:
+ui-overlays 23, ui-popover 73, ui-menus 32, ui-layers 49, ui-portal 48,
+ui-slider 141.
+
+Mechanics proven this slice:
+
+- Scrim-free layers dock to a window edge via `align` on the layer widget
+  itself (toast corner stacks); the layer hugs its content so empty regions
+  keep no widget over them. `can_target=false` is NOT a pass-through —
+  gtk_widget_can_be_picked skips the whole subtree.
+- Portal children expand inside the `Gtk.Box` layer target only via
+  `flexGrow` (a percentage height still measures at content size). The
+  lightbox stage and drawer panel rely on it to fill their surfaces.
+- `Gtk.GestureDrag` claims every sequence it sees — it starves
+  `GestureSwipe` bound on the same widget. The lightbox binds `onPan`
+  only while zoomed.
+- Focus grabs on unmapped layer targets are no-ops; the lightbox binds a
+  capture-phase `EventControllerKey` on the window root for Left/Right,
+  and the palette entry re-grabs focus on `map`.
+- GJS has no `AbortController` — `CommandPalette.gtk.tsrx` installs a
+  minimal shim before `command-palette-state` runs.
+- `compute_bounds(window)` observes transforms; `compute_bounds(self)`
+  returns the untransformed allocation (used for the zoom check).
+- Portal-mounted children are not registered in `container.nodes`; fixture
+  lookups walk the widget tree (`get_name`, label text).
+- Harness: one `xdotool` invocation for `drag` (per-process spawn overhead
+  dropped the release velocity below `GtkGestureSwipe`) and
+  `click --repeat 2` for double-tap timing; `hold` remains for long-press.
+
+Leaves this slice: `Toast.gtk.tsrx`, `toast-viewport.gtk.tsrx`,
+`toast-surface.gtk.tsrx`, `toast-service.gtk.tsrx`, `Lightbox.gtk.tsrx`,
+`CommandPalette.gtk.tsrx`, `command-palette-keys.gtk.ts`,
+`command-palette-scroll.gtk.ts`, `Drawer.gtk.tsrx`. Renderer: the
+`Gtk.Overlay` root now hexpands/vexpands (a latent D1 sizing bug that
+docked bottom edges mid-window), `createGtkRoot(host, {service:true})`
+skips window wiring for service roots, and the bridge filters service
+containers out of the layer target.
+
+Logs: guest `/tmp/gtk-run.log`; limits unchanged (X11/Xvfb only; no
+Wayland, pixel, IME or AT-client evidence).

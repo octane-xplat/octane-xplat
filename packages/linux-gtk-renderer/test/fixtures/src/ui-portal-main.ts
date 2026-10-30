@@ -59,9 +59,13 @@ const render = () => root.render(Portals, props)
 async function run() {
 	const attempt = root.prepare(Portals, props)
 	check('portal preparation is prepared', attempt.status === 'prepared')
+	// The renderer-owned Gtk.Overlay sits inside the root host from setup —
+	// preparation must not add children beyond that baseline.
 	check(
 		'preparation never mutates GTK hosts',
-		children(a).length === 1 && children(host).length === 0,
+		children(a).length === 1 &&
+			children(host).length === 1 &&
+			children(host)[0] === container.overlay,
 	)
 	check('preparation never creates host nodes', container.nodes.size === 0)
 	if (attempt.status !== 'prepared') {
@@ -195,9 +199,11 @@ async function run() {
 	props = { ...props, target: host }
 	render()
 	await pause()
+	// The root render surface is `contentHost` inside the renderer-owned
+	// Gtk.Overlay — the caller's `host` box only ever holds the overlay.
 	check(
 		'root host can receive portal content',
-		label.get_parent() === host && text('a') === 'two:a:1',
+		label.get_parent() === container.contentHost && text('a') === 'two:a:1',
 	)
 	props = { ...props, show: false }
 	render()

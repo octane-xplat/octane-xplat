@@ -71,25 +71,31 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 				send('type', '--clearmodifiers', '--delay', '35', '--', phase.type)
 			} else if (phase.key) {
 				send('key', '--clearmodifiers', phase.key)
+			} else if (phase.dbl) {
+				send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
+				// One xdotool process keeps both presses inside GTK's
+				// double-click time; separate invocations land too far apart.
+				send('click', '--repeat', '2', '--delay', '60', '1')
 			} else if (phase.drag) {
 				const x = Math.round(phase.x),
 					y = Math.round(phase.y)
-				send('mousemove', '--window', id, String(x), String(y))
-				send('mousedown', '1')
-				try {
-					for (let step = 1; step <= 10; step++) {
-						send(
-							'mousemove',
-							'--window',
-							id,
-							String(Math.round(x + (Number(phase.drag.dx ?? 0) * step) / 10)),
-							String(Math.round(y + (Number(phase.drag.dy ?? 0) * step) / 10)),
-						)
-						send('sleep', '0.02')
-					}
-				} finally {
-					send('mouseup', '1')
+				// One xdotool invocation runs the whole sequence — per-process
+				// spawn overhead would drop the release velocity below
+				// GtkGestureSwipe's threshold.
+				const args = ['mousemove', '--window', id, String(x), String(y), 'mousedown', '1']
+				for (let step = 1; step <= 10; step++) {
+					args.push(
+						'mousemove',
+						'--window',
+						id,
+						String(Math.round(x + (Number(phase.drag.dx ?? 0) * step) / 10)),
+						String(Math.round(y + (Number(phase.drag.dy ?? 0) * step) / 10)),
+						'sleep',
+						'0.01',
+					)
 				}
+				args.push('mouseup', '1')
+				send(...args)
 			} else {
 				send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
 				if (phase.hold) {

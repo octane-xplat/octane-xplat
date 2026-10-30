@@ -1417,3 +1417,45 @@ Leaves: `Overlay.gtk.tsrx`, `Dialog.gtk.tsrx`, `layer-provider.gtk.tsrx`,
 `FocusScope.gtk.tsrx`, `layer-keys.gtk.ts`. `presentation="bottom-sheet"`
 still throws (slice D2); `NavigationMenu` remains deferred to slice G.
 Limits: X11/Xvfb only — no Wayland, visual/pixel, IME or AT evidence.
+
+### Toasts, lightbox, command palette and drawer (slice D2a)
+
+`Toast`, `ToastViewport`, `showToast`, `useToast`, `Lightbox`,
+`useLightbox`, `CommandPalette` and `Drawer` are now public GTK exports (24
+types beside). Availability is 217 values and 305 types.
+
+Toast surfaces mount one scrim-free overlay layer per edge (`TOAST_POSITIONS`
+/`TOAST_EDGE_ALIGN` in `toast-surface.gtk.tsrx`); the layer widget hugs its
+corner so uncovered regions stay interactive — `can_target=false` is not a
+pass-through mechanism (gtkwidget.c skips the whole subtree in pick).
+`maxVisible` queues overflow like native, `useToast` routes orphans to the
+fallback `bottomEnd` stack, and `mountServiceRoot` mounts a `service` root
+that skips window wiring and the `__octaneGtkHost` layer target.
+
+`Lightbox.gtk.tsrx` and `Drawer.gtk.tsrx` present on modal scrim layers;
+`CommandPalette.gtk.tsrx` centers on one with
+`command-palette-keys.gtk.ts` (capture-phase `EventControllerKey` on the
+entry for arrows/Page/Enter) and `command-palette-scroll.gtk.ts`. Shared
+leaves `use-lightbox.tsrx` and `command-palette-state.ts` resolve as-is;
+the GTK leaf installs a minimal `AbortController` shim (absent in GJS).
+
+Fixture findings that shape these leaves: portal children expand only via
+`flexGrow` inside the `Gtk.Box` layer target; a `Gtk.GestureDrag` claims
+sequences and starves `GestureSwipe`, so `onPan` binds only while zoomed;
+focus grabs on unmapped layer targets are no-ops, so arrow keys bind
+capture-phase on the window root and palette focus re-grabs on `map`;
+`Enter` selects only `state.highlighted` (set by arrow keys);
+`compute_bounds(window)` sees transforms where `compute_bounds(self)`
+does not; `items` takes `key`-shaped `CommandPaletteMenuItem` rows.
+
+`ui-toast.test.mjs` runs 37 assertions, `ui-lightbox.test.mjs` 20,
+`ui-palette.test.mjs` 16 and `ui-drawer.test.mjs` 17 — all with real X11
+input (clicks, drags, double-click, arrow/Escape keys, typed queries).
+Harness additions: a single-invocation xdotool `drag` (per-process spawn
+overhead sank release velocity below `GtkGestureSwipe` threshold) and
+`click --repeat 2` for double-tap. Siblings re-verified green: ui-overlays
+23, ui-popover 73, ui-menus 32, ui-layers 49, ui-portal 48, ui-slider 141.
+Portal children are not registered in `container.nodes` — fixture lookups
+use the widget tree (`get_name`, label text). Limits unchanged: X11/Xvfb
+only; `view.animate` stays translate-only (lightbox zoom writes scale
+directly); `presentation="bottom-sheet"` still throws (slice D2b).

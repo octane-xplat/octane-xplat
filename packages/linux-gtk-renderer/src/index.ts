@@ -182,6 +182,10 @@ export interface GtkContainer {
 	overlayLayerHandles?: Set<any>
 	layerKeySink?: ((event: any) => void) | null
 	layerKeyController?: any
+	/** Service roots mount inside a host's overlay layer (toast stack) —
+	 *  they live in `liveGtkContainers` for restyle but never become the
+	 *  `__octaneGtkHost` bridge's layer target. */
+	service?: boolean
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
 	root: GtkRoot | null
@@ -4128,11 +4132,13 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 	},
 }
 
-export function createGtkContainer(host: GtkView): GtkContainer {
+export function createGtkContainer(host: GtkView, options: { service?: boolean } = {}): GtkContainer {
 	// A renderer-owned Gtk.Overlay inside the host — the RootLayout
 	// equivalent. The root content mounts into its main child; overlay layers
 	// (dialogs, sheets, toasts) stack above it via `add_overlay`.
 	const overlay = new Gtk.Overlay()
+	overlay.set_hexpand(true)
+	overlay.set_vexpand(true)
 	const contentHost = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 	overlay.set_child(contentHost)
 	// Attach the overlay to whatever widget the caller handed in — Box
@@ -4154,6 +4160,9 @@ export function createGtkContainer(host: GtkView): GtkContainer {
 		nextPortalTarget: 0,
 		popoverChromeUsers: () => popoverChromeUsers(host.get_display()),
 	}
+	if (options.service) {
+		container.service = true
+	}
 	liveGtkContainers.add(container)
 	// The imperative overlay bridge — `ui` resolves `globalThis.__octaneGtkHost`
 	// instead of importing the renderer (mirrors macOS `appKitHost()`); it
@@ -4163,7 +4172,7 @@ export function createGtkContainer(host: GtkView): GtkContainer {
 	bindOverlayHost(contentHost, container)
 	;(globalThis as any).__octaneGtkHost = {
 		createOverlayLayer: (options: any) => {
-			const last = [...liveGtkContainers].at(-1)
+			const last = [...liveGtkContainers].filter((c) => !c.service).at(-1)
 			const layer = last?.contentHost?.createOverlayLayer?.(options)
 			if (!layer) {
 				throw new Error('linux-gtk overlay bridge: no live root with an overlay host.')
@@ -4182,11 +4191,37 @@ export function createGtkContainer(host: GtkView): GtkContainer {
 				if (container.layerKeySink === handler) { container.layerKeySink = null }
 			}
 		},
+		// Service surfaces with no declaring node (the toast fallback stack)
+		// mount a dedicated universal root inside an overlay layer's target —
+		// the macOS presentSurface equivalent. The root unmounts with the
+		// layer.
+		mountServiceRoot: (layer: any, component: any, props: any) => {
+			if (!layer?.target) {
+				throw new Error('linux-gtk overlay bridge: mountServiceRoot needs a layer handle.')
+			}
+			const mounted = createGtkRoot(layer.target, { service: true })
+			mounted.root.render(component, props)
+			const release = layer.dispose?.bind(layer)
+			if (typeof release === 'function') {
+				layer.dispose = () => {
+					try { mounted.root.unmount() } catch { }
+					release()
+				}
+			}
+			return {
+				root: mounted.root,
+				unmount: () => {
+					try { mounted.root.unmount() } catch { }
+				},
+			}
+		},
 	}
 	// Gtk.Settings exists only after Gtk.init — the first container is the
 	// earliest point appearance watches can connect.
 	observeGtkSettings()
-	wireContainerWindow(container)
+	if (!options.service) {
+		wireContainerWindow(container)
+	}
 	// Prime the media-query cache and the tracked orientation so the first
 	// resize diff compares against a baseline, not an empty cache.
 	refreshMediaQueries()
@@ -4194,10 +4229,15 @@ export function createGtkContainer(host: GtkView): GtkContainer {
 	return container
 }
 
-export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {}
+export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {
+	/** Service roots mount inside another root's overlay layer — they never
+	 *  become the `__octaneGtkHost` bridge's layer target and skip the
+	 *  duplicate window wiring the owning app root already provides. */
+	service?: boolean
+}
 
 export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
-	const container = createGtkContainer(host)
+	const container = createGtkContainer(host, { service: options.service === true })
 	const root = createUniversalRoot(container, gtkDriver, {
 		// GJS has no queueMicrotask — the universal runtime requires a
 		// scheduler bridge; Promise resolution is the proven path (feasibility
