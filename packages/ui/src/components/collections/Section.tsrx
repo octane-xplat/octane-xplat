@@ -4,7 +4,12 @@ import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { SectionProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { spacingPx } from '../layout/stack-layout'
 
 /** Section — banded container with surface/transparent/muted background.
@@ -42,7 +47,7 @@ export function Section(props: SectionProps) @{
 			props.className,
 		)}
 		style={mergeStyle(
-			{ display: 'flex' },
+			{ display: 'flex', flexDirection: 'column' },
 			{
 				paddingLeft: pInlineStart,
 				paddingRight: pInlineEnd,
