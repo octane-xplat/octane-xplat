@@ -22,6 +22,7 @@ import {
 } from 'octane/signals'
 
 /** JSON values accepted in query keys and selections. Object field order is ignored. */
+/** One key segment — JSON-shaped so keys serialize canonically. */
 export type QueryKeyPart =
 	| string
 	| number
@@ -36,14 +37,19 @@ export type QueryKeyPart =
 export type QueryKey = readonly QueryKeyPart[]
 /** Durable string storage; failures never prevent an in-memory read. */
 export interface QueryStorageAdapter {
+	/** Reads a stored record; absent keys return null/undefined — may be async. */
 	get(key: string): string | null | undefined | PromiseLike<string | null | undefined>
+	/** Writes a record — may be async. */
 	set(key: string, value: string): void | PromiseLike<void>
+	/** Deletes a record — may be async. */
 	remove(key: string): void | PromiseLike<void>
 }
 
 /** Opt-in confirmed JSON records, partitioned by the client's immutable namespace. */
 export interface QueryPersistence {
+	/** Storage backend for confirmed records. */
 	readonly storage: QueryStorageAdapter
+	/** Schema/format version — a change discards older stored entries. */
 	readonly version: string | number
 	/** Maximum stored age in milliseconds. @default Infinity */
 	readonly maxAgeMs?: number
@@ -51,7 +57,9 @@ export interface QueryPersistence {
 
 /** Loader inputs. Always pass signal to an abortable transport. */
 export interface QueryLoadContext<T> {
+	/** Aborted when the request is superseded or the entry evicts — wire it into the transport. */
 	readonly signal: AbortSignal
+	/** Last confirmed value, for incremental/delta loads. */
 	readonly previous: T | undefined
 }
 
@@ -61,6 +69,7 @@ export interface QueryOptions<T = unknown> {
 	readonly staleTimeMs?: number
 	/** Retain inactive entries for this many milliseconds. @default 300000 */
 	readonly gcTimeMs?: number
+	/** Opt-in persistence of confirmed values. */
 	readonly persist?: QueryPersistence
 	/** Positive means a newer confirmed server revision; equal/older receipts are ignored. */
 	readonly compareAuthority?: (incoming: T, current: T) => number
@@ -83,9 +92,13 @@ export interface QueryOptions<T = unknown> {
 const DEFINITION: unique symbol = Symbol('query-definition')
 /** Reusable typed loader and family identity. Construct once with defineQuery. */
 export interface QueryDefinition<A extends QueryKeyPart, T> {
+	/** Brands the object as a definition (nominal typing). */
 	readonly [DEFINITION]: true
+	/** Family key — selection parts are appended to form entry keys. */
 	readonly key: QueryKey
+	/** Loader for one selection of the family; `signal` must reach the transport. */
 	readonly load: (selection: A, context: QueryLoadContext<T>) => T | PromiseLike<T>
+	/** Definition-wide policies shared by every entry. */
 	readonly options: QueryOptions<T>
 }
 
@@ -94,12 +107,19 @@ export type QueryFetchDirection = 'refresh' | 'next' | 'previous'
 
 /** Observable state. A refresh failure can coexist with usable confirmed data. */
 export interface QueryState {
+	/** Data status — 'error' can coexist with confirmed data on a refresh failure. */
 	readonly status: 'pending' | 'ready' | 'error'
+	/** Fetch activity — 'paused' waits on connectivity/app state. */
 	readonly fetchStatus: 'idle' | 'fetching' | 'paused'
+	/** Consecutive failures since the last success. */
 	readonly failureCount: number
+	/** Direction of the in-flight fetch. */
 	readonly fetchDirection?: QueryFetchDirection
+	/** Whether confirmed data exists to display during pending/error. */
 	readonly hasData: boolean
+	/** Last failure value. */
 	readonly error: unknown
+	/** Epoch ms of the last confirmed write. */
 	readonly updatedAtMs: number
 }
 
@@ -107,31 +127,42 @@ export interface QueryState {
 export interface QueryReader<T> {
 	/** Native signal: get suspends until first data; refreshes retain that data. */
 	readonly data$: DerivedSignal<T>
+	/** Full observable state (status/fetchStatus/failure/error). */
 	readonly state$: DerivedSignal<QueryState>
 	/** Resolves with data or rejects with the loader/cancellation error. */
 	refetch(): Promise<T>
+	/** Releases only this reader's lease; the entry gc's when unobserved. */
 	dispose(): void
 }
 
 /** Match a prefix, or an entire family-plus-selection key with exact. */
 export interface QueryFilter {
+	/** Key to match — a family prefix, or the full key when `exact`. */
 	readonly key?: QueryKey
+	/** Requires an exact key match instead of a prefix. */
 	readonly exact?: boolean
 }
 
 /** Host state: missing connectivity/activity is unknown and does not block requests. */
 export interface QueryEnvironmentSnapshot {
+	/** Known connectivity; undefined means unknown (treated as online). */
 	readonly online?: boolean
+	/** Whether the app is foregrounded; undefined means unknown (treated as active). */
 	readonly active?: boolean
+	/** Which signals the host can actually report — missing ones stay unknown. */
 	readonly capabilities?: {
+		/** Host reports connectivity changes. */
 		readonly connectivity: boolean
+		/** Host reports foreground/background changes. */
 		readonly activity: boolean
 	}
 }
 
 /** Injectable host boundary. Subscriptions must return their own cleanup. */
 export interface QueryEnvironment {
+	/** Current host state. */
 	getSnapshot(): QueryEnvironmentSnapshot
+	/** Subscribes to host-state changes; must return a cleanup. */
 	subscribe(listener: (snapshot: QueryEnvironmentSnapshot) => void): () => void
 }
 
@@ -139,11 +170,13 @@ export interface QueryEnvironment {
 export interface QueryClientOptions {
 	/** Required for persistent definitions. Use a new client when an account changes. */
 	readonly namespace?: string
+	/** Injectable host connectivity/activity boundary; absent means unknown (treated as healthy). */
 	readonly environment?: QueryEnvironment
 }
 
 /** Explicit disposal options. Durable purge waits behind outstanding storage operations. */
 export interface QueryDisposeOptions {
+	/** Also delete durable stored records, not just memory. */
 	readonly purgePersisted?: boolean
 }
 
@@ -152,22 +185,30 @@ export type QueryUpdater<T> = T | ((previous: T | undefined) => T)
 
 /** Cancellation belongs to the caller's lease, not the shared transport. */
 export interface QueryOperationOptions {
+	/** Caller-side cancellation — does not abort the shared request for other readers. */
 	readonly signal?: AbortSignal
 }
 
 /** Prefetch always settles with an explicit outcome; ensureData returns data or rejects. */
 export type QueryPrefetchResult =
-	| { readonly status: 'success' }
-	| { readonly status: 'error'; readonly error: unknown }
-	| { readonly status: 'cancelled' }
+	| { /** Load completed and confirmed. */ readonly status: 'success' }
+	| {
+			/** Load failed — the error is returned, not thrown. */
+			readonly status: 'error'
+			/** The loader's failure value. */
+			readonly error: unknown
+	  }
+	| { /** Aborted by the caller's signal or client disposal. */ readonly status: 'cancelled' }
 
 /** Native action operation narrowed to this query's confirmed receipt type. */
 export type QueryActionOperation<T> = Omit<ActionOperation, 'adopt'> & {
+	/** Confirms a value as the new server truth for this entry. */
 	adopt(value: T): void
 }
 
 /** Cancellation for a shared optimistic action. The server may still accept an aborted write. */
 export interface QueryActionContext {
+	/** Aborts when the action is superseded — the server may still accept the write. */
 	readonly signal: AbortSignal
 }
 
@@ -231,6 +272,7 @@ export interface QueryClient {
 		update: (previous: NoInfer<T>, selection: NoInfer<A>) => NoInfer<T>,
 		filter?: QueryFilter,
 	): number
+	/** Marks matching entries stale — observed entries refetch, others clear on next read. */
 	invalidateQueries(filter?: QueryFilter): void
 	/** Retires matching readers. Collection alone does not delete durable data. */
 	evictQueries(filter?: QueryFilter, options?: QueryDisposeOptions): Promise<void>
@@ -252,6 +294,7 @@ export interface QueryClient {
  *   return response.json() as Promise<{ name: string }>
  * })
  */
+/** Builds a reusable typed query definition — key family, loader, and policies. */
 export function defineQuery<A extends QueryKeyPart, T>(
 	key: QueryKey,
 	load: (selection: A, context: Pick<QueryLoadContext<unknown>, 'signal'>) => T | PromiseLike<T>,
@@ -317,6 +360,7 @@ function freezeJson(value: unknown): unknown {
 }
 
 /** @internal Stable JSON identity shared with the hook; rejects ambiguous non-JSON inputs. */
+/** Serializes a key into its canonical string form — identical inputs share one entry. */
 export function canonicalQueryKey(
 	value: unknown,
 	parents: Set<object> = new Set<object>(),
@@ -892,6 +936,7 @@ function matches(entry: Pick<Entry, 'elements'>, filter: QueryFilter): boolean {
  * const queries = createQueryClient({ namespace: 'account:42' })
  * // On sign-out: await queries.dispose({ purgePersisted: true })
  */
+/** Creates a query client — one per app/account boundary; dispose at its end. */
 export function createQueryClient(options: QueryClientOptions = {}): QueryClient {
 	const namespace = options.namespace
 	const id = ++clientSequence
@@ -1532,6 +1577,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 }
 
 /** In-memory durable-adapter fixture for tests and small examples. */
+/** In-memory `QueryStorageAdapter` — persistence that lives only for the process. */
 export function createMemoryQueryStorage(): QueryStorageAdapter {
 	const store = new Map<string, string>()
 	return {
