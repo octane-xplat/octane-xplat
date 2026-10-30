@@ -4984,7 +4984,10 @@ export type RoutePreparationResult =
 			/** Why the route did not resolve (pattern/resource/unavailable). */
 			reason: 'pattern' | 'resource' | 'unavailable'
 	  }
-	| { /** Forbidden discriminator — a guard denied the navigation. */ status: 'forbidden' }
+	| {
+			/** Forbidden discriminator — a guard denied the navigation. */
+			status: 'forbidden'
+	  }
 	| {
 			/** Invalid-input discriminator — params or search failed validation. */
 			status: 'invalid-input'
@@ -5723,11 +5726,17 @@ export type ContractsOf<Value> = Value extends {
 			? ContractEntry<Value>
 			: {}
 
-type FileSearchValidator<Module> = Module extends { validateSearch: infer Validator }
+type FileSearchValidator<Module> = Module extends {
+	/** `validateSearch` export captured for search-type inference. */
+	validateSearch: infer Validator
+}
 	? Validator
 	: undefined
 
-type FileGuardContext<Module> = Module extends { beforeLoad: (...args: any[]) => infer Added }
+type FileGuardContext<Module> = Module extends {
+	/** `beforeLoad` export whose return widens the merged context. */
+	beforeLoad: (...args: any[]) => infer Added
+}
 	? AddedRouteContext<Awaited<Added>>
 	: {}
 
@@ -5742,11 +5751,17 @@ export interface RouteGroup<Context = RouteContext, Root = Context> {
 	readonly [routeGroupTypes]: { /** Context contributed by this group. */ readonly context: Context; /** Root context the group merges over. */ readonly rootContext: Root }
 }
 
-type FileGroupContext<Module> = Module extends { group: RouteGroup<infer Context, any> }
+type FileGroupContext<Module> = Module extends {
+	/** `group` export whose context type merges into descendant args. */
+	group: RouteGroup<infer Context, any>
+}
 	? Context
 	: {}
 
-type FileGroupRoot<Module> = Module extends { group: RouteGroup<any, infer Root> } ? Root : {}
+type FileGroupRoot<Module> = Module extends {
+	/** `group` export whose root type scopes the whole tree. */
+	group: RouteGroup<any, infer Root>
+} ? Root : {}
 type FileRootContext<Module, Context> = string extends keyof Context
 	? FileGroupRoot<Module>
 	: Context & FileGroupRoot<Module>
@@ -5793,7 +5808,10 @@ type RouteModuleLiveData<Module> = 'loader' extends keyof Module
 	? RouteLoaderOutput<Module['loader']>
 	: undefined
 
-type RouteModuleData<Module, Baked> = Module extends { dataMode: 'baked' }
+type RouteModuleData<Module, Baked> = Module extends {
+	/** Build-time data marker — the module pre-bakes loader output. */
+	dataMode: 'baked'
+}
 	? Baked
 	: 'dataMode' extends keyof Module
 		? 'baked' extends Module['dataMode']
