@@ -1,5 +1,6 @@
 // Files — AppKit host leaf.
 import { applyAppKitFileTypeFilter } from './file-pick-filter.macos'
+import { MIME_EXTENSIONS } from './file-types.macos'
 import { assertSafeFileName, concatBytes, exactBuffer, exportBusy, fileTooLarge, throwIfAborted } from './file-bytes'
 import type {
 	FileExportOptions,
