@@ -382,10 +382,12 @@ experience of agents writing Octane-xplat code effectively.
   `ui:test:native` (`vitest.native.config.mts`, nativescript renderer parses all
   `.ts/.tsrx`) then fails transform in 10 mobile test files, including three
   `.mobile.test.tsrx` whose own code uses `<const`. Web lane unaffected —
-  it doesn't route `.ts` through TSRXParser. Resolution belongs upstream
-  (pass `tsParseConstModifier` through `tsFillSignature`) or in an `@tsrx/core`
-  parser override via the patch pipeline; do not weaken the `const` annotations
-  to pass the check. Recheck when upgrading `@sveltejs/acorn-typescript` or
+  it doesn't route `.ts` through TSRXParser. **Patched locally (2026-10-31):**
+  `packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch` passes
+  `tsParseConstModifier` through `tsFillSignature`, matching function-declaration
+  handling — the upstream gap remains; the patch only repairs it locally.
+  Drop the patch when upstream wires `const` modifiers in type-literal
+  signatures; recheck when upgrading `@sveltejs/acorn-typescript` or
   `@tsrx/core`.
 - App starters include runtime/build dependencies and testing for their selected
   platforms by default. Platform fragments own their test files, scripts, and
