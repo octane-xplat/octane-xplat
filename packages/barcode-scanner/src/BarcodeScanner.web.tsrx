@@ -2,11 +2,12 @@
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { BarcodeScannerHandle, BarcodeScannerProps } from './props'
 import { fromDetectorFormat, toDetectorFormats } from './format-map.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Live barcode/QR scanner — getUserMedia + the BarcodeDetector API
  *  (Chromium/Safari 18.4+; Firefox lacks the detector). Polling runs on
  *  requestVideoFrameCallback where available, else a 250ms interval. */
-export function BarcodeScanner(props: BarcodeScannerProps) @{
+export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element @{
 	const video = useRef<HTMLVideoElement | null>(null)
 	const latest = useRef(props)
 	latest.current = props

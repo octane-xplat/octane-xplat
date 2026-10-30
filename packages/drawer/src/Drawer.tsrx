@@ -27,7 +27,7 @@ registerElement('xplatDrawer', DrawerHost)
 
 /** Gesture-enabled mobile Drawer. Content and styling belong to the caller;
  * this is a custom native layout, not OS-provided menu chrome. */
-export function Drawer(props: DrawerProps) @{
+export function Drawer(props: DrawerProps): unknown @{
 	const latest = useRef(props)
 	latest.current = props
 	const host = useRef<DrawerHost | null>(null)

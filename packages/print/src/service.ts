@@ -1,7 +1,14 @@
 import { backend } from './backend'
 import { printOptions, fileOptions } from './options'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
-import type { PrintOptions, FilePrintOptions, FilePrintResult, Printer } from './types'
+import type {
+	PrintOptions,
+	FilePrintOptions,
+	FilePrintResult,
+	Printer,
+	PrintCapabilities,
+} from './types'
+
 let busy = false
 const owned = new Set<string>()
 async function operation<T>(
@@ -24,11 +31,13 @@ async function operation<T>(
 		busy = false
 	}
 }
+
 /** Open the system print UI. Promise semantics depend on the platform; physical printing is never guaranteed. */
 export async function printAsync(options: PrintOptions): Promise<void> {
 	const snapshot = printOptions(options)
 	return operation(backend.capabilities().print, 'Print.printAsync', () => backend.print(snapshot))
 }
+
 /** Create a real PDF cache file; unsupported browser exports reject without opening a dialog.
  * @example
  * ```ts
@@ -47,12 +56,14 @@ export async function printToFileAsync(options: FilePrintOptions = {}): Promise<
 		return result
 	})
 }
+
 /** Pick an AirPrint destination on iOS. Cancellation rejects. */
 export function selectPrinterAsync(): Promise<Printer> {
 	return operation(backend.capabilities().selectPrinter, 'Print.selectPrinterAsync', () =>
 		backend.select(),
 	)
 }
+
 /** Delete only PDF exports owned by this package. Unknown/previously released results are harmless. */
 export function releasePrintFile(result: FilePrintResult | string): void {
 	const uri = typeof result === 'string' ? result : result.uri
@@ -62,13 +73,21 @@ export function releasePrintFile(result: FilePrintResult | string): void {
 	backend.remove(uri)
 	owned.delete(uri)
 }
+
 /** Discover operation support before showing a print or PDF-export action. */
-export const Print = {
-	get supported() {
+export const Print: {
+	readonly supported: boolean
+	readonly capabilities: PrintCapabilities
+	printAsync: typeof printAsync
+	printToFileAsync: typeof printToFileAsync
+	selectPrinterAsync: typeof selectPrinterAsync
+	releasePrintFile: typeof releasePrintFile
+} = {
+	get supported(): boolean {
 		const value = backend.capabilities()
 		return value.print || value.printToFile || value.selectPrinter
 	},
-	get capabilities() {
+	get capabilities(): PrintCapabilities {
 		return backend.capabilities()
 	},
 	printAsync,

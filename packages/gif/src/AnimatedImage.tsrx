@@ -13,7 +13,7 @@ registerElement('animatedimage', Img)
  *  takes the Img grammar: remote URL, res://name, ~/bundle path, file path.
  *  There is intentionally no play/pause prop — <img> can't pause on web, so
  *  the shared contract is always-playing. */
-export function AnimatedImage(props: AnimatedImageProps) @{
+export function AnimatedImage(props: AnimatedImageProps): unknown @{
 	<animatedimage
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

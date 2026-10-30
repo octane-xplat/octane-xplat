@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useImperativeHandle, useId, useRef, useState } from 'octane'
 import {
 	Field as FormField,
@@ -326,7 +327,7 @@ function FileInputControl(inputProps: FileInputProps) @{
  * input returns the `File` alongside its object URL. Drag/drop targets the
  * control wrapper in both modes.
  */
-export function FileInput(props: FileInputProps) @{
+export function FileInput(props: FileInputProps): JSX.Element @{
 	const { inField } = useFieldControl(props)
 	const cid = useId()
 	const control = <FileInputControl {...props} />

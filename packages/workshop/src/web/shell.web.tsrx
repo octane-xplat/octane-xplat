@@ -4,6 +4,7 @@
  * DOM vocabulary is correct here: this is the DOM-host surface (browser and
  * the Linux WebKitGTK webview share it).
  */
+import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { useStore } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
@@ -192,7 +193,7 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 	)
 }
 
-function toggleAux(runtime: WorkshopRuntime, panel: 'stories' | 'controls') {
+function toggleAux(runtime: WorkshopRuntime, panel: 'controls' | 'stories') {
 	const s = runtime.store.getSnapshot()
 	runtime.store.set({ ...s, auxPanel: s.auxPanel === panel ? null : panel })
 }
@@ -742,7 +743,7 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 
 // ---------- app ----------
 
-export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
+export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
 	const s = useStore(props.runtime.store)
 	const openerRef = useRef<HTMLElement | null>(null)
 	const openerKeyRef = useRef<string | null>(null)

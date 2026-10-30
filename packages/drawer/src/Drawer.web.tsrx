@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef, useState } from 'octane'
 import type { DrawerProps } from './props'
+import type { JSX } from 'octane/jsx-runtime'
 
 function applyWebProps(node: any, bag?: Record<string, any>) {
 	if (!node || !bag) {
@@ -17,7 +18,7 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
 }
 
 /** Composed desktop/web Drawer. Mobile uses the same props with native edge gestures. */
-export function Drawer(props: DrawerProps) @{
+export function Drawer(props: DrawerProps): JSX.Element @{
 	const latest = useRef(props)
 	latest.current = props
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)

@@ -94,7 +94,7 @@ function NanoGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) @{
  * the font's internal name (auto-registered from `app/fonts`), on Android the
  * `<family>.ttf` file name. Missing names render nothing.
  */
-export function NanoIcon(props: NanoIconProps) @{
+export function NanoIcon(props: NanoIconProps): unknown @{
 	useStore(nanoIconSetRegistry)
 	const resolved = resolveNanoIcon(props.name, props.set)
 	if (!resolved) {

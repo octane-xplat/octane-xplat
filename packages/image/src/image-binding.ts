@@ -147,7 +147,7 @@ export function createImageBinding(options: {
 		/** Called from the ref callbacks — image view first, then the computed
 		 *  path's wrapper host. Refreshes the pending src from props and
 		 *  evaluates; idempotent. */
-		update(imageView: any, hostView: any) {
+		update(imageView: any, hostView: any): void {
 			// Explicit null clears a view — refs fire with null on detach.
 			if (imageView !== undefined && imageView !== view) {
 				// Requests and intrinsic measurements belong to this image host.
@@ -170,7 +170,7 @@ export function createImageBinding(options: {
 		/** Engine-reported intrinsic size. `dips` marks reports that are
 		 *  already density-independent (iOS UIImage.size) — Android reports
 		 *  raw pixels and still converts through the screen scale. */
-		setIntrinsic(widthPx: number, heightPx: number, dips = false) {
+		setIntrinsic(widthPx: number, heightPx: number, dips = false): void {
 			imageWidth = dips ? widthPx : widthPx / scale()
 			imageHeight = dips ? heightPx : heightPx / scale()
 			applyRect()

@@ -50,7 +50,7 @@ function stopView(v: LottieView) {
  *  in effects. `async` stays forced on: it keeps the load path uniform
  *  (one code path for inline/file/URL/.lottie) and avoids main-thread
  *  parse jank; autoPlay is re-applied when the composition lands. */
-export function Lottie(props: LottieProps) @{
+export function Lottie(props: LottieProps): unknown @{
 	const host = useRef<LottieView | null>(null)
 	const appliedSrc = useRef<string | undefined>(undefined)
 	const loadedRef = useRef(false)

@@ -11,7 +11,7 @@ import { expandUses } from './use'
 export function resolveClipPath(
 	doc: SvgDocument,
 	clipPathUrl: string,
-	transform = Affine2D.identity(),
+	transform: Affine2D = Affine2D.identity(),
 ): Shape {
 	const clipPathEl = doc.resolveUrl(clipPathUrl, 'clipPath')
 	expandUses(doc, clipPathEl)

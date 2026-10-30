@@ -32,7 +32,7 @@ const SortContext = createContext<readonly (string | number)[] | null>(null)
 const SortContextProvider: any = SortContext
 
 /** Scope registrations to one renderer root. Nested roots need their own DndContext. */
-export function DndContext(props: DndContextProps) {
+export function DndContext(props: DndContextProps): unknown {
 	const ref = useRef<DndController | null>(null)
 	if (!ref.current) {
 		ref.current = new DndController()
@@ -189,7 +189,7 @@ export function useDroppable(options: DroppableOptions): DroppableResult {
 }
 
 /** Declares list membership for useSortable; it does not own item order. */
-export function SortableContext(props: SortableContextProps) {
+export function SortableContext(props: SortableContextProps): unknown {
 	if (new Set(props.items).size !== props.items.length) {
 		throw new Error('SortableContext requires unique item ids')
 	}
@@ -242,7 +242,7 @@ function SortableRow<T extends DndId>(props: {
 }
 
 /** A controlled sortable list. Provide stable unique ids and save the order in onReorder. */
-export function SortableList<T extends DndId>(props: SortableListProps<T>) {
+export function SortableList<T extends DndId>(props: SortableListProps<T>): unknown {
 	const {
 		items,
 		renderItem: _renderItem,

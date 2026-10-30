@@ -23,6 +23,7 @@ import type {
 	HostedAuthCredentials,
 	HostedAuthFetch,
 	HostedAuthRequestInit,
+	HostedAuthResponse,
 	HostedAuthSignInResult,
 } from './types'
 
@@ -366,7 +367,11 @@ function normalizeOrigin(value: string): string {
 }
 
 /** `POST` a JSON body through the flow's transport. */
-export function postJson(transport: HostedAuthFetch, url: string, body: Record<string, string>) {
+export function postJson(
+	transport: HostedAuthFetch,
+	url: string,
+	body: Record<string, string>,
+): Promise<HostedAuthResponse> {
 	return transport(url, {
 		body: JSON.stringify(body),
 		headers: { 'content-type': 'application/json' },

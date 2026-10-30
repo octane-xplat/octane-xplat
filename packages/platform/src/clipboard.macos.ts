@@ -1,15 +1,24 @@
 import { host } from './appkit-host'
 
+export type Clipboard = {
+	readonly canCopy: boolean
+	writeText: typeof writeText
+	readText: typeof readText
+	write: typeof writeText
+	read: typeof readText
+}
+
 async function writeText(value: string): Promise<boolean> {
 	try {
-		return await host().writeClipboard?.(value) ?? false
+		return (await host().writeClipboard?.(value)) ?? false
 	} catch {
 		return false
 	}
 }
+
 async function readText(): Promise<string | null> {
 	try {
-		return await host().readClipboard?.() ?? null
+		return (await host().readClipboard?.()) ?? null
 	} catch {
 		return null
 	}
@@ -17,7 +26,7 @@ async function readText(): Promise<string | null> {
 
 /** AppKit text clipboard. Copy requires a writer, independently of read
  * access; operational failures keep the shared false/null result contract. */
-export const clipboard = {
+export const clipboard: Clipboard = {
 	get canCopy(): boolean {
 		try {
 			return typeof host().writeClipboard === 'function'

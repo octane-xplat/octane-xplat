@@ -2,6 +2,15 @@
 // by browser policy or permission state.
 import { desktopHost, desktopHostClient, desktopHostSupports } from './host-runtime.web'
 
+export type Clipboard = {
+	canCopy: boolean
+	writeText: typeof writeText
+	readText: typeof readText
+	// Keep the original names available for existing consumers.
+	write: typeof writeText
+	read: typeof readText
+}
+
 const canCopy =
 	(typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function') ||
 	desktopHostClient() !== null
@@ -41,7 +50,7 @@ async function readText(): Promise<string | null> {
 	}
 }
 
-export const clipboard = {
+export const clipboard: Clipboard = {
 	canCopy,
 	writeText,
 	readText,

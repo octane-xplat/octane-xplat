@@ -109,7 +109,7 @@ function placeholderValue(placeholder: string): string | ImageSource | null {
  *  for those. `alt` maps to accessibilityLabel. `decoding` accepts the shared
  *  vocabulary but 'sync' degrades to async with a warning — the engines have
  *  no synchronous decode mode (see props.ts). */
-export function Image(props: ImageProps) @{
+export function Image(props: ImageProps): unknown @{
 	ensureEngine()
 
 	// `decoding='sync'` has no honest path: Glide `.into()` and SDWebImage

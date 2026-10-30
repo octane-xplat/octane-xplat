@@ -1,4 +1,4 @@
-import { createKeyboardWindowRegistry } from './keyboard-registry'
+import { createKeyboardWindowRegistry, type KeyboardWindowRegistry } from './keyboard-registry'
 import type { KeyboardRect } from './keyboard-geometry'
 
 /** @internal Basic inset snapshot in dips; shared by framework keyboard adapters. */
@@ -36,4 +36,5 @@ export const unknownKeyboardState = (): KeyboardWindowState => ({
 
 /** @internal One registry across roots; native/window adapters supply observations.
  * Importing this module does not observe windows or change window modes. */
-export const keyboardWindows = createKeyboardWindowRegistry(unknownKeyboardState)
+export const keyboardWindows: KeyboardWindowRegistry<KeyboardWindowState> =
+	createKeyboardWindowRegistry(unknownKeyboardState)

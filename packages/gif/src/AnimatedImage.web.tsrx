@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { AnimatedImageProps } from './props'
 import { applyEscapeProps } from './escape-props.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 const OBJECT_FIT = {
 	none: 'none',
@@ -11,7 +12,7 @@ const OBJECT_FIT = {
 
 /** AnimatedImage — a plain <img>; browsers animate GIF/webp natively.
  *  `stretch` maps to object-fit. */
-export function AnimatedImage(props: AnimatedImageProps) @{
+export function AnimatedImage(props: AnimatedImageProps): JSX.Element @{
 	<img
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

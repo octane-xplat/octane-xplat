@@ -108,7 +108,7 @@ const warnedNames = new Set<string>()
  * `registerNanoIconFont` (see `@octane-xplat/nano-icons` font sources).
  * Missing names render nothing.
  */
-export function NanoIcon(props: NanoIconProps) @{
+export function NanoIcon(props: NanoIconProps): unknown @{
 	useStore(nanoIconSetRegistry)
 	const resolved = resolveNanoIcon(props.name, props.set)
 	if (!resolved) {

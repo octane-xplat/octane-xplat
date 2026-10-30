@@ -4,6 +4,7 @@ import { useState, useImperativeHandle, useEffect, useRef } from 'octane'
 import type { LottieHandle, LottieProps } from './props'
 import { applyEscapeProps } from './escape-props.web'
 import { layoutChildProps } from './layout-child.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 const PRESERVE: Record<string, string> = {
 	contain: 'xMidYMid meet',
@@ -18,7 +19,7 @@ const clamp01 = (n: number) => Math.min(1, Math.max(0, n))
  *  method calls applied in effects. Progress is normalized 0..1
  *  (lottie-web speaks frames); durations arrive in seconds and are
  *  surfaced as ms. */
-export function Lottie(props: LottieProps) @{
+export function Lottie(props: LottieProps): JSX.Element @{
 	const [animation, setAnimation] = useState<AnimationItem | null>(null)
 	const el = useRef<HTMLDivElement | null>(null)
 	const anim = useRef<AnimationItem | null>(null)

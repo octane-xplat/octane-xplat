@@ -11,7 +11,7 @@ export function pt(x = 0, y = 0): Pt {
 export function almostEqual(
 	c1: number,
 	c2: number,
-	tolerance = DEFAULT_ALMOST_EQUAL_TOLERANCE,
+	tolerance: number = DEFAULT_ALMOST_EQUAL_TOLERANCE,
 ): boolean {
 	return Math.abs(c1 - c2) <= tolerance
 }
@@ -20,7 +20,11 @@ export function ptEquals(a: Pt, b: Pt): boolean {
 	return a.x === b.x && a.y === b.y
 }
 
-export function ptAlmostEquals(a: Pt, b: Pt, tolerance = DEFAULT_ALMOST_EQUAL_TOLERANCE): boolean {
+export function ptAlmostEquals(
+	a: Pt,
+	b: Pt,
+	tolerance: number = DEFAULT_ALMOST_EQUAL_TOLERANCE,
+): boolean {
 	return almostEqual(a.x, b.x, tolerance) && almostEqual(a.y, b.y, tolerance)
 }
 

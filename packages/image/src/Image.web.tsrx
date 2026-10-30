@@ -10,6 +10,7 @@ import {
 } from './image-content'
 
 import { hashToPngBase64 } from './hash-image'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Parent-layout metadata → CSS. Mirrors the ui web mapping: grid indices are
  *  zero-based, dock has no CSS equivalent and is ignored. */
@@ -94,7 +95,7 @@ function placeholderUrl(placeholder: string): string {
  *  fadeDuration) have no <img> equivalent and are ignored. onLoad fires
  *  without `source` — the browser does not report which cache satisfied the
  *  request. */
-export function Image(props: ImageProps) @{
+export function Image(props: ImageProps): JSX.Element @{
 	const imgRef = useRef<HTMLImageElement | null>(null)
 	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null
 	const selected = sources ? imageSrcSet(sources) : { src: props.src as string, srcSet: undefined }

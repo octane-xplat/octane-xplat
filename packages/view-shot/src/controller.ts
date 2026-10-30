@@ -7,11 +7,17 @@ interface Dependencies {
 	release(uri: string): void
 	waitForLayout(host: object, cancelled: () => boolean): Promise<void>
 }
+
 /** Resource ownership independent of the Octane renderer; no host mutation. */
 export function createCaptureController(
 	read: () => CaptureLifecycleProps,
 	dependencies: Dependencies,
-) {
+): {
+	handle: ViewShotRef
+	attach(value: object | null): void
+	rendered: () => void
+	dispose(): void
+} {
 	let host: object | null = null
 	let generation = 0
 	let disposed = false
@@ -53,16 +59,19 @@ export function createCaptureController(
 					if (cancelled() || !read().captureMode) {
 						continue
 					}
+
 					const uri = await dependencies.capture(current, read().options)
 					if (cancelled() || !read().captureMode) {
 						dependencies.release(uri)
 						continue
 					}
+
 					const previous = automaticURI
 					automaticURI = uri
 					if (previous && previous !== uri) {
 						dependencies.release(previous)
 					}
+
 					read().onCapture?.(uri)
 				} catch (error) {
 					if (!cancelled()) {
@@ -79,7 +88,7 @@ export function createCaptureController(
 			running = false
 		}
 	}
-	function rendered() {
+	function rendered(): void {
 		if (disposed) {
 			return
 		}
@@ -99,7 +108,7 @@ export function createCaptureController(
 	}
 	return {
 		handle,
-		attach(value: object | null) {
+		attach(value: object | null): void {
 			if (disposed || value === host) {
 				return
 			}
@@ -108,7 +117,7 @@ export function createCaptureController(
 			generation++
 		},
 		rendered,
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

@@ -8,7 +8,7 @@ import { iconToSvg } from './svg'
 import { svgDataUri } from './svg-image.macos'
 
 /** AppKit's renderer aliases the universal renderer entry and decodes SVG with NSImage. */
-export function Icon(props: IconProps) @{
+export function Icon(props: IconProps): unknown @{
 	useStore(registry)
 	const icon = resolveIcon(props.name)
 

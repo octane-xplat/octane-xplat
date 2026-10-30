@@ -10,4 +10,4 @@ const unsupported = (): never => {
 export const openDatabase = (_name: string, _options?: OpenDatabaseOptions): Promise<SqliteDb> =>
 	unsupported()
 
-export const deleteDatabase = async (_name: string) => false
+export const deleteDatabase = async (_name: string): Promise<boolean> => false

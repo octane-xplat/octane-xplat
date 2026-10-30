@@ -3,6 +3,15 @@
 // navigator.clipboard for plain-browser dev against the same server.
 import { bridged, call } from './bridge'
 
+export type Clipboard = {
+	readonly canCopy: boolean
+	writeText: typeof writeText
+	readText: typeof readText
+	// Keep the original names available for existing consumers.
+	write: typeof writeText
+	read: typeof readText
+}
+
 const canDom =
 	typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function'
 
@@ -31,8 +40,8 @@ async function readText(): Promise<string | null> {
 	}
 }
 
-export const clipboard = {
-	get canCopy() {
+export const clipboard: Clipboard = {
+	get canCopy(): boolean {
 		return bridged() || canDom
 	},
 	writeText,

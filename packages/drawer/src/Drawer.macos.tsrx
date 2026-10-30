@@ -5,7 +5,7 @@ import type { DrawerProps } from './props'
 import { cx } from '@octane-xplat/lib'
 
 /** Composed desktop/web Drawer. Mobile uses the same props with native edge gestures. */
-export function Drawer(props: DrawerProps) @{
+export function Drawer(props: DrawerProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.open ?? internal
 	const requestDismiss = () => {

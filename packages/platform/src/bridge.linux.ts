@@ -75,7 +75,7 @@ const hostClient = () => {
 	return client
 }
 
-export const bridged = () => handler() !== undefined
+export const bridged = (): boolean => handler() !== undefined
 
 const eventName = (service: string, event: string) =>
 	(service === 'deepLinks' || service === 'deep-links') && event === 'open'

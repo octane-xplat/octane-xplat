@@ -1,4 +1,4 @@
-import { createKeyboardWindowRegistry } from './keyboard-registry'
+import { createKeyboardWindowRegistry, type KeyboardWindowRegistry } from './keyboard-registry'
 import type { KeyboardRect } from './keyboard-geometry'
 
 /** @internal One vertical scroll viewport, nearest owner first. Coordinates
@@ -72,4 +72,5 @@ export function sameFocusedInput(a: FocusedInputState, b: FocusedInputState): bo
 }
 
 /** @internal Shared focus stream, independent of software-keyboard motion. */
-export const focusedInputWindows = createKeyboardWindowRegistry(unknownFocusedInputState)
+export const focusedInputWindows: KeyboardWindowRegistry<FocusedInputState> =
+	createKeyboardWindowRegistry(unknownFocusedInputState)

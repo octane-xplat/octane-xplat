@@ -6,6 +6,15 @@ import { Application, Utils } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
 import { UIPasteboard } from '@octane-xplat/platform/ios'
 
+export type Clipboard = {
+	canCopy: boolean
+	writeText: typeof writeText
+	readText: typeof readText
+	// Keep the original names available for existing consumers.
+	write: typeof writeText
+	read: typeof readText
+}
+
 function toText(value: unknown): string | null {
 	const text = value ? String(value) : ''
 	return text || null
@@ -61,7 +70,7 @@ async function readText(): Promise<string | null> {
 	}
 }
 
-export const clipboard = {
+export const clipboard: Clipboard = {
 	canCopy: true,
 	writeText,
 	readText,

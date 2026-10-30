@@ -17,7 +17,7 @@ function applyEscapeProps(view: any, props: BarcodeScannerProps): void {
 
 /** Live barcode/QR scanner — ML Kit's camera preview with `detectionType:
  *  barcode`. Decoding only; photo capture stays in @octane-xplat/camera. */
-export function BarcodeScanner(props: BarcodeScannerProps) @{
+export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
 	const host = useRef<MLKitView | null>(null)
 
 	const bindHost = useCallback((v: MLKitView | null) => {

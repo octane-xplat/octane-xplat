@@ -18,5 +18,9 @@
 		".tsx": ".js",
 		".tsrx": ".js"
 	},
-	"overrides": {}
+	"overrides": {
+		"vendor/ui-lottie/src/lottie/index.common.d.ts": "types/overrides/index.common.d.ts",
+		"vendor/ui-lottie/src/lottie/index.ios.d.ts": "types/overrides/index.ios.d.ts",
+		"vendor/ui-lottie/src/lottie/utils.d.ts": "types/overrides/utils.d.ts"
+	}
 }

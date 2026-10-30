@@ -190,7 +190,7 @@ function FileInputControl(inputProps: FileInputProps) @{
  * `FileInputFile` `{name, uri, size?, mimeType?}`; native picking uses the
  * platform file service exported by this package.
  */
-export function FileInput(props: FileInputProps) @{
+export function FileInput(props: FileInputProps): unknown @{
 	const { inField } = useFieldControl(props)
 	const cid = useId()
 	const control = <FileInputControl {...props} />

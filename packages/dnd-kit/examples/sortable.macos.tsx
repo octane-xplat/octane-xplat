@@ -4,7 +4,7 @@ import { Text, View, useMeasure } from '@octane-xplat/ui'
 import { SortableList } from '../src/index'
 
 /** AppKit scroll ownership stays explicit; all geometry and offsets use top-down points. */
-export default function SortableExample() {
+export default function SortableExample(): unknown {
 	const [items, setItems] = useState(Array.from({ length: 20 }, (_, index) => `task-${index + 1}`))
 	const scrollRef = useRef<any>(null)
 	const offsetRef = useRef(0)

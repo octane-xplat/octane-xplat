@@ -8,13 +8,23 @@ export interface DrawerHost {
 
 /** Serializes prop changes behind completion events. ui-drawer's open()
  * promise resolves before its animation, so events are the completion boundary. */
-export function bindDrawer(host: DrawerHost, read: () => DrawerProps) {
+export function bindDrawer(
+	host: DrawerHost,
+	read: () => DrawerProps,
+): {
+	sync: () => void
+	reportError: (error: unknown) => void
+	ready(): void
+	settled(open: boolean): void
+	dismiss(): void
+	dispose(): void
+} {
 	let internal = read().defaultOpen ?? false
 	let pending: boolean | null = null
 	let ready = false
 	let disposed = false
 	const desired = () => read().open ?? internal
-	const reportError = (error: unknown) => {
+	const reportError = (error: unknown): void => {
 		if (disposed) {
 			return
 		}
@@ -25,7 +35,7 @@ export function bindDrawer(host: DrawerHost, read: () => DrawerProps) {
 			console.error('[octane-xplat/drawer] animation failed', error)
 		}
 	}
-	const sync = () => {
+	const sync = (): void => {
 		if (disposed || !ready || pending !== null) {
 			return
 		}
@@ -45,11 +55,11 @@ export function bindDrawer(host: DrawerHost, read: () => DrawerProps) {
 	return {
 		sync,
 		reportError,
-		ready() {
+		ready(): void {
 			ready = true
 			sync()
 		},
-		settled(open: boolean) {
+		settled(open: boolean): void {
 			if (disposed) {
 				return
 			}
@@ -72,7 +82,7 @@ export function bindDrawer(host: DrawerHost, read: () => DrawerProps) {
 			// restoring a rejected gesture.
 			queueMicrotask(sync)
 		},
-		dismiss() {
+		dismiss(): void {
 			if (disposed || !desired()) {
 				return
 			}
@@ -83,7 +93,7 @@ export function bindDrawer(host: DrawerHost, read: () => DrawerProps) {
 			read().onDismiss?.()
 			queueMicrotask(sync)
 		},
-		dispose() {
+		dispose(): void {
 			disposed = true
 		},
 	}

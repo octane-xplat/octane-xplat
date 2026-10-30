@@ -60,7 +60,13 @@ function renderTemplate(template: string, slots: Record<'head' | 'app' | 'script
  * Cache users must invalidate content when route code, App or preparation behavior changes. */
 export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 	options: WebHandlerOptions<Catalog>,
-) {
+): {
+	render: (request: Request) => Promise<WebRenderedPage | Response>
+	document: (page: WebRenderedPage, request: Request) => Promise<Response>
+	href(
+		destination: DestinationFor<ContractsOf<Catalog>, keyof ContractsOf<Catalog> & string, string>,
+	): string
+} {
 	if (!options.buildId) {
 		throw new TypeError('A web host requires a buildId')
 	}
@@ -296,7 +302,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 				keyof ContractsOf<Catalog> & string,
 				string
 			>,
-		) {
+		): string {
 			const engine = createRoutePreparation({
 				catalog: options.catalog,
 				base: options.base,

@@ -45,7 +45,7 @@ const ensureLib = () => {
 	dlopened = true
 }
 
-export const supported =
+export const supported: boolean =
 	typeof host.dlopen === 'function' && typeof host.sqlite3_open === 'function'
 
 // NSApplicationSupportDirectory (14) / NSUserDomainMask (1).

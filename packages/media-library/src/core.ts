@@ -9,11 +9,13 @@ import type {
 	AssetMetadata,
 	AssetUriOptions,
 	GranularPermission,
+	Location,
 	MediaLibraryAssetsChangeEvent,
 	MediaTypeFilter,
 	PermissionResponse,
 	SortDescriptor,
 } from './types'
+
 import type { Filter, QuerySpec } from './backend-types'
 
 function identifier(value: string): string {
@@ -22,12 +24,14 @@ function identifier(value: string): string {
 	}
 	return value
 }
+
 function whole(value: number, name: string): number {
 	if (!Number.isSafeInteger(value) || value < 0) {
 		throw new RangeError(`${name} must be a nonnegative integer`)
 	}
 	return value
 }
+
 function fileUri(value: string): string {
 	if (typeof value === 'string' && value.startsWith('file://')) {
 		return value
@@ -51,31 +55,34 @@ export class Asset {
 	constructor(id: string) {
 		this.id = identifier(id)
 	}
-	getCreationTime() {
+	getCreationTime(): Promise<number | null> {
 		return backend.metadata(this.id).then((value) => value.creationTime)
 	}
-	getModificationTime() {
+	getModificationTime(): Promise<number | null> {
 		return backend.metadata(this.id).then((value) => value.modificationTime)
 	}
-	getDuration() {
+	getDuration(): Promise<number | null> {
 		return backend.metadata(this.id).then((value) => value.duration)
 	}
-	getFilename() {
+	getFilename(): Promise<string> {
 		return backend.metadata(this.id).then((value) => value.filename ?? '')
 	}
-	getWidth() {
+	getWidth(): Promise<number> {
 		return backend.metadata(this.id).then((value) => dimension(value.width, 'width'))
 	}
-	getHeight() {
+	getHeight(): Promise<number> {
 		return backend.metadata(this.id).then((value) => dimension(value.height, 'height'))
 	}
-	getMediaType() {
+	getMediaType(): Promise<'unknown' | 'image' | 'audio' | 'video'> {
 		return backend.metadata(this.id).then((value) => value.mediaType)
 	}
-	getFavorite() {
+	getFavorite(): Promise<boolean> {
 		return backend.metadata(this.id).then((value) => value.isFavorite)
 	}
-	async getShape() {
+	async getShape(): Promise<{
+		width: number
+		height: number
+	} | null> {
 		const value = await backend.metadata(this.id)
 		return value.width === null || value.height === null
 			? null
@@ -97,7 +104,7 @@ export class Asset {
 		const uri = await this.getUri()
 		return { ...value, uri, filename: value.filename ?? '', width, height }
 	}
-	getLocation() {
+	getLocation(): Promise<Location | null> {
 		return backend.location(this.id)
 	}
 	async getAlbums(): Promise<Album[]> {
@@ -120,12 +127,14 @@ export class Asset {
 		return backend.deleteAssets(assetIds(assets))
 	}
 }
+
 function dimension(value: number | null, name: string): number {
 	if (value === null) {
 		throw new Error(`Asset ${name} is unavailable in library metadata`)
 	}
 	return value
 }
+
 function assetIds(assets: Asset[]): string[] {
 	if (!Array.isArray(assets) || assets.some((asset) => !(asset instanceof Asset))) {
 		throw new TypeError('Expected Asset handles')
@@ -317,6 +326,7 @@ export class Query {
 export async function isAvailable(): Promise<boolean> {
 	return backend.isAvailable()
 }
+
 function permissionArgs(
 	writeOnly: boolean,
 	granular?: GranularPermission[],
@@ -333,6 +343,7 @@ function permissionArgs(
 	}
 	return granular === undefined ? undefined : [...new Set(granular)]
 }
+
 /** Read access without prompting. Defaults to read/write and all Android categories. */
 export function getPermissionsAsync(
 	writeOnly = false,
@@ -340,6 +351,7 @@ export function getPermissionsAsync(
 ): Promise<PermissionResponse> {
 	return backend.permissions(false, writeOnly, permissionArgs(writeOnly, granularPermissions))
 }
+
 /** Ask the OS for access from an app action. Requires the Apple purpose string before prompting. */
 export function requestPermissionsAsync(
 	writeOnly = false,
@@ -347,6 +359,7 @@ export function requestPermissionsAsync(
 ): Promise<PermissionResponse> {
 	return backend.permissions(true, writeOnly, permissionArgs(writeOnly, granularPermissions))
 }
+
 /** Change selected photos on limited grants (iOS / Android 14+); full access is a no-op. */
 export function presentPermissionsPicker(types?: MediaTypeFilter[]): Promise<void> {
 	if (
@@ -357,13 +370,17 @@ export function presentPermissionsPicker(types?: MediaTypeFilter[]): Promise<voi
 	}
 	return backend.presentPermissionsPicker(types === undefined ? undefined : [...new Set(types)])
 }
+
 /** Deletes only temporary asset exports created by this package, never library originals. */
 export function releaseAssetUri(uri: string): void {
 	backend.releaseUri(uri)
 }
+
 const subscriptions = new Set<{ remove(): void }>()
 /** Subscribe after read access is granted. Reload on changes and remove at the owner boundary. */
-export function addListener(listener: (event: MediaLibraryAssetsChangeEvent) => void) {
+export function addListener(listener: (event: MediaLibraryAssetsChangeEvent) => void): {
+	remove(): void
+} {
 	if (typeof listener !== 'function') {
 		throw new TypeError('A listener must be a function')
 	}
@@ -384,6 +401,7 @@ export function addListener(listener: (event: MediaLibraryAssetsChangeEvent) => 
 	subscriptions.add(subscription)
 	return subscription
 }
+
 /** Remove every subscription owned by this module; prefer removing your own subscription. */
 export function removeAllListeners(): void {
 	const pending = Array.from(subscriptions)
@@ -393,7 +411,19 @@ export function removeAllListeners(): void {
 }
 
 /** Xplat capability discovery alongside the current Expo-shaped constructors and functions. */
-export const MediaLibrary = {
+export const MediaLibrary: {
+	readonly supported: boolean
+	isAvailable: typeof isAvailable
+	Asset: typeof Asset
+	Album: typeof Album
+	Query: typeof Query
+	getPermissionsAsync: typeof getPermissionsAsync
+	requestPermissionsAsync: typeof requestPermissionsAsync
+	presentPermissionsPicker: typeof presentPermissionsPicker
+	addListener: typeof addListener
+	removeAllListeners: typeof removeAllListeners
+	releaseAssetUri: typeof releaseAssetUri
+} = {
 	get supported(): boolean {
 		return backend.isAvailable()
 	},

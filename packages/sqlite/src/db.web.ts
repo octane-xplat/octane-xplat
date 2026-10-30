@@ -188,7 +188,7 @@ export const openDatabase = async (
 	return isolateDatabase(db)
 }
 
-export const deleteDatabase = async (name: string) => {
+export const deleteDatabase = async (name: string): Promise<boolean> => {
 	const result = await call<{ deleted: boolean; databaseIds: number[] }>('delete', name)
 	for (const databaseId of result.databaseIds) {
 		openDatabases.get(databaseId)?.invalidate()

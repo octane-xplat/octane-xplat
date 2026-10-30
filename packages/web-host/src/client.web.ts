@@ -1,4 +1,4 @@
-import { createRoot, hydrateRoot, flushSync } from 'octane'
+import { createRoot, hydrateRoot, flushSync, type Root } from 'octane'
 import {
 	createRoutePreparation,
 	createRouter,
@@ -6,6 +6,7 @@ import {
 	type ContractRouteManifest,
 	type ContractsOf,
 	type RouterInstance,
+	type RouteTransitionName,
 } from '@octane-xplat/ui/routing/core'
 
 import {
@@ -17,13 +18,19 @@ import {
 import { bootstrapId, rootId, identifierPrefix, serializePublic } from './transfer'
 import type { WebBootstrap, WebClientOptions } from './props'
 
+export type StartWebAppResult<Catalog extends ContractRouteManifest> = {
+	router: RouterInstance<ContractsOf<Catalog>, string, RouteTransitionName>
+	root: Root
+	dispose(): void
+}
+
 export type { WebClientOptions, WebAppProps } from './props'
 
 /** One document, one router. Stale/mismatched documents fail before any browser
  * history or DOM mutation; a host can offer a reload instead of using old data. */
 export async function startWebApp<const Catalog extends ContractRouteManifest>(
 	options: WebClientOptions<Catalog>,
-) {
+): Promise<StartWebAppResult<Catalog>> {
 	const script = document.getElementById(bootstrapId)
 	const container = document.getElementById(rootId)
 	if (!script || script.tagName !== 'SCRIPT' || !container) {

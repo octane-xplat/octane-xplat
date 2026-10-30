@@ -52,7 +52,10 @@ ${glyphLines.join('\n')}
 </svg>`
 }
 
-export function parseCompileTtfFromGlyphsError(err: unknown, codepointToIcon: Map<number, string>) {
+export function parseCompileTtfFromGlyphsError(
+	err: unknown,
+	codepointToIcon: Map<number, string>,
+): void {
 	const msg = err instanceof Error ? err.message : String(err)
 	const cpMatch = msg.match(GLYPH_CODEPOINT)
 	if (cpMatch) {

@@ -1,4 +1,12 @@
-import { DragDropManager, Draggable, Droppable, Sensor } from '@dnd-kit/abstract'
+import {
+	DragDropManager,
+	Draggable,
+	Droppable,
+	Sensor,
+	type UniqueIdentifier,
+	type Data,
+} from '@dnd-kit/abstract'
+
 import { defaultCollisionDetection } from '@dnd-kit/collision'
 import { batch, effect, signal, untracked } from '@dnd-kit/state'
 import type { Rectangle } from '@dnd-kit/geometry'
@@ -13,11 +21,12 @@ import type {
 } from './props'
 
 import { measure } from './geometry'
+import type { Signal } from '@dnd-kit/state'
 
 class PanDraggable extends Draggable {
 	onPan?: (event: PanEvent) => void
 	activationDistance = 0
-	setActivationDistance(value?: number) {
+	setActivationDistance(value?: number): void {
 		const distance = value ?? 0
 		if (!Number.isFinite(distance) || distance < 0) {
 			throw new RangeError('activationDistance must be a finite non-negative number')
@@ -147,9 +156,12 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
 /** One controller per DndContext; no global registry or cross-root context assumptions. */
 export class DndController extends DragDropManager<PanDraggable, Droppable> {
 	options: DndContextProps = {}
-	readonly draggableNodes = new Map<DndId, any>()
-	readonly droppableNodes = new Map<DndId, any>()
-	readonly scrollShift$ = signal({ x: 0, y: 0 })
+	readonly draggableNodes: Map<UniqueIdentifier, any> = new Map<DndId, any>()
+	readonly droppableNodes: Map<UniqueIdentifier, any> = new Map<DndId, any>()
+	readonly scrollShift$: Signal<{ x: number; y: number }> = signal({
+		x: 0,
+		y: 0,
+	})
 	private listeners = new Set<() => void>()
 	private snapshot: DndSnapshot = {
 		active: null,
@@ -221,11 +233,11 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 	getSnapshot = (): DndSnapshot => this.snapshot
 	subscribe = (listener: () => void) => {
 		this.listeners.add(listener)
-		return () => {
+		return (): void => {
 			this.listeners.delete(listener)
 		}
 	}
-	registerDraggable(options: DraggableOptions) {
+	registerDraggable(options: DraggableOptions): PanDraggable {
 		if (this.registry.draggables.has(options.id)) {
 			throw new Error(`Duplicate draggable id: ${options.id}`)
 		}
@@ -243,7 +255,7 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 		source.register()
 		return source
 	}
-	registerDroppable(options: DroppableOptions) {
+	registerDroppable(options: DroppableOptions): Droppable<Data, this> {
 		if (this.registry.droppables.has(options.id)) {
 			throw new Error(`Duplicate droppable id: ${options.id}`)
 		}
@@ -266,7 +278,7 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 		target.register()
 		return target
 	}
-	refresh() {
+	refresh(): void {
 		batch(() => {
 			for (const droppable of this.registry.droppables) {
 				droppable.shape = measure(this.droppableNodes.get(droppable.id)) ?? undefined
@@ -275,11 +287,11 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 
 		this.collisionObserver.forceUpdate()
 	}
-	cancel() {
+	cancel(): void {
 		this.stopAutoScroll()
 		this.actions.stop({ canceled: true })
 	}
-	startAutoScroll() {
+	startAutoScroll(): void {
 		if (this.scrollTimer || !this.options.autoScroll) {
 			return
 		}
@@ -341,7 +353,7 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 
 		this.scrollTimer = undefined
 	}
-	disposeController() {
+	disposeController(): void {
 		this.destroyed = true
 		this.cancel()
 		this.dispose()

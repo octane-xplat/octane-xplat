@@ -3,6 +3,7 @@ import { useImperativeHandle, useEffect, useRef } from 'octane'
 import { importLibrary, setOptions } from '@googlemaps/js-api-loader'
 import type { MapViewHandle, MapViewProps } from './props'
 import { webApiKey } from './maps.web'
+import type { JSX } from 'octane/jsx-runtime'
 
 const MAP_TYPE: Record<string, string> = {
 	normal: 'roadmap',
@@ -22,15 +23,16 @@ function loadMaps(): Promise<any> {
 		}
 
 		setOptions({ key, v: 'weekly' })
-		loaderPromise = Promise.all([importLibrary('maps'), importLibrary('marker')])
-			.then(() => (globalThis as any).google.maps)
+		loaderPromise = Promise.all([importLibrary('maps'), importLibrary('marker')]).then(
+			() => (globalThis as any).google.maps,
+		)
 	}
 
 	return loaderPromise
 }
 
 /** Google Maps JS leaf — same engine as native, so prop semantics match. */
-export function MapView(props: MapViewProps) @{
+export function MapView(props: MapViewProps): JSX.Element @{
 	const el = useRef<HTMLDivElement | null>(null)
 	const map = useRef<any>(null)
 	const overlays = useRef(new Map<string, any>())

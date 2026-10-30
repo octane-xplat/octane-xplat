@@ -30,6 +30,32 @@ import {
 	type DevActionFields,
 } from './dev-actions-schema'
 
+export type DevActionInfo = {
+	id: string
+	title: string
+	description: string
+	input: DevActionFields | undefined
+	result: DevActionFields | undefined
+	effects: DevActionEffects
+	availability: {
+		reason?: string | undefined
+		ready: boolean
+		route?:
+			| {
+					url: string
+					fromInput?: undefined
+			  }
+			| {
+					fromInput: boolean
+					url?: undefined
+			  }
+			| undefined
+		readyWhen?: string | undefined
+		platforms?: DevPlatform[] | undefined
+	}
+	execution: DevActionExecution | undefined
+}[]
+
 export type { DevActionField, DevActionFields } from './dev-actions-schema'
 
 export type DevPlatform = 'web' | 'ios' | 'android' | 'macos' | 'linux' | 'windows'
@@ -665,7 +691,7 @@ export function retainDevAction(declaration: DevActionDeclaration, key: string):
 }
 
 /** Current declarations as the registry would announce them. */
-export function listDevActions() {
+export function listDevActions(): DevActionInfo {
 	return declarations(registry())
 }
 

@@ -5,7 +5,7 @@
  */
 import type { StoryDefinition } from './contract'
 
-export const UNSET = Symbol.for('xplat-workshop.unset')
+export const UNSET: unique symbol = Symbol.for('xplat-workshop.unset')
 export type ControlValueInput = boolean | string | number | typeof UNSET
 
 export interface FieldError {

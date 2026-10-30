@@ -374,7 +374,7 @@ function ControlsPanel(p: {
 	)
 }
 
-export function NativeWorkshopChrome(p: NativeChromeProps) {
+export function NativeWorkshopChrome(p: NativeChromeProps): unknown {
 	const s = useStore(p.controller.store)
 	const opener = useRef<unknown>(null)
 	const search = useRef<unknown>(null)

@@ -1,12 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { renderGoogleButton } from './google.web'
 import type { GoogleSignInButtonProps, SignInResult } from './types'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Google Sign-In button — web leaf. Renders the official GIS button via
  *  `renderButton` when a `clientId` is configured; without one it falls back
  *  to a plain button that runs `googleAuth.signIn()` (One Tap). `onResult`
  *  reports the outcome either way. */
-export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
+export function GoogleSignInButton(props: GoogleSignInButtonProps): JSX.Element @{
 	<div
 		id={props.id}
 		className={props.className}

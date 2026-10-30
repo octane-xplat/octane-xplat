@@ -36,7 +36,7 @@ const keyed = <T extends { id?: string }>(items: T[] | undefined) =>
 
 /** Declarative Google Map — declarative prop arrays are diffed into the
  *  plugin's imperative add/remove overlay API keyed by def id. */
-export function MapView(props: MapViewProps) @{
+export function MapView(props: MapViewProps): unknown @{
 	const host = useRef<NativeMapView | null>(null)
 	const map = useRef<any>(null)
 	const overlays = useRef(new Map<string, any>())

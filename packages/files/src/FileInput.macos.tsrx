@@ -1,6 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useCallback, useMemo, useRef, useImperativeHandle, useId, useState, useLayoutEffect } from 'octane'
+import {
+	useCallback,
+	useMemo,
+	useRef,
+	useImperativeHandle,
+	useId,
+	useState,
+	useLayoutEffect,
+} from 'octane'
+
 import type { NSView } from '@octane-xplat/platform/macos'
 import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
@@ -31,38 +40,90 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	const latest = useRef(props)
 	latest.current = props
-	const state = useMemo(() => createAppKitFileInputState({
-		props: () => latest.current,
-		pick: async (options) => {
-			const picked = options.multiple ? await fileService.pickMultiple(options.accept) : await fileService.pick(options.accept)
-			return Array.isArray(picked) ? picked.map((file) => appKitFileInputDetails(file, options.accept)) : picked ? appKitFileInputDetails(picked, options.accept) : null
-		},
-		publish: (pending, errors) => { setBusy(pending); setValidationErrors(errors) },
-	}), [])
+	const state = useMemo(
+		() =>
+			createAppKitFileInputState({
+				props: () => latest.current,
+				pick: async (options) => {
+					const picked = options.multiple
+						? await fileService.pickMultiple(options.accept)
+						: await fileService.pick(options.accept)
+
+					return Array.isArray(picked)
+						? picked.map((file) => appKitFileInputDetails(file, options.accept))
+						: picked
+							? appKitFileInputDetails(picked, options.accept)
+							: null
+				},
+				publish: (pending, errors) => {
+					setBusy(pending)
+					setValidationErrors(errors)
+				},
+			}),
+		[],
+	)
+
 	const bind = useCallback((view: NSView | null) => {
 		hostRef.current = view
-		if (view) state.attach()
-		else state.detach()
+		if (view) {
+			state.attach()
+		} else {
+			state.detach()
+		}
 	}, [])
 
 	const dropzone = props.mode === 'dropzone'
-	const dropHost = useRef<NSView | null>(null), dropLease = useRef<(() => void) | null>(null)
+	const dropHost = useRef<NSView | null>(null),
+		dropLease = useRef<(() => void) | null>(null)
+
 	const bindDrop = useCallback((view: NSView | null) => {
-		dropLease.current?.(); dropLease.current = null; dropHost.current = view
+		dropLease.current?.()
+		dropLease.current = null
+		dropHost.current = view
 		const observe = (globalThis as any).__xplatAppKit?.observeFileDrop
-		if (!view || typeof observe !== 'function') return
+		if (!view || typeof observe !== 'function') {
+			return
+		}
+
 		const enabled = () => dropHost.current === view && Boolean(view.window) && state.canReceive()
-		try { dropLease.current = observe(view, { enabled, receive: (uris: string[]) => {
-			if (!enabled()) return false
-			const picked = appKitDroppedFiles(uris, latest.current.accept)
-			return enabled() && state.receive(picked)
-		} }) } catch (error) { console.warn('[macos-file-drop] attachment unavailable', error) }
+		try {
+			dropLease.current = observe(view, {
+				enabled,
+				receive: (uris: string[]) => {
+					if (!enabled()) {
+						return false
+					}
+
+					const picked = appKitDroppedFiles(uris, latest.current.accept)
+					return enabled() && state.receive(picked)
+				},
+			})
+		} catch (error) {
+			console.warn('[macos-file-drop] attachment unavailable', error)
+		}
 	}, [])
-	useLayoutEffect(() => () => { dropHost.current = null; dropLease.current?.(); dropLease.current = null }, [])
+
+	useLayoutEffect(
+		() => () => {
+			dropHost.current = null
+			dropLease.current?.()
+			dropLease.current = null
+		},
+		[],
+	)
 
 	const statusText = statusType ? STATUS_TEXT[statusType] : null
 
-	useImperativeHandle(props.ref, () => ({ open: state.open, get native() { return hostRef.current } }), [])
+	useImperativeHandle(
+		props.ref,
+		() => ({
+			open: state.open,
+			get native() {
+				return hostRef.current
+			},
+		}),
+		[],
+	)
 
 	<masonview
 		ref={bindDrop}
@@ -155,7 +216,7 @@ function FileInputControl(inputProps: FileInputProps) @{
  * Values are portable `{name, uri, size?, mimeType?}` refs. Both field presentations use
  * the matching renderer's local file-URL destination lease.
  */
-export function FileInput(props: FileInputProps) @{
+export function FileInput(props: FileInputProps): unknown @{
 	const { inField } = useFieldControl(props)
 	const cid = useId()
 	const control = <FileInputControl {...props} />

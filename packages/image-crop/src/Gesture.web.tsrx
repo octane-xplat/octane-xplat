@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { View } from '@octane-xplat/ui'
 import type { ViewProps } from '@octane-xplat/ui'
-export function Gesture(props: ViewProps) @{
+import type { JSX } from 'octane/jsx-runtime'
+export function Gesture(props: ViewProps): JSX.Element @{
 	<View
 		{...props}
 		style={{

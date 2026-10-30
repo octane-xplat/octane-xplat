@@ -1,6 +1,6 @@
 import { createStore, type Store } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
-import type { StageHost, SessionSnapshot } from '../session'
+import type { StageHost, SessionSnapshot, SessionPhase } from '../session'
 import { WorkshopSession } from '../session'
 import type { StoryDefinition, WorkshopTarget } from '../contract'
 import { applyControlInput, UNSET, type ControlValueInput } from '../controls'
@@ -87,13 +87,13 @@ export class NativeWorkshopController {
 
 	// Property accessors — the same names the mobile and macOS controllers
 	// exposed, forwarded to the store so chrome/tests stay identical.
-	get catalog() {
+	get catalog(): readonly CatalogEntry[] {
 		return this.state.catalog
 	}
-	get selectedId() {
+	get selectedId(): string | null {
 		return this.state.selectedId
 	}
-	get missingId() {
+	get missingId(): string | null {
 		return this.state.missingId
 	}
 	get query() {
@@ -114,16 +114,16 @@ export class NativeWorkshopController {
 	set stageOnly(value: boolean) {
 		this.set({ stageOnly: value })
 	}
-	get mode() {
+	get mode(): ShellMode {
 		return this.state.mode
 	}
-	get drafts() {
+	get drafts(): Record<string, string> {
 		return this.state.drafts
 	}
-	get errors() {
+	get errors(): Record<string, string> {
 		return this.state.errors
 	}
-	get catalogError() {
+	get catalogError(): string {
 		return this.state.catalogError
 	}
 
@@ -289,7 +289,28 @@ export class NativeWorkshopController {
 	}
 
 	/** Observable state for host automation and qualification evidence. */
-	inspect() {
+	inspect(): {
+		phase: SessionPhase
+		storyId: string | null
+		selectedId: string | null
+		revision: number
+		mountedGeneration: number
+		stale: boolean
+		failure: string | null
+		catalogError: string | null
+		props: Record<string, unknown> | null
+		store: {} | null
+		fixture: {} | null
+		mode: ShellMode
+		panel: 'stories' | 'controls' | null
+		stageOnly: boolean
+		drafts: {
+			[x: string]: string
+		}
+		errors: {
+			[x: string]: string
+		}
+	} {
 		const state = this.session.state
 		const generation = (
 			this.session as unknown as {

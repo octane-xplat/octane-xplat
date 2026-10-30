@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import type { JSX } from 'octane/jsx-runtime'
 import {
 	createCharCache,
 	createLayerColorResolver,
@@ -104,7 +105,7 @@ function charCacheFor(glyphMap: NanoGlyphMap) {
  */
 const warnedNames = new Set<string>()
 
-export function NanoIcon(props: NanoIconProps) {
+export function NanoIcon(props: NanoIconProps): JSX.Element | null {
 	useStore(nanoIconSetRegistry)
 	const resolved = resolveNanoIcon(props.name, props.set)
 	if (!resolved) {

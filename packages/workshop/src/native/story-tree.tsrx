@@ -11,7 +11,7 @@ function Providers(p: { request: MountRequest; index: number }) {
 	)
 }
 
-export function StoryTree(p: { request: MountRequest }) @{
+export function StoryTree(p: { request: MountRequest }): unknown @{
 	@try {
 		<Providers request={p.request} index={0} />
 	} @catch (error) {

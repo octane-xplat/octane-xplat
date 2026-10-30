@@ -3,8 +3,9 @@
 // integration); renders nothing and reports once via onAdEvent error.
 import { useEffect } from 'octane'
 import type { BannerAdProps } from './props'
+import type { JSX } from 'octane/jsx-runtime'
 
-export function BannerAd(props: BannerAdProps) @{
+export function BannerAd(props: BannerAdProps): JSX.Element @{
 	useEffect(() => {
 		props.onAdEvent?.({
 			type: 'error',

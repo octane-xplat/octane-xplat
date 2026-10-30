@@ -3,7 +3,7 @@ import { Text, View } from '@octane-xplat/ui'
 import { SortableList } from '../src/index'
 
 /** Controlled order: drag a row onto another row to commit a reorder. */
-export default function SortableExample() {
+export default function SortableExample(): unknown {
 	const [items, setItems] = useState(['alpha', 'beta', 'gamma'])
 	return (
 		<View>

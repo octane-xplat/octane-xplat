@@ -25,7 +25,7 @@ export class Cancellation implements CancellationSignal {
 
 	/** Rejects as soon as this generation is cancelled — race it against
 	 *  fixture work so a superseded selection never waits for a dead run. */
-	readonly promise = new Promise<never>((_resolve, reject) => {
+	readonly promise: Promise<never> = new Promise<never>((_resolve, reject) => {
 		this.rejectPromise = reject
 	})
 
@@ -79,7 +79,7 @@ export class OwnedResources {
 	private pending = Promise.resolve()
 	constructor(
 		private readonly onLateFailure?: (error: unknown) => void,
-		private readonly lateTimeout = DEFAULT_DISPOSAL_TIMEOUT,
+		private readonly lateTimeout: number = DEFAULT_DISPOSAL_TIMEOUT,
 	) {}
 
 	readonly failures: { cleanup: StoryCleanup; error: unknown }[] = []

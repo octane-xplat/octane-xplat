@@ -1,6 +1,7 @@
 import { Application, View } from '@nativescript/core'
 import { createAppleBackend } from './backend.apple'
-export const backend = createAppleBackend({
+import type { CaptureBackend } from './backend-types'
+export const backend: CaptureBackend = createAppleBackend({
 	resolve(target) {
 		const value = target instanceof View ? target.nativeViewProtected : target
 		if (!(value instanceof UIView)) {

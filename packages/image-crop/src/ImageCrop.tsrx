@@ -6,11 +6,12 @@ import { constrainCrop, containFrame, convertToPercentCrop, dragCrop } from './g
 import { Gesture } from './Gesture'
 import { Guide } from './Guide'
 import { Source } from './Source'
+import type { JSX } from 'octane/jsx-runtime'
 
 const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const
 
 /** Inline controlled selection. View.onPan delegates to the UI usePan leaves. */
-export function ImageCrop(props: ImageCropProps) @{
+export function ImageCrop(props: ImageCropProps): JSX.Element @{
 	const measure = useMeasure()
 	// Root hosts may offer more space than the explicitly sized image viewport.
 	const viewport = {

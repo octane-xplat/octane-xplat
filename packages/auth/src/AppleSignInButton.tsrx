@@ -15,7 +15,7 @@ if (PluginButton) {
 /** Sign in with Apple button — the platform-authentic
  *  ASAuthorizationAppleIDButton on iOS, a plain fallback button elsewhere.
  *  A tap starts `appleAuth.signIn()`; `onResult` reports the outcome. */
-export function AppleSignInButton(props: AppleSignInButtonProps) @{
+export function AppleSignInButton(props: AppleSignInButtonProps): unknown @{
 	const run = () => {
 		props.onPress?.()
 		if (props.onResult) {

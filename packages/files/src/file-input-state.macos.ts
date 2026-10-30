@@ -6,7 +6,15 @@ export function createAppKitFileInputState(options: {
 	props(): FileInputProps
 	pick: FileInputPick
 	publish(busy: boolean, errors: string[]): void
-}) {
+}): {
+	attach(): void
+	detach(): void
+	open(): void
+	canReceive: () => boolean
+	receive(picked: FileInputFile[]): boolean
+	remove(uri: string): void
+	clear(): void
+} {
 	let attached = false
 	let active: symbol | null = null
 	let errors: string[] = []
@@ -17,33 +25,55 @@ export function createAppKitFileInputState(options: {
 	const editable = (token: symbol) => owns(token) && !blocked(options.props())
 	const report = (next: string[]) => {
 		errors = next
-		if (attached) options.publish(active !== null, errors)
+		if (attached) {
+			options.publish(active !== null, errors)
+		}
 	}
 	const save = async (next: FileInputFile[], token: symbol) => {
-		if (!editable(token)) return
+		if (!editable(token)) {
+			return
+		}
 		const props = options.props()
-		const emitted = props.isMultiple ? next : next[0] ?? null
+		const emitted = props.isMultiple ? next : (next[0] ?? null)
 		props.onChange(emitted)
-		if (owns(token)) await props.changeAction?.(emitted)
+		if (owns(token)) {
+			await props.changeAction?.(emitted)
+		}
 	}
 	const ready = () => attached && !active && !blocked(options.props())
 	const accept = async (result: FileInputFile[], token: symbol) => {
-		if (!editable(token) || !result.length) return
-		const props = options.props(), previous = files(props)
-		const { valid, errors: invalid } = validateFiles(props.isMultiple ? [...previous, ...result] : result, props)
+		if (!editable(token) || !result.length) {
+			return
+		}
+		const props = options.props(),
+			previous = files(props)
+		const { valid, errors: invalid } = validateFiles(
+			props.isMultiple ? [...previous, ...result] : result,
+			props,
+		)
 		report(invalid)
 		const next = !props.isMultiple && invalid.length ? previous : valid
-		if (next.length !== previous.length || next.some((file, index) => file.uri !== previous[index]?.uri)) await save(next, token)
+		if (
+			next.length !== previous.length ||
+			next.some((file, index) => file.uri !== previous[index]?.uri)
+		) {
+			await save(next, token)
+		}
 	}
 	const run = (action: (token: symbol) => Promise<void>) => {
-		if (!ready()) return false
+		if (!ready()) {
+			return false
+		}
 		const token = Symbol('file-input')
 		active = token
 		options.publish(true, errors)
 		void (async () => {
-			try { await action(token) }
-			catch (error) {
-				if (owns(token)) report([String(error instanceof Error ? error.message : error)])
+			try {
+				await action(token)
+			} catch (error) {
+				if (owns(token)) {
+					report([String(error instanceof Error ? error.message : error)])
+				}
 			} finally {
 				if (owns(token)) {
 					active = null
@@ -54,34 +84,50 @@ export function createAppKitFileInputState(options: {
 		return true
 	}
 	return {
-		attach() {
+		attach(): void {
 			attached = true
 			options.publish(active !== null, errors)
 		},
-		detach() { attached = false; active = null },
-		open() {
+		detach(): void {
+			attached = false
+			active = null
+		},
+		open(): void {
 			run(async (token) => {
 				const request = options.props()
-				const result = await (request.pick ?? options.pick)({ accept: request.accept, multiple: request.isMultiple })
+				const result = await (request.pick ?? options.pick)({
+					accept: request.accept,
+					multiple: request.isMultiple,
+				})
 				await accept(normalizePicked(result), token)
 			})
 		},
 		canReceive: ready,
 		receive(picked: FileInputFile[]): boolean {
-			if (!picked.length) return false
+			if (!picked.length) {
+				return false
+			}
 			return run((token) => accept(picked, token))
 		},
-		remove(uri: string) {
+		remove(uri: string): void {
 			run(async (token) => {
-				const previous = files(options.props()), index = previous.findIndex((file) => file.uri === uri)
-				if (index < 0) return
+				const previous = files(options.props()),
+					index = previous.findIndex((file) => file.uri === uri)
+				if (index < 0) {
+					return
+				}
 				report([])
-				await save(previous.filter((_, i) => i !== index), token)
+				await save(
+					previous.filter((_, i) => i !== index),
+					token,
+				)
 			})
 		},
-		clear() {
+		clear(): void {
 			run(async (token) => {
-				if (!files(options.props()).length) return
+				if (!files(options.props()).length) {
+					return
+				}
 				report([])
 				await save([], token)
 			})

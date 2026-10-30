@@ -2,6 +2,15 @@
 // packages/nano-icons/LICENSES.md for full attribution.
 import type { PathKitModule } from '../pathkit/types'
 
+export type GlyphPlacement = {
+	vx: number
+	vy: number
+	scale: number
+	xOff: number
+	yOff: number
+	adv: number
+}
+
 function roundInt(n: number): number {
 	return Math.round(n)
 }
@@ -10,7 +19,7 @@ export function computePlacement(opts: {
 	upm: number
 	safeZone: number
 	viewBox: [number, number, number, number]
-}) {
+}): GlyphPlacement {
 	const [vx, vy, vw, vh] = opts.viewBox
 
 	// Guard against invalid viewBox height from source svg

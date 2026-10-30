@@ -1,5 +1,13 @@
 import { Windows, NSWinRT } from '@octane-xplat/platform/windows'
 
+export type Clipboard = {
+	readonly canCopy: boolean
+	writeText: typeof writeText
+	readText: typeof readText
+	write: typeof writeText
+	read: typeof readText
+}
+
 const transfer = () => Windows?.ApplicationModel?.DataTransfer
 
 async function writeText(text: string): Promise<boolean> {
@@ -39,8 +47,8 @@ async function readText(): Promise<string | null> {
 }
 
 /** WinRT text clipboard. OS access failures return false/null, as on mobile. */
-export const clipboard = {
-	get canCopy() {
+export const clipboard: Clipboard = {
+	get canCopy(): boolean {
 		return !!(transfer()?.Clipboard && transfer()?.DataPackage)
 	},
 	writeText,

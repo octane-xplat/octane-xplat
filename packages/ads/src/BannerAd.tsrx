@@ -20,7 +20,7 @@ const SIZES: Record<string, any> = {
 }
 
 /** AdMob banner — the plugin view owns its own load() on mount. */
-export function BannerAd(props: BannerAdProps) @{
+export function BannerAd(props: BannerAdProps): unknown @{
 	const host = useRef<any>(null)
 	const bindHost = useCallback((v: any) => {
 		host.current = v

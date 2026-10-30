@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { appleAuth } from './apple.web'
 import type { AppleSignInButtonProps, SignInResult } from './types'
+import type { JSX } from 'octane/jsx-runtime'
 
 const LABELS = {
 	default: 'Sign in with Apple',
@@ -18,7 +19,7 @@ const THEMES = {
  *  markup only through its own stylesheet hooks, so this is a styled fallback
  *  matching Apple's published button spec; the click runs the popup flow via
  *  `appleAuth.signIn()` and reports through `onResult`. */
-export function AppleSignInButton(props: AppleSignInButtonProps) @{
+export function AppleSignInButton(props: AppleSignInButtonProps): JSX.Element @{
 	const theme = THEMES[props.theme ?? 'black']
 
 	<button

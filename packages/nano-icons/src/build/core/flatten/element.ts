@@ -78,7 +78,10 @@ export function tryRemoveGroup(groupEl: XEl, pushOpacity = true): boolean {
 	return remove
 }
 
-export function elementTransform(el: XEl, currentTransform = Affine2D.identity()): Affine2D {
+export function elementTransform(
+	el: XEl,
+	currentTransform: Affine2D = Affine2D.identity(),
+): Affine2D {
 	const attr = isGradient(el.tag) ? 'gradientTransform' : 'transform'
 	const raw = el.attrib.get(attr)
 	if (raw) {

@@ -5,11 +5,13 @@ import type {
 	InitPaymentSheetResult,
 	PresentPaymentSheetResult,
 } from './types'
+
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 
 function fail(message: string): InitPaymentSheetResult {
 	return { error: { code: 'Failed', message } }
 }
+
 function object(
 	value: unknown,
 	keys: string[],
@@ -22,11 +24,13 @@ function object(
 		throw new TypeError(`Unsupported ${name} option`)
 	}
 }
+
 function text(value: unknown, name: string): asserts value is string {
 	if (typeof value !== 'string' || !value.trim()) {
 		throw new TypeError(`${name} must be a nonempty string`)
 	}
 }
+
 function stripeOptions(options: InitStripeParams): InitStripeParams {
 	object(
 		options,
@@ -49,6 +53,7 @@ function stripeOptions(options: InitStripeParams): InitStripeParams {
 	}
 	return { ...options }
 }
+
 function sheetOptions(
 	options: PaymentSheetSetupParams,
 	config: InitStripeParams,
@@ -81,6 +86,7 @@ function sheetOptions(
 		if (!protocol || !['https', 'http', config.urlScheme?.toLowerCase()].includes(protocol)) {
 			throw new TypeError('returnURL must use HTTP(S) or the configured app scheme')
 		}
+
 		if (
 			protocol === 'http' &&
 			!/^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]+)?(?:\/|$)/i.test(options.returnURL)
@@ -101,12 +107,14 @@ function sheetOptions(
 		if (!/^[A-Z]{2}$/.test(String(options.googlePay.merchantCountryCode))) {
 			throw new TypeError('Google Pay needs a two-letter uppercase country code')
 		}
+
 		if (
 			options.googlePay.currencyCode !== undefined &&
 			!/^[A-Z]{3}$/.test(options.googlePay.currencyCode)
 		) {
 			throw new TypeError('Use a three-letter uppercase currency code')
 		}
+
 		if (options.googlePay.testEnv !== undefined && typeof options.googlePay.testEnv !== 'boolean') {
 			throw new TypeError('testEnv must be boolean')
 		}
@@ -129,7 +137,7 @@ export function createStripeClient(backend: StripeBackend) {
 		}
 	}
 	return {
-		get supported() {
+		get supported(): boolean {
 			return backend.available()
 		},
 		async initStripe(options: InitStripeParams): Promise<void> {
@@ -172,6 +180,7 @@ export function createStripeClient(backend: StripeBackend) {
 				if (!snapshot || validationError) {
 					return fail(validationError ?? 'Invalid PaymentSheet configuration')
 				}
+
 				await backend.prepare(snapshot)
 				prepared = true
 				return {}
@@ -204,6 +213,7 @@ export function createStripeClient(backend: StripeBackend) {
 						)
 					}
 				}
+
 				return result
 			} catch {
 				return fail('PaymentSheet could not be presented')

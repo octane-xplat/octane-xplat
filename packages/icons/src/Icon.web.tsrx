@@ -4,9 +4,10 @@ import { useStore } from '@octane-xplat/ui/data'
 import type { IconProps } from './props'
 import { registry, resolveIcon } from './registry'
 import { iconToSvg } from './svg'
+import type { JSX } from 'octane/jsx-runtime'
 
 /** Render a bundled icon as inline SVG; missing names render nothing. */
-export function Icon(props: IconProps) @{
+export function Icon(props: IconProps): JSX.Element | null @{
 	useStore(registry)
 	const icon = resolveIcon(props.name)
 

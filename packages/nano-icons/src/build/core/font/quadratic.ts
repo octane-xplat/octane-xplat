@@ -17,7 +17,7 @@ const cubic2quad = cubic2quadImport as (
 const COMMAND = /([MLQCZ])([^MLQCZ]*)/g
 const NUMBER = /-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi
 
-export const QUADRATIC_ERROR_BOUND_EM = 1 / 512
+export const QUADRATIC_ERROR_BOUND_EM: number = 1 / 512
 
 export function toQuadraticPath(d: string, errorBound: number): string {
 	const out: string[] = []

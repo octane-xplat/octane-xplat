@@ -1,10 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-function CardRoot(props: { title: string }) @{
+import type { JSX } from 'octane/jsx-runtime'
+function CardRoot(props: { title: string }): JSX.Element @{
 	<div>{props.title}</div>
 }
 
-function CardHeader(props: { text: string }) @{
+function CardHeader(props: { text: string }): JSX.Element @{
 	<span>{props.text}</span>
 }
 
-export const Card = Object.assign(CardRoot, { Header: CardHeader })
+export const Card: typeof CardRoot & { Header: typeof CardHeader } = Object.assign(CardRoot, {
+	Header: CardHeader,
+})
