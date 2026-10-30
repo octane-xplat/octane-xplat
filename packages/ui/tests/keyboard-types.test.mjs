@@ -14,7 +14,7 @@ for (const [target, moduleSuffixes] of [
 	test(`useKeyboard public types resolve with ${target} module suffixes`, () => {
 		const program = ts.createProgram({
 			rootNames: ['use-keyboard.ts', 'use-keyboard.web.ts'].map((file) =>
-				fileURLToPath(new URL(`../src/${file}`, import.meta.url)),
+				fileURLToPath(new URL(`../src/internal/keyboard/${file}`, import.meta.url)),
 			),
 			options: {
 				strict: true,

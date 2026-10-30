@@ -43,7 +43,8 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 	mkdirSync(libModules, { recursive: true })
 	run('tar', ['-xzf', libTarball, '--strip-components=1', '-C', libModules], directory)
 	const manifest = JSON.parse(readFileSync(join(modules, 'package.json'), 'utf8'))
-	assert.equal(manifest.exports['.'].macos.types, './types/generated/index.macos.d.ts')
+	assert.equal(manifest.exports['.'].macos, './src/index.macos.ts')
+	assert.equal(manifest.exports['.'].types, './types/generated/index.d.ts')
 	assert.match(
 		readFileSync(join(modules, 'platforms/macos/include/XplatConnectivity.h'), 'utf8'),
 		/readState/,
@@ -121,12 +122,12 @@ random.fill(16)
 	const resolved = ts.resolveModuleName('@octane-xplat/platform', entry, options, ts.sys)
 	assert.equal(
 		resolved.resolvedModule.resolvedFileName,
-		realpathSync(join(modules, 'types/generated/index.macos.d.ts')),
+		realpathSync(join(modules, 'types/generated/index.d.ts')),
 	)
 
 	for (const service of ['device', 'locale', 'system-bars']) for (const suffix of ['', '.ts']) {
 		const selected = ts.resolveModuleName(`@octane-xplat/platform/${service}${suffix}`, entry, options, ts.sys)
-		assert.equal(selected.resolvedModule?.resolvedFileName, realpathSync(join(modules, `types/generated/${service}.macos.d.ts`)))
+		assert.equal(selected.resolvedModule?.resolvedFileName, realpathSync(join(modules, `types/generated/${service}.d.ts`)))
 	}
 
 	const example = join(directory, 'announce-status.ts')

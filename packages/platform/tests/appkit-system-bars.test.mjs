@@ -51,7 +51,7 @@ test('AppKit system-bar export conditions pair runtime/types and keep non-macOS 
 	const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
 	for (const suffix of ['', '.ts']) {
 		const entry = manifest.exports['./system-bars' + suffix]
-		assert.deepEqual(entry.macos, { types: './types/generated/system-bars.macos.d.ts', default: './src/system-bars.macos.ts' })
+		assert.equal(entry.macos, './src/system-bars.macos.ts')
 		assert.equal(entry.types, './types/generated/system-bars.d.ts')
 		assert.equal(entry.default, './src/system-bars' + suffix)
 	}

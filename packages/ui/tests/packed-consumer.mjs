@@ -125,7 +125,14 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 			const runtimeValues = await buildMacOSBarrel(consumerRoot)
 			const consumerManifest = JSON.parse(readFileSync(join(packageLink, 'package.json'), 'utf8'))
 
-			const declaration = join(packageLink, consumerManifest.exports['.'].macos.types)
+			// Export maps carry one `types` entry per subpath; platform conditions
+			// are runtime-only strings. The macOS consumer's declarations resolve
+			// through the shared entry.
+			const macosEntry = consumerManifest.exports['.'].macos
+			const declaration = join(
+				packageLink,
+				typeof macosEntry === 'string' ? consumerManifest.exports['.'].types : macosEntry.types,
+			)
 
 			const program = ts.createProgram([declaration], {
 				moduleResolution: ts.ModuleResolutionKind.Bundler,

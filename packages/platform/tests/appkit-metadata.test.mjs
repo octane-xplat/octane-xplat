@@ -76,7 +76,7 @@ test('AppKit metadata export conditions select matching runtime/types and preser
 	const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
 	for (const service of ['locale', 'device']) for (const suffix of ['', '.ts']) {
 		const entry = manifest.exports[`./${service}${suffix}`]
-		assert.deepEqual(entry.macos, { types: `./types/generated/${service}.macos.d.ts`, default: `./src/${service}.macos.ts` })
+		assert.equal(entry.macos, `./src/${service}.macos.ts`)
 		assert.equal(entry.types, `./types/generated/${service}.d.ts`)
 		assert.equal(entry.default, `./src/${service}${suffix}`)
 	}
