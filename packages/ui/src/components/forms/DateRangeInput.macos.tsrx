@@ -1,7 +1,16 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { createAppKitDateFieldHandle } from './date-field-handle.macos'
-import { useImperativeHandle, useContext, useEffect, useId, useRef, useState, useCallback } from 'octane'
+import {
+	useImperativeHandle,
+	useContext,
+	useEffect,
+	useId,
+	useRef,
+	useState,
+	useCallback,
+} from 'octane'
+
 import type { DateRange, DateRangeInputProps } from '../../props'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
@@ -19,7 +28,10 @@ const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function RangeControl(inputProps: DateRangeInputProps) @{
 	const hostRef = useRef<NSView | null>(null)
-	const bindHost = useCallback((view: NSView | null) => { hostRef.current = view }, [])
+	const bindHost = useCallback((view: NSView | null) => {
+		hostRef.current = view
+	}, [])
+
 	const props = useFieldControlProps(inputProps)
 	const locale = resolveLocale(props.locale)
 	const generatedId = useId()
@@ -27,42 +39,82 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
 	const anchor = useRef<NSView | null>(null)
 	const [open, setOpenState] = useState(false)
-	const openRef = useRef(open); openRef.current = open
-	const writing = useRef(false), actionPending = useRef(false)
-	const setOpen = (next: boolean) => { openRef.current = next; if (anchor.current) setOpenState(next) }
-	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) openRef.current = false }, [])
+	const openRef = useRef(open)
+	openRef.current = open
+	const writing = useRef(false),
+		actionPending = useRef(false)
+
+	const setOpen = (next: boolean) => {
+		openRef.current = next
+		if (anchor.current) {
+			setOpenState(next)
+		}
+	}
+
+	const bindAnchor = useCallback((view: NSView | null) => {
+		anchor.current = view
+		if (!view) {
+			openRef.current = false
+		}
+	}, [])
+
 	const [busy, setBusy] = useState(false)
 
 	const value = props.value
 	const shown = value ?? undefined
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
-	const blocked = useRef(isDisabled || isBusy); blocked.current = isDisabled || isBusy
+	const blocked = useRef(isDisabled || isBusy)
+	blocked.current = isDisabled || isBusy
 
-	const current = useRef(props); current.current = props
-	useEffect(() => { if (blocked.current && openRef.current) setOpen(false) }, [isDisabled, isBusy])
+	const current = useRef(props)
+	current.current = props
+	useEffect(() => {
+		if (blocked.current && openRef.current) {
+			setOpen(false)
+		}
+	}, [isDisabled, isBusy])
 
 	const fireChange = (next: DateRange | null): boolean => {
 		const live = current.current
-		if (!anchor.current || blocked.current || writing.current || actionPending.current) return false
+		if (!anchor.current || blocked.current || writing.current || actionPending.current) {
+			return false
+		}
+
 		writing.current = true
 		try {
-			if (next !== null && !isDateRangeAllowed(next, live)) return false
+			if (next !== null && !isDateRangeAllowed(next, live)) {
+				return false
+			}
+
 			live.onChange?.(next)
 			if (live.changeAction) {
 				actionPending.current = true
-				if (anchor.current) setBusy(true)
-				runDateChangeAction(() => live.changeAction!(next), () => {
-					actionPending.current = false
-					if (anchor.current) setBusy(false)
-				})
+				if (anchor.current) {
+					setBusy(true)
+				}
+
+				runDateChangeAction(
+					() => live.changeAction!(next),
+					() => {
+						actionPending.current = false
+						if (anchor.current) {
+							setBusy(false)
+						}
+					},
+				)
 			}
+
 			return true
-		} finally { writing.current = false }
+		} finally {
+			writing.current = false
+		}
 	}
 
 	const selectRange = (range: DateRange) => {
-		if (openRef.current && fireChange(range) && anchor.current) setOpen(false)
+		if (openRef.current && fireChange(range) && anchor.current) {
+			setOpen(false)
+		}
 	}
 
 	const isPresetDisabled = (preset: { getRange: () => DateRange }) =>
@@ -79,9 +131,15 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
-	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
-		primary: () => hostRef.current, blocked: () => blocked.current || actionPending.current,
-	}), [])
+	useImperativeHandle(
+		props.ref,
+		() =>
+			createAppKitDateFieldHandle({
+				primary: () => hostRef.current,
+				blocked: () => blocked.current || actionPending.current,
+			}),
+		[],
+	)
 
 	<>
 		<masonview
@@ -162,9 +220,23 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 									key={preset.label}
 									id={`${inputId}-preset-${index}`}
 									onTap={() => {
-										if (!anchor.current || !openRef.current || blocked.current || writing.current || actionPending.current) return
-										const live = current.current.presets?.find((item) => item.label === preset.label)
-										if (live) selectRange(live.getRange())
+										if (
+											!anchor.current ||
+											!openRef.current ||
+											blocked.current ||
+											writing.current ||
+											actionPending.current
+										) {
+											return
+										}
+
+										const live = current.current.presets?.find(
+											(item) => item.label === preset.label,
+										)
+
+										if (live) {
+											selectRange(live.getRange())
+										}
 									}}
 									className={cx(
 										'vx-daterangeinput-preset',

@@ -4,7 +4,12 @@ import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { RowProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { layoutChildProps } from './layout-child'
 import { usePan } from './pan'
 export function Row(props: RowProps) @{

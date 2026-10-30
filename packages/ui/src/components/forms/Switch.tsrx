@@ -3,7 +3,12 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState, useContext } from 'octane'
 import type { SwitchProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { FieldContext, useFieldControlProps } from './field-context'
 
 /** Self-drawn switch — flexbox track + thumb view, identical pixels across

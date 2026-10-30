@@ -3,7 +3,18 @@ import { appKitTextChange } from '../../internal/platform/appkit-events.macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { createAppKitDateFieldHandle } from './date-field-handle.macos'
 import { createAppKitAutoFocus } from '../../internal/accessibility/auto-focus.macos'
-import { useImperativeHandle, useContext, useEffect, useLayoutEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
+import {
+	useImperativeHandle,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+	useCallback,
+} from 'octane'
+
 import type { DateInputProps, ISODateString } from '../../props'
 import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
@@ -16,7 +27,13 @@ import { FormField } from './FormField.macos.tsrx'
 import { Popover } from '../overlays/Popover.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar.macos.tsrx'
-import { formatDateValue, parseDateInput, plainDateFromISO, plainDateToISO, resolveLocale } from './datetime'
+import {
+	formatDateValue,
+	parseDateInput,
+	plainDateFromISO,
+	plainDateToISO,
+	resolveLocale,
+} from './datetime'
 
 import { createDateDisabledCheck } from './calendar-core'
 
@@ -30,13 +47,31 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const inputId = props.id ?? generatedId
 	const input = useRef<NSTextField | null>(null)
 	const anchor = useRef<NSView | null>(null)
-	const bindInput = useCallback((view: NSTextField | null) => { input.current = view; autoFocus.bind(view) }, [])
-	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) openRef.current = false }, [])
+	const bindInput = useCallback((view: NSTextField | null) => {
+		input.current = view
+		autoFocus.bind(view)
+	}, [])
+
+	const bindAnchor = useCallback((view: NSView | null) => {
+		anchor.current = view
+		if (!view) {
+			openRef.current = false
+		}
+	}, [])
 
 	const [open, setOpenState] = useState(false)
-	const openRef = useRef(open); openRef.current = open
-	const writing = useRef(false), actionPending = useRef(false)
-	const setOpen = (next: boolean) => { openRef.current = next; if (anchor.current) setOpenState(next) }
+	const openRef = useRef(open)
+	openRef.current = open
+	const writing = useRef(false),
+		actionPending = useRef(false)
+
+	const setOpen = (next: boolean) => {
+		openRef.current = next
+		if (anchor.current) {
+			setOpenState(next)
+		}
+	}
+
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
 
@@ -45,10 +80,17 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
-	const blocked = useRef(isDisabled || isBusy); blocked.current = isDisabled || isBusy
-	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
-		primary: () => input.current, blocked: () => blocked.current || actionPending.current,
-	}), [])
+	const blocked = useRef(isDisabled || isBusy)
+	blocked.current = isDisabled || isBusy
+	useImperativeHandle(
+		props.ref,
+		() =>
+			createAppKitDateFieldHandle({
+				primary: () => input.current,
+				blocked: () => blocked.current || actionPending.current,
+			}),
+		[],
+	)
 
 	const isDateDisabled = useMemo(
 		() =>
@@ -62,12 +104,22 @@ function DateInputControl(inputProps: DateInputProps) @{
 
 	const current = useRef({ props, isDateDisabled })
 	current.current = { props, isDateDisabled }
-	const autoFocus = useMemo(() => createAppKitAutoFocus({
-		requested: () => current.current.props.hasAutoFocus === true, blocked: () => blocked.current || actionPending.current,
-	}), [])
+	const autoFocus = useMemo(
+		() =>
+			createAppKitAutoFocus({
+				requested: () => current.current.props.hasAutoFocus === true,
+				blocked: () => blocked.current || actionPending.current,
+			}),
+		[],
+	)
+
 	useLayoutEffect(() => autoFocus.update(), null)
 	useEffect(() => () => autoFocus.dispose(), [])
-	useEffect(() => { if (blocked.current && openRef.current) setOpen(false) }, [isDisabled, isBusy])
+	useEffect(() => {
+		if (blocked.current && openRef.current) {
+			setOpen(false)
+		}
+	}, [isDisabled, isBusy])
 
 	const formatValue = (iso: ISODateString): string =>
 		formatDateValue(iso, props.format ?? 'date_long', locale)
@@ -83,25 +135,42 @@ function DateInputControl(inputProps: DateInputProps) @{
 
 	const fireChange = (next: ISODateString | null): boolean => {
 		const live = current.current
-		if (!anchor.current || blocked.current || writing.current || actionPending.current) return false
+		if (!anchor.current || blocked.current || writing.current || actionPending.current) {
+			return false
+		}
+
 		writing.current = true
 		try {
 			if (next !== null) {
 				const parsed = plainDateFromISO(next)
-				if (!parsed || live.isDateDisabled(parsed)) return false
+				if (!parsed || live.isDateDisabled(parsed)) {
+					return false
+				}
 			}
+
 			lastEmitted.current = next
 			live.props.onChange?.(next)
 			if (live.props.changeAction) {
 				actionPending.current = true
-				if (anchor.current) setBusy(true)
-				runDateChangeAction(() => live.props.changeAction!(next), () => {
-					actionPending.current = false
-					if (anchor.current) setBusy(false)
-				})
+				if (anchor.current) {
+					setBusy(true)
+				}
+
+				runDateChangeAction(
+					() => live.props.changeAction!(next),
+					() => {
+						actionPending.current = false
+						if (anchor.current) {
+							setBusy(false)
+						}
+					},
+				)
 			}
+
 			return true
-		} finally { writing.current = false }
+		} finally {
+			writing.current = false
+		}
 	}
 
 	const pendingParsed =
@@ -113,13 +182,22 @@ function DateInputControl(inputProps: DateInputProps) @{
 			: pendingParsed !== null && !isDateDisabled(pendingParsed)
 
 	const commitParsed = (pd: ReturnType<typeof parseDateInput>) => {
-		if (!pd) return false
+		if (!pd) {
+			return false
+		}
+
 		const iso = plainDateToISO(pd)
 		return iso !== current.current.props.value && fireChange(iso)
 	}
 
 	const commitPending = () => {
-		if (!anchor.current || blocked.current || writing.current || actionPending.current || hasDateComposition(input.current)) {
+		if (
+			!anchor.current ||
+			blocked.current ||
+			writing.current ||
+			actionPending.current ||
+			hasDateComposition(input.current)
+		) {
 			return
 		}
 
@@ -135,7 +213,9 @@ function DateInputControl(inputProps: DateInputProps) @{
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
 
-		if (anchor.current) setPendingInput(null)
+		if (anchor.current) {
+			setPendingInput(null)
+		}
 	}
 
 	const handleTextChange = (text: string) => {
@@ -152,8 +232,14 @@ function DateInputControl(inputProps: DateInputProps) @{
 	}
 
 	const pickFromCalendar = (iso: ISODateString) => {
-		if (!openRef.current || !fireChange(iso)) return
-		if (anchor.current) { setPendingInput(null); setOpen(false) }
+		if (!openRef.current || !fireChange(iso)) {
+			return
+		}
+
+		if (anchor.current) {
+			setPendingInput(null)
+			setOpen(false)
+		}
 	}
 
 	const displayText = pendingInput ?? (shown ? formatValue(shown) : '')
@@ -216,7 +302,9 @@ function DateInputControl(inputProps: DateInputProps) @{
 					className="vx-dateinput-clear"
 					accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`}
 					onPress={() => {
-						if (fireChange(null) && anchor.current) setPendingInput(null)
+						if (fireChange(null) && anchor.current) {
+							setPendingInput(null)
+						}
 					}}
 				>
 					<label text="×" />

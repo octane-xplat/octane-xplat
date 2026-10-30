@@ -10,7 +10,11 @@ import { Token } from './Token.web.tsrx'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from '../../internal/rendering/busy-lane'
+import {
+	BusyLaneProvider,
+	createBusyIndicatorLane,
+	type BusyIndicatorLane,
+} from '../../internal/rendering/busy-lane'
 
 /** The field's inline-end lane: busy Spinner, then the clear button. A leaf
  *  subscribing to the lane re-renders only itself per search transition. */

@@ -2,7 +2,12 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { GridProps, GridSpanProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { gridTrackListToCss } from '../collections/grid-tracks'
 
 let warnedAboutGap = false

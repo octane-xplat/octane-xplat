@@ -38,20 +38,27 @@ import { Icon } from '../media/Icon.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Popover } from '../overlays/Popover.macos.tsrx'
 import { Tooltip } from '../overlays/Tooltip.tsrx'
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from '../../internal/rendering/busy-lane'
+import {
+	BusyLaneProvider,
+	createBusyIndicatorLane,
+	type BusyIndicatorLane,
+} from '../../internal/rendering/busy-lane'
 
 const CREATABLE_ID_PREFIX = '__xds_create__'
 const nativeValue = (view: unknown, key: string) => {
 	const value = view && Reflect.get(view, key)
 	return typeof value === 'function' ? value.call(view) : value
 }
-type TokenizerKeyEvent = TypeaheadKeyEvent & { altKey?: boolean; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean; stopPropagation?(): void }
 
-function EndLane(props: {
-	lane: BusyIndicatorLane
-	endContent?: any
-	clear?: any
-}) @{
+type TokenizerKeyEvent = TypeaheadKeyEvent & {
+	altKey?: boolean
+	ctrlKey?: boolean
+	metaKey?: boolean
+	shiftKey?: boolean
+	stopPropagation?(): void
+}
+
+function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
 	if (!isBusy && props.endContent == null && props.clear == null) {
 		return null
@@ -83,13 +90,20 @@ function TokenizerToken(props: {
 	const bind = useMemo(() => {
 		let release: (() => void) | undefined
 		return (view: NSView | null) => {
-			release?.(); release = undefined
-			if (view && props.measure) release = props.register(props.id, view)
+			release?.()
+			release = undefined
+			if (view && props.measure) {
+				release = props.register(props.id, view)
+			}
 		}
 	}, [props.id, props.measure, props.register])
-	<masonview className="vx-tokenizer-token" ref={bind}
+
+	<masonview
+		className="vx-tokenizer-token"
+		ref={bind}
 		onLayoutChanged={props.measure ? props.onLayoutChanged : undefined}
-		style={{ display: 'flex', flexShrink: 0 }}>
+		style={{ display: 'flex', flexShrink: 0 }}
+	>
 		{props.children}
 	</masonview>
 }
@@ -98,55 +112,134 @@ function TokenizerToken(props: {
  * Backspace removal. Native key/IME/focus and overflow layout remain unqualified. */
 export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) @{
 	const props = useFieldControlProps(inProps)
-	const live = useRef(props); live.current = props
-	const writing = useRef(false), lastQuery = useRef('')
-	const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null), blurVersion = useRef(0)
+	const live = useRef(props)
+	live.current = props
+	const writing = useRef(false),
+		lastQuery = useRef('')
+
+	const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
+		blurVersion = useRef(0)
+
 	const size = useSize(props.size, 'md')
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)
 	const wrapperRef = useRef<NSView | null>(null)
 	const panelRef = useRef<NSView | null>(null)
-	const bindPanel = useCallback((view: NSView | null) => { panelRef.current = view }, [])
-	const clipRef = useRef<NSView | null>(null), counterRef = useRef<NSView | null>(null)
+	const bindPanel = useCallback((view: NSView | null) => {
+		panelRef.current = view
+	}, [])
+
+	const clipRef = useRef<NSView | null>(null),
+		counterRef = useRef<NSView | null>(null)
+
 	const tokenEls = useRef(new Map<string, NSView>())
-	const reclaimedCounter = useRef<{ clip: NSView; width: number; origin: number; items: T[]; widths: number[] } | null>(null)
-	const latestMeasure = useRef<() => void>(() => {}), queuedMeasure = useRef(false), measuredCount = useRef(0)
+	const reclaimedCounter = useRef<{
+		clip: NSView
+		width: number
+		origin: number
+		items: T[]
+		widths: number[]
+	} | null>(null)
+
+	const latestMeasure = useRef<() => void>(() => {}),
+		queuedMeasure = useRef(false),
+		measuredCount = useRef(0)
+
 	const queueMeasure = useCallback(() => {
-		if (queuedMeasure.current) return
+		if (queuedMeasure.current) {
+			return
+		}
+
 		queuedMeasure.current = true
 		void Promise.resolve().then(() => {
 			queuedMeasure.current = false
 			if (wrapperRef.current) {
-				try { latestMeasure.current() } catch (error) { console.warn('[macos-tokenizer] measurement failed', error) }
+				try {
+					latestMeasure.current()
+				} catch (error) {
+					console.warn('[macos-tokenizer] measurement failed', error)
+				}
 			}
 		})
 	}, [])
-	const bindCounter = useCallback((view: NSView | null) => { counterRef.current = view; queueMeasure() }, [])
-	const bindClip = useCallback((view: NSView | null) => { clipRef.current = view; queueMeasure() }, [])
-	const registerToken = useCallback((id: string, view: NSView) => {
-		tokenEls.current.set(id, view); queueMeasure()
-		return () => { if (tokenEls.current.get(id) === view) tokenEls.current.delete(id); queueMeasure() }
+
+	const bindCounter = useCallback((view: NSView | null) => {
+		counterRef.current = view
+		queueMeasure()
 	}, [])
 
-	const cancelBlur = () => { blurVersion.current++; if (blurTimer.current != null) clearTimeout(blurTimer.current); blurTimer.current = null }
-	const bindWrapper = useCallback((view: NSView | null) => { wrapperRef.current = view; if (!view) cancelBlur(); else queueMeasure() }, [])
-	const bindInput = useCallback((handle: TypeaheadInputHandle | null) => { inputHandle.current = handle }, [])
-	const canChange = () => !!wrapperRef.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
+	const bindClip = useCallback((view: NSView | null) => {
+		clipRef.current = view
+		queueMeasure()
+	}, [])
+
+	const registerToken = useCallback((id: string, view: NSView) => {
+		tokenEls.current.set(id, view)
+		queueMeasure()
+		return () => {
+			if (tokenEls.current.get(id) === view) {
+				tokenEls.current.delete(id)
+			}
+
+			queueMeasure()
+		}
+	}, [])
+
+	const cancelBlur = () => {
+		blurVersion.current++
+		if (blurTimer.current != null) {
+			clearTimeout(blurTimer.current)
+		}
+
+		blurTimer.current = null
+	}
+
+	const bindWrapper = useCallback((view: NSView | null) => {
+		wrapperRef.current = view
+		if (!view) {
+			cancelBlur()
+		} else {
+			queueMeasure()
+		}
+	}, [])
+
+	const bindInput = useCallback((handle: TypeaheadInputHandle | null) => {
+		inputHandle.current = handle
+	}, [])
+
+	const canChange = () =>
+		!!wrapperRef.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
+
 	const inputOwnsFocus = () => {
-		const view = inputHandle.current?.native, window = nativeValue(view, 'window'), responder = window?.firstResponder
-		return !!view && !!window && (responder === view || (responder != null && responder === nativeValue(view, 'currentEditor')))
+		const view = inputHandle.current?.native,
+			window = nativeValue(view, 'window'),
+			responder = window?.firstResponder
+
+		return (
+			!!view &&
+			!!window &&
+			(responder === view ||
+				(responder != null && responder === nativeValue(view, 'currentEditor')))
+		)
 	}
 
 	const containsFocus = (root: NSView | null) => {
-		if (!root) return false
+		if (!root) {
+			return false
+		}
+
 		const responder = nativeValue(nativeValue(root, 'window'), 'firstResponder')
 		// AppKit's shared field editor delegates to the owning text field.
 		for (const start of [responder, nativeValue(responder, 'delegate')]) {
 			const seen = new Set<object>()
 			for (let view = start; view && !seen.has(view); view = nativeValue(view, 'superview')) {
-				if (view === root) return true
+				if (view === root) {
+					return true
+				}
+
 				seen.add(view)
 			}
 		}
+
 		return false
 	}
 
@@ -160,20 +253,38 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 	const isTruncated = !isFocusedWithin && tokenOverflowBehavior !== 'none' && props.value.length > 0
 	const isAtMax = props.maxEntries != null && props.value.length >= props.maxEntries
 
-	const handle = useMemo<TokenizerHandle>(() => ({
-		focus() {
-			const current = live.current
-			if (!wrapperRef.current || (current.isDisabled && !current.disabledMessage)) return
-			if (current.tokenOverflowBehavior === 'unfocusedLayer') setLayerOpen(true)
-			inputHandle.current?.focus()
-		},
-		blur() {
-			if (!wrapperRef.current) return
-			inputHandle.current?.blur()
-			if (wrapperRef.current) { setLayerOpen(false); setIsFocusedWithin(false) }
-		},
-		get native() { return wrapperRef.current },
-	}), [])
+	const handle = useMemo<TokenizerHandle>(
+		() => ({
+			focus() {
+				const current = live.current
+				if (!wrapperRef.current || (current.isDisabled && !current.disabledMessage)) {
+					return
+				}
+
+				if (current.tokenOverflowBehavior === 'unfocusedLayer') {
+					setLayerOpen(true)
+				}
+
+				inputHandle.current?.focus()
+			},
+			blur() {
+				if (!wrapperRef.current) {
+					return
+				}
+
+				inputHandle.current?.blur()
+				if (wrapperRef.current) {
+					setLayerOpen(false)
+					setIsFocusedWithin(false)
+				}
+			},
+			get native() {
+				return wrapperRef.current
+			},
+		}),
+		[],
+	)
+
 	useImperativeHandle(props.ref, () => handle, [props.ref])
 
 	const selectedIds = useMemo(() => new Set(props.value.map((item) => item.id)), [props.value])
@@ -221,103 +332,249 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 	const queryEntries: TypeaheadQueryEntries<T> = { __queryEntries: createEntries }
 
 	const emit = (items: T[], change: TokenizerChange<T>, restoreFocus = false): boolean => {
-		if (!canChange()) return false
-		const root = wrapperRef.current, input = inputHandle.current, view = input?.native
-		const window = nativeValue(view, 'window'), responder = window?.firstResponder, notify = live.current.onChange
+		if (!canChange()) {
+			return false
+		}
+
+		const root = wrapperRef.current,
+			input = inputHandle.current,
+			view = input?.native
+
+		const window = nativeValue(view, 'window'),
+			responder = window?.firstResponder,
+			notify = live.current.onChange
+
 		writing.current = true
-		try { notify(items, change) } finally { writing.current = false }
+		try {
+			notify(items, change)
+		} finally {
+			writing.current = false
+		}
+
 		// Preserve callback-driven teardown, blocking and newer focus choices.
-		if (restoreFocus && canChange() && wrapperRef.current === root && input && inputHandle.current === input && input.native === view &&
-			window && nativeValue(view, 'window') === window && window.firstResponder === responder && !inputOwnsFocus()) input.focus()
+		if (
+			restoreFocus &&
+			canChange() &&
+			wrapperRef.current === root &&
+			input &&
+			inputHandle.current === input &&
+			input.native === view &&
+			window &&
+			nativeValue(view, 'window') === window &&
+			window.firstResponder === responder &&
+			!inputOwnsFocus()
+		) {
+			input.focus()
+		}
+
 		return true
 	}
+
 	const handleAdd = (item: T | null) => {
 		// BaseTypeahead clears its query before reporting selection, including
 		// a selection the controlled wrapper subsequently rejects.
 		lastQuery.current = ''
-		if (!item || !canChange()) return
-		const current = live.current
-		if (current.maxEntries != null && current.value.length >= current.maxEntries) return
-		if (item.id.startsWith(CREATABLE_ID_PREFIX)) {
-			if (!current.hasCreate) return
-			const text = item.id.slice(CREATABLE_ID_PREFIX.length)
-			if (current.value.some((value) => value.id === text)) return
-			const created = { id: text, label: text } as T
-			emit([...current.value, created], { item: created, type: 'create' }); return
+		if (!item || !canChange()) {
+			return
 		}
-		if (!current.value.some((value) => value.id === item.id)) emit([...current.value, item], { item, type: 'add' })
-	}
-	const handleRemove = (item: T, restoreFocus = true): boolean => {
-		if (!canChange()) return false
-		const current = live.current, owned = current.value.find((value) => value.id === item.id)
-		return owned ? emit(current.value.filter((value) => value.id !== owned.id), { item: owned, type: 'remove' }, restoreFocus) : false
-	}
-	const handleClearAll = () => {
-		if (!canChange()) return
+
 		const current = live.current
-		if (current.value.length) emit([], { item: current.value[current.value.length - 1], type: 'remove' }, true)
+		if (current.maxEntries != null && current.value.length >= current.maxEntries) {
+			return
+		}
+
+		if (item.id.startsWith(CREATABLE_ID_PREFIX)) {
+			if (!current.hasCreate) {
+				return
+			}
+
+			const text = item.id.slice(CREATABLE_ID_PREFIX.length)
+			if (current.value.some((value) => value.id === text)) {
+				return
+			}
+
+			const created = { id: text, label: text } as T
+			emit([...current.value, created], { item: created, type: 'create' })
+			return
+		}
+
+		if (!current.value.some((value) => value.id === item.id)) {
+			emit([...current.value, item], { item, type: 'add' })
+		}
 	}
+
+	const handleRemove = (item: T, restoreFocus = true): boolean => {
+		if (!canChange()) {
+			return false
+		}
+
+		const current = live.current,
+			owned = current.value.find((value) => value.id === item.id)
+
+		return owned
+			? emit(
+					current.value.filter((value) => value.id !== owned.id),
+					{ item: owned, type: 'remove' },
+					restoreFocus,
+				)
+			: false
+	}
+
+	const handleClearAll = () => {
+		if (!canChange()) {
+			return
+		}
+
+		const current = live.current
+		if (current.value.length) {
+			emit([], { item: current.value[current.value.length - 1], type: 'remove' }, true)
+		}
+	}
+
 	const handleQueryChange = (query: string) => {
-		if (!wrapperRef.current) return
+		if (!wrapperRef.current) {
+			return
+		}
+
 		lastQuery.current = query
 		live.current.onChangeQuery?.(query)
 	}
+
 	const handleKeyDown = (event: TokenizerKeyEvent) => {
 		const view = inputHandle.current?.native
-		if (!view || !canChange() || event.defaultPrevented || hasDateComposition(view, event) ||
-			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.key !== 'Backspace' || lastQuery.current !== '') return
-		const editor = nativeValue(view, 'currentEditor'), text = nativeValue(editor, 'string') ?? nativeValue(view, 'stringValue')
-		if (text != null && String(text) !== '') return
+		if (
+			!view ||
+			!canChange() ||
+			event.defaultPrevented ||
+			hasDateComposition(view, event) ||
+			event.altKey ||
+			event.ctrlKey ||
+			event.metaKey ||
+			event.shiftKey ||
+			event.key !== 'Backspace' ||
+			lastQuery.current !== ''
+		) {
+			return
+		}
+
+		const editor = nativeValue(view, 'currentEditor'),
+			text = nativeValue(editor, 'string') ?? nativeValue(view, 'stringValue')
+
+		if (text != null && String(text) !== '') {
+			return
+		}
+
 		const items = live.current.value
-		if (!items.length) return
-		event.preventDefault(); event.stopPropagation?.()
+		if (!items.length) {
+			return
+		}
+
+		event.preventDefault()
+		event.stopPropagation?.()
 		handleRemove(items[items.length - 1], false)
 	}
 
 	// Delay collapse only while this attached field still owns the request.
 	const collapseSoon = () => {
-		if (!wrapperRef.current) return
+		if (!wrapperRef.current) {
+			return
+		}
+
 		cancelBlur()
-		const owner = wrapperRef.current, version = blurVersion.current
+		const owner = wrapperRef.current,
+			version = blurVersion.current
+
 		blurTimer.current = setTimeout(() => {
-			if (version !== blurVersion.current || wrapperRef.current !== owner) return
+			if (version !== blurVersion.current || wrapperRef.current !== owner) {
+				return
+			}
+
 			blurTimer.current = null
-			if (inputOwnsFocus() || containsFocus(wrapperRef.current) || containsFocus(panelRef.current)) return
-			setIsFocusedWithin(false); setLayerOpen(false)
+			if (
+				inputOwnsFocus() ||
+				containsFocus(wrapperRef.current) ||
+				containsFocus(panelRef.current)
+			) {
+				return
+			}
+
+			setIsFocusedWithin(false)
+			setLayerOpen(false)
 			live.current.onBlur?.()
 		}, 50)
 	}
+
 	const focusEntered = () => {
-		if (!wrapperRef.current) return
-		cancelBlur(); setIsFocusedWithin(true)
-		if (live.current.tokenOverflowBehavior === 'unfocusedLayer') setLayerOpen(true)
+		if (!wrapperRef.current) {
+			return
+		}
+
+		cancelBlur()
+		setIsFocusedWithin(true)
+		if (live.current.tokenOverflowBehavior === 'unfocusedLayer') {
+			setLayerOpen(true)
+		}
+
 		live.current.onFocus?.()
 	}
+
 	useEffect(() => () => cancelBlur(), [])
 
 	// Read actual native rectangles after commit/layout. The counter is a
 	// sibling of this viewport, so its width participates in Mason's layout.
 	const measureOverflow = () => {
-		if (!wrapperRef.current) return
-		const collapsed = isLayerMode || isTruncated, clip = clipRef.current, held = reclaimedCounter.current
+		if (!wrapperRef.current) {
+			return
+		}
+
+		const collapsed = isLayerMode || isTruncated,
+			clip = clipRef.current,
+			held = reclaimedCounter.current
+
 		const views = props.value.map((item) => tokenEls.current.get(item.id) ?? null)
 		// After removing the counter, wait for its space to reach the viewport.
 		// Stale native layout notifications must not reserve the counter again.
-		if (collapsed && held && held.clip === clip && held.items === props.value &&
-			held.width === Number(clip?.bounds.size.width) && held.origin === Number(clip?.bounds.origin.x) &&
-			held.widths.length === views.length && held.widths.every((width, index) => width === Number(views[index]?.bounds.size.width))) return
+		if (
+			collapsed &&
+			held &&
+			held.clip === clip &&
+			held.items === props.value &&
+			held.width === Number(clip?.bounds.size.width) &&
+			held.origin === Number(clip?.bounds.origin.x) &&
+			held.widths.length === views.length &&
+			held.widths.every((width, index) => width === Number(views[index]?.bounds.size.width))
+		) {
+			return
+		}
+
 		reclaimedCounter.current = null
-		const hidden = !collapsed || !props.value.length ? 0 : countClippedAppKitTokens(
-			clip, views, overflowCount > 0 ? counterRef.current : null,
-		)
+		const hidden =
+			!collapsed || !props.value.length
+				? 0
+				: countClippedAppKitTokens(clip, views, overflowCount > 0 ? counterRef.current : null)
+
 		// Incomplete/detached/zero-size layout is not evidence of zero overflow.
 		if (hidden != null && hidden !== measuredCount.current) {
-			if (hidden === 0 && overflowCount > 0 && clip && countClippedAppKitTokens(clip, views) !== 0) {
-				reclaimedCounter.current = { clip, width: Number(clip.bounds.size.width), origin: Number(clip.bounds.origin.x), items: props.value, widths: views.map((view) => Number(view?.bounds.size.width)) }
+			if (
+				hidden === 0 &&
+				overflowCount > 0 &&
+				clip &&
+				countClippedAppKitTokens(clip, views) !== 0
+			) {
+				reclaimedCounter.current = {
+					clip,
+					width: Number(clip.bounds.size.width),
+					origin: Number(clip.bounds.origin.x),
+					items: props.value,
+					widths: views.map((view) => Number(view?.bounds.size.width)),
+				}
 			}
-			measuredCount.current = hidden; setOverflowCount(hidden)
+
+			measuredCount.current = hidden
+			setOverflowCount(hidden)
 		}
 	}
+
 	latestMeasure.current = measureOverflow
 	useLayoutEffect(queueMeasure, [isLayerMode, isTruncated, props.value, size])
 
@@ -328,35 +585,57 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 			props.startIcon
 		)
 
-	const renderTokens = (measure = true) => props.value.map((item) => {
-		const onRemoveItem = () => handleRemove(item)
-		const body = props.renderToken ? (
-			props.renderToken(item, onRemoveItem)
-		) : (
-			<Token
-				label={item.label}
-				size={size}
-				onRemove={props.isDisabled || props.isReadOnly ? undefined : onRemoveItem}
-				isDisabled={props.isDisabled || props.isReadOnly}
-			/>
-		)
+	const renderTokens = (measure = true) =>
+		props.value.map((item) => {
+			const onRemoveItem = () => handleRemove(item)
+			const body = props.renderToken ? (
+				props.renderToken(item, onRemoveItem)
+			) : (
+				<Token
+					label={item.label}
+					size={size}
+					onRemove={props.isDisabled || props.isReadOnly ? undefined : onRemoveItem}
+					isDisabled={props.isDisabled || props.isReadOnly}
+				/>
+			)
 
-		return (
-			<TokenizerToken key={item.id} id={item.id} measure={measure} register={registerToken} onLayoutChanged={queueMeasure}>
-				{body}
-			</TokenizerToken>
-		)
-	})
+			return (
+				<TokenizerToken
+					key={item.id}
+					id={item.id}
+					measure={measure}
+					register={registerToken}
+					onLayoutChanged={queueMeasure}
+				>
+					{body}
+				</TokenizerToken>
+			)
+		})
 
 	const tokens = renderTokens()
 	const clippedTokens = (
-		<masonview className="vx-tokenizer-clip" ref={bindClip} onLayoutChanged={queueMeasure}
-			style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0, overflow: 'hidden' }}>
+		<masonview
+			className="vx-tokenizer-clip"
+			ref={bindClip}
+			onLayoutChanged={queueMeasure}
+			style={{
+				display: 'flex',
+				flexDirection: 'row',
+				flexWrap: 'nowrap',
+				flexGrow: 1,
+				flexShrink: 1,
+				flexBasis: 0,
+				minWidth: 0,
+				overflow: 'hidden',
+			}}
+		>
 			{tokens}
 		</masonview>
 	)
 
-	const hasClearButton = Boolean(props.hasClear && props.value.length > 0 && !props.isDisabled && !props.isReadOnly)
+	const hasClearButton = Boolean(
+		props.hasClear && props.value.length > 0 && !props.isDisabled && !props.isReadOnly,
+	)
 
 	const wrapperClass = cx(
 		'vx-tokenizer',
@@ -459,11 +738,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 						{startIcon}
 						{renderTokens(false)}
 						{fieldControls}
-						<EndLane
-							lane={busyLane}
-							endContent={props.endContent}
-							clear={clearButton}
-						/>
+						<EndLane lane={busyLane} endContent={props.endContent} clear={clearButton} />
 					</masonview>
 				</Popover>
 			</>
@@ -497,11 +772,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 					/>
 				) : null}
 				{fieldControls}
-				<EndLane
-					lane={busyLane}
-					endContent={props.endContent}
-					clear={clearButton}
-				/>
+				<EndLane lane={busyLane} endContent={props.endContent} clear={clearButton} />
 			</masonview>
 		)
 	}

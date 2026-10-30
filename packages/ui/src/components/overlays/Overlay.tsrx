@@ -39,17 +39,29 @@ export function Overlay(props: OverlayProps) @{
 	const rootLayout = () => rootLayoutFor(hostView.current)
 
 	const applyIosModal = (host: GridLayout) => {
-		if (!isIOS) return
+		if (!isIOS) {
+			return
+		}
+
 		const apply = () => {
 			const v = (host as any).ios
-			if (v) v.accessibilityViewIsModal = modal
+			if (v) {
+				v.accessibilityViewIsModal = modal
+			}
 		}
-		if ((host as any).isLoaded) apply()
-		else (host as any).once?.('loaded', apply)
+
+		if ((host as any).isLoaded) {
+			apply()
+		} else {
+			;(host as any).once?.('loaded', apply)
+		}
 	}
 
 	useEffect(() => {
-		if (!open || !modal || !isAndroid) return
+		if (!open || !modal || !isAndroid) {
+			return
+		}
+
 		return addBackInterceptor(() => {
 			dismiss.current?.()
 			return true

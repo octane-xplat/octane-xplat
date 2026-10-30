@@ -16,7 +16,12 @@ import type {
 } from '../../props'
 
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { resolveStackLayout, spacingPx, stackItemStyle } from './stack-layout'
 import {
 	LayoutSlotsContext,

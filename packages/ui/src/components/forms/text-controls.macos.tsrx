@@ -17,52 +17,138 @@ const nativeValue = (view: object, name: string) => {
 	const value = Reflect.get(view, name)
 	return typeof value === 'function' ? value.call(view) : value
 }
+
 const composing = (view: NSView) => !!nativeValue(view, 'hasMarkedText') || hasDateComposition(view)
 
 /** Current props and local text own every accepted edit. Draft notifications
  * remain live during composition; submit/clear wait for committed text. */
 function useAppKitTextEntry<T extends NSView>(props: TextInputProps, multiline = false) {
-	const live = useRef(props); live.current = props
-	const el = useRef<T | null>(null), writing = useRef(false)
+	const live = useRef(props)
+	live.current = props
+	const el = useRef<T | null>(null),
+		writing = useRef(false)
+
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
-	const local = useRef(internal); local.current = internal
+	const local = useRef(internal)
+	local.current = internal
 	const isBlocked = !!props.isDisabled || !!props.isReadOnly
-	const canEdit = () => !!el.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
-	const handle = useMemo(() => createAppKitDateFieldHandle({ primary: () => el.current, blocked: () => !!live.current.isDisabled }), [])
+	const canEdit = () =>
+		!!el.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
+
+	const handle = useMemo(
+		() =>
+			createAppKitDateFieldHandle({
+				primary: () => el.current,
+				blocked: () => !!live.current.isDisabled,
+			}),
+		[],
+	)
+
 	useImperativeHandle(props.ref, () => handle, [props.ref])
 	const write = (text: string, current: TextInputProps) => {
-		if (current.value === undefined) { local.current = text; setInternal(text) }
+		if (current.value === undefined) {
+			local.current = text
+			setInternal(text)
+		}
+
 		current.onChange?.(text)
 	}
+
 	const change = (text: string) => {
-		if (!canEdit()) return
+		if (!canEdit()) {
+			return
+		}
+
 		writing.current = true
-		try { write(text, live.current) } finally { writing.current = false }
+		try {
+			write(text, live.current)
+		} finally {
+			writing.current = false
+		}
 	}
+
 	const submit = () => {
-		const current = live.current, view = el.current
-		if (!view || !canEdit() || composing(view) || (multiline && current.returnKeyType !== 'done' && current.returnKeyType !== 'send')) return
+		const current = live.current,
+			view = el.current
+
+		if (
+			!view ||
+			!canEdit() ||
+			composing(view) ||
+			(multiline && current.returnKeyType !== 'done' && current.returnKeyType !== 'send')
+		) {
+			return
+		}
+
 		writing.current = true
-		try { current.onSubmit?.() } finally { writing.current = false }
+		try {
+			current.onSubmit?.()
+		} finally {
+			writing.current = false
+		}
 	}
+
 	const clear = () => {
-		const current = live.current, view = el.current
-		if (!view || !canEdit() || !current.hasClear || (current.value ?? local.current) === '' || composing(view)) return
-		const window = view.window, responder = window?.firstResponder
+		const current = live.current,
+			view = el.current
+
+		if (
+			!view ||
+			!canEdit() ||
+			!current.hasClear ||
+			(current.value ?? local.current) === '' ||
+			composing(view)
+		) {
+			return
+		}
+
+		const window = view.window,
+			responder = window?.firstResponder
+
 		// An accepted clear owns its callback pair, even if onChange replaces
 		// props or removes the field. Subsequent UI/focus work needs live ownership.
 		writing.current = true
 		try {
-			write('', current); current.onClear?.()
-		} finally { writing.current = false }
-		if (el.current !== view || !window || view.window !== window || window.firstResponder !== responder ||
-			live.current.isDisabled || live.current.isReadOnly) return
+			write('', current)
+			current.onClear?.()
+		} finally {
+			writing.current = false
+		}
+
+		if (
+			el.current !== view ||
+			!window ||
+			view.window !== window ||
+			window.firstResponder !== responder ||
+			live.current.isDisabled ||
+			live.current.isReadOnly
+		) {
+			return
+		}
+
 		const editor = nativeValue(view, 'currentEditor')
-		if (responder !== view && (!responder || responder !== editor)) handle.focus()
+		if (responder !== view && (!responder || responder !== editor)) {
+			handle.focus()
+		}
 	}
-	return { el, value: props.value ?? internal, isBlocked, change, submit, clear,
-		focus: () => { if (el.current && !live.current.isDisabled) live.current.onFocus?.() },
-		blur: () => { if (el.current) live.current.onBlur?.() },
+
+	return {
+		el,
+		value: props.value ?? internal,
+		isBlocked,
+		change,
+		submit,
+		clear,
+		focus: () => {
+			if (el.current && !live.current.isDisabled) {
+				live.current.onFocus?.()
+			}
+		},
+		blur: () => {
+			if (el.current) {
+				live.current.onBlur?.()
+			}
+		},
 	}
 }
 
@@ -82,7 +168,11 @@ function TextInputControl(inputProps: TextInputProps) @{
 	>
 		{props.startIcon != null ? (
 			<masonview className="vx-input-icon">
-				{typeof props.startIcon === 'string' ? <Icon name={props.startIcon} size={16} /> : props.startIcon}
+				{typeof props.startIcon === 'string' ? (
+					<Icon name={props.startIcon} size={16} />
+				) : (
+					props.startIcon
+				)}
 			</masonview>
 		) : null}
 		<textfield
@@ -146,14 +236,22 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 	const entry = useAppKitTextEntry<NSTextView>(props, true)
 	const { el, value, isBlocked } = entry
 
-	<masonview className="vx-textarea-shell vx-textarea-shell--appkit"
-		style={{ display: 'flex', flexDirection: 'column' }}>
+	<masonview
+		className="vx-textarea-shell vx-textarea-shell--appkit"
+		style={{ display: 'flex', flexDirection: 'column' }}
+	>
 		<textview
 			ref={el}
 			onFocus={entry.focus}
 			onBlur={entry.blur}
 			returnKeyType={props.returnKeyType}
-			onSubmit={!isBlocked && props.onSubmit && (props.returnKeyType === 'done' || props.returnKeyType === 'send') ? entry.submit : undefined}
+			onSubmit={
+				!isBlocked &&
+				props.onSubmit &&
+				(props.returnKeyType === 'done' || props.returnKeyType === 'send')
+					? entry.submit
+					: undefined
+			}
 			autoGrow={props.autoGrow}
 			maxRows={props.maxRows}
 			maxLength={props.maxLength}
@@ -172,7 +270,10 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 				props.size && `vx-textarea--size-${props.size}`,
 				props.className,
 			)}
-			style={mergeStyle(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}, props.style)}
+			style={mergeStyle(
+				props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},
+				props.style,
+			)}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
 			onTextChange={appKitTextChange(entry.change)}
@@ -191,10 +292,16 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 	</masonview>
 }
 
-
 /** An enclosing Field owns the chrome; standalone controls create it once. */
-function TextEntryField({ props, children }: { props: TextInputProps; children?: Renderable }) @{
+function TextEntryField({
+	props,
+	children,
+}: {
+	props: TextInputProps
+	children?: Renderable
+}) @{
 	const inField = useContext(FieldContext) != null
+
 	// Keep the owner stable when validation/label props appear after editing.
 	@if (!inField) {
 		<FormField
@@ -222,9 +329,13 @@ function TextEntryField({ props, children }: { props: TextInputProps; children?:
 }
 
 export function TextInput(props: TextInputProps) @{
-	<TextEntryField props={props}><TextInputControl {...props} /></TextEntryField>
+	<TextEntryField props={props}>
+		<TextInputControl {...props} />
+	</TextEntryField>
 }
 
 export function TextArea(props: TextAreaProps) @{
-	<TextEntryField props={props}><TextAreaControl {...props} /></TextEntryField>
+	<TextEntryField props={props}>
+		<TextAreaControl {...props} />
+	</TextEntryField>
 }

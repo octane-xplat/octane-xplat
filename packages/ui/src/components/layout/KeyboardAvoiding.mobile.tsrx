@@ -5,7 +5,11 @@ import { Application } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
 import type { KeyboardAvoidanceBinding } from '../../internal/keyboard/keyboard-avoidance'
 import { bindKeyboardAvoidance } from '../../internal/keyboard/keyboard-avoidance'
-import { KeyboardAvoidanceContext, KeyboardAvoidanceProvider } from '../../internal/keyboard/keyboard-avoidance-context'
+import {
+	KeyboardAvoidanceContext,
+	KeyboardAvoidanceProvider,
+} from '../../internal/keyboard/keyboard-avoidance-context'
+
 import { useConsumedInsets } from './inset-consumption'
 import type { KeyboardAvoidingProps } from '../../props'
 

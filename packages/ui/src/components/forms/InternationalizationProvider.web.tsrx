@@ -1,7 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import type { InternationalizationProviderProps } from '../../props'
-import { InternationalizationContext, resolveInternationalization } from '../../internal/platform/internationalization'
+import {
+	InternationalizationContext,
+	resolveInternationalization,
+} from '../../internal/platform/internationalization'
+
 const Provider: any = InternationalizationContext
 
 /** Replaces the nearest locale scope. Set host dir separately to mirror layout. */

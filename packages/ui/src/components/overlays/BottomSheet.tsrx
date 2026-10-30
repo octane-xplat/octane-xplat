@@ -22,7 +22,11 @@ import { rootLayoutFor } from '../layout/root-layout'
 import { createOverlayLifetime } from './overlay-lifetime'
 import { attachSheetDetents, type SheetDetentsController } from './sheet-detents'
 import { normalizeSnapPoints } from './sheet-snap'
-import { createKeyboardOverlayHost, keyboardOverlayAnimation } from '../../internal/keyboard/keyboard-overlay-host'
+import {
+	createKeyboardOverlayHost,
+	keyboardOverlayAnimation,
+} from '../../internal/keyboard/keyboard-overlay-host'
+
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal'
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
 

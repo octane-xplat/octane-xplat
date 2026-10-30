@@ -17,7 +17,9 @@ export function Switch(inputProps: SwitchProps) @{
 	const controlID = props.id ?? generatedID
 	const ownChrome = !inField
 	const size = props.size === 'sm' ? 'sm' : 'md'
-	const hasText = ownChrome && !props.isLabelHidden && (props.label != null || props.description != null)
+	const hasText =
+		ownChrome && !props.isLabelHidden && (props.label != null || props.description != null)
+
 	const [internal, setInternal] = useState(props.defaultValue ?? false)
 	const checked = props.value ?? internal
 	const localValue = useRef(internal)
@@ -29,8 +31,11 @@ export function Switch(inputProps: SwitchProps) @{
 	const bind = useCallback((view: NSView | null) => {
 		control.current = view
 		attached.current = Boolean(view)
-		if (!view) active.current = null
+		if (!view) {
+			active.current = null
+		}
 	}, [])
+
 	const loading = Boolean(props.isLoading || pending)
 	const isBlocked = props.isDisabled || props.isReadOnly || pending
 	const latest = useRef(props)
@@ -38,8 +43,13 @@ export function Switch(inputProps: SwitchProps) @{
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const toggle = () => {
 		const props = latest.current
-		if (!attached.current || props.isDisabled || props.isReadOnly || active.current) return
-		const previous = props.value ?? localValue.current, next = !previous
+		if (!attached.current || props.isDisabled || props.isReadOnly || active.current) {
+			return
+		}
+
+		const previous = props.value ?? localValue.current,
+			next = !previous
+
 		const uncontrolled = props.value === undefined
 		const token = Symbol('switch-action')
 		active.current = token // Claim before application callbacks can reenter.
@@ -48,25 +58,41 @@ export function Switch(inputProps: SwitchProps) @{
 				localValue.current = next
 				setInternal(next)
 			}
+
 			props.onChange?.(next)
 		} catch (error) {
-			if (active.current === token) active.current = null
+			if (active.current === token) {
+				active.current = null
+			}
+
 			throw error
 		}
+
 		if (!props.changeAction) {
-			if (active.current === token) active.current = null
+			if (active.current === token) {
+				active.current = null
+			}
+
 			return
 		}
+
 		// Preserve the event's save even when onChange detaches its UI owner.
-		if (attached.current && active.current === token) setPending(true)
+		if (attached.current && active.current === token) {
+			setPending(true)
+		}
+
 		const settle = (failed: boolean) => {
-			if (!attached.current || active.current !== token) return
+			if (!attached.current || active.current !== token) {
+				return
+			}
+
 			try {
 				if (failed) {
 					if (uncontrolled) {
 						localValue.current = previous
 						setInternal(previous)
 					}
+
 					props.onChange?.(previous)
 				}
 			} catch (error) {
@@ -78,44 +104,94 @@ export function Switch(inputProps: SwitchProps) @{
 				}
 			}
 		}
+
 		try {
-			Promise.resolve(props.changeAction(next)).then(() => settle(false), () => settle(true))
+			Promise.resolve(props.changeAction(next)).then(
+				() => settle(false),
+				() => settle(true),
+			)
 		} catch {
 			settle(true)
 		}
 	}
 
-	<masonview className={cx('vx-switch-field--appkit', props.className)}
-		style={mergeStyle(props.width != null ? { width: props.width } : {}, props.style)}>
-		<masonview className={cx('vx-switch-container--appkit',
-			hasText && props.labelPosition === 'start' && 'vx-switch-container--label-start',
-			props.labelSpacing === 'spread' && 'vx-switch-container--spread')}>
-			<masonview id={controlID} ref={bind} testID={props.testID}
-				className={cx('vx-switch', 'vx-switch--appkit', `vx-switch--size-${size}`,
-					checked && 'vx-switch--on', props.isDisabled && 'vx-switch--disabled',
-					props.isReadOnly && 'vx-switch--readonly', loading && 'vx-switch--loading',
-					props.status && `vx-switch--status-${props.status.type}`)}
+	<masonview
+		className={cx('vx-switch-field--appkit', props.className)}
+		style={mergeStyle(props.width != null ? { width: props.width } : {}, props.style)}
+	>
+		<masonview
+			className={cx(
+				'vx-switch-container--appkit',
+				hasText && props.labelPosition === 'start' && 'vx-switch-container--label-start',
+				props.labelSpacing === 'spread' && 'vx-switch-container--spread',
+			)}
+		>
+			<masonview
+				id={controlID}
+				ref={bind}
+				testID={props.testID}
+				className={cx(
+					'vx-switch',
+					'vx-switch--appkit',
+					`vx-switch--size-${size}`,
+					checked && 'vx-switch--on',
+					props.isDisabled && 'vx-switch--disabled',
+					props.isReadOnly && 'vx-switch--readonly',
+					loading && 'vx-switch--loading',
+					props.status && `vx-switch--status-${props.status.type}`,
+				)}
 				style={{ backgroundColor: checked ? colors.primary : colors.border }}
 				accessibilityRole="switch"
-				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+				accessibilityLabel={
+					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+				}
 				accessibilityHint={props.accessibilityHint}
-				accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly,
-					busy: loading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
-				onTap={isBlocked ? undefined : toggle}>
+				accessibilityState={{
+					checked,
+					disabled: props.isDisabled,
+					readonly: props.isReadOnly,
+					busy: loading,
+					required: props.isRequired && !props.isOptional,
+					invalid: props.status?.type === 'error',
+				}}
+				onTap={isBlocked ? undefined : toggle}
+			>
 				<masonview className="vx-switch-thumb" style={{ backgroundColor: colors.surface }}>
 					{loading ? <ActivityIndicator size="xsm" accessibilityLabel="Loading" /> : null}
 				</masonview>
 			</masonview>
-			{hasText ?
-				<AppKitLabelPress blocked={Boolean(isBlocked)} control={() => control.current} press={toggle}>
-				<FormField className={cx('vx-switch-text', size === 'sm' && 'vx-switch-text--sm')} inputID={controlID} label={props.label} description={props.description}
-					labelTooltip={props.labelTooltip} isRequired={props.isRequired} isOptional={props.isOptional}
-					isDisabled={props.isDisabled} isReadOnly={props.isReadOnly} isLoading={loading} size={size} />
-				</AppKitLabelPress> : null}
+			{hasText ? (
+				<AppKitLabelPress
+					blocked={Boolean(isBlocked)}
+					control={() => control.current}
+					press={toggle}
+				>
+					<FormField
+						className={cx('vx-switch-text', size === 'sm' && 'vx-switch-text--sm')}
+						inputID={controlID}
+						label={props.label}
+						description={props.description}
+						labelTooltip={props.labelTooltip}
+						isRequired={props.isRequired}
+						isOptional={props.isOptional}
+						isDisabled={props.isDisabled}
+						isReadOnly={props.isReadOnly}
+						isLoading={loading}
+						size={size}
+					/>
+				</AppKitLabelPress>
+			) : null}
 		</masonview>
-		{ownChrome && props.status?.message != null ? <label id={`${controlID}-status`}
-			className={cx('vx-field-status', `vx-field-status--${props.status.type}`, 'vx-field-status--detached')}
-			text={props.status.message} /> : null}
+		{ownChrome && props.status?.message != null ? (
+			<label
+				id={`${controlID}-status`}
+				className={cx(
+					'vx-field-status',
+					`vx-field-status--${props.status.type}`,
+					'vx-field-status--detached',
+				)}
+				text={props.status.message}
+			/>
+		) : null}
 	</masonview>
 }
-

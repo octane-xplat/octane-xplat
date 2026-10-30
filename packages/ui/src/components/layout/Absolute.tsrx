@@ -1,7 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { AbsoluteProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
 
 /**
  * Positioned/overlap container — the stack-in-absolute-space layer. Import from `@octane-xplat/ui`.

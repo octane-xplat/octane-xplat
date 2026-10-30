@@ -5,7 +5,12 @@ import { mergedRef } from '../../internal/accessibility/ref-list'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from '../../props'
 import type { RefreshConfig, RefreshController } from './refresh'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { layoutChildProps } from './layout-child'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'
 import { REFRESH_HEADER_HEIGHT } from './refresh-metrics'

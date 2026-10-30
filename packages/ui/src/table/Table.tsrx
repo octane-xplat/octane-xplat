@@ -13,12 +13,7 @@ import type {
 
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../components/overlays/escape-props'
-import {
-	planTableRender,
-	wrapTableContext,
-	resolveTablePlugins,
-	applyPlugins,
-} from './pipeline'
+import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
 import { TableSlot } from './table-slot'

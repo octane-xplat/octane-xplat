@@ -1,6 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import type { AvatarProps, AvatarSize, AvatarStatusDotProps, AvatarStatusDotVariant } from '../../props'
+import type {
+	AvatarProps,
+	AvatarSize,
+	AvatarStatusDotProps,
+	AvatarStatusDotVariant,
+} from '../../props'
+
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Image } from './Image'

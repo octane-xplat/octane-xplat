@@ -51,7 +51,9 @@ export function Overlay(props: OverlayProps) @{
 						data-testid={props.testID}
 						role={modal ? 'dialog' : undefined}
 						aria-modal={modal ? true : undefined}
-						aria-label={modal && !props.accessibilityLabelledBy ? props.accessibilityLabel : undefined}
+						aria-label={
+							modal && !props.accessibilityLabelledBy ? props.accessibilityLabel : undefined
+						}
 						aria-labelledby={modal ? props.accessibilityLabelledBy : undefined}
 						aria-describedby={modal ? props.accessibilityDescribedBy : undefined}
 						className="vx-overlay-content"

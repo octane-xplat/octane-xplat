@@ -1,5 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import type { AvatarProps, AvatarSize, AvatarStatusDotProps, AvatarStatusDotVariant } from '../../props'
+import type {
+	AvatarProps,
+	AvatarSize,
+	AvatarStatusDotProps,
+	AvatarStatusDotVariant,
+} from '../../props'
+
 import { styleRecord } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
 

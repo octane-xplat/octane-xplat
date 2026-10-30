@@ -28,7 +28,11 @@ import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'
 import { Icon } from '../media/Icon'
 import { Pressable } from '../actions/Pressable'
 import { Popover } from '../overlays/Popover'
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from '../../internal/rendering/busy-lane'
+import {
+	BusyLaneProvider,
+	createBusyIndicatorLane,
+	type BusyIndicatorLane,
+} from '../../internal/rendering/busy-lane'
 
 const CREATABLE_ID_PREFIX = '__xds_create__'
 

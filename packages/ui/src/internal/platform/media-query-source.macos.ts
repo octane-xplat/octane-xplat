@@ -13,7 +13,9 @@ export function createAppKitMediaQuerySource(query: string, host?: AppKitMediaQu
 		subscribe: (notify: () => void) => host?.onWindowResize?.(notify) ?? (() => {}),
 		getSnapshot: (): boolean => {
 			const size = host?.windowSize
-			if (!size) return false
+			if (!size) {
+				return false
+			}
 			return evaluateNativeMediaQuery(query, {
 				width: size.width,
 				height: size.height,

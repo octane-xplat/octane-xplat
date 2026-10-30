@@ -8,6 +8,7 @@ export interface AppKitMenuReturnOwner {
 	focusTarget(): NSView | null
 	reset(): void
 }
+
 export const AppKitMenuReturnContext = createContext<AppKitMenuReturnOwner | null>(null)
 export const AppKitMenuReturnProvider: any = AppKitMenuReturnContext
 
@@ -23,23 +24,39 @@ export function createAppKitMenuReturn(options: {
 		isOpen: () => options.open() && (options.parent?.()?.isOpen() ?? true),
 		resolveTab(backward) {
 			const parent = options.parent?.()
-			if (parent) return parent.resolveTab(backward)
-			const anchor = options.anchor(), window = anchor?.window
-			if (!anchor || !window) return null
+			if (parent) {
+				return parent.resolveTab(backward)
+			}
+			const anchor = options.anchor(),
+				window = anchor?.window
+			if (!anchor || !window) {
+				return null
+			}
 			const candidate = backward ? anchor.previousValidKeyView : anchor.nextValidKeyView
 			return candidate && candidate.window === window ? candidate : anchor
 		},
 		requestTab(target) {
-			if (!target.window) return
+			if (!target.window) {
+				return
+			}
 			requested = { target, window: target.window }
 			options.close()
 			options.parent?.()?.requestTab(target)
 		},
 		focusTarget() {
-			const parent = options.parent?.(), anchor = options.anchor()
-			if (parent) return parent.isOpen() ? anchor : parent.focusTarget()
-			return requested && requested.target.window === requested.window && anchor?.window === requested.window ? requested.target : anchor
+			const parent = options.parent?.(),
+				anchor = options.anchor()
+			if (parent) {
+				return parent.isOpen() ? anchor : parent.focusTarget()
+			}
+			return requested &&
+				requested.target.window === requested.window &&
+				anchor?.window === requested.window
+				? requested.target
+				: anchor
 		},
-		reset() { requested = null },
+		reset() {
+			requested = null
+		},
 	}
 }

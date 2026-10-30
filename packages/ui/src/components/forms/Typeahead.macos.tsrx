@@ -12,7 +12,11 @@ import { ActivityIndicator } from '../actions/controls.macos.tsrx'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Tooltip } from '../overlays/Tooltip.tsrx'
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from '../../internal/rendering/busy-lane'
+import {
+	BusyLaneProvider,
+	createBusyIndicatorLane,
+	type BusyIndicatorLane,
+} from '../../internal/rendering/busy-lane'
 
 /** The field's inline-end lane: busy Spinner, then the clear button. */
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
@@ -77,7 +81,10 @@ export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>) 
 	}
 
 	const handleClear = () => {
-		if (props.isDisabled || props.isReadOnly) return
+		if (props.isDisabled || props.isReadOnly) {
+			return
+		}
+
 		setIsEditing(false)
 		props.onChange(null)
 		inputHandle.current?.focus()

@@ -25,7 +25,12 @@ function appKitPlaceholder(placeholder: string): string | undefined {
 	return appKitImageSource(placeholder)
 }
 
-interface AppKitImageLoad { width: number; height: number; source: 'network' | 'memory' | 'disk' | 'local' }
+interface AppKitImageLoad {
+	width: number
+	height: number
+	source: 'network' | 'memory' | 'disk' | 'local'
+}
+
 interface AppKitImagePrivateEvents {
 	__appKitImageLoad?: (event: AppKitImageLoad) => void
 	__appKitImageError?: (event: { error: Error }) => void
@@ -46,16 +51,31 @@ declare module '@octane-xplat/jsx/intrinsics' {
 export function Image(props: ImageProps) @{
 	// The optional image engine passes this private field through JSX spreads;
 	// keep the shared public ImageProps contract unchanged.
-	const cachePolicy = '__appKitImageCachePolicy' in props && props.__appKitImageCachePolicy === 'none' ? 'none' : 'memory-disk'
+	const cachePolicy =
+		'__appKitImageCachePolicy' in props && props.__appKitImageCachePolicy === 'none'
+			? 'none'
+			: 'memory-disk'
+
 	const events = props as ImageProps & AppKitImagePrivateEvents
 	const [geometry, setGeometry] = useState({ width: 0, height: 0, scale: 1 })
 	const sources = Array.isArray(props.src) ? props.src : null
-	const srcString = (sources
-		? bestImageSource(sources, geometry.width, geometry.height, geometry.scale)?.uri
-		: props.src as string) ?? ''
-	const onGeometry = useMemo(() => (next: typeof geometry) => setGeometry((previous) =>
-		previous.width === next.width && previous.height === next.height && previous.scale === next.scale
-			? previous : next), [])
+	const srcString =
+		(sources
+			? bestImageSource(sources, geometry.width, geometry.height, geometry.scale)?.uri
+			: (props.src as string)) ?? ''
+
+	const onGeometry = useMemo(
+		() => (next: typeof geometry) =>
+			setGeometry((previous) =>
+				previous.width === next.width &&
+				previous.height === next.height &&
+				previous.scale === next.scale
+					? previous
+					: next,
+			),
+		[],
+	)
+
 	const src = useMemo(() => appKitImageSource(srcString), [srcString])
 	const svg = src.startsWith('data:image/svg+xml')
 	// The host paints the placeholder into the same view while a remote src
@@ -69,11 +89,15 @@ export function Image(props: ImageProps) @{
 	// intrinsic measurement/accessibility. Percentages use the free space.
 	// `decoding` is ignored — AppKit image decodes are synchronous, and remote
 	// fetches take no decode-mode hint.
-	const style = mergeStyle({
-		objectFit: props.contentFit ?? 'cover',
-		...(props.contentPosition !== undefined
-			? { objectPosition: objectPositionCSSValue(resolveContentPosition(props.contentPosition)) } : {}),
-	}, props.style)
+	const style = mergeStyle(
+		{
+			objectFit: props.contentFit ?? 'cover',
+			...(props.contentPosition !== undefined
+				? { objectPosition: objectPositionCSSValue(resolveContentPosition(props.contentPosition)) }
+				: {}),
+		},
+		props.style,
+	)
 
 	<image
 		id={props.id}

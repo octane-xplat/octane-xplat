@@ -17,13 +17,38 @@ function LightboxPanel(
 	},
 ) @{
 	const item = props.media[props.currentIndex]
-	const latest = useRef(props), stage = useRef<any>(null), viewport = useRef<any>(null)
+	const latest = useRef(props),
+		stage = useRef<any>(null),
+		viewport = useRef<any>(null)
+
 	latest.current = props
-	const gestures = useMemo(() => createAppKitLightboxGestures({ stage: () => stage.current, viewport: () => viewport.current,
-		state() { const p = latest.current, media = p.media[p.currentIndex]; return { open: p.isOpen, index: p.currentIndex, count: p.media.length, src: media?.src, image: !!media && media.type !== 'video', zoom: p.hasZoom !== false } },
-		select: (index) => latest.current.setIndex(index),
-	}), [])
-	useEffect(() => { gestures.sync() })
+	const gestures = useMemo(
+		() =>
+			createAppKitLightboxGestures({
+				stage: () => stage.current,
+				viewport: () => viewport.current,
+				state() {
+					const p = latest.current,
+						media = p.media[p.currentIndex]
+
+					return {
+						open: p.isOpen,
+						index: p.currentIndex,
+						count: p.media.length,
+						src: media?.src,
+						image: !!media && media.type !== 'video',
+						zoom: p.hasZoom !== false,
+					}
+				},
+				select: (index) => latest.current.setIndex(index),
+			}),
+		[],
+	)
+
+	useEffect(() => {
+		gestures.sync()
+	})
+
 	useEffect(() => () => gestures.dispose(), [])
 
 	<LayerDepthProvider value={props.layerDepth}>
@@ -54,9 +79,17 @@ function LightboxPanel(
 					×
 				</Button>
 			</masonview>
-			<masonview ref={stage} className="vx-lightbox-stage" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0 }}
-				onDoubleTap={item && item.type !== 'video' && props.hasZoom !== false ? () => gestures.toggleZoom() : undefined}
-				onSwipe={props.media.length > 1 ? (event) => gestures.swipe(event.direction) : undefined}>
+			<masonview
+				ref={stage}
+				className="vx-lightbox-stage"
+				style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0 }}
+				onDoubleTap={
+					item && item.type !== 'video' && props.hasZoom !== false
+						? () => gestures.toggleZoom()
+						: undefined
+				}
+				onSwipe={props.media.length > 1 ? (event) => gestures.swipe(event.direction) : undefined}
+			>
 				{item?.type === 'video' ? (
 					<xplatvideo
 						className="vx-lightbox-media"
@@ -66,7 +99,11 @@ function LightboxPanel(
 						accessibilityLabel={item?.alt}
 					/>
 				) : (
-					<scrollview ref={viewport} className="vx-lightbox-scroll" style={{ flexGrow: 1, minHeight: 0 }}>
+					<scrollview
+						ref={viewport}
+						className="vx-lightbox-scroll"
+						style={{ flexGrow: 1, minHeight: 0 }}
+					>
 						<image src={item?.src} accessibilityLabel={item?.alt} />
 					</scrollview>
 				)}

@@ -45,7 +45,10 @@ function initialValue(type: FilterValue['type']): FilterValue {
 
 function editorText(value?: FilterValue, dateOnly = false): string {
 	if (!value || !('value' in value)) {
-		if (value?.type !== 'date_absolute') return ''
+		if (value?.type !== 'date_absolute') {
+			return ''
+		}
+
 		return absoluteFilterText(value.unixSeconds, dateOnly)
 	}
 
@@ -55,47 +58,128 @@ function editorText(value?: FilterValue, dateOnly = false): string {
 export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 	const field = props.config.fields.find((x) => x.key === props.filter.field)
 	const operatorKey = props.filter.operator ?? field?.defaultOperator
-	const operator = props.filter.operator !== undefined
-		? field?.operators.find((x) => x.key === operatorKey)
-		: field?.operators.find((x) => x.key === operatorKey) ?? field?.operators[0]
+	const operator =
+		props.filter.operator !== undefined
+			? field?.operators.find((x) => x.key === operatorKey)
+			: (field?.operators.find((x) => x.key === operatorKey) ?? field?.operators[0])
+
 	const dateOnly = operator?.value.type === 'date_absolute' && !!operator.value.isDateOnly
-	const live = useRef(props); live.current = props
-	const source = useRef({ filter: props.filter, field: field?.key, operator, dateOnly, revision: 0 })
+	const live = useRef(props)
+	live.current = props
+	const source = useRef({
+		filter: props.filter,
+		field: field?.key,
+		operator,
+		dateOnly,
+		revision: 0,
+	})
+
 	const closed = useRef(false)
-	if (source.current.filter !== props.filter || source.current.field !== field?.key || source.current.operator !== operator || source.current.dateOnly !== dateOnly) {
-		source.current = { filter: props.filter, field: field?.key, operator, dateOnly, revision: source.current.revision + 1 }; closed.current = false
+	if (
+		source.current.filter !== props.filter ||
+		source.current.field !== field?.key ||
+		source.current.operator !== operator ||
+		source.current.dateOnly !== dateOnly
+	) {
+		source.current = {
+			filter: props.filter,
+			field: field?.key,
+			operator,
+			dateOnly,
+			revision: source.current.revision + 1,
+		}
+
+		closed.current = false
 	}
+
 	const revision = source.current.revision
-	const seed = () => ({ revision, text: props.filter.value?.type === operator?.value.type ? editorText(props.filter.value, dateOnly) : '', error: '' })
+	const seed = () => ({
+		revision,
+		text:
+			props.filter.value?.type === operator?.value.type
+				? editorText(props.filter.value, dateOnly)
+				: '',
+		error: '',
+	})
+
 	const draft = useRef(seed())
-	if (draft.current.revision !== revision) draft.current = seed()
+	if (draft.current.revision !== revision) {
+		draft.current = seed()
+	}
+
 	const [, rerender] = useState(0)
-	const alive = useRef(true), input = useRef<{ token: object; handle: TextInputHandle } | null>(null)
-	useEffect(() => { alive.current = true; return () => { alive.current = false; input.current = null } }, [])
+	const alive = useRef(true),
+		input = useRef<{ token: object; handle: TextInputHandle } | null>(null)
+
+	useEffect(() => {
+		alive.current = true
+		return () => {
+			alive.current = false
+			input.current = null
+		}
+	}, [])
+
 	const current = () => alive.current && !closed.current && source.current.revision === revision
 	const editable = () => current() && !live.current.isReadOnly && !live.current.filter.isReadOnly
-	const composing = () => { try { return !!input.current && hasDateComposition(input.current.handle.native) } catch { return true } }
+	const composing = () => {
+		try {
+			return !!input.current && hasDateComposition(input.current.handle.native)
+		} catch {
+			return true
+		}
+	}
+
 	const token = {}
 	const bindInput = (handle: TextInputHandle | null) => {
-		if (handle) { if (current()) input.current = { token, handle } }
-		else if (input.current?.token === token) input.current = null
+		if (handle) {
+			if (current()) {
+				input.current = { token, handle }
+			}
+		} else if (input.current?.token === token) {
+			input.current = null
+		}
 	}
+
 	const setValueText = (text: string) => {
-		if (!editable()) return
-		draft.current = { revision, text, error: '' }; rerender((n) => n + 1)
+		if (!editable()) {
+			return
+		}
+
+		draft.current = { revision, text, error: '' }
+		rerender((n) => n + 1)
 	}
-	const cancel = () => { if (current()) { closed.current = true; rerender((n) => n + 1); live.current.onCancel() } }
+
+	const cancel = () => {
+		if (current()) {
+			closed.current = true
+			rerender((n) => n + 1)
+			live.current.onCancel()
+		}
+	}
+
 	const value = operator
-		? (props.filter.value?.type === operator.value.type ? props.filter.value : initialValue(operator.value.type))
+		? props.filter.value?.type === operator.value.type
+			? props.filter.value
+			: initialValue(operator.value.type)
 		: ({ type: 'empty' } as FilterValue)
 
 	const unsupported = operator?.value.type === 'nested'
 
 	const submitted = useRef<typeof draft.current | null>(null)
 	const save = () => {
-		if (!editable() || composing() || submitted.current === draft.current || !field || !operator || unsupported || operator.value.type === 'date_range' || operator.value.type === 'entity_list') {
+		if (
+			!editable() ||
+			composing() ||
+			submitted.current === draft.current ||
+			!field ||
+			!operator ||
+			unsupported ||
+			operator.value.type === 'date_range' ||
+			operator.value.type === 'entity_list'
+		) {
 			return
 		}
+
 		const valueText = draft.current.text
 
 		let next: FilterValue = value
@@ -107,11 +191,17 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 		) {
 			next = { ...value, value: valueText } as FilterValue
 		} else if (value.type === 'integer' || value.type === 'float') {
-			if (operator.value.type !== 'integer' && operator.value.type !== 'float') return
+			if (operator.value.type !== 'integer' && operator.value.type !== 'float') {
+				return
+			}
+
 			const checked = powerSearchNumber(valueText, operator.value)
 			if (!checked.value) {
-				draft.current = { ...draft.current, error: checked.error ?? 'Enter a valid number.' }; rerender((n) => n + 1); return
+				draft.current = { ...draft.current, error: checked.error ?? 'Enter a valid number.' }
+				rerender((n) => n + 1)
+				return
 			}
+
 			next = checked.value
 		} else if (value.type === 'enum') {
 			next = { ...value, value: valueText } as FilterValue
@@ -124,70 +214,119 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 					.filter(Boolean),
 			} as FilterValue
 		} else if (value.type === 'date_absolute') {
-			if (operator.value.type !== 'date_absolute') return
+			if (operator.value.type !== 'date_absolute') {
+				return
+			}
+
 			const checked = absoluteFilterValue(valueText, operator.value, value)
 			if (!checked.value) {
-				draft.current = { ...draft.current, error: checked.error ?? 'Enter a valid UTC date.' }; rerender((n) => n + 1); return
+				draft.current = { ...draft.current, error: checked.error ?? 'Enter a valid UTC date.' }
+				rerender((n) => n + 1)
+				return
 			}
+
 			next = checked.value
 		}
 
 		const saved = draft.current
 		submitted.current = saved
-		try { live.current.onSave({ field: field.key, operator: operator.key, value: next }) }
-		catch (error) { if (submitted.current === saved) submitted.current = null; throw error }
+		try {
+			live.current.onSave({ field: field.key, operator: operator.key, value: next })
+		} catch (error) {
+			if (submitted.current === saved) {
+				submitted.current = null
+			}
+
+			throw error
+		}
 	}
+
 	const readOnly = props.isReadOnly || props.filter.isReadOnly || closed.current
-	const number = operator?.value.type === 'integer' || operator?.value.type === 'float' ? operator.value : null
+	const number =
+		operator?.value.type === 'integer' || operator?.value.type === 'float' ? operator.value : null
 
 	@if (field && operator?.value.type === 'date_range') {
 		<PowerSearchDateRangeEditor {...props} field={field} operator={operator} />
 	} @else if (field && operator?.value.type === 'entity_list') {
 		<PowerSearchEntityEditor {...props} field={field} operator={operator} />
 	} @else {
-	<masonview className="vx-power-search-editor" style={{ display: 'flex' }}>
-		<label
-			className="vx-power-search-editor-heading"
-			text={
-				field
-					? `${field.label} · ${operator ? resolveOperatorLabel(operator) : ''}`
-					: powerSearchTranslate('@astryx.powersearch.editor.field')
-			}
-		/>
-		@if (!field || !operator) { <label text="This filter field or operator is no longer available." /> }
-		{unsupported ? (
+		<masonview className="vx-power-search-editor" style={{ display: 'flex' }}>
 			<label
-				className="vx-power-search-editor-note"
-				text="Add a custom editor for this value type."
-			/>
-		) : operator && operator.value.type !== 'empty' ? (
-			<TextInput
-				ref={bindInput}
-				className="vx-power-search-editor-value"
-				label={operator.value.type === 'date_absolute' ? (dateOnly ? 'UTC date' : 'UTC date/time') : 'Value'}
-				placeholder={operator.value.type === 'date_absolute' ? (dateOnly ? '2026-10-29' : '2026-10-29T12:30:00Z') : undefined}
-				value={draft.current.text}
-				onChange={setValueText}
-				keyboardType={
-					operator.value.type === 'integer' || operator.value.type === 'float'
-						? 'number'
-						: 'default'
+				className="vx-power-search-editor-heading"
+				text={
+					field
+						? `${field.label} · ${operator ? resolveOperatorLabel(operator) : ''}`
+						: powerSearchTranslate('@astryx.powersearch.editor.field')
 				}
-				isDisabled={readOnly}
 			/>
-		) : null}
-		@if (operator?.value.type === 'date_absolute') { <label text={dateOnly ? 'Date-only values use midnight UTC.' : 'Dates use UTC. A plain date means midnight; include a time to keep hours and minutes.'} /> }
-		@if (number) { <label text={[number.units, number.minValue !== undefined ? `Minimum: ${number.minValue}` : '', number.maxValue !== undefined ? `Maximum: ${number.maxValue}` : ''].filter(Boolean).join(' · ')} /> }
-		@if (draft.current.error) { <label text={draft.current.error} accessibilityLiveRegion="polite" /> }
-		<masonview className="vx-power-search-editor-actions" style={{ display: 'flex' }}>
-			<Button label="Cancel" variant="ghost" clickAction={cancel} />
-			<Button
-				label={props.saveButtonLabel ?? 'Apply'}
-				variant="primary"
-				clickAction={save}
-				isDisabled={readOnly || unsupported || !field || !operator}
-			/>
+			@if (!field || !operator) {
+				<label text="This filter field or operator is no longer available." />
+			}
+			{unsupported ? (
+				<label
+					className="vx-power-search-editor-note"
+					text="Add a custom editor for this value type."
+				/>
+			) : operator && operator.value.type !== 'empty' ? (
+				<TextInput
+					ref={bindInput}
+					className="vx-power-search-editor-value"
+					label={
+						operator.value.type === 'date_absolute'
+							? dateOnly
+								? 'UTC date'
+								: 'UTC date/time'
+							: 'Value'
+					}
+					placeholder={
+						operator.value.type === 'date_absolute'
+							? dateOnly
+								? '2026-10-29'
+								: '2026-10-29T12:30:00Z'
+							: undefined
+					}
+					value={draft.current.text}
+					onChange={setValueText}
+					keyboardType={
+						operator.value.type === 'integer' || operator.value.type === 'float'
+							? 'number'
+							: 'default'
+					}
+					isDisabled={readOnly}
+				/>
+			) : null}
+			@if (operator?.value.type === 'date_absolute') {
+				<label
+					text={
+						dateOnly
+							? 'Date-only values use midnight UTC.'
+							: 'Dates use UTC. A plain date means midnight; include a time to keep hours and minutes.'
+					}
+				/>
+			}
+			@if (number) {
+				<label
+					text={[
+						number.units,
+						number.minValue !== undefined ? `Minimum: ${number.minValue}` : '',
+						number.maxValue !== undefined ? `Maximum: ${number.maxValue}` : '',
+					]
+						.filter(Boolean)
+						.join(' · ')}
+				/>
+			}
+			@if (draft.current.error) {
+				<label text={draft.current.error} accessibilityLiveRegion="polite" />
+			}
+			<masonview className="vx-power-search-editor-actions" style={{ display: 'flex' }}>
+				<Button label="Cancel" variant="ghost" clickAction={cancel} />
+				<Button
+					label={props.saveButtonLabel ?? 'Apply'}
+					variant="primary"
+					clickAction={save}
+					isDisabled={readOnly || unsupported || !field || !operator}
+				/>
+			</masonview>
 		</masonview>
-	</masonview>
 	}
 }

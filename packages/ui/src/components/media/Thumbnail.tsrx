@@ -3,7 +3,12 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import type { ThumbnailProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { Icon } from './Icon'
 import { Pressable } from '../actions/Pressable'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'

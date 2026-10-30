@@ -3,7 +3,12 @@ import { isAndroid, isIOS } from '@nativescript/core'
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { layoutChildProps } from '../layout/layout-child'
 import { android } from '@octane-xplat/platform/android'
 import { WEBVIEW_DRAIN_SCRIPT, parseMessageBatch } from './webview-post'

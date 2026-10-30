@@ -20,40 +20,77 @@ import { cx } from '@octane-xplat/lib'
 // The public handle uses a platform-neutral native type. Inspect the AppKit
 // control boundary before passing it to the native request owner.
 function appKitInput(view: unknown): view is NSView {
-	return typeof view === 'object' && view !== null && 'window' in view && typeof Reflect.get(view, 'currentEditor') === 'function'
+	return (
+		typeof view === 'object' &&
+		view !== null &&
+		'window' in view &&
+		typeof Reflect.get(view, 'currentEditor') === 'function'
+	)
 }
 
 export function PowerSearchView(inProps: PowerSearchViewProps) @{
 	const props = useFieldControlProps(inProps)
-	const live = useRef(props); live.current = props
+	const live = useRef(props)
+	live.current = props
 	const size = useSize(props.size, 'md')
 	const anchor = useRef<NSView | null>(null)
 	const inputHandle = useRef<TextInputHandle | null>(null)
-	const autoFocus = useMemo(() => createAppKitAutoFocus({
-		requested: () => !!live.current.hasAutoFocus,
-		blocked: () => !!live.current.isDisabled || !!live.current.isReadOnly || !!live.current.isLoading || !!live.current.editing,
-	}), [])
-	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) autoFocus.bind(null) }, [])
+	const autoFocus = useMemo(
+		() =>
+			createAppKitAutoFocus({
+				requested: () => !!live.current.hasAutoFocus,
+				blocked: () =>
+					!!live.current.isDisabled ||
+					!!live.current.isReadOnly ||
+					!!live.current.isLoading ||
+					!!live.current.editing,
+			}),
+		[],
+	)
+
+	const bindAnchor = useCallback((view: NSView | null) => {
+		anchor.current = view
+		if (!view) {
+			autoFocus.bind(null)
+		}
+	}, [])
+
 	const bindInput = useCallback((handle: TextInputHandle | null) => {
 		inputHandle.current = handle
 		const native = handle?.native
 		autoFocus.bind(appKitInput(native) ? native : null)
 		autoFocus.update()
 	}, [])
+
 	useLayoutEffect(() => {
 		const native = inputHandle.current?.native
 		autoFocus.bind(anchor.current && appKitInput(native) ? native : null)
 		autoFocus.update()
 	}, null)
+
 	useEffect(() => () => autoFocus.dispose(), [])
-	const handle = useMemo<PowerSearchHandle>(() => ({
-		focusTypeahead() { if (anchor.current && !live.current.isDisabled && !live.current.editing) inputHandle.current?.focus() },
-		blurTypeahead() { if (anchor.current) inputHandle.current?.blur() },
-	}), [])
+	const handle = useMemo<PowerSearchHandle>(
+		() => ({
+			focusTypeahead() {
+				if (anchor.current && !live.current.isDisabled && !live.current.editing) {
+					inputHandle.current?.focus()
+				}
+			},
+			blurTypeahead() {
+				if (anchor.current) {
+					inputHandle.current?.blur()
+				}
+			},
+		}),
+		[],
+	)
+
 	const { query, editing, results, internal } = props
 	const Suggestion: any = Pressable
 	const status = props.status
-	useEffect(() => { props.handleRef?.(handle) }, [props.handleRef])
+	useEffect(() => {
+		props.handleRef?.(handle)
+	}, [props.handleRef])
 
 	const Editor: any = editing
 		? (props.components?.[
@@ -175,7 +212,9 @@ export function PowerSearchView(inProps: PowerSearchViewProps) @{
 					onSave={props.onSave}
 					onCancel={() => props.onCancel()}
 					saveButtonLabel={props.popoverSaveButtonLabel}
-					isReadOnly={props.isReadOnly || props.isDisabled || props.isLoading || editing.filter.isReadOnly}
+					isReadOnly={
+						props.isReadOnly || props.isDisabled || props.isLoading || editing.filter.isReadOnly
+					}
 					timezoneID={props.timezoneID}
 				/>
 			) : null}

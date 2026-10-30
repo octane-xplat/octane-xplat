@@ -11,7 +11,11 @@ import { Token } from './Token'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'
 import { Icon } from '../media/Icon'
 import { Pressable } from '../actions/Pressable'
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from '../../internal/rendering/busy-lane'
+import {
+	BusyLaneProvider,
+	createBusyIndicatorLane,
+	type BusyIndicatorLane,
+} from '../../internal/rendering/busy-lane'
 
 /** The field's inline-end lane: busy Spinner, then the clear button. A leaf
  *  subscribing to the lane re-renders only itself per search transition. */

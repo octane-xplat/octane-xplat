@@ -12,12 +12,20 @@ import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
 import { scrollableAreaOffset } from './scrollable-area-offset.macos'
 import { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 
-function scrollableAreaHandle(viewport: { current: NSScrollView | null }, direction: () => 'ltr' | 'rtl'): ScrollableAreaHandle {
+function scrollableAreaHandle(
+	viewport: { current: NSScrollView | null },
+	direction: () => 'ltr' | 'rtl',
+): ScrollableAreaHandle {
 	return {
 		scrollToOffset: (offset, options) => {
 			const inline = Number.isFinite(offset.inline)
-				? convertAppKitInlineOffset(offset.inline!, scrollableAreaMetrics(viewport.current).maxX, direction())
+				? convertAppKitInlineOffset(
+						offset.inline!,
+						scrollableAreaMetrics(viewport.current).maxX,
+						direction(),
+					)
 				: offset.inline
+
 			scrollableAreaOffset(viewport.current, { ...offset, inline }, options?.animated === true)
 		},
 		get native() {
@@ -31,7 +39,9 @@ function scrollableAreaHandle(viewport: { current: NSScrollView | null }, direct
  * action outside the scrolling content. */
 export function ScrollableArea(props: ScrollableAreaProps) @{
 	const area = useScrollableArea({ axis: props.axis })
-	const direction = useDirection(), liveDirection = useRef(direction)
+	const direction = useDirection(),
+		liveDirection = useRef(direction)
+
 	liveDirection.current = direction
 	const rtl = direction === 'rtl'
 	const horizontal = props.axis === 'inline'

@@ -83,18 +83,27 @@ export function ColorAreaView(props: ColorAreaViewProps) @{
 		current.onHsb(clampHsb({ ...current.hsb, ...next }))
 		current.onHsbEnd()
 	}
+
 	const adjust = (dir: number) => move({ b: latest.current.hsb.b + dir * 0.05 })
 
 	const { keyboardProps } = useKeyboard({
 		onKeyDown: (event) => {
 			const current = latest.current
-			if (current.isDisabled || event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) {
+			if (
+				current.isDisabled ||
+				event.defaultPrevented ||
+				event.isComposing ||
+				event.altKey ||
+				event.ctrlKey ||
+				event.metaKey
+			) {
 				return
 			}
 
 			const step = event.shiftKey ? 0.1 : 0.01
 			let ds = 0,
 				db = 0
+
 			switch (event.key) {
 				case 'ArrowRight':
 					ds = step

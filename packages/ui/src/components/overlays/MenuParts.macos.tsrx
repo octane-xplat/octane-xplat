@@ -10,7 +10,12 @@ import type {
 import { useNavigationItem } from '../navigation/use-navigation-item.shared.tsrx'
 import { followHref } from '../navigation/nav-href.macos'
 import { useAppKitMenuRow } from './use-menu-row.macos.tsrx'
-import { AppKitMenuReturnContext, AppKitMenuReturnProvider, createAppKitMenuReturn } from './menu-return.macos'
+import {
+	AppKitMenuReturnContext,
+	AppKitMenuReturnProvider,
+	createAppKitMenuReturn,
+} from './menu-return.macos'
+
 import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type {
 	MenuItemProps,
@@ -52,13 +57,21 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 		}
 	}
 
-	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
-		disabled: Boolean(props.isDisabled), press: select })
+	const row = useAppKitMenuRow({
+		label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled),
+		press: select,
+	})
 
 	<Pressable
 		ref={props.ref ? [props.ref, row.ref] : row.ref}
 		id={props.id}
-		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
+		className={[
+			'vx-menu-item',
+			props.variant === 'destructive' && 'vx-menu-item--destructive',
+			props.isDisabled && 'vx-menu-item--disabled',
+			props.className,
+		]}
 		style={props.style}
 		accessibilityRole="menuitem"
 		disabled={props.isDisabled}
@@ -93,13 +106,21 @@ export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
 		}
 	}
 
-	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
-		disabled: Boolean(props.isDisabled), press: select })
+	const row = useAppKitMenuRow({
+		label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled),
+		press: select,
+	})
 
 	<Pressable
 		ref={props.ref ? [props.ref, row.ref] : row.ref}
 		id={props.id}
-		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
+		className={[
+			'vx-menu-item',
+			props.variant === 'destructive' && 'vx-menu-item--destructive',
+			props.isDisabled && 'vx-menu-item--disabled',
+			props.className,
+		]}
 		style={props.style}
 		accessibilityRole="menuitemcheckbox"
 		disabled={props.isDisabled}
@@ -176,13 +197,21 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 		}
 	}
 
-	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
-		disabled: Boolean(props.isDisabled || group.isDisabled), press: select })
+	const row = useAppKitMenuRow({
+		label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled || group.isDisabled),
+		press: select,
+	})
 
 	<Pressable
 		ref={props.ref ? [props.ref, row.ref] : row.ref}
 		id={props.id}
-		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', (props.isDisabled || group.isDisabled) && 'vx-menu-item--disabled', props.className]}
+		className={[
+			'vx-menu-item',
+			props.variant === 'destructive' && 'vx-menu-item--destructive',
+			(props.isDisabled || group.isDisabled) && 'vx-menu-item--disabled',
+			props.className,
+		]}
 		style={props.style}
 		accessibilityRole="menuitemradio"
 		disabled={props.isDisabled || group.isDisabled}
@@ -232,10 +261,15 @@ export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkPro
 
 	const link = useNavigationItem({ ...props, onPress: props.onSelect }, 'link')
 
-	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
-		disabled: link.disabled, press: () => {
-			if (link.activateNative(followHref) && props.hasCloseOnSelect !== false) menu.closeMenu()
-		} })
+	const row = useAppKitMenuRow({
+		label: typeof props.label === 'string' ? props.label : '',
+		disabled: link.disabled,
+		press: () => {
+			if (link.activateNative(followHref) && props.hasCloseOnSelect !== false) {
+				menu.closeMenu()
+			}
+		},
+	})
 
 	<Pressable
 		ref={props.ref ? [props.ref, row.ref] : row.ref}
@@ -245,7 +279,12 @@ export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkPro
 		accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
 		onPress={row.press}
-		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', link.disabled && 'vx-menu-item--disabled', props.className]}
+		className={[
+			'vx-menu-item',
+			props.variant === 'destructive' && 'vx-menu-item--destructive',
+			link.disabled && 'vx-menu-item--disabled',
+			props.className,
+		]}
 		style={props.style}
 	>
 		{props.icon && <Icon name={props.icon} />}
@@ -289,27 +328,72 @@ export function DropdownMenuSubMenu(
 	}
 
 	useEffect(() => {
-		if (props.isDisabled && requestedOpen) setOpen(false)
+		if (props.isDisabled && requestedOpen) {
+			setOpen(false)
+		}
 	}, [props.isDisabled, requestedOpen])
 
 	const liveReturn = useRef({ open, parent: parentReturn, close: () => setOpen(false) })
 	liveReturn.current = { open, parent: parentReturn, close: () => setOpen(false) }
-	const returnOwner = useMemo(() => createAppKitMenuReturn({ anchor: () => anchor.current,
-		open: () => liveReturn.current.open, parent: () => liveReturn.current.parent,
-		close: () => liveReturn.current.close() }), [])
-	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
-	useLayoutEffect(() => { if (open) returnOwner.reset() }, [open])
-	const closeLevel = () => { returnOwner.reset(); setOpen(false) }
-	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
-		disabled: Boolean(props.isDisabled), press: () => { returnOwner.reset(); setOpen(!open) },
-		openSubmenu: () => { returnOwner.reset(); setOpen(true) } })
-	const mergedRef = useMemo(() => props.ref ? [anchor, props.ref, row.ref] : [anchor, row.ref], [props.ref, row.ref])
+	const returnOwner = useMemo(
+		() =>
+			createAppKitMenuReturn({
+				anchor: () => anchor.current,
+				open: () => liveReturn.current.open,
+				parent: () => liveReturn.current.parent,
+				close: () => liveReturn.current.close(),
+			}),
+		[],
+	)
+
+	const finalFocus = useMemo(
+		() => ({
+			get current() {
+				return returnOwner.focusTarget()
+			},
+		}),
+		[],
+	)
+
+	useLayoutEffect(() => {
+		if (open) {
+			returnOwner.reset()
+		}
+	}, [open])
+
+	const closeLevel = () => {
+		returnOwner.reset()
+		setOpen(false)
+	}
+
+	const row = useAppKitMenuRow({
+		label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled),
+		press: () => {
+			returnOwner.reset()
+			setOpen(!open)
+		},
+		openSubmenu: () => {
+			returnOwner.reset()
+			setOpen(true)
+		},
+	})
+
+	const mergedRef = useMemo(
+		() => (props.ref ? [anchor, props.ref, row.ref] : [anchor, row.ref]),
+		[props.ref, row.ref],
+	)
 
 	<>
 		<Pressable
 			ref={mergedRef}
 			id={props.id}
-			className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
+			className={[
+				'vx-menu-item',
+				props.variant === 'destructive' && 'vx-menu-item--destructive',
+				props.isDisabled && 'vx-menu-item--disabled',
+				props.className,
+			]}
 			style={props.style}
 			accessibilityRole="menuitem"
 			disabled={props.isDisabled}
@@ -332,18 +416,18 @@ export function DropdownMenuSubMenu(
 			className="vx-menu"
 		>
 			<AppKitMenuReturnProvider value={parentReturn ? returnOwner : null}>
-			<MenuSurface
-				closeMenu={() => {
-					setOpen(false)
-					parent.closeMenu()
-				}}
-				closeLevel={closeLevel}
-				initialFocus="first"
-				label={typeof props.label === 'string' ? props.label : undefined}
-			>
-				<MenuData items={props.items} />
-				{props.children}
-			</MenuSurface>
+				<MenuSurface
+					closeMenu={() => {
+						setOpen(false)
+						parent.closeMenu()
+					}}
+					closeLevel={closeLevel}
+					initialFocus="first"
+					label={typeof props.label === 'string' ? props.label : undefined}
+				>
+					<MenuData items={props.items} />
+					{props.children}
+				</MenuSurface>
 			</AppKitMenuReturnProvider>
 		</Popover>
 	</>

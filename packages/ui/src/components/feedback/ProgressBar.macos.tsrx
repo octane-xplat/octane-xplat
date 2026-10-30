@@ -30,13 +30,16 @@ export function ProgressBar(props: ProgressBarProps) @{
 		ref={props.ref}
 		id={props.id}
 		className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)}
-		style={mergeStyle({ display: 'flex', flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}) }, props.style)}
+		style={mergeStyle(
+			{ display: 'flex', flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}) },
+			props.style,
+		)}
 		accessible={props.accessible}
 		accessibilityRole="progressbar"
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
 		accessibilityState={{ disabled: isDisabled, busy: isIndeterminate }}
-		accessibilityValue={isIndeterminate ? undefined : props.accessibilityValue ?? String(value)}
+		accessibilityValue={isIndeterminate ? undefined : (props.accessibilityValue ?? String(value))}
 		accessibilityMinValue={isIndeterminate ? undefined : 0}
 		accessibilityMaxValue={isIndeterminate ? undefined : max}
 		accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}
@@ -71,7 +74,12 @@ export function ProgressBar(props: ProgressBarProps) @{
 			className="vx-progressbar-track"
 			style={mergeStyle(
 				{ display: 'grid' },
-				{ overflow: 'hidden', borderRadius: 4, backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea', height: 8 },
+				{
+					overflow: 'hidden',
+					borderRadius: 4,
+					backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea',
+					height: 8,
+				},
 			)}
 		>
 			<masonview
@@ -84,7 +92,12 @@ export function ProgressBar(props: ProgressBarProps) @{
 						width: isIndeterminate ? '40%' : `${pct}%`,
 					},
 				)}
-				className={cx('vx-progressbar-fill', 'vx-progressbar-fill--appkit', `vx-progressbar-fill--${variant}`, isIndeterminate && 'vx-progressbar-fill--indeterminate')}
+				className={cx(
+					'vx-progressbar-fill',
+					'vx-progressbar-fill--appkit',
+					`vx-progressbar-fill--${variant}`,
+					isIndeterminate && 'vx-progressbar-fill--indeterminate',
+				)}
 			/>
 			{marks.map((mark) => {
 				const markPct = clamp(mark.value, 0, max) / max

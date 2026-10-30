@@ -28,7 +28,11 @@ import { ActivityIndicator } from '../feedback/ActivityIndicator.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Tooltip } from '../overlays/Tooltip.web.tsrx'
 import { Popover } from '../overlays/Popover.web.tsrx'
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from '../../internal/rendering/busy-lane'
+import {
+	BusyLaneProvider,
+	createBusyIndicatorLane,
+	type BusyIndicatorLane,
+} from '../../internal/rendering/busy-lane'
 
 // Sentinel prefix distinguishing "Create \"X\"" entries from real results.
 const CREATABLE_ID_PREFIX = '__xds_create__'

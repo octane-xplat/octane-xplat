@@ -17,12 +17,7 @@ import type {
 
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../components/overlays/escape-props'
-import {
-	planTableRender,
-	wrapTableContext,
-	resolveTablePlugins,
-	applyPlugins,
-} from './pipeline'
+import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
 import { TableSlot } from './table-slot'
@@ -31,8 +26,16 @@ import { refList } from '../internal/accessibility/ref-list'
 
 function cellWidthStyle(col: TableColumn<any>) {
 	const w = col.width
-	if (w?.type === 'pixel') return { width: w.value, minWidth: w.value, flexBasis: w.value, flexGrow: 0, flexShrink: 0 }
-	return { flexBasis: 0, flexGrow: w?.value ?? 1, flexShrink: 0, minWidth: w ? w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH : 0 }
+	if (w?.type === 'pixel') {
+		return { width: w.value, minWidth: w.value, flexBasis: w.value, flexGrow: 0, flexShrink: 0 }
+	}
+
+	return {
+		flexBasis: 0,
+		flexGrow: w?.value ?? 1,
+		flexShrink: 0,
+		minWidth: w ? (w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH) : 0,
+	}
 }
 
 function cellStyle(col: TableColumn<any>, extra?: Record<string, any>) {
@@ -53,8 +56,12 @@ function AppKitTableCellContent(props: { value: unknown; overflow?: TableTextOve
 			text={String(props.value)}
 			className={props.overflow != null ? 'vx-table-cell-text--appkit' : undefined}
 			maxLines={props.overflow === 'truncate' ? 1 : undefined}
-			whiteSpace={props.overflow === 'truncate' ? 'nowrap' : props.overflow === 'wrap' ? 'normal' : undefined}
-			textOverflow={props.overflow === 'truncate' ? 'ellipsis' : props.overflow === 'wrap' ? 'clip' : undefined}
+			whiteSpace={
+				props.overflow === 'truncate' ? 'nowrap' : props.overflow === 'wrap' ? 'normal' : undefined
+			}
+			textOverflow={
+				props.overflow === 'truncate' ? 'ellipsis' : props.overflow === 'wrap' ? 'clip' : undefined
+			}
 		/>
 	) : (
 		<TableSlot value={props.value} />
@@ -100,10 +107,16 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 			setViewportWidth(width)
 		}
 	}, [])
-	const bindViewport = useCallback((view: NSScrollView | null) => {
-		scrollViewport.current = view
-		if (view) measureViewport()
-	}, [measureViewport])
+
+	const bindViewport = useCallback(
+		(view: NSScrollView | null) => {
+			scrollViewport.current = view
+			if (view) {
+				measureViewport()
+			}
+		},
+		[measureViewport],
+	)
 
 	const plugins = resolveTablePlugins<T>([], pluginRecord)
 	const ctx = { density, dividers, isStriped, hasHover, verticalAlign, textOverflow }
@@ -154,21 +167,35 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
 	const tableElement = (
 		<scrollview
-			ref={refList<NSScrollView>(plan.scrollWrapper.htmlProps?.ref, bindViewport, (view) => applyEscapeProps(view, props))}
+			ref={refList<NSScrollView>(plan.scrollWrapper.htmlProps?.ref, bindViewport, (view) =>
+				applyEscapeProps(view, props),
+			)}
 			id={id}
 			orientation="horizontal"
 			onLayoutChanged={measureViewport}
 			accessibilityLabel="Table"
 			className={cx('vx-table-scroll', plan.scrollWrapper.classes)}
-			style={mergeStyle({ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100%', minWidth: 0 }, plan.scrollWrapper.htmlProps?.style)}
+			style={mergeStyle(
+				{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100%', minWidth: 0 },
+				plan.scrollWrapper.htmlProps?.style,
+			)}
 		>
 			<TableSlot value={plan.scrollWrapper.beforeTable} />
 			<masonview
 				ref={ref}
 				className={cx(tableClasses, plan.table.classes)}
 				style={mergeStyle(
-					{ display: 'flex', flexDirection: 'column', width: Math.max(viewportWidth, plan.tableMinWidth) || '100%', flexShrink: 0 },
-					[plan.table.htmlProps?.style, style, plan.tableMinWidth > 0 ? { minWidth: plan.tableMinWidth } : {}],
+					{
+						display: 'flex',
+						flexDirection: 'column',
+						width: Math.max(viewportWidth, plan.tableMinWidth) || '100%',
+						flexShrink: 0,
+					},
+					[
+						plan.table.htmlProps?.style,
+						style,
+						plan.tableMinWidth > 0 ? { minWidth: plan.tableMinWidth } : {},
+					],
 				)}
 			>
 				{plan.columns.length > 0 && (
@@ -184,7 +211,10 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 										`vx-table-cell--${density}`,
 										cell.render.classes,
 									)}
-									style={mergeStyle(cellStyle(cell.column, { display: 'flex', flexDirection: 'column' }), cell.render.htmlProps?.style ?? {})}
+									style={mergeStyle(
+										cellStyle(cell.column, { display: 'flex', flexDirection: 'column' }),
+										cell.render.htmlProps?.style ?? {},
+									)}
 								>
 									<TableSlot value={before} />
 									<masonview
@@ -237,7 +267,10 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 											cell.render.htmlProps?.style ?? {},
 										)}
 									>
-										<AppKitTableCellContent value={cell.content} overflow={cell.isDefaultRenderer ? textOverflow : undefined} />
+										<AppKitTableCellContent
+											value={cell.content}
+											overflow={cell.isDefaultRenderer ? textOverflow : undefined}
+										/>
 									</masonview>
 								))
 							)}

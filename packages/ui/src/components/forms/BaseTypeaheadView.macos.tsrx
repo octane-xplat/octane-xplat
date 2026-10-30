@@ -24,57 +24,135 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 	const busyLane = useContext(BusyLaneContext)
 	const groups = groupTypeaheadItems(props.results, { ungroupedFirst: true })
 	const selectedId = props.value?.id
-	const bindInput = useCallback((view: NSTextField | null) => { props.inputRef.current = view; accessibility.update() }, [props.inputRef])
+	const bindInput = useCallback(
+		(view: NSTextField | null) => {
+			props.inputRef.current = view
+			accessibility.update()
+		},
+		[props.inputRef],
+	)
+
 	const activeIndex =
 		props.highlightedIndex >= 0 && props.highlightedIndex < props.results.length
 			? props.highlightedIndex
 			: -1
 
-	const live = useRef(props); live.current = props
+	const live = useRef(props)
+	live.current = props
 	const rows = useRef(new Map<string, { view: NSView }>())
-	const list = useRef<NSView | null>(null), shell = useRef<NSView | null>(null)
-	const bindShell = useCallback((view: NSView | null) => { shell.current = view }, [])
+	const list = useRef<NSView | null>(null),
+		shell = useRef<NSView | null>(null)
+
+	const bindShell = useCallback((view: NSView | null) => {
+		shell.current = view
+	}, [])
+
 	const fieldBlur = (event: any) => {
-		if (!live.current.inputRef.current || appKitTypeaheadOwnsFocus([live.current.inputRef.current, shell.current, list.current])) return
+		if (
+			!live.current.inputRef.current ||
+			appKitTypeaheadOwnsFocus([live.current.inputRef.current, shell.current, list.current])
+		) {
+			return
+		}
+
 		live.current.onInputBlur?.(event)
 	}
-	const accessibility = useMemo(() => createAppKitTypeaheadAccessibility(() => {
-		const current = live.current, active = current.results[current.highlightedIndex]
-		return { input: current.inputRef.current, list: list.current, active: active ? rows.current.get(active.id)?.view ?? null : null,
-			open: current.open, blocked: !!current.isDisabled || !!current.isReadOnly }
-	}), [])
-	const bindList = useCallback((view: NSView | null) => { list.current = view; accessibility.update() }, [])
+
+	const accessibility = useMemo(
+		() =>
+			createAppKitTypeaheadAccessibility(() => {
+				const current = live.current,
+					active = current.results[current.highlightedIndex]
+
+				return {
+					input: current.inputRef.current,
+					list: list.current,
+					active: active ? (rows.current.get(active.id)?.view ?? null) : null,
+					open: current.open,
+					blocked: !!current.isDisabled || !!current.isReadOnly,
+				}
+			}),
+		[],
+	)
+
+	const bindList = useCallback((view: NSView | null) => {
+		list.current = view
+		accessibility.update()
+	}, [])
+
 	useLayoutEffect(() => accessibility.update(), null)
 	useEffect(() => () => accessibility.dispose(), [])
 	const bindRow = (id: string) => {
 		let lease: { view: NSView } | undefined
 		return (view: NSView | null) => {
-			if (view) { lease = { view }; rows.current.set(id, lease) }
-			else if (rows.current.get(id) === lease) rows.current.delete(id)
+			if (view) {
+				lease = { view }
+				rows.current.set(id, lease)
+			} else if (rows.current.get(id) === lease) {
+				rows.current.delete(id)
+			}
+
 			accessibility.update()
 		}
 	}
-	const keys = useMemo(() => createAppKitTypeaheadKeys<T>({
-		input: () => live.current.inputRef.current,
-		state: () => { const p = live.current; return { open: p.open, blocked: !!p.isDisabled || !!p.isReadOnly, query: p.query, entriesOnFocus: !!p.hasEntriesOnFocus, items: p.results, active: p.highlightedIndex } },
-		notify: (event) => live.current.onKeyDown?.(event),
-		open: () => live.current.onOpenChange(true), close: () => live.current.onOpenChange(false),
-		highlight: (index) => live.current.onHighlight?.(index), select: (item) => live.current.onSelect(item),
-	}), [])
+
+	const keys = useMemo(
+		() =>
+			createAppKitTypeaheadKeys<T>({
+				input: () => live.current.inputRef.current,
+				state: () => {
+					const p = live.current
+					return {
+						open: p.open,
+						blocked: !!p.isDisabled || !!p.isReadOnly,
+						query: p.query,
+						entriesOnFocus: !!p.hasEntriesOnFocus,
+						items: p.results,
+						active: p.highlightedIndex,
+					}
+				},
+				notify: (event) => live.current.onKeyDown?.(event),
+				open: () => live.current.onOpenChange(true),
+				close: () => live.current.onOpenChange(false),
+				highlight: (index) => live.current.onHighlight?.(index),
+				select: (item) => live.current.onSelect(item),
+			}),
+		[],
+	)
+
 	const resultsReady = useCallback(() => {
 		accessibility.update()
-		const current = live.current, item = current.results[current.highlightedIndex]
-		if (!current.open || current.isDisabled || current.isReadOnly || !item) return
-		const input = current.inputRef.current, row = rows.current.get(item.id)?.view
-		if (!input?.window || !row || row.window !== input.window) return
-		const editor = typeof input.currentEditor === 'function' ? input.currentEditor() : input.currentEditor
-		if (input.window.firstResponder === input || (editor != null && input.window.firstResponder === editor)) row.scrollRectToVisible?.(row.bounds)
+		const current = live.current,
+			item = current.results[current.highlightedIndex]
+
+		if (!current.open || current.isDisabled || current.isReadOnly || !item) {
+			return
+		}
+
+		const input = current.inputRef.current,
+			row = rows.current.get(item.id)?.view
+
+		if (!input?.window || !row || row.window !== input.window) {
+			return
+		}
+
+		const editor =
+			typeof input.currentEditor === 'function' ? input.currentEditor() : input.currentEditor
+
+		if (
+			input.window.firstResponder === input ||
+			(editor != null && input.window.firstResponder === editor)
+		) {
+			row.scrollRectToVisible?.(row.bounds)
+		}
 	}, [])
+
 	useLayoutEffect(resultsReady, [props.open, activeIndex, props.results])
 
 	<masonview
 		className={cx('vx-typeahead', props.className)}
-		ref={bindShell} onBlur={fieldBlur}
+		ref={bindShell}
+		onBlur={fieldBlur}
 		style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
 	>
 		<textfield
@@ -98,7 +176,11 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 			isEnabled={!props.isDisabled || !!props.isFocusableDisabled}
 			editable={!props.isDisabled && !props.isReadOnly}
 			accessibilityRole="combobox"
-			accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, expanded: props.open && !props.isDisabled && !props.isReadOnly }}
+			accessibilityState={{
+				disabled: props.isDisabled,
+				readonly: props.isReadOnly,
+				expanded: props.open && !props.isDisabled && !props.isReadOnly,
+			}}
 			onTextChange={appKitTextChange(props.onQueryChange)}
 		/>
 		{props.isSearching && busyLane == null ? (
@@ -107,15 +189,26 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 			</masonview>
 		) : null}
 		<TypeaheadResults
-			anchor={props.anchor} input={() => live.current.inputRef.current}
+			anchor={props.anchor}
+			input={() => live.current.inputRef.current}
 			open={props.open && !props.isDisabled && !props.isReadOnly}
-			width={props.menuWidth} placement={props.placement}
-			onDismiss={() => live.current.onOpenChange(false)} onBlur={fieldBlur} onReady={resultsReady}
+			width={props.menuWidth}
+			placement={props.placement}
+			onDismiss={() => live.current.onOpenChange(false)}
+			onBlur={fieldBlur}
+			onReady={resultsReady}
 		>
 			<masonview
 				className="vx-typeahead-list"
-				ref={bindList} accessibilityRole="listbox"
-				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label ?? 'Suggestions'}
+				ref={bindList}
+				accessibilityRole="listbox"
+				accessibilityLabel={
+					props.accessibilityLabel ??
+					props.ariaLabel ??
+					props.fieldLabel ??
+					props.label ??
+					'Suggestions'
+				}
 				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
 			>
 				{props.results.length === 0 && props.hasSearched ? (
@@ -142,8 +235,13 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 								isSelected && 'vx-typeahead-option--selected',
 							)}
 							onTap={() => props.onSelect(item)}
-							accessibilityRole="option" accessibilityLabel={item.label}
-							accessibilityState={{ selected: index === activeIndex, disabled: props.isDisabled, readonly: props.isReadOnly }}
+							accessibilityRole="option"
+							accessibilityLabel={item.label}
+							accessibilityState={{
+								selected: index === activeIndex,
+								disabled: props.isDisabled,
+								readonly: props.isReadOnly,
+							}}
 							style={mergeStyle(
 								{ flexDirection: 'row', alignItems: 'center' },
 								{ display: 'flex' },

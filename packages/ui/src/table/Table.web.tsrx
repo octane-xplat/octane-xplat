@@ -13,12 +13,7 @@ import type {
 } from '../props'
 
 import type { TableContextActions, TablePlugin, TableRenderProps } from './types'
-import {
-	applyPlugins,
-	planTableRender,
-	wrapTableContext,
-	resolveTablePlugins,
-} from './pipeline'
+import { applyPlugins, planTableRender, wrapTableContext, resolveTablePlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
 import { TableSlot } from './table-slot'

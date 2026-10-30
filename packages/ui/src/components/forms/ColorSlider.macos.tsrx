@@ -78,12 +78,20 @@ export function ColorSliderView(props: ColorSliderViewProps) @{
 		current.onHsb(clampHsb({ ...current.hsb, ...next }))
 		current.onHsbEnd()
 	}
+
 	const adjust = (dir: number) => move({ h: latest.current.hsb.h + dir * 10 })
 
 	const { keyboardProps } = useKeyboard({
 		onKeyDown: (event) => {
 			const current = latest.current
-			if (current.isDisabled || event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) {
+			if (
+				current.isDisabled ||
+				event.defaultPrevented ||
+				event.isComposing ||
+				event.altKey ||
+				event.ctrlKey ||
+				event.metaKey
+			) {
 				return
 			}
 

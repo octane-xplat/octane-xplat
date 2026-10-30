@@ -4,7 +4,12 @@ import { useMemo, useEffect, useRef, useContext } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { FormLayoutProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
 
 /** FormLayout — 'vertical' is a column with 16dip gaps. 'horizontal' is a

@@ -9,7 +9,10 @@ import { createAppKitFocusScopeManager } from '../../internal/accessibility/focu
 
 const scopes = createAppKitFocusScopeManager()
 /** @internal Current containment root; does not activate or move focus. */
-export function appKitFocusBoundary(window: NSWindow): NSView | undefined { return scopes.boundary(window) }
+export function appKitFocusBoundary(window: NSWindow): NSView | undefined {
+	return scopes.boundary(window)
+}
+
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
 hot?.dispose(() => scopes.dispose())
 
@@ -24,7 +27,9 @@ function warnUnavailableFlags(props: FocusScopeProps) {
 	for (const flag of ['contain', 'autoFocus', 'restoreFocus'] as const) {
 		if (props[flag] && !capabilities[flag] && !warnedFlags.has(flag)) {
 			warnedFlags.add(flag)
-			console.warn(`[octane-xplat] FocusScope: '${flag}' is unavailable in this AppKit host; check getFocusScopeCapabilities()`)
+			console.warn(
+				`[octane-xplat] FocusScope: '${flag}' is unavailable in this AppKit host; check getFocusScopeCapabilities()`,
+			)
 		}
 	}
 }
@@ -38,7 +43,10 @@ export function FocusScope(props: FocusScopeProps) @{
 	const forwardedRef = useMemo(() => refList<object>(root, props.ref), [props.ref])
 	useEffect(() => {
 		const view = root.current
-		if (!view) return
+		if (!view) {
+			return
+		}
+
 		applyEscapeProps(view, live.current)
 		const release = scopes.bind(view, () => live.current)
 		warnUnavailableFlags(live.current)

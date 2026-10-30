@@ -22,10 +22,17 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 	const direction = useRef(textDirection)
 	direction.current = textDirection
 	const select = (value: string) => {
-		if (props.isDisabled || props.isReadOnly) return
-		if (props.value === undefined) setInternal(value)
+		if (props.isDisabled || props.isReadOnly) {
+			return
+		}
+
+		if (props.value === undefined) {
+			setInternal(value)
+		}
+
 		props.onValueChange?.(value)
 	}
+
 	const ctx = {
 		selected: current,
 		select,
@@ -34,11 +41,22 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		size: props.size,
 		segments: segments.current,
 	}
-	useEffect(() => bindSegmentedControlKeys(() => root.current, segments.current, () => direction.current), [])
+
+	useEffect(
+		() =>
+			bindSegmentedControlKeys(
+				() => root.current,
+				segments.current,
+				() => direction.current,
+			),
+		[],
+	)
 
 	<AppKitSegmentedProvider value={ctx}>
 		<masonview
-			ref={(view: NSView | null) => { root.current = view }}
+			ref={(view: NSView | null) => {
+				root.current = view
+			}}
 			id={props.id}
 			className={cx(
 				'vx-segmented',
@@ -52,12 +70,18 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 			)}
 			style={mergeStyle({ display: 'flex' }, props.style)}
 			accessibilityRole="radiogroup"
-			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+			accessibilityLabel={
+				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+			}
 			accessibilityHint={props.accessibilityHint}
 			accessibilityState={{ disabled: props.isDisabled }}
 		>
 			@for (const option of props.options ?? []; key option.value) {
-				<SegmentedControlItem value={option.value} label={option.label} isDisabled={option.isDisabled} />
+				<SegmentedControlItem
+					value={option.value}
+					label={option.label}
+					isDisabled={option.isDisabled}
+				/>
 			}
 			{props.children}
 		</masonview>

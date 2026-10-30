@@ -17,20 +17,33 @@ export function SegmentedControlItem(props: SegmentedControlItemProps) @{
 	live.current = { props, ctx, blocked }
 	useEffect(() => {
 		const segment = view.current
-		if (!segment || !ctx) return
+		if (!segment || !ctx) {
+			return
+		}
+
 		ctx.segments.set(segment, () => ({
 			view: segment,
 			value: live.current.props.value,
 			disabled: Boolean(live.current.blocked),
 			select: () => live.current.ctx?.select?.(live.current.props.value),
 		}))
-		return () => { ctx.segments.delete(segment) }
+
+		return () => {
+			ctx.segments.delete(segment)
+		}
 	}, [ctx?.segments])
 
 	<masonview
-		ref={(element: NSView | null) => { view.current = element }}
+		ref={(element: NSView | null) => {
+			view.current = element
+		}}
 		id={props.id}
-		className={cx('vx-segment', selected && 'vx-segment--on', disabled && 'vx-segment--disabled', props.className)}
+		className={cx(
+			'vx-segment',
+			selected && 'vx-segment--on',
+			disabled && 'vx-segment--disabled',
+			props.className,
+		)}
 		style={mergeStyle({ display: 'flex' }, props.style)}
 		accessibilityRole="radio"
 		accessibilityLabel={props.label ?? props.value}
@@ -38,7 +51,9 @@ export function SegmentedControlItem(props: SegmentedControlItemProps) @{
 		onTap={blocked ? undefined : () => ctx?.select?.(props.value)}
 	>
 		@if (props.icon != null) {
-			<masonview className="vx-segment-icon" style={{ display: 'flex' }}>{props.icon}</masonview>
+			<masonview className="vx-segment-icon" style={{ display: 'flex' }}>
+				{props.icon}
+			</masonview>
 		}
 		@if (!props.isLabelHidden) {
 			<label className="vx-segment-label" text={props.label ?? props.value} />
