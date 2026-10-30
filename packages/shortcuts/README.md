@@ -1,8 +1,5 @@
 # Keyboard shortcuts
 
-> Add scoped keyboard commands, multi-step sequences, and user-recorded bindings
-> to web and experimental native desktop apps.
-
 `@octane-xplat/shortcuts` owns keyboard matching and availability; your app
 keeps its command registry, menus, labels, and saved preferences. It is separate
 from the software-keyboard layout package, `@octane-xplat/keyboard`.
