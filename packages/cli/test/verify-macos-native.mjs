@@ -56,6 +56,7 @@ const ref = new interop.Reference();
 if (sqlite3_open(':memory:', ref) !== 0) throw Error('sqlite regression');
 sqlite3_close(ref.value);
 console.log('MACOS_NATIVE_LANGUAGES_OK');
+__xplatStopHost();
 `,
 )
 
