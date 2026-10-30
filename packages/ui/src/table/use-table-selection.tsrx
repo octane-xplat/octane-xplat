@@ -13,29 +13,45 @@ import { pixel } from './column-utils'
 import { tableSlot } from './table-slot'
 
 export interface UseTableSelectionConfig<T extends Record<string, unknown>> {
+	/** Whether a row is selected. */
 	getIsItemSelected: (item: T) => boolean
+	/** Fires on row checkbox toggle with the item and its new state. */
 	onSelectItem: (event: { item: T; isSelected: boolean }) => void
+	/** Fires on the header select-all checkbox. */
 	onSelectAll: (event: { isAllSelected: boolean }) => void
+	/** Whether every selectable row is selected — drives the header checkbox. */
 	getIsAllSelected: () => boolean
+	/** Whether some but not all rows are selected — drives the header's indeterminate state. */
 	getIsIndeterminate?: () => boolean
+	/** Whether a row may be selected at all (affects header select-all coverage). */
 	getIsItemSelectable?: (item: T) => boolean
+	/** Whether a row's checkbox is interactive (dims when false). */
 	getIsItemEnabled?: (item: T) => boolean
+	/** Accessible label for a row's checkbox; defaults to the row index. */
 	getRowLabel?: (item: T) => string
 	/** Paint checked rows with the accent wash. @default true */
 	hasRowHighlight?: boolean
 }
 
 export interface UseTableSelectionStateConfig<T extends Record<string, unknown>> {
+	/** Rows the selection applies to — needed to derive all/indeterminate. */
 	data: T[]
+	/** Row identity — a field name or an extractor. */
 	idKey: (keyof T & string) | ((item: T) => string)
+	/** Whether a row may be selected at all. */
 	getIsItemSelectable?: (item: T) => boolean
+	/** Whether a row's checkbox is interactive. */
 	getIsItemEnabled?: (item: T) => boolean
+	/** Controlled selected key set. */
 	selectedKeys: Set<string>
+	/** Reports selection changes — the controlled pair for `selectedKeys`. */
 	setSelectedKeys: (keys: Set<string>) => void
 }
 
 export interface UseTableSelectionStateResult<T extends Record<string, unknown>> {
+	/** Config to pass through to `useTableSelection`. */
 	selectionConfig: UseTableSelectionConfig<T>
+	/** Selection summary for toolbars (counts, all/indeterminate). */
 	selectionState: TableSelectionState
 }
 
