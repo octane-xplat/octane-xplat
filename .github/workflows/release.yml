@@ -333,14 +333,22 @@ jobs:
           submodules: true
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      # Pending was checked before qualification ran; a parallel run may have
-      # tagged this release in the meantime.
+      # Pending was checked before qualification ran. A tag pointing at a
+      # different commit means another release owns it; a tag at TESTED_SHA
+      # means an earlier attempt published it — continue so failed steps can
+      # retry (peel annotated tags when comparing).
       - name: Confirm the release is unpublished
         id: unpublished
         run: |
-          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q .; then
-            echo "::notice::$TAG already exists on origin — another run published this release; skipping."
+          set -euo pipefail
+          remote="$(git ls-remote --tags origin "refs/tags/$TAG" "refs/tags/$TAG^{}")"
+          commit="$(echo "$remote" | grep '\^{}$' | awk '{print $1}' || true)"
+          commit="${commit:-$(echo "$remote" | head -1 | awk '{print $1}')}"
+          if [ -n "$commit" ] && [ "$commit" != "$TESTED_SHA" ]; then
+            echo "::notice::$TAG already exists on origin at $commit — another release owns this tag; skipping."
             echo "exists=true" >> "$GITHUB_OUTPUT"
+          elif [ "$commit" = "$TESTED_SHA" ]; then
+            echo "tagged=true" >> "$GITHUB_OUTPUT"
           fi
 
       # Check before publishing, reusing successful checks for up to 24 hours.
@@ -387,7 +395,9 @@ jobs:
         run: pnpm exec turbo run pack:check --filter=@octane-xplat/patches
 
       - name: Tag the release
-        if: steps.unpublished.outputs.exists != 'true'
+        if: >-
+          steps.unpublished.outputs.exists != 'true' &&
+          steps.unpublished.outputs.tagged != 'true'
         run: |
           git tag "$TAG" "$TESTED_SHA"
           git push origin "$TAG"
@@ -395,20 +405,23 @@ jobs:
       # pnpm publish (not npm): publishConfig export remapping and workspace:*
       # rewriting are pnpm behaviors. No NODE_AUTH_TOKEN/NPM_TOKEN is set —
       # pnpm mints per-package tokens from the OIDC id token via npm's trusted
-      # publishing exchange and attaches provenance automatically.
+      # publishing exchange and attaches provenance automatically. Reruns
+      # rely on recursive publish skipping versions already on the registry.
       - name: Publish to npm
         if: steps.unpublished.outputs.exists != 'true'
         run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance
 
       # The release commit consumed the pending notes into the root logs;
-      # extract rebuilds the same GitHub body from the recorded heading.
+      # extract rebuilds the same GitHub body from the recorded heading. A
+      # rerun skips this once the release already exists.
       - name: Create GitHub Release
         if: steps.unpublished.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           node scripts/release-notes.ts extract lockstep "$VERSION" > .release-notes.md
-          gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
+          gh release view "$TAG" > /dev/null 2>&1 || \
+            gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
 
       - name: Queue the next release PR
         if: steps.unpublished.outputs.exists != 'true'

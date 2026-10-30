@@ -20,8 +20,8 @@ review runs `Stable CI` on it; merging it lets `main` CI produce the release.
 If the merged commit's tree already carried Stable CI evidence, publishing
 starts immediately; otherwise `release.yml` runs the same lanes through
 `workflow_call` on the merged commit first. Between merge and tag the release
-is *pending* — `release-pr.yml` leaves the PR closed so it cannot re-preview
-a version that is already shipping.
+is *pending* — `release-pr.yml` neither rebuilds nor reopens the release PR
+until the tag lands.
 
 The nightly decision compares the newest green `main` CI revision with the
 published `@octane-xplat/ui` `nightly` dist-tag. It publishes only when no
@@ -117,7 +117,11 @@ headings (`release-notes.ts extract`), and queues the next release PR. Manual
 accepts an optional tsrx-typegen version override; it still requires evidence
 for the exact revision. The lockstep version override lives on
 `release-pr.yml`'s `version` dispatch input (`auto` returns to inference).
-Publishing stays in `release.yml` for the existing npm trust binding.
+Publishing stays in `release.yml` for the existing npm trust binding. If
+lockstep publication fails after tagging, use **Re-run failed jobs** on that
+release run — a fresh run will not retry because the tag ends the pending
+state, while the rerun resumes after the tag and skips already-published
+packages.
 
 Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
 have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a
