@@ -10269,10 +10269,13 @@ Building the packaged app also needed each rich-text package's
   [NativeScript/runtimes#101](https://github.com/NativeScript/runtimes/pull/101)
   lands and the pin moves past it.
 
-The metadata generator cannot be built for x86_64, because Xcode 27's and the
-Command Line Tools' `libclang` are arm64-only. That is an Apple toolchain
-constraint, not a NativeScript one. Native leaves therefore require an Apple
-Silicon build Mac.
+The x86_64 metadata-generator probe failed to link against the `libclang`
+candidates in the tested Apple Silicon Xcode 27 / Command Line Tools
+installation. This does not establish that an Intel Mac's own Xcode or LLVM
+installation lacks x86_64 libclang. The shipped generator remains arm64-only,
+and the CLI rejects Intel native-leaf build hosts. [Issue #80](https://github.com/octane-xplat/octane-xplat/issues/80)
+tracks qualifying an Intel toolchain, distributing its generator and lifting
+that restriction. Intel runtime support is already demonstrated above.
 
 Planned shape, pending that probe: universal (arm64 + x86_64) binaries and one
 `.app`/`.dmg`, with per-architecture metadata files selected by the host at
@@ -10319,3 +10322,55 @@ pnpm check:docs
 pnpm check:doc-examples
 pnpm check:changelog
 ```
+
+
+### Smoke stall investigation after migration (2026-10-29)
+
+The authorized dev-mode comparison first exposed two current-`main` compile
+failures. Commit `763bd6134` adapts the AppKit WebView message to the shared
+`{ data, url }` payload and restores the files export leaf's missing
+`MIME_EXTENSIONS` import. UI and files declaration generation then passed.
+Targeted WebView and smoke-runner lint passed; files lint still reports eight
+pre-existing brace-rule errors outside the import change.
+
+The first runtime attempt did not launch its host: its 120-second deadline
+expired while compiling native leaves. Commit `9166ff625` adds an explicit
+cold-build timeout override, preserving the 120-second default and all 30
+required assertions:
+
+```sh
+XPLAT_MACOS_SMOKE_TIMEOUT_MS=600000 pnpm exec turbo run smoke --filter=@xplat/macos
+```
+
+Nonvisual samples of the previously packaged app on Apple Silicon macOS 27.2
+showed active JavaScript/native work during startup. At about 96 seconds the
+main thread was inside `NSWindow.recalculateKeyViewLoop` and Mason subtree
+layout, not parked waiting for a host timer. A temporary bundle that skipped
+that call reached the AppKit event loop but still spent its run in native
+layout and produced no smoke summary in 100 seconds. This is diagnostic
+evidence, not a production workaround or a root-cause conclusion. The original
+Counter-route stall remains unqualified. Raw samples and temporary bundles
+are local under `research/smoke-stall/`; Turbo output is in
+`/tmp/appkit-dev-smoke{,2,3,4}.log`.
+
+The 600000ms dev run built and launched the host with 13 native leaf
+libraries. It eventually passed Home mount and Home counter assertions, then
+stopped progressing after dispatching the Apps-tab action. The resource broker
+cancelled the workload with `resource workload cancelled or task ownership
+lost` before a final summary. This is an interrupted run, not a 30-assertion
+pass or a timeout result. `dev.sample.txt` shows active Mason work during
+startup; `dev-idle.sample.txt` shows AppKit constraint updating after the tab
+action. A low instantaneous CPU reading alone does not prove a timer failure.
+
+Broad checks remain outside the narrowly authorized stall investigation; no
+new merge qualification is claimed. Before integration, run:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/files --filter=...@xplat/macos
+```
+
+No public API or recipe behavior changed in these compile and harness fixes.
+The native input, VoiceOver, presentation and notarization gaps above remain
+open. Local Silo feedback preserves the compile and cold-deadline expectation
+mismatches (`a7b30cd8-bfd1-4319-bd57-ddd17a53b01c`,
+`53a5dcff-3031-42a2-8cc3-ad8983818de7`).
