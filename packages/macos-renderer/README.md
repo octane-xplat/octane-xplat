@@ -265,12 +265,19 @@ import { registerStylesheet } from '@octane-xplat/macos-renderer'
 registerStylesheet('promo', '.promo { background-color: #fde68a; }')
 ```
 
-Linear-gradient backgrounds support direction keywords, degree angles, colors,
-and percentage stops. The gradient resizes with its view. Image URLs, radial
-and repeating gradients, and multiple background layers remain unsupported.
+Background layers paint in CSS order under the border: comma-separated
+`url()` images and `linear`/`radial`/`conic` gradients (including
+`repeating-` variants) with per-layer `background-repeat`, `-position`,
+`-size`, `-origin` and `-clip`. The `background` shorthand resets
+unmentioned longhands and carries the layer color to `background-color`.
+`url()` images composite at the window's backing scale through the shared
+image decoder. `background-attachment`, `background-blend-mode` and
+`background-clip: text` warn and stay unsupported.
 
 ```css
 .fade { background-image: linear-gradient(to right, #152b36, transparent); }
+.stripes { background: repeating-linear-gradient(45deg, #f5a623 0 8px, #fff 8px 16px); }
+.card { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0)), url(~/card.png); background-size: auto, cover; }
 ```
 
 Labels honor `padding` (the text insets and the box grows), `letter-spacing`
@@ -278,8 +285,11 @@ on plain and formatted text, and italic `font-style`. `visibility: hidden` keeps
 slot while suppressing paint and input; `visibility: collapse` drops it.
 `cursor` pushes the matching AppKit cursor while the pointer is inside the
 view (`none` hides it); `user-select` toggles `selectable` on labels and
-html views. `outline`/`outline-*` draws a solid ring outside the border edge,
-so a `:focus` or `:focus-visible` rule can draw a focus ring.
+html views. `outline`/`outline-*` draws a ring outside the border edge —
+solid keeps the CALayer border path, `dashed`/`dotted` stroke a centered
+path, and `double`/`groove`/`ridge`/`inset`/`outset` paint the same shaded
+per-side bands decorative borders use on the expanded outline box, so a
+`:focus` or `:focus-visible` rule can draw a focus ring.
 
 ```css
 .caption { padding: 2px 6px; letter-spacing: 0.5px; font-style: italic; }
@@ -337,9 +347,9 @@ captured cleanup, releases late handles after replacement and permits later
 registration/update attempts after failure. Other frame readers retain their
 notification-enable flags. Native stroke/dash/NSNumber bridging, geometry,
 corner/side joins, scale/antialiasing, shadow/clipping interaction, notification
-ordering, memory and installed apps remain unqualified. Twelve source cases and
-an idle fixture are authored, all unrun. Non-solid outlines keep their existing
-approximation; see [decorative borders](#decorative-borders) for the other styles.
+ordering, memory and installed apps remain unqualified. Outlines reuse the
+same machinery on the expanded outline box; see
+[decorative borders](#decorative-borders) for the band styles.
 This is not full CSS border/outline or pixel parity. See [AppKit borders](../../docs/app/styling.md#appkit-borders).
 
 ### Decorative borders
@@ -372,9 +382,10 @@ Current limits:
   pointer focus on other views does not match. Real pointer, keyboard and focus
   delivery has not been checked on a running Mac.
 - Media queries are re-checked when the appearance or the stylesheets change
-  and when a host window resizes (coalesced into one restyle). Width and height
-  come from a single viewport, the largest host window's content area, so a
-  secondary window cannot have its own media results.
+  and when a host window resizes (coalesced into one restyle). Each node
+  resolves against the window it paints into — a portal target's window
+  for portal content, the container's host window otherwise — so multiple
+  windows get independent media results.
 - Matched keyframes now have a shared sampler/timer source path. Explicit
   animation:none/animation-name:none resets earlier accumulated tracks; this
   is not full browser animation-cascade parity. AppKit busy-control rules use
@@ -383,13 +394,15 @@ Current limits:
   remain unqualified.
 - Border styles support solid, dashed, dotted, double, groove, ridge, inset,
   outset, none and hidden, including side-specific styles; unknown styles warn
-  and paint solid. Non-solid outlines remain a separate gap; see
-  [patterned borders](#patterned-borders) and
+  and paint solid. Outlines paint the same styles on the expanded outline
+  box; see [patterned borders](#patterned-borders) and
   [decorative borders](#decorative-borders).
-- `box-shadow` paints one outset shadow (first entry; spread grows the
-  silhouette) and drops the view's corner clip while it is in effect — the
-  same CALayer constraint UIKit has. The first `inset` entry approximates as
-  an inner ring and ignores blur.
+- `box-shadow` paints every list entry. Outset shadows live on sibling
+  layers below the view's layer so corner clipping stays on; a root view
+  with no superview keeps the self-layer fallback and the clip trade-off.
+  `inset` shadows carry real blur, offset and spread through an
+  even-odd wall/hole silhouette whose layer shadow is clipped to the
+  interior.
 - `transform` composes onto `CALayer.transform` in NS order (translate,
   rotate, rotateX/Y with a default 300pt perspective, scale); percent
   translates resolve against the element's own size and resync on resize.

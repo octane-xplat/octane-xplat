@@ -263,8 +263,10 @@ side-specific styles keep separate widths and colors:
 
 `none` and `hidden` remove a side's paint and its border width from the native
 layout. Removing a style declaration restores the existing native default:
-explicit width without a style paints solid. Non-solid `outline` styles remain
-a separate limitation:
+explicit width without a style paints solid. `outline`/`outline-*` paints the
+same style vocabulary on the expanded outline box — solid, dashed and dotted
+stroke or band the ring; double, groove, ridge, inset and outset shade
+per-side bands like the borders below:
 
 ```css
 .no-border { border-style: none; }
