@@ -13,6 +13,7 @@ import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { createAppKitSelectKeyboard } from './select-keyboard.macos'
 import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
+import { Icon } from '../media/Icon.macos.tsrx'
 import { Popover } from '../overlays/Popover.macos.tsrx'
 import { TextSlot } from './text-slot'
 
@@ -480,7 +481,7 @@ export function SelectView(props: SelectViewProps): unknown @{
 									current.onPick(choice)
 								}}
 							>
-								<label text="×" />
+								<Icon name="xplat-clear" size={12} />
 							</Pressable>
 						</masonview>
 					}
@@ -502,13 +503,15 @@ export function SelectView(props: SelectViewProps): unknown @{
 					accessibilityLabel={translate('@astryx.selector.clearLabel')}
 					onPress={props.onClear}
 				>
-					<label text="×" />
+					<Icon name="xplat-clear" size={12} />
 				</Pressable>
 			) : null}
 			{busy ? (
 				<label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite'} />
 			) : null}
-			{!props.isReadOnly ? <label className="vx-select-caret" text="▾" /> : null}
+			{!props.isReadOnly ? (
+				<Icon name="xplat-chevron-down" className="vx-select-caret" size={14} />
+			) : null}
 		</masonview>
 		<Popover
 			anchor={anchor}
@@ -561,7 +564,7 @@ export function SelectView(props: SelectViewProps): unknown @{
 									search.current?.window?.makeFirstResponder(search.current)
 								}}
 							>
-								<label text="×" />
+								<Icon name="xplat-clear" size={12} />
 							</Pressable>
 						) : null}
 					</masonview>

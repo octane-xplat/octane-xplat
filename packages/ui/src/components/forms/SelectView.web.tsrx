@@ -2,6 +2,7 @@
 import { useTranslator } from '../../internal/platform/internationalization'
 import { useEffect, useId, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
+import { Icon } from '../media/Icon.web.tsrx'
 import { Popover } from '../overlays/Popover.web.tsrx'
 import { BottomSheet } from '../overlays/BottomSheet.web.tsrx'
 import { useMediaQuery } from '../../internal/platform/use-media-query.web'
@@ -257,7 +258,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
 										}
 									}}
 								>
-									×
+									<Icon name="xplat-clear" size={12} />
 								</button>
 							</span>
 						)
@@ -284,7 +285,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
 						anchor.current?.focus()
 					}}
 				>
-					×
+					<Icon name="xplat-clear" size={12} />
 				</button>
 			) : null}
 			{busy ? (
@@ -293,9 +294,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
 				</span>
 			) : null}
 			{!props.isReadOnly ? (
-				<span className="vx-select-caret" aria-hidden="true">
-					▾
-				</span>
+				<Icon name="xplat-chevron-down" className="vx-select-caret" size={14} />
 			) : null}
 		</div>
 		{props.htmlName
@@ -356,7 +355,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
 							}}
 							onKeyDown={(event: KeyboardEvent) => onKey(event, true)}
 						>
-							×
+							<Icon name="xplat-clear" size={12} />
 						</button>
 					) : null}
 				</div>

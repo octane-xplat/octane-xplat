@@ -5,6 +5,7 @@ import type { InputNumberProps, TextInputHandle } from '../../props'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
 import { hasDateComposition } from './date-composition.macos'
+import { Icon } from '../media/Icon.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -134,7 +135,7 @@ function InputNumberControl(
 				onPress={() => request({ kind: 'step', direction: -1 })}
 				accessibilityLabel="Decrement"
 			>
-				<label text="−" />
+				<Icon name="xplat-minus" size={14} />
 			</Pressable>
 		) : null}
 		<TextInput
@@ -164,7 +165,7 @@ function InputNumberControl(
 				onPress={() => request({ kind: 'step', direction: 1 })}
 				accessibilityLabel="Increment"
 			>
-				<label text="+" />
+				<Icon name="xplat-plus" size={14} />
 			</Pressable>
 		) : null}
 		{props.hasClear && value != null && !isBlocked ? (
@@ -173,7 +174,7 @@ function InputNumberControl(
 				accessibilityLabel="Clear value"
 				onPress={() => request({ kind: 'clear' })}
 			>
-				<label text="×" />
+				<Icon name="xplat-clear" size={12} />
 			</Pressable>
 		) : null}
 	</masonview>

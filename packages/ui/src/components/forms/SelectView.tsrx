@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
 import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon'
 import { Popover } from '../overlays/Popover'
 import { TextInput } from './TextInput.tsrx'
 import { FieldProvider } from './field-context'
@@ -63,13 +64,15 @@ export function SelectView(props: SelectViewProps): unknown @{
 					accessibilityLabel={translate('@astryx.selector.clearLabel')}
 					onPress={props.onClear}
 				>
-					<label text="×" />
+					<Icon name="xplat-clear" size={12} />
 				</Pressable>
 			) : null}
 			{busy ? (
 				<label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite'} />
 			) : null}
-			{!props.isReadOnly ? <label className="vx-select-caret" text="▾" /> : null}
+			{!props.isReadOnly ? (
+				<Icon name="xplat-chevron-down" className="vx-select-caret" size={14} />
+			) : null}
 		</Pressable>
 		<Popover
 			anchor={anchor}
@@ -113,7 +116,7 @@ export function SelectView(props: SelectViewProps): unknown @{
 								search.current?.focus?.()
 							}}
 						>
-							<label text="×" />
+							<Icon name="xplat-clear" size={12} />
 						</Pressable>
 					) : null}
 				</masonview>

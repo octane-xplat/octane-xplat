@@ -5,6 +5,7 @@ import type { InputNumberProps } from '../../props'
 import { useSize } from '../layout/size-context'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { Icon } from '../media/Icon'
 import { TextInput } from './TextInput.tsrx'
 import { Pressable } from '../actions/Pressable'
 
@@ -61,7 +62,7 @@ export function InputNumber(props: InputNumberProps): unknown @{
 			onPress={() => stepBy(-1)}
 			accessibilityLabel="Decrement"
 		>
-			<label text="−" />
+			<Icon name="xplat-minus" size={14} />
 		</Pressable>
 		<TextInput
 			className="vx-inputnumber-field"
@@ -85,7 +86,7 @@ export function InputNumber(props: InputNumberProps): unknown @{
 			onPress={() => stepBy(1)}
 			accessibilityLabel="Increment"
 		>
-			<label text="+" />
+			<Icon name="xplat-plus" size={14} />
 		</Pressable>
 	</masonview>
 }

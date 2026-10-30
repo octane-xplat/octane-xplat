@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import type { InputNumberProps } from '../../props'
 import { useSize } from '../layout/size-context'
 import { applyEscapeProps } from '../overlays/escape-props'
+import { Icon } from '../media/Icon.web.tsrx'
 import { TextInput } from './TextInput.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
@@ -76,7 +77,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element @{
 				onPress={() => stepBy(-1)}
 				accessibilityLabel="Decrement"
 			>
-				<span>−</span>
+				<Icon name="xplat-minus" size={14} />
 			</Pressable>
 		) : null}
 		<TextInput
@@ -107,7 +108,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element @{
 				onPress={() => stepBy(1)}
 				accessibilityLabel="Increment"
 			>
-				<span>+</span>
+				<Icon name="xplat-plus" size={14} />
 			</Pressable>
 		) : null}
 		{props.hasClear && value != null && !isBlocked ? (
@@ -117,7 +118,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element @{
 				aria-label="Clear value"
 				onClick={clear}
 			>
-				{'×'}
+				<Icon name="xplat-clear" size={12} />
 			</button>
 		) : null}
 	</div>
