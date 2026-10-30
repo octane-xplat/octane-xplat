@@ -334,7 +334,7 @@ export async function runTarget(target, args, onResult, signal) {
 				join(repo, 'packages/cli/src/macos/native.ts')
 			)
 
-			const { hostBundle, validateHostBundle } = await import(
+			const { hostBundle, macOSHostArch, validateHostBundle } = await import(
 				join(repo, 'packages/cli/src/macos/jsc-host/runtime.ts')
 			)
 
@@ -380,7 +380,7 @@ export async function runTarget(target, args, onResult, signal) {
 				[
 					join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 					join(project.root, 'dist/shell.cjs'),
-					artifact.metadata,
+					artifact.metadata[macOSHostArch()],
 					bootstrap,
 				],
 				{
