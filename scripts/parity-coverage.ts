@@ -12,7 +12,7 @@ import ts from 'typescript'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const errors: string[] = []
-const ALL_TARGETS = ['web', 'ios', 'android', 'macos']
+const ALL_TARGETS = ['web', 'ios', 'android', 'macos', 'windows']
 const REQUIRED_TARGETS = ['web', 'ios', 'android']
 
 // These renderer-file exports are helpers, not component roots. Every other

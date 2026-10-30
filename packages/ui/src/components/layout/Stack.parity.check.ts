@@ -42,7 +42,7 @@ export const CHECKS: ParityCheck[] = [
 	},
 	{
 		fixture: 'stack-overlay-offset',
-		targets: ['web', 'windows'],
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
 		elements: {
 			root: 'parity-stack-root',
 			base: 'parity-stack-base',

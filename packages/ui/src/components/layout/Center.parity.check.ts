@@ -4,7 +4,7 @@ import { near, dims } from '../../parity/check-helpers.ts'
 export const CHECKS: ParityCheck[] = [
 	{
 		fixture: 'center-fixed-child',
-		targets: ['web', 'windows'],
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
 		elements: {
 			root: 'parity-center-root',
 			child: 'parity-center-child',
