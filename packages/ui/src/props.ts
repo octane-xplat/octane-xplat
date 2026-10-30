@@ -81,7 +81,7 @@ export type HostedComponent<TParams = unknown> = ComponentFunction<HostedCompone
 export type ScreenComponent = ComponentFunction<Record<string, unknown>>
 
 /** A route layout component — renders the route subtree through `children`. */
-export type LayoutComponent = ComponentFunction<{ children?: Renderable }>
+export type LayoutComponent = ComponentFunction<{ /** Route subtree rendered inside the layout. */ children?: Renderable }>
 
 // ---------- gestures ----------
 
@@ -4999,7 +4999,7 @@ export type RouteResolution =
 			/** Resolved URL. */
 			href: string
 	  }
-	| Extract<RoutePreparationResult, { status: 'not-found' | 'invalid-input' }>
+	| Extract<RoutePreparationResult, { /** Matched discriminator — the URL resolved to a route. */ status: 'not-found' | 'invalid-input' }>
 
 declare const validatedDestinationTypes: unique symbol
 /** Opaque, instance-bound destination produced by validateDestination(). Pass
@@ -5027,7 +5027,7 @@ export type DestinationValidationResult<Value = ValidatedDestination> =
 			/** Resolved URL for the destination. */
 			href: string
 	  }
-	| Extract<RoutePreparationResult, { status: 'not-found' | 'invalid-input' | 'cancelled' }>
+	| Extract<RoutePreparationResult, { /** Valid discriminator — the destination passed validation. */ status: 'not-found' | 'invalid-input' | 'cancelled' }>
 	| {
 			/** Failed discriminator — validation threw. */
 			status: 'failed'
@@ -5045,7 +5045,7 @@ export type RoutePreloadResult =
 			/** Resolved URL that was preloaded. */
 			href: string
 	  }
-	| Extract<RoutePreparationResult, { status: 'not-found' | 'invalid-input' | 'cancelled' }>
+	| Extract<RoutePreparationResult, { /** Preloaded discriminator — module and data are warm. */ status: 'not-found' | 'invalid-input' | 'cancelled' }>
 	| {
 			/** Failed discriminator — preload threw. */
 			status: 'failed'
@@ -5099,7 +5099,7 @@ export interface RouteSearchSchema<Input = unknown, Output = unknown> {
 		readonly types?: { readonly input: Input; readonly output: Output }
 		/** Validates a raw value; returns the typed output or issues. */
 		readonly validate: (value: unknown) =>
-			| { readonly value: Output; readonly issues?: undefined }
+			| { readonly value: Output; /** Validation failures reported by the schema. */ readonly issues?: undefined }
 			| {
 					/** Validation failures reported by the schema. */
 					readonly issues: readonly {
@@ -5110,7 +5110,7 @@ export interface RouteSearchSchema<Input = unknown, Output = unknown> {
 					}[]
 			  }
 			| Promise<
-					| { readonly value: Output; readonly issues?: undefined }
+					| { readonly value: Output; /** Validation failures reported by the schema. */ readonly issues?: undefined }
 					| {
 							/** Validation failures reported by the schema. */
 							readonly issues: readonly {
@@ -5324,7 +5324,7 @@ export type DestinationFor<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > = Name extends unknown
-	? Contracts[Name] extends { params: infer Params; searchInput: infer Input }
+	? Contracts[Name] extends { /** Params shape inferred from the destination contract. */ params: infer Params; /** Search-input shape inferred from the destination contract. */ searchInput: infer Input }
 		? {
 				/** Destination route name — constrained by the Contracts generic. */
 				to: Name
@@ -5354,7 +5354,7 @@ export type Destination<
  */
 export type RouteScreenProps<Source> =
 	Source extends RouteContract<infer Params, any, infer Search, infer Data, infer Context>
-		? { params: Params; search: Search; data: Data; context: Context }
+		? { /** Resolved params delivered to the screen factory. */ params: Params; /** Validated search delivered to the screen factory. */ search: Search; /** Loader data delivered to the screen factory. */ data: Data; /** Merged context delivered to the screen factory. */ context: Context }
 		: Source extends { readonly [routeDefinitionTypes]: infer Contract }
 			? RouteScreenProps<Contract>
 			: Source extends {
@@ -5420,7 +5420,7 @@ export interface RouteDefinitionArgs<Path extends string, Validator, Context> {
  * Ordinary interfaces need no string index signature. Runtime preparation also
  * rejects arrays and non-plain objects before loading.
  */
-export type RouteGuardResult = (object & { readonly then?: never }) | void
+export type RouteGuardResult = (object & { /** Thenable-poisoning guard — a Result must not satisfy PromiseLike. */ readonly then?: never }) | void
 
 type InferredRouteCallbackSearch<Validator> = [RouteSearchOutput<Validator>] extends [never]
 	? Record<string, unknown>
@@ -5547,7 +5547,7 @@ type ContractForSpec<Spec, Baked = Record<string, unknown>> = Spec extends {
 	readonly [routeDefinitionTypes]: infer Contract
 }
 	? Contract
-	: Spec extends { path: infer Path extends string }
+	: Spec extends { /** Route path pattern. */ path: infer Path extends string }
 		? FileRouteContract<
 				Path,
 				Spec,
@@ -5626,7 +5626,7 @@ export type ContractRouteManifest = RouteManifest & {
 /** Reject erased catalog views at boundaries that depend on their contracts. */
 export type KnownRouteCatalog<Catalog> =
 	unknown extends ContractsOf<Catalog>
-		? { readonly 'Preserve the inferred catalog type': never }
+		? { /** Compile-time guard against widening the catalog. */ readonly 'Preserve the inferred catalog type': never }
 		: unknown
 
 type KeysOfRouteMaps<Maps> = Maps extends unknown ? keyof Maps : never
@@ -5663,10 +5663,10 @@ export type ContractsOf<Value> = Value extends {
 }
 	? Contracts
 	: Value extends {
-				readonly [specRouteTypes]: { contracts: infer Contracts }
+				readonly [specRouteTypes]: { /** Route contracts captured for inference. */ contracts: infer Contracts }
 		  }
 		? Contracts
-		: Value extends { readonly [routeDefinitionTypes]: unknown; path: string }
+		: Value extends { readonly [routeDefinitionTypes]: unknown; /** Path key inside the contract map. */ path: string }
 			? ContractEntry<Value>
 			: {}
 
@@ -5686,7 +5686,7 @@ export type RouteRootContext<Value> = Value extends (...args: any[]) => infer Co
 declare const routeGroupTypes: unique symbol
 /** Parent lifecycle metadata. Create groups with defineRouteGroup. */
 export interface RouteGroup<Context = RouteContext, Root = Context> {
-	readonly [routeGroupTypes]: { readonly context: Context; readonly rootContext: Root }
+	readonly [routeGroupTypes]: { /** Context contributed by this group. */ readonly context: Context; /** Root context the group merges over. */ readonly rootContext: Root }
 }
 
 type FileGroupContext<Module> = Module extends { group: RouteGroup<infer Context, any> }
@@ -5726,9 +5726,9 @@ export type FileRouteLoaderArgs<
 
 /** Build-only sibling output. Generated contracts reference the module through
  * types only; runtime catalogs never import or execute it. */
-export type RouteBakedLoaderData<Module> = Module extends { loader: (...args: any[]) => infer Data }
+export type RouteBakedLoaderData<Module> = Module extends { /** Named loader export captured from the module. */ loader: (...args: any[]) => infer Data }
 	? Awaited<Data>
-	: Module extends { default: (...args: any[]) => infer Data }
+	: Module extends { /** Default export captured from the module. */ default: (...args: any[]) => infer Data }
 		? Awaited<Data>
 		: unknown
 
@@ -5826,15 +5826,15 @@ export type RouteMatchFor<
  * boundary automatically for the rendering entry. */
 export type RouterMatch<Contracts = RegisteredRouteContracts> =
 	| ([FiniteRoutePath<keyof Contracts & string>] extends [never]
-			? PreparedRouteMatch & { readonly contract: 'declared' }
+			? PreparedRouteMatch & { /** Declared-route discriminator. */ readonly contract: 'declared' }
 			: RouteMatchFor<Contracts>)
-	| (PreparedRouteMatch & { readonly contract: 'runtime' })
+	| (PreparedRouteMatch & { /** Runtime/manifest-route discriminator. */ readonly contract: 'runtime' })
 
 /** Animation settlement is independent from a successful navigation commit. */
 export type RouteTransitionResult =
-	| { status: 'completed' }
-	| { status: 'skipped'; reason: 'disabled' | 'reduced-motion' | 'unsupported' | 'interrupted' }
-	| { status: 'failed'; error: unknown }
+	| { /** Completed discriminator — the transition finished. */ status: 'completed' }
+	| { /** Skipped discriminator — no transition ran. */ status: 'skipped'; /** Why the transition was skipped. */ reason: 'disabled' | 'reduced-motion' | 'unsupported' | 'interrupted' }
+	| { /** Failed discriminator — the transition errored. */ status: 'failed'; /** The thrown failure value. */ error: unknown }
 
 /** Motion receives prepared matches; it cannot decide when navigation commits. */
 export interface RouteTransitionContext {
@@ -5896,8 +5896,8 @@ export interface AppKitTransitionOptions {
 /** Platform leaves return the same definition contract. A skipped leaf is an
  * explicit fallback for a target without the application's visual effect. */
 export type TransitionDefinition =
-	| { readonly kind: 'web'; readonly options: Readonly<WebTransitionOptions> }
-	| { readonly kind: 'skip' }
+	| { /** Web view-transition discriminator. */ readonly kind: 'web'; /** View-transition options for the web leaf. */ readonly options: Readonly<WebTransitionOptions> }
+	| { /** Skip discriminator — no transition runs. */ readonly kind: 'skip' }
 	| NativeTransitionDefinition
 
 declare const nativeTransitionTypes: unique symbol
@@ -5928,11 +5928,11 @@ export type NavigationResult<Contracts = RegisteredRouteContracts> =
 			/** Resolves when the transition animation completes. */
 			finished: Promise<RouteTransitionResult>
 	  }
-	| Exclude<RoutePreparationResult, { status: 'ready' }>
-	| { status: 'failed'; phase: 'commit'; error: unknown }
-	| { status: 'blocked'; reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
-	| { status: 'unsupported'; operation: string }
-	| { status: 'at-base' | 'not-modal' | 'unmatched' }
+	| Exclude<RoutePreparationResult, { /** Committed discriminator for navigation outcomes. */ status: 'ready' }>
+	| { /** Ready discriminator — the navigation prepared successfully. */ status: 'failed'; /** Phase that failed (commit). */ phase: 'commit'; /** The thrown failure value. */ error: unknown }
+	| { /** Failed discriminator — the navigation threw during commit. */ status: 'blocked'; /** Why the host could not commit. */ reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
+	| { /** Blocked discriminator — a blocker is holding the navigation. */ status: 'unsupported'; /** Operation the host rejected. */ operation: string }
+	| { /** Unsupported discriminator — the host cannot perform the action. */ status: 'at-base' | 'not-modal' | 'unmatched' }
 
 /** A navigation refusal or failure suitable for local recovery UI. Error
  * objects remain local; expected missing/forbidden outcomes need no exception. */
@@ -5964,7 +5964,7 @@ export type NavigationDestinationSnapshot = Omit<
  * if (navigation.status === 'failed') console.error(navigation.result.status)
  */
 export type RouterNavigationState =
-	| { readonly status: 'idle' }
+	| { /** `pending` while a navigation is in flight. */ readonly status: 'idle' }
 	| {
 			/** `pending` while a navigation is in flight. */
 			readonly status: 'pending'
@@ -6001,7 +6001,7 @@ export interface NavigationBlockerOptions {
  * if (blocker.status === 'blocked') blocker.reset()
  */
 export type NavigationBlockerState =
-	| { readonly status: 'idle' }
+	| { /** `blocked` — a guard is holding the navigation pending a decision. */ readonly status: 'idle' }
 	| {
 			/** `blocked` — a guard is holding the navigation pending a decision. */
 			readonly status: 'blocked'
@@ -6097,7 +6097,7 @@ export interface RouterNavigator<
 		/** Navigation target to preload. */
 		destination: NavigationDestination<Contracts, Stacks, Transitions>,
 		/** `signal` aborts the preload. */
-		options?: { signal?: RouteCancellationSignal },
+		options?: { /** Aborts the navigation when the signal fires. */ signal?: RouteCancellationSignal },
 	): Promise<RoutePreloadResult>
 	/** Check raw values and the route's async search schema without loading data.
 	 * Successful navigation always rechecks the current catalog and guards.
@@ -6110,7 +6110,7 @@ export interface RouterNavigator<
 		/** Raw destination value to check. */
 		value: unknown,
 		/** `signal` aborts the validation. */
-		options?: { signal?: RouteCancellationSignal },
+		options?: { /** Aborts the navigation when the signal fires. */ signal?: RouteCancellationSignal },
 	): Promise<DestinationValidationResult>
 	/** Current router state for external stores. */
 	getSnapshot(): RouterState<Contracts>
@@ -6173,13 +6173,13 @@ export interface RouterPaneProps<Contracts, Stacks extends string, Transitions e
 export type RouteSearchUpdater<Contracts, Name extends keyof Contracts & string> = (
 	/** New search value, or an updater receiving the previous validated search. */
 	search:
-		| (Contracts[Name] extends { searchInput: infer Input } ? Input : never)
+		| (Contracts[Name] extends { /** Search-input shape captured for the updater signature. */ searchInput: infer Input } ? Input : never)
 		| ((
 				/** The rendering entry's previous validated search. */
 				previous: Readonly<RouteMatchFor<Contracts, Name>['search']>,
-		  ) => Contracts[Name] extends { searchInput: infer Input } ? Input : never),
+		  ) => Contracts[Name] extends { /** Search-input shape captured for the updater signature. */ searchInput: infer Input } ? Input : never),
 	/** `replace: false` creates a Back destination instead of replacing the history entry (default). */
-	options?: { replace?: boolean },
+	options?: { /** `false` creates a Back destination instead of replacing the entry. */ replace?: boolean },
 ) => Promise<NavigationResult<Contracts>>
 
 /** Reads are inferred together from one route identity. A hook throws when
@@ -6363,7 +6363,7 @@ export interface RouterHostCommand {
 	 * accepted navigation; disposal and external traversal can still abort it. */
 	beginCommit(): boolean
 	/** Cancels unaccepted readiness/staging waits without fabricating an AbortSignal. */
-	cancellation?: Promise<Extract<RouterHostResult, { status: 'cancelled' }>>
+	cancellation?: Promise<Extract<RouterHostResult, { /** Cancelled discriminator — the command was superseded. */ status: 'cancelled' }>>
 	/** Adapter composition barrier. After host-specific staging and claiming a
 	 * commit, await this before history/visibility mutation and recheck ownership and
 	 * isCurrent. For example, close a presenter-owned modal only after a candidate
@@ -6379,7 +6379,7 @@ export type RouterHostResult =
 			 * releases the source host queue before committing the new owner. */
 			status: 'handoff'
 			/** The ready preparation result — routes, content, and transition resolved. */
-			prepared: Extract<RouterHostPreparation, { status: 'ready' }>
+			prepared: Extract<RouterHostPreparation, { /** Committed discriminator for host results. */ status: 'ready' }>
 			/** History action applied on commit (push/replace/refresh). */
 			action: 'push' | 'replace' | 'refresh'
 			/** Hook fired immediately before the host mutates state. */
@@ -6393,11 +6393,11 @@ export type RouterHostResult =
 			/** Resolves when the transition completes. */
 			finished?: Promise<RouteTransitionResult>
 	  }
-	| { status: 'blocked'; reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
-	| { status: 'unsupported'; operation: string }
-	| { status: 'cancelled'; reason: 'superseded' | 'disposed' | 'aborted' | 'registry-changed' }
-	| Exclude<RoutePreparationResult, { status: 'ready' }>
-	| { status: 'failed'; phase: 'commit'; error: unknown }
+	| { /** Blocked discriminator — the host is holding the command. */ status: 'blocked'; /** Why the host could not commit. */ reason?: 'host-not-ready' | 'missing-outlet' | 'at-base' | 'busy' }
+	| { /** Unsupported discriminator — the host cannot perform the action. */ status: 'unsupported'; /** Operation the host rejected. */ operation: string }
+	| { /** Cancelled discriminator — the command was superseded. */ status: 'cancelled'; /** Why the command was cancelled. */ reason: 'superseded' | 'disposed' | 'aborted' | 'registry-changed' }
+	| Exclude<RoutePreparationResult, { /** Ready discriminator — the host committed. */ status: 'ready' }>
+	| { /** Failed discriminator — commit threw. */ status: 'failed'; /** Phase that failed (commit). */ phase: 'commit'; /** The thrown failure value. */ error: unknown }
 
 /** @internal Prepared retained content; never a URL or serialized host payload. */
 export type RouterHostPreparation =
@@ -6415,9 +6415,9 @@ export type RouterHostPreparation =
 			/** True when a guard redirected during preparation. */
 			redirected: boolean
 	  }
-	| Exclude<RoutePreparationResult, { status: 'ready' }>
-	| { status: 'unsupported'; operation: string }
-	| { status: 'failed'; phase: 'commit'; error: unknown }
+	| Exclude<RoutePreparationResult, { /** Ready discriminator for host preparations. */ status: 'ready' }>
+	| { /** Unsupported discriminator — the host cannot prepare the command. */ status: 'unsupported'; /** Operation the host rejected. */ operation: string }
+	| { /** Failed discriminator — preparation threw. */ status: 'failed'; /** Phase that failed (commit). */ phase: 'commit'; /** The thrown failure value. */ error: unknown }
 
 /** Platform boundary for an isolated instance. Core never reads browser globals,
  * Frames, or renderer state. Adapters declare history/reset capabilities rather
@@ -6718,7 +6718,7 @@ export type NavLinkProps<
 			NoInfer<Stacks>,
 			NoInfer<Transitions>
 	  >
-	| { to: ValidatedDestination }
+	| { /** Validated destination for the link. */ to: ValidatedDestination }
 ) &
 	NavLinkOptions & {
 		/** Infer destinations from an explicitly owned instance, when supplied. */
@@ -6739,7 +6739,7 @@ export type NavigationTargetProps<
 					NoInfer<Stacks>,
 					NoInfer<Transitions>
 			  >
-			| { to: ValidatedDestination }
+			| { /** Unused on the `href` variant — `to` discriminates the route-name form. */ to: ValidatedDestination }
 	  ) & {
 			/** Router instance to navigate with (defaults to the provider's). */
 			router?: RouterInstance<Contracts, Stacks, Transitions>
@@ -6789,7 +6789,7 @@ export type NavigationLinkTargetProps<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > = NavigationTargetProps<Contracts, Stacks, Transitions> &
-	({ href: string } | { to: string | ValidatedDestination })
+	({ /** Raw URL — bypasses router resolution. */ href: string } | { /** Route name or validated destination — `to` discriminates the router form. */ to: string | ValidatedDestination })
 
 /** Route identity to screen component table owned by a canonical catalog. */
 export type ScreenTable = Record<string, ScreenComponent>
@@ -6802,7 +6802,7 @@ type RoutePlatform = 'web' | 'ios' | 'android' | 'mobile' | 'macos' | 'windows' 
  *  pattern used for web path matching/substitution. */
 export interface RouteMeta {
 	/** @internal Generated module identity; caches code only, never prepared inputs. */
-	loadModule?: () => Promise<{ meta: RouteMeta; screen: ScreenComponent }>
+	loadModule?: () => Promise<{ /** Route metadata entry. */ meta: RouteMeta; /** Screen component for the route. */ screen: ScreenComponent }>
 	/** Route name derived from the path. */
 	name: string
 	/** Generated file availability; platform readiness and authorization remain runtime checks. */
@@ -7194,9 +7194,9 @@ export type ManifestRouteParams<M> = M extends { readonly [routeCatalogTypes]: i
 				Path in keyof Contracts & string as {} extends Record<Path, never>
 					? never
 					: RouteNameOfPath<Path>
-			]: Contracts[Path] extends { params: infer Params } ? Params : never
+			]: Contracts[Path] extends { /** Param record captured for manifest inference. */ params: infer Params } ? Params : never
 		}
-	: M extends { readonly [specRouteTypes]: { params: infer P } }
+	: M extends { readonly [specRouteTypes]: { /** Param record captured for manifest inference. */ params: infer P } }
 		? P
 		: {}
 
@@ -7207,7 +7207,7 @@ export type ManifestRouteNames<M> = keyof ManifestRouteParams<M> & string
 /** name → presentation map extracted from a `defineRoutes` manifest brand — `{}` for untagged manifests.
  */
 export type ManifestRoutePresentations<M> = M extends {
-	readonly [specRouteTypes]: { presentations: infer P }
+	readonly [specRouteTypes]: { /** Presentation map captured for manifest inference. */ presentations: infer P }
 }
 	? P
 	: {}
@@ -7243,7 +7243,7 @@ export interface OpenWindowOptions {
 	/** Requested window title. Desktop hosts may apply or ignore it. */
 	title?: string
 	/** Requested content size in px/dips; hosts may clamp. */
-	size?: { width: number; height: number }
+	size?: { /** Requested window width in px. */ width: number; /** Requested window height in px. */ height: number }
 	/** Owning window for 'dialog'/'popup' kinds — a `WindowHandle` returned
 	 *  by `openWindow` or the host's own window/controller object.
 	 *  @default the host's key window */
@@ -7275,7 +7275,7 @@ export interface WindowHandle {
 	setTitle?(title: string): void
 	/** Resize the window's content area. Present only on hosts that support
 	 *  resizing (macOS, Linux, script-opened web popups). */
-	setSize?(size: { width: number; height: number }): void
+	setSize?(size: { /** Current window width in px. */ width: number; /** Current window height in px. */ height: number }): void
 	/** Veto a user-initiated close request — the callback returning false
 	 *  cancels the close. Present only on hosts that report close requests
 	 *  (macOS). Returns an unsubscribe function. */
@@ -7286,9 +7286,9 @@ export interface WindowHandle {
 
 /** Every started run settles once, including replacement and host failure. */
 export type AnimationResult =
-	| { status: 'finished' }
-	| { status: 'cancelled' }
-	| { status: 'failed'; error: unknown }
+	| { /** Finished discriminator — the animation completed. */ status: 'finished' }
+	| { /** Cancelled discriminator — the animation was interrupted. */ status: 'cancelled' }
+	| { /** Failed discriminator — the animation threw. */ status: 'failed'; /** The thrown failure value. */ error: unknown }
 
 /**
  * Value returned by `useAnimation(initial, prop)`. On web, `prop` supports
@@ -7309,9 +7309,9 @@ export interface AnimatedValue {
 	/** Attach to a shared view ref; pass null to detach and cancel. */
 	ref(el: HostElement): void
 	/** Duration is milliseconds. Invalid inputs throw before replacing playback. */
-	to(target: number, opts?: { duration?: number }): Promise<AnimationResult>
+	to(target: number, opts?: { /** Tween duration in ms for `to`-style updates. */ duration?: number }): Promise<AnimationResult>
 	/** Animates toward `target` with spring physics. */
-	spring(target: number, opts?: { damping?: number; stiffness?: number }): Promise<AnimationResult>
+	spring(target: number, opts?: { /** Spring damping — higher settles sooner with less overshoot. */ damping?: number; /** Spring stiffness — higher tracks faster. */ stiffness?: number }): Promise<AnimationResult>
 	/** Halts the current animation at its latest value. */
 	stop(): void
 }
@@ -9286,10 +9286,10 @@ export interface TokenProps {
 
 /** Change metadata passed to Tokenizer's `onChange`. */
 export type TokenizerChange<T extends SearchableItem = SearchableItem> =
-	| { item: T; type: 'add' }
-	| { item: T; type: 'create' }
-	| { item: T; type: 'remove' }
-	| { type: 'reorder' }
+	| { /** Item the change applies to. */ item: T; /** Add discriminator — an existing item was chosen. */ type: 'add' }
+	| { /** Item the change applies to. */ item: T; /** Create discriminator — a new item was minted from the query. */ type: 'create' }
+	| { /** Item the change applies to. */ item: T; /** Remove discriminator — the item was deleted. */ type: 'remove' }
+	| { /** Reorder discriminator — item positions changed. */ type: 'reorder' }
 
 /** Astryx name for `FieldControlSize` on `Tokenizer`.
  */
@@ -9650,7 +9650,7 @@ export interface CheckboxListItemProps {
  */
 /** One `BreadcrumbItem menu` option — a labeled action or a divider row
  *  (Astryx `BreadcrumbMenuOption`). */
-export type BreadcrumbMenuOption = { label: string; onClick?: () => void } | { type: 'divider' }
+export type BreadcrumbMenuOption = { /** Text shown for the menu entry. */ label: string; /** Handler fired when the entry is chosen. */ onClick?: () => void } | { /** Divider discriminator — renders a separator instead of an entry. */ type: 'divider' }
 
 /** `Breadcrumbs` trail visual weight (Astryx `variant`). */
 export type BreadcrumbsVariant = 'default' | 'supporting'
@@ -10651,7 +10651,7 @@ export interface BannerProps {
 	container?: 'banner' | 'section'
 	/** Body content collapse behavior (Astryx): true/{defaultIsOpen} wraps
 	 *  children behind a toggle; false keeps them always visible. */
-	collapsible?: boolean | { defaultIsOpen?: boolean }
+	collapsible?: boolean | { /** Initial visibility for uncontrolled usage. */ defaultIsOpen?: boolean }
 	/** Content rendered inside the element. */
 	children?: Renderable
 	/** Shows a dismiss affordance and fires on its activation. */
@@ -10719,7 +10719,7 @@ export interface ProgressGroupProps {
 	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
 	/** Progress entries rendered as labeled bars. */
-	items: { key: string; label?: string; value: number; max?: number }[]
+	items: { /** Stable key for the entry. */ key: string; /** Text shown beside the bar. */ label?: string; /** Current progress value. */ value: number; /** Value that fills the bar (default 100). */ max?: number }[]
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	/** Platform-specific properties are applied after shared props. */
@@ -11004,7 +11004,7 @@ export type ChatToolCallItem = ChatToolCallItemBase &
 				/** Unused on completed calls — `status` discriminates. */
 				errorMessage?: never
 		  }
-		| { status: 'pending' | 'running'; duration?: never; errorMessage?: never }
+		| { /** Completion discriminator for the call. */ status: 'pending' | 'running'; /** Unused on failed calls — `status` discriminates. */ duration?: never; /** Unused while in flight — `status` discriminates. */ errorMessage?: never }
 		| {
 				/** Error discriminator for the call. */
 				status: 'error'
@@ -11055,7 +11055,7 @@ export interface ChatToolCallsProps {
 
 /** Composer status line shown under the field — `{ type: 'error' | 'warning', message? }`.
  */
-export type ChatComposerStatus = { type: 'error' | 'warning'; message?: string }
+export type ChatComposerStatus = { /** Severity of the status line. */ type: 'error' | 'warning'; /** Status text shown. */ message?: string }
 
 /** Portable key event for the composer input — the seam for app-specific key
  *  handling. `native` carries the platform event (KeyboardEvent on web).
@@ -11364,7 +11364,7 @@ export interface ChatComposerInputProps {
 	onPaste?: (event: ChatComposerPasteEvent, text: string) => boolean | void
 	/** Long-paste → token conversion; pass a useChatPasteAsToken result to
 	 *  customize, false to disable. Web only — native has no paste event. */
-	pasteAsToken?: { onPaste: (event: ChatComposerPasteEvent, text: string) => boolean } | false
+	pasteAsToken?: { /** Paste interceptor — return false to take over insertion (e.g. tokenize). */ onPaste: (event: ChatComposerPasteEvent, text: string) => boolean } | false
 	/** File drop/paste (web only — see ChatComposerFile). */
 	onFiles?: (files: ChatComposerFile[]) => void
 	/** Send action — called with the serialized draft text. */
@@ -11791,7 +11791,7 @@ export interface UseSpeechRecognitionOptions {
 	/** Fires with each final transcript. */
 	onResult?: (transcript: string) => void
 	/** Fires on recognition errors. */
-	onError?: (error: { error: string; message?: string }) => void
+	onError?: (error: { /** Platform error code from the recognizer. */ error: string; /** Human-readable error detail when provided. */ message?: string }) => void
 	/** Fires when capture begins. */
 	onStart?: () => void
 	/** Fires when capture ends (natural or stopped). */
@@ -13070,8 +13070,8 @@ export type ResizablePercentSize = {
 	/** Percentage of the container (0–100). */
 	readonly value: number
 } & (
-	| { readonly min: ResizablePixelSize; readonly max?: never }
-	| { readonly min?: never; readonly max: ResizablePixelSize }
+	| { /** Pixel floor for the percent size. */ readonly min: ResizablePixelSize; /** Unused with `min` — the two bounds are exclusive. */ readonly max?: never }
+	| { /** Unused with `max` — the two bounds are exclusive. */ readonly min?: never; /** Pixel ceiling for the percent size. */ readonly max: ResizablePixelSize }
 )
 
 /** A resizable size: numeric dips (CSS pixels on web), exact `Npx`/`N%`
@@ -13981,8 +13981,8 @@ export interface OperatorTokenizationConfig {
 /** One endpoint of a `DateTimeRange` — `NOW`, an `ABSOLUTE` instant (`unixSeconds`), or `RELATIVE` (`backValue`+`unit`, optional `anchorKey`).
  */
 export type DateTimeRangePart =
-	| { readonly type: 'NOW' }
-	| { readonly type: 'ABSOLUTE'; readonly unixSeconds: number }
+	| { /** Relative-part discriminator (vs an absolute instant). */ readonly type: 'NOW' }
+	| { /** Now-anchor discriminator — the part resolves to the current instant. */ readonly type: 'ABSOLUTE'; /** The instant as Unix seconds. */ readonly unixSeconds: number }
 	| {
 			/** Relative-part discriminator (vs an absolute instant). */
 			readonly type: 'RELATIVE'
@@ -14448,7 +14448,7 @@ type PowerSearchFieldFilter<D extends FieldDefinition> = D extends {
 									/** Date ordering operators for this field type. */
 									readonly operator: 'is' | 'is_not'
 									/** Single-enum operand narrowed to the field's values. */
-									readonly value: { readonly type: 'enum'; readonly value: EnumValuesOf<D> }
+									readonly value: { /** Field type captured for narrowing. */ readonly type: 'enum'; /** Operand shape for the field/operator pair. */ readonly value: EnumValuesOf<D> }
 								}
 							: T extends 'enum_list'
 								? {
@@ -15085,8 +15085,8 @@ export interface TimestampBaseProps {
  */
 export type TimestampProps = TimestampBaseProps &
 	(
-		| { value: ISOInstantString; valueUnit?: never }
-		| { value: number; valueUnit: TimestampValueUnit }
+		| { /** Timestamp as an ISO instant string. */ value: ISOInstantString; /** Unused with ISO strings — the unit only applies to numeric values. */ valueUnit?: never }
+		| { /** Timestamp as a number in `valueUnit`. */ value: number; /** Unit for the numeric timestamp (s/ms/etc.). */ valueUnit: TimestampValueUnit }
 	)
 
 /** Timer duration text modes: 'elapsed' = "4m 05s" / 'clock' = "4:05". */
@@ -15393,12 +15393,12 @@ export interface OutlineProps {
  * @see MdDoc — canonical import '@octane-xplat/ui/markdown'.
  */
 export type MdInline =
-	| { t: 'text'; text: string }
-	| { t: 'code'; text: string }
-	| { t: 'bold'; children: MdInline[] }
-	| { t: 'em'; children: MdInline[] }
-	| { t: 'strike'; children: MdInline[] }
-	| { t: 'link'; text: string; href: string }
+	| { /** Text-node tag. */ t: 'text'; /** Literal text content. */ text: string }
+	| { /** Inline-code tag. */ t: 'code'; /** Code content — not re-parsed. */ text: string }
+	| { /** Bold tag. */ t: 'bold'; /** Nested inline content. */ children: MdInline[] }
+	| { /** Emphasis tag. */ t: 'em'; /** Nested inline content. */ children: MdInline[] }
+	| { /** Strikethrough tag. */ t: 'strike'; /** Nested inline content. */ children: MdInline[] }
+	| { /** Link tag. */ t: 'link'; /** Link text. */ text: string; /** Link destination. */ href: string }
 
 /** One block in a Markdown doc. `MdNode` covers what the renderer lowers to
  *  shared primitives; `MdInline` covers text runs inside paragraphs, lists,
@@ -15407,10 +15407,10 @@ export type MdInline =
  * @see MdDoc, MdInline — canonical import '@octane-xplat/ui/markdown'.
  */
 export type MdNode =
-	| { t: 'h'; depth: 1 | 2 | 3 | 4 | 5 | 6; children: MdInline[] }
-	| { t: 'p'; children: MdInline[] }
-	| { t: 'code'; lang?: string; text: string }
-	| { t: 'list'; ordered: boolean; items: MdInline[][]; checked?: (boolean | null)[] }
+	| { /** Table-node tag. */ t: 'h'; /** Heading level 1–6. */ depth: 1 | 2 | 3 | 4 | 5 | 6; children: MdInline[] }
+	| { /** Heading tag. */ t: 'p'; children: MdInline[] }
+	| { /** Paragraph tag. */ t: 'code'; /** Language hint for syntax highlighting. */ lang?: string; /** Raw code content. */ text: string }
+	| { /** Code-block tag. */ t: 'list'; /** Ordered (numbered) vs unordered list. */ ordered: boolean; /** List items — each an array of inline content. */ items: MdInline[][]; /** Task-list checkbox state per item; null = not a task item. */ checked?: (boolean | null)[] }
 	| {
 			/** Table-node tag. */
 			t: 'table'
@@ -15421,8 +15421,8 @@ export type MdNode =
 			/** Per-column alignment from the delimiter row. */
 			align: ('left' | 'center' | 'right')[]
 	  }
-	| { t: 'quote'; children: MdInline[] }
-	| { t: 'hr' }
+	| { /** List tag. */ t: 'quote'; children: MdInline[] }
+	| { /** Blockquote tag. */ t: 'hr' }
 
 /** A parsed Markdown document — the versioned AST (`kind: 'octane-xplat/md'`, `v: 1`) produced by `parseMdDoc`/`createMarkdownStreamParser` and consumed by `Markdown`'s `data` prop. Canonical import: `@octane-xplat/ui/markdown` (root re-export is a migration alias).
  *
@@ -16500,7 +16500,7 @@ export interface BreadcrumbItemProps {
 /** Static UI message catalogs. ICU formatting is not part of this subset. */
 export type InternationalizationMessages = Record<
 	string,
-	Readonly<Record<string, string | { defaultMessage: string }>>
+	Readonly<Record<string, string | { /** Fallback text when the active locale lacks the key. */ defaultMessage: string }>>
 >
 
 /** Locale/catalog scope for built-in Selector and Pagination static strings.
