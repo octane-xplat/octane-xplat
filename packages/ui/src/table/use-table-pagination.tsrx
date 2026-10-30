@@ -9,22 +9,33 @@ import { Pagination } from '../components/collections/Pagination'
 import { View } from '../components/layout/View'
 import { TableSlot, tableSlot } from './table-slot'
 
+/** Pagination plugin config — controlled page state plus pager presentation options. */
 export interface UseTablePaginationConfig {
 	/** Current page number (1-based). */
 	page: number
+	/** Reports requested page changes — the controlled pair for `page`. */
 	onPageChange: (page: number) => void
+	/** Total row count — renders the "N items" summary. */
 	totalItems?: number
+	/** Total page count — required by numbered-page variants. */
 	totalPages?: number
+	/** Marks server-paged data where the last page is unknown — next stays enabled. */
 	hasMore?: boolean
+	/** Rows per page, when a page-size selector is shown. */
 	pageSize?: number
+	/** Reports page-size changes — the controlled pair for `pageSize`. */
 	onPageSizeChange?: (pageSize: number) => void
+	/** Choices shown by the page-size selector. */
 	pageSizeOptions?: number[]
+	/** Pager presentation; 'none' renders no pager. */
 	variant?: 'pages' | 'count' | 'compact' | 'dots' | 'none'
+	/** Pager control size. */
 	size?: 'sm' | 'md'
 	/** @default 'below' */
 	position?: 'below' | 'above' | 'both' | 'none'
 	/** @default 'center' */
 	align?: 'start' | 'center' | 'end'
+	/** Accessible label for the pager region. */
 	label?: string
 }
 

@@ -32,10 +32,13 @@ export interface DefineThemeInput {
 
 /** A resolved theme: name plus the flat token map a scope stamps. */
 export interface DefinedTheme {
+	/** Theme name — drives the `xds-theme-<name>` scope class. */
 	readonly name: string
+	/** Flat token map a scope stamps — flattened base + overrides. */
 	readonly tokens: Record<string, TokenValue>
 }
 
+/** Type guard for the resolved-theme shape (name + token map). */
 export function isDefinedTheme(value: unknown): value is DefinedTheme {
 	return (
 		typeof value === 'object' &&
@@ -65,6 +68,7 @@ export function defineTheme(input: DefineThemeInput): DefinedTheme {
 
 const registry = new Map<string, DefinedTheme>()
 
+/** Registers a theme for `getRegisteredTheme`/`getRegisteredThemes` lookup — `defineTheme` already calls it. */
 export function registerTheme(theme: DefinedTheme): void {
 	if (!isDefinedTheme(theme)) {
 		return
@@ -72,10 +76,12 @@ export function registerTheme(theme: DefinedTheme): void {
 	registry.set(theme.name, theme)
 }
 
+/** Looks up a registered theme by name. */
 export function getRegisteredTheme(name: string | null | undefined): DefinedTheme | undefined {
 	return name == null ? undefined : registry.get(name)
 }
 
+/** Every registered theme, in registration order. */
 export function getRegisteredThemes(): readonly DefinedTheme[] {
 	return [...registry.values()]
 }
@@ -92,6 +98,7 @@ export function resetThemes(): void {
 // =============================================================================
 
 export interface ResolveThemeTokensOptions {
+	/** Which side of `[light, dark]` token pairs to resolve. */
 	mode: 'light' | 'dark'
 }
 
@@ -172,6 +179,7 @@ function resolveReferences(resolved: Record<string, string>): Record<string, str
 /** Concrete token values for a mode: Astryx defaults under the theme's own
  *  overrides (upstream `resolveThemeTokens`). The Astryx default-theme
  *  fallback is itself a resolved map, so no CSS cascade is needed. */
+/** Resolves a theme's flat token map to concrete values for one mode. */
 export function resolveThemeTokens(
 	theme: DefinedTheme | null | undefined,
 	options: ResolveThemeTokensOptions,
