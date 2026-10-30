@@ -71,3 +71,42 @@
  
    CXCursor cursor = clang_getTranslationUnitCursor(unit);
  
+--- a/metadata-generator/src/Umbrella.cpp
++++ b/metadata-generator/src/Umbrella.cpp
+@@ -118,6 +118,9 @@
+           return code;
+       } else {
+         std::filesystem::path headerDir = basePath / header;
++        if (!std::filesystem::is_directory(headerDir)) {
++          continue;
++        }
+         if (std::error_code code = CreateUmbrellaHeaderForAmbientModulesInner(
+                 headerDir.string(), false, umbrellaHeaders, includePaths,
+                 frameworks, umbrellaHeaderSet, includePathSet, frameworkSet,
+@@ -140,6 +143,8 @@
+     std::unordered_set<std::string>& umbrellaHeaderSet,
+     std::unordered_set<std::string>& includePathSet,
+     std::unordered_set<std::string>& frameworkSet, bool isUmbrella) {
++  dir = std::filesystem::path(dir).lexically_normal().string();
++
+   if (dir.find("/usr/include/c++/") != std::string::npos) {
+     return std::error_code();
+   }
+@@ -150,7 +155,7 @@
+ 
+   // On macOS SDKs, keep only selected public runtime headers from usr/include
+   // so we avoid broad private header parsing while preserving compatibility.
+-  if (dir.find("/MacOSX.platform/Developer/SDKs/") != std::string::npos &&
++  if (dir.find("/SDKs/MacOSX") != std::string::npos &&
+       dir.ends_with("/usr/include")) {
+     for (const char* subdir : {"objc", "dispatch"}) {
+       std::filesystem::path headersPath = std::filesystem::path(dir) / subdir;
+@@ -165,7 +170,7 @@
+     return std::error_code();
+   }
+ 
+-  if (dir.find("/MacOSX.platform/Developer/SDKs/") != std::string::npos &&
++  if (dir.find("/SDKs/MacOSX") != std::string::npos &&
+       dir.find("/usr/include/") != std::string::npos &&
+       dir.find("/usr/include/objc") == std::string::npos &&
+       dir.find("/usr/include/dispatch") == std::string::npos) {
