@@ -110,7 +110,7 @@ overrides:
 
 patchedDependencies:
   '@nativescript-community/octane@0.2.4': 08c8bb6f79fe9cff7bc2cdfd5accfc02011475a206eb94a45425e1f02ac53961
-  '@nativescript-community/octane@0.2.5': 409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8
+  '@nativescript-community/octane@0.2.5': 4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c
   '@nativescript-community/vite-octane@0.2.1': 76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d
   '@nativescript/core@9.1.3': 5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f
   '@nativescript/core@9.1.4-next.0': fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585
@@ -480,7 +480,7 @@ importers:
         version: 2.0.11
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -538,7 +538,7 @@ importers:
         version: 2.0.11
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript-community/perms':
         specifier: 3.0.12
         version: 3.0.12
@@ -802,7 +802,7 @@ importers:
         version: 2.0.11
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript-community/perms':
         specifier: 3.0.12
         version: 3.0.12
@@ -921,7 +921,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -976,7 +976,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1055,7 +1055,7 @@ importers:
         version: 1.60.1
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1083,7 +1083,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1126,7 +1126,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1163,7 +1163,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1231,7 +1231,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1259,7 +1259,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1290,7 +1290,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1318,7 +1318,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1352,7 +1352,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1389,7 +1389,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1435,7 +1435,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1566,7 +1566,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1603,7 +1603,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1702,7 +1702,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1838,7 +1838,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1872,7 +1872,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1945,7 +1945,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -1988,7 +1988,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2025,7 +2025,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2093,7 +2093,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2124,7 +2124,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2152,7 +2152,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2183,7 +2183,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2214,7 +2214,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2251,7 +2251,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2288,7 +2288,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2325,7 +2325,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2365,7 +2365,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2405,7 +2405,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2448,7 +2448,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2500,7 +2500,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2570,7 +2570,7 @@ importers:
         version: 0.52.0(typescript@5.9.3)
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2616,7 +2616,7 @@ importers:
         version: 2.0.45
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2692,7 +2692,7 @@ importers:
         version: 6.8.0
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2773,7 +2773,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2847,7 +2847,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2903,7 +2903,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2961,7 +2961,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -2995,7 +2995,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3035,7 +3035,7 @@ importers:
         version: 2.0.45
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3099,7 +3099,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3142,7 +3142,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3185,7 +3185,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3216,7 +3216,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3258,7 +3258,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3292,7 +3292,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3350,7 +3350,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3387,7 +3387,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3409,7 +3409,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3465,7 +3465,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3517,7 +3517,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3566,7 +3566,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3597,7 +3597,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3634,7 +3634,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3665,7 +3665,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3705,7 +3705,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3739,7 +3739,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3773,7 +3773,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3869,7 +3869,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3900,7 +3900,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -3949,7 +3949,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -4007,7 +4007,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -4081,7 +4081,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -4152,7 +4152,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -4186,7 +4186,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -4266,7 +4266,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
-        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
@@ -14594,17 +14594,17 @@ snapshots:
 
   '@nativescript-community/observable@2.0.11': {}
 
-  '@nativescript-community/octane@0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
+  '@nativescript-community/octane@0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
     dependencies:
       '@nativescript/core': 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
       octane: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
-  '@nativescript-community/octane@0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
+  '@nativescript-community/octane@0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
     dependencies:
       '@nativescript/core': 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
       octane: 0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
-  '@nativescript-community/octane@0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
+  '@nativescript-community/octane@0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))':
     dependencies:
       '@nativescript/core': https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585)
       octane: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -14677,7 +14677,7 @@ snapshots:
 
   '@nativescript-community/vite-octane@0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(b199e213684ff57a001064c91dc0cde8)':
     dependencies:
-      '@nativescript-community/octane': 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript-community/octane': 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/vite': 8.0.20(patch_hash=e3c76e1207a3baa13b61daa65081d7dcbf32f4af3d49a32a5230027001538f57)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
       vite: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
@@ -14687,7 +14687,7 @@ snapshots:
 
   '@nativescript-community/vite-octane@0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(dacf108fb91221f993cec80b3d235d8f)':
     dependencies:
-      '@nativescript-community/octane': 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript-community/octane': 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
       '@nativescript/vite': https://pkg.pr.new/@nativescript/vite@abae298(patch_hash=d6580a37f1041a153ab0c5043911dcb95fb385f87bd1f404583d399b4d0167ac)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
       vite: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
