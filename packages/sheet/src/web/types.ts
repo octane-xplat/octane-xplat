@@ -1,5 +1,6 @@
 /** Minimal element shape used by the Web focus-restoration ref. */
 export type WebFocusTarget = {
+	/** DOM `HTMLElement.focus` signature — `preventScroll` avoids scrolling the restored element into view. */
 	focus(options?: { preventScroll?: boolean }): void
 	/** Whether the web surface is currently mounted. */
 	isConnected: boolean

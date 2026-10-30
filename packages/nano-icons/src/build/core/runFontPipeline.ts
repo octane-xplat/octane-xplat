@@ -45,7 +45,10 @@ const SKIP_REASONS = /skipped:|produced no glyphs/
  */
 export async function runFontPipeline(
 	config: PipelineConfig,
-	paths: { outputDir: string },
+	paths: {
+		/** Directory the TTF/glyphmap (+ WOFF2) artifacts are written into. */
+		outputDir: string
+	},
 	inputs: SvgInput[],
 	options?: {
 		logger?: NanoLogger

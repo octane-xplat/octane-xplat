@@ -141,10 +141,12 @@ export function getIOSSupportedInterfaceOrientations(window: object | null): num
 }
 
 /** Orientation service — Expo-shaped API. */
-/** Orientation service — Expo-shaped API. */
 export const ScreenOrientation: Readonly<{
+	/** What this host supports — `observe`/`lock` are independent. */
 	readonly capabilities: Readonly<import('./types').ScreenOrientationCapabilities>
+	/** Whether orientation observation works on this target. */
 	readonly supported: boolean
+	/** Async `supported` — resolves `capabilities().observe`. */
 	isAvailable(): Promise<boolean>
 	/** Current screen orientation. */
 	getOrientationAsync: typeof getOrientationAsync

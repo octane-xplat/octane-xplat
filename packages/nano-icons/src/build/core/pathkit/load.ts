@@ -9,6 +9,7 @@ const require = createRequire(import.meta.url)
 
 let instance: PathKitModule | null = null
 
+/** Load the PathKit WASM module — the instance is cached and shared across calls. */
 export async function loadPathKit(): Promise<PathKitModule> {
 	if (instance) {
 		return instance

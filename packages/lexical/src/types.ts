@@ -36,7 +36,10 @@ export type LexicalFormat =
 /** Lexical serialized editor state (`{ root: { children: [...] } }` — the
  *  `EditorState.toJSON()` shape). Opaque here — callers round-trip through
  *  lexical's own schema on both platforms. */
-export type LexicalJSON = { root: Record<string, unknown> } & Record<string, unknown>
+export type LexicalJSON = {
+	/** Serialized root node — `{ children: [...] }` per lexical's schema. */
+	root: Record<string, unknown>
+} & Record<string, unknown>
 
 /** Web-only extensions for the live Lexical composer. These options are ignored
  *  by native backends; caller plugins, custom nodes, transforms, and browser

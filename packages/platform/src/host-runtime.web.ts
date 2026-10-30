@@ -16,15 +16,19 @@ export { createWebKitTransport } from './host-bridge.web'
 
 /** Handle for the desktop host channel. */
 export type DesktopHost = HostServiceClient<FrameworkHostServices> & {
+	/** Query which framework services the connected host exposes. */
 	capabilities(): Promise<HostCapabilities<FrameworkHostServices>>
+	/** Probe one service method — resolves false when the host lacks it. */
 	supports<Service extends keyof FrameworkHostServices & string>(
 		service: Service,
 		method: keyof FrameworkHostServices[Service] & string,
 	): Promise<boolean>
+	/** Subscribe to a host event; returns an unsubscribe. */
 	on<Event extends keyof FrameworkHostEvents & string>(
 		name: Event,
 		listener: (payload: FrameworkHostEvents[Event]) => void,
 	): () => void
+	/** Tear down the channel — rejects pending calls and removes listeners. */
 	dispose(): void
 }
 

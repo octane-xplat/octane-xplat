@@ -63,6 +63,7 @@ export interface Locale {
  * is bound — `fill`/`bytes` throw there rather than weaken to Math.random.
  */
 export interface RandomImpl {
+	/** Whether a secure source is bound — false leaves `fill`/`bytes` throwing. */
 	readonly supported: boolean
 	/** Fill `view` entirely with secure random bytes; returns `view`. */
 	fill<T extends ArrayBufferView>(view: T): T
@@ -103,7 +104,9 @@ export interface ConnectivityState {
 
 /** Connectivity service contract. */
 export interface ConnectivityImpl {
+	/** Current connectivity snapshot. */
 	getState(): ConnectivityState
+	/** Listen for connectivity changes; returns an unsubscribe. */
 	subscribe(listener: (state: ConnectivityState) => void): () => void
 }
 
@@ -150,6 +153,8 @@ export type SettingsPane =
 
 /** Settings-opening contract. */
 export interface OpenSettingsImpl {
+	/** Open this app's page in the platform settings UI, optionally to a
+	 *  specific pane; false when unsupported. */
 	open(pane?: SettingsPane): boolean
 }
 
@@ -202,10 +207,15 @@ export interface WebAuthnGetOptionsJSON {
 }
 
 interface WebAuthnCredentialJSONBase {
+	/** Base64url credential id — the RP's lookup key. */
 	id: string
+	/** Base64url raw credential id bytes — same value as `id` for platform authenticators. */
 	rawId: string
+	/** Always 'public-key' — the WebAuthn credential kind. */
 	type: 'public-key'
+	/** 'platform'/'cross-platform' when the authenticator reports it. */
 	authenticatorAttachment?: string | null
+	/** WebAuthn extension outputs keyed by extension id. */
 	clientExtensionResults?: Record<string, unknown>
 }
 
@@ -241,7 +251,9 @@ export interface WebAuthnAssertionJSON extends WebAuthnCredentialJSONBase {
 export interface WebAuthnImpl {
 	/** True when a user-verifying platform authenticator (biometric/PIN) exists. */
 	isAvailable(): Promise<boolean>
+	/** Run the registration ceremony; resolves null when the user cancels. */
 	create(options: WebAuthnCreateOptionsJSON): Promise<WebAuthnRegistrationJSON | null>
+	/** Run the assertion (sign-in) ceremony; resolves null when the user cancels. */
 	get(options: WebAuthnGetOptionsJSON): Promise<WebAuthnAssertionJSON | null>
 }
 
@@ -260,11 +272,20 @@ export interface AuthSessionOptions {
 
 /** Auth-session outcome. */
 export type AuthSessionResult =
-	/** The session captured a callback URL on the requested scheme. */
-	| { type: 'success'; url: string }
-	/** The user dismissed the session, or it ended without a callback. */
-	| { type: 'cancel' }
-	| { type: 'error'; message: string }
+	| {
+			/** The session captured a callback URL on the requested scheme. */
+			type: 'success'
+			url: string
+	  }
+	| {
+			/** The user dismissed the session, or it ended without a callback. */
+			type: 'cancel'
+	  }
+	| {
+			/** The session failed — `message` describes why. */
+			type: 'error'
+			message: string
+	  }
 
 /**
  * Hosted browser ceremony: opens `url` in a system browser context
@@ -274,5 +295,6 @@ export type AuthSessionResult =
  * setup (decision #66).
  */
 export interface AuthSessionImpl {
+	/** Open the hosted ceremony; resolves when the site redirects to `callbackScheme`. */
 	open(url: string, options: AuthSessionOptions): Promise<AuthSessionResult>
 }

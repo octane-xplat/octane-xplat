@@ -17,9 +17,13 @@ export interface NanoIconSet<Name extends string = string> {
 	readonly family: string
 	/** Configured set name (`family` without the hash suffix). */
 	readonly name: string
+	/** Icon name → generated glyph (codepoint) lookup. */
 	readonly glyphMap: NanoGlyphMap
+	/** Every icon name the set provides — useful for pickers and validation. */
 	readonly iconNames: readonly Name[]
+	/** Font registration outcome — icons render fallback glyphs until it resolves. */
 	readonly ready: Promise<NanoFontStatus>
+	/** Icon component bound to this set's font family. */
 	readonly Icon: (props: NanoIconSetProps<Name>) => any
 }
 

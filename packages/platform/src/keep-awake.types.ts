@@ -17,6 +17,7 @@ export interface KeepAwakeImpl {
 
 /** Optional cleanup-warning and web release behavior for useKeepAwake. */
 export interface KeepAwakeOptions {
+	/** Silence the dev-mode warning when a sentinel fails to deactivate. */
 	suppressDeactivateWarnings?: boolean
 	/** Subscribe to web sentinel release, including OS auto-release and explicit release. */
 	onRelease?: (tag: string) => void

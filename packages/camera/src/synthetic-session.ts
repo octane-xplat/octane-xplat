@@ -60,13 +60,16 @@ export interface SyntheticCameraStorage {
 	write(path: string, bytes: Uint8Array): void | Promise<void>
 	/** Read a stored clip. */
 	read(path: string): Uint8Array | undefined | Promise<Uint8Array | undefined>
+	/** Remove a stored clip; optional — reopen paths degrade gracefully without it. */
 	delete?(path: string): void | Promise<void>
+	/** Probe for a stored clip without reading it. */
 	exists?(path: string): boolean | Promise<boolean>
 }
 
 /** In-memory storage for the seam — a `fileUrl`-shaped map so outcomes
  *  exercise the same reopen path without touching a real filesystem. */
 export function createMemoryCameraStorage(): SyntheticCameraStorage & {
+	/** Stored clip bytes keyed by path — specs assert on this map directly. */
 	files: Map<string, Uint8Array>
 } {
 	const files = new Map<string, Uint8Array>()

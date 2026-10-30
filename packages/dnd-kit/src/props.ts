@@ -101,6 +101,7 @@ export interface DraggableResult {
 
 /** Handle/state returned by useDroppable. */
 export interface DroppableResult {
+	/** Ref callback wiring the node into the dnd registry. */
 	ref(element: any): void
 	/** True while the pointer is over this droppable. */
 	isOver: boolean

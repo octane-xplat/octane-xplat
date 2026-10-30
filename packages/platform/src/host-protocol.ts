@@ -27,23 +27,53 @@ export type HostCallRequest = {
 }
 
 /** Capabilities query. */
-export type HostCapabilitiesRequest = { type: 'capabilities'; id: number }
+export type HostCapabilitiesRequest = {
+	/** Message discriminator. */
+	type: 'capabilities'
+	/** Request correlation id. */
+	id: number
+}
 /** Request envelope union. */
 export type HostRequest = HostCallRequest | HostCapabilitiesRequest
 
 /** Service-call reply. */
 export type HostReplyMessage =
-	| { type: 'reply'; id: number; ok: true; value: unknown }
-	| { type: 'reply'; id: number; ok: false; error: string }
+	| {
+			/** Message discriminator. */
+			type: 'reply'
+			/** Correlation id of the request being answered. */
+			id: number
+			/** The call succeeded — `value` carries the awaited result. */
+			ok: true
+			value: unknown
+	  }
+	| {
+			/** Message discriminator. */
+			type: 'reply'
+			/** Correlation id of the request being answered. */
+			id: number
+			/** The call threw — `error` carries the message. */
+			ok: false
+			error: string
+	  }
 
 /** Host-emitted event. */
-export type HostEventMessage = { type: 'event'; name: string; payload: unknown }
+export type HostEventMessage = {
+	/** Message discriminator. */
+	type: 'event'
+	/** Event name — keys the client's listener set. */
+	name: string
+	/** Event payload, JSON-serialized. */
+	payload: unknown
+}
 /** Envelope for host-bound messages. */
 export type HostMessage = HostReplyMessage | HostEventMessage
 
 /** Message transport supplied by a webview's native host. */
 export interface HostTransport {
+	/** Send a serialized message frame to the host. */
 	postMessage(message: string): void
+	/** Subscribe to frames from the host; returns an unsubscribe. */
 	listen(listener: (message: string) => void): () => void
 }
 
@@ -75,18 +105,23 @@ export interface HostClient<
 		method: Method,
 		...args: ArgumentsOf<Services[Service][Method]>
 	): Promise<ResultOf<Services[Service][Method]>>
+	/** Query which methods the connected host exposes, per service. */
 	capabilities(): Promise<HostCapabilities<Services>>
+	/** Subscribe to a host event; returns an unsubscribe. */
 	on<Event extends keyof Events & string>(
 		/** Event name. */
 		name: Event,
 		listener: (payload: Events[Event]) => void,
 	): () => void
+	/** Tear down the client — rejects pending calls and removes listeners; idempotent. */
 	dispose(): void
 }
 
 /** A transport endpoint that replies to requests and delivers host events. */
 export interface HostReplyPort {
+	/** Send a reply frame answering a request. */
 	reply(message: string): void
+	/** Send an event frame to subscribers. */
 	emit(message: string): void
 }
 
@@ -198,6 +233,7 @@ export function createHostDispatcher<Services extends object, Events extends obj
 	port: HostReplyPort,
 ) {
 	return {
+		/** Route one serialized request to a service method and reply on the port. */
 		async dispatch(message: string): Promise<void> {
 			const request = JSON.parse(message) as HostRequest
 			if (request.type === 'capabilities') {
@@ -222,6 +258,7 @@ export function createHostDispatcher<Services extends object, Events extends obj
 				port.reply(JSON.stringify({ type: 'reply', id: request.id, ok: false, error: message }))
 			}
 		},
+		/** Publish a typed event to connected clients. */
 		emit<Event extends keyof Events & string>(name: Event, payload: Events[Event]): void {
 			port.emit(JSON.stringify({ type: 'event', name, payload }))
 		},

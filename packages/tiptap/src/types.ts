@@ -35,7 +35,12 @@ export type TiptapFormat =
 
 /** Tiptap document JSON (`{ type: 'doc', content: [...] }`). Opaque here —
  *  callers round-trip through tiptap's own schema on both platforms. */
-export type TiptapJSON = { type: string; content?: unknown[] } & Record<string, unknown>
+export type TiptapJSON = {
+	/** Root node name — always `'doc'` for a document. */
+	type: string
+	/** Top-level nodes; absent for an empty document. */
+	content?: unknown[]
+} & Record<string, unknown>
 
 /** Engine options for the web target only. The `.web` entry mounts a real
  *  tiptap `Editor`, so callers can extend its schema here. The Android

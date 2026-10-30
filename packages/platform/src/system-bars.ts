@@ -4,6 +4,7 @@ import { Application, Color } from '@nativescript/core'
 
 /** System bar (status/nav bar) service. */
 export const systemBars = {
+	/** Status-bar content appearance — 'light' means light icons on a dark bar. */
 	setStatusBarStyle(style: 'light' | 'dark'): void {
 		// 'light'|'dark' name the icon appearance: 'light' = light content
 		// for dark backgrounds. NS View.statusBarStyle uses the same
@@ -23,6 +24,7 @@ export const systemBars = {
 			;(app as any)?.setStatusBarStyle?.(style === 'light' ? 1 : 0)
 		}
 	},
+	/** Android only — paints both status and navigation bars; no-op elsewhere. */
 	setColor(color: string): void {
 		const c = new Color(color)
 		if (Application.android?.startActivity) {

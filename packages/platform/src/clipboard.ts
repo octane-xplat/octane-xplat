@@ -13,7 +13,7 @@ export type Clipboard = {
 	writeText: typeof writeText
 	/** Read clipboard text; null when empty/non-text. */
 	readText: typeof readText
-	// Keep the original names available for existing consumers.
+	/** Copy text to the clipboard. */
 	write: typeof writeText
 	/** Read the clipboard payload. */
 	read: typeof readText

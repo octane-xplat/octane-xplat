@@ -5,8 +5,6 @@
 /** The account the provider authenticated. */
 export interface AuthUser {
 	/** Stable subject id — Apple `user`, Google `id` (id-token `sub`). */
-	/** Element id passed through to the host element. */
-
 	id: string
 	/** Email the provider returned; absent when not granted. */
 	email?: string
@@ -44,10 +42,20 @@ export interface AuthCredential {
 
 /** Sign-in outcome — token/user plus the provider payload. */
 export type SignInResult =
-	| { status: 'success'; credential: AuthCredential }
-	/** The user dismissed the flow, or it ended without a credential. */
-	| { status: 'cancelled' }
-	| { status: 'error'; message: string }
+	| {
+			/** Provider flow completed — `credential` is present. */
+			status: 'success'
+			credential: AuthCredential
+	  }
+	| {
+			/** The user dismissed the flow, or it ended without a credential. */
+			status: 'cancelled'
+	  }
+	| {
+			/** The flow failed — `message` describes why. */
+			status: 'error'
+			message: string
+	  }
 
 /** Requested Apple sign-in data scopes. */
 export type AppleScope = 'email' | 'name'
@@ -93,12 +101,9 @@ export interface AppleAuth {
 	 * `configure` still needs a `clientId` before `signIn` will succeed.
 	 */
 	readonly supported: boolean
-	/** Store configuration; the platform SDK loads lazily on first use. */
-	/** One-time setup — call before sign-in. */
-
+	/** One-time setup — call before sign-in; the platform SDK loads lazily on first use. */
 	configure(config: AppleAuthConfig): void
 	/** Start the provider sign-in flow. */
-
 	signIn(options?: AppleSignInOptions): Promise<SignInResult>
 	/** iOS and macOS — credential state for a prior `user.id`. */
 	getCredentialState(userId: string): Promise<AppleCredentialState>
@@ -152,13 +157,16 @@ export interface GoogleAuth {
 	 * Play services still report true — the sign-in call surfaces the failure.
 	 */
 	readonly supported: boolean
+	/** One-time setup — call before sign-in. Resolves once the provider SDK is ready. */
 	configure(config?: GoogleAuthConfig): Promise<void>
+	/** Start the provider sign-in flow. */
 	signIn(options?: GoogleSignInOptions): Promise<SignInResult>
 	/** Clear SDK account selection; macOS calls hostedFlow.signOut and requests ephemeral sessions. */
 	signOut(): Promise<void>
 }
 
 interface SignInButtonBaseProps {
+	/** Element id passed through to the host element. */
 	id?: string
 	/** Class list applied to the button element. */
 
@@ -178,8 +186,6 @@ interface SignInButtonBaseProps {
 /** Props for the AppleSignInButton element. */
 export interface AppleSignInButtonProps extends SignInButtonBaseProps {
 	/** Label variant — 'default' is "Sign in with Apple". */
-	/** Result discriminator. */
-
 	type?: 'default' | 'signUp' | 'continue'
 	/** Presentation theme hint for the sign-in UI. */
 	theme?: 'black' | 'white' | 'whiteOutline'
@@ -221,9 +227,7 @@ export interface HostedAuthCredentialStore {
 export interface HostedAuthRequestInit {
 	/** HTTP method. */
 	method?: string
-	/** Request headers. */
-	/** Request headers. */
-
+	/** Request headers — plain map or fetch-style entry pairs. */
 	headers?: Record<string, string> | Iterable<readonly [string, string]>
 	/** Request body. */
 	body?: unknown
@@ -233,8 +237,11 @@ export interface HostedAuthRequestInit {
 
 /** The slice of `fetch`'s `Response` the client exposes. */
 export interface HostedAuthResponse {
+	/** HTTP status code. */
 	readonly status: number
+	/** Whether the status is 2xx. */
 	readonly ok: boolean
+	/** Header lookup — same contract as `Headers.get` (null when absent). */
 	readonly headers: { get(name: string): string | null }
 	/** Parse the response body as JSON. */
 
@@ -252,12 +259,24 @@ export type HostedAuthFetch = (
 
 /** What a hosted browser ceremony returns — matches `authSession`'s result. */
 export type HostedAuthSessionResult =
-	| { type: 'success'; url: string }
-	| { type: 'cancel' }
-	| { type: 'error'; message: string }
+	| {
+			/** The ceremony completed — `url` is the callback to redeem. */
+			type: 'success'
+			url: string
+	  }
+	| {
+			/** The user dismissed the ceremony before a callback. */
+			type: 'cancel'
+	  }
+	| {
+			/** The session failed — `message` describes why. */
+			type: 'error'
+			message: string
+	  }
 
 /** An established hosted-auth session. */
 export interface HostedAuthSession {
+	/** Whether the OS can run a hosted sign-in session on this target. */
 	readonly supported: boolean
 	/** Open the hosted sign-in flow. */
 
@@ -368,10 +387,19 @@ export interface HostedAuthConfig {
 
 /** Result of the hosted sign-in attempt. */
 export type HostedAuthSignInResult =
-	| { status: 'success' }
-	/** The user dismissed the hosted ceremony, or it ended without a callback. */
-	| { status: 'cancelled' }
-	| { status: 'error'; message: string }
+	| {
+			/** Credentials were minted and stored. */
+			status: 'success'
+	  }
+	| {
+			/** The user dismissed the hosted ceremony, or it ended without a callback. */
+			status: 'cancelled'
+	  }
+	| {
+			/** The ceremony or redemption failed — `message` describes why. */
+			status: 'error'
+			message: string
+	  }
 
 /** Hosted-auth availability states. */
 export type HostedAuthStatus = 'authenticated' | 'unauthenticated'

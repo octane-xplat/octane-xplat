@@ -11,6 +11,7 @@ export type MapType = 'none' | 'normal' | 'satellite' | 'terrain' | 'hybrid'
 
 /** Map service/permissions facade. */
 export interface Maps {
+	/** Whether a map backend exists on this target — false on macOS/Linux/Windows. */
 	readonly supported: boolean
 	/** Web only: inject the Maps JS API key before the first <MapView>
 	 *  renders. Native keys come from app metadata — this is a no-op there. */

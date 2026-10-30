@@ -50,6 +50,7 @@ export interface SmoothBorderConfig {
 
 /** Drop-shadow applied with the same smoothed silhouette. */
 export interface SmoothShadowConfig {
+	/** Any color string the platform accepts (hex, rgba, named). */
 	color?: string
 	/** Shadow opacity 0-1. */
 	opacity?: number

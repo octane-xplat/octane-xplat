@@ -58,9 +58,7 @@ export interface CaptureIssue {
 	message: string
 	/** Camera/mic authorization state. */
 	permission?: CameraPermissionKind
-	/** Host-specific detail for logging; never required for control flow. */
-	/** The underlying platform error when one exists. */
-
+	/** Underlying platform error when one exists — diagnostic only, never required for control flow. */
 	cause?: unknown
 }
 
@@ -70,6 +68,7 @@ export class CameraCaptureError extends Error implements CaptureIssue {
 	kind: CameraCaptureErrorKind
 	operation: string
 	permission?: CameraPermissionKind
+	/** Underlying platform error when one exists — diagnostic only. */
 	cause?: unknown
 
 	constructor(issue: Omit<CaptureIssue, 'cause'> & { cause?: unknown }) {
@@ -220,8 +219,6 @@ export interface EffectiveCaptureConfig {
 /** Observable session state. */
 export interface CameraSessionSnapshot {
 	/** Current lifecycle state. */
-	/** Current lifecycle state. */
-
 	state: CameraRecorderState
 	/** Non-prompting last-known authorization, refreshed by `permissions()`
 	 *  and `requestPermission()`. */
@@ -364,11 +361,14 @@ export interface StartRecordingOptions {
  *  settles exactly once with the terminal outcome; repeated `stop()`
  *  joins the same finalization. */
 export interface MovieTake {
+	/** Attempt identifier — unique per `startRecording` call. */
 	readonly id: string
+	/** Lifecycle phase; terminal value is `settled` (check `completion` for the outcome). */
 	readonly state: 'starting' | 'recording' | 'finalizing' | 'settled'
 	/** Elapsed capture time in milliseconds; excludes preparation and
 	 *  finalization. Source identified by `capabilities().elapsedTime`. */
 	readonly elapsedMs: number
+	/** Terminal outcome — resolves exactly once; `stop()` returns this same promise. */
 	readonly completion: Promise<MovieOutcome>
 	/** Requests stop and joins finalization. Returns `completion`. */
 	stop(): Promise<MovieOutcome>
@@ -379,7 +379,9 @@ export interface MovieTake {
 export interface MovieOutputHandle {
 	/** Playable/readable location for the clip. */
 	readonly url: string
+	/** On-disk path when the clip is file-backed; absent for memory/remote storage. */
 	readonly fileUrl?: string
+	/** Free temporary access to the clip — never deletes it. */
 	release(): void
 }
 
@@ -392,7 +394,9 @@ export interface CameraSession {
 	 *  serialized; a status other than `notDetermined` returns without
 	 *  prompting. */
 	requestPermission(kind: CameraPermissionKind): Promise<CameraPermissionStatus>
+	/** Hardware/OS limits for this session — polled live, so values can change as devices come and go. */
 	capabilities(): Promise<CameraSessionCapabilities>
+	/** Point-in-time session state — subscribe for changes. */
 	snapshot(): CameraSessionSnapshot
 	/** Ordered lifecycle events. A caller never loses a result by
 	 *  subscribing late — `completion` is authoritative. Listener

@@ -43,70 +43,70 @@ import type { DataGridOptions } from './props'
  *  `features` to add them where a platform leaf supports them. */
 export const dataGridFeatures: {
 	/** Faceted-values support for filter UIs. */
- import('@tanstack/table-core').TableFeature
+	columnFacetingFeature: import('@tanstack/table-core').TableFeature
 	/** Per-column filter state. */
- import('@tanstack/table-core').TableFeature
+	columnFilteringFeature: import('@tanstack/table-core').TableFeature
 	/** Group-by-column row model. */
- import('@tanstack/table-core').TableFeature
+	columnGroupingFeature: import('@tanstack/table-core').TableFeature
 	/** Column reorder support. */
- import('@tanstack/table-core').TableFeature
+	columnOrderingFeature: import('@tanstack/table-core').TableFeature
 	/** Pin columns left/right. */
- import('@tanstack/table-core').TableFeature
+	columnPinningFeature: import('@tanstack/table-core').TableFeature
 	/** Interactive column widths. */
- import('@tanstack/table-core').TableFeature
+	columnSizingFeature: import('@tanstack/table-core').TableFeature
 	/** Show/hide columns. */
- import('@tanstack/table-core').TableFeature
+	columnVisibilityFeature: import('@tanstack/table-core').TableFeature
 	/** Free-text filter across all columns. */
- import('@tanstack/table-core').TableFeature
+	globalFilteringFeature: import('@tanstack/table-core').TableFeature
 	/** Aggregated cells in grouped rows. */
- import('@tanstack/table-core').TableFeature
+	rowAggregationFeature: import('@tanstack/table-core').TableFeature
 	/** Expandable detail rows. */
- import('@tanstack/table-core').TableFeature
+	rowExpandingFeature: import('@tanstack/table-core').TableFeature
 	/** Client-side pagination. */
- import('@tanstack/table-core').TableFeature
+	rowPaginationFeature: import('@tanstack/table-core').TableFeature
 	/** Pin rows top/bottom. */
- import('@tanstack/table-core').TableFeature
+	rowPinningFeature: import('@tanstack/table-core').TableFeature
 	/** Row selection state. */
- import('@tanstack/table-core').TableFeature
+	rowSelectionFeature: import('@tanstack/table-core').TableFeature
 	/** Click-to-sort headers. */
- import('@tanstack/table-core').TableFeature
+	rowSortingFeature: import('@tanstack/table-core').TableFeature
 	/** Materialize sorted rows. */
- (
+	sortedRowModel: (
 		table: Table<any, any>,
 	) => () => import('@tanstack/table-core').RowModel<any, any>
 	/** Materialize filtered rows. */
- (
+	filteredRowModel: (
 		table: Table<any, any>,
 	) => () => import('@tanstack/table-core').RowModel<any, any>
 	/** Materialize grouped rows. */
- (
+	groupedRowModel: (
 		table: Table<any, any>,
 	) => () => import('@tanstack/table-core').RowModel<any, any>
 	/** Materialize expanded detail rows. */
- (
+	expandedRowModel: (
 		table: Table<any, any>,
 	) => () => import('@tanstack/table-core').RowModel<any, any>
 	/** Materialize the current page. */
- (
+	paginatedRowModel: (
 		table: Table<any, any>,
 	) => () => import('@tanstack/table-core').RowModel<any, any>
 	/** Materialize faceted filter inputs. */
- (
+	facetedRowModel: (
 		table: Table<any, any>,
 		columnId: string,
 	) => () => import('@tanstack/table-core').RowModel<any, any>
 	/** Min/max faceting for numeric columns. */
- (
+	facetedMinMaxValues: (
 		table: Table<TableFeatures, any>,
 		columnId: string,
 	) => () => undefined | [number, number]
 	/** Distinct-values faceting. */
- (
+	facetedUniqueValues: (
 		table: Table<TableFeatures, any>,
 		columnId: string,
 	) => () => Map<any, number>
 	/** Custom sort comparators by id. */
- {
+	sortFns: {
 		alphanumeric: import('@tanstack/table-core').CreatedSortFn<any, any>
 		alphanumericCaseSensitive: import('@tanstack/table-core').CreatedSortFn<any, any>
 		basic: import('@tanstack/table-core').CreatedSortFn<any, any>
@@ -115,7 +115,7 @@ export const dataGridFeatures: {
 		textCaseSensitive: import('@tanstack/table-core').CreatedSortFn<any, any>
 	}
 	/** Custom filter predicates by id. */
- {
+	filterFns: {
 		arrIncludes: import('@tanstack/table-core').CreatedFilterFn<any, any>
 		arrIncludesAll: import('@tanstack/table-core').CreatedFilterFn<any, any>
 		arrHas: import('@tanstack/table-core').CreatedFilterFn<any, any>
@@ -136,7 +136,7 @@ export const dataGridFeatures: {
 		weakEquals: import('@tanstack/table-core').CreatedFilterFn<any, any>
 	}
 	/** Custom aggregation functions by id. */
- {
+	aggregationFns: {
 		sum: import('@tanstack/table-core').AggregationFnDef<any, any, unknown, number>
 		min: import('@tanstack/table-core').AggregationFnDef<
 			any,

@@ -59,6 +59,7 @@ export function useDndContext(): DndSnapshot {
 	return useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot)
 }
 
+/** Register a node as a drag source under the enclosing `DndContext`. */
 export function useDraggable(options: DraggableOptions): DraggableResult {
 	const controller = useController()
 	const snapshot = useDndContext()
@@ -127,6 +128,7 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
 	}
 }
 
+/** Register a node as a drop target under the enclosing `DndContext`. */
 export function useDroppable(options: DroppableOptions): DroppableResult {
 	const controller = useController()
 	const snapshot = useDndContext()

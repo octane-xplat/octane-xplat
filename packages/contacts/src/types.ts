@@ -124,6 +124,7 @@ export interface GetContactsOptions {
 
 /** System address-book facade; false supported off mobile. */
 export interface Contacts {
+	/** Whether the system address book is reachable on this target — false off mobile. */
 	readonly supported: boolean
 	/** Ensure the contacts permission without prompting twice — returns the
 	 *  post-request grant state, 'unsupported' when the store can't be reached. */

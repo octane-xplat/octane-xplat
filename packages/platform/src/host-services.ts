@@ -113,10 +113,15 @@ export interface FrameworkHostServices {
 
 /** Events emitted by framework-owned desktop services. */
 export interface FrameworkHostEvents {
+	/** Foreground/background transition. */
 	'app.state.change': AppState
+	/** Host window resized — payload is the new logical size. */
 	'window.resize': WindowSize
+	/** The OS delivered a deep-link URL (cold-start or while running). */
 	'app.deep-link': string
+	/** System light/dark scheme changed. */
 	'appearance.change': HostColorScheme
+	/** A host window closed — payload is the window id. */
 	'windows.closed': string
 }
 

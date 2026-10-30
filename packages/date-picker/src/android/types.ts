@@ -125,8 +125,11 @@ export interface MaterialDatePickerElementColors {
 
 /** Android date-picker props (Material3 date picker). */
 export interface MaterialDatePickerProps {
+	/** Element id passed through to the host element. */
 	id?: string
+	/** Class list applied to the picker element. */
 	className?: any
+	/** Inline style (string CSS or object). */
 	style?: any
 	/** Date the picker starts on. The picker keeps its own selection after mount. */
 	initialDate?: Date
@@ -151,6 +154,7 @@ export interface MaterialDatePickerProps {
 	elementColors?: MaterialDatePickerElementColors
 	/** Bounds the selectable date range; also derives the calendar year range. */
 	selectableDates?: { start?: Date; end?: Date }
+	/** Spoken name for assistive tech. */
 	accessibilityLabel?: string
 	/**
 	 * Called with the selected timestamp (null when the selection clears). The
