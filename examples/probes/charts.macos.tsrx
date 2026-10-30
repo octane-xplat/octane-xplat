@@ -33,6 +33,8 @@ export default function ChartsProbe() {
 
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('probe-chart-tap'))
+	// Local decodes complete on a later run-loop turn; the tap view mounts first.
+	await ctx.waitFor(() => ctx.find('probe-chart-image')?.image, { timeout: 3000 })
 	const image = ctx.find('probe-chart-image')
 	ctx.assert('SVG decoded by NSImage', !!image?.image, true)
 	ctx.record('image size', {
