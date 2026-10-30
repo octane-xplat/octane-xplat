@@ -108,7 +108,7 @@ overrides:
   '@tiptap/extension-underline': 3.32.0
   sameframe>playwright: 1.63.0
 
-packageExtensionsChecksum: sha256-uov/DVDvhKUC47VRuOKasAz2V4XwbkrrmvgDwCf8KRY=
+packageExtensionsChecksum: sha256-exsl5mxAZduNjAZbd76M5dCsfXcE1Igjuo0FBlaPtB0=
 
 patchedDependencies:
   '@nativescript-community/octane@0.2.4': 08c8bb6f79fe9cff7bc2cdfd5accfc02011475a206eb94a45425e1f02ac53961
@@ -18735,6 +18735,7 @@ snapshots:
       email-validator: 2.0.4
       fast-glob: 3.3.3
       font-finder: 1.1.0
+      glob: 10.5.0
       ios-device-lib: 0.9.6
       ios-mobileprovision-finder: 1.2.1
       ios-sim-portable: 4.5.3

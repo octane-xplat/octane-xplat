@@ -51,12 +51,15 @@ FontManager 1.0.18. macOS keeps its newer `next` runtime rather than
 downgrading to the registry's older `latest` tag.
 
 The Windows CLI preview `nativescript@9.1.2-dev.2026-09-24-36031892256`
-imports `fast-glob` from `lib/services/ios-project-service.js` during startup
-but omits it from its published dependencies. With the isolated linker, the
-Windows build exits with `Cannot find module 'fast-glob'` before compilation.
+imports `fast-glob` from `lib/services/ios-project-service.js` and `glob` from
+`lib/controllers/migrate-controller.js` during startup, but omits both from
+its published dependencies. With the isolated linker, the Windows build exits
+with `Cannot find module 'fast-glob'` or `'glob'` before
+compilation.
 The exact-version `packageExtensions` entry in `pnpm-workspace.yaml` supplies
-`fast-glob@3.3.3`; it does not change other NativeScript versions. This is
-package-manifest and build-startup evidence from windy, not runtime evidence.
+`fast-glob@3.3.3` and `glob@10.5.0`; it does not change other NativeScript
+versions. The package import audit found these two omissions; `ns --version`
+then passed on windy. This establishes CLI startup, not app runtime behavior.
 Remove the extension when a replacement CLI declares the import itself.
 
 ```yaml
@@ -64,6 +67,7 @@ packageExtensions:
   'nativescript@9.1.2-dev.2026-09-24-36031892256':
     dependencies:
       fast-glob: 3.3.3
+      glob: 10.5.0
 ```
 
 Drive-by improvements to `packages/lint/` are allowed when they improve the
