@@ -26,6 +26,8 @@ with conflicting bytes or absent/ambiguous lock metadata fail closed. Input
 symlinks cannot escape the declared source root; extras declare custom costs.
 
 Bun reads text `bun.lock` (JSONC) and root `package.json.patchedDependencies`.
+If both managers' lockfiles exist, the lock root's `packageManager` must select
+one; the collector ignores the other lockfile.
 The collector follows importer-specific package records into native dependencies;
 registry versions must match the installed version. Local archive identities use
 the lockfile integrity without absolute checkout paths. Workspace and directory

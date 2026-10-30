@@ -346,3 +346,20 @@ test('Bun native archive resolutions hash integrity without checkout paths and r
 	)
 	await assert.rejects(createFingerprintAsync(b.root), /disagrees with Bun lock metadata/)
 })
+
+test('retained lockfiles require an explicit manager and ignore the unselected lockfile', async (t) => {
+	const { root, write } = await fixture(t)
+	await write('bun.lock', {
+		workspaces: { '': {}, 'packages/native': { name: '@xplat/native-fixture', version: '1.0.0' } },
+		packages: {},
+	})
+	await assert.rejects(createFingerprintAsync(root), /Both Bun and pnpm lockfiles/)
+	const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
+	await write('package.json', { ...pkg, packageManager: 'bun@1.4.4' })
+	await write('pnpm-lock.yaml', 'invalid: [')
+	await createFingerprintAsync(root)
+	await write('package.json', { ...pkg, packageManager: 'pnpm@11.24.0' })
+	await write('pnpm-lock.yaml', { importers: { '.': {}, 'packages/native': {} }, packages: {} })
+	await write('bun.lock', 'invalid JSON')
+	await createFingerprintAsync(root)
+})

@@ -42,7 +42,8 @@ console.log(await diffFingerprintChangesAsync(before, '.', { platforms: ['ios'] 
 
 The defaults collect iOS and Android inputs together. Select a single platform
 when comparing native binaries. Installed dependencies and a resolved Bun or pnpm
-lockfile are required. Missing or ambiguous native dependency metadata fails
+lockfile are required. When both lockfiles are present, set `packageManager`
+in `package.json` to select one. Missing or ambiguous native dependency metadata fails
 the operation rather than producing a compatibility claim.
 
 ```js

@@ -388,6 +388,14 @@ export async function createFingerprintAsync(
 		? await json(join(lockRoot, 'package.json'))
 		: {}
 	const manager = owner.packageManager?.split('@')[0]
+	if (
+		manager !== 'bun' &&
+		manager !== 'pnpm' &&
+		existsSync(join(lockRoot, 'bun.lock')) &&
+		existsSync(join(lockRoot, 'pnpm-lock.yaml'))
+	) {
+		throw new Error('Both Bun and pnpm lockfiles exist. Set packageManager in package.json.')
+	}
 	const bun = manager === 'bun' || (manager !== 'pnpm' && existsSync(join(lockRoot, 'bun.lock')))
 	const lockFile = join(lockRoot, bun ? 'bun.lock' : 'pnpm-lock.yaml')
 	let lock: any = null
