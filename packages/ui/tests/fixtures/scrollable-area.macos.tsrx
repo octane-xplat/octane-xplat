@@ -163,8 +163,13 @@ function Headless(props: { ref: any; onScroll: (event: any) => void }) {
 				})}
 			>
 				<masonview
-					{...area.getContentProps({ style: { width: contentSize[0], height: contentSize[1] } })}
-					style={{ display: 'flex' }}
+					{...area.getContentProps({
+						style: {
+							display: 'flex',
+							width: contentSize[0],
+							height: contentSize[1],
+						},
+					})}
 				>
 					<label text="Headless content" />
 				</masonview>
