@@ -23,9 +23,9 @@ before column pinning can work.
 
 ## Documentation
 
-- AC1–AC4: [AppKit table guide](../../../docs/tables.md#wide-data-tables-on-appkit), Octane primitive reference and [target note](../parity/appkit-progress.md#appkit-data-table-horizontal-viewport-source-path).
+- AC1–AC4: [AppKit table guide](../../../docs/tables.md#wide-data-tables-on-appkit), Octane primitive reference and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-data-table-horizontal-viewport-source-path).
 - AC4: [Manual fixture](../../../examples/probes/table-scroll.macos.tsrx), authored but unrun. Existing pipeline/width tests do not prove native viewport layout or scrolling.
 
-- AC5: Five [plan integration cases](../../../packages/ui/src/table/column-resize-plan.macos.test.ts) and the manual fixture width toggle, all unrun; app guide and primitive reference explain controlled widths. See the [width-plan source note](../parity/appkit-progress.md#appkit-controlled-table-column-width-plan).
+- AC5: Five [plan integration cases](../../../packages/ui/src/table/column-resize-plan.macos.test.ts) and the manual fixture width toggle, all unrun; app guide and primitive reference explain controlled widths. See the [width-plan source note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-controlled-table-column-width-plan).
 
-- AC6: [Body text guide](../../../docs/tables.md#choose-body-text-wrapping-on-appkit), [Octane guidance](../../skills/octane-xplat/references/primitives.md#grouped-and-tree-tables), [four object-driver cases](../../../packages/ui/src/table/table-text-overflow.macos.mobile.test.tsrx), [two compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual fixture](../../../examples/probes/table-scroll.macos.tsrx) and [source note](../parity/appkit-progress.md#appkit-data-table-body-text-overflow). All authored checks remain unrun.
+- AC6: [Body text guide](../../../docs/tables.md#choose-body-text-wrapping-on-appkit), [Octane guidance](../../skills/octane-xplat/references/primitives.md#grouped-and-tree-tables), [four object-driver cases](../../../packages/ui/src/table/table-text-overflow.macos.mobile.test.tsrx), [two compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual fixture](../../../examples/probes/table-scroll.macos.tsrx) and [source note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-data-table-body-text-overflow). All authored checks remain unrun.

@@ -32,8 +32,8 @@ pnpm probe run research/hosted-engine/hosted.tsrx --target android --device <SER
 | Android          | `octane-prime-larkspur` AVD, API 35 arm64 (`emulator-5556`)             | PASS — 19/19 assertions                                                      | `b6ba0fc5-e81e-45c7-9fcd-50a97c65abe8`                                                    |
 | iOS push channel | same simulator                                                          | host crash — `doesNotRecognizeSelector` at `WKScriptMessageHandler` dispatch | `bridge-push.tsrx` runs, see below                                                        |
 
-Raw runner output: `.agents/docs/parity/evidence/hosted-engine-ios-2026-10-08.json`,
-`.agents/docs/parity/evidence/hosted-engine-android-2026-10-08.json`.
+Raw runner output: `tools/platform-qualification/evidence/editors/hosted-engine-ios-2026-10-08.json`,
+`tools/platform-qualification/evidence/editors/hosted-engine-android-2026-10-08.json`.
 
 ## Findings
 

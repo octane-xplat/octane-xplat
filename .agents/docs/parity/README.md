@@ -12,6 +12,9 @@ They are kept outside the published documentation corpus in `docs/`.
 - [Nested-tree editor device evidence](nested-tree-editor.md)
 - [Mobile runtime qualification report](mobile-runtime.md)
 
-Raw probe output for the two runtime reports is in [evidence](evidence/).
+Raw probe output for the two runtime reports is in [qualification evidence](../../../tools/platform-qualification/evidence/editors/).
 
 - [Native desktop export audit](native-desktop-support.md) (Windows, AppKit and GTK)
+
+- [AppKit maintenance and qualification](appkit-progress.md) — current constraints and dated evidence.
+- [Windows maintenance and qualification](windows-support-progress.md) — bounded results and remaining gates.

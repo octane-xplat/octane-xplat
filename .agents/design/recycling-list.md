@@ -155,7 +155,7 @@ changes until the candidate is implemented and qualified.
 
 ## Measured result: construction falls, publication remains gated
 
-[Machine-readable evidence](../docs/evidence/recycling-list-2026-10-19.json)
+[Machine-readable evidence](../../tools/platform-qualification/evidence/lists/recycling-list-2026-10-19.json)
 retains the fixture, trial order, counters, readiness samples, cleanup, and
 limitations. Chromium executed four trials in windowed/recycling/recycling/windowed
 order over 500 fixed-height rows with two item types and 15 DOM elements per row.

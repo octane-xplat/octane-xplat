@@ -490,7 +490,7 @@ The existing Windows test project uses App SDK 1.6.250205002. The newer
 Microsoft.Windows.Storage.Pickers API requires 1.8; changing the namespace alone
 does not supply a usable picker. The older Windows.Storage.Pickers API requires
 IInitializeWithWindow bound to the actual owner HWND. Qualify that host bridge
-before enabling pick/export. See the [picker prerequisites](../../../docs/parity/windows-support-progress.md#windows-picker-host-prerequisite-review).
+before enabling pick/export. See the [picker prerequisites](../../../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md#windows-picker-host-prerequisite-review).
 
 ```ts
 import { files } from '@octane-xplat/files'

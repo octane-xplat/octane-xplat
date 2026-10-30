@@ -25,13 +25,13 @@ qualification boundaries.
 
 | Artifact | Contents |
 | --- | --- |
-| [Windows export rows](desktop-support/windows.tsv) | Entry, declaration, signature, scope, subset, gap and finding IDs for every inventoried export |
-| [AppKit export rows](desktop-support/macos.tsv) | Same schema, selected using AppKit conditions/extensions |
-| [GTK export rows](desktop-support/gtk.tsv) | Same schema, selected using GTK conditions/extensions |
-| [Reviewed findings](desktop-support/findings.json) | Explicit subset, remaining gap and source paths; distinct from keyword candidates |
-| [Dependency candidates](desktop-support/dependency-candidates.json) | Foreign platform imports, missing paths and missing named core-shim exports |
-| [Snapshot](desktop-support/snapshot.json) | Package/entrypoint census, exclusions, conditions, source SHA-256 hashes, parser fallback and resolution counts |
-| [Windows resolver output](desktop-support/windows-resolution.json) | Actual minimal Vite resolution; null results for packages undeclared by the harness are not missing-export findings |
+| [Windows export rows](../../../tools/desktop-support/windows.tsv) | Entry, declaration, signature, scope, subset, gap and finding IDs for every inventoried export |
+| [AppKit export rows](../../../tools/desktop-support/macos.tsv) | Same schema, selected using AppKit conditions/extensions |
+| [GTK export rows](../../../tools/desktop-support/gtk.tsv) | Same schema, selected using GTK conditions/extensions |
+| [Reviewed findings](../../../tools/desktop-support/findings.json) | Explicit subset, remaining gap and source paths; distinct from keyword candidates |
+| [Dependency candidates](../../../tools/desktop-support/dependency-candidates.json) | Foreign platform imports, missing paths and missing named core-shim exports |
+| [Snapshot](../../../tools/desktop-support/snapshot.json) | Package/entrypoint census, exclusions, conditions, source SHA-256 hashes, parser fallback and resolution counts |
+| [Windows resolver output](../../../tools/desktop-support/windows-resolution.json) | Actual minimal Vite resolution; null results for packages undeclared by the harness are not missing-export findings |
 
 The key is `(package, subpath, export, target)`. A runtime export can be present
 while importing incompatible modules, emitting unregistered widgets or ignoring
@@ -121,9 +121,9 @@ Run from the repository root with the workspace dependencies installed:
 
 ```sh
 mkdir -p research/desktop-audit
-node .agents/docs/parity/desktop-support/collect.mjs research/desktop-audit/inventory.json
-node .agents/docs/parity/desktop-support/render.mjs research/desktop-audit/inventory.json
-node .agents/docs/parity/desktop-support/windows-resolution.mjs
+node tools/desktop-support/collect.mjs research/desktop-audit/inventory.json
+node tools/desktop-support/render.mjs research/desktop-audit/inventory.json
+node tools/desktop-support/windows-resolution.mjs
 ```
 
 The collector reads manifests, parses declarations/re-exports and follows

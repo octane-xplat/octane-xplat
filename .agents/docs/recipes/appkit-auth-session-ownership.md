@@ -20,5 +20,5 @@ options. These findings are source inspection, not observed sign-in failures.
 
 ## Documentation
 
-- AC1–AC4: [Public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), Octane services reference, fix note and [target note](../parity/appkit-progress.md#appkit-auth-session-presenter-ownership).
+- AC1–AC4: [Public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), Octane services reference, fix note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-auth-session-presenter-ownership).
 - AC1–AC4: [Model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) and [manual cancellation fixture](../../../examples/probes/auth-session.macos.tsrx), authored but unrun. example.com is not a real authentication provider.

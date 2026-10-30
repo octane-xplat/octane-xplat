@@ -31,4 +31,4 @@ use a contiguous string rather than positional empty-cell placeholders.
 - AC3: [Completion and input restrictions](../../../docs/app/primitives.md#edit-a-pin).
 - AC4: [Field composition](../../../docs/app/primitives.md#edit-a-pin) and web regression coverage in `packages/ui/src/components/forms/SearchInput.web.test.tsrx`.
 
-- AC5: [AppKit PIN contract](../../../docs/app/primitives.md#pin-fields-on-appkit), appended [AppKit object-driver cases](../../../packages/ui/src/components/forms/pin-input.macos.mobile.test.tsrx) and [target note](../parity/appkit-progress.md#appkit-empty-cell-pin-backspace). Cases remain unrun; physical input and focus are unqualified.
+- AC5: [AppKit PIN contract](../../../docs/app/primitives.md#pin-fields-on-appkit), appended [AppKit object-driver cases](../../../packages/ui/src/components/forms/pin-input.macos.mobile.test.tsrx) and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-empty-cell-pin-backspace). Cases remain unrun; physical input and focus are unqualified.

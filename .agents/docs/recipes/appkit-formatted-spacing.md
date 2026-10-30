@@ -19,6 +19,6 @@ A caption mixes spaced text and a span using its font's default spacing.
 
 - AC1: [Renderer contract and example](../../../packages/macos-renderer/README.md#apply-stylesheets) and [authored source cases](../../../packages/macos-renderer/test/formatted-text.test.ts). Tests unrun.
 - AC2: The same source cases cover host defaults, removal and reparenting.
-- AC3: [Target note](../parity/appkit-progress.md#formatted-text-letter-spacing) records the native attribute policy and exact deferred checks. No native glyph or layout result is claimed.
+- AC3: [Target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#formatted-text-letter-spacing) records the native attribute policy and exact deferred checks. No native glyph or layout result is claimed.
 
-- AC4: [Renderer line-height contract](../../../packages/macos-renderer/README.md#apply-stylesheets), authored host/paragraph source cases and [deferred-check note](../parity/appkit-progress.md#formatted-host-line-height). Tests unrun.
+- AC4: [Renderer line-height contract](../../../packages/macos-renderer/README.md#apply-stylesheets), authored host/paragraph source cases and [deferred-check note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#formatted-host-line-height). Tests unrun.

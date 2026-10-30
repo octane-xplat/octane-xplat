@@ -120,7 +120,7 @@ alone did not detect the release-bundle failure.
 - [Expo ScreenOrientation](https://docs.expo.dev/versions/latest/sdk/screen-orientation/)
 - Expo 58.0.3 ScreenOrientationUtilities.swift, ModuleOrientation/ModuleOrientationLock and Android OrientationLock mappings.
 - NativeScript core 9.1.3 NativeWindow events/surfaces and custom-delegate scene defaults.
-- [UIApplication default orientation query](<https://developer.apple.com/documentation/uikit/uiapplication/supportedinterfaceorientations(for:)>)
-- [UIKit requestGeometryUpdate](<https://developer.apple.com/documentation/uikit/uiwindowscene/requestgeometryupdate(_:errorhandler:)>)
+- [UIApplication default orientation query](<https:/developer.apple.com/documentation/uikit/uiapplication/supportedinterfaceorientations(for:)>)
+- [UIKit requestGeometryUpdate](<https:/developer.apple.com/documentation/uikit/uiwindowscene/requestgeometryupdate(_:errorhandler:)>)
 - [Android Activity orientation configuration](https://developer.android.com/guide/topics/manifest/activity-element)
 - Community source comparison: @irman/nativescript-screen-orientation1.1.2 and @wuilmerj24/screen-orientation1.0.6; no implementation code copied.

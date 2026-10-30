@@ -23,7 +23,7 @@ before V8 initialization. `deno_core_icudata` 0.77.0 owns matching data in a
 16-byte-aligned static allocation. The candidate adds this dependency only to
 the classic engine and registers it inside the existing one-time initialization.
 The reviewable upstream candidate is retained as
-[an unapplied source patch](../patches/windows-runtime-icu77.patch), including
+[an unapplied source patch](../../tools/platform-qualification/patches/windows-runtime-icu77.patch), including
 the regression test. It applies to the resolved release commit. This remains
 a source-backed hypothesis until baseline and corrected binaries are tested.
 

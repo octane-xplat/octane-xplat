@@ -1,7 +1,7 @@
 # Windows UI exploration lab
 
 Baseline: `7c47480b` (rebased onto main on 2026-10-02).
-Component register: [windows-ui-inventory.json](windows-ui-inventory.json).
+Component register: [windows-ui-inventory.json](../../tools/platform-qualification/evidence/windows-ui-inventory.json).
 
 The register covers 169 root-exported UI components. All 169 components have a disposition: 28 implemented/reused in bounded native
 cases and 141 parked with evidence, a specific blocker, and reopening criteria.

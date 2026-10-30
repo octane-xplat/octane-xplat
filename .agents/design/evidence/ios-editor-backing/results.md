@@ -14,7 +14,7 @@ Host: macOS arm64. `xcodebuild -version`: Xcode 27.0, build 27A266a. Simulator S
 lexical_source=$(opensrc path facebook/lexical-ios#d871c0ad2f22e2ba19226fe8187e8f72f1e99ca4)
 probe_output="$(mktemp -d)/compiled"
 goddard-agent resource run '{"resources":{"native_builds":1},"purpose":"iOS editor bridge compile/link diagnostic"}' -- \
-  bash .agents/design/evidence/ios-editor-backing/compile.sh "$lexical_source" "$probe_output"
+  bash tools/platform-qualification/ios-editor-backing/compile.sh "$lexical_source" "$probe_output"
 ```
 
 Observed output:
@@ -34,11 +34,11 @@ This establishes at compile/link level:
 
 ## NativeScript metadata check: RUN, known loss bug REPRODUCES (2026-10-06)
 
-[metadata-check.sh](metadata-check.sh) reproduces the NativeScript iOS metadata build step verbatim for the arm64 simulator slice: it invokes `objc-metadata-generator` from `@nativescript/ios` 9.1.0 (`framework/internal/metadata-generator-arm64/bin/`, bundled clang 17) with `-fmodules`, `-output-bin/-output-umbrella/-output-typescript/-output-yaml`, and framework search paths covering the SDK plus a wrapper framework exposing `SurfaceProbe-Swift.h` as module `XplatEditorSurface`.
+[metadata-check.sh](../../../../tools/platform-qualification/ios-editor-backing/metadata-check.sh) reproduces the NativeScript iOS metadata build step verbatim for the arm64 simulator slice: it invokes `objc-metadata-generator` from `@nativescript/ios` 9.1.0 (`framework/internal/metadata-generator-arm64/bin/`, bundled clang 17) with `-fmodules`, `-output-bin/-output-umbrella/-output-typescript/-output-yaml`, and framework search paths covering the SDK plus a wrapper framework exposing `SurfaceProbe-Swift.h` as module `XplatEditorSurface`.
 
 ```bash
 goddard-agent resource run '{"resources":{"native_builds":1},"purpose":"iOS editor bridge compile/link + metadata diagnostic"}' -- \
-  bash .agents/design/evidence/ios-editor-backing/metadata-check.sh \
+  bash tools/platform-qualification/ios-editor-backing/metadata-check.sh \
     "$GENBIN" "$probe_output" "$meta_output"
 ```
 
@@ -81,7 +81,7 @@ The supplied plan's metadata blocker is confirmed and now precisely characterize
 
 ## Modulemap workaround: RUN, metadata restored (2026-10-06)
 
-[metadata-check-featureflag.sh](metadata-check-featureflag.sh) reruns the identical
+[metadata-check-featureflag.sh](../../../../tools/platform-qualification/ios-editor-backing/metadata-check-featureflag.sh) reruns the identical
 generator invocation with two additions injected at the position `OTHER_CFLAGS`
 occupies in `build-step-metadata-generator.py` (`other_cflags_parsed` lands between
 framework search paths and preprocessor defines):
@@ -159,7 +159,7 @@ OTHER_CFLAGS = $(inherited) -Xclang -fmodule-feature -Xclang found_incompatible_
 
 ## Checks run
 
-- `bash -n .agents/design/evidence/ios-editor-backing/compile.sh`: passed.
+- `bash -n tools/platform-qualification/ios-editor-backing/compile.sh`: passed.
 - `compile.sh` under `native_builds` reservation: passed (see above).
 - `metadata-check.sh` under the same reservation: ran to completion; loss bug reproduced (see above).
 - `metadata-check-featureflag.sh` (and direct generator invocations with the same clang args) under `native_builds` reservation: 52,046 declarations / 173 modules; required symbols and probe `view` verified in `ts/` (see above).

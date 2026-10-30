@@ -10,7 +10,7 @@ this repairs a shared seam rather than certifying every control.
 The source repair is in a local detached NativeScript checkout based on
 `7d0adcec9fa05e34668a7abacf3a79dab55325e6`. The three source commits are
 `49cd5d8ce`, `720e6bae7`, and `f82cbeba9`. Their complete source and regression
-tests are retained in [the source patch](../patches/windows-pointer-core.patch).
+tests are retained in [the source patch](../../tools/platform-qualification/patches/windows-pointer-core.patch).
 There is no remote fork, push, or upstream PR.
 
 The compiled runtime/declaration changes extend the existing canonical
@@ -138,7 +138,7 @@ capture, cancellation/recovery and the real shared Slider's controlled numeric
 pointer path. Native Slider keyboard and RangeValue checks are separate engine
 feasibility evidence, not public Slider support. Detailed artifacts, prior
 failures, package-patch round-trip checks and deferred commands are in the
-[target progress note](parity/windows-support-progress.md#v26-qualifies-windows-mouse-pan-and-slider-engine-prerequisites).
+[target progress note](../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md#v26-qualifies-windows-mouse-pan-and-slider-engine-prerequisites).
 
 The three earlier source commits and source patch above remain historical.
 The current distributed repair lives in

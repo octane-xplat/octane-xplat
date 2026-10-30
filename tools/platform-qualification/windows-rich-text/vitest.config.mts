@@ -61,7 +61,7 @@ export default defineConfig({
 	},
 	test: {
 		server: { deps: { inline: [/@nativescript-community\/octane/] } },
-		include: ['.agents/tests/windows-rich-text/*.test.{ts,tsrx}'],
+		include: ['tools/platform-qualification/windows-rich-text/*.test.{ts,tsrx}'],
 		environment: 'node',
 	},
 })

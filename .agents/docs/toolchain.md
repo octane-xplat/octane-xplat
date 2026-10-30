@@ -236,7 +236,7 @@ experience of agents writing Octane-xplat code effectively.
   leaves source in the framework's Vite transform pipeline and does not add
   esbuild loaders or another runtime realm.
 
-  The [upstream source repair and tests](../patches/native-vendor-entry-source.patch)
+  The [upstream source repair and tests](../../tools/platform-qualification/patches/native-vendor-entry-source.patch)
   are retained locally against NativeScript Vite 8.0.20 and 8.0.21; no follow-up PR has
   been submitted from this task. The installed-patch regressions live in
   `packages/cli/test/vite-vendor-exclude.test.mjs`, including the Android dev

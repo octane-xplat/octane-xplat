@@ -18,5 +18,5 @@ as in the Astryx sandbox's file-row example. Actions must remain reachable.
 
 ## Documentation
 
-- AC1–AC4: [App guide](../../../docs/app/components.md#media-contrast-and-row-actions), Octane primitive reference and [target note](../parity/appkit-progress.md#appkit-container-reveal-source-path).
+- AC1–AC4: [App guide](../../../docs/app/components.md#media-contrast-and-row-actions), Octane primitive reference and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-container-reveal-source-path).
 - AC2–AC4: Two new cases in [CSS machinery tests](../../../packages/macos-renderer/test/css-machinery.test.ts) and [manual fixture](../../../examples/probes/container-reveal.macos.tsrx), all unrun. Simulated cascade/notification cases cannot prove OS input or accessibility.

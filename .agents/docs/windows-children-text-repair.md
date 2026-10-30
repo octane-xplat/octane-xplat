@@ -46,7 +46,7 @@ ownership are unchanged; no driver hunks overlap the nested-rich-text task.
 
 ## Retained source and package integration
 
-[The owning source patch](../patches/windows-children/octane-children-source.patch)
+[The owning source patch](../../tools/platform-qualification/patches/windows-children/octane-children-source.patch)
 is based on upstream `octane@0.6.3`. It applies cleanly to the original source and
 recreates the edited source exactly. The existing canonical Octane patch retains
 all prior signal, hook, event, and compiler repairs. Only its two universal-core

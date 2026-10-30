@@ -17,5 +17,5 @@ metadata. The lockfile changes only the Octane patch hash.
 Collection regression coverage lives in `packages/ui/src/internal/rendering/children.mobile.test.ts`
 and `children.web.test.tsrx`; installed-driver text hosting is covered by
 `data-driver.mobile.test.ts`. See
-[the task lab record](../../docs/windows-children-text-repair.md) for verified
+[the task lab record](../../../../.agents/docs/windows-children-text-repair.md) for verified
 scope and the Windows reopening gate.

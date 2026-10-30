@@ -22,7 +22,7 @@ source models are not evidence of native input or package qualification.
 
 ## Documentation
 
-- AC1–AC4: [Native selection guide](../../../docs/platform/native-picker.md#native-macos-selection), [README](../../../packages/picker/README.md#native-macos-picker), public type comments, Octane primitives reference, feature and [target note](../parity/appkit-progress.md#appkit-native-id-picker).
+- AC1–AC4: [Native selection guide](../../../docs/platform/native-picker.md#native-macos-selection), [README](../../../packages/picker/README.md#native-macos-picker), public type comments, Octane primitives reference, feature and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-native-id-picker).
 - AC1: [Packed consumer](../../../packages/picker/tests/packed-consumer.mjs), authored but unrun; type-only lane does not compile the native component or prove native resolution.
 - AC2: [Owner-model cases](../../../packages/picker/tests/picker-owner.macos.test.mjs), authored but unrun.
 - AC3: [Actual renderer-branch cases](../../../packages/macos-renderer/test/picker.test.ts) and [existing raw ListPicker model](../../../packages/macos-renderer/test/raw-list-picker.test.ts), all unrun in this task. Native fakes do not prove selector ABI, menu tracking, BOOL getters or layout.

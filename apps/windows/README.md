@@ -13,7 +13,7 @@ the suffix chain.
 The harness remains experimental. Earlier Windows build and input evidence is
 recorded in the [test-host runbook](../../.agents/docs/windows-test-host.md).
 A bounded x64 packaged run on this preview passed 13 input, modal and scrolling
-scenario groups; see the [target evidence](../../.agents/docs/parity/windows-support-progress.md#qualified-bounded-common-flow-batch-v6).
+scenario groups; see the [target evidence](../../tools/platform-qualification/evidence/windows-support-progress-2026-10-30.md#qualified-bounded-common-flow-batch-v6).
 That run used core patch f6bf77c5. The later synchronous-filesystem patch is
 source-contract checked only and still needs native adoption/verification.
 The full shared harness, other architectures and wider support gates remain

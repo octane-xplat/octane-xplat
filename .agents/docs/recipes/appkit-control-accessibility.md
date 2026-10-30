@@ -21,9 +21,9 @@ Self-drawn settings controls and tab strips hosted in AppKit Mason views.
 ## Documentation
 
 - AC1: [Renderer contract](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility) and [authored source regressions](../../../packages/macos-renderer/test/common-control-accessibility.test.ts). Tests unrun.
-- AC2: The same contract and source cases cover action dispatch/guards; [target note](../parity/appkit-progress.md#common-control-accessibility-prerequisite) records exact deferred commands.
+- AC2: The same contract and source cases cover action dispatch/guards; [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#common-control-accessibility-prerequisite) records exact deferred commands.
 - AC3: The renderer contract and source regressions document notification scope and remaining native qualification gates. No runtime or assistive-technology evidence is claimed.
 
 - AC4: [Native activation contract](../../../packages/macos-renderer/README.md#self-drawn-control-keyboard-activation) and [authored shortcut/guard cases](../../../packages/macos-renderer/test/common-control-accessibility.test.ts). No actual OS key or shortcut run is claimed.
 
-- AC5: [Renderer selector contract](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility), added retained-state/selector regression, corrected existing focus/action fixtures and [target note](../parity/appkit-progress.md#appkit-native-enabled-selector-prerequisite). All remain unrun; native bridge/AX/focus qualification is deferred.
+- AC5: [Renderer selector contract](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility), added retained-state/selector regression, corrected existing focus/action fixtures and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-native-enabled-selector-prerequisite). All remain unrun; native bridge/AX/focus qualification is deferred.

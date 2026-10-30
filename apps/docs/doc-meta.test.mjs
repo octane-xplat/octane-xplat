@@ -15,8 +15,8 @@ test('Markdown links resolve from the page directory and preserve repository bou
 	assert.equal(docSlugFor('../../.agents/design/README.md', 'app'), null)
 	assert.equal(repoPathFor('../../packages/ui/src/props.ts#L10', 'app'), 'packages/ui/src/props.ts')
 	assert.equal(
-		repoPathFor('../../.agents/docs/evidence/list.json', 'app'),
-		'.agents/docs/evidence/list.json',
+		repoPathFor('../../tools/platform-qualification/evidence/lists/list.json', 'app'),
+		'tools/platform-qualification/evidence/lists/list.json',
 	)
 
 	assert.equal(repoPathFor('../../.agents/', 'app'), '.agents/')

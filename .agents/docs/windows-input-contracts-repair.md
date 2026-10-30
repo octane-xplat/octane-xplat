@@ -10,7 +10,7 @@ has been upgraded, and this candidate has not been installed in the guest.
 The detached upstream checkout is based on
 `7d0adcec9fa05e34668a7abacf3a79dab55325e6`, with the retained pointer commits
 applied unchanged. Input source commit `468fe19f` is retained in
-[windows-input-core.patch](../patches/windows-input-core.patch). It changes only
+[windows-input-core.patch](../../tools/platform-qualification/patches/windows-input-core.patch). It changes only
 core input, accessibility, and property source plus a property regression spec.
 There is no shared-component workaround, branch, push, or upstream PR.
 
@@ -68,8 +68,8 @@ as run. The retained TSRX case parses; it has not been prepared on Windows.
 
 ## Retained OS case and reopening
 
-[Public input case](../tests/windows-input-contracts/case.windows.tsrx) and
-[interactive keyboard/UIA script](../tests/windows-input-contracts/os-input.ps1)
+[Public input case](../../tools/platform-qualification/windows-input-contracts/case.windows.tsrx) and
+[interactive keyboard/UIA script](../../tools/platform-qualification/windows-input-contracts/os-input.ps1)
 are owned, retained lab fixtures, not a completed Windows pass. The case uses
 production TextInput/TextArea handles and a file command channel. Public blur
 is invoked without a button click or another focus-changing action. Secure

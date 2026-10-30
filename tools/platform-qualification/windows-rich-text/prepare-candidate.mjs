@@ -47,11 +47,11 @@ function run(command, args, cwd = repo) {
 
 run(
 	'git',
-	['apply', '--check', join(repo, '.agents/patches/windows-rich-text/driver-source.patch')],
+	['apply', '--check', join(repo, 'tools/platform-qualification/patches/windows-rich-text/driver-source.patch')],
 	target,
 )
 
-run('git', ['apply', join(repo, '.agents/patches/windows-rich-text/driver-source.patch')], target)
+run('git', ['apply', join(repo, 'tools/platform-qualification/patches/windows-rich-text/driver-source.patch')], target)
 writeFileSync(
 	join(target, 'tsconfig.base.json'),
 	JSON.stringify({
@@ -80,13 +80,13 @@ const packaged = join(target, 'package')
 cpSync(installed, packaged, { recursive: true })
 run(
 	'git',
-	['apply', '--check', join(repo, '.agents/patches/windows-rich-text/driver-package.patch')],
+	['apply', '--check', join(repo, 'tools/platform-qualification/patches/windows-rich-text/driver-package.patch')],
 	packaged,
 )
 
 run(
 	'git',
-	['apply', join(repo, '.agents/patches/windows-rich-text/driver-package.patch')],
+	['apply', join(repo, 'tools/platform-qualification/patches/windows-rich-text/driver-package.patch')],
 	packaged,
 )
 

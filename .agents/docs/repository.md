@@ -24,6 +24,13 @@ writing or reviewing the guides.
 UI fixtures without becoming an app. Reusable libraries and published developer
 tools belong in `packages/`; see [workspace placement](../../AGENTS.md#workspace-placement).
 
+Keep `.agents/` limited to guidance and durable memory. Plans live elsewhere;
+executable fixtures, patch sources, and raw qualification artifacts belong in
+`tools/platform-qualification/`, and desktop source-audit tooling/data in
+`tools/desktop-support/`. Link from conclusions to evidence rather than storing
+operational files alongside agent instructions. Formatters and linters exclude
+`.agents/`; documentation and recipe checks retain their own coverage.
+
 ## Layout
 
 | Path                                                                                       | What it is                                                                                                                                                                                        |

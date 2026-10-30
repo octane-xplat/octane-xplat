@@ -72,15 +72,15 @@ used for the final Windows geometry and OS tests.
 
 ## Retained artifacts
 
-- [Native source and maintained test patch](../patches/windows-layout/native-padding.patch)
-- [Core source patch](../patches/windows-layout/core-percent-source.patch)
-- [Minimal core package JS patch](../patches/windows-layout/core-percent-package.patch)
-- [Source/package helper test](../tests/windows-layout/percent-sizing.test.mjs)
-- [Native geometry case](../tests/windows-layout/native-geometry.windows.ts) and
-  [output checker](../tests/windows-layout/check-native-output.mjs)
-- [Popover case](../tests/windows-layout/popover-case.windows.tsrx),
-  [entry](../tests/windows-layout/popover-index.windows.ts), and
-  [real OS resize/click script](../tests/windows-layout/popover-os-input.ps1)
+- [Native source and maintained test patch](../../tools/platform-qualification/patches/windows-layout/native-padding.patch)
+- [Core source patch](../../tools/platform-qualification/patches/windows-layout/core-percent-source.patch)
+- [Minimal core package JS patch](../../tools/platform-qualification/patches/windows-layout/core-percent-package.patch)
+- [Source/package helper test](../../tools/platform-qualification/windows-layout/percent-sizing.test.mjs)
+- [Native geometry case](../../tools/platform-qualification/windows-layout/native-geometry.windows.ts) and
+  [output checker](../../tools/platform-qualification/windows-layout/check-native-output.mjs)
+- [Popover case](../../tools/platform-qualification/windows-layout/popover-case.windows.tsrx),
+  [entry](../../tools/platform-qualification/windows-layout/popover-index.windows.ts), and
+  [real OS resize/click script](../../tools/platform-qualification/windows-layout/popover-os-input.ps1)
 
 Apply the source patches to a clean detached checkout at the pin above. Apply
 the package patch to the pinned package, preserving the existing framework
@@ -95,8 +95,8 @@ runtime-tested candidate.
 Run helper checks with either source or patched package JS:
 
 ```sh
-node .agents/tests/windows-layout/percent-sizing.test.mjs research/windows-layout-upstream/packages/core/ui/core/view/index.windows.ts
-node .agents/tests/windows-layout/percent-sizing.test.mjs apps/windows/node_modules/@nativescript/core/ui/core/view/index.windows.js
+node tools/platform-qualification/windows-layout/percent-sizing.test.mjs research/windows-layout-upstream/packages/core/ui/core/view/index.windows.ts
+node tools/platform-qualification/windows-layout/percent-sizing.test.mjs apps/windows/node_modules/@nativescript/core/ui/core/view/index.windows.js
 ```
 
 For native checks, copy the geometry entry into the isolated Windows lab app,
@@ -104,7 +104,7 @@ prepare it, and launch interactively with the candidate widget DLL/WinMD. Feed
 its UTF-8 console log to:
 
 ```sh
-node .agents/tests/windows-layout/check-native-output.mjs path/to/console.log
+node tools/platform-qualification/windows-layout/check-native-output.mjs path/to/console.log
 ```
 
 For Popover, copy the retained case as `src/windows-ui-case.tsrx` and its entry

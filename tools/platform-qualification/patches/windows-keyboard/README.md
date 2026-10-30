@@ -19,7 +19,7 @@ The bridge emits core EventData with nativeEvent and preventDefault. It does not
 normalize key names, physical codes, modifiers or composition state, and it does
 not enable the public useKeyboard hook. Real WinUI/OS input, handled/routed keys,
 IME and modal focus still need qualification. See the
-[Windows progress note](../../docs/parity/windows-support-progress.md).
+[Windows progress note](../../../../.agents/docs/parity/windows-support-progress.md).
 
 The maintained `@xplat/windows#test:keyboard` task evaluates the published helper
 and extracted View/TextField methods against fake native/core objects, plus the

@@ -28,9 +28,9 @@ its text.
 - AC1: [State ownership](../../../docs/app/primitives.md#grow-a-multiline-field) and maintained [input probes](../../../packages/app/src/Home.tsrx).
 - AC2: [Growth and limits](../../../docs/app/primitives.md#grow-a-multiline-field); input-driven sizing regressions in `packages/ui/src/components/forms/TextArea.web.test.tsrx`.
 
-- AC3: [Growth ownership guide](../../../docs/app/primitives.md#keep-appkit-growth-with-its-editor), [renderer contract](../../../packages/macos-renderer/README.md#own-multiline-resize-observation), [lease](../../../packages/macos-renderer/src/text-view-layout.ts), [seven observer models](../../../packages/macos-renderer/test/text-view-layout.test.ts), [three sizing models](../../../packages/macos-renderer/test/text-interaction.test.ts), [destroy integration model](../../../packages/macos-renderer/test/batch-recovery.test.ts), [manual fixture](../../../examples/probes/text-entry-ownership.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives.md#appkit-multiline-sizing-ownership), [fix note](../../../.changelog/fixes/appkit-textarea-resize-ownership.md) and [target note](../parity/appkit-progress.md#appkit-multiline-layout-observation-ownership). All cases/probes remain UNRUN.
+- AC3: [Growth ownership guide](../../../docs/app/primitives.md#keep-appkit-growth-with-its-editor), [renderer contract](../../../packages/macos-renderer/README.md#own-multiline-resize-observation), [lease](../../../packages/macos-renderer/src/text-view-layout.ts), [seven observer models](../../../packages/macos-renderer/test/text-view-layout.test.ts), [three sizing models](../../../packages/macos-renderer/test/text-interaction.test.ts), [destroy integration model](../../../packages/macos-renderer/test/batch-recovery.test.ts), [manual fixture](../../../examples/probes/text-entry-ownership.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives.md#appkit-multiline-sizing-ownership), [fix note](../../../.changelog/fixes/appkit-textarea-resize-ownership.md) and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-multiline-layout-observation-ownership). All cases/probes remain UNRUN.
 
-- AC4: [macOS task](../../../apps/macos/turbo.json), [existing script](../../../apps/macos/test/verify-text-controls.mjs), the command below and the [target note](../parity/appkit-progress.md#appkit-multiline-layout-observation-ownership). Task/configuration metadata received source/JSON review only; Turbo graph, prerequisites and native execution remain unrun.
+- AC4: [macOS task](../../../apps/macos/turbo.json), [existing script](../../../apps/macos/test/verify-text-controls.mjs), the command below and the [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-multiline-layout-observation-ownership). Task/configuration metadata received source/JSON review only; Turbo graph, prerequisites and native execution remain unrun.
 
 ## macOS verification
 
@@ -47,5 +47,5 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"A
 ```
 
 This command remains UNRUN. Resource admission is not visual-analysis approval.
-The [target note](../parity/appkit-progress.md#appkit-multiline-layout-observation-ownership)
+The [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-multiline-layout-observation-ownership)
 records the other deferred source/packed/probe commands and remaining limits.

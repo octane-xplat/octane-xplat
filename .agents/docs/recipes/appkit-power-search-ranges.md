@@ -21,6 +21,6 @@ was checked first: source paging already exists and remains runtime-unqualified.
 
 ## Documentation
 
-- AC1–AC4: [Public range form](../../../docs/app/power-search.md#edit-native-appkit-date-ranges), Octane primitives reference, feature note and [target note](../parity/appkit-progress.md#appkit-powersearch-date-range-form).
+- AC1–AC4: [Public range form](../../../docs/app/power-search.md#edit-native-appkit-date-ranges), Octane primitives reference, feature note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-powersearch-date-range-form).
 - AC1–AC2, AC4: [Value model](../../../packages/ui/src/components/forms/power-search-date-range.macos.mobile.test.ts), authored but unrun.
 - AC3–AC4: [Mocked-control compiler cases](../../../packages/ui/src/components/forms/power-search-range-editor.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-range.macos.tsrx), authored but unrun. These do not qualify real control events, focus, IME or AX.

@@ -20,4 +20,4 @@ A card or picker trigger contains another actionable control.
 - AC1: [Renderer contract](../../../packages/macos-renderer/README.md#nested-primary-clicks) and [coordinate/ancestry cases](../../../packages/macos-renderer/test/primary-click.test.ts).
 - AC2: The renderer contract and boundary classification cases document passive versus interactive descendants.
 - AC3: [Action lifecycle cases](../../../packages/macos-renderer/test/click-action-lifecycle.test.ts) and [delegate cases](../../../packages/macos-renderer/test/gestures.test.ts) cover live ownership and opt-in gates.
-- AC4: The contract and [target note](../parity/appkit-progress.md#appkit-nested-primary-click-ownership) record limitations and exact deferred commands. All authored cases remain unrun.
+- AC4: The contract and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-nested-primary-click-ownership) record limitations and exact deferred commands. All authored cases remain unrun.

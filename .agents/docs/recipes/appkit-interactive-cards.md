@@ -22,6 +22,6 @@ A collection screen opens a help URL or requests a controlled selection change.
 - AC1: [Interactive card guide](../../../docs/app/interactive-actions.md#interactive-cards) and [authored source cases](../../../packages/ui/src/components/actions/interactive-cards.macos.mobile.test.tsrx). Tests unrun.
 - AC2: [AppKit card qualification](../../../docs/app/interactive-actions.md#appkit-card-qualification) and the same source cases.
 - AC3: The guide and source cases cover controlled requests/feedback and retained checkbox semantics.
-- AC4: [Target note](../parity/appkit-progress.md#appkit-interactive-card-links-and-text-hosts) records scope and exact deferred commands.
+- AC4: [Target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-interactive-card-links-and-text-hosts) records scope and exact deferred commands.
 
-- AC5: [Disabled-card source contract](../../../packages/macos-renderer/README.md#focus-on-disabled-selection-cards), authored renderer ownership and UI card/FocusScope cases, and [target note](../parity/appkit-progress.md#disabled-selectable-card-focus-ownership). All tests unrun.
+- AC5: [Disabled-card source contract](../../../packages/macos-renderer/README.md#focus-on-disabled-selection-cards), authored renderer ownership and UI card/FocusScope cases, and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#disabled-selectable-card-focus-ownership). All tests unrun.

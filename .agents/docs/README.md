@@ -59,3 +59,8 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Bamboo build participation](bamboo-build-environments.md) — custom Vite
   builders, unused SSR environments, and the upstream accounting contract.
 - [Optional Web rendering host and hydration evidence](notes/web-rendering-host.md)
+
+Operational fixtures, raw reports, and patch sources are in
+[platform qualification tooling](../../tools/platform-qualification/README.md)
+and [desktop audit tooling](../../tools/desktop-support/README.md).
+Plans are maintained outside `.agents/`.

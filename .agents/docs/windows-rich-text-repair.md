@@ -47,13 +47,13 @@ No changes were made to Octane's universal runtime or the shared Text adapter.
 
 ## Durable artifacts and replay
 
-- [Source repair and upstream regression tests](../patches/windows-rich-text/driver-source.patch)
-- [Emitted package delta](../patches/windows-rich-text/driver-package.patch)
-- [Maintained driver and compiled Text tests](../tests/windows-rich-text/vitest.config.mts)
-- [Mobile native case](../tests/windows-rich-text/mobile-case.tsrx)
-- [Windows native case](../tests/windows-rich-text/native-case.tsrx),
-  [inspection entry](../tests/windows-rich-text/native-index.ts), and
-  [output assertions](../tests/windows-rich-text/check-native-output.mjs)
+- [Source repair and upstream regression tests](../../tools/platform-qualification/patches/windows-rich-text/driver-source.patch)
+- [Emitted package delta](../../tools/platform-qualification/patches/windows-rich-text/driver-package.patch)
+- [Maintained driver and compiled Text tests](../../tools/platform-qualification/windows-rich-text/vitest.config.mts)
+- [Mobile native case](../../tools/platform-qualification/windows-rich-text/mobile-case.tsrx)
+- [Windows native case](../../tools/platform-qualification/windows-rich-text/native-case.tsrx),
+  [inspection entry](../../tools/platform-qualification/windows-rich-text/native-index.ts), and
+  [output assertions](../../tools/platform-qualification/windows-rich-text/check-native-output.mjs)
 
 The source patch applies to the unmodified upstream0.2.4 source. It includes the
 existing source equivalents of the canonical undefined-prop and visibility
@@ -66,12 +66,12 @@ concatenate overlapping patches or bypass the normal sync/hash checks.
 Prepare a fresh candidate from the repository root:
 
 ```sh
-node .agents/tests/windows-rich-text/prepare-candidate.mjs \
+node tools/platform-qualification/windows-rich-text/prepare-candidate.mjs \
   "$(opensrc path @nativescript-community/octane@0.2.4)"
 RICH_TEXT_DRIVER=research/windows-rich-text/candidate/packages/octane/src/driver.ts \
-  pnpm exec vitest run --config .agents/tests/windows-rich-text/vitest.config.mts
+  pnpm exec vitest run --config tools/platform-qualification/windows-rich-text/vitest.config.mts
 RICH_TEXT_DRIVER=research/windows-rich-text/candidate/package/dist/driver.js \
-  pnpm exec vitest run --config .agents/tests/windows-rich-text/vitest.config.mts
+  pnpm exec vitest run --config tools/platform-qualification/windows-rich-text/vitest.config.mts
 ```
 
 The helper refuses to overwrite an existing output directory; pass a new third
@@ -136,7 +136,7 @@ Copy `native-case.tsrx` as `src/windows-ui-case.tsrx` and `native-index.ts` as
 reorder, rich-removal and unmount stages. Read console.log as UTF8 and run:
 
 ```sh
-node .agents/tests/windows-rich-text/check-native-output.mjs console.log
+node tools/platform-qualification/windows-rich-text/check-native-output.mjs console.log
 ```
 
 Passing requires ordered combined text, native weights400/700, inherited
@@ -151,7 +151,7 @@ it never changed guest state or acquired the lease. Its isolated mobile test
 packages did not replace workspace packages; probe processes and reverse
 mappings are cleaned by the runner.
 
-[Sanitized evidence and candidate hashes](../tests/windows-rich-text/evidence.json)
+[Sanitized evidence and candidate hashes](../../tools/platform-qualification/windows-rich-text/evidence.json)
 retain the native assertions and measurements without local checkout paths or
 device identifiers. Silo experiment `a448a683-eb61-48c3-8cdd-f2ba21b5cc34`
 records source/mobile validation; `fff3b1d6-2dca-424e-b7ba-b3835fd7e009` records

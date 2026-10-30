@@ -19,5 +19,5 @@ columns scroll, including controlled and expanded proportional widths.
 
 ## Documentation
 
-- AC1–AC4: [AppKit pinning guide](../../../docs/tables.md#sticky-columns-on-appkit), primitive skill, feature note and [target note](../parity/appkit-progress.md#appkit-sticky-column-placement-source-path).
+- AC1–AC4: [AppKit pinning guide](../../../docs/tables.md#sticky-columns-on-appkit), primitive skill, feature note and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-sticky-column-placement-source-path).
 - AC2–AC4: Three new [pin/order cases](../../../packages/macos-renderer/test/layout-pins.test.ts), six [geometry/observer cases](../../../packages/ui/src/table/sticky-columns-state.macos.test.ts), two [compiler cases](../../../packages/ui/tests/table-universal.test.mjs) and [manual controls](../../../examples/probes/table-scroll.macos.tsrx), all unrun. Callback dispatch and computed constraint values do not establish OS hit-testing or native frame timing.

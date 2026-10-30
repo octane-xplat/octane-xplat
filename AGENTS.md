@@ -23,6 +23,15 @@ Keep new operational services and verification runners in `tools/`, even when
 they have a development server or deployment command. Keep package names stable
 when moving existing workspaces so package-name filters continue to work.
 
+## Agent material
+
+Keep `.agents/` for guidance and durable memory: skills, contributor rules,
+recipes, decisions, and investigation conclusions. Plans are maintained elsewhere.
+Put executable fixtures, audit runners, patch sources, and raw reports under
+`tools/` (or their owning package); link to them from the relevant note.
+Repository formatters and linters ignore `.agents/`; documentation and recipe
+checks still validate their respective contracts.
+
 ## Read what applies
 
 Read the relevant reference before acting in that area. These files carry the

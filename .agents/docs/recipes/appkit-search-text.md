@@ -19,4 +19,4 @@ composing text. Shared SearchInput is a separate normalized control.
 
 - AC1: [Renderer contract](../../../packages/macos-renderer/README.md#controlled-text-during-composition) and [authored search cases](../../../packages/macos-renderer/test/search-bar.test.ts). Tests unrun.
 - AC2: The same contract/cases use the shared writer and controlled scheduler. Production teardown already disposes that writer; native lifecycle remains unqualified.
-- AC3: [Target note](../parity/appkit-progress.md#raw-searchbar-marked-text-synchronization) records event scope and deferred commands. No native/physical-input result is claimed.
+- AC3: [Target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#raw-searchbar-marked-text-synchronization) records event scope and deferred commands. No native/physical-input result is claimed.

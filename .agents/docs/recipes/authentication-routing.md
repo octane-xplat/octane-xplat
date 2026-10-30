@@ -44,7 +44,7 @@ guards remain separate from server authorization and application cache cleanup.
   the replacement owner. Work started by the retiring owner can be cancelled. Maintained browser,
   NativeScript and AppKit fixtures exercise owned-data release and remounts.
 - AC4: [Guard and redirect requirements](../notes/routing-contracts.md) and
-  [the routing plan](../../plans/routing-api.md#17-guards-and-redirects) describe guarded browser restoration, bounded correction and direction-preserving
+  [the browser history contract](../notes/routing-contracts.md#browser-history-preparation) describe guarded browser restoration, bounded correction and direction-preserving
   retry. Canonical native dismissal prepares its presenter; history redirects can
   replace another stack or open a modal above the admitted source. iOS Frame
   leading-edge Back prepares after release; see [gesture qualification](../navigation-checks.md#qualify-ios-frame-edge-back).

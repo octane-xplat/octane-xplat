@@ -2,8 +2,8 @@
 	"baseline": "64960eaf",
 	"driverVersion": "0.2.4",
 	"candidateHashes": {
-		".agents/patches/windows-rich-text/driver-source.patch": "ebd8bd87dd94459216081571209fe6b57784b2ab020d6c1a83818d381f420266",
-		".agents/patches/windows-rich-text/driver-package.patch": "31b1462ba882b6dc3983bd3289d688bc9ec2bd761034c967c983fdd0d87e5800",
+		"tools/platform-qualification/patches/windows-rich-text/driver-source.patch": "ebd8bd87dd94459216081571209fe6b57784b2ab020d6c1a83818d381f420266",
+		"tools/platform-qualification/patches/windows-rich-text/driver-package.patch": "31b1462ba882b6dc3983bd3289d688bc9ec2bd761034c967c983fdd0d87e5800",
 		"emitted/driver.js": "3bacbfc3317a17da2c1895a777c5d0f8f66dfd49762530001db3222dea359e99"
 	},
 	"unit": {

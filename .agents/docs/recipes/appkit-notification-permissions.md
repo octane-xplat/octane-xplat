@@ -20,6 +20,6 @@ mismatch; no real prompt was observed during this work.
 
 ## Documentation
 
-- AC1–AC4: [Local notification guide](../../../docs/platform/local-notifications.md), [package README](../../../packages/notifications/README.md), Octane services reference and [target note](../parity/appkit-progress.md#appkit-observational-notification-permissions).
+- AC1–AC4: [Local notification guide](../../../docs/platform/local-notifications.md), [package README](../../../packages/notifications/README.md), Octane services reference and [target note](../../../tools/platform-qualification/evidence/appkit-progress-2026-10-30.md#appkit-observational-notification-permissions).
 - AC1–AC2, AC4: [Facade cases](../../../packages/notifications/tests/notifications.macos.test.ts), [intercepted center](../../../packages/notifications/tests/native-center.m) and [native verifier](../../../packages/notifications/tests/verify-macos.mjs), authored but unrun.
 - AC3–AC4: [Manual fixture](../../../examples/probes/notification-permissions.macos.tsrx) and native Services screen. Mounting controls alone proves neither native callback behavior nor OS permission/delivery.

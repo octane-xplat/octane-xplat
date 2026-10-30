@@ -1,6 +1,10 @@
 {
 	"$schema": "./node_modules/oxfmt/configuration_schema.json",
 	"ignorePatterns": [
+		".agents/",
+		"tools/platform-qualification/",
+		"tools/desktop-support/*.json",
+		"tools/desktop-support/*.tsv",
 		"**/*.gen.*",
 		"**/vendor/**",
 		"**/pnpm-workspace.yaml",
