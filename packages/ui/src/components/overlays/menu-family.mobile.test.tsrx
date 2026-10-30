@@ -16,12 +16,24 @@ vi.mock('@nativescript/core', () => ({
 	CSSType: () => () => {},
 	registerElement: () => {},
 	View: class {},
+	// @octane-xplat/platform's device service reads these at import.
+	Device: {
+		os: 'iOS',
+		osVersion: '26.0',
+		model: 'iPhone',
+		manufacturer: 'Apple',
+		language: 'en-US',
+		region: 'US',
+	},
 	isIOS: true,
 	isAndroid: false,
 	Application: { on() {}, off() {} },
 }))
 
 vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({ applyNativeModifiers: () => {} }))
+// The routing import graph reaches the platform barrel, whose per-service
+// modules evaluate @nativescript/core at import; none are exercised here.
+vi.mock('@octane-xplat/platform', () => ({ announce: () => {} }))
 vi.mock('../layout/pan', () => ({ usePan: () => undefined }))
 // The universal runtime only accepts compiler-defined components — stand in
 // with a real compiled leaf rather than a bare function.
