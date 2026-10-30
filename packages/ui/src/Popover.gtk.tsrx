@@ -26,6 +26,9 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any }) @{
 	})
 	const options = {
 		position(anchor: any, panel: any, viewport: any, rtl: boolean) {
+			if (props.fixedPosition) {
+				return { left: props.fixedPosition.x, top: props.fixedPosition.y, placement: 'bottom' as const }
+			}
 			const side = props.layerPosition
 				? resolveLayerSide(props.layerPosition.placement, rtl)
 				: (props.placement ?? 'bottom')

@@ -1365,6 +1365,20 @@ and closes the menu, checkbox items keep it open (`hasCloseOnSelect`
 default), ContextMenu opens on a real long-press, outside-click and Escape
 dismiss, submenu opens and closes the whole menu on select, focus returns to the
 trigger, keyboard Enter opens, a DropdownMenuLink fires, and `presentation="bottom-sheet"` throws the clear slice-D error while
+
+`ui-layers.test.mjs` (15 checks, real X11 input: `xdotool` click + pointer
+motion) qualifies `Breadcrumbs`/`BreadcrumbItem`, `usePopover`, `useLayer`,
+`HoverCard` and `useHoverCard` on GTK. Breadcrumbs renders the current crumb,
+href link crumbs and the maxVisibleItems overflow menu. `usePopover`'s trigger
+opens the anchored layer and Escape dismisses it; `popoverChromeUsers()` returns
+to 0 on teardown. `HoverCard` opens after the hover delay on real pointer
+enter, stays open while the pointer is over the card, and hides after the
+leave delay — the GTK leaf wires `Gtk.EventControllerMotion` for pointer
+intent and wraps the renderer Popover session for the anchored layer. The
+shared `use-layer`/`use-hover-card` leaves gate on the macOS `appKitHost()`
+bridge, so `use-layer.gtk.tsrx`/`use-hover-card.gtk.tsrx` provide the GTK
+session/motion paths; `HoverCard.tsrx` imports the hook by extension so
+`HoverCard.gtk.tsrx` is required for the `.gtk` hook to resolve.
 `adaptive` resolves to the popover.
 
 Two GTK leaves landed: `menu-sheet.gtk.tsrx` (sheet presentation is

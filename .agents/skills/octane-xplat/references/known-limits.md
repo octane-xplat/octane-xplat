@@ -358,3 +358,8 @@ DropdownMenu/ContextMenu/MoreMenu/menu-context are public GTK exports
 (shared contract) — right-click/Menu-key/Shift+F10 are web-only. Menu
 keyboard navigation is web-only (not in the shared leaf). `presentation="bottom-sheet"`/`"adaptive"` throws until BottomSheet is
 qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
+
+### Anchored layers (slice C2)
+- `NavigationMenu` is deferred to slice G — `useNavigationItem` needs a router context the GTK slice does not provide.
+- `useLayer`/`useHoverCard` shared leaves gate on `appKitHost()` (`showLayer`/`observeHover`); the GTK `.gtk` leaves substitute the renderer Popover session and `Gtk.EventControllerMotion`. `HoverCard.tsrx` imports the hook by extension, so `HoverCard.gtk.tsrx` is required for the `.gtk` hook to resolve.
+- `useLayer` fixed mode places the panel at page-coordinate x/y via the Popover`s fixedPosition internal prop (a zero-size pointing rect in host space).

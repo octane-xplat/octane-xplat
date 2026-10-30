@@ -302,3 +302,27 @@ type ContextMenuItemPropsContract = Assert<
 type BreadcrumbMenuItemPropsContract = Assert<
 	Equal<GtkUI.BreadcrumbMenuItemProps, NativeUI.BreadcrumbMenuItemProps>
 >
+type BreadcrumbsPropsContract = Assert<Equal<GtkUI.BreadcrumbsProps, NativeUI.BreadcrumbsProps>>
+type BreadcrumbItemPropsContract = Assert<Equal<GtkUI.BreadcrumbItemProps, NativeUI.BreadcrumbItemProps>>
+type BreadcrumbEntryContract = Assert<Equal<GtkUI.BreadcrumbEntry, NativeUI.BreadcrumbEntry>>
+type BreadcrumbMenuOptionContract = Assert<
+	Equal<GtkUI.BreadcrumbMenuOption, NativeUI.BreadcrumbMenuOption>
+>
+type BreadcrumbsVariantContract = Assert<Equal<GtkUI.BreadcrumbsVariant, NativeUI.BreadcrumbsVariant>>
+type HoverCardPropsContract = Assert<Equal<GtkUI.HoverCardProps, NativeUI.HoverCardProps>>
+type HoverCardPlacementContract = Assert<Equal<GtkUI.HoverCardPlacement, NativeUI.HoverCardPlacement>>
+type HoverCardOptionsContract = Assert<Equal<GtkUI.HoverCardOptions, NativeUI.HoverCardOptions>>
+type HoverCardReturnContract = Assert<Equal<GtkUI.HoverCardReturn, NativeUI.HoverCardReturn>>
+type LayerOptionsContract = Assert<Equal<GtkUI.LayerOptions, NativeUI.LayerOptions>>
+type ContextLayerOptionsContract = Assert<
+	Equal<GtkUI.ContextLayerOptions, NativeUI.ContextLayerOptions>
+>
+type FixedLayerOptionsContract = Assert<Equal<GtkUI.FixedLayerOptions, NativeUI.FixedLayerOptions>>
+type ContextLayerReturnContract = Assert<
+	Equal<GtkUI.ContextLayerReturn, NativeUI.ContextLayerReturn>
+>
+type FixedLayerReturnContract = Assert<Equal<GtkUI.FixedLayerReturn, NativeUI.FixedLayerReturn>>
+type ContextRenderPropsContract = Assert<Equal<GtkUI.ContextRenderProps, NativeUI.ContextRenderProps>>
+type FixedRenderPropsContract = Assert<Equal<GtkUI.FixedRenderProps, NativeUI.FixedRenderProps>>
+type UsePopoverOptionsContract = Assert<Equal<GtkUI.UsePopoverOptions, NativeUI.UsePopoverOptions>>
+type UsePopoverReturnContract = Assert<Equal<GtkUI.UsePopoverReturn, NativeUI.UsePopoverReturn>>

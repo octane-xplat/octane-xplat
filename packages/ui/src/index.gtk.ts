@@ -482,3 +482,29 @@ export type {
 	MenuRadioItemProps as BreadcrumbMenuRadioItemProps,
 	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
 } from './props'
+
+export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './Breadcrumb'
+export { HoverCard } from './HoverCard'
+export { useHoverCard } from './use-hover-card'
+export { useLayer } from './use-layer'
+export { usePopover } from './use-popover'
+export type {
+	BreadcrumbsProps,
+	BreadcrumbItemProps,
+	BreadcrumbEntry,
+	BreadcrumbMenuOption,
+	BreadcrumbsVariant,
+	HoverCardProps,
+	HoverCardPlacement,
+	HoverCardOptions,
+	HoverCardReturn,
+	LayerOptions,
+	ContextLayerOptions,
+	FixedLayerOptions,
+	ContextLayerReturn,
+	FixedLayerReturn,
+	ContextRenderProps,
+	FixedRenderProps,
+	UsePopoverOptions,
+	UsePopoverReturn,
+} from './props'

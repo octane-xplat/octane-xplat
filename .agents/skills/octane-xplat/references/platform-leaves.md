@@ -350,3 +350,4 @@ exports, route everything through the popover path, and throw a clear
 `presentation="bottom-sheet" requires slice D` error for the sheet
 presentation. `keyboard-overlay-host.gtk.ts` is an inert stub — X11 has no
 software-keyboard overlay to host.
+- `use-layer.gtk.tsrx` / `use-hover-card.gtk.tsrx` / `HoverCard.gtk.tsrx` — the shared leaves gate on the macOS `appKitHost()` bridge (`showLayer`/`observeHover`), so the GTK leaves substitute the renderer Popover session and `Gtk.EventControllerMotion` pointer intent. `HoverCard.gtk` exists because `HoverCard.tsrx` binds the hook by explicit `.tsrx` extension, bypassing `.gtk` resolution.
