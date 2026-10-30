@@ -9795,9 +9795,12 @@ let hoverTrackingTarget: any = null
 try {
 	class HoverTrackingTarget extends NSObject {
 		static ObjCExposedMethods = {
-			mouseEntered: { params: [NSEvent], returns: interop.types.void },
-			mouseExited: { params: [NSEvent], returns: interop.types.void },
-			mouseMoved: { params: [NSEvent], returns: interop.types.void },
+			// Keys are ObjC selectors verbatim — colon included, matching
+			// ButtonActionTarget. Bare names register colon-free selectors
+			// that AppKit never sends.
+			'mouseEntered:': { params: [NSEvent], returns: interop.types.void },
+			'mouseExited:': { params: [NSEvent], returns: interop.types.void },
+			'mouseMoved:': { params: [NSEvent], returns: interop.types.void },
 		}
 
 		static {
