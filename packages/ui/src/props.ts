@@ -3281,7 +3281,10 @@ export interface PopoverProps {
 	dismissOnEscape?: boolean
 	/** Return target when popover content received focus (web), or an explicit
 	 *  native focus target. Defaults to the anchor on web. */
-	finalFocusRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	finalFocusRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** Fires when the popover requests dismissal (outside tap/Escape). */
 	onDismiss?: () => void
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
@@ -3345,7 +3348,10 @@ export type LayerOptions = ContextLayerOptions | FixedLayerOptions
 /** Render props for `useLayer` context mode — `render(children, props)`. */
 export interface ContextRenderProps {
 	/** Focus return target; defaults to the anchor on web. */
-	finalFocusRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	finalFocusRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** 'anchor' (default) derives the position from `placement`/`alignment`/
 	 *  `offset`. 'custom' authors the position via `style` (web: e.g. CSS
 	 *  `anchor()` insets against the returned `anchorId`; native: `left`/`top`
@@ -4198,7 +4204,10 @@ export interface BottomSheetProps {
 	/** Element to focus when the sheet closes (`{current}`-style object).
 	 * Native hosts call the target's focus method when available; supply this
 	 * explicitly when a native input should regain editing focus. */
-	finalFocusRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	finalFocusRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
 	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -4374,7 +4383,10 @@ export interface DialogProps extends AccessibilityProps {
 	/** Element to focus on close; defaults to the element focused when the
 	 *  dialog opened on web/AppKit. `{current}`-style ref; touch targets call
 	 *  its focus method when available. */
-	finalFocusRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	finalFocusRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
 	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -4498,7 +4510,10 @@ export interface AlertDialogProps {
 	/** Same as Dialog.isInline — render without overlay/modal behavior. */
 	isInline?: boolean
 	/** Element to focus on close. `{current}`-style ref; web semantics. */
-	finalFocusRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	finalFocusRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
 	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -4664,7 +4679,10 @@ export interface LightboxProps {
 	hasAutoPlay?: boolean
 	/** Element to focus on close; defaults to the element focused when the
 	 *  lightbox opened. `{current}`-style ref; web semantics. */
-	finalFocusRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	finalFocusRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
 	/** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
@@ -4707,7 +4725,10 @@ export interface UseLightboxOptions {
 	/** Auto-advances through the media on a timer. */
 	hasAutoPlay?: boolean
 	/** Element focus returns to on close. */
-	finalFocusRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	finalFocusRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 }
 
 /** `useLightbox` result — `open(index)`/`close`, live `isOpen`/`index`, and `element`: the `Lightbox` node to render in the tree.
@@ -5096,28 +5117,49 @@ export interface RouteSearchSchema<Input = unknown, Output = unknown> {
 		/** Schema library identifier (zod/valibot/arktype/…). */
 		readonly vendor: string
 		/** Phantom type carrier for input/output inference — not present at runtime. */
-		readonly types?: { readonly input: Input; readonly output: Output }
+		readonly types?: {
+			/** Raw input type accepted by `validate`. */
+			readonly input: Input
+			/** Validated output type produced by `validate`. */
+			readonly output: Output
+		}
 		/** Validates a raw value; returns the typed output or issues. */
 		readonly validate: (value: unknown) =>
-			| { readonly value: Output; /** Validation failures reported by the schema. */ readonly issues?: undefined }
+			| {
+					/** Decoded value on success. */
+					readonly value: Output
+					/** Validation failures reported by the schema. */
+					readonly issues?: undefined
+			  }
 			| {
 					/** Validation failures reported by the schema. */
 					readonly issues: readonly {
 						/** Human-readable failure description. */
 						readonly message: string
 						/** Path to the failing value (keys or key objects). */
-						readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[]
+						readonly path?: readonly (
+							| PropertyKey
+							| { /** Key of the failing segment. */ readonly key: PropertyKey }
+						)[]
 					}[]
 			  }
 			| Promise<
-					| { readonly value: Output; /** Validation failures reported by the schema. */ readonly issues?: undefined }
+					| {
+							/** Decoded value on success. */
+							readonly value: Output
+							/** Validation failures reported by the schema. */
+							readonly issues?: undefined
+					  }
 					| {
 							/** Validation failures reported by the schema. */
 							readonly issues: readonly {
 								/** Human-readable failure description. */
 								readonly message: string
 								/** Path to the failing value (keys or key objects). */
-								readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[]
+								readonly path?: readonly (
+									| PropertyKey
+									| { /** Key of the failing segment. */ readonly key: PropertyKey }
+								)[]
 							}[]
 					  }
 			  >
@@ -5173,7 +5215,10 @@ export type RouteSearchValidationCheck<Validator> = Validator extends {
 type CheckedSearchValidator<Validator> = Validator &
 	(RouteSearchValidationCheck<NoInfer<Validator>> extends true
 		? unknown
-		: { readonly 'Search input requires an explicit URL decoder': never })
+		: {
+				/** Compile-time diagnostic key — always never; the name is the message. */
+				readonly 'Search input requires an explicit URL decoder': never
+		  })
 
 /** A validated search field bag. Ordinary interfaces need no string index
  * signature. Collection/coercion/function protocols cannot establish that bag;
@@ -5301,20 +5346,23 @@ type StaticDestinationScope<
 	Contracts,
 	Name extends keyof Contracts,
 > = typeof defaultRouteContractScope extends keyof Contracts
-	? Contracts[Name] extends { readonly platformOnly: true }
+	? Contracts[Name] extends {
+			/** Marks a route that only exists on its declared platform. */
+			readonly platformOnly: true
+	  }
 		? never
 		: unknown
 	: unknown
 
 type ParamsPart<Value> =
 	RequiredRouteKeys<Value> extends never
-		? { params?: keyof Value extends never ? Record<string, never> : Value }
-		: { params: Value }
+		? { /** Path params — optional when the route takes none. */ params?: keyof Value extends never ? Record<string, never> : Value }
+		: { /** Required path params for this route. */ params: Value }
 
 type SearchPart<Value> =
 	RequiredRouteKeys<Value> extends never
-		? { search?: keyof Value extends never ? Record<string, never> : Value }
-		: { search: Value }
+		? { /** Search input — optional when the route validates none. */ search?: keyof Value extends never ? Record<string, never> : Value }
+		: { /** Required search input for this route. */ search: Value }
 
 /** One typed navigation request. Its route union preserves correlations between
  * to/params/search; prepared data/context are excluded. */
@@ -5324,7 +5372,12 @@ export type DestinationFor<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > = Name extends unknown
-	? Contracts[Name] extends { /** Params shape inferred from the destination contract. */ params: infer Params; /** Search-input shape inferred from the destination contract. */ searchInput: infer Input }
+	? Contracts[Name] extends {
+			/** Params shape inferred from the destination contract. */
+			params: infer Params
+			/** Search-input shape inferred from the destination contract. */
+			searchInput: infer Input
+	  }
 		? {
 				/** Destination route name — constrained by the Contracts generic. */
 				to: Name
@@ -5939,7 +5992,7 @@ export type NavigationResult<Contracts = RegisteredRouteContracts> =
 export type NavigationFailure = Extract<
 	NavigationResult,
 	{
-		/** Failure discriminator — why the navigation did not commit. */
+		/** /** Failure discriminator — why the navigation did not commit. */ */
 		status: 'failed' | 'not-found' | 'forbidden' | 'invalid-input' | 'blocked' | 'unsupported'
 	}
 >
@@ -7243,7 +7296,10 @@ export interface OpenWindowOptions {
 	/** Requested window title. Desktop hosts may apply or ignore it. */
 	title?: string
 	/** Requested content size in px/dips; hosts may clamp. */
-	size?: { /** Requested window width in px. */ width: number; /** Requested window height in px. */ height: number }
+	size?: {
+		/** Requested window width in px. */
+		width: number; /** Requested window height in px. */ height: number
+	}
 	/** Owning window for 'dialog'/'popup' kinds — a `WindowHandle` returned
 	 *  by `openWindow` or the host's own window/controller object.
 	 *  @default the host's key window */
@@ -9286,9 +9342,24 @@ export interface TokenProps {
 
 /** Change metadata passed to Tokenizer's `onChange`. */
 export type TokenizerChange<T extends SearchableItem = SearchableItem> =
-	| { /** Item the change applies to. */ item: T; /** Add discriminator — an existing item was chosen. */ type: 'add' }
-	| { /** Item the change applies to. */ item: T; /** Create discriminator — a new item was minted from the query. */ type: 'create' }
-	| { /** Item the change applies to. */ item: T; /** Remove discriminator — the item was deleted. */ type: 'remove' }
+	| {
+			/** Item the change applies to. */
+			item: T
+			/** Add discriminator — an existing item was chosen. */
+			type: 'add'
+	  }
+	| {
+			/** Item the change applies to. */
+			item: T
+			/** Create discriminator — a new item was minted from the query. */
+			type: 'create'
+	  }
+	| {
+			/** Item the change applies to. */
+			item: T
+			/** Remove discriminator — the item was deleted. */
+			type: 'remove'
+	  }
 	| { /** Reorder discriminator — item positions changed. */ type: 'reorder' }
 
 /** Astryx name for `FieldControlSize` on `Tokenizer`.
@@ -11319,7 +11390,10 @@ export interface ChatComposerContextValue {
 	/** @deprecated Use onCancel. */
 	onStop?: () => void
 	/** Handle for focusing/controlling the inner input. */
-	inputControlRef?: { /** Live input-control slot; null before mount. */ current: ChatComposerInputControl | null }
+	inputControlRef?: {
+		/** Live input-control slot; null before mount. */
+		current: ChatComposerInputControl | null
+	}
 }
 
 /** Rich composer field. Web is a real contenteditable with inline token
@@ -11591,7 +11665,10 @@ export interface ChatLayoutProps {
 	 *  ChatLayoutScrollButton wired to the layout's scroll state. */
 	scrollButton?: Renderable
 	/** External scroll container — { current: HTMLElement | NSView }. */
-	scrollRef?: { /** Live slot for the host element; unset until bound. */ current?: HostElement | null }
+	scrollRef?: {
+		/** Live slot for the host element; unset until bound. */
+		current?: HostElement | null
+	}
 	/** Chat spacing density. */
 	density?: ChatDensity
 	/** Keep the viewport following new content (default true). */
@@ -11650,7 +11727,10 @@ export interface ChatScrollToBottomOptions {
  */
 export interface UseChatStreamScrollOptions {
 	/** Scroll viewport the hook drives. */
-	scrollRef: { /** Live slot for the host element; unset until bound. */ current?: HostElement | null }
+	scrollRef: {
+		/** Live slot for the host element; unset until bound. */
+		current?: HostElement | null
+	}
 	/** Toggles stream-following behavior. */
 	enabled?: boolean
 	/** Keep the viewport following new content (default true). */
@@ -11692,7 +11772,10 @@ export interface UseChatStreamScrollReturn {
  */
 export interface UseChatNewMessagesOptions {
 	/** Optional containing viewport: preserve retained message rows during prepend. */
-	scrollRef?: { /** Live slot for the host element; unset until bound. */ current?: HostElement | null }
+	scrollRef?: {
+		/** Live slot for the host element; unset until bound. */
+		current?: HostElement | null
+	}
 	/** When the scroll is locked, new arrivals don't flag — the user is
 	 *  already at the bottom. */
 	isLocked: boolean
@@ -11716,7 +11799,10 @@ export interface UseChatNewMessagesReturn {
  *  handle (the object `ref` delivered). */
 export interface UseChatPasteAsTokenOptions {
 	/** Composer input handle the paste hook drives. */
-	inputRef: { /** Live input-handle slot; null before mount. */ current: ChatComposerInputHandle | null }
+	inputRef: {
+		/** Live input-handle slot; null before mount. */
+		current: ChatComposerInputHandle | null
+	}
 	/** Character threshold — pastes longer than this become tokens (200). */
 	threshold?: number
 	/** Converts pasted text into a token. */
@@ -11738,7 +11824,10 @@ export interface UseChatPasteAsTokenReturn {
  */
 export interface UseChatComposerTokensOptions {
 	/** Editable element whose tokens are tracked. */
-	editableRef: { /** Live slot for the host element; unset until bound. */ current?: HostElement | null }
+	editableRef: {
+		/** Live slot for the host element; unset until bound. */
+		current?: HostElement | null
+	}
 	/** Fires when the emitted token set changes. */
 	onEmitChange(): void
 }
@@ -11832,7 +11921,10 @@ export interface UseChatDictationOptions extends UseSpeechRecognitionOptions {
 	hasSounds?: boolean
 	/** Input handle ref — when set, interim/final transcripts are inserted
 	 *  into the composer input. */
-	inputRef?: { /** Live input-handle slot; null before mount. */ current: ChatComposerInputHandle | null }
+	inputRef?: {
+		/** Live input-handle slot; null before mount. */
+		current: ChatComposerInputHandle | null
+	}
 }
 
 /** `useChatDictation` result — the `UseSpeechRecognitionReturn` surface; `isSupported` is false on native.
@@ -11885,7 +11977,10 @@ export interface ChatListContextValue {
  */
 export interface ChatLayoutContextValue {
 	/** The scrollable container — DOM element on web, NS ScrollView natively. */
-	scrollContainerRef: { /** Live slot for the host element; unset until bound. */ current?: HostElement | null }
+	scrollContainerRef: {
+		/** Live slot for the host element; unset until bound. */
+		current?: HostElement | null
+	}
 	/** Message-list content element for size observation. */
 	contentRef(el: HostElement): void
 }
@@ -12671,7 +12766,10 @@ export interface SideNavProps extends LayoutChildProps {
 	 *  180–480 range) or a `ResizableConfig`. */
 	resizable?: boolean | ResizableConfig
 	/** @deprecated Share one controlled `collapsible` config instead. */
-	handleRef?: { /** Live collapse-handle slot; null before mount. */ current: SideNavImperativeCollapseHandle | null }
+	handleRef?: {
+		/** Live collapse-handle slot; null before mount. */
+		current: SideNavImperativeCollapseHandle | null
+	}
 	/** Landmark label (default 'Side navigation'). */
 	label?: string
 	/** Platform-specific properties are applied after shared props. */
@@ -12823,7 +12921,10 @@ export interface SideNavCollapseButtonProps {
 	 *  button renders outside this SideNav. */
 	collapsible?: SideNavControlledCollapsible
 	/** @deprecated Pass `collapsible` instead. */
-	handleRef?: { /** Live collapse-handle slot; null before mount. */ current: SideNavImperativeCollapseHandle | null }
+	handleRef?: {
+		/** Live collapse-handle slot; null before mount. */
+		current: SideNavImperativeCollapseHandle | null
+	}
 	/** Text label — renders a text+chevron button instead of icon-only. */
 	label?: string
 	/** Button size variant. */
@@ -13149,7 +13250,10 @@ export interface ResizableConfig {
  */
 export interface UseResizableSingleOptions {
 	/** Element/view a percentage resolves against — `{ current }` shaped. */
-	containerRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	containerRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** Axis this region resizes along; must match `ResizeHandle.direction`. */
 	direction?: ResizableDirection
 	/** Persists size across sessions under this storage key. */
@@ -13174,7 +13278,10 @@ export interface UseResizableMultiConfig {
 	/** Axis the regions resize along. */
 	direction?: ResizableDirection
 	/** Container element the regions are measured against. */
-	containerRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	containerRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** Per-region sizing config keyed by region id. */
 	regions: Record<string, ResizableRegionConfig>
 	/** Persists sizes across sessions under this storage key. */
@@ -15371,7 +15478,10 @@ export interface OutlineProps {
 	/** Scroll container ref (callback or ref object). Default: the nearest
 	 *  scrollable ancestor on web / the nearest enclosing ScrollView on
 	 *  native, else the viewport/screen. */
-	scrollContainerRef?: { /** Live slot for the host element; unset until bound. */ current?: HostElement | null }
+	scrollContainerRef?: {
+		/** Live slot for the host element; unset until bound. */
+		current?: HostElement | null
+	}
 	/** Whether activating an item smooth-scrolls to it. Set false to own
 	 *  scrolling yourself — activation still updates the active item, the
 	 *  URL fragment (web), and the navigate callbacks. @default true */
@@ -15393,12 +15503,44 @@ export interface OutlineProps {
  * @see MdDoc — canonical import '@octane-xplat/ui/markdown'.
  */
 export type MdInline =
-	| { /** Text-node tag. */ t: 'text'; /** Literal text content. */ text: string }
-	| { /** Inline-code tag. */ t: 'code'; /** Code content — not re-parsed. */ text: string }
-	| { /** Bold tag. */ t: 'bold'; /** Nested inline content. */ children: MdInline[] }
-	| { /** Emphasis tag. */ t: 'em'; /** Nested inline content. */ children: MdInline[] }
-	| { /** Strikethrough tag. */ t: 'strike'; /** Nested inline content. */ children: MdInline[] }
-	| { /** Link tag. */ t: 'link'; /** Link text. */ text: string; /** Link destination. */ href: string }
+	| {
+			/** Text-node tag. */
+			t: 'text'
+			/** Literal text content. */
+			text: string
+	  }
+	| {
+			/** Inline-code tag. */
+			t: 'code'
+			/** Code content — not re-parsed. */
+			text: string
+	  }
+	| {
+			/** Bold tag. */
+			t: 'bold'
+			/** Nested inline content. */
+			children: MdInline[]
+	  }
+	| {
+			/** Emphasis tag. */
+			t: 'em'
+			/** Nested inline content. */
+			children: MdInline[]
+	  }
+	| {
+			/** Strikethrough tag. */
+			t: 'strike'
+			/** Nested inline content. */
+			children: MdInline[]
+	  }
+	| {
+			/** Link tag. */
+			t: 'link'
+			/** Link text. */
+			text: string
+			/** Link destination. */
+			href: string
+	  }
 
 /** One block in a Markdown doc. `MdNode` covers what the renderer lowers to
  *  shared primitives; `MdInline` covers text runs inside paragraphs, lists,
@@ -15407,10 +15549,38 @@ export type MdInline =
  * @see MdDoc, MdInline — canonical import '@octane-xplat/ui/markdown'.
  */
 export type MdNode =
-	| { /** Table-node tag. */ t: 'h'; /** Heading level 1–6. */ depth: 1 | 2 | 3 | 4 | 5 | 6; children: MdInline[] }
-	| { /** Heading tag. */ t: 'p'; children: MdInline[] }
-	| { /** Paragraph tag. */ t: 'code'; /** Language hint for syntax highlighting. */ lang?: string; /** Raw code content. */ text: string }
-	| { /** Code-block tag. */ t: 'list'; /** Ordered (numbered) vs unordered list. */ ordered: boolean; /** List items — each an array of inline content. */ items: MdInline[][]; /** Task-list checkbox state per item; null = not a task item. */ checked?: (boolean | null)[] }
+	| {
+			/** Heading tag. */
+			t: 'h'
+			/** Heading level 1–6. */
+			depth: 1 | 2 | 3 | 4 | 5 | 6
+			/** Heading inline content. */
+			children: MdInline[]
+	  }
+	| {
+			/** Paragraph tag. */
+			t: 'p'
+			/** Paragraph inline content. */
+			children: MdInline[]
+	  }
+	| {
+			/** Code-block tag. */
+			t: 'code'
+			/** Language hint for syntax highlighting. */
+			lang?: string
+			/** Raw code content. */
+			text: string
+	  }
+	| {
+			/** List tag. */
+			t: 'list'
+			/** Ordered (numbered) vs unordered list. */
+			ordered: boolean
+			/** List items — each an array of inline content. */
+			items: MdInline[][]
+			/** Task-list checkbox state per item; null = not a task item. */
+			checked?: (boolean | null)[]
+	  }
 	| {
 			/** Table-node tag. */
 			t: 'table'
@@ -15421,8 +15591,13 @@ export type MdNode =
 			/** Per-column alignment from the delimiter row. */
 			align: ('left' | 'center' | 'right')[]
 	  }
-	| { /** List tag. */ t: 'quote'; children: MdInline[] }
-	| { /** Blockquote tag. */ t: 'hr' }
+	| {
+			/** Blockquote tag. */
+			t: 'quote'
+			/** Quote inline content. */
+			children: MdInline[]
+	  }
+	| { /** Thematic-break tag. */ t: 'hr' }
 
 /** A parsed Markdown document — the versioned AST (`kind: 'octane-xplat/md'`, `v: 1`) produced by `parseMdDoc`/`createMarkdownStreamParser` and consumed by `Markdown`'s `data` prop. Canonical import: `@octane-xplat/ui/markdown` (root re-export is a migration alias).
  *
@@ -16200,7 +16375,10 @@ export interface ListItemProps extends AccessibilityProps {
 	/** Activation callback — makes the row pressable. */
 	onPress?: () => void
 	/** Extra app content rendered inside the row's label area. */
-	delegateRef?: { /** Live slot for the host element; null before mount or after unmount. */ current: HostElement | null }
+	delegateRef?: {
+		/** Live slot for the host element; null before mount or after unmount. */
+		current: HostElement | null
+	}
 	/** Link target: web renders a real anchor; native navigates via the
 	 *  registered deep-link table, falling back to opening the URL. */
 	href?: string
