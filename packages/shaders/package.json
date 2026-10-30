@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/shaders",
 	"version": "0.18.0",
-	"description": "Thin adapter that runs the published `shaders` WebGPU library on Octane xplat Canvas surfaces — web (implemented) and NativeScript iOS/Android (experimental, device verification pending)",
+	"description": "Thin adapter that runs the published `shaders` WebGPU library on Octane xplat Canvas surfaces \u2014 web (implemented) and NativeScript iOS/Android (experimental, device verification pending)",
 	"keywords": [
 		"canvas",
 		"cross-platform",
@@ -22,7 +22,7 @@
 		"directory": "packages/shaders"
 	},
 	"files": [
-		"types",
+		"types/generated",
 		"src",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
@@ -31,12 +31,18 @@
 	"exports": {
 		".": {
 			"macos": {
-				"types": "./types/index.macos.d.ts",
+				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
-			"types": "./types/index.d.ts",
-			"web": "./src/index.web.ts",
-			"native": "./src/index.ts",
+			"types": "./types/generated/index.d.ts",
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
 			"default": "./src/index.ts"
 		}
 	},
@@ -44,7 +50,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --target shaders",
 		"typecheck": "tsc -p tsconfig.check.json",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
@@ -61,7 +67,8 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.0 <10"
@@ -76,5 +83,6 @@
 			"ios": "7.0.0",
 			"android": "7.0.0"
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

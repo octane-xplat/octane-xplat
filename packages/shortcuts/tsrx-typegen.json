@@ -1,3 +1,28 @@
 {
-	"targets": { "pack": { "emit": false } }
+	"targets": {
+		"shortcuts": {
+			"renderer": "octane",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": [
+						"./dist/index.js",
+						"./dist/index.macos.js",
+						"./dist/index.gtk.js",
+						"./dist/index.windows.js",
+						"./dist/index.web.js"
+					],
+					"types": [
+						"./types/generated/index.d.ts",
+						"./types/generated/index.macos.d.ts",
+						"./types/generated/index.gtk.d.ts",
+						"./types/generated/index.windows.d.ts",
+						"./types/generated/index.web.d.ts"
+					]
+				}
+			}
+		}
+	}
 }

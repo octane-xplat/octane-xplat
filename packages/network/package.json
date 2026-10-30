@@ -15,7 +15,7 @@
 		"directory": "packages/network"
 	},
 	"files": [
-		"types",
+		"types/generated",
 		"src",
 		"platforms",
 		"!src/**/*.test.*",
@@ -25,22 +25,22 @@
 	"exports": {
 		".": {
 			"macos": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.web.d.ts",
 				"default": "./src/index.web.ts"
 			},
 			"linux": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/unavailable.d.ts",
 				"default": "./src/unavailable.ts"
 			},
 			"windows": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/unavailable.d.ts",
 				"default": "./src/unavailable.ts"
 			},
-			"types": "./types/index.d.ts",
+			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		}
 	},
@@ -48,7 +48,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --target network",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "node --test tests/*.test.mjs",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
@@ -71,7 +71,8 @@
 		"vite": "catalog:",
 		"rouzer": "6.0.2",
 		"zod": "4.6.5",
-		"playwright": "1.63.0"
+		"playwright": "1.63.0",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -101,5 +102,6 @@
 				"Foundation"
 			]
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

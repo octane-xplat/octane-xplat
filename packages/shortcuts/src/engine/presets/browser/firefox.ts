@@ -111,6 +111,7 @@ const combos = [
 	['Meta+Q', 'mac'],
 ] as const
 
-export const firefoxBrowserShortcuts = combos.map(([combo, platform]) =>
-	blocklistEntry(combo, { category: 'browser', browser: 'firefox', platform }),
-)
+export const firefoxBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
+	combos.map(([combo, platform]) =>
+		blocklistEntry(combo, { category: 'browser', browser: 'firefox', platform }),
+	)

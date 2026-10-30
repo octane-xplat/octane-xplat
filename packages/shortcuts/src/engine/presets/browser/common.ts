@@ -25,6 +25,5 @@ const combos = [
 	'Mod+9',
 ]
 
-export const commonBrowserShortcuts = combos.map((combo) =>
-	blocklistEntry(combo, { category: 'browser' }),
-)
+export const commonBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
+	combos.map((combo) => blocklistEntry(combo, { category: 'browser' }))

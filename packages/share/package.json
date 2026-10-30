@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/share",
 	"version": "0.18.0",
-	"description": "Native share sheet for Octane xplat — matching web + NativeScript + AppKit implementations",
+	"description": "Native share sheet for Octane xplat \u2014 matching web + NativeScript + AppKit implementations",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -23,7 +23,7 @@
 		"directory": "packages/share"
 	},
 	"files": [
-		"types",
+		"types/generated",
 		"src",
 		"platforms",
 		"!src/**/*.test.*",
@@ -33,18 +33,18 @@
 	"exports": {
 		".": {
 			"macos": {
-				"types": "./types/index.macos.d.ts",
+				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.web.d.ts",
 				"default": "./src/index.web.ts"
 			},
 			"native": {
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.d.ts",
 				"default": "./src/index.ts"
 			},
-			"types": "./types/index.d.ts",
+			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		}
 	},
@@ -56,7 +56,7 @@
 		"test": "vitest run",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsrx-typegen --target share",
 		"test:macos": "node tests/verify-macos.mjs"
 	},
 	"dependencies": {
@@ -71,7 +71,8 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -102,5 +103,6 @@
 				"AppKit"
 			]
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

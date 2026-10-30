@@ -1,5 +1,8 @@
 import type { StreamRequestOptions } from './types'
-export function validate(url: string, options: StreamRequestOptions) {
+export function validate(
+	url: string,
+	options: StreamRequestOptions,
+): { method: string; limit: number } {
 	if (!/^https?:\/\/[^\s/@]+(?::\d+)?(?:[/?#]|$)/i.test(url)) {
 		throw new Error('An absolute HTTP(S) URL without credentials is required')
 	}

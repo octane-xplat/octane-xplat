@@ -1,12 +1,15 @@
 import { requestNative } from './native'
-import type { StreamRequestOptions } from './types'
+import type { StreamRequestOptions, StreamResponse } from './types'
 export type * from './types'
 declare const XplatStreamingRequest: {
 	new: () => { startEvent(options: string, event: (json: string) => void): void; cancel(): void }
 }
 
 /** AppKit host requires the package-owned NSURLSession bridge. */
-export function requestStream(url: string, options?: StreamRequestOptions) {
+export function requestStream(
+	url: string,
+	options?: StreamRequestOptions,
+): Promise<StreamResponse> {
 	return requestNative(
 		() => {
 			if (typeof XplatStreamingRequest === 'undefined') {

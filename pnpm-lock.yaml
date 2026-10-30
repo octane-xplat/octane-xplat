@@ -159,141 +159,6 @@ importers:
         specifier: 2.9.1
         version: 2.9.1
 
-  packages/view-shot:
-    dependencies:
-      '@octane-xplat/lib':
-        specifier: workspace:*
-        version: link:../lib
-      '@octane-xplat/platform':
-        specifier: workspace:*
-        version: link:../platform
-      html2canvas-pro:
-        specifier: 2.4.5
-        version: 2.4.5
-    devDependencies:
-      '@nativescript/core':
-        specifier: 'catalog:'
-        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
-      '@nativescript/types':
-        specifier: 'catalog:'
-        version: 9.1.4
-      '@octane-xplat/jsx':
-        specifier: workspace:*
-        version: link:../jsx
-      '@octanejs/vite-plugin':
-        specifier: 'catalog:'
-        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      '@tsrx/typescript-plugin':
-        specifier: 'catalog:'
-        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
-      octane:
-        specifier: 'catalog:'
-        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      playwright:
-        specifier: 1.63.0
-        version: 1.63.0
-      tsrx-typegen:
-        specifier: workspace:*
-        version: link:../tsrx-typegen
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-
-  packages/tracking-transparency:
-    dependencies:
-      '@octane-xplat/lib':
-        specifier: workspace:*
-        version: link:../lib
-    devDependencies:
-      '@nativescript/core':
-        specifier: 'catalog:'
-        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
-      '@nativescript/types':
-        specifier: 'catalog:'
-        version: 9.1.4
-      '@octane-xplat/jsx':
-        specifier: workspace:*
-        version: link:../jsx
-      '@tsrx/typescript-plugin':
-        specifier: 'catalog:'
-        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
-      jsdom:
-        specifier: 'catalog:'
-        version: 30.1.1(@noble/hashes@2.4.0)
-      octane:
-        specifier: 'catalog:'
-        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      tsrx-typegen:
-        specifier: workspace:*
-        version: link:../tsrx-typegen
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-
-  tools/astryx-parity:
-    dependencies:
-      '@astryxdesign/core':
-        specifier: 0.7.4
-        version: 0.7.4(@stylexjs/stylex@0.19.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      '@octane-xplat/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      '@stylexjs/stylex':
-        specifier: 0.19.1
-        version: 0.19.1
-      octane:
-        specifier: 'catalog:'
-        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      react:
-        specifier: 19.3.1
-        version: 19.3.1
-      react-dom:
-        specifier: 19.3.1
-        version: 19.3.1(react@19.3.1)
-    devDependencies:
-      '@octane-xplat/jsx':
-        specifier: workspace:*
-        version: link:../../packages/jsx
-      '@octanejs/vite-plugin':
-        specifier: 'catalog:'
-        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      '@tsrx/typescript-plugin':
-        specifier: 'catalog:'
-        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
-      '@types/node':
-        specifier: 24.10.1
-        version: 24.10.1
-      '@types/react':
-        specifier: 19.3.0
-        version: 19.3.0
-      '@types/react-dom':
-        specifier: 19.3.0
-        version: 19.3.0(@types/react@19.3.0)
-      playwright:
-        specifier: 1.63.0
-        version: 1.63.0
-      sameframe:
-        specifier: 0.2.2
-        version: 0.2.2(supports-color@10.2.2)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-
   apps/astryx-sandbox:
     dependencies:
       '@octane-xplat/files':
@@ -372,18 +237,6 @@ importers:
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
       wrangler:
         specifier: ^4.0.0
-        version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@24.10.1)
-
-  tools/feedback-worker:
-    devDependencies:
-      '@cloudflare/workers-types':
-        specifier: 5.20260928.1
-        version: 5.20260928.1
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      wrangler:
-        specifier: 4.136.3
         version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@24.10.1)
 
   apps/linux:
@@ -696,61 +549,6 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
-  tools/ota-server:
-    dependencies:
-      '@octane-xplat/fingerprint':
-        specifier: workspace:*
-        version: link:../../packages/fingerprint
-    devDependencies:
-      '@cloudflare/workers-types':
-        specifier: 5.20260928.1
-        version: 5.20260928.1
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      wrangler:
-        specifier: 4.136.3
-        version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@24.10.1)
-
-  tools/visual:
-    dependencies:
-      '@octane-xplat/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      octane:
-        specifier: 'catalog:'
-        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-    devDependencies:
-      '@octane-xplat/jsx':
-        specifier: workspace:*
-        version: link:../../packages/jsx
-      '@octanejs/vite-plugin':
-        specifier: 'catalog:'
-        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      '@vitest/browser':
-        specifier: 4.1.11
-        version: 4.1.11(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vitest@4.1.11)
-      '@vitest/browser-playwright':
-        specifier: 4.1.11
-        version: 4.1.11(playwright@1.63.0)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vitest@4.1.11)
-      playwright:
-        specifier: 1.63.0
-        version: 1.63.0
-      pngjs:
-        specifier: 7.0.0
-        version: 7.0.0
-      storybook:
-        specifier: 10.6.1
-        version: 10.6.1(@types/react@19.3.0)(prettier@3.9.6)(react@19.3.1)
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      vitest-plugin-vis:
-        specifier: 5.1.7
-        version: 5.1.7(@vitest/browser-playwright@4.1.11)(@vitest/browser@4.1.11(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vitest@4.1.11))(typescript@5.9.3)(vitest@4.1.11)
   apps/web:
     dependencies:
       '@octane-xplat/ui':
@@ -1095,6 +893,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -1361,12 +1162,18 @@ importers:
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/macos-node-api':
+        specifier: 'catalog:'
+        version: 0.4.4-next.2026-08-09-31292056208
       '@octane-xplat/macos-renderer':
         specifier: workspace:*
         version: link:../macos-renderer
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -1404,6 +1211,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -1618,6 +1428,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -1717,6 +1530,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -1860,61 +1676,6 @@ importers:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
-  packages/drawer:
-    dependencies:
-      '@nativescript-community/gesturehandler':
-        specifier: 2.1.0
-        version: 2.1.0
-      '@nativescript-community/ui-drawer':
-        specifier: 0.1.32
-        version: 0.1.32
-      '@octane-xplat/jsx':
-        specifier: workspace:*
-        version: link:../jsx
-      '@octane-xplat/lib':
-        specifier: workspace:*
-        version: link:../lib
-    devDependencies:
-      '@nativescript-community/octane':
-        specifier: 'catalog:'
-        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
-      '@nativescript/core':
-        specifier: 'catalog:'
-        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
-      '@nativescript/types':
-        specifier: 'catalog:'
-        version: 9.1.4
-      '@octane-xplat/macos-renderer':
-        specifier: workspace:*
-        version: link:../macos-renderer
-      '@octane-xplat/ui':
-        specifier: workspace:*
-        version: link:../ui
-      '@octanejs/vite-plugin':
-        specifier: 'catalog:'
-        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      '@tsrx/typescript-plugin':
-        specifier: 'catalog:'
-        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
-      jsdom:
-        specifier: 'catalog:'
-        version: 30.1.1(@noble/hashes@2.4.0)
-      octane:
-        specifier: 'catalog:'
-        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      tsrx-typegen:
-        specifier: workspace:*
-        version: link:../tsrx-typegen
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-
   packages/desktop-webview:
     dependencies:
       '@nativescript/macos-node-api':
@@ -1963,6 +1724,61 @@ importers:
       '@tsrx/typescript-plugin':
         specifier: 'catalog:'
         version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/drawer:
+    dependencies:
+      '@nativescript-community/gesturehandler':
+        specifier: 2.1.0
+        version: 2.1.0
+      '@nativescript-community/ui-drawer':
+        specifier: 0.1.32
+        version: 0.1.32
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../jsx
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@octane-xplat/macos-renderer':
+        specifier: workspace:*
+        version: link:../macos-renderer
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@octanejs/vite-plugin':
+        specifier: 'catalog:'
+        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      jsdom:
+        specifier: 'catalog:'
+        version: 30.1.1(@noble/hashes@2.4.0)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -2263,6 +2079,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -2463,6 +2282,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -2512,6 +2334,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -2582,6 +2407,9 @@ importers:
       '@octane-xplat/macos-renderer':
         specifier: workspace:*
         version: link:../macos-renderer
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -2637,6 +2465,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       jsdom:
         specifier: 'catalog:'
         version: 30.1.1(@noble/hashes@2.4.0)
@@ -2704,6 +2535,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -2897,6 +2731,46 @@ importers:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
+  packages/media:
+    dependencies:
+      '@nativescript/camera':
+        specifier: 7.0.0
+        version: 7.0.0
+      '@nativescript/imagepicker':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@octane-xplat/camera':
+        specifier: workspace:*
+        version: link:../camera
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/media-library:
     dependencies:
       '@octane-xplat/lib':
@@ -2945,46 +2819,6 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-
-  packages/media:
-    dependencies:
-      '@nativescript/camera':
-        specifier: 7.0.0
-        version: 7.0.0
-      '@nativescript/imagepicker':
-        specifier: 5.0.0
-        version: 5.0.0
-      '@octane-xplat/camera':
-        specifier: workspace:*
-        version: link:../camera
-      '@octane-xplat/lib':
-        specifier: workspace:*
-        version: link:../lib
-      '@octane-xplat/platform':
-        specifier: workspace:*
-        version: link:../platform
-    devDependencies:
-      '@nativescript-community/octane':
-        specifier: 'catalog:'
-        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
-      '@nativescript/core':
-        specifier: 'catalog:'
-        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
-      '@nativescript/types':
-        specifier: 'catalog:'
-        version: 9.1.4
-      '@tsrx/typescript-plugin':
-        specifier: 'catalog:'
-        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
-      octane:
-        specifier: 'catalog:'
-        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      tsrx-typegen:
-        specifier: workspace:*
-        version: link:../tsrx-typegen
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
 
   packages/media-probe:
     dependencies:
@@ -3050,6 +2884,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       jsdom:
         specifier: 'catalog:'
         version: 30.1.1(@noble/hashes@2.4.0)
@@ -3154,6 +2991,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -3234,6 +3074,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -3273,6 +3116,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -3375,65 +3221,6 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/push:
-    dependencies:
-      '@nativescript/firebase-core':
-        specifier: 5.0.2
-        version: 5.0.2
-      '@nativescript/firebase-messaging':
-        specifier: 5.0.2
-        version: 5.0.2
-      firebase:
-        specifier: 13.1.0
-        version: 13.1.0
-      octane:
-        specifier: '>=0.6.3 <1'
-        version: 0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-    devDependencies:
-      '@nativescript-community/octane':
-        specifier: 'catalog:'
-        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
-      '@nativescript/core':
-        specifier: 'catalog:'
-        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
-      tsrx-typegen:
-        specifier: workspace:*
-        version: link:../tsrx-typegen
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-
-  packages/recorder:
-    dependencies:
-      '@octane-xplat/platform':
-        specifier: workspace:*
-        version: link:../platform
-    devDependencies:
-      '@nativescript-community/octane':
-        specifier: 'catalog:'
-        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
-      '@nativescript/core':
-        specifier: 'catalog:'
-        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
-      '@octanejs/vite-plugin':
-        specifier: 'catalog:'
-        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      octane:
-        specifier: 'catalog:'
-        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      tsrx-typegen:
-        specifier: workspace:*
-        version: link:../tsrx-typegen
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-
   packages/print:
     dependencies:
       '@octane-xplat/lib':
@@ -3462,6 +3249,71 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
+  packages/push:
+    dependencies:
+      '@nativescript/firebase-core':
+        specifier: 5.0.2
+        version: 5.0.2
+      '@nativescript/firebase-messaging':
+        specifier: 5.0.2
+        version: 5.0.2
+      firebase:
+        specifier: 13.1.0
+        version: 13.1.0
+      octane:
+        specifier: '>=0.6.3 <1'
+        version: 0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+
+  packages/recorder:
+    dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=4255e0ca07a232e42389713352ef2eae7abe24cd2f527fe47a122811ecbd0b2c)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@octanejs/vite-plugin':
+        specifier: 'catalog:'
+        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+
   packages/richtext:
     dependencies:
       '@octane-xplat/jsx':
@@ -3483,6 +3335,9 @@ importers:
       '@tiptap/starter-kit':
         specifier: 3.32.0
         version: 3.32.0
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       esbuild:
         specifier: 0.27.7
         version: 0.27.7
@@ -3544,6 +3399,37 @@ importers:
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/screen-orientation:
+    dependencies:
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
+    devDependencies:
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
       tsrx-typegen:
         specifier: workspace:*
         version: link:../tsrx-typegen
@@ -3646,6 +3532,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -3677,6 +3566,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -3720,6 +3612,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -3732,6 +3627,37 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+
+  packages/shortcuts:
+    dependencies:
+      '@casbin/expression-eval':
+        specifier: 5.3.0
+        version: 5.3.0
+    devDependencies:
+      '@nativescript/core':
+        specifier: https://pkg.pr.new/@nativescript/core@abae298
+        version: https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585)
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      jsdom:
+        specifier: 'catalog:'
+        version: 30.1.1(@noble/hashes@2.4.0)
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/smooth-corners:
     dependencies:
@@ -3785,6 +3711,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -3798,31 +3727,6 @@ importers:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
-  packages/screen-orientation:
-    dependencies:
-      '@octane-xplat/lib':
-        specifier: workspace:*
-        version: link:../lib
-    devDependencies:
-      '@nativescript/core':
-        specifier: 'catalog:'
-        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
-      '@nativescript/types':
-        specifier: 'catalog:'
-        version: 9.1.4
-      playwright:
-        specifier: 1.63.0
-        version: 1.63.0
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-
   packages/splash-screen:
     dependencies:
       '@octane-xplat/lib':
@@ -3835,6 +3739,12 @@ importers:
       '@nativescript/types':
         specifier: 'catalog:'
         version: 9.1.4
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -3967,6 +3877,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -4019,6 +3932,46 @@ importers:
       '@octane-xplat/macos-renderer':
         specifier: workspace:*
         version: link:../macos-renderer
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/tracking-transparency:
+    dependencies:
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
+    devDependencies:
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../jsx
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      jsdom:
+        specifier: 'catalog:'
+        version: 30.1.1(@noble/hashes@2.4.0)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -4142,6 +4095,12 @@ importers:
       '@octane-xplat/fingerprint':
         specifier: workspace:*
         version: link:../fingerprint
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -4170,6 +4129,9 @@ importers:
       '@octanejs/vite-plugin':
         specifier: 'catalog:'
         version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
       octane:
         specifier: 'catalog:'
         version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
@@ -4182,6 +4144,52 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+
+  packages/view-shot:
+    dependencies:
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
+      html2canvas-pro:
+        specifier: 2.4.5
+        version: 2.4.5
+    devDependencies:
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../jsx
+      '@octanejs/vite-plugin':
+        specifier: 'catalog:'
+        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/web-browser:
     dependencies:
@@ -4303,6 +4311,58 @@ importers:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
+  tools/astryx-parity:
+    dependencies:
+      '@astryxdesign/core':
+        specifier: 0.7.4
+        version: 0.7.4(@stylexjs/stylex@0.19.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@stylexjs/stylex':
+        specifier: 0.19.1
+        version: 0.19.1
+      octane:
+        specifier: 'catalog:'
+        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      react:
+        specifier: 19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: 19.3.1
+        version: 19.3.1(react@19.3.1)
+    devDependencies:
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../../packages/jsx
+      '@octanejs/vite-plugin':
+        specifier: 'catalog:'
+        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      '@types/node':
+        specifier: 24.10.1
+        version: 24.10.1
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
+      sameframe:
+        specifier: 0.2.2
+        version: 0.2.2(supports-color@10.2.2)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+
   tools/auth-guide:
     dependencies:
       jose:
@@ -4316,52 +4376,75 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/shortcuts:
-    dependencies:
-      '@casbin/expression-eval':
-        specifier: 5.3.0
-        version: 5.3.0
+  tools/feedback-worker:
     devDependencies:
-      '@nativescript/core':
-        specifier: https://pkg.pr.new/@nativescript/core@abae298
-        version: https://pkg.pr.new/@nativescript/core@abae298(patch_hash=fe651544123e7602a0ee2f04fedbd5258101825fecb2138f7f0672a288575585)
-      jsdom:
-        specifier: 'catalog:'
-        version: 30.1.1(@noble/hashes@2.4.0)
-      playwright:
-        specifier: 1.63.0
-        version: 1.63.0
-      tsrx-typegen:
-        specifier: workspace:*
-        version: link:../tsrx-typegen
+      '@cloudflare/workers-types':
+        specifier: 5.20260928.1
+        version: 5.20260928.1
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+      wrangler:
+        specifier: 4.136.3
+        version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@24.10.1)
+
+  tools/ota-server:
+    dependencies:
+      '@octane-xplat/fingerprint':
+        specifier: workspace:*
+        version: link:../../packages/fingerprint
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: 5.20260928.1
+        version: 5.20260928.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      wrangler:
+        specifier: 4.136.3
+        version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@24.10.1)
+
+  tools/visual:
+    dependencies:
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      octane:
+        specifier: 'catalog:'
+        version: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+    devDependencies:
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../../packages/jsx
+      '@octanejs/vite-plugin':
+        specifier: 'catalog:'
+        version: 0.5.0(octane@0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      '@vitest/browser':
+        specifier: 4.1.11
+        version: 4.1.11(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vitest@4.1.11)
+      '@vitest/browser-playwright':
+        specifier: 4.1.11
+        version: 4.1.11(playwright@1.63.0)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vitest@4.1.11)
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
+      pngjs:
+        specifier: 7.0.0
+        version: 7.0.0
+      storybook:
+        specifier: 10.6.1
+        version: 10.6.1(@types/react@19.3.0)(prettier@3.9.6)(react@19.3.1)
       vite:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      vitest-plugin-vis:
+        specifier: 5.1.7
+        version: 5.1.7(@vitest/browser-playwright@4.1.11)(@vitest/browser@4.1.11(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vitest@4.1.11))(typescript@5.9.3)(vitest@4.1.11)
 
 packages:
-
-  utrie@1.0.2:
-    resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
-
-  text-segmentation@1.0.3:
-    resolution: {integrity: sha512-iOiPUo/BGnZ6+54OsWxZidGCsdU8YbE4PSpdPinp7DeMtUJNJBoJ/ouUSTJjHkh1KntHaltHl/gDs2FC4i5+Nw==}
-
-  html2canvas-pro@2.4.5:
-    resolution: {integrity: sha512-aeAwXx+Tt+i3ci0PJffMJVyxr0FJzuz44SkB7j/2Mh6Mjb7/+OeMhms56wK4j72zzKlKthoxSMzd883Lr0PcCA==}
-    engines: {node: '>=16.0.0'}
-
-  css-line-break@2.1.0:
-    resolution: {integrity: sha512-FHcKFCZcAha3LwfVBhCQbW2nCNbkZXn7KVUJcsT5/P8YmfsVja0FMPJr0B903j/E69HUphKiV9iQArX8SDYA4w==}
-
-  base64-arraybuffer@1.0.2:
-    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
-    engines: {node: '>= 0.6.0'}
 
   '@adobe/css-tools@4.5.0':
     resolution: {integrity: sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q==}
@@ -4708,6 +4791,9 @@ packages:
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
     hasBin: true
+
+  '@casbin/expression-eval@5.3.0':
+    resolution: {integrity: sha512-mMTHMYXcnBBv/zMvxMpcdVyt2bfw8Y0GnmRLbkFQ1CVJZb4XZp7xWjRh7ymOLuJdsu58rci9gmOOv/99DtJvPA==}
 
   '@clack/core@0.5.0':
     resolution: {integrity: sha512-p3y0FIOwaYRUPRcMO7+dlmLh8PSRcrjuTndsiA0WAFbWES0mLZlrjVoBRZ9DzkPFJZG6KGkJmoEAY0ZcVWTkow==}
@@ -7811,6 +7897,58 @@ packages:
     resolution: {integrity: sha512-x7S9XoJh+TbMnur4eBhPpCVo+p7udABBV2gQk+Iw6LP9e8EFKmGmNyl76vSsT6GeFJ7mwxDEKfuwbVoLBjIvHw==}
     engines: {node: '>=8'}
 
+  '@sentry/cli-darwin@3.8.2':
+    resolution: {integrity: sha512-S9xIhtpPk5uU0J0dMLz5VCtlBn+OHjG7En8HkZNGYsleNACQOwcG5wcfAnGuq+7x643KrEOubtd1VPtGfrBHsQ==}
+    engines: {node: '>=18'}
+    os: [darwin]
+
+  '@sentry/cli-linux-arm64@3.8.2':
+    resolution: {integrity: sha512-sWKkGTSOqRmGW8d2Q6ir1gBEkvfXWNbDxcf/dF0MJt8q9p594k+04GOm5mZ/VAePKGzs9W8fXE1xfmZ/UNCLcQ==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [linux, freebsd, android]
+
+  '@sentry/cli-linux-arm@3.8.2':
+    resolution: {integrity: sha512-maj9TXsnyWqNKs+UTHc+/gpsvXPVlCbheH+QHaBx8FD9u0B56REVDfxKUSCzeC9eTGDf0eKAFxbxWiMXKG4B5Q==}
+    engines: {node: '>=18'}
+    cpu: [arm]
+    os: [linux, freebsd, android]
+
+  '@sentry/cli-linux-i686@3.8.2':
+    resolution: {integrity: sha512-6aOKjTWGl5XEYCOOha4GO3aq5C7ISmYB8QECec8mFLWx0L3QoXdKtaNQoLUYslsSN0jEmFeOgA0U27Tp5OEBww==}
+    engines: {node: '>=18'}
+    cpu: [x86, ia32]
+    os: [linux, freebsd, android]
+
+  '@sentry/cli-linux-x64@3.8.2':
+    resolution: {integrity: sha512-icx2NoqaxuE4H5khIoRCB/MDX76/kKbDZFvJe/UYloGp9aucxi6c7mk8oDxFvskMFqLfbprQ6RzKH7iILmODQg==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [linux, freebsd, android]
+
+  '@sentry/cli-win32-arm64@3.8.2':
+    resolution: {integrity: sha512-lSzj1ywih1madjyMrTHSjJKPhvErozSsSrG7QF6yIt7dMLYX4Qh9X3puVReh1YB5mOPCX8MJPtur67YJmR1S+w==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@sentry/cli-win32-i686@3.8.2':
+    resolution: {integrity: sha512-k4dPGNNliNY46G/4hSeJygHlMoyMoL292IO+YP3MasBqyqPEy9hz6Py3FjUVW/Ckso52eoAVtGgb6DntFBjIWA==}
+    engines: {node: '>=18'}
+    cpu: [x86, ia32]
+    os: [win32]
+
+  '@sentry/cli-win32-x64@3.8.2':
+    resolution: {integrity: sha512-IBX5W2M3Zckpg3zOXfnNoayWTKhVlZN/b7ifO7dRArkOsNRzVa2lNB5M7L28O0/ZYu/8V+SnzCoHVGN9bxRdwg==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [win32]
+
+  '@sentry/cli@3.8.2':
+    resolution: {integrity: sha512-JbB/UTBPRQREkI6CaxD8Cs0ppNc3YT8CROgRV7WeaqPn7mZOAgTYqtcxiW/OF7OquOIHUd0u6gu2vL+g5ITdHQ==}
+    engines: {node: '>= 18'}
+    hasBin: true
+
   '@sentry/conventions@0.27.0':
     resolution: {integrity: sha512-Mrqd/o7n/z7qWSYfQQA7x4fFTA0IqOG6JNsbBpnC97khPwZk7n6DPtOO7YgaYplSl8R8QLRbBz9Xv2lVhToSAg==}
     engines: {node: '>=14'}
@@ -8756,6 +8894,10 @@ packages:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
 
+  base64-arraybuffer@1.0.2:
+    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
+    engines: {node: '>= 0.6.0'}
+
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
@@ -9092,6 +9234,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  css-line-break@2.1.0:
+    resolution: {integrity: sha512-FHcKFCZcAha3LwfVBhCQbW2nCNbkZXn7KVUJcsT5/P8YmfsVja0FMPJr0B903j/E69HUphKiV9iQArX8SDYA4w==}
 
   css-mediaquery@0.1.2:
     resolution: {integrity: sha512-COtn4EROW5dBGlE/4PiKnh6rZpAPxDeFLaEEwt4i10jpDMFt2EhQGS79QmmrO+iKCHv0PU/HrOWEhijFd1x99Q==}
@@ -9721,6 +9866,10 @@ packages:
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
 
+  html2canvas-pro@2.4.5:
+    resolution: {integrity: sha512-aeAwXx+Tt+i3ci0PJffMJVyxr0FJzuz44SkB7j/2Mh6Mjb7/+OeMhms56wK4j72zzKlKthoxSMzd883Lr0PcCA==}
+    engines: {node: '>=16.0.0'}
+
   http-cache-semantics@4.2.0:
     resolution: {integrity: sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ==}
 
@@ -10003,6 +10152,10 @@ packages:
     peerDependenciesMeta:
       canvas:
         optional: true
+
+  jsep@0.3.5:
+    resolution: {integrity: sha512-AoRLBDc6JNnKjNcmonituEABS5bcfqDhQAWWXNTFrqu6nVXBpBAGfcoTGZMFlIrh9FjmE1CQyX9CTNwZrXMMDA==}
+    engines: {node: '>= 6.0.0'}
 
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
@@ -11064,6 +11217,10 @@ packages:
     resolution: {integrity: sha512-MbA4R+WQT76ZBm/5JUpV9yqcJt92175+Y0Bodg3HgiXzrmKu7Ggq+bpn6y6wHH+gN9NcyKn3yg1+d47VaKwNAQ==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
+  progress@2.0.3:
+    resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
+    engines: {node: '>=0.4.0'}
+
   promise-all-reject-late@1.0.1:
     resolution: {integrity: sha512-vuf0Lf0lOxyQREH7GDIOUMLS7kz+gs8i6B+Yi8dC68a2sychGrHTJYghMBD6k7eUcH0H5P73EckCA48xijWqXw==}
 
@@ -11134,6 +11291,9 @@ packages:
   proxy-addr@2.0.8:
     resolution: {integrity: sha512-5nnx0yGyVUcY6t9RnWcARWtwT9F1D8O9rt08htPvnd49W1IgZtmLkhu9WfMzQj1cFxjHIO6connUNVW5k7AVyQ==}
     engines: {node: '>= 0.10'}
+
+  proxy-from-env@1.1.0:
+    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
   proxy-from-env@2.1.0:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
@@ -11767,6 +11927,9 @@ packages:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
     engines: {node: '>=8'}
 
+  text-segmentation@1.0.3:
+    resolution: {integrity: sha512-iOiPUo/BGnZ6+54OsWxZidGCsdU8YbE4PSpdPinp7DeMtUJNJBoJ/ouUSTJjHkh1KntHaltHl/gDs2FC4i5+Nw==}
+
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
     engines: {node: '>=0.8'}
@@ -12065,6 +12228,9 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  utrie@1.0.2:
+    resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
 
   uuid@11.1.1:
     resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
@@ -12490,93 +12656,7 @@ packages:
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
-  '@sentry/cli-darwin@3.8.2':
-    resolution: {integrity: sha512-S9xIhtpPk5uU0J0dMLz5VCtlBn+OHjG7En8HkZNGYsleNACQOwcG5wcfAnGuq+7x643KrEOubtd1VPtGfrBHsQ==}
-    engines: {node: '>=18'}
-    os: [darwin]
-
-  '@sentry/cli-linux-arm64@3.8.2':
-    resolution: {integrity: sha512-sWKkGTSOqRmGW8d2Q6ir1gBEkvfXWNbDxcf/dF0MJt8q9p594k+04GOm5mZ/VAePKGzs9W8fXE1xfmZ/UNCLcQ==}
-    engines: {node: '>=18'}
-    cpu: [arm64]
-    os: [linux, freebsd, android]
-
-  '@sentry/cli-linux-arm@3.8.2':
-    resolution: {integrity: sha512-maj9TXsnyWqNKs+UTHc+/gpsvXPVlCbheH+QHaBx8FD9u0B56REVDfxKUSCzeC9eTGDf0eKAFxbxWiMXKG4B5Q==}
-    engines: {node: '>=18'}
-    cpu: [arm]
-    os: [linux, freebsd, android]
-
-  '@sentry/cli-linux-i686@3.8.2':
-    resolution: {integrity: sha512-6aOKjTWGl5XEYCOOha4GO3aq5C7ISmYB8QECec8mFLWx0L3QoXdKtaNQoLUYslsSN0jEmFeOgA0U27Tp5OEBww==}
-    engines: {node: '>=18'}
-    cpu: [x86, ia32]
-    os: [linux, freebsd, android]
-
-  '@sentry/cli-linux-x64@3.8.2':
-    resolution: {integrity: sha512-icx2NoqaxuE4H5khIoRCB/MDX76/kKbDZFvJe/UYloGp9aucxi6c7mk8oDxFvskMFqLfbprQ6RzKH7iILmODQg==}
-    engines: {node: '>=18'}
-    cpu: [x64]
-    os: [linux, freebsd, android]
-
-  '@sentry/cli-win32-arm64@3.8.2':
-    resolution: {integrity: sha512-lSzj1ywih1madjyMrTHSjJKPhvErozSsSrG7QF6yIt7dMLYX4Qh9X3puVReh1YB5mOPCX8MJPtur67YJmR1S+w==}
-    engines: {node: '>=18'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@sentry/cli-win32-i686@3.8.2':
-    resolution: {integrity: sha512-k4dPGNNliNY46G/4hSeJygHlMoyMoL292IO+YP3MasBqyqPEy9hz6Py3FjUVW/Ckso52eoAVtGgb6DntFBjIWA==}
-    engines: {node: '>=18'}
-    cpu: [x86, ia32]
-    os: [win32]
-
-  '@sentry/cli-win32-x64@3.8.2':
-    resolution: {integrity: sha512-IBX5W2M3Zckpg3zOXfnNoayWTKhVlZN/b7ifO7dRArkOsNRzVa2lNB5M7L28O0/ZYu/8V+SnzCoHVGN9bxRdwg==}
-    engines: {node: '>=18'}
-    cpu: [x64]
-    os: [win32]
-
-  '@sentry/cli@3.8.2':
-    resolution: {integrity: sha512-JbB/UTBPRQREkI6CaxD8Cs0ppNc3YT8CROgRV7WeaqPn7mZOAgTYqtcxiW/OF7OquOIHUd0u6gu2vL+g5ITdHQ==}
-    engines: {node: '>= 18'}
-    hasBin: true
-
-  progress@2.0.3:
-    resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
-    engines: {node: '>=0.4.0'}
-
-  proxy-from-env@1.1.0:
-    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
-
-
-  '@casbin/expression-eval@5.3.0':
-    resolution: {integrity: sha512-mMTHMYXcnBBv/zMvxMpcdVyt2bfw8Y0GnmRLbkFQ1CVJZb4XZp7xWjRh7ymOLuJdsu58rci9gmOOv/99DtJvPA==}
-
-  jsep@0.3.5:
-    resolution: {integrity: sha512-AoRLBDc6JNnKjNcmonituEABS5bcfqDhQAWWXNTFrqu6nVXBpBAGfcoTGZMFlIrh9FjmE1CQyX9CTNwZrXMMDA==}
-    engines: {node: '>= 6.0.0'}
-
 snapshots:
-
-  utrie@1.0.2:
-    dependencies:
-      base64-arraybuffer: 1.0.2
-
-  text-segmentation@1.0.3:
-    dependencies:
-      utrie: 1.0.2
-
-  html2canvas-pro@2.4.5:
-    dependencies:
-      css-line-break: 2.1.0
-      text-segmentation: 1.0.3
-
-  css-line-break@2.1.0:
-    dependencies:
-      utrie: 1.0.2
-
-  base64-arraybuffer@1.0.2: {}
 
   '@adobe/css-tools@4.5.0': {}
 
@@ -13074,6 +13154,10 @@ snapshots:
   '@bramus/specificity@2.4.2':
     dependencies:
       css-tree: 3.2.1
+
+  '@casbin/expression-eval@5.3.0':
+    dependencies:
+      jsep: 0.3.5
 
   '@clack/core@0.5.0':
     dependencies:
@@ -15888,6 +15972,46 @@ snapshots:
       '@sentry/types': 7.111.0
       '@sentry/utils': 7.111.0
 
+  '@sentry/cli-darwin@3.8.2':
+    optional: true
+
+  '@sentry/cli-linux-arm64@3.8.2':
+    optional: true
+
+  '@sentry/cli-linux-arm@3.8.2':
+    optional: true
+
+  '@sentry/cli-linux-i686@3.8.2':
+    optional: true
+
+  '@sentry/cli-linux-x64@3.8.2':
+    optional: true
+
+  '@sentry/cli-win32-arm64@3.8.2':
+    optional: true
+
+  '@sentry/cli-win32-i686@3.8.2':
+    optional: true
+
+  '@sentry/cli-win32-x64@3.8.2':
+    optional: true
+
+  '@sentry/cli@3.8.2':
+    dependencies:
+      progress: 2.0.3
+      proxy-from-env: 1.1.0
+      undici: 6.29.0
+      which: 2.0.2
+    optionalDependencies:
+      '@sentry/cli-darwin': 3.8.2
+      '@sentry/cli-linux-arm': 3.8.2
+      '@sentry/cli-linux-arm64': 3.8.2
+      '@sentry/cli-linux-i686': 3.8.2
+      '@sentry/cli-linux-x64': 3.8.2
+      '@sentry/cli-win32-arm64': 3.8.2
+      '@sentry/cli-win32-i686': 3.8.2
+      '@sentry/cli-win32-x64': 3.8.2
+
   '@sentry/conventions@0.27.0': {}
 
   '@sentry/core@11.9.0':
@@ -16415,6 +16539,14 @@ snapshots:
     optionalDependencies:
       octane: 0.16.3(patch_hash=e81714dbe303e53445b52d696bc8561e9d5d3855120f735e756605a10c48c385)(@tsrx/oxc@0.20.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
+  '@tsrx/typescript-plugin@0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)':
+    dependencies:
+      '@volar/language-core': 2.4.28
+      '@volar/typescript': 2.4.28(typescript@5.9.3)
+      typescript: 5.9.3
+    optionalDependencies:
+      octane: 0.6.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+
   '@tufjs/canonical-json@2.0.0': {}
 
   '@tufjs/models@4.1.0':
@@ -16919,6 +17051,8 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
+  base64-arraybuffer@1.0.2: {}
+
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.11.25: {}
@@ -17275,6 +17409,10 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  css-line-break@2.1.0:
+    dependencies:
+      utrie: 1.0.2
 
   css-mediaquery@0.1.2: {}
 
@@ -17957,6 +18095,11 @@ snapshots:
 
   html-void-elements@3.0.0: {}
 
+  html2canvas-pro@2.4.5:
+    dependencies:
+      css-line-break: 2.1.0
+      text-segmentation: 1.0.3
+
   http-cache-semantics@4.2.0: {}
 
   http-errors@2.0.1:
@@ -18260,6 +18403,8 @@ snapshots:
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
+
+  jsep@0.3.5: {}
 
   jsesc@3.1.0: {}
 
@@ -19436,6 +19581,8 @@ snapshots:
 
   proggy@4.0.0: {}
 
+  progress@2.0.3: {}
+
   promise-all-reject-late@1.0.1: {}
 
   promise-call-limit@3.0.2: {}
@@ -19552,6 +19699,8 @@ snapshots:
     dependencies:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
+
+  proxy-from-env@1.1.0: {}
 
   proxy-from-env@2.1.0: {}
 
@@ -20289,6 +20438,10 @@ snapshots:
       glob: 7.2.3
       minimatch: 3.1.5
 
+  text-segmentation@1.0.3:
+    dependencies:
+      utrie: 1.0.2
+
   thenify-all@1.6.0:
     dependencies:
       thenify: 3.3.1
@@ -20525,6 +20678,10 @@ snapshots:
       pako: 1.0.11
 
   util-deprecate@1.0.2: {}
+
+  utrie@1.0.2:
+    dependencies:
+      base64-arraybuffer: 1.0.2
 
   uuid@11.1.1: {}
 
@@ -20922,53 +21079,3 @@ snapshots:
   zod@4.6.7: {}
 
   zwitch@2.0.4: {}
-
-  '@sentry/cli-darwin@3.8.2':
-    optional: true
-
-  '@sentry/cli-linux-arm64@3.8.2':
-    optional: true
-
-  '@sentry/cli-linux-arm@3.8.2':
-    optional: true
-
-  '@sentry/cli-linux-i686@3.8.2':
-    optional: true
-
-  '@sentry/cli-linux-x64@3.8.2':
-    optional: true
-
-  '@sentry/cli-win32-arm64@3.8.2':
-    optional: true
-
-  '@sentry/cli-win32-i686@3.8.2':
-    optional: true
-
-  '@sentry/cli-win32-x64@3.8.2':
-    optional: true
-
-  '@sentry/cli@3.8.2':
-    dependencies:
-      progress: 2.0.3
-      proxy-from-env: 1.1.0
-      undici: 6.29.0
-      which: 2.0.2
-    optionalDependencies:
-      '@sentry/cli-darwin': 3.8.2
-      '@sentry/cli-linux-arm': 3.8.2
-      '@sentry/cli-linux-arm64': 3.8.2
-      '@sentry/cli-linux-i686': 3.8.2
-      '@sentry/cli-linux-x64': 3.8.2
-      '@sentry/cli-win32-arm64': 3.8.2
-      '@sentry/cli-win32-i686': 3.8.2
-      '@sentry/cli-win32-x64': 3.8.2
-
-  progress@2.0.3: {}
-
-  proxy-from-env@1.1.0: {}
-
-  '@casbin/expression-eval@5.3.0':
-    dependencies:
-      jsep: 0.3.5
-
-  jsep@0.3.5: {}

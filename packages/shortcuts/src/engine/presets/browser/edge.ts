@@ -111,6 +111,7 @@ const combos = [
 	['Meta+Shift+D', 'mac'],
 ] as const
 
-export const edgeBrowserShortcuts = combos.map(([combo, platform]) =>
-	blocklistEntry(combo, { category: 'browser', browser: 'edge', platform }),
-)
+export const edgeBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
+	combos.map(([combo, platform]) =>
+		blocklistEntry(combo, { category: 'browser', browser: 'edge', platform }),
+	)

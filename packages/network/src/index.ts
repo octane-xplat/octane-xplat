@@ -1,6 +1,6 @@
 import { Application } from '@nativescript/core'
 import { requestNative } from './native'
-import type { StreamRequestOptions } from './types'
+import type { StreamRequestOptions, StreamResponse } from './types'
 export type * from './types'
 declare const XplatStreamingRequest: {
 	new: () => { startEvent(options: string, event: (json: string) => void): void; cancel(): void }
@@ -19,7 +19,10 @@ declare const com: {
 }
 
 /** Incremental native HTTP, independent of NativeScript's buffered global fetch. */
-export function requestStream(url: string, options?: StreamRequestOptions) {
+export function requestStream(
+	url: string,
+	options?: StreamRequestOptions,
+): Promise<StreamResponse> {
 	return requestNative(
 		() => {
 			if (!Application.ios && !Application.android) {

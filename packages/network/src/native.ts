@@ -56,7 +56,7 @@ export function requestNative(
 				start(value) {
 					controller = value
 				},
-				cancel() {
+				cancel(): void {
 					ended = true
 					cleanup()
 					native.cancel()

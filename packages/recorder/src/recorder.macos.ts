@@ -4,7 +4,7 @@ import type { AudioRecorder, RecorderPermissionState } from './types'
 
 declare const XplatAudioRecorder: { alloc(): { init(): RecorderHost } }
 
-export const createAudioRecorder = (): AudioRecorder =>
+export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder =>
 	createMacOSRecorder(
 		typeof XplatAudioRecorder === 'undefined' ? undefined : XplatAudioRecorder.alloc().init(),
 	)

@@ -1,0 +1,39 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"declaration": true,
+		"isolatedDeclarations": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"noEmitOnError": true,
+		"rootDir": "src",
+		"outDir": "types/generated",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"allowImportingTsExtensions": true,
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".gtk",
+			".windows"
+		]
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsrx",
+		"src/**/*.tsx"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.spec.*"
+	]
+}

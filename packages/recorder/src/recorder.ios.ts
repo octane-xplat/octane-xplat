@@ -67,7 +67,7 @@ export async function requestMicrophonePermission(): Promise<RecorderPermissionS
 	})
 }
 
-export const createAudioRecorder = (): AudioRecorder => {
+export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 	const session = AVAudioSession.sharedInstance()
 	const listeners = new Set<(snapshot: RecorderSnapshot) => void>()
 	let recorder: AVAudioRecorder | undefined

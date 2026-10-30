@@ -1,12 +1,19 @@
 {
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"strict": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"target": "esnext",
 		"declaration": true,
+		"isolatedDeclarations": true,
 		"emitDeclarationOnly": true,
-		"outDir": "types",
+		"noEmit": false,
+		"noEmitOnError": true,
+		"rootDir": "src",
+		"outDir": "types/generated",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"allowImportingTsExtensions": true,
 		"moduleSuffixes": [
 			"",
 			".web",
@@ -17,8 +24,15 @@
 			".macos",
 			".linux",
 			".windows"
-		],
-		"allowImportingTsExtensions": true
+		]
 	},
-	"include": ["src/types.ts"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsrx",
+		"src/**/*.tsx"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.spec.*"
+	]
 }

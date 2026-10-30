@@ -357,7 +357,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
 			await cancel()
 			await start(options)
 		},
-		stop() {
+		stop(): Promise<RecordingResult> {
 			assertLive()
 			if (completion) {
 				return completion.promise
@@ -392,7 +392,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
 			return promise
 		},
 		cancel,
-		dispose() {
+		dispose(): void {
 			if (disposed) {
 				return
 			}

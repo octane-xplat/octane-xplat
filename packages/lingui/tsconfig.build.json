@@ -4,7 +4,10 @@
 		"emitDeclarationOnly": false,
 		"declaration": false,
 		"outDir": "dist",
-		"rewriteRelativeImportExtensions": true
+		"rewriteRelativeImportExtensions": true,
+		"isolatedDeclarations": false
 	},
-	"include": ["src/extractor.ts"]
+	"include": [
+		"src/extractor.ts"
+	]
 }

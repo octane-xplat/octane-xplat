@@ -9,18 +9,34 @@
 		"directory": "packages/shortcuts"
 	},
 	"files": [
+		"types/generated",
 		"dist"
 	],
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"macos": "./dist/index.macos.js",
-			"gtk": "./dist/index.gtk.js",
-			"windows": "./dist/index.windows.js",
-			"web": "./dist/index.web.js",
-			"browser": "./dist/index.web.js",
+			"types": "./types/generated/index.d.ts",
+			"macos": {
+				"types": "./types/generated/index.macos.d.ts",
+				"default": "./dist/index.macos.js"
+			},
+			"gtk": {
+				"types": "./types/generated/index.gtk.d.ts",
+				"default": "./dist/index.gtk.js"
+			},
+			"windows": {
+				"types": "./types/generated/index.windows.d.ts",
+				"default": "./dist/index.windows.js"
+			},
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./dist/index.web.js"
+			},
+			"browser": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./dist/index.web.js"
+			},
 			"default": "./dist/index.js"
 		}
 	},
@@ -29,7 +45,7 @@
 	},
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json --declaration false",
-		"typegen": "tsc -p tsconfig.build.json --emitDeclarationOnly",
+		"typegen": "tsrx-typegen --target shortcuts",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
 		"test:docs": "node tests/docs-reference.mjs",
@@ -50,7 +66,8 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.4-0 <10"
@@ -59,5 +76,6 @@
 		"@nativescript/core": {
 			"optional": true
 		}
-	}
+	},
+	"types": "./types/generated/index.d.ts"
 }

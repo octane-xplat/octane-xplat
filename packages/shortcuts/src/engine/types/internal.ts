@@ -86,6 +86,6 @@ export type EvaluateResult = {
 	winner?: Candidate
 }
 
-export const RESERVED_CONTEXT_NAMES = new Set(['context', 'event', 'scope', 'runtime'])
+export const RESERVED_CONTEXT_NAMES: Set<string> = new Set(['context', 'event', 'scope', 'runtime'])
 export const MODIFIER_ORDER: readonly ModifierName[] = ['Ctrl', 'Meta', 'Alt', 'Shift']
-export const MODIFIER_KEY_NAMES = new Set(['Ctrl', 'Meta', 'Alt', 'Shift'])
+export const MODIFIER_KEY_NAMES: Set<string> = new Set(['Ctrl', 'Meta', 'Alt', 'Shift'])

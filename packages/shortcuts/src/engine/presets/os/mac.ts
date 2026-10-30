@@ -30,6 +30,6 @@ const combos = [
 	'Control+Meta+Q',
 ]
 
-export const macOsShortcuts = combos.map((combo) =>
-	blocklistEntry(combo, { category: 'os', platform: 'mac' }),
+export const macOsShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] = combos.map(
+	(combo) => blocklistEntry(combo, { category: 'os', platform: 'mac' }),
 )

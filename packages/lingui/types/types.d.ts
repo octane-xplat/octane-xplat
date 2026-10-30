@@ -1,0 +1,18 @@
+import type { Messages } from '@lingui/core';
+export type CatalogModule = Messages | {
+    messages: Messages;
+};
+export type CatalogLoader = () => Promise<CatalogModule>;
+export interface LinguiPersistence {
+    load(): string | undefined | Promise<string | undefined>;
+    save(locale: string): void | Promise<void>;
+}
+export interface LinguiSetup {
+    /** locale → async loader, e.g. from `catalogsFromGlob(import.meta.glob(...))`. */
+    catalogs: Record<string, CatalogLoader>;
+    /** Locale used when detection and persistence yield nothing supported. */
+    fallback?: string;
+    /** Forced locale — wins over persisted and detected values. */
+    locale?: string;
+    persist?: LinguiPersistence;
+}

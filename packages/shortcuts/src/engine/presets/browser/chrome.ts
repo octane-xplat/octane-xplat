@@ -108,6 +108,7 @@ const combos = [
 	['F7', 'mac'],
 ] as const
 
-export const chromeBrowserShortcuts = combos.map(([combo, platform]) =>
-	blocklistEntry(combo, { category: 'browser', browser: 'chrome', platform }),
-)
+export const chromeBrowserShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
+	combos.map(([combo, platform]) =>
+		blocklistEntry(combo, { category: 'browser', browser: 'chrome', platform }),
+	)

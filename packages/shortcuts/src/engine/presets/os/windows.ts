@@ -65,6 +65,5 @@ const combos = [
 	'Ctrl+Alt+Delete',
 ]
 
-export const windowsOsShortcuts = combos.map((combo) =>
-	blocklistEntry(combo, { category: 'os', platform: 'windows' }),
-)
+export const windowsOsShortcuts: import('../../types/public.js').ShortcutBlocklistEntry[] =
+	combos.map((combo) => blocklistEntry(combo, { category: 'os', platform: 'windows' }))

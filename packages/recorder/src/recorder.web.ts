@@ -60,7 +60,7 @@ export async function requestMicrophonePermission(): Promise<RecorderPermissionS
 	}
 }
 
-export const createAudioRecorder = (): AudioRecorder => {
+export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 	const listeners = new Set<(snapshot: RecorderSnapshot) => void>()
 	let stream: MediaStream | undefined
 	let context: AudioContext | undefined

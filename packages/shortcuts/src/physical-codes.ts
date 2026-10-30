@@ -87,6 +87,7 @@ const positions: Record<number, string> = {
 	87: 'F11',
 	88: 'F12',
 }
+
 const extended: Record<number, string> = {
 	28: 'NumpadEnter',
 	29: 'ControlRight',
@@ -107,6 +108,7 @@ const extended: Record<number, string> = {
 	92: 'MetaRight',
 	93: 'ContextMenu',
 }
+
 const evdev: Record<number, string> = {
 	96: 'NumpadEnter',
 	97: 'ControlRight',
@@ -129,8 +131,10 @@ const evdev: Record<number, string> = {
 	127: 'ContextMenu',
 }
 
-export const windowsCode = (scanCode: number, isExtended: boolean): string =>
-	(isExtended ? extended : positions)[scanCode] ?? ''
+export const windowsCode: (scanCode: number, isExtended: boolean) => string = (
+	scanCode: number,
+	isExtended: boolean,
+): string => (isExtended ? extended : positions)[scanCode] ?? ''
 
-export const gtkCode = (xkbKeycode: number): string =>
+export const gtkCode: (xkbKeycode: number) => string = (xkbKeycode: number): string =>
 	positions[xkbKeycode - 8] ?? evdev[xkbKeycode - 8] ?? ''

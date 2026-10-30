@@ -132,7 +132,7 @@ const readFileBytes = (path: string): Uint8Array => {
 	}
 }
 
-export const createAudioRecorder = (): AudioRecorder => {
+export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 	const listeners = new Set<(snapshot: RecorderSnapshot) => void>()
 	let record: android.media.AudioRecord | undefined
 	let thread: java.lang.Thread | undefined
