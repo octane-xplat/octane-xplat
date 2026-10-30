@@ -318,7 +318,9 @@ export function installParityDumpFor(target: string, hostOf: () => any) {
 // mounts ParityStage without a router, so its stage is found from the app
 // root view instead of the root stack). Same JSON shape as measure.web.ts.
 export function installParityDump() {
-	const windows = Boolean(Application.windows) || Boolean((globalThis as any).__WINDOWS__)
+	const windows =
+		('windows' in Application && Boolean(Application.windows)) ||
+		Boolean((globalThis as any).__WINDOWS__)
 	const target = Application.android ? 'android' : windows ? 'windows' : 'ios'
 	installParityDumpFor(target, () => {
 		if (windows) {

@@ -2,6 +2,10 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"parity": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"cache": false
+		},
 		"test:query-cache-runtime": {
 			"dependsOn": ["@octane-xplat/ui#typegen", "@octane-xplat/cli#build"],
 			"cache": false
