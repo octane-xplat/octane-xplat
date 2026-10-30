@@ -10,6 +10,7 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Implementation invariants](architecture.md) — rules for shared and platform code.
 - [Source context](source-context.md) — how to trace source and impact.
 - [Toolchain](toolchain.md) — install, build, lint, and package workflows.
+- [Temporary host files](host-artifacts.md) — disposable task folders and retained-work boundaries.
 - [Probes and tests](testing.md) — investigation and maintained coverage.
 - [Single-case probing](probing.md) — repository-local runner and platform prerequisites.
 - [Release navigation checks](navigation-checks.md) — isolated router verification.

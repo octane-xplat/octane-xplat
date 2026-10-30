@@ -11,6 +11,10 @@ For Android emulator setup, device isolation, and verified host commands, use th
 Prefer an isolated case over editing the harness or running a full sweep just
 to answer one question. Windows is excluded from this runner.
 
+On shared test hosts, follow the [temporary-file convention](host-artifacts.md):
+one disposable scratch tree per task, with implementation work and retained
+evidence outside it.
+
 ## AppKit component tests
 
 The UI's native test task has separate mobile and AppKit Vitest modes. Select

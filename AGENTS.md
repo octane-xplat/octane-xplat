@@ -34,6 +34,7 @@ working agreements and detail moved out of this entry point.
 | Find source, callers, or change impact                  | [Source context](.agents/docs/source-context.md)                                                                     |
 | Implement components or platform variants               | [Implementation invariants](.agents/docs/architecture.md)                                                            |
 | Build, install dependencies, patch upstream, or lint    | [Toolchain](.agents/docs/toolchain.md)                                                                               |
+| Use shared hosts or create temporary host artifacts    | [Temporary host files](.agents/docs/host-artifacts.md)                                                               |
 | Investigate one case or add lasting test coverage       | [Probes and tests](.agents/docs/testing.md)                                                                          |
 | Write or review docs; change public behavior or setup   | [Documentation audience and coverage](.agents/docs/documentation.md)                                                 |
 | Audit or maintain public docs and package READMEs      | [Documentation quality system](.agents/docs/documentation-quality.md)                                               |

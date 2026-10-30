@@ -40,6 +40,11 @@ dotnet --version
 Clone the repository on Windows, or copy it from your development machine using
 your preferred secure file transfer.
 
+Use the [shared-host scratch convention](host-artifacts.md) for agent uploads,
+temporary build clones, packages and logs. On windy, keep them together under
+`%USERPROFILE%\agent-scratch\octane-xplat\<task>\`; preserve authoritative source
+and retained evidence outside that disposable tree.
+
 From the repository root, the intended checks are:
 
 ```powershell
