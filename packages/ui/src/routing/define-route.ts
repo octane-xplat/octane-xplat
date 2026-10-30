@@ -20,6 +20,7 @@ import type {
 import type { RouteCancellationSignal } from './core'
 import type { RouteSpecParams } from '..'
 
+/** Factory for route-group builders — defines shared guard/loader scopes. */
 export type RouteGroupDefiner = {
 	<const Id extends string, Added extends RouteGuardResult = void, Data = unknown>(
 		input: GroupInput<Id, RouteContext, Added, Data> & {
@@ -32,6 +33,7 @@ export type RouteGroupDefiner = {
 		} & RequiredGuard<GroupInput<Id, RouteContext, Added, undefined>, Added>,
 	): RouteGroupBuilder<GroupContext<Id, RouteContext, Added, undefined>, RouteContext>
 } & {
+	/** Rebinds the group definer to a custom root context type. */
 	withContext: <Context extends Exclude<RouteGuardResult, void>>() => {
 		<const Id extends string, Added extends RouteGuardResult = void, Data = unknown>(
 			input: GroupInput<Id, Context, Added, Data> & {
@@ -46,6 +48,7 @@ export type RouteGroupDefiner = {
 	}
 }
 
+/** Factory for route-definition builders — `defineRoute`'s call signature. */
 export type RouteDefiner = {
 	<
 		const Path extends string,
@@ -112,6 +115,7 @@ export type RouteDefiner = {
 		} & RequiredGuard<RouteDefinitionInput<Path, undefined, RouteContext, Added, undefined>, Added>,
 	): RouteDefinitionBuilder<Path, undefined, RouteContext, Added, undefined, RouteContext>
 } & {
+	/** Rebinds the definer to a custom root context type. */
 	withContext: <Context extends Exclude<RouteGuardResult, void>>() => {
 		<
 			const Path extends string,
@@ -223,6 +227,7 @@ export function withSearchDecoder<
 
 /** Search diagnostics retain validation issues locally without logging raw input. */
 export class RouteSearchValidationError extends Error {
+	/** Validation failures reported by the schema — retained for diagnostics. */
 	readonly issues: readonly { readonly message: string }[]
 	constructor(issues: readonly { readonly message: string }[]) {
 		super('Route search validation failed')
@@ -377,6 +382,7 @@ function definitionsWithContext<Context extends object, Root = Context>(
  *   .screen(({ data }) => data.title)
  */
 export const defineRoute: RouteDefiner = Object.assign(definitionsWithContext<RouteContext>(), {
+	/** Rebinds the definer to a custom root context type. */
 	withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
 		return definitionsWithContext<Context>()
 	},
@@ -388,8 +394,11 @@ type GroupArgs<Context> = Omit<RoutePreparationArgs, 'context' | 'params'> & {
 }
 
 type GroupInput<Id extends string, Context, Added, Data> = {
+	/** Group name — its loader data lands on `context[id]` for descendants. */
 	id: Id
+	/** Guard run before the loader — may redirect or abort. */
 	beforeLoad?: (args: GroupArgs<Context>) => Added | Promise<Added>
+	/** Scope data loader — runs once per preparation, shared by descendant routes. */
 	loader?: (args: GroupArgs<MergedRouteContext<Context, NoInfer<Added>>>) => Data
 }
 
@@ -399,7 +408,9 @@ type GroupContext<Id extends string, Context, Added, Data> = MergedRouteContext<
 >
 
 export type RouteGroupBuilder<Context extends object, Root> = RouteGroup<Context, Root> & {
+	/** Defines a route inside this group's context scope. */
 	readonly route: ReturnType<typeof definitionsWithContext<Context, Root>>
+	/** Defines a nested group inside this group's context scope. */
 	readonly group: ReturnType<typeof groupsWithContext<Context, Root>>
 }
 
@@ -480,7 +491,8 @@ function groupsWithContext<Context extends object, Root = Context>(
 export const defineRouteGroup: RouteGroupDefiner = Object.assign(
 	groupsWithContext<RouteContext>(),
 	{
-		withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
+		/** Rebinds the group definer to a custom root context type. */
+	withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
 			return groupsWithContext<Context>()
 		},
 	},
