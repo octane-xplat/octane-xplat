@@ -11,6 +11,8 @@
   start with `/** @jsxImportSource @octane-xplat/jsx/dom */`.
 - Keep DOM globals out of native files. Use the shared `@octane-xplat/ui`
   elements when behavior can be shared.
+- Give every exported function and value an explicit type; `pnpm typegen`
+  writes each file's declarations on its own and reports missing ones.
 - Declare every imported package. Runtime plugins belong in `dependencies`;
   Octane and renderer packages belong in `peerDependencies` when consumers
   supply the runtime.

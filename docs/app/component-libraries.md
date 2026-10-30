@@ -62,12 +62,18 @@ props. For example, `src/Badge.tsx` uses the shared native JSX contract:
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 import { Text, View } from '@octane-xplat/ui'
+import type { JSX } from '@octane-xplat/jsx/jsx-runtime'
 import type { BadgeProps } from './props'
 
-export function Badge(props: BadgeProps) {
+export function Badge(props: BadgeProps): JSX.Element {
 	return <View className={props.className}><Text>{props.label.trim() || 'Badge'}</Text></View>
 }
 ```
+
+Give every exported function an explicit return type, like `: JSX.Element`
+above. `tsrx-typegen` writes each file's type declarations on its own, without
+reading the rest of the package, so it can't work out a return type you leave
+off. When one is missing, `pnpm typegen` names the file and line to fix.
 
 The browser sibling uses the same props and component body, with
 `/** @jsxImportSource @octane-xplat/jsx/dom */` as its first line. Export the

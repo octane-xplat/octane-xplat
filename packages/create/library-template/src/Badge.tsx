@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Text, View } from '@octane-xplat/ui'
 import { normalizeBadgeLabel } from './normalizeBadgeLabel'
+import type { JSX } from '@octane-xplat/jsx/jsx-runtime'
 import type { BadgeProps } from './props'
 
 /**
@@ -12,7 +13,7 @@ import type { BadgeProps } from './props'
  * <Badge label="Ready" />
  * ```
  */
-export function Badge(props: BadgeProps) {
+export function Badge(props: BadgeProps): JSX.Element {
 	return (
 		<View className={props.className}>
 			<Text>{normalizeBadgeLabel(props.label)}</Text>
