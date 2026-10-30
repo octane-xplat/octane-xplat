@@ -7,7 +7,39 @@ import {
 	textLongRows,
 } from '../../parity/check-helpers.ts'
 
+const textWrapCheck: ParityCheck['check'] = (m) => {
+	const root = m('root').box
+	const text = m('text').box
+	return [
+		['text wraps into multiple lines', text.h > 30, text.h],
+		['text uses the constrained width', Math.abs(text.w - root.w) <= 1, { root, text }],
+		[
+			'text fits within the available width',
+			text.w > 0 && text.x >= root.x - 1 && text.x + text.w <= root.x + root.w + 1,
+			{ root, text },
+		],
+	]
+}
+
 export const CHECKS: ParityCheck[] = [
+	{
+		fixture: 'text-wrap-start',
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
+		elements: { root: 'parity-text-wrap-root', text: 'parity-text-wrap-content' },
+		check: textWrapCheck,
+	},
+	{
+		fixture: 'text-wrap-center',
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
+		elements: { root: 'parity-text-wrap-root', text: 'parity-text-wrap-content' },
+		check: textWrapCheck,
+	},
+	{
+		fixture: 'text-wrap-row',
+		targets: ['web', 'ios', 'android', 'macos', 'windows'],
+		elements: { root: 'parity-text-wrap-root', text: 'parity-text-wrap-content' },
+		check: textWrapCheck,
+	},
 	{
 		fixture: 'text-class-sm',
 		targets: ['web', 'ios', 'android', 'macos'],

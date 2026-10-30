@@ -143,7 +143,7 @@ minimumReleaseAgeExclude:
   - '@octane-xplat/fmt-win32-x64@0.1.1'
   - '@octane-xplat/nativescript-mason-core@1.0.0-beta.4 || 1.0.0-beta.5'
   # same-day release of our MasonKit fork (Windows preview only)
-  - '@octane-xplat/nativescript-masonkit@1.0.0-beta.126'
+  - '@octane-xplat/nativescript-masonkit@1.0.0-beta.129'
   - '@nativescript/canvas@3.0.0-alpha.15'
   # Windows spike: prerelease runtime + dev-tag CLI carrying the unreleased
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
@@ -177,6 +177,7 @@ allowBuilds:
   '@nativescript/firebase-analytics': true
   # core-js's postinstall only prints a funding banner.
   core-js: false
+  '@sentry/cli': set this to true or false
 # Canonical copies live in packages/cli/patches/ — manifest.json there carries
 # why/dropWhen per entry and feeds `xplat patches apply`. Regenerate a patch with `pnpm
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`

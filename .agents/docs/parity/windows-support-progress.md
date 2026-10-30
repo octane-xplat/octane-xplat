@@ -3552,3 +3552,44 @@ Raw evidence: `research/windows61/mason126-{published,repaired}-full-dump.json`,
 `mason126-same-bundle-comparison.json`, `mason126-production-exact-{dump,uia}.json`,
 `text-wrap-exact-{web-checks,windows-green}.log`, and
 `windows-wrap-app-build-engine-fixed.log`.
+
+### Published package validation
+
+Full MasonKit [1.0.0-beta.129](https://github.com/octane-xplat/nativescript-mason/releases/tag/v1.0.0-beta.129)
+is published under npm's `next` tag. The package is the scoped beta.126 update
+above; its source/artifact commit is `083b71528711586fa7f305c4018e7ea1d16f6b72`.
+The native [rebuild](https://github.com/octane-xplat/nativescript-mason/actions/runs/41015779415)
+passed Rust tests and x64/ARM64 compilation. The
+[package validation](https://github.com/octane-xplat/nativescript-mason/actions/runs/41016798288)
+and [trusted publication](https://github.com/octane-xplat/nativescript-mason/actions/runs/41017730686)
+also passed. All 348 published file contents match the validated tarball.
+
+The x64 DLL extracted from that package was loaded in MSIX **1.0.0.72**:
+launch `mvumgv85` passes the nine wrapping assertions and UIA full-name/type/
+220×40-DIP bounds checks; launch `mvumjcqz` reproduces all 40 fixture boxes from
+the local production candidate exactly. Its SHA-256 is
+`A97E75B65BE69DC94996F42EF7AAA032B3E058C96083E664176266606D3CDB7C`.
+ARM64 remains build-only. The final clean-main installation and full component
+qualification are separate requirements, not satisfied by this diagnostic app.
+
+The release is tagged from beta.126; fork main `e2ef767b` also contains
+unreleased text changes and needs the repair carried forward before a later
+full-kit release. Rebuilding from that main without the repair would not
+preserve the published fix. Keep the exact Windows pin and rerun these
+wrapping cases when changing it.
+
+Raw package evidence: `research/windows61/mason129-{validated-package,published-registry,published-verification}.json`,
+`mason129-packed-{wrap,full}-dump.json`, `mason129-packed-wrap-uia.json`, and
+`mason129-packed-checks.log`.
+
+Adoption checks for the UI and Windows package/dependents run report **64/68
+tasks**, with the same existing charts/UI AppKit diagnostics and mobile/
+Windows program failures as main `4ee5f838e`. After normalizing package-local
+and harness-relative paths, there are 46 distinct diagnostics and no new ones.
+The comparison is in `research/windows61/mason129-adoption-typecheck-comparison.json`.
+Documentation structure checks pass; doc-example checks retain only the two
+unchanged macOS renderer README errors. Recipe-check output has no additions.
+No public starter/setup recipe gains Windows support from this private-harness
+repair; the maintained parity fixtures carry the wrapping regression coverage.
+The local frozen install links the new package but still exits on the existing
+unapproved Sentry build-script policy, so it is not fresh-install evidence.

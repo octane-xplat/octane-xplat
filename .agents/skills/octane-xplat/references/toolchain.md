@@ -47,8 +47,11 @@ declare the core beta through `catalog:xplat`; `xplat upgrade` replaces full
 MasonKit and legacy `@triniwiz` pins, and doctor rejects them until it runs.
 `xplatNative` resolves the canonical renderer's unchanged `nativescript-masonkit`
 imports, including /style, to the app's declared engine under the isolated
-linker: core on mobile, full MasonKit in the Windows preview. Windows still
-requires full MasonKit: the managed registry core betas lack Windows artifacts. The
+linker: core on mobile, full MasonKit in the Windows preview. The private
+Windows harness pins full MasonKit 1.0.0-beta.129 for foreign-text wrapping and
+frame measurement; do not substitute `masontext` to work around Label layout.
+The bounded x64 evidence is in [Windows text wrapping](../../../../docs/platform/windows-setup.md#text-wrapping).
+Windows still requires full MasonKit: the managed registry core betas lack Windows artifacts. The
 Mason fork can now assemble a Windows-bearing local package, but a local
 tarball does not change those registry pins. Keep `xplat upgrade`, doctor and
 the harness on full MasonKit until the qualification and delivery gates clear. Core has an independent beta release track;

@@ -1,5 +1,6 @@
 // Measured parity fixtures — assertions live in Text.parity.check.ts.
 import { Text } from './Text'
+import { View } from '../layout/View'
 import type { ParityFixture } from '../../parity'
 
 function TextClassFixture(props: { sizeClass: string; content: string }) @{
@@ -27,7 +28,43 @@ function TextFixture(props: {
 	</Text>
 }
 
+function TextWrapFixture(props: { direction: 'row' | 'column'; align: 'start' | 'center' }) @{
+	<View
+		className="parity-text-wrap-root"
+		alignItems={props.align}
+		style={{ display: 'flex', width: 220, flexDirection: props.direction }}
+	>
+		<Text
+			className="parity-text-wrap-content"
+			style={{ fontSize: 14, lineHeight: 20, flexShrink: 1 }}
+		>
+			Shared typography should wrap within the available space.
+		</Text>
+	</View>
+}
+
 export const PARITY: ParityFixture[] = [
+	{
+		name: 'text-wrap-start',
+		component: 'Text',
+		renderer: TextWrapFixture,
+		props: { direction: 'column', align: 'start' },
+		height: 100,
+	},
+	{
+		name: 'text-wrap-center',
+		component: 'Text',
+		renderer: TextWrapFixture,
+		props: { direction: 'column', align: 'center' },
+		height: 100,
+	},
+	{
+		name: 'text-wrap-row',
+		component: 'Text',
+		renderer: TextWrapFixture,
+		props: { direction: 'row', align: 'start' },
+		height: 100,
+	},
 	{
 		name: 'text-class-sm',
 		component: 'Text',

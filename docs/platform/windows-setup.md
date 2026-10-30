@@ -22,6 +22,36 @@ For current repository implementation candidates and deferred Windows checks,
 see the [Windows progress note](../../.agents/docs/parity/windows-support-progress.md).
 These candidates do not change the experimental support boundary.
 
+## Text wrapping
+
+The repository's Windows harness uses MasonKit `1.0.0-beta.129` to wrap shared
+`Text` in constrained columns and shrinking rows. Use the ordinary shared
+components; CSS supplies the available width and flex behavior:
+
+```tsrx
+import { Text, View } from '@octane-xplat/ui'
+
+export function WrappedNote() @{
+  <>
+    <style>
+      .note-row { display: flex; width: 220px; flex-direction: row; }
+      .note-copy { font-size: 14px; line-height: 20px; flex-shrink: 1; }
+    </style>
+    <View className="note-row">
+      <Text className="note-copy">
+        Shared typography should wrap within the available space.
+      </Text>
+    </View>
+  </>
+}
+```
+
+Packaged x64 checks passed for start/center-aligned columns and a shrinking
+row, with 220×40-DIP text bounds matching web and full text names exposed through
+Windows UI Automation. This is bounded wrapping evidence. Text updates,
+remount, resizing, glyph parity and Narrator remain unqualified; ARM64 has
+build evidence only.
+
 ## Media-query candidate
 
 The repository has an experimental Windows `useMediaQuery` leaf for DIP
