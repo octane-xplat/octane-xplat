@@ -524,6 +524,22 @@ function rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, run
 			)
 
 			if (!target) {
+				// Style side-effect imports (`import './table.css'`) carry no type
+				// payload and their assets ship next to sources, not generated
+				// declarations — drop them so packed declarations stay closed.
+				if (
+					/\.(?:css|scss|sass|less|styl)$/i.test(specifier) &&
+					node.parent &&
+					ts.isImportDeclaration(node.parent) &&
+					!node.parent.importClause
+				) {
+					edits.push({
+						start: node.parent.getStart(source),
+						end: node.parent.end,
+						replacement: '',
+					})
+				}
+
 				continue
 			}
 
