@@ -32,6 +32,11 @@ import type { NSClass } from '@octane-xplat/platform/macos'
 
 const app = NSApplication.sharedApplication
 
+const externalRunLoop = () =>
+	(globalThis as typeof globalThis & {
+		process?: { env?: Record<string, string | undefined> }
+	}).process?.env?.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
+
 // The dev harness and the bundled app import this module as separate
 // instances; windowing state is shared through globalThis so delegates
 // registered by one copy see windows created by the other.
@@ -210,11 +215,31 @@ class AppDelegate extends NSObject {
 	static ObjCProtocols = [NSApplicationDelegate, NSWindowDelegate]
 
 	static {
+		// ES class methods are non-enumerable, and the runtime only exports
+		// enumerable prototype members as new ObjC methods — without this,
+		// every delegate selector is invisible to AppKit. Same contract as
+		// registerGestureClass in @octane-xplat/macos-renderer.
+		for (const name of Object.getOwnPropertyNames(this.prototype)) {
+			if (name === 'constructor') {
+				continue
+			}
+
+			const descriptor = Object.getOwnPropertyDescriptor(this.prototype, name)!
+			Object.defineProperty(this.prototype, name, { ...descriptor, enumerable: true })
+		}
+
 		NativeClass(this)
 	}
 
 	applicationDidFinishLaunching() {
 		app.activateIgnoringOtherApps(true)
+		// Under OCTANE_MACOS_EXTERNAL_RUNLOOP the host owns the event loop;
+		// -stop: would terminate it and a JS pump would double-dispatch.
+		// The stop+manual-pump handoff applies only to the stock app.run() path.
+		if (externalRunLoop()) {
+			return
+		}
+
 		app.stop(this)
 		setTimeout(() => this.pumpEvents(), 0)
 	}
@@ -604,9 +629,26 @@ export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: b
 	// required child-pin chain hands the solver a path where a nested
 	// view's hugging priority (750) outranks the window↔content constraint
 	// (WindowSizeStayPut, 500) — and AppKit resizes the window to the
-	// content's fitting size.
-	contentView.widthAnchor.constraintEqualToConstant(640).active = true
-	contentView.heightAnchor.constraintEqualToConstant(420).active = true
+	// content's fitting size. The pins track the last applied size so
+	// explicit/user resizes still take: a fixed constant would lock the
+	// window at 640x420 forever.
+	const widthPin = contentView.widthAnchor.constraintEqualToConstant(640)
+	const heightPin = contentView.heightAnchor.constraintEqualToConstant(420)
+	widthPin.active = true
+	heightPin.active = true
+	subscribeAppKitEvent(shared.platformServices.windowResizeListeners, (resized) => {
+		if (resized !== nativeWindow) {
+			return
+		}
+
+		const size = nativeWindow.contentView?.bounds?.size
+		if (!size) {
+			return
+		}
+
+		widthPin.constant = Number(size.width)
+		heightPin.constant = Number(size.height)
+	})
 	nativeWindow.contentView = contentView
 	let resolveWindowClosed!: () => void
 	const windowClosed = new Promise<void>((resolve) => {

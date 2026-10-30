@@ -9801,7 +9801,7 @@ try {
 		}
 
 		static {
-			NativeClass(this)
+			registerGestureClass(this)
 		}
 
 		mouseEntered(event: NSEvent) {
