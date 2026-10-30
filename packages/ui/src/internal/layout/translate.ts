@@ -8,6 +8,7 @@ export const setTranslate: SetTranslate = (view, x = 0, y = 0) => {
 		return
 	}
 
-	view.translateX = x
-	view.translateY = y
+	const target = view as { translateX: number; translateY: number }
+	target.translateX = x
+	target.translateY = y
 }
