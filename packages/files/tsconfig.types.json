@@ -2,6 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"declaration": true,
+		"isolatedDeclarations": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"noEmitOnError": true,

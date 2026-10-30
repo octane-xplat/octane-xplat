@@ -2,6 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "@octane-xplat/jsx",
+		"isolatedDeclarations": true,
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"declaration": true,
 		"emitDeclarationOnly": true,

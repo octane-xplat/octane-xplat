@@ -2,6 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"declaration": true,
+		"isolatedDeclarations": true,
 		"jsxImportSource": "@octane-xplat/jsx",
 		"emitDeclarationOnly": true,
 		"noEmit": false,
