@@ -1,0 +1,30 @@
+{
+  "sourceRepository": "https://github.com/NativeScript/NativeScript",
+  "sourceCommit": "abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b",
+  "sourceArchiveSha256": "e5aff3114f26cbd6e7f78920a4c28ea9a5b43e890233c8603cff3eeae9618f94",
+  "patch": "tools/platform-qualification/patches/windows-layout/native-padding.patch",
+  "nativePatchSha256": "1ff8f2a68f8d70e48ad7772a877e0db58bea65a0b559d2c9c9bc90bab5bd45cb",
+  "architecture": "x64",
+  "license": "MIT",
+  "scope": "Native Flexbox Padding projection, measurement and arrangement. The flex shrink algorithm is unchanged.",
+  "build": {
+    "configuration": "Release",
+    "toolset": "v143",
+    "project": "packages/ui-mobile-base/windows/widgets-cpp/NativeScript.Widgets.vcxproj",
+    "commandReference": "tools/platform-qualification/windows-layout/build-widgets.ps1"
+  },
+  "files": [
+    {
+      "name": "NativeScript.Widgets.dll",
+      "sha256": "75a690a2a2bf0077037ab9a1da991761f8b52d92ea51119511b696cc0183c241",
+      "bytes": 598528,
+      "upstreamSha256": "c267f9445c673a81a124efb6a175a12c0036605020afe865943a93861dfad235"
+    },
+    {
+      "name": "NativeScript.Widgets.winmd",
+      "sha256": "decde1efd06230eecba30b339707cafe2e586a0af1650bff0b0924304ac60293",
+      "bytes": 10752,
+      "upstreamSha256": "765d779a340596c4787a72e50c0a8031d8516f87ef89ecb60b69c150ead37b46"
+    }
+  ]
+}

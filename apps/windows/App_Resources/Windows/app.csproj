@@ -14,12 +14,44 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Include="$(MSBuildProjectDirectory)\plugins\@nativescript\core\$(NSLibPlatform)\NativeScript.Widgets.dll;$(MSBuildProjectDirectory)\plugins\@nativescript\core\$(NSLibPlatform)\NativeScript.Widgets.winmd;$(MSBuildProjectDirectory)\plugins\@octane-xplat\nativescript-masonkit\$(NSLibPlatform)\NativeScript.Mason.dll;$(MSBuildProjectDirectory)\plugins\@octane-xplat\nativescript-masonkit\$(NSLibPlatform)\NativeScript.Mason.winmd">
+    <Content Include="$(MSBuildProjectDirectory)\plugins\@octane-xplat\nativescript-masonkit\$(NSLibPlatform)\NativeScript.Mason.dll;$(MSBuildProjectDirectory)\plugins\@octane-xplat\nativescript-masonkit\$(NSLibPlatform)\NativeScript.Mason.winmd">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+  <!-- App-local x64 repair: stage the verified pair before MSIX discovery and
+       restore it after the core plugin's post-Build copy. Other architectures
+       retain their upstream artifacts and remain unqualified. -->
+  <ItemGroup>
+    <Content Remove="App_Resources\Windows\Widgets\**\*" />
+    <Content Include="$(MSBuildThisFileDirectory)Widgets\LICENSE">
+      <Link>NativeScript.Widgets.LICENSE</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Widgets\x64\NativeScript.Widgets.dll;$(MSBuildThisFileDirectory)Widgets\x64\NativeScript.Widgets.winmd"
+             Condition="'$(NSLibPlatform)' == 'x64'">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="$(MSBuildProjectDirectory)\plugins\@nativescript\core\$(NSLibPlatform)\NativeScript.Widgets.dll;$(MSBuildProjectDirectory)\plugins\@nativescript\core\$(NSLibPlatform)\NativeScript.Widgets.winmd"
+             Condition="'$(NSLibPlatform)' != 'x64'">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <Target Name="XplatVerifyPaddedWidgets" BeforeTargets="BeforeBuild"
+          Condition="'$(NSLibPlatform)' == 'x64'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)Widgets\verify.ps1&quot; -UpstreamDirectory &quot;$(MSBuildProjectDirectory)\plugins\@nativescript\core\x64&quot;" />
+  </Target>
+  <Target Name="XplatCopyPaddedWidgets" AfterTargets="CopyNativeScriptWidgets"
+          DependsOnTargets="XplatVerifyPaddedWidgets" Condition="'$(NSLibPlatform)' == 'x64'">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)Widgets\x64\NativeScript.Widgets.dll;$(MSBuildThisFileDirectory)Widgets\x64\NativeScript.Widgets.winmd"
+          DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
   <!-- Plugins update Package.appxmanifest after the generated manifest was
        read. Carry their registrations into the manifest actually packaged. -->
   <Target Name="XplatPackageNativeRegistrations" AfterTargets="_GenerateAppxManifest"

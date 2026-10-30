@@ -4,11 +4,41 @@ This internal task addresses two reproduced upstream Windows layout defects:
 Flexbox ignores padding, and percentage-sized Canvas children can stay at zero
 when their parent is first laid out. Component support has not been upgraded.
 
+## Repository Windows host
+
+The x64 host in `apps/windows` carries a pinned padding DLL/WinMD pair in
+`App_Resources/Windows/Widgets`. Its manifest identifies NativeScript commit
+`abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`, the canonical native patch,
+checksums, toolchain and MIT license. This is an app-local repair; the upstream
+package remains unchanged. Other architectures retain upstream binaries and
+remain unqualified. The separate legacy shrink limitation below remains open.
+
+The host verifies both the repaired pair and the expected upstream pair before
+building. A dependency change therefore requires reviewing or rebuilding the
+repair. Content items stage it before MSIX discovery; a target after
+`CopyNativeScriptWidgets` restores it after the upstream plugin's post-build
+copy. Keep both paths so the build output and MSIX select the same artifacts.
+
+Rebuild the native source in a new disposable run folder on Windows, under a
+native-build/device reservation. Reuse the host's SDK and NuGet caches:
+
+```powershell
+./tools/platform-qualification/windows-layout/build-widgets.ps1 `
+  -ScratchDirectory "$env:USERPROFILE/agent-scratch/octane-xplat/<task>/widgets-rebuild"
+```
+
+`-SourceArchive` accepts a previously downloaded, hash-verified archive;
+`-PrepareOnly` checks source extraction and patch application without compiling.
+The output manifest records the actual pair hashes. Rebuilding does not update
+the checked-in pair automatically; compare packaged geometry before replacing
+it. PE build timestamps can change hashes between builds.
+
 ## Repairs
 
-The pinned NativeScript source is
-`7d0adcec9fa05e34668a7abacf3a79dab55325e6`. An isolated detached upstream checkout
-is under ignored `research/windows-layout-upstream`.
+The original isolated investigation used NativeScript source
+`7d0adcec9fa05e34668a7abacf3a79dab55325e6`; its detached checkout is under ignored
+`research/windows-layout-upstream`. The repository host uses the newer verified
+pin described above.
 
 - Native Flexbox gains a projected `Thickness Padding`. Measurement subtracts
   insets from constraints, clamps the content box to zero, and adds insets to
