@@ -63,6 +63,27 @@ The workspace pins the matching NativeScript Windows packages. Do not upgrade
 `@nativescript/windows`, core, or Vite independently while testing this
 experimental target.
 
+## Run an owned desktop helper
+
+When an agent uses Task Scheduler to enter the signed-in desktop session,
+set its own helper task to priority **4** before starting it. Task Scheduler's
+default **7** gives the process below-normal CPU priority and low I/O and memory
+priority; **4** uses the normal interactive profile. See Microsoft's
+[priority mapping](https://learn.microsoft.com/en-us/windows/win32/taskschd/taskschedulerschema-priority-settingstype-element).
+
+After the helper registers its unique `$taskName`, configure that task:
+
+```powershell
+$ownedTask = Get-ScheduledTask -TaskName $taskName
+$ownedTask.Settings.Priority = 4
+Set-ScheduledTask -TaskName $taskName -Settings $ownedTask.Settings | Out-Null
+Start-ScheduledTask -TaskName $taskName
+```
+
+Keep the host's resource reservation for the entire phase. Configure only the
+helper's registered task. Allow enough time for installation and compilation,
+and verify that owned child processes have stopped before a retry.
+
 ## Current status
 
 The Windows-specific NativeScript doctor checks, generated WinUI build, and
