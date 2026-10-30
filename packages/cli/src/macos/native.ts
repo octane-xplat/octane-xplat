@@ -525,8 +525,11 @@ export async function inspectMacOSNative(appRoot) {
 				)
 
 	const clang = await run('xcrun', ['--find', 'clang'], 'locate Xcode compiler')
+	// XPLAT_MACOS_SWIFTC pins a specific swiftc — needed on CLT-only hosts
+	// where `xcrun --find` cannot select a separately installed toolchain.
 	const swift = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.swift'))
-		? await run('xcrun', ['--find', 'swiftc'], 'locate Swift compiler')
+		? process.env.XPLAT_MACOS_SWIFTC ||
+				(await run('xcrun', ['--find', 'swiftc'], 'locate Swift compiler'))
 		: null
 
 	const zig = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.zig'))

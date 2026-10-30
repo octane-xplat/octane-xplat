@@ -14,7 +14,9 @@ native Intel execution are separate evidence.
 
 Swift and the selected SDK must also be compatible. The default SDK selection
 may choose a newer SDK than the compiler supports; use the guide's explicit SDK
-selection when needed. Universal app output requires both executable slices and
+selection when needed. On Command-Line-Tools-only hosts `xcrun` cannot
+select a separately installed Swift toolchain; the guide's `XPLAT_MACOS_SWIFTC`
+pins a swiftc by path. Universal app output requires both executable slices and
 architecture-specific metadata, regardless of the build host.
 
 Keep two upstream NativeScript constraints visible when updating the generator:
@@ -30,8 +32,6 @@ Keep two upstream NativeScript constraints visible when updating the generator:
 Keep maintainer prebuilt rebuilds, app native-leaf compilation, universal
 packaging, runtime execution, and notarization as separate qualification tasks.
 A runtime result on an Intel Mac does not prove that Mac can rebuild every tool.
-
-## Find local evidence
 
 The former host qualification report is indexed in `local_artifacts` under this
 file's repository-relative path. Use [operational evidence lookup](../exploration.md#operational-evidence)
