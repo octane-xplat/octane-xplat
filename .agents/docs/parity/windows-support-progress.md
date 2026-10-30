@@ -3432,3 +3432,66 @@ path. The maintained regression is the Windows target of the existing View,
 row/column, Spacer and percent-size parity checks once they are enabled for
 Windows. Artifacts: `research/windows61/windy-parity-console-838b4cf9b.log`,
 `research/windows61/parity-check-windows-out.txt`.
+
+## Core-component plan: Windows text measurement repair (2026-10-30)
+
+The full MasonKit Windows host can compute the correct label frame while
+WinUI realizes a wider control. With `1.0.0-beta.126` source (`623114b0`), the
+packaged `text-long` fixture had a **220×40 DIP Mason frame** but a **380×40 DIP
+actual Border**. Immediately after arrangement, that Border's desired size
+was 380×20 and its inner TextBlock still occupied one line. An explicit label
+width avoided the mismatch.
+
+```tsrx
+<View style={{ display: 'flex', width: 220 }}>
+	<Text style={{ fontSize: 14, fontWeight: 400, lineHeight: 20 }}>
+		Shared typography should render the same glyph advances
+	</Text>
+</View>
+```
+
+NativeScript's Windows Label exposes a Border containing a TextBlock
+(`NativeScript/NativeScript` at `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`,
+`packages/core/ui/label/index.windows.ts`). Mason's nested-panel measurement
+was measuring foreign children against the container's available space after
+the engine had assigned their frames. WinUI then arranged from that larger
+desired size. Changing the min-content calculation alone did not repair this
+case; neither did a final measurement only in the root panel.
+
+The candidate repair in MasonKit's Windows `Mason/PanelCore.h` measures foreign
+children at their computed border boxes, including margins, during nested
+measurement and after the root compute. Engine measurement callbacks still
+supply intrinsic sizes. The packaged x64 probe changed `text-long` from
+**380×40 to 220×40 DIP**; every other recorded box in the same 37-fixture
+capture was identical. This is bounded layout evidence, not completion of the
+Text qualification matrix.
+
+| Evidence | Result |
+| --- | --- |
+| Baseline MSIX 1.0.0.61, launch `mvufw2ey` | `text-long` 380×40; explicit-width case 220×40 |
+| Candidate MSIX 1.0.0.66, launch `mvuhjbkg` | `text-long` 220×40; all other captured boxes match baseline |
+| Candidate DLL SHA-256 | `FCBCA1684BF0B22C4B40A66EF497989C3750451E7580715D4F99C4D50A42FE8E` |
+| Web start-aligned column, centered column, shrinking row | Six new wrapping/bounds assertions pass |
+| `turbo run parity --filter=@xplat/web --concurrency=2` | 38/38 tasks pass; dump contains 114 fixtures |
+| `turbo run typecheck --filter=@xplat/web --concurrency=2` | 38/38 tasks pass |
+
+The UI/dependent typecheck still fails on the same
+`WebView.macos.tsrx(43,3)` TS2322 as unchanged `main` `4ee5f838e`.
+The app/dependent comparison with `--continue=always` reports 48 distinct
+diagnostics versus 49 on that baseline, with no new diagnostics; the removed
+diagnostic is the unguarded `Application.windows` access in the measurement
+seam. The remaining failures are in the mobile and Windows typecheck programs
+and concern existing AppKit source. The comparison is recorded in
+`research/windows61/core-text-app-typecheck-comparison.json`.
+
+Pending: the three new wrapping fixtures on Windows, a production DLL without
+diagnostic logging, resize/update/remount and OS/UIA checks, publication and
+dependency adoption, and the final fresh-install run required by the plan.
+The candidate above still contains temporary native diagnostics. No MasonKit
+version has been published for this repair. Only x64 Windows and web were run;
+there is no new ARM64, iOS, Android, Narrator, or visual qualification.
+
+Raw evidence: `research/windows61/mason126-{baseline,nested-frame}-dump.json`,
+their console logs, `mason126-measure-trace.log`,
+`mason126-arrange-trace.log`, and `core-text-*.log`. The immutable local feedback
+observation is `9a4f47dc-e2e4-40d8-a960-f240bd60fb52`.
