@@ -137,7 +137,9 @@ test('native adapters read the field editor, clamp selection and scope commit ob
 		editor.hasMarkedText = () => false
 		adapter.write('new')
 		assert.equal(editor.string, 'new')
-		assert.deepEqual(editor.selectedRange, { location: 3, length: 0 })
+		// The vm slice allocates the range in its own realm — spread before
+		// comparing so the foreign Object.prototype does not trip strictEqual.
+		assert.deepEqual({ ...editor.selectedRange }, { location: 3, length: 0 })
 		assert.equal(remembered, type === 'textview' ? 1 : 0)
 		if (type === 'textfield') assert.equal(view.stringValue, 'new')
 	}

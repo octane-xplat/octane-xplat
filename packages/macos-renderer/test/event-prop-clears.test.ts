@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runSlice } from './mock-globals.ts'
-import { sourceWithoutImports } from './mock-globals.ts'
+import { runSlice, sourceWithoutImports, spySliceContext } from './mock-globals.ts'
 
 // applyProps merges each update into node.props — a prop dropped by a host
 // update kept its last value forever (recognizers, action handlers, scroll/
@@ -206,22 +205,7 @@ applyPropsSandbox.behaviorOf = (t: string) => applyPropsSandbox.elementBehaviors
 
 const applyPropsApi = runSlice(
 	source.slice(at('function applyProps('), at('\nfunction detach(')) + '\n;({ applyProps })',
-	new Proxy(applyPropsSandbox, {
-		get(target, key: string | symbol) {
-			if (key in target) {
-				return (target as any)[key]
-			}
-
-			if (typeof key === 'string' && key in globalThis) {
-				return (globalThis as any)[key]
-			}
-
-			const calls: any[][] = []
-			const spy: any = (...args: any[]) => calls.push(args)
-			spy.calls = calls
-			return ((target as any)[key] = spy)
-		},
-	}),
+	spySliceContext(applyPropsSandbox),
 )
 
 function applyPropsFixture(type: string) {

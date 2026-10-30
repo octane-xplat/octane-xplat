@@ -313,6 +313,7 @@ test('RootLayout geometry observer releases on disposal and ignores late callbac
 				].includes(t),
 			registerElementType: () => {},
 
+			stickyPlacements: { position: (_node: unknown, rect: { x: number }) => rect.x, reset() {} },
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			RootLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
 			rootLayoutNodesByView: map,

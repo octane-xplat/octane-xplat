@@ -132,6 +132,7 @@ function view({ orientation } = {}) {
 		},
 		setContentHuggingPriorityForOrientation() {},
 		setContentCompressionResistancePriorityForOrientation() {},
+		invalidateIntrinsicContentSize() {},
 	}
 }
 

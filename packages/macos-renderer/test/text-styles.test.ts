@@ -84,6 +84,7 @@ const writers = runSlice(
 const labelNode = (style: Record<string, any> = {}) => ({
 	type: 'label',
 	style,
+	props: {} as Record<string, any>,
 	view: {
 		cell: {
 			cellSizeForBounds: () => ({ width: 0, height: 0 }),

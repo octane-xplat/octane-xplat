@@ -49,10 +49,51 @@ export function sourceWithoutImports(url: URL) {
 	)
 }
 
+const SLICE_BASE = { normalizeHostStyleProps, borderStyleSides, hiddenBorderStyle, borderStrokeStyle, correctProjectionRadii, correctProjectionShadows }
+
+const RAW_SLICE_CONTEXT = Symbol('macos-renderer.raw-slice-context')
+
 /** `runInNewContext` for src/index.ts slices: prepends CSS_SLICE_STUBS so
  *  slices that reference cascade helpers they don't include still run. */
 export function runSlice(code: string, context?: Record<string, any>) {
-	return runInNewContext(CSS_SLICE_STUBS + code, { normalizeHostStyleProps, borderStyleSides, hiddenBorderStyle, borderStrokeStyle, ...context, correctProjectionRadii, correctProjectionShadows })
+	if (context && (context as any)[RAW_SLICE_CONTEXT]) {
+		// A raw (spy) context is the sandbox itself. Seed the shared helpers as
+		// own properties so `has`/`get` resolve them before falling to spies.
+		for (const [key, value] of Object.entries(SLICE_BASE)) {
+			if (!Object.getOwnPropertyDescriptor(context, key)) {
+				Object.defineProperty(context, key, { value, writable: true, configurable: true })
+			}
+		}
+		return runInNewContext(CSS_SLICE_STUBS + code, context)
+	}
+	return runInNewContext(CSS_SLICE_STUBS + code, { ...SLICE_BASE, ...context })
+}
+
+/** Sandbox for slices that need recording spies: every referenced name not in
+ *  the target, globalThis or CSS_SLICE_STUBS resolves to a `function` spy that
+ *  records calls on `target[name].calls`. (A plain spread context cannot do
+ *  this — undeclared globals need the sandbox's `has` trap to resolve.) */
+export function spySliceContext(target: Record<string, any> = {}) {
+	const sandbox = new Proxy(target, {
+		has(t, key) {
+			if (typeof key !== 'string') return key in t
+			return key in t || key in globalThis || !SLICE_STUB_NAMES.has(key)
+		},
+		get(t, key) {
+			if (key in t) return (t as any)[key]
+			if (typeof key !== 'string') return undefined
+			if (key in globalThis) return (globalThis as any)[key]
+			const calls: any[][] = []
+			// A `function` (not an arrow) stays a valid `instanceof` right side.
+			const spy: any = function (...args: any[]) {
+				calls.push(args)
+			}
+			spy.calls = calls
+			return ((t as any)[key] = spy)
+		},
+	})
+	Object.defineProperty(target, RAW_SLICE_CONTEXT, { value: true })
+	return sandbox
 }
 
 // Slices eval fragments of src/index.ts without the CSS cascade module —
@@ -110,4 +151,15 @@ if (typeof textOnlyChildError === 'undefined') var textOnlyChildError = (parent,
 	const detail = childType === '#text' ? ' ("' + String(text ?? '').slice(0, 60) + '")' : ' (<' + childType + '>)'
 	return new Error('AppKit <' + (parent?.type ?? '?') + '> cannot contain text-only children' + detail + (parent?.props?.id ? ' — parent id=' + parent.props.id : ''))
 }
+// Mirrors src/index.ts — animation frames dedupe style writes through it.
+if (typeof shallowEqualStyle === 'undefined') var shallowEqualStyle = (a, b) => {
+	const keys = Object.keys(a)
+	return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
+}
 `
+
+/** Names CSS_SLICE_STUBS may install — a spy context leaves them alone so the
+ *  `typeof X === 'undefined'` guards still produce functional fallbacks. */
+const SLICE_STUB_NAMES = new Set(
+	[...CSS_SLICE_STUBS.matchAll(/typeof (\w+) === 'undefined'/g)].map((m) => m[1]),
+)

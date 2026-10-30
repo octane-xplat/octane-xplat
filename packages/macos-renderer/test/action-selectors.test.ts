@@ -102,7 +102,9 @@ test('every assigned action string has an exact metadata selector, without infer
 	const sites = [...actionSites()]
 
 	// Guard against a pattern silently matching nothing after a refactor.
-	assert.equal(sites.length, 12)
+	// Click-action consolidation (6ddf022f5) removed a duplicate viewPressed:
+	// registration — 11 literal action sites remain.
+	assert.equal(sites.length, 11)
 
 	for (const { target, selector } of sites) {
 		if (target === 'buttonActionTarget' && ['viewPressed:', 'viewPanned:'].includes(selector)) {

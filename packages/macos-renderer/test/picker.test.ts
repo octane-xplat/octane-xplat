@@ -21,7 +21,9 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
 		get selectedItem() { return menu.items[this.indexOfSelectedItem] },
 		removeAllItems() { menu.items = []; this.indexOfSelectedItem = -1; if (echo) handlers.get(1)?.() },
 		selectItemAtIndex(index: number) { writes++; this.indexOfSelectedItem = index; if (echo) handlers.get(1)?.() },
-		invalidateIntrinsicContentSize() {}, setAccessibilityLabel: (label: string) => labels.push(label),
+		invalidateIntrinsicContentSize() {},
+		get accessibilityLabel() { return labels.at(-1) ?? '' },
+		set accessibilityLabel(label: string) { labels.push(label) },
 		removeFromSuperview() { this.superview = null },
 	}
 	const view: any = { window: {}, addSubview(child: any) { child.superview = view; handlers.get(1)?.(); if (failure.add) throw Error('private add detail') } }

@@ -167,7 +167,7 @@ test('a rejected prop fails creation before factories allocate', () => {
 	const fx = fixture()
 	assert.throws(
 		() => fx.makeNode(fx.container, 1, 'button', { style: 'solid' }),
-		/style to be an object/,
+		/inline style/i,
 	)
 
 	assert.deepEqual(fx.factoryCalls, [])
