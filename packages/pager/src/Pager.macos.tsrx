@@ -196,7 +196,7 @@ export function Pager(props: PagerProps): unknown @{
 		<masonview
 			id={props.id}
 			className={cx('vx-pager', 'vx-pager--appkit', props.className)}
-			style={mergeStyle(layout.style, props.style)}
+			style={mergeStyle(typeof layout.style === 'object' ? layout.style : {}, props.style)}
 			onLayoutChanged={queueMeasure}
 			accessible={props.accessible}
 			accessibilityRole={props.accessibilityRole ?? 'group'}
