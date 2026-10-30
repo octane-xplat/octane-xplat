@@ -3593,3 +3593,21 @@ No public starter/setup recipe gains Windows support from this private-harness
 repair; the maintained parity fixtures carry the wrapping regression coverage.
 The local frozen install links the new package but still exits on the existing
 unapproved Sentry build-script policy, so it is not fresh-install evidence.
+
+
+### Clean frozen Windows install (phase 0a)
+
+A fresh detached Windows worktree at local main
+`a57b1b8729bb976a851569c779f5efacd782fb79`, with no `node_modules`, passed
+`pnpm install --frozen-lockfile` on windy: **exit 0**, **37/37 postinstall
+Turbo tasks**, 10m58.5s total. No dependency-check override or skipped lifecycle
+scripts were used. The checkout remained clean. This satisfies phase 0a;
+it does not qualify a component or prove an MSIX build.
+
+Postflight resolution confirms MasonKit `1.0.0-beta.129`, the pinned NativeScript
+CLI, and Sentry CLI 3.8.2 using its optional Windows binary without running its
+fallback downloader. This supersedes the installation failure at the previous
+checkpoint above.
+
+Raw evidence: `research/windows61/win61-clean-main-install-{preflight,postflight}.json`,
+`win61-clean-main-install.exit`, and `clean-main-install-readable.log`.
