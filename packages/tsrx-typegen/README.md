@@ -5,6 +5,28 @@ Use it when publishing an Octane/tsrx component package: it runs the consuming
 package's own TypeScript and tsrx compiler, then rewrites source-extension
 imports in the emitted declarations to JavaScript module specifiers.
 
+Generation emits each file independently under `isolatedDeclarations`
+(TypeScript ≥ 5.5) rather than building a type-checking program — it reports
+missing annotations as `error TS9xxx` diagnostics, not type errors. Every
+exported function, method, variable, and object literal with shorthand
+properties needs an explicit type annotation; annotate tsrx template
+components on the signature:
+
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx */
+import type { JSX } from '@octane-xplat/jsx/jsx-runtime'
+export function Button(props: ButtonProps): JSX.Element @{
+	// ...
+}
+```
+
+Keep type checking in your separate `typecheck` task, and enable
+`isolatedDeclarations` in the typegen tsconfig so that task reports missing
+annotations in your editor too. If some sources cannot carry annotations, such
+as vendored files, leave the flag off and map their generated output to a
+handwritten declaration through `overrides`, described below; tsrx-typegen
+still applies `isolatedDeclarations` itself.
+
 Install `tsrx-typegen` as a development tool alongside `typescript` and
 `@tsrx/typescript-plugin`, then run it against a named target:
 

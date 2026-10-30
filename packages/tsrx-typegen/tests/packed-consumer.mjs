@@ -161,6 +161,35 @@ void value
 		writeFileSync(generatedEntry, generatedOriginal)
 	}
 
+	// A parameter with an initializer before a required parameter widens to
+	// `| undefined` in tsc emit; the isolated emitter must flag it like TS9025.
+	const defaultedSource = join(packageRoot, 'src/defaulted.ts')
+	writeFileSync(
+		defaultedSource,
+		`export function defaulted(size: number = 0, label: string): string {
+	return \`\${size}:\${label}\`
+}
+`,
+	)
+
+	try {
+		const defaulted = spawnSync(
+			process.execPath,
+			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+			{ cwd: packageRoot, encoding: 'utf8' },
+		)
+
+		assert.notEqual(
+			defaulted.status,
+			0,
+			'defaulted parameter before a required parameter fails emit',
+		)
+
+		assert.match(defaulted.stderr, /defaulted\.ts\(\d+,\d+\): error TS9025/)
+	} finally {
+		rmSync(defaultedSource)
+	}
+
 	run('pnpm', ['typegen:check'], packageRoot)
 	run('pnpm', ['exec', 'tsrx-typegen', '--target', 'octane', '--check'], packageRoot)
 
@@ -358,6 +387,7 @@ export function readIncluded(value: Included): Included { return value }
 	run('pnpm', ['typegen:check'], packageRoot)
 
 	const factorySource = join(packageRoot, 'src/Factory.tsrx')
+	const factoryOriginal = readFileSync(factorySource, 'utf8')
 	const factoryConsumer = join(consumerRoot, 'factory-consumer.ts')
 	const factoryConfig = join(consumerRoot, 'tsconfig.factory.json')
 	try {
@@ -416,6 +446,7 @@ Badge({ label: 42 })
 			assert.match(factoryResult.stderr, /explicit declaration override/)
 		}
 	} finally {
+		writeFileSync(factorySource, factoryOriginal)
 		rmSync(factoryConsumer, { force: true })
 		rmSync(factoryConfig, { force: true })
 	}
