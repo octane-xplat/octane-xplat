@@ -65,7 +65,7 @@ implemented. Do not substitute an action hint for a dialog description.
 </Overlay>
 ```
 
-For retained full-screen siblings, follow [retained screen layers](primitives.md#retained-screen-layers). A native overlay host does not make its own Screen an overlay.
+For retained full-screen siblings, follow [retained screen layers](primitives/layout.md#retained-screen-layers). A native overlay host does not make its own Screen an overlay.
 
 ## Platform modal widgets
 
@@ -335,8 +335,8 @@ layer?.close()
 
 Eight source cases and the manual fixture are authored, unrun. This engine seam
 now supports public Popover, ComplexSelector and Tokenizer's outer
-unfocusedLayer editor through the [canonical source-owned Popover](primitives.md#appkit-source-owned-public-popover).
-Typeahead/Tokenizer suggestions keep their separate [source-owned result host](primitives.md#appkit-floating-typeahead-source-subset);
+unfocusedLayer editor through the [canonical source-owned Popover](primitives/selection.md#appkit-source-owned-public-popover).
+Typeahead/Tokenizer suggestions keep their separate [source-owned result host](primitives/search.md#appkit-floating-typeahead-source-subset);
 useLayer/hover roots remain separate.
 Do not swap to native NSPopover just to make results float: its current separate
 root/window changes provider and input-focus ownership. Retain the result host's same-window

@@ -83,7 +83,7 @@ limitations. Do not load the entire reference tree by default.
 | Create, run, or upgrade an app                     | [Getting started](references/getting-started.md)                                                                                                 |
 | Hooks, state, context, refs, boundaries, children  | [Octane semantics](references/octane.md)                                                                                                         |
 | Choose/use a component                             | [Primitives](references/primitives.md)                                                                                                           |
-| Group, expand or pin Table rows | [Grouped and tree tables](references/primitives.md#grouped-and-tree-tables); [public examples](../../../docs/app/tables.md) |
+| Group, expand or pin Table rows | [Grouped and tree tables](references/primitives/tables.md#grouped-and-tree-tables); [public examples](../../../docs/app/tables.md) |
 | Implement/debug a native leaf                      | [Driver semantics](references/primitives/driver-semantics.md)                                                                                    |
 | Platform filenames, imports, JSX types             | [Platform leaves](references/platform-leaves.md)                                                                                                 |
 | CSS, tokens, themes                                | [Styling](references/styling.md); [token definitions](references/styling/tokens.md); [theme across hosts](references/styling/root-boundaries.md) |
@@ -91,7 +91,7 @@ limitations. Do not load the entire reference tree by default.
 | Cached server data and account changes             | [Shared query cache](../../../docs/app/data.md#the-shared-query-cache); define once, observe through `useQuery$`, and dispose/replace clients on account changes; use `runOptimistic` for shared edits so operations retain their leases; follow the [maintained shared workflow](../../../docs/app/data.md#try-the-shared-workflow) for list/detail, account replacement and restore; annotate loader context as `QueryLoadContext<Result>` when reading `previous` |
 | Explain cache state | [Cache inspection](../../../docs/app/data.md#inspecting-a-development-cache); opt in through `@octane-xplat/ui/data/dev` behind the development gate, supply static non-sensitive labels, and bind the exact action instance/revision |
 | Shared cursor feeds | [Cached cursor feeds](../../../docs/app/data.md#shared-cursor-feeds); use `defineCursorQuery` and client page operations for cached server pages; set `maxPages` to bound retained pages |
-| Request-time Web HTML and document shells | [Web rendering](references/navigation.md#optional-web-document-host) |
+| Request-time Web HTML and document shells | [Web rendering](references/navigation/web-host.md#optional-web-document-host) |
 | Paged collection state and tree moves              | [Collection updates](../../../docs/app/data.md#paged-collections-and-tree-moves); retain selection by key, retry failed pages with `loadMore`, and validate tree destinations |
 | Dialogs, sheets, overlays                          | [Overlays and ownership](references/overlays.md)                                                                                                 |
 | Device services, animation, gestures, localization | [Services](references/services.md)                                                                                                               |
