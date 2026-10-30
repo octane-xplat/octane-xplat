@@ -1710,8 +1710,23 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 	})
 }
 
+// Reapplying an unchanged placeholder must be a no-op: assigning
+// placeholderAttributedString on a field mid-edit ends its editing
+// session (controlTextDidEndEditing → blur/value commit) even though the
+// user never left the field. The attributed string captures font and
+// color, so all three belong to the applied signature.
+const placeholderSignatureByField = new WeakMap<object, string>()
+
 function setTextFieldPlaceholder(field: NSTextField, props: PropBag, colorOverride?: string) {
 	const placeholder = String(props.placeholder ?? '')
+	const color = colorOverride ?? props.placeholderTextColor ?? ''
+	const font = field.font
+	const signature = `${placeholder} ${String(color)} ${String(font?.fontName ?? '')} ${Number(font?.pointSize ?? 0)}`
+	if (placeholderSignatureByField.get(field) === signature) {
+		return
+	}
+
+	placeholderSignatureByField.set(field, signature)
 	if (!placeholder) {
 		field.placeholderAttributedString = null as unknown as NSAttributedString
 		field.placeholderString = placeholder
