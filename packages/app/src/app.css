@@ -64,6 +64,12 @@ body {
 }
 /* xplat-web-only:end */
 
+@platform macos {
+	.vx-app {
+		min-height: 0;
+	}
+}
+
 /* The root Screen carries .vx-app for surface/text tokens but its padding
    would double-pad every tab pane — the panes' own .vx-app pads instead. */
 .vx-app-flush {

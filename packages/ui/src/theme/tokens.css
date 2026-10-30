@@ -2291,6 +2291,17 @@
 		cursor: pointer;
 	}
 	/* xplat-web-only:end */
+	@platform macos {
+		.vx-screen,
+		.vx-tabs,
+		.vx-tabpane {
+			min-width: 0;
+			min-height: 0;
+		}
+		.vx-tabpane {
+			flex-shrink: 1;
+		}
+	}
 
 	/* harness experiment styles */
 

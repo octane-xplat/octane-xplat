@@ -242,6 +242,18 @@ function styleDict(node: NodeLike): Record<string, any> {
 		out[to] = autoDim(value) ?? specDim(node.sizeConstraintSpecs?.[to])
 	}
 
+	// CSS: a scroll container's automatic minimum size is zero along its
+	// scroll axis. Without it, the leaf measure (document size) becomes the
+	// shrink floor and a flex-1 scroll view grows past its bounded parent.
+	if (node.type === 'scrollview') {
+		const horizontal = props.orientation === 'horizontal' || props.horizontal === true
+		if (horizontal) {
+			out.minWidth ??= [1, 0]
+		} else {
+			out.minHeight ??= [1, 0]
+		}
+	}
+
 	for (const [from, to] of DIM_EDGES) {
 		const dim = autoDim(style[from])
 		if (dim) {

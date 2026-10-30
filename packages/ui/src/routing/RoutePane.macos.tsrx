@@ -20,7 +20,7 @@ export function RoutePane(props: RoutePaneProps): any {
 				}}
 				style={
 					props.active
-						? { display: 'flex', flexGrow: 1 }
+						? { display: 'flex', flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 0 }
 						: { display: 'flex', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }
 				}
 			>
