@@ -10514,3 +10514,16 @@ pre-existing and unrelated to this task's changes: `deepStrictEqual`
 reference-equality mismatches on stub objects and assorted feature tests in
 `applyProps`, `testID`, table truncation, `letterSpacing`, field-editor and
 inventory files. They still need an owner before the suite counts as green.
+
+### Merge-gate typecheck rerun (2026-10-30)
+
+After the renderer repairs, the recorded command ran 74 tasks: 59 succeeded,
+failing only at `@octane-xplat/keyboard#typecheck` — its
+`tsconfig.envs.json` "native" environment pattern requires
+`types/generated/index.d.ts`, but the `typecheck` task does not depend on
+the package's own `typegen` (only `^typegen`). `pnpm --filter
+@octane-xplat/keyboard typegen && typecheck` passes clean. This is an
+ordering gap in the leaf-declaration refactor landed on main
+(`89794c053`…`a5fcfea3d`), not in this task's AppKit work. A second full
+smoke sweep after the typecheck repairs passed 30/30 assertions in 4m31s
+(`/tmp/appkit-post-typecheck-smoke.log`).
