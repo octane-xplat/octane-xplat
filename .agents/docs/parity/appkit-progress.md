@@ -10492,3 +10492,25 @@ Local runs against the landed scroll-bound fix:
 `macos-renderer` typecheck (25 errors in unrelated files) and the 19
 renderer test failures remain the open verification blockers recorded
 above; both predate the scroll-bound change.
+
+### Renderer typecheck repaired and ASI crash fixed (2026-10-30)
+
+`245587637` fixes a real runtime bug: a leading `[` on the line after
+`return null` in `parseImagePosition` continued the expression as
+`null[x, y] = [y, x]`, throwing TypeError for two-token positions mixing a
+vertical/horizontal keyword with a length (for example `bottom 10px`).
+`11a30aaf1` clears the 25 pre-existing `macos-renderer` typecheck errors —
+ancestor-walk null checks, heading-outline narrowing, the missing
+`NSGestureRecognizer`/`NSAccessibilityPostNotification` imports, a
+super-property read annotation, `NSTextAlignment` typing, the file-drop
+`AppKitView` comparison, optional `HeadingView` members and AppKit property
+assignment for picker labels. `tsc --noEmit -p tsconfig.json` is clean for
+`macos-renderer`; the merge-qualification typecheck command above no longer
+fails on this package.
+
+The authored `macos-renderer` suite now reports 647 pass / 17 fail (was
+645/19 — the image-fit cases recovered). The remaining failures are
+pre-existing and unrelated to this task's changes: `deepStrictEqual`
+reference-equality mismatches on stub objects and assorted feature tests in
+`applyProps`, `testID`, table truncation, `letterSpacing`, field-editor and
+inventory files. They still need an owner before the suite counts as green.
