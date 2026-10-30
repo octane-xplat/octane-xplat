@@ -48,6 +48,7 @@ export type TableHostProps = Record<string, any>
 
 /** Props passed through the plugin pipeline for the `<table>` element. */
 export interface TableRenderProps {
+	/** Attributes spread onto the `<table>` host — leaves apply the documented safe subset (`style`/`className`). */
 	htmlProps: TableHostProps
 	/** Extra host classes merged with the table's own. */
 	classes: ClassValue[]
@@ -55,8 +56,11 @@ export interface TableRenderProps {
 
 /** Props passed through the plugin pipeline for the header row. */
 export interface HeaderRowRenderProps {
+	/** Attributes spread onto the header-row host. */
 	htmlProps: TableHostProps
+	/** Extra classes merged onto the row. */
 	classes: ClassValue[]
+	/** Header cells rendered inside the row. */
 	children: Renderable
 }
 
@@ -67,7 +71,9 @@ export interface HeaderRowRenderProps {
  * top and `below` underneath the header label row.
  */
 export interface HeaderCellRenderProps {
+	/** Attributes spread onto the header-cell host. */
 	htmlProps: TableHostProps
+	/** Extra classes merged onto the cell. */
 	classes: ClassValue[]
 	/** Content rendered before the header label (e.g. selection checkbox). */
 	before?: Renderable
@@ -89,7 +95,9 @@ export interface HeaderCellRenderProps {
 
 /** Props passed through the plugin pipeline for each body row. */
 export interface BodyRowRenderProps {
+	/** Attributes spread onto the body-row host. */
 	htmlProps: TableHostProps
+	/** Extra classes merged onto the row. */
 	classes: ClassValue[]
 	/** When non-null after the pipeline, the leaf renders this IN PLACE of the
 	 *  row's planned cells — plugins that replace a row wholesale set it
@@ -102,11 +110,15 @@ export interface BodyRowRenderProps {
 
 /** Props passed through the plugin pipeline for each body cell. */
 export interface BodyCellRenderProps {
+	/** Attributes spread onto the body-cell host. */
 	htmlProps: TableHostProps
+	/** Extra classes merged onto the cell. */
 	classes: ClassValue[]
 	/** Context-menu actions contributed by plugins (concatenated per row). */
 	contextMenuActions?: TableContextActions
+	/** Index of this column in the final ordered list (set by the pipeline). */
 	columnIndex?: number
+	/** The final ordered column list (set by the pipeline). */
 	columns?: ReadonlyArray<TableColumn<any>>
 	/** When true, the pipeline calls neither `renderCell` nor the default
 	 *  renderer — used by plugins that replace a row wholesale. */
@@ -119,7 +131,9 @@ export interface BodyCellRenderProps {
  * `htmlProps` and inject chrome via `beforeTable`/`afterTable`.
  */
 export interface ScrollWrapperRenderProps {
+	/** Attributes spread onto the scroll-container host. */
 	htmlProps: TableHostProps
+	/** Extra classes merged onto the container. */
 	classes: ClassValue[]
 	/** Content rendered before the table, inside the scroll container. */
 	beforeTable?: Renderable
@@ -146,16 +160,22 @@ export interface ScrollWrapperRenderProps {
  *  8. `transformTableContext` — wrap the assembled output (providers, chrome)
  */
 export interface TablePlugin<T extends Record<string, unknown> = Record<string, unknown>> {
+	/** Filter, reorder, or inject columns — runs first in the pipeline. */
 	transformColumns?: (columns: TableColumn<T>[]) => TableColumn<T>[]
+	/** Transform the root table-element props. */
 	transformTable?: (props: TableRenderProps) => TableRenderProps
+	/** Transform each header row's props. */
 	transformHeaderRow?: (props: HeaderRowRenderProps) => HeaderRowRenderProps
+	/** Transform each header cell's props — receives the column and final ordering. */
 	transformHeaderCell?: (
 		props: HeaderCellRenderProps,
 		column: TableColumn<T>,
 		columnIndex: number,
 		columns: ReadonlyArray<TableColumn<T>>,
 	) => HeaderCellRenderProps
+	/** Transform each body row's props — receives the row item and index. */
 	transformBodyRow?: (props: BodyRowRenderProps, item: T, index: number) => BodyRowRenderProps
+	/** Transform each body cell's props — receives column, item, and final ordering. */
 	transformBodyCell?: (
 		props: BodyCellRenderProps,
 		column: TableColumn<T>,
@@ -163,7 +183,9 @@ export interface TablePlugin<T extends Record<string, unknown> = Record<string, 
 		columnIndex: number,
 		columns: ReadonlyArray<TableColumn<T>>,
 	) => BodyCellRenderProps
+	/** Transform the scroll-container props. */
 	transformScrollWrapper?: (props: ScrollWrapperRenderProps) => ScrollWrapperRenderProps
+	/** Wrap the assembled output — providers and chrome mount here. */
 	transformTableContext?: (children: Renderable) => Renderable
 }
 
@@ -172,11 +194,17 @@ export interface TablePlugin<T extends Record<string, unknown> = Record<string, 
 // =============================================================================
 
 export interface TableContextValue {
+	/** Row height/padding density propagated to cells. */
 	density: 'compact' | 'balanced' | 'spacious'
+	/** Which grid lines are drawn. */
 	dividers: 'rows' | 'columns' | 'grid' | 'none'
+	/** Alternating row background. */
 	isStriped: boolean
+	/** Highlights the row under the pointer. */
 	hasHover: boolean
+	/** Vertical alignment of cell content. */
 	verticalAlign: 'middle' | 'top' | 'bottom'
+	/** Overflow behavior for cell text (wrap/ellipsis). */
 	textOverflow: 'wrap' | 'truncate'
 }
 
@@ -204,7 +232,9 @@ export interface TableSelectionState {
 export type TableSortDirection = 'ascending' | 'descending'
 
 export interface TableSortEntry<TSortKey extends string = string> {
+	/** Column sort key — matches `TableSortableColumnConfig.sortKey` (defaults to column key). */
 	sortKey: TSortKey
+	/** Sort direction for this entry. */
 	direction: TableSortDirection
 }
 
@@ -218,9 +248,13 @@ export type TableSortComparator<T> = (a: T, b: T) => number
 /** Sort configuration consumed by `useTableSortable` — produced by
  *  `useTableSortableState` or authored directly. */
 export interface UseTableSortableConfig<TSortKey extends string = string> {
+	/** Controlled sort state — ordered entries for multi-sort. */
 	sort: TableSortState<TSortKey>
+	/** Reports requested sort changes — the controlled pair for `sort`. */
 	onSortChange: (sort: TableSortState<TSortKey>) => void
+	/** Allows cycling back to no sort instead of pinning one direction. */
 	allowUnsortedState?: boolean
+	/** Allows multi-column sort (shift-click semantics). */
 	isMultiSortEnabled?: boolean
 }
 
