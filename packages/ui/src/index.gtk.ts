@@ -572,7 +572,6 @@ export type {
 export { CommandPalette } from './components/overlays/CommandPalette'
 export { Lightbox } from './components/overlays/Lightbox'
 export { useLightbox } from './components/overlays/use-lightbox'
-export { Drawer } from './components/navigation/Drawer'
 export { Toast } from './components/overlays/Toast'
 export { ToastViewport } from './components/overlays/toast-viewport'
 export { showToast, useToast } from './components/overlays/toast-service'
@@ -600,7 +599,6 @@ export type {
 	LightboxTriggerProps,
 	UseLightboxOptions,
 	UseLightboxReturn,
-	DrawerProps,
 } from './props'
 
 export { BottomSheet, BottomSheetSwitcher } from './components/overlays/BottomSheet'
@@ -766,13 +764,13 @@ export { OverflowList } from './components/collections/OverflowList'
 export { VirtualList } from './components/collections/VirtualList'
 export { Carousel } from './components/layout/Carousel'
 export { Tree as TreeList } from './components/collections/Tree'
-export { Table } from './Table'
-export { TableHeader } from './Table'
-export { TableBody } from './Table'
-export { TableFooter } from './Table'
-export { TableRow } from './Table'
-export { TableCell } from './Table'
-export { TableHeaderCell } from './Table'
+export { Table } from './table/Table'
+export { TableHeader } from './table/Table'
+export { TableBody } from './table/Table'
+export { TableFooter } from './table/Table'
+export { TableRow } from './table/Table'
+export { TableCell } from './table/Table'
+export { TableHeaderCell } from './table/Table'
 export { TableSelectionToolbar } from './table/TableSelectionToolbar'
 export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
 export { useTableSortable } from './table/use-table-sortable'
