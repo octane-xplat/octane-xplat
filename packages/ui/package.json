@@ -33,12 +33,15 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"gtk": {
+				"types": "./types/generated/index.gtk.d.ts",
+				"default": "./src/index.gtk.ts"
+			},
 			"types": "./types/generated/index.d.ts",
 			"windows": "./src/index.windows.ts",
 			"macos": "./src/index.macos.ts",
 			"linux": "./src/index.linux.ts",
 			"web": "./src/index.web.ts",
-			"gtk": "./src/index.gtk.ts",
 			"native": "./src/index.mobile.ts",
 			"default": "./src/index.ts"
 		},
