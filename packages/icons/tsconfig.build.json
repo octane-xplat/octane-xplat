@@ -11,5 +11,5 @@
 		"moduleSuffixes": ["", ".web", ".ios", ".android", ".mobile", ".native", ".macos", ".linux", ".windows"],
 		"allowImportingTsExtensions": true
 	},
-	"files": ["src/vite/index.ts", "src/build/index.ts", "src/build/cli.ts", "src/build/resolve.ts"]
+	"files": ["src/vite/index.ts", "src/vite/resolve.ts"]
 }

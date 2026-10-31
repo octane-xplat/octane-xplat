@@ -105,24 +105,18 @@ addIcon('app:next', {
 ```
 
 To auto-register every imported `icons:` icon — so `name=` keeps working for
-dynamic lookups or shared components — run the optional codegen and import
-the emitted module once at startup:
+dynamic lookups or shared components — enable `register` on the plugin; each
+virtual module then self-registers on import:
 
-```sh
-bun x xplat-icons register --out src/icons.gen.ts
+```ts
+// vite.config.ts — plugins: [xplatIcons({ register: true }), ...]
 ```
 
 ```ts
-// Generated output — scans app sources for `icons:` specifiers:
-import { addIcons } from '@octane-xplat/icons'
-import icon0 from 'icons:heroicons/x-mark'
-
-addIcons({ 'heroicons:x-mark': icon0 })
+// Each icons: module emits:
+import { addIcon } from '@octane-xplat/icons'
+addIcon('heroicons:x-mark', icon)
 ```
-
-Re-run `xplat-icons register` when imports change. `--inline` writes the
-icon data into the generated file instead of `icons:` imports, so the same
-tree-shaken registry works on bundlers without the plugin (iOS/Android).
 
 You can also provide equivalent Iconify JSON containing only the icons you
 use — keep collection dimensions and any parent icons needed by aliases when

@@ -8,7 +8,7 @@
 // runtime-side resolution remains.
 import { join } from 'node:path'
 
-import { iconSpecifierParts, readIconData, resolveCollectionJson } from '../build/resolve'
+import { iconSpecifierParts, readIconData, resolveCollectionJson } from './resolve'
 import type { Plugin } from 'vite'
 
 const virtual = '\0icons:'
@@ -19,6 +19,14 @@ interface VirtualIcon {
 	jsonPath: string
 }
 
+/** Plugin options. */
+export interface XplatIconsOptions {
+	/** Self-register every imported icon on module eval — `name=` resolves
+	 *  the same tree-shaken data for dynamic lookups. Default false: `icon=`
+	 *  stays registry-free. */
+	register?: boolean
+}
+
 /**
  * Vite plugin resolving `icons:<prefix>/<name>` imports to per-icon modules
  * that default-export IconifyIcon data (collection dimensions and aliases
@@ -26,7 +34,7 @@ interface VirtualIcon {
  * that is the compile check. Register it before the Octane plugins and
  * include the package's icons.d.ts in the app's types.
  */
-export function xplatIcons(): Plugin {
+export function xplatIcons(options: XplatIconsOptions = {}): Plugin {
 	let root = ''
 	const resolved = new Map<string, VirtualIcon>()
 
@@ -79,7 +87,16 @@ export function xplatIcons(): Plugin {
 				)
 			}
 
-			return `export default ${JSON.stringify(icon)}`
+			if (!options.register) {
+				return `export default ${JSON.stringify(icon)}`
+			}
+
+			return [
+				`import { addIcon } from '@octane-xplat/icons'`,
+				`const icon = ${JSON.stringify(icon)}`,
+				`addIcon('${entry.prefix}:${entry.name}', icon)`,
+				'export default icon',
+			].join('\n')
 		},
 	}
 }

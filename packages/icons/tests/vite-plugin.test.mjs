@@ -51,6 +51,17 @@ test('xplatIcons resolves icons: specifiers to per-icon IconifyIcon modules', ()
 	assert.equal(plugin.load.call(ctx, '\0icons:unknown'), null)
 })
 
+test('xplatIcons register mode self-registers each module', () => {
+	const registering = xplatIcons({ register: true })
+	registering.configResolved({ root })
+	const ctx = context()
+	const id = registering.resolveId.call(ctx, 'icons:mini/wide', importer)
+	const code = registering.load.call(ctx, id)
+	assert.match(code, /import \{ addIcon \} from '@octane-xplat\/icons'/)
+	assert.match(code, /addIcon\('mini:wide', icon\)/)
+	assert.match(code, /export default icon/)
+})
+
 test('xplatIcons rejects bad specifiers, missing collections, and missing icons', () => {
 	const ctx = context()
 	assert.equal(plugin.resolveId.call(ctx, './local.js', importer), null)
