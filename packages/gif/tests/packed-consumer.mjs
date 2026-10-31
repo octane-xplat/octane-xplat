@@ -83,6 +83,12 @@ void prefetchResult
 					target: 'esnext',
 					jsx: 'react-jsx',
 					jsxImportSource: 'octane',
+					moduleSuffixes:
+						target === 'web'
+							? ['.web', '']
+							: target === 'windows'
+								? ['.windows', '']
+								: ['.ios', '.android', '.mobile', ''],
 					customConditions: [target],
 					skipLibCheck: false,
 				},

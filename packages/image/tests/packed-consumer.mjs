@@ -150,6 +150,7 @@ void state
 					target: 'esnext',
 					jsx: 'react-jsx',
 					jsxImportSource: 'octane',
+					moduleSuffixes: target === 'web' ? ['.web', ''] : ['.ios', '.android', '.mobile', ''],
 					customConditions: [target],
 					types: ['@nativescript/types'],
 					// NativeScript apps always run skipLibCheck — core's own

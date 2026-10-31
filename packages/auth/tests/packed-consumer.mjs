@@ -116,7 +116,13 @@ void google
 					moduleResolution: mode.moduleResolution,
 					target: 'esnext',
 					jsx: 'react-jsx',
-					jsxImportSource: target === 'macos' ? '@octane-xplat/macos-renderer' : 'octane',
+					jsxImportSource: target === 'macos' ? '@octane-xplat/jsx' : 'octane',
+					moduleSuffixes:
+						target === 'web'
+							? ['.web', '']
+							: target === 'macos'
+								? ['.macos', '']
+								: ['.ios', '.android', '.mobile', ''],
 					customConditions: [target],
 					skipLibCheck: false,
 				},
