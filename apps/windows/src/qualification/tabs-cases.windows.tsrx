@@ -9,7 +9,7 @@ export function TabCases(props: {
 	disabled: boolean
 	onActivate: (source: string, fixtureRevision?: number) => void
 }): unknown @{
-	const [selected, setSelected] = useLinkedState(props.revision, () =>
+	const [selected, setSelected] = useLinkedState(props.revision, (): string =>
 		props.revision === 1 ? 'third' : 'first',
 	)
 
