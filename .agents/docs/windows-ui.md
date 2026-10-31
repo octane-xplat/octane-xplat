@@ -151,11 +151,34 @@ Windows tab adapter. Source inspection alone does not qualify that adapter.
 With `@nativescript/windows` 0.1.0-alpha.144, direct construction of
 `Microsoft.UI.Xaml.Controls.TabView` throws `ActivateInstance failed` with
 `Not implemented` in the packaged x64 host, before `initNativeView`. Do not
-treat the projected class's presence as usable activation. A separate
-`XamlReader.Load` probe created an object but did not finish mounting native
-tab peers. Neither result establishes tab selection support. Look up
-`scenario:windows-core20-tabs-stock-peer` in Silo for the retained source and
-runtime evidence, and recheck activation after changing the Windows runtime.
+treat the projected class's presence as usable activation. The working
+stock-engine probe returns a native Grid as the NativeScript view root,
+appends an `XamlReader.Load` TabView to it, and connects selection events after
+mounting:
+
+```ts
+import { Microsoft } from '@octane-xplat/platform/windows'
+
+const root = new Microsoft.UI.Xaml.Controls.Grid()
+const tabs = Microsoft.UI.Xaml.Markup.XamlReader.Load(`
+<TabView xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  IsAddTabButtonVisible="False">
+  <TabViewItem Header="First" IsClosable="False" />
+  <TabViewItem Header="Second" IsClosable="False" />
+</TabView>`)
+root.Children.Append(tabs)
+// Return root from createNativeView; retain tabs for the controller.
+```
+
+That hosting path exposes native TabItem/SelectionItem peers and delivers
+selection callbacks through UIA Select and mouse input. Stock Right Arrow
+moves focus past disabled tabs without changing selection; the public adapter
+must supply automatic selection and preserve its controlled-value contract.
+The tested host lacks `__nsConstructWinRTSubclass` and `__nsWrapWinRTPointer`,
+so current upstream subclass source is not proof of that binary's capability.
+Look up `scenario:windows-core20-tabs-stock-peer` in Silo for the exact source,
+runtime evidence and failed alternatives. This engine result does not qualify
+public TabList/Tab. Recheck activation after changing the Windows runtime.
 
 ## Raster images and avatar names
 
