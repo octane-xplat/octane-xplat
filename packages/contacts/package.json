@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/contacts",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "Device address book for Octane xplat \u2014 contact reads and writes on iOS/Android, Contact Picker API on web",
 	"keywords": [
 		"android",

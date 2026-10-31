@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/keyboard",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "Window-scoped software keyboard tracking and native movement for Octane Xplat",
 	"keywords": [
 		"android",

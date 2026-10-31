@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/icons",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "Bundled, set-agnostic Iconify icons for Octane web and NativeScript",
 	"keywords": [
 		"cross-platform",

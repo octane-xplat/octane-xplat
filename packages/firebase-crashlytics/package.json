@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/firebase-crashlytics",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "Firebase Crashlytics for Octane xplat — crash capture and non-fatal reporting via @nativescript/firebase-crashlytics",
 	"keywords": [
 		"android",
