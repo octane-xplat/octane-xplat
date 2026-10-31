@@ -47,6 +47,14 @@ function makeRemote(t) {
 		join(dir, 'docs/app/camera.md'),
 		'# Camera capture\n\nX docs: use capture() for web ios.\n',
 	)
+	writeFileSync(
+		join(dir, 'CHANGELOG.md'),
+		'# Changelog\n\n## [Octane Xplat 1.0.0](tag) - 2026-09-01\n\n### Retain screens\n\nKeep local route state.\n',
+	)
+	writeFileSync(
+		join(dir, 'FIXLOG.md'),
+		'# Fixlog\n\n## [Octane Xplat 1.0.0](tag) - 2026-09-01\n\n### Repair route state\n\nRestoring screens preserves state.\n',
+	)
 
 	commitAll(dir, 'c1')
 	const c1 = head(dir)
@@ -65,6 +73,10 @@ function makeRemote(t) {
 	writeFileSync(
 		join(dir, 'docs/app/camera.md'),
 		'# Camera capture\n\nY docs: use captureV2() for web ios.\n',
+	)
+	writeFileSync(
+		join(dir, 'CHANGELOG.md'),
+		'# Changelog\n\n## [Octane Xplat 2.0.0](tag) - 2026-10-31\n\n### New route API\n\nUse persistent routes.\n\n## [Octane Xplat 1.0.0](tag) - 2026-09-01\n\n### Retain screens\n\nKeep local route state.\n',
 	)
 
 	commitAll(dir, 'c2')
@@ -135,6 +147,37 @@ test('search binds the installed version to its exact tag and pins the commit', 
 	const again = await svc.search({ query: 'capture' })
 	assert.equal(again.results[0].provenance.commit, c1)
 	assert.notEqual(c1, c2)
+})
+
+test('prepared hybrid retrieval keeps release entries distinct from snapshot provenance', async (t) => {
+	const { dir: remote, c1, c2 } = makeRemote(t)
+	const consumer = makeConsumer(t, { '@octane-xplat/ui': '1.0.0' })
+	const searchEmbedder = {
+		id: 'docs-service-fixture',
+		async embed(texts) {
+			return texts.map((s) => (/state|remember|persistent/i.test(s) ? [1, 0] : [0, 1]))
+		},
+	}
+	const svc = service(t, consumer, remote, { searchEmbedder })
+	const cold = await svc.search({ query: 'remember', corpus: 'changelog' })
+	assert.equal(cold.retrieval[0].reason, 'index-not-ready')
+	assert.equal((await svc.index()).results[0].status, 'ready')
+	const out = await svc.search({ query: 'remember', corpus: 'changelog' })
+	assert.equal(out.retrieval[0].used, 'hybrid')
+	assert.ok(out.results.some((r) => r.path === 'FIXLOG.md'))
+	assert.equal(out.results[0].releaseVersion, '1.0.0')
+	assert.equal(out.results[0].provenance.commit, c1)
+	assert.equal((await svc.read({ ref: out.results[0].ref })).provenance.commit, c1)
+	await svc.index({ package: '@octane-xplat/ui', version: '2.0.0' })
+	const newer = await svc.search({
+		query: 'Keep local route state',
+		corpus: 'changelog',
+		package: '@octane-xplat/ui',
+		version: '2.0.0',
+	})
+	assert.equal(newer.results[0].releaseVersion, '1.0.0')
+	assert.equal(newer.results[0].provenance.commit, c2)
+	assert.equal(newer.results[0].provenance.match, 'outside-installed-binding')
 })
 
 test('verified cached snapshot serves offline after remote disappears', async (t) => {

@@ -105,7 +105,28 @@ export function renderHuman(command, result, out = []) {
 
 			break
 
+		case 'docs index':
+			for (const result of data.results ?? []) {
+				lines(
+					out,
+					`${result.provenance?.package}: ${result.status}${result.reason ? ` (${result.reason})` : ` — ${result.chunks} chunks, ${result.embedded} new embeddings`}`,
+				)
+			}
+
+			for (const result of data.unavailable ?? []) {
+				lines(out, `unavailable: ${result.reason ?? result.status}`)
+			}
+
+			break
+
 		case 'docs search':
+			for (const retrieval of data.retrieval ?? []) {
+				lines(
+					out,
+					`${retrieval.package}: ${retrieval.used}${retrieval.reason ? ` (${retrieval.reason}; run xplat docs index)` : ''}`,
+				)
+			}
+
 			for (const hit of data.results ?? []) {
 				lines(out, `${hit.title} — ${hit.path}${prov(hit.provenance)}`)
 				lines(out, `  ref: ${hit.ref}`)

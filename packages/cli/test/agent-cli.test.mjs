@@ -92,6 +92,7 @@ test('catalog emits the machine-readable contract without a project', () => {
 		'permissions',
 		'targets',
 		'docs search',
+		'docs index',
 		'docs read',
 		'guidance',
 		'code search',
@@ -274,6 +275,8 @@ test('docs search/read bind the development checkout for linked packages', () =>
 	assert.equal(hit.provenance.source, 'development-docs')
 	assert.equal(hit.provenance.match, 'exact')
 	assert.equal(hit.provenance.servedVersion, 'development')
+	assert.equal(search.data.retrieval[0].used, 'lexical')
+	assert.equal(search.data.retrieval[0].reason, 'index-not-ready')
 
 	const read = json(
 		run(['docs', 'read', '--ref', hit.ref, '--project', root, '--app', 'app', '--json']),

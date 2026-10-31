@@ -9,7 +9,15 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
 import { developmentDocsDir, resolveInstallations } from './docs-binding.ts'
 import { tailoredGuidance } from './docs-guidance.ts'
-import { docRef, parseDocRef, readPage, searchDocs } from './docs-retrieval.ts'
+import {
+	docRef,
+	listDocs,
+	parseDocRef,
+	platformsOf,
+	readPage,
+	searchDocs,
+} from './docs-retrieval.ts'
+
 import { boundProvenance, defaultCacheDir, ensureSnapshot, gitAvailable } from './docs-snapshots.ts'
 
 import { MATCH, provenance, SOURCES, unavailable } from './contract.ts'
@@ -31,9 +39,41 @@ export function createDocsService({
 	execFile,
 	env,
 	timeoutMs,
+	searchEmbedder,
 }) {
 	const ctx = { cacheDir: cacheDir ?? defaultCacheDir(), gitPath, execFile, env, timeoutMs }
 	const state = { install: null, fingerprint: null, revision: 0 }
+	const searchCacheDir = join(ctx.cacheDir, 'search')
+	function documents(bound, pkg, { corpus, platform } = {}) {
+		const packageDir = releaseMapping(pkg.name, pkg.version, repo)?.dir
+		return listDocs(bound.dir)
+			.filter((doc) => {
+				if (corpus && doc.corpus !== corpus) {
+					return false
+				}
+				if (doc.corpus === 'readme' && doc.path !== `${packageDir}/README.md`) {
+					return false
+				}
+				if (doc.path === 'packages/tsrx-typegen/CHANGELOG.md' && pkg.name !== 'tsrx-typegen') {
+					return false
+				}
+				if (
+					pkg.name === 'tsrx-typegen' &&
+					doc.corpus === 'changelog' &&
+					doc.path !== 'packages/tsrx-typegen/CHANGELOG.md'
+				) {
+					return false
+				}
+				return true
+			})
+			.map((doc) => ({
+				path: doc.path,
+				corpus: doc.corpus,
+				content: readFileSync(doc.file, 'utf8'),
+			}))
+			.filter((doc) => !platform || platformsOf(doc.path, doc.content).includes(platform))
+	}
+	const searchBinding = (bound) => `${bound.prov.repo ?? ''}:${bound.commit ?? bound.dir}`
 
 	async function refresh() {
 		const install = resolveInstallations(workspaceRoot)
@@ -125,6 +165,9 @@ export function createDocsService({
 			platforms: hit.platforms,
 			excerpt: hit.excerpt,
 			line: hit.line,
+			...(hit.endLine ? { endLine: hit.endLine, heading: hit.heading } : {}),
+			...(hit.releaseVersion ? { releaseVersion: hit.releaseVersion } : {}),
+			...(hit.releaseDate ? { releaseDate: hit.releaseDate } : {}),
 			ref: docRef(pkg.name, bound.prov.servedVersion, hit.path),
 			provenance: bound.prov,
 			...(provisional ? { provisional: true } : {}),
@@ -209,6 +252,44 @@ export function createDocsService({
 	}
 
 	return {
+		/** Explicit preparation may download the pinned model; search never does. */
+		async index({ package: packageName, version } = {}) {
+			const install = await refresh()
+			const targets = install.packages.filter((p) => !packageName || p.name === packageName)
+			if (packageName && version && !targets.length) {
+				targets.push({ name: packageName, version, kind: 'registry' })
+			}
+			const results = []
+			const unavailable = []
+			const { prepareIndex } = await import('@octane-xplat/docs-search')
+			for (const pkg of targets) {
+				const bound = await bind(pkg, { version: version ?? pkg.version })
+				if (bound.status !== 'bound') {
+					unavailable.push(bound)
+					continue
+				}
+
+				try {
+					const result = await prepareIndex({
+						documents: documents(bound, pkg),
+						binding: searchBinding(bound),
+						cacheDir: searchCacheDir,
+						embedder: searchEmbedder,
+					})
+
+					results.push({ ...result, provenance: bound.prov })
+				} catch {
+					results.push({
+						status: 'unavailable',
+						reason: 'index-preparation-failed',
+						recovery:
+							'Check model download access and cache permissions, then run docs index again. Completed batches are reusable.',
+						provenance: bound.prov,
+					})
+				}
+			}
+			return { results, unavailable }
+		},
 		/** Project identity + binding/doc status — A's status surface reads this. */
 		async status() {
 			const install = state.install ?? (await refresh())
@@ -242,7 +323,15 @@ export function createDocsService({
 		 * bindings. `version` is an explicit comparison/migration request and
 		 * its results stay labeled outside the installed binding.
 		 */
-		async search({ query, package: packageName, version, platform, corpus, limit = 10 }) {
+		async search({
+			query,
+			package: packageName,
+			version,
+			platform,
+			corpus,
+			limit = 10,
+			mode = 'hybrid',
+		}) {
 			const install = await refresh()
 			const started = state.revision
 			const targets = install.packages.filter((p) => !packageName || p.name === packageName)
@@ -259,6 +348,7 @@ export function createDocsService({
 			}
 
 			const results = []
+			const retrieval = []
 			const failures = []
 			const boundCommits = {}
 			const boundByName = {}
@@ -271,7 +361,55 @@ export function createDocsService({
 				}
 
 				boundCommits[pkg.name] = bound.commit ?? bound.dir
-				const hits = searchDocs(bound.dir, { query, corpus, platform, limit })
+				let hits
+				if (mode === 'exact') {
+					hits = searchDocs(bound.dir, {
+						query,
+						corpus,
+						platform,
+						limit,
+						packageDir: releaseMapping(pkg.name, pkg.version, repo)?.dir,
+					})
+
+					retrieval.push({ package: pkg.name, requested: mode, used: 'exact' })
+				} else {
+					try {
+						const { searchIndex } = await import('@octane-xplat/docs-search')
+						const found = await searchIndex({
+							documents: documents(bound, pkg, { corpus, platform }),
+							binding: searchBinding(bound),
+							cacheDir: searchCacheDir,
+							query,
+							limit,
+							mode,
+							embedder: searchEmbedder,
+						})
+
+						hits = found.results.map((hit) => ({
+							...hit,
+							excerpt: hit.content.slice(0, 900),
+							platforms: platformsOf(hit.path, hit.content),
+						}))
+
+						retrieval.push({ package: pkg.name, ...found.retrieval })
+					} catch {
+						hits = searchDocs(bound.dir, {
+							query,
+							corpus,
+							platform,
+							limit,
+							packageDir: releaseMapping(pkg.name, pkg.version, repo)?.dir,
+						})
+
+						retrieval.push({
+							package: pkg.name,
+							requested: mode,
+							used: 'exact',
+							reason: 'index-unavailable',
+						})
+					}
+				}
+
 				if (hits.length === 0 && !existsSync(join(bound.dir, 'docs'))) {
 					failures.push(
 						attachFallback(
@@ -310,6 +448,7 @@ export function createDocsService({
 			}
 
 			return {
+				retrieval,
 				bindingRevision: state.revision,
 				bindingChangedDuring: state.revision !== started,
 				results,
