@@ -98,7 +98,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
 		const node = (
 			<masonview
-				ref={ref}
+				ref={ref as any}
 				id={id}
 				className={cx(tableClasses, table.classes)}
 				style={mergeStyle(

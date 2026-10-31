@@ -107,7 +107,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
 					id={`${options.id ?? 'command-palette'}-query`}
 					className="vx-cmdk-search"
 					accessibilityLabel={options.label ?? 'Command palette'}
-					placeholder={options.placeholder ?? 'Search commands…'}
+					hint={options.placeholder ?? 'Search commands…'}
 					text={state.query}
 					onTextChange={(e: any) => controller.search(e?.text ?? e?.value ?? String(e ?? ''))}
 				/>

@@ -21,7 +21,6 @@ export {
 	stylesheetsHaveMediaRules,
 	stylesheetMediaQueries,
 	refreshMediaQueries,
-	evalMediaQuery,
 	onStylesheetsChanged,
 	setStyleEnvironment,
 	type CssEnvironment,
