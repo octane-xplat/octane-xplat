@@ -129,7 +129,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 		const node = (
 			<div class="vx-table-scroll">
 				<table
-					ref={ref}
+					ref={ref as any}
 					id={id}
 					{...table.htmlProps}
 					class={cx(tableClasses, table.classes)}
@@ -186,7 +186,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 		>
 			<TableSlot value={plan.scrollWrapper.beforeTable} />
 			<table
-				ref={ref}
+				ref={ref as any}
 				id={id}
 				{...plan.table.htmlProps}
 				class={cx(tableClasses, plan.table.classes)}
