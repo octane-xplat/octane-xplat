@@ -374,6 +374,7 @@
 	border-width: 0;
 	border-radius: 0;
 }
+.xw-root.ns-dark,
 .ns-dark .xw-root {
 	--xw-surface: var(--color-surface, #171717);
 	--xw-text: var(--color-text, #fafafa);

@@ -46,6 +46,11 @@ portable composition dependency is unchanged.
 - Web chrome uses local `--xw-*` aliases over existing `--color-*` tokens, with
   light/dark fallbacks. System preference and ancestor `.dark`/`.ns-dark` or `.light`/`.ns-light` work
   without requiring an app stylesheet. App tokens take precedence.
+- Native dark palette rules match both `.xw-root.ns-dark` (AppKit/GTK put the
+  appearance class on the root itself) and `.ns-dark .xw-root` (a NativeScript
+  ancestor). The native theme regression uses the shared desktop CSS engine
+  and actual stylesheet to check light/dark/light transitions and stage text
+  isolation. This is cascade evidence, not device appearance-switch evidence.
 - Form colors and focus selectors target chrome classes, never arbitrary
   specimen inputs. The stage slot retains its original default colors; explicit
   preview background and bounds still belong to the existing environment UI.
