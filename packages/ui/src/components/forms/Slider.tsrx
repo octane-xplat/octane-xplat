@@ -13,9 +13,6 @@ import { NativeToggleField } from './NativeToggleField'
 
 /** One retained field owns scalar/range state and the drawn track. */
 function SliderControl(inputProps: SliderProps) @{
-
-/** One retained field owns scalar/range state and the drawn track. */
-function SliderControl(inputProps: SliderProps) @{
 	const props = useFieldControlProps(inputProps)
 	const min = props.min ?? props.minValue ?? 0
 	const max = props.max ?? props.maxValue ?? 100
