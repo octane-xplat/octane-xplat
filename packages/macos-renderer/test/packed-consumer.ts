@@ -213,6 +213,7 @@ consumerConfig.overrides = {
 	'@octane-xplat/lint': lint,
 	'@octane-xplat/platform': platform,
 	'@octane-xplat/css-engine': cssEngine,
+	'@octane-xplat/jsx': jsx,
 }
 consumerConfig.packageManager = 'bun@1.4.4'
 await writeFile(consumerFile, JSON.stringify(consumerConfig))
