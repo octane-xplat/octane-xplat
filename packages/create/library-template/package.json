@@ -31,7 +31,7 @@
 				"@tsrx/oxc": "0.20.0",
 				"@tsrx/typescript-plugin": "0.4.11",
 				"octane": "0.16.3",
-				"tsrx-typegen": "0.2.2",
+				"tsrx-typegen": "0.5.0",
 				"typescript": "5.9.3",
 				"vite": "8.3.0",
 				"vitest": "4.1.11"

@@ -124,7 +124,7 @@
 			"group": "compiler"
 		},
 		"tsrx-typegen": {
-			"version": "0.2.2",
+			"version": "0.5.0",
 			"group": "compiler"
 		},
 		"vite": {
