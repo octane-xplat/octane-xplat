@@ -112,8 +112,8 @@ Conventional Commits. Separately, `scripts/release-notes.ts` assembles selected
 Markdown notes into the root `CHANGELOG.md` and `FIXLOG.md`. `release-pr.yml`
 aligns package and starter versions and prepares the logs on the release
 branch; after the PR merges, `release.yml` tags `vX.Y.Z` on the tested
-revision, publishes, rebuilds the GitHub Release body from the recorded log
-headings (`release-notes.ts extract`), and queues the next release PR. Manual
+revision, publishes, creates a GitHub Release whose body links the release's
+anchor on the docs changelog page, and queues the next release PR. Manual
 `workflow_dispatch` on `release.yml` selects `track` (default `stable`) and
 accepts an optional tsrx-typegen version override; it still requires evidence
 for the exact revision. The lockstep version override lives on
@@ -242,7 +242,15 @@ new release notes use the same root logs, under headings labeled
 preserves its earlier published history.
 
 The docs site deploys to Cloudflare Pages on every green `main` CI run
-(`release.yml`'s `docs` job) — `llms.txt` regeneration is automatic.
+(`release.yml`'s `docs` job) — `llms.txt` regeneration is automatic. The
+site's changelog page (`apps/docs/src/changelog.ts`) renders the root logs
+with one section per release; each release heading carries a stable anchor
+derived from its git tag with dots as dashes — `v0.19.0` → `#v0-19-0`,
+`tsrx-typegen-v0.5.0` → `#tsrx-typegen-v0-5-0`. GitHub Releases link
+`https://octane-xplat.goddardai.org/changelog#<anchor>` instead of embedding
+the notes — full bodies exceed GitHub's 125 KB release-body limit — so the
+page and its anchor scheme are release infrastructure; keep
+`apps/docs/src/changelog-format.ts` deriving anchors from the tag.
 Manual pre-release task that remains: re-verify `docs/testing/known-limits.md`
 entries stamped older than the releasing version.
 
@@ -311,8 +319,8 @@ short explanation without code.
 
 Link to the official documentation for the affected feature, preferably its
 specific section. Use absolute HTTPS links so notes work in both root logs
-and GitHub Releases. Prefer the Xplat docs site; use the official repository
-documentation or an upstream project's official docs when that is the
+and the site's changelog page. Prefer the Xplat docs site; use the official
+repository documentation or an upstream project's official docs when that is the
 canonical source. Check published page URLs against the site's `llms.txt`;
 they do not necessarily match the source file's directory. Update the docs
 in the same change if they do not yet cover
@@ -347,7 +355,7 @@ selected stream's files by features and fixes, sorts filenames for stable
 ordering, removes the YAML headers, and prepends a dated, linked release heading
 to each nonempty destination. Entry bodies, including snippets and links, are
 preserved. Empty categories add no heading; a release without notes can still
-ship and gets a short “No user-facing release notes” message on GitHub.
+ship — its changelog page section just stays empty.
 
 For example, CI prepares one selected release with:
 
@@ -355,10 +363,10 @@ For example, CI prepares one selected release with:
 node scripts/release-notes.ts prepare lockstep 0.18.0
 ```
 
-This writes `.release-notes.md` for GitHub, updates the relevant root logs, and
-deletes only that stream's consumed files. For the lockstep stream these
-edits happen on the release PR branch; for tsrx-typegen they happen in the
-release job's own commit. Do not run `prepare` during feature/fix work;
+This writes `.release-notes.md` — the release PR body source — updates the
+relevant root logs, and deletes only that stream's consumed files. For the
+lockstep stream these edits happen on the release PR branch; for tsrx-typegen
+they happen in the release job's own commit. Do not run `prepare` during feature/fix work;
 use `preview`. Existing published history stays intact, including fixes in
 older combined changelogs. Nightlies neither consume files nor update the logs.
 

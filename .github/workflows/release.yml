@@ -228,6 +228,9 @@ jobs:
         if: steps.pending.outputs.state == 'unpublished'
         run: node scripts/publish-release.ts --package tsrx-typegen
 
+      # The Release body links the docs changelog anchor instead of embedding
+      # the full notes (GitHub caps bodies at 125 KB); a rerun skips this once
+      # the release exists.
       - name: Create GitHub Release
         if: steps.pending.outputs.state == 'unpublished'
         env:
@@ -235,7 +238,11 @@ jobs:
           VERSION: ${{ steps.pending.outputs.version }}
           TAG: ${{ steps.pending.outputs.tag }}
         run: |
-          node scripts/release-notes.ts extract tsrx-typegen "$VERSION" > .release-notes.md
+          cat > .release-notes.md <<EOF
+          **tsrx-typegen $VERSION** is published to npm.
+
+          Read the full release notes in the [changelog](https://octane-xplat.goddardai.org/changelog#$(printf '%s' "$TAG" | tr '.' '-')) or in [CHANGELOG.md](https://github.com/octane-xplat/octane-xplat/blob/$TAG/CHANGELOG.md) on the tag.
+          EOF
           gh release view "$TAG" > /dev/null 2>&1 || \
             gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
 
@@ -373,11 +380,21 @@ jobs:
         if: steps.version.outputs.should_release == 'true'
         run: node scripts/publish-release.ts --package tsrx-typegen
 
+      # The Release body links the docs changelog anchor instead of embedding
+      # the full notes prepared above (GitHub caps bodies at 125 KB).
       - name: Create GitHub Release
         if: steps.version.outputs.should_release == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          cat > .release-notes.md <<EOF
+          **tsrx-typegen $VERSION** is published to npm.
+
+          Read the full release notes in the [changelog](https://octane-xplat.goddardai.org/changelog#$(printf '%s' "$TAG" | tr '.' '-')) or in [CHANGELOG.md](https://github.com/octane-xplat/octane-xplat/blob/$TAG/CHANGELOG.md) on the tag.
+          EOF
+          gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
 
   # A merged release commit whose tree lacks Stable CI evidence qualifies
   # inline: the same heavy lanes run through workflow_call on the merged sha.
@@ -514,15 +531,20 @@ jobs:
         if: steps.unpublished.outputs.exists != 'true'
         run: node scripts/publish-release.ts
 
-      # The release commit consumed the pending notes into the root logs;
-      # extract rebuilds the same GitHub body from the recorded heading. A
-      # rerun skips this once the release already exists.
+      # The release commit consumed the pending notes into the root logs,
+      # which the docs changelog page renders — the Release body links the
+      # version's anchor instead of embedding the full notes (GitHub caps
+      # bodies at 125 KB). A rerun skips this once the release exists.
       - name: Create GitHub Release
         if: steps.unpublished.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          node scripts/release-notes.ts extract lockstep "$VERSION" > .release-notes.md
+          cat > .release-notes.md <<EOF
+          **Octane Xplat $VERSION** is published to npm.
+
+          Read the full release notes in the [changelog](https://octane-xplat.goddardai.org/changelog#$(printf '%s' "$TAG" | tr '.' '-')) or in [CHANGELOG.md](https://github.com/octane-xplat/octane-xplat/blob/$TAG/CHANGELOG.md) on the tag.
+          EOF
           gh release view "$TAG" > /dev/null 2>&1 || \
             gh release create "$TAG" --title "$TAG" --notes-file .release-notes.md
 

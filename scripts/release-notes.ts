@@ -133,10 +133,11 @@ export function renderNotes(
 	}
 }
 
-// Rebuild the GitHub release body for an already-prepared version from the
-// committed logs: locate the heading linking that tag, take lines until the
-// next `## ` heading while respecting fenced code blocks (a fence may contain
-// `## `), and emit the same sections renderNotes produced.
+// Recover an already-prepared version's notes from the committed logs (the
+// GitHub Release only links the docs changelog page; this stays useful for
+// inspecting what a tag shipped): locate the heading linking that tag, take
+// lines until the next `## ` heading while respecting fenced code blocks (a
+// fence may contain `## `), and emit the same sections renderNotes produced.
 export function extractNotes(root: string, release: Release, version: string) {
 	version = releaseVersion(version)
 	const { prefix } = RELEASES[release]
