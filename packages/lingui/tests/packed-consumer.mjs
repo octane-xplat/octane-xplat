@@ -99,7 +99,12 @@ assert.equal(typeof babelExtractor.extract, 'function')
 	assert.ok(entries.some((entry) => entry.message === 'Extraction control from tsx'))
 	const probe = entries.find((entry) => entry.message === 'Extraction probe from tsrx')
 	assert.ok(probe, 'packed extractor finds TSRX message')
-	assert.deepEqual(probe.origin, [['src/app.tsrx', 8]])
+	const authoredLine =
+		readFileSync(join(app, 'src/app.tsrx'), 'utf8')
+			.split('\n')
+			.findIndex((line) => line.includes('t`Extraction probe from tsrx`')) + 1
+	assert.ok(authoredLine > 0)
+	assert.deepEqual(probe.origin, [['src/app.tsrx', authoredLine]])
 	console.log('lingui packed consumer: plain Node import, extraction, and authored origins passed')
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
