@@ -15,6 +15,7 @@ import {
 	slugFor,
 	titleOf,
 } from '../src/doc-meta.ts'
+import { buildChangelogMd } from '../src/changelog-format.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const docsDir = join(here, '../../../docs')
@@ -69,6 +70,20 @@ for await (const path of walk(docsDir)) {
 	})
 }
 
+// The changelog page is generated from the repo's root logs — the same
+// document the site renders (see src/changelog.ts).
+const changelogMd = buildChangelogMd(
+	await readFile(join(here, '../../../CHANGELOG.md'), 'utf8'),
+	await readFile(join(here, '../../../FIXLOG.md'), 'utf8'),
+)
+docs.push({
+	slug: 'changelog',
+	title: titleOf('changelog', changelogMd),
+	purpose: purposeOf(changelogMd),
+	md: changelogMd,
+	dir: 'releases',
+})
+
 docs.sort((a, b) => {
 	const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
 	return d || a.slug.localeCompare(b.slug)
@@ -119,12 +134,16 @@ ${guideLinks}
 - [All guides, one file](${BASE}/llms-full.txt): every guide inlined in reading order.
 - [Design records](${REPO}/tree/main/.agents/design): decisions, proposals, research, and open questions for framework contributors.
 - [Implementation documentation](${REPO}/tree/main/.agents/docs): contributor guidance, implementation notes, recipes, parity records, and platform investigations.
-- [Changelog](${REPO}/blob/main/CHANGELOG.md): per-release changes and upgrading notes.
 - [Repository](${REPO})
 - [npm: @octane-xplat/ui](https://www.npmjs.com/package/@octane-xplat/ui)
 `
 
-const body = docs.map((d) => rewriteLinks(d.md, d.dir, slugs).trim()).join('\n\n---\n\n')
+// llms-full stays focused on the app-building guides; the changelog is a
+// reference page (it would dominate the file), so llms.txt only links it.
+const body = docs
+	.filter((d) => d.dir !== 'releases')
+	.map((d) => rewriteLinks(d.md, d.dir, slugs).trim())
+	.join('\n\n---\n\n')
 
 const full = `${HEADER}
 The complete app-building guides follow in reading order, separated by --- lines. Framework implementation notes and design records are maintained in the repository under .agents/ and are not part of this corpus.

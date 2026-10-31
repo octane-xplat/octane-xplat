@@ -12,6 +12,12 @@ Guides live in `docs/start/`, `docs/app/`, `docs/platform/`, and
 recipes live under `.agents/` and are not part of the docs-site corpus. Page
 URLs stay independent of guide folders, so moving a guide keeps its existing URL.
 
+The `/changelog` page is the one exception: it has no `docs/` source file.
+`src/changelog.ts` inlines the repository's `CHANGELOG.md` and `FIXLOG.md` at
+build time and merges them into one section per release — GitHub Releases link
+its `#v<major>-<minor>-<patch>` anchors, so the anchor scheme must stay stable
+(see `.agents/docs/releases.md`).
+
 ## Agent prompt card
 
 The front page includes a themed `AgentPrompt` card after its opening

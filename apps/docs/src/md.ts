@@ -109,19 +109,25 @@ export function parseMd(md: string): Block[] {
 
 		if (/^#{1,4}\s/.test(line)) {
 			const m = line.match(/^(#+)\s+(.*)/)!
-			const slug = m[2]
+			// `## Title {#custom-id}` pins the anchor — generated pages (the
+			// changelog) use it to keep release links stable across wording.
+			const explicit = /^(.*?)\s*\{#([A-Za-z][\w-]*)\}\s*$/.exec(m[2])
+			const title = explicit ? explicit[1] : m[2]
+			const slug = title
 				.toLowerCase()
 				.replace(/[^\p{L}\p{N}_\s-]/gu, '')
 				.replace(/ /g, '-')
 
-			let id = slug
-			let suffix = 0
-			while (headingIds.has(id)) {
-				id = `${slug}-${++suffix}`
+			let id = explicit?.[2] ?? slug
+			if (!explicit) {
+				let suffix = 0
+				while (headingIds.has(id)) {
+					id = `${slug}-${++suffix}`
+				}
 			}
 
 			headingIds.add(id)
-			blocks.push({ kind: 'h', level: m[1].length, text: m[2].replace(/[`*_]/g, ''), id })
+			blocks.push({ kind: 'h', level: m[1].length, text: title.replace(/[`*_]/g, ''), id })
 			i++
 			continue
 		}

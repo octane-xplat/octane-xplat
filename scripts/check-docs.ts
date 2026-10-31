@@ -126,6 +126,10 @@ export function checkDocumentation(root: string) {
 			)
 		}
 	}
+	// The changelog page is generated from the root logs at build time — it
+	// has no docs/ source file, and its per-version anchors derive from git
+	// tags rather than markdown headings, so no fragment check applies.
+	slugs.set('changelog', resolve(root, 'apps/docs/src/changelog.ts'))
 	const supporting = [
 		'README.md',
 		'CONTRIBUTING.md',
