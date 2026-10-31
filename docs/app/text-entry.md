@@ -8,6 +8,14 @@ state and callbacks.
 
 For a complete labeled form with validation, focus and announcement checks,
 follow [Build and test an accessible screen](accessibility.md).
+For the experimental GTK target, use the platform examples for
+[TextInput](../platform/linux-gtk.md#text-entry),
+[TextArea](../platform/linux-gtk.md#multiline-fields) and
+[SearchInput](../platform/linux-gtk.md#search-fields),
+[Field/FormLayout](../platform/linux-gtk.md#arrange-labeled-fields), and
+[InputGroup](../platform/linux-gtk.md#join-inputs-with-a-prefix-or-suffix).
+These have separate Linux qualification; the keyboard and overlay pieces
+below are not a complete GTK workflow.
 
 ## Control a field
 
@@ -74,6 +82,27 @@ export function Example() {
 }
 ```
 
+On iOS and Android, keep `value` unchanged to reject an edit. This example accepts notes without
+`#`: try typing `#` and the field returns to the last accepted text, including
+when you repeat the same rejected edit.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Note() {
+	const [note, setNote] = useState('')
+	return (
+		<TextArea
+			value={note}
+			onChange={(next) => {
+				if (!next.includes('#')) setNote(next)
+			}}
+		/>
+	)
+}
+```
+
 `TextInput`, `TextArea`, and `SearchInput` accept the shared field props:
 `label`, `description`, `isLabelHidden`, `isDisabled`, `isReadOnly`,
 `isRequired`, `isOptional`, `size`, `status`, and `isLoading`. A standalone
@@ -102,6 +131,31 @@ export function Example() {
 			<TextInput value={name} onChange={setName} hasClear isLoading size="sm" />
 		</Field>
 	)
+}
+```
+
+When you give a control an explicit `id` inside `Field`, set `inputID` on `Field`
+to the same value. This connects label activation to the intended control.
+
+```tsx
+import { Field, TextInput } from '@octane-xplat/ui'
+
+export function Account() {
+	return (
+		<Field label="Account" inputID="account">
+			<TextInput id="account" defaultValue="" />
+		</Field>
+	)
+}
+```
+
+Use TextInput secure for passwords. Secure multiline entry is unsupported;
+TextArea rejects secure=true on iOS, Android and GTK.
+
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+export function Password() {
+  return <TextInput label="Password" secure />
 }
 ```
 
@@ -150,6 +204,41 @@ export function Example() {
 	)
 }
 ```
+
+## Size a multiline field
+
+Start with rows for a small editing area, then enable autoGrow to let the field
+expand. maxRows caps that growth; removing the cap releases its previous limit.
+An explicit style height replaces generated row limits, while authored minHeight
+and maxHeight constraints still apply.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function Notes(props: { limited: boolean }) {
+	return <TextArea label="Notes" rows={2} autoGrow maxRows={props.limited ? 4 : undefined} />
+}
+```
+
+## Limit a multiline field
+
+On web, iOS and Android, maxLength limits newly typed or pasted text.
+Use a nonnegative whole number; zero allows no new text. The count uses
+JavaScript's String.length, so many emoji count as two units.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function ShortNote() {
+  return <TextArea label="Note" defaultValue="" maxLength={200} />
+}
+```
+
+An oversized paste follows the native widget's rules: iOS rejects a growing
+insertion that exceeds the cap, while Android can keep the prefix that fits.
+App-authored values can also differ: web and iOS may display a value beyond
+the cap, while Android's native filter can shorten it. Keep supplied values
+within the cap when the same displayed text is required on every target.
 
 ## Release and restore focus
 
@@ -282,6 +371,17 @@ touch hit-testing, VoiceOver, or TalkBack. Check those on a simulator/device
 with the target lock held, without resetting another session. Current
 runtime evidence and exact remaining cases belong in
 [input readiness notes](../../.agents/docs/notes/input-readiness-notes.md).
+
+The maintained [GTK text-entry fixture](../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
+and [runner](../../packages/linux-gtk-renderer/test/ui-text-entry.test.mjs)
+exercise Gtk.Entry with actual X11 typing, controlled rejection/acceptance and
+selection/cursor checks. The [multiline renderer fixture](../../packages/linux-gtk-renderer/test/ui-text-view.test.mjs)
+checks a low-level textview with actual X11 selection replacement, Return and
+Tab. The [direct-source sizing fixture](../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
+checks row allocation, growth caps, CSS font updates and actual X11 internal
+keyboard/wheel scrolling. Public TextArea,
+IME composition, OSK/overlay avoidance,
+assistive-technology clients and visual parity remain unqualified.
 
 ## Read software keyboard space
 

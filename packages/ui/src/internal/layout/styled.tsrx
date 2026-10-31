@@ -3,6 +3,7 @@ import { defineUniversalComponent, universalComponent } from 'octane/universal/n
 import type { UniversalComponent } from 'octane/universal'
 import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from '../../props'
 import { resolveStyledClasses } from './styled-variants'
+import { universalTarget } from './universal-target'
 
 import type { JSX } from 'octane/jsx-runtime'
 /**
@@ -35,8 +36,8 @@ export function styled<
 	function Styled(props: P & StyledVariantSelection<V>) {
 		const { classes, rest } = resolveStyledClasses(def, props)
 		rest.className = classes
-		return universalComponent('nativescript', Base as unknown as UniversalComponent<any>, rest)
+		return universalComponent(universalTarget, Base as unknown as UniversalComponent<any>, rest)
 	}
 
-	return defineUniversalComponent('nativescript', Styled)
+	return defineUniversalComponent(universalTarget, Styled)
 }

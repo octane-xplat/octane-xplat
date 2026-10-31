@@ -6,8 +6,21 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
+// The object driver exercises state/focus without loading native host APIs.
+vi.mock('@nativescript/core', () => ({
+	isIOS: false,
+	isAndroid: true,
+	Utils: { openUrl: vi.fn() },
+}))
+vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
+vi.mock('../media/svg', () => ({}))
+vi.mock('../../routing/default-router', () => ({
+	router: { navigateUrl: () => Promise.resolve({ status: 'not-found' }) },
+}))
+
 vi.mock('../overlays/escape-props', () => ({
 	applyEscapeProps() {},
+	nativeAccessibilityRole: (role: string) => role,
 	nativeAccessibilityState: (state: any) =>
 		state?.disabled ? 'disabled' : state?.checked ? 'checked' : undefined,
 }))

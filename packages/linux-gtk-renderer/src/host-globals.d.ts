@@ -6,6 +6,12 @@
 // define `window` as an alias of the global object; it is intentionally left
 // undeclared so shared code cannot assume a DOM window.
 declare global {
+	class TextEncoder {
+		encode(value: string): Uint8Array
+	}
+	class TextDecoder {
+		decode(value: Uint8Array): string
+	}
 	function setTimeout(callback: () => void, ms?: number): number
 	function clearTimeout(id: number): void
 	function setInterval(callback: () => void, ms?: number): number

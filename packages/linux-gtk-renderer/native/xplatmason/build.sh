@@ -105,7 +105,7 @@ g-ir-scanner --quiet --warn-all \
 	--include=Gtk-4.0 \
 	--library=xplatmason-gtk -L"$HERE" \
 	-I"$HERE" -I"$INCLUDE" \
-	$PKG_CFLAGS \
+	--cflags-begin $PKG_CFLAGS --cflags-end \
 	-o "$HERE/XplatMason-1.0.gir" \
 	"$HERE/xplatmason.h" "$HERE/xplatmason.c"
 

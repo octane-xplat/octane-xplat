@@ -41,8 +41,14 @@ evaluator, used by `src/cascade.ts`). The other two upstream parser paths
 
 ## Divergences from upstream
 
-- **`IdSelector.match`**: also honors `node.cssId` — the renderer's `node.id`
+- **`IdSelector.match` and candidate lookup**: both honor `node.cssId` — the renderer's `node.id`
   is a numeric node id, not the CSS `#id` attribute.
+
+  Candidate collection includes the CSS attribute as well as the native id,
+  deduplicating equal identities. A match-only adaptation is insufficient:
+  numeric host ids otherwise prevent authored #id rules from being considered.
+  The desktop cascade regression tests cover id changes/removal, compound
+  selectors and string-id deduplication.
 
 - **Syntax**: enums/namespaces/decorators/parameter properties replaced with
   `as const` objects, module-level classes (`ChildGroup`, `SiblingGroup`,

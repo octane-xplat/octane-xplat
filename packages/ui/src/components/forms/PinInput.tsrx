@@ -1,15 +1,16 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useEffect, useRef, useState } from 'octane'
+import { useContext, useEffect, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
-import { FieldProvider, useFieldControlProps } from './field-context'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import { FieldContext, useFieldControlProps } from './field-context'
+import { NativeToggleField } from './NativeToggleField'
 import { TextInput } from './TextInput.tsrx'
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when every cell is filled. `secure` masks each cell. */
-export function PinInput(props: PinInputProps): unknown @{
+function PinInputControl(props: PinInputProps) @{
 	const fieldProps = useFieldControlProps(props)
 	const length = props.length ?? 4
 	const [internal, setInternal] = useState('')
@@ -63,6 +64,7 @@ export function PinInput(props: PinInputProps): unknown @{
 		id={fieldProps.id}
 		className={cx(
 			'vx-pininput',
+			'vx-pininput--native',
 			fieldProps.isDisabled && 'vx-pininput--disabled',
 			fieldProps.isReadOnly && 'vx-pininput--readonly',
 			fieldProps.isLoading && 'vx-pininput--loading',
@@ -71,31 +73,46 @@ export function PinInput(props: PinInputProps): unknown @{
 			fieldProps.className,
 		)}
 		style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, fieldProps.style))}
+		isEnabled={!fieldProps.isDisabled}
+		accessibilityRole={nativeAccessibilityRole('group')}
 		accessibilityLabel={fieldProps.ariaLabel ?? fieldProps.fieldLabel}
 		accessibilityHint={fieldProps.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: fieldProps.isDisabled })}
+		accessibilityState={nativeAccessibilityState({ disabled: fieldProps.isDisabled,
+			readOnly: fieldProps.isReadOnly, required: fieldProps.isRequired,
+			busy: fieldProps.isLoading, invalid: fieldProps.status?.type === 'error' })}
 	>
-		<FieldProvider value={null}>
-			@for (const i of Array.from({ length }, (_, k) => k); key i) {
-				<TextInput
-					label={`${fieldProps.fieldLabel ?? fieldProps.ariaLabel ?? 'PIN'}, digit ${i + 1}`}
-					className="vx-pininput-cell"
-					keyboardType="number"
-					secure={props.secure}
-					isDisabled={fieldProps.isDisabled}
-					isReadOnly={fieldProps.isReadOnly || i > value.length}
-					isLoading={fieldProps.isLoading}
-					isRequired={fieldProps.isRequired}
-					isOptional={fieldProps.isOptional}
-					size={fieldProps.size}
-					status={fieldProps.status}
-					value={cellValue(i)}
-					onChange={(text: string) => enter(i, text)}
-					ref={(h: TextInputHandle | null) => {
-						handles.current[i] = h
-					}}
-				/>
-			}
-		</FieldProvider>
+		@for (const i of Array.from({ length }, (_, k) => k); key i) {
+			<TextInput
+				id={fieldProps.id ? `${fieldProps.id}-digit-${i + 1}` : undefined}
+				accessibilityLabel={`${fieldProps.fieldLabel ?? fieldProps.ariaLabel ?? 'PIN'}, digit ${i + 1}`}
+				className="vx-pininput-cell"
+				keyboardType="number"
+				secure={props.secure}
+				isDisabled={fieldProps.isDisabled}
+				isReadOnly={fieldProps.isReadOnly || i > value.length}
+				isLoading={fieldProps.isLoading}
+				isRequired={fieldProps.isRequired}
+				isOptional={fieldProps.isOptional}
+				size={fieldProps.size}
+				status={fieldProps.status}
+				value={cellValue(i)}
+				onChange={(text: string) => enter(i, text)}
+				ref={(h: TextInputHandle | null) => {
+					handles.current[i] = h
+				}}
+			/>
+		}
 	</masonview>
+}
+
+/** One field owns the group; numbered editors retain unique identities. */
+export function PinInput(props: PinInputProps): unknown @{
+	const inField = useContext(FieldContext) != null
+	@if (inField) {
+		<PinInputControl {...props} />
+	} @else {
+		<NativeToggleField {...props} inlineLabel={false} isGroupLabel>
+			<PinInputControl {...props} />
+		</NativeToggleField>
+	}
 }

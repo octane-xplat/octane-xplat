@@ -6,7 +6,13 @@
 // starter surface; the inventory note lists this as a tracked limitation.
 declare module 'gi://Gtk?version=4.0' {
 	namespace Gtk {
-		const AccessibleRelation: { LABELLED_BY: number; [key: string]: number }
+		function init(): void
+		function get_major_version(): number
+		function get_minor_version(): number
+		function get_micro_version(): number
+		function test_accessible_has_property(widget: Widget, property: number): boolean
+		const AccessibleRelation: { LABELLED_BY: number; DESCRIBED_BY: number; [key: string]: number }
+		const DirectionType: { TAB_FORWARD: number; TAB_BACKWARD: number }
 		const MAJOR_VERSION: number
 		const MINOR_VERSION: number
 		const MICRO_VERSION: number
@@ -16,6 +22,11 @@ declare module 'gi://Gtk?version=4.0' {
 		enum Orientation {
 			HORIZONTAL = 0,
 			VERTICAL = 1,
+		}
+
+		enum Overflow {
+			VISIBLE = 0,
+			HIDDEN = 1,
 		}
 
 		enum Align {
@@ -71,6 +82,17 @@ declare module 'gi://Gtk?version=4.0' {
 			[key: string]: number
 		}
 
+		const AccessibleList: any
+		const Overlay: any
+		const TextWindowType: { WIDGET: number }
+		const Popover: any
+		const EventControllerMotion: any
+		const PositionType: { TOP: number; BOTTOM: number; LEFT: number; RIGHT: number }
+		const Picture: any
+		const ContentFit: { FILL: number; CONTAIN: number; COVER: number; SCALE_DOWN: number }
+		const AccessibleState: { HIDDEN: number; [key: string]: number }
+		const AccessibleTristate: { FALSE: number; TRUE: number; MIXED: number }
+		const AccessibleInvalidState: { FALSE: number; TRUE: number; GRAMMAR: number; SPELLING: number }
 		class Widget {
 			connect(signal: string, handler: (...args: any[]) => unknown): number
 			disconnect(id: number): void
@@ -116,7 +138,9 @@ declare module 'gi://Gtk?version=4.0' {
 			reset_relation(relation: number): void
 			grab_focus(): boolean
 			pick(x: number, y: number, flags: number): Widget | null
-			compute_bounds(target: Widget): [boolean, unknown]
+			compute_bounds(
+				target: Widget,
+			): [boolean, { origin: { x: number; y: number }; size: { width: number; height: number } }]
 			visible: boolean
 			sensitive: boolean
 			hexpand: boolean
@@ -129,7 +153,7 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class Box extends Widget {
-			constructor(props?: { orientation?: Orientation; spacing?: number })
+			constructor(props?: { orientation?: Orientation; spacing?: number; accessible_role?: number })
 			prepend(child: Widget): void
 			append(child: Widget): void
 			insert_child_after(child: Widget, sibling: Widget | null): void
@@ -185,11 +209,23 @@ declare module 'gi://Gtk?version=4.0' {
 			visibility: boolean
 		}
 
+		const WrapMode: { WORD_CHAR: number }
+		class TextView extends Widget {
+			constructor(props?: Record<string, unknown>)
+			get_buffer(): any
+			get_editable(): boolean
+		}
+
 		class Switch extends Widget {
 			active: boolean
 		}
 
 		class Adjustment {
+			get_value(): number
+			set_value(value: number): void
+			get_lower(): number
+			get_upper(): number
+			get_page_size(): number
 			constructor(props?: {
 				lower?: number
 				upper?: number
@@ -223,6 +259,9 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class ScrolledWindow extends Widget {
+			constructor(props?: { hscrollbar_policy?: PolicyType; vscrollbar_policy?: PolicyType })
+			get_hadjustment(): Adjustment
+			get_vadjustment(): Adjustment
 			set_child(child: Widget | null): void
 			get_child(): Widget | null
 			hscrollbar_policy: PolicyType
@@ -243,6 +282,14 @@ declare module 'gi://Gtk?version=4.0' {
 			constructor()
 		}
 
+		class GestureDrag extends EventController {
+			constructor()
+		}
+
+		class GestureSwipe extends EventController {
+			constructor()
+		}
+
 		class GestureLongPress extends EventController {
 			constructor()
 		}
@@ -251,6 +298,8 @@ declare module 'gi://Gtk?version=4.0' {
 			constructor()
 		}
 
+		const EventControllerLegacy: any
+		const PropagationPhase: { CAPTURE: number; BUBBLE: number }
 		class EventControllerKey extends EventController {
 			constructor()
 		}
@@ -283,7 +332,19 @@ declare module 'gi://Gtk?version=4.0' {
 			disconnect(id: number): void
 		}
 
+		interface Border {
+			left: number
+			right: number
+			top: number
+			bottom: number
+		}
+
 		class StyleContext {
+			static add_provider_for_display(display: any, provider: CssProvider, priority: number): void
+			static remove_provider_for_display(display: any, provider: CssProvider): void
+			get_margin(): Border
+			get_border(): Border
+			get_padding(): Border
 			add_provider(provider: CssProvider, priority: number): void
 			remove_provider(provider: CssProvider): void
 		}
@@ -335,6 +396,7 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class Window extends Widget {
+			constructor(props?: Record<string, unknown>)
 			set_child(child: Widget | null): void
 			present(): void
 			close(): void
@@ -365,6 +427,14 @@ declare module 'gi://Gtk?version=4.0' {
 
 declare module 'gi://GLib' {
 	namespace GLib {
+		class MainLoop {
+			constructor(context: unknown, isRunning: boolean)
+			static new(context: unknown, isRunning: boolean): MainLoop
+			run(): void
+			quit(): void
+		}
+		const Bytes: any
+		function base64_decode(value: string): Uint8Array
 		const MAJOR_VERSION: number
 		const MINOR_VERSION: number
 		const MICRO_VERSION: number
@@ -395,6 +465,53 @@ declare module 'gi://Gdk?version=4.0' {
 			[key: string]: number
 		}
 
+		const KEY_Escape: number
+		const KEY_F12: number
+		const KEY_Up: number
+		const KEY_Down: number
+		const KEY_Left: number
+		const KEY_Right: number
+		const KEY_Page_Up: number
+		const KEY_Page_Down: number
+		const KEY_Home: number
+		const KEY_End: number
+		const KEY_Tab: number
+		const KEY_ISO_Left_Tab: number
+		const KEY_BackSpace: number
+		const KEY_Delete: number
+		const KEY_Insert: number
+		const KEY_KP_Delete: number
+		const KEY_KP_Insert: number
+		const KEY_KP_Home: number
+		const KEY_KP_End: number
+		const KEY_KP_Page_Up: number
+		const KEY_KP_Page_Down: number
+		const KEY_KP_Left: number
+		const KEY_KP_Right: number
+		const KEY_KP_Up: number
+		const KEY_KP_Down: number
+		const KEY_Shift_L: number
+		const KEY_Shift_R: number
+		const KEY_Control_L: number
+		const KEY_Control_R: number
+		const KEY_Alt_L: number
+		const KEY_Alt_R: number
+		const KEY_Meta_L: number
+		const KEY_Meta_R: number
+		const KEY_Super_L: number
+		const KEY_Super_R: number
+		const KEY_Caps_Lock: number
+		const KEY_Num_Lock: number
+		const KEY_Scroll_Lock: number
+		const KEY_Pause: number
+		const KEY_Print: number
+		const KEY_Menu: number
+		const KEY_a: number
+		const KEY_x: number
+		const KEY_y: number
+		const KEY_z: number
+		function keyval_name(keyval: number): string
+		function keyval_to_unicode(keyval: number): number
 		const ModifierType: {
 			SHIFT_MASK: number
 			LOCK_MASK: number
@@ -409,12 +526,32 @@ declare module 'gi://Gdk?version=4.0' {
 		function keyval_name(keyval: number): string | null
 		function keyval_to_unicode(keyval: number): number
 
+		const KEY_Return: number
+		const KEY_KP_Enter: number
+		const KEY_space: number
+		const Texture: any
 		class Rectangle {
 			constructor(fields?: { x?: number; y?: number; width?: number; height?: number })
 			x: number
 			y: number
 			width: number
 			height: number
+		}
+		const SeatCapability: {
+			NONE: number
+			POINTER: number
+			TOUCH: number
+			TABLET_STYLUS: number
+			KEYBOARD: number
+			ALL_POINTING: number
+			ALL: number
+		}
+		class Seat {
+			get_capabilities(): number
+		}
+		class Display {
+			static get_default(): Display | null
+			list_seats(): Seat[]
 		}
 	}
 
@@ -423,6 +560,10 @@ declare module 'gi://Gdk?version=4.0' {
 
 declare module 'gi://GObject' {
 	namespace GObject {
+		const Value: any
+		const TYPE_INT: any
+		const TYPE_DOUBLE: any
+		function signal_stop_emission_by_name(instance: any, signal: string): void
 		/** GJS type registration — returns a constructible GObject class. */
 		function registerClass(meta: any, klass?: any): any
 	}
@@ -432,6 +573,7 @@ declare module 'gi://GObject' {
 
 declare module 'gi://Gio' {
 	namespace Gio {
+		const Cancellable: any
 		const ApplicationFlags: {
 			FLAGS_NONE: number
 			NON_UNIQUE: number
@@ -439,8 +581,13 @@ declare module 'gi://Gio' {
 			[key: string]: number
 		}
 
+		class MemoryInputStream {
+			static new_from_bytes(bytes: unknown): MemoryInputStream
+			[key: string]: any
+		}
 		class File {
 			static new_for_path(path: string): File
+			static new_for_uri(uri: string): File
 			query_exists(cancellable: unknown): boolean
 			get_path(): string | null
 			get_uri(): string
@@ -459,4 +606,22 @@ declare module 'gi://Gsk?version=4.0' {
 declare module 'gi://Graphene' {
 	const Graphene: any
 	export default Graphene
+}
+
+declare module 'gi://Soup?version=3.0' {
+	const Soup: any
+	export default Soup
+}
+
+declare module 'gi://Pango' {
+	const Pango: { WrapMode: { WORD_CHAR: number } }
+	export default Pango
+}
+
+declare module 'gi://GdkPixbuf' {
+	namespace GdkPixbuf {
+		const Pixbuf: any
+		const InterpType: { BILINEAR: number; [key: string]: number }
+	}
+	export default GdkPixbuf
 }

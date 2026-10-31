@@ -28,7 +28,7 @@ space through form and overlay lifecycles.
 ## Documentation
 
 - AC1: [Control a field](../../../docs/app/text-entry.md#control-a-field) and [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately).
-- AC2: [Editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
+- AC2: [Sizing a multiline field](../../../docs/app/text-entry.md#size-a-multiline-field), [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
 - AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md).
 - AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), [sticky composers](../../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard), the maintained [form example](../../../packages/keyboard/examples/KeyboardFormDemo.tsrx), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
 - AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
@@ -138,3 +138,85 @@ and the existing [controlled-text fixture](../../../examples/probes/controlled-t
 which adds a manual color toggle. No test or probe ran; actual native placeholder
 painting/theme/layout requires separate target qualification. This small leaf repair reuses existing
 renderer style application/removal and adds no native selector or public API.
+## GTK partial qualification
+
+The full target list above is unchanged. The GTK root exports TextInput,
+TextArea, SearchInput, Field, FormLayout, InputGroup and InputGroupText;
+see [GTK text entry](../../../docs/platform/linux-gtk.md#text-entry).
+The maintained [text-entry fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
+checks controlled writes/rejection, native cursor/selection, leading content,
+focus/blur, submission and disposal with actual X11 input. The
+[field fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx)
+checks width, automatic labels/status, inherited sizing and keyboard clear/help.
+
+The public-root [multiline fixture](../../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
+checks rows/growth caps, authored bounds, CSS typography and cleanup, including
+actual X11 editing and internal wheel input. The [search fixture](../../../packages/linux-gtk-renderer/test/ui-search-input.test.mjs)
+checks native editor retention, controlled reconciliation, shared field state
+and actual keyboard/click clear/submit behavior. These do not qualify composition.
+
+The [form fixture](../../../packages/linux-gtk-renderer/test/ui-form-layout.test.mjs)
+checks native directions/counts/optionality and editor/text/focus retention.
+The public-root [group fixture](../../../packages/linux-gtk-renderer/test/ui-input-group.test.mjs)
+checks shared labels/help/status, prefix content, member size overrides,
+disabled/read-only/busy metadata, widths, native border ownership and lifecycle.
+Its role-transition checks retain child editors and focus. These are native
+geometry/property checks, not OS input or AT-client output.
+
+The public-root [toggle field fixture](../../../packages/linux-gtk-renderer/test/ui-toggle-fields.test.mjs)
+checks CheckboxInput and Switch field defaults, labels, width, disabled/read-only/busy
+state and async rollback with actual X11 label clicks. It also checks inherited
+Field ownership and mixed checkbox state. These add AC3 field evidence; they
+do not establish assistive-client speech or navigation. The public-root
+[radio fixture](../../../packages/linux-gtk-renderer/test/ui-radio-list.test.mjs)
+adds grouped Tab/arrow/Space and pointer ownership, controlled values, child
+parts, field defaults and native state checks. It runs keyboard/pointer cases
+with both Mason and the Gtk.Box fallback; broader layout/value comparisons use
+Mason.
+
+The [GTK numeric field guide](../../../docs/platform/linux-gtk.md#numeric-fields)
+and public-root [number fixture](../../../packages/linux-gtk-renderer/test/ui-number-input.test.mjs)
+cover AC8: explicit controlled null stays empty, both text clearing and the
+clear action report null, and omitted values retain a local owner seeded once
+by defaultValue. Actual X11 editing, stepping and clear input exercise these
+contracts alongside controlled rejection and field ownership.
+
+The public-root [checkbox list fixture](../../../packages/linux-gtk-renderer/test/ui-checkbox-list.test.mjs)
+extends AC3 field evidence to option data, child parts and controlled standalone
+mixed checkboxes. It covers group names/state/width, actual keyboard/pointer
+ownership, selection authority, density/dividers, wrapping and retained updates.
+This is separate from assistive-client speech or navigation.
+
+The public-root [segmented control fixture](../../../packages/linux-gtk-renderer/test/ui-segmented-control.test.mjs)
+adds AC3 field evidence for compact single-choice groups, including icon-only
+names, inherited state, width ownership and actual grouped keyboard/pointer
+input. Hug/fill geometry, RTL and retained updates have separate checks.
+These do not establish assistive-client speech or navigation.
+
+The public-root [PIN fixture](../../../packages/linux-gtk-renderer/test/ui-pin-input.test.mjs)
+adds AC3 field evidence for one labelled group with numbered editors. Actual
+X11 input exercises sequential focus, controlled acceptance/rejection, suffix
+clearing, completion, secure mode and disabled/read-only behavior. Length,
+metadata and geometry updates are separate from assistive-client output.
+
+The public-root [slider fixture](../../../packages/linux-gtk-renderer/test/ui-slider.test.mjs)
+adds AC3 field and adjustable-value evidence for scalar/range owners, typed
+bounds/current/text metadata, actual keyboard/pointer changes, controlled
+authority and thumb-anchored value hints. Keyboard range input adjusts the
+upper endpoint. This does not establish independent lower-thumb keyboard
+access or assistive-client set-value behavior.
+
+The public-root [rating fixture](../../../packages/linux-gtk-renderer/test/ui-rating.test.mjs)
+adds AC3 field evidence for one named radio group with one checked score,
+numbered cells and a separate filled prefix. Actual X11 input covers grouped
+focus, arrows/Space/pointer selection, controlled/local authority and readonly
+navigation. Glyph/provider and metadata/layout updates have separate checks;
+assistive-client output remains outside this evidence.
+
+These checks contribute to AC1, Return behavior within AC2, Field portions of
+AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
+recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance
+and keyboard insets (AC4/AC7), modal isolation and Presence
+exit (AC5) remain unqualified. GTK coverage and exact-criterion verification
+are recorded separately in Silo's gtk_recipe_checks; widget fixtures do not
+qualify packaged consumers.

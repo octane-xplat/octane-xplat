@@ -1179,7 +1179,7 @@ export interface TextInputProps extends FieldControlProps, TestIDProps {
 	web?: PlatformProps
 }
 
-/** Multi-line text entry — `TextInput` minus the clear affordance. `rows` sets the height in text rows; `autoGrow` grows with content up to `maxRows` rows (native TextViews grow by default, so `autoGrow` is what keeps the platforms matching). Submit semantics differ: native fires `onSubmit` only when `returnKeyType` is `done`/`send` (other keys insert newlines), web on Cmd/Ctrl+Enter.
+/** Multi-line text entry — `TextInput` minus the clear affordance. On iOS, Android and GTK, TextArea rejects `secure=true`; use a secure TextInput for passwords. `rows` sets the height in text rows; `autoGrow` grows with content up to `maxRows` rows (native TextViews grow by default, so `autoGrow` is what keeps the platforms matching). Submit semantics differ: native fires `onSubmit` only when `returnKeyType` is `done`/`send` (other keys insert newlines), web on Cmd/Ctrl+Enter.
  *
  * @example
  * ```tsx
@@ -1206,8 +1206,9 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
 	 *  maxHeight at measured line height (TextView's own `maxLines` only
 	 *  sets truncation on iOS — not a cap). */
 	maxRows?: number
-	/** Character cap — web enforces it via `maxlength` and draws the live
-	 *  `n/max` counter (Astryx `maxLength`); native clamps input. */
+	/** Nonnegative integer cap in UTF-16 units (String.length). Web enforces
+	 *  `maxlength` and draws the live `n/max` counter; native widgets limit
+	 *  user input using their platform's insertion rules. */
 	maxLength?: number
 	/** Leading glyph inside the field (Astryx `startIcon`). */
 	startIcon?: Renderable
@@ -2019,7 +2020,7 @@ export interface UseScrollableAreaOptions {
 
 /** Props returned for the viewport box by `useScrollableArea`.
  *  `TElement` identifies the host receiving the composed ref and defaults to
- *  `HostElement` when the caller does not need host-specific ref typing. */
+ *  `object`. Pass the JSX host type when spreading onto strictly typed intrinsics. */
 export interface UseScrollableAreaViewportProps<TElement extends object = object> {
 	/** Attach to the viewport element — the measured scroll container. */
 	ref: Octane.Ref<TElement>
@@ -2909,7 +2910,10 @@ export interface SliderMark {
  *  labeled stops. Web, AppKit and experimental Windows leaves render ranges,
  *  marks and formatted readouts; other native leaves retain their
  *  single-value widget subset. AppKit and Windows runtime qualification
- *  remains open; see the platform guides. */
+ *  remains open; see the platform guides. The shared native and web leaves
+ *  draw scalar/range tracks, marks and readouts; GTK and web have maintained
+ *  runtime checks. Tooltip readouts follow Tooltip's hover/focus contract on
+ *  desktop hosts. */
 export interface SliderProps extends FieldControlProps {
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
@@ -7692,7 +7696,11 @@ export type AnimationResult =
  * style properties. On NativeScript, `prop` is the name of a NativeScript
  * view property (for example, `translateX` or `opacity`). AppKit supports
  * opacity, translateX/translateY (points, positive Y downward), scale/scaleX/
- * scaleY, and rotate (degrees). The default property is translateX.
+ * scaleY, and rotate (degrees). GTK supports opacity, translateX/translateY,
+ * scale/scaleX/scaleY, rotate/rotateX/rotateY, perspective, and numeric dimensions,
+ * margins, padding, border widths/radii, fontSize, letterSpacing and lineHeight.
+ * GTK rejects unsupported properties and nonfinite numeric writes.
+ * The default property is translateX.
  * `to` uses milliseconds (300 by default); spring defaults to damping 14 and
  * stiffness 120. stop freezes the sampled value; a new run replaces playback.
  * The owning hook stops work on disposal. AppKit reduced motion snaps transforms
@@ -7961,7 +7969,7 @@ export interface CheckboxProps extends FieldControlProps, TestIDProps {
 	 *  partial-selection state (parent-of-a-tree semantics): it renders the
 	 *  indicator's `indeterminate` mark and the DOM `indeterminate` property
 	 *  on web; NativeScript reports `Partially selected` (no mixed state
-	 *  enum); AppKit exposes the semantic mixed checkbox value. */
+	 *  enum); GTK and AppKit expose a semantic mixed checkbox value. */
 	value?: boolean | 'indeterminate'
 	/** Initial state for uncontrolled use; `value` wins when both are set. */
 	defaultValue?: boolean | 'indeterminate'

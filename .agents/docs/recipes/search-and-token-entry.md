@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/ui, Select, Selector, MultiSelector, SelectOption, h
 
 ## Starting point
 
-An app already uses `@octane-xplat/ui` and needs users to find one or more values, create free-text values, or choose from a custom popup. Linux uses the web implementation; macOS remains experimental.
+An app already uses `@octane-xplat/ui` and needs users to find one or more values, create free-text values, or choose from a custom popup. Linux WebKitGTK uses the web implementation; the GJS/GTK renderer has a separate curated UI surface. macOS remains experimental.
 
 ## Requirements
 
@@ -35,3 +35,28 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC6: [Choose from a finite list](../../../docs/app/search-selection.md#choose-from-a-finite-list), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../../../examples/probes/select.tsrx).
 
 - AC7: [Search commands across targets](../../../docs/app/command-palette.md), [maintained demo](../../../packages/demos/src/ComponentsDemo.tsrx), and [platform boundaries](../../../docs/app/command-palette.md#platform-boundaries-and-verification), and [the nonvisual AppKit host case](../../../packages/ui/tests/command-palette-host.macos.tsrx).
+
+## GTK coverage
+
+Selector and MultiSelector are curated GTK root exports: the finite-list
+popup, grouped filtering, selection toggles and select-all workflows now
+execute on GTK 4.14+, partially covering AC6 (pointer-driven selection;
+async `changeAction` commits and HTML form submission are still unqualified,
+and arrow-key listbox navigation is a web-only feature). SelectorOption's
+standalone presentation part remains available — see
+[GTK option content](../../../docs/platform/linux-gtk.md#present-option-content),
+[GTK selectors](../../../docs/platform/linux-gtk.md#choose-one-or-many-options),
+and the maintained
+[GTK case](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-selector-main.ts).
+
+The public-root [typeahead fixture](../../../packages/linux-gtk-renderer/test/ui-typeahead.test.mjs)
+adds real X11 input evidence (35 assertions): `Typeahead` typed query and
+result pick with close (AC2 partial — clear/edit/restore cycles, custom
+result content and disabled reason are not exercised), `Tokenizer` Return-add,
+`hasCreate` create and `Token` remove/press (AC3 partial — cap/overflow and
+`htmlName` serialization are not exercised), and `ComplexSelector`
+open/commit/close (AC4 partial — asynchronous `changeAction` revert is not
+exercised). See
+[GTK date, color and search inputs](../../../docs/platform/linux-gtk.md#date-color-and-search-inputs).
+`SelectableCard` toggling on real clicks is covered in the same fixture.
+CommandPalette (AC7) is qualified separately through its own GTK leaf.

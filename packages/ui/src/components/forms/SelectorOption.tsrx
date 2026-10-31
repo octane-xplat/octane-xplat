@@ -9,11 +9,11 @@ export function SelectorOption(props: SelectorOptionProps): unknown @{
 	<masonview
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
-		className={['vx-selectoroption', props.className]}
+		className={['vx-selectoroption', props.isDisabled && 'vx-selectoroption--disabled', props.className]}
 		style={mergeStyle({ display: 'flex' }, props.style)}
 	>
 		{props.icon != null ? (
-			<masonview className="vx-selectoroption-icon" style={{ display: 'flex' }}>
+			<masonview className="vx-selectoroption-icon" accessible={false} style={{ display: 'flex' }}>
 				{props.icon}
 			</masonview>
 		) : null}

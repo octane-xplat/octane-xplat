@@ -5,26 +5,6 @@ export function nativeAccessibilityRole(role: string) {
 	return role
 }
 
-export function nativeAccessibilityState(state?: {
-	disabled?: boolean
-	selected?: boolean
-	checked?: boolean
-}) {
-	if (state?.disabled) {
-		return 'disabled'
-	}
-
-	if (state?.selected) {
-		return 'selected'
-	}
-
-	if (state?.checked === true) {
-		return 'checked'
-	}
-
-	if (state?.checked === false) {
-		return 'unchecked'
-	}
-
-	return undefined
+export function nativeAccessibilityState(state?: Record<string, unknown>) {
+	return state
 }

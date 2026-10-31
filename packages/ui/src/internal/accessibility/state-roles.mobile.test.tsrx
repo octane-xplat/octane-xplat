@@ -22,12 +22,30 @@ function setup() {
 	return { container, root }
 }
 
+function LeadingInput(props: { inputRef: any; showLeading?: boolean }) @{
+	<TextInput ref={props.inputRef} defaultValue="seed"
+		startIcon={props.showLeading ? <label text="Prefix" /> : undefined} />
+}
+
+function findNative(node: any, type: string, label?: string, role?: string, className?: string): any {
+	if (node.type === type && (label === undefined || node.props?.accessibilityLabel === label) &&
+		(role === undefined || node.props?.accessibilityRole === role) &&
+		(className === undefined || String(node.props?.className).split(' ').includes(className))) {
+		return node
+	}
+	for (const child of node.children ?? []) {
+		const found = findNative(child, type, label, role, className)
+		if (found) return found
+	}
+	return null
+}
+
 describe('native text input', () => {
 	it('seeds defaultValue, keeps user edits internally, and reports the new string', async () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(TextInput, { defaultValue: 'seed', onChange: change })
-		const field = container.children[0].children[0]
+		const field = findNative(container, 'textfield')
 		await vi.waitFor(() => expect(field.text).toBe('seed'))
 		container.dispatchEvent(field, 'textChange', { object: field, value: 'seed-x' })
 		expect(change).toHaveBeenLastCalledWith('seed-x')
@@ -35,15 +53,19 @@ describe('native text input', () => {
 		root.unmount()
 	})
 
-	it('controlled value wins over defaultValue and reports edits without self-applying', async () => {
+	it('controlled value wins and restores repeated rejected native edits', async () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(TextInput, { value: 'owned', defaultValue: 'ignored', onChange: change })
-		const field = container.children[0].children[0]
+		const field = findNative(container, 'textfield')
 		await vi.waitFor(() => expect(field.text).toBe('owned'))
-		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
-		expect(change).toHaveBeenLastCalledWith('edited')
-		expect(field.text).toBe('owned')
+		for (let attempt = 0; attempt < 2; attempt++) {
+			field.text = 'edited'
+			container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
+			expect(change).toHaveBeenLastCalledWith('edited')
+			await vi.waitFor(() => expect(field.text).toBe('owned'))
+		}
+		expect(change).toHaveBeenCalledTimes(2)
 		root.unmount()
 	})
 
@@ -58,16 +80,58 @@ describe('native text input', () => {
 			onClear: cleared,
 		})
 
-		const shell = container.children[0]
-		const field = shell.children[0]
-		await vi.waitFor(() => expect(shell.children.length).toBe(2))
+		const field = findNative(container, 'textfield')
+		const clear = findNative(container, 'masonview', 'Clear input')
+		expect(clear).not.toBeNull()
 		// The object driver instance has no NSView surface — the clear handler
 		// refocuses the field imperatively on a real device.
 		field.focus = vi.fn()
-		container.dispatchEvent(shell.children[1], 'tap', {})
+		container.dispatchEvent(clear, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith('')
 		expect(cleared).toHaveBeenCalled()
 		await vi.waitFor(() => expect(field.text).toBe(''))
+		root.unmount()
+	})
+
+	it('retains an edited input while automatic labels appear and disappear', async () => {
+		const { container, root } = setup()
+		const change = vi.fn()
+		const inputRef = { current: null as any }
+		const props = { defaultValue: 'seed', onChange: change, ref: inputRef }
+		root.render(TextInput, props)
+		const field = findNative(container, 'textfield')
+		await vi.waitFor(() => expect(field.text).toBe('seed'))
+		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
+		await vi.waitFor(() => expect(field.text).toBe('edited'))
+		root.render(TextInput, { ...props, label: 'Account', description: 'Help' })
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(inputRef.current.native).toBe(field)
+		expect(field.text).toBe('edited')
+		root.render(TextInput, props)
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(field.text).toBe('edited')
+		expect(change).toHaveBeenCalledExactlyOnceWith('edited')
+		root.unmount()
+		expect(inputRef.current).toBeNull()
+	})
+	it('retains the editor and handle when leading content changes', async () => {
+		const { container, root } = setup()
+		const inputRef = { current: null as any }
+		const props = { inputRef }
+		root.render(LeadingInput, props)
+		const field = findNative(container, 'textfield')
+		await vi.waitFor(() => expect(field.text).toBe('seed'))
+		field.text = 'edited'
+		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
+		await vi.waitFor(() => expect(field.text).toBe('edited'))
+		root.render(LeadingInput, { ...props, showLeading: true })
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(inputRef.current.native).toBe(field)
+		expect(field.text).toBe('edited')
+		root.render(LeadingInput, props)
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(inputRef.current.native).toBe(field)
+		expect(field.text).toBe('edited')
 		root.unmount()
 	})
 })
@@ -77,7 +141,8 @@ describe('native boolean inputs', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Switch, { defaultValue: true, onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'switch')
+		expect(host).not.toBeNull()
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(false)
@@ -85,11 +150,11 @@ describe('native boolean inputs', () => {
 		root.unmount()
 	})
 
-	it('Switch controlled checked wins and stays caller-owned', () => {
+	it('Switch controlled value wins and stays caller-owned', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Switch, { value: true, defaultValue: false, onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'switch')
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(false)
@@ -101,7 +166,7 @@ describe('native boolean inputs', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Checkbox, { defaultValue: true, onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'checkbox')
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(false)
@@ -113,7 +178,7 @@ describe('native boolean inputs', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(Checkbox, { value: 'indeterminate', onChange: change })
-		const host = container.children[0]
+		const host = findNative(container, 'masonview', undefined, 'checkbox')
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(true)
 		root.unmount()
@@ -130,7 +195,7 @@ describe('native choices', () => {
 		]
 
 		root.render(RadioGroup, { defaultValue: 'b', options, onValueChange: change })
-		const group = container.children[0]
+		const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
 		expect(String(group.children[1].props.className)).toContain('vx-radio--on')
 		container.dispatchEvent(group.children[0], 'tap', {})
 		expect(change).toHaveBeenLastCalledWith('a')
@@ -148,7 +213,7 @@ describe('native choices', () => {
 		]
 
 		root.render(RadioGroup, { value: 'b', defaultValue: 'a', options, onValueChange: change })
-		const group = container.children[0]
+		const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
 		expect(String(group.children[1].props.className)).toContain('vx-radio--on')
 		container.dispatchEvent(group.children[0], 'tap', {})
 		expect(change).toHaveBeenLastCalledWith('a')

@@ -210,3 +210,23 @@ it('emits GTK CSS transform only when given a box', () => {
 	assert.match(css, /transform: translate\(-40px, 0px\) rotate\(90deg\);/)
 	assert.match(css, /transform-origin: center;/)
 })
+
+it('styles multiline hints without copying the editor background or border onto its host', () => {
+	const css = gtkStyleCss(
+		'.n1',
+		{
+			fontSize: 26,
+			fontWeight: 700,
+			color: '#123456',
+			backgroundColor: 'red',
+			borderWidth: 2,
+			placeholderColor: '#abcdef',
+		},
+		'textview',
+	)
+	assert.match(css, /\.n1-layout \{[^}]*font-size: 26px;[^}]*font-weight: 700;/)
+	assert.match(css, /\.n1-layout \.xplat-text-placeholder \{ color: #abcdef; \}/)
+	const host = css.match(/\.n1-layout \{([^}]+)\}/)[1]
+	assert.doesNotMatch(host, /background|border/)
+	assert.match(gtkStyleCss('.n1', {}, 'textview'), /alpha\(currentColor, 0\.5\)/)
+})
