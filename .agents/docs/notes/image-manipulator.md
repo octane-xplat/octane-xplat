@@ -25,7 +25,7 @@ the OS cannot perform bitmap operations; future adapters can use host engines.
 
 Reference contracts: [Expo ImageManipulator](https://docs.expo.dev/versions/latest/sdk/imagemanipulator/),
 [NativeScript ImageSource](https://docs.nativescript.org/core/image-source),
-and the [public package guide](../../../packages/image-manipulator/README.md).
+and the [public package guide](../../../docs/packages/package-image-manipulator.md).
 
 ## Verification
 

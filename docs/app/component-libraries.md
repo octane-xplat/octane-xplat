@@ -274,7 +274,7 @@ NodeNext resolution, including missing/wrong prop errors. Its consumers run
 plain TypeScript without a TSRX compiler or importing implementation source.
 It does not build an app: also install the tarball into the fresh app above.
 For custom declaration layouts and unsupported signatures, follow
-[the generator contract](../../packages/tsrx-typegen/README.md), including overrides.
+[the generator contract](../packages/package-tsrx-typegen.md), including overrides.
 
 ## Prepare publication and future updates
 

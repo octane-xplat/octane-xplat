@@ -91,7 +91,7 @@ initial-position readiness. Shared notification-enable flags stay enabled.
  These are source repairs, not
 OS notification, resize/scroll/elasticity/memory or installed proof. Keep pull-to-
 refresh separate; do not apply the iOS contentInset mechanism to AppKit without
-native phase/docking evidence. See [renderer ownership](../../../../../packages/macos-appkit/README.md#own-scroll-geometry-observation).
+native phase/docking evidence. See [renderer ownership](../../../../../docs/packages/package-macos-appkit.md#own-scroll-geometry-observation).
 
 ```tsx
 import { ScrollableArea, Text } from '@octane-xplat/ui'

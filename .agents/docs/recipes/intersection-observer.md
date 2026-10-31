@@ -30,10 +30,10 @@ basic `.tsrx` component syntax.
 
 ## Documentation
 
-- AC1: [Hook usage and root binding](../../../packages/intersection-observer/README.md#hook)
+- AC1: [Hook usage and root binding](../../../docs/packages/package-intersection-observer.md#hook)
   and the maintained
   [scroll probe](../../../examples/probes/intersection-observer.tsrx).
-- AC2: [Imperative API](../../../packages/intersection-observer/README.md#imperative)
-  and [native behavior notes](../../../packages/intersection-observer/README.md#native-behavior-notes),
+- AC2: [Imperative API](../../../docs/packages/package-intersection-observer.md#imperative)
+  and [native behavior notes](../../../docs/packages/package-intersection-observer.md#native-behavior-notes),
   including macOS callback teardown.
-- AC3: [Platform support](../../../packages/intersection-observer/README.md#platform-support).
+- AC3: [Platform support](../../../docs/packages/package-intersection-observer.md#platform-support).

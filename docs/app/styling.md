@@ -377,7 +377,7 @@ those classes from your code.
 Install `@octane-xplat/bamboo` and `@bamboocss/dev`, then create
 `bamboo.config.ts`:
 
-[`@octane-xplat/bamboo`](../../packages/bamboo/) provides a restricted Bamboo
+[`@octane-xplat/bamboo`](../../packages/bamboo) provides a restricted Bamboo
 preset for shared web/iOS/Android styles. It disables browser preflight, puts
 generated variables under `:root, .ns-root`, and includes only portable
 colors, spacing, radii, flex, sizing, border, and typography utilities by

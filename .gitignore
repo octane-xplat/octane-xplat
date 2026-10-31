@@ -49,3 +49,6 @@ packages/*/platforms/android/*.aar
 /tools/platform-qualification/windows-rich-text/evidence.json
 /tools/desktop-support/*.json
 /tools/desktop-support/*.tsv
+
+# Generated from public declarations by @xplat/docs#api.
+/docs/api/

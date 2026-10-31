@@ -30,7 +30,7 @@ The npm package includes JavaScript and declarations. GJS and GTK4 come from
 your Linux distribution. The default `Gtk.Box` layout needs no native build;
 it approximates flex layout and does not implement grid, reverse directions,
 or full alignment. For optional Mason layout, see the
-[renderer setup](../../packages/linux-gtk-renderer/README.md#optional-native-layout).
+[renderer setup](../packages/package-linux-gtk-renderer.md#optional-native-layout).
 
 ## Configure the app
 
@@ -815,7 +815,7 @@ Class, id, and element selectors work through the same NativeScript engine
 the AppKit renderer uses. State selectors such as `:hover`, `:active`, and
 `:focus` follow the widget's GTK state, media queries re-check when the
 window resizes, and `@keyframes` animations play. The renderer's
-[Apply stylesheets](../../packages/linux-gtk-renderer/README.md#apply-stylesheets)
+[Apply stylesheets](../packages/package-linux-gtk-renderer.md#apply-stylesheets)
 section lists the supported properties and limits. GTK's theme still
 styles native widget chrome underneath your CSS.
 

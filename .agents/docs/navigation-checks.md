@@ -96,7 +96,7 @@ notifications does not veto engine Back. The iOS case also checks the native
 edge recognizer after disabling `enableSwipeBackNavigation`. These are SDK
 lifecycle/property checks, not OS gesture or asynchronous guard qualification.
 The remaining native retained-history integration is explicit in the
-[routing contract note](../../.agents/docs/notes/routing-contracts.md#nativescript-back-notification-limitation).
+[routing contract note](notes/routing-contracts.md#nativescript-back-notification-limitation).
 No fresh AppKit/Linux runtime was run for this refinement; Windows has no VM.
 
 ```sh
@@ -464,7 +464,7 @@ bun run --filter @xplat/macos test:routing
 The helper uses the existing numeric controller and AppKit writer. These are
 actual native property checks; they do not establish OS input, frame pacing,
 outgoing snapshots, modal-surface motion or native GTK effects. See the
-[engine note](../../.agents/docs/notes/routing-transitions.md#appkit-retained-pane-executor)
+[engine note](notes/routing-transitions.md#appkit-retained-pane-executor)
 for the observed animation-proxy limitation and the local executor boundary.
 
 ## Linux WebKitGTK
@@ -947,7 +947,7 @@ The TSX fixture also produced a nonfatal dependency-scan warning in Vite 8.3.0:
 the scanner tried to resolve the types-only JSX facade as a runtime entry. Vite
 skipped dependency pre-bundling and all seven routing assertions passed. This is
 an outstanding toolchain warning, not a warning-free dev-server qualification.
-The [toolchain note](../../.agents/docs/toolchain.md#tsx-dependency-scan-warning)
+The [toolchain note](toolchain.md#tsx-dependency-scan-warning)
 records the narrow reproduction and evidence limits.
 
 ## Check platform route contracts

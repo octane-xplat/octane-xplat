@@ -15,15 +15,17 @@ belongs on the page. It need not become visible metadata.
 
 | Document         | Owns                                                                                                                                       | Route elsewhere                                                              |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| Package README   | What the package does, when to choose it, installation or why direct installation is inappropriate, first use, relevant limits, next guide | Complete feature inventories, implementation diaries, release administration |
+| Package README   | Package title and links to its docs-site guide and generated API reference | All setup, usage, limits, and API documentation |
 | Task guide       | Prerequisites through a useful result, explanation, expected outcome, likely recovery, cleanup                                             | Unrelated advanced workflows and exhaustive signatures                       |
 | Concept guide    | A mental model and the decisions it changes, with a concrete example                                                                       | Step-by-step setup already owned by a task guide                             |
 | Reference        | Exact answers inside a declared boundary, grouped for lookup                                                                               | Repeated tutorials and unqualified support promises                          |
 | Contributor note | Implementation rationale, evidence, maintenance constraints                                                                                | Required steps an app author needs; those belong in public guidance          |
 
 Public declarations own exact types, defaults, and API behavior. Guides own
-composition and workflows. READMEs introduce those workflows and link to their
-canonical guides. Recipes own coverage requirements; Silo owns audit state and
+composition and workflows. READMEs link to the package pages in `docs/packages/`;
+those pages own setup, first use, limits, and links to task guides. `exports-md`
+publishes TSDoc from exported declarations into ignored `docs/api/` pages during
+the site build. Recipes own coverage requirements; Silo owns audit state and
 verification evidence. Do not make another hand-maintained feature matrix or
 copy the same setup into three places.
 
@@ -43,8 +45,9 @@ does not compensate for a broken example.
 | Navigation  | Readers can find the task, see their next step, and open links from the publishing surface  | Orphan README, accidental sidebar order, repo-only links used as consumer instructions          |
 
 Apply the [writing and example contracts](documentation.md) during review.
-For READMEs, connect explanation, installation (or why it is inappropriate), a
-first use in a named file/handler, expected result, and the next guide. Private
+For package guides, connect explanation, installation (or why it is inappropriate),
+a first use in a named file/handler, expected result, and the next guide.
+Keep package READMEs as links; do not duplicate this documentation there. Private
 fixtures explain their repository role instead of inventing consumer setup.
 Name credentials/assets and valid placeholders before examples. Review lifecycle,
 cancellation, denial, failure, and disposal where encountered; invented setup and
@@ -139,3 +142,43 @@ verification remain independent under the [recipe contract](recipes/README.md).
 An audit should produce focused repairs and a short account of the strongest
 remaining gaps. Repeated reader failures should change the owning example,
 recipe, or check, so each audit reduces the chance of the same failure.
+
+## Generated package reference
+
+`apps/docs/scripts/build-api.mjs` uses pinned `exports-md` to render public
+root and explicitly named export-map declarations after Turbo has generated
+types and built tooling. Wildcard paths are listed as a boundary on each
+affected page. Platform's generated OS SDK aliases route to native type guidance
+and installed declarations: expanding upstream SDK indexes overwhelmed the
+reference (over 64 MB). These aliases contain no package-authored TSDoc.
+Package pages remain authored; generated API pages are ignored build output.
+The API task's prerequisites must include every public package's `typegen` and
+`build` scripts; `apps/docs/api.test.mjs` checks this when packages are added.
+
+The pinned `exports-md` 0.2.20 has rendering constraints (see upstream
+[`findTsrxConfig`](https://github.com/aleclarson/exports-md/blob/main/src/typescript.ts)
+and [declaration indexing](https://github.com/aleclarson/exports-md/blob/main/src/declaration-model.ts)):
+
+- Without a nearby `tsconfig.json`, config discovery searches workspace configs
+  for every entry point. Packages using only `tsconfig.envs.json` trigger repeated
+  scans. The generator renders temporary package copies with a local resolver
+  config, retaining package-relative paths and dependency resolution.
+- Only the first variable in a declaration list is indexed. Named re-exports of
+  later variables fail. The generator splits these lists in temporary declarations;
+  it preserves the types and comments and leaves source declarations unchanged.
+
+- A function re-exported as default can acquire the reserved name `default` in
+  the rendered signature. The generator keeps the default signature anonymous.
+
+Reference variable signatures use ambient `declare` syntax so their TypeScript
+fences parse correctly. Usage examples keep their original code and pass through
+the independent example checker.
+
+For source-only exports, the generator emits declarations once per package using
+its compiler settings before rendering with `exports-md`. Typechecking remains
+an independent gate. JavaScript-only commands without declarations are named on
+the API page and route to the usage guide. Missing explicit declaration targets
+fail generation. Tests cover re-exports, source inference, missing declarations,
+multi-variable declarations, default function aliases, and complete writes
+of large pages. Reassess these adaptations when upstream
+supports the relevant cases directly.

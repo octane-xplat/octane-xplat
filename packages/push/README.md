@@ -1,56 +1,5 @@
 # `@octane-xplat/push`
 
-Push notifications for Octane Xplat apps over Firebase Cloud Messaging on
-web, iOS, and Android. For app-fired local notifications, use
-[`@octane-xplat/notifications`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/notifications/README.md).
+[Documentation](https://octane-xplat.goddardai.org/package-push).
 
-```sh
-bun add @octane-xplat/push
-```
-
-- **iOS/Android** — `@nativescript/firebase-core` + `@nativescript/firebase-messaging`
-- **Web** — Firebase JS SDK (`firebase/app` + `firebase/messaging`) plus a
-  service worker for background delivery
-
-```ts
-import { push } from '@octane-xplat/push'
-
-await push.configure({
-	// web only — ignored on native, which reads google-services.json /
-	// GoogleService-Info.plist from App_Resources
-	firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
-	vapidKey: '…', // web only, required for getToken
-})
-
-const permission = await push.requestPermission()
-const token = await push.getToken()
-
-push.onMessage((message) => {
-	/* foreground messages */
-})
-push.onNotificationOpen((message) => {
-	/* taps, incl. cold-start */
-})
-push.onTokenRefresh((token) => {
-	/* rotated token — re-register server-side */
-})
-```
-
-Native config files, iOS entitlements, and the web service worker are
-app-level setup — see the framework guide
-[`docs/platform/push-notifications.md`](https://octane-xplat.goddardai.org/push-notifications).
-
-On macOS, the workspace and published package select a safe unavailable entry.
-`supported` and `configured` stay false; configuration and permission requests
-reject with `push: remote push is not supported on macOS`, rather than returning
-a user denial. Guard push registration with the availability check:
-
-```ts
-import { push } from '@octane-xplat/push'
-
-export async function enablePush() {
-	if (!push.supported) return 'Push is unavailable on this platform'
-	await push.configure()
-	return await push.requestPermission()
-}
-```
+[API reference](https://octane-xplat.goddardai.org/api-push).

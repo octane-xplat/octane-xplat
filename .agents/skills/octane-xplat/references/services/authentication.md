@@ -12,7 +12,7 @@ credential restoration alone: call the protected API before exposing private
 content. Keep the account owner outside outlets replaced by its authority;
 clear separate account-owned stores when replacing accounts.
 
-Use the [hosted auth client](../../../../../packages/auth/README.md#hosted-sign-in-ceremonies)
+Use the [hosted auth client](../../../../../docs/packages/package-auth.md#hosted-sign-in-ceremonies)
 for app-owned credential persistence and refresh. Windows currently reports
 `authSession.supported === false`; a desktop callback/activation adapter is still
 required. Await sign-out before treating durable credentials as cleared; failed
@@ -118,7 +118,7 @@ may leave native UI open; failed observer removal can retain inert native observ
 No timeout fabricates a result. Eleven Apple model cases and an idle official-button
 fixture are authored; native registration/wrapper/thread/UI/callback/window/
 HMR/credential-state/nonce, signing/provisioning/entitlement, VoiceOver and consumer
-qualification remain open in #62. See [Apple presenter ownership](../../../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window).
+qualification remain open in #62. See [Apple presenter ownership](../../../../../docs/packages/package-auth.md#keep-apple-sign-in-with-its-initiating-window).
 
 ## AppKit provider-button actions
 
@@ -144,4 +144,4 @@ no pixel or OS input/AX parity is claimed. Unexpected provider failure yields a
 generic owned error; consumer callbacks keep their own errors. No busy indicator
 is added. Six action-model/three renderer cases and a manual fixture require separate verification;
 hook timing, actual native action/focus/Tab/keyboard/AX, attachment/layout/lifetime
-and installed consumers remain open. See [button ownership](../../../../../packages/auth/README.md#appkit-button-action-ownership).
+and installed consumers remain open. See [button ownership](../../../../../docs/packages/package-auth.md#appkit-button-action-ownership).

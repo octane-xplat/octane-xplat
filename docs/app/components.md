@@ -1367,12 +1367,12 @@ export function Avatar() {
 ```
 
 The optional image package reuses this core AppKit path and now has the
-[AppKit byte-cache subset](../../packages/image/README.md#appkit-subset) for
+[AppKit byte-cache subset](../packages/package-image.md#appkit-subset) for
 prefetch, memory/disk queries, eviction and clear. Remote images now use a
 dedicated credential-free transport; shared session cookies/credentials are not
 reused. Engine-specific headers, decode bounds and transitions remain unimplemented.
 Optional Image load/error callbacks now use current-request guards and the
-owning root event scope; see the [event contract](../../packages/image/README.md#appkit-subset).
+owning root event scope; see the [event contract](../packages/package-image.md#appkit-subset).
 Reported dimensions use native representation pixels or 0×0 when unknown;
 successful assignment does not prove native drawing. AppKit does not honor decode scheduling hints. Fit/position
 use the native image's logical point dimensions, not an engine decode bound. Local placeholders remain on failure;

@@ -57,7 +57,7 @@ context-menu leaf has its own recipe.
 
 - AC7: [AppKit surface keyboard guide](../../../docs/app/menus.md#navigate-appkit-menu-surfaces), [authored policy cases](../../../packages/ui/src/components/overlays/menu-keyboard.macos.mobile.test.tsrx), appended [fake-window wiring cases](../../../packages/ui/src/components/overlays/menu-family.macos.mobile.test.tsrx), [maintained target fixture](../../../examples/probes/menu-keyboard.macos.tsrx) and [target note](../exploration.md#operational-evidence).
 
-- AC8: [Trigger arrow guide](../../../docs/app/menus.md#open-an-appkit-dropdown-with-arrows), appended dispatcher/bridge/menu-family source cases, [renderer ownership contract](../../../packages/macos-appkit/src/keyboard.ts), maintained menu-keyboard fixture and [target note](../exploration.md#operational-evidence). All authored cases and native checks remain deferred.
+- AC8: [Trigger arrow guide](../../../docs/app/menus.md#open-an-appkit-dropdown-with-arrows), appended dispatcher/bridge/menu-family source cases, [renderer ownership contract](../../../docs/packages/package-macos-appkit.md#composed-control-key-ownership), maintained menu-keyboard fixture and [target note](../exploration.md#operational-evidence). All authored cases and native checks remain deferred.
 
 - AC9: [Owned Tab guide](../../../docs/app/menus.md#leave-an-owned-appkit-dropdown-with-tab), authored layer-focus/menu-return/policy/menu-family cases and [target note](../exploration.md#operational-evidence). maintained menu fixture describes the interaction without synthesizing OS keys.
 

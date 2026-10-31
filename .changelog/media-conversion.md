@@ -38,5 +38,5 @@ export async function toWebP(source: string) {
 // The receiving owner releases the saved result after its last use.
 ```
 
-[GIF conversion guide](https://github.com/octane-xplat/octane-xplat/blob/main/packages/media-converter/README.md)
-· [WebP encoding guide](https://github.com/octane-xplat/octane-xplat/blob/main/packages/image-manipulator/README.md#encode-webp)
+[GIF conversion guide](https://octane-xplat.goddardai.org/package-media-converter)
+· [WebP encoding guide](https://octane-xplat.goddardai.org/package-image-manipulator#encode-webp)

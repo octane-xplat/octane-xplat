@@ -8,7 +8,7 @@ The Windows audio leaf keeps mobile backends out of native imports, but
 createAudioPlayer still throws: no Windows playback backend is supplied.
 Do not treat a clean import graph as playback support or call capabilities()
 without first handling unsupported creation. See the
-[audio package boundary](../../../../../packages/audio/README.md).
+[audio package boundary](../../../../../docs/packages/package-audio.md).
 
 ## Read picked images before releasing them
 
@@ -36,7 +36,7 @@ export async function readImages() {
 
 ## Windows file I/O boundary
 
-The experimental [Windows file leaf](../../../../../packages/files/README.md#experimental-native-windows-file-io)
+The experimental [Windows file leaf](../../../../../docs/packages/package-files.md#experimental-native-windows-file-io)
 provides text/binary I/O candidates without importing mobile picker plugins.
 Writes are temporary copies, not durable documents; release owns only those
 copies. Native Windows picking rejects as unavailable and export returns
@@ -100,7 +100,7 @@ player.dispose()
 
 ## Capture an app view
 
-Use [ViewShot](../../../../../packages/view-shot/README.md) for a mounted card or
+Use [ViewShot](../../../../../docs/packages/package-view-shot.md) for a mounted card or
 host subtree. Use Octane refs, never numeric React handles. Await the consumer
 before releasing manual tmpfile results; the wrapper owns automatic results
 until replacement/disposal. Wait for loaded images/fonts explicitly. Continuous
@@ -129,7 +129,7 @@ Clear/removal share the same guard, and row removal follows URI after reorder.
 changeAction failure reports validation status without rolling back parent-owned
 value. Custom picker promises are ignored after detach, not cancelled; ownership
 is per control. Native panels/ref lifecycle/VoiceOver and drag/drop remain
-unqualified; local file-drop source ownership is described below. See the [files contract](../../../../../packages/files/README.md#appkit-attachment-picker-lifetime).
+unqualified; local file-drop source ownership is described below. See the [files contract](../../../../../docs/packages/package-files.md#appkit-attachment-picker-lifetime).
 
 ```tsx
 import { FileInput } from '@octane-xplat/files'
@@ -181,7 +181,7 @@ Do not equate native drop acceptance with successful validation/save or a durabl
 sandbox grant. Directories, symlinks, uninspectable/promised/non-file items are
 excluded. MIME hints remain filename-based; missing sizes skip maxSize.  Native ABI/registration,
 hit routing/drag, grants, hover/AX/focus and packaging require qualification;
-custom hover/autoscroll and promised-file support remain gaps. See [AppKit file drops](../../../../../packages/files/README.md#appkit-local-file-drops).
+custom hover/autoscroll and promised-file support remain gaps. See [AppKit file drops](../../../../../docs/packages/package-files.md#appkit-local-file-drops).
 
 
 ## Choose image encoding or animation conversion
@@ -190,7 +190,7 @@ Use `@octane-xplat/image-manipulator` for still-image transformations and
 JPEG/PNG/WebP encoding. Saving a still image needs no queued transform.
 Animated inputs become stills. Apple WebP adds a native libwebp bridge and
 requires a rebuild; web has a bundled WASM fallback. Read the
-[image guide](../../../../../packages/image-manipulator/README.md#encode-webp)
+[image guide](../../../../../docs/packages/package-image-manipulator.md#encode-webp)
 for ownership and limits.
 
 ```ts
@@ -212,7 +212,7 @@ Check the requested output encoder and handle job rejection. Native inputs are
 local file paths/URLs. MP4 is the shared target; WebM is web-only. Keep the
 result until preview/upload finishes, then release it. Device bridge delivery
 is separate from engine/SDK qualification; see the
-[converter guide](../../../../../packages/media-converter/README.md).
+[converter guide](../../../../../docs/packages/package-media-converter.md).
 
 ```ts
 import { convertGif, isAvailable, releaseVideo } from '@octane-xplat/media-converter'

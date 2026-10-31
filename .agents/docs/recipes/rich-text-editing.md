@@ -93,7 +93,7 @@ the platform file-suffix boundary for divergent imports.
 - AC9: [Web engine extensions](../../../docs/app/rich-text.md#web-engine-extensions);
   `packages/tiptap/src/TiptapEditor.web.test.tsrx` covers the schema/command
   and StarterKit-replacement behavior.
-- AC10: [`packages/lexical/README.md`](../../../packages/lexical/README.md) documents
+- AC10: [`packages/lexical/README.md`](../../../docs/packages/package-lexical.md) documents
   the web-only customization boundary;
   [`LexicalEditor.web.test.tsrx`](../../../packages/lexical/src/LexicalEditor.web.test.tsrx)
   covers the component contract. Run

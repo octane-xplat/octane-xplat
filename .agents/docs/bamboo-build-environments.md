@@ -18,7 +18,7 @@ hooks a projected registry. Other plugins and Vite retain every environment.
 It rejects unknown names and any actual build outside the declared list.
 It neither disables pruning nor filters diagnostics. Keep every actual SSR
 target, including assetless ones, in that list. Default behavior is unchanged.
-See the [consumer example](../../packages/bamboo/README.md#custom-builders-with-unused-environments).
+See the [consumer example](../../docs/packages/package-bamboo.md#custom-builders-with-unused-environments).
 
 The maintained `packages/bamboo/tests/build-environments.test.mjs` uses real
 Vite 8.3.0 builds in child processes so `beforeExit` warnings are observable. It

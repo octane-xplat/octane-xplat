@@ -25,7 +25,7 @@ shaders is outside this recipe.
 
 ## Documentation
 
-- AC1: [Canvas setup and basic drawing](../../../packages/canvas/README.md) and [platform module resolution](../../../docs/platform/module-resolution.md#file-variants).
-- AC2: [Nullable acquisition and fallback](../../../packages/canvas/README.md#keep-a-fallback-when-drawing-is-unavailable).
-- AC3: [GPU availability and AppKit boundary](../../../packages/canvas/README.md#keep-a-fallback-when-drawing-is-unavailable).
-- AC4: [Caller-owned fallback](../../../packages/canvas/README.md#keep-a-fallback-when-drawing-is-unavailable) and [maintained AppKit fallback demo](../../../packages/demos/src/CanvasDemo.macos.tsrx).
+- AC1: [Canvas setup and basic drawing](../../../docs/packages/package-canvas.md) and [platform module resolution](../../../docs/platform/module-resolution.md#file-variants).
+- AC2: [Nullable acquisition and fallback](../../../docs/packages/package-canvas.md#keep-a-fallback-when-drawing-is-unavailable).
+- AC3: [GPU availability and AppKit boundary](../../../docs/packages/package-canvas.md#keep-a-fallback-when-drawing-is-unavailable).
+- AC4: [Caller-owned fallback](../../../docs/packages/package-canvas.md#keep-a-fallback-when-drawing-is-unavailable) and [maintained AppKit fallback demo](../../../packages/demos/src/CanvasDemo.macos.tsrx).

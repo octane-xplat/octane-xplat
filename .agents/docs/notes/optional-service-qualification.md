@@ -229,7 +229,7 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"r
 
 Real microphone qualification is queued separately in Silo experiment
 `702f4ac5-3c32-410e-b9f6-f25d5b8c619a`. Use a signed, isolated app identity with
-[macOS privacy setup](../../../packages/recorder/README.md#macos-setup-and-lifecycle).
+[macOS privacy setup](../../../docs/packages/package-recorder.md#macos-setup-and-lifecycle).
 Reserve exclusive `macos:microphone` and `macos:camera` together, and ensure no
 camera or recorder session owns the input before beginning. Exercise prompt
 pending/denial/grant, default mono and requested stereo WAVs, pause exclusion,

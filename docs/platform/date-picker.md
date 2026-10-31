@@ -163,7 +163,7 @@ on macOS. Multi-file selection is supported on each of those paths. An
 optional `pick` prop can override the default for app-specific sources. The
 experimental AppKit files leaf also implements local text/binary reads,
 Documents writes and save-panel export. Real picker, sandbox and packaged-app
-qualification remains pending; see the [files guide](../../packages/files/README.md).
+qualification remains pending; see the [files guide](../packages/package-files.md).
 
 ```tsx
 import { FileInput } from '@octane-xplat/files'
@@ -221,7 +221,7 @@ export function Images(props: { value: FileInputFile[]; change(value: FileInputF
 Unknown metadata stays absent and can fail MIME validation. Controller/metadata
 cases remain unrun; native type discovery, panel/ref/focus and packaged behavior
 remain unqualified. AppKit's local file-URL drop source is described below;
-actual OS drag delivery remains unqualified. See [AppKit attachment lifetime](../../packages/files/README.md#appkit-attachment-picker-lifetime).
+actual OS drag delivery remains unqualified. See [AppKit attachment lifetime](../packages/package-files.md#appkit-attachment-picker-lifetime).
 
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
 field presentation. Install both packages when using `FileInput`.
@@ -265,7 +265,7 @@ export async function chooseCustomFormat() {
 
 These filters do not verify contents or persist access across app sessions.
 Framework/type bridging, OS enabled-file behavior, sandbox access and installed
-consumers still need native qualification. See [AppKit file filters](../../packages/files/README.md#appkit-file-type-filters)
+consumers still need native qualification. See [AppKit file filters](../packages/package-files.md#appkit-file-type-filters)
 for registered MIME errors and metadata details.
 
 ## Keyboard and app language
@@ -373,7 +373,7 @@ needed. Import from the matching target entry:
 
 Each entry exports its own component and prop types. The package has no shared
 runtime entry or shared `types` subpath. See the maintained target-specific
-examples in [`packages/demos/src/`](../../packages/demos/src/).
+examples in [`packages/demos/src/`](../../packages/demos/src).
 
 The Android adapter carries the same build requirements as the picker: the
 leaf's `platforms/android/include.gradle` enables Compose and applies the
@@ -618,7 +618,7 @@ Directories, symlinks, uninspectable files and promised/non-file payloads are
 excluded. Accepting a drop does not prove validation or saving succeeded, and no
 persistent sandbox grant is promised. Native registration, OS hit routing/drag,
 metadata/grants, focus/VoiceOver and packaging remain unqualified. Nine authored
-cases are unrun. See [file-drop scope and limitations](../../packages/files/README.md#appkit-local-file-drops).
+cases are unrun. See [file-drop scope and limitations](../packages/package-files.md#appkit-local-file-drops).
 
 
 ### Navigate AppKit calendar days with keys

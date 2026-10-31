@@ -63,7 +63,7 @@ bun run publish:bundle -- --dir /path/to/built/app --project-dir /path/to/source
 The dry run prints the content address, cohort key and pointer JSON without
 network writes. It needs `zip` on PATH. Remove `--dry-run` only for an intended
 upload, with your own Wrangler authentication. Publish Android separately.
-See [custom native inputs](../../packages/fingerprint/README.md#include-a-custom-native-input)
+See [custom native inputs](../../docs/packages/package-fingerprint.md#include-a-custom-native-input)
 for generators outside automatic collection.
 
 ## Roll back a channel

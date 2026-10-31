@@ -101,10 +101,17 @@ export function checkDocumentation(root: string) {
 	const slugs = new Map<string, string>()
 	const packages = resolve(root, 'packages')
 	const readmes: string[] = []
+	const generated = new Set<string>()
 	for (const entry of existsSync(packages) ? readdirSync(packages, { withFileTypes: true }) : []) {
 		const manifest = resolve(packages, entry.name, 'package.json')
 		if (!entry.isDirectory() || !existsSync(manifest)) {
 			continue
+		}
+		const metadata = JSON.parse(readFileSync(manifest, 'utf8'))
+		if (!metadata.private) {
+			const api = resolve(root, 'docs/api', `api-${entry.name}.md`)
+			slugs.set(`api-${entry.name}`, api)
+			generated.add(api)
 		}
 		const readme = resolve(packages, entry.name, 'README.md')
 		if (existsSync(readme)) {
@@ -116,11 +123,17 @@ export function checkDocumentation(root: string) {
 	for (const path of docs) {
 		const dir = relative(resolve(root, 'docs'), dirname(path))
 		const slug = slugFor(dir, basename(path, '.md'))
-		if (slugs.has(slug)) {
+		if (slugs.has(slug) && !generated.has(path)) {
 			errors.push(`${relative(root, path)}: duplicate public slug ${slug}`)
 		}
 		slugs.set(slug, path)
-		if (!GROUPS.some((group) => group.dir === (dir || 'start') && group.slugs.includes(slug))) {
+		if (
+			!GROUPS.some(
+				(group) =>
+					group.dir === (dir || 'start') &&
+					(group.slugs.includes(slug) || (dir === 'api' && generated.has(path))),
+			)
+		) {
 			errors.push(
 				`${relative(root, path)}: add ${slug} to its reading order in apps/docs/src/doc-meta.ts`,
 			)
@@ -210,6 +223,10 @@ export function checkDocumentation(root: string) {
 				const rel = relative(root, target)
 				if (rel === '..' || rel.startsWith(`..${sep}`)) {
 					fail(line, `link escapes repository: ${href}`)
+					continue
+				}
+				// API routes are derived from public manifests even before generation.
+				if (generated.has(target) && !existsSync(target) && !hash) {
 					continue
 				}
 				if (!existsSync(target)) {

@@ -92,6 +92,19 @@ limits and prerequisites beside the guidance they qualify. Replace stale text
 before appending more; split by independently useful tasks, not a line limit.
 Keep contributor skill-maintenance policy here rather than in consumer guidance.
 
+## Package documentation
+
+Keep package READMEs to a title and docs-site links. Put their authored guidance
+in `docs/packages/package-<directory>.md`, with relative links to other guides.
+The site generates `docs/api/api-<directory>.md` for every public package using
+`exports-md` after declaration generation and tooling builds. Do not edit or
+commit generated API Markdown; improve TSDoc beside the exported declaration.
+
+```sh
+bun run turbo run api --filter=@xplat/docs
+bun run build:docs
+```
+
 ## Declaration comments
 
 Every public export reachable from a package barrel carries a doc comment beside

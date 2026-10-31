@@ -109,3 +109,27 @@ test('syntax checks reject malformed TS, JSX, and JSON, while recognizing TSRX',
 	assert.deepEqual(check('tsrx', 'function Card() @{ <Text /> }'), [])
 	assert.deepEqual(check('jsonc', '{ /* comment */ "key": 1 }'), [])
 })
+
+test('generated API links require a public package and validate headings after generation', (t) => {
+	const root = fixture(t, {
+		'packages/widget/package.json': '{"name":"widget"}',
+		'packages/widget/README.md':
+			'# Widget\n\n[API](https://octane-xplat.goddardai.org/api-widget)\n',
+	})
+	assert.deepEqual(checkDocumentation(root).errors, [])
+	writeFileSync(
+		join(root, 'packages/widget/README.md'),
+		'# Widget\n\n[API](https://octane-xplat.goddardai.org/api-missing)\n',
+	)
+	assert.match(checkDocumentation(root).errors.join('\n'), /unknown public guide/)
+	mkdirSync(join(root, 'docs/api'), { recursive: true })
+	writeFileSync(
+		join(root, 'docs/api/api-widget.md'),
+		'# Widget API\n\n> Generated declarations.\n\n## Widget\n',
+	)
+	writeFileSync(
+		join(root, 'packages/widget/README.md'),
+		'# Widget\n\n[API](https://octane-xplat.goddardai.org/api-widget#missing)\n',
+	)
+	assert.match(checkDocumentation(root).errors.join('\n'), /missing heading/)
+})

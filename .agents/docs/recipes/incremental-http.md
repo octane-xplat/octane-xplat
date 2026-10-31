@@ -24,11 +24,11 @@ and stop unused requests without unbounded unread buffering.
 
 ## Documentation
 
-- AC1: [Incremental HTTP guide](../../../packages/network/README.md), [runtime fixture](../../../packages/network/tests/incremental.ts), and [transport regressions](../../../packages/network/tests/stream.test.mjs).
-- AC2: [Incremental HTTP guide](../../../packages/network/README.md) and [Rouzer split-character regressions](../../../packages/network/tests/stream.test.mjs).
-- AC3: [Incremental HTTP guide](../../../packages/network/README.md) and [transport regressions](../../../packages/network/tests/stream.test.mjs).
-- AC4: [Incremental HTTP guide](../../../packages/network/README.md) and [binary PUT regressions](../../../packages/network/tests/stream.test.mjs).
-- AC5: [Native setup](../../../packages/network/README.md#native-setup-and-evidence). Gap: full physical packaged-app qualification remains pending.
+- AC1: [Incremental HTTP guide](../../../docs/packages/package-network.md), [runtime fixture](../../../packages/network/tests/incremental.ts), and [transport regressions](../../../packages/network/tests/stream.test.mjs).
+- AC2: [Incremental HTTP guide](../../../docs/packages/package-network.md) and [Rouzer split-character regressions](../../../packages/network/tests/stream.test.mjs).
+- AC3: [Incremental HTTP guide](../../../docs/packages/package-network.md) and [transport regressions](../../../packages/network/tests/stream.test.mjs).
+- AC4: [Incremental HTTP guide](../../../docs/packages/package-network.md) and [binary PUT regressions](../../../packages/network/tests/stream.test.mjs).
+- AC5: [Native setup](../../../docs/packages/package-network.md#native-setup-and-evidence). Gap: full physical packaged-app qualification remains pending.
 
 The [packed listening/settings check](../../../tools/native-readiness/README.md)
 combines these services in an external mobile consumer. Its synthetic auth and

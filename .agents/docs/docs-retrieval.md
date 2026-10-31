@@ -2,7 +2,7 @@
 
 The CLI docs service owns installed-version resolution and commit-pinned release
 snapshots. Both CLI and MCP call this service. The
-[consumer instructions](../../packages/cli/README.md#local-documentation-search)
+[consumer instructions](../../docs/packages/package-cli.md#local-documentation-search)
 own setup; `packages/docs-search` owns Markdown sections, SQLite FTS5, embedding
 storage, and rank fusion. It runs on the developer host, outside app renderers.
 

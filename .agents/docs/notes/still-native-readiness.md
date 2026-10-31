@@ -11,13 +11,13 @@ Review date: 2026-10-28. The approved plan remains outside the repository at
   queues wait for appended items; explicit pause cancels automatic resumption.
   Current-item replacement/removal selects the first new item paused. IDs and
   sources must be nonempty and IDs unique. See the [public guide](../../../docs/platform/media-services.md).
-- The [network leaf](../../../packages/network/README.md) supplies incremental
+- The [network leaf](../../../docs/packages/package-network.md) supplies incremental
   byte responses using browser fetch, NSURLSession, and OkHttp 4.12.0. Native
   unread buffering fails explicitly at its configured bound. It is a smaller
   HTTP contract, not a Fetch replacement or Coreframe client adapter.
 - Hosted sign-out reports failed durable credential deletion while retiring
   memory immediately and still attempting revocation. See the
-  [auth contract](../../../packages/auth/README.md).
+  [auth contract](../../../docs/packages/package-auth.md).
 
 ## Evidence and limitations
 

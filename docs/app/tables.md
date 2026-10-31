@@ -4,7 +4,7 @@
 
 Use `Table` for a bounded list of records. Give every record a stable ID so
 expansion and selection survive sorting. For large virtualized grids, use
-the separate [table package](../../packages/table/README.md).
+the separate [table package](../packages/package-table.md).
 
 ```tsx
 import { Table } from '@octane-xplat/ui'

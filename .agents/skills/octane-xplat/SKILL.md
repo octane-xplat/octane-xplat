@@ -103,6 +103,10 @@ limitations. Do not load the entire reference tree by default.
 
 ## Canonical documentation and scope
 
+Package READMEs link to the website. Package setup and usage live in
+`docs/packages/`; the site generates API reference from public TSDoc with
+`exports-md`. Read declarations for the installed version when versions differ.
+
 For app work, start with [public guides](../../../docs/README.md), declarations
 for the installed package version, and the app's own instructions. Use
 [installed-version context retrieval](references/cli.md#bind-the-app-and-retrieve-context)

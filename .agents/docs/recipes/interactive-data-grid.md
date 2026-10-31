@@ -27,9 +27,9 @@ non-drag controls, and keep state ownership and platform verification explicit.
 
 ## Documentation
 
-- AC1: [Enable interaction controls](../../../packages/table/README.md#enable-interaction-controls), [bounded example](../../../packages/table/examples/interactive.tsrx), [row accessibility](../../../packages/table/README.md#row-accessibility), [windowed selection fixture](../../../packages/table/examples/selection.tsrx).
-- AC2: [Control behavior](../../../packages/table/README.md#enable-interaction-controls), [server pages](../../../packages/table/README.md#controlled-state).
-- AC3: [Selection scope](../../../packages/table/README.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
-- AC4: [Column settings](../../../packages/table/README.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
-- AC5: [Width and gesture contract](../../../packages/table/README.md#enable-interaction-controls), [example probe](../../../packages/table/examples/interactive.tsrx), [isolated geometry probe](../../../packages/table/examples/geometry.tsrx).
-- AC6: [Controlled state](../../../packages/table/README.md#controlled-state), [verification and limits](../../../packages/table/README.md#verification-and-remaining-parity-gaps).
+- AC1: [Enable interaction controls](../../../docs/packages/package-table.md#enable-interaction-controls), [bounded example](../../../packages/table/examples/interactive.tsrx), [row accessibility](../../../docs/packages/package-table.md#row-accessibility), [windowed selection fixture](../../../packages/table/examples/selection.tsrx).
+- AC2: [Control behavior](../../../docs/packages/package-table.md#enable-interaction-controls), [server pages](../../../docs/packages/package-table.md#controlled-state).
+- AC3: [Selection scope](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
+- AC4: [Column settings](../../../docs/packages/package-table.md#enable-interaction-controls), [example](../../../packages/table/examples/interactive.tsrx).
+- AC5: [Width and gesture contract](../../../docs/packages/package-table.md#enable-interaction-controls), [example probe](../../../packages/table/examples/interactive.tsrx), [isolated geometry probe](../../../packages/table/examples/geometry.tsrx).
+- AC6: [Controlled state](../../../docs/packages/package-table.md#controlled-state), [verification and limits](../../../docs/packages/package-table.md#verification-and-remaining-parity-gaps).

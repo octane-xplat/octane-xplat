@@ -15,4 +15,4 @@ import xMark from 'icons:heroicons/x-mark'
 <Icon icon={xMark} size={16} label="Close" />
 ```
 
-See [the icons package](https://github.com/octane-xplat/octane-xplat/tree/main/packages/icons#typed-per-icon-imports).
+See [the icons package](https://octane-xplat.goddardai.org/package-icons#typed-per-icon-imports).

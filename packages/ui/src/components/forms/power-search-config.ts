@@ -855,7 +855,7 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
  * field definitions.
  *
  * @example
- * ```
+ * ```ts
  * const defs = [
  *   { key: 'name', type: 'string', label: 'Name' },
  *   { key: 'age', type: 'number', label: 'Age' },

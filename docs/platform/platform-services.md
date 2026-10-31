@@ -23,7 +23,7 @@ bun run xplat updates init
 ## Choose a useful feature
 
 For a phone app's first launch, use
-[launch-screen control](../../packages/splash-screen/README.md). Import its hold
+[launch-screen control](../packages/package-splash-screen.md). Import its hold
 before Application.run(), then dismiss after the root Page and required data
 are ready. Use the capability check in shared code; browser and desktop hosts
 do not expose this phone startup controller.
@@ -37,7 +37,7 @@ export function revealReadyPhonePage() {
 ```
 
 For a phone screen that benefits from landscape, follow the
-[screen-orientation setup](../../packages/screen-orientation/README.md).
+[screen-orientation setup](../packages/package-screen-orientation.md).
 Configure the iOS delegate and plist first. Check support and handle refusal;
 resizable windows and browser restrictions can prevent a lock. Keep an adaptive
 layout available when the request fails.
@@ -488,7 +488,7 @@ unsupported; keep the session in memory or require sign-in again.
 
 For macOS setup, packaged bundle identity and the separate development namespace,
 follow the [native prerequisites](macos-native.md#prepare-the-app) and
-[AppKit secure-storage contract](../../packages/secure-storage/README.md#macos-appkit).
+[AppKit secure-storage contract](../packages/package-secure-storage.md#macos-appkit).
 The new bridge cases remain unrun; real Keychain, signing/sandbox and installed-app
 qualification are still pending. Availability checks do not establish those results.
 
@@ -496,7 +496,7 @@ Experimental native Windows has a package-scoped Credential Locker leaf.
 Unpackaged hosts report unsupported; Windows/account policy can roam saved
 credentials. Standalone x64 operations passed with a task namespace, while real
 packaged identity and persistence across app launches remain unqualified. See
-the [Windows storage boundary](../../packages/secure-storage/README.md#experimental-native-windows).
+the [Windows storage boundary](../packages/package-secure-storage.md#experimental-native-windows).
 
 ```ts
 if (secureStorage.supported && await secureStorage.isAvailable()) {
@@ -700,7 +700,7 @@ its compiled picker bridge and waits for service completion or cancellation;
 opening a picker alone is not shared. Keep local files alive until the promise
 settles. Actual OS UI and transfer remain unqualified. The separate hosted macOS
 webview backend still reports shared on picker launch. See
-[native AppKit sharing](../../packages/share/README.md#native-appkit-sharing).
+[native AppKit sharing](../packages/package-share.md#native-appkit-sharing).
 
 ```ts
 import { share } from '@octane-xplat/share'
@@ -753,7 +753,7 @@ const image = await media.capturePhoto({
 
 ## Hash or encrypt app data
 
-Use the [crypto guide](../../packages/crypto/README.md) for secure random bytes,
+Use the [crypto guide](../packages/package-crypto.md) for secure random bytes,
 checksums and authenticated AES encryption. AES keys are separate secrets;
 keep them in supported secure storage and save ciphertext with app data. The
 portable AES subset uses fresh 12-byte nonces and 16-byte tags. Browsers require
@@ -771,7 +771,7 @@ export async function encryptDraft(bytes: Uint8Array) {
 
 ## Print a document or export a PDF
 
-Use the [print/PDF guide](../../packages/print/README.md) for HTML receipts,
+Use the [print/PDF guide](../packages/package-print.md) for HTML receipts,
 reports, or system print UI. Check each operation before offering it: browsers
 can print but cannot return a generated file through this API. Native exports
 remain app-owned until their preview/upload finishes, then need release.
@@ -789,7 +789,7 @@ export async function uploadReport(html: string, upload: (uri: string) => Promis
 
 ## Collect a payment
 
-Use the [Stripe checkout guide](../../packages/stripe/README.md) for guest
+Use the [Stripe checkout guide](../packages/package-stripe.md) for guest
 PaymentIntent checkout. Your app server owns order prices, Intent creation and
 payment verification. The client uses a publishable key and Stripe's secure UI.
 Native SDK installation needs a rebuild; merchant wallets and successful payments
@@ -810,7 +810,7 @@ export async function pay(paymentIntentClientSecret: string, returnURL: string) 
 ## Browse the device media library
 
 For a custom gallery or album editor, use the
-[media-library guide](../../packages/media-library/README.md). It covers permission
+[media-library guide](../packages/package-media-library.md). It covers permission
 setup, paging, edits, and cleanup. The `media` picker below remains the smaller
 choice for selecting an attachment. Media-library supports iOS and implements
 Android 10+; Android runtime remains unverified. AppKit support is experimental;
@@ -838,7 +838,7 @@ export async function firstLibraryPage() {
 ## Pick and capture images
 
 For a smaller upload or an exported crop after picking a photo, follow
-[Transform images](../../packages/image-manipulator/README.md). The returned
+[Transform images](../packages/package-image-manipulator.md). The returned
 file is owned separately from the picked image and the editing context.
 
 ```ts
@@ -1427,7 +1427,7 @@ Native Apple sign-in keeps the initiating visible key/main window and captures
 its request options per attempt. Closing that window or the app retires the
 controller as cancelled; native dismissal requires the cancel selector (macOS
 13+) and remains unqualified. The same lifecycle is separate from browser
-`authSession`. See [Apple presenter ownership](../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window)
+`authSession`. See [Apple presenter ownership](../packages/package-auth.md#keep-apple-sign-in-with-its-initiating-window)
 for observer, retry and verification limits.
 
 ```ts
@@ -1537,7 +1537,7 @@ accessibility mapping, and native typing details.
 Use the optional network leaf when a server sends response bytes over time.
 NativeScript's default fetch buffers responses. The network API keeps global
 fetch unchanged and has a smaller, explicit request contract; see the
-[network guide](../../packages/network/README.md) for request limits,
+[network guide](../packages/package-network.md) for request limits,
 cancellation, decoder requirements, and target qualification.
 
 ```ts

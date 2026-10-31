@@ -9,7 +9,7 @@ stays out of the UI, GIF display, picker, and playback packages.
 The current converter implements one GIF traversal to opaque H.264/MP4, plus
 VP9/WebM on web. It deliberately does not expose arbitrary FFmpeg commands,
 video editing, or audio transcoding. Public ownership, limits, and usage belong
-in the [package guide](../../../packages/media-converter/README.md).
+in the [package guide](../../../docs/packages/package-media-converter.md).
 
 ## Engines and upstream constraints
 

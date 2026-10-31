@@ -51,7 +51,7 @@ public framework API.
 ## Fonts
 
 `@octane-xplat/macos-appkit` owns the AppKit driver and JSX declarations.
-The app owns startup, windows, and host services. See the [renderer package](../../packages/macos-appkit/README.md)
+The app owns startup, windows, and host services. See the [renderer package](../../docs/packages/package-macos-appkit.md)
 for an independent consumer setup.
 
 The renderer defaults to Apple's system font. This harness explicitly registers
@@ -113,7 +113,7 @@ dialog-kind window), and `openWindow` multi-window support.
 The harness loads the same stylesheets as the mobile app (`src/styles.ts`:
 UI tokens and chrome, `virtual:bamboo.css`, demo and app CSS). The renderer
 applies them with NativeScript's selector engine; see
-[Apply stylesheets](../../packages/macos-appkit/README.md#apply-stylesheets)
+[Apply stylesheets](../../docs/packages/package-macos-appkit.md#apply-stylesheets)
 for the supported cascade and its limits. This does not promise general
 NativeScript or web style parity. In particular, this harness does not validate every
 exported component or every service. The current `List ×500` sweep checks

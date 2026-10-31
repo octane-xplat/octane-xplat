@@ -86,7 +86,7 @@ real class/method/dictionary/BOOL bridging, Keychain persistence/access, signing
 sandbox/locked-policy behavior and installed consumers require separate target qualification. JS
 try/catch cannot contain a native process abort; the CLI must load leaf metadata
 first. See [session workflow](../../../../../docs/platform/platform-services.md#store-a-session-token)
-and [AppKit contract](../../../../../packages/secure-storage/README.md#macos-appkit).
+and [AppKit contract](../../../../../docs/packages/package-secure-storage.md#macos-appkit).
 
 ## SQLite transactions
 
@@ -108,7 +108,7 @@ await db.transaction(async (tx) => {
 
 ## Windows secure credentials
 
-The experimental native [secure-storage leaf](../../../../../packages/secure-storage/README.md#experimental-native-windows)
+The experimental native [secure-storage leaf](../../../../../docs/packages/package-secure-storage.md#experimental-native-windows)
 uses PasswordVault and requires package identity. Package family scopes resource
 names; this is not a security barrier from other desktop apps. Credential Locker
 may roam entries under Windows/account policy. No plaintext or mobile fallback
@@ -131,7 +131,7 @@ The alpha.144 projection exposes missing-item HRESULT 0x80070490 only as a
 message suffix; preserve that distinction and never return null for every native
 exception or forward native error text. This does not enable Windows hosted auth.
 
-For hashes or encryption, use the [crypto guide](../../../../../packages/crypto/README.md).
+For hashes or encryption, use the [crypto guide](../../../../../docs/packages/package-crypto.md).
 Mirror its current Expo-shaped API; strings passed to AES are base64, while
 string digests use UTF-8. Default AES uses a fresh 12-byte secure nonce and a
 16-byte tag. Never reuse a caller-supplied nonce with a key. Persist keys through

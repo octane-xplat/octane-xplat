@@ -28,7 +28,7 @@ close reporting and clean observer teardown.
 
 ## Documentation
 
-- AC1: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../packages/sheet/README.md#native-macos-window-sheets), Octane overlays reference, [target note](../exploration.md#operational-evidence) and [owner-model cases](../../../packages/sheet/tests/sheet-owner.macos.test.mjs).
+- AC1: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../docs/packages/package-sheet.md#native-macos-window-sheets), Octane overlays reference, [target note](../exploration.md#operational-evidence) and [owner-model cases](../../../packages/sheet/tests/sheet-owner.macos.test.mjs).
 - AC2: [Native controller-model cases](../../../packages/macos-appkit/test/sheet.test.ts) and [actual renderer factory cases](../../../packages/macos-appkit/test/sheet-native-bridge.test.ts). The factory cases exercise the actual classes/bridge against fakes, not the ObjC ABI.
 - AC3: [Maintained demo](../../../packages/demos/src/NativeSheetDemo.macos.tsrx) and [idle probe](../../../examples/probes/native-sheet.macos.tsrx). No sheet/input action runs automatically.
-- AC4: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../packages/sheet/README.md#native-macos-window-sheets), Octane overlays reference and [target note](../exploration.md#operational-evidence).
+- AC4: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../docs/packages/package-sheet.md#native-macos-window-sheets), Octane overlays reference and [target note](../exploration.md#operational-evidence).

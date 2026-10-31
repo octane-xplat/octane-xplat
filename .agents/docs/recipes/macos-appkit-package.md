@@ -105,7 +105,7 @@ production Vite config that emits one CommonJS host bundle.
 - AC10: [AppKit fonts](../../../docs/app/styling.md#appkit-fonts) and the
   [maintained harness font setup](../../../apps/macos/src/fonts.ts).
 
-- AC11: [Renderer setup](../../../packages/macos-appkit/README.md) and the
+- AC11: [Renderer setup](../../../docs/packages/package-macos-appkit.md) and the
   [packed renderer consumer](../../../packages/macos-appkit/test/packed-consumer.ts).
 
 ## Verification gaps
@@ -150,7 +150,7 @@ changes and app-theme preference transitions.
   remain laid out in assigned frames after real-window resizing. Unsupported
   child-flex semantics and attached-placement boundaries are explicit.
 
-Documentation: [Container layout channels](../../../packages/macos-appkit/README.md#container-layout-channels).
+Documentation: [Container layout channels](../../../docs/packages/package-macos-appkit.md#container-layout-channels).
 Maintained coverage: [Native geometry fixture](../../../apps/macos/test/layout-channels-fixture.macos.tsx)
 and [renderer reconciliation tests](../../../packages/macos-appkit/test/style-reconcile.test.ts).
 The [panel placement fixture](../../../apps/macos/test/layout-placement-fixture.macos.tsx)

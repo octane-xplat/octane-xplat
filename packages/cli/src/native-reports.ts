@@ -45,7 +45,8 @@ interface FoundReport extends Omit<NativeReport, 'id' | 'bytes'> {
 	content: string
 }
 
-interface Coverage {
+/** Availability and limits of retained native report discovery. */
+export interface Coverage {
 	status: 'available' | 'none-found' | 'partial' | 'unavailable' | 'unsupported'
 	detail: string
 }

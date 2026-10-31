@@ -21,6 +21,6 @@ changing its spoken accessibility name.
 
 ## Documentation
 
-- AC1: [Native identifier contract](../../../packages/macos-appkit/src/index.ts) and [authored renderer update cases](../../../packages/macos-appkit/test/event-prop-clears.test.ts).
+- AC1: [Native identifier contract](../../../docs/packages/package-macos-appkit.md#native-test-identifiers) and [authored renderer update cases](../../../packages/macos-appkit/test/event-prop-clears.test.ts).
 - AC2: [AppKit source guide](../../../docs/testing/test-identifiers.md#appkit-source-implementation) and [authored object-driver cases](../../../packages/ui/src/components/actions/pressable.macos.mobile.test.tsrx).
 - AC3: [Target note](../exploration.md#operational-evidence) records scope and exact deferred commands.
