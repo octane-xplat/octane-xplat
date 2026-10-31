@@ -81,10 +81,10 @@ export function Qualification() @{
 	const [routedLink, setRoutedLink] = useState(false)
 	const [destination, setDestination] = useState('/')
 	const [activations, setActivations, getActivations] = useState(0)
-	const activate = (source: string) => {
+	const activate = (source: string, fixtureRevision?: number) => {
 		const count = getActivations() + 1
 		setActivations(count)
-		record('activation', { source, count })
+		record('activation', { source, count, fixtureRevision })
 	}
 
 	useEffect(() => {

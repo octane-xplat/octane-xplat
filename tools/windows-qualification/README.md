@@ -4,6 +4,7 @@ These private drivers collect UI Automation (UIA) and numeric host-frame evidenc
 for the seven layout/text components and the maintained fixed-width shrink
 regression, plus native Button, Pressable and Link input in the Windows
 core-component plan.
+The action driver also has an opt-in Card/Banner mode.
 [Qualification host constraints](../../.agents/docs/parity/windows-support-progress.md#qualification-host-constraints)
 explain root sizing, measurement, and evidence boundaries. Current runtime
 qualification lives in Silo; a diagnostic result is not component qualification.
@@ -147,6 +148,36 @@ pnpm exec turbo run test:windows --filter=@octane-xplat/ui
 ```
 
 Those tests do not establish OS input, layout or UIA behavior.
+
+## Run Card and Banner action checks
+
+Use a fresh package built from the maintained display fixture and a new output
+directory, in the same signed-in desktop session and device/input reservation:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File .\tools\windows-qualification\actions.ps1 `
+  -ExpectedCommit $sourceCommit `
+  -ExpectedPackageVersion $packageVersion `
+  -OutputDirectory "$runRoot\display-actions" `
+  -DisplayActions
+```
+
+This mode checks ClickableCard, Banner's end action and Banner dismissal. The
+fixture places a focus anchor before and after each display case so physical
+Tab and Shift+Tab must enter and leave the controls in order. Disabled Card and
+end-action peers must be skipped. Banner dismissal has no public disabled prop;
+the output records that applicability boundary.
+
+Enter, Space, mouse and Invoke must each call the correct callback exactly once.
+Dismissal must also remove the Banner and its native action peer. Prop updates
+must replace the name, and an activation event must carry the current fixture
+revision. Remount, applicable disabled rejection, native-peer frame alignment
+and resized frames are checked separately. Commands select props and mounts;
+they never dispatch an action callback.
+
+This mode does not replace display content, slot-order, wrapping, image or
+narrow-layout checks. Exit0 still leaves the plan's completion audit pending.
+Keep an action pass separate from any unresolved geometry failure.
 
 ## Run the legacy Flexbox regression
 

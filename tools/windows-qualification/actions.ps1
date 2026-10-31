@@ -4,7 +4,8 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[a-f0-9]{40}$')][string]$ExpectedCommit,
  [Parameter(Mandatory)][version]$ExpectedPackageVersion,
  [Parameter(Mandatory)][string]$OutputDirectory,
- [switch]$AllowDirtyProbe
+ [switch]$AllowDirtyProbe,
+ [switch]$DisplayActions
 )
 $ErrorActionPreference='Stop'
 Add-Type @'
@@ -359,13 +360,155 @@ function Check-PeerFrame($Tree,[string]$Source,[string]$Name,[string]$Type,[stri
  Assert ((Near $control.width $root.box.width) -and (Near $control.height $root.box.height)) 'Peer covers the drawn component frame' @{peer=$control;drawn=$root.box}
  return $control
 }
+function Reset-Display($Spec,[int]$Revision=0){
+ Command 'mounted' $false|Out-Null
+ Command 'revision' $Revision|Out-Null
+ Command 'disabled' $false|Out-Null
+ Command 'banner-details' $false|Out-Null
+ Command 'display-case' $Spec.displayCase|Out-Null
+ Command 'scene' 'display'|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains 'Core20 display '
+ Status-Contains ("revision=$Revision mounted=true")
+}
+function Display-Peer($Spec,[string]$Name,[string]$Stage){
+ $control=Action-Shape (Capture $Stage) $Name 'ControlType.Button'
+ Assert $control.enabled 'Enabled display action reports IsEnabled=true'
+ $nodes=Snapshot $Stage
+ $drawn=if($Spec.source -eq 'banner-dismiss'){
+  Native-Class $nodes 'vx-banner-dismiss'
+ }else{Native-Id $nodes ('core20-'+$Spec.source)}
+ Assert ((Near ($control.x/$script:Scale) $drawn.box.x) -and (Near ($control.y/$script:Scale) $drawn.box.y)) 'Display peer begins at its drawn frame' @{peer=$control;drawn=$drawn.box}
+ Assert ((Near $control.width $drawn.box.width) -and (Near $control.height $drawn.box.height)) 'Display peer covers its drawn frame' @{peer=$control;drawn=$drawn.box}
+ return $control
+}
+function Display-TabOrder($Spec,[int]$Revision=0,[bool]$Disabled=$false){
+ $names=if($Spec.displayCase -eq 'card'){
+  if($Disabled){@('Before display','After display')}else{@('Before display',"Open card $Revision",'After display')}
+ }else{
+  if($Disabled){@('Before display',"Dismiss Banner $Revision",'After display')}else{@('Before display',"Banner action $Revision", "Dismiss Banner $Revision",'After display')}
+ }
+ Focus-Action 'Before display' 'ControlType.Button'
+ for($index=1;$index -lt $names.Count;$index++){
+  Key 9
+  $expected=$names[$index]
+  Wait-For {Focused $expected} "Tab did not reach $expected"
+  Assert $true "Physical Tab focuses $expected"
+ }
+ for($index=$names.Count-2;$index -ge 0;$index--){
+  Key 9 $true
+  $expected=$names[$index]
+  Wait-For {Focused $expected} "Shift+Tab did not return to $expected"
+  Assert $true "Physical Shift+Tab focuses $expected"
+ }
+}
+function Assert-DisplayRevision([string]$Source,[int]$Revision){
+ $events=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -ceq $Source})
+ Assert ($events.Count -gt 0 -and $events[-1].fixtureRevision -eq $Revision) 'Display callback observes the current fixture revision' $events[-1]
+}
+function Check-DisplayActions {
+ $displaySpecs=@(
+  @{source='clickable-card';displayCase='card';label='Open card';disabled=$true},
+  @{source='banner-action';displayCase='banner';label='Banner action';disabled=$true},
+  @{source='banner-dismiss';displayCase='banner';label='Dismiss Banner';disabled=$false}
+ )
+ foreach($spec in $displaySpecs){
+  $script:Checks.Clear()
+  $entry=[ordered]@{case=$spec.source;status='running';checks=$null;error=$null;disabledApplicability=if($spec.disabled){'required'}else{'not-applicable: BannerProps has no disabled dismissal prop'}}
+  try{
+   Reset-Display $spec
+   $name=$spec.label+' 0'
+   Display-TabOrder $spec
+   foreach($method in @('Enter','Space','mouse','Invoke')){
+    # A dismiss removes its Banner. Every method gets a fresh public mount.
+    Reset-Display $spec
+    $control=Display-Peer $spec $name ($spec.source+'-'+$method)
+    Focus-Action $name 'ControlType.Button'
+    Exactly-Once $spec.source $method {
+     switch($method){
+      'Enter'{Key 13}
+      'Space'{Key 32}
+      'mouse'{Click-Control $control}
+      'Invoke'{$invoked=Uia-Action 'invoke' $name 'ControlType.Button';Assert ($invoked.status -eq 'completed') 'Display Invoke accepted' $invoked}
+     }
+    }
+    Assert-DisplayRevision $spec.source 0
+    if($spec.source -eq 'banner-dismiss'){
+     $absent=Capture ('banner-dismiss-'+$method+'-removed')
+     Assert (@($absent|Where-Object {$_.name -ceq $name -and $_.type -ceq 'ControlType.Button'}).Count -eq 0) 'Dismiss removes its native action peer'
+     $nodes=Snapshot ('banner-dismiss-'+$method+'-removed')
+     Assert (@($nodes|Where-Object {$_.id -ceq 'core20-banner'}).Count -eq 0) 'Dismiss removes the Banner content'
+     $before=Activations $spec.source
+     Click-Control $control
+     Start-Sleep -Milliseconds 500
+     Assert ((Activations $spec.source) -eq $before) 'Clicking the removed dismiss frame cannot activate it again'
+    }
+   }
+   Reset-Display $spec
+   Command 'revision' 1|Out-Null
+   Status-Contains 'revision=1 mounted=true'
+   $updatedName=$spec.label+' 1'
+   $updated=Capture ($spec.source+'-updated')
+   Action-Shape $updated $updatedName 'ControlType.Button'|Out-Null
+   Assert (@($updated|Where-Object {$_.name -ceq $name -and $_.type -ceq 'ControlType.Button'}).Count -eq 0) 'New display name replaces its previous name'
+   Exactly-Once $spec.source 'updated Invoke' {
+    $invoked=Uia-Action 'invoke' $updatedName 'ControlType.Button'
+    Assert ($invoked.status -eq 'completed') 'Updated display Invoke accepted' $invoked
+   }
+   Assert-DisplayRevision $spec.source 1
+   Reset-Display $spec
+   Command 'mounted' $false|Out-Null
+   Status-Contains 'mounted=false'
+   $absent=Capture ($spec.source+'-unmounted')
+   Assert (@($absent|Where-Object {$_.name -ceq $name -and $_.type -ceq 'ControlType.Button'}).Count -eq 0) 'Unmount removes the display action peer'
+   Command 'mounted' $true|Out-Null
+   Status-Contains 'revision=0 mounted=true'
+   Display-Peer $spec $name ($spec.source+'-remounted')|Out-Null
+   Exactly-Once $spec.source 'remounted Invoke' {
+    $invoked=Uia-Action 'invoke' $name 'ControlType.Button'
+    Assert ($invoked.status -eq 'completed') 'Remounted display Invoke accepted' $invoked
+   }
+   Assert-DisplayRevision $spec.source 0
+   if($spec.disabled){
+    Reset-Display $spec
+    Command 'disabled' $true|Out-Null
+    $tree=Capture ($spec.source+'-disabled')
+    $disabled=@($tree|Where-Object {$_.name -ceq $name -and $_.type -ceq 'ControlType.Button'})
+    Assert ($disabled.Count -eq 1 -and -not $disabled[0].enabled) 'Disabled display peer reports IsEnabled=false'
+    $focus=Uia-Action 'focus' $name 'ControlType.Button'
+    Assert (-not $focus.targetFocused) 'Disabled display peer rejects focus' $focus
+    # Keep keys away from Banner's still-enabled dismiss action.
+    Focus-Action 'Before display' 'ControlType.Button'
+    No-Activation $spec.source 'Enter' {Key 13}
+    No-Activation $spec.source 'Space' {Key 32}
+    No-Activation $spec.source 'mouse' {Click-Control $disabled[0]}
+    No-Activation $spec.source 'Invoke' {
+     $invoked=Uia-Action 'invoke' $name 'ControlType.Button'
+     Assert ($invoked.status -eq 'rejected') 'Disabled display Invoke rejected' $invoked
+    }
+    Display-TabOrder $spec 0 $true
+    Command 'disabled' $false|Out-Null
+    Display-Peer $spec $name ($spec.source+'-reenabled')|Out-Null
+    Focus-Action $name 'ControlType.Button'
+    Exactly-Once $spec.source 'reenabled Enter' {Key 13}
+   }
+   Reset-Display $spec
+   if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned display window'}
+   Display-Peer $spec $name ($spec.source+'-narrow')|Out-Null
+   if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot restore the owned display window'}
+   Display-Peer $spec $name ($spec.source+'-wide')|Out-Null
+   $entry.status='assertions-passed'
+  }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+ }
+}
 $report=[ordered]@{
  schemaVersion=1;packageVersion=$pkg.Version.ToString();packageFamilyName=$pkg.PackageFamilyName
  driverSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe
- scope='Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'
+ scope=$(if($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 $savedCursor=[Core20ActionInput+Point]::new()
@@ -422,6 +565,9 @@ try {
  $report.masonSha256=(Get-FileHash $mason[0].FileName -Algorithm SHA256).Hash
  $report.preflightChecks=@($script:Checks.ToArray())
  if(-not [Core20Desktop]::MoveWindow($windowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot set the wide window size'}
+ if($DisplayActions){
+  Check-DisplayActions
+ }else{
  Command 'action-case' 'all'|Out-Null
  Command 'implicit-names' $false|Out-Null
  Command 'routed-link' $false|Out-Null
@@ -554,6 +700,7 @@ try {
    Command 'routed-link' $false|Out-Null
    [Core20Desktop]::MoveWindow($windowHandle,$left,$top,$wideWidth,$height,$true)|Out-Null
   }
+ }
  }
  if(@($script:Cases|Where-Object {$_.status -ne 'assertions-passed'}).Count -gt 0){throw 'Action input checks failed; inspect result.json'}
  $report.qualification='pending-completion-audit'

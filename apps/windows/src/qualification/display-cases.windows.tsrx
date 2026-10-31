@@ -16,9 +16,16 @@ export function DisplayCases(props: {
 	disabled: boolean
 	image: boolean
 	details: boolean
-	onActivate: (source: string) => void
+	onActivate: (source: string, fixtureRevision?: number) => void
 }): unknown @{
 	<View className="core20-viewport">
+		@if (props.caseName === 'card' || props.caseName === 'banner') {
+			<Button
+				id="core20-display-before"
+				label="Before display"
+				clickAction={() => props.onActivate('display-before')}
+			/>
+		}
 		@if (props.caseName === 'card') {
 			<>
 				<Card
@@ -38,7 +45,7 @@ export function DisplayCases(props: {
 					padding={2}
 					label={`Open card ${props.revision}`}
 					isDisabled={props.disabled}
-					onPress={() => props.onActivate('clickable-card')}
+					onPress={() => props.onActivate('clickable-card', props.revision)}
 				>
 					<Text>{`Clickable card ${props.revision}`}</Text>
 				</ClickableCard>
@@ -65,18 +72,25 @@ export function DisplayCases(props: {
 				status={props.revision ? 'warning' : 'info'}
 				collapsible={props.details}
 				isDismissable
-				onDismiss={() => props.onActivate('banner-dismiss')}
+				onDismiss={() => props.onActivate('banner-dismiss', props.revision)}
 				endContent={
 					<Button
 						id="core20-banner-action"
 						label={`Banner action ${props.revision}`}
 						isDisabled={props.disabled}
-						clickAction={() => props.onActivate('banner-action')}
+						clickAction={() => props.onActivate('banner-action', props.revision)}
 					/>
 				}
 			>
 				<Text id="core20-banner-content">{`Banner body ${props.revision}`}</Text>
 			</Banner>
+		}
+		@if (props.caseName === 'card' || props.caseName === 'banner') {
+			<Button
+				id="core20-display-after"
+				label="After display"
+				clickAction={() => props.onActivate('display-after')}
+			/>
 		}
 	</View>
 }
