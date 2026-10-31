@@ -9,7 +9,7 @@ function Stage([string]$Name){[IO.File]::WriteAllText($OutputPrefix+'-stage.txt'
 try {
  if($result.apartment -ne 'MTA'){throw 'UIA action requires its dedicated MTA process'}
  $request=Get-Content $RequestPath -Raw|ConvertFrom-Json
- if($request.operation -notin @('focus','invoke','focused')){throw 'Unknown UIA action'}
+ if($request.operation -notin @('focus','invoke','focused','select')){throw 'Unknown UIA action'}
  Stage 'window-owner'
  Add-Type @'
 using System;
@@ -39,7 +39,7 @@ public static class Core20ActionWindow {
   }
   $result.focused=$focused
  }else{
-  if($request.controlType -notin @('ControlType.Button','ControlType.Hyperlink')){throw 'Unexpected action control type'}
+  if($request.controlType -notin @('ControlType.Button','ControlType.Hyperlink','ControlType.TabItem')){throw 'Unexpected action control type'}
   $condition=[System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,[string]$request.name)
   $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,$condition)
   $matching=@($elements|Where-Object {$_.Current.ControlType.ProgrammaticName -ceq $request.controlType})
@@ -50,6 +50,9 @@ public static class Core20ActionWindow {
   try{
    if($request.operation -eq 'focus'){
     $element.SetFocus()
+   }elseif($request.operation -eq 'select'){
+    $pattern=[System.Windows.Automation.SelectionItemPattern]$element.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)
+    $pattern.Select()
    }else{
     $pattern=[System.Windows.Automation.InvokePattern]$element.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern)
     $pattern.Invoke()

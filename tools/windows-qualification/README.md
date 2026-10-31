@@ -130,7 +130,28 @@ Link's disabled check is not applicable because its public props have no
 disabled flag. Its injected router component must receive the exact `href`
 once and publish the destination after each input method.
 
-`action-uia.ps1` performs focus and Invoke operations in a bounded MTA process.
+`action-uia.ps1` performs focus, Invoke and SelectionItem.Select operations in a
+bounded MTA process. A selection request targets a genuine TabItem peer. Replace
+the example handle and process ID with the owned app's current values:
+
+```json
+{
+  "windowHandle": 123456,
+  "expectedProcessId": 4321,
+  "operation": "select",
+  "controlType": "ControlType.TabItem",
+  "name": "Third 0"
+}
+```
+
+For peers that support SelectionItem, `capture-uia.ps1` adds selection state and
+the selection container's name to the ordinary bounds/pattern capture:
+
+```json
+{ "selected": true, "selectionContainerName": "Stock WinUI tabs" }
+```
+
+These helper capabilities do not establish public TabList/Tab qualification.
 Both helpers verify the owned window/process. Keyboard and mouse use Win32
 input only while that window is foreground. Input is never dispatched through
 fixture commands. Cleanup restores the pointer and window position and stops
@@ -145,7 +166,7 @@ so observation does not block the writer.
 Controller and compiled-leaf regressions run without a Windows desktop:
 
 ```sh
-pnpm exec turbo run test:windows --filter=@octane-xplat/ui
+bun run turbo run test:windows --filter=@octane-xplat/ui
 ```
 
 Those tests do not establish OS input, layout or UIA behavior.

@@ -66,6 +66,12 @@ public static class Core20UiaWindow {
   $row.offscreen=$element.Current.IsOffscreen
   Stage "element-$index-patterns"
   $row.patterns=@($element.GetSupportedPatterns()|ForEach-Object {$_.ProgrammaticName})
+  if($row.patterns -contains 'SelectionItemPatternIdentifiers.Pattern'){
+   Stage "element-$index-selection"
+   $pattern=[System.Windows.Automation.SelectionItemPattern]$element.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)
+   $row.selected=$pattern.Current.IsSelected
+   $row.selectionContainerName=$pattern.Current.SelectionContainer.Current.Name
+  }
   $rows.Add([pscustomobject]$row)
  }
  ConvertTo-Json -InputObject $rows.ToArray() -Depth 5|Set-Content ($OutputPrefix+'-rows.json') -Encoding UTF8
