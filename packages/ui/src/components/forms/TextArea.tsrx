@@ -3,7 +3,7 @@ import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'oc
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { Utils } from '@nativescript/core'
-import { fitTextArea } from '../../text-area-fit'
+import { fitTextArea } from './text-area-fit'
 import type { TextAreaProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
@@ -11,7 +11,7 @@ import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField'
-import { Icon } from './Icon'
+import { Icon } from '../media/Icon'
 
 /** Multiline input. Fixed rows match the web default; autoGrow measures to
  * content and maxRows caps that growth. Platform helpers use native line

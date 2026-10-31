@@ -8,8 +8,8 @@ import { useTooltip } from '../overlays/use-tooltip'
 import { usePan } from '../layout/pan'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { applySliderAccessibility } from '../../slider-accessibility'
-import { NativeToggleField } from '../../NativeToggleField'
+import { applySliderAccessibility } from './slider-accessibility'
+import { NativeToggleField } from './NativeToggleField'
 
 /** One retained field owns scalar/range state and the drawn track. */
 function SliderControl(inputProps: SliderProps) @{

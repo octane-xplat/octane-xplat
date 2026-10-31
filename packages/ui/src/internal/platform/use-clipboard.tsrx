@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'octane'
-import { announce } from './announce-service'
+import { announce } from '../../components/content/announce-service'
 import { copyText } from './clipboard-write'
 
 /**

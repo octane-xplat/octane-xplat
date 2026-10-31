@@ -5,7 +5,7 @@ import type { PinInputProps, TextInputHandle } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { NativeToggleField } from '../../NativeToggleField'
+import { NativeToggleField } from './NativeToggleField'
 import { TextInput } from './TextInput.tsrx'
 
 /** PinInput — a row of single-character cells that auto-advance on entry.

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'octane'
-import { hostGlobal } from '../host-bridge'
+import { hostGlobal } from '../internal/platform/host-bridge'
 
 export type { ColorScheme } from '../props'
 import type { ColorScheme } from '../props'

@@ -5,7 +5,7 @@ import type { SegmentedControlProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { NativeToggleField } from '../../NativeToggleField'
+import { NativeToggleField } from './NativeToggleField'
 import { SegmentedControlItem } from './SegmentedControlItem.tsrx'
 import { SegmentedControlProvider } from './option-list-contexts'
 

@@ -1,21 +1,21 @@
 // GTK/GJS surface. Add shared leaves only with maintained GTK runtime checks.
-export { Text } from './Text'
-export { Pressable } from './Pressable'
-export { View } from './View'
-export { VStack } from './VStack'
-export { HStack } from './HStack'
-export { Grid, GridSpan } from './Grid'
-export { Stack } from './Stack'
-export { StackItem } from './StackItem'
-export { Center } from './Center'
-export { Section } from './Section'
-export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './Layout'
-export { Absolute } from './Absolute'
-export { Spacer } from './Spacer'
-export { Badge } from './Badge'
-export { Separator as Divider } from './Separator'
-export { ColorSwatch } from './ColorSwatch'
-export { SizeContext, SizeProvider, useSize } from './size-context'
+export { Text } from './components/content/Text'
+export { Pressable } from './components/actions/Pressable'
+export { View } from './components/layout/View'
+export { VStack } from './components/layout/VStack'
+export { HStack } from './components/layout/HStack'
+export { Grid, GridSpan } from './components/layout/Grid'
+export { Stack } from './components/layout/Stack'
+export { StackItem } from './components/layout/StackItem'
+export { Center } from './components/layout/Center'
+export { Section } from './components/collections/Section'
+export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './components/layout/Layout'
+export { Absolute } from './components/layout/Absolute'
+export { Spacer } from './components/layout/Spacer'
+export { Badge } from './components/feedback/Badge'
+export { Separator as Divider } from './components/feedback/Separator'
+export { ColorSwatch } from './components/forms/ColorSwatch'
+export { SizeContext, SizeProvider, useSize } from './components/layout/size-context'
 export type {
 	TextProps,
 	PressableProps,
@@ -44,8 +44,8 @@ export type {
 	SwipeEvent,
 } from './props'
 
-export { useMeasure } from './useMeasure'
-export { AspectRatio } from './AspectRatio'
+export { useMeasure } from './components/layout/useMeasure'
+export { AspectRatio } from './components/layout/AspectRatio'
 export type {
 	MeasureBounds,
 	MeasureResult,
@@ -55,11 +55,11 @@ export type {
 	AspectRatioShape,
 } from './props'
 
-export { setTranslate } from './translate'
-export { useAnimation } from './anim'
+export { setTranslate } from './internal/layout/translate'
+export { useAnimation } from './internal/platform/anim'
 export type { SetTranslate, AnimatedValue, AnimationResult } from './props'
 
-export { useScrollableArea } from './use-scrollable-area'
+export { useScrollableArea } from './components/layout/use-scrollable-area'
 export type {
 	ScrollAxis,
 	ScrollAxisState,
@@ -73,8 +73,8 @@ export type {
 	UseScrollableAreaResult,
 } from './props'
 
-export { ScrollableArea } from './ScrollableArea'
-export { ActivityIndicator as Spinner } from './ActivityIndicator'
+export { ScrollableArea } from './components/layout/ScrollableArea'
+export { ActivityIndicator as Spinner } from './components/feedback/ActivityIndicator'
 export type {
 	ScrollableAreaProps,
 	ScrollableAreaHandle,
@@ -82,10 +82,10 @@ export type {
 	SpinnerProps,
 } from './props'
 
-export { Icon } from './Icon'
-export { IconRegistryProvider } from './IconRegistryProvider'
-export { createIconRegistry, registerIcon, registerIcons } from './icons'
-export type { IconGlyph, IconRegistry } from './icons'
+export { Icon } from './components/media/Icon'
+export { IconRegistryProvider } from './components/media/IconRegistryProvider'
+export { createIconRegistry, registerIcon, registerIcons } from './components/media/icons'
+export type { IconGlyph, IconRegistry } from './components/media/icons'
 export type {
 	IconProps,
 	BuiltinIconName,
@@ -94,14 +94,14 @@ export type {
 	IconRegistryProviderProps,
 } from './props'
 
-export { Tooltip } from './Tooltip'
+export { Tooltip } from './components/overlays/Tooltip'
 export type { TooltipProps, PopoverPlacement } from './props'
 
-export { Popover } from './Popover'
+export { Popover } from './components/overlays/Popover'
 export type { PopoverProps, PopoverAlignment, PopoverAnchorRef } from './props'
 
-export { Select as Selector } from './Select'
-export { SelectMenu as MultiSelector } from './aliases'
+export { Select as Selector } from './components/forms/Select'
+export { SelectMenu as MultiSelector } from './internal/rendering/aliases'
 export type {
 	SelectorProps,
 	MultiSelectorProps,
@@ -114,13 +114,13 @@ export type {
 	SelectVariant,
 } from './props'
 
-export { pixel, percent } from './resize-math'
-export { isNative } from './platform'
-export { mergeProps } from './merge-props'
-export { useObjectRef } from './use-object-ref'
-export { refList, mergedRef } from './ref-list'
-export { createStaticSource } from './typeahead-source'
-export { rgbaToThumbHash, rgbaToThumbHashUri } from './hash-image'
+export { pixel, percent } from './components/layout/resize-math'
+export { isNative } from './internal/platform/platform'
+export { mergeProps } from './internal/layout/merge-props'
+export { useObjectRef } from './internal/accessibility/use-object-ref'
+export { refList, mergedRef } from './internal/accessibility/ref-list'
+export { createStaticSource } from './components/forms/typeahead-source'
+export { rgbaToThumbHash, rgbaToThumbHashUri } from './components/media/hash-image'
 export {
 	proportional,
 	generateColumns,
@@ -160,80 +160,80 @@ export { useTheme, useThemeName } from './theme/use-theme'
 export type { UseThemeReturn } from './theme/use-theme'
 export { useColorScheme, getColorScheme } from './theme/colorScheme'
 export type { ColorScheme } from './theme/colorScheme'
-export { useMediaQuery } from './use-media-query'
-export { useClipboard } from './use-clipboard'
-export type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
-export { copyText } from './clipboard-write'
-export { useAnnounce } from './use-announce'
-export type { AnnouncePoliteness } from './use-announce'
-export { useFocus, useFocusRing } from './use-focus'
-export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './use-focus'
-export { useFocusVisible, isFocusVisible } from './use-focus-visible'
-export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible'
-export { useFocusWithin } from './use-focus-within'
-export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within'
-export { useLandmark } from './use-landmark'
-export type { UseLandmarkOptions, LandmarkProps } from './use-landmark'
-export { useKeyboard } from './use-keyboard'
-export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use-keyboard'
-export { useGridFocus } from './use-grid-focus'
-export type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
-export { InternationalizationProvider } from './InternationalizationProvider.tsrx'
+export { useMediaQuery } from './internal/platform/use-media-query'
+export { useClipboard } from './internal/platform/use-clipboard'
+export type { UseClipboardOptions, UseClipboardResult } from './internal/platform/use-clipboard'
+export { copyText } from './internal/platform/clipboard-write'
+export { useAnnounce } from './components/content/use-announce'
+export type { AnnouncePoliteness } from './components/content/use-announce'
+export { useFocus, useFocusRing } from './internal/accessibility/use-focus'
+export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './internal/accessibility/use-focus'
+export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible'
+export type { FocusInputModality, UseFocusVisibleResult } from './internal/accessibility/use-focus-visible'
+export { useFocusWithin } from './internal/accessibility/use-focus-within'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './internal/accessibility/use-focus-within'
+export { useLandmark } from './internal/accessibility/use-landmark'
+export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark'
+export { useKeyboard } from './internal/keyboard/use-keyboard'
+export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './internal/keyboard/use-keyboard'
+export { useGridFocus } from './components/collections/use-grid-focus'
+export type { GridFocusOptions, GridFocusResult } from './components/collections/use-grid-focus'
+export { InternationalizationProvider } from './components/forms/InternationalizationProvider.tsrx'
 export {
 	useLocale,
 	useDirection,
 	useTranslator,
 	getLocaleDirection,
 	frFR,
-} from './internationalization'
-export { LinkProvider } from './LinkProvider'
-export { useLinkComponent } from './use-link-component'
-export { LinkContext } from './link-context'
+} from './internal/platform/internationalization'
+export { LinkProvider } from './components/navigation/LinkProvider'
+export { useLinkComponent } from './components/navigation/use-link-component'
+export { LinkContext } from './components/navigation/link-context'
 export {
 	createPowerSearchConfig,
 	usePowerSearchConfig,
 	resolveOperatorLabel,
-} from './power-search-config'
-export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'
-export { Button } from './Button'
-export { IconButton } from './IconButton'
-export { ToggleButton, ToggleButtonGroup } from './ToggleButton'
-export { ButtonGroup } from './ButtonGroup'
-export { ClickableCard } from './ClickableCard'
-export { Card } from './Card'
-export { Link } from './Link'
-export { styled } from './styled'
-export { Kbd } from './Kbd'
-export { Heading } from './Heading'
-export { Code } from './Code'
-export { CodeBlock } from './CodeBlock'
-export { ProgressBar } from './ProgressBar'
-export { StatusDot } from './StatusDot'
-export { Citation } from './Citation'
-export { Outline } from './Outline'
-export { Blockquote } from './Blockquote'
-export { Timestamp } from './Timestamp'
-export { Timer } from './Timer'
-export { Skeleton } from './Skeleton'
-export { VisuallyHidden } from './VisuallyHidden'
-export { Chip } from './Chip'
-export { Alert } from './Alert'
-export { Banner } from './Banner'
-export { Empty as EmptyState } from './Empty'
-export { Meter } from './Meter'
-export { ProgressGroup } from './ProgressGroup'
-export { MetadataList } from './MetadataList'
-export { MetadataListItem } from './MetadataListItem'
-export { Timeline } from './Timeline'
-export { Item } from './Item'
-export { List } from './List'
-export { ListItem } from './ListItem'
-export { Toolbar } from './Toolbar'
-export { Step } from './Step'
-export { Stepper } from './Stepper'
-export { Pagination } from './Pagination'
-export { FieldLabel } from './FieldLabel'
-export { FieldStatus } from './FieldStatus'
+} from './components/forms/power-search-config'
+export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
+export { Button } from './components/actions/Button'
+export { IconButton } from './components/media/IconButton'
+export { ToggleButton, ToggleButtonGroup } from './components/actions/ToggleButton'
+export { ButtonGroup } from './components/actions/ButtonGroup'
+export { ClickableCard } from './components/actions/ClickableCard'
+export { Card } from './components/actions/Card'
+export { Link } from './components/navigation/Link'
+export { styled } from './internal/layout/styled'
+export { Kbd } from './components/content/Kbd'
+export { Heading } from './components/content/Heading'
+export { Code } from './components/content/Code'
+export { CodeBlock } from './components/content/CodeBlock'
+export { ProgressBar } from './components/feedback/ProgressBar'
+export { StatusDot } from './components/feedback/StatusDot'
+export { Citation } from './components/content/Citation'
+export { Outline } from './components/collections/Outline'
+export { Blockquote } from './components/content/Blockquote'
+export { Timestamp } from './components/forms/Timestamp'
+export { Timer } from './components/forms/Timer'
+export { Skeleton } from './components/feedback/Skeleton'
+export { VisuallyHidden } from './components/content/VisuallyHidden'
+export { Chip } from './components/actions/Chip'
+export { Alert } from './components/overlays/Alert'
+export { Banner } from './components/feedback/Banner'
+export { Empty as EmptyState } from './components/feedback/Empty'
+export { Meter } from './components/feedback/Meter'
+export { ProgressGroup } from './components/feedback/ProgressGroup'
+export { MetadataList } from './components/content/MetadataList'
+export { MetadataListItem } from './components/content/MetadataListItem'
+export { Timeline } from './components/forms/Timeline'
+export { Item } from './components/collections/Item'
+export { List } from './components/collections/List'
+export { ListItem } from './components/collections/ListItem'
+export { Toolbar } from './components/layout/Toolbar'
+export { Step } from './components/collections/Step'
+export { Stepper } from './components/collections/Stepper'
+export { Pagination } from './components/collections/Pagination'
+export { FieldLabel } from './components/forms/FieldLabel'
+export { FieldStatus } from './components/forms/FieldStatus'
 export type {
 	ButtonProps,
 	ButtonVariant,
@@ -295,11 +295,11 @@ export type {
 	DateRange,
 	ISODateString,
 } from './props'
-export type { CalendarDay, CalendarMonthGrid } from './calendar-core'
+export type { CalendarDay, CalendarMonthGrid } from './components/forms/calendar-core'
 export type { DefinedTheme, DefineThemeInput, TokenValue } from './theme/defined-theme'
-export type { FlatRef } from './ref-list'
+export type { FlatRef } from './internal/accessibility/ref-list'
 
-export { TextInput } from './TextInput'
+export { TextInput } from './components/forms/TextInput'
 export type {
 	TextInputProps,
 	TextInputHandle,
@@ -310,14 +310,14 @@ export type {
 	FieldStatusVariant,
 } from './props'
 
-export { TextArea } from './TextArea'
+export { TextArea } from './components/forms/TextArea'
 export type { TextAreaProps } from './props'
 
-export { SearchInput } from './SearchInput'
+export { SearchInput } from './components/forms/SearchInput'
 export type { SearchInputProps } from './props'
 
-export { FormField as Field } from './FormField'
-export { FormLayout } from './FormLayout'
+export { FormField as Field } from './components/forms/FormField'
+export { FormLayout } from './components/forms/FormLayout'
 export type {
 	FormFieldProps,
 	FieldProps,
@@ -326,11 +326,11 @@ export type {
 	FormOptionality,
 } from './props'
 
-export { InputGroup, InputGroupText } from './InputGroup'
+export { InputGroup, InputGroupText } from './components/forms/InputGroup'
 export type { InputGroupProps, InputGroupTextProps, InputGroupSize } from './props'
 
-export { FieldGroup } from './FieldGroup'
-export { useFieldControl } from './field-context'
+export { FieldGroup } from './components/forms/FieldGroup'
+export { useFieldControl } from './components/forms/field-context'
 export type { FieldGroupProps } from './props'
 
 export {
@@ -342,8 +342,8 @@ export {
 	registerIndicator,
 	registerIndicators,
 	indicatorScope,
-} from './indicators'
-export { useIndicator } from './use-indicator'
+} from './components/feedback/indicators'
+export { useIndicator } from './components/feedback/use-indicator'
 export type {
 	IndicatorComponent,
 	IndicatorFamily,
@@ -358,38 +358,38 @@ export type {
 	IndicatorState,
 } from './props'
 
-export { Checkbox as CheckboxInput } from './Checkbox'
-export { Switch } from './Switch'
+export { Checkbox as CheckboxInput } from './components/forms/Checkbox'
+export { Switch } from './components/forms/Switch'
 export type { CheckboxProps, CheckboxInputProps, SwitchProps } from './props'
 
-export { RadioGroup as RadioList } from './RadioGroup'
-export { RadioListItem } from './RadioListItem'
+export { RadioGroup as RadioList } from './components/forms/RadioGroup'
+export { RadioListItem } from './components/forms/RadioListItem'
 export type { RadioGroupProps, RadioListProps, RadioListItemProps, RadioOption } from './props'
 
-export { InputNumber as NumberInput } from './InputNumber'
+export { InputNumber as NumberInput } from './components/forms/InputNumber'
 export type { InputNumberProps, NumberInputProps } from './props'
 
-export { CheckboxGroup as CheckboxList } from './CheckboxGroup'
-export { CheckboxListItem } from './CheckboxListItem'
+export { CheckboxGroup as CheckboxList } from './components/forms/CheckboxGroup'
+export { CheckboxListItem } from './components/forms/CheckboxListItem'
 export type { CheckboxGroupProps, CheckboxListProps, CheckboxListItemProps } from './props'
 
-export { SegmentedControl } from './SegmentedControl'
-export { SegmentedControlItem } from './SegmentedControlItem'
+export { SegmentedControl } from './components/forms/SegmentedControl'
+export { SegmentedControlItem } from './components/forms/SegmentedControlItem'
 export type { SegmentedControlProps, SegmentedControlItemProps } from './props'
 
-export { PinInput } from './PinInput'
+export { PinInput } from './components/forms/PinInput'
 export type { PinInputProps } from './props'
 
-export { Slider } from './Slider'
+export { Slider } from './components/forms/Slider'
 export type { SliderProps, SliderMark } from './props'
 
-export { InputRating } from './InputRating'
+export { InputRating } from './components/forms/InputRating'
 export type { InputRatingProps } from './props'
 
-export { SelectorOption } from './SelectorOption'
+export { SelectorOption } from './components/forms/SelectorOption'
 export type { SelectorOptionProps } from './props'
 
-export { Image } from './Image'
+export { Image } from './components/media/Image'
 export type {
 	ImageProps,
 	ImageContentFit,
@@ -401,13 +401,13 @@ export type {
 	ImageSourceLike,
 } from './props'
 
-export { thumbHashUri } from './thumbhash'
+export { thumbHashUri } from './components/media/thumbhash'
 
-export { Thumbnail } from './Thumbnail'
+export { Thumbnail } from './components/media/Thumbnail'
 export type { ThumbnailProps } from './props'
 
-export { Avatar, AvatarStatusDot } from './Avatar'
-export { AvatarGroup, AvatarGroupOverflow } from './AvatarGroup'
+export { Avatar, AvatarStatusDot } from './components/media/Avatar'
+export { AvatarGroup, AvatarGroupOverflow } from './components/media/AvatarGroup'
 export type {
 	AvatarProps,
 	AvatarGroupProps,
@@ -417,12 +417,12 @@ export type {
 	AvatarStatusDotVariant,
 } from './props'
 
-export { User } from './User'
+export { User } from './components/content/User'
 export type { UserProps } from './props'
 
-export { DropdownMenu } from './DropdownMenu'
-export { ContextMenu } from './ContextMenu'
-export { MoreMenu } from './MoreMenu'
+export { DropdownMenu } from './components/overlays/DropdownMenu'
+export { ContextMenu } from './components/overlays/ContextMenu'
+export { MoreMenu } from './components/overlays/MoreMenu'
 export {
 	DropdownMenuItem,
 	DropdownMenuLink,
@@ -433,7 +433,7 @@ export {
 	DropdownMenuRadioGroup,
 	DropdownMenuRadioItem,
 	DropdownMenuSubMenu,
-} from './MenuParts'
+} from './components/overlays/MenuParts'
 export {
 	DropdownMenuItem as ContextMenuItem,
 	DropdownMenuLink as ContextMenuLink,
@@ -444,7 +444,7 @@ export {
 	DropdownMenuRadioGroup as ContextMenuRadioGroup,
 	DropdownMenuRadioItem as ContextMenuRadioItem,
 	DropdownMenuSubMenu as ContextMenuSubMenu,
-} from './MenuParts'
+} from './components/overlays/MenuParts'
 export {
 	DropdownMenuItem as BreadcrumbMenuItem,
 	DropdownMenuLink as BreadcrumbMenuLink,
@@ -455,8 +455,8 @@ export {
 	DropdownMenuRadioGroup as BreadcrumbMenuRadioGroup,
 	DropdownMenuRadioItem as BreadcrumbMenuRadioItem,
 	DropdownMenuSubMenu as BreadcrumbMenuSubMenu,
-} from './MenuParts'
-export { DropdownMenuContext, useDropdownMenuContext } from './menu-context'
+} from './components/overlays/MenuParts'
+export { DropdownMenuContext, useDropdownMenuContext } from './components/overlays/menu-context'
 export type {
 	DropdownMenuProps,
 	DropdownMenuButtonProps,
@@ -522,11 +522,11 @@ export type {
 	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
 } from './props'
 
-export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './Breadcrumb'
-export { HoverCard } from './HoverCard'
-export { useHoverCard } from './use-hover-card'
-export { useLayer } from './use-layer'
-export { usePopover } from './use-popover'
+export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './components/navigation/Breadcrumb'
+export { HoverCard } from './components/overlays/HoverCard'
+export { useHoverCard } from './components/overlays/use-hover-card'
+export { useLayer } from './components/overlays/use-layer'
+export { usePopover } from './components/overlays/use-popover'
 export type {
 	BreadcrumbsProps,
 	BreadcrumbItemProps,
@@ -548,13 +548,13 @@ export type {
 	UsePopoverReturn,
 } from './props'
 
-export { Overlay } from './Overlay'
-export { Dialog, DialogHeader } from './Dialog'
-export { useImperativeDialog } from './use-imperative-dialog'
-export { AlertDialog } from './AlertDialog'
-export { useImperativeAlertDialog } from './use-imperative-alert-dialog'
-export { FocusScope, getFocusScopeCapabilities } from './FocusScope'
-export { LayerProvider, LayerContext, useLayerContext } from './layer-provider'
+export { Overlay } from './components/overlays/Overlay'
+export { Dialog, DialogHeader } from './components/overlays/Dialog'
+export { useImperativeDialog } from './components/overlays/use-imperative-dialog'
+export { AlertDialog } from './components/overlays/AlertDialog'
+export { useImperativeAlertDialog } from './components/overlays/use-imperative-alert-dialog'
+export { FocusScope, getFocusScopeCapabilities } from './components/overlays/FocusScope'
+export { LayerProvider, LayerContext, useLayerContext } from './components/overlays/layer-provider'
 export type {
 	OverlayProps,
 	DialogProps,
@@ -569,13 +569,13 @@ export type {
 	LayerContextValue,
 } from './props'
 
-export { CommandPalette } from './CommandPalette'
-export { Lightbox } from './Lightbox'
-export { useLightbox } from './use-lightbox'
-export { Drawer } from './Drawer'
-export { Toast } from './Toast'
-export { ToastViewport } from './toast-viewport'
-export { showToast, useToast } from './toast-service'
+export { CommandPalette } from './components/overlays/CommandPalette'
+export { Lightbox } from './components/overlays/Lightbox'
+export { useLightbox } from './components/overlays/use-lightbox'
+export { Drawer } from './components/navigation/Drawer'
+export { Toast } from './components/overlays/Toast'
+export { ToastViewport } from './components/overlays/toast-viewport'
+export { showToast, useToast } from './components/overlays/toast-service'
 export type {
 	ShowToastFn,
 	ToastCollisionBehavior,
@@ -603,9 +603,9 @@ export type {
 	DrawerProps,
 } from './props'
 
-export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
-export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service'
-export { useImperativeBottomSheet } from './use-imperative-bottom-sheet'
+export { BottomSheet, BottomSheetSwitcher } from './components/overlays/BottomSheet'
+export { openBottomSheet, closeBottomSheet } from './components/overlays/bottom-sheet-service'
+export { useImperativeBottomSheet } from './components/overlays/use-imperative-bottom-sheet'
 export type {
 	BottomSheetHandle,
 	BottomSheetOpenOptions,
@@ -622,21 +622,21 @@ export type {
 // Slice G — navigation, app chrome, screens, windows. Shared leaves back
 // every component; GTK leaves cover host seams only (insets, keyboard,
 // href opening, window service, resizable basis/persist, screen shell).
-export { Screen } from './Screen'
-export { Tabs } from './Tabs'
-export type { TabSpec } from './Tabs'
-export { SafeArea } from './SafeArea'
-export { KeyboardAvoiding } from './KeyboardAvoiding'
-export { useSafeAreaInsets } from './safeAreaInsets'
-export type { SafeAreaInsets } from './safeAreaInsets'
-export { useKeyboardInset } from './use-keyboard-inset.tsrx'
-export { useContainerReveal } from './use-container-reveal'
-export { useImageMode } from './use-image-mode'
-export { openWindow } from './windows'
-export { RouteOutlet } from './RouteOutlet'
-export { useResizable, ResizeHandle } from './Resizable'
-export { AppShell } from './AppShell'
-export { AppShellMobileContext } from './AppShell'
+export { Screen } from './components/layout/Screen'
+export { Tabs } from './components/collections/Tabs'
+export type { TabSpec } from './components/collections/Tabs'
+export { SafeArea } from './components/layout/SafeArea'
+export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding'
+export { useSafeAreaInsets } from './components/layout/safeAreaInsets'
+export type { SafeAreaInsets } from './components/layout/safeAreaInsets'
+export { useKeyboardInset } from './internal/keyboard/use-keyboard-inset.tsrx'
+export { useContainerReveal } from './components/layout/use-container-reveal'
+export { useImageMode } from './components/media/use-image-mode'
+export { openWindow } from './internal/platform/windows'
+export { RouteOutlet } from './routing/RouteOutlet'
+export { useResizable, ResizeHandle } from './components/layout/Resizable'
+export { AppShell } from './components/layout/AppShell'
+export { AppShellMobileContext } from './components/layout/AppShell'
 export {
 	TopNav,
 	TopNavHeading,
@@ -647,7 +647,7 @@ export {
 	TopNavMegaMenuFeaturedCard,
 	TopNavRenderContext,
 	useTopNavRenderMode,
-} from './TopNav'
+} from './components/navigation/TopNav'
 export {
 	SideNav,
 	SideNavSection,
@@ -657,9 +657,9 @@ export {
 	useSideNavCollapse,
 	SideNavRenderContext,
 	useSideNavRenderMode,
-} from './SideNav'
-export { MobileNav, MobileNavToggle, useAppShellMobile } from './MobileNav'
-export { NavIcon } from './NavIcon'
+} from './components/navigation/SideNav'
+export { MobileNav, MobileNavToggle, useAppShellMobile } from './components/navigation/MobileNav'
+export { NavIcon } from './components/navigation/NavIcon'
 export {
 	NavHeadingMenu,
 	NavHeadingMenuItem,
@@ -667,10 +667,10 @@ export {
 	NavHeadingCloseContext,
 	useNavHeadingMenuContext,
 	useNavHeadingCloseContext,
-} from './NavMenu'
-export { TabList, Tab, TabMenu, useTabListContext } from './TabList'
-export { NavigationMenu } from './NavigationMenu'
-export { NavLink } from './NavLink'
+} from './components/navigation/NavMenu'
+export { TabList, Tab, TabMenu, useTabListContext } from './components/collections/TabList'
+export { NavigationMenu } from './components/navigation/NavigationMenu'
+export { NavLink } from './components/navigation/NavLink'
 export type {
 	ScreenProps,
 	ScreenComponent,
@@ -757,15 +757,15 @@ export type {
 // surface they measure and seek with (scrollTo, eachChildView,
 // getLocationRelativeTo, getChildAt/getChildrenCount,
 // getMeasuredWidth/Height, parent).
-export { Collapsible, CollapsibleGroup } from './Collapsible'
-export { Accordion } from './Accordion'
-export { GridList } from './GridList'
-export { useGridList } from './use-grid-list'
-export type { UseGridListOptions, UseGridListResult } from './use-grid-list'
-export { OverflowList } from './OverflowList'
-export { VirtualList } from './VirtualList'
-export { Carousel } from './Carousel'
-export { Tree as TreeList } from './Tree'
+export { Collapsible, CollapsibleGroup } from './components/collections/Collapsible'
+export { Accordion } from './components/collections/Accordion'
+export { GridList } from './components/collections/GridList'
+export { useGridList } from './components/collections/use-grid-list'
+export type { UseGridListOptions, UseGridListResult } from './components/collections/use-grid-list'
+export { OverflowList } from './components/collections/OverflowList'
+export { VirtualList } from './components/collections/VirtualList'
+export { Carousel } from './components/layout/Carousel'
+export { Tree as TreeList } from './components/collections/Tree'
 export { Table } from './Table'
 export { TableHeader } from './Table'
 export { TableBody } from './Table'
@@ -773,7 +773,7 @@ export { TableFooter } from './Table'
 export { TableRow } from './Table'
 export { TableCell } from './Table'
 export { TableHeaderCell } from './Table'
-export { TableSelectionToolbar } from './TableSelectionToolbar'
+export { TableSelectionToolbar } from './table/TableSelectionToolbar'
 export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
 export { useTableSortable } from './table/use-table-sortable'
 export { useTableSortableState } from './table/use-table-sortable-state'
@@ -888,33 +888,33 @@ export type { UseTableFilterStateResult } from './table/use-table-filter-state'
 // Slice I — remaining inputs (typeahead/token/complex-selector, dates, colors,
 // power search, rich text). Shared leaves; GTK leaves: LinearGradient.gtk.tsrx,
 // coarse-pointer.gtk.ts. See research/GTK-SLICES.md row I.
-export { RichText, RichTextSpan } from './RichText'
-export { SelectableCard } from './SelectableCard'
-export { BaseTypeahead } from './BaseTypeahead'
-export { Typeahead } from './Typeahead'
-export { TypeaheadItem } from './TypeaheadItem'
-export { Token } from './Token'
-export { Tokenizer } from './Tokenizer'
-export { ComplexSelector } from './ComplexSelector'
+export { RichText, RichTextSpan } from './components/content/RichText'
+export { SelectableCard } from './components/actions/SelectableCard'
+export { BaseTypeahead } from './components/forms/BaseTypeahead'
+export { Typeahead } from './components/forms/Typeahead'
+export { TypeaheadItem } from './components/forms/TypeaheadItem'
+export { Token } from './components/forms/Token'
+export { Tokenizer } from './components/forms/Tokenizer'
+export { ComplexSelector } from './components/collections/ComplexSelector'
 export {
 	PowerSearch,
 	PowerSearchToken,
 	PowerSearchFilterEditor,
-} from './PowerSearch'
-export { Calendar } from './Calendar'
-export { DateInput } from './DateInput'
-export { TimeInput } from './TimeInput'
-export { DateTimeInput } from './DateTimeInput'
-export { DateRangeInput } from './DateRangeInput'
+} from './components/forms/PowerSearch'
+export { Calendar } from './components/forms/Calendar'
+export { DateInput } from './components/forms/DateInput'
+export { TimeInput } from './components/forms/TimeInput'
+export { DateTimeInput } from './components/forms/DateTimeInput'
+export { DateRangeInput } from './components/forms/DateRangeInput'
 export {
 	useCalendarDays,
 	useCalendarConstraints,
 	useCalendarNavigation,
-} from './calendar-hooks'
-export { ColorArea } from './ColorArea'
-export { ColorSlider } from './ColorSlider'
-export { ColorField } from './ColorField'
-export { ColorPicker } from './ColorPicker'
+} from './components/forms/calendar-hooks'
+export { ColorArea } from './components/forms/ColorArea'
+export { ColorSlider } from './components/forms/ColorSlider'
+export { ColorField } from './components/forms/ColorField'
+export { ColorPicker } from './components/forms/ColorPicker'
 
 export type {
 	UseCalendarDaysOptions,
@@ -923,7 +923,7 @@ export type {
 	UseCalendarConstraintsReturn,
 	UseCalendarNavigationOptions,
 	UseCalendarNavigationReturn,
-} from './calendar-hooks'
+} from './components/forms/calendar-hooks'
 
 export type {
 	RichTextProps,
@@ -1059,7 +1059,7 @@ export type {
 
 // Slice J — embedded web document (WebKitGTK 6.0 `WebKit.WebView`). GTK leaf:
 // WebView.gtk.tsrx. See research/GTK-SLICES.md row J.
-export { WebView } from './WebView'
+export { WebView } from './components/media/WebView'
 export type {
 	WebViewContentSize,
 	WebViewHandle,

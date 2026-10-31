@@ -5,7 +5,7 @@ import type { CheckboxGroupProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { NativeToggleField } from '../../NativeToggleField'
+import { NativeToggleField } from './NativeToggleField'
 import { CheckboxListItem } from './CheckboxListItem.tsrx'
 import { CheckboxListProvider } from './option-list-contexts'
 
