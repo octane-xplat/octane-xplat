@@ -174,6 +174,18 @@ const banner = compiled(
 const { Banner } = await import(banner)
 
 const listContext = compiled('list-context', read('collections/list-context.ts'), {}, false)
+const list = compiled(
+	'list',
+	read('collections/List.windows.tsrx').replace(/^import ['"].*['"]\s*;?$/gm, ''),
+	{
+		'../../internal/layout/style-merge': support,
+		'../../internal/accessibility/ref-list': support,
+		'@octane-xplat/lib': support,
+		'../overlays/escape-props': support,
+		'../../internal/rendering/child-array': support,
+		'./list-context': listContext,
+	},
+)
 const listItem = compiled('list-item', read('collections/ListItem.windows.tsrx'), {
 	'../../internal/layout/style-merge': support,
 	'../../internal/accessibility/ref-list': support,
@@ -188,11 +200,11 @@ const { ListItem } = await import(listItem)
 const listRowWithContext = compiled(
 	'list-row-with-context',
 	`import {ListItem} from ${JSON.stringify(listItem)};
-import {ListProvider} from ${JSON.stringify(listContext)};
+import {List} from ${JSON.stringify(list)};
 export function ListRowWithContext(props) @{
-  <ListProvider value={{density:props.density??'compact',hasDividers:false,listStyle:'none'}}>
+  <List density={props.density??'compact'}>
     <ListItem {...props} />
-  </ListProvider>
+  </List>
 }`,
 )
 const { ListRowWithContext } = await import(listRowWithContext)

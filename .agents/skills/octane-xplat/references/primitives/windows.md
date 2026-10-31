@@ -69,6 +69,8 @@ Use ordinary List/ListItem props. The Windows row input candidate composes the
 existing measured Pressable peer for `onPress`/`href` and hosts primitive slots
 as text. Compiled contracts do not establish native behavior; a Button peer
 alone does not establish List/ListItem structure or complete row semantics.
+Keep the Windows List content wrapper in a column with stretched children so
+automatic-width rows fill the available width; retain native resize checks.
 
 ```tsx
 import { List, ListItem } from '@octane-xplat/ui'

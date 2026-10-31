@@ -58,6 +58,11 @@ export function MessageRows() {
 }
 ```
 
+Windows List row content uses a column with stretched children. Keep this
+wrapper direction explicit: a horizontal wrapper can retain an intrinsic-width
+ListItem inside a wider row, so its input peer never fills or tracks the row.
+The maintained resize check must still compare actual peer and drawing bounds.
+
 Compiled-leaf contracts exercise the source behavior; the maintained
 [`collections` input mode](../../tools/windows-qualification/README.md#inspect-the-collections-source-fixture)
 checks real input separately. A native Button or
