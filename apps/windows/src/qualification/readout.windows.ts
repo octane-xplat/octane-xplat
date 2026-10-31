@@ -7,6 +7,8 @@ export function layoutReadout() {
 		const index = nodes.length
 		const location = view.getLocationOnScreen()
 		const size = view.getActualSize()
+		const preferred = (globalThis as Record<string, any>).NativeScript?.Widgets?.FlexboxLayout
+		const native = view.nativeViewProtected as any
 		nodes.push({
 			index,
 			parent,
@@ -16,6 +18,19 @@ export function layoutReadout() {
 			text: view instanceof TextBase ? view.text : undefined,
 			label: view.accessibilityLabel,
 			requestedWidth: view.width,
+			requestedHeight: view.height,
+			preferredChildCount: (view as any)._preferredChildren?.size,
+			preferredSize:
+				view.id?.startsWith('core20-auto-child-') &&
+				typeof preferred?.GetPreferredWidth === 'function' &&
+				typeof preferred?.GetPreferredHeight === 'function'
+					? {
+							width: preferred.GetPreferredWidth(native),
+							height: preferred.GetPreferredHeight(native),
+							hardWidth: Number(native.Width),
+							hardHeight: Number(native.Height),
+						}
+					: undefined,
 			masonWidth: (view as any)._styleHelper?.width,
 			image:
 				view instanceof Image

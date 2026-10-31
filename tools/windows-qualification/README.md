@@ -147,3 +147,34 @@ pnpm exec turbo run test:windows --filter=@octane-xplat/ui
 ```
 
 Those tests do not establish OS input, layout or UIA behavior.
+
+## Run the legacy Flexbox regression
+
+This opt-in case exercises NativeScript Flexbox, separately from the Mason
+shrinking-row case. It requires the matching preferred-size Core patch and
+Widgets DLL/WinMD candidate described in the
+[repair note](../../.agents/docs/windows-layout-repair.md#automatic-fixed-size-shrink-candidate).
+The default repository host currently carries only the padding repair and is
+expected to fail the automatic-shrink assertions.
+
+With that candidate packaged, use a fresh PowerShell process in the signed-in
+desktop session, the same device/input reservation, and a new output directory:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File .\tools\windows-qualification\layouts.ps1 `
+  -ExpectedCommit $sourceCommit `
+  -ExpectedPackageVersion $packageVersion `
+  -OutputDirectory "$runRoot\legacy-layout" `
+  -LegacyLayout
+```
+
+Set `$sourceCommit` and `$packageVersion` to the candidate package's exact source
+commit and MSIX version. Add `-AllowDirtyProbe` when recording a diagnostic
+overlay; it does not qualify a final clean-main build.
+
+The driver checks padding, automatic85+85 shrink, fixed-size updates, a column
+axis change, moving a child to StackLayout, updates outside Flexbox, reparenting,
+`auto`, and remounting. It records the loaded Widgets hash, UIA captures and
+native frames. Fixture commands select states0–7 and never set preferred native
+sizes or activate input handlers. This is a layout/lifecycle regression; it does
+not qualify the 20 public components or their OS input behavior.

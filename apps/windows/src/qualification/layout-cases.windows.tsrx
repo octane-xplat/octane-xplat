@@ -123,7 +123,11 @@ export function Qualification() @{
 						record('layout', { sequence, nodes: layoutReadout() })
 						break
 					case 'revision':
-						setRevision(command.value === 1 ? 1 : 0)
+						if (!Number.isInteger(command.value) || command.value < 0 || command.value > 7) {
+							throw new Error('Revision must be an integer from 0 to 7')
+						}
+
+						setRevision(command.value)
 						break
 					case 'mounted':
 						setMounted(command.value === true)

@@ -1,11 +1,11 @@
 diff --git a/apps/automated/src/ui/layouts/flexbox-layout-tests.ts b/apps/automated/src/ui/layouts/flexbox-layout-tests.ts
-index d4465ec5..6dcd95c7 100644
 --- a/apps/automated/src/ui/layouts/flexbox-layout-tests.ts
 +++ b/apps/automated/src/ui/layouts/flexbox-layout-tests.ts
-@@ -1834,3 +1834,31 @@ export const testLiquidGlassViews_do_not_crash_when_updating_iosGlassEffect = is
+@@ -1834,5 +1834,33 @@
  			TKUnit.assertTrue(root.isLoaded, 'Liquid glass view tree should remain loaded after glass effect updates.');
  		})
  	: undefined;
+-
 +
 +const asymmetricPaddingActivity = (heightAttribute: string, child: string) =>
 +	getViews(`<StackLayout><FlexboxLayout id="flexbox" iosOverflowSafeArea="false" width="200" ${heightAttribute}
@@ -34,6 +34,8 @@ index d4465ec5..6dcd95c7 100644
 +	noop,
 +	({ flexbox }) => closeEnough(height(flexbox), dipToDp(18)),
 +);
++
+ let getGlassViews = (template: string) => {
 diff --git a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp
 index 7da081f4..2eb93b4f 100644
 --- a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp

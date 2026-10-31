@@ -1,8 +1,9 @@
 # Windows layout repair lab
 
-This internal task addresses two reproduced upstream Windows layout defects:
-Flexbox ignores padding, and percentage-sized Canvas children can stay at zero
-when their parent is first laid out. Component support has not been upgraded.
+This note owns the local repairs for three reproduced upstream Windows layout
+defects: ignored Flexbox padding, initially zero-sized percentage Canvas
+children, and overlap after shrinking fixed-size Flexbox children. The shrink
+repair remains a separate candidate. Component support has not been upgraded.
 
 ## Repository Windows host
 
@@ -154,10 +155,11 @@ prepare exit0 are confirmed; the shared VM lease was released.
 Silo experiments: percentage lifecycle `3485b980-5623-4b10-b237-22126d3e1594`
 (passed); native padding
 `2d6ee81c-6265-4471-bb52-9889999c9fd3` (passed in the bounded cases above).
-A separate explicit-width shrink case is parked as experiment
+A separate explicit-width shrink defect is tracked as experiment
 `bc70da10-d64e-42ed-87df-2a6077932072`: a170-DIP row with zero padding lays out
-100-DIP children at x0 and85, overlapping15 DIP. The shrink/arrange algorithm is
-unchanged by these repairs. Complete flex sizing parity is not claimed.
+100-DIP children at x0 and85, overlapping15 DIP. XAML's fixed Width overrides
+the smaller arrange slot. The adopted padding pair leaves this defect open.
+Complete flex sizing parity is not claimed.
 
 Local feedback records build-tool resolution, padded percentage overflow,
 Style event normalization and the shrink limitation.
@@ -165,3 +167,56 @@ Style event normalization and the shrink limitation.
 No public workflow or recipe has changed. Component support has not been
 upgraded. No screenshots were captured or analyzed, and no production patch
 has been published.
+
+## Automatic fixed-size shrink candidate
+
+The candidate targets NativeScript commit
+`abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`. Apply
+[the native preferred-size patch](../../tools/platform-qualification/patches/windows-layout/native-preferred-size.patch)
+after the native padding patch. The matching Core repair is retained as
+[TypeScript source](../../tools/platform-qualification/patches/windows-layout/core-preferred-source.patch)
+and [package JavaScript](../../tools/platform-qualification/patches/windows-layout/core-preferred-package.patch).
+These are unapplied lab patches: the repository host still selects the padding
+pair, and the canonical consumer Core patch has not adopted this change.
+The [candidate manifest](../../tools/platform-qualification/patches/windows-layout/preferred-size.json)
+records the source/module hashes, patch order and matching x64 pair.
+
+Prepare or rebuild this candidate in a new disposable Windows run folder:
+
+```powershell
+./tools/platform-qualification/windows-layout/build-widgets.ps1 `
+  -ScratchDirectory "$env:USERPROFILE/agent-scratch/octane-xplat/<task>/preferred-rebuild" `
+  -PreferredSizeCandidate
+```
+
+Use `-PrepareOnly` to check native patch application without compiling. This
+opt-in command does not alter repository-selected artifacts or patch Core.
+
+The Flexbox parent observes each child's fixed style dimensions and supplies
+them as preferred native sizes. Native measurement uses the preferred size as
+the flex basis and clears the hard XAML constraint on the main axis. An axis
+change restores the fixed cross dimension. Removal or parent disposal removes
+owned style listeners, restores fixed constraints and clears preferred inputs.
+Percentages retain their existing sizing protocol. Core's global width/height
+setters are unchanged.
+
+The x64 candidate passed bounded packaged geometry checks: two requested100-DIP
+widths become85+85 in a170-DIP row, then update to120+100 in a220-DIP row.
+Switching to a column produces85+85 heights. Moving a child to StackLayout
+restores its100-DIP hard width and releases the old owner; subsequent90-DIP
+updates, reparenting back, `auto` and remounting also passed. Padding's
+fixed/auto/empty cases remained passing. This was a controlled diagnostic
+bundle over reused dependencies, not a fresh current-main install/build.
+
+The maintained host case and its driver now reproduce that sequence without
+fixture calls to native preferred-size setters. Run it only with the matching
+candidate Core module and DLL/WinMD pair; see the
+[qualification command](../../tools/windows-qualification/README.md#run-the-legacy-flexbox-regression).
+The source/package lifecycle regression is registered in the root Turbo
+`test:scripts` task. The newly maintained versions still require execution;
+earlier diagnostic passes do not establish a pass for changed harness files.
+
+Adopt Core and the native pair together, reconcile canonical patch copies and
+lockfile registrations, and rerun this case from a clean packaged main build
+before closing the shrink gap. Percent flex basis, margins, min/max constraints,
+other architectures and complete flex parity remain unqualified.

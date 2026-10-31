@@ -1,0 +1,39 @@
+{
+  "sourceRepository": "https://github.com/NativeScript/NativeScript",
+  "sourceCommit": "abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b",
+  "license": "MIT",
+  "nativePatchOrder": [
+    "native-padding.patch",
+    "native-preferred-size.patch"
+  ],
+  "patches": [
+    {
+      "name": "native-preferred-size.patch",
+      "sha256": "46638ea2a1490857544b384de7ffc7242bf012a1c9b48581990b7f4b8418ea48"
+    },
+    {
+      "name": "core-preferred-source.patch",
+      "sha256": "14c0b2be61e1e54b34a740b2cb8d5bfe5ae34cbf2f7c163d6bd7c96eec363eb6"
+    },
+    {
+      "name": "core-preferred-package.patch",
+      "sha256": "60bd3e7a3ae75047506584917bb84452f93ebfaa77812952bcb91a67390a7f2a"
+    }
+  ],
+  "packageModule": {
+    "name": "ui/layouts/flexbox-layout/index.windows.js",
+    "upstreamSha256": "d5c7f26649efd4eedc044ed82a6ed7a65a357c105ced5ea5b6159922f1f91a06",
+    "patchedSha256": "2083568296c2406aee856c7d7693d43fbcf53be765bb036d3e147d281d3df644"
+  },
+  "matchingX64Pair": [
+    {
+      "name": "NativeScript.Widgets.dll",
+      "sha256": "bb150aaa870e64ea0d0585b346a0db8b820809e9a2efaac8098ebfffbe3ee494"
+    },
+    {
+      "name": "NativeScript.Widgets.winmd",
+      "sha256": "b00f4b099d0c8e68ab858a692d55a333132686f293b4abedb45e9d6c17df1a0a"
+    }
+  ],
+  "usage": "Unapplied candidate. Core and native pair must be adopted together; repository-selected padding artifacts are unchanged."
+}
