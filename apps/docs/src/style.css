@@ -224,6 +224,9 @@ body {
 	max-height: none;
 }
 .agent-prompt-expand {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	position: absolute;
 	left: 50%;
 	bottom: 0;
