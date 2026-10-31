@@ -6,3 +6,6 @@
 	path = packages/ui/src/vendor/ui-svg
 	url = https://github.com/octane-xplat/ui-svg.git
 	branch = xplat-vendored
+[submodule "packages/image-manipulator/platforms/macos/vendor/libwebp"]
+	path = packages/image-manipulator/platforms/macos/vendor/libwebp
+	url = https://github.com/webmproject/libwebp.git

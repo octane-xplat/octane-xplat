@@ -26,7 +26,7 @@ selects an image with the media package. Crop selection is a separate workflow.
 
 ## Documentation
 
-- AC1: [First use](../../../packages/image-manipulator/README.md) and [direct transformations](../../../packages/image-manipulator/README.md#crop-a-selection).
+- AC1: [WebP encoding](../../../packages/image-manipulator/README.md#encode-webp), [maintained encoding helper](../../../packages/image-manipulator/examples/webp.ts), [First use](../../../packages/image-manipulator/README.md) and [direct transformations](../../../packages/image-manipulator/README.md#crop-a-selection).
 - AC2: [Crop a selection](../../../packages/image-manipulator/README.md#crop-a-selection) and [maintained export helper](../../../packages/image-manipulator/examples/crop.ts).
 - AC3: [Resource ownership](../../../packages/image-manipulator/README.md#own-contexts-pixels-and-files).
 - AC4: [Component context ownership](../../../packages/image-manipulator/README.md#use-a-context-in-a-component).

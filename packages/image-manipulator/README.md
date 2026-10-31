@@ -92,6 +92,38 @@ export async function transformPhoto(sourceUri: string) {
 }
 ```
 
+## Encode WebP
+
+To change a still image into WebP, render it and save with `SaveFormat.WEBP`.
+No resizing operation is required. Apple native builds include libwebp; browsers
+load a WASM codec when their canvas cannot encode WebP. Rebuild iOS/macOS apps
+after installing this package. Animated inputs still become a single image;
+use [media-converter](../media-converter/README.md) to retain GIF animation in video.
+
+```ts
+import { ImageManipulator, SaveFormat } from '@octane-xplat/image-manipulator'
+
+export async function toWebP(sourceUri: string) {
+	const context = ImageManipulator.manipulate(sourceUri)
+	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+	try {
+		image = await context.renderAsync()
+		return await image.saveAsync({ format: SaveFormat.WEBP, compress: 0.8 })
+	} finally {
+		image?.release()
+		context.release()
+	}
+}
+// The receiving owner calls releaseImage(result) after preview/upload finishes.
+```
+
+Apple WebP encoding accepts dimensions up to 16,383 pixels per side and
+16,777,216 total pixels; larger frames reject. It preserves alpha, while lossy
+encoding can change color values. Native encoding still runs on the caller's
+thread. Chromium tests cover both browser encoding and forced WASM fallback;
+macOS tests cover the native codec. New iOS codec delivery remains unverified
+in an installed consumer.
+
 ## Own contexts, pixels, and files
 
 `renderAsync()` returns an immutable snapshot of the operations queued at that
@@ -198,13 +230,13 @@ export async function canTransformImages() {
 }
 ```
 
-| Target               | Source and output constraints                                                                                                                                                                  |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Web                  | Browser-readable image URLs/data URLs. Remote servers must permit CORS. Results are blob URLs scoped to the current page. Encoding support follows the browser; an unavailable format rejects. |
-| iOS                  | App file/resource paths, file URLs, base64 data URLs, and HTTP(S) downloads. UIKit produces app-temporary JPEG/PNG files; WEBP encoding rejects.                                               |
-| Android              | File/resource paths, file/content URLs, base64 data URLs, and HTTP(S) downloads. Bitmap/Canvas produces app-temporary files. Runtime verification is deferred.                                 |
-| macOS AppKit         | Absolute file paths, file URLs, base64 data URLs, and HTTP(S) downloads. NSBitmapImageRep produces app-temporary JPEG/PNG files; WEBP encoding rejects.                                        |
-| Native Windows / GTK | No image backend is wired yet; availability is false. A browser frontend on either OS uses the web backend.                                                                                    |
+| Target               | Source and output constraints                                                                                                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web                  | Browser-readable image URLs/data URLs. Remote servers must permit CORS. Results are blob URLs scoped to the current page. WebP uses browser encoding when available and a bundled WASM encoder otherwise. Other unavailable formats reject. |
+| iOS                  | App file/resource paths, file URLs, base64 data URLs, and HTTP(S) downloads. UIKit transforms pixels; libwebp produces WebP alongside app-temporary JPEG/PNG files. Rebuild after installation.                                             |
+| Android              | File/resource paths, file/content URLs, base64 data URLs, and HTTP(S) downloads. Bitmap/Canvas produces app-temporary files. Runtime verification is deferred.                                                                              |
+| macOS AppKit         | Absolute file paths, file URLs, base64 data URLs, and HTTP(S) downloads. NSBitmapImageRep transforms pixels; bundled libwebp produces WebP alongside app-temporary JPEG/PNG files.                                                          |
+| Native Windows / GTK | No image backend is wired yet; availability is false. A browser frontend on either OS uses the web backend.                                                                                                                                 |
 
 The API follows Expo's current context, option, result, and constant names.
 `ImageManipulatorContext` and `ImageRef` are public TypeScript interfaces; create

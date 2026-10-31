@@ -60,6 +60,7 @@ Workflows:
 - [Keep JavaScript updates compatible with native binaries](native-compatibility.md)
 - [Keep the phone launch screen until startup is ready](splash-screen.md)
 - [Collect a guest payment with Stripe](stripe-checkout.md)
+- [Convert a GIF attachment to video](gif-to-video.md)
 - [Browse and manage the device media library](device-media-library.md)
 - [Pick and capture images](pick-and-capture-images.md)
 - [Build a chat conversation](chat-conversation.md)

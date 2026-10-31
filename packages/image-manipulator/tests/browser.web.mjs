@@ -111,9 +111,50 @@ try {
 			boundsError = true
 		}
 		failed.release()
+		const webpContext = ImageManipulator.manipulate(uri)
+		const webpPixels = await webpContext.renderAsync()
+		webpContext.release()
+		const webpOutputs = []
+		for (const fallback of [false, true]) {
+			const originalToBlob = HTMLCanvasElement.prototype.toBlob
+			try {
+				if (fallback) {
+					HTMLCanvasElement.prototype.toBlob = function (callback, type, quality) {
+						return originalToBlob.call(
+							this,
+							callback,
+							type === 'image/webp' ? 'image/png' : type,
+							quality,
+						)
+					}
+				}
+				const saved = await webpPixels.saveAsync({
+					format: SaveFormat.WEBP,
+					compress: 1,
+					base64: true,
+				})
+				try {
+					const blob = await fetch(saved.uri).then((response) => response.blob())
+					const bytes = new Uint8Array(await blob.arrayBuffer())
+					webpOutputs.push({
+						mime: blob.type,
+						riff: String.fromCharCode(...bytes.slice(0, 4)),
+						format: String.fromCharCode(...bytes.slice(8, 12)),
+						size: await read(saved),
+						base64: Boolean(saved.base64),
+					})
+				} finally {
+					releaseImage(saved)
+				}
+			} finally {
+				HTMLCanvasElement.prototype.toBlob = originalToBlob
+			}
+		}
+		webpPixels.release()
 		const { exerciseHook } = await import('/tests/hook.web.tsx')
 		const { stable, boundsChanged, sourceChanged, unmounted } = await exerciseHook(uri)
 		return {
+			webpOutputs,
 			rotated,
 			cropped,
 			flipped,
@@ -163,9 +204,16 @@ try {
 		assert.equal(sample.base64, true)
 		assert.equal(sample.revoked, true)
 	}
+	for (const output of result.webpOutputs) {
+		assert.equal(output.mime, 'image/webp')
+		assert.equal(output.riff, 'RIFF')
+		assert.equal(output.format, 'WEBP')
+		assert.deepEqual([output.size.width, output.size.height], [3, 2])
+		assert.equal(output.base64, true)
+	}
 	assert.deepEqual(errors, [])
 	console.log(
-		'Chromium: exact pixel transforms, action order, resize, extent, encoded output, source refs, reset, release, bounds and Octane hook lifecycle passed; no screenshots captured.',
+		'Chromium: exact pixel transforms, action order, resize, extent, PNG/WebP bytes and forced WASM fallback, source refs, reset, release, bounds and Octane hook lifecycle passed; no screenshots captured.',
 	)
 } finally {
 	await browser?.close()

@@ -91,13 +91,17 @@ async function save(
 	options: Required<SaveOptions>,
 ): Promise<ImageResult> {
 	const mimeType = `image/${options.format}`
-	const blob = await new Promise<Blob>((resolve, reject) => {
+	let blob = await new Promise<Blob>((resolve, reject) => {
 		frame.image.toBlob(
 			(value) => (value ? resolve(value) : reject(new Error('Image encoding failed'))),
 			mimeType,
 			options.compress,
 		)
 	})
+	if (options.format === 'webp' && blob.type !== mimeType) {
+		const { encodeWebP } = await import('./webp.web')
+		blob = await encodeWebP(frame.image, options.compress)
+	}
 	if (blob.type !== mimeType) {
 		throw new Error(`Encoding ${mimeType} is unavailable on this host`)
 	}

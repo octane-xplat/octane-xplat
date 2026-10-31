@@ -1,0 +1,94 @@
+{
+	"name": "@octane-xplat/media-converter",
+	"version": "0.19.0",
+	"description": "GIF-to-video conversion jobs for Octane Xplat",
+	"keywords": [
+		"conversion",
+		"gif",
+		"nativescript",
+		"octane",
+		"video"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/media-converter",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/media-converter"
+	},
+	"files": [
+		"src",
+		"types",
+		"platforms",
+		"!src/**/*.test.*"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"web": "./src/index.web.ts",
+			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.linux.ts",
+			"windows": "./src/index.windows.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typegen": "tsrx-typegen --project tsconfig.types.json",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"test:browser": "node tests/browser.web.mjs",
+		"test:apple-engine": "node tests/apple-engine.mjs",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"prepack": "bun run typegen && tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check",
+		"test:android-engine": "node tests/android-engine.mjs",
+		"test:ios-engine": "node tests/ios-engine.mjs",
+		"test:macos-consumer": "node tests/macos-consumer.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
+		"gifuct-js": "2.1.2",
+		"mediabunny": "1.42.0"
+	},
+	"devDependencies": {
+		"@nativescript/core": "catalog:",
+		"@nativescript/types": "catalog:",
+		"jsdom": "catalog:",
+		"playwright": "1.63.0",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.0 <10"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"ios": "9.1.0",
+			"android": "9.1.0"
+		}
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"Foundation",
+				"AVFoundation",
+				"ImageIO",
+				"CoreGraphics",
+				"CoreVideo",
+				"CoreMedia"
+			]
+		}
+	}
+}
