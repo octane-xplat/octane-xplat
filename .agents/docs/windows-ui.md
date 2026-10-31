@@ -39,6 +39,13 @@ upstream repair scope and removal conditions in the
 Use `windows_recipe_checks` for per-criterion documentation and execution
 assessments; do not relabel Windows evidence as a mobile or AppKit target.
 
+## Position measured input peers
+
+Pin the Windows Pressable's absolute input peer at `left: 0` and `top: 0`.
+Measured width and height alone leave its origin at the padded content's static
+position. Retain the drawing/peer frame checks for padded controls such as
+ClickableCard and Banner dismissal, separately from their activation checks.
+
 ## List row input prerequisite
 
 This candidate still requires packaged OS/UIA qualification. The Windows `ListItem` leaf routes
