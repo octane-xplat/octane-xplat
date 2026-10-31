@@ -8,11 +8,17 @@ import { useRef } from 'octane'
 import type { TablePlugin, HeaderCellRenderProps } from './types'
 import type { TableColumn } from '../props'
 
+/** Config for useTableColumnResize — controlled widths plus drag bounds. */
 export interface UseTableColumnResizeConfig {
+	/** Controlled per-column-key pixel widths — overrides content sizing. */
 	columnWidths?: Record<string, number>
+	/** Committed widths after a drag/keyboard resize ends. */
 	onColumnResizeEnd?: (columnWidths: Record<string, number>) => void
+	/** Smallest width a column can be dragged to, in px. */
 	minWidth?: number
+	/** Largest width a column can be dragged to, in px. */
 	maxWidth?: number
+	/** Column descriptors — supplies keys and initial widths. */
 	columns?: ReadonlyArray<TableColumn<any>>
 }
 

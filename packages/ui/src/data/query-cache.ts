@@ -214,7 +214,9 @@ export interface QueryActionContext {
 
 /** An app/account/request cache. Dispose it at that boundary's end. */
 export interface QueryClient {
-	/** @internal Used by the opt-in @octane-xplat/ui/data/dev inspector. */
+	/** Inspection bridge the opt-in `@octane-xplat/ui/data/dev` tools read —
+	 *  not part of the app-facing API.
+	 * @internal */
 	readonly [QUERY_INSPECTION]: QueryInspectionSource
 	/** Acquire outside rendering; components use useQuery$ for commit-time ownership. */
 	observe$<A extends QueryKeyPart, T>(

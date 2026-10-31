@@ -291,6 +291,7 @@ export interface GridResponsiveColumns {
 	repeat?: 'fill' | 'fit'
 }
 
+/** Props for the Grid layout container. */
 export interface GridProps extends AccessibilityProps {
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
@@ -435,7 +436,8 @@ export interface StackProps
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
-	/** @default 'vertical' */
+	/** Stack axis children flow along.
+	 *  @default 'vertical' */
 	direction?: StackDirection
 	/** Horizontal alignment shorthand — main-axis in horizontal stacks, cross-axis in vertical. */
 	hAlign?: StackAlignment
@@ -499,7 +501,8 @@ export interface StackItemProps extends AccessibilityProps {
 	ref?: Octane.Ref<object>
 	/** Cross-axis self alignment, overriding the stack's cross alignment. */
 	crossAlignSelf?: StackItemCrossAlignSelf
-	/** @default 'static' */
+	/** Main-axis sizing mode for the item.
+	 *  @default 'static' */
 	size?: StackItemSize
 	/** overflow:auto on web; wraps in a ScrollView on native. */
 	isScrollable?: boolean
@@ -1105,7 +1108,8 @@ export interface FieldControlProps {
 	size?: FieldControlSize
 	/** Validation/status message shown under the control. */
 	status?: FieldStatus
-	/** @default 'attached' */
+	/** Status message placement relative to the control.
+	 *  @default 'attached' */
 	statusVariant?: FieldStatusVariant
 	/** Hint shown from an info glyph at the end of the label. Web renders a
 	 *  real tooltip; native folds it into the label's accessibility hint. */
@@ -1671,7 +1675,8 @@ export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 	hourFormat?: TimeInputHourFormat
 	/** Arrow-key / stepper minute increment. @default 1 */
 	increment?: number
-	/** @default 'adaptive-native' */
+	/** Widget family rendering the input.
+	 *  @default 'adaptive-native' */
 	presentation?: TimeInputPresentation
 	/** Text shown while the field is empty. */
 	placeholder?: string
@@ -1724,7 +1729,8 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
 	/** Includes a seconds segment in the time part. */
 	hasSeconds?: boolean
-	/** @default '12h' */
+	/** 12- or 24-hour clock display.
+	 *  @default '12h' */
 	hourFormat?: DateTimeInputHourFormat
 	/** Arrow-key minute step for the time segment. @default 1 */
 	timeIncrement?: DateTimeInputTimeIncrement
@@ -1741,7 +1747,8 @@ export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	timePlaceholder?: string
 	/** Accessible name of the time segment. @default `${label} time` */
 	timeLabel?: string
-	/** @default 'adaptive-native' */
+	/** Widget family rendering the input.
+	 *  @default 'adaptive-native' */
 	presentation?: DateTimeInputPresentation
 	/** Exposes the imperative handle through a standard Octane ref; cleared on unmount. */
 	ref?: Octane.Ref<TextInputHandle>
@@ -1799,11 +1806,13 @@ export interface DateRangeInputProps extends FieldControlProps, DateLocaleProps 
 	/** Quick ranges beside the calendar. Invalid endpoint/span selections
 	 *  are disabled; an accepted preset closes the picker. */
 	presets?: ReadonlyArray<DateRangePreset>
-	/** @default true */
+	/** Shows a control that clears the range.
+	 *  @default true */
 	hasClear?: boolean
 	/** Text shown while the field is empty. */
 	placeholder?: string
-	/** @default 2 */
+	/** Months visible in the picker.
+	 *  @default 2 */
 	numberOfMonths?: 1 | 2
 	/** First weekday column in the calendar grid. */
 	weekStartsOn?: DayOfWeek | DayOfWeekName
@@ -2620,7 +2629,8 @@ export interface SafeAreaProps {
 	 *  the wrapper neutral; `edges` wins over `ignoreSafeArea` when both
 	 *  are set. */
 	edges?: readonly SafeAreaEdge[]
-	/** @deprecated Use `edges` — `ignoreSafeArea` is `edges={[]}`. */
+	/** Removes all safe-area inset padding.
+	 *  @deprecated Use `edges` — `ignoreSafeArea` is `edges={[]}`. */
 	ignoreSafeArea?: boolean
 	/** NativeScript props applied to the host after shared props. */
 	ios?: PlatformProps
@@ -2858,7 +2868,8 @@ export interface MeterProps {
 	minValue?: number
 	/** Upper bound of the measured range. @default 100 */
 	maxValue?: number
-	/** @deprecated Use `maxValue`; `maxValue` wins when both are set. */
+	/** Upper bound of the measured range.
+	 *  @deprecated Use `maxValue`; `maxValue` wins when both are set. */
 	max?: number
 	/** Human-readable value description reported to assistive technology —
 	 *  `aria-valuetext` on web (for example "6 GB of 10 GB used"). */
@@ -2914,9 +2925,11 @@ export interface SliderProps extends FieldControlProps {
 	min?: number
 	/** Maximum value (default 100). */
 	max?: number
-	/** @deprecated use `min` */
+	/** Lower bound of the range.
+	 *  @deprecated use `min` */
 	minValue?: number
-	/** @deprecated use `max` */
+	/** Upper bound of the range.
+	 *  @deprecated use `max` */
 	maxValue?: number
 	/** Quantization step between values. */
 	step?: number
@@ -2960,6 +2973,7 @@ export interface ColorValueProps {
 	isDisabled?: boolean
 }
 
+/** Shared props for the color-field family. */
 export interface ColorBaseProps {
 	/** Stable id forwarded to the host element (the DOM `id` on web). */
 	id?: string
@@ -3827,7 +3841,8 @@ export type ToastCollisionBehavior = 'overwrite' | 'ignore'
 export interface ToastOptions {
 	/** Toast body — text or rendered nodes. */
 	body?: Renderable
-	/** @default 'info' */
+	/** Severity driving toast icon and color.
+	 *  @default 'info' */
 	type?: ToastType
 	/** Auto-dismiss after `autoHideDuration`. Defaults true for 'info',
 	 *  false for 'error'. */
@@ -3843,7 +3858,8 @@ export interface ToastOptions {
 	 *  the existing one in place ('overwrite', the default) or is suppressed
 	 *  ('ignore'). */
 	uniqueID?: string
-	/** @default 'overwrite' */
+	/** How an incoming toast interacts with a visible one.
+	 *  @default 'overwrite' */
 	collisionBehavior?: ToastCollisionBehavior
 	/** Called when the toast finishes hiding. `reason` is 'auto' for the
 	 *  timer or 'manual' for explicit dismissal. */
@@ -3983,7 +3999,8 @@ export interface ToastViewportProps {
  * @see ToastViewportProps for the queued stack.
  */
 export interface ToastProps {
-	/** @default 'info' */
+	/** Severity driving toast icon and color.
+	 *  @default 'info' */
 	type?: ToastType
 	/** Toast content. */
 	body?: Renderable
@@ -4516,13 +4533,16 @@ export interface AlertDialogProps {
 	/** Called when the action button is pressed; the caller closes the
 	 *  dialog or marks `isActionLoading`. */
 	onAction: () => void
-	/** @default 'Cancel' */
+	/** Cancel-button content.
+	 *  @default 'Cancel' */
 	cancelLabel?: Renderable
-	/** @default 'destructive' */
+	/** Action-button emphasis.
+	 *  @default 'destructive' */
 	actionVariant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
 	/** Shows a spinner on the action button and blocks presses. */
 	isActionLoading?: boolean
-	/** @default 400 */
+	/** Dialog content width.
+	 *  @default 400 */
 	width?: number | string
 	/** Same as Dialog.isInline — render without overlay/modal behavior. */
 	isInline?: boolean
@@ -4656,7 +4676,8 @@ export interface LightboxMedia {
 	alt: string
 	/** Caption rendered under the media. */
 	caption?: Renderable
-	/** @default 'image' */
+	/** Media kind rendered in the lightbox.
+	 *  @default 'image' */
 	type?: LightboxMediaType
 }
 
@@ -4826,10 +4847,12 @@ export interface TabsProps {
 	defaultSelectedKey?: string
 	/** Reports the selected tab's `key` — React Aria `onSelectionChange`. */
 	onSelectionChange?: (key: string) => void
-	/** @deprecated Use `selectedKey` — index selection still maps to the
+	/** Selected tab by position.
+	 *  @deprecated Use `selectedKey` — index selection still maps to the
 	 *  tab at that position. */
 	selectedIndex?: number
-	/** @deprecated Use `onSelectionChange`. Fires alongside it with the
+	/** Selection callback receiving the tab position.
+	 *  @deprecated Use `onSelectionChange`. Fires alongside it with the
 	 *  selected tab's position. */
 	onSelectedIndexChanged?: (index: number) => void
 }
@@ -4943,6 +4966,7 @@ export interface RoutePreparationGroup {
 	readonly loader?: RoutePreparationBehavior['loader']
 }
 
+/** Executable guard/loader behavior attached to a route name. */
 export interface RoutePreparationBehavior {
 	/** Ordered preparation groups for a route name. */
 	readonly groups?: readonly RoutePreparationGroup[]
@@ -5056,6 +5080,8 @@ declare const validatedDestinationTypes: unique symbol
  * the original value to navigation/href or NavLink's to prop. Choose route
  * options before validation; copying or serializing this value loses its proof. */
 export interface ValidatedDestination {
+	/** Phantom brand carrying the validated-destination shape for type
+	 *  inference — never present at runtime. */
 	readonly [validatedDestinationTypes]: true
 }
 
@@ -5119,9 +5145,11 @@ export interface RoutePreparationOptions {
 	catalog: RouteManifest
 	/** Guard/loader groups keyed by route name. */
 	behaviors?: Readonly<Record<string, RoutePreparationBehavior>>
-	/** @internal Client effect names; server preparation can omit motion policy. */
+	/** Client effect names; server preparation can omit motion policy.
+	 *  @internal Client effect names; server preparation can omit motion policy. */
 	transitionNames?: readonly string[]
-	/** @internal Identity for opaque client destinations; never a request service. */
+	/** Identity for opaque client destinations; never a request service.
+	 *  @internal Identity for opaque client destinations; never a request service. */
 	destinationOwner?: object
 	/** Shallow root snapshot per attempt. Synchronous sources are copied before
 	 * yielding; async sources must resolve a consistent record. Services retain
@@ -5212,6 +5240,8 @@ declare const decodedRouteSearch: unique symbol
  * Created by withSearchDecoder; numeric/boolean schema inputs require this
  * adapter unless the schema already accepts decoded URL strings. */
 export interface DecodedRouteSearchSchema<Input, Output> extends RouteSearchSchema<Input, Output> {
+	/** Phantom brand carrying the decoded search schema — never present
+	 *  at runtime. */
 	readonly [decodedRouteSearch]: true
 }
 
@@ -5240,6 +5270,8 @@ type SearchInputAcceptsUrl<Input> = unknown extends Input
  * A decoder is necessary when a validator requires numbers, booleans or other
  * values that the URL parser does not produce. */
 export type RouteSearchValidationCheck<Validator> = Validator extends {
+	/** Phantom brand carrying the decoded search schema — never present
+	 *  at runtime. */
 	readonly [decodedRouteSearch]: true
 }
 	? true
@@ -5651,6 +5683,8 @@ export type DefinedRoute<
 	readonly screen: Parameters<
 		RouteDefinitionBuilder<Path, Validator, Context, Added, Data, Root>['screen']
 	>[0]
+	/** Phantom brand carrying the route contract for type inference —
+	 *  never present at runtime. */
 	readonly [routeDefinitionTypes]: RouteContract<
 		RouteSpecParams<Path>,
 		RouteSearchInputOf<Validator>,
@@ -5734,13 +5768,19 @@ declare const routeContractVariance: unique symbol
 /** Reusable definitions with inferred destination metadata. Generated file
  * catalogs and manifest composition carry this brand only at the type level. */
 export type RouteCatalog<Contracts> = RouteManifest & {
+	/** Phantom brand carrying the catalog contract map — never present
+	 *  at runtime. */
 	readonly [routeCatalogTypes]: Contracts
+	/** Phantom variance witness keeping contract inference directional —
+	 *  never present at runtime. */
 	readonly [routeContractVariance]: (contracts: Contracts) => Contracts
 }
 
 /** Executable contract-bearing inputs. Erasing a catalog to RouteManifest also
  * erases the right to compose it into a declared contract map. */
 export type ContractRouteManifest = RouteManifest & {
+	/** Phantom variance witness keeping contract inference directional —
+	 *  never present at runtime. */
 	readonly [routeContractVariance]: (contracts: never) => unknown
 }
 
@@ -5783,6 +5823,8 @@ export type MergeRouteContracts<
 /** Read inferred contracts from a manifest or individual definition for generated
  * registration, without evaluating its module. */
 export type ContractsOf<Value> = Value extends {
+	/** Phantom variance witness keeping contract inference directional —
+	 *  never present at runtime. */
 	readonly [routeContractVariance]: (contracts: never) => infer Contracts
 }
 	? Contracts
@@ -5819,6 +5861,8 @@ export type RouteRootContext<Value> = Value extends (...args: any[]) => infer Co
 declare const routeGroupTypes: unique symbol
 /** Parent lifecycle metadata. Create groups with defineRouteGroup. */
 export interface RouteGroup<Context = RouteContext, Root = Context> {
+	/** Phantom brand carrying the group contract inference — never present
+	 *  at runtime. */
 	readonly [routeGroupTypes]:{
 		/** Context contributed by this group. */
 		readonly context: Context
@@ -5941,8 +5985,16 @@ export type RouterRootContext<Contracts> =
 		: object
 
 type RouterContextOptions<Context extends object> = {} extends Context
-	? { /** Request context — optional when the catalog needs none. */ context?: Context | (() => Context | Promise<Context>) }
-	: { /** Request context — required by this catalog's contracts. */ context: Context | (() => Context | Promise<Context>) }
+	? {
+		/** Request context — optional when the catalog's contracts need none.
+		 *  Accepts a value or a lazy factory, awaited per navigation. */
+		context?: Context | (() => Context | Promise<Context>)
+	}
+	: {
+		/** Request context the catalog's contracts require — a value or a lazy
+		 *  factory, awaited per navigation. */
+		context: Context | (() => Context | Promise<Context>)
+	}
 
 /** Inferred match union. A route identity narrows params, search and loader data
  * together; callers cannot select arbitrary data with a generic assertion. */
@@ -6086,6 +6138,8 @@ declare const nativeTransitionTypes: unique symbol
 export interface NativeTransitionDefinition {
 	/** Marks this transition as native-rendered (vs web view-transition). */
 	readonly kind: 'native'
+	/** Phantom brand carrying the native transition contract — never
+	 *  present at runtime. */
 	readonly [nativeTransitionTypes]: true
 }
 
@@ -6365,6 +6419,8 @@ export interface PaneRouterHost {
 		/** Router instance bound by `attach`. */
 		router: RouterInstance<Contracts, Stacks, Transitions>,
 	) => void
+	/** Phantom brand carrying the pane host route types — never present
+	 *  at runtime. */
 	readonly [paneRouterHostTypes]: true
 }
 
@@ -6454,6 +6510,7 @@ export interface RouterInstance<
 	dispose(): void
 }
 
+/** Options for registering routes into a catalog. */
 export interface RouteRegistrationOptions {
 	/** Registration id used to dedupe/unregister. */
 	id: string
@@ -6462,6 +6519,7 @@ export interface RouteRegistrationOptions {
 	conflict?: 'error' | 'replace'
 }
 
+/** A registered route binding an executable spec to its manifest entry. */
 export interface RouteRegistration {
 	/** Unregisters the route. */
 	dispose(): void
@@ -6658,7 +6716,8 @@ export type RouterHostResult =
 			error: unknown
 	  }
 
-/** @internal Prepared retained content; never a URL or serialized host payload. */
+/** Prepared retained content — never a URL or serialized host payload.
+ *  @internal */
 export type RouterHostPreparation =
 	| {
 			/** Ready discriminator for host preparations. */
@@ -7087,7 +7146,8 @@ type RoutePlatform = 'web' | 'ios' | 'android' | 'mobile' | 'macos' | 'windows' 
  *  `:param` (`app/demo/[id].tsrx` → `demo/:id`); `segments` is the URL
  *  pattern used for web path matching/substitution. */
 export interface RouteMeta {
-	/** @internal Generated module identity; caches code only, never prepared inputs. */
+	/** Generated module identity; caches code only, never prepared inputs.
+	 *  @internal Generated module identity; caches code only, never prepared inputs. */
 	loadModule?: () => Promise<{
 		/** Route metadata entry. */
 		meta: RouteMeta
@@ -7173,7 +7233,8 @@ export type RouteSpecParams<Path extends string> = string extends Path
 export interface RouteSpec<Path extends string = string> {
 	/** Path pattern for the spec. */
 	path: Path
-	/** @internal Inferred executable behavior assembled by defineRoute. */
+	/** Inferred executable behavior assembled by defineRoute.
+	 *  @internal Inferred executable behavior assembled by defineRoute. */
 	preparation?: RoutePreparationBehavior
 	/** Independent animation preset; presentation continues to describe the host. */
 	transition?: RouteTransitionName
@@ -7464,10 +7525,14 @@ export interface SpecRouteInfo<
 	Specs extends readonly RouteSpec[],
 	Baked = Record<string, unknown>,
 > {
+	/** Phantom variance witness keeping contract inference directional —
+	 *  never present at runtime. */
 	readonly [routeContractVariance]: (
 		/** Route contracts inferred from the spec list. */
 		contracts: RouteContractsFromSpecs<Specs, Baked>,
 	) => RouteContractsFromSpecs<Specs, Baked>
+	/** Phantom brand carrying the spec route-type inference — never
+	 *  present at runtime. */
 	readonly [specRouteTypes]: {
 		/** Contracts the lookup helpers are keyed by. */
 		contracts: RouteContractsFromSpecs<Specs, Baked>
@@ -7511,6 +7576,8 @@ export type ManifestRouteNames<M> = keyof ManifestRouteParams<M> & string
 /** name → presentation map extracted from a `defineRoutes` manifest brand — `{}` for untagged manifests.
  */
 export type ManifestRoutePresentations<M> = M extends {
+	/** Phantom brand carrying the spec route-type inference — never
+	 *  present at runtime. */
 	readonly [specRouteTypes]: {
 		/** Presentation map captured for manifest inference. */
 		presentations: infer P
@@ -7587,9 +7654,12 @@ export interface WindowHandle {
 	setTitle?(title: string): void
 	/** Resize the window's content area. Present only on hosts that support
 	 *  resizing (macOS, Linux, script-opened web popups). */
-	setSize?(size: { /** Current window width in px. */ width: number
-		/** Current window height in px. */
-		height: number }): void
+	setSize?(size: {
+		/** Requested content-area width in px. */
+		width: number
+		/** Requested content-area height in px. */
+		height: number
+	}): void
 	/** Veto a user-initiated close request — the callback returning false
 	 *  cancels the close. Present only on hosts that report close requests
 	 *  (macOS). Returns an unsubscribe function. */
@@ -7684,7 +7754,8 @@ export interface ButtonProps extends Omit<PressableProps, 'disabled' | 'onPress'
 	label?: string
 	/** Visual variant. @default 'secondary' */
 	variant?: ButtonVariant
-	/** @default 'md' */
+	/** Control size on the shared field scale.
+	 *  @default 'md' */
 	size?: FieldControlSize
 	/** Disabled state — blocks presses and dims the button. */
 	isDisabled?: boolean
@@ -7866,6 +7937,7 @@ export interface AccordionMultipleProps extends AccordionBaseProps {
 	onOpenChange?: (open: string[]) => void
 }
 
+/** Accordion props — discriminated by single versus multiple open-section mode. */
 export type AccordionProps = AccordionSingleProps | AccordionMultipleProps
 
 /** Self-drawn checkbox — box + check mark, identical pixels across targets.
@@ -8175,7 +8247,8 @@ export interface MenuSeparatorData {
 	href?: never
 }
 
-/** @deprecated Use `MenuSeparatorData` with `type: 'separator'`. */
+/** Separator entry data for menu descriptors.
+ *  @deprecated Use `MenuSeparatorData` with `type: 'separator'`. */
 export type MenuDividerData = MenuSeparatorData
 
 /** A toggleable menu row — `type: 'checkbox'`, caller-owned `value`, `onValueChange` requests the next state.
@@ -8239,7 +8312,8 @@ export type MenuOption<
 	| MenuRadioGroupData
 	| MenuSubMenuData<Contracts, Stacks, Transitions>
 
-/** @deprecated Use `MenuOption`, whose entry kinds have explicit discriminants. */
+/** Menu entry union — superseded by the discriminated `MenuOption` shapes.
+ *  @deprecated Use `MenuOption`, whose entry kinds have explicit discriminants. */
 export type MenuItem<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
@@ -8347,7 +8421,8 @@ export interface MenuSeparatorProps {
 	style?: StyleProp
 }
 
-/** @deprecated Use `MenuSeparatorProps`. */
+/** Props for the menu separator element.
+ *  @deprecated Use `MenuSeparatorProps`. */
 export type MenuDividerProps = MenuSeparatorProps
 
 /** A compound-menu row that opens a nested menu — `children` or `items` supply the submenu; `isOpen`/`defaultOpen`/`onOpenChange` own its visibility.
@@ -8648,6 +8723,7 @@ export interface SkeletonProps {
 /** Astryx avatar size names → px (xsm 16, sm 24, md 32, lg 40, xl 48). */
 export type AvatarSize = 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | number
 
+/** Props for the Avatar component. */
 export interface AvatarProps {
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
@@ -8852,7 +8928,8 @@ export interface FieldStatusComponentProps {
 	type: FieldStatusType
 	/** Status text rendered. */
 	message?: string
-	/** @default 'detached' */
+	/** Status message placement relative to the control.
+	 *  @default 'detached' */
 	variant?: FieldStatusVariant
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
@@ -9236,6 +9313,7 @@ export interface SelectMultipleProps extends SelectBaseProps {
 	changeAction?: (value: string[]) => void | Promise<void>
 }
 
+/** Select props — discriminated by single versus multiple selection mode. */
 export type SelectProps = SelectSingleProps | SelectMultipleProps
 
 // ---------- Astryx parity: typeahead + token selection ----------
@@ -10175,7 +10253,8 @@ export interface StepperProps {
 	/** Called with a step's `step` index when it is activated (Astryx
 	 *  `onStepClick`). */
 	onStepClick?: (step: number) => void
-	/** @default 'horizontal' */
+	/** Step flow direction.
+	 *  @default 'horizontal' */
 	orientation?: 'horizontal' | 'vertical'
 	/** Indicator placement for the child-part contract. @default 'off-track' */
 	indicatorPosition?: 'off-track' | 'on-track'
@@ -10989,6 +11068,7 @@ export interface EmptyProps {
 /** Banner status tones (Astryx `status`). */
 export type BannerStatus = 'info' | 'success' | 'warning' | 'error'
 
+/** Props for the Banner component. */
 export interface BannerProps {
 	/** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
 	className?: ClassValue
@@ -11693,7 +11773,8 @@ export interface ChatComposerContextValue {
 	onDraftChange: (draft: ChatComposerDraft) => void
 	/** Send the current draft. */
 	onSend: (value: string) => void
-	/** @deprecated Use onSend. */
+	/** Sends the current draft.
+	 *  @deprecated Use onSend. */
 	onSubmit: (value: string) => void
 	/** Text shown while the input is empty. */
 	placeholder: string
@@ -11705,7 +11786,8 @@ export interface ChatComposerContextValue {
 	canSend: boolean
 	/** Cancel/stop action. */
 	onCancel?: () => void
-	/** @deprecated Use onCancel. */
+	/** Cancels an in-flight generation.
+	 *  @deprecated Use onCancel. */
 	onStop?: () => void
 	/** Handle for focusing/controlling the inner input. */
 	inputControlRef?: {
@@ -11764,7 +11846,8 @@ export interface ChatComposerInputProps {
 	onFiles?: (files: ChatComposerFile[]) => void
 	/** Send action — called with the serialized draft text. */
 	onSend?: (value: string) => void
-	/** @deprecated Use onSend. */
+	/** Sends the serialized draft text.
+	 *  @deprecated Use onSend. */
 	onSubmit?: (value: string) => void
 	/** Runs before built-in Enter/recall handling; preventDefault() to own
 	 *  the keystroke. IME composition always suppresses submit. */
@@ -11842,7 +11925,8 @@ export interface ChatSendButtonProps {
 	isDisabled?: boolean
 	/** Fires on send activation. */
 	onSend?: () => void
-	/** @deprecated Use onCancel. */
+	/** Cancels an in-flight generation.
+	 *  @deprecated Use onCancel. */
 	onStop?: () => void
 	/** Fires on stop activation (when isStopShown). */
 	onCancel?: () => void
@@ -11886,11 +11970,13 @@ export interface ChatComposerProps {
 	id?: string
 	/** Send action — called with the serialized draft text. */
 	onSend?: (value: string) => void
-	/** @deprecated Use onSend. */
+	/** Sends the serialized draft text.
+	 *  @deprecated Use onSend. */
 	onSubmit?: (value: string) => void
 	/** Cancel/stop action. */
 	onCancel?: () => void
-	/** @deprecated Use onCancel. */
+	/** Cancels an in-flight generation.
+	 *  @deprecated Use onCancel. */
 	onStop?: () => void
 	/** Shows the stop affordance instead of send. */
 	isStopShown?: boolean
@@ -13046,7 +13132,8 @@ export interface SideNavControlledCollapsible extends SideNavCollapsibleConfig {
 	onCollapsedChange: (isCollapsed: boolean) => void
 }
 
-/** @deprecated Hand the same controlled `collapsible` config to SideNav and
+/** Imperative collapse/expand handle for a SideNav.
+ *  @deprecated Hand the same controlled `collapsible` config to SideNav and
  *  to the outside button instead. */
 export interface SideNavImperativeCollapseHandle {
 	/** Reads the current collapse state; null when not collapsible. */
@@ -13091,7 +13178,8 @@ export interface SideNavProps extends LayoutChildProps {
 	/** Inline-end resize handle: `true` for defaults (260dip initial,
 	 *  180–480 range) or a `ResizableConfig`. */
 	resizable?: boolean | ResizableConfig
-	/** @deprecated Share one controlled `collapsible` config instead. */
+	/** Legacy imperative-collapse handle.
+	 *  @deprecated Share one controlled `collapsible` config instead. */
 	handleRef?: {
 		/** Live collapse-handle slot; null before mount. */
 		current: SideNavImperativeCollapseHandle | null
@@ -13246,7 +13334,8 @@ export interface SideNavCollapseButtonProps {
 	/** The same controlled config given to SideNav — needed only when the
 	 *  button renders outside this SideNav. */
 	collapsible?: SideNavControlledCollapsible
-	/** @deprecated Pass `collapsible` instead. */
+	/** Legacy imperative-collapse handle.
+	 *  @deprecated Pass `collapsible` instead. */
 	handleRef?: {
 		/** Live collapse-handle slot; null before mount. */
 		current: SideNavImperativeCollapseHandle | null
@@ -13781,7 +13870,8 @@ export interface ButtonGroupProps {
 	children?: Renderable
 	/** Accessible label for the group (role="group" aria-label). */
 	label: string
-	/** @default 'horizontal' */
+	/** Button flow direction.
+	 *  @default 'horizontal' */
 	orientation?: ButtonGroupOrientation
 	/** Default size for group members. @default 'md' */
 	size?: FieldControlSize
@@ -13926,9 +14016,11 @@ export interface ClickableCardProps {
 	children?: Renderable
 	/** Internal padding in 4px spacing steps. @default 4 */
 	padding?: number
-	/** @default 'default' */
+	/** Visual card treatment.
+	 *  @default 'default' */
 	variant?: string
-	/** @default 'none' */
+	/** Shadow depth.
+	 *  @default 'none' */
 	elevation?: Elevation
 	/** Card width — number is DIPs, string is a CSS length. */
 	width?: number | string
@@ -14148,9 +14240,11 @@ export interface DateAbsoluteOperatorValue {
 export interface DateRelativeOperatorValue {
 	/** Relative-date operator discriminator. */
 	readonly type: 'date_relative'
-	/** @default true */
+	/** Enables past-relative presets in the editor.
+	 *  @default true */
 	readonly isPastAllowed?: boolean
-	/** @default true */
+	/** Enables future-relative presets in the editor.
+	 *  @default true */
 	readonly isFutureAllowed?: boolean
 }
 
@@ -14716,7 +14810,8 @@ export interface PowerSearchProps<
 	) => void
 	/** Accessible label. @default 'Search' */
 	placeholder?: string
-	/** @default false */
+	/** Focuses the search field on mount.
+	 *  @default false */
 	hasAutoFocus?: boolean
 	/** Show a clear-all affordance. @default true */
 	hasClear?: boolean
@@ -14814,6 +14909,8 @@ declare const powerSearchFields: unique symbol
 /** The field-definition record `createPowerSearchConfig` brands onto its
  *  config — read it with `PowerSearchFilterFor`, never directly. */
 export interface PowerSearchDefInfo<Defs extends readonly FieldDefinition[]> {
+	/** Phantom key carrying the field-definition tuple read by
+	 *  `PowerSearchFilterFor` — never present at runtime. */
 	readonly [powerSearchFields]: Defs
 }
 
@@ -15185,7 +15282,8 @@ export interface CodeProps {
 	id?: string
 	/** Content rendered inside the element. */
 	children?: Renderable
-	/** @default 'primary' */
+	/** Syntax-emphasis palette.
+	 *  @default 'primary' */
 	color?: CodeColor
 	/** `'inherit'` adopts the surrounding text's font-size and line-height. */
 	size?: CodeSize
@@ -15281,7 +15379,8 @@ export interface CodeBlockProps {
 	isCollapsible?: boolean
 	/** Minimum line count for the collapse affordance. @default 10 */
 	collapsibleThreshold?: number
-	/** @default 'md' */
+	/** Block text size.
+	 *  @default 'md' */
 	size?: 'sm' | 'md'
 	/**
 	 * Width of the block.
@@ -15357,7 +15456,8 @@ export interface ProgressBarProps {
 	id?: string
 	/** Current value. Ignored when `isIndeterminate` is true. @default 0 */
 	value?: number
-	/** @default 100 */
+	/** Value considered complete.
+	 *  @default 100 */
 	max?: number
 	/** Accessible label (required) — shown above the bar unless `isLabelHidden`. */
 	label: string
@@ -15365,9 +15465,11 @@ export interface ProgressBarProps {
 	isLabelHidden?: boolean
 	/** Show the formatted value beside the label. @default false */
 	hasValueLabel?: boolean
-	/** @default (value, max) => `${Math.round((value / max) * 100)}%` */
+	/** Formats the value for the visible label.
+	 *  @default (value, max) => `${Math.round((value / max) * 100)}%` */
 	formatValueLabel?: (value: number, max: number) => string
-	/** @default 'accent' */
+	/** Visual progress-bar treatment.
+	 *  @default 'accent' */
 	variant?: ProgressBarVariant
 	/** Animated unknown-progress mode; `value`/`hasValueLabel`/`marks` are
 	 *  ignored. @default false */
@@ -15522,7 +15624,8 @@ export interface TimestampBaseProps {
 	type?: TextType
 	/** Explicit font size override; wins over `type`. */
 	size?: TextSize
-	/** @default 'secondary' */
+	/** Text color.
+	 *  @default 'secondary' */
 	color?: TextColor
 	/** Font weight override. */
 	weight?: TextWeight
@@ -15584,13 +15687,15 @@ export interface TimerProps {
 	/** Unix time in milliseconds when the measured operation began. Omit to
 	 *  count from this Timer's mount. */
 	startTimeMs?: number
-	/** @default 'elapsed' */
+	/** Elapsed/remaining display format.
+	 *  @default 'elapsed' */
 	format?: TimerFormat
 	/** Semantic text type. @default 'supporting' */
 	type?: TextType
 	/** Explicit font size override; wins over `type`. */
 	size?: TextSize
-	/** @default 'secondary' */
+	/** Text color.
+	 *  @default 'secondary' */
 	color?: TextColor
 	/** Font weight override. */
 	weight?: TextWeight
@@ -15762,7 +15867,8 @@ export interface ThumbnailProps {
 	/** Loading state: skeleton without `src`, spinner overlay over `src`.
 	 *  @default false */
 	isLoading?: boolean
-	/** @default false */
+	/** Prevents interaction.
+	 *  @default false */
 	isDisabled?: boolean
 	/** Remove-button visibility. 'hover' (default) reveals on hover/focus;
 	 *  touch targets always show it (same rule upstream uses for coarse
@@ -16042,6 +16148,7 @@ export interface MarkdownPresentationProps {
 	sources?: Record<string, CitationSource>
 }
 
+/** Markdown rendering props — a parsed document or raw text plus presentation options. */
 export type MarkdownProps = (MarkdownDataProps | MarkdownTextProps) & MarkdownPresentationProps
 
 /** `MarkdownScreen` — the route screen codegen mounts for `.md` route
@@ -16092,7 +16199,8 @@ export interface CenterProps extends StackPaddingProps, StackSizeProps, Accessib
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
-	/** @default 'both' */
+	/** Axes the content centers on.
+	 *  @default 'both' */
 	axis?: CenterAxis
 	/** Renders as an inline-level box instead of a block. */
 	isInline?: boolean
@@ -16134,7 +16242,8 @@ export interface SectionProps extends StackPaddingProps, StackSizeProps, Accessi
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
-	/** @default 'section' */
+	/** Visual section treatment.
+	 *  @default 'section' */
 	variant?: SectionVariant
 	/** 'start'/'end' are logical edges — on native they map to left/right. */
 	dividers?: SectionDividerSide[]
@@ -16212,7 +16321,8 @@ export interface LayoutProps extends AccessibilityProps {
 	 *  basis (Astryx's edge-scrolling path); native/macOS constrain the
 	 *  middle lane instead. */
 	contentWidth?: SizeValue
-	/** @default 'fill' */
+	/** Layout height behavior.
+	 *  @default 'fill' */
 	height?: LayoutHeight
 	/** Outer-edge padding in spacing steps — header/footer/content read it as
 	 *  the padding on edges that touch the layout's boundary. `0` docks every
@@ -16513,7 +16623,8 @@ export interface AspectRatioProps extends AccessibilityProps {
 	ref?: Octane.Ref<object>
 	/** width / height — e.g. 16/9 ≈ 1.777. Required. */
 	ratio: number
-	/** @default 'rectangle' */
+	/** Mask shape applied to the ratio box.
+	 *  @default 'rectangle' */
 	shape?: AspectRatioShape
 	/** How content fits the ratio box (cover/contain semantics). */
 	fit?: AspectRatioFit
@@ -16567,7 +16678,8 @@ export interface FormLayoutProps extends AccessibilityProps {
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
-	/** @default 'vertical' */
+	/** Row flow direction for the form.
+	 *  @default 'vertical' */
 	direction?: FormLayoutDirection
 	/** Default required/optional marker policy for fields in the form. */
 	defaultOptionality?: FormOptionality
@@ -16687,7 +16799,8 @@ export interface ListProps extends AccessibilityProps {
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
 	ref?: Octane.Ref<object>
-	/** @default 'balanced' */
+	/** Row spacing density.
+	 *  @default 'balanced' */
 	density?: ListDensity
 	/** Draws separators between list rows. */
 	hasDividers?: boolean
@@ -16698,7 +16811,8 @@ export interface ListProps extends AccessibilityProps {
 	edgeCompensation?: 'inline'
 	/** Header content rendered above the list (aria-labelledby on web). */
 	header?: Renderable
-	/** @default 'none' */
+	/** Marker style applied to rows.
+	 *  @default 'none' */
 	listStyle?: ListMarkerStyle
 	/** Starting number for 'decimal' lists. @default 1 */
 	start?: number
@@ -16896,7 +17010,8 @@ export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
 	web?: PlatformProps
 	/** Current indicator state. */
 	state: IndicatorState<F>
-	/** @default 'md' */
+	/** Indicator size on the shared scale.
+	 *  @default 'md' */
 	size?: IndicatorSize
 	/** Dims the indicator. */
 	isDisabled?: boolean
@@ -16981,6 +17096,7 @@ export interface ImageSampleRegion {
 	height: number
 }
 
+/** Options selecting the image render mode and its source. */
 export interface UseImageModeOptions {
 	/** Sample this area instead of the whole image. */
 	region?: ImageSampleRegion
@@ -17001,6 +17117,7 @@ export interface ContainerRevealProps {
 	className?: string
 }
 
+/** Result of useContainerReveal — reveal-state signal and trigger props. */
 export interface UseContainerRevealReturn {
 	/** Props to spread on the container that triggers the reveal. */
 	getContainerProps: () => ContainerRevealProps

@@ -4,6 +4,10 @@
 import { router } from './default-router'
 import { registerRouterDevActionsFor } from './dev-shared'
 
-export function registerRouterDevActions(): { dispose(): void } {
+/** Registers the dev-only framework actions on the default router. */
+export function registerRouterDevActions(): {
+	/** Removes the registered actions. */
+	dispose(): void
+} {
 	return registerRouterDevActionsFor(router)
 }

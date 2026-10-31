@@ -17,6 +17,7 @@ export interface ColumnSettingsOption<TColumnKey extends string = string> {
 	group?: string
 }
 
+/** Config for useTableColumnSettingsState — column keys, labels, initial visibility. */
 export interface UseTableColumnSettingsStateConfig<TColumnKey extends string = string> {
 	/** All settable columns in display order. */
 	columns: ReadonlyArray<ColumnSettingsOption<TColumnKey>>
@@ -32,6 +33,7 @@ export interface UseTableColumnSettingsStateConfig<TColumnKey extends string = s
 export type UseTableColumnSettingsConfig<TColumnKey extends string = string> =
 	UseTableColumnSettingsStateConfig<TColumnKey>
 
+/** useTableColumnSettingsState result — settings state plus the column-settings config. */
 export interface UseTableColumnSettingsStateReturn<TColumnKey extends string = string> {
 	/** Config to pass through to `useTableColumnSettings`/the Table plugin. */
 	columnSettingsConfig: UseTableColumnSettingsStateConfig<TColumnKey>

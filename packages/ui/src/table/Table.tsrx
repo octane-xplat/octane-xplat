@@ -243,24 +243,28 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 // Parts — children-mode composition (flex views)
 // =============================================================================
 
+/** Table head section — renders column header rows. */
 export function TableHeader(props: TableHeaderProps): unknown @{
 	<masonview className={cx('vx-table-header', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }
 
+/** Table body section — renders data rows. */
 export function TableBody(props: TableBodyProps): unknown @{
 	<masonview className={cx('vx-table-body', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }
 
+/** Table foot section — renders summary/footer rows. */
 export function TableFooter(props: TableFooterProps): unknown @{
 	<masonview className={cx('vx-table-footer', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }
 
+/** One table row of cells. */
 export function TableRow(props: TableRowProps): unknown @{
 	const { isHeaderRow, children, className, style, ...rest } = props
 
@@ -273,6 +277,7 @@ export function TableRow(props: TableRowProps): unknown @{
 	</masonview>
 }
 
+/** One body cell of a TableRow. */
 export function TableCell(props: TableCellProps): unknown @{
 	const { children, className, style, colSpan, ...rest } = props
 
@@ -285,6 +290,7 @@ export function TableCell(props: TableCellProps): unknown @{
 	</masonview>
 }
 
+/** One column header cell of a TableHeader. */
 export function TableHeaderCell(props: TableHeaderCellProps): unknown @{
 	const { children, className, style, ...rest } = props
 

@@ -8,6 +8,7 @@ import { Button } from '../components/actions/Button'
 import { Text } from '../components/content/Text'
 import { HStack } from '../components/layout/HStack'
 
+/** Selection-count toolbar shown while table rows are selected. */
 export function TableSelectionToolbar(props: TableSelectionToolbarProps): any @{
 	const {
 		selection,

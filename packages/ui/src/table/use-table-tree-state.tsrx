@@ -11,6 +11,7 @@ import type { TableTreeRowMeta, UseTableTreeDataConfig } from './types'
 // Config
 // =============================================================================
 
+/** Config for useTableTreeState — expansion state plus tree presentation. */
 export interface UseTableTreeStateConfig<T extends Record<string, unknown>> {
 	/** Nested data: rows may carry child rows under `childrenKey`. */
 	data: T[]
@@ -40,6 +41,7 @@ export interface UseTableTreeStateConfig<T extends Record<string, unknown>> {
 // Result
 // =============================================================================
 
+/** useTableTreeState result — expansion state plus the tree-data config. */
 export interface UseTableTreeStateResult<T extends Record<string, unknown>> {
 	/** The flattened, currently-visible rows. Pass to `<Table data>`. */
 	visibleData: T[]
@@ -60,6 +62,7 @@ export interface UseTableTreeStateResult<T extends Record<string, unknown>> {
 // Hook
 // =============================================================================
 
+/** Owns tree expansion state and produces the useTableTreeData config. */
 export function useTableTreeState<T extends Record<string, unknown>>(
 	config: UseTableTreeStateConfig<T>,
 ): UseTableTreeStateResult<T> {

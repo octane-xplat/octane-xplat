@@ -4,9 +4,13 @@
 import { useState } from 'octane'
 import type { TableFilterState, TableFilterValue } from './types'
 
+/** useTableFilterState result — current filters plus mutators. */
 export interface UseTableFilterStateResult {
+	/** Applied filter values by column key. */
 	filters: TableFilterState
+	/** Sets one column's filter — null clears it. */
 	onFilterChange: (key: string, value: TableFilterValue | null) => void
+	/** Clears every applied filter. */
 	clearAll: () => void
 }
 

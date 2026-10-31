@@ -407,6 +407,7 @@ type GroupContext<Id extends string, Context, Added, Data> = MergedRouteContext<
 	{ [Key in Id]: Awaited<Data> }
 >
 
+/** A route group plus the fluent builder that grows its context contract. */
 export type RouteGroupBuilder<Context extends object, Root> = RouteGroup<Context, Root> & {
 	/** Defines a route inside this group's context scope. */
 	readonly route: ReturnType<typeof definitionsWithContext<Context, Root>>

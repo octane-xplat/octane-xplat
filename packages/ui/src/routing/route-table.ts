@@ -84,6 +84,7 @@ function warnDiagnostic(d: RouteDiagnostic): void {
  *  call with three bad specs reports all three at once rather than
  *  failing edit-by-edit. */
 export class RouteManifestError extends Error {
+	/** Every violation found in one pass — not just the first. */
 	readonly issues: readonly RouteDiagnostic[]
 	constructor(issues: RouteDiagnostic | readonly RouteDiagnostic[]) {
 		const list = Array.isArray(issues) ? issues : [issues]
@@ -554,7 +555,10 @@ export function defineRoutes<
 	const Baked extends Record<string, unknown>,
 >(
 	input: Omit<RouteSpecSet, 'routes' | 'baked'> & {
+		/** Declared route specs, in authored order. */
 		routes: Specs
+		/** Per-name data for `dataMode: 'baked'` routes — the generic keeps
+		 *  each name's DTO type. */
 		baked: Baked
 	} & DeclaredRouteSpecs<Specs>,
 ): RouteManifest & SpecRouteInfo<Specs, Baked>

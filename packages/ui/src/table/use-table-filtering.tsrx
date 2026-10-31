@@ -32,13 +32,16 @@ import { VStack } from '../components/layout/VStack'
 import { View } from '../components/layout/View'
 import { tableSlot } from './table-slot'
 
+/** Config for useTableFiltering — filter state, search fields, presentation. */
 export interface UseTableFilteringConfig {
 	/** Applied filter state — from `useTableFilterState`. */
 	filters: TableFilterState
+	/** Filter-change callback — null clears the column's filter. */
 	onFilterChange: (key: string, value: TableFilterValue | null) => void
 	/** Shared search config — `filter` refs resolve against its fields. */
 	searchConfig: PowerSearchConfig
-	/** @default 'popover' */
+	/** Control presentation — popover button or inline row.
+	 *  @default 'popover' */
 	variant?: TableFilterVariant
 	/** Compact-size controls for inline variants. @default 'sm' */
 	inlineSize?: 'sm' | 'md'

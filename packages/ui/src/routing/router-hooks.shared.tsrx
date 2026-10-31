@@ -62,6 +62,8 @@ function useScope(instance?: object, declared = false): RouterRenderScope {
 	return requireRouterRenderScope(scope, instance, declared)
 }
 
+/** Navigator for the rendering flow's router, or for a declared instance.
+ *  Throws outside a router scope. */
 export function useRouter(): RouterNavigator<RegisteredRouteContracts>
 export function useRouter<Contracts, Stacks extends string, Transitions extends string>(
 	instance: RouterInstance<Contracts, Stacks, Transitions>,
@@ -76,6 +78,7 @@ function useSnapshot(instance?: object, declared = false): RouterState<any> {
 	return useSyncExternalStore(navigator.subscribe, navigator.getSnapshot, navigator.getSnapshot)
 }
 
+/** Reactive router state — current match, navigation status, history flags. */
 export function useRouterState(): RouterState<RegisteredRouteContracts>
 export function useRouterState<Contracts, Stacks extends string>(
 	instance: RouterInstance<Contracts, Stacks, any>,
@@ -136,6 +139,7 @@ export function useCanGoBack(): boolean {
 	return useSnapshot().canGoBack
 }
 
+/** Current rendering match — params, search, and loader data; null outside a match. */
 export function useRouteMatch(): RouterMatch<RegisteredRouteContracts> | null
 export function useRouteMatch<Contracts, Stacks extends string>(
 	instance: RouterInstance<Contracts, Stacks, any>,

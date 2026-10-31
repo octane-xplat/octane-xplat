@@ -930,13 +930,20 @@ export function createBrowserRouterHost(): BrowserRouterHost {
 }
 
 export type BrowserRouterHost = {
+	/** Document-scoped RouterHost protocol implementation. */
 	host: RouterHost
+	/** Snapshot store the route tree renders from. */
 	views: Store<BrowserRouteSnapshot>
-	/** @internal One-time adoption of a server-prepared document. Never a
-	 * navigation API: subsequent entries must pass the preparation pipeline. */
+	/** One-time adoption of a server-prepared document. Never a navigation
+	 *  API: subsequent entries must pass the preparation pipeline.
+	 *  @internal */
 	initialize(route: PreparedRouteMatch, content: RouterHostContent): void
+	/** Registers the DOM element a route entry renders into. */
 	entryElement(id: string, element: HTMLElement | null): void
+	/** Binds the host to a router instance. */
 	attach(router: RouterInstance<any>): void
+	/** Resolves the render scope for a flow. */
 	scope(flow: string): RouterRenderScope
+	/** Mounts a flow into the document; returns its unmount cleanup. */
 	mount(flow: string): () => void
 }

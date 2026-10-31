@@ -31,9 +31,11 @@ export interface UseTablePaginationConfig {
 	variant?: 'pages' | 'count' | 'compact' | 'dots' | 'none'
 	/** Pager control size. */
 	size?: 'sm' | 'md'
-	/** @default 'below' */
+	/** Pager placement relative to the table.
+	 *  @default 'below' */
 	position?: 'below' | 'above' | 'both' | 'none'
-	/** @default 'center' */
+	/** Pager horizontal alignment.
+	 *  @default 'center' */
 	align?: 'start' | 'center' | 'end'
 	/** Accessible label for the pager region. */
 	label?: string

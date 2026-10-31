@@ -90,6 +90,7 @@ function TreeHeaderBefore(props: {
 	</>
 }
 
+/** Headless tree plugin — expands row data with indent/affordance metadata. */
 export function useTableTreeData<T extends Record<string, unknown>>(
 	config: UseTableTreeDataConfig<T>,
 ): TablePlugin<T> {

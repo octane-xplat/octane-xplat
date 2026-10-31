@@ -28,6 +28,7 @@ import type {
 /** Redirect carrier for the host-independent pipeline; adapters decide whether
  * to follow it internally or turn it into an HTTP Location response. */
 export class DestinationRedirect extends Error {
+	/** Destination the redirect targets. */
 	readonly destination: RouteDestinationInput | ValidatedDestination
 	constructor(destination: RouteDestinationInput | ValidatedDestination) {
 		super('route redirect')
@@ -113,19 +114,27 @@ function readContext(
  * browser history, native host, or HTTP implementation. Platform adapters provide
  * cancellation primitives; stale work is suppressed even when it ignores abort. */
 export function createRoutePreparation(options: RoutePreparationOptions): {
+	/** Serializes a destination to the URL the manifest would navigate to. */
 	href: (destination: RouteDestinationInput) => string
+	/** Resolves a raw URL to a route resolution (match, miss, or error). */
 	resolveUrl: (url: string) => RouteResolution
+	/** Resolves a typed destination input to a route resolution. */
 	resolveDestination: (input: unknown) => RouteResolution
+	/** Runs schema and guard validation for a destination before commit. */
 	validateDestination: (
 		input: unknown,
 		settings?: { signal?: RouteCancellationSignal },
 	) => Promise<DestinationValidationResult<RouteDestinationInput>>
+	/** Warms a destination's loader data without committing navigation. */
 	preload: (
 		input: unknown,
 		settings?: { signal?: RouteCancellationSignal },
 	) => Promise<RoutePreloadResult>
+	/** Runs the full preparation pipeline — guards, loaders, content. */
 	prepare: (input: unknown, settings?: PrepareSettings) => Promise<RoutePreparationResult>
+	/** Cancels in-flight preparation for one stack, or all when omitted. */
 	cancel(stack?: string): void
+	/** Tears the session down; the reason reaches pending cancellations. */
 	dispose(reason?: 'superseded' | 'disposed' | 'aborted' | 'registry-changed'): void
 } {
 	options = { ...options }

@@ -30,8 +30,11 @@ export function snapshotRouteCatalog(catalog: RouteManifest): RouteManifest {
 	return contracted ? sealRouteCatalog(snapshot) : snapshot
 }
 
+/** Thrown when two registrations claim the same key. */
 export class RouteRegistrationError extends Error {
+	/** Registration name that lost the conflict. */
 	readonly registration: string
+	/** Route key both registrations claimed. */
 	readonly key: string
 	constructor(registration: string, key: string) {
 		super(`Route registration '${registration}' conflicts at '${key}'`)

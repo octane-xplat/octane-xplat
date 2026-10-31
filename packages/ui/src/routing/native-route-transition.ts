@@ -17,16 +17,20 @@ import { readNativeReducedMotion } from './native-route-motion-policy'
 /** Inputs available when opening a native page. NativeScript owns reverse
  * animation on Back using the selected transition's native direction methods. */
 export type NativeTransitionContext = Omit<RouteTransitionContext, 'direction' | 'to'> & {
+	/** Incoming prepared match — the destination page's data. */
 	to: PreparedRouteMatch
 }
 
 /** Incoming pane/modal content motion. The router owns the target, cancellation
  * and restoration; application screen styles are not animation targets. */
 export interface NativeViewTransitionOptions {
+	/** Start values — fixed, or computed per transition context. */
 	from:
 		| Readonly<NativeViewTransitionValues>
 		| ((context: RouteTransitionContext) => Readonly<NativeViewTransitionValues>)
+	/** Animation length in ms. */
 	duration?: number
+	/** Timing curve applied to the animation. */
 	curve?: 'linear' | 'easeIn' | 'easeOut' | 'easeInOut'
 }
 
@@ -37,10 +41,21 @@ type NativePageTransitionFactory = (
 /** Frame pages and rendered views use distinct SDK engines. Supply either or
  * both; an absent implementation reports skipped on that kind of host. */
 export type NativeTransitionOptions = {
+	/** How the transition honors the platform reduced-motion setting. */
 	reducedMotion?: 'skip' | 'allow'
 } & (
-	| { page: NativePageTransitionFactory; view?: NativeViewTransitionOptions }
-	| { page?: NativePageTransitionFactory; view: NativeViewTransitionOptions }
+	| {
+		/** Frame-page transition factory (navigation-level transition). */
+		page: NativePageTransitionFactory
+		/** Rendered-view transition options, when content also animates. */
+		view?: NativeViewTransitionOptions
+	}
+	| {
+		/** Frame-page transition factory, when the view carries the motion. */
+		page?: NativePageTransitionFactory
+		/** Rendered-view transition options (per-view animation). */
+		view: NativeViewTransitionOptions
+	}
 )
 
 interface StoredNativeTransitionOptions {

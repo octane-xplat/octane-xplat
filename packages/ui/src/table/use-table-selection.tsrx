@@ -12,6 +12,7 @@ import { View } from '../components/layout/View'
 import { pixel } from './column-utils'
 import { tableSlot } from './table-slot'
 
+/** Selection plugin config — mode, selected keys, and change callback. */
 export interface UseTableSelectionConfig<T extends Record<string, unknown>> {
 	/** Whether a row is selected. */
 	getIsItemSelected: (item: T) => boolean
@@ -33,6 +34,7 @@ export interface UseTableSelectionConfig<T extends Record<string, unknown>> {
 	hasRowHighlight?: boolean
 }
 
+/** Config for useTableSelectionState — selection mode plus initial keys. */
 export interface UseTableSelectionStateConfig<T extends Record<string, unknown>> {
 	/** Rows the selection applies to — needed to derive all/indeterminate. */
 	data: T[]
@@ -48,6 +50,7 @@ export interface UseTableSelectionStateConfig<T extends Record<string, unknown>>
 	setSelectedKeys: (keys: Set<string>) => void
 }
 
+/** useTableSelectionState result — selection state plus the plugin config. */
 export interface UseTableSelectionStateResult<T extends Record<string, unknown>> {
 	/** Config to pass through to `useTableSelection`. */
 	selectionConfig: UseTableSelectionConfig<T>

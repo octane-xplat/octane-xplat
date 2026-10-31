@@ -26,9 +26,11 @@ const defaultAppShellMobile: AppShellMobileContextValue = {
 	hasAutoToggle: true,
 }
 
+/** AppShell → MobileNav/TopNav mobile state. */
 export const AppShellMobileContext: Context<AppShellMobileContextValue> =
 	createContext<AppShellMobileContextValue>(defaultAppShellMobile)
 
+/** AppShell mobile state — the disabled default outside an AppShell. */
 export function useAppShellMobile(): AppShellMobileContextValue {
 	return useContext(AppShellMobileContext) ?? defaultAppShellMobile
 }
@@ -38,6 +40,7 @@ export function useAppShellMobile(): AppShellMobileContextValue {
 export const TopNavRenderContext: Context<TopNavRenderMode> =
 	createContext<TopNavRenderMode>('default')
 
+/** TopNav render mode below the AppShell breakpoint — 'default' outside one. */
 export function useTopNavRenderMode(): TopNavRenderMode {
 	return useContext(TopNavRenderContext) ?? 'default'
 }
@@ -63,6 +66,7 @@ export function useTopNavMobileContent(): any {
 export const SideNavRenderContext: Context<SideNavRenderMode> =
 	createContext<SideNavRenderMode>('default')
 
+/** SideNav render mode below the AppShell breakpoint — 'default' outside one. */
 export function useSideNavRenderMode(): SideNavRenderMode {
 	return useContext(SideNavRenderContext) ?? 'default'
 }
@@ -71,6 +75,7 @@ export function useSideNavRenderMode(): SideNavRenderMode {
 export const SideNavCollapseContext: Context<SideNavCollapseState | null> =
 	createContext<SideNavCollapseState | null>(null)
 
+/** Current SideNav collapse state — null when no collapsible SideNav is present. */
 export function useSideNavCollapse(): SideNavCollapseState | null {
 	return useContext(SideNavCollapseContext)
 }
@@ -80,6 +85,7 @@ export function useSideNavCollapse(): SideNavCollapseState | null {
 export const TabListContext: Context<TabListContextValue | null> =
 	createContext<TabListContextValue | null>(null)
 
+/** TabList selection contract — throws outside a TabList, matching upstream. */
 export function useTabListContext(): TabListContextValue {
 	const ctx = useContext(TabListContext)
 	if (ctx == null) {
@@ -96,6 +102,7 @@ export function useTabListContext(): TabListContextValue {
 export const NavHeadingCloseContext: Context<NavHeadingCloseContextValue | null> =
 	createContext<NavHeadingCloseContextValue | null>(null)
 
+/** Nav-heading popover close callback — null outside a heading menu. */
 export function useNavHeadingCloseContext(): NavHeadingCloseContextValue | null {
 	return useContext(NavHeadingCloseContext)
 }
@@ -104,6 +111,7 @@ export function useNavHeadingCloseContext(): NavHeadingCloseContextValue | null 
 export const NavHeadingMenuContext: Context<NavHeadingMenuContextValue | null> =
 	createContext<NavHeadingMenuContextValue | null>(null)
 
+/** Nav-heading menu context (size + close) — null outside a heading menu. */
 export function useNavHeadingMenuContext(): NavHeadingMenuContextValue | null {
 	return useContext(NavHeadingMenuContext)
 }

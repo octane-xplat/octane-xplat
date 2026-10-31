@@ -13,13 +13,22 @@ import type {
 /** Request-local, read-only counterpart of the browser outlet. No browser globals
  * and no process-global router; both compilers render exactly the same tree. */
 export function createServerRouterHost(): {
+	/** Request-scoped RouterHost protocol implementation. */
 	host: RouterHost
+	/** Snapshot store the server tree renders from. */
 	views: Store<BrowserRouteSnapshot>
+	/** Binds a router instance; throws when already attached. */
 	attach(router: RouterInstance<any>): void
+	/** Adopts the single server-prepared route; throws on a second call. */
 	initialize(route: PreparedRouteMatch, content: RouterHostContent): void
+	/** Rethrows a route failure after render so it surfaces as a request
+	 *  error instead of a silent blank response. */
 	assertRendered(): void
+	/** Resolves the render scope for a flow; throws before `attach`. */
 	scope(flow: string): RouterRenderScope
+	/** Mount contract — a no-op since server trees render once. */
 	mount: (_flow: string) => () => void
+	/** Element-ref registration — a no-op since the server emits markup. */
 	entryElement: (_id: string, _element: HTMLElement | null) => void
 } {
 	let instance: RouterInstance<any> | undefined

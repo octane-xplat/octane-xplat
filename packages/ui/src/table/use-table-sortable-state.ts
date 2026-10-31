@@ -4,6 +4,7 @@
 import { useMemo, useRef, useState } from 'octane'
 import type { TableSortState, TableSortComparator, UseTableSortableConfig } from './types'
 
+/** Config for useTableSortableState — sort entries, change callback, multi-sort policy. */
 export interface UseTableSortableStateConfig<
 	T extends Record<string, unknown>,
 	TSortKey extends string = string,
@@ -24,6 +25,7 @@ export interface UseTableSortableStateConfig<
 	isMultiSortEnabled?: boolean
 }
 
+/** useTableSortableState result — sort state plus the sortable plugin. */
 export interface UseTableSortableStateResult<
 	T extends Record<string, unknown>,
 	TSortKey extends string = string,

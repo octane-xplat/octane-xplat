@@ -17,7 +17,9 @@ export interface ResolvedColumnWidth {
 /** Result of `resolveColumnWidths()` — per-column width styles plus the
  *  aggregate table min-width. */
 export interface ResolvedColumnWidths {
+	/** Per-column-key resolved width styles. */
 	columns: Map<string, ResolvedColumnWidth>
+	/** Aggregate minimum table width in px. */
 	tableMinWidth: number
 }
 

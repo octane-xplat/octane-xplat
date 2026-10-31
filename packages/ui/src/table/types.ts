@@ -193,6 +193,8 @@ export interface TablePlugin<T extends Record<string, unknown> = Record<string, 
 // Table styling context (shared by parts in children mode)
 // =============================================================================
 
+/** Resolved table context — density, dividers, and the plugin pipeline
+ *  outputs shared with cells and rows. */
 export interface TableContextValue {
 	/** Row height/padding density propagated to cells. */
 	density: 'compact' | 'balanced' | 'spacious'
@@ -229,8 +231,10 @@ export interface TableSelectionState {
 // Sort state
 // =============================================================================
 
+/** One sort direction on the shared scale. */
 export type TableSortDirection = 'ascending' | 'descending'
 
+/** One column's sort — key plus direction. */
 export interface TableSortEntry<TSortKey extends string = string> {
 	/** Column sort key — matches `TableSortableColumnConfig.sortKey` (defaults to column key). */
 	sortKey: TSortKey
@@ -312,6 +316,7 @@ export interface UseTableGroupedRowsConfig<T extends Record<string, unknown>> {
 	groupOrder?: string[]
 }
 
+/** useTableGroupedRows result — the grouping plugin plus flattened row data. */
 export interface UseTableGroupedRowsResult<T extends Record<string, unknown>> {
 	/** Ready-to-use plugin for `<Table plugins>`. */
 	plugin: TablePlugin<T>
@@ -412,13 +417,18 @@ export type TableRowStatusColor =
 
 /** Semantic row status — resolves to the themed status glyph and tone. */
 export interface TableSemanticRowStatus {
+	/** Semantic level — resolves to the themed glyph and tone. */
 	status: 'success' | 'warning' | 'error'
+	/** Spoken/visible status text. */
 	label: string
 }
 
 /** Custom row-status marker — a named/raw `color`, optional `icon` name. */
 export interface TableRowStatus {
+	/** Marker color — a named token or raw value. */
 	color: string
+	/** Optional marker icon name. */
 	icon?: string
+	/** Spoken/visible status text. */
 	label: string
 }
