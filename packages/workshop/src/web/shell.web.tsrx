@@ -1,11 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 /**
  * Adaptive workshop shell — catalog, stage, controls, status.
- * DOM vocabulary is correct here: this is the DOM-host surface (browser and
- * the Linux WebKitGTK webview share it).
+ * Browser-only DOM surface; native targets use src/native/chrome.tsrx.
  */
 import type { JSX } from 'octane/jsx-runtime'
-import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
+import { useEffect, useLayoutEffect, useRef } from 'octane'
 import { useStore } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
 import { WORKSHOP_TARGETS, type StoryDefinition } from '../contract'
@@ -83,21 +82,10 @@ function selectStory(runtime: WorkshopRuntime, entry: CatalogEntry) {
 function StatusBar(props: { runtime: WorkshopRuntime }) {
 	const s = useStore(props.runtime.store)
 	const session = s.session
-	const phaseLabel =
-		session.phase === 'rebuilding'
-			? 'rebuilding'
-			: session.phase === 'preparing'
-				? 'preparing fixtures'
-				: session.phase === 'mounting'
-					? 'mounting'
-					: session.phase === 'disposing'
-						? 'disposing'
-						: session.phase === 'restart-required'
-							? 'restart required'
-							: session.phase
 
 	return (
 		<header className="xw-statusbar">
+			<span className="xw-wordmark">Workshop</span>
 			<details className="xw-target-menu">
 				<summary className="xw-target-chip" aria-label="Workshop targets">
 					{props.runtime.session.target}
@@ -115,85 +103,83 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 					))}
 				</ul>
 			</details>
-			<span className="xw-title" title={s.selectedId ?? ''}>
-				{s.selectedId ?? 'No story selected'}
-			</span>
-			<span className={`xw-phase xw-phase-${session.phase}`} aria-live="polite">
-				{phaseLabel}
-				{session.stale && session.phase !== 'rebuilding' ? ' · stale' : ''}
-			</span>
 			<span className="xw-spacer" />
-			{s.mode !== 'wide' ? (
-				<>
-					<button
-						type="button"
-						className="xw-btn"
-						data-workshop-opener="stories"
-						aria-pressed={s.auxPanel === 'stories'}
-						onClick={() => toggleAux(props.runtime, 'stories')}
-					>
-						Stories
-					</button>
-					<button
-						type="button"
-						className="xw-btn"
-						data-workshop-opener="controls"
-						aria-pressed={s.auxPanel === 'controls'}
-						onClick={() => toggleAux(props.runtime, 'controls')}
-					>
-						Controls
-					</button>
-				</>
-			) : (
-				<>
-					<button
-						type="button"
-						className="xw-btn"
-						aria-pressed={!s.catalogCollapsed}
-						title="Toggle story catalog"
-						onClick={() =>
-							props.runtime.store.update((x) => ({ ...x, catalogCollapsed: !x.catalogCollapsed }))
-						}
-					>
-						Catalog
-					</button>
-					<button
-						type="button"
-						className="xw-btn"
-						aria-pressed={!s.controlsCollapsed}
-						title="Toggle controls panel"
-						onClick={() =>
-							props.runtime.store.update((x) => ({ ...x, controlsCollapsed: !x.controlsCollapsed }))
-						}
-					>
-						Controls
-					</button>
-				</>
-			)}
-			<button
-				type="button"
-				className="xw-btn xw-reset"
-				disabled={!s.selectedId || session.phase === 'preparing' || session.phase === 'mounting'}
-				onClick={() => {
-					clearEdits(props.runtime)
-					void props.runtime.session.reset()
-				}}
-			>
-				Reset
-			</button>
-			<button
-				type="button"
-				className="xw-btn"
-				title="Hide workshop chrome (Esc or the floating button returns)"
-				onClick={() => props.runtime.store.update((x) => ({ ...x, stageOnly: true }))}
-			>
-				Stage only
-			</button>
+			<div className="xw-toolbar-actions">
+				{s.mode !== 'wide' ? (
+					<>
+						<button
+							type="button"
+							className="xw-btn"
+							data-workshop-opener="stories"
+							aria-pressed={s.auxPanel === 'stories'}
+							onClick={() => toggleAux(props.runtime, 'stories')}
+						>
+							Stories
+						</button>
+						<button
+							type="button"
+							className="xw-btn"
+							data-workshop-opener="controls"
+							aria-pressed={s.auxPanel === 'controls'}
+							onClick={() => toggleAux(props.runtime, 'controls')}
+						>
+							Controls
+						</button>
+					</>
+				) : (
+					<>
+						<button
+							type="button"
+							className="xw-btn"
+							aria-pressed={!s.catalogCollapsed}
+							title="Toggle story catalog"
+							onClick={() =>
+								props.runtime.store.update((x) => ({ ...x, catalogCollapsed: !x.catalogCollapsed }))
+							}
+						>
+							Stories
+						</button>
+						<button
+							type="button"
+							className="xw-btn"
+							aria-pressed={!s.controlsCollapsed}
+							title="Toggle controls panel"
+							onClick={() =>
+								props.runtime.store.update((x) => ({
+									...x,
+									controlsCollapsed: !x.controlsCollapsed,
+								}))
+							}
+						>
+							Controls
+						</button>
+					</>
+				)}
+				<button
+					type="button"
+					className="xw-btn xw-reset"
+					disabled={!s.selectedId || session.phase === 'preparing' || session.phase === 'mounting'}
+					onClick={() => {
+						clearEdits(props.runtime)
+						void props.runtime.session.reset()
+					}}
+				>
+					Reset
+				</button>
+				<button
+					type="button"
+					className="xw-btn"
+					title="Hide workshop chrome (Esc or the floating button returns)"
+					onClick={() => props.runtime.store.update((x) => ({ ...x, stageOnly: true }))}
+				>
+					Stage only
+				</button>
+			</div>
 		</header>
 	)
 }
 
-function toggleAux(runtime: WorkshopRuntime, panel: 'controls' | 'stories') {
+function toggleAux(runtime: WorkshopRuntime, panel: 'stories' | 'controls') {
 	const s = runtime.store.getSnapshot()
 	runtime.store.set({ ...s, auxPanel: s.auxPanel === panel ? null : panel })
 }
@@ -331,6 +317,10 @@ function catalogBody(s: ShellState, runtime: WorkshopRuntime, groups: Group) {
 		)
 	}
 
+	if (!groups.entries.length && !groups.children.size) {
+		return <div className="xw-empty">No matching stories. Try another title or ID.</div>
+	}
+
 	return <GroupView runtime={runtime} group={groups} depth={0} />
 }
 
@@ -343,6 +333,27 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
 			aria-label="Story catalog"
 		>
 			<div className="xw-panel-head">
+				<span className="xw-panel-title">Stories</span>
+				<span className="xw-count">
+					{s.query.trim()
+						? s.catalog.filter((e) =>
+								`${e.title} ${e.id}`.toLowerCase().includes(s.query.trim().toLowerCase()),
+							).length
+						: s.catalog.length}
+				</span>
+				<span className="xw-spacer" />
+				{props.mode === 'overlay' ? (
+					<button
+						type="button"
+						className="xw-btn xw-close"
+						aria-label="Close Stories"
+						onClick={() => props.runtime.store.update((x) => ({ ...x, auxPanel: null }))}
+					>
+						×
+					</button>
+				) : null}
+			</div>
+			<div className="xw-search-wrap">
 				<input
 					type="search"
 					className="xw-search"
@@ -351,15 +362,6 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
 					value={s.query}
 					onInput={(e: any) => props.runtime.store.update((x) => ({ ...x, query: e.target.value }))}
 				/>
-				{props.mode === 'overlay' ? (
-					<button
-						type="button"
-						className="xw-btn"
-						onClick={() => props.runtime.store.update((x) => ({ ...x, auxPanel: null }))}
-					>
-						Close
-					</button>
-				) : null}
 			</div>
 			<div className="xw-panel-body" aria-label="Stories">
 				{catalogBody(s, props.runtime, groups)}
@@ -387,7 +389,7 @@ function targetStatus(active: string, target: string): string {
 		case 'linux':
 			return 'requires a Linux host'
 		case 'macos':
-			return 'requires a macOS arm64 or x86_64 host'
+			return 'requires a macOS arm64 host'
 		default:
 			return 'unqualified backend'
 	}
@@ -443,7 +445,7 @@ function ControlField(props: {
 	const setDraft = (text: string) =>
 		store.update((x) => ({ ...x, drafts: { ...x.drafts, [key]: text } }))
 
-	let field = null
+	let field: JSX.Element | null = null
 	if (control.type === 'boolean') {
 		field = (
 			<input
@@ -562,16 +564,33 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
 				{props.mode === 'overlay' ? (
 					<button
 						type="button"
-						className="xw-btn"
+						className="xw-btn xw-close"
+						aria-label="Close Controls"
 						onClick={() => props.runtime.store.update((x) => ({ ...x, auxPanel: null }))}
 					>
-						Close
+						×
 					</button>
 				) : null}
 			</div>
 			<div className="xw-panel-body">
+				<div className="xw-section-title">Properties</div>
+				{!definition ? (
+					<div className="xw-empty">Select a story to edit its declared controls.</div>
+				) : keys.length === 0 ? (
+					<div className="xw-empty">This story declares no controls.</div>
+				) : (
+					keys.map((key) => (
+						<ControlField
+							key={key}
+							runtime={props.runtime}
+							name={key}
+							control={controls[key]}
+							definition={definition}
+						/>
+					))
+				)}
 				<fieldset className="xw-environment">
-					<legend>Stage environment</legend>
+					<legend>Preview</legend>
 					<label>
 						Background{' '}
 						<select
@@ -601,23 +620,34 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
 						</select>
 					</label>
 				</fieldset>
-				{!definition ? (
-					<div className="xw-empty">Select a story to edit its declared controls.</div>
-				) : keys.length === 0 ? (
-					<div className="xw-empty">This story declares no controls.</div>
-				) : (
-					keys.map((key) => (
-						<ControlField
-							key={key}
-							runtime={props.runtime}
-							name={key}
-							control={controls[key]}
-							definition={definition}
-						/>
-					))
-				)}
 			</div>
 		</aside>
+	)
+}
+
+function PreviewHeading(props: { runtime: WorkshopRuntime }) {
+	const s = useStore(props.runtime.store)
+	const entry = s.catalog.find((e) => e.id === s.selectedId)
+	const parts =
+		entry?.title
+			.split('/')
+			.map((part) => part.trim())
+			.filter(Boolean) ?? []
+
+	const phase = s.session.phase === 'ready' ? 'Ready' : s.session.phase.replaceAll('-', ' ')
+	return (
+		<div className="xw-preview-head">
+			<div className="xw-preview-heading">
+				<div className="xw-breadcrumb">{parts.slice(0, -1).join(' / ') || 'Preview'}</div>
+				<div className="xw-preview-title" title={s.selectedId ?? ''}>
+					{parts.at(-1) ?? s.missingId ?? 'Choose a story'}
+				</div>
+			</div>
+			<span className={`xw-phase xw-phase-${s.session.phase}`} aria-live="polite">
+				{phase}
+				{s.session.stale ? ' · stale' : ''}
+			</span>
+		</div>
 	)
 }
 
@@ -629,121 +659,124 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 	const failure = session.failure
 	return (
 		<main className="xw-stage-area" data-workshop-stage>
-			<div
-				className={`xw-stage-slot xw-background-${s.stageBackground}`}
-				style={
-					s.stageBounds === 'available'
-						? undefined
-						: {
-								width: s.stageBounds === 'small' ? 320 : 640,
-								height: s.stageBounds === 'small' ? 240 : 480,
-								flex: 'none',
-							}
-				}
-				ref={(el: HTMLElement | null) => {
-					if (el && props.runtime.mountHost.parentNode !== el) {
-						el.append(props.runtime.mountHost)
+			<PreviewHeading runtime={props.runtime} />
+			<div className="xw-stage-viewport">
+				<div
+					className={`xw-stage-slot xw-background-${s.stageBackground}`}
+					style={
+						s.stageBounds === 'available'
+							? undefined
+							: {
+									width: s.stageBounds === 'small' ? 320 : 640,
+									height: s.stageBounds === 'small' ? 240 : 480,
+									flex: 'none',
+								}
 					}
-				}}
-			/>
-			{s.missingId ? (
-				<div className="xw-stage-note xw-error" role="alert">
-					<p>
-						Story <code>{s.missingId}</code> was not found in the catalog.
-					</p>
-					<button
-						type="button"
-						className="xw-btn"
-						onClick={() => {
-							const store = props.runtime.store
-							store.update((x) => ({ ...x, missingId: null, auxPanel: 'stories' }))
-						}}
-					>
-						Browse stories
-					</button>
-				</div>
-			) : null}
-			{session.phase === 'preparing' ||
-			session.phase === 'mounting' ||
-			session.phase === 'disposing' ? (
-				<div className="xw-stage-note" role="status">
-					{session.phase === 'preparing'
-						? 'Preparing fixtures…'
-						: session.phase === 'mounting'
-							? 'Mounting…'
-							: 'Disposing…'}
-				</div>
-			) : null}
-			{session.phase === 'rebuilding' && !s.missingId ? (
-				<div className="xw-stage-note xw-subtle" role="status">
-					Rebuilding — remounting latest successful revision…
-				</div>
-			) : null}
-			{session.phase === 'failed' && failure ? (
-				<div className="xw-stage-note xw-error" role="alert">
-					<p className="xw-error-title">
-						{failure.phase} error{failure.storyId ? ` — ${failure.storyId}` : ''}
-					</p>
-					<pre className="xw-error-detail">{failure.message}</pre>
-					{failure.cause !== undefined ? (
-						<pre className="xw-error-detail">{describeCause(failure.cause)}</pre>
-					) : null}
-					<div className="xw-error-actions">
-						{failure.phase === 'fixture' ? (
-							<button
-								type="button"
-								className="xw-btn"
-								onClick={() => void props.runtime.session.reset()}
-							>
-								Retry
-							</button>
-						) : null}
+					ref={(el: HTMLElement | null) => {
+						if (el && props.runtime.mountHost.parentNode !== el) {
+							el.append(props.runtime.mountHost)
+						}
+					}}
+				/>
+				{s.missingId ? (
+					<div className="xw-stage-note xw-error" role="alert">
+						<p>
+							Story <code>{s.missingId}</code> was not found in the catalog.
+						</p>
 						<button
 							type="button"
 							className="xw-btn"
 							onClick={() => {
-								clearEdits(props.runtime)
-								void props.runtime.session.reset()
+								const store = props.runtime.store
+								store.update((x) => ({ ...x, missingId: null, auxPanel: 'stories' }))
 							}}
 						>
-							Reset
+							Browse stories
 						</button>
 					</div>
-					{session.stale ? (
-						<p className="xw-subtle">
-							The last successful stage remains mounted and is marked stale.
+				) : null}
+				{session.phase === 'preparing' ||
+				session.phase === 'mounting' ||
+				session.phase === 'disposing' ? (
+					<div className="xw-stage-note" role="status">
+						{session.phase === 'preparing'
+							? 'Preparing fixtures…'
+							: session.phase === 'mounting'
+								? 'Mounting…'
+								: 'Disposing…'}
+					</div>
+				) : null}
+				{session.phase === 'rebuilding' && !s.missingId ? (
+					<div className="xw-stage-note xw-subtle" role="status">
+						Rebuilding — remounting latest successful revision…
+					</div>
+				) : null}
+				{session.phase === 'failed' && failure ? (
+					<div className="xw-stage-note xw-error" role="alert">
+						<p className="xw-error-title">
+							{failure.phase} error{failure.storyId ? ` — ${failure.storyId}` : ''}
 						</p>
-					) : null}
-				</div>
-			) : null}
-			{session.phase === 'restart-required' ? (
-				<div className="xw-stage-note xw-error" role="alert">
-					<p className="xw-error-title">Restart required</p>
-					<pre className="xw-error-detail">
-						{failure?.message ?? 'Owned cleanup did not finish in time.'}
-					</pre>
-					<p className="xw-subtle">
-						Restart the workshop target (`xplat workshop dev`) to continue.
-					</p>
-				</div>
-			) : null}
-			{session.phase === 'disconnected' ? (
-				<div className="xw-stage-note" role="status">
-					Dev server disconnected — reconnecting…
-				</div>
-			) : null}
-			{session.stale && session.phase !== 'failed' ? (
-				<div className="xw-stale-badge" role="status">
-					stale
-				</div>
-			) : null}
+						<pre className="xw-error-detail">{failure.message}</pre>
+						{failure.cause !== undefined ? (
+							<pre className="xw-error-detail">{describeCause(failure.cause)}</pre>
+						) : null}
+						<div className="xw-error-actions">
+							{failure.phase === 'fixture' ? (
+								<button
+									type="button"
+									className="xw-btn"
+									onClick={() => void props.runtime.session.reset()}
+								>
+									Retry
+								</button>
+							) : null}
+							<button
+								type="button"
+								className="xw-btn"
+								onClick={() => {
+									clearEdits(props.runtime)
+									void props.runtime.session.reset()
+								}}
+							>
+								Reset
+							</button>
+						</div>
+						{session.stale ? (
+							<p className="xw-subtle">
+								The last successful stage remains mounted and is marked stale.
+							</p>
+						) : null}
+					</div>
+				) : null}
+				{session.phase === 'restart-required' ? (
+					<div className="xw-stage-note xw-error" role="alert">
+						<p className="xw-error-title">Restart required</p>
+						<pre className="xw-error-detail">
+							{failure?.message ?? 'Owned cleanup did not finish in time.'}
+						</pre>
+						<p className="xw-subtle">
+							Restart the workshop target (`xplat workshop dev`) to continue.
+						</p>
+					</div>
+				) : null}
+				{session.phase === 'disconnected' ? (
+					<div className="xw-stage-note" role="status">
+						Dev server disconnected — reconnecting…
+					</div>
+				) : null}
+				{session.stale && session.phase !== 'failed' ? (
+					<div className="xw-stale-badge" role="status">
+						stale
+					</div>
+				) : null}
+			</div>
 		</main>
 	)
 }
 
 // ---------- app ----------
 
-export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
+export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 	const s = useStore(props.runtime.store)
 	const openerRef = useRef<HTMLElement | null>(null)
 	const openerKeyRef = useRef<string | null>(null)
@@ -808,7 +841,10 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
 			openerKeyRef.current = s.auxPanel
 			requestAnimationFrame(() => {
 				if (props.runtime.store.getSnapshot().auxPanel) {
-					document.querySelector<HTMLElement>('.xw-overlay input, .xw-overlay button')?.focus()
+					;(
+						document.querySelector<HTMLElement>('.xw-overlay .xw-search') ??
+						document.querySelector<HTMLElement>('.xw-overlay input, .xw-overlay button')
+					)?.focus()
 				}
 			})
 		}

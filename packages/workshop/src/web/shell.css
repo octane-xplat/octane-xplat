@@ -28,10 +28,28 @@
 	align-items: center;
 	gap: 8px;
 	flex-wrap: wrap;
-	padding: 10px 12px;
+	padding: 8px 12px;
 	background: var(--xw-surface);
 	border-bottom: 1px solid var(--xw-border);
 	flex: none;
+}
+
+.xw-wordmark {
+	font-size: 13px;
+	font-weight: 600;
+	margin-right: 2px;
+}
+
+.xw-toolbar-actions {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.xw-toolbar-actions .xw-reset {
+	margin-left: 4px;
+	border-left-color: var(--xw-border);
 }
 
 .xw-target-chip {
@@ -44,16 +62,6 @@
 	color: var(--xw-text);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
-}
-
-.xw-title {
-	min-width: 0;
-	flex-shrink: 1;
-	font-weight: 600;
-	max-width: 40ch;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .xw-phase {
@@ -109,7 +117,7 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	padding: 12px;
+	padding: 10px 14px;
 	min-height: 52px;
 	border-bottom: 1px solid var(--xw-border);
 	flex: none;
@@ -117,6 +125,17 @@
 
 .xw-panel-title {
 	font-weight: 600;
+	font-size: 12px;
+}
+
+.xw-count {
+	font-size: 11px;
+	color: var(--xw-muted);
+}
+
+.xw-search-wrap {
+	display: flex;
+	padding: 12px 12px 6px;
 }
 
 .xw-search {
@@ -132,7 +151,11 @@
 	flex: 1;
 	overflow-y: auto;
 	overflow-x: hidden;
-	padding: 10px;
+	padding: 8px;
+}
+
+.xw-controls .xw-panel-body {
+	padding: 16px;
 }
 
 .xw-group-head {
@@ -141,7 +164,7 @@
 	gap: 4px;
 	width: 100%;
 	padding: 8px;
-	min-height: 36px;
+	min-height: 32px;
 	border-radius: 6px;
 	border: none;
 	background: none;
@@ -162,8 +185,8 @@
 	justify-content: space-between;
 	gap: 6px;
 	width: 100%;
-	padding: 8px 10px;
-	min-height: 36px;
+	padding: 6px 10px 6px 20px;
+	min-height: 32px;
 	border: none;
 	border-radius: 5px;
 	background: none;
@@ -210,7 +233,45 @@
 	min-height: 0;
 	position: relative;
 	display: flex;
+	flex-direction: column;
+}
+
+.xw-preview-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 64px;
+	box-sizing: border-box;
+	padding: 12px 20px;
+	flex: none;
+}
+
+.xw-preview-heading {
+	min-width: 0;
+}
+
+.xw-breadcrumb {
+	font-size: 11px;
+	color: var(--xw-muted);
+	margin-bottom: 4px;
+}
+
+.xw-preview-title {
+	font-size: 16px;
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.xw-stage-viewport {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	position: relative;
 	overflow: auto;
+	padding: 0 16px 16px;
 }
 
 .xw-stage-slot {
@@ -221,6 +282,8 @@
 	min-width: 0;
 	min-height: 0;
 	position: relative;
+	border: 1px solid var(--xw-border);
+	border-radius: 8px;
 }
 
 .xw-stage-host {
@@ -315,7 +378,7 @@
 }
 
 .xw-field {
-	padding: 12px 4px;
+	padding: 12px 0;
 	border-bottom: 1px solid var(--xw-border);
 }
 
@@ -328,7 +391,7 @@
 
 .xw-field-label {
 	flex: none;
-	width: 90px;
+	width: 100%;
 	font-weight: 600;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -356,9 +419,9 @@
 	padding: 6px 10px;
 	min-height: 32px;
 	color: var(--xw-text);
-	border: 1px solid var(--xw-border-strong);
+	border: 1px solid transparent;
 	border-radius: 5px;
-	background: var(--xw-surface);
+	background: transparent;
 	font: inherit;
 	cursor: pointer;
 	white-space: nowrap;
@@ -381,7 +444,21 @@
 }
 
 .xw-reset {
+	font-weight: 400;
+}
+
+.xw-close {
+	font-size: 18px;
+	line-height: 1;
+	padding: 2px;
+	min-width: 32px;
+	margin-left: auto;
+}
+
+.xw-section-title {
+	font-size: 11px;
 	font-weight: 600;
+	color: var(--xw-muted);
 }
 
 /* keyboard reachability must stay visible */
@@ -406,6 +483,19 @@
 
 .xw-stageonly .xw-stage-area {
 	flex: 1;
+}
+
+.xw-stageonly .xw-preview-head {
+	display: none;
+}
+
+.xw-stageonly .xw-stage-viewport {
+	padding: 0;
+}
+
+.xw-stageonly .xw-stage-slot {
+	border: none;
+	border-radius: 0;
 }
 
 .xw-stageonly-bar {
@@ -523,14 +613,16 @@
 }
 .xw-environment {
 	min-width: 0;
-	margin: 0 0 12px;
-	padding: 10px;
-	border: 1px solid var(--xw-border);
-	border-radius: 8px;
+	margin: 24px 0 0;
+	padding: 12px 0 0;
+	border: 0;
+	border-top: 1px solid var(--xw-border);
 }
 .xw-environment legend {
 	font-weight: 600;
-	padding: 0 4px;
+	font-size: 11px;
+	color: var(--xw-muted);
+	padding: 0 4px 0 0;
 }
 .xw-environment label {
 	display: flex;
@@ -597,12 +689,8 @@
 		gap: 6px;
 		padding: 8px;
 	}
-	.xw-title {
-		max-width: calc(100% - 80px);
-	}
-	.xw-phase {
-		flex: 1 1 100%;
-		order: 1;
+	.xw-toolbar-actions {
+		width: 100%;
 	}
 	.xw-statusbar .xw-btn {
 		min-height: 44px;
@@ -610,6 +698,24 @@
 	}
 	.xw-statusbar .xw-spacer {
 		display: none;
+	}
+	.xw-story,
+	.xw-group-head,
+	.xw-btn,
+	.xw-search,
+	.xw-field input,
+	.xw-field select,
+	.xw-environment select {
+		min-height: 44px;
+	}
+	.xw-close {
+		min-width: 44px;
+	}
+	.xw-preview-head {
+		padding: 12px;
+	}
+	.xw-stage-viewport {
+		padding: 0 8px 8px;
 	}
 	.xw-error-actions {
 		flex-wrap: wrap;

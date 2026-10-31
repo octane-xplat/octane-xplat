@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useRef, useEffect } from 'octane'
+import { useRef, useEffect, useState } from 'octane'
 import { useStore } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
-import type { WorkshopTarget } from '../contract'
+import { WORKSHOP_TARGETS, type WorkshopTarget } from '../contract'
 import { UNSET, isUnsettable } from '../controls'
 import type { NativeWorkshopController } from './controller'
 
@@ -15,34 +15,52 @@ export interface NativeChromeProps {
 	focus(view: unknown): void
 }
 
-const TARGETS = ['web', 'ios', 'android', 'macos', 'windows', 'linux'] as const
+// Mason layout mode and overlay offsets stay in the style channel: the NativeScript
+// stylesheet registry cannot express them. All other static styles live in CSS.
 
-function StatusLine(p: { controller: NativeWorkshopController; target: WorkshopTarget }) {
-	const s = useStore(p.controller.store)
-	const session = s.session
-	const entry = s.catalog.find((e) => e.id === s.selectedId)
-	const text =
-		s.catalogError ||
-		`${p.target} · unqualified backend · ${
-			s.missingId
-				? `Missing story: ${s.missingId}`
-				: entry && !entry.applicable
-					? `${entry.id}: unsupported-by-story`
-					: (session.storyId ?? 'Choose a story')
-		} · ${session.phase}${session.stale ? ' · STALE' : ''}${
-			session.failure ? ` · ${session.failure.phase}: ${session.failure.message}` : ''
-		}`
-
-	return <label className="xw-status" text={text} accessibilityLabel={text} />
+/** Draw our own chrome instead of inheriting three different OS button bezels. */
+function ChromeButton(p: {
+	text: string
+	accessibilityLabel?: string
+	className?: string
+	active?: boolean
+	expanded?: boolean
+	disabled?: boolean
+	onRef?: (view: unknown) => void
+	onPress(): void
+}) {
+	const [pressed, setPressed] = useState(false)
+	return (
+		<masonview
+			style={{ display: 'flex' }}
+			ref={p.onRef}
+			className={`xw-action ${p.className ?? ''}${p.active ? ' xw-action-active' : ''}${p.disabled ? ' xw-action-disabled' : ''}${pressed ? ' xw-action-pressed' : ''}`}
+			accessible
+			accessibilityRole="button"
+			accessibilityLabel={p.accessibilityLabel ?? p.text}
+			accessibilityState={{ pressed: p.active, expanded: p.expanded, disabled: p.disabled }}
+			onTap={p.disabled ? undefined : p.onPress}
+			onTouch={p.disabled ? undefined : (e: any) => setPressed(e.action === 'down')}
+		>
+			<label
+				className="xw-action-label"
+				text={p.text}
+				maxLines={1}
+				whiteSpace="nowrap"
+				textOverflow="ellipsis"
+			/>
+		</masonview>
+	)
 }
 
 function Toolbar(p: {
 	controller: NativeWorkshopController
-	storiesRef: (v: unknown) => void
-	controlsRef: (v: unknown) => void
+	target: WorkshopTarget
 	onToggle(panel: 'stories' | 'controls', opener: unknown): void
 }) {
 	const s = useStore(p.controller.store)
+	const stories = useRef<unknown>(null)
+	const controls = useRef<unknown>(null)
 	const catalogActive =
 		!s.stageOnly && (s.mode === 'wide' ? !s.catalogCollapsed : s.panel === 'stories')
 
@@ -50,40 +68,53 @@ function Toolbar(p: {
 		!s.stageOnly && (s.mode === 'wide' ? !s.controlsCollapsed : s.panel === 'controls')
 
 	return (
-		<masonview className="xw-toolbar" style={{ display: 'flex', flexWrap: 'wrap' }}>
-			{!s.stageOnly ? (
-				<>
-					<button
-						ref={p.storiesRef}
-						className={`xw-action${catalogActive ? ' xw-action-active' : ''}`}
-						text="Stories"
-						accessibilityLabel="Stories"
-						onTap={(e: any) => p.onToggle('stories', e?.view ?? null)}
-					/>
-					<button
-						ref={p.controlsRef}
-						className={`xw-action${controlsActive ? ' xw-action-active' : ''}`}
-						text="Controls"
-						accessibilityLabel="Controls"
-						onTap={(e: any) => p.onToggle('controls', e?.view ?? null)}
-					/>
-				</>
-			) : null}
-			<button
-				className="xw-action"
-				text="Reset"
-				accessibilityLabel="Reset story"
-				onTap={() => void p.controller.reset()}
-			/>
-			<button
-				className="xw-action"
-				text={s.stageOnly ? 'Return to workshop' : 'Stage only'}
-				accessibilityLabel={s.stageOnly ? 'Return to workshop' : 'Stage only'}
-				onTap={() => {
-					p.controller.stageOnly = !p.controller.stageOnly
-					p.controller.panel = null
-				}}
-			/>
+		<masonview style={{ display: 'flex' }} className="xw-toolbar">
+			<masonview style={{ display: 'flex' }} className="xw-toolbar-context">
+				<label className="xw-wordmark" text="Workshop" />
+				<label
+					className="xw-target"
+					text={p.target}
+					accessibilityLabel={`Current host: ${p.target}`}
+				/>
+			</masonview>
+			<masonview style={{ display: 'flex' }} className="xw-toolbar-actions">
+				{!s.stageOnly ? (
+					<>
+						<ChromeButton
+							text="Stories"
+							active={catalogActive}
+							onRef={(v) => {
+								stories.current = v
+							}}
+							onPress={() => p.onToggle('stories', stories.current)}
+						/>
+						<ChromeButton
+							text="Controls"
+							active={controlsActive}
+							onRef={(v) => {
+								controls.current = v
+							}}
+							onPress={() => p.onToggle('controls', controls.current)}
+						/>
+						<masonview style={{ display: 'flex' }} className="xw-toolbar-divider" />
+					</>
+				) : null}
+				<ChromeButton
+					text="Reset"
+					accessibilityLabel="Reset story"
+					disabled={
+						!s.selectedId || s.session.phase === 'preparing' || s.session.phase === 'mounting'
+					}
+					onPress={() => void p.controller.reset()}
+				/>
+				<ChromeButton
+					text={s.stageOnly ? 'Return to workshop' : 'Stage only'}
+					onPress={() => {
+						p.controller.stageOnly = !p.controller.stageOnly
+						p.controller.panel = null
+					}}
+				/>
+			</masonview>
 		</masonview>
 	)
 }
@@ -99,18 +130,16 @@ function CatalogGroup(p: {
 	const leaves: CatalogEntry[] = []
 	for (const entry of p.items) {
 		const depth = p.prefix ? p.prefix.split(' / ').length : 0
-		const tail = entry.title
+		const parts = entry.title
 			.split('/')
 			.map((part) => part.trim())
 			.filter(Boolean)
 			.slice(depth)
-			.join(' / ')
 
-		const separator = tail.indexOf('/')
-		if (separator < 0) {
+		if (parts.length <= 1) {
 			leaves.push(entry)
 		} else {
-			const name = `${p.prefix}${p.prefix ? ' / ' : ''}${tail.slice(0, separator).trim()}`
+			const name = `${p.prefix}${p.prefix ? ' / ' : ''}${parts[0]}`
 			const members = groups.get(name) ?? []
 			members.push(entry)
 			groups.set(name, members)
@@ -119,30 +148,18 @@ function CatalogGroup(p: {
 
 	return (
 		<>
-			{leaves.map((entry) => {
-				const text = `${entry.title} (${entry.id})${entry.applicable ? '' : ' — unsupported-by-story'}`
-				return (
-					<button
-						key={entry.id}
-						className={`xw-action xw-catalog-item${entry.id === s.selectedId ? ' xw-action-active' : ''}`}
-						text={text}
-						accessibilityLabel={text}
-						onTap={() => void p.controller.select(entry.id)}
-					/>
-				)
-			})}
 			{[...groups.entries()].map(([name, members]) => {
-				const collapsed = s.collapsedGroups.has(name)
-				const label = `${collapsed ? 'Expand' : 'Collapse'} ${name}`
+				const open = Boolean(p.query) || !s.collapsedGroups.has(name)
 				return (
-					<masonview key={name} style={{ display: 'flex', flexDirection: 'column' }}>
-						<button
-							className="xw-action"
-							text={label}
-							accessibilityLabel={label}
-							onTap={() => {
+					<masonview style={{ display: 'flex' }} key={name} className="xw-catalog-group">
+						<ChromeButton
+							className="xw-group-head"
+							text={`${open ? '▾' : '▸'}  ${name.split(' / ').pop()}`}
+							accessibilityLabel={`${open ? 'Collapse' : 'Expand'} ${name}`}
+							expanded={open}
+							onPress={() => {
 								const next = new Set(s.collapsedGroups)
-								if (collapsed) {
+								if (next.has(name)) {
 									next.delete(name)
 								} else {
 									next.add(name)
@@ -151,7 +168,7 @@ function CatalogGroup(p: {
 								p.controller.store.update((v) => ({ ...v, collapsedGroups: next }))
 							}}
 						/>
-						{p.query || !collapsed ? (
+						{open ? (
 							<CatalogGroup
 								controller={p.controller}
 								prefix={name}
@@ -162,6 +179,17 @@ function CatalogGroup(p: {
 					</masonview>
 				)
 			})}
+			{leaves.map((entry) => (
+				<ChromeButton
+					key={entry.id}
+					className="xw-catalog-item"
+					text={`${entry.title.split('/').pop()?.trim() || entry.title}${entry.applicable ? '' : ' · unavailable'}`}
+					accessibilityLabel={`${entry.title} (${entry.id})${entry.applicable ? '' : ` — ${entry.reason ?? 'unsupported by this story'}`}`}
+					active={entry.id === s.selectedId}
+					disabled={!entry.applicable || !entry.load}
+					onPress={() => void p.controller.select(entry.id)}
+				/>
+			))}
 		</>
 	)
 }
@@ -172,40 +200,54 @@ function CatalogPanel(p: {
 	onClose(): void
 }) {
 	const s = useStore(p.controller.store)
-	const query = s.query.toLowerCase()
+	const query = s.query.trim().toLowerCase()
 	const entries = [...s.catalog]
 		.filter((e) => `${e.title} ${e.id}`.toLowerCase().includes(query))
 		.sort((a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id))
 
 	return (
-		<scrollview className="xw-panel">
-			<masonview style={{ display: 'flex', flexDirection: 'column' }}>
-				<button
-					className="xw-action"
-					text="Close Stories"
+		<masonview style={{ display: 'flex' }} className="xw-panel">
+			<masonview style={{ display: 'flex' }} className="xw-panel-head">
+				<label className="xw-panel-title" text="Stories" />
+				<label className="xw-count" text={String(entries.length)} />
+				<masonview style={{ display: 'flex' }} className="xw-spacer" />
+				<ChromeButton
+					className="xw-close"
+					text="×"
 					accessibilityLabel="Close Stories"
-					onTap={p.onClose}
+					onPress={p.onClose}
 				/>
+			</masonview>
+			<masonview style={{ display: 'flex' }} className="xw-search-wrap">
 				<textfield
 					ref={p.searchRef}
-					className="xw-field"
-					hint="Find a story by title or ID"
+					className="xw-input xw-search"
+					hint="Search stories"
 					accessibilityLabel="Search stories"
 					text={s.query}
 					onTextChange={(e: any) => {
 						p.controller.query = String(e?.value ?? e?.object?.text ?? '')
 					}}
 				/>
-				<CatalogGroup controller={p.controller} prefix="" items={entries} query={s.query} />
-				{!entries.length ? (
-					<label
-						className="xw-label"
-						text="No stories. Add src/counter.stories.tsrx with an exported defineStory declaration."
-						accessibilityLabel="No stories"
-					/>
-				) : null}
 			</masonview>
-		</scrollview>
+			<scrollview className="xw-panel-scroll">
+				<masonview style={{ display: 'flex' }} className="xw-catalog-body">
+					{s.catalogError ? <label className="xw-error" text={s.catalogError} textWrap /> : null}
+					<CatalogGroup controller={p.controller} prefix="" items={entries} query={query} />
+					{!entries.length ? (
+						<label
+							className="xw-empty"
+							text={
+								s.catalog.length
+									? 'No matching stories. Try another title or ID.'
+									: 'No stories yet. Add an exported defineStory declaration in a .stories.tsrx file.'
+							}
+							textWrap
+						/>
+					) : null}
+				</masonview>
+			</scrollview>
+		</masonview>
 	)
 }
 
@@ -215,166 +257,217 @@ function ControlsPanel(p: {
 	onClose(): void
 }) {
 	const s = useStore(p.controller.store)
+	const [showHost, setShowHost] = useState(false)
 	const story = p.controller.session.currentStory
 	const currentProps = p.controller.session.currentProps ?? {}
-	const draft = (key: string, value: unknown) =>
-		p.controller.store.update((v) => ({
-			...v,
-			drafts: { ...v.drafts, [key]: String(value) },
-		}))
-
+	const controls = Object.entries(story?.controls ?? {})
+	const disabled = s.session.phase !== 'ready'
 	const commit = (key: string, value: unknown) => p.controller.control(key, value as any)
 	return (
-		<scrollview className="xw-panel">
-			<masonview style={{ display: 'flex', flexDirection: 'column' }}>
-				<button
-					className="xw-action"
-					text="Close Controls"
+		<masonview style={{ display: 'flex' }} className="xw-panel">
+			<masonview style={{ display: 'flex' }} className="xw-panel-head">
+				<label className="xw-panel-title" text="Controls" />
+				<masonview style={{ display: 'flex' }} className="xw-spacer" />
+				<ChromeButton
+					className="xw-close"
+					text="×"
 					accessibilityLabel="Close Controls"
-					onTap={p.onClose}
+					onPress={p.onClose}
 				/>
-				{story ? (
-					<>
+			</masonview>
+			<scrollview className="xw-panel-scroll">
+				<masonview style={{ display: 'flex' }} className="xw-inspector-body">
+					<label className="xw-section-title" text="Properties" />
+					{!controls.length ? (
 						<label
-							className="xw-label"
+							className="xw-empty"
 							text={
-								story.capabilities?.length
-									? `Required capabilities: ${story.capabilities.join(', ')}. Permissions are not granted by selection.`
-									: 'Local story'
+								story
+									? 'This story has no editable properties.'
+									: 'Choose a story to edit its properties.'
 							}
-							accessibilityLabel="Story capabilities"
+							textWrap
 						/>
-						{Object.entries(story.controls ?? {}).map(([key, control]) => {
-							const spec = control as {
-								type: string
-								options?: readonly (string | number | boolean)[]
-							}
+					) : null}
+					{controls.map(([key, control]) => {
+						const spec = control as {
+							type: string
+							options?: readonly (string | number | boolean)[]
+						}
 
-							const applied = `${key}: ${String(currentProps[key] ?? 'Unset')}`
-							return (
-								<masonview key={key} style={{ display: 'flex', flexDirection: 'column' }}>
-									<label className="xw-label" text={applied} accessibilityLabel={applied} />
-									{spec.type === 'boolean' ? (
-										<>
-											<button
-												className="xw-action"
-												text={`${key}: true`}
-												accessibilityLabel={`${key}: true`}
-												onTap={() => commit(key, true)}
+						const options = spec.type === 'boolean' ? [true, false] : (spec.options ?? [])
+						return (
+							<masonview style={{ display: 'flex' }} key={key} className="xw-control-field">
+								<masonview style={{ display: 'flex' }} className="xw-field-head">
+									<label className="xw-field-name" text={key} />
+									<masonview style={{ display: 'flex' }} className="xw-spacer" />
+									<label
+										className="xw-field-type"
+										text={key in currentProps ? spec.type : 'unset'}
+									/>
+								</masonview>
+								<masonview style={{ display: 'flex' }} className="xw-choice-row">
+									{spec.type === 'boolean' || spec.type === 'enum' ? (
+										options.map((option) => (
+											<ChromeButton
+												key={String(option)}
+												className="xw-choice"
+												text={String(option)}
+												accessibilityLabel={`${key}: ${String(option)}`}
+												active={currentProps[key] === option}
+												disabled={disabled}
+												onPress={() => commit(key, option)}
 											/>
-											<button
-												className="xw-action"
-												text={`${key}: false`}
-												accessibilityLabel={`${key}: false`}
-												onTap={() => commit(key, false)}
-											/>
-										</>
-									) : spec.type === 'enum' ? (
-										<>
-											{(spec.options ?? []).map((option) => (
-												<button
-													key={String(option)}
-													className="xw-action"
-													text={`${key}: ${String(option)}`}
-													accessibilityLabel={`${key}: ${String(option)}`}
-													onTap={() => commit(key, option)}
-												/>
-											))}
-										</>
+										))
 									) : (
 										<>
 											<textfield
-												className="xw-field"
+												className="xw-input xw-control-input"
 												accessibilityLabel={key}
+												editable={!disabled}
 												text={s.drafts[key] ?? String(currentProps[key] ?? '')}
-												onTextChange={(e: any) => draft(key, e?.value ?? e?.object?.text ?? '')}
+												onTextChange={(e: any) =>
+													p.controller.store.update((v) => ({
+														...v,
+														drafts: {
+															...v.drafts,
+															[key]: String(e?.value ?? e?.object?.text ?? ''),
+														},
+													}))
+												}
 											/>
-											<button
-												className="xw-action"
-												text={`Apply ${key}`}
+											<ChromeButton
+												text="Apply"
+												className="xw-choice"
 												accessibilityLabel={`Apply ${key}`}
-												onTap={() => commit(key, s.drafts[key] ?? String(currentProps[key] ?? ''))}
+												disabled={disabled}
+												onPress={() =>
+													commit(key, s.drafts[key] ?? String(currentProps[key] ?? ''))
+												}
 											/>
 										</>
 									)}
-									{isUnsettable(story, key) ? (
-										<button
-											className="xw-action"
-											text={`Unset ${key}`}
+									{story && isUnsettable(story, key) && key in currentProps ? (
+										<ChromeButton
+											text="Unset"
 											accessibilityLabel={`Unset ${key}`}
-											onTap={() => commit(key, UNSET)}
+											disabled={disabled}
+											onPress={() => commit(key, UNSET)}
 										/>
 									) : null}
+								</masonview>
+								{s.errors[key] ? (
 									<label
 										className="xw-error"
-										text={s.errors[key] ?? ''}
-										accessibilityLabel={s.errors[key] ?? ''}
+										text={s.errors[key]}
+										accessibilityLabel={s.errors[key]}
+										textWrap
 									/>
-								</masonview>
-							)
-						})}
-					</>
-				) : null}
-				<label
-					className="xw-label"
-					text="Targets — launch another actual host from the CLI"
-					accessibilityLabel="Targets"
-				/>
-				{TARGETS.map((target) => {
-					const selected = s.catalog.find((e) => e.id === s.selectedId)
-					const text = `${target}: ${
-						selected && !selected.targets.includes(target)
-							? 'unsupported-by-story'
-							: 'unqualified backend / separate launch'
-					}${target === p.target ? ' (current host)' : ''}`
-
-					return <label key={target} className="xw-label" text={text} accessibilityLabel={text} />
-				})}
-				<label className="xw-label" text="Stage settings" accessibilityLabel="Stage settings" />
-				<button
-					className={`xw-action${s.stage.background === 'default' ? ' xw-action-active' : ''}`}
-					text="Default background"
-					accessibilityLabel="Default background"
-					onTap={() =>
-						p.controller.store.update((v) => ({
-							...v,
-							stage: { ...v.stage, background: 'default' },
-						}))
-					}
-				/>
-				<button
-					className={`xw-action${s.stage.background === 'dark' ? ' xw-action-active' : ''}`}
-					text="Dark background"
-					accessibilityLabel="Dark background"
-					onTap={() =>
-						p.controller.store.update((v) => ({
-							...v,
-							stage: { ...v.stage, background: 'dark' },
-						}))
-					}
-				/>
-				<button
-					className={`xw-action${s.stage.size === 'available' ? ' xw-action-active' : ''}`}
-					text="Available stage size"
-					accessibilityLabel="Available stage size"
-					onTap={() =>
-						p.controller.store.update((v) => ({ ...v, stage: { ...v.stage, size: 'available' } }))
-					}
-				/>
-				<button
-					className={`xw-action${s.stage.size === 'bounded' ? ' xw-action-active' : ''}`}
-					text="Bounded stage size: 320 × 400"
-					accessibilityLabel="Bounded stage size: 320 × 400"
-					onTap={() =>
-						p.controller.store.update((v) => ({ ...v, stage: { ...v.stage, size: 'bounded' } }))
-					}
-				/>
-			</masonview>
-		</scrollview>
+								) : null}
+							</masonview>
+						)
+					})}
+					<masonview style={{ display: 'flex' }} className="xw-inspector-section">
+						<label className="xw-section-title" text="Preview" />
+						<label className="xw-field-name" text="Background" />
+						<masonview style={{ display: 'flex' }} className="xw-choice-row">
+							{(['default', 'dark'] as const).map((background) => (
+								<ChromeButton
+									key={background}
+									className="xw-choice"
+									text={background === 'default' ? 'Default' : 'Dark'}
+									accessibilityLabel={`${background === 'default' ? 'Default' : 'Dark'} background`}
+									active={s.stage.background === background}
+									onPress={() =>
+										p.controller.store.update((v) => ({ ...v, stage: { ...v.stage, background } }))
+									}
+								/>
+							))}
+						</masonview>
+						<label className="xw-field-name" text="Size" />
+						<masonview style={{ display: 'flex' }} className="xw-choice-row">
+							{(['available', 'bounded'] as const).map((size) => (
+								<ChromeButton
+									key={size}
+									className="xw-choice"
+									text={size === 'available' ? 'Fill' : '320 × 400'}
+									accessibilityLabel={
+										size === 'available' ? 'Available stage size' : 'Bounded stage size: 320 × 400'
+									}
+									active={s.stage.size === size}
+									onPress={() =>
+										p.controller.store.update((v) => ({ ...v, stage: { ...v.stage, size } }))
+									}
+								/>
+							))}
+						</masonview>
+					</masonview>
+					<masonview style={{ display: 'flex' }} className="xw-inspector-section">
+						<ChromeButton
+							className="xw-group-head"
+							text={`${showHost ? '▾' : '▸'}  Host details`}
+							expanded={showHost}
+							onPress={() => setShowHost(!showHost)}
+						/>
+						{showHost ? (
+							<masonview style={{ display: 'flex' }} className="xw-host-details">
+								<label
+									className="xw-meta"
+									text={`${p.target} · experimental host, not runtime-qualified`}
+									textWrap
+								/>
+								<label className="xw-meta" text={s.selectedId ?? 'No story selected'} textWrap />
+								{story?.capabilities?.length ? (
+									<label
+										className="xw-meta"
+										text={`Requires ${story.capabilities.join(', ')}. Selection does not grant permissions.`}
+										textWrap
+									/>
+								) : null}
+								<label className="xw-meta" text="Other targets open in a separate host." />
+								{WORKSHOP_TARGETS.map((target) => {
+									const selected = s.catalog.find((e) => e.id === s.selectedId)
+									const text = `${target} · ${target === p.target ? 'current host' : selected && !selected.targets.includes(target) ? 'unsupported by this story' : 'separate launch; unqualified'}`
+									return <label key={target} className="xw-meta" text={text} textWrap />
+								})}
+							</masonview>
+						) : null}
+					</masonview>
+				</masonview>
+			</scrollview>
+		</masonview>
 	)
 }
 
-export function NativeWorkshopChrome(p: NativeChromeProps): unknown {
+function PreviewHeading(p: { controller: NativeWorkshopController }) {
+	const s = useStore(p.controller.store)
+	const entry = s.catalog.find((e) => e.id === s.selectedId)
+	const parts =
+		entry?.title
+			.split('/')
+			.map((part) => part.trim())
+			.filter(Boolean) ?? []
+
+	const phase = s.session.phase === 'ready' ? 'Ready' : s.session.phase.replaceAll('-', ' ')
+	return (
+		<masonview style={{ display: s.stageOnly ? 'none' : 'flex' }} className="xw-preview-head">
+			<masonview style={{ display: 'flex' }} className="xw-preview-heading">
+				<label className="xw-breadcrumb" text={parts.slice(0, -1).join(' / ') || 'Preview'} />
+				<label
+					className="xw-preview-title"
+					text={parts.at(-1) ?? s.missingId ?? 'Choose a story'}
+				/>
+			</masonview>
+			<label
+				className={`xw-phase${s.session.failure ? ' xw-phase-error' : ''}`}
+				text={`${phase}${s.session.stale ? ' · stale' : ''}`}
+				accessibilityLiveRegion="polite"
+			/>
+		</masonview>
+	)
+}
+
+export function NativeWorkshopChrome(p: NativeChromeProps) {
 	const s = useStore(p.controller.store)
 	const opener = useRef<unknown>(null)
 	const search = useRef<unknown>(null)
@@ -391,31 +484,28 @@ export function NativeWorkshopChrome(p: NativeChromeProps): unknown {
 
 	const wide = s.mode === 'wide' && !s.stageOnly
 	const phone = s.mode === 'phone'
-	const showCatalog = !s.stageOnly && (wide ? !s.catalogCollapsed : s.panel === 'stories')
-	const showControls = !s.stageOnly && (wide ? !s.controlsCollapsed : s.panel === 'controls')
-	const panelOpen = !s.stageOnly && (showCatalog || showControls)
-	// Phone: an open panel overlays the stage — hidden keeps the story root
-	// alive; collapse would release it on some drivers.
-	const stageHidden = !wide && phone && panelOpen
+	const showCatalog = !s.stageOnly && (wide ? !s.catalogCollapsed : panel === 'stories')
+	const showControls = !s.stageOnly && (wide ? !s.controlsCollapsed : panel === 'controls')
+	// Hidden preserves the separate story root while a phone panel covers it.
+	const stageHidden = !wide && phone && (showCatalog || showControls)
 	const overlayPanel = !wide && phone
-	const covered =
-		s.session.phase === 'failed' ||
-		s.session.phase === 'restart-required' ||
-		s.session.phase === 'disconnected'
+	const covered = ['failed', 'restart-required', 'disconnected'].includes(s.session.phase)
+	const entry = s.catalog.find((e) => e.id === s.selectedId)
+	const notice = s.missingId
+		? `Story ${s.missingId} was not found. Choose another story.`
+		: entry && !entry.applicable
+			? (entry.reason ?? 'This story is unavailable on this host.')
+			: covered
+				? s.catalogError || s.session.failure?.message || s.session.phase
+				: !s.selectedId
+					? 'Choose a story from the catalog to start.'
+					: ''
 
-	const stageStyle: Record<string, unknown> = {
-		flexGrow: 1,
-		...(s.stage.size === 'bounded' ? { width: 320, height: 400, alignSelf: 'center' } : {}),
-		...(s.stage.background === 'dark' ? { backgroundColor: '#242424' } : {}),
-		visibility: stageHidden ? 'hidden' : 'visible',
-	}
-
-	const closePanel = () => {
+	const closePanel = (name: 'stories' | 'controls') => {
 		if (wide) {
 			p.controller.store.update((v) => ({
 				...v,
-				catalogCollapsed: panel === 'stories' ? true : v.catalogCollapsed,
-				controlsCollapsed: panel === 'controls' ? true : v.controlsCollapsed,
+				[name === 'stories' ? 'catalogCollapsed' : 'controlsCollapsed']: true,
 			}))
 		}
 
@@ -425,107 +515,112 @@ export function NativeWorkshopChrome(p: NativeChromeProps): unknown {
 		}
 	}
 
+	// Keep the preview hosts keyed and mounted as panels and headings change.
 	return (
 		<masonview
-			className="xw-root"
-			style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+			style={{ display: 'flex' }}
+			className={`xw-root xw-${s.mode}${p.target === 'ios' || p.target === 'android' ? ' xw-touch' : ''}${s.stageOnly ? ' xw-stageonly' : ''}`}
 		>
 			<Toolbar
 				controller={p.controller}
-				storiesRef={(v) => {
-					if (v) {
-						opener.current = v
-					}
-				}}
-				controlsRef={(v) => {
-					if (v) {
-						opener.current = v
-					}
-				}}
-				onToggle={(panel, source) => {
+				target={p.target}
+				onToggle={(name, source) => {
 					if (source) {
 						opener.current = source
 					}
 
-					p.controller.toggle(panel)
+					p.controller.toggle(name)
 				}}
 			/>
-			<label
-				className="xw-title"
-				text={s.selectedId ?? 'Choose a story'}
-				accessibilityLabel={s.selectedId ?? 'Choose a story'}
-			/>
-			<StatusLine controller={p.controller} target={p.target} />
-			<masonview style={{ display: 'flex', flexDirection: 'row', flexGrow: 1 }}>
+			<masonview style={{ display: 'flex', position: 'relative' }} className="xw-body">
 				{showCatalog ? (
 					<masonview
-						className="xw-column"
-						style={
-							overlayPanel
-								? { display: 'flex', position: 'absolute', inset: 0 }
-								: {
-										display: 'flex',
-										width: wide ? 240 : undefined,
-										flexBasis: wide ? undefined : '45%',
-									}
-						}
+						key="catalog"
+						style={{
+							display: 'flex',
+							...(overlayPanel
+								? { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }
+								: {}),
+						}}
+						className={`xw-column xw-catalog${overlayPanel ? ' xw-overlay' : ''}`}
 					>
 						<CatalogPanel
 							controller={p.controller}
 							searchRef={(v) => {
-								if (v) {
-									search.current = v
-								}
+								search.current = v
 							}}
-							onClose={closePanel}
+							onClose={() => closePanel('stories')}
 						/>
 					</masonview>
 				) : null}
 				<masonview
+					key="preview"
 					className="xw-stage-wrap"
-					style={{ display: 'flex', flexGrow: 1, position: 'relative' }}
+					style={{ display: 'flex' }}
+					visibility={stageHidden ? 'hidden' : 'visible'}
 				>
+					<PreviewHeading controller={p.controller} />
 					<masonview
-						className="xw-stage"
-						ref={(v: unknown) => {
-							if (v) {
-								p.onStage(v)
-							}
-						}}
-						style={stageStyle}
-					/>
-					{covered ? (
+						key="viewport"
+						style={{ display: 'flex', position: 'relative' }}
+						className="xw-stage-viewport"
+					>
 						<masonview
-							className="xw-error-cover"
-							style={{
-								position: 'absolute',
-								inset: 0,
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}
+							key="frame"
+							style={{ display: 'flex' }}
+							className={`xw-preview-frame${s.stage.size === 'bounded' ? ' xw-preview-bounded' : ''}`}
 						>
-							<label
-								className="xw-error"
-								text={`Story error: ${s.catalogError || s.session.failure?.message || s.session.phase}`}
-								accessibilityLabel={`Story error: ${s.catalogError || s.session.failure?.message || s.session.phase}`}
+							<masonview
+								key="story"
+								style={{ display: 'flex' }}
+								className={`xw-stage${s.stage.background === 'dark' ? ' xw-background-dark' : ''}`}
+								ref={(v: unknown) => {
+									if (v) {
+										p.onStage(v)
+									}
+								}}
 							/>
 						</masonview>
-					) : null}
+						{notice ? (
+							<masonview
+								style={{
+									display: 'flex',
+									position: 'absolute',
+									top: 0,
+									right: 0,
+									bottom: 0,
+									left: 0,
+								}}
+								className="xw-notice-cover"
+							>
+								<masonview style={{ display: 'flex' }} className="xw-notice">
+									<label
+										className={covered ? 'xw-error' : 'xw-empty'}
+										text={notice}
+										accessibilityLabel={notice}
+										textWrap
+									/>
+								</masonview>
+							</masonview>
+						) : null}
+					</masonview>
 				</masonview>
 				{showControls ? (
 					<masonview
-						className="xw-column"
-						style={
-							overlayPanel
-								? { display: 'flex', position: 'absolute', inset: 0 }
-								: {
-										display: 'flex',
-										width: wide ? 280 : undefined,
-										flexBasis: wide ? undefined : '45%',
-									}
-						}
+						key="controls"
+						style={{
+							display: 'flex',
+							...(overlayPanel
+								? { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }
+								: {}),
+						}}
+						className={`xw-column xw-controls${overlayPanel ? ' xw-overlay' : ''}`}
 					>
-						<ControlsPanel controller={p.controller} target={p.target} onClose={closePanel} />
+						<ControlsPanel
+							controller={p.controller}
+							target={p.target}
+							onClose={() => closePanel('controls')}
+						/>
 					</masonview>
 				) : null}
 			</masonview>

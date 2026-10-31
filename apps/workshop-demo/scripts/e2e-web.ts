@@ -91,6 +91,27 @@ try {
 	await page.waitForTimeout(400)
 	check('mount renders real component', (await text('.xw-stage-mount')) === 'Demo: 0 (+1)')
 
+	check(
+		'preview heading uses story name and breadcrumb',
+		(await text('.xw-preview-title')) === 'Basic' &&
+			(await text('.xw-breadcrumb')) === 'Examples / Counter',
+	)
+
+	check(
+		'desktop toolbar stays compact',
+		await page.$eval('.xw-statusbar', (el) => el.getBoundingClientRect().height <= 56),
+	)
+
+	const mountedStory = await page.$('.xw-stage-mount')
+	await page.fill('.xw-search', 'no-such-story')
+	check(
+		'empty search explains recovery',
+		(await text('.xw-catalog'))?.includes('No matching stories.'),
+	)
+
+	await page.fill('.xw-search', '')
+	check('search preserves mounted preview', await mountedStory.evaluate((el) => el.isConnected))
+
 	// Chrome regressions use DOM geometry and computed styles only.
 	const palette = () =>
 		page.evaluate(() => {
@@ -432,9 +453,10 @@ try {
 	)
 
 	const ax = await page.locator('.xw-statusbar').ariaSnapshot()
+	const previewAx = await page.locator('.xw-preview-head').ariaSnapshot()
 	check(
 		'accessible shell exposes named reset and status',
-		ax.includes('button "Reset"') && ax.includes('ready'),
+		ax.includes('button "Reset"') && previewAx.includes('Ready'),
 	)
 
 	check('no page errors', pageErrors.length === 0, pageErrors[0])

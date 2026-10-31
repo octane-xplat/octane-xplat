@@ -74,6 +74,23 @@ export function Columns() {
 For driver work and the distinction between JSX tags and imperative native
 hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
+Mason's layout mode and overlay offsets use the element style channel: the
+NativeScript stylesheet registry cannot carry `display` or `position`. Use
+explicit edge offsets; AppKit ignores the `inset` shorthand. Keep supported static
+declarations in CSS. The [workshop chrome](../../../docs/workshop-chrome.md)
+is a maintained example of this boundary.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function PreviewFrame() {
+	return (
+		<masonview className="preview-frame" style={{ display: 'flex', position: 'relative' }}>
+			<masonview className="preview-overlay" style={{ display: 'flex', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }} />
+		</masonview>
+	)
+}
+```
+
 ## Safe-area CSS
 
 On iOS and Android, Mason container roots automatically resolve owning-window

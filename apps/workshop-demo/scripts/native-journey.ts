@@ -178,6 +178,41 @@ export function runNativeJourney(options) {
 				`${s.phase} props=${JSON.stringify(s.props)} store=${JSON.stringify(s.store)}`,
 			)
 
+			// Exercise the rendered chrome's own actions, beyond controller commands.
+			const mounted = s.mountedGeneration
+			for (const [name, collapsed] of [
+				['Stories', 'catalogCollapsed'],
+				['Controls', 'controlsCollapsed'],
+			]) {
+				if (s.mode !== 'wide') {
+					s = await state(`chrome-press ${name}`)
+				}
+
+				s = await state(`chrome-press Close ${name}`)
+				check(
+					`${name} close action dismisses its panel`,
+					s.mode === 'wide' ? s[collapsed] === true : s.panel === null,
+				)
+
+				s = await state(`chrome-press ${name}`)
+				check(
+					`${name} toolbar action reopens panel`,
+					s.mode === 'wide' ? s[collapsed] === false : s.panel === name.toLowerCase(),
+				)
+			}
+
+			s = await state('chrome-press Stage only')
+			check(
+				'stage-only chrome action preserves story root',
+				s.stageOnly === true && s.mountedGeneration === mounted,
+			)
+
+			s = await state('chrome-press Return to workshop')
+			check(
+				'return chrome action preserves story root',
+				s.stageOnly === false && s.mountedGeneration === mounted,
+			)
+
 			s = await state('press Increment')
 			check('gesture dispatch updates story state', s.store?.count === 1, JSON.stringify(s.store))
 
@@ -198,7 +233,12 @@ export function runNativeJourney(options) {
 				`props=${JSON.stringify(s.props)} errors=${JSON.stringify(s.errors)}`,
 			)
 
-			s = await state('unset label')
+			await state('control label "Chrome test"')
+			if (s.mode !== 'wide') {
+				await state('chrome-press Controls')
+			}
+
+			s = await state('chrome-press Unset label')
 			check(
 				'Unset removes optional prop',
 				s.props && !('label' in s.props),
@@ -363,6 +403,11 @@ export function runNativeJourney(options) {
 				proc.once('exit', (code) => resolve(code))
 				setTimeout(() => resolve('timeout'), 20_000)
 			})
+
+			check(
+				'all rendered action targets were found',
+				!pending.some((line) => line.includes('WORKSHOP_PRESS_MISS')),
+			)
 
 			check('clean shutdown', code === 0, `exit=${code}`)
 		} catch (error) {
