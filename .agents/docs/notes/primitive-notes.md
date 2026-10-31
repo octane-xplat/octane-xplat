@@ -30,10 +30,14 @@ Remove these overrides when core drops the padding-zeroing behavior; upstream
 tracking is [#11561](https://github.com/NativeScript/NativeScript/issues/11561)
 and [#11562](https://github.com/NativeScript/NativeScript/pull/11562).
 
-The foreign-parent → Mason-child max-content case is separate (Xplat #38): an
-auto-width glass can retain a padding-only size after a Mason child initially
-reports zero. Give that glass a definite width until the measurement bridge is
-fixed. Geometry tests do not establish interactive child touch delivery.
+The foreign-parent → Mason-child max-content case is separate (Xplat #38,
+fixed in `@octane-xplat/nativescript-mason-core` ≥ beta.5): an auto-width
+glass could retain a padding-only size after a Mason child initially reported
+zero. The core engine defers a root measured inside an outer compute and
+re-measures the foreign host once it settles — an auto-width glass now grows
+to fit (158 pt glass, child at x 19 for a 120 pt child and 19 pt padding,
+probe-verified on the iOS simulator). Geometry tests do not establish
+interactive child touch delivery.
 Current API, fallback, and interaction defaults belong in the
 [Liquid Glass guide](../../../docs/app/liquid-glass.md).
 

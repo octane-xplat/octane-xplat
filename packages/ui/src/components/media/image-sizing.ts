@@ -27,7 +27,10 @@
  *  re-measures a foreign leaf with a pending layout request, and an extra
  *  request there re-measures an auto-height leaf at its content height,
  *  overriding a flex-grown or stretched height (see
- *  .agents/docs/notes/masonkit-layout-evaluation.md).
+ *  .agents/docs/notes/masonkit-layout-evaluation.md). Android requests a
+ *  deferred pass only while an axis is still 0 after the bitmap arrives —
+ *  a source decoded inside the layout pass (sync `data:` decode, warm
+ *  cache) leaves no pending request for that re-measure.
  *
  *  The ref callback re-fires on every render (identity change), so
  *  `update` must be idempotent: same view + same src + same size is a
@@ -139,8 +142,29 @@ export function createSizedImageBinding(
 	const onImageSource = () => {
 		if (relayoutOnImageSource) {
 			view?.requestLayout?.()
+			return
 		}
+
+		// Android's Mason does re-measure a foreign leaf that has a pending
+		// layout request — but a source decoded inside the layout pass (a
+		// sync `data:` decode or a warm cache hit) leaves none pending, so
+		// the intrinsic axis the bitmap just made knowable stays 0. Defer
+		// one request past the pass, only while an axis is still missing —
+		// a flex-grown or stretched axis is already nonzero and untouched.
+		if (!missingIntrinsicAxis()) {
+			return
+		}
+
+		setTimeout(() => {
+			if (missingIntrinsicAxis()) {
+				view?.requestLayout?.()
+			}
+		}, 0)
 	}
+
+	const missingIntrinsicAxis = () =>
+		view?.imageSource &&
+		((view.getMeasuredWidth?.() ?? 0) <= 0 || (view.getMeasuredHeight?.() ?? 0) <= 0)
 
 	// Android marks a view layout-valid without emitting layoutChanged when
 	// the bounds never changed (a 0×0 image), and `loaded` usually fires

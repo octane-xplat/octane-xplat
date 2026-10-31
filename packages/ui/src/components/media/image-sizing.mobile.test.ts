@@ -232,6 +232,59 @@ describe('sized image decode binding', () => {
 		expect(view.layoutRequests).toBe(0)
 	})
 
+	it('defers one re-measure when a sync-decoded bitmap leaves an axis at 0', () => {
+		vi.useFakeTimers()
+		// Android: a `data:`/warm-cache decode lands inside the layout pass,
+		// so no pending request exists for Mason's foreign-leaf re-measure.
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding({ relayoutOnImageSource: false })
+
+		binding.update(view, 'res://a.jpg')
+		view.imageSource = {}
+		view.emit('imageSourceChange')
+		expect(view.layoutRequests).toBe(0)
+
+		vi.advanceTimersByTime(0)
+		expect(view.layoutRequests).toBe(1)
+	})
+
+	it('skips the deferred request when the engine re-measured first', () => {
+		vi.useFakeTimers()
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding({ relayoutOnImageSource: false })
+
+		binding.update(view, 'res://a.jpg')
+		view.imageSource = {}
+		view.emit('imageSourceChange')
+
+		view.measured = { w: 214, h: 160 }
+		vi.advanceTimersByTime(0)
+		expect(view.layoutRequests).toBe(0)
+	})
+
+	it('never requests for a stretched/flex-sized image — both axes are known', () => {
+		vi.useFakeTimers()
+		const view = mockView(107, 200)
+		const binding = createSizedImageBinding({ relayoutOnImageSource: false })
+
+		binding.update(view, 'res://a.jpg')
+		view.imageSource = {}
+		view.emit('imageSourceChange')
+		vi.advanceTimersByTime(0)
+		expect(view.layoutRequests).toBe(0)
+	})
+
+	it('does not request while imageSource is absent (src cleared)', () => {
+		vi.useFakeTimers()
+		const view = mockView(214, 0)
+		const binding = createSizedImageBinding({ relayoutOnImageSource: false })
+
+		binding.update(view, 'res://a.jpg')
+		view.emit('imageSourceChange')
+		vi.advanceTimersByTime(0)
+		expect(view.layoutRequests).toBe(0)
+	})
+
 	it('moves the imageSource listener to a recreated view', () => {
 		const first = mockView(214, 0)
 		const second = mockView(214, 0)

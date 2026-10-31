@@ -46,8 +46,11 @@ Core 9.1.3 with Mason beta.110 can mark an unsized image exact before its bitmap
 loads, preventing remeasurement (issue #36). The iOS `imageSourceChange`
 workaround requests layout. Do not extend it blindly to Android: a pending
 foreign auto-height pass can replace a flex/stretch height with content height.
-Android's attached source-readiness retry is bounded to ten ticks. Style/percent
-propagation remains a separate #31 concern.
+Android's attached source-readiness retry is bounded to ten ticks, and its
+`imageSourceChange` path requests a deferred re-measure only while an axis is
+still 0 — a source decoded inside the layout pass (sync `data:` decode, warm
+cache) leaves no pending request otherwise. Style/percent propagation remains
+a separate #31 concern.
 
 Core beta.1 at `27281f97` also lacked a replaced-image flag and the cyclic
 percentage min-content rule (issue #41). Correction `86b1a1e4` uses a zero-basis
