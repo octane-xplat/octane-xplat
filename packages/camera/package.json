@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/camera",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Live camera preview for Octane xplat — web getUserMedia + native capture (AVCapture / CameraX)",
 	"keywords": [
 		"android",

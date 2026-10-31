@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/billing",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "In-app purchases and subscriptions for Octane xplat — StoreKit 2 and Play Billing via @nativescript/payments",
 	"keywords": [
 		"android",

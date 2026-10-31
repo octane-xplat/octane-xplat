@@ -6,6 +6,22 @@ in the [changelog](CHANGELOG.md).
 Earlier fixes remain in the original [combined changelog](CHANGELOG.md) and
 [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.20.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.20.0) - 2026-10-31
+
+### Give a synchronously-decoded Android Image its intrinsic height
+
+On Android, a width-only `Image` whose bitmap arrives inside the layout pass —
+a `data:` URI or a warm cache hit — stayed 0 pt high because nothing asked
+layout to re-measure it. The leaf now requests one deferred re-measure while an
+intrinsic axis is still 0, matching iOS sizing (`214` wide → `160.5` high for a
+4:3 bitmap). Flex-grown and stretched heights are untouched.
+
+```tsx
+<Image src={dataUri} alt="Preview" style={{ width: 214 }} />
+```
+
+See [the Image component](https://github.com/octane-xplat/octane-xplat/tree/main/packages/ui#image).
+
 ## [Octane Xplat 0.19.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.19.0) - 2026-10-31
 
 ### Keep Apple sign-in attached to its macOS window

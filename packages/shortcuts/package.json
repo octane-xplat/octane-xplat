@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/shortcuts",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Scoped keyboard shortcuts, sequences and recording for web and native desktop apps",
 	"license": "MIT",
 	"repository": {

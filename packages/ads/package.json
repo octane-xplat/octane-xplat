@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/ads",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Google AdMob ads for Octane xplat — banner, interstitial, rewarded, app-open via @nativescript/google-mobile-ads",
 	"keywords": [
 		"android",

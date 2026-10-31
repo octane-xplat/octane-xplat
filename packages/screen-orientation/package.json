@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/screen-orientation",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Expo-shaped screen orientation queries, policies and subscriptions for Octane Xplat",
 	"keywords": [
 		"cross-platform",
