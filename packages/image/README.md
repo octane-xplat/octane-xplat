@@ -45,10 +45,11 @@ initializeImageCache({ memoryCacheScreens: 2 })
 // Warm the disk cache ahead of a feed scroll (bytes only — decode at
 // display). One URL or a batch; resolves false if any URL fails.
 await prefetch('https://example.com/next.jpg')
+const feed = [{ imageUrl: 'https://example.com/next.jpg' }]
 await prefetch(
 	feed.map((post) => post.imageUrl),
 	{
-		headers: { Authorization: 'Bearer …' }, // Android only — see below
+		headers: { Authorization: 'Bearer …' }, // iOS/Android only — see below
 		concurrency: 5, // max parallel fetches (default)
 	},
 )
@@ -88,6 +89,8 @@ prefetch carrying `headers` sends them on iOS the same as Android.
 shape:
 
 ```ts
+import { isImageCached } from '@octane-xplat/image'
+
 const states = await isImageCached(['https://example.com/a.jpg', 'https://example.com/b.jpg'])
 // states['https://example.com/a.jpg'] === 'memory' | 'disk' | 'none'
 ```
@@ -96,7 +99,9 @@ On iOS the cache key includes the decode bounds a display load used, so
 probe with the same `decodeWidth`/`decodeHeight` to match it:
 
 ```ts
-await isImageCached(url, { decodeWidth: 600, decodeHeight: 400 })
+import { isImageCached } from '@octane-xplat/image'
+
+await isImageCached('https://example.com/a.jpg', { decodeWidth: 600, decodeHeight: 400 })
 ```
 
 Android caveat: the plugin's probe can't see Glide's active resources, so a

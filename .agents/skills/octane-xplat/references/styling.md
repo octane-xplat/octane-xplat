@@ -52,6 +52,21 @@ const style = mergeStyle({ opacity: disabled ? 0.38 : 1 }, props.style)
 <label style={style} text="Status" />
 ```
 
+## Bamboo source scans
+
+For the standalone Bamboo CLI, keep `css()` calls in `.ts`/`.tsx` modules and
+import their class strings into TSRX templates. Bamboo 1.60.1's scanner rejects
+raw `@{}` templates; do not add `.tsrx` to this scan based only on the file's
+TypeScript content. This does not qualify Vite's transformed-module path. See
+[the scoped limitation](../../../docs/toolchain.md#bamboo-standalone-scanning-of-tsrx-templates)
+and the [Bamboo setup example](../../../../packages/bamboo/README.md).
+
+```ts
+// src/styles.ts — import warningText into the screen.
+import { css } from './styled-system/css'
+export const warningText = css({ color: 'warning' })
+```
+
 ## Native layout styles
 
 Raw native layout uses `masonview`. Put CSS layout keys in its style bag or

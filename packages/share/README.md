@@ -43,8 +43,15 @@ export, a downloaded document:
 import { files } from '@octane-xplat/files'
 import { share } from '@octane-xplat/share'
 
-const saved = await files.writeBytes('clip.mov', bytes)
-const result = await share.file(saved.uri, { subject: 'Share clip' })
+// Pass the encoded movie bytes from your recorder or download.
+export async function shareClip(bytes: Uint8Array) {
+	const saved = await files.writeBytes('clip.mov', bytes)
+	try {
+		return await share.file(saved.uri, { subject: 'Share clip' })
+	} finally {
+		files.release(saved)
+	}
+}
 ```
 
 `path` accepts an absolute filesystem path, a `file://` URL, and — Android

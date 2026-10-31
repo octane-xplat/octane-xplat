@@ -22,32 +22,49 @@ const shot = await media.capturePhoto()
 Every method returns a `PickedImage` — a `FileRef` (`name`, opaque `uri`)
 you can hand straight to `Image src`, or to `files.readBytes()` for an
 upload body. Cancellation resolves `null` (or `[]` for `pickImages`), so
-check the result rather than catching. `getPermissions('camera' | 'photos')`
+check the result for cancellation; other failures can still reject. `getPermissions('camera' | 'photos')`
 reads without prompting and `requestPermissions('camera' | 'photos')` may
 prompt — both resolve `{status, granted, canAskAgain}`.
 
+This preview owns its selected file. Replacing the photo or removing the
+component releases it; a picker finishing after unmount releases its result too.
+
 ```tsx
-import { useState } from 'octane'
-import { Button, Image } from '@octane-xplat/ui'
+import { useEffect, useRef, useState } from 'octane'
+import { Button, Image, Text } from '@octane-xplat/ui'
 import { media } from '@octane-xplat/media'
 import type { PickedImage } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
 export function PhotoPicker() {
 	const [preview, setPreview] = useState<PickedImage | null>(null)
+	const [error, setError] = useState('')
+	const mounted = useRef(true)
+	useEffect(() => {
+		mounted.current = true
+		return () => { mounted.current = false }
+	}, [])
+	useEffect(() => () => { if (preview) files.release(preview) }, [preview])
+
 	async function pickPhoto() {
-		const photo = await media.pickImage()
-		if (!photo) return
-		// The ref is a file handle — keep it alive while it displays; release
-		// the previous pick once the new one is showing.
-		const previous = preview
-		setPreview(photo)
-		if (previous) files.release(previous)
+		try {
+			const photo = await media.pickImage()
+			if (!photo) return
+			if (!mounted.current) {
+				files.release(photo)
+				return
+			}
+			setError('')
+			setPreview(photo)
+		} catch (error) {
+			if (mounted.current) setError(String(error))
+		}
 	}
 	return (
 		<>
 			<Button clickAction={pickPhoto}>Choose photo</Button>
 			{preview && <Image src={preview.uri} alt="Selected photo" />}
+			{error && <Text>{error}</Text>}
 		</>
 	)
 }
