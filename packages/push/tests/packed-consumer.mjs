@@ -170,7 +170,9 @@ await assertMacOSPush(push)
 	run(process.execPath, ['verify.mjs'], consumerRoot)
 	// Published ESM must also resolve directly without a bundler or SDK deps.
 	const manifest = JSON.parse(readFileSync(join(packageLink, 'package.json'), 'utf8'))
-	if (manifest.exports['.'].macos.default.startsWith('./dist/')) {
+	const macosExport = manifest.exports['.'].macos
+	const macosTarget = typeof macosExport === 'string' ? macosExport : macosExport?.default
+	if (macosTarget?.startsWith('./dist/')) {
 		writeFileSync(
 			join(consumerRoot, 'verify-node.mjs'),
 			`import { assertMacOSPush } from './contract.mjs'
