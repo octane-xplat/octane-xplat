@@ -1529,7 +1529,8 @@ body {
 
 /* Sketch 29E3CD0E: square green highlight, 3px sides and 1px top/bottom.
    Clone the background and padding on each wrapped line. */
-.doc .highlight {
+.doc .highlight,
+.doc > .h1 + .quote .highlight {
 	background-color: var(--doc-highlight-bg);
 	color: var(--doc-highlight-ink);
 	font-weight: 350;
