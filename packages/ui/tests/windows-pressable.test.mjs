@@ -235,6 +235,70 @@ export function SortableHeader(props) @{
 )
 const { SortableHeader } = await import(sortableHeader)
 
+const sizeContext = compiled('size-context', read('layout/size-context.ts'), {}, false)
+const navContexts = compiled(
+	'nav-contexts',
+	read('navigation/nav-contexts.ts'),
+	{
+		'../layout/size-context': sizeContext,
+	},
+	false,
+)
+const navSupport = moduleFile(
+	'tab-navigation-support',
+	`
+import {createContext} from ${JSON.stringify(runtimeUrl)};
+export const RouterScopeContext=createContext(null);
+export const requireRouterRenderScope=()=>{throw new Error('Unexpected router destination')};
+export const navLinkDestination=()=>{throw new Error('Unexpected router destination')};
+export const navLinkIsActive=()=>false;
+export const navLinkActivation=()=>({defaultPrevented:false,preventDefault(){this.defaultPrevented=true}});
+`,
+)
+const navigationItem = compiled(
+	'tab-navigation-item',
+	read('navigation/use-navigation-item.shared.tsrx'),
+	{
+		'../../routing/router-hook-context': navSupport,
+		'../../routing/router-render-scope': navSupport,
+		'./nav-link': navSupport,
+	},
+)
+const tabText = compiled(
+	'tab-text',
+	'export function Text(props) @{ <label text={props.children} /> }',
+)
+const tabPopover = moduleFile(
+	'tab-popover',
+	`export {Collapsible as Popover} from ${JSON.stringify(collapsible)};`,
+)
+const tabs = compiled('tab-list', read('collections/TabList.tsrx'), {
+	'../../internal/layout/style-merge': support,
+	'@octane-xplat/lib': support,
+	'../overlays/escape-props': support,
+	'../layout/size-context': sizeContext,
+	'../navigation/nav-contexts': navContexts,
+	'../navigation/use-navigation-item.shared.tsrx': navigationItem,
+	'../navigation/nav-href': support,
+	'../media/Icon': icon,
+	'../content/Text': tabText,
+	'../overlays/Popover': tabPopover,
+	'../actions/Pressable': pressable,
+})
+const tabFixture = compiled(
+	'tab-list-fixture',
+	`
+import {Tab,TabList} from ${JSON.stringify(tabs)};
+export function TabFixture(props) @{
+  <TabList role="tablist" layout="fill" value={props.value} onChange={props.onChange}>
+    <Tab value="first" label={props.label} />
+    <Tab value="disabled" label="Unavailable" isDisabled />
+    <Tab value="third" label="Third" />
+  </TabList>
+}`,
+)
+const { TabFixture } = await import(tabFixture)
+
 function mount(component, props) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -245,6 +309,31 @@ function mount(component, props) {
 	root.render(component, props)
 	return { root, nodes, render: (props) => root.render(component, props) }
 }
+
+// This exercises actual compiled TabList/Tab/provider/navigation code. The
+// object driver and fixed measurement cannot establish WinUI layout or UIA.
+test('Windows TabList mounts and refreshes controlled tabs without adding peers', () => {
+	const first = []
+	const current = []
+	const f = mount(TabFixture, { value: 'first', label: 'First', onChange: (v) => first.push(v) })
+	try {
+		const peers = () => f.nodes().filter((n) => n.type === 'xplatwindowsbutton')
+		assert.equal(peers().length, 3)
+		assert.equal(peers()[1].props.isEnabled, false)
+		peers()[2].props.settings.onPress()
+		assert.deepEqual(first, ['third'])
+		f.render({ value: 'third', label: 'Updated first', onChange: (v) => current.push(v) })
+		assert.equal(peers().length, 3)
+		assert.ok(f.nodes().some((n) => n.props.text === 'Updated first'))
+		peers()[0].props.settings.onPress()
+		assert.deepEqual(first, ['third'])
+		assert.deepEqual(current, ['first'])
+		assert.ok(f.nodes().some((n) => n.props.className?.includes('vx-tab--selected')))
+	} finally {
+		f.root.unmount()
+	}
+	assert.equal(f.nodes().length, 0)
+})
 
 test('Windows Pressable mounts a native host and updates its peer kind and callback', () => {
 	const first = () => {}
