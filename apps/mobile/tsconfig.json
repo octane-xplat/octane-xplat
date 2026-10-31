@@ -35,7 +35,7 @@
 	},
 	"include": ["src/**/*", "../../packages/**/*"],
 	"files": [
-		"../../packages/macos-renderer/src/host-globals.d.ts",
+		"../../packages/macos-appkit/src/host-globals.d.ts",
 		"./references.d.ts",
 		"./types/globals.d.ts"
 	],

@@ -1,5 +1,5 @@
 import '@nativescript/macos-node-api'
-import { registerFontFamily } from '@octane-xplat/macos-renderer'
+import { registerFontFamily } from '@octane-xplat/macos-appkit'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'

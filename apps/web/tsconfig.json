@@ -29,5 +29,5 @@
 		"../../packages/ui/type-support/**/*.d.ts"
 	],
 	"exclude": ["**/*.test.*", "../../packages/**/*.test.*", "**/node_modules"],
-	"files": ["../../packages/macos-renderer/src/host-globals.d.ts"]
+	"files": ["../../packages/macos-appkit/src/host-globals.d.ts"]
 }

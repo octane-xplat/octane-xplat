@@ -61,7 +61,7 @@
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",
-		"@octane-xplat/macos-renderer": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"jsdom": "catalog:",
 		"octane": "catalog:",

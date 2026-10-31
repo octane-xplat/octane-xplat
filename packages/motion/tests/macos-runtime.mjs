@@ -47,7 +47,7 @@ try {
 				{
 					source: join(
 						packageRoot,
-						'../macos-renderer/platforms/macos/prebuilt/libxplatmason.dylib',
+						'../macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib',
 					),
 				},
 			],

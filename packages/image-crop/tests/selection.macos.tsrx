@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { useState } from 'octane'
 import { ImageCrop } from '@octane-xplat/image-crop'
 import type { Crop, PixelCrop } from '../src/props'

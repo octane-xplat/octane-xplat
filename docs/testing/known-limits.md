@@ -35,7 +35,7 @@ AppKit content modes, but pixel parity has not been visually reviewed. The
 harness motion-package route remains unsupported because its gesture and
 reduced-motion hosts are mobile-only; the separate AppKit UI ref-animation
 fixture does not establish motion-package support. AppKit applies app and
-Bamboo stylesheets, with the [limits listed for the renderer](../../packages/macos-renderer/README.md#apply-stylesheets):
+Bamboo stylesheets, with the [limits listed for the renderer](../../packages/macos-appkit/README.md#apply-stylesheets):
 state selectors and window-resize media queries have source support that has
 not been checked on a running Mac, media queries use one viewport for every
 window, and keyframe playback is limited to a source path. See the

@@ -670,7 +670,7 @@ Installed AppKit families can also be selected by name.
 
 ```ts
 // AppKit host bootstrap; regularDescriptor comes from your loaded font asset.
-import { registerFontFamily } from '@octane-xplat/macos-renderer'
+import { registerFontFamily } from '@octane-xplat/macos-appkit'
 
 export function registerAppFont(regularDescriptor: NSFontDescriptor) {
 	registerFontFamily('Acme Sans', [{ weight: 400, descriptor: regularDescriptor }])

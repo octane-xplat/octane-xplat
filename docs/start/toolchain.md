@@ -496,11 +496,11 @@ command after changing these settings. This applies to AppKit and WKWebView.
 The development bundle is removed when the command exits and is not installed
 for Spotlight. Use the packaged `.app` for a lasting installation.
 
-For AppKit rendering, install `@octane-xplat/macos-renderer` and use
+For AppKit rendering, install `@octane-xplat/macos-appkit` and use
 `xplatMacOS` from `@octane-xplat/cli/macos/vite` to register the compiler,
 platform resolution, and compatibility aliases. The app owns its windows,
 startup, and custom fonts; the renderer defaults to Apple's system font.
-See the [renderer setup](../../packages/macos-renderer/README.md) for dependencies,
+See the [renderer setup](../../packages/macos-appkit/README.md) for dependencies,
 Vite and TypeScript configuration, and the root lifecycle.
 
 ```js

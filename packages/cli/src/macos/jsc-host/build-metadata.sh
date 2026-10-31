@@ -105,9 +105,9 @@ if [[ "$install_artifacts" == 1 ]]; then
   cp "$out_dir/metadata.macos.arm64.nsmd" "$host_dir/prebuilt/macos/metadata.macos.arm64.nsmd"
   cp "$out_dir/metadata.macos.x86_64.nsmd" "$host_dir/prebuilt/macos/metadata.macos.x86_64.nsmd"
   # The generator's types= output is the ambient AppKit SDK surface for
-  # macos-renderer consumers — check it in next to the renderer, keyed to the
+  # macos-appkit consumers — check it in next to the renderer, keyed to the
   # same generator pin + SDK as the shipped metadata files.
-  types_install="$repo_root/packages/macos-renderer/types"
+  types_install="$repo_root/packages/macos-appkit/types"
   rm -rf "$types_install"
   cp -R "$types_dir" "$types_install"
   # Repair upstream TSEmitter quirks that leave .d.ts files unparseable
@@ -125,7 +125,7 @@ stamp = {
 }
 (root / 'REVISION.json').write_text(json.dumps(stamp, indent=2) + '\n')
 PY
-  echo "Installed $(find "$types_install" -name '*.d.ts' | wc -l | tr -d ' ') generated type files to packages/macos-renderer/types"
+  echo "Installed $(find "$types_install" -name '*.d.ts' | wc -l | tr -d ' ') generated type files to packages/macos-appkit/types"
   python3 - "$host_dir/prebuilt" <<'PY'
 import hashlib, json, pathlib, sys
 root = pathlib.Path(sys.argv[1])

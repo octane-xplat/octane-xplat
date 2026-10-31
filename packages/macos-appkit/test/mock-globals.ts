@@ -51,7 +51,7 @@ export function sourceWithoutImports(url: URL) {
 
 const SLICE_BASE = { normalizeHostStyleProps, borderStyleSides, hiddenBorderStyle, borderStrokeStyle, correctProjectionRadii, correctProjectionShadows }
 
-const RAW_SLICE_CONTEXT = Symbol('macos-renderer.raw-slice-context')
+const RAW_SLICE_CONTEXT = Symbol('macos-appkit.raw-slice-context')
 
 /** `runInNewContext` for src/index.ts slices: prepends CSS_SLICE_STUBS so
  *  slices that reference cascade helpers they don't include still run. */

@@ -26,10 +26,10 @@ export async function checkMacOSMotionConsumer({
 	// The driver substitute adds the renderer-owned css-engine surface
 	// (registerStylesheet) on top of universal/native; anything else missing
 	// still fails the build.
-	const rendererShim = join(consumerRoot, 'macos-renderer-shim.ts')
+	const rendererShim = join(consumerRoot, 'macos-appkit-shim.ts')
 	writeFileSync(
 		rendererShim,
-		`export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\nexport { observeLayoutCommits } from ${JSON.stringify(join(repoRoot, 'packages/macos-renderer/src/layout-observers.ts'))}\nexport { setProjectionScale as setLayoutProjectionScale } from ${JSON.stringify(join(repoRoot, 'packages/macos-renderer/src/projection-paint.ts'))}\n`,
+		`export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\nexport { observeLayoutCommits } from ${JSON.stringify(join(repoRoot, 'packages/macos-appkit/src/layout-observers.ts'))}\nexport { setProjectionScale as setLayoutProjectionScale } from ${JSON.stringify(join(repoRoot, 'packages/macos-appkit/src/projection-paint.ts'))}\n`,
 	)
 
 	let resolvedEntry = false
@@ -65,7 +65,7 @@ export async function checkMacOSMotionConsumer({
 				renderers: {
 					registry: {
 						macos: {
-							module: '@octane-xplat/macos-renderer',
+							module: '@octane-xplat/macos-appkit',
 							target: 'universal',
 							server: 'unsupported',
 							text: 'host',
@@ -96,7 +96,7 @@ export async function checkMacOSMotionConsumer({
 				{ find: /^octane$/, replacement: 'octane/universal/native' },
 				// Substitute only the driver: keep the production core compatibility
 				// surface so missing named mobile exports still fail the build.
-				{ find: /^@octane-xplat\/macos-renderer$/, replacement: rendererShim },
+				{ find: /^@octane-xplat\/macos-appkit$/, replacement: rendererShim },
 				{
 					find: /^@octane-xplat\/css-engine$/,
 					replacement: join(repoRoot, 'packages/css-engine/src/index.ts'),
@@ -104,7 +104,7 @@ export async function checkMacOSMotionConsumer({
 				{ find: /^@nativescript-community\/octane$/, replacement: 'octane/universal/native' },
 				{
 					find: /^@nativescript\/core(?:\/animation-frame)?$/,
-					replacement: join(repoRoot, 'packages/macos-renderer/src/native-core-shim.ts'),
+					replacement: join(repoRoot, 'packages/macos-appkit/src/native-core-shim.ts'),
 				},
 			],
 		},

@@ -1,4 +1,4 @@
-import { observeLayoutCommits } from '@octane-xplat/macos-renderer'
+import { observeLayoutCommits } from '@octane-xplat/macos-appkit'
 import type { LayoutBarrier } from './types'
 
 export const layoutSupported = true

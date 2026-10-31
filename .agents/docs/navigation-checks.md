@@ -424,7 +424,7 @@ Activity Back → interceptors → top modal → visible Frame/pane → OS fallb
 The renderer ships the Mason engine prebuilt
 (`platforms/macos/prebuilt/libxplatmason.dylib`); the fixture's bootstrap
 loads it automatically. Rebuild it with
-`packages/macos-renderer/native/xplatmason/build.sh` — it consumes the pinned
+`packages/macos-appkit/native/xplatmason/build.sh` — it consumes the pinned
 mason-c desktop archive recorded in `native/xplatmason/mason-core.pin.json` —
 only when the engine changes. The fixture checks its consumer types, builds
 production JS and runs the
@@ -876,7 +876,7 @@ Other platform adapters did not change in this increment. Their earlier runtime
 evidence remains separate, and Windows still has no runtime VM.
 
 ```sh
-node --test packages/macos-renderer/test/*.test.ts
+node --test packages/macos-appkit/test/*.test.ts
 ```
 
 The existing standalone overlay runner stopped before its assertions because

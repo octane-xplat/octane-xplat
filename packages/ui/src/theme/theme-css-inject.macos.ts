@@ -1,5 +1,5 @@
 /** Register named-theme rules with AppKit's stylesheet engine. */
-import { registerStylesheet } from '@octane-xplat/macos-renderer'
+import { registerStylesheet } from '@octane-xplat/macos-appkit'
 import type { DefinedTheme } from './defined-theme'
 import { generateThemeCss } from './theme-css'
 

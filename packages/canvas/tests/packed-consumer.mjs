@@ -53,7 +53,7 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript/types',
 	'@nativescript/canvas',
-	'@octane-xplat/macos-renderer',
+	'@octane-xplat/macos-appkit',
 	'@octanejs/vite-plugin',
 ]
 

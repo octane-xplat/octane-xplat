@@ -115,7 +115,7 @@ try {
 											[renderer]:
 												target === 'macos'
 													? {
-															module: '@octane-xplat/macos-renderer',
+															module: '@octane-xplat/macos-appkit',
 															target: 'universal',
 															server: 'unsupported',
 															text: 'host',
@@ -143,7 +143,7 @@ try {
 						external: [
 							/^octane(?:\/|$)/,
 							/^@nativescript(?:-community)?\//,
-							/^@octane-xplat\/macos-renderer/,
+							/^@octane-xplat\/macos-appkit/,
 							'vitest',
 						],
 						output: { paths: (id) => (native && id === 'octane' ? 'octane/universal/native' : id) },

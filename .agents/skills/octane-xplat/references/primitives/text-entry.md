@@ -97,7 +97,7 @@ returned handle and failed removal cannot prove resource recovery; automatic
 external clip/document migration is unqualified. No native measurement/scroll/
 IME/undo/focus/AX/memory/installed or visual claim follows from these guards.
 See [growth ownership](../../../../../docs/app/primitives.md#keep-appkit-growth-with-its-editor)
-and [renderer contract](../../../../../packages/macos-renderer/README.md#own-multiline-resize-observation).
+and [renderer contract](../../../../../packages/macos-appkit/README.md#own-multiline-resize-observation).
 
 ## Controlled AppKit text during composition
 

@@ -8,7 +8,7 @@ import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
 import { tabItemContentRoots } from './tab-item.ts'
 import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
 
-const renderer = '@octane-xplat/macos-renderer'
+const renderer = '@octane-xplat/macos-appkit'
 const runtime = '@nativescript/macos-node-api'
 
 /** AppKit compiler and bundle setup; the consuming app owns the toolchain. */
@@ -75,7 +75,7 @@ export async function xplatMacOS(env, options = {}) {
 			dedupe: ['octane'],
 			alias: [
 				...(packaged
-					? [{ find: /^@octane-xplat\/macos-renderer$/, replacement: resolveApp(renderer) }]
+					? [{ find: /^@octane-xplat\/macos-appkit$/, replacement: resolveApp(renderer) }]
 					: []),
 				{ find: /^octane$/, replacement: 'octane/universal/native' },
 				{ find: /^@nativescript-community\/octane$/, replacement: renderer },

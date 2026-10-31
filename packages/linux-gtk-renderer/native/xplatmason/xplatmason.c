@@ -1,6 +1,6 @@
 // See xplatmason.h — GI facade over mason-c for the Octane GTK renderer.
 // The style-dictionary contract and the leaf-measure packing are ported
-// verbatim from packages/macos-renderer/native/xplatmason/XPLMason.m; the
+// verbatim from packages/macos-appkit/native/xplatmason/XPLMason.m; the
 // marshalling layer differs because GJS crosses typelibs, not ObjC
 // dispatch.
 #include "xplatmason.h"

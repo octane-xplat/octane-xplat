@@ -10,7 +10,7 @@ export function tabItemContentRoots() {
 			if (
 				!/\.(?:tsx|tsrx)(?:\?|$)/.test(id) ||
 				/\.web\.(?:tsx|tsrx)(?:\?|$)/.test(id) ||
-				id.includes('/macos-renderer/src/portal-components.macos.tsx')
+				id.includes('/macos-appkit/src/portal-components.macos.tsx')
 			) {
 				return null
 			}
@@ -82,7 +82,7 @@ export function tabItemContentRoots() {
 				code = code.slice(0, start) + replacement + code.slice(end)
 			}
 
-			code += `\nimport { ${[...bindings].map(([tag, name]) => `${names[tag]} as ${name}`).join(', ')} } from '@octane-xplat/macos-renderer'\n`
+			code += `\nimport { ${[...bindings].map(([tag, name]) => `${names[tag]} as ${name}`).join(', ')} } from '@octane-xplat/macos-appkit'\n`
 			return { code, map: null }
 		},
 	}

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { useAnimation, View } from '@octane-xplat/ui'
 import { NSView, NSWorkspace } from '@octane-xplat/platform/macos'
 

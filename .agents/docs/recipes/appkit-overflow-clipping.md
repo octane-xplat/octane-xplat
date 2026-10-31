@@ -22,6 +22,6 @@ baseline when styles are removed.
 
 ## Documentation
 
-- AC1: [renderer subset and style adapter](../../../packages/macos-renderer/src/index.ts) and six authored [source-slice cases](../../../packages/macos-renderer/test/style-reconcile.test.ts).
+- AC1: [renderer subset and style adapter](../../../packages/macos-appkit/src/index.ts) and six authored [source-slice cases](../../../packages/macos-appkit/test/style-reconcile.test.ts).
 - AC2: The same source/cases and [styling skill](../../skills/octane-xplat/references/styling.md) distinguish baseline restoration, matching axes, native replacement and unsupported forms.
 - AC3: [Target note](../exploration.md#operational-evidence) and [manual fixture](../../../examples/probes/overflow-clip.macos.tsrx). The fixture runner only waits/records; no native behavior is qualified.

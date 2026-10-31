@@ -14,7 +14,7 @@ delete ambientEnv.XPLAT_MASON_LIB
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(packageRoot, '../..')
-const directory = await mkdtemp(join(tmpdir(), 'xplat-macos-renderer-'))
+const directory = await mkdtemp(join(tmpdir(), 'xplat-macos-appkit-'))
 console.log('[packed renderer] consumer: ' + directory)
 const packs = join(directory, 'packs')
 const app = join(directory, 'consumer')
@@ -158,11 +158,11 @@ await writeFile(
 	join(app, 'package.json'),
 	JSON.stringify(
 		{
-			name: 'macos-renderer-consumer',
+			name: 'macos-appkit-consumer',
 			private: true,
 			type: 'module',
 			dependencies: {
-				'@octane-xplat/macos-renderer': renderer,
+				'@octane-xplat/macos-appkit': renderer,
 				'@octane-xplat/css-engine': cssEngine,
 				'@octane-xplat/platform': platform,
 				'@octane-xplat/jsx': jsx,
@@ -279,7 +279,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
 		'utf8',
 	)
 
-	assert.match(notices, /@octane-xplat\/macos-renderer/)
+	assert.match(notices, /@octane-xplat\/macos-appkit/)
 	assert.match(notices, /Apache License/)
 	const executable = join(
 		app,

@@ -11,7 +11,7 @@ export async function workshopMacOSDev({ root, config, story }) {
 
 	const require = createRequire(join(root, 'package.json'))
 	for (const name of [
-		'@octane-xplat/macos-renderer',
+		'@octane-xplat/macos-appkit',
 		'@nativescript/macos-node-api',
 		'octane',
 		'@octanejs/vite-plugin',

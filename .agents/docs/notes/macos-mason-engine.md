@@ -1,7 +1,7 @@
 # macOS Mason engine sourcing
 
 The macOS renderer's Mason engine ships prebuilt as
-`packages/macos-renderer/platforms/macos/prebuilt/libxplatmason.dylib` — the
+`packages/macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib` — the
 ObjC facade (`native/xplatmason/XPLMason.m`) statically linked against
 mason-c from `octane-xplat/nativescript-mason`.
 

@@ -1,6 +1,6 @@
 # Render Octane components in AppKit
 
-`@octane-xplat/macos-renderer` mounts Octane components into an existing
+`@octane-xplat/macos-appkit` mounts Octane components into an existing
 `NSView`. It is the experimental macOS AppKit renderer, using the
 `@nativescript/macos-node-api` runtime and the CLI's JavaScriptCore host.
 The supported packaging target is Apple Silicon with macOS 13.5 or later.
@@ -62,7 +62,7 @@ Set these TypeScript options:
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"jsx": "react-jsx",
-		"jsxImportSource": "@octane-xplat/macos-renderer",
+		"jsxImportSource": "@octane-xplat/macos-appkit",
 		"customConditions": ["macos"],
 		"moduleSuffixes": [".macos", ""],
 		"lib": ["ESNext"],
@@ -91,7 +91,7 @@ export default await xplatMacOS('production', {
 In your existing host bootstrap, pass its content view to the renderer:
 
 ```js
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import App from './App.macos.tsx'
 
 const root = createMacOSRoot(contentView)
@@ -143,7 +143,7 @@ To add CSS at runtime, call `registerStylesheet`. Registering the same id
 again replaces that sheet, and mounted views restyle:
 
 ```ts
-import { registerStylesheet } from '@octane-xplat/macos-renderer'
+import { registerStylesheet } from '@octane-xplat/macos-appkit'
 
 registerStylesheet('promo', '.promo { background-color: #fde68a; }')
 ```
@@ -171,7 +171,7 @@ caller-owned view or a view from the same Octane root; targets owned by another
 Octane root are rejected.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/macos-appkit */
 import { createContext, createPortal, useContext, useEffect, useRef, useState } from 'octane'
 
 const AccountName = createContext('Guest')
@@ -200,7 +200,7 @@ export function AccountPage() {
 
 The label renders `Account: Avery` inside the `rootlayout` and reads the same
 provider value as its declaring tree. Run the maintained portal fixture with
-`pnpm --filter @octane-xplat/macos-renderer test:portals` to check context,
+`pnpm --filter @octane-xplat/macos-appkit test:portals` to check context,
 provider updates, and native child cleanup.
 
 Use [the packaging guide](../../docs/start/toolchain.md#experimental-appkit-target)
@@ -243,7 +243,7 @@ Renderer-hosted popups and sheets inherit that root default.
 
 ```js
 // contentView is your existing window's NSView, as in the host example above.
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 
 const root = createMacOSRoot(contentView, { fontFamily: 'Helvetica Neue' })
 ```
@@ -252,7 +252,7 @@ For bundled fonts, the application loads its assets and license and creates
 native descriptors. Register those descriptors before mounting:
 
 ```js
-import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-appkit'
 
 // regularFace and boldFace are NSFontDescriptors created from your font asset.
 registerFontFamily('Acme Sans', [
@@ -345,7 +345,7 @@ vertically centered content. The renderer recognizes these inputs on
 `flexboxlayout` and `stack`; other elements retain unsupported-style diagnostics.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/macos-appkit */
 export function Rows() {
 	return (
 		<stack>
@@ -371,7 +371,7 @@ gap, stretch alignment, and start justification. Here, removing `style.gap`
 restores `gap-2` (8 points); removing the class then restores `gap={4}`.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/macos-appkit */
 export function ConflictingRow({ inlineGap }: { inlineGap?: number }) {
 	return (
 		<flexboxlayout
@@ -395,7 +395,7 @@ The class forms are `flex-row`/`flex-col`, `gap-1/2/3/4/6`,
 `items-start/end/center/stretch/baseline`, and `justify-start/end/center/between`.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/macos-appkit */
 export function AxisGap() {
 	return (
 		<flexboxlayout style={{ flexDirection: 'row', gap: 4, columnGap: 12 }}>
@@ -414,7 +414,7 @@ container channel normalization does not move `row`, `col`, spans, or absolute
 placement into styles. Keep those values on the child host.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/macos-appkit */
 export function PositionedRow() {
 	return (
 		<absolutelayout>
@@ -497,10 +497,10 @@ export default config
 From this repository:
 
 ```sh
-pnpm --filter @octane-xplat/macos-renderer test
-pnpm --filter @octane-xplat/macos-renderer test:overflow
-pnpm --filter @octane-xplat/macos-renderer test:portals
-pnpm --filter @octane-xplat/macos-renderer test:packed
+pnpm --filter @octane-xplat/macos-appkit test
+pnpm --filter @octane-xplat/macos-appkit test:overflow
+pnpm --filter @octane-xplat/macos-appkit test:portals
+pnpm --filter @octane-xplat/macos-appkit test:packed
 pnpm --filter @xplat/macos test:fonts
 pnpm --filter @xplat/macos test:layout-channels
 ```
@@ -523,5 +523,5 @@ The maintained nonvisual fixture checks Objective-C gesture target dispatch;
 physical OS input remains a separate manual check.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm --filter @octane-xplat/macos-renderer test:gestures
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm --filter @octane-xplat/macos-appkit test:gestures
 ```

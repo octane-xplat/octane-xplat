@@ -70,7 +70,7 @@ try {
 				'octane',
 				'@iconify/types',
 				...(target === 'native' ? ['@nativescript-community/octane'] : []),
-				...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-renderer'] : []),
+				...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
 			]) {
 				const destination = join(modules, dependency)
 				mkdirSync(dirname(destination), { recursive: true })

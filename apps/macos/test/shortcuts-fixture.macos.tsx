@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { host } from '../../../packages/shortcuts/src/host.macos.ts'
 import { createShortcuts } from '../../../packages/shortcuts/src/index.macos.ts'
 

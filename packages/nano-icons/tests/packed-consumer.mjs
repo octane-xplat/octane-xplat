@@ -113,7 +113,7 @@ try {
 				'pathkit-wasm',
 				'svg2ttf',
 				...(target === 'native' ? ['@nativescript-community/octane', '@nativescript/core'] : []),
-				...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-renderer'] : []),
+				...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
 			]) {
 				const destination = join(modules, dependency)
 				mkdirSync(dirname(destination), { recursive: true })

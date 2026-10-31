@@ -84,6 +84,6 @@ it('native focus rejection can fall through and focus callbacks cannot recursive
 for (const hmr of [false, true]) {
 	it(`landmark hook compiles for the universal AppKit renderer with HMR ${hmr}`, () => {
 		const filename = 'use-landmark.macos.tsrx', source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), filename), 'utf8')
-		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-renderer', target: 'universal', server: 'unsupported', text: 'host' } })
+		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-appkit', target: 'universal', server: 'unsupported', text: 'host' } })
 	})
 }

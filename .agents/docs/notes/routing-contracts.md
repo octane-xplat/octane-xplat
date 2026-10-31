@@ -860,7 +860,7 @@ The renderer's 285 tests and the existing 28 native modal protocol cases pass.
 
 ```sh
 node apps/macos/test/verify-routing.mjs
-node --test packages/macos-renderer/test/*.test.ts
+node --test packages/macos-appkit/test/*.test.ts
 pnpm --filter @octane-xplat/ui exec vitest run --config vitest.native.config.mts src/native-modal-router-host.mobile.test.tsrx
 ```
 
@@ -877,7 +877,7 @@ The workaround is local to Mason native layout callbacks; it does not skip later
 layout passes or change the native host binary.
 
 ```sh
-node --test packages/macos-renderer/test/mason-native-layout.test.ts
+node --test packages/macos-appkit/test/mason-native-layout.test.ts
 ```
 
 The runtime examined is the repository's patched JavaScriptCore host, whose

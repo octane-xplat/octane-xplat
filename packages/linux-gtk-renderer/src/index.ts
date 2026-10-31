@@ -1,5 +1,5 @@
 // GTK4 host driver for the Octane universal runtime — the Linux/GJS sibling
-// of packages/macos-renderer's AppKit driver. Derived from the proven
+// of packages/macos-appkit's AppKit driver. Derived from the proven
 // feasibility adapter (evidence: .agents/design/linux-gtk-feasibility-review.md;
 // runs 12–16 on GJS 1.82.3 + GTK 4.18.6, Debian 13 aarch64) and mapped onto
 // the shared intrinsic vocabulary (packages/jsx/src/shared.d.ts).

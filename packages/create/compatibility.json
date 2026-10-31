@@ -51,7 +51,7 @@
 		"@octane-xplat/lint",
 		"@octane-xplat/linux-gtk",
 		"@octane-xplat/lottie",
-		"@octane-xplat/macos-renderer",
+		"@octane-xplat/macos-appkit",
 		"@octane-xplat/maps",
 		"@octane-xplat/mcp",
 		"@octane-xplat/media",

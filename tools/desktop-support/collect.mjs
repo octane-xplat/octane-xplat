@@ -575,7 +575,7 @@ for (const t of targets.filter((t) => t !== 'web')) {
 				r = {
 					file:
 						t === 'macos'
-							? 'packages/macos-renderer/src/native-core-shim.ts'
+							? 'packages/macos-appkit/src/native-core-shim.ts'
 							: 'packages/linux-gtk-renderer/src/native-core-shim.ts',
 				}
 			} else if (edge.spec === './escape-props' && t !== 'windows') {
