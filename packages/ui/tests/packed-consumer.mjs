@@ -97,7 +97,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 			)
 		}
 
-		const helper = join(packageLink, 'src/child-array.ts')
+		const helper = join(packageLink, 'src/internal/rendering/child-array.ts')
 		assert.match(readFileSync(helper, 'utf8'), /from ['"]octane['"]/)
 		const { toChildArray, mapChildren } = await loadSource(pathToFileURL(helper), {
 			resolve: { alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }] },
