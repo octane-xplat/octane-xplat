@@ -6,7 +6,10 @@
 		"src/ui-types.gtk.ts",
 		"src/visibility-smoke.ts",
 		"src/a11y-smoke.ts",
-		"src/atspi-probe.ts"
+		"src/atspi-probe.ts",
+		"../../../ui/type-support/driver-props.d.ts"
 	],
-	"include": ["src/ui-*.gtk.tsrx"]
+	"include": [
+		"src/ui-*.gtk.tsrx"
+	]
 }

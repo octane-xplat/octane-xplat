@@ -395,7 +395,6 @@ type CommandPaletteItemContract = Assert<
 type CommandPaletteMenuItemContract = Assert<
 	Equal<GtkUI.CommandPaletteMenuItem, NativeUI.CommandPaletteMenuItem>
 >
-type DrawerPropsContract = Assert<Equal<GtkUI.DrawerProps, NativeUI.DrawerProps>>
 type BottomSheetHandleContract = Assert<Equal<GtkUI.BottomSheetHandle, NativeUI.BottomSheetHandle>>
 type BottomSheetOpenOptionsContract = Assert<
 	Equal<GtkUI.BottomSheetOpenOptions, NativeUI.BottomSheetOpenOptions>

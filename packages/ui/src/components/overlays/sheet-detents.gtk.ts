@@ -36,13 +36,43 @@ export interface SheetDetentsOptions {
  *  math in sheet-snap.ts. `vh` resolves the window height lazily so the
  *  caller can attach before the first allocation. */
 export function attachSheetDetents(
+	host: any,
+	detents: readonly number[],
+	closeNow: () => void,
+	options?: SheetDetentsOptions,
+): SheetDetentsController
+export function attachSheetDetents(
 	panel: any,
 	grabber: any,
 	detents: readonly number[],
 	vh: () => number,
 	closeNow: () => void,
-	options: SheetDetentsOptions = {},
+	options?: SheetDetentsOptions,
+): SheetDetentsController
+export function attachSheetDetents(
+	panel: any,
+	grabberOrDetents: any,
+	detentsOrVh: any,
+	vhOrClose: any,
+	closeNowOrOptions?: any,
+	optionsArg?: SheetDetentsOptions,
 ): SheetDetentsController {
+	// Shared-service call shape (host, detents, close, options) maps onto the
+	// GTK form with no grabber and the panel height as viewport.
+	let grabber: any, detents: readonly number[], vh: () => number, closeNow: () => void, options: SheetDetentsOptions
+	if (typeof closeNowOrOptions === "function" || closeNowOrOptions === undefined) {
+		detents = grabberOrDetents
+		grabber = undefined
+		vh = () => panel?.get_allocated_height?.() ?? 0
+		closeNow = detentsOrVh
+		options = closeNowOrOptions ?? vhOrClose ?? {}
+	} else {
+		grabber = grabberOrDetents
+		detents = detentsOrVh
+		vh = vhOrClose
+		closeNow = closeNowOrOptions
+		options = optionsArg ?? {}
+	}
 	const sorted = normalizeDetents(detents)
 	const swipeOnly = options.swipeOnly === true || !sorted.length
 	if (!sorted.length && !options.swipeOnly) {

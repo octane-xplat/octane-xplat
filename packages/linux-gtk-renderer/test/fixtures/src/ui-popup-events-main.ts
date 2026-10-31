@@ -2,7 +2,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
 import GLib from 'gi://GLib'
 import { bindPopupEvents } from '../../../src/popup-events'
-import { dispatchLayerKey, registerLayer, shouldCloseLayer } from '../../../../ui/src/layer-stack'
+import { dispatchLayerKey, registerLayer, shouldCloseLayer } from '../../../../ui/src/components/overlays/layer-stack'
 
 Gtk.init()
 const window = new Gtk.Window({

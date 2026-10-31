@@ -617,3 +617,11 @@ declare module 'gi://Pango' {
 	const Pango: { WrapMode: { WORD_CHAR: number } }
 	export default Pango
 }
+
+declare module 'gi://GdkPixbuf' {
+	namespace GdkPixbuf {
+		const Pixbuf: any
+		const InterpType: { BILINEAR: number; [key: string]: number }
+	}
+	export default GdkPixbuf
+}

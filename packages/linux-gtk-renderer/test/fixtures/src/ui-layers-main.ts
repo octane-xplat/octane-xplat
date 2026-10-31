@@ -2,7 +2,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { positionPopover } from '../../../../ui/src/popover-position'
+import { positionPopover } from '../../../../ui/src/components/overlays/popover-position'
 import { LayersProbe } from './ui-layers.gtk'
 
 Gtk.init()

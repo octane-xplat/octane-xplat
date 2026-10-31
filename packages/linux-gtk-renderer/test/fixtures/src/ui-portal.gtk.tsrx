@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useEffect, useState } from 'octane'
 import { View, Text, Pressable } from '@octane-xplat/ui'
-import { createPortal } from '../../../../ui/src/native-portal'
+import { createPortal } from '../../../../ui/src/internal/platform/native-portal'
 
 const Context = createContext('missing')
 export const refs: Record<string, any> = {}
