@@ -9,7 +9,7 @@ import type { HostHandler, NativeEvent, ValueChangeEvent } from '@octane-xplat/j
  */
 
 /** The AppKit driver passes the control's string to `onTextChange`
- * (macos-renderer/src/index.ts ~4946, `setControlAction` with a string getter);
+ * (macos-appkit/src/index.ts ~4946, `setControlAction` with a string getter);
  * NativeScript passes a `ValueChangeEvent` (`TextInput.tsrx` reads `.value`). */
 export function appKitTextChange(
 	handler: (text: string) => void,

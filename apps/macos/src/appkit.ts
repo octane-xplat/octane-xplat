@@ -2,8 +2,8 @@ import { harnessFontOptions } from './fonts'
 import { announceAppKit } from './accessibility'
 import { notifyAppKitListeners, subscribeAppKitEvent } from './platform-events'
 import '@nativescript/macos-node-api'
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
-import type { UniversalComponent, UniversalRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
+import type { UniversalComponent, UniversalRoot } from '@octane-xplat/macos-appkit'
 import {
 	NSApplication,
 	NSApplicationActivationPolicy,
@@ -218,7 +218,7 @@ class AppDelegate extends NSObject {
 		// ES class methods are non-enumerable, and the runtime only exports
 		// enumerable prototype members as new ObjC methods — without this,
 		// every delegate selector is invisible to AppKit. Same contract as
-		// registerGestureClass in @octane-xplat/macos-renderer.
+		// registerGestureClass in @octane-xplat/macos-appkit.
 		for (const name of Object.getOwnPropertyNames(this.prototype)) {
 			if (name === 'constructor') {
 				continue

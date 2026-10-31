@@ -92,7 +92,7 @@ export async function dependencies(target, caseFile, extra) {
 		names.add('@nativescript/macos-node-api')
 		// The shell imports the renderer; its runtime-dep edge is also what
 		// discoverMacOSNative follows to find the shipped Mason dylib.
-		names.add('@octane-xplat/macos-renderer')
+		names.add('@octane-xplat/macos-appkit')
 	}
 
 	if (['ios', 'android'].includes(target)) {

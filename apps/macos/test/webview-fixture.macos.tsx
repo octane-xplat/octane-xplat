@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { WebView } from '@octane-xplat/ui'
 import type { WebViewHandle, WebViewProps } from '@octane-xplat/ui'
 import { NSView } from '@octane-xplat/platform/macos'

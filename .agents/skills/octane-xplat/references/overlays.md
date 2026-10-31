@@ -342,7 +342,7 @@ Do not swap to native NSPopover just to make results float: its current separate
 root/window changes provider and input-focus ownership. Retain the result host's same-window
 source portal and compound blur/dismissal ownership.
 Native commit/context/geometry/focus/AX and packaging qualification remains deferred.
-See [the host contract](../../../../packages/macos-renderer/README.md#stage-a-source-owned-window-layer).
+See [the host contract](../../../../packages/macos-appkit/README.md#stage-a-source-owned-window-layer).
 
 
 Public AppKit Popover preserves declaring providers through a same-window source

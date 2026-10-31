@@ -1,12 +1,12 @@
 {
-	"name": "@octane-xplat/macos-renderer",
+	"name": "@octane-xplat/macos-appkit",
 	"version": "0.19.0",
 	"description": "Experimental AppKit renderer for Octane on macOS",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/octane-xplat/octane-xplat",
-		"directory": "packages/macos-renderer"
+		"directory": "packages/macos-appkit"
 	},
 	"files": [
 		"src",

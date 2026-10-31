@@ -571,7 +571,7 @@ pnpm --filter @xplat/macos test:routing
 ```
 
 Qualification used the repository's ObjC Mason facade, shipped prebuilt as
-`packages/macos-renderer/platforms/macos/prebuilt/libxplatmason.dylib` and
+`packages/macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib` and
 loaded by the CLI-generated bootstrap; `native/xplatmason/build.sh` rebuilds
 it against the pinned mason-c desktop archive produced by
 `nativescript-mason-core:build.native.desktop` in a checkout at the revision

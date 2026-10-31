@@ -1,4 +1,4 @@
-import { createMacOSRoot } from '../../macos-renderer/src/index'
+import { createMacOSRoot } from '../../macos-appkit/src/index'
 import { motion, MotionConfig } from '../src/index'
 import { NSWindow } from '@octane-xplat/platform/macos'
 import { View } from '@octane-xplat/ui'

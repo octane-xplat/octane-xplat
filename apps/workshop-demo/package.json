@@ -27,7 +27,7 @@
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/linux-gtk": "workspace:*",
-		"@octane-xplat/macos-renderer": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/workshop": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",

@@ -161,7 +161,7 @@ import '@octane-xplat/ui/theme/tokens.css'
   largest window for every window, and has not runtime-qualified state
   delivery. GTK plays `@keyframes`; AppKit keyframes are a source path only.
   Both ignore some properties. Check each renderer's
-  [Apply stylesheets](../../../../packages/macos-renderer/README.md#apply-stylesheets)
+  [Apply stylesheets](../../../../packages/macos-appkit/README.md#apply-stylesheets)
   ([GTK](../../../../packages/linux-gtk-renderer/README.md#apply-stylesheets))
   limits before promising a property or pseudo-class. Note `className` is
   never forwarded to GTK widget classes — it only feeds the cascade.
@@ -170,7 +170,7 @@ AppKit formatted runs accept finite numeric `style.letterSpacing` in points,
 inherit host/ancestor spacing and reset to default with `0` or `normal`.
 Rich hosts also pass computed line height to paragraph composition.
 Do not promise arbitrary CSS units, native text measurement or pixel parity
-from the source cases; see the [renderer contract](../../../../packages/macos-renderer/README.md#apply-stylesheets).
+from the source cases; see the [renderer contract](../../../../packages/macos-appkit/README.md#apply-stylesheets).
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -371,7 +371,7 @@ unsupported property; use scroll view APIs for scrolling. Six source-slice cases
 and the manual fixture are authored, unrun. Native drawing/hit-testing/AX/shadows
 and packaging remain unqualified. This renderer prerequisite does not itself fix
 Tokenizer's legacy geometry, duplicate layer row refs or counter layout.
-See [the renderer subset](../../../../packages/macos-renderer/README.md#clip-appkit-container-overflow).
+See [the renderer subset](../../../../packages/macos-appkit/README.md#clip-appkit-container-overflow).
 
 ## Windows media-query boundary
 

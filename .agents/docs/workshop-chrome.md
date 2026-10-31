@@ -60,7 +60,7 @@ portable composition dependency is unchanged.
   `packages/workshop/src/native/chrome.tsrx` — styled by one
   NativeScript-dialect stylesheet (`src/native/chrome.css`, `xw-*` class
   selectors only). The NativeScript renderer, the AppKit renderer
-  (`@octane-xplat/macos-renderer`), and the GTK renderer
+  (`@octane-xplat/macos-appkit`), and the GTK renderer
   (`@octane-xplat/linux-gtk`) each mount it as their own root; the story
   mounts in a second renderer root inside a chrome-owned `masonview` stage
   slot, so chrome re-renders never detach the story. Hosts keep only

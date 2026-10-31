@@ -3,7 +3,7 @@
 The NativeScript-compatible stylesheet engine shared by the Octane desktop
 renderers: the vendored NativeScript 9.1.3 CSS selector engine and cascade,
 plus keyframe, transform, and clip-path parsing. It is consumed by
-`@octane-xplat/macos-renderer` (AppKit) and the GTK renderer
+`@octane-xplat/macos-appkit` (AppKit) and the GTK renderer
 (`@octane-xplat/linux-gtk`), each of which supplies its own node adapter.
 
 This package is internal to the framework. Its exports are not a stable

@@ -65,7 +65,7 @@
 		"tsrx-typegen": "workspace:*",
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
-		"@octane-xplat/macos-renderer": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@tiptap/core": "3.28.0",
 		"@tiptap/starter-kit": "3.28.0",
 		"esbuild": "0.27.7",

@@ -6,7 +6,7 @@
 // Node builtins go through the host's `require` hook (the JSC bundle cannot
 // resolve `node:` specifiers in imported ESM) — same convention as
 // packages/sqlite's macOS backend.
-import { registerFontFamily } from '@octane-xplat/macos-renderer'
+import { registerFontFamily } from '@octane-xplat/macos-appkit'
 
 import { fontBytes } from './base64'
 import type { NanoFontSource, NanoFontStatus } from './props'

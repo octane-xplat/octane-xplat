@@ -71,7 +71,7 @@ A first native slice of the GTK4/GJS renderer:
   (`isEnabled`, `visibility`, `ClassValue` className, `style` string|object,
   `keyboardType`→`input_purpose`, `scrollBarIndicatorVisible`/
   `isScrollEnabled`, `maxValue` default 100, `alignSelf`) plus GTK extras not
-  in the contract. Note: binding `macos-renderer`'s pragma to the strict
+  in the contract. Note: binding `macos-appkit`'s pragma to the strict
   shared surface was tried and reverted — `packages/ui`'s `.macos.tsrx`
   leaves pass web `CSSProperties`, `Ref<unknown>`, `'start'` aliases, and
   AppKit-specific event types that don't fit the shared contract; that's a

@@ -31,7 +31,7 @@ for (const name of [
 	'platform',
 	'css-engine',
 	'jsx',
-	'macos-renderer',
+	'macos-appkit',
 	'cli',
 	'lib',
 	'lint',
@@ -144,7 +144,7 @@ export default function App() { return <masonview style={{display:"flex",flexDir
 await writeFile(
 	join(app, 'src/main.mjs'),
 	`import '@nativescript/macos-node-api'
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import App from './App.macos.tsx'
 const app = NSApplication.sharedApplication
 app.setActivationPolicy(1)

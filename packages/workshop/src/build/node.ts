@@ -142,7 +142,7 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 	const macosRequirements = {
 		'darwin-arm64/x86_64 host':
 			process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64'),
-		'@octane-xplat/macos-renderer': Boolean(resolveFrom(root, '@octane-xplat/macos-renderer')),
+		'@octane-xplat/macos-appkit': Boolean(resolveFrom(root, '@octane-xplat/macos-appkit')),
 		'@nativescript/macos-node-api': Boolean(resolveFrom(root, '@nativescript/macos-node-api')),
 		'@octane-xplat/cli': Boolean(resolveFrom(root, '@octane-xplat/cli/macos')),
 		octane: Boolean(resolveFrom(root, 'octane')),

@@ -1,6 +1,6 @@
 import type { JSX as SharedJSX } from '@octane-xplat/jsx/jsx-runtime'
-import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-renderer'
-import type { MacOSRootOptions } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-appkit'
+import type { MacOSRootOptions } from '@octane-xplat/macos-appkit'
 import type { XplatMacOSOptions } from '@octane-xplat/cli/macos/vite'
 import type { JSX } from '@octane-xplat/jsx/intrinsics'
 import type { jsx } from '@octane-xplat/jsx/jsx-runtime'

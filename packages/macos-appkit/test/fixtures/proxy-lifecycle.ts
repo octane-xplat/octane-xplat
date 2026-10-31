@@ -1,4 +1,4 @@
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import Proxy, { proxyRefs, proxyEvents, InvalidContentProjection } from './Proxy'
 
 export async function checkProxyLifecycle(root: any, nativeWindow: any) {

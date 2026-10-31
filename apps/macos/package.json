@@ -32,7 +32,7 @@
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/desktop-webview": "workspace:*",
-		"@octane-xplat/macos-renderer": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/web-browser": "workspace:*",

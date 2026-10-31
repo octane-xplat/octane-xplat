@@ -7,5 +7,5 @@
 		"moduleSuffixes": [".macos", ""]
 	},
 	"include": ["routing-fixture.macos.tsx"],
-	"files": ["../../../packages/macos-renderer/src/host-globals.d.ts"]
+	"files": ["../../../packages/macos-appkit/src/host-globals.d.ts"]
 }

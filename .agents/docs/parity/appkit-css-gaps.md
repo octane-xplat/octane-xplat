@@ -192,7 +192,7 @@ inset.
 
 - No visual analysis/screenshots. No subagents.
 - Other tasks own: Windows CLI/UI manifest/CommandPalette, GTK leaves,
-  tsrx-typegen/leaf plumbing, macos-renderer test debt (17 pre-existing
+  tsrx-typegen/leaf plumbing, macos-appkit test debt (17 pre-existing
   vm-slice realm failures), input/scroll/media qualification, services.
 - Silo shared — never remove other worktrees' rows.
 - vm-slice realm: avoid `deepStrictEqual` on slice-produced objects.

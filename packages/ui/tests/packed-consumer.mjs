@@ -108,7 +108,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 	}
 
 	if (target === 'macos') {
-		for (const dependency of ['@octane-xplat/macos-renderer', '@nativescript/macos-node-api']) {
+		for (const dependency of ['@octane-xplat/macos-appkit', '@nativescript/macos-node-api']) {
 			const targetPath = join(modules, dependency)
 			mkdirSync(dirname(targetPath), { recursive: true })
 			symlinkSync(join(repoRoot, 'apps/macos/node_modules', dependency), targetPath, 'dir')

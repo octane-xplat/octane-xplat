@@ -462,8 +462,8 @@ import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 export default defineConfig(({ mode }) => xplatMacOS(mode))
 ```
 
-It resolves the app's `@octane-xplat/macos-renderer` package and installed
-Octane compiler. See [AppKit renderer setup](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/README.md) for
+It resolves the app's `@octane-xplat/macos-appkit` package and installed
+Octane compiler. See [AppKit renderer setup](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-appkit/README.md) for
 application dependencies, root ownership, fonts, and development bundles.
 
 ```js

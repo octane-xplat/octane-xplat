@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-vi.mock('@octane-xplat/macos-renderer', () => ({ setLayoutProjectionScale: vi.fn() }))
+vi.mock('@octane-xplat/macos-appkit', () => ({ setLayoutProjectionScale: vi.fn() }))
 
 import { attachHost } from './host.macos'
 

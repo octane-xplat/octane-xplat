@@ -147,7 +147,7 @@ templates, native view factories, and default string rows retain their existing
 driver protocol; the source-owned list wrapper handles `renderItem` content.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/macos-appkit */
 export function NativeTabs() {
 	return (
 		<tabview>
@@ -172,7 +172,7 @@ this hunk when upstream preserves those keys; it is a local runtime fix,
 not unpatched Octane support. Evidence:
 [runtime source](https://github.com/octanejs/octane/blob/octane%400.14.0/packages/octane/src/universal-core.ts),
 [compiled-map regression](../../../packages/ui/src/internal/accessibility/keyed-component.mobile.test.tsrx),
-and [AppKit lifecycle fixture](../../../packages/macos-renderer/test/fixtures/tab-lifecycle.ts).
+and [AppKit lifecycle fixture](../../../packages/macos-appkit/test/fixtures/tab-lifecycle.ts).
 
 ```tsx
 // Reordering ids retains each keyed component's state and native host.
@@ -190,7 +190,7 @@ object-driver tests cover ownership and callback contracts separately.
 | `packages/ui/tests/fixtures/owned-boundaries.android.tsrx`          | Android: same 13 assertions with RecyclerView                                                                                                                                                    |
 | `packages/ui/tests/fixtures/owned-routes.ios.tsrx`                  | iOS: 17 assertions covering route context, hidden Page updates/state retention, modal pop, local ownership, canceled loader, owner teardown, hidden-owner sheet, and UITabBar named Frame routes |
 | `packages/ui/tests/fixtures/owned-routes.android.tsrx`              | Android: the same 14 route assertions, including deferred Frame backstack commit during owner teardown                                                                                           |
-| `packages/macos-renderer/test/fixtures/owned-boundaries.macos.tsrx` | AppKit: 13 assertions, including tab handle transfer without remount and list row 80 replacement                                                                                                 |
+| `packages/macos-appkit/test/fixtures/owned-boundaries.macos.tsrx` | AppKit: 13 assertions, including tab handle transfer without remount and list row 80 replacement                                                                                                 |
 | `packages/ui/tests/fixtures/owned-surfaces.macos.tsrx`              | AppKit: scoped sheets, Dialog, standalone BottomSheet and Lightbox caption context, updates and cleanup; see Silo for actual runtime outcome                                                     |
 | `packages/ui/tests/fixtures/owned-boundaries.web.tsrx`              | Chromium: 10 assertions covering precommit cancellation, nearest context, updates, independent handles and owner teardown                                                                        |
 

@@ -232,7 +232,7 @@ claims per environment (`environments.<env>.files|include|exclude`) and
   files: duplicate global declarations are first-wins in TypeScript. The
   AppKit class surface is module-scoped (`@octane-xplat/platform/macos`), so
   the old ambient-first `NSObject` race is gone; what remains ambient is
-  `packages/macos-renderer/src/host-globals.d.ts` (dlopen, __xplatAppKit,
+  `packages/macos-appkit/src/host-globals.d.ts` (dlopen, __xplatAppKit,
   console/process) plus the upstream `@nativescript/types` set that NativeScript
   Core's own declarations still consume.
 - Typecheck `.tsrx` with `tsrx-tsc --noEmit` (per octane repo rules), not plain

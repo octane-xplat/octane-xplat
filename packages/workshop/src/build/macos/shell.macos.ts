@@ -4,7 +4,7 @@ import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
-import * as renderer from '@octane-xplat/macos-renderer'
+import * as renderer from '@octane-xplat/macos-appkit'
 import { createMacOSStageHost } from '../../macos/stage.macos.ts'
 import { NativeWorkshopController } from '../../native/controller.ts'
 import { NativeWorkshopChrome } from '../../native/chrome.tsrx'
@@ -17,7 +17,7 @@ const modules = {
 	'octane/signals': signals,
 	'octane/signals/client': signalsClient,
 	'octane/internal/client': internal,
-	'@octane-xplat/macos-renderer': renderer,
+	'@octane-xplat/macos-appkit': renderer,
 }
 
 const setAXLabel = (view, text) => {

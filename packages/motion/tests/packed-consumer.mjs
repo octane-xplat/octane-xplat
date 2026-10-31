@@ -52,7 +52,7 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript-community/gesturehandler',
 	'@nativescript/types',
-	'@octane-xplat/macos-renderer',
+	'@octane-xplat/macos-appkit',
 	'@octane-xplat/jsx',
 	'@octane-xplat/ui',
 	'motion-dom',

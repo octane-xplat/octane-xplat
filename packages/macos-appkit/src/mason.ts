@@ -41,7 +41,7 @@ function masonHost(): any {
 	host = NSThread.mainThread.threadDictionary.objectForKey('xplatMasonHost')
 	if (!host) {
 		console.warn(
-			'[macos-mason] libxplatmason.dylib is not loaded — masonview lays out nothing. Launch through xplat dev or xplat build, which load the engine shipped in @octane-xplat/macos-renderer.',
+			'[macos-mason] libxplatmason.dylib is not loaded — masonview lays out nothing. Launch through xplat dev or xplat build, which load the engine shipped in @octane-xplat/macos-appkit.',
 		)
 
 		initFailed = true

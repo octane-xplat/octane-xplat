@@ -50,8 +50,8 @@ public framework API.
 
 ## Fonts
 
-`@octane-xplat/macos-renderer` owns the AppKit driver and JSX declarations.
-The app owns startup, windows, and host services. See the [renderer package](../../packages/macos-renderer/README.md)
+`@octane-xplat/macos-appkit` owns the AppKit driver and JSX declarations.
+The app owns startup, windows, and host services. See the [renderer package](../../packages/macos-appkit/README.md)
 for an independent consumer setup.
 
 The renderer defaults to Apple's system font. This harness explicitly registers
@@ -63,7 +63,7 @@ for application font ownership and fallback behavior.
 ```js
 // In the harness entry; fonts.ts registers the app-owned Geist descriptors.
 import { harnessFontOptions } from './fonts'
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 
 const root = createMacOSRoot(host.contentView, harnessFontOptions)
 ```
@@ -113,7 +113,7 @@ dialog-kind window), and `openWindow` multi-window support.
 The harness loads the same stylesheets as the mobile app (`src/styles.ts`:
 UI tokens and chrome, `virtual:bamboo.css`, demo and app CSS). The renderer
 applies them with NativeScript's selector engine; see
-[Apply stylesheets](../../packages/macos-renderer/README.md#apply-stylesheets)
+[Apply stylesheets](../../packages/macos-appkit/README.md#apply-stylesheets)
 for the supported cascade and its limits. This does not promise general
 NativeScript or web style parity. In particular, this harness does not validate every
 exported component or every service. The current `List ×500` sweep checks
@@ -132,7 +132,7 @@ openUrl('https://example.com/trips')
 
 The AppKit Vite config compiles the UI package's macOS leaves with its renderer
 through `@octane-xplat/cli/macos/vite`. The preset resolves NativeScript
-compatibility shims from `@octane-xplat/macos-renderer`. The UI package includes the leaf sources and local helpers needed by
+compatibility shims from `@octane-xplat/macos-appkit`. The UI package includes the leaf sources and local helpers needed by
 the bounded root surface. `tsconfig.json` sets the `macos` custom condition so
 TypeScript selects the matching declarations.
 
@@ -492,7 +492,7 @@ Run `bun run --cwd apps/macos node test/verify-webview.mjs` from the
 repository root for the isolated compiled component fixture. It exercises real
 WebKit load callbacks, reload, HTML replacement, local-file history and errors,
 content measurement and unmount cleanup without screenshots. Delegate tests run with
-`bun run --filter @octane-xplat/macos-renderer test`. Those simulated callbacks do
+`bun run --filter @octane-xplat/macos-appkit test`. Those simulated callbacks do
 not establish OS input or hit-testing.
 
 ## In-app browser source fixture

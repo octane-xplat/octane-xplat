@@ -47,7 +47,7 @@
 	},
 	"include": ["src/**/*"],
 	"files": [
-		"../../packages/macos-renderer/src/host-globals.d.ts",
+		"../../packages/macos-appkit/src/host-globals.d.ts",
 		"../../packages/ui/type-support/driver-props.d.ts",
 		"./references.d.ts",
 		"./types/globals.d.ts"

@@ -69,8 +69,8 @@ packed JSX, renderer, and CLI packages. Viewless text children and invalid
 orientation are rejected before a batch mutates the tree.
 
 ```sh
-pnpm --filter @octane-xplat/macos-renderer test
-pnpm --filter @octane-xplat/macos-renderer test:packed
+pnpm --filter @octane-xplat/macos-appkit test
+pnpm --filter @octane-xplat/macos-appkit test:packed
 pnpm --filter @octane-xplat/jsx typecheck
 pnpm --filter @octane-xplat/jsx test:packed
 ```
@@ -919,7 +919,7 @@ unit changes no recipe workflow or JSX selection policy.
 Run this host's independent packed runtime and HMR qualification with:
 
 ```sh
-pnpm --filter @octane-xplat/macos-renderer test:packed -- --actionbar
+pnpm --filter @octane-xplat/macos-appkit test:packed -- --actionbar
 ```
 
 The default `test:packed` command retains the full intrinsic suite and its

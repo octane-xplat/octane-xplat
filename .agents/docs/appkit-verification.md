@@ -13,7 +13,7 @@ bun run --filter @xplat/macos test:layout-placement
 
 ## Packed consumers and overlays
 
-`@octane-xplat/macos-renderer` has independent packed-consumer coverage for
+`@octane-xplat/macos-appkit` has independent packed-consumer coverage for
 system fonts, rendering updates, and the CLI's AppKit packaging contract. This
 coverage does not establish OS input delivery or general UI-package parity.
 
@@ -24,7 +24,7 @@ like the removed native DockLayout. The fill view pins all four edges
 explicitly. This fixture must not be reported as sequential docking coverage.
 
 ```sh
-bun run turbo run test:packed --filter=@octane-xplat/macos-renderer
+bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
 ```
 
 AppKit layout uses points for numeric lengths, native measurements, and CSS
@@ -87,7 +87,7 @@ record the related Octane 0.11.0 limitation.
 The isolated AppKit overlay fixture previously passed its overlay assertions
 (`bun run --filter @xplat/macos test:overlays`); that qualifies handler dispatch,
 not physical OS input. See the
-[renderer setup and verification boundary](../../packages/macos-renderer/README.md).
+[renderer setup and verification boundary](../../packages/macos-appkit/README.md).
 
 The broader `@octane-xplat/ui` native suite is green: the universal entries
 export `Children` again, and the focused imperative-sheet service tests pass

@@ -1,5 +1,5 @@
 import '@nativescript/macos-node-api'
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import {
 	NSApplication,
 	NSApplicationActivationPolicy,
@@ -7,7 +7,7 @@ import {
 	NSWindowStyleMask,
 } from '@octane-xplat/platform/macos'
 
-import { checkLiquidGlassLifecycle } from './liquidglass-lifecycle'
+import { checkActionBarLifecycle } from './actionbar-lifecycle'
 
 const app = NSApplication.sharedApplication
 app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
@@ -24,12 +24,10 @@ window.makeKeyAndOrderFront(app)
 app.finishLaunching()
 setTimeout(async () => {
 	try {
-		await checkLiquidGlassLifecycle(root, window)
+		await checkActionBarLifecycle(root, window)
 		console.log('PACKED_RENDERER_OK')
 	} catch (error) {
-		console.error(
-			'PACKED_RENDERER_FAIL: ' + (error as Error).message + ' ' + (error as Error).stack,
-		)
+		console.error('PACKED_RENDERER_FAIL: ' + (error as Error).stack)
 	} finally {
 		root.unmount()
 		window.orderOut(app)

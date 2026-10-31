@@ -22,6 +22,6 @@ composing, without losing marked text or echoing events.
 
 ## Documentation
 
-- AC1: [Renderer contract](../../../packages/macos-renderer/README.md#controlled-text-during-composition) and [authored search cases](../../../packages/macos-renderer/test/search-bar.test.ts).
-- AC2: The same [contract](../../../packages/macos-renderer/README.md#controlled-text-during-composition)/[cases](../../../packages/macos-renderer/test/search-bar.test.ts) use the shared writer and controlled scheduler. Production teardown already disposes that writer; native lifecycle requires separate target qualification.
+- AC1: [Renderer contract](../../../packages/macos-appkit/README.md#controlled-text-during-composition) and [authored search cases](../../../packages/macos-appkit/test/search-bar.test.ts).
+- AC2: The same [contract](../../../packages/macos-appkit/README.md#controlled-text-during-composition)/[cases](../../../packages/macos-appkit/test/search-bar.test.ts) use the shared writer and controlled scheduler. Production teardown already disposes that writer; native lifecycle requires separate target qualification.
 - AC3: [Target note](../exploration.md#operational-evidence) records event scope and deferred commands. No native/physical-input result is claimed.

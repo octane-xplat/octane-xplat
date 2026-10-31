@@ -2,7 +2,7 @@ import { mergeStyle } from './style-merge'
 import { NSView } from '@octane-xplat/platform/macos'
 
 /** @jsxImportSource @octane-xplat/jsx */
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 
 export const listViewRef = { current: null as any }
 export const listViewRefs: string[] = []

@@ -1,4 +1,4 @@
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import Root, { rootRefs, rootEvents, RootSurface, RootWindow } from './Root'
 
 export async function checkRootLifecycle(root: any, nativeWindow: any) {

@@ -5,7 +5,7 @@ import {
 	universalTry,
 } from 'octane/universal/native'
 
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import type { StageHost, MountRequest, MountedStory } from '../session'
 
 const RENDERER = 'macos'

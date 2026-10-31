@@ -62,7 +62,7 @@ try {
 		'lib',
 		'ui',
 		'workshop',
-		'macos-renderer',
+		'macos-appkit',
 		'css-engine',
 		'platform',
 	]) {
@@ -85,7 +85,7 @@ try {
 					'@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
 					'@octane-xplat/cli': tarballs['@octane-xplat/cli'],
 					'@octanejs/vite-plugin': '0.1.61',
-					'@octane-xplat/macos-renderer': tarballs['@octane-xplat/macos-renderer'],
+					'@octane-xplat/macos-appkit': tarballs['@octane-xplat/macos-appkit'],
 					'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 					'@tsrx/oxc': '0.20.0',
 					'@tsrx/core': '0.2.4',
@@ -104,7 +104,7 @@ try {
 	write('package.json', JSON.stringify(manifest))
 
 	run('bun', ['install', '--ignore-scripts'])
-	for (const name of ['ui', 'workshop', 'cli', 'macos-renderer']) {
+	for (const name of ['ui', 'workshop', 'cli', 'macos-appkit']) {
 		assert.ok(
 			realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work),
 			`${name} must come from a tarball`,
@@ -291,13 +291,13 @@ void NoSuchWorkshopExport
 
 	assert.equal(
 		realpathSync(
-			createRequire(req.resolve('@octane-xplat/workshop')).resolve('@octane-xplat/macos-renderer'),
+			createRequire(req.resolve('@octane-xplat/workshop')).resolve('@octane-xplat/macos-appkit'),
 		),
-		realpathSync(req.resolve('@octane-xplat/macos-renderer')),
+		realpathSync(req.resolve('@octane-xplat/macos-appkit')),
 	)
 
 	console.log(
-		'PASS one matching Octane runtime and macos-renderer across consumer, compiler and workshop',
+		'PASS one matching Octane runtime and macos-appkit across consumer, compiler and workshop',
 	)
 
 	// An ordinary production AppKit bundle built through the consumer's own

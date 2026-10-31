@@ -1,5 +1,5 @@
 import '@nativescript/macos-node-api'
-import * as renderer from '@octane-xplat/macos-renderer'
+import * as renderer from '@octane-xplat/macos-appkit'
 import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
 import * as signalClient from 'octane/signals/client'
@@ -7,7 +7,7 @@ import * as internal from 'octane/internal/client'
 import { NSApplication, NSView } from '@octane-xplat/platform/macos'
 
 globalThis.__xplatDevModules = {
-	'@octane-xplat/macos-renderer': renderer,
+	'@octane-xplat/macos-appkit': renderer,
 	'octane/universal/native': native,
 	'octane/signals': signals,
 	'octane/signals/client': signalClient,

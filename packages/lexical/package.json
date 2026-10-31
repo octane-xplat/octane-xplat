@@ -68,7 +68,7 @@
 		"@lexical/history": "0.51.0",
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
-		"@octane-xplat/macos-renderer": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"octane": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:",

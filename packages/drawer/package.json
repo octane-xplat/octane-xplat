@@ -49,7 +49,7 @@
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
-		"@octane-xplat/macos-renderer": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",

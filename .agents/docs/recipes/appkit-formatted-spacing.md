@@ -22,8 +22,8 @@ shared style props and resets.
 
 ## Documentation
 
-- AC1: [Renderer contract and example](../../../packages/macos-renderer/README.md#apply-stylesheets) and [authored source cases](../../../packages/macos-renderer/test/formatted-text.test.ts).
-- AC2: The same [source cases](../../../packages/macos-renderer/test/formatted-text.test.ts) cover host defaults, removal and reparenting.
+- AC1: [Renderer contract and example](../../../packages/macos-appkit/README.md#apply-stylesheets) and [authored source cases](../../../packages/macos-appkit/test/formatted-text.test.ts).
+- AC2: The same [source cases](../../../packages/macos-appkit/test/formatted-text.test.ts) cover host defaults, removal and reparenting.
 - AC3: [Target note](../exploration.md#operational-evidence) records the native attribute policy and exact deferred checks. No native glyph or layout result is claimed.
 
-- AC4: [Renderer line-height contract](../../../packages/macos-renderer/README.md#apply-stylesheets), authored host/paragraph source cases and [deferred-check note](../exploration.md#operational-evidence).
+- AC4: [Renderer line-height contract](../../../packages/macos-appkit/README.md#apply-stylesheets), authored host/paragraph source cases and [deferred-check note](../exploration.md#operational-evidence).

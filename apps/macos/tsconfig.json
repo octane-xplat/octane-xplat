@@ -16,5 +16,5 @@
 	},
 	"include": ["src/**/*", "../../packages/*/src/**/*.d.ts"],
 	"exclude": ["node_modules", "dist", "artifacts"],
-	"files": ["../../packages/macos-renderer/src/host-globals.d.ts"]
+	"files": ["../../packages/macos-appkit/src/host-globals.d.ts"]
 }

@@ -36,5 +36,5 @@
 		"../../packages/create/library-template",
 		"../../packages/lingui/tests"
 	],
-	"files": ["../../packages/macos-renderer/src/host-globals.d.ts"]
+	"files": ["../../packages/macos-appkit/src/host-globals.d.ts"]
 }

@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import type { UniversalComponent } from 'octane/universal'
 import { NSView } from '@octane-xplat/platform/macos'
 import type { NSWindow } from '@octane-xplat/platform/macos'

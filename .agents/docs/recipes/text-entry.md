@@ -56,7 +56,7 @@ physical-keyboard, or accessibility criteria above.
 AppKit source follow-up: the shared TextArea leaf now forwards `onSubmit` for
 `done`/`send`, suppresses blocked edit/submit callbacks, and the native multiline
 delegate leaves marked-text confirmation to AppKit. [Component regressions](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx)
-and [delegate regressions](../../../packages/macos-renderer/test/text-controls.test.ts)
+and [delegate regressions](../../../packages/macos-appkit/test/text-controls.test.ts)
 provide source coverage only. Real keyboard, composition and full AC2 qualification
 remain open; source dispatch is not evidence of physical input.
 
@@ -86,7 +86,7 @@ The [controlled-text guide](../../../docs/app/primitives.md#text-and-keyboard-ac
 now explains deferred values, latest-value supersession, matching echo cancellation,
 unset/teardown and selection clamping. The renderer uses the live field editor
 for textfields and the textview itself for multiline input. Raw NSSearchField's
-separate text API is outside this source repair. [Writer/adapter regressions](../../../packages/macos-renderer/test/text-value.test.ts)
+separate text API is outside this source repair. [Writer/adapter regressions](../../../packages/macos-appkit/test/text-value.test.ts)
 and the [manual native fixture](../../../examples/probes/controlled-text.macos.tsrx)
 provide source coverage only.
 

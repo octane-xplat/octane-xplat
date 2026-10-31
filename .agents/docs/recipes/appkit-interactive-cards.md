@@ -29,4 +29,4 @@ selection and preserved disabled-focus behavior.
 - AC3: The [guide](../../../docs/app/interactive-actions.md#interactive-cards) and [source cases](../../../packages/ui/src/components/actions/interactive-cards.macos.mobile.test.tsrx) cover controlled requests/feedback and retained checkbox semantics.
 - AC4: [Target note](../exploration.md#operational-evidence) records scope and exact deferred commands.
 
-- AC5: [Disabled-card source contract](../../../packages/macos-renderer/README.md#focus-on-disabled-selection-cards), authored renderer ownership and UI card/FocusScope cases, and [target note](../exploration.md#operational-evidence).
+- AC5: [Disabled-card source contract](../../../packages/macos-appkit/README.md#focus-on-disabled-selection-cards), authored renderer ownership and UI card/FocusScope cases, and [target note](../exploration.md#operational-evidence).
