@@ -6,7 +6,7 @@ describe('AppKit picker type filters', () => {
 	it('explicit any-type requests override mixed restrictions and skip type bridge access', () => {
 		let reads = 0
 		const host = Object.defineProperty({}, 'UTType', { get() { reads++; throw Error('unloaded lazy symbol') } })
-		for (const accept of ['', ' , ', '*/*', '.png,*/*']) expect(appKitFileTypeFilter(accept, host)).toBeNull()
+		for (const accept of ['', ' , ', '*/*', '.png,*/*']) {expect(appKitFileTypeFilter(accept, host)).toBeNull()}
 		expect(reads).toBe(0)
 	})
 
@@ -76,7 +76,7 @@ describe('AppKit picker type filters', () => {
 
 	it('failed loading never dereferences a lazy class, can retry, and has a narrow dlopen path', () => {
 		let reads = 0, fail = true
-		const Type = {}, host: any = { objc: { import() { if (fail) throw Error('private load payload') } } }
+		const Type = {}, host: any = { objc: { import() { if (fail) {throw Error('private load payload')} } } }
 		Object.defineProperty(host, 'UTType', { get() { reads++; return Type } })
 		expect(appKitFileTypeClass(host)).toBeUndefined(); expect(reads).toBe(0)
 		fail = false; expect(appKitFileTypeClass(host)).toBe(Type)

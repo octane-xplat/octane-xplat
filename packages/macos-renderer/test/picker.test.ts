@@ -14,24 +14,24 @@ const choices = () => [{ id: 'a', title: 'Same' }, { id: '', title: 'Same' }, { 
 function fixture(failure: { constraint?: number; item?: number; add?: boolean } = {}) {
 	const handlers = new Map<number, any>(), selected: string[] = [], labels: string[] = [], constraints: any[] = [], errors: string[] = []
 	let additions = 0, cancelled = 0, writes = 0, echo = false, intercept = (_id: string) => {}
-	const menu: any = { items: [], autoenablesItems: true, cancelTracking() { cancelled++; if (echo) handlers.get(1)?.() }, addItem(item: any) { additions++; if (failure.item === additions) throw Error('private item detail'); this.items.push(item) } }
+	const menu: any = { items: [], autoenablesItems: true, cancelTracking() { cancelled++; if (echo) {handlers.get(1)?.()} }, addItem(item: any) { additions++; if (failure.item === additions) {throw Error('private item detail');} this.items.push(item) } }
 	const picker: any = {
 		menu, enabled: true, superview: null, indexOfSelectedItem: -1,
 		get isEnabled() { return this.enabled },
 		get selectedItem() { return menu.items[this.indexOfSelectedItem] },
-		removeAllItems() { menu.items = []; this.indexOfSelectedItem = -1; if (echo) handlers.get(1)?.() },
-		selectItemAtIndex(index: number) { writes++; this.indexOfSelectedItem = index; if (echo) handlers.get(1)?.() },
+		removeAllItems() { menu.items = []; this.indexOfSelectedItem = -1; if (echo) {handlers.get(1)?.()} },
+		selectItemAtIndex(index: number) { writes++; this.indexOfSelectedItem = index; if (echo) {handlers.get(1)?.()} },
 		invalidateIntrinsicContentSize() {},
 		get accessibilityLabel() { return labels.at(-1) ?? '' },
 		set accessibilityLabel(label: string) { labels.push(label) },
 		removeFromSuperview() { this.superview = null },
 	}
-	const view: any = { window: {}, addSubview(child: any) { child.superview = view; handlers.get(1)?.(); if (failure.add) throw Error('private add detail') } }
+	const view: any = { window: {}, addSubview(child: any) { child.superview = view; handlers.get(1)?.(); if (failure.add) {throw Error('private add detail')} } }
 	for (const edge of ['leadingAnchor', 'trailingAnchor', 'topAnchor', 'bottomAnchor']) {
 		view[edge] = {}
 		picker[edge] = { constraintEqualToAnchor() {
 			const index = constraints.length; let active = false
-			const constraint = { get active() { return active }, set active(next: boolean) { if (next && failure.constraint === index) throw Error('private constraint detail'); active = next } }
+			const constraint = { get active() { return active }, set active(next: boolean) { if (next && failure.constraint === index) {throw Error('private constraint detail');} active = next } }
 			constraints.push(constraint); return constraint
 		} }
 	}

@@ -16,14 +16,14 @@ export function createImageRequests<T>(
 	const cache = new Map<string, T>()
 	const pending = new Map<string, PendingImage<T>>()
 	const complete = (source: string, request: PendingImage<T>, image: T | null) => {
-		if (request.state !== 'pending') return
+		if (request.state !== 'pending') {return}
 		request.state = 'complete'
-		if (pending.get(source) === request) pending.delete(source)
+		if (pending.get(source) === request) {pending.delete(source)}
 		request.cancel = undefined
 		if (image !== null && request.cacheable && limit > 0) {
 			cache.delete(source)
 			cache.set(source, image)
-			while (cache.size > limit) cache.delete(cache.keys().next().value!)
+			while (cache.size > limit) {cache.delete(cache.keys().next().value!)}
 		}
 		const listeners = [...request.listeners]
 		request.listeners.clear()
@@ -45,7 +45,7 @@ export function createImageRequests<T>(
 		evict(source: string): void { invalidate(source) },
 		clear(): void {
 			cache.clear()
-			for (const request of pending.values()) request.cacheable = false
+			for (const request of pending.values()) {request.cacheable = false}
 			pending.clear()
 		},
 		subscribe(source: string, listener: (image: T | null) => void, onPending?: () => void): () => void {
@@ -70,8 +70,8 @@ export function createImageRequests<T>(
 				try {
 					const cancel = start(source, (image) => complete(source, load, image))
 					if (typeof cancel === 'function') {
-						if (load.state === 'cancelled') cancel()
-						else if (load.state === 'pending') load.cancel = cancel
+						if (load.state === 'cancelled') {cancel()}
+						else if (load.state === 'pending') {load.cancel = cancel}
 					}
 				} catch {
 					complete(source, load, null)
@@ -79,11 +79,11 @@ export function createImageRequests<T>(
 			}
 			let active = true
 			return () => {
-				if (!active) return
+				if (!active) {return}
 				active = false
 				load.listeners.delete(deliver)
-				if (load.state !== 'pending' || load.listeners.size) return
-				if (pending.get(source) === load) pending.delete(source)
+				if (load.state !== 'pending' || load.listeners.size) {return}
+				if (pending.get(source) === load) {pending.delete(source)}
 				load.state = 'cancelled'
 				const cancel = load.cancel
 				load.cancel = undefined

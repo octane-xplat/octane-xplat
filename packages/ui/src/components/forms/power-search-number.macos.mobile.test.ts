@@ -13,7 +13,7 @@ it('rejects empty, nonfinite, partial and nondecimal values instead of saving Na
 	}
 })
 it('requires safe whole integers but permits integral decimal/scientific representations', () => {
-	for (const text of ['1.5', '-.5', '9007199254740992', '-9007199254740992']) expect(powerSearchNumber(text, { type: 'integer' }).value).toBeNull()
+	for (const text of ['1.5', '-.5', '9007199254740992', '-9007199254740992']) {expect(powerSearchNumber(text, { type: 'integer' }).value).toBeNull()}
 	for (const [text, value] of [['1.0', 1], ['1e3', 1000], ['9007199254740991', Number.MAX_SAFE_INTEGER], ['-9007199254740991', Number.MIN_SAFE_INTEGER]] as const) {
 		expect(powerSearchNumber(text, { type: 'integer' }).value).toEqual({ type: 'integer', value })
 	}

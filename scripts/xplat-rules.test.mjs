@@ -38,6 +38,36 @@ test('a binding in one scope does not hide an unbound reference in another', () 
 	])
 })
 
+test('TypeScript declarations bind DOM-looking names in type space', () => {
+	assert.deepEqual(
+		violations(`
+			interface Node { type: string; view: unknown }
+			type AliasElement = { kind: string }
+			declare function alert(message: string): void
+			function place<Node extends object>(
+				node: Node,
+				boundary: (window: NSWindow) => NSView | undefined,
+			): Node | undefined {
+				const hit: Node = node
+				return boundary === undefined ? hit : node
+			}
+			interface Lease { read(document: object): void; focus(win: object): void }
+			type Handler = (window: NSWindow, document: object) => void
+		`),
+		[],
+	)
+})
+
+test('type-space bindings do not hide real DOM reads', () => {
+	assert.deepEqual(
+		violations(
+			'interface Node { type: string }\ntype Handler = (window: NSWindow) => void\ndocument.body',
+			'shared.ts',
+		),
+		['document'],
+	)
+})
+
 for (const [label, module] of [['published lint', '../packages/lint/src/xplat-rules.ts']]) {
 	test(`${label} accepts NavLink activation without inventing gesture props`, async () => {
 		const { checkNoViewOnPress } = await import(module)

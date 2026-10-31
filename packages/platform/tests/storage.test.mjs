@@ -275,7 +275,7 @@ test('macOS bounded flush retains a newer reentrant write for the next handoff',
 	context.__xplatAppKit = {
 		storageSet(key, value) {
 			data.set(key, value)
-			if (value === 'first') api.setString(key, 'newer')
+			if (value === 'first') {api.setString(key, 'newer')}
 		},
 		storageGet: (key) => data.get(key) ?? null,
 	}
@@ -322,7 +322,7 @@ test('macOS retries failed lifecycle registration and binds methods to their hos
 		storageFlush() { assert.equal(this, owner); return true },
 		onAppStateChange(next) {
 			assert.equal(this, owner)
-			if (++attempts === 1) throw new Error('not ready')
+			if (++attempts === 1) {throw new Error('not ready')}
 			listener = next
 			next() // Synchronous registration callback is safe.
 			return () => {}

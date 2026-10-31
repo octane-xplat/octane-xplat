@@ -2,7 +2,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"test": {
-			"inputs": ["$TURBO_DEFAULT$", "../demos/src/billing-guide/**", "../ui/src/store.ts"]
+			"inputs": ["$TURBO_DEFAULT$", "../demos/src/billing-guide/**", "../ui/src/data/store.ts"]
 		}
 	}
 }

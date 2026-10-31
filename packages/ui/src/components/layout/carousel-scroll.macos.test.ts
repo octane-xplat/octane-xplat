@@ -36,7 +36,7 @@ test('index navigation uses current document coordinates, clamps finite indices 
 	h.scrollTo(-4); assert.equal(f.clip.bounds.origin.x, 0)
 	h.scrollTo(1.9); assert.equal(f.clip.bounds.origin.x, 120)
 	const before = f.writes.length
-	for (const index of [NaN, Infinity, -Infinity]) h.scrollTo(index)
+	for (const index of [NaN, Infinity, -Infinity]) {h.scrollTo(index)}
 	f.slides[1].window = {}; h.scrollTo(1)
 	f.slides[0].isDescendantOf = () => false; h.scrollTo(0)
 	f.slides[2].convertRectToView = undefined; h.scrollTo(2)
@@ -66,7 +66,7 @@ test('invalid, hidden and detached geometry has no capability or writes and reta
 		() => { f.document.frame.size.width = NaN }, () => { f.clip.bounds.origin.x = Infinity }]) {
 		const before = f.writes.length; mutate(); h.scrollNext(); h.scrollPrev(); h.scrollTo(0)
 		assert.equal(h.canScrollNext(), false); assert.equal(f.writes.length, before)
-		f.view.hidden = false; f.view.window = {}; for (const slide of f.slides) slide.window = f.view.window
+		f.view.hidden = false; f.view.window = {}; for (const slide of f.slides) {slide.window = f.view.window}
 		f.clip.bounds.size.width = 100; f.document.frame.size.width = 340; f.clip.bounds.origin.x = 0
 	}
 	f.detach(); h.scrollNext(); h.scrollTo(0); assert.equal(h.canScrollNext(), false)

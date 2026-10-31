@@ -8,7 +8,7 @@ function fixture() {
 	const timers = { set(callback: () => void, delay: number) { assert.equal(delay, 140); const id = ++state.id; callbacks.set(id, callback); return id }, clear(id: unknown) { callbacks.delete(id as number) } }
 	const center = {
 		addObserverForNameObjectQueueUsingBlock(name: string, object: any, _: any, callback: (note: any) => void) {
-			if (state.failObserver && observers.size === 1) throw Error('native observation failed')
+			if (state.failObserver && observers.size === 1) {throw Error('native observation failed')}
 			const token = {}; observers.set(token, { name, view: object, callback }); return token
 		},
 		removeObserver(token: object) { observers.delete(token) },
@@ -16,8 +16,8 @@ function fixture() {
 	const control = createAppKitCarouselSnap({ view: () => current, enabled: () => state.enabled,
 		interaction: () => { state.interactions++ }, snap: () => { state.snaps++ },
 	}, () => ({ NSNotificationCenter: { defaultCenter: center } }), timers)
-	const send = (part: string, object: any = current) => { for (const observer of observers.values()) if (observer.name === `NSScrollView${part}Notification`) observer.callback({ object }) }
-	const flush = () => { const pending = [...callbacks.values()]; callbacks.clear(); for (const callback of pending) callback() }
+	const send = (part: string, object: any = current) => { for (const observer of observers.values()) {if (observer.name === `NSScrollView${part}Notification`) {observer.callback({ object })}} }
+	const flush = () => { const pending = [...callbacks.values()]; callbacks.clear(); for (const callback of pending) {callback()} }
 	control.bind(view)
 	return { control, state, view, send, callbacks, observers, flush, detach: () => { current = null; control.bind(null) } }
 }

@@ -6,7 +6,7 @@ function fixture(extra: { page?: number; defaultPage?: number } = {}) {
 	let busy = false, immediate = true, report = (_: number) => {}
 	const writes: { offset: number; animated: boolean }[] = [], changes: number[] = []
 	const state = createAppKitPagerState({ source: () => source, frame: () => frame, busy: () => busy, beforeWrite() {},
-		write(offset, animated) { writes.push({ offset, animated }); if (immediate && frame) frame = { ...frame, position: offset } },
+		write(offset, animated) { writes.push({ offset, animated }); if (immediate && frame) {frame = { ...frame, position: offset }} },
 		report(page) { changes.push(page); report(page) },
 	})
 	return { state, writes, changes, get source() { return source }, set source(value) { source = value }, get frame() { return frame }, set frame(value) { frame = value },
@@ -28,7 +28,7 @@ it('reports only after the snapped native position arrives and claims before ree
 it('accepted controlled echoes do not move again; rejected changes restore the parent page', () => {
 	for (const accept of [false, true]) {
 		const f = fixture({ page: 0 }); f.state.synchronize(); f.frame = { ...f.frame!, position: 200 }; f.state.interacted()
-		f.report = (page) => { if (accept) f.source = { ...f.source, page }; f.state.synchronize() }
+		f.report = (page) => { if (accept) {f.source = { ...f.source, page };} f.state.synchronize() }
 		f.state.settle(); expect(f.changes).toEqual([2]); expect(f.frame!.position).toBe(accept ? 200 : 0)
 		expect(f.writes).toHaveLength(accept ? 0 : 1)
 	}

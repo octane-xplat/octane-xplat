@@ -45,10 +45,10 @@ it('AppKit Heading uses one exported leaf and preserves level/classes/truncation
 })
 
 it('AppKit rich hosts and spans preserve authored declarations for renderer normalization', () => {
-	const env = mount(RichText, { id: 'rich', style: 'font-size:20px;color:#112233', children: <RichTextSpan className="warning" style="letter-spacing:2px;font-weight:600">Warning</RichTextSpan> })
+	const env = mount(RichText, { id: 'rich', style: { fontSize: '20px', color: '#112233' }, children: <RichTextSpan className="warning" style={{ letterSpacing: '2px', fontWeight: 600 }}>Warning</RichTextSpan> })
 	try {
 		const host = env.host(), span = host.children.find((node: any) => node.type === 'span')
-		expect(host.props.id).toBe('rich'); expect(host.props.style).toBe('font-size:20px;color:#112233'); expect(span.props.style).toBe('letter-spacing:2px;font-weight:600'); expect(span.props.className).toBe('warning')
+		expect(host.props.id).toBe('rich'); expect(host.props.style).toMatchObject({ fontSize: '20px', color: '#112233' }); expect(span.props.style).toMatchObject({ letterSpacing: '2px', fontWeight: 600 }); expect(span.props.className).toBe('warning')
 		env.render({ children: <RichTextSpan>Warning</RichTextSpan> }); expect(env.host()).toBe(host); expect(host.props.style).toBeUndefined(); expect(span.props.style).toBeUndefined()
 	} finally { env.root.unmount() }
 })

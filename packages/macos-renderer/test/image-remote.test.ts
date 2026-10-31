@@ -21,7 +21,7 @@ test('shared remote work stays alive for another view and cancels queued deliver
 		env.flush(); assert.equal(env.decodes(), 0); assert.equal(first.image, null); assert.equal(second.image, null)
 		env.updateImage(retry, 'https://image-test/shared'); await env.start(); assert.equal(env.tasks.length, 2)
 		env.tasks[1].handler('retry', { statusCode: 200 }, null); env.flush(); assert.deepEqual(retry.image, { data: 'retry' })
-	} finally { for (const view of [first, second, retry]) env.disposeImage(view) }
+	} finally { for (const view of [first, second, retry]) {env.disposeImage(view)} }
 })
 test('invalid URLs, setup failures and resume failures settle without poisoning retries', async () => {
 	const env = fixture(), view: any = { image: null }, retry: any = { image: null }
@@ -31,7 +31,7 @@ test('invalid URLs, setup failures and resume failures settle without poisoning 
 		env.failStart(false); env.failResume(true); env.updateImage(view, 'https://image-test/resume'); await env.start(); assert.equal(env.tasks[0].cancelled, 1)
 		env.failResume(false); env.updateImage(retry, 'https://image-test/setup'); await env.start()
 		env.tasks[1].handler('retry', { statusCode: 200 }, null); env.flush(); assert.deepEqual(retry.image, { data: 'retry' })
-	} finally { for (const field of [view, retry]) env.disposeImage(field) }
+	} finally { for (const field of [view, retry]) {env.disposeImage(field)} }
 })
 test('a missing main-queue bridge fails before network setup and permits a later retry', async () => {
 	const env = fixture(), first: any = { image: null }, retry: any = { image: null }, queue = env.native.NSOperationQueue.mainQueue
@@ -41,7 +41,7 @@ test('a missing main-queue bridge fails before network setup and permits a later
 		env.native.NSOperationQueue.mainQueue = queue
 		env.updateImage(retry, 'https://image-test/queue-unavailable'); await env.start()
 		env.tasks[0].handler('retry', { statusCode: 200 }, null); env.flush(); assert.deepEqual(retry.image, { data: 'retry' })
-	} finally { for (const view of [first, retry]) env.disposeImage(view) }
+	} finally { for (const view of [first, retry]) {env.disposeImage(view)} }
 })
 test('combined eviction preserves live delivery while an older response cannot replace newer memory or disk bytes', async () => {
 	const env = fixture(), src = 'https://image-test/eviction', first: any = { image: null }, next: any = { image: null }, hit: any = { image: null }
@@ -53,7 +53,7 @@ test('combined eviction preserves live delivery while an older response cannot r
 		assert.deepEqual(first.image, { data: 'old' }); assert.deepEqual(next.image, { data: 'fresh' }); assert.equal(env.imageCache.isCached(src), 'memory')
 		env.updateImage(hit, src); assert.deepEqual(hit.image, { data: 'fresh' }); assert.equal(env.tasks.length, 2); assert.equal(env.disk.get(src).data, 'fresh')
 		env.imageCache.evict(src); assert.equal(env.imageCache.isCached(src), 'none'); assert.deepEqual(hit.image, { data: 'fresh' })
-	} finally { for (const view of [first, next, hit]) env.disposeImage(view) }
+	} finally { for (const view of [first, next, hit]) {env.disposeImage(view)} }
 })
 test('combined clear between HTTP completion and main-queue decode cannot rewarm old data or cancel live delivery', async () => {
 	const env = fixture(), src = 'https://image-test/clear', first: any = { image: null }, next: any = { image: null }
@@ -63,7 +63,7 @@ test('combined clear between HTTP completion and main-queue decode cannot rewarm
 		assert.deepEqual(first.image, { data: 'old' }); assert.equal(env.imageCache.isCached(src), 'none'); assert.equal(env.tasks[0].cancelled, 0)
 		env.updateImage(next, src); await env.start(); assert.equal(env.tasks.length, 2)
 		env.tasks[1].handler('fresh', { statusCode: 200 }, null); env.flush(); assert.equal(env.imageCache.isCached(src), 'memory')
-	} finally { for (const view of [first, next]) env.disposeImage(view) }
+	} finally { for (const view of [first, next]) {env.disposeImage(view)} }
 })
 test('prefetched encoded bytes serve a later mounted image and memory-only invalidation leaves disk available', async () => {
 	const env = fixture(), src = 'https://image-test/prefetched', first: any = { image: null }, next: any = { image: null }
@@ -73,7 +73,7 @@ test('prefetched encoded bytes serve a later mounted image and memory-only inval
 		env.updateImage(first, src); await env.start(); assert.equal(env.tasks.length, 1); assert.equal(env.imageCache.isCached(src), 'memory')
 		env.imageMemoryCache.clear(); assert.deepEqual(first.image, { data: 'prefetched' }); assert.equal(env.imageCache.isCached(src), 'disk')
 		env.updateImage(next, src); await env.start(); assert.equal(env.tasks.length, 1); assert.deepEqual(next.image, { data: 'prefetched' })
-	} finally { for (const view of [first, next]) env.disposeImage(view) }
+	} finally { for (const view of [first, next]) {env.disposeImage(view)} }
 })
 
 test('a bypass view ignores warm decoded/disk entries and cannot replace the default cache', async () => {
@@ -84,7 +84,7 @@ test('a bypass view ignores warm decoded/disk entries and cannot replace the def
 		env.tasks[1].handler('fresh', { statusCode: 200 }, null); env.flush(); assert.deepEqual(bypass.image, { data: 'fresh' })
 		assert.equal(env.disk.get(src).data, 'older'); env.updateImage(hit, src); assert.deepEqual(hit.image, { data: 'older' })
 		const calls = env.tasks.length; env.updateImage(bypass, src, undefined, 'none'); await env.start(); assert.equal(env.tasks.length, calls)
-	} finally { for (const view of [cached, bypass, hit]) env.disposeImage(view) }
+	} finally { for (const view of [cached, bypass, hit]) {env.disposeImage(view)} }
 })
 test('same-source policy changes retire queued old delivery and restoring the default can reuse its own cache', async () => {
 	const env = fixture(), src = 'https://image-test/policy-change', first: any = { image: null }, retained: any = { image: null }
@@ -94,7 +94,7 @@ test('same-source policy changes retire queued old delivery and restoring the de
 		assert.equal(first.image, null); assert.deepEqual(retained.image, { data: 'default' }); assert.equal(env.tasks.length, 2)
 		env.updateImage(first, src, undefined, null); assert.deepEqual(first.image, { data: 'default' }); assert.equal(env.tasks[1].cancelled, 1)
 		env.tasks[1].handler('late bypass', { statusCode: 200 }, null); env.flush(); assert.deepEqual(first.image, { data: 'default' })
-	} finally { for (const view of [first, retained]) env.disposeImage(view) }
+	} finally { for (const view of [first, retained]) {env.disposeImage(view)} }
 })
 test('a bypass-only view does not warm memory/disk and teardown retires queued completion', async () => {
 	const env = fixture(), src = 'https://image-test/bypass-only', first: any = { image: null }, next: any = { image: null }
@@ -103,7 +103,7 @@ test('a bypass-only view does not warm memory/disk and teardown retires queued c
 		assert.deepEqual(first.image, { data: 'uncached' }); assert.equal(env.imageMemoryCache.isCached(src), false); assert.equal(env.disk.size, 0)
 		env.updateImage(next, src, undefined, 'none'); await env.start(); assert.equal(env.tasks.length, 2)
 		env.tasks[1].handler('retired', { statusCode: 200 }, null); env.disposeImage(next); env.flush(); assert.equal(next.image, null); assert.equal(env.disk.size, 0)
-	} finally { for (const view of [first, next]) env.disposeImage(view) }
+	} finally { for (const view of [first, next]) {env.disposeImage(view)} }
 })
 test('local bypass loads avoid the framework decode cache and leave a default local cache entry intact', async () => {
 	const env = fixture(), src = '/local/policy.png', first: any = { image: null }, next: any = { image: null }, cached: any = { image: null }, hit: any = { image: null }
@@ -111,7 +111,7 @@ test('local bypass loads avoid the framework decode cache and leave a default lo
 		env.updateImage(first, src, undefined, 'none'); await env.start(); assert.deepEqual(first.image, { path: src }); assert.equal(env.imageMemoryCache.isCached(src), false)
 		env.updateImage(next, src, undefined, 'none'); assert.equal(next.image, null); await env.start(); assert.notEqual(next.image, first.image)
 		env.updateImage(cached, src); await env.start(); env.updateImage(hit, src); assert.equal(hit.image, cached.image)
-	} finally { for (const view of [first, next, cached, hit]) env.disposeImage(view) }
+	} finally { for (const view of [first, next, cached, hit]) {env.disposeImage(view)} }
 })
 
 test('placeholder paint teardown retires a late bypass subscription before native network work starts', async () => {

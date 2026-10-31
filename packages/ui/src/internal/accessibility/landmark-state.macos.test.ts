@@ -1,17 +1,19 @@
 import { expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { compile } from 'octane/compiler'
 import { createAppKitLandmarks } from './landmark-state.macos'
 function setup() {
 	let callback: (event: any) => any = (event) => event, boundary: any, mode = 'ok', dispatch: any = {}, retained = 0, removed = 0, registered = 0
 	const window: any = { isKeyWindow: true, firstResponder: null, contentView: null, makeFirstResponder: (view: any) => {
-		if (view.reject) return false
+		if (view.reject) {return false}
 		window.firstResponder = view; return true
 	} }
 	const view = (name: string, focusable = false, children: any[] = []): any => {
 		const result: any = { name, window, children, hidden: false, enabled: true, acceptsFirstResponder: focusable, canBecomeKeyView: focusable,
 			subviews: { get count() { return children.length }, objectAtIndex: (i: number) => children[i] } }
-		for (const child of children) child.superview = result
+		for (const child of children) {child.superview = result}
 		return result
 	}
 	const aStop = view('a-stop', true), bStop = view('b-stop', true), a = view('a', false, [aStop]), b = view('b', false, [bStop]), root = view('root', false, [a, b])
@@ -81,7 +83,7 @@ it('native focus rejection can fall through and focus callbacks cannot recursive
 })
 for (const hmr of [false, true]) {
 	it(`landmark hook compiles for the universal AppKit renderer with HMR ${hmr}`, () => {
-		const filename = 'use-landmark.macos.tsrx', source = readFileSync(new URL('./use-landmark.macos.tsrx', import.meta.url), 'utf8')
+		const filename = 'use-landmark.macos.tsrx', source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), filename), 'utf8')
 		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-renderer', target: 'universal', server: 'unsupported', text: 'host' } })
 	})
 }

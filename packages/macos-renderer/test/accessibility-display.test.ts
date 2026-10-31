@@ -19,6 +19,6 @@ test('display-option observation uses the workspace center/main queue once and i
 })
 test('failed observer registration does not claim installation and a later root can retry', () => {
 	let attempts = 0
-	const env = fixture(() => { if (++attempts === 1) throw Error('bridge unavailable'); return {} })
+	const env = fixture(() => { if (++attempts === 1) {throw Error('bridge unavailable');} return {} })
 	assert.doesNotThrow(env.install); env.install(); env.install(); assert.equal(attempts, 2)
 })

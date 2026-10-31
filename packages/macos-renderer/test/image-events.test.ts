@@ -58,7 +58,7 @@ test('placeholder updates keep the pending request and cannot cover a completed 
 test('load callback source replacement owns its own subsequent completion', async () => {
 	const env = rendererImageFixture(), view: any = { image: null }, calls: string[] = []
 	try {
-		env.setImageEventHandlers(view, { onLoad: (event: any) => { calls.push(event.source); if (calls.length === 1) env.updateImage(view, '/events/second.png') } })
+		env.setImageEventHandlers(view, { onLoad: (event: any) => { calls.push(event.source); if (calls.length === 1) {env.updateImage(view, '/events/second.png')} } })
 		env.updateImage(view, '/events/first.png'); await tick(env); await tick(env)
 		assert.deepEqual(calls, ['local', 'local']); assert.deepEqual(view.image, { path: '/events/second.png' })
 	} finally { env.disposeImage(view) }
@@ -84,7 +84,7 @@ test('failed native assignment reports error; unavailable pixel metadata remains
 test('placeholder assignment failure does not stop the actual image source or emit a false source error', async () => {
 	const env = rendererImageFixture(), src = 'https://image-test/placeholder-paint-error', view: any = {}, calls: string[] = []
 	let painted: any = null
-	Object.defineProperty(view, 'image', { get: () => painted, set: (image) => { if (image?.data && typeof image.data === 'object') throw Error('placeholder paint failed'); painted = image } })
+	Object.defineProperty(view, 'image', { get: () => painted, set: (image) => { if (image?.data && typeof image.data === 'object') {throw Error('placeholder paint failed');} painted = image } })
 	try {
 		env.setImageEventHandlers(view, { onLoad: () => calls.push('loaded'), onError: () => calls.push('false error') })
 		env.updateImage(view, src, 'data:image/png;base64,YQ=='); await env.start(); env.tasks[0].handler('actual image', { statusCode: 200 }, null); env.flush(); await env.start()

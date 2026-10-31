@@ -419,6 +419,28 @@ experience of agents writing Octane-xplat code effectively.
   Reproduction: `packages/ui/node_modules/.cache/native-auth-syntax/`;
   captured stock/checker output: `research/routing-cutover/native-auth-syntax-{tsx,tsrx}.log`.
   The maintained workaround is in `packages/ui/tests/authentication-native-example.tsrx`.
+- **TSRX `const` type-parameter limitation in type-literal signatures
+  (observed 2026-10-30, `@sveltejs/acorn-typescript@1.0.13` via `@tsrx/core`
+  0.5.5).** Function declarations accept `<const T>` — acorn-typescript wires
+  `tsParseConstModifier` for them — but `tsFillSignature` calls
+  `tsTryParseTypeParameters()` without it, so `const` type parameters fail
+  with `Unexpected keyword 'const'` inside call signatures
+  (`{ <const T>(x): R }`), method signatures, and function-type expressions
+  (`type F = <const T>(x) => y`). Every type-literal generic form routes
+  through `tsFillSignature`, so no equivalent spelling keeps the modifier;
+  dropping it loses literal inference the typed-router contract relies on.
+  Trigger: the explicit-types refactor moved group definer generics into the
+  `RouteGroupDefiner` call signature in `packages/ui/src/routing/define-route.ts`;
+  `ui:test:native` (`vitest.native.config.mts`, nativescript renderer parses all
+  `.ts/.tsrx`) then fails transform in 10 mobile test files, including three
+  `.mobile.test.tsrx` whose own code uses `<const`. Web lane unaffected —
+  it doesn't route `.ts` through TSRXParser. **Patched locally (2026-10-31):**
+  `packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch` passes
+  `tsParseConstModifier` through `tsFillSignature`, matching function-declaration
+  handling — the upstream gap remains; the patch only repairs it locally.
+  Drop the patch when upstream wires `const` modifiers in type-literal
+  signatures; recheck when upgrading `@sveltejs/acorn-typescript` or
+  `@tsrx/core`.
 - App starters include runtime/build dependencies and testing for their selected
   platforms by default. Platform fragments own their test files, scripts, and
   managed development dependencies, including when a platform is added later.

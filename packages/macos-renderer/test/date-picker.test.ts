@@ -28,7 +28,7 @@ function fixture(failure: { constraint?: number } = {}) {
 			const index = constraints.length
 			const constraint = {
 				get active() { return active },
-				set active(value: boolean) { if (value && failure.constraint === index) throw Error('native constraint failed'); active = value },
+				set active(value: boolean) { if (value && failure.constraint === index) {throw Error('native constraint failed');} active = value },
 			}
 			constraints.push(constraint)
 			return constraint

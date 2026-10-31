@@ -9,7 +9,7 @@ import type { PowerSearchConfig, SearchableItem } from '../../props'
 const tokenizer = vi.hoisted(() => ({ props: null as any }))
 vi.mock('./Tokenizer.macos.tsrx', () => ({ Tokenizer: (props: any) => { tokenizer.props = props; return <masonview /> } }))
 vi.mock('./text-controls.macos.tsrx', () => ({ TextInput: (props: any) => <textfield ref={(view: any) => props.ref?.(view ? { native: view, focus() {}, blur() {} } : null)} text={props.value} onTextChange={props.onChange} /> }))
-vi.mock('../actions/controls.macos.tsrx', () => ({ Button: (props: any) => <button text={props.label} onPress={props.clickAction} isEnabled={!props.isDisabled} /> }))
+vi.mock('../actions/controls.macos.tsrx', () => ({ Button: (props: any) => <button text={props.label} onTap={props.clickAction} isEnabled={!props.isDisabled} /> }))
 vi.mock('./SegmentedControl.macos.tsrx', () => ({ SegmentedControl: () => <masonview /> }))
 function mount(search = vi.fn((q: string) => Promise.resolve([{ id: q, label: q }]))) {
 	const config: PowerSearchConfig = { name: 'entities', fields: [{ key: 'owner', label: 'Owner', operators: [{ key: 'is', label: 'Is', value: {
@@ -19,7 +19,7 @@ function mount(search = vi.fn((q: string) => Promise.resolve([{ id: q, label: q 
 	const container = createObjectContainer('nativescript'), root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const base = { config, filter: filter(), mode: 'edit', onSave: vi.fn(), onCancel: vi.fn() }
 	const all = (): any[] => { const visit = (node: any): any[] => [node, ...(node.children?.flatMap(visit) ?? [])]; return container.children.flatMap(visit) }
-	const button = (label: string) => all().find((node) => node.type === 'button' && node.props?.text === label)?.props.onPress
+	const button = (label: string) => all().find((node) => node.type === 'button' && node.props?.text === label)?.props.onTap
 	const input = () => all().find((node) => node.type === 'textfield')
 	const render = (props: any) => flushUniversalSync(() => root.render(PowerSearchFilterEditor, props))
 	const flush = () => flushUniversalSync(() => {})

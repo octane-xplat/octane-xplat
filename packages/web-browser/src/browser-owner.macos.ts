@@ -13,9 +13,9 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
 			let candidate: AppKitBrowserNative | undefined
 			const own = ++revision
 			try {
-				const factory = bridge(); if (!factory || typeof factory.create !== 'function' || typeof factory.accepts !== 'function') return { type: 'cancel' }
+				const factory = bridge(); if (!factory || typeof factory.create !== 'function' || typeof factory.accepts !== 'function') {return { type: 'cancel' }}
 				const valid = factory.accepts(address)
-				if ((valid !== true && valid !== 1) || revision !== own) return { type: 'cancel' }
+				if ((valid !== true && valid !== 1) || revision !== own) {return { type: 'cancel' }}
 				candidate = factory.create()
 				if (revision !== own) { close(candidate); return { type: 'cancel' } }
 				const previous = active; active = candidate; close(previous)
@@ -25,7 +25,7 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
 				if (shown !== true && shown !== 1) { active = undefined; close(candidate); return { type: 'cancel' } }
 				return { type: 'opened' }
 			} catch {
-				if (active === candidate) active = undefined
+				if (active === candidate) {active = undefined}
 				close(candidate)
 				return { type: 'cancel' }
 			}

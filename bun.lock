@@ -2891,8 +2891,9 @@
     "workerd",
   ],
   "patchedDependencies": {
-    "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
+    "css@3.0.0": "packages/cli/patches/css@3.0.0.patch",
     "octane@0.16.3": "packages/cli/patches/octane@0.16.3.patch",
+    "@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",
     "@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
     "@nativescript-community/vite-octane@0.2.1": "packages/cli/patches/@nativescript-community__vite-octane@0.2.1.patch",
     "@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
@@ -2901,8 +2902,8 @@
     "@nativescript-community/octane@0.2.5": "packages/cli/patches/@nativescript-community__octane@0.2.5.patch",
     "@octanejs/tiptap@0.0.61": "packages/cli/patches/@octanejs__tiptap@0.0.61.patch",
     "@tsrx/typescript-plugin@0.4.11": "packages/cli/patches/@tsrx__typescript-plugin@0.4.11.patch",
-    "css@3.0.0": "packages/cli/patches/css@3.0.0.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
+    "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
   },
   "overrides": {
     "@lexical/a11y": "0.52.0",

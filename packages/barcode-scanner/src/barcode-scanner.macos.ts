@@ -34,7 +34,7 @@ const SYMBOLOGIES: Record<BarcodeFormat, readonly string[]> = {
 // a leading 0 and is rewritten on the payload (see below).
 const FORMATS: Record<string, string> = {}
 for (const [format, names] of Object.entries(SYMBOLOGIES)) {
-	for (const name of names) FORMATS[VISION_PREFIX + name] ??= format
+	for (const name of names) {FORMATS[VISION_PREFIX + name] ??= format}
 }
 
 /** The deduplicated, prefixed union for the requested formats — every entry
@@ -43,15 +43,15 @@ function symbologiesFor(formats?: BarcodeFormat[]): string[] {
 	const wanted = formats?.length ? formats : (Object.keys(SYMBOLOGIES) as BarcodeFormat[])
 	const out = new Set<string>()
 	for (const format of wanted) {
-		for (const name of SYMBOLOGIES[format] ?? []) out.add(VISION_PREFIX + name)
+		for (const name of SYMBOLOGIES[format] ?? []) {out.add(VISION_PREFIX + name)}
 	}
 	return [...out]
 }
 
 /** request.results may be a JS array or an NSArray — count/objectAtIndex. */
 function observations(results: any): any[] {
-	if (!results) return []
-	if (Array.isArray(results)) return results
+	if (!results) {return []}
+	if (Array.isArray(results)) {return results}
 	const out: any[] = []
 	for (let i = 0, count = Number(results.count ?? 0); i < count; i++) {
 		out.push(results.objectAtIndex(i))

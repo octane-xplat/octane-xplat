@@ -16,7 +16,7 @@ function fixture(limit = 64) {
 test('listeners exist before synchronous native completion and failed starts permit later retries', () => {
 	let starts = 0
 	const requests = createImageRequests<string>((source, complete) => {
-		if (++starts === 1) throw new Error('start failed')
+		if (++starts === 1) {throw new Error('start failed')}
 		complete(source)
 	})
 	const delivered: (string | null)[] = []
@@ -128,7 +128,7 @@ test('an invalidated request still cancels at its final subscriber and cannot af
 test('clear invalidates every current cache writer without blanking live deliveries or cancelling subscribers', () => {
 	const env = fixture(), delivered: (string | null)[] = []
 	env.requests.subscribe('cached', () => {}); env.starts[0].complete('cached')
-	for (const source of ['a', 'b']) env.requests.subscribe(source, (image) => delivered.push(image))
+	for (const source of ['a', 'b']) {env.requests.subscribe(source, (image) => delivered.push(image))}
 	env.requests.clear(); env.requests.clear()
 	assert.equal(env.requests.isCached('cached'), false)
 	for (const load of env.starts.slice(1)) { assert.equal(load.cancelled, 0); load.complete(load.source) }

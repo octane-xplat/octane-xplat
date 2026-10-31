@@ -18,6 +18,6 @@ export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
 		text="Sign in with Google"
 		accessibilityLabel="Sign in with Google"
 		isEnabled={!props.disabled}
-		onPress={() => action.current.press()}
+		onTap={() => action.current.press()}
 	/>
 }

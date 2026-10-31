@@ -76,13 +76,13 @@ export function runSlice(code: string, context?: Record<string, any>) {
 export function spySliceContext(target: Record<string, any> = {}) {
 	const sandbox = new Proxy(target, {
 		has(t, key) {
-			if (typeof key !== 'string') return key in t
+			if (typeof key !== 'string') {return key in t}
 			return key in t || key in globalThis || !SLICE_STUB_NAMES.has(key)
 		},
 		get(t, key) {
-			if (key in t) return (t as any)[key]
-			if (typeof key !== 'string') return undefined
-			if (key in globalThis) return (globalThis as any)[key]
+			if (key in t) {return (t as any)[key]}
+			if (typeof key !== 'string') {return undefined}
+			if (key in globalThis) {return (globalThis as any)[key]}
 			const calls: any[][] = []
 			// A `function` (not an arrow) stays a valid `instanceof` right side.
 			const spy: any = function (...args: any[]) {
@@ -101,7 +101,7 @@ export function spySliceContext(target: Record<string, any> = {}) {
 // function declarations in the slice and sandbox-provided globals win.
 const CSS_SLICE_STUBS = `
 if (typeof notifyLayoutCommit === 'undefined') var notifyLayoutCommit = () => {}
-if (typeof disabledFocusTargets === 'undefined') var disabledFocusTargets = { allows: () => false }
+globalThis.disabledFocusTargets ??= { allows: () => false }
 if (typeof effectiveStyle === 'undefined') var effectiveStyle = (n) => n.computedStyle ?? n.props?.style ?? {}
 if (typeof markStyleDirty === 'undefined') var markStyleDirty = () => {}
 if (typeof flushStyleDirty === 'undefined') var flushStyleDirty = () => {}
@@ -120,7 +120,7 @@ if (typeof syncNormalState === 'undefined') var syncNormalState = () => {}
 if (typeof syncContainerPseudoState === 'undefined') var syncContainerPseudoState = () => {}
 if (typeof setVisualStateTracking === 'undefined') var setVisualStateTracking = () => {}
 if (typeof syncPseudoTracking === 'undefined') var syncPseudoTracking = () => {}
-if (typeof cssNodesByView === 'undefined') var cssNodesByView = new WeakMap()
+globalThis.cssNodesByView ??= new WeakMap()
 if (typeof sampleKeyframeAnimation === 'undefined') var sampleKeyframeAnimation = () => ({ values: {}, done: true })
 if (typeof resolveTranslate === 'undefined') var resolveTranslate = (v) => (typeof v === 'number' ? v : 0)
 if (typeof transformToParts === 'undefined') var transformToParts = () => undefined
@@ -135,7 +135,10 @@ if (typeof refreshCssClasses === 'undefined') var refreshCssClasses = (n) => { n
 if (typeof computeCascade === 'undefined') var computeCascade = (n) => ({ style: n.props?.style ?? {}, customProps: n.computedCustomProps ?? new Map(), cssKeys: new Set(), inheritedKeys: new Set() })
 if (typeof stylesheetScope === 'undefined') var stylesheetScope = () => ({ query: () => null, hasAdjacentCombinatorSelectors: false, hasSiblingCombinatorSelectors: false })
 if (typeof INHERITED_CSS_PROPERTIES === 'undefined') var INHERITED_CSS_PROPERTIES = new Set(['color','font-size','font-weight','font-family','font-style','line-height','letter-spacing','text-align','text-transform','white-space','direction'])
-if (typeof appKitBridge === 'undefined') var appKitBridge = {}
+globalThis.appKitBridge ??= {}
+globalThis.clearBackgrounds ??= () => {}
+globalThis.placeholderSignatureByField ??= new WeakMap()
+globalThis.BACKGROUND_STYLE_KEYS ??= new Set(['background','backgroundImage','backgroundRepeat','backgroundPosition','backgroundSize','backgroundOrigin','backgroundClip','backgroundAttachment','backgroundBlendMode'])
 if (typeof nodeScheme === 'undefined') var nodeScheme = () => 'light'
 // Mirrors src/index.ts — collapse folds the visibility prop and the style.
 if (typeof isCollapsed === 'undefined') var isCollapsed = (n) => n?.props?.visibility === 'collapse' || n?.styleVisibility === 'collapse'

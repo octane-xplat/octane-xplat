@@ -20,7 +20,7 @@ export const createHaptics = (): Haptics => {
 			reason: 'AppKit supplies discrete feedback on compatible trackpads; patterns and realtime intensity are unavailable.',
 		}),
 		play: (preset) => {
-			if (disposed || !performer) return false
+			if (disposed || !performer) {return false}
 			try {
 				const pattern = preset === 'selection'
 					? NSHapticFeedbackPattern.Alignment

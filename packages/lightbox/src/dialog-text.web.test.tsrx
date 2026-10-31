@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+// @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { expect, it, vi } from 'vitest'
 import { Root, Popup, Title, Description } from './root.web.tsrx'

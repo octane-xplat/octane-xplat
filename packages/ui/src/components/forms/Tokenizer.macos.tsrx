@@ -624,7 +624,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
 				flexWrap: 'nowrap',
 				flexGrow: 1,
 				flexShrink: 1,
-				flexBasis: 0,
+				width: 0,
 				minWidth: 0,
 				overflow: 'hidden',
 			}}

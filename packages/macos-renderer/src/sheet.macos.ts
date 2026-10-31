@@ -22,16 +22,16 @@ export function createNativeSheet(view: any, options: {
 	let closed = false, requested = false, began = false, preparing = false
 	const cleanups: (() => void)[] = []
 	const sameWindow = (a: any, b: any) => a === b || !!(a && b && a.isEqual?.(b))
-	const own = (cleanup: () => void) => { if (closed) cleanup(); else cleanups.push(cleanup) }
+	const own = (cleanup: () => void) => { if (closed) {cleanup();} else {cleanups.push(cleanup)} }
 	const finish = (reason: 'dismissed' | 'unavailable' | 'owner', endSession = true, nativeClosing = false) => {
-		if (closed) return
+		if (closed) {return}
 		closed = true
 		for (const cleanup of cleanups.splice(0).reverse()) { try { cleanup() } catch {} }
 		const oldSheet = sheet; sheet = null
 		if (oldSheet) {
 			// Retire callbacks before endSheet/close, both of which may synchronously notify.
 			try { deps.releaseWindow(oldSheet) } catch {}
-			try { if (began && endSession) parent.endSheet(oldSheet) } catch {}
+			try { if (began && endSession) {parent.endSheet(oldSheet)} } catch {}
 			if (!nativeClosing) {
 				try { oldSheet.orderOut(null) } catch {}
 				try { oldSheet.close() } catch {}
@@ -39,27 +39,27 @@ export function createNativeSheet(view: any, options: {
 			try { oldSheet.contentViewController = null } catch {}
 		}
 		parent = null
-		if (reason === 'unavailable') options.onUnavailable?.()
-		else if (reason === 'dismissed' && began) options.onDismissed?.()
+		if (reason === 'unavailable') {options.onUnavailable?.()}
+		else if (reason === 'dismissed' && began) {options.onDismissed?.()}
 	}
 	const sync = () => {
-		if (closed || !requested || preparing) return
+		if (closed || !requested || preparing) {return}
 		try {
 			const next = view.window
 			if (parent && !sameWindow(next, parent)) { finish('dismissed'); return }
-			if (began || !next) return
+			if (began || !next) {return}
 			if (typeof next.beginSheetCompletionHandler !== 'function' || typeof next.endSheet !== 'function') { finish('unavailable'); return }
 			parent = next; preparing = true
 			own(deps.observeClose(parent, () => finish('dismissed')))
-			if (closed) return
+			if (closed) {return}
 			const fit = deps.fittingSize(content)
 			const size = (n: number | undefined, minimum: number) => typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.max(n, minimum) : minimum
 			sheet = deps.makeWindow(content, { width: size(fit?.width, 360), height: size(fit?.height, 160) }, () => {
-				if (sheet && !sheet.attachedSheet) finish('dismissed')
+				if (sheet && !sheet.attachedSheet) {finish('dismissed')}
 			})
-			if (!sheet) throw Error('unavailable')
+			if (!sheet) {throw Error('unavailable')}
 			own(deps.observeClose(sheet, () => finish('dismissed', true, true)))
-			if (closed) return
+			if (closed) {return}
 			if (!sameWindow(view.window, parent)) { finish('unavailable'); return }
 			began = true
 			parent.beginSheetCompletionHandler(sheet, () => finish('dismissed', false))
@@ -67,7 +67,7 @@ export function createNativeSheet(view: any, options: {
 	}
 	try {
 		content = deps.makeContent()
-		if (!content) return null
+		if (!content) {return null}
 		own(deps.watchWindow(view, sync))
 	} catch { finish('owner'); return null }
 	return {

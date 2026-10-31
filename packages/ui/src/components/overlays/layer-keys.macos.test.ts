@@ -27,7 +27,7 @@ it('an owned Escape is handled before layer dismissal and the next unowned Escap
 it('stopped propagation preserves native default while older bridges, composition and unrelated keys keep the prior paths', () => {
 	const f = host(), dispatch = vi.fn(() => ({ defaultPrevented: false, propagationStopped: true }))
 	vi.stubGlobal('__xplatAppKit', { dispatchKeyboardEvent: dispatch })
-	layer.dispatch.mockImplementation((event) => { if (!event.isComposing) event.preventDefault() })
+	layer.dispatch.mockImplementation((event) => { if (!event.isComposing) {event.preventDefault()} })
 	const off = layer.setup(), event = { keyCode: 53, window: {} }
 	expect(f.monitors[0](event)).toBe(event); expect(layer.dispatch).not.toHaveBeenCalled()
 	const enter = { keyCode: 36 }; expect(f.monitors[0](enter)).toBe(enter); expect(dispatch).toHaveBeenCalledOnce()
@@ -44,11 +44,11 @@ it.each(['layer-first', 'renderer-first'])('actual dispatcher deduplication pres
 	const off = layer.setup(), event = { type: 10, keyCode: 53, characters: '\u001b', window }
 	const callbacks = order === 'layer-first' ? [...f.monitors].reverse() : f.monitors
 	let current: any = event
-	for (const callback of callbacks) { if (current != null) current = callback(current) }
+	for (const callback of callbacks) { if (current != null) {current = callback(current)} }
 	expect(current).toBeNull(); expect(handled).toHaveBeenCalledOnce(); expect(layer.dispatch).not.toHaveBeenCalled()
 	handled.mockImplementationOnce((event) => { event.stopPropagation() })
 	const stopped = { ...event }; current = stopped
-	for (const callback of callbacks) { if (current != null) current = callback(current) }
+	for (const callback of callbacks) { if (current != null) {current = callback(current)} }
 	expect(current).toBe(stopped); expect(handled).toHaveBeenCalledTimes(2); expect(layer.dispatch).not.toHaveBeenCalled()
 	off(); dispatcher.dispose()
 })

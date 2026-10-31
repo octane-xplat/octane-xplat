@@ -9,12 +9,12 @@ function fixture(initial = {}) {
 	const owner = createDatePickerOwner({
 		props: () => props, now: () => 1000, status: (status) => statuses.push(status),
 		attach: () => available ? (view, options, callback) => {
-			if (fail) throw Error('private native details')
+			if (fail) {throw Error('private native details')}
 			const entry = { view, options, callback, detached: 0, updates: [] }
 			attachments.push(entry)
 			callback(9999) // A programmatic attach echo must not be a selection.
 			return {
-				update(next) { entry.options = next; entry.updates.push(next); if (echo) callback(next.selectionMillis + 1) },
+				update(next) { entry.options = next; entry.updates.push(next); if (echo) {callback(next.selectionMillis + 1)} },
 				detach() { entry.detached++; callback(8888) },
 			}
 		} : undefined,
@@ -59,7 +59,7 @@ test('disabled and invalid/out-of-range native values cannot emit, even before a
 	const f = fixture({ minimumDate: new Date(0), maximumDate: new Date(4000) }), entry = f.attachments[0]
 	f.set({ disabled: true }); entry.callback(2000); assert.deepEqual(f.selections, []); assert.equal(entry.options.enabled, false)
 	f.set({ disabled: false }); f.owner.update()
-	for (const value of [NaN, Infinity, 1e30, -1, 4001]) entry.callback(value)
+	for (const value of [NaN, Infinity, 1e30, -1, 4001]) {entry.callback(value)}
 	assert.deepEqual(f.selections, []); entry.callback(2000); assert.deepEqual(f.selections, [2000]); f.owner.dispose()
 })
 test('invalid controlled values/bounds show invalid status and recover without source data in errors', () => {

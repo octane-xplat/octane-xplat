@@ -54,7 +54,7 @@ describe('AppKit input modality source', () => {
 		const env = host()
 		const source = createAppKitFocusVisibleSource(() => env.native)
 		const off = source.subscribe(() => {})
-		for (const modifier of [1 << 18, 1 << 19, 1 << 20]) env.event(10, modifier)
+		for (const modifier of [1 << 18, 1 << 19, 1 << 20]) {env.event(10, modifier)}
 		expect(source.getSnapshot().inputModality).toBe('unknown')
 		env.event(10, 1 << 17) // Shift+Tab remains keyboard input.
 		expect(source.getSnapshot().isFocusVisible).toBe(true)

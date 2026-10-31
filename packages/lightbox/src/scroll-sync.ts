@@ -10,9 +10,9 @@ export function scrollTriggerIntoView(trigger: any, behavior: 'smooth' | 'instan
 		const horizontal = node.orientation === 'horizontal'
 		const scroll = horizontal ? node.scrollToHorizontalOffset : node.scrollToVerticalOffset
 		const maximum = horizontal ? node.scrollableWidth : node.scrollableHeight
-		if (typeof scroll !== 'function' || !Number.isFinite(maximum)) continue
+		if (typeof scroll !== 'function' || !Number.isFinite(maximum)) {continue}
 		const box = viewRect(node), image = viewRect(target)
-		if (!box || !image) return false
+		if (!box || !image) {return false}
 		const start = horizontal ? image.x : image.y
 		const size = horizontal ? image.w : image.h
 		const edge = horizontal ? box.x : box.y
@@ -22,7 +22,7 @@ export function scrollTriggerIntoView(trigger: any, behavior: 'smooth' | 'instan
 		const delta = start < edge && start + size > edge + length ? 0
 			: start < edge ? start - edge : start + size > edge + length ? start + size - edge - length : 0
 		const offset = clamp(current + delta, 0, Math.max(0, maximum))
-		if (offset !== current || behavior === 'instant') scroll.call(node, offset, behavior === 'smooth')
+		if (offset !== current || behavior === 'instant') {scroll.call(node, offset, behavior === 'smooth')}
 		return true
 	}
 	return false

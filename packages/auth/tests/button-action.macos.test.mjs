@@ -80,6 +80,6 @@ test('provider settlement after teardown is consumed and result callbacks may st
 	const h = load(() => (++calls === 1 ? pending.promise : Promise.resolve({ status: 'cancelled' })))
 	const unmount = h.action.mount(); h.action.press(); unmount()
 	pending.reject(Error('retired')); await flush(); assert.equal(h.results.length, 0)
-	h.action.mount(); h.props.onResult = () => { if (calls === 2) h.action.press() }
+	h.action.mount(); h.props.onResult = () => { if (calls === 2) {h.action.press()} }
 	h.action.press(); await flush(); assert.equal(calls, 3)
 })

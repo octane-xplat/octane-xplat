@@ -6,13 +6,13 @@ import { pinnedRoutes } from '../src/coverage/pinned.ts'
 export const contentChatRoutes = pinnedRoutes.filter(
 	(row) =>
 		row.kind === 'template-block' &&
-		(/^Chat/.test(row.family) ||
+		(row.family.startsWith('Chat') ||
 			['Markdown', 'CodeBlock', 'SyntaxTheme'].includes(row.family) ||
 			row.name === 'useStreamingTextHookUsage'),
 )
 
 function selectorFor(row) {
-	if (/^ChatComposer/.test(row.family) || row.family === 'ChatDictationButton') {
+	if (row.family.startsWith('ChatComposer') || row.family === 'ChatDictationButton') {
 		return '.vx-chatcomposer'
 	}
 	if (row.family === 'ChatDictation') {
@@ -27,7 +27,7 @@ function selectorFor(row) {
 	if (row.family === 'ChatToolCalls') {
 		return '.vx-chattools-row'
 	}
-	if (/^Chat/.test(row.family)) {
+	if (row.family.startsWith('Chat')) {
 		return '.vx-chatlist'
 	}
 	if (row.family === 'CodeBlock' || row.family === 'SyntaxTheme') {

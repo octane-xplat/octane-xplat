@@ -17,5 +17,5 @@ export function AnimatedImage(props: AnimatedImageProps) @{
 	const dimensions = { ...(props.width !== undefined ? { width: props.width } : {}), ...(props.height !== undefined ? { height: props.height } : {}) }
 
 	<placeholder onCreatingView={create} id={props.id} className={props.className}
-		style={[props.style, dimensions]} accessible={Boolean(props.alt)} accessibilityRole="image" accessibilityLabel={props.alt} />
+		style={typeof props.style === 'string' ? props.style : { ...(props.style ?? {}), ...dimensions }} accessible={Boolean(props.alt)} accessibilityRole="image" accessibilityLabel={props.alt} />
 }

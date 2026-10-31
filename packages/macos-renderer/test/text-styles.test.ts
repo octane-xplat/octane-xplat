@@ -59,7 +59,7 @@ const cellPaddings = new WeakMap()
 const writers = runSlice(
 	source.slice(
 		source.indexOf('function syncNodeFont'),
-		source.indexOf('// CSS angles run clockwise'),
+		source.indexOf('const BORDER_SIDES'),
 	) + '\n({ syncNodeFont, syncLabelPadding, syncVisibility, isCollapsed })',
 	{
 		labelPaddings: cellPaddings,
@@ -197,7 +197,7 @@ const cursorWarnings: string[] = []
 const cursorSlice = runSlice(
 	source.slice(
 		source.indexOf('// CSS cursor keywords'),
-		source.indexOf('// CSS angles run clockwise'),
+		source.indexOf('const BORDER_SIDES'),
 	) + '\n({ syncCursor, syncUserSelect, CSS_CURSORS })',
 	{
 		console: { warn: (m: string) => cursorWarnings.push(m) },
@@ -261,7 +261,7 @@ test('user-select toggles selectable on labels and restores htmlview default', (
 const { outlineSpec } = runSlice(
 	source.slice(
 		source.indexOf('// `outline`/`outline-*` draws'),
-		source.indexOf('// CSS angles run clockwise'),
+		source.indexOf('const BORDER_SIDES'),
 	) + '\n({ outlineSpec })',
 	{
 		nativeColor: (color: any) => ({ CGColor: 'cg:' + color }),
@@ -272,12 +272,14 @@ const { outlineSpec } = runSlice(
 test('outline shorthand and longhands resolve to a ring spec', () => {
 	assert.deepEqual(plain(outlineSpec({ outline: '1.5px solid #ff0000' })), {
 		width: 1.5,
-		color: 'cg:#ff0000',
+		style: 'solid',
+		color: { CGColor: 'cg:#ff0000' },
 		offset: 0,
 	})
 	assert.deepEqual(plain(outlineSpec({ outlineWidth: 2, outlineOffset: -1 })), {
 		width: 2,
-		color: 'cg:focus',
+		style: 'solid',
+		color: { CGColor: 'cg:focus' },
 		offset: -1,
 	})
 	assert.equal(outlineSpec({ outline: 'none' }), null)

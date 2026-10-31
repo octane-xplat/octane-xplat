@@ -33,7 +33,7 @@ function writeData(url: any, data: any): void {
 			throw new Error(`Failed to write file: ${String(url.path)}`)
 		}
 	} finally {
-		if (scoped) url.stopAccessingSecurityScopedResource()
+		if (scoped) {url.stopAccessingSecurityScopedResource()}
 	}
 }
 
@@ -127,7 +127,7 @@ export const files: Files = {
 				throwIfAborted(opts?.signal)
 				const length = opts?.maxBytes == null ? 65536 : Math.max(1, Math.min(65536, opts.maxBytes - total + 1))
 				const data = handle.readDataOfLength(length)
-				if (!data || Number(data.length) === 0) break
+				if (!data || Number(data.length) === 0) {break}
 				total += Number(data.length)
 				if (opts?.maxBytes != null && total > opts.maxBytes) {
 					throw fileTooLarge(file.uri, opts.maxBytes)
@@ -142,7 +142,7 @@ export const files: Files = {
 			return concatBytes(chunks, total)
 		} finally {
 			try { handle?.closeFile() } finally {
-				if (scoped) url.stopAccessingSecurityScopedResource()
+				if (scoped) {url.stopAccessingSecurityScopedResource()}
 			}
 		}
 	},
@@ -163,9 +163,9 @@ export const files: Files = {
 		opts?: FileExportOptions,
 	): Promise<FileExportResult> {
 		assertSafeFileName(name)
-		if (exporting) throw exportBusy()
+		if (exporting) {throw exportBusy()}
 		const host = globalThis as any
-		if (!host.NSSavePanel?.savePanel) return 'unavailable'
+		if (!host.NSSavePanel?.savePanel) {return 'unavailable'}
 		exporting = true
 		try {
 			// Yield before runModal so concurrent callers observe the busy state.
@@ -174,9 +174,9 @@ export const files: Files = {
 			panel.nameFieldStringValue = name
 			panel.canCreateDirectories = true
 			const extensions = opts?.mimeType ? MIME_EXTENSIONS[opts.mimeType.toLowerCase()] : undefined
-			if (extensions?.length) panel.allowedFileTypes = extensions
-			if (panel.runModal() !== (host.NSModalResponseOK ?? 1)) return 'cancelled'
-			if (!panel.URL) throw new Error('The save panel returned no destination')
+			if (extensions?.length) {panel.allowedFileTypes = extensions}
+			if (panel.runModal() !== (host.NSModalResponseOK ?? 1)) {return 'cancelled'}
+			if (!panel.URL) {throw new Error('The save panel returned no destination')}
 			writeData(panel.URL, byteData(bytes))
 			return 'saved'
 		} finally {

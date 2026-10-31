@@ -12,7 +12,7 @@ test('length caps bound the insertion and retain original text around a paste/re
 	assert.equal(remove('aaaa', excessTextRange('aaa', 'aaaa', 3, { location: 1, length: 0 })), 'aaa')
 	assert.deepEqual(excessTextRange('aaa', 'aaaa', 3, { location: 1, length: 0 }), { location: 1, length: 1 })
 	assert.equal(excessTextRange('long value', 'long valu', 3, { location: 9, length: 1 }), null)
-	for (const cap of [undefined, null, NaN, Infinity, -1, 2.5, '3']) assert.equal(excessTextRange('', 'long', cap), null)
+	for (const cap of [undefined, null, NaN, Infinity, -1, 2.5, '3']) {assert.equal(excessTextRange('', 'long', cap), null)}
 	assert.equal(remove('value', excessTextRange('', 'value', 0)), '')
 	assert.equal(remove('A😀B', excessTextRange('', 'A😀B', 2)), 'A')
 	assert.equal(remove('😁x', excessTextRange('😀', '😁x', 1)), '')

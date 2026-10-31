@@ -212,7 +212,7 @@ test('Context Menu normalization retains modifiers, composition, field-editor ta
 	assert.equal(env.send(modified), modified)
 	assert.equal(seen[0].key, 'ContextMenu'); assert.equal(seen[0].target, env.field)
 	assert.equal(seen[0].isComposing, true)
-	for (const modifier of ['shiftKey', 'ctrlKey', 'altKey', 'metaKey']) assert.equal(seen[0][modifier], true)
+	for (const modifier of ['shiftKey', 'ctrlKey', 'altKey', 'metaKey']) {assert.equal(seen[0][modifier], true)}
 	env.window.firstResponder = env.field; env.field.currentEditor = null
 	env.send(env.event({ keyCode: 999, characters: 'x', charactersIgnoringModifiers: 'x' }))
 	assert.equal(seen[1].key, 'x'); assert.equal(seen[1].code, ''); assert.equal(seen[1].isComposing, false)

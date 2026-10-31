@@ -4,7 +4,7 @@ function fixture(supported = true) {
 	let rows = ['09:00', '09:15', '09:30', '09:45'].map((time) => ({ time, label: time })), seed = '09:17', blocked = false
 	const chosen = vi.fn(), tab = vi.fn(() => true), highlight = vi.fn(), claims = new Set<object>(), observers = new Map<object, (note: any) => void>()
 	const window: any = { firstResponder: null, recalculateKeyViewLoop() {}, makeFirstResponder(view: any) {
-		if (view.window !== this || !view.isAccessibilityEnabled()) return false
+		if (view.window !== this || !view.isAccessibilityEnabled()) {return false}
 		this.firstResponder = view; return true
 	} }
 	let children: any[] = [], releases: (() => void)[] = []
@@ -17,7 +17,7 @@ function fixture(supported = true) {
 			removeObserver(token: object) { observers.delete(token) },
 		} } }))
 	const render = () => {
-		for (const release of releases) release()
+		for (const release of releases) {release()}
 		releases = []; children = []; views.clear()
 		for (const row of rows) {
 			const view = { window: root.window, superview: root, hidden: false, bounds: {}, scrollRectToVisible: vi.fn(), isAccessibilityEnabled: () => !blocked }

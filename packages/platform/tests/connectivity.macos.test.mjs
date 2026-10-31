@@ -158,7 +158,7 @@ test('a live monitor reuses its latest sample and isolates listener errors and m
 	const h = load()
 	let initial = true
 	const first = h.api.subscribe((state) => {
-		if (initial) return
+		if (initial) {return}
 		state.online = true
 		throw new Error('consumer failed')
 	})

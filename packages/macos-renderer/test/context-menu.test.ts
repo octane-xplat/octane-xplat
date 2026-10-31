@@ -13,9 +13,9 @@ function fixture(failure: { init?: boolean; add?: number } = {}) {
 	actions.set = (id, fn) => { held.set(id, fn); return set(id, fn) }
 	const context = runSlice(slice + '\n({ attachContextMenu })', {
 		NSMenu: Object.assign(function NSMenu() {}, { alloc: () => ({ init() {
-			if (failure.init) throw Error('private construction details')
+			if (failure.init) {throw Error('private construction details')}
 			const menu: any = { items: [], cancelled: 0,
-				addItem(item: any) { if (failure.add === this.items.length) throw Error('private item details'); this.items.push(item) },
+				addItem(item: any) { if (failure.add === this.items.length) {throw Error('private item details');} this.items.push(item) },
 				cancelTracking() { this.cancelled++; this.onCancel?.() },
 			}; menus.push(menu); return menu
 		} }) }),
@@ -80,14 +80,14 @@ test('partial construction/item failures remove registered actions without chang
 		const f = fixture(failure), previous = {}, view = root(previous)
 		assert.equal(f.attach(view, { items: [{ id: 'one', title: 'One' }, { id: 'two', title: 'Two' }] }, () => assert.fail('retired action')), null)
 		assert.equal(view.menu, previous); assert.equal(f.actions.size, 0)
-		for (const action of f.held.values()) action()
+		for (const action of f.held.values()) {action()}
 		if (f.menus.length) { assert.equal(f.menus[0].cancelled, 1); assert.ok(f.items.every((item) => item.target === null)) }
 	}
 })
 
 test('selection reentry is suppressed, consumer errors are generic, and cancel callbacks are retired first', () => {
 	const f = fixture(), view = root(); let count = 0, select!: () => void
-	const detach = f.attach(view, { items: [{ id: 'rename', title: 'Rename' }] }, () => { count++; select(); if (count === 1) throw Error('private consumer details') })
+	const detach = f.attach(view, { items: [{ id: 'rename', title: 'Rename' }] }, () => { count++; select(); if (count === 1) {throw Error('private consumer details')} })
 	select = f.held.get(f.items[0].tag)!; select(); select(); assert.equal(count, 2)
 	assert.deepEqual(f.logs, [['[macos-leaf] context-menu selection failed']])
 	f.menus[0].onCancel = select; detach(); assert.equal(count, 2); assert.equal(f.actions.size, 0)
@@ -98,5 +98,5 @@ test('a slot setter failing after assignment is rolled back and all held actions
 	const view = { window: {}, get menu() { return menu }, set menu(next) { menu = next; if (fail) { fail = false; throw Error('private slot details') } } }
 	assert.equal(f.attach(view, { items: [{ id: 'rename', title: 'Rename' }] }, () => assert.fail('failed attachment')), null)
 	assert.equal(view.menu, previous); assert.equal(f.actions.size, 0); assert.equal(f.menus[0].cancelled, 1)
-	for (const action of f.held.values()) action()
+	for (const action of f.held.values()) {action()}
 })

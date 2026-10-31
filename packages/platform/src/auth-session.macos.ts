@@ -65,7 +65,7 @@ function ensureAnchorClass() {
 				const operation = active
 				// Native wrappers can differ while denoting the same session.
 				try {
-					if (!operation || !operation.session) return null
+					if (!operation || !operation.session) {return null}
 					const owns = operation.session === session || operation.session.isEqual?.(session)
 					return owns && operation.window?.visible ? operation.window : null
 				} catch { return null }
@@ -125,9 +125,9 @@ const implementation: AuthSessionImpl = {
 				operation.session = null
 				operation.provider = null
 				operation.window = null
-				if (active === operation) active = null
+				if (active === operation) {active = null}
 				try {
-					if (session?.presentationContextProvider === provider) session.presentationContextProvider = null
+					if (session?.presentationContextProvider === provider) {session.presentationContextProvider = null}
 				} catch { /* JS ownership is already retired. */ }
 				if (cancelNative) {
 					try { session?.cancel() } catch { /* Cancellation must still settle. */ }
@@ -138,10 +138,10 @@ const implementation: AuthSessionImpl = {
 				const token = center.addObserverForNameObjectQueueUsingBlock(name, object, NSOperationQueue.mainQueue, () => {
 					finish({ type: 'cancel' }, true)
 				})
-				if (!token) throw new Error('authSession.open: presenter observation failed')
+				if (!token) {throw new Error('authSession.open: presenter observation failed')}
 				// Registration itself may synchronously deliver teardown.
 				if (settled) { try { center.removeObserver(token) } catch {} }
-				else observers.push(token)
+				else {observers.push(token)}
 			}
 
 			try {
@@ -168,15 +168,15 @@ const implementation: AuthSessionImpl = {
 				operation.window = [app.keyWindow, app.mainWindow].find((window) =>
 					window && (window.visible === true || window.visible === 1) && !window.attachedSheet,
 				)
-				if (!operation.window) throw new Error('authSession.open: a visible AppKit presentation window is required')
+				if (!operation.window) {throw new Error('authSession.open: a visible AppKit presentation window is required')}
 				center = NSNotificationCenter.defaultCenter
 				observe(NSWindowWillCloseNotification, operation.window)
-				if (settled) return
+				if (settled) {return}
 				observe(NSApplicationWillTerminateNotification, null)
-				if (settled) return
+				if (settled) {return}
 
 				ensureAnchorClass()
-				if (settled) return
+				if (settled) {return}
 				operation.provider = AuthSessionAnchor.new()
 				if (settled) { operation.provider = null; return }
 				operation.session =
@@ -184,7 +184,7 @@ const implementation: AuthSessionImpl = {
 						nsUrl,
 						callbackScheme,
 						(callbackURL: any, error: any) => {
-							if (settled) return
+							if (settled) {return}
 							try {
 								if (error) {
 									finish(
@@ -221,7 +221,7 @@ const implementation: AuthSessionImpl = {
 
 				const session = operation.session
 				session.prefersEphemeralWebBrowserSession = ephemeral
-				if (settled) return
+				if (settled) {return}
 				session.presentationContextProvider = operation.provider
 				if (settled) {
 					try { session.presentationContextProvider = null } catch {}

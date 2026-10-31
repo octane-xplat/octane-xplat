@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+// @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { expect, it, vi } from 'vitest'
 import { Lightbox } from './index.web'

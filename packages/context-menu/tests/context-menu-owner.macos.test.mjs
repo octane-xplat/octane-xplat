@@ -11,8 +11,8 @@ function fixture(initial = {}) {
 	const owner = createContextMenuOwner({
 		props: () => props, status: (status) => statuses.push(status),
 		attach: () => available ? (view, options, callback) => {
-			if (fail) throw Error('private native details')
-			if (nullHandle) return null
+			if (fail) {throw Error('private native details')}
+			if (nullHandle) {return null}
 			const entry = { view, items: options.items, callback, detached: 0 }; entries.push(entry)
 			callback('rename') // Construction is not a user selection.
 			return () => { entry.detached++; callback('rename') }

@@ -1,4 +1,3 @@
-.vx-radio-input-windows {
- left: 0;
- top: 0;
-}
+/* WinUI input placement is applied via inline element styles in the
+   radio leaves — left/top declarations are dropped by the NS windows
+   CSS parser, so no rules live here. */

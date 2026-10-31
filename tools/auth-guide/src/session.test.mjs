@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
-import { createStore } from '../../../packages/ui/src/store.ts'
+import { createStore } from '../../../packages/ui/src/data/store.ts'
 
 const source = await readFile(
 	new URL('../../../packages/demos/src/auth-guide/session.ts', import.meta.url),

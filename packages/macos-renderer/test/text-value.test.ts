@@ -20,7 +20,7 @@ function fixture(initial = 'marked') {
 		get text() { return text }, get releases() { return releases },
 		marked: (value: boolean) => { marked = value }, nativeText: (value: string) => { text = value },
 		notify: () => listeners.forEach((notify) => notify()),
-		run: () => { const pending = jobs.splice(0); for (const job of pending) if (!cancelled.has(job)) job() },
+		run: () => { const pending = jobs.splice(0); for (const job of pending) {if (!cancelled.has(job)) {job()}} },
 	}
 }
 
@@ -141,7 +141,7 @@ test('native adapters read the field editor, clamp selection and scope commit ob
 		// comparing so the foreign Object.prototype does not trip strictEqual.
 		assert.deepEqual({ ...editor.selectedRange }, { location: 3, length: 0 })
 		assert.equal(remembered, type === 'textview' ? 1 : 0)
-		if (type === 'textfield') assert.equal(view.stringValue, 'new')
+		if (type === 'textfield') {assert.equal(view.stringValue, 'new')}
 	}
 })
 
@@ -150,7 +150,7 @@ test('nested controlled writes keep notification suppression active until the ou
 	let text = ''
 	const writer = createTextValueWriter({ read: () => text, marked: () => false, write: (value) => {
 		text = value
-		if (value === 'outer') writer.update('inner')
+		if (value === 'outer') {writer.update('inner')}
 		assert.equal(writer.isWriting, true)
 	} })
 	writer.update('outer')

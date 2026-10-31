@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+// @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Drawer } from './Drawer.web.tsrx'

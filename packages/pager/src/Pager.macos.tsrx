@@ -232,7 +232,6 @@ export function Pager(props: PagerProps): unknown @{
 							style={{
 								width: size.width || undefined,
 								height: size.height || undefined,
-								flexBasis: size.width || 'auto',
 							}}
 						>
 							{props.renderItem(item, i)}

@@ -198,7 +198,8 @@
 		"@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
 		"@tsrx/typescript-plugin@0.4.11": "packages/cli/patches/@tsrx__typescript-plugin@0.4.11.patch",
 		"@octanejs/tiptap@0.0.61": "packages/cli/patches/@octanejs__tiptap@0.0.61.patch",
-		"@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch"
+		"@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
+		"@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch"
 	},
 	"engines": {
 		"bun": ">=1.4.4"

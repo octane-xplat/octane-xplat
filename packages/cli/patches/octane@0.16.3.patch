@@ -1345,3 +1345,81 @@ index 361cb665b..0c4585fd7 100644
  export {
    createContext,
    createSubSlot,
+diff --git a/dist/cjs/runtime/drivers.cjs b/dist/cjs/runtime/drivers.cjs
+index 8f3c21a0..1b2e9d4c 100644
+--- a/dist/cjs/runtime/drivers.cjs
++++ b/dist/cjs/runtime/drivers.cjs
+@@ -350,17 +350,18 @@
+     detachSubtreeRefs = import_activity.detachRegisteredSubtreeRefs;
+     withRefDetachSuppression = import_commit.withRegisteredRefDetachSuppression;
+   }
+-  activityRefCreated?.(scope.block, el);
++  const block = scope.block ?? scope;
++  activityRefCreated?.(block, el);
+   const transaction = import_render.ROOT_RENDER_TRANSACTION;
+   const entry = {
+     ref,
+     el,
+-    block: scope.block,
++    block,
+     op: transaction !== null ? transaction.ops.length : import_engine.COMMIT_OP
+   };
+   (import_render.WIP_CAPTURE !== null ? import_render.WIP_CAPTURE.refs : import_engine.refAttachQueue).push(entry);
+   if (import_render.WIP_CAPTURE === null && NATIVE_READ_DRIVER) {
+-    const owner = scope.block.idState.renderOwner;
++    const owner = block.idState.renderOwner;
+     if (owner !== void 0) NATIVE_READ_DRIVER.stampQueuedPublication(owner, entry);
+   }
+ }
+diff --git a/dist/node/runtime/drivers.js b/dist/node/runtime/drivers.js
+index 9d4f2b17..3a8e1c52 100644
+--- a/dist/node/runtime/drivers.js
++++ b/dist/node/runtime/drivers.js
+@@ -349,17 +349,18 @@
+     detachSubtreeRefs = detachRegisteredSubtreeRefs;
+     withRefDetachSuppression = withRegisteredRefDetachSuppression;
+   }
+-  activityRefCreated?.(scope.block, el);
++  const block = scope.block ?? scope;
++  activityRefCreated?.(block, el);
+   const transaction = ROOT_RENDER_TRANSACTION;
+   const entry = {
+     ref,
+     el,
+-    block: scope.block,
++    block,
+     op: transaction !== null ? transaction.ops.length : COMMIT_OP
+   };
+   (WIP_CAPTURE !== null ? WIP_CAPTURE.refs : refAttachQueue).push(entry);
+   if (WIP_CAPTURE === null && NATIVE_READ_DRIVER) {
+-    const owner = scope.block.idState.renderOwner;
++    const owner = block.idState.renderOwner;
+     if (owner !== void 0) NATIVE_READ_DRIVER.stampQueuedPublication(owner, entry);
+   }
+ }
+diff --git a/dist/runtime/drivers.js b/dist/runtime/drivers.js
+index 1e7a3b90..5c9d02f1 100644
+--- a/dist/runtime/drivers.js
++++ b/dist/runtime/drivers.js
+@@ -348,17 +348,18 @@
+     detachSubtreeRefs = detachRegisteredSubtreeRefs;
+     withRefDetachSuppression = withRegisteredRefDetachSuppression;
+   }
+-  activityRefCreated?.(scope.block, el);
++  const block = scope.block ?? scope;
++  activityRefCreated?.(block, el);
+   const transaction = ROOT_RENDER_TRANSACTION;
+   const entry = {
+     ref,
+     el,
+-    block: scope.block,
++    block,
+     op: transaction !== null ? transaction.ops.length : COMMIT_OP
+   };
+   (WIP_CAPTURE !== null ? WIP_CAPTURE.refs : refAttachQueue).push(entry);
+   if (WIP_CAPTURE === null && NATIVE_READ_DRIVER) {
+-    const owner = scope.block.idState.renderOwner;
++    const owner = block.idState.renderOwner;
+     if (owner !== void 0) NATIVE_READ_DRIVER.stampQueuedPublication(owner, entry);
+   }
+ }

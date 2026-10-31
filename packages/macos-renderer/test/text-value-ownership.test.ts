@@ -33,7 +33,7 @@ test('observer acquisition coalesces reentrant values and releases a late handle
 		const h = fixture()
 		h.hooks.observe = (observer: any) => {
 			observer.callback() // Acquisition is not ready to dispatch.
-			if (dispose) h.writer.dispose(); else h.writer.update('latest')
+			if (dispose) {h.writer.dispose();} else {h.writer.update('latest')}
 		}
 		h.writer.update('older')
 		assert.equal(h.jobs.length, 0)
@@ -108,7 +108,7 @@ test('read and marked-state reentry supersede stale writes before touching the n
 		for (const dispose of [false, true]) {
 			const h = fixture(); h.mark(false)
 			let reenter = true
-			h.hooks[phase] = () => { if (reenter) { reenter = false; if (dispose) h.writer.dispose(); else h.writer.update('latest') } }
+			h.hooks[phase] = () => { if (reenter) { reenter = false; if (dispose) {h.writer.dispose();} else {h.writer.update('latest')} } }
 			try { h.writer.update('older'); assert.deepEqual(h.writes, dispose ? [] : ['latest']) }
 			finally { h.writer.dispose() }
 		}
@@ -147,11 +147,11 @@ test('retired factory completion or failure preserves the replacement registry o
 		const install = () => setTextValue(view, 'older', () => {
 			disposeTextValue(view)
 			setTextValue(view, 'replacement', () => ({ read: () => '', marked: () => false, write: value => writes.push(value) }))
-			if (fail) throw Error('factory failure')
+			if (fail) {throw Error('factory failure')}
 			return { read: () => '', marked: () => false, write: () => assert.fail('retired factory wrote') }
 		})
 		try {
-			if (fail) assert.throws(install, /factory failure/); else install()
+			if (fail) {assert.throws(install, /factory failure/);} else {install()}
 			setTextValue(view, 'followup', () => assert.fail('replacement was deleted'))
 			assert.deepEqual(writes, ['replacement', 'followup'])
 		} finally { disposeTextValue(view) }

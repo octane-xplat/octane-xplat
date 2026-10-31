@@ -145,7 +145,8 @@
 		"@nativescript-community/vite-octane@0.2.1": "patches/@nativescript-community__vite-octane@0.2.1.patch",
 		"@tsrx/typescript-plugin@0.4.11": "patches/@tsrx__typescript-plugin@0.4.11.patch",
 		"@octanejs/tiptap@0.0.61": "patches/@octanejs__tiptap@0.0.61.patch",
-		"@nativescript/doctor@2.0.18": "patches/@nativescript__doctor@2.0.18.patch"
+		"@nativescript/doctor@2.0.18": "patches/@nativescript__doctor@2.0.18.patch",
+		"@sveltejs/acorn-typescript@1.0.13": "patches/@sveltejs__acorn-typescript@1.0.13.patch"
 	},
 	"trustedDependencies": [
 		"esbuild",

@@ -50,8 +50,8 @@ export const postToHid = (event) => cg('CGEventPost')(0 /* kCGHIDEventTap */, ev
 /** Post one keyboard event through the real event queue. */
 export function postKeyEvent(keyCode, down, flags = 0, mode = 'pid') {
 	const event = cg('CGEventCreateKeyboardEvent')(null, keyCode, down)
-	if (flags) cg('CGEventSetFlags')(event, flags)
-	;(mode === 'hid' ? postToHid : postToPid)(event)
+	if (flags) {cg('CGEventSetFlags')(event, flags)
+	;}(mode === 'hid' ? postToHid : postToPid)(event)
 }
 
 /** Post a full key press (down+up). Caller drains via waitFor or sleep. */
@@ -71,7 +71,7 @@ export async function postKeys(list, { interval = 60, mode = 'pid' } = {}) {
 /** Screen coordinates (Quartz top-left origin) for a view's center. */
 export function screenPointOfViewCenter(view) {
 	const window = view.window
-	if (!window) throw new Error('view is not attached to a window')
+	if (!window) {throw new Error('view is not attached to a window')}
 	const rect = window.convertRectToScreen(
 		view.convertRectToView(view.bounds, null),
 	)
@@ -102,14 +102,14 @@ export async function postClick(view, { button = 'left', mode = 'pid' } = {}) {
 /** The view whose field editor (or itself) is first responder, or null. */
 export function focusedOwner(window) {
 	const responder = window?.firstResponder
-	if (!responder) return null
+	if (!responder) {return null}
 	const delegate = responder.delegate
 	if (delegate?.window === window) {
 		const editor =
 			typeof delegate.currentEditor === 'function'
 				? delegate.currentEditor()
 				: delegate.currentEditor
-		if (editor === responder) return delegate
+		if (editor === responder) {return delegate}
 	}
 	return responder
 }
@@ -124,6 +124,6 @@ export function axAttr(view: any, name: string) {
 /** True when the given view owns first responder, counting field editors. */
 export function hasFocus(view) {
 	const window = view?.window
-	if (!window) return false
+	if (!window) {return false}
 	return focusedOwner(window) === view
 }

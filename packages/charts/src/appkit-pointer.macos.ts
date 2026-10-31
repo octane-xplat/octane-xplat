@@ -57,7 +57,9 @@ export function createAppKitChartPointer(
 					scrub('move', point.x, point.y)
 				}
 			} else if (panning) {
-				scrub(state === 3 && point ? 'up' : 'cancel', point?.x ?? 0, point?.y ?? 0)
+				// `cancel` clears without coordinates, matching web's scrub('cancel', 0, 0).
+				const ended = state === 3 ? point : null
+				scrub(ended ? 'up' : 'cancel', ended?.x ?? 0, ended?.y ?? 0)
 				panning = false
 			}
 		},

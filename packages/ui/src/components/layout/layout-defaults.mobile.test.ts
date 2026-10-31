@@ -245,7 +245,7 @@ describe('native className roots carry no literal layout values', () => {
 describe('web-only CSS markers', () => {
 	for (const name of ['tokens.css', 'chrome.css']) {
 		it(`${name} markers strictly alternate start/end`, () => {
-			const css = readFileSync(join(__dirname, 'theme', name), 'utf8')
+			const css = readFileSync(join(__dirname, '../../theme', name), 'utf8')
 			const kinds = [...css.matchAll(/xplat-web-only:(start|end)/g)].map((m) => m[1])
 			expect(kinds.length % 2).toBe(0)
 			kinds.forEach((kind, i) => expect(kind).toBe(i % 2 === 0 ? 'start' : 'end'))

@@ -26,8 +26,8 @@ it('incomplete, detached and foreign geometry cannot claim zero overflow', () =>
 })
 it('zero-size or nonfinite native layout remains pending and current empty selection counts zero', () => {
 	const f = fixture()
-	for (const width of [0, -1, NaN, Infinity]) expect(countClippedAppKitTokens({ ...f.viewport, bounds: rect(0, width) }, [])).toBe(null)
-	for (const width of [0, -1, NaN, Infinity]) expect(countClippedAppKitTokens(f.viewport, [f.token(0, width)])).toBe(null)
+	for (const width of [0, -1, NaN, Infinity]) {expect(countClippedAppKitTokens({ ...f.viewport, bounds: rect(0, width) }, [])).toBe(null)}
+	for (const width of [0, -1, NaN, Infinity]) {expect(countClippedAppKitTokens(f.viewport, [f.token(0, width)])).toBe(null)}
 	expect(countClippedAppKitTokens(f.viewport, [])).toBe(0)
 })
 it('current native rectangle conversion observes resize and rejects missing conversion APIs', () => {
@@ -48,5 +48,5 @@ it('reclaims a leading RTL counter and preserves genuine clipping on the opposit
 })
 it('foreign, nonfinite or overlapping counters cannot expand the clipping region', () => {
 	const f = fixture(), token = f.token(80, 30)
-	for (const counter of [{ ...f.token(100, 40), window: {} }, f.token(NaN, 40), f.token(80, 40)]) expect(countClippedAppKitTokens(f.viewport, [token], counter)).toBe(1)
+	for (const counter of [{ ...f.token(100, 40), window: {} }, f.token(NaN, 40), f.token(80, 40)]) {expect(countClippedAppKitTokens(f.viewport, [token], counter)).toBe(1)}
 })

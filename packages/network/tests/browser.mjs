@@ -30,7 +30,7 @@ try {
 			outDir: temp,
 			emptyOutDir: false,
 			lib: {
-				entry: fileURLToPath(new URL('browser-entry.mjs', import.meta.url)),
+				entry: fileURLToPath(new URL('browser-entry.web.mjs', import.meta.url)),
 				formats: ['iife'],
 				name: 'NetworkFixture',
 				fileName: () => 'case.js',

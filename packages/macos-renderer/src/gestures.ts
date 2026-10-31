@@ -58,7 +58,7 @@ class GestureDelegate extends NSObject {
 	}
 	gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer: NSGestureRecognizer, event: NSEvent) {
 		const attempt = attempts.get(recognizer)
-		if (!attempt) return true
+		if (!attempt) {return true}
 		try { return attempt(event) }
 		catch (error) { console.error('[macos-event] primary click hit-test failed', error); return false }
 	}
@@ -75,8 +75,8 @@ const delegate = GestureDelegate.new()
 
 export function configureGesture(recognizer: NSGestureRecognizer, shouldAttempt?: (event: NSEvent) => boolean) {
 	owned.add(recognizer)
-	if (shouldAttempt) attempts.set(recognizer, shouldAttempt)
-	else attempts.delete(recognizer)
+	if (shouldAttempt) {attempts.set(recognizer, shouldAttempt)}
+	else {attempts.delete(recognizer)}
 	recognizer.delegate = delegate
 	recognizer.delaysPrimaryMouseButtonEvents = false
 	return recognizer

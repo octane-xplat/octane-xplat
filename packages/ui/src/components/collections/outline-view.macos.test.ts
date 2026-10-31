@@ -8,7 +8,7 @@ describe('AppKit outline snapshots (source cases)', () => {
 		try {
 			Object.defineProperty(globalThis, '__xplatAppKit', { configurable: true, value: {} }); expect(getOutlineFromViewCapabilities()).toEqual({ isSupported: false, mode: 'unsupported' })
 			Object.defineProperty(globalThis, '__xplatAppKit', { configurable: true, value: { readOutlineHeadings() { return [] } } }); expect(getOutlineFromViewCapabilities()).toEqual({ isSupported: true, mode: 'snapshot' })
-		} finally { if (original) Object.defineProperty(globalThis, '__xplatAppKit', original); else Reflect.deleteProperty(globalThis, '__xplatAppKit') }
+		} finally { if (original) {Object.defineProperty(globalThis, '__xplatAppKit', original);} else {Reflect.deleteProperty(globalThis, '__xplatAppKit')} }
 	})
 	it('unwraps native roots, refs and portable scroll handles without inventing a root', () => {
 		const view = {}; expect(appKitOutlineRoot(view)).toBe(view); expect(appKitOutlineRoot({ current: view })).toBe(view); expect(appKitOutlineRoot({ current: { native: view } })).toBe(view)

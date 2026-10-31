@@ -68,14 +68,14 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		typeof native().NSEvent?.removeMonitor === 'function'
 	const dispatch = (event: any): AppKitKeyDispatchResult => {
 		const previous = dispatched.get(event)
-		if (previous) return previous
+		if (previous) {return previous}
 		const result = { defaultPrevented: false, propagationStopped: false }
 		dispatched.set(event, result)
-		if (![10, 11].includes(Number(event.type))) return result
-		for (const observe of [...observers]) observe({ type: Number(event.type), modifierFlags: Number(event.modifierFlags ?? 0) })
-		if ((!bindings.size && !subscriptions.size) || !event.window) return result
+		if (![10, 11].includes(Number(event.type))) {return result}
+		for (const observe of [...observers]) {observe({ type: Number(event.type), modifierFlags: Number(event.modifierFlags ?? 0) })}
+		if ((!bindings.size && !subscriptions.size) || !event.window) {return result}
 		const target = targetFor(event.window)
-		if (!target) return result
+		if (!target) {return result}
 		const flags = Number(event.modifierFlags ?? 0)
 		const altKey = Boolean(flags & (1 << 19)), ctrlKey = Boolean(flags & (1 << 18)), metaKey = Boolean(flags & (1 << 20))
 		const shiftKey = Boolean(flags & (1 << 17))
@@ -93,7 +93,7 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		const editor = typeof target.currentEditor === 'function' ? target.currentEditor() : target.currentEditor
 		const isComposing = dead || marked(raw) || marked(editor)
 		const path: KeyView[] = []
-		for (let view: KeyView | null | undefined = target; view && view.window === event.window; view = view.superview) path.push(view)
+		for (let view: KeyView | null | undefined = target; view && view.window === event.window; view = view.superview) {path.push(view)}
 		const name = Number(event.type) === 10 ? 'onKeyDown' : 'onKeyUp'
 		for (const view of path) {
 			const payload: NativeKeyboardEvent<KeyView> = {
@@ -106,9 +106,9 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 			bindings.get(view)?.[name]?.(payload)
 			const owned = subscriptions.get(view)
 			for (const handlers of [...(owned ?? [])]) {
-				if (subscriptions.get(view) === owned && owned?.has(handlers)) handlers[name]?.(payload)
+				if (subscriptions.get(view) === owned && owned?.has(handlers)) {handlers[name]?.(payload)}
 			}
-			if (result.propagationStopped) break
+			if (result.propagationStopped) {break}
 		}
 		return result
 	}
@@ -121,13 +121,13 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 	}
 	const ensureMonitor = () => {
 		if (!bindings.size && !subscriptions.size && !observers.size) { release(); return }
-		if (token != null || !available()) return
+		if (token != null || !available()) {return}
 		try {
 			const host = native()
 			events = host.NSEvent
 			const mask = (host.NSEventMask?.KeyDown ?? 1024) | (host.NSEventMask?.KeyUp ?? 2048)
 			token = events.addLocalMonitorForEventsMatchingMaskHandler(mask, (event: any) => dispatch(event).defaultPrevented ? null : event)
-			if (token == null) throw new Error('AppKit key monitor unavailable')
+			if (token == null) {throw new Error('AppKit key monitor unavailable')}
 		} catch {
 			failed = true
 		}
@@ -136,13 +136,13 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		available,
 		dispatch,
 		set(view: KeyView, handlers?: KeyHandlers): void {
-			if (!handlers?.onKeyDown && !handlers?.onKeyUp) bindings.delete(view)
-			else bindings.set(view, handlers)
+			if (!handlers?.onKeyDown && !handlers?.onKeyUp) {bindings.delete(view)}
+			else {bindings.set(view, handlers)}
 			ensureMonitor()
 		},
 		/** Compose owned view listeners without replacing reconciled prop handlers. */
 		subscribe(view: KeyView, handlers: KeyHandlers): () => void {
-			if (!handlers.onKeyDown && !handlers.onKeyUp) return () => {}
+			if (!handlers.onKeyDown && !handlers.onKeyUp) {return () => {}}
 			let owned = subscriptions.get(view)
 			if (!owned) { owned = new Set(); subscriptions.set(view, owned) }
 			// Each lease owns its own entry, even when a caller reuses one handler object.
@@ -152,10 +152,10 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 			ensureMonitor()
 			let active = true
 			return () => {
-				if (!active) return
+				if (!active) {return}
 				active = false
 				bucket.delete(entry)
-				if (!bucket.size && subscriptions.get(view) === bucket) subscriptions.delete(view)
+				if (!bucket.size && subscriptions.get(view) === bucket) {subscriptions.delete(view)}
 				ensureMonitor()
 			}
 		},

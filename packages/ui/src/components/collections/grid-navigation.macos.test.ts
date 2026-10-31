@@ -12,7 +12,7 @@ function fixture() {
 	let recalc = 0
 	let acceptsFocus = true
 	const window: any = { firstResponder: null, recalculateKeyViewLoop: () => recalc++, makeFirstResponder(view: any) {
-		if (!acceptsFocus) return false
+		if (!acceptsFocus) {return false}
 		this.firstResponder = view; return true
 	} }
 	const root: any = { window, userInterfaceLayoutDirection: 0 }
@@ -173,7 +173,7 @@ it('reports absent/failed observation and releases partially acquired Tab exclus
 	let count = 0
 	const suppress = env.bridge.suppressTabStop
 	env.bridge.suppressTabStop = (view: any) => {
-		if (++count === 2) throw new Error('unavailable')
+		if (++count === 2) {throw new Error('unavailable')}
 		return suppress(view)
 	}
 	env.navigation.start()
@@ -184,7 +184,7 @@ it('reports absent/failed observation and releases partially acquired Tab exclus
 
 it('leaves focus outside an all-disabled grid and releases every exclusion on teardown', () => {
 	const env = fixture()
-	for (const row of env.rows) row.view.isAccessibilityEnabled = () => false
+	for (const row of env.rows) {row.view.isAccessibilityEnabled = () => false}
 	const outside = { window: env.window }
 	env.window.firstResponder = outside
 	env.navigation.start()

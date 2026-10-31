@@ -1,4 +1,3 @@
-.vx-switch-input-windows {
-	left: 0;
-	top: 0;
-}
+/* WinUI input placement is applied via inline element styles in
+   Switch.windows.tsrx — left/top declarations are dropped by the
+   NS windows CSS parser, so no rules live here. */

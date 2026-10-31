@@ -6,7 +6,7 @@ import type { PowerSearchConfig } from '../../props'
 
 // Exercise exact scalar editor closures; native child control events remain untested.
 vi.mock('./text-controls.macos.tsrx', () => ({ TextInput: (props: any) => <textfield ref={(view: any) => props.ref?.(view ? { native: view, focus() {}, blur() {} } : null)} text={props.value} onTextChange={props.onChange} isEnabled={!props.isDisabled} /> }))
-vi.mock('../actions/controls.macos.tsrx', () => ({ Button: (props: any) => <button text={props.label} onPress={props.clickAction} isEnabled={!props.isDisabled} /> }))
+vi.mock('../actions/controls.macos.tsrx', () => ({ Button: (props: any) => <button text={props.label} onTap={props.clickAction} isEnabled={!props.isDisabled} /> }))
 vi.mock('./Tokenizer.macos.tsrx', () => ({ Tokenizer: () => <masonview /> }))
 vi.mock('./SegmentedControl.macos.tsrx', () => ({ SegmentedControl: () => <masonview /> }))
 const config: PowerSearchConfig = { name: 'scalar', fields: [
@@ -21,7 +21,7 @@ function mount() {
 	const filter = () => ({ field: 'year', value: { type: 'integer', value: 10 } })
 	const base = { config, filter: filter(), mode: 'edit', onSave: vi.fn(), onCancel: vi.fn() }
 	const all = (): any[] => { const visit = (node: any): any[] => [node, ...(node.children?.flatMap(visit) ?? [])]; return container.children.flatMap(visit) }
-	const button = (label: string) => all().find((node) => node.type === 'button' && node.props?.text === label)?.props.onPress
+	const button = (label: string) => all().find((node) => node.type === 'button' && node.props?.text === label)?.props.onTap
 	const input = () => all().find((node) => node.type === 'textfield')
 	const render = (props: any) => flushUniversalSync(() => root.render(PowerSearchFilterEditor, props))
 	const flush = () => flushUniversalSync(() => {})

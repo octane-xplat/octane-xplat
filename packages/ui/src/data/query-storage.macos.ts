@@ -12,17 +12,17 @@ const hostMemory = new WeakMap<XplatAppKitStorage, Map<string, string>>()
 let nativeStorageObserved = false
 
 function memory(owner: XplatAppKitStorage | undefined): Map<string, string> {
-	if (!owner) return memoryStorage
+	if (!owner) {return memoryStorage}
 	// Never revive pre-host cache entries after the host later disappears.
 	memoryStorage.clear()
 	if (typeof owner.storageGet === 'function' || typeof owner.storageSet === 'function' ||
-		typeof owner.storageRemove === 'function') nativeStorageObserved = true
+		typeof owner.storageRemove === 'function') {nativeStorageObserved = true}
 	let values = hostMemory.get(owner)
 	if (!values) {
 		values = new Map()
 		hostMemory.set(owner, values)
 	}
-	if (complete(owner)) values.clear()
+	if (complete(owner)) {values.clear()}
 	return values
 }
 

@@ -60,7 +60,7 @@ export const openSettings: Service<OpenSettingsImpl> = {
 	},
 	async isAvailable() {
 		const workspace = settingsWorkspace()
-		if (!workspace) return false
+		if (!workspace) {return false}
 		try {
 			return workspace.URLForApplicationWithBundleIdentifier(settingsBundleId) != null
 		} catch {
@@ -69,7 +69,7 @@ export const openSettings: Service<OpenSettingsImpl> = {
 	},
 	open(pane) {
 		const workspace = settingsWorkspace()
-		if (!workspace) throw new UnavailabilityError('openSettings')
+		if (!workspace) {throw new UnavailabilityError('openSettings')}
 		try {
 			const appUrl = workspace.URLForApplicationWithBundleIdentifier(settingsBundleId)
 			if (appUrl == null) {

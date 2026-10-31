@@ -33,15 +33,15 @@ function loadApple({ failure, presentationWindow = { visible: true }, state = 1,
 		NSOperationQueue: { mainQueue: {} },
 		NSNotificationCenter: { defaultCenter: {
 			addObserverForNameObjectQueueUsingBlock(name, object, queue, callback) {
-				if (failure === 'observe' || (failure === 'observe-second' && observers.size === 1)) throw Error('observe failed')
+				if (failure === 'observe' || (failure === 'observe-second' && observers.size === 1)) {throw Error('observe failed')}
 				const token = { name, object, callback }; observers.add(token); onObserve?.(token); return token
 			},
-			removeObserver(token) { if (failure === 'remove') throw Error('remove failed'); observers.delete(token) },
+			removeObserver(token) { if (failure === 'remove') {throw Error('remove failed');} observers.delete(token) },
 		} },
 		NSObject: {
 			extend: (methods) => {
 				classCount++
-				if (failure === 'extend-anchor-once' && classCount === 2) throw Error('anchor registration failed')
+				if (failure === 'extend-anchor-once' && classCount === 2) {throw Error('anchor registration failed')}
 				if (failure === 'extend') {
 					throw new Error('extend failed')
 				}
@@ -91,7 +91,7 @@ function loadApple({ failure, presentationWindow = { visible: true }, state = 1,
 			alloc() {
 				onAlloc?.()
 				return { initWithAuthorizationRequests() {
-					if (failure === 'construct') throw new Error('construction failed')
+					if (failure === 'construct') {throw new Error('construction failed')}
 					let delegate = null, anchor = null
 					const controller = {
 						performs: 0, cancels: 0,
@@ -99,10 +99,10 @@ function loadApple({ failure, presentationWindow = { visible: true }, state = 1,
 						get presentationContextProvider() { return anchor }, set presentationContextProvider(value) { onAnchor?.(controller, value); anchor = value },
 						performRequests() {
 							this.performs++; onPerform?.(controller)
-							if (failure === 'perform') throw new Error('perform failed')
+							if (failure === 'perform') {throw new Error('perform failed')}
 						},
 					}
-					if (!missingCancel) controller.cancel = () => { controller.cancels++; onCancel?.(controller) }
+					if (!missingCancel) {controller.cancel = () => { controller.cancels++; onCancel?.(controller) }}
 					controllers.push(controller); onConstruct?.(controller)
 					return controller
 				} }
@@ -111,7 +111,7 @@ function loadApple({ failure, presentationWindow = { visible: true }, state = 1,
 	})
 
 	return { auth: exports.appleAuth, controllers, requests, app, observers, get classCount() { return classCount },
-		post(name, object) { for (const token of [...observers]) if (token.name === name && (token.object == null || token.object === object)) token.callback({ object }) },
+		post(name, object) { for (const token of [...observers]) {if (token.name === name && (token.object == null || token.object === object)) {token.callback({ object })}} },
 	}
 }
 
@@ -292,8 +292,8 @@ test('Apple setup reentry never performs a retired authorization request', async
 			onRequest: stage === 'request' ? close : undefined, onScopes: stage === 'scopes' ? close : undefined,
 			onNonce: stage === 'nonce' ? close : undefined, onAnchorNew: stage === 'anchorNew' ? close : undefined,
 			onAlloc: stage === 'alloc' ? close : undefined, onConstruct: stage === 'construct' ? close : undefined,
-			onDelegate: stage === 'delegate' ? (_c, value) => { if (value) close() } : undefined,
-			onAnchor: stage === 'anchor' ? (_c, value) => { if (value) close() } : undefined })
+			onDelegate: stage === 'delegate' ? (_c, value) => { if (value) {close()} } : undefined,
+			onAnchor: stage === 'anchor' ? (_c, value) => { if (value) {close()} } : undefined })
 		assert.equal((await h.auth.signIn({ scopes: ['email'], nonce: 'sample' })).status, 'cancelled')
 		assert.equal(h.observers.size, 0)
 		for (const c of h.controllers) {
@@ -308,7 +308,7 @@ test('Apple ignores results from conversion reentry and preserves synchronous te
 	assert.equal((await h.auth.signIn()).status, 'success')
 	const staleTokens = [...h.observers]
 	assert.equal((await h.auth.signIn()).status, 'success')
-	for (const token of staleTokens) token.callback()
+	for (const token of staleTokens) {token.callback()}
 	assert.equal(h.controllers[1].cancels, 0)
 	const reentry = loadApple(), pending = reentry.auth.signIn(), c = reentry.controllers[0]
 	const value = credential()

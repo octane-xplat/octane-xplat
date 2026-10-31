@@ -48,7 +48,7 @@ test('old cleanup cannot replace a newer observer admitted during replacement', 
 	observeTextViewLayout(f.node, () => fits.push('old'), () => f.host)
 	let newest: (() => void) | undefined
 	f.effects.remove = token => {
-		if (token === f.tokens[0]) newest = observeTextViewLayout(f.node, () => fits.push('new'), () => f.host)
+		if (token === f.tokens[0]) {newest = observeTextViewLayout(f.node, () => fits.push('new'), () => f.host)}
 	}
 	const superseded = observeTextViewLayout(f.node, () => fits.push('superseded'), () => f.host)
 	assert.equal(f.tokens.length, 2); assert.equal(f.node.textLayoutDetach, newest)
@@ -61,10 +61,10 @@ test('a replaced editor, viewport, clip or document ends the old scope without f
 	for (const scope of ['view', 'viewport', 'clip', 'document']) {
 		const f = model(); let fits = 0
 		const stop = observeTextViewLayout(f.node, () => { fits++ }, () => f.host)!
-		if (scope === 'view') f.node.view = {}
-		else if (scope === 'viewport') f.node.textViewport = {}
-		else if (scope === 'clip') f.viewport.contentView = {}
-		else f.viewport.documentView = {}
+		if (scope === 'view') {f.node.view = {}}
+		else if (scope === 'viewport') {f.node.textViewport = {}}
+		else if (scope === 'clip') {f.viewport.contentView = {}}
+		else {f.viewport.documentView = {}}
 		f.callbacks[0](); stop(); f.callbacks[0]()
 		assert.equal(fits, 0); assert.equal(f.node.textLayoutDetach, undefined); assert.deepEqual(f.removed, f.tokens)
 	}
@@ -73,13 +73,13 @@ test('a replaced editor, viewport, clip or document ends the old scope without f
 test('missing bridge, flag and acquisition failures clear ownership with fixed errors', () => {
 	for (const phase of ['bridge', 'flag', 'add', 'empty']) {
 		const f = model()
-		if (phase === 'bridge') f.center.removeObserver = undefined
-		else if (phase === 'flag') Object.defineProperty(f.clip, 'postsFrameChangedNotifications', { set() { throw Error('private-native-payload') } })
-		else if (phase === 'add') f.effects.add = () => { throw Error('private-native-payload') }
-		else f.center.addObserverForNameObjectQueueUsingBlock = () => null
+		if (phase === 'bridge') {f.center.removeObserver = undefined}
+		else if (phase === 'flag') {Object.defineProperty(f.clip, 'postsFrameChangedNotifications', { set() { throw Error('private-native-payload') } })}
+		else if (phase === 'add') {f.effects.add = () => { throw Error('private-native-payload') }}
+		else {f.center.addObserverForNameObjectQueueUsingBlock = () => null}
 		assert.throws(() => observeTextViewLayout(f.node, () => {}, () => f.host), { message: 'AppKit TextArea layout observation failed' })
 		assert.equal(f.node.textLayoutDetach, undefined)
-		for (const callback of f.callbacks) callback()
+		for (const callback of f.callbacks) {callback()}
 	}
 	// A native add which throws without returning a handle cannot be released
 	// from JS; this model does not claim that native resource was recovered.

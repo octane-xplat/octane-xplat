@@ -7,6 +7,6 @@ export function normalizeHostStyleProps(props: Record<string, any>): Record<stri
 export function normalizeHostStyleProps(props: Record<string, any> | undefined): Record<string, any> | undefined
 export function normalizeHostStyleProps(props: Record<string, any> | undefined): Record<string, any> | undefined {
 	const style = props?.style
-	if (style == null || typeof style === 'object' && !Array.isArray(style)) return props
+	if (style == null || typeof style === 'object' && !Array.isArray(style)) {return props}
 	return { ...props, style: normalizeInlineStyle(style) }
 }

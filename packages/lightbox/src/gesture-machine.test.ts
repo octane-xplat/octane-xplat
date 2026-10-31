@@ -229,7 +229,7 @@ it('disabled zoom ignores pinch and clamps double tap, wheel and button zoom wit
 	] as Intent[]) {
 		const commands = run(intent)
 		for (const command of commands) {
-			if (command.kind === 'set' || command.kind === 'settle') expect(command.t.scale).toBe(1)
+			if (command.kind === 'set' || command.kind === 'settle') {expect(command.t.scale).toBe(1)}
 		}
 	}
 	expect(run(pan('panStart', a, { pointer: 'touch' }), pan('panMove', { x: 180, y: 100 })).map(c => c.kind)).toContain('track')

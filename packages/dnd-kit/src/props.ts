@@ -32,13 +32,13 @@ export interface DragEvent extends DndSnapshot {
 /** Supply current viewport bounds and offsets; scrollTo must update offsetRef synchronously. */
 export interface AutoScroll {
 	/** Measured bounds of the dragged element. */
-bounds(): { x: number; y: number; width: number; height: number } | null
+	bounds(): { x: number; y: number; width: number; height: number } | null
 	/** Mutable offset updated during drag without re-render. */
 	offsetRef: { current: number }
 	/** Scroll travel cap per frame. */
-maxOffset(): number
+	maxOffset(): number
 	/** Scroll the container by a delta. */
-scrollTo(offset: number): void
+	scrollTo(offset: number): void
 	/** Constrain autoscroll to an axis. */
 	axis?: 'x' | 'y'
 	/** Distance from the edge (px) that triggers autoscroll. */

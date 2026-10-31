@@ -1,4 +1,4 @@
-# macOS/AppKit CSS paint coverage
+### macOS/AppKit CSS paint coverage
 
 AppKit now paints layered CSS backgrounds, non-solid outlines, full
 `box-shadow` lists, and per-window `@media` results.

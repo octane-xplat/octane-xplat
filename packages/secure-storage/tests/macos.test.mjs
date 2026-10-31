@@ -145,9 +145,9 @@ test('dictionary reading captures its receiver, reads status once and skips fail
 			}
 		} }
 		const store = load(complete({ get: () => response }))
-		if (status === 0) assert.equal(await store.get('entry'), '')
-		else if (status === -25300) assert.equal(await store.get('entry'), null)
-		else await assert.rejects(store.get('entry'), { message: 'Keychain read failed' })
+		if (status === 0) {assert.equal(await store.get('entry'), '')}
+		else if (status === -25300) {assert.equal(await store.get('entry'), null)}
+		else {await assert.rejects(store.get('entry'), { message: 'Keychain read failed' })}
 		assert.deepEqual([reads, statusReads, valueReads], [1, 1, status === 0 ? 1 : 0])
 	}
 })

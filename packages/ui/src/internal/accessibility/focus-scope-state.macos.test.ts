@@ -29,7 +29,7 @@ function fixture() {
 	const manager = createAppKitFocusScopeManager(() => native, () => bridge)
 	const window: any = { isKeyWindow: true, firstResponder: null, reject: false }
 	window.makeFirstResponder = (target: any) => {
-		if (window.reject || target.window !== window) return false
+		if (window.reject || target.window !== window) {return false}
 		window.firstResponder = target
 		return true
 	}
@@ -39,7 +39,7 @@ function fixture() {
 			acceptsFirstResponder: focusable, canBecomeKeyView: focusable,
 			subviews: { get count() { return children.length }, objectAtIndex: (index: number) => children[index] },
 		}
-		for (const child of children) child.superview = node
+		for (const child of children) {child.superview = node}
 		return node
 	}
 	const trigger = view('trigger', true)
@@ -125,7 +125,7 @@ describe('AppKit focus scope manager', () => {
 		editor.hasMarkedText = false
 		expect(env.key().result).toBeNull()
 		expect(env.window.firstResponder).toBe(next)
-		for (const mask of [1 << 18, 1 << 19, 1 << 20]) expect(env.key(mask).result).not.toBeNull()
+		for (const mask of [1 << 18, 1 << 19, 1 << 20]) {expect(env.key(mask).result).not.toBeNull()}
 		expect(env.key(0, { firstResponder: {} }).result).not.toBeNull()
 		expect(env.key(0, null).result).not.toBeNull()
 		env.window.reject = true
@@ -182,7 +182,7 @@ describe('AppKit focus scope manager', () => {
 		const observe = center.addObserverForNameObjectQueueUsingBlock
 		let registrations = 0
 		center.addObserverForNameObjectQueueUsingBlock = (...args) => {
-			if (++registrations === 2) throw new Error('registration failed')
+			if (++registrations === 2) {throw new Error('registration failed')}
 			return observe(...args)
 		}
 		const off = env.manager.bind(env.view('scope'), () => ({ contain: true }))
@@ -258,7 +258,7 @@ it('shares one observation owner across nested scopes until the last scope relea
 
 it('shares observers across windows while navigation and release stay window-owned', async () => {
 	const env = fixture(), a = env.view('first window field', true), b = env.view('second window field', true), c = env.view('second window last', true)
-	const other: any = { isKeyWindow: true, firstResponder: null, makeFirstResponder(target: any) { if (target.window !== other) return false; other.firstResponder = target; return true } }
+	const other: any = { isKeyWindow: true, firstResponder: null, makeFirstResponder(target: any) { if (target.window !== other) {return false;} other.firstResponder = target; return true } }
 	const second = env.view('second scope', false, [b, c]); second.window = b.window = c.window = other
 	const closeFirst = env.manager.bind(env.view('first scope', false, [a]), () => ({ contain: true, autoFocus: true }))
 	await Promise.resolve(); env.window.isKeyWindow = false
@@ -307,12 +307,12 @@ it('does not navigate a scope closed, disabled or superseded by its attached key
 		const options = { contain: true }, close = env.manager.bind(env.view('scope', false, [a, b]), () => options)
 		await Promise.resolve(); expect(env.window.firstResponder).toBe(a)
 		env.bridge.dispatchKeyboardEvent = () => {
-			if (action === 'close') close()
-			else if (action === 'disable') options.contain = false
-			else env.manager.bind(env.view('replacement scope', false, [next]), () => ({ contain: true, autoFocus: true }))
+			if (action === 'close') {close()}
+			else if (action === 'disable') {options.contain = false}
+			else {env.manager.bind(env.view('replacement scope', false, [next]), () => ({ contain: true, autoFocus: true }))}
 		}
 		const event = env.key(); expect(event.result).toBe(event.event); expect(env.window.firstResponder).toBe(a)
-		await Promise.resolve(); if (action === 'replace') expect(env.window.firstResponder).toBe(next)
+		await Promise.resolve(); if (action === 'replace') {expect(env.window.firstResponder).toBe(next)}
 		env.manager.dispose()
 	}
 })
@@ -321,7 +321,7 @@ it('attempts all cleanup once after target/monitor/notification removal failure 
 	const env = fixture(), retain = env.bridge.retainFocusTarget, remove = env.native.NSNotificationCenter.defaultCenter.removeObserver
 	env.bridge.retainFocusTarget = (view: any) => { const release = retain(view); return () => { release(); throw Error('private release detail') } }
 	env.native.NSEvent.removeMonitor = (token) => { env.removed.push(token); throw Error('private monitor detail') }
-	env.native.NSNotificationCenter.defaultCenter.removeObserver = (token) => { remove(token); if (token === 'NSWindowDidUpdateNotification') throw Error('private observer detail') }
+	env.native.NSNotificationCenter.defaultCenter.removeObserver = (token) => { remove(token); if (token === 'NSWindowDidUpdateNotification') {throw Error('private observer detail')} }
 	const root = env.view('scope', false, [env.view('field', true)]), close = env.manager.bind(root, () => ({ contain: true }))
 	await Promise.resolve(); const staleKey = env.monitors[0], staleUpdate = env.observationHistory[0].callback
 	expect(() => close()).not.toThrow(); expect(() => close()).not.toThrow()

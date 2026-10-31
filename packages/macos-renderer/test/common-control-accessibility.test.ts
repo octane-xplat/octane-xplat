@@ -104,7 +104,7 @@ test('self-drawn activation preserves modified shortcuts and blocked native key 
 	f.view.keyDown({ keyCode: 49 })
 	assert.equal(presses, 2)
 	for (const modifierFlags of [1 << 18, 1 << 19, 1 << 20]) {
-		for (const keyCode of [36, 49]) f.view.keyDown({ keyCode, modifierFlags })
+		for (const keyCode of [36, 49]) {f.view.keyDown({ keyCode, modifierFlags })}
 	}
 	assert.equal(presses, 2)
 	assert.equal(f.forwarded.length, 6)
@@ -211,7 +211,7 @@ test('menu surfaces and row kinds expose native roles and current titles without
 test('native selected/expanded getters report parent-owned state without conflating checked state or activation', () => {
 	const f = fixture(); let calls = 0
 	f.handlers.set(1, () => calls++)
-	for (const name of ['isAccessibilitySelected', 'isAccessibilityExpanded']) assert.equal(f.exposed[name].returns, 'bool')
+	for (const name of ['isAccessibilitySelected', 'isAccessibilityExpanded']) {assert.equal(f.exposed[name].returns, 'bool')}
 	f.set('accessibilityRole', 'menuitem')
 	assert.equal(f.view.isAccessibilitySelected(), false); assert.equal(f.view.isAccessibilityExpanded(), false)
 	f.set('accessibilityState', { selected: true, expanded: true })

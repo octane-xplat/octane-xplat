@@ -124,6 +124,9 @@ describe('useClipboard (DOM renderer)', () => {
 		expect(copyText).toHaveBeenCalledTimes(1)
 		expect(onCopy).not.toHaveBeenCalled()
 		expect(announce).not.toHaveBeenCalled()
+		// The engine's own post-paint/delegation timers are pending; flush them
+		// so the count reflects only the hook's reset timer.
+		act(() => vi.runOnlyPendingTimers())
 		expect(vi.getTimerCount()).toBe(0)
 		el.remove()
 	})

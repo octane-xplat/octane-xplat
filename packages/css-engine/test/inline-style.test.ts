@@ -19,5 +19,5 @@ test('inline values retain percentages/keywords and follow native no-important-p
 	assert.deepEqual(normalizeInlineStyle(''), {}); assert.equal(normalizeInlineStyle(null), null); assert.equal(normalizeInlineStyle(undefined), undefined)
 })
 test('invalid style lists and non-style primitives fail before native application', () => {
-	for (const value of [12, true, () => {}, 'width', 'a { width: 2px }', '@media screen { a { width:2px } }']) assert.throws(() => normalizeInlineStyle(value), TypeError)
+	for (const value of [12, true, () => {}, 'width', 'a { width: 2px }', '@media screen { a { width:2px } }']) {assert.throws(() => normalizeInlineStyle(value), TypeError)}
 })

@@ -7,18 +7,18 @@ function fixture() {
 	const nodes = new Map<object, any>(), callbacks: ((notification: any) => void)[] = [], removed: any[] = [], suppressed = new Set<any>()
 	const changes: number[] = [], notices: string[] = [], releases: any[] = [], scrolls: any[] = []
 	let accepts = true, readsFail = false, releaseFails = false
-	const window: any = { firstResponder: null, recalculateKeyViewLoop() {}, makeFirstResponder(view: any) { if (!accepts || view.window !== window) return false; window.firstResponder = view; return true } }
+	const window: any = { firstResponder: null, recalculateKeyViewLoop() {}, makeFirstResponder(view: any) { if (!accepts || view.window !== window) {return false;} window.firstResponder = view; return true } }
 	const root: any = { window, superview: null, subviews: [], userInterfaceLayoutDirection: 0 }
 	const cell = (parent = root): any => {
 		const view = { window, superview: parent, hidden: false, enabled: true, isAccessibilityEnabled: true, bounds: {}, frame: { origin: { y: 0 } }, subviews: [], scrollRectToVisible() { scrolls.push(view) } }
 		nodes.set(view, { view, props: { 'data-grid-cell': true } }); parent.subviews.push(view); return view
 	}
-	for (let n = 0; n < 5; n++) cell()
+	for (let n = 0; n < 5; n++) {cell()}
 	let host: any = root
 	const options = { rows: 3, columns: 2, onFocusChange: (index: number) => notices.push(`A:${index}`) }
 	const bridge: any = { keyboardEventsSupported: true,
-		readGridCells(view: any, nested: object[]) { if (readsFail) throw Error('private read detail'); return readGridCells(view, (view) => nodes.get(view), nested) },
-		suppressTabStop(view: any) { suppressed.add(view); return () => { suppressed.delete(view); releases.push(view); if (releaseFails) throw Error('private release detail') } },
+		readGridCells(view: any, nested: object[]) { if (readsFail) {throw Error('private read detail');} return readGridCells(view, (view) => nodes.get(view), nested) },
+		suppressTabStop(view: any) { suppressed.add(view); return () => { suppressed.delete(view); releases.push(view); if (releaseFails) {throw Error('private release detail')} } },
 	}
 	const native = { NSNotificationCenter: { defaultCenter: {
 		addObserverForNameObjectQueueUsingBlock(_name: string, _object: any, _queue: any, callback: (notification: any) => void) { callbacks.push(callback); return callbacks.length },
@@ -55,8 +55,8 @@ it('skips disabled/hidden cells without compressing their indices or wrapping a 
 })
 it('preserves activation, editing descendants, IME, shortcuts, prevented events and foreign targets', () => {
 	const f = fixture(); f.owner.start(); f.window.firstResponder = f.root.subviews[0]
-	for (const key of ['Enter', ' ', 'Tab', 'Escape']) expect(f.send(key).prevented).toBe(false)
-	for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { defaultPrevented: true }, { target: { superview: f.root.subviews[0] } }, { target: {} }]) expect(f.send('ArrowRight', extra).prevented).toBe(false)
+	for (const key of ['Enter', ' ', 'Tab', 'Escape']) {expect(f.send(key).prevented).toBe(false)}
+	for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { defaultPrevented: true }, { target: { superview: f.root.subviews[0] } }, { target: {} }]) {expect(f.send('ArrowRight', extra).prevented).toBe(false)}
 	expect(f.changes).toEqual([]); expect(f.notices).toEqual([]); f.owner.dispose()
 })
 it('uses live options/callbacks and the current native child order', () => {

@@ -8,7 +8,7 @@ function fixture(initial = {}) {
 	const entries = [], dismissed = []
 	props.onDismissed ??= () => dismissed.push('A')
 	const owner = createSheetOwner({ props: () => props, changed() {}, prepare: () => available ? (view, callbacks) => {
-		if (fail) throw Error('private native detail')
+		if (fail) {throw Error('private native detail')}
 		const entry = { view, callbacks, target: {}, presented: false, presents: 0, closes: 0 }
 		entry.present = () => { entry.presents++; entry.presented = accept; return accept }
 		entry.close = () => { entry.closes++; callbacks.onDismissed() }
@@ -56,9 +56,9 @@ test('id/view replacement and unmount silence stale completions and clean each s
 test('unavailable/throwing preparation and presentation can retry after close/reopen', () => {
 	for (const mode of ['missing', 'prepare', 'present']) {
 		const f = fixture({ open: false })
-		if (mode === 'missing') f.available(false)
-		if (mode === 'prepare') f.fail(true)
-		if (mode === 'present') f.accept(false)
+		if (mode === 'missing') {f.available(false)}
+		if (mode === 'prepare') {f.fail(true)}
+		if (mode === 'present') {f.accept(false)}
 		f.set({ open: true }); f.owner.update(); f.owner.commit(f.owner.getTarget())
 		assert.equal(f.owner.getStatus(), 'unavailable'); assert.deepEqual(f.dismissed, [])
 		f.available(true); f.fail(false); f.accept(true); f.set({ open: false }); f.owner.update()

@@ -209,8 +209,8 @@ test('sizing stops when native layout retires or replaces the editor scope', () 
 	const { fitTextView } = load()
 	for (const phase of ['ensure', 'measure']) {
 		const f = sizingNode(), manager = f.control.view.layoutManager
-		if (phase === 'ensure') manager.ensureLayoutForTextContainer = () => { f.control.textLayoutRetired = true }
-		else manager.usedRectForTextContainer = () => { f.control.textViewport = {}; return { size: { height: 120 } } }
+		if (phase === 'ensure') {manager.ensureLayoutForTextContainer = () => { f.control.textLayoutRetired = true }}
+		else {manager.usedRectForTextContainer = () => { f.control.textViewport = {}; return { size: { height: 120 } } }}
 		fitTextView(f.control)
 		assert.equal(f.control.height, undefined)
 		assert.equal(f.counts().frames, 0); assert.equal(f.counts().minimums, 0)

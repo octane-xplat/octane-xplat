@@ -7,8 +7,8 @@ import { normalizePath, type Plugin } from 'vite'
  * also enforces explicit .server module boundaries in browser builds. */
 export function webHost(): Plugin[] {
 	const entry = import.meta.resolve('@octane-xplat/ui/routing/web-host')
-	const browserRoot = normalizePath(fileURLToPath(new URL('../browser-root.web.ts', entry)))
-	const serverRoot = fileURLToPath(new URL('../browser-root.server.web.ts', entry))
+	const browserRoot = normalizePath(fileURLToPath(new URL('./browser-root.web.ts', entry)))
+	const serverRoot = fileURLToPath(new URL('./browser-root.server.web.ts', entry))
 	return [serverBoundary(), {
 		name: 'xplat-web-host',
 		enforce: 'pre',

@@ -1,0 +1,16 @@
+diff --git a/index.js b/index.js
+index b1ec4ee..2f3a9c1 100644
+--- a/index.js
++++ b/index.js
+@@ -2563,10 +2563,10 @@
+       // Note: In TypeScript implementation we must provide `yieldContext` and `awaitContext`,
+       // but here it's always false, because this is only used for types.
+       tsFillSignature(returnToken, signature) {
+         const returnTokenRequired = returnToken === tt.arrow;
+         const paramsKey = "parameters";
+         const returnTypeKey = "typeAnnotation";
+-        signature.typeParameters = this.tsTryParseTypeParameters();
++        signature.typeParameters = this.tsTryParseTypeParameters(this.tsParseConstModifier);
+         this.expect(tt.parenL);
+         signature[paramsKey] = this.tsParseBindingListForSignature();
+         if (returnTokenRequired) {

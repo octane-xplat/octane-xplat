@@ -13,7 +13,7 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // @octanejs/vite-plugin wrapper doesn't forward this flag, so tests use the
 // compiler plugin directly.
 const target = process.env.XPLAT_UI_TEST_TARGET ?? 'mobile'
-if (target !== 'mobile' && target !== 'macos') throw new Error('XPLAT_UI_TEST_TARGET must be mobile or macos')
+if (target !== 'mobile' && target !== 'macos') {throw new Error('XPLAT_UI_TEST_TARGET must be mobile or macos')}
 const appkit = target === 'macos'
 
 const NATIVE_EXTS = [

@@ -15,7 +15,8 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { octane } from 'octane/compiler/vite'
-import { nativeScriptRenderer } from '@nativescript-community/octane/config'
+
+const { nativeScriptRenderer } = await import('@nativescript-community/octane/config')
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')

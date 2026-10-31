@@ -13,14 +13,14 @@ vi.mock('./connectivity.macos', () => ({
 			return { supported: network.supported, online: network.online, type: 'unknown' }
 		},
 		subscribe(listener: (state: { supported: boolean; online: boolean; type: 'unknown' }) => void) {
-			if (network.startFailure) throw new Error('network acquisition failed')
+			if (network.startFailure) {throw new Error('network acquisition failed')}
 			const notify = () => listener({ supported: network.supported, online: network.online, type: 'unknown' })
 			network.listeners.add(notify)
 			notify()
 			return () => {
 				network.stops++
 				network.listeners.delete(notify)
-				if (network.stopFailure) throw new Error('network cleanup failed')
+				if (network.stopFailure) {throw new Error('network cleanup failed')}
 			}
 		},
 	},
@@ -129,7 +129,7 @@ describe('AppKit service environment', () => {
 		const stop = environment.subscribe((value) => snapshots.push(value))
 		expect(snapshots).toHaveLength(1)
 		network.online = false
-		for (const notify of network.listeners) notify()
+		for (const notify of network.listeners) {notify()}
 		app.appState = 'background'
 		appListener!()
 		expect(snapshots.at(-1)).toMatchObject({ online: false, active: false })
@@ -144,7 +144,7 @@ describe('AppKit service environment', () => {
 		}
 		vi.stubGlobal('__xplatAppKit', app)
 		let calls = 0
-		const stop = environment.subscribe(() => { if (++calls > 1) throw new Error('consumer failed') })
+		const stop = environment.subscribe(() => { if (++calls > 1) {throw new Error('consumer failed')} })
 		expect(() => appListener!()).not.toThrow()
 		expect(calls).toBe(2)
 		app.onAppStateChange = () => () => {}

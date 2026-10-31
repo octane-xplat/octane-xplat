@@ -26,7 +26,7 @@ export const environment: RuntimeEnvironment = {
 		let network: ConnectivityState | undefined
 		let stopApp: (() => void) | undefined, stopNetwork: (() => void) | undefined
 		const stop = () => {
-			if (!active) return
+			if (!active) {return}
 			active = false
 			const cleanups = [stopNetwork, stopApp]
 			stopNetwork = stopApp = undefined
@@ -37,21 +37,21 @@ export const environment: RuntimeEnvironment = {
 					if (!failed) { failed = true; failure = error }
 				}
 			}
-			if (failed) throw failure
+			if (failed) {throw failure}
 		}
 		try {
 			if (typeof subscribeApp === 'function') {
 				stopApp = subscribeApp.call(app, () => {
-					if (!active || registering || host() !== app || app.onAppStateChange !== subscribeApp) return
+					if (!active || registering || host() !== app || app.onAppStateChange !== subscribeApp) {return}
 					try { listener(snapshot(network ?? connectivity.getState())) } catch {
 						// Native activity delivery must not block unrelated app listeners.
 					}
 				})
 			}
 			stopNetwork = connectivity.subscribe((state) => {
-				if (!active) return
+				if (!active) {return}
 				network = state
-				if (!registering) listener(snapshot(state))
+				if (!registering) {listener(snapshot(state))}
 			})
 			registering = false
 			// Publish once, after both cleanup handles have been acquired.

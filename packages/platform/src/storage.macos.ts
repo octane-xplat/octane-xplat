@@ -23,7 +23,7 @@ const installedHost = () =>
 
 function retire(subscription: Lifecycle): void {
 	subscription.active = false
-	if (lifecycle === subscription) lifecycle = undefined
+	if (lifecycle === subscription) {lifecycle = undefined}
 	const remove = subscription.remove
 	subscription.remove = undefined
 	try {
@@ -44,7 +44,7 @@ function current(): { owner: AppKitHost | undefined; store: Store } {
 		retire(lifecycle)
 		owner = installedHost()
 	}
-	if (!owner) return { owner, store: memory }
+	if (!owner) {return { owner, store: memory }}
 	let store = stores.get(owner)
 	if (!store) {
 		store = createStore()
@@ -52,40 +52,40 @@ function current(): { owner: AppKitHost | undefined; store: Store } {
 	}
 	// Writes accepted before host installation remain explicit pending intent.
 	// Already acknowledged values from another host never cross this boundary.
-	for (const [key, mutation] of memory.pending) store.pending.set(key, mutation)
+	for (const [key, mutation] of memory.pending) {store.pending.set(key, mutation)}
 	memory.pending.clear()
 	memory.values.clear()
 	return { owner, store }
 }
 
 function acknowledge(store: Store, key: string, mutation: Mutation): void {
-	if (mutation.value === null) store.values.delete(key)
-	else store.values.set(key, mutation.value)
-	if (store.pending.get(key) === mutation) store.pending.delete(key)
+	if (mutation.value === null) {store.values.delete(key)}
+	else {store.values.set(key, mutation.value)}
+	if (store.pending.get(key) === mutation) {store.pending.delete(key)}
 }
 
 function deliver(owner: AppKitHost, key: string, mutation: Mutation): boolean {
 	if (mutation.value === null) {
-		if (typeof owner.storageRemove !== 'function') return false
+		if (typeof owner.storageRemove !== 'function') {return false}
 		owner.storageRemove(key)
 	} else {
-		if (typeof owner.storageSet !== 'function') return false
+		if (typeof owner.storageSet !== 'function') {return false}
 		owner.storageSet(key, mutation.value)
 	}
 	return true
 }
 
 function flushStore(owner: AppKitHost | undefined, store: Store): boolean {
-	if (!owner || store.busy || installedHost() !== owner) return false
+	if (!owner || store.busy || installedHost() !== owner) {return false}
 	store.busy = true
 	try {
 		// One bounded snapshot: writes made reentrantly remain pending.
 		for (const [key, mutation] of [...store.pending]) {
-			if (installedHost() !== owner) return false
-			if (store.pending.get(key) !== mutation) continue
-			if (deliver(owner, key, mutation)) acknowledge(store, key, mutation)
+			if (installedHost() !== owner) {return false}
+			if (store.pending.get(key) !== mutation) {continue}
+			if (deliver(owner, key, mutation)) {acknowledge(store, key, mutation)}
 		}
-		if (store.pending.size || installedHost() !== owner) return false
+		if (store.pending.size || installedHost() !== owner) {return false}
 		const confirmed =
 			typeof owner.storageFlush === 'function'
 				? owner.storageFlush() === true
@@ -97,10 +97,10 @@ function flushStore(owner: AppKitHost | undefined, store: Store): boolean {
 }
 
 function arm(owner: AppKitHost | undefined, store: Store): void {
-	if (!owner || installedHost() !== owner) return
+	if (!owner || installedHost() !== owner) {return}
 	const subscribe = owner.onAppStateChange
 	const flush = owner.storageFlush
-	if (lifecycle || typeof subscribe !== 'function' || typeof flush !== 'function') return
+	if (lifecycle || typeof subscribe !== 'function' || typeof flush !== 'function') {return}
 	const subscription: Lifecycle = { owner, subscribe, flush, active: true }
 	lifecycle = subscription
 	try {
@@ -143,11 +143,11 @@ function mutate(key: string, value: string | null): void {
 	if (owner && !store.busy) {
 		store.busy = true
 		try {
-			if (deliver(owner, key, mutation)) acknowledge(store, key, mutation)
+			if (deliver(owner, key, mutation)) {acknowledge(store, key, mutation)}
 		} catch (error) {
 			if (store.pending.get(key) === mutation) {
-				if (previous) store.pending.set(key, previous)
-				else store.pending.delete(key)
+				if (previous) {store.pending.set(key, previous)}
+				else {store.pending.delete(key)}
 			}
 			throw error
 		} finally {
@@ -158,7 +158,7 @@ function mutate(key: string, value: string | null): void {
 	// A write can happen after the host's inactive event was already delivered.
 	if (owner && installedHost() === owner && owner.appState === 'inactive') {
 		try {
-			if (typeof owner.storageFlush === 'function') flushStore(owner, store)
+			if (typeof owner.storageFlush === 'function') {flushStore(owner, store)}
 		} catch {
 			// The caller can request explicit confirmation with flush().
 		}
@@ -171,11 +171,11 @@ export const storage = {
 	getString(key: string): string | null {
 		const { owner, store } = current()
 		const pending = store.pending.get(key)
-		if (pending) return pending.value
+		if (pending) {return pending.value}
 		if (typeof owner?.storageGet === 'function') {
 			const value = owner.storageGet(key) ?? null
-			if (value === null) store.values.delete(key)
-			else store.values.set(key, value)
+			if (value === null) {store.values.delete(key)}
+			else {store.values.set(key, value)}
 			return value
 		}
 		return store.values.get(key) ?? null

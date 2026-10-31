@@ -17,12 +17,16 @@ export function AnimatedImage(props: AnimatedImageProps): JSX.Element @{
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		className={props.className}
-		style={{
-			objectFit: OBJECT_FIT[props.stretch ?? 'aspectFit'],
-			width: props.width,
-			height: props.height,
-			...props.style,
-		}}
+		style={
+			typeof props.style === 'string'
+				? props.style
+				: {
+						objectFit: OBJECT_FIT[props.stretch ?? 'aspectFit'],
+						width: props.width,
+						height: props.height,
+						...props.style,
+					}
+		}
 		src={props.src}
 		alt={props.alt}
 	/>

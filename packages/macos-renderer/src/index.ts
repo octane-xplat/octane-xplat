@@ -15,7 +15,7 @@ export function observeLayoutCommits(observer: (commit: LayoutCommit) => void): 
  * Pass null to restore. Scalar radii/blur are exact only under uniform scale. */
 export function setLayoutProjectionScale(view: object, scale: ProjectionScale | null): void {
 	const node = cssNodesByView.get(view)
-	if (!node) return
+	if (!node) {return}
 	const transaction = (globalThis as any).CATransaction
 	transaction.begin()
 	try {
@@ -337,12 +337,12 @@ const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle
 const cssNodesByView = new WeakMap<object, ElementNode>()
 function orderStickySiblings(node: ElementNode) {
 	const parent = node.layoutParent ?? node.parent, host = layoutView(node)?.superview
-	if (!parent || !host?.addSubviewPositionedRelativeTo) return
+	if (!parent || !host?.addSubviewPositionedRelativeTo) {return}
 	const children = (parent.projectedChildren ?? parent.children).filter((child) => child.view && layoutView(child)?.superview === host)
 	const ordered = children.slice().sort((left, right) => stickyPlacements.priority(left) - stickyPlacements.priority(right)).map(layoutView)
 	const native = host.subviews, count = Number(native?.count ?? native?.length ?? 0)
 	const actual = Array.from({ length: count }, (_, i) => native.objectAtIndex ? native.objectAtIndex(i) : native[i]).filter((view) => ordered.includes(view))
-	if (ordered.every((view, i) => view === actual[i])) return
+	if (ordered.every((view, i) => view === actual[i])) {return}
 	let previous: NSView | null = null
 	for (const view of ordered) { host.addSubviewPositionedRelativeTo(view, 1, previous); previous = view }
 }
@@ -351,15 +351,15 @@ const stickyPlacements = createStickyPlacements<ElementNode>({
 	valid: (node, view) => node.view === view && node.container.nodes.get(node.id) === node,
 	convert: (node, base, document) => {
 		const parent = base.parent as NSView, target = document as NSView
-		if (layoutView(node)?.superview !== parent || !parent.window || parent.window !== target.window || !parent.isDescendantOf(target)) return
+		if (layoutView(node)?.superview !== parent || !parent.window || parent.window !== target.window || !parent.isDescendantOf(target)) {return}
 		const rect = parent.convertRectToView({ origin: { x: base.x, y: base.y }, size: { width: base.width, height: base.height } }, target)
 		const row = parent.convertRectToView(parent.bounds, target)
 		const geometry = { x: Number(rect.origin.x), width: Number(rect.size.width), rowX: Number(row.origin.x), rowWidth: Number(row.size.width) }
 		return Object.values(geometry).every(Number.isFinite) && geometry.width >= 0 && geometry.rowWidth > 0 ? geometry : undefined
 	},
-	repin: (node, base) => { if (layoutView(node)?.superview === base.parent) pinLayoutChild(node, base.parent, base.x, base.y, base.width, base.height) },
+	repin: (node, base) => { if (layoutView(node)?.superview === base.parent) {pinLayoutChild(node, base.parent, base.x, base.y, base.width, base.height)} },
 	order: orderStickySiblings,
-	invalidate: (node) => { const parent = node.layoutParent ?? node.parent; if (parent) queueLayoutReconcile(node.container, parent) },
+	invalidate: (node) => { const parent = node.layoutParent ?? node.parent; if (parent) {queueLayoutReconcile(node.container, parent)} },
 })
 
 const keyboardDispatcher = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
@@ -531,7 +531,7 @@ class ButtonActionTarget extends NSObject {
 	// NSControlTextEditingDelegate: fires on every edit while a single-line
 	// field is being edited — the per-edit source for onTextChange.
 	controlTextDidChange(notification: NSNotification) {
-		if (isWritingTextValue(notification.object)) return
+		if (isWritingTextValue(notification.object)) {return}
 		notifyTextValueCommit(notification.object)
 		const node = textNodesByView.get(notification.object)
 		if (node?.type === 'searchbar') {
@@ -548,7 +548,7 @@ class ButtonActionTarget extends NSObject {
 		const field = sender as any
 		const editor = typeof field.currentEditor === 'function' ? field.currentEditor() : null
 		const marked = editor?.hasMarkedText
-		if (typeof marked === 'function' ? marked.call(editor) : marked) return
+		if (typeof marked === 'function' ? marked.call(editor) : marked) {return}
 		notifyTextValueCommit(sender)
 		textNodesByView.get(sender)?.submitHandler?.()
 	}
@@ -589,13 +589,13 @@ class ButtonActionTarget extends NSObject {
 	}
 
 	textDidChange(notification: NSNotification) {
-		if (isWritingTextValue(notification.object) || isNormalizingTextLimit(notification.object)) return
+		if (isWritingTextValue(notification.object) || isNormalizingTextLimit(notification.object)) {return}
 		notifyTextValueCommit(notification.object)
 		const node = textNodesByView.get(notification.object)
-		if (node) enforceTextLimit(notification.object as NSTextView, node.props?.maxLength)
+		if (node) {enforceTextLimit(notification.object as NSTextView, node.props?.maxLength)}
 		syncTextViewPlaceholder(node)
 		fitTextView(node)
-		if (reportTextLimitChange(notification.object as NSTextView)) invokeAction(actionIdsByView.get(notification.object))
+		if (reportTextLimitChange(notification.object as NSTextView)) {invokeAction(actionIdsByView.get(notification.object))}
 	}
 	controlTextDidBeginEditing(notification: NSNotification) {
 		dispatchTextEvent(textNodesByView.get(notification.object), 'onFocus')
@@ -623,13 +623,13 @@ class ButtonActionTarget extends NSObject {
 		}
 
 		const marked = (_editor as any)?.hasMarkedText
-		if (typeof marked === 'function' ? marked.call(_editor) : marked) return false
+		if (typeof marked === 'function' ? marked.call(_editor) : marked) {return false}
 		node.submitHandler?.()
 		return true
 	}
 
 	textViewShouldChangeTextInRangeReplacementString(view: NSTextView, range: { location: number; length: number }, replacement: string | null) {
-		if (replacement !== null) recordTextLimitEdit(view, range)
+		if (replacement !== null) {recordTextLimitEdit(view, range)}
 		return true
 	}
 
@@ -646,7 +646,7 @@ class ButtonActionTarget extends NSObject {
 
 		// Leave marked-text confirmation to AppKit's input context.
 		const marked = (view as any).hasMarkedText
-		if (typeof marked === 'function' ? marked.call(view) : marked) return false
+		if (typeof marked === 'function' ? marked.call(view) : marked) {return false}
 
 		dispatchTextEvent(node, 'onSubmit')
 		return true
@@ -889,32 +889,32 @@ class AccessibleHostView extends NSView {
 	accessibilityPerformIncrement() {
 		const props = stackAccessibilityPropsByView.get(this)
 		if (this.accessibilityIsIgnored() || !this.isAccessibilityEnabled() || props?.accessibilityState?.readonly ||
-			typeof props?.onAccessibilityIncrement !== 'function') return false
+			typeof props?.onAccessibilityIncrement !== 'function') {return false}
 		return props.onAccessibilityIncrement() !== false
 	}
 
 	accessibilityPerformDecrement() {
 		const props = stackAccessibilityPropsByView.get(this)
 		if (this.accessibilityIsIgnored() || !this.isAccessibilityEnabled() || props?.accessibilityState?.readonly ||
-			typeof props?.onAccessibilityDecrement !== 'function') return false
+			typeof props?.onAccessibilityDecrement !== 'function') {return false}
 		return props.onAccessibilityDecrement() !== false
 	}
 
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityRole() {
 		const role = accessibilityRoles.get(actionIdsByView.get(this) ?? -1)
-		if (role === 'menu') return 'AXMenu'
-		if (role === 'menuitem' || role === 'menuitemcheckbox' || role === 'menuitemradio') return 'AXMenuItem'
-		if (role === 'radio' || role === 'tab') return 'AXRadioButton'
-		if (role === 'tablist') return 'AXTabGroup'
-		if (role === 'toolbar') return 'AXToolbar'
-		if (role === 'switch') return 'AXCheckBox'
-		if (role === 'adjustable') return 'AXSlider'
-		if (role === 'separator') return 'AXSplitter'
-		if (role === 'link') return 'AXLink'
-		if (role === 'radiogroup') return 'AXRadioGroup'
-		if (role === 'listbox') return 'AXList'
-		if (role === 'option') return 'AXRow'
+		if (role === 'menu') {return 'AXMenu'}
+		if (role === 'menuitem' || role === 'menuitemcheckbox' || role === 'menuitemradio') {return 'AXMenuItem'}
+		if (role === 'radio' || role === 'tab') {return 'AXRadioButton'}
+		if (role === 'tablist') {return 'AXTabGroup'}
+		if (role === 'toolbar') {return 'AXToolbar'}
+		if (role === 'switch') {return 'AXCheckBox'}
+		if (role === 'adjustable') {return 'AXSlider'}
+		if (role === 'separator') {return 'AXSplitter'}
+		if (role === 'link') {return 'AXLink'}
+		if (role === 'radiogroup') {return 'AXRadioGroup'}
+		if (role === 'listbox') {return 'AXList'}
+		if (role === 'option') {return 'AXRow'}
 		if (role === 'button' && typeof stackAccessibilityPropsByView.get(this)?.accessibilityState?.pressed === 'boolean') {
 			return 'AXCheckBox'
 		}
@@ -935,7 +935,7 @@ class AccessibleHostView extends NSView {
 	accessibilityOrientation() {
 		// NSAccessibilityOrientation: Unknown = 0, Vertical = 1, Horizontal = 2.
 		const role = this.accessibilityRole()
-		if (role === 'AXSplitter') return 1
+		if (role === 'AXSplitter') {return 1}
 		if (role === 'AXToolbar') {
 			const axis = stackAccessibilityPropsByView.get(this)?.accessibilityOrientation
 			return axis === 'vertical' ? 1 : axis === 'horizontal' ? 2 : 0
@@ -1684,7 +1684,7 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 			const detach = observeScrollGeometry(node, target, () =>
 				layoutHandlers.get(target)?.(),
 			)
-			if (node.scrollGeometryDetach !== detach) return
+			if (node.scrollGeometryDetach !== detach) {return}
 			node.layoutObservedView = target
 		}
 	} else if (!node.layoutObserver) {
@@ -2673,7 +2673,7 @@ class InputImageView extends NSImageView {
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	get wantsUpdateLayer(): boolean { return false }
 	drawRect(rect: any): void {
-		if (!drawImageContent(this)) super.drawRect(rect)
+		if (!drawImageContent(this)) {super.drawRect(rect)}
 	}
 	setFrameSize(size: { width: number; height: number }): void {
 		const previousWidth = this.frame.size.width, previousHeight = this.frame.size.height
@@ -4530,7 +4530,7 @@ function syncOutline(node: ElementNode) {
 		const stroke = borderStrokeStyle(style, outline.width)
 		if (stroke) {
 			const shape = ((node.outlineShapes ??= {}).stroke ??= CAShapeLayer.alloc().init())
-			if (shape.superlayer !== host) host.addSublayer(shape)
+			if (shape.superlayer !== host) {host.addSublayer(shape)}
 			shape.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
 			shape.fillColor = null
 			shape.strokeColor = outline.color?.CGColor ?? null
@@ -4539,7 +4539,7 @@ function syncOutline(node: ElementNode) {
 			shape.lineDashPhase = 0
 			shape.lineCap = stroke.cap
 			shape.path = borderStrokeCGPath(W, H, outerRadii, outline.width)
-			for (const side of BORDER_SIDES) for (const extra of node.outlineShapes?.[side] ?? []) extra.hidden = true
+			for (const side of BORDER_SIDES) {for (const extra of node.outlineShapes?.[side] ?? []) {extra.hidden = true}}
 			return
 		}
 		// Decorative styles: per-side shaded bands on the expanded box, masked
@@ -4549,21 +4549,21 @@ function syncOutline(node: ElementNode) {
 		mask.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
 		mask.path = roundedBoxCGPath(W, H, outerRadii)
 		host.mask = mask
-		if (node.outlineShapes?.stroke) node.outlineShapes.stroke.hidden = true
+		if (node.outlineShapes?.stroke) {node.outlineShapes.stroke.hidden = true}
 		const widths = { top: outline.width, right: outline.width, bottom: outline.width, left: outline.width }
 		for (const side of BORDER_SIDES) {
 			const bands = borderBands(style, side, outline.width)
 			const shapes = ((node.outlineShapes ??= {})[side] ??= [] as any[])
 			for (let i = 0; i < bands.length; i++) {
 				const shape = (shapes[i] ??= CAShapeLayer.alloc().init())
-				if (shape.superlayer !== host) host.addSublayer(shape)
+				if (shape.superlayer !== host) {host.addSublayer(shape)}
 				shape.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
 				shape.hidden = false
 				shape.strokeColor = null
 				shape.path = borderBandCGPath(borderBandPoints(side, W, H, widths, bands[i].from, bands[i].to))
 				shape.fillColor = bands[i].shade === 'dark' ? darkOutlineColor(outline.color, view)?.CGColor ?? outline.color?.CGColor : outline.color?.CGColor
 			}
-			for (let i = bands.length; i < shapes.length; i++) shapes[i].hidden = true
+			for (let i = bands.length; i < shapes.length; i++) {shapes[i].hidden = true}
 		}
 	}
 	resize()
@@ -4578,7 +4578,7 @@ function syncOutline(node: ElementNode) {
 
 function darkOutlineColor(base: NSColor | null, view: NSView): NSColor | null {
 	const components = base && srgbComponents(base, view.effectiveAppearance)
-	if (!components) return base
+	if (!components) {return base}
 	const dark = darkBorderComponents(components)
 	return NSColor.colorWithSRGBRedGreenBlueAlpha(dark.red, dark.green, dark.blue, dark.alpha) ?? base
 }
@@ -4714,7 +4714,7 @@ function paintGradientLayer(child: any, gradient: BgGradient, clip: any, origin:
 				ry = dy * Math.SQRT2
 			}
 		}
-		if (gradient.shape === 'circle' && ry == null) ry = rx
+		if (gradient.shape === 'circle' && ry == null) {ry = rx}
 		if (rx == null || ry == null || !(rx > 0) || !(ry > 0)) {
 			child.hidden = true
 			return
@@ -4843,7 +4843,7 @@ function syncBackgrounds(node: ElementNode) {
 			if (specLayer.image.kind === 'url') {
 				const generation = (node.bgGeneration = (node.bgGeneration ?? 0) + 1)
 				entry.release = requestImage(specLayer.image.url, (image) => {
-					if (node.bgGeneration !== generation || node.view !== view) return
+					if (node.bgGeneration !== generation || node.view !== view) {return}
 					entry!.image = image
 					entry!.renderedW = undefined
 					paintBackgrounds(node)
@@ -5184,7 +5184,7 @@ function removeBorderLayers(node: ElementNode) {
 	node.borderStroke = undefined
 	node.borderSideMasks = undefined
 	for (const extras of Object.values(node.borderBandShapes ?? {})) {
-		for (const shape of extras as any[]) shape.removeFromSuperlayer()
+		for (const shape of extras as any[]) {shape.removeFromSuperlayer()}
 	}
 	node.borderBandShapes = undefined
 }
@@ -5195,7 +5195,7 @@ function removeBoxFrameToken(owner: any, token: any) {
 }
 
 function retireBoxFrameOwner(node: ElementNode, owner: any) {
-	if (!owner?.active) return
+	if (!owner?.active) {return}
 	owner.active = false
 	if (node.boxFrameOwner === owner) {
 		node.boxFrameOwner = null
@@ -5203,7 +5203,7 @@ function retireBoxFrameOwner(node: ElementNode, owner: any) {
 	}
 	const token = owner.token
 	owner.token = null
-	if (token != null) removeBoxFrameToken(owner, token)
+	if (token != null) {removeBoxFrameToken(owner, token)}
 }
 
 function clearBoxFrameObserver(node: ElementNode) { retireBoxFrameOwner(node, node.boxFrameOwner) }
@@ -5220,22 +5220,22 @@ function observeBoxFrame(node: ElementNode, view: NSView) {
 		owner.center = NSNotificationCenter.defaultCenter
 		owner.remove = owner.center.removeObserver
 		const add = owner.center.addObserverForNameObjectQueueUsingBlock
-		if (typeof add !== 'function' || typeof owner.remove !== 'function') throw new Error('Box frame observation unavailable')
+		if (typeof add !== 'function' || typeof owner.remove !== 'function') {throw new Error('Box frame observation unavailable')}
 		if (!current()) { retireBoxFrameOwner(node, owner); return }
 		view.postsFrameChangedNotifications = true
 		if (!current()) { retireBoxFrameOwner(node, owner); return }
 		const token = add.call(owner.center, NSViewFrameDidChangeNotification, view, null, () => {
-			if (!owner.active || !owner.ready || node.boxFrameOwner !== owner) return
+			if (!owner.active || !owner.ready || node.boxFrameOwner !== owner) {return}
 			if (node.view !== view) { retireBoxFrameOwner(node, owner); return }
 			try { syncBoxGeometry(node) }
 			catch { try { console.warn('[macos-css] Box geometry update failed') } catch {} }
 		})
 		if (!current()) {
-			if (token != null) removeBoxFrameToken(owner, token)
+			if (token != null) {removeBoxFrameToken(owner, token)}
 			retireBoxFrameOwner(node, owner)
 			return
 		}
-		if (token == null) throw new Error('Box frame observation unavailable')
+		if (token == null) {throw new Error('Box frame observation unavailable')}
 		owner.token = token
 		node.boxFrameObserver = token
 		owner.ready = true
@@ -5278,7 +5278,7 @@ function syncBorderBox(node: ElementNode) {
 		left: borderLength(spec?.widths?.left),
 	}
 	for (const side of BORDER_SIDES) {
-		if (hiddenBorderStyle(sideStyles[side])) widths[side] = 0
+		if (hiddenBorderStyle(sideStyles[side])) {widths[side] = 0}
 		else if (!['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset'].includes(sideStyles[side])) {
 			const warned = (node.borderStyleWarnings ??= new Set())
 			if (!warned.has(sideStyles[side])) {
@@ -5312,8 +5312,8 @@ function syncBorderBox(node: ElementNode) {
 		(side) => widths[side] > 0 && !singleBaseBand(borderBands(sideStyles[side], side, widths[side])),
 	)
 	const layered = maxWidth > 0 && (!(uniformWidth && uniformColor) || patterned || banded) && layers
-	if (patterned && !layers) console.warn('[macos-css] Patterned border layers unavailable; drawing solid')
-	if (banded && !layers) console.warn('[macos-css] Decorative border layers unavailable; drawing solid')
+	if (patterned && !layers) {console.warn('[macos-css] Patterned border layers unavailable; drawing solid')}
+	if (banded && !layers) {console.warn('[macos-css] Decorative border layers unavailable; drawing solid')}
 
 	if (maxRadius > 0 || maxWidth > 0) {
 		view.wantsLayer = true
@@ -5387,26 +5387,26 @@ function syncBorderBox(node: ElementNode) {
 		// carry no sRGB components and keep the base fill.
 		const darkBandColor = (base: NSColor | null, fallback: any) => {
 			const components = base && srgbComponents(base, view.effectiveAppearance)
-			if (!components) return fallback
+			if (!components) {return fallback}
 			const dark = darkBorderComponents(components)
 			return NSColor.colorWithSRGBRedGreenBlueAlpha(dark.red, dark.green, dark.blue, dark.alpha)?.CGColor ?? fallback
 		}
 		const hideBandExtras = (side: BorderSide) => {
-			for (const extra of node.borderBandShapes?.[side] ?? []) extra.hidden = true
+			for (const extra of node.borderBandShapes?.[side] ?? []) {extra.hidden = true}
 		}
 		if (uniformPattern) {
 			const stroke = (node.borderStroke ??= CAShapeLayer.alloc().init())
-			if (stroke.superlayer !== box) box.addSublayer(stroke)
+			if (stroke.superlayer !== box) {box.addSublayer(stroke)}
 			stroke.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
 			stroke.hidden = false
 			paintStroke(stroke, sideStyles.top, widths.top, borderNSColor(node, spec?.colors?.top)?.CGColor ?? null)
-			for (const shape of Object.values(node.borderSides ?? {}) as any[]) shape.hidden = true
-			for (const side of BORDER_SIDES) hideBandExtras(side)
+			for (const shape of Object.values(node.borderSides ?? {}) as any[]) {shape.hidden = true}
+			for (const side of BORDER_SIDES) {hideBandExtras(side)}
 		} else {
-			if (node.borderStroke) node.borderStroke.hidden = true
+			if (node.borderStroke) {node.borderStroke.hidden = true}
 			for (const side of BORDER_SIDES) {
 				const shape = ((node.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
-				if (shape.superlayer !== box) box.addSublayer(shape)
+				if (shape.superlayer !== box) {box.addSublayer(shape)}
 				shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
 				shape.hidden = widths[side] === 0
 				shape.mask = null
@@ -5438,13 +5438,13 @@ function syncBorderBox(node: ElementNode) {
 					const extras = ((node.borderBandShapes ??= {})[side] ??= [] as any[])
 					for (let i = 1; i < bands.length; i++) {
 						const extra = (extras[i - 1] ??= CAShapeLayer.alloc().init())
-						if (extra.superlayer !== box) box.addSublayer(extra)
+						if (extra.superlayer !== box) {box.addSublayer(extra)}
 						extra.frame = shape.frame
 						extra.hidden = false
 						extra.path = borderBandCGPath(borderBandPoints(side, w, h, widths, bands[i].from, bands[i].to))
 						extra.fillColor = bands[i].shade === 'dark' ? darkBandColor(baseNSColor, color) : color
 					}
-					for (let i = bands.length - 1; i < extras.length; i++) extras[i].hidden = true
+					for (let i = bands.length - 1; i < extras.length; i++) {extras[i].hidden = true}
 				}
 			}
 		}
@@ -5475,10 +5475,10 @@ function syncBorderBox(node: ElementNode) {
 		(node.boxShadowSpec?.length ?? 0) > 0 ||
 		node.bgHost != null ||
 		hasPercentTranslate(node)
-	if (node.boxFrameOwner && node.boxFrameOwner.view !== view) clearBoxFrameObserver(node)
-	if (node.view !== view || effectiveStyle(node) !== resolvedStyle) return
-	if (needsSync && !node.boxFrameOwner) observeBoxFrame(node, view)
-	else if (!needsSync) clearBoxFrameObserver(node)
+	if (node.boxFrameOwner && node.boxFrameOwner.view !== view) {clearBoxFrameObserver(node)}
+	if (node.view !== view || effectiveStyle(node) !== resolvedStyle) {return}
+	if (needsSync && !node.boxFrameOwner) {observeBoxFrame(node, view)}
+	else if (!needsSync) {clearBoxFrameObserver(node)}
 }
 
 // ---- box-shadow --------------------------------------------------------------
@@ -5911,9 +5911,9 @@ function clearMarginStyle(node: ElementNode, name: string) {
 
 function syncLabelAlignment(node: ElementNode, style: PropBag) {
 	const view = node.view
-	if (!view) return
+	if (!view) {return}
 	const rtl = style.direction === 'rtl'
-	if (style.direction != null && style.direction !== 'ltr' && !rtl) warnUnsupportedCssProp(node, 'direction')
+	if (style.direction != null && style.direction !== 'ltr' && !rtl) {warnUnsupportedCssProp(node, 'direction')}
 	const start = rtl ? NSTextAlignment.Right : NSTextAlignment.Left
 	const end = rtl ? NSTextAlignment.Left : NSTextAlignment.Right
 	let alignment: interop.Enum<typeof NSTextAlignment> = nodeClasses(node).includes('vx-sheet-grabber') ? NSTextAlignment.Center : start
@@ -5929,7 +5929,7 @@ function syncLabelAlignment(node: ElementNode, style: PropBag) {
 	}
 	// Alignment writes can affect native text editing/selection. Leave an
 	// unchanged value alone; attributed values are recomposed by the caller.
-	if (view.alignment !== alignment) view.alignment = alignment
+	if (view.alignment !== alignment) {view.alignment = alignment}
 }
 
 // A style key present in the last bag but absent or nulled in the new one must
@@ -6304,7 +6304,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			}
 			// A boolean NSView clip cannot represent mixed axes or create a
 			// scroll container. Preserve the native baseline and expose the gap.
-			for (const key of keys) warnUnsupportedCssProp(node, key)
+			for (const key of keys) {warnUnsupportedCssProp(node, key)}
 		}
 	}
 
@@ -6312,10 +6312,10 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	if (node.type === 'label') {
 		const needsAlignment = ['textAlign', 'direction'].some(key => prev[key] != null || next[key] != null)
 		const needsOverflow = ['whiteSpace', 'textOverflow'].some(key => prev[key] != null || next[key] != null)
-		if (needsAlignment) syncLabelAlignment(node, next)
-		if (needsOverflow) syncLabelOverflow(node, next)
+		if (needsAlignment) {syncLabelAlignment(node, next)}
+		if (needsOverflow) {syncLabelOverflow(node, next)}
 		// Attributed paragraphs capture the cell's mode/alignment when composed.
-		if (needsAlignment || needsOverflow) syncText(node)
+		if (needsAlignment || needsOverflow) {syncText(node)}
 	}
 	if (behaviorOf(node.type)?.layout) {
 		queueLayoutReconcile(node.container, node)
@@ -6403,12 +6403,12 @@ function syncLabelOverflow(node: ElementNode, style = effectiveStyle(node)) {
 	// Explicit host props keep their existing contract. CSS supplies modes
 	// when those props are absent, including inherited white-space.
 	if (whiteSpace == null && style.whiteSpace != null) {
-		if (['normal', 'nowrap'].includes(style.whiteSpace)) whiteSpace = style.whiteSpace
-		else warnUnsupportedCssProp(node, 'whiteSpace')
+		if (['normal', 'nowrap'].includes(style.whiteSpace)) {whiteSpace = style.whiteSpace}
+		else {warnUnsupportedCssProp(node, 'whiteSpace')}
 	}
 	if (textOverflow == null && style.textOverflow != null) {
-		if (['clip', 'ellipsis'].includes(style.textOverflow)) textOverflow = style.textOverflow
-		else warnUnsupportedCssProp(node, 'textOverflow')
+		if (['clip', 'ellipsis'].includes(style.textOverflow)) {textOverflow = style.textOverflow}
+		else {warnUnsupportedCssProp(node, 'textOverflow')}
 	}
 
 	const singleLine = whiteSpace === 'nowrap' || maxLines === 1
@@ -6465,7 +6465,7 @@ function setLabelText(node: ElementNode, text: any) {
 		(!Number.isFinite(kern) || kern === 0)
 	) {
 		node.view!.stringValue = text
-		if (node.props.accessibilityRole === 'heading') syncHeadingAccessibility(node.view!, node.props)
+		if (node.props.accessibilityRole === 'heading') {syncHeadingAccessibility(node.view!, node.props)}
 		return
 	}
 
@@ -6500,7 +6500,7 @@ function setLabelText(node: ElementNode, text: any) {
 		text,
 		attributes,
 	)
-	if (node.props.accessibilityRole === 'heading') syncHeadingAccessibility(node.view!, node.props)
+	if (node.props.accessibilityRole === 'heading') {syncHeadingAccessibility(node.view!, node.props)}
 }
 
 function syncText(parent: ElementNode | null | undefined) {
@@ -6542,7 +6542,7 @@ function syncText(parent: ElementNode | null | undefined) {
 			view.attributedStringValue = attributed
 		}
 
-		if (parent.type === 'label' && parent.props.accessibilityRole === 'heading') syncHeadingAccessibility(view, parent.props)
+		if (parent.type === 'label' && parent.props.accessibilityRole === 'heading') {syncHeadingAccessibility(view, parent.props)}
 
 		parent.formattedTextActive = true
 		view.invalidateIntrinsicContentSize()
@@ -6584,14 +6584,14 @@ function observeViewKeys(view: NSView, handlers: {
 	onKeyUp?: (event: NativeKeyboardEvent<object>) => void
 }): () => void {
 	const node = cssNodesByView.get(view)
-	if (!node || (!handlers.onKeyDown && !handlers.onKeyUp)) return () => {}
+	if (!node || (!handlers.onKeyDown && !handlers.onKeyUp)) {return () => {}}
 	let owned = keyboardSubscriptionsByNode.get(node)
 	if (!owned) {
 		owned = new Set()
 		keyboardSubscriptionsByNode.set(node, owned)
 		const leases = owned
 		;(node.destroyHooks ??= []).push(() => {
-			for (const off of [...leases]) off()
+			for (const off of [...leases]) {off()}
 			keyboardSubscriptionsByNode.delete(node)
 		})
 	}
@@ -6599,7 +6599,7 @@ function observeViewKeys(view: NSView, handlers: {
 	let active = true
 	const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
 		if (!active || node.view !== view || cssNodesByView.get(view) !== node || node.props.disabled === true ||
-			node.props.isEnabled === false || node.props.enabled === false) return
+			node.props.isEnabled === false || node.props.enabled === false) {return}
 		try { node.container.root?.eventScope('discrete', () => handlers[name]?.(event)) }
 		catch (error) { console.error('[macos-event] ' + name + ' subscription failed', error) }
 	}
@@ -6608,7 +6608,7 @@ function observeViewKeys(view: NSView, handlers: {
 		onKeyUp: handlers.onKeyUp ? (event) => invoke('onKeyUp', event) : undefined,
 	})
 	const off = () => {
-		if (!active) return
+		if (!active) {return}
 		active = false
 		release(); leases.delete(off)
 	}
@@ -6620,13 +6620,13 @@ const fileDropSubscriptionsByNode = new WeakMap<ElementNode, Set<() => void>>()
 
 function observeFileDrop(view: NSView, handlers: { enabled(): boolean; receive(uris: string[]): boolean }): () => void {
 	const node = cssNodesByView.get(view)
-	if (!node || !(view instanceof AccessibleHostView)) return () => {}
+	if (!node || !(view instanceof AccessibleHostView)) {return () => {}}
 	let owned = fileDropSubscriptionsByNode.get(node)
 	if (!owned) {
 		owned = new Set(); fileDropSubscriptionsByNode.set(node, owned)
 		const leases = owned
 		;(node.destroyHooks ??= []).push(() => {
-			for (const off of [...leases]) off()
+			for (const off of [...leases]) {off()}
 			fileDropSubscriptionsByNode.delete(node)
 		})
 	}
@@ -6637,13 +6637,13 @@ function observeFileDrop(view: NSView, handlers: { enabled(): boolean; receive(u
 	const release = fileDropRegistry.subscribe(view, {
 		enabled: () => current() && handlers.enabled(),
 		receive: (uris) => {
-			if (!current() || !handlers.enabled()) return false
+			if (!current() || !handlers.enabled()) {return false}
 			let accepted = false
 			node.container.root!.eventScope('discrete', () => { accepted = handlers.receive(uris) === true })
 			return accepted
 		},
 	})
-	const off = () => { if (!active) return; active = false; release(); leases.delete(off) }
+	const off = () => { if (!active) {return;} active = false; release(); leases.delete(off) }
 	leases.add(off)
 	return off
 }
@@ -6653,13 +6653,13 @@ const contextSubscriptionsByNode = new WeakMap<ElementNode, Set<() => void>>()
 /** Shared ContextMenu owns an intent lease; OS-native menus keep their own leaf. */
 function observeContextMenu(view: NSView, handler: (target: NSView) => boolean): () => void {
 	const node = cssNodesByView.get(view)
-	if (!node) return () => {}
+	if (!node) {return () => {}}
 	let owned = contextSubscriptionsByNode.get(node)
 	if (!owned) {
 		owned = new Set(); contextSubscriptionsByNode.set(node, owned)
 		const leases = owned
 		;(node.destroyHooks ??= []).push(() => {
-			for (const off of [...leases]) off()
+			for (const off of [...leases]) {off()}
 			contextSubscriptionsByNode.delete(node)
 		})
 	}
@@ -6667,27 +6667,27 @@ function observeContextMenu(view: NSView, handler: (target: NSView) => boolean):
 	let active = true
 	const release = contextPointerDispatcher.subscribe(view, (target) => {
 		if (!active || node.view !== view || cssNodesByView.get(view) !== node || node.props.disabled === true ||
-			node.props.isEnabled === false || node.props.enabled === false) return false
+			node.props.isEnabled === false || node.props.enabled === false) {return false}
 		let handled = false
 		try { node.container.root?.eventScope('discrete', () => { handled = handler(target) === true }) }
 		catch (error) { console.error('[macos-context] intent failed', error); handled = true }
 		return handled
 	})
-	const off = () => { if (!active) return; active = false; release(); leases.delete(off) }
+	const off = () => { if (!active) {return;} active = false; release(); leases.delete(off) }
 	leases.add(off)
 	return off
 }
 
 function setImageActions(node: ElementNode) {
 	const view = node.view as NSImageView | undefined
-	if (!view) return
+	if (!view) {return}
 	const invoke = (name: string, event: unknown, current: () => boolean) => {
 		const root = node.container.root
-		if (!root || !current() || node.view !== view || cssNodesByView.get(view) !== node) return
+		if (!root || !current() || node.view !== view || cssNodesByView.get(view) !== node) {return}
 		root.eventScope('discrete', () => {
-			if (!current() || node.view !== view || cssNodesByView.get(view) !== node || node.container.root !== root) return
+			if (!current() || node.view !== view || cssNodesByView.get(view) !== node || node.container.root !== root) {return}
 			const handler = node.props[name]
-			if (typeof handler === 'function') handler(event)
+			if (typeof handler === 'function') {handler(event)}
 		})
 	}
 	setImageEventHandlers(view, {
@@ -6697,11 +6697,11 @@ function setImageActions(node: ElementNode) {
 }
 
 function setKeyActions(node: ElementNode) {
-	if (!node.view) return
+	if (!node.view) {return}
 	const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
-		if (node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false) return
+		if (node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false) {return}
 		const handler = node.props[name]
-		if (typeof handler !== 'function') return
+		if (typeof handler !== 'function') {return}
 		try {
 			node.container.root?.eventScope('discrete', () => handler(event))
 		} catch (error) {
@@ -6715,12 +6715,12 @@ function setKeyActions(node: ElementNode) {
 }
 
 function setFocusActions(node: ElementNode) {
-	if (!node.view) return
+	if (!node.view) {return}
 	// Text delegates already report the control's own focus lifecycle.
-	if (['textfield', 'textview', 'searchbar'].includes(node.type)) return
+	if (['textfield', 'textview', 'searchbar'].includes(node.type)) {return}
 	const invoke = (name: 'onFocus' | 'onBlur', event: unknown) => {
 		const handler = node.props[name]
-		if (typeof handler !== 'function') return
+		if (typeof handler !== 'function') {return}
 		try {
 			node.container.root?.eventScope('discrete', () => handler(event))
 		} catch (error) {
@@ -6826,28 +6826,28 @@ function fitTextView(node: ElementNode | undefined) {
 		const view = node.view!
 		const viewport = node.textViewport, clip = viewport.contentView
 		const current = () => {
-			if (node.textLayoutRetired || node.view !== view || node.textViewport !== viewport) return false
+			if (node.textLayoutRetired || node.view !== view || node.textViewport !== viewport) {return false}
 			const content = viewport.contentView, document = viewport.documentView
 			return !node.textLayoutRetired && node.view === view && node.textViewport === viewport && content === clip && document === view
 		}
-		if (!current()) return
+		if (!current()) {return}
 		const styleLine = Number(effectiveStyle(node).lineHeight)
 		if (styleLine > 0) {
 			const paragraph = NSMutableParagraphStyle.alloc().init()
 			paragraph.minimumLineHeight = styleLine
 			paragraph.maximumLineHeight = styleLine
-			if (!current()) return
+			if (!current()) {return}
 			view.defaultParagraphStyle = paragraph
-			if (!current()) return
+			if (!current()) {return}
 			const storage = view.textStorage, length = String(view.string ?? '').length
-			if (!current()) return
+			if (!current()) {return}
 			storage?.addAttributeValueRange(NSParagraphStyleAttributeName, paragraph, { location: 0, length })
 		}
 
-		if (!current()) return
+		if (!current()) {return}
 		const width = Number(clip.bounds.size.width)
 		const textContainer = view.textContainer, inset = view.textContainerInset
-		if (!current()) return
+		if (!current()) {return}
 		if (width > 0) {
 			textContainer.containerSize = {
 				width: Math.max(0, width - 2 * Number(inset?.width ?? 0)),
@@ -6855,15 +6855,15 @@ function fitTextView(node: ElementNode | undefined) {
 			}
 		}
 
-		if (!current()) return
+		if (!current()) {return}
 		const manager = view.layoutManager
-		if (!current()) return
+		if (!current()) {return}
 		manager.ensureLayoutForTextContainer(textContainer)
-		if (!current()) return
+		if (!current()) {return}
 		const used = manager.usedRectForTextContainer(textContainer)
-		if (!current()) return
+		if (!current()) {return}
 		const font = view.font
-		if (!current()) return
+		if (!current()) {return}
 		const measured = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
 		const line = Math.max(
 			1,
@@ -6876,7 +6876,7 @@ function fitTextView(node: ElementNode | undefined) {
 			),
 		)
 
-		if (!current()) return
+		if (!current()) {return}
 		const padding = 2 * Number(view.textContainerInset?.height ?? 0)
 
 		const rows = Math.max(1, Math.floor(Number(node.props.rows) || (node.props.autoGrow ? 1 : 3)))
@@ -6896,7 +6896,7 @@ function fitTextView(node: ElementNode | undefined) {
 		const height =
 			(node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line) + padding
 
-		if (!current()) return
+		if (!current()) {return}
 		if (
 			effectiveStyle(node).height == null &&
 			node.sizeConstraintSpecs?.height?.points !== height
@@ -6904,13 +6904,13 @@ function fitTextView(node: ElementNode | undefined) {
 			setSizeConstraint(node, 'height', height)
 		}
 
-		if (!current()) return
+		if (!current()) {return}
 		const visibleHeight = Number(clip.bounds.size.height) || height
-		if (!current()) return
+		if (!current()) {return}
 		view.minSize = { width: 0, height: visibleHeight }
-		if (!current()) return
+		if (!current()) {return}
 		const frameWidth = width || Number(view.frame.size.width)
-		if (!current()) return
+		if (!current()) {return}
 		view.setFrameSize({
 			width: frameWidth,
 			height: Math.max(visibleHeight, content + padding),
@@ -6929,7 +6929,7 @@ function syncTextViewPlaceholder(node: ElementNode | undefined) {
 function setAction(node: ElementNode, value: any) {
 	const active = typeof value === 'function'
 	if (node.actionId === undefined) {
-		if (!active) return
+		if (!active) {return}
 		node.actionId = nextActionId++
 		actionIdsByView.set(node.view!, node.actionId)
 		actionHandlers.set(node.actionId, null)
@@ -6945,7 +6945,7 @@ function setAction(node: ElementNode, value: any) {
 		)
 		node.view!.addGestureRecognizer(node.clickGestureRecognizer)
 	}
-	if (node.clickGestureRecognizer) node.clickGestureRecognizer.enabled = active && !node.props.disabled
+	if (node.clickGestureRecognizer) {node.clickGestureRecognizer.enabled = active && !node.props.disabled}
 
 	actionHandlers.set(
 		node.actionId,
@@ -7042,7 +7042,7 @@ function setTextSubmitAction(node: ElementNode, value: any) {
  * after commit, an unset value, a matching echo or teardown. */
 function updateNativeTextValue(node: ElementNode, value: string | undefined): void {
 	const view = node.view
-	if (!view) return
+	if (!view) {return}
 	setTextValue(view, value, () => {
 		const multiline = node.type === 'textview'
 		const editor = (): any => multiline ? view : (typeof view.currentEditor === 'function' ? view.currentEditor() : null)
@@ -7054,15 +7054,15 @@ function updateNativeTextValue(node: ElementNode, value: string | undefined): vo
 			},
 			write: (next) => {
 				const target = editor(), selection = target?.selectedRange
-				if (multiline) view.string = next
-				else view.stringValue = next
-				if (target && editor() === target && String(target.string ?? '') !== next) target.string = next
+				if (multiline) {view.string = next}
+				else {view.stringValue = next}
+				if (target && editor() === target && String(target.string ?? '') !== next) {target.string = next}
 				if (target && editor() === target && Number.isSafeInteger(selection?.location) &&
 					Number.isSafeInteger(selection?.length) && selection.location >= 0 && selection.length >= 0) {
 					const location = Math.min(selection.location, next.length)
 					target.selectedRange = { location, length: Math.max(0, Math.min(selection.location + selection.length, next.length) - location) }
 				}
-				if (node.type === 'searchbar') notifySearchTextChange(node)
+				if (node.type === 'searchbar') {notifySearchTextChange(node)}
 				if (multiline) {
 					rememberTextLimitValue(view as NSTextView)
 					syncTextViewPlaceholder(node)
@@ -7071,22 +7071,22 @@ function updateNativeTextValue(node: ElementNode, value: string | undefined): vo
 			},
 			observeCommit: (notify) => {
 				const window = view.window
-				if (!window || node.view !== view) return undefined
+				if (!window || node.view !== view) {return undefined}
 				const center = NSNotificationCenter.defaultCenter
 				const remove = center.removeObserver, add = center.addObserverForNameObjectQueueUsingBlock
-				if (typeof remove !== 'function' || typeof add !== 'function') throw new Error('Text value observation unavailable')
-				if (node.view !== view || view.window !== window) return undefined
+				if (typeof remove !== 'function' || typeof add !== 'function') {throw new Error('Text value observation unavailable')}
+				if (node.view !== view || view.window !== window) {return undefined}
 				let active = true, ready = false, token: any
 				const release = () => {
 					active = false; ready = false
 					const previous = token; token = undefined
-					if (previous != null) remove.call(center, previous)
+					if (previous != null) {remove.call(center, previous)}
 				}
 				try {
 					token = add.call(center, NSWindowDidUpdateNotification, window, null, () => {
-						if (active && ready && node.view === view && view.window === window) notify()
+						if (active && ready && node.view === view && view.window === window) {notify()}
 					})
-					if (token == null) throw new Error('Text value observation unavailable')
+					if (token == null) {throw new Error('Text value observation unavailable')}
 					if (node.view !== view || view.window !== window) { release(); return undefined }
 					ready = true
 					return release
@@ -7119,7 +7119,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
 			const handler = value
 			value = typeof handler === 'function' ? () => {
-				if (node.props.disabled || !node.container.root) return false
+				if (node.props.disabled || !node.container.root) {return false}
 				try {
 					node.container.root.eventScope('discrete', handler)
 					return true
@@ -7180,7 +7180,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 			}
 		} else if (name === 'accessibilityState') {
 			const view = node.view!
-			if (node.type === 'textview') view.setAccessibilityEnabled?.(value?.disabled !== true)
+			if (node.type === 'textview') {view.setAccessibilityEnabled?.(value?.disabled !== true)}
 			if (node.nativeTextExpanded && node.nativeTextExpanded.view !== view) {
 				node.nativeTextExpanded.view.accessibilityExpanded = node.nativeTextExpanded.original
 				node.nativeTextExpanded = undefined
@@ -7311,8 +7311,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 		syncText(node.parent)
 		return
 	}
-	if ('onKeyDown' in props || 'onKeyUp' in props) setKeyActions(node)
-	if ('onFocus' in props || 'onBlur' in props) setFocusActions(node)
+	if ('onKeyDown' in props || 'onKeyUp' in props) {setKeyActions(node)}
+	if ('onFocus' in props || 'onBlur' in props) {setFocusActions(node)}
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		rootlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
@@ -7336,9 +7336,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	for (const [name, value] of Object.entries(props)) {
-		if (name === 'data-grid-cell') continue // Retained in props for native useGridFocus discovery.
-		if (name === 'testID') continue // Applied once to every concrete native host above.
-		if (name === 'onKeyDown' || name === 'onKeyUp' || name === 'onFocus' || name === 'onBlur') continue
+		if (name === 'data-grid-cell') {continue} // Retained in props for native useGridFocus discovery.
+		if (name === 'testID') {continue} // Applied once to every concrete native host above.
+		if (name === 'onKeyDown' || name === 'onKeyUp' || name === 'onFocus' || name === 'onBlur') {continue}
 		if (
 			(node.layoutParent ?? node.parent) &&
 			layoutChildProps[(node.layoutParent ?? node.parent)!.type]?.includes(name)
@@ -7688,7 +7688,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 						node.actionId!,
 						typeof value === 'function'
 							? () => {
-									if (!node.container.root || node.props.isEnabled === false || node.props.enabled === false) return
+									if (!node.container.root || node.props.isEnabled === false || node.props.enabled === false) {return}
 									try {
 										node.container.root.eventScope('discrete', value)
 									} catch (error) {
@@ -8872,7 +8872,7 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 }
 
 function destroy(node: ElementNode) {
-	if (node.type === 'textview') retireTextViewLayout(node)
+	if (node.type === 'textview') {retireTextViewLayout(node)}
 	if (node.view && (typeof node.props.onFocus === 'function' || typeof node.props.onBlur === 'function')) {
 		focusWithinDispatcher.set(node.view)
 	}
@@ -9079,7 +9079,7 @@ function destroy(node: ElementNode) {
 	}
 
 	if ((node.type === 'image' || node.type === 'animatedimage') && node.view) {
-		if (node.type === 'image') setImageGeometryHandler(node.view as NSImageView, undefined)
+		if (node.type === 'image') {setImageGeometryHandler(node.view as NSImageView, undefined)}
 		disposeImage(node.view as NSImageView)
 	}
 
@@ -9108,7 +9108,7 @@ function destroy(node: ElementNode) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
 		node.outlineObserver = null
 	}
-	if (node.boxFrameOwner) clearBoxFrameObserver(node)
+	if (node.boxFrameOwner) {clearBoxFrameObserver(node)}
 	node.borderLayer = null
 	node.borderSides = undefined
 	node.borderOutline = undefined
@@ -9116,7 +9116,7 @@ function destroy(node: ElementNode) {
 	node.borderSideMasks = undefined
 	node.borderBandShapes = undefined
 	node.cornerMask = undefined
-	for (const host of node.outsetShadowHosts ?? []) host.removeFromSuperlayer()
+	for (const host of node.outsetShadowHosts ?? []) {host.removeFromSuperlayer()}
 	node.outsetShadowHosts = undefined
 	node.insetShadowHost?.removeFromSuperlayer()
 	node.insetShadowHost = null
@@ -10413,7 +10413,7 @@ function installFocusObserver() {
 			null,
 			(notification: NSNotification) => {
 				for (const container of appKitContainers) {
-					if (container.hostView?.window === notification?.object) syncContainerFocus(container)
+					if (container.hostView?.window === notification?.object) {syncContainerFocus(container)}
 				}
 			},
 		)
@@ -10677,13 +10677,13 @@ function attachContextMenu(
 
 	let menu: NSMenu
 	try { menu = NSMenu.alloc().init() } catch { return null }
-	if (!menu) return null
+	if (!menu) {return null}
 	const state = { active: true, previous: null as NSMenu | null }
 	contextMenuAttachments.set(menu, state)
 	const created: { id: number; item: NSMenuItem }[] = []
 	let selecting = false
 	const detach = () => {
-		if (!state.active) return
+		if (!state.active) {return}
 		state.active = false
 		for (const { id, item } of created) {
 			actionHandlers.delete(id)
@@ -10695,7 +10695,7 @@ function attachContextMenu(
 				let previous = state.previous
 				while (previous) {
 					const prior = contextMenuAttachments.get(previous)
-					if (!prior || prior.active) break
+					if (!prior || prior.active) {break}
 					previous = prior.previous
 				}
 				view.menu = previous as NSMenu
@@ -10727,10 +10727,10 @@ function attachContextMenu(
 			const id = item?.id
 			created.push({ id: actionId, item: menuItem })
 			actionHandlers.set(actionId, () => {
-				if (!state.active || selecting || disabled || view.menu !== menu || !view.window) return
+				if (!state.active || selecting || disabled || view.menu !== menu || !view.window) {return}
 				const enabled = (menuItem as any).isEnabled
 				const nativeEnabled = typeof enabled === 'function' ? enabled.call(menuItem) : enabled
-				if (nativeEnabled === false || nativeEnabled === 0) return
+				if (nativeEnabled === false || nativeEnabled === 0) {return}
 				selecting = true
 				try {
 					onSelect?.(id)
@@ -10766,7 +10766,7 @@ function dateFromMillis(millis: number | undefined) {
 
 /** Native ID picker. Keep the raw NativeScript index API on its separate path. */
 function attachPicker(view: NSView, initial: PropBag, onSelect: (id: string) => void) {
-	if (!view || typeof view.addSubview !== 'function' || !buttonActionTarget) return null
+	if (!view || typeof view.addSubview !== 'function' || !buttonActionTarget) {return null}
 	let control: ReturnType<typeof makePopUpControl>
 	try { control = makePopUpControl() } catch { return null }
 	const picker = control.view, actionId = control.actionId
@@ -10775,7 +10775,7 @@ function attachPicker(view: NSView, initial: PropBag, onSelect: (id: string) => 
 	let label: string | undefined, initialized = false
 	const constraints: { active: boolean }[] = []
 	const detach = () => {
-		if (!active) return
+		if (!active) {return}
 		active = false; attached = false; version++; actionHandlers.delete(actionId)
 		try { picker.menu?.cancelTracking() } catch {}
 		try { picker.target = null; picker.action = null as unknown as string } catch {}
@@ -10786,12 +10786,12 @@ function attachPicker(view: NSView, initial: PropBag, onSelect: (id: string) => 
 	}
 	const apply = (next: PropBag) => {
 		const ids = new Set<string>()
-		if (!Array.isArray(next.options)) throw Error('Invalid picker choices')
+		if (!Array.isArray(next.options)) {throw Error('Invalid picker choices')}
 		const nextOptions = next.options.map((item: any) => {
-			if (typeof item.id !== 'string' || typeof item.title !== 'string' || ids.has(item.id)) throw Error('Invalid picker choices')
+			if (typeof item.id !== 'string' || typeof item.title !== 'string' || ids.has(item.id)) {throw Error('Invalid picker choices')}
 			ids.add(item.id); return { id: item.id, title: item.title, disabled: !!item.disabled }
 		})
-		if (next.selection !== undefined && (typeof next.selection !== 'string' || !ids.has(next.selection))) throw Error('Invalid picker selection')
+		if (next.selection !== undefined && (typeof next.selection !== 'string' || !ids.has(next.selection))) {throw Error('Invalid picker selection')}
 		const nextEnabled = next.enabled !== false && nextOptions.some((item: any) => !item.disabled)
 		const changed = !initialized || options.length !== nextOptions.length || options.some((item, i) => item.id !== nextOptions[i].id || item.title !== nextOptions[i].title || item.disabled !== nextOptions[i].disabled)
 		enabled = nextEnabled
@@ -10810,24 +10810,24 @@ function attachPicker(view: NSView, initial: PropBag, onSelect: (id: string) => 
 			}
 			options = nextOptions; initialized = true
 			picker.invalidateIntrinsicContentSize()
-		} else if (!enabled) picker.menu?.cancelTracking()
+		} else if (!enabled) {picker.menu?.cancelTracking()}
 		const nextLabel = String(next.accessibilityLabel ?? '')
 		if (label !== nextLabel) { picker.accessibilityLabel = nextLabel; label = nextLabel }
 		const index = options.findIndex((item) => item.id === next.selection)
-		if (Number(picker.indexOfSelectedItem) !== index) picker.selectItemAtIndex(index)
+		if (Number(picker.indexOfSelectedItem) !== index) {picker.selectItemAtIndex(index)}
 		const ownedVersion = version
 		actionHandlers.set(actionId, () => {
-			if (!active || !attached || selecting || writing || !enabled || version !== ownedVersion || picker.superview !== view || !view.window) return
+			if (!active || !attached || selecting || writing || !enabled || version !== ownedVersion || picker.superview !== view || !view.window) {return}
 			const nativeEnabled = (picker as any).isEnabled
 			const nativeState = typeof nativeEnabled === 'function' ? nativeEnabled.call(picker) : nativeEnabled ?? picker.enabled
-			if (nativeState === false || nativeState === 0) return
+			if (nativeState === false || nativeState === 0) {return}
 			const index = Number(picker.indexOfSelectedItem), item = items[index], option = options[index]
-			if (!Number.isSafeInteger(index) || index < 0 || !item || !option || option.disabled) return
+			if (!Number.isSafeInteger(index) || index < 0 || !item || !option || option.disabled) {return}
 			const selected = picker.selectedItem
-			if (!(selected === item || selected?.isEqual?.(item))) return
+			if (!(selected === item || selected?.isEqual?.(item))) {return}
 			const nativeItemEnabled = (item as any).isEnabled
 			const itemState = typeof nativeItemEnabled === 'function' ? nativeItemEnabled.call(item) : nativeItemEnabled ?? item.enabled
-			if (itemState === false || itemState === 0) return
+			if (itemState === false || itemState === 0) {return}
 			selecting = true
 			try { onSelect(option.id) } catch { console.error('[macos-leaf] picker change failed') } finally { selecting = false }
 		})
@@ -10842,7 +10842,7 @@ function attachPicker(view: NSView, initial: PropBag, onSelect: (id: string) => 
 		attached = true
 		return {
 			update(next: PropBag) {
-				if (!active) return
+				if (!active) {return}
 				writing++; try { apply(next) } catch (error) { detach(); throw error } finally { writing-- }
 			},
 			detach,
@@ -10875,7 +10875,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 	let rangeInitialized = false, accessibilityLabel: string | undefined
 	const constraints: { active: boolean }[] = []
 	const detach = () => {
-		if (!active) return
+		if (!active) {return}
 		active = false; actionHandlers.delete(actionId)
 		try { picker.target = null; picker.action = null as unknown as string } catch {}
 		for (const constraint of constraints) { try { constraint.active = false } catch {} }
@@ -10906,7 +10906,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 			picker.enabled = enabled
 			const label = String(next?.accessibilityLabel ?? '')
 			if (label !== accessibilityLabel) { picker.accessibilityLabel = label; accessibilityLabel = label }
-			if (!validInput) return
+			if (!validInput) {return}
 			// Clear old bounds before a disjoint replacement. Range/selection writes
 			// are programmatic and must never publish controlChanged echoes.
 			if (!rangeInitialized || minimum !== min || maximum !== max) {
@@ -10916,7 +10916,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 			}
 			const date = dateFromMillis(selected)
 			const seconds = picker.dateValue?.timeIntervalSince1970
-			if (date && (typeof seconds !== 'number' || Math.round(seconds * 1000) !== selected)) picker.dateValue = date
+			if (date && (typeof seconds !== 'number' || Math.round(seconds * 1000) !== selected)) {picker.dateValue = date}
 		}
 
 		writing++
@@ -10933,10 +10933,10 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 		picker.target = buttonActionTarget
 		picker.action = 'controlChanged:'
 		actionHandlers.set(actionId, () => {
-			if (!active || writing || !enabled || picker.superview !== view || !view.window) return
+			if (!active || writing || !enabled || picker.superview !== view || !view.window) {return}
 			const nativeEnabled = (picker as any).isEnabled
 			const nativeState = typeof nativeEnabled === 'function' ? nativeEnabled.call(picker) : nativeEnabled
-			if (nativeState === false || nativeState === 0) return
+			if (nativeState === false || nativeState === 0) {return}
 			const date = picker.dateValue
 			const rawMillis =
 				typeof date?.timeIntervalSince1970 === 'number' ? date.timeIntervalSince1970 * 1000 : null
@@ -10956,7 +10956,7 @@ function attachDatePicker(view: NSView, options: PropBag, onChange: (event: any)
 
 		return {
 			update(next: PropBag) {
-				if (!active) return
+				if (!active) {return}
 				writing++
 				try { apply(next) } catch (error) { detach(); throw error } finally { writing-- }
 			},
@@ -11164,16 +11164,16 @@ function installResizeObserver() {
 // Like the resize observer, one token belongs to the loaded renderer process.
 let accessibilityDisplayObserver: unknown
 function installAccessibilityDisplayObserver() {
-	if (accessibilityDisplayObserver !== undefined) return
+	if (accessibilityDisplayObserver !== undefined) {return}
 	try {
 		const workspace = NSWorkspace.sharedWorkspace, center = workspace?.notificationCenter
-		if (typeof center?.addObserverForNameObjectQueueUsingBlock !== 'function') return
+		if (typeof center?.addObserverForNameObjectQueueUsingBlock !== 'function') {return}
 		const observer = center.addObserverForNameObjectQueueUsingBlock(
 			NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification,
 			workspace, NSOperationQueue.mainQueue,
-			() => { if (appKitContainers.size) onHostWindowResize() },
+			() => { if (appKitContainers.size) {onHostWindowResize()} },
 		)
-		if (observer != null) accessibilityDisplayObserver = observer
+		if (observer != null) {accessibilityDisplayObserver = observer}
 	} catch (error) { console.warn('[macos-css] accessibility display observer unavailable', error) }
 }
 
@@ -11218,11 +11218,11 @@ appKitBridge.retainFocusTarget = (view: NSView) => {
 	scopeFocusTargets.set(view, (scopeFocusTargets.get(view) ?? 0) + 1)
 	let active = true
 	return () => {
-		if (!active) return
+		if (!active) {return}
 		active = false
 		const count = (scopeFocusTargets.get(view) ?? 1) - 1
-		if (count > 0) scopeFocusTargets.set(view, count)
-		else scopeFocusTargets.delete(view)
+		if (count > 0) {scopeFocusTargets.set(view, count)}
+		else {scopeFocusTargets.delete(view)}
 	}
 }
 appKitBridge.showAnchoredPopup = showAnchoredPopup

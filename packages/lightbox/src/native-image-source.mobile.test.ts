@@ -7,7 +7,7 @@ it('learns dimensions from the loaded host, ignores stale sources and releases l
 		on(event: string, cb: () => void) { const callbacks = listeners.get(event) ?? new Set(); callbacks.add(cb); listeners.set(event, callbacks) },
 		off(event: string, cb: () => void) { listeners.get(event)?.delete(cb) },
 	}
-	const emit = (event: string) => { for (const cb of listeners.get(event) ?? []) cb() }
+	const emit = (event: string) => { for (const cb of listeners.get(event) ?? []) {cb()} }
 	const changed = vi.fn()
 	const off = observeNativeImage(host, host.src, changed)
 	expect(changed).not.toHaveBeenCalled()
@@ -31,8 +31,8 @@ it('reports a completed failed decode without inventing image dimensions', () =>
 	const changed = vi.fn()
 	const off = observeNativeImage(host, host.src, changed)
 	expect(changed).not.toHaveBeenCalled()
-	host.isLoading = true; for (const cb of callbacks) cb()
-	host.isLoading = false; for (const cb of callbacks) cb()
+	host.isLoading = true; for (const cb of callbacks) {cb()}
+	host.isLoading = false; for (const cb of callbacks) {cb()}
 	expect(changed).toHaveBeenCalledExactlyOnceWith({ width: 0, height: 0, failed: true })
 	off()
 })

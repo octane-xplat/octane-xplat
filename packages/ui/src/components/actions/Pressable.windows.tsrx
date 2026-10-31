@@ -4,7 +4,6 @@ import { useMemo } from 'octane'
 import type { View } from '@nativescript/core'
 import { useMeasure } from '../layout/useMeasure'
 import './pressable-control.windows'
-import './Pressable.windows.css'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
@@ -35,7 +34,6 @@ export function Pressable(props: PressableProps): unknown @{
 	)
 
 	const peerProps = {
-		className: 'vx-pressable-input-windows',
 		style: {
 			position: 'absolute' as const,
 			width: measured.bounds?.width ?? 0,

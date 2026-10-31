@@ -36,7 +36,7 @@ function TextWrapFixture(props: { direction: 'row' | 'column'; align: 'start' | 
 	>
 		<Text
 			className="parity-text-wrap-content"
-			style={{ fontSize: 14, lineHeight: 20, flexShrink: 1 }}
+			style={{ fontSize: 14, lineHeight: '20px', flexShrink: 1 }}
 		>
 			Shared typography should wrap within the available space.
 		</Text>

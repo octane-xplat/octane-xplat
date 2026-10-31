@@ -17,8 +17,8 @@ configureLayerKeys(() => {
 			// Local monitors have no guaranteed order. Give the renderer the same
 			// native event first; its dispatcher deduplicates a later monitor call.
 			const handled = appKitHost()?.dispatchKeyboardEvent?.(event)
-			if (handled?.defaultPrevented) return null
-			if (handled?.propagationStopped) return event
+			if (handled?.defaultPrevented) {return null}
+			if (handled?.propagationStopped) {return event}
 
 			const responder = event.window?.firstResponder
 			const marked =

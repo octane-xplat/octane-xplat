@@ -4,9 +4,9 @@ import { createAppKitMenuFocus } from './menu-focus.macos.ts'
 
 function fixture(initial: 'first' | 'last' | 'container' = 'first') {
 	const calls: any[] = [], state = { supported: true, allow: true, resetCount: 0, disposed: 0, synchronized: 0, onFocus: () => {}, onDispose: () => {} }
-	const window: any = { firstResponder: null, makeFirstResponder(view: any) { calls.push(view); if (!state.allow || view.window !== this) return false; this.firstResponder = view; state.onFocus(); return true } }
+	const window: any = { firstResponder: null, makeFirstResponder(view: any) { calls.push(view); if (!state.allow || view.window !== this) {return false;} this.firstResponder = view; state.onFocus(); return true } }
 	const root: any = { window, hidden: false }, views = new Map<string, any>()
-	for (const key of ['a', 'b', 'c']) views.set(key, { window, key })
+	for (const key of ['a', 'b', 'c']) {views.set(key, { window, key })}
 	let current: any = root
 	const eligible = () => [...views].filter(([, view]) => !view.disabled && !view.hidden).map(([key]) => key)
 	const focus = createAppKitMenuFocus({ root: () => current, views, eligible, initial: () => initial,
@@ -56,7 +56,7 @@ test('scope hide/detach/window changes and unsupported bridges discard old owner
 	f.detach(); f.focus.refresh(); assert.equal(f.focus.focus('c'), false)
 	const moved = fixture(); moved.focus.refresh(); moved.focus.focus('b'); moved.remove('b')
 	const otherWindow: any = { firstResponder: null, makeFirstResponder: moved.window.makeFirstResponder }
-	moved.root.window = otherWindow; for (const view of moved.views.values()) view.window = otherWindow
+	moved.root.window = otherWindow; for (const view of moved.views.values()) {view.window = otherWindow}
 	moved.focus.refresh(); assert.equal(otherWindow.firstResponder, moved.views.get('a'))
 	assert.equal(moved.focus.observes(moved.window), false); assert.equal(moved.focus.observes(otherWindow), true)
 })

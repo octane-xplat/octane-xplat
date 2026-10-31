@@ -16,12 +16,24 @@ vi.mock('@nativescript/core', () => ({
 	CSSType: () => () => {},
 	registerElement: () => {},
 	View: class {},
+	// @octane-xplat/platform's device service reads these at import.
+	Device: {
+		os: 'iOS',
+		osVersion: '26.0',
+		model: 'iPhone',
+		manufacturer: 'Apple',
+		language: 'en-US',
+		region: 'US',
+	},
 	isIOS: true,
 	isAndroid: false,
 	Application: { on() {}, off() {} },
 }))
 
 vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({ applyNativeModifiers: () => {} }))
+// The routing import graph reaches the platform barrel, whose per-service
+// modules evaluate @nativescript/core at import; none are exercised here.
+vi.mock('@octane-xplat/platform', () => ({ announce: () => {} }))
 vi.mock('../layout/pan', () => ({ usePan: () => undefined }))
 // The universal runtime only accepts compiler-defined components — stand in
 // with a real compiled leaf rather than a bare function.
@@ -151,34 +163,75 @@ vi.mock('../layout/pan.macos.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('../media/Icon.macos.tsrx', async () => ({ Icon: (await vi.importActual('../layout/View.tsrx')).View }))
 import { DropdownMenu as MacMenu } from './DropdownMenu.macos.tsrx'
 import { dispatchLayerKey } from './layer-stack'
+import { createPortalObjectDriver } from '../../../tests/portal-object-driver'
 
 it('keeps AppKit anchors and nested menu ownership across separate popup roots', async () => {
-	const popups: { container: any; root: any; closed: boolean; close: any }[] = []
-	const show = vi.fn((options: any) => {
-		const container = createObjectContainer('nativescript')
-		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		const popup = {
-			container,
-			root,
-			closed: false,
-			close: () => {
-				popup.closed = true
-				root.unmount()
-				options.onClose?.()
+	// Source-portal layers: showLayer hands back a deferred handle whose
+	// createContentRoot outlet receives the portal content. Window-update
+	// notifications retry acquisition once anchors gain a native window.
+	const observers = new Map<object, (note: any) => void>(),
+		layers: any[] = [],
+		window: any = {}
+	vi.stubGlobal('NSNotificationCenter', {
+		defaultCenter: {
+			addObserverForNameObjectQueueUsingBlock(
+				_: unknown,
+				__: unknown,
+				___: unknown,
+				callback: any,
+			) {
+				const token = {}
+				observers.set(token, callback)
+				return token
 			},
-			update: (props: any) => root.render(options.component, props),
-		}
-
-		popups.push(popup)
-		root.render(options.component, options.props)
-		return popup
+			removeObserver(token: object) {
+				observers.delete(token)
+			},
+		},
+	})
+	vi.stubGlobal('__xplatAppKit', {
+		showLayer(options: any) {
+			const source = options.createContentRoot({ window }),
+				layer: any = {
+					options,
+					source,
+					closed: false,
+					show: vi.fn(),
+					update: vi.fn(() => source.whenCommitted(() => {})),
+					close: vi.fn(() => {
+						if (layer.closed) {
+							return
+						}
+						layer.closed = true
+						source.unmount()
+						options.onClose()
+					}),
+				}
+			layers.push(layer)
+			layer.update()
+			return layer
+		},
 	})
 
-	vi.stubGlobal('__xplatAppKit', { showAnchoredPopup: show })
 	const container = createObjectContainer('nativescript')
-	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+	const root = createUniversalRoot(container, createPortalObjectDriver())
 	const pick = vi.fn(),
 		close = vi.fn()
+	const settle = async () => {
+		for (let index = 0; index < 4; index++) {
+			await Promise.resolve()
+			flushUniversalSync(() => {})
+		}
+	}
+	const notify = () => {
+		for (const callback of [...observers.values()]) {
+			callback({ object: window })
+		}
+	}
+	const hydrate = (node: any) => {
+		node.window = window
+		node.convertRectToView = () => {}
+	}
 
 	try {
 		root.render(MacMenu, {
@@ -196,25 +249,35 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 		})
 
 		flushUniversalSync(() => {})
-		await vi.waitFor(() => expect(popups).toHaveLength(1))
-		expect(show.mock.calls[0][0].anchor).toBeTruthy()
-		const submenu = all(popups[0].container).find((node) => node.props?.id === 'move')
-		flushUniversalSync(() => popups[0].container.dispatchEvent(submenu, 'tap', {}))
-		await vi.waitFor(() => expect(popups).toHaveLength(2))
-		expect(show.mock.calls[1][0].anchor).toBeTruthy()
+		const trigger = all(container).find((node) =>
+			String(node.props?.className).includes('vx-menu-trigger'),
+		)
+		hydrate(trigger)
+		notify()
+		await settle()
+		expect(layers).toHaveLength(1)
+		expect(layers[0].options.anchor).toBe(trigger)
+		const submenu = all(container).find((node) => node.props?.id === 'move')
+		hydrate(submenu)
+		flushUniversalSync(() => container.dispatchEvent(submenu, 'tap', {}))
+		await settle()
+		expect(layers).toHaveLength(2)
+		expect(layers[1].options.anchor).toBe(submenu)
 		flushUniversalSync(() => dispatchLayerKey({ key: 'Escape', preventDefault() {} }))
-		await vi.waitFor(() => expect(popups[1].closed).toBe(true))
+		await settle()
+		expect(layers[1].closed).toBe(true)
 		expect(close).not.toHaveBeenCalled()
-		flushUniversalSync(() => popups[0].container.dispatchEvent(submenu, 'tap', {}))
-		await vi.waitFor(() => expect(popups).toHaveLength(3))
-		const target = all(popups[2].container).find((node) => node.props?.id === 'target')
-		flushUniversalSync(() => popups[2].container.dispatchEvent(target, 'tap', {}))
+		flushUniversalSync(() => container.dispatchEvent(submenu, 'tap', {}))
+		await settle()
+		expect(layers).toHaveLength(3)
+		const target = all(container).find((node) => node.props?.id === 'target')
+		flushUniversalSync(() => container.dispatchEvent(target, 'tap', {}))
 		expect(pick).toHaveBeenCalledOnce()
 		expect(close).toHaveBeenCalledWith(false)
-		expect(popups[0].closed).toBe(false)
+		expect(layers[0].closed).toBe(false)
 	} finally {
 		root.unmount()
-		popups.forEach((popup) => popup.root.unmount())
+		layers.forEach((layer) => layer.close())
 		flushUniversalSync(() => {})
 		vi.unstubAllGlobals()
 	}
