@@ -5,6 +5,8 @@ import { layoutReadout } from './readout.windows'
 import { DisplayCases, displayCases, type DisplayCase } from './display-cases.windows'
 import { LegacyLayout } from './legacy-layout.windows'
 import { ListCases } from './collections-cases.windows'
+import { TableCases } from './table-cases.windows'
+import { TabCases } from './tabs-cases.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
 import {
 	Text,
@@ -165,9 +167,15 @@ export function Qualification() @{
 						break
 					case 'scene':
 						if (
-							['layout', 'actions', 'display', 'legacy-layout', 'collections'].includes(
-								command.value,
-							)
+							[
+								'layout',
+								'actions',
+								'display',
+								'legacy-layout',
+								'collections',
+								'table',
+								'tabs',
+							].includes(command.value)
 						) {
 							setScene(command.value)
 						}
@@ -202,7 +210,9 @@ export function Qualification() @{
 			@if (
 				scene === 'display' ||
 				scene === 'legacy-layout' ||
-				scene === 'collections'
+				scene === 'collections' ||
+				scene === 'table' ||
+				scene === 'tabs'
 			) {
 				@try {
 					@if (scene === 'display') {
@@ -216,6 +226,10 @@ export function Qualification() @{
 						/>
 					} @else if (scene === 'collections') {
 						<ListCases revision={revision} disabled={disabled} onActivate={activate} />
+					} @else if (scene === 'table') {
+						<TableCases revision={revision} onActivate={activate} />
+					} @else if (scene === 'tabs') {
+						<TabCases revision={revision} disabled={disabled} onActivate={activate} />
 					} @else {
 						<LegacyLayout revision={revision} />
 					}

@@ -85,12 +85,19 @@ export function SortedRows() {
 }
 ```
 
-This is an unexecuted input candidate. Inspect actual native behavior before
-choosing Table/header/row/cell peers; the header Button does not supply those
-structural roles. OS input,
+This is an unexecuted input candidate. Inspect the maintained `table` scene
+before choosing native Table/header/row/cell peers; the header Button does not
+supply those structural roles. The source fixture includes controlled rejection
+and a many-row case without a substitute scrolling implementation. OS input,
 geometry, scrolling, remount and current-main checks remain required. Shift
 multi-sort, header context menus and the wider plugin matrix are not added by
 this prerequisite. Keep the final Table gate pending.
+
+The maintained `tabs` scene similarly exposes the actual TabList/Tab composition,
+controlled acceptance/rejection, disabled stops and matching panel content. It
+does not implement or qualify TabItem/SelectionItem, a single Tab stop or arrow
+navigation. Use the [driver guide](../../tools/windows-qualification/README.md#inspect-table-and-tab-source-fixtures)
+to select these scenes and retain their native/UIA failures.
 
 ## Raster images and avatar names
 

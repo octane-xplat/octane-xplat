@@ -197,6 +197,44 @@ not a completed collection driver. Inspect native List/ListItem structure and
 retain the full final gates before claiming support; a row Button peer alone
 does not establish those roles or geometry.
 
+## Inspect Table and tab source fixtures
+
+The maintained `table` and `tabs` scenes render the public components and their
+actual plugin/selection paths. They are prepared source, with no completed OS
+drivers or qualification result. Select either through the recorded command
+channel:
+
+```json
+{ "sequence": "table-inspection-1", "action": "scene", "value": "table" }
+```
+
+```json
+{ "sequence": "tabs-inspection-1", "action": "scene", "value": "tabs" }
+```
+
+For Table, revision0 starts unsorted with three rows, revision1 changes header
+and row text, revision2 rejects sort requests, and revision3 supplies40 rows.
+Sorting must originate in OS/UIA input on the actual plugin header. An accepted
+request updates the sort readout and row order; its activation records
+`table-sort:<JSON state>` and the fixture revision. The many-row case adds no
+scroll wrapper: inspect and record the actual Table behavior before implementing
+its scrolling prerequisite. Do not qualify Table structure from its header
+Button peer alone.
+
+For tabs, revision0 starts on `first`, revision1 selects `third` programmatically,
+and revision2 retains `first` after a selection request. `Unavailable` is always
+disabled; the `disabled` command also disables `Third`. Real input records
+`tab-selection:<value>` with the fixture revision. The selected value and matching
+panel content are readable independently. Verify TabItem/SelectionItem, one Tab
+stop, arrow selection, disabled skipping, callbacks and panel visibility; the
+generic implementation does not gain those semantics from this fixture.
+
+Both scenes have before/after focus anchors. Use the ordinary `mounted` command
+for removal/remount and `snapshot` for numeric native frames. Only props and
+mount state are controlled by commands; neither scene provides an action
+dispatch command. Preserve failed UIA/geometry/input captures, keep final gates
+pending, and use the same fresh-main package required by the plan.
+
 ## Run the legacy Flexbox regression
 
 This opt-in case exercises NativeScript Flexbox, separately from the Mason
