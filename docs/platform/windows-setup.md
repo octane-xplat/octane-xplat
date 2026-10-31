@@ -119,6 +119,32 @@ and the clickable control shape. Keyboard/mouse/Invoke activation, the full
 props matrix, Narrator, visual review and final clean-main qualification remain
 pending.
 
+## Avatars and raster images candidate
+
+Use `Avatar.name` for initials when no image is supplied. A base64 data URI
+loads through the Windows async image loader; `Image.alt` supplies the image's
+accessible name. This example uses a tiny embedded bitmap so it needs no network
+or asset setup:
+
+```tsx
+import { Avatar, Image } from '@octane-xplat/ui'
+
+const bitmap = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGOQL9z6HwAEPQJFam2brwAAAABJRU5ErkJggg=='
+
+export function People() {
+  return <>
+    <Avatar name="Ada Lovelace" size="lg" />
+    <Avatar name="Grace Hopper" src={bitmap} size="lg" />
+    <Image src={bitmap} alt="Example image" decoding="async" style={{ width: 40, height: 40 }} />
+  </>
+}
+```
+
+Bounded packaged x64 checks cover bitmap decoding, image and initials names,
+finite bounds, updates, remounting and resizing. Explicit synchronous
+decoding, placeholders, fallback after a failed load, SVG accessibility,
+Narrator, visual review and final clean-main qualification remain pending.
+
 ## Badge text candidate
 
 Windows `Badge` keeps text and numbers in native text controls, including the

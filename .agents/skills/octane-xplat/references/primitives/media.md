@@ -2,6 +2,23 @@
 
 Use for AppKit image/video leaves, Lightbox, Carousel/Pager, and file filters. Match each feature to its declared host; see the [task index](../primitives.md) for shared contracts.
 
+## Native Windows raster images
+
+Keep Windows data URIs on the async loader; the pinned core's synchronous
+base64 path calls an empty polyfill. Avatar can show initials without an image
+source. Use the [Windows example and qualification limits](../../../../../docs/platform/windows-setup.md#avatars-and-raster-images-candidate)
+before relying on image accessibility. Explicit sync decoding and placeholders
+remain gaps; SVG uses a separate host. See the [contributor note](../../../../docs/windows-ui.md#raster-images-and-avatar-names)
+when changing the resolver or native peer binding.
+
+```tsx
+import { Avatar } from '@octane-xplat/ui'
+
+export function Person() {
+	return <Avatar name="Ada Lovelace" size="lg" />
+}
+```
+
 ## Native macOS images
 
 AppKit `Image` preserves shared layout props, composed classes and style forms.

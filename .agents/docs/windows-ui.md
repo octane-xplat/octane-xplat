@@ -31,6 +31,56 @@ upstream repair scope and removal conditions in the
 Use `windows_recipe_checks` for per-criterion documentation and execution
 assessments; do not relabel Windows evidence as a mobile or AppKit target.
 
+## Raster images and avatar names
+
+The pinned NativeScript Windows preview `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`
+has an empty `wgc` base64 decoder. Its synchronous `ImageSource.fromBase64Sync`
+returns null in the packaged host. The Windows raster resolver preserves data
+URIs for core's async WinRT loader. This repairs the default async path; explicit
+synchronous decoding and synchronous placeholders remain separate gaps.
+
+```ts
+import { ImageSource } from '@nativescript/core'
+
+const encoded = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGOQL9z6HwAEPQJFam2brwAAAABJRU5ErkJggg=='
+const image = await ImageSource.fromBase64(encoded)
+console.log(image.width, image.height, image.windows.PixelWidth, image.windows.PixelHeight)
+```
+
+Check model and native bitmap dimensions separately: synchronous byte sources
+can retain zero `ImageSource` dimensions while native decoding is still pending.
+Positive native `BitmapImage.PixelWidth`/`PixelHeight` establish decode; a named
+UIA Image establishes a separate accessibility shape. Neither establishes visual
+appearance or Narrator behavior. Find the controlled decoder evidence under
+`windows-core20-run86/` in `local_artifacts`.
+
+Core also applies accessibility labels to the outer Border rather than its
+inner WinUI Image. The image binding names the inner peer after attachment,
+removes the Border from the accessibility control view, and restores its owned
+values when the binding ends. In the pinned host, starting with no source leaves
+the peer's bounds empty, including after a later photo assignment. Avatar starts
+with a named transparent bitmap behind its initials so the peer has a frame
+from its first mount. Initials use an explicit font size
+relative to the circle because the pinned native CSS path does not interpret
+the shared percentage font size as the intended avatar-relative size.
+
+```tsx
+import { Avatar, Image } from '@octane-xplat/ui'
+
+export function Person({ src, name }: { src: string; name: string }) {
+  return <>
+    <Avatar name={name} />
+    <Image src={src} alt={name} style={{ width: 40, height: 40 }} />
+  </>
+}
+```
+
+Keep the workaround until the pinned core provides a working synchronous
+decoder and names its actual Image peer. Review the source resolver and name
+binding together when upgrading; preserve SVG's separate host path. See the
+[Windows image example](../../docs/platform/windows-setup.md#avatars-and-raster-images-candidate)
+for the bounded consumer surface.
+
 ## Find local evidence
 
 The former UI register, lab report, and later qualification report are indexed
