@@ -20,6 +20,7 @@ const { nativeScriptRenderer } = await import('@nativescript-community/octane/co
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
+mkdirSync(join(repoRoot, 'node_modules/.cache'), { recursive: true })
 const temporary = mkdtempSync(join(repoRoot, 'node_modules/.cache/drawer-consumer-'))
 function run(command, args, cwd) {
 	const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
