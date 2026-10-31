@@ -138,6 +138,16 @@ flip or resize. Keep direct useLayer anchoring/dismissal separate from Selector
 and DropdownMenu qualification. These are unexecuted source fixtures, with no
 new keyboard or native-role implementation and no runtime pass.
 
+## Native tab semantics
+
+The pinned Core preview's
+[`TabView` implementation](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/core/ui/tab-view/index.windows.ts)
+constructs a Grid, StackPanel and Buttons. It does not instantiate WinUI
+`TabView` or `TabViewItem`. Replacing the shared strip with that NativeScript
+component therefore does not supply a stock tab-selection peer. Probe actual
+WinUI tab ownership, SelectionItem and keyboard behavior before choosing a
+Windows tab adapter. Source inspection alone does not qualify that adapter.
+
 ## Raster images and avatar names
 
 The pinned NativeScript Windows preview `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`

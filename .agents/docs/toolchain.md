@@ -138,9 +138,11 @@ experience of agents writing Octane-xplat code effectively.
   Common build, typecheck, and test tasks depend on `^typegen`, which both
   orders dependency declaration emit first and folds each dep's file hash into
   the dependent — the edge covers even script-less deps because turbo still
-  hashes their files through the no-op task node. `apps/mobile` and
-  `apps/windows` typecheck `../../packages/**/*` literally, so their
-  `turbo.json` hashes all package sources directly (explicit input globs are
+  hashes their files through the no-op task node. `apps/mobile` includes
+  `../../packages/**/*` as roots; `apps/windows` checks app roots and their
+  imported Windows/native package graph. Both apps' `turbo.json` files hash
+  all package sources directly so path-mapped imports outside the workspace
+  dependency edges still invalidate the check (explicit input globs are
   filesystem walks, not git-aware — `node_modules` and `.turbo` logs are
   negated there). App packages order `@xplat/app#gen` (routes.gen +
   styled-system) ahead of `typecheck`/`build`/`test`. `test:packed`,
