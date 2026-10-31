@@ -1,6 +1,7 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"noEmitOnError": true,
 		"moduleSuffixes": [".windows", ".native", ""],
 		"customConditions": ["windows", "native"],
 		"jsxImportSource": "@octane-xplat/jsx",

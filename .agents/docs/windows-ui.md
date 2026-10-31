@@ -207,6 +207,20 @@ own package programs rather than added as Windows app roots. The harness
 includes UI's existing driver-prop declarations explicitly when checking its
 workspace source.
 
+The pinned NativeScript Vite preview's build checker detects TSRX only from
+root filenames or explicit `.tsrx` imports. An extensionless import of the
+qualification component leaves it using plain TypeScript, which cannot resolve
+that file. Keep the extension explicit in the qualification entry and
+`noEmitOnError: true` in the app config so both checker paths stop a build on
+diagnostics. Unlike registry Vite 8.0.21, this preview already supplies Windows
+suffixes in both paths; it needs no local suffix patch. The installed-plugin
+regression `scripts/windows-vite-typecheck.test.mjs` reproduces the extensionless
+failure, checks Windows leaf selection and rejects a real type error through
+each compiler. Revisit the explicit-import workaround when upstream
+[`hasTsrxImports`](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/vite/helpers/typescript-check.ts)
+discovers extensionless TSRX modules. This is checker evidence, separate from
+packaged runtime qualification.
+
 The pinned Core `abae298` Windows declarations infer incompatible symbol-indexed
 setter unions on `View` and its layout subclasses. The Core patch gives `View`
 an `unknown` symbol index, so a `FlexboxLayout` or `StackLayout` can be passed to
