@@ -2570,7 +2570,7 @@
     },
     "packages/tsrx-typegen": {
       "name": "tsrx-typegen",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "bin": {
         "tsrx-typegen": "./bin/tsrx-typegen.mjs",
       },
@@ -2894,8 +2894,9 @@
     "css@3.0.0": "packages/cli/patches/css@3.0.0.patch",
     "octane@0.16.3": "packages/cli/patches/octane@0.16.3.patch",
     "@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",
-    "@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
+    "@nativescript-community/sqlite-bridge@4.1.1": "packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch",
     "@nativescript-community/vite-octane@0.2.1": "packages/cli/patches/@nativescript-community__vite-octane@0.2.1.patch",
+    "@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
     "@nativescript/core@9.1.3": "packages/cli/patches/@nativescript__core@9.1.3.patch",
     "@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
     "@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
@@ -2904,7 +2905,6 @@
     "@tsrx/typescript-plugin@0.4.11": "packages/cli/patches/@tsrx__typescript-plugin@0.4.11.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
     "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
-    "@nativescript-community/sqlite-bridge@4.1.1": "packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch",
   },
   "overrides": {
     "@lexical/a11y": "0.52.0",
