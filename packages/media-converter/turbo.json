@@ -1,0 +1,23 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test:browser": {
+			"cache": false
+		},
+		"test:apple-engine": {
+			"cache": false
+		},
+		"test:android-engine": {
+			"cache": false,
+			"passThroughEnv": ["ANDROID_HOME", "JAVA_HOME"]
+		},
+		"test:ios-engine": {
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*"]
+		},
+		"test:macos-consumer": {
+			"cache": false,
+			"passThroughEnv": ["XPLAT_MACOS_SDK", "XPLAT_MACOS_SWIFTC"]
+		}
+	}
+}

@@ -194,20 +194,31 @@ function removeOutput(uri: string): void {
 }
 
 async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<ImageResult> {
-	if (options.format === 'webp') {
-		throw new UnavailabilityError('ImageManipulator WEBP encoding on AppKit')
-	}
 	const properties = { [NSImageCompressionFactor]: NSNumber.numberWithDouble(options.compress) }
 	// NSBitmapImageFileTypePNG = 4; NSBitmapImageFileTypeJPEG = 3.
-	const data = pixels(frame).representationUsingTypeProperties(
-		options.format === 'png' ? 4 : 3,
+	const encoded = pixels(frame).representationUsingTypeProperties(
+		options.format === 'jpeg' ? 3 : 4,
 		properties,
 	)
+	const codec = (
+		globalThis as unknown as {
+			XplatWebPEncoder?: {
+				encodePNGQuality(data: NSData, quality: number): NSData | null
+			}
+		}
+	).XplatWebPEncoder
+	if (options.format === 'webp' && !codec) {
+		throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
+	}
+	const data =
+		options.format === 'webp'
+			? encoded && codec!.encodePNGQuality(encoded, options.compress)
+			: encoded
 	if (!data) {
 		throw new Error('Image encoding failed')
 	}
 	const manager = NSFileManager.defaultManager
-	const local = `${String(manager.temporaryDirectory.path).replace(/\/$/, '')}/xplat-image-${NSUUID.UUID().UUIDString}.${options.format === 'jpeg' ? 'jpg' : 'png'}`
+	const local = `${String(manager.temporaryDirectory.path).replace(/\/$/, '')}/xplat-image-${NSUUID.UUID().UUIDString}.${options.format === 'jpeg' ? 'jpg' : options.format}`
 	const uri = String(NSURL.fileURLWithPath(local).absoluteString)
 	try {
 		if (!data.writeToFileAtomically(local, true)) {

@@ -55,6 +55,7 @@
 		"@octane-xplat/maps",
 		"@octane-xplat/mcp",
 		"@octane-xplat/media",
+		"@octane-xplat/media-converter",
 		"@octane-xplat/media-library",
 		"@octane-xplat/motion",
 		"@octane-xplat/nano-icons",

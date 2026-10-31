@@ -182,3 +182,44 @@ sandbox grant. Directories, symlinks, uninspectable/promised/non-file items are
 excluded. MIME hints remain filename-based; missing sizes skip maxSize.  Native ABI/registration,
 hit routing/drag, grants, hover/AX/focus and packaging require qualification;
 custom hover/autoscroll and promised-file support remain gaps. See [AppKit file drops](../../../../../packages/files/README.md#appkit-local-file-drops).
+
+
+## Choose image encoding or animation conversion
+
+Use `@octane-xplat/image-manipulator` for still-image transformations and
+JPEG/PNG/WebP encoding. Saving a still image needs no queued transform.
+Animated inputs become stills. Apple WebP adds a native libwebp bridge and
+requires a rebuild; web has a bundled WASM fallback. Read the
+[image guide](../../../../../packages/image-manipulator/README.md#encode-webp)
+for ownership and limits.
+
+```ts
+import { ImageManipulator, SaveFormat } from '@octane-xplat/image-manipulator'
+
+export async function toWebP(source: string) {
+	const context = ImageManipulator.manipulate(source)
+	let pixels: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+	try {
+		pixels = await context.renderAsync()
+		return await pixels.saveAsync({ format: SaveFormat.WEBP })
+	} finally { pixels?.release(); context.release() }
+}
+// The receiving owner releases the saved ImageResult after its last use.
+```
+
+Use `@octane-xplat/media-converter` to preserve GIF animation as video.
+Check the requested output encoder and handle job rejection. Native inputs are
+local file paths/URLs. MP4 is the shared target; WebM is web-only. Keep the
+result until preview/upload finishes, then release it. Device bridge delivery
+is separate from engine/SDK qualification; see the
+[converter guide](../../../../../packages/media-converter/README.md).
+
+```ts
+import { convertGif, isAvailable, releaseVideo } from '@octane-xplat/media-converter'
+
+export async function uploadAnimation(source: string, upload: (uri: string) => Promise<void>) {
+	if (!(await isAvailable('mp4'))) throw new Error('MP4 encoding is unavailable')
+	const video = await convertGif(source).result
+	try { await upload(video.uri) } finally { releaseVideo(video) }
+}
+```
