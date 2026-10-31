@@ -48,6 +48,17 @@ test('renderReleaseBody carries the marker, an optional override, and the notes'
 	assert.doesNotMatch(inferred, /release-version-override/)
 })
 
+test('renderReleaseBody truncates oversized notes at a paragraph boundary', () => {
+	const entry = (n) => `### Entry ${n}\n\n${'x'.repeat(5000)}\n`
+	const notes = Array.from({ length: 20 }, (_, i) => entry(i)).join('\n')
+	const body = renderReleaseBody({ version: '0.9.1', notes })
+	assert.ok(body.length <= 65536, `body length ${body.length}`)
+	assert.match(body, /truncated to fit GitHub’s pull request body limit/)
+	assert.match(body, /\.release-notes\.md/)
+	assert.doesNotMatch(body, /### Entry 19/)
+	assert.ok(!body.includes(`${'x'.repeat(4990)}${'x'.repeat(20)}y`))
+})
+
 test('override subcommand reads the existing body on stdin', () => {
 	for (const [input, stdin, expected] of [
 		['', existingBody, '0.9.1\n'],

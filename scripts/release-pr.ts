@@ -31,6 +31,25 @@ export function resolveOverride(input: string, body: string | undefined): string
 	return body ? readOverride(body) : undefined
 }
 
+// GitHub rejects pull request bodies over 65,536 characters. Large releases
+// exceed that, so the notes get truncated at a paragraph boundary with a
+// pointer to the full file on the release branch.
+const BODY_LIMIT = 65000
+
+function truncateNotes(notes: string, budget: number): string {
+	const trimmed = notes.trim()
+	if (trimmed.length <= budget) {
+		return trimmed
+	}
+	const boundary = trimmed.lastIndexOf('\n\n', budget)
+	const cut = boundary > 0 ? trimmed.slice(0, boundary) : trimmed.slice(0, budget)
+	return (
+		cut.trimEnd() +
+		'\n\n---\n\n_Notes truncated to fit GitHub’s pull request body limit — ' +
+		'the full text is in `.release-notes.md` on this branch._'
+	)
+}
+
 export function renderReleaseBody({
 	version,
 	override,
@@ -40,21 +59,19 @@ export function renderReleaseBody({
 	override?: string
 	notes: string
 }): string {
-	return (
-		[
-			'<!-- xplat-release: lockstep -->',
-			...(override ? [`<!-- release-version-override: ${override} -->`] : []),
-			'',
-			`Merging this pull request releases **Octane Xplat ${version}** once \`main\` CI passes on the merged commit. If this exact tree already passed **Stable CI** on this pull request, publishing starts immediately; otherwise the release workflow runs Stable CI on the merged commit first.`,
-			'',
-			'Mark the pull request ready for review to run Stable CI. The branch is rebuilt from `main` after every push. To choose a different version, run `gh workflow run release-pr.yml -f version=<x.y.z>`; `-f version=auto` returns to inference.',
-			'',
-			'---',
-			'',
-			notes.trim(),
-			'',
-		].join('\n')
-	)
+	const preamble = [
+		'<!-- xplat-release: lockstep -->',
+		...(override ? [`<!-- release-version-override: ${override} -->`] : []),
+		'',
+		`Merging this pull request releases **Octane Xplat ${version}** once \`main\` CI passes on the merged commit. If this exact tree already passed **Stable CI** on this pull request, publishing starts immediately; otherwise the release workflow runs Stable CI on the merged commit first.`,
+		'',
+		'Mark the pull request ready for review to run Stable CI. The branch is rebuilt from `main` after every push. To choose a different version, run `gh workflow run release-pr.yml -f version=<x.y.z>`; `-f version=auto` returns to inference.',
+		'',
+		'---',
+		'',
+		'',
+	].join('\n')
+	return preamble + truncateNotes(notes, BODY_LIMIT - preamble.length - 1) + '\n'
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
