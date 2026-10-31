@@ -691,16 +691,24 @@ Constraints this creates:
   `globalThis`-only read stayed undefined on NativeScript (device shims are
   module-scope consts, not globals).
 
-## TSRX fragment initializers in the formatter
+## TSRX JSX initializers in the formatter
 
 `@octane-xplat/fmt` 0.1.1 fixes ambient declaration parsing (`.d.ts`, `.d.mts`,
-`.d.cts`), but rejects an unparenthesized multiline fragment initializer inside
-an `@{}` function followed by `@if`, reporting `TSRX_LIFT: formatted TSRX
-structure differs from the input`. Parenthesizing the initializer lets the same
-source format successfully. `packages/ui/src/components/overlays/modal-focus.web.test.tsrx` uses
-this workaround; keep it until the formatter accepts the unparenthesized form.
-This was verified through the formatter's Node API and `bun run format`, not a
-renderer runtime test.
+`.d.cts`), but rejects an unparenthesized JSX initializer inside an `@{}`
+function when the initializer stays multiline after formatting and a TSRX
+control statement (`@if`, `@for`, `@switch`, `@try`) follows it — reporting
+`TSRX_LIFT: formatted TSRX structure differs from the input`. Elements and
+fragments both trigger it; comments and blank lines between the statements do
+not prevent it, but an intervening non-TSRX statement does. Parenthesizing the
+initializer lets the same source format successfully — verified against
+elements and fragments through the formatter's Node API and `bun run format`,
+not a renderer runtime test. One residual edge: if the parenthesized
+initializer collapses to a single line when formatted, `TSRX_LIFT` still
+fires.
+`packages/ui/src/components/overlays/modal-focus.web.test.tsrx` and the five
+`.macos.tsrx` components `ActivityIndicator`, `CheckboxGroup`, `PinInput`,
+`RadioGroup`, and `Select` use this workaround; keep it until the formatter
+accepts the unparenthesized form.
 
 ```tsrx
 function Example(props: { visible: boolean }) @{
