@@ -38,17 +38,22 @@ try {
 
 	const tarball = readdirSync(temporary).find((file) => file.endsWith('.tgz'))
 
-	// The packed platform's `workspace:*` dep on @octane-xplat/lib resolves to
-	// the published version, which predates ./capability — pin the in-repo pack.
-	const libPack = join(temporary, 'lib-pack')
-	mkdirSync(libPack)
-	execFileSync('bun', ['pm', 'pack', '--destination', libPack], {
-		cwd: join(root, '../lib'),
-		stdio: 'pipe',
-		shell: process.platform === 'win32',
-	})
+	// The packed platform's `workspace:*` deps resolve to published versions that
+	// predate this tree (lib's ./capability) or are not yet published (release
+	// bump) — pin the in-repo packs.
+	const overrides = {}
+	for (const dep of ['lib', 'jsx']) {
+		const depPack = join(temporary, `${dep}-pack`)
+		mkdirSync(depPack)
+		execFileSync('bun', ['pm', 'pack', '--destination', depPack], {
+			cwd: join(root, '..', dep),
+			stdio: 'pipe',
+			shell: process.platform === 'win32',
+		})
 
-	const libTarball = readdirSync(libPack).find((file) => file.endsWith('.tgz'))
+		const depTarball = readdirSync(depPack).find((file) => file.endsWith('.tgz'))
+		overrides[`@octane-xplat/${dep}`] = `file:${join(depPack, depTarball)}`
+	}
 
 	writeFileSync(
 		join(temporary, 'package.json'),
@@ -56,13 +61,9 @@ try {
 			private: true,
 			type: 'module',
 			dependencies: { '@octane-xplat/platform': `file:${join(temporary, tarball)}` },
+			overrides,
 		}),
 	)
-
-	const file = join(temporary, 'package.json')
-	const consumer = JSON.parse(readFileSync(file, 'utf8'))
-	consumer.overrides = { '@octane-xplat/lib': `file:${join(libPack, libTarball)}` }
-	writeFileSync(file, JSON.stringify(consumer))
 
 	writeFileSync(join(temporary, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
 	execFileSync('bun', ['install', '--ignore-scripts', '--no-peer'], {

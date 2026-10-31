@@ -36,6 +36,14 @@ try {
 
 	run('bun', ['pm', 'pack', '--destination', pack], root)
 	const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
+
+	// The packed lingui's `workspace:*` dep on @octane-xplat/jsx resolves to the
+	// pending release version — pin the in-repo pack.
+	const jsxPack = join(temporary, 'jsx-pack')
+	mkdirSync(jsxPack)
+	run('bun', ['pm', 'pack', '--destination', jsxPack], join(root, '../jsx'))
+	const jsxArchive = readdirSync(jsxPack).find((name) => name.endsWith('.tgz'))
+
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 	const octane = JSON.parse(readFileSync(join(root, 'node_modules/octane/package.json'), 'utf8'))
 	writeFileSync(
@@ -50,6 +58,7 @@ try {
 				octane: octane.version,
 				'@tsrx/oxc': octane.peerDependencies['@tsrx/oxc'],
 			},
+			overrides: { '@octane-xplat/jsx': `file:${join(jsxPack, jsxArchive)}` },
 		}),
 	)
 
