@@ -48,6 +48,7 @@
 		"access": "public"
 	},
 	"scripts": {
+		"test": "node --test tests/native-registration.test.mjs",
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",

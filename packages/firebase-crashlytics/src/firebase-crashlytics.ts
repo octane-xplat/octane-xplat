@@ -1,6 +1,9 @@
 // Crashlytics — native leaf. Shares the firebase-core app bootstrap with
 // firebase-analytics and push; fatal reports upload on next launch.
 import { firebase } from '@nativescript/firebase-core'
+// Registers `firebase().crashlytics()` — the accessor is installed by the
+// module's import side effect.
+import '@nativescript/firebase-crashlytics'
 import type { CrashlyticsService } from './types'
 
 const instance = () => {

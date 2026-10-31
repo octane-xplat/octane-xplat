@@ -290,18 +290,15 @@ not close those native gates.
 Crashlytics is an iOS/Android alternative; its Xplat web and desktop leaves are
 unsupported. Complete [NativeScript Firebase setup](https://firebase.nativescript.org/)
 with the matching app's `GoogleService-Info.plist`/`google-services.json`, app
-initialization and symbol-upload configuration. The current wrapper misses the
-plugin's JS registration import ([#75](https://github.com/octane-xplat/octane-xplat/issues/75)).
-Until corrected, declare the plugin directly and load it at native bootstrap:
+initialization and symbol-upload configuration. The native leaf loads
+`@nativescript/firebase-crashlytics` on import, which registers
+`firebase().crashlytics()` before the service's first use:
 
 ```sh
 bun add @octane-xplat/firebase-crashlytics @nativescript/firebase-crashlytics@5.0.2
 ```
 
-This import belongs in a native entry, before using the configured service:
-
 ```ts
-import '@nativescript/firebase-crashlytics'
 import { crashlytics } from '@octane-xplat/firebase-crashlytics'
 
 export async function reportNativeHandledCheck() {
@@ -327,7 +324,7 @@ in an owned test build, then relaunch and inspect the correctly identified repor
 | Event has the wrong build | SDK release/dist versus uploaded artifacts and the installed/deployed file; do not reuse build identity |
 | Browser stack stays compressed | Upload includes the actual injected bundle and matching map; verify Debug IDs and use the exact deployed output |
 | Native stack is unreadable | Separate JavaScript maps, iOS dSYMs, Android shrinker mapping and native symbols; check #74 rather than assuming the browser pipeline applies |
-| Crashlytics says unavailable | Firebase app configuration/initialization and the explicit registration workaround in #75 |
+| Crashlytics says unavailable | Firebase app configuration/initialization |
 | Stop reporting seems ineffective | Ensure only one SDK owner exists; distinguish new reports from a request already in flight |
 
 The maintained checks exercise the browser filter and collection lifecycle with

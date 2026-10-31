@@ -29,7 +29,7 @@ Use the [production-error guide](../../../../../docs/testing/production-errors.m
 for a browser SDK owner with filtering/collection controls, Debug ID artifacts
 and project-delivery checks. The framework Sentry wrapper lacks those typed
 controls (#73); native Vite artifact qualification remains open (#74).
-Crashlytics is native-only and currently needs an explicit plugin import (#75).
+Crashlytics is native-only; its leaf registers the plugin on import.
 Do not infer desktop support from a browser re-export or native crash delivery
 from a handled JavaScript report. Keep upload tokens out of runtime config.
 
