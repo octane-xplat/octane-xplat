@@ -51,6 +51,7 @@ const dependencies = [
 	'@nativescript-community/octane',
 	'@nativescript/core',
 	'@nativescript/types',
+	'@octane-xplat/jsx',
 ]
 
 const movieConsumer = `
