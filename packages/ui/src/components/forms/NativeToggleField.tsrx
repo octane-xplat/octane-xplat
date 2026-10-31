@@ -5,7 +5,7 @@ import type { FieldControlProps, Renderable } from '../../props'
 /** Field owner for native selection controls. Boolean toggles keep inline
  * labels; groups can delegate their heading to FormField. An existing Field
  * bypasses this wrapper. */
-export function NativeToggleField(props: FieldControlProps & { id?: string; children?: Renderable; inlineLabel?: boolean; isGroupLabel?: boolean }) @{
+export function NativeToggleField(props: FieldControlProps & { id?: string; children?: Renderable; inlineLabel?: boolean; isGroupLabel?: boolean }): unknown @{
 	<FormField inputID={props.id} width={props.width} size={props.size}
 		label={props.inlineLabel === false ? props.label : undefined}
 		description={props.inlineLabel === false ? props.description : undefined}

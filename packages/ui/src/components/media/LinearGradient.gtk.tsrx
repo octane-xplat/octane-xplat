@@ -6,7 +6,7 @@ import type { LinearGradientProps } from '../../internal-props'
  *  `linear-gradient()` natively (the web leaf's exact output). The shared
  *  native leaf needs a platform view hook (`linear-gradient-apply`); GTK
  *  needs none. */
-export function LinearGradient(props: LinearGradientProps) @{
+export function LinearGradient(props: LinearGradientProps): unknown @{
 	const dir = props.direction === 'horizontal' ? 'to right' : 'to bottom'
 	<masonview
 		id={props.id}

@@ -45,7 +45,7 @@ const edgeStyle = (position: ToastPosition, inset: ToastViewportProps['inset']) 
 		),
 	)
 
-function ToastCard(props: { entry: ToastEntry }) @{
+function ToastCard(props: { entry: ToastEntry }): unknown @{
 	<Toast
 		{...props.entry.options}
 		isExiting={props.entry.exiting}
@@ -55,7 +55,7 @@ function ToastCard(props: { entry: ToastEntry }) @{
 
 /** One edge column, newest entry sitting at the screen edge — top stacks
  *  reverse the queue, bottom stacks keep it. */
-function ToastEdgeStack(props: { entries: ToastEntry[]; position: ToastPosition }) @{
+function ToastEdgeStack(props: { entries: ToastEntry[]; position: ToastPosition }): unknown @{
 	const top = props.position.startsWith('top')
 	const ordered = top ? [...props.entries].reverse() : props.entries
 	const end = props.position.endsWith('End')
@@ -93,7 +93,7 @@ export function GtkToastSurface(props: {
 	maxVisible?: number
 	inset?: ToastViewportProps['inset']
 	layers: Partial<Record<ToastPosition, any>>
-}) @{
+}): unknown @{
 	const entries = useStore(toastStore)
 	const scheme = useThemeScheme()
 	const mine = entries.filter((entry) => toastOnViewport(entry, props.viewportId))

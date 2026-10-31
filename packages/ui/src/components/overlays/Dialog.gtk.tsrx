@@ -34,7 +34,7 @@ function DialogBody(props: DialogProps & { titleId: string }) @{
 	</masonview>
 }
 
-export function DialogHeader(props: DialogHeaderProps) @{
+export function DialogHeader(props: DialogHeaderProps): unknown @{
 	const ctx = useContext(DialogContext)
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 
@@ -65,7 +65,7 @@ export function DialogHeader(props: DialogHeaderProps) @{
  *  on the root's `Gtk.Overlay` (the in-window RootLayout equivalent), with
  *  content portaled from the declaring root. `purpose` maps to scrim
  *  dismiss; `finalFocusRef` returns focus on close. */
-export function Dialog(props: DialogProps) @{
+export function Dialog(props: DialogProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.isOpen ?? internal
 	const titleId = useId()

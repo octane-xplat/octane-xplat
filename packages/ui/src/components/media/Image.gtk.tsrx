@@ -35,7 +35,7 @@ const fitToStretch: Record<string, 'aspectFit' | 'aspectFill' | 'fill' | 'none'>
 	none: 'none',
 }
 
-export function Image(props: ImageProps) @{
+export function Image(props: ImageProps): unknown @{
 	const srcString = (Array.isArray(props.src) ? props.src[0]?.uri : props.src) ?? ''
 	const svg = srcString.startsWith('data:image/svg+xml')
 	const placeholder = useMemo(

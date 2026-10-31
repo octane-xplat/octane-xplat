@@ -31,7 +31,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
 	options: CommandPaletteProps<T>
 	controller: ReturnType<typeof createCommandPaletteController<T>>
 	depth: number
-}) @{
+}): unknown @{
 	const options = props.options
 	const controller = props.controller
 	const state = useStore(controller.store)
@@ -229,7 +229,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
  *  dismiss. */
 export function CommandPalette<T extends CommandPaletteItem>(
 	options: CommandPaletteProps<T>,
-) @{
+): unknown @{
 	const controller = useMemo(() => createCommandPaletteController(() => options), [])
 	useEffect(
 		() => controller.configure(options),

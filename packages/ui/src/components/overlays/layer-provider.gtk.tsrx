@@ -2,7 +2,7 @@
 import { createContext, useContext, useMemo } from 'octane'
 import type { LayerContextValue, LayerProviderProps, LayerToastConfig } from '../../props'
 
-export const LayerContext = createContext<LayerContextValue | null>(null)
+export const LayerContext: any = createContext<LayerContextValue | null>(null)
 export const LayerProviderContext: any = LayerContext
 
 export function useLayerContext(): LayerContextValue | null {
@@ -15,7 +15,7 @@ const DEFAULT_TOAST_CONFIG: LayerToastConfig = {}
  *  provides the layer/toast context values. The shared leaf's `ToastViewport`
  *  is the nativescript `RootLayout` path (toast family is slice D3), so this
  *  leaf ships the context surface only; viewport registration lands with D3. */
-export function LayerProvider(props: LayerProviderProps) @{
+export function LayerProvider(props: LayerProviderProps): unknown @{
 	const existing = useLayerContext()
 	const toast = props.toast ?? DEFAULT_TOAST_CONFIG
 	const value = useMemo<LayerContextValue>(

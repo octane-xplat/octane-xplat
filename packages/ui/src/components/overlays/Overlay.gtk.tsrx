@@ -9,7 +9,7 @@ import { cx } from '@octane-xplat/lib'
 /** Renders children in a portal on the root's `Gtk.Overlay` layer — the
  *  in-window surface above the root content (matching the native
  *  `RootLayout` / macOS `presentSurface` hosting model). */
-export function Overlay(props: OverlayProps) @{
+export function Overlay(props: OverlayProps): unknown @{
 	const hostView = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.open ?? internal

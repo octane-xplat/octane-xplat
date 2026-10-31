@@ -120,7 +120,7 @@ function SearchInputControl(inputProps: SearchInputProps) @{
 
 
 /** Keep field chrome and its editor owner mounted across label/status changes. */
-export function SearchInput(inputProps: SearchInputProps) @{
+export function SearchInput(inputProps: SearchInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const props = useFieldControlProps(inputProps)
 	@if (inField) {

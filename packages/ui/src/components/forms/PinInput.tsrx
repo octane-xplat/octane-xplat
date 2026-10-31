@@ -106,7 +106,7 @@ function PinInputControl(props: PinInputProps) @{
 }
 
 /** One field owns the group; numbered editors retain unique identities. */
-export function PinInput(props: PinInputProps) @{
+export function PinInput(props: PinInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	@if (inField) {
 		<PinInputControl {...props} />

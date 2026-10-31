@@ -70,7 +70,7 @@ export function GtkSheetPanel(props: {
 	id?: string
 	requestDismiss: () => void
 	children?: any
-}) @{
+}): unknown @{
 	const panel = useRef<any>(null)
 	const grabber = useRef<any>(null)
 	const dismiss = useRef(props.requestDismiss)
@@ -166,7 +166,7 @@ export function GtkSheetPanel(props: {
  *  with content portaled from that tree. With `sheetId` inside
  *  `BottomSheetSwitcher` it registers under the switcher's shared host
  *  instead. */
-export function BottomSheet(props: BottomSheetProps) @{
+export function BottomSheet(props: BottomSheetProps): unknown @{
 	const switcher = useContext(BottomSheetSwitcherContext)
 	const sentinel = useRef<any>(null)
 	const [layer, setLayer] = useState<any>(null)
@@ -346,7 +346,7 @@ function SwitcherPanel(props: {
 	style?: any
 	id?: string
 	requestDismiss: () => void
-}) @{
+}): unknown @{
 	const sheet = props.spec?.props
 
 	<GtkSheetPanel
@@ -368,7 +368,7 @@ function SwitcherPanel(props: {
 /** Shared host for a set of BottomSheet panels (Astryx
  *  `BottomSheetSwitcher`), GTK leaf — one overlay-layer host whose content
  *  is driven by a module-scope registration store. */
-export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
+export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 	const sentinel = useRef<any>(null)
 	const shown = useRef<any>(null)
 	const releasing = useRef(false)

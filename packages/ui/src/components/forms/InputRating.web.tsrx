@@ -8,7 +8,7 @@ import { useIconRegistry } from '../media/icon-registry-context'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.web.tsrx'
 
-function InputRatingControl(inputProps: InputRatingProps) @{
+function InputRatingControl(inputProps: InputRatingProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const max = props.max ?? 5
 	const scores = Array.from({ length: max }, (_, i) => i + 1)
@@ -106,7 +106,7 @@ function InputRatingControl(inputProps: InputRatingProps) @{
 }
 
 /** A labelled rating field with one selected score and filled preceding glyphs. */
-export function InputRating(props: InputRatingProps) @{
+export function InputRating(props: InputRatingProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	@if (inField) {
 		<InputRatingControl {...props} />

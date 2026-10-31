@@ -20,7 +20,7 @@ export function getFocusScopeCapabilities(): FocusScopeCapabilities {
 /** Focus scope (Astryx `FocusScope`), GTK leaf — a styled container that
  *  delegates containment to the overlay host's modal suppression; the
  *  nativescript `escape-props` accessibility props don't apply. */
-export function FocusScope(props: FocusScopeProps) @{
+export function FocusScope(props: FocusScopeProps): unknown @{
 	const refs = useMemo(() => refList(props.ref), [props.ref])
 	<masonview
 		className={cx('vx-focus-scope', props.className)}

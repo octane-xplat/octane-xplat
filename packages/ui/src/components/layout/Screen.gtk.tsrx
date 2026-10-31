@@ -18,7 +18,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
  *
  * @see ScreenProps, SafeAreaProps.
  */
-export function Screen(props: ScreenProps) @{
+export function Screen(props: ScreenProps): unknown @{
 	<masonview
 		className="vx-screen-shell"
 		id={props.id}

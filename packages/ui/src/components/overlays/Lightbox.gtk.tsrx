@@ -199,7 +199,7 @@ function LightboxPanel(props: {
  *  declaring tree. Swipe/arrow keys navigate, double-tap zooms images,
  *  scrim tap and Escape dismiss. `type:'video'` falls back to alt text —
  *  the video widget lives in the `@octane-xplat/video` leaf package. */
-export function Lightbox(props: LightboxProps) @{
+export function Lightbox(props: LightboxProps): unknown @{
 	const sentinel = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultIndex ?? 0)
 	const [layer, setLayer] = useState<any>(null)

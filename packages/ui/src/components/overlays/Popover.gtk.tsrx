@@ -88,7 +88,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any }) @{
 
 /** GTK owns the native surface; portal content keeps the declaring root,
  * context and shared layer authority. */
-export function Popover(props: PopoverProps) @{
+export function Popover(props: PopoverProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const [anchor, setAnchor] = useState<any>(null)
 	const open = props.open ?? internal

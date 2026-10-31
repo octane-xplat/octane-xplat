@@ -11,7 +11,7 @@ import { Pressable } from '../actions/Pressable'
 
 /** One numeric owner supplies both the editor and the optional actions.
  * TextInput reconciles rejected edits without replacing its native editor. */
-function InputNumberControl(inputProps: InputNumberProps) @{
+function InputNumberControl(inputProps: InputNumberProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const editor = useRef<TextInputHandle | null>(null)
 	const [internal, setInternal] = useState(props.defaultValue)
@@ -100,7 +100,7 @@ function InputNumberControl(inputProps: InputNumberProps) @{
 
 /** A persistent field frame keeps label/status/width outside the editor and
  * steppers. An explicit Field supplies the same defaults without nesting. */
-export function InputNumber(inputProps: InputNumberProps) @{
+export function InputNumber(inputProps: InputNumberProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const props = useFieldControlProps(inputProps)
 	@if (inField) {

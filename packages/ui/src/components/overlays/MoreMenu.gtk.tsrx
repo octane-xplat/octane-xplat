@@ -33,7 +33,7 @@ function popoverPlacement(placement?: MoreMenuPlacement): any {
 // 'adaptive' resolves to the anchored popover on fine-pointer desktops
 // (menu-sheet.gtk owns the coarse-pointer answer for Dropdown/Context
 // menus — MoreMenu's inline branch mirrors that split).
-export function MoreMenu(props: MoreMenuProps) @{
+export function MoreMenu(props: MoreMenuProps): unknown @{
 	const [localOpen, setLocalOpen] = useState(false)
 	const MenuItemView: any = Pressable
 	const open = props.isMenuOpen ?? localOpen

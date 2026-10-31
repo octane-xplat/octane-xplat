@@ -11,7 +11,7 @@ import { layoutChildProps } from '../layout/layout-child'
  *  `load-failed`, which the renderer splits into onLoad/onError. The web
  *  process needs a session D-Bus for WebKitGTK's bubblewrap sandbox —
  *  headless runs without one stall mid-load. */
-export function WebView(props: WebViewProps) @{
+export function WebView(props: WebViewProps): unknown @{
 	const view = useRef<any>(null)
 	const currentProps = useRef(props)
 	currentProps.current = props

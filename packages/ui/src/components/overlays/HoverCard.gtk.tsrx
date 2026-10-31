@@ -8,7 +8,7 @@ import { View } from '../layout/View'
  *  leaf; the `useHoverCard` hook resolves to `use-hover-card.gtk.tsrx`, which
  *  wires Gtk.EventControllerMotion pointer intent instead of AppKit tracking
  *  areas. `focusTrigger` has no native focus traversal to key on — inert. */
-export function HoverCard(props: HoverCardProps) @{
+export function HoverCard(props: HoverCardProps): unknown @{
 	const card = useHoverCard({
 		placement: props.placement,
 		alignment: props.alignment,

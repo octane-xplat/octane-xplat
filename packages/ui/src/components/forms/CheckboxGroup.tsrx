@@ -12,7 +12,7 @@ import { CheckboxListProvider } from './option-list-contexts'
 /** CheckboxGroup — multi-select list of self-drawn checkboxes. Options and
  *  child parts share one checked-set and field owner; `hasDividers` adds
  *  the divided class. */
-function CheckboxGroupControl(inputProps: CheckboxGroupProps) @{
+function CheckboxGroupControl(inputProps: CheckboxGroupProps): unknown @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState<string[]>(props.defaultValue ?? [])
 	const controlled = props.value !== undefined
@@ -64,7 +64,7 @@ function CheckboxGroupControl(inputProps: CheckboxGroupProps) @{
 	</masonview>
 }
 
-export function CheckboxGroup(props: CheckboxGroupProps) @{
+export function CheckboxGroup(props: CheckboxGroupProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	@if (inField) {
 		<CheckboxGroupControl {...props} />

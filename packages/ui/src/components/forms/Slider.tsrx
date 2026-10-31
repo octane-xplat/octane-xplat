@@ -136,7 +136,7 @@ function SliderControl(inputProps: SliderProps) @{
 	</masonview>
 }
 
-export function Slider(props: SliderProps) @{
+export function Slider(props: SliderProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	@if (inField) {
 		<SliderControl {...props} />

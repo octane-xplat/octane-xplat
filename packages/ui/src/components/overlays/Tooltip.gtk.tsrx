@@ -8,7 +8,7 @@ import { createPortal } from '../../internal/platform/native-portal'
 
 /** Native GTK owns intent and popup geometry; the portal keeps content in
 	* this component's universal root, including its context and updates. */
-export function Tooltip(props: TooltipProps) @{
+export function Tooltip(props: TooltipProps): unknown @{
 	const anchor = useRef<any>(null)
 	const [session, setSession] = useState<any>(null)
 	const [open, setOpen] = useState(false)

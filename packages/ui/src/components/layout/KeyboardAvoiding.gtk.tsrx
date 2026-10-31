@@ -12,7 +12,7 @@ import { cx } from '@octane-xplat/lib'
  *
  * @see KeyboardAvoidingProps, useKeyboardInset.
  */
-export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
+export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
 	const forwardedRef = useMemo(() => refList(props.ref), [props.ref])
 
 	<masonview

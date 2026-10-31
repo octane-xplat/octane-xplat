@@ -13,7 +13,7 @@ import { themeSchemeClasses } from '../../theme/theme-host'
  *  a modal overlay layer instead — scrim covers the window, the panel
  *  docks start and fills height. `main` renders inline. Backdrop tap and
  *  Escape fire `onDismiss`; uncontrolled drawers close on their own. */
-export function Drawer(props: DrawerProps) @{
+export function Drawer(props: DrawerProps): unknown @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.open ?? internal
 	const sentinel = useRef<any>(null)

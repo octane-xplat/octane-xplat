@@ -14,7 +14,7 @@ const SWIPE_DISMISS_DIP = 44
  * threshold; `accessibilityLiveRegion` announces info politely and errors
  * assertively.
  */
-export function Toast(props: ToastProps) @{
+export function Toast(props: ToastProps): unknown @{
 	const type = props.type ?? 'info'
 	const autoHide = props.isAutoHide ?? type !== 'error'
 	const duration = Math.max(0, props.autoHideDuration ?? 5000)

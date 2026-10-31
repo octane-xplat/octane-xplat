@@ -111,7 +111,7 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
 }
 
 
-export function RadioGroup(props: RadioGroupProps) @{
+export function RadioGroup(props: RadioGroupProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	@if (inField) {
 		<RadioGroupControl {...props} />

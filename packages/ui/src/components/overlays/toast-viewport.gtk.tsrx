@@ -12,7 +12,7 @@ import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surf
  *  owns routing config (`position`, `maxVisible`) so `useToast` inside it
  *  docks there; `inset` applies as extra edge margin and `isTopLayer`
  *  stays web semantics. */
-export function ToastViewport(props: ToastViewportProps) @{
+export function ToastViewport(props: ToastViewportProps): unknown @{
 	const id = useId()
 	const sentinel = useRef<any>(null)
 	const [layers, setLayers] = useState<Partial<Record<ToastPosition, any>> | null>(null)

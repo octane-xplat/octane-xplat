@@ -61,7 +61,7 @@ function SegmentedControlBody(inputProps: SegmentedControlProps) @{
 	</masonview>
 }
 
-export function SegmentedControl(props: SegmentedControlProps) @{
+export function SegmentedControl(props: SegmentedControlProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	@if (inField) {
 		<SegmentedControlBody {...props} />
