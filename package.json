@@ -199,7 +199,8 @@
 		"@tsrx/typescript-plugin@0.4.11": "packages/cli/patches/@tsrx__typescript-plugin@0.4.11.patch",
 		"@octanejs/tiptap@0.0.61": "packages/cli/patches/@octanejs__tiptap@0.0.61.patch",
 		"@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
-		"@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch"
+		"@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",
+		"@nativescript-community/sqlite-bridge@4.1.1": "packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch"
 	},
 	"engines": {
 		"bun": ">=1.4.4"

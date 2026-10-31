@@ -146,6 +146,21 @@ interop.Pointer` isn't re-entrant as a destructor arg (share the
 - Upstream bug found: the plugin's `get`/`getArray` crash on iOS (`getRaw`
   reads `resultDictionary` before `s.next()`). The leaf routes them over
   `select`/`selectArray` — same contract, working code.
+- Upstream packaging bug (`@nativescript-community/sqlite-bridge@4.1.1`):
+  every `NSSqliteBridge.xcframework` slice carries a bare
+  `Headers/module.modulemap` (`module NSSqlite`). Xcode's
+  ProcessXCFramework declares `include/module.modulemap` as the output for
+  each library-style xcframework, so co-installing any second
+  modulemap-carrying library xcframework — e.g. `@nativescript/font-manager`'s
+  SwiftPM `FontManager.xcframework` binary target — fails the app build with
+  `Multiple commands produce .../include/module.modulemap` (build evidence:
+  stable CI `native-ios-tests`/`native-ios` on the mobile Debug-iphonesimulator
+  build). The map only enables `import NSSqlite` from Swift/ObjC sources;
+  NativeScript reaches the `NSSqliteBridge` ObjC class through runtime
+  metadata generated from the retained headers. Local patch
+  `packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch`
+  deletes the three modulemaps; drop it if upstream renames/drops the maps or
+  ships a framework-style xcframework.
 - `threading: true` on-device behavior (workers survive HMR? cost per call?)
   on the mobile harness.
 

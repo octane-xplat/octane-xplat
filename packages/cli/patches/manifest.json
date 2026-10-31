@@ -101,6 +101,13 @@
 			"scope": "toolchain",
 			"why": "@tsrx/core's parser crashes on `const` type parameters inside type-literal signatures — tsFillSignature calls tsTryParseTypeParameters() without the modifier parser, so call signatures, method signatures, and function-type expressions carrying `<const T>` throw `Unexpected keyword 'const'` (typed-router generics like @octane-xplat/ui's RouteGroupDefiner hit this). Passes tsParseConstModifier through, matching function-declaration handling. Applies to a transitive dep of @tsrx/core — no app declares it directly.",
 			"dropWhen": "Upstream acorn-typescript passes tsParseConstModifier to tsTryParseTypeParameters in tsFillSignature, so `const` type parameters parse in type-literal call signatures, method signatures, and function-type expressions."
+		},
+		{
+			"specifier": "@nativescript-community/sqlite-bridge@4.1.1",
+			"file": "@nativescript-community__sqlite-bridge@4.1.1.patch",
+			"scope": "build",
+			"why": "Each NSSqliteBridge.xcframework slice ships a bare Headers/module.modulemap declaring `module NSSqlite`, so Xcode's ProcessXCFramework declares .../include/module.modulemap as its output — the same fixed path SwiftPM's FontManager.xcframework binary target emits, failing iOS builds with 'Multiple commands produce .../include/module.modulemap'. The map only enables `import NSSqlite` in Swift/ObjC sources; NativeScript reaches the NSSqliteBridge ObjC class through runtime metadata generated from the retained headers, so deleting it costs nothing in-app.",
+			"dropWhen": "Upstream renames or drops the per-slice modulemap (or ships a framework-style xcframework) so ProcessXCFramework no longer emits include/module.modulemap alongside another modulemap-carrying library xcframework."
 		}
 	]
 }

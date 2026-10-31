@@ -1,0 +1,30 @@
+diff --git a/platforms/ios/NSSqliteBridge.xcframework/ios-arm64/Headers/module.modulemap b/platforms/ios/NSSqliteBridge.xcframework/ios-arm64/Headers/module.modulemap
+deleted file mode 100644
+index 5c114bd2d94ff8e574cb6c09f5df6a85345ce2b5..0000000000000000000000000000000000000000
+--- a/platforms/ios/NSSqliteBridge.xcframework/ios-arm64/Headers/module.modulemap
++++ /dev/null
+@@ -1,4 +0,0 @@
+-module NSSqlite {
+-    header "NSSqliteBridge.h"
+-    export *
+-}
+diff --git a/platforms/ios/NSSqliteBridge.xcframework/ios-arm64_x86_64-maccatalyst/Headers/module.modulemap b/platforms/ios/NSSqliteBridge.xcframework/ios-arm64_x86_64-maccatalyst/Headers/module.modulemap
+deleted file mode 100644
+index 5c114bd2d94ff8e574cb6c09f5df6a85345ce2b5..0000000000000000000000000000000000000000
+--- a/platforms/ios/NSSqliteBridge.xcframework/ios-arm64_x86_64-maccatalyst/Headers/module.modulemap
++++ /dev/null
+@@ -1,4 +0,0 @@
+-module NSSqlite {
+-    header "NSSqliteBridge.h"
+-    export *
+-}
+diff --git a/platforms/ios/NSSqliteBridge.xcframework/ios-arm64_x86_64-simulator/Headers/module.modulemap b/platforms/ios/NSSqliteBridge.xcframework/ios-arm64_x86_64-simulator/Headers/module.modulemap
+deleted file mode 100644
+index 5c114bd2d94ff8e574cb6c09f5df6a85345ce2b5..0000000000000000000000000000000000000000
+--- a/platforms/ios/NSSqliteBridge.xcframework/ios-arm64_x86_64-simulator/Headers/module.modulemap
++++ /dev/null
+@@ -1,4 +0,0 @@
+-module NSSqlite {
+-    header "NSSqliteBridge.h"
+-    export *
+-}
