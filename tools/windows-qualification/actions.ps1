@@ -94,7 +94,8 @@ function Read-Tree {
   $nodes=Get-Content ($prefix+'-rows.json') -Raw|ConvertFrom-Json
   foreach($node in $nodes){$node}
  }finally{
-  if(-not $client.HasExited){$client.Kill();$client.WaitForExit()}
+  # A terminating UIA client can remain blocked on its provider.
+  if(-not $client.HasExited){$client.Kill();$null=$client.WaitForExit(5000)}
   $client.Dispose()
  }
 }
@@ -304,7 +305,7 @@ function Uia-Action([string]$Operation,[string]$Name='',[string]$Type=''){
   if($result.rootProcessId -ne $script:AppProcessId -or $result.status -notin @('completed','rejected')){throw 'UIA action identity or completion mismatch'}
   return $result
  }finally{
-  if(-not $client.HasExited){$client.Kill();$client.WaitForExit()}
+  if(-not $client.HasExited){$client.Kill();$null=$client.WaitForExit(5000)}
   $client.Dispose()
  }
 }

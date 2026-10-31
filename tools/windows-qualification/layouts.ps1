@@ -92,7 +92,8 @@ function Read-Tree {
   $nodes=Get-Content ($prefix+'-rows.json') -Raw|ConvertFrom-Json
   foreach($node in $nodes){$node}
  }finally{
-  if(-not $client.HasExited){$client.Kill();$client.WaitForExit()}
+  # Let the owning driver stop a hung app instead of waiting indefinitely.
+  if(-not $client.HasExited){$client.Kill();$null=$client.WaitForExit(5000)}
   $client.Dispose()
  }
 }

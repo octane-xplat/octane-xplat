@@ -89,7 +89,8 @@ UIA reads run in a separate MTA process, following Microsoft's
 [threading guidance](https://learn.microsoft.com/en-us/windows/win32/winauto/uiauto-threading).
 Each read verifies that the window belongs to the expected app process and has
 a 30-second deadline. A timeout records the last API reached and fails the
-case; the caller can still stop its app and retain the failure evidence.
+case. Cleanup waits at most five more seconds after terminating the client,
+so the enclosing driver can stop its owned app and retain the failure evidence.
 
 ## Read the output
 
