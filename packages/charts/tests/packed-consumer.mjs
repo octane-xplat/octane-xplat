@@ -51,6 +51,7 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript/types',
 	'@octane-xplat/ui',
+	'@octane-xplat/jsx',
 	'@octane-xplat/macos-renderer',
 	'd3-scale',
 	'd3-shape',
@@ -94,7 +95,7 @@ const extraFiles = {}
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
 	macos: {
-		jsxImportSource: '@octane-xplat/macos-renderer',
+		jsxImportSource: '@octane-xplat/jsx',
 		moduleSuffixes: ['.macos', ''],
 		customConditions: ['macos'],
 		types: [],

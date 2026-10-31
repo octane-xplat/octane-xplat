@@ -80,9 +80,13 @@ try {
 		assert.equal(manifest.dependencies[dep].startsWith('workspace:'), false)
 	}
 
-	assert.ok(manifest.exports['.'].web.default.startsWith('./src/'))
-	assert.ok(manifest.exports['.'].native.default.startsWith('./src/'))
-	assert.ok(manifest.exports['.'].macos.default.startsWith('./src/'))
+	for (const condition of ['web', 'native', 'macos']) {
+		const conditionExport = manifest.exports['.'][condition]
+		const conditionTarget =
+			typeof conditionExport === 'string' ? conditionExport : conditionExport?.default
+		assert.ok(conditionTarget.startsWith('./src/'))
+	}
+
 	assert.ok(manifest.exports['./build'].default.startsWith('./dist/'))
 	const macosComponent = readFileSync(join(packed, 'src/NanoIcon.macos.tsrx'), 'utf8')
 	assert.equal(
@@ -109,7 +113,7 @@ try {
 				'pathkit-wasm',
 				'svg2ttf',
 				...(target === 'native' ? ['@nativescript-community/octane', '@nativescript/core'] : []),
-				...(target === 'macos' ? ['@octane-xplat/macos-renderer'] : []),
+				...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-renderer'] : []),
 			]) {
 				const destination = join(modules, dependency)
 				mkdirSync(dirname(destination), { recursive: true })
@@ -152,7 +156,7 @@ try {
 							target === 'native'
 								? '@nativescript-community/octane'
 								: target === 'macos'
-									? '@octane-xplat/macos-renderer'
+									? '@octane-xplat/jsx'
 									: 'octane',
 						customConditions: [target],
 						moduleSuffixes:
