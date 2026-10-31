@@ -1,8 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
 import { registerElement } from '@nativescript-community/octane'
+import { isAndroid } from '@nativescript/core'
 import { Video as NSVideo, VideoFill } from '@nstudio/nativescript-exoplayer'
 import type { VideoHandle, VideoProps } from './props'
+import { seekToTime } from './seek-time'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { layoutChildProps } from './layout-child'
 import { VideoChrome } from './video-chrome.tsrx'
@@ -19,10 +21,13 @@ const FILLS: Record<string, any> = {
 	fill: VideoFill.fill,
 }
 
+const platform = isAndroid ? 'android' : 'ios'
+
 /** Video — surface-hosted: the plugin supplies the engine surface
  *  (`controls={false}` strips AVPlayerViewController/PlayerView chrome) and
- *  the shared `VideoChrome` draws the transport on top. Times are ms —
- *  the plugin's native unit on both platforms. One-time wiring (escape
+ *  the shared `VideoChrome` draws the transport on top. Times are ms in
+ *  props, state and the handle; `seekToTime` converts for the plugin's
+ *  per-platform unit (Android ms, iOS seconds). One-time wiring (escape
  *  props, `src`) lands in effects: escape props are imperative writes the
  *  host prop bag can't express, and `src` must arrive after the flags (the
  *  plugin opens the clip when the src property lands). The plugin emits
@@ -100,7 +105,7 @@ export function Video(props: VideoProps): unknown @{
 	const handle = (v: any): VideoHandle => ({
 		play: () => v.play(),
 		pause: () => v.pause(),
-		seekTo: (ms: number) => v.seekToTime(ms / 1000),
+		seekTo: (ms: number) => seekToTime(v, ms, platform),
 		currentTime: () => v.getCurrentTime(),
 		duration: () => v.getDuration(),
 		native: v,
@@ -166,7 +171,7 @@ export function Video(props: VideoProps): unknown @{
 				}}
 				onSeek={(ms: number) => {
 					if (host.current) {
-						host.current.seekToTime(ms / 1000)
+						seekToTime(host.current, ms, platform)
 						setPosition(ms)
 					}
 				}}
