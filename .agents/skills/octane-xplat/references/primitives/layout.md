@@ -45,6 +45,18 @@ platforms and width resizing on Android. An iOS nested stage can still report
 zero width after settling; follow the [known-limits evidence](../known-limits.md)
 before promising nested-stage width parity.
 
+## Windows legacy Flexbox repair
+
+Keep shared layout on Mason. NativeScript's legacy Flexbox is a separate engine;
+its x64 repository-host repair needs matching Core code and Widgets binaries.
+The Windows build checks their hashes and rejects stale installed Core before
+bundling. After changing the pin or patch, refresh dependencies and rerun the
+[legacy layout regression](../../../../../tools/windows-qualification/README.md#run-the-legacy-flexbox-regression).
+Earlier bounded native geometry does not qualify a newly built package, other
+architectures or complete flex parity. See the
+[repair scope and reproduction](../../../../docs/windows-layout-repair.md#automatic-fixed-size-shrink-candidate)
+before changing either side.
+
 ## AppKit scroll offsets
 
 Use the portable ScrollableArea handle for logical start/top offsets in AppKit

@@ -2,21 +2,25 @@
 
 This note owns the local repairs for three reproduced upstream Windows layout
 defects: ignored Flexbox padding, initially zero-sized percentage Canvas
-children, and overlap after shrinking fixed-size Flexbox children. The shrink
-repair remains a separate candidate. Component support has not been upgraded.
+children, and overlap after shrinking fixed-size Flexbox children. The x64 host
+selects matching Core and native repairs. Fresh current-main packaged checks
+remain required; component support has not been upgraded.
 
 ## Repository Windows host
 
-The x64 host in `apps/windows` carries a pinned padding DLL/WinMD pair in
+The x64 host in `apps/windows` carries a pinned layout DLL/WinMD pair in
 `App_Resources/Windows/Widgets`. Its manifest identifies NativeScript commit
 `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`, the canonical native patch,
-checksums, toolchain and MIT license. This is an app-local repair; the upstream
-package remains unchanged. Other architectures retain upstream binaries and
-remain unqualified. The separate legacy shrink limitation below remains open.
+checksums, toolchain and MIT license. The native repair is app-local; Core's
+matching parent-lifecycle code is in the canonical preview package patch.
+Other architectures retain upstream binaries and remain unqualified. Full
+legacy flex parity remains open beyond the bounded shrink cases below.
 
 The host verifies both the repaired pair and the expected upstream pair before
 building. A dependency change therefore requires reviewing or rebuilding the
-repair. Content items stage it before MSIX discovery; a target after
+repair. Vite also verifies the installed Core layout module against the
+selected pair before bundling, so stale dependencies fail with an explicit
+refresh instruction. Content items stage it before MSIX discovery; a target after
 `CopyNativeScriptWidgets` restores it after the upstream plugin's post-build
 copy. Keep both paths so the build output and MSIX select the same artifacts.
 
@@ -25,14 +29,16 @@ native-build/device reservation. Reuse the host's SDK and NuGet caches:
 
 ```powershell
 ./tools/platform-qualification/windows-layout/build-widgets.ps1 `
-  -ScratchDirectory "$env:USERPROFILE/agent-scratch/octane-xplat/<task>/widgets-rebuild"
+  -ScratchDirectory "$env:USERPROFILE/agent-scratch/octane-xplat/<task>/widgets-rebuild" `
+  -PreferredSizeCandidate
 ```
 
 `-SourceArchive` accepts a previously downloaded, hash-verified archive;
 `-PrepareOnly` checks source extraction and patch application without compiling.
 The output manifest records the actual pair hashes. Rebuilding does not update
 the checked-in pair automatically; compare packaged geometry before replacing
-it. PE build timestamps can change hashes between builds.
+it. Omitting `-PreferredSizeCandidate` rebuilds the older padding-only baseline.
+PE build timestamps can change hashes between builds.
 
 ## Repairs
 
@@ -146,11 +152,9 @@ original dependencies, native artifacts and smoke bundle before releasing it.
 
 ## State and limits
 
-Original core View and native DLL/WinMD were restored with SHA256 equality.
-The public-root smoke bundle was prepared successfully and its scheduled launch
-was requested. A final read-only SSH check timed out/stalled, so the last live
-process/response observation remains unconfirmed. Restoration hashes and
-prepare exit0 are confirmed; the shared VM lease was released.
+Find retained execution and restoration evidence through Silo and
+[operational evidence lookup](exploration.md#operational-evidence). Source or
+artifact selection does not establish a current packaged runtime pass.
 
 Silo experiments: percentage lifecycle `3485b980-5623-4b10-b237-22126d3e1594`
 (passed); native padding
@@ -158,15 +162,15 @@ Silo experiments: percentage lifecycle `3485b980-5623-4b10-b237-22126d3e1594`
 A separate explicit-width shrink defect is tracked as experiment
 `bc70da10-d64e-42ed-87df-2a6077932072`: a170-DIP row with zero padding lays out
 100-DIP children at x0 and85, overlapping15 DIP. XAML's fixed Width overrides
-the smaller arrange slot. The adopted padding pair leaves this defect open.
+the smaller arrange slot. The padding-only pair leaves this defect open; the
+selected preferred-size pair addresses it with matching Core lifecycle code.
 Complete flex sizing parity is not claimed.
 
 Local feedback records build-tool resolution, padded percentage overflow,
 Style event normalization and the shrink limitation.
 
 No public workflow or recipe has changed. Component support has not been
-upgraded. No screenshots were captured or analyzed, and no production patch
-has been published.
+upgraded. No screenshots were captured or analyzed.
 
 ## Automatic fixed-size shrink candidate
 
@@ -176,8 +180,9 @@ The candidate targets NativeScript commit
 after the native padding patch. The matching Core repair is retained as
 [TypeScript source](../../tools/platform-qualification/patches/windows-layout/core-preferred-source.patch)
 and [package JavaScript](../../tools/platform-qualification/patches/windows-layout/core-preferred-package.patch).
-These are unapplied lab patches: the repository host still selects the padding
-pair, and the canonical consumer Core patch has not adopted this change.
+The canonical preview Core patch includes this package hunk, and the repository
+host selects the matching x64 pair. These lab patches preserve the separate
+source/package reproduction; do not apply the package hunk twice.
 The [candidate manifest](../../tools/platform-qualification/patches/windows-layout/preferred-size.json)
 records the source/module hashes, patch order and matching x64 pair.
 
@@ -190,7 +195,7 @@ Prepare or rebuild this candidate in a new disposable Windows run folder:
 ```
 
 Use `-PrepareOnly` to check native patch application without compiling. This
-opt-in command does not alter repository-selected artifacts or patch Core.
+command does not alter repository-selected artifacts or patch Core.
 
 The Flexbox parent observes each child's fixed style dimensions and supplies
 them as preferred native sizes. Native measurement uses the preferred size as
@@ -216,7 +221,9 @@ The source/package lifecycle regression is registered in the root Turbo
 `test:scripts` task. The newly maintained versions still require execution;
 earlier diagnostic passes do not establish a pass for changed harness files.
 
-Adopt Core and the native pair together, reconcile canonical patch copies and
-lockfile registrations, and rerun this case from a clean packaged main build
-before closing the shrink gap. Percent flex basis, margins, min/max constraints,
-other architectures and complete flex parity remain unqualified.
+Keep Core and the native pair together when upgrading. The root regression also
+verifies installed Core/native hashes, and Vite rejects stale installed Core
+before bundling. Refresh dependencies, run maintained checks, and rerun this
+case from a clean packaged main build before closing the shrink gap. Percent
+flex basis, margins, min/max constraints, other architectures and complete
+flex parity remain unqualified.

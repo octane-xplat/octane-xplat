@@ -2,6 +2,9 @@ import { defineConfig } from 'vite'
 import { xplatNative } from '@octane-xplat/cli/vite'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
+import { verifyWindowsLayoutRepair } from './scripts/verify-layout-repair'
+
+verifyWindowsLayoutRepair()
 
 const qualificationEnabled = process.env.XPLAT_WINDOWS_QUALIFICATION === '1'
 const qualificationSource = qualificationEnabled

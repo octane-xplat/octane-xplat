@@ -7,6 +7,13 @@ framework repository's private `apps/windows` harness; it depends on workspace
 packages and preview NativeScript versions. It is a framework development
 workflow, not a downstream app setup guide.
 
+The harness keeps its patched Core layout module and app-local x64 Widgets
+binaries together. Its build rejects a stale installed Core module before
+bundling. After pulling framework changes, refresh dependencies from the
+project's frozen lockfile; do not copy an older native pair over the selected
+repair. Framework contributors can inspect the
+[layout repair and verification limits](../../.agents/docs/windows-layout-repair.md).
+
 `create-octane-xplat` does not currently offer Windows as a selectable target.
 The CLI can detect a manually configured NativeScript Windows app, but that
 alone does not establish a supported downstream setup. You do not need to clone

@@ -152,12 +152,13 @@ Those tests do not establish OS input, layout or UIA behavior.
 
 This opt-in case exercises NativeScript Flexbox, separately from the Mason
 shrinking-row case. It requires the matching preferred-size Core patch and
-Widgets DLL/WinMD candidate described in the
+Widgets DLL/WinMD pair described in the
 [repair note](../../.agents/docs/windows-layout-repair.md#automatic-fixed-size-shrink-candidate).
-The default repository host currently carries only the padding repair and is
-expected to fail the automatic-shrink assertions.
+The repository host selects that pair, and its Vite guard rejects a stale
+installed Core module. A package built from the older padding-only baseline
+is expected to fail the automatic-shrink assertions.
 
-With that candidate packaged, use a fresh PowerShell process in the signed-in
+With the matching repair packaged, use a fresh PowerShell process in the signed-in
 desktop session, the same device/input reservation, and a new output directory:
 
 ```powershell
