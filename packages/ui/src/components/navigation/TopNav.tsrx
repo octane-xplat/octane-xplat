@@ -397,6 +397,7 @@ function TopNavMenuRow(props: {
 	</Pressable>
 }
 
+/** TopNav item menu — the overflow/drawer collection for a TopNav. */
 export function TopNavMenu<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,

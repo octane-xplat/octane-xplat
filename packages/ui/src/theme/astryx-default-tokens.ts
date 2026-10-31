@@ -8,6 +8,7 @@
 
 import type { TokenValue } from './defined-theme'
 
+/** Astryx default theme token map — the fallback under every theme. */
 export const defaultThemeTokens: Record<string, TokenValue> = {
 	'--color-accent': ['#0064E0', '#2694FE'],
 	'--color-accent-muted': ['#0082FB33', '#0082FB3F'],

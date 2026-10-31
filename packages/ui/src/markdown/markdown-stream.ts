@@ -471,6 +471,7 @@ export function markdownTextLength(nodes: MdNode[]): number {
 /** One logical Markdown stream. Results are MdDoc v1 snapshots; treat shared
  * nodes as immutable. append() takes only the new chunk, never cumulative text. */
 export interface MarkdownStreamParser {
+	/** Feeds the next source chunk and returns the current document snapshot. */
 	append(chunk: string): MdDoc
 	/** Clear all source and cached blocks; return an empty document. */
 	reset(): MdDoc

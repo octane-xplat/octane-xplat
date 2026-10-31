@@ -48,6 +48,7 @@ function editorText(value?: FilterValue): string {
 	return Array.isArray(value.value) ? value.value.join(', ') : String(value.value)
 }
 
+/** Inline editor for building or editing a PowerSearch filter. */
 export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): unknown @{
 	const field =
 		props.config.fields.find((x) => x.key === props.filter.field) ?? props.config.fields[0]

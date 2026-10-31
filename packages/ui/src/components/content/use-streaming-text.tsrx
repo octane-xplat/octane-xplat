@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import { useMediaQuery } from '../../internal/platform/use-media-query'
 
+/** Streaming reveal pace — natural typewriter cadence, fast, or instant. */
 export type StreamingTextSpeed = 'natural' | 'fast' | 'instant'
+/** Options for useStreamingText. */
 export interface UseStreamingTextOptions {
+	/** Reveal pace for incoming streamed text. */
 	speed?: StreamingTextSpeed
 }
 

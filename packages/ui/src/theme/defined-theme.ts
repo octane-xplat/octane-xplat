@@ -97,6 +97,7 @@ export function resetThemes(): void {
 // then single-level var() reference resolution with a cycle guard.
 // =============================================================================
 
+/** Options selecting which side of token pairs to resolve. */
 export interface ResolveThemeTokensOptions {
 	/** Which side of `[light, dark]` token pairs to resolve. */
 	mode: 'light' | 'dark'

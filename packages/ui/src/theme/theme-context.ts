@@ -5,7 +5,9 @@ import type { DefinedTheme, ThemeMode } from './defined-theme'
  *  plus the mode it was asked for (which may itself be inherited/'system';
  *  `useTheme` resolves the effective mode). */
 export interface ThemeContextValue {
+	/** Theme object declared by the nearest `Theme`. */
 	theme: DefinedTheme
+	/** Mode the `Theme` was asked for — may still be 'system'. */
 	mode: ThemeMode
 }
 

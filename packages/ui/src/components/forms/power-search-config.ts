@@ -25,7 +25,9 @@ import type {
 import { powerSearchTranslate, type PowerSearchTranslate } from './power-search-strings'
 
 export type PowerSearchResolvedConfig<D extends ReadonlyArray<FieldDefinition>> = {
+	/** The schema-carrying config — pass it to PowerSearchProps/filter calls. */
 	config: PowerSearchConfig & PowerSearchDefInfo<D>
+	/** Applies the config's filters to a row set, honoring declared types. */
 	applyFilters: <T extends InferData<D>>(
 		filters: ReadonlyArray<PowerSearchFilterFor<D>>,
 		data: ReadonlyArray<T>,

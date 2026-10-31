@@ -29,6 +29,7 @@ interface ToastOwner {
 	close?(v: any): Promise<unknown> | void
 }
 
+/** Host view of the topmost open sheet — null when none is open. */
 export function bottomSheetHost(): GridLayout | null {
 	return [...active].pop()?.host ?? null
 }

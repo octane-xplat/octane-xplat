@@ -7,9 +7,13 @@ import { android } from '@octane-xplat/platform/android'
  * Current device safe-area insets in dips — `{ top, right, bottom, left }`.
  */
 export interface SafeAreaInsets {
+	/** Inset at the top edge, in dips. */
 	top: number
+	/** Inset at the right edge, in dips. */
 	right: number
+	/** Inset at the bottom edge, in dips. */
 	bottom: number
+	/** Inset at the left edge, in dips. */
 	left: number
 }
 

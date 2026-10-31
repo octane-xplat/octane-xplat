@@ -9,6 +9,7 @@ import type { TabsProps } from '../../props'
 
 export type { TabSpec } from '../../props'
 
+/** Platform tab strip — key selection with route-aware items. */
 export function Tabs(props: TabsProps): any {
 	const selection = useRouteTabsSelection(props)
 	const idPrefix = props.id ?? selection.panelId

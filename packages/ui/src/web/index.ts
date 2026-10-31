@@ -25,7 +25,9 @@ export { Tooltip } from '../components/overlays/Tooltip.web.tsrx'
 export { useOutlineFromDOM, outlineItemsFromDOM } from '../components/collections/outline-dom.web.tsrx'
 export type { OutlineFromDOMOptions } from '../components/collections/outline-dom.web.tsrx'
 
-/** @deprecated Import `HoverCardProps` from `@octane-xplat/ui`. */
+/** Props for the HoverCard overlay.
+ *  @deprecated Import `HoverCardProps` from `@octane-xplat/ui`. */
 export type HoverCardProps = SharedHoverCardProps
-/** @deprecated Import `TooltipProps` from `@octane-xplat/ui`. */
+/** Props for the Tooltip overlay.
+ *  @deprecated Import `TooltipProps` from `@octane-xplat/ui`. */
 export type TooltipProps = SharedTooltipProps

@@ -26,14 +26,18 @@ import { ensureThemeCss, syncDocumentRootTheme } from './theme-css-inject'
 import { useThemeScheme } from './theme-scheme'
 import { View } from '../components/layout/View'
 
+/** Props for the Theme provider. */
 export interface ThemeProps {
 	/** Theme built by `defineTheme`. */
 	theme: DefinedTheme
 	/** Color mode for the scope; inherits the parent Theme when omitted. */
 	mode?: ThemeMode
+	/** Content rendered inside the theme scope. */
 	children?: any
 }
 
+/** Theme scope provider — stamps the theme's tokens and color scheme for
+ *  descendants. */
 export function Theme(props: ThemeProps): unknown @{
 	const parent = useContext(ThemeContext)
 	const isNested = useContext(ThemeNestingContext)

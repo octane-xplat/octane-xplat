@@ -210,7 +210,8 @@ export function DropdownMenuSeparator(props: MenuSeparatorProps): unknown @{
 	<Separator {...props} />
 }
 
-/** @deprecated Use `DropdownMenuSeparator`. */
+/** Menu separator row — aliased for context and breadcrumb menus.
+ *  @deprecated Use `DropdownMenuSeparator`. */
 export function DropdownMenuDivider(props: MenuSeparatorProps): unknown @{
 	<DropdownMenuSeparator {...props} />
 }

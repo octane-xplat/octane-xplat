@@ -10,7 +10,6 @@ import { useFocusVisible } from './use-focus-visible'
  * useFocusWithin tracks descendants on web and raw AppKit containers;
  * the default mobile leaf reports single-element focus only.
  */
-
 export interface UseFocusOptions {
 	/** Suppresses the handlers and focused state. */
 	isDisabled?: boolean
@@ -78,12 +77,14 @@ export function useFocus(options: UseFocusOptions = {}): {
  * `useFocusRing` result — `isFocusVisible`/`isFocused`/`focusProps`.
  */
 export interface UseFocusRingResult {
+	/** Focused state of the bound element. */
 	isFocused: boolean
 	/** Focused AND the tracked input modality is keyboard (web/AppKit).
 	 * The default mobile tracker reports false. */
 	isFocusVisible: boolean
 	/** Whether this target tracks keyboard/pointer modality for focus rings. */
 	isFocusVisibleSupported: boolean
+	/** Bound focus/blur handlers to spread on the host. */
 	focusProps: { onFocus: () => void; onBlur: () => void }
 }
 

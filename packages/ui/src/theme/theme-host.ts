@@ -5,6 +5,7 @@ import { onThemeScopeChange, themeScopeClasses } from './theme-scope'
 /** Host surface the theme scheme classes stamp on — satisfied by DOM
  *  elements and NativeScript views (both carry a string `className`). */
 export interface ThemeClassHost {
+	/** Class string the theme scheme stamps its scope classes onto. */
 	className: string
 }
 

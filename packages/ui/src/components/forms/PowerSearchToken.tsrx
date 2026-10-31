@@ -9,6 +9,7 @@ import {
 import { Pressable } from '../actions/Pressable'
 import { cx } from '@octane-xplat/lib'
 
+/** Committed filter rendered as a removable token. */
 export function PowerSearchToken(props: PowerSearchTokenProps): unknown @{
 	const value = formatFilterValue(
 		createInternalConfig(props.config),

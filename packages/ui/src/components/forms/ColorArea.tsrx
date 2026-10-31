@@ -168,6 +168,7 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
 	</masonview>
 }
 
+/** Two-dimensional color picker for a channel pair. */
 export function ColorArea(props: ColorAreaProps): unknown @{
 	const color = useColorState(props, '#ff0000')
 

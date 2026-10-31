@@ -11,6 +11,7 @@ export interface GridFocusOptions {
 	onFocusChange?: (index: number) => void
 }
 
+/** useGridFocus result — focused-cell state and grid wiring props. */
 export interface GridFocusResult<T = any> {
 	/** Attach to the grid container so the hook can wire keyboard input. */
 	ref: { current: T | null }

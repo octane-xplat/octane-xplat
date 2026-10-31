@@ -42,6 +42,7 @@ export function useThemeName(): string | null {
 	return ctx?.theme.name ?? root?.name ?? null
 }
 
+/** Nearest theme's resolved name, effective mode, and token accessors. */
 export function useTheme(): UseThemeReturn {
 	const ctx = useContext(ThemeContext)
 	const scheme = useThemeScheme()

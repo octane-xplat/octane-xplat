@@ -15,6 +15,7 @@ export type {
 	QueryTrigger,
 } from './query-inspection'
 
+/** Options for inspectQueryClient — labels and event retention. */
 export interface QueryInspectorOptions {
 	/** Explicit public diagnostic labels, never derived from keys or selections. */
 	readonly labels?: readonly {
@@ -25,6 +26,7 @@ export interface QueryInspectorOptions {
 	readonly eventLimit?: number
 }
 
+/** Read-only inspector over a QueryClient — snapshots plus the event feed. */
 export interface QueryInspector {
 	/** A fresh metadata snapshot; reading does not fetch, subscribe signals or acquire leases. */
 	snapshot(): QueryInspectionSnapshot
@@ -100,7 +102,9 @@ export function inspectQueryClient(
  * // On teardown: registration.dispose(); inspector.dispose()
  */
 export function registerQueryInspection(inspector: QueryInspector): {
+	/** Registered dev-action id for invoking the inspector. */
 	readonly actionId: string
+	/** Removes the registered dev action. */
 	dispose(): void
 } {
 	const actionId = `queries.inspect.${inspector.snapshot().clientId}`

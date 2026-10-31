@@ -92,6 +92,7 @@ export function openBottomSheetWithOwner(
 	return handle
 }
 
+/** Sheet host accessor — always null on this leaf. */
 export function bottomSheetHost(): null {
 	return null
 }

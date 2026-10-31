@@ -11,6 +11,7 @@ import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import type { NavLinkInput } from './nav-link'
 import { cx } from '@octane-xplat/lib'
 
+/** Route link — resolves a typed destination and renders an active-aware anchor. */
 export function NavLink<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,

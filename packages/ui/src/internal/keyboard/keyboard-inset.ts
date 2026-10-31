@@ -179,6 +179,8 @@ const observeAndroid = (decor: any, notify: (value: KeyboardWindowState) => void
 
 // The fallback is inert until a window has readers. Controller activation can
 // replace observation without taking ownership of the readers' resize leases.
+/** Window observation for one keyboard destination — inert until a window
+ *  has readers; controller activation can swap in real observation. */
 export const observeKeyboardDestination: KeyboardWindowSource<KeyboardWindowState> = (
 	window,
 	publish,
@@ -271,12 +273,14 @@ const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
 
 const inactiveKeyboardState = unknownKeyboardState()
 
-/** @internal Resolve a supplied host's actual window without observing it. */
+/** Resolve a supplied host's actual window without observing it.
+ *  @internal */
 export function keyboardWindowForHost(host: any): object | undefined {
 	return resolveWindow(host).key
 }
 
-/** @internal Read cached state without observing or taking a resize lease. */
+/** Read cached state without observing or taking a resize lease.
+ *  @internal */
 export function keyboardSnapshotForHost(host: any): KeyboardWindowState {
 	const key = resolveWindow(host).key
 	return key ? keyboardWindows.getSnapshot(key) : inactiveKeyboardState
@@ -435,6 +439,8 @@ const keyboardHostBounds = (host: any, translationY = 0): KeyboardRect | null =>
 	return bounds ? { ...bounds, y: bounds.y - translationY } : null
 }
 
+/** Overlap between the keyboard and the host's bottom edge, in px.
+ *  @internal */
 export function keyboardHostOverlap(
 	host: any,
 	state: KeyboardWindowState,
@@ -446,7 +452,8 @@ export function keyboardHostOverlap(
 	)
 }
 
-/** @internal Full lift for a bottom-anchored control, independent of its height. */
+/** Full lift for a bottom-anchored control, independent of its height.
+ *  @internal */
 export function keyboardHostDisplacement(
 	host: any,
 	state: KeyboardWindowState,

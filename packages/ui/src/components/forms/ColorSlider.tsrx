@@ -135,6 +135,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
 	</masonview>
 }
 
+/** Single-channel color slider — hue, alpha, or a custom channel. */
 export function ColorSlider(props: ColorSliderProps): unknown @{
 	const color = useColorState(props, '#ff0000')
 

@@ -37,9 +37,13 @@ export interface ResolvedFieldControlProps extends FieldControlProps {
 /** Resolve wrapper defaults and the accessibility links for a field control. */
 export function useFieldControlProps<
 	T extends FieldControlProps & {
+		/** Control id forwarded to the host element. */
 		id?: string
+		/** Accessible name override for the control. */
 		accessibilityLabel?: string
+		/** Accessible hint merged into the resolved description. */
 		accessibilityHint?: string
+		/** Web-only prop bag forwarded verbatim. */
 		web?: Record<string, any>
 	},
 >(props: T): T & ResolvedFieldControlProps {
@@ -118,7 +122,12 @@ export function useFieldControl<
 		accessibilityHint?: string
 		web?: Record<string, any>
 	},
->(props: T): { props: T & ResolvedFieldControlProps; inField: boolean } {
+>(props: T): {
+	/** Resolved props with field-context defaults applied. */
+	props: T & ResolvedFieldControlProps
+	/** Whether a Field ancestor supplied the merged context. */
+	inField: boolean
+} {
 	const inField = useContext(FieldContext) != null
 	return { props: useFieldControlProps(props), inField }
 }

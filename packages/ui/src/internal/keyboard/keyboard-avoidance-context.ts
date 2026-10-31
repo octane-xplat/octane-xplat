@@ -6,6 +6,8 @@ export interface ConsumedKeyboardAvoidance {
 	bottom: number
 }
 
+/** Space already consumed by avoidance ancestors — nested avoiders subtract it.
+ *  @internal */
 export const KeyboardAvoidanceContext: Context<ConsumedKeyboardAvoidance> =
 	createContext<ConsumedKeyboardAvoidance>({ bottom: 0 })
 

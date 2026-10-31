@@ -24,6 +24,7 @@ const namedColors: Record<string, string> = {
 	inherit: 'inherit',
 }
 
+/** Named icon glyph rendered at the requested size and tone. */
 export function Icon(props: IconProps): unknown @{
 	const inheritedRegistry = useIconRegistry()
 	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry)

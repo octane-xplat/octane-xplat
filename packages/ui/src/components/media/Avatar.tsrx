@@ -37,6 +37,7 @@ export function AvatarStatusDot(props: AvatarStatusDotProps): unknown @{
 	/>
 }
 
+/** Identity avatar — image or initials with optional status affordance. */
 export function Avatar(props: AvatarProps): unknown @{
 	const size = px(props.size)
 	const box = { width: size, height: size, borderRadius: size / 2 }

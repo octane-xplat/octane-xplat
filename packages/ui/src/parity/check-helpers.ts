@@ -33,6 +33,7 @@ export interface MeasuredBox {
 	h: number
 }
 
+/** One measured element from a parity dump — geometry plus identity. */
 export interface MeasuredNode {
 	/** Element tag as the leaf reports it. */
 	tag?: string
@@ -94,6 +95,7 @@ export interface MeasuredNode {
 	placeholderStyle?: { color: string; opacity: string }
 }
 
+/** A captured parity measurement for one target — fixture cells to nodes. */
 export interface ParityDump {
 	/** Target name the dump was produced on (web/ios/android/macos). */
 	target: string
@@ -109,6 +111,7 @@ export type Resolve = (name: string) => MeasuredNode
  *  optionally with absolute/relative tolerances. */
 export type EqualRule = string | { path: string; tolerance?: number; relativeTolerance?: number }
 
+/** One parity check — a fixture plus the element/class mapping it verifies. */
 export interface ParityCheck {
 	/** Cell name in the sibling <Component>.parity.tsrx fixture. */
 	fixture: string

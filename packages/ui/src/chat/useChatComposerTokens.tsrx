@@ -18,6 +18,7 @@ interface ComposerTokenHost {
 	hasToken?(id: string): boolean
 }
 
+/** Owns composer inline-token portals and their chip-registry sync. */
 export function useChatComposerTokens({
 	editableRef,
 	onEmitChange,

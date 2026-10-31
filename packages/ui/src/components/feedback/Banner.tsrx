@@ -13,6 +13,7 @@ const statusIcon: Record<string, string> = {
 	error: 'xplat-error',
 }
 
+/** Page-level announcement bar with status tone and actions. */
 export function Banner(props: BannerProps): unknown @{
 	<masonview
 		ref={(v: any) => applyEscapeProps(v, props)}

@@ -45,6 +45,7 @@ export interface UseClipboardResult {
 	copy: (text?: string) => Promise<boolean>
 	/** True for `resetAfterMs` after the most recent successful copy. */
 	isCopied: boolean
+	/** Press handler wiring that performs the copy — spread on the trigger. */
 	clipboardProps: {
 		onPress: () => Promise<boolean>
 	}

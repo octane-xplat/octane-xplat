@@ -5,8 +5,11 @@ import { normalizeFocusWithinEvent, type FocusWithinEvent } from './focus-within
 /** Default mobile leaf: a single-element focus toggle. Web and AppKit
  * provide subtree containment through their platform leaves. */
 export interface UseFocusWithinOptions {
+	/** Fires when focus moves inside the bound subtree. */
 	onFocusWithin?: (event?: FocusEventPayload) => void
+	/** Fires when focus leaves the bound subtree. */
 	onBlurWithin?: (event?: FocusEventPayload) => void
+	/** Fires on every containment transition with the new value. */
 	onFocusWithinChange?: (isFocusWithin: boolean) => void
 }
 
@@ -14,6 +17,7 @@ export interface UseFocusWithinOptions {
  * `useFocusWithin` handlers and subtree capability.
  */
 export interface UseFocusWithinResult {
+	/** Bound focus/blur handlers to spread on the subtree root. */
 	focusWithinProps: {
 		onFocus: (event?: FocusWithinEvent) => void
 		onBlur: (event?: FocusWithinEvent) => void

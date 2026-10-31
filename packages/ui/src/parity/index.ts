@@ -4,11 +4,13 @@
 
 /** One measured fixture cell on the /parity stage. */
 export interface ParityFixture {
+	/** Fixture cell name on the parity stage. */
 	name: string
 	/** The shared component this fixture measures; child helpers are not counted. */
 	component: string
 	/** A top-level universal component; fixture data arrives through props. */
 	renderer: (props: any) => any
+	/** Props handed to the fixture's component. */
 	props: Record<string, any>
 	/** Fill context: the stage box keeps align-items:stretch so the
 	 *  fixture measures as it would inside a default column. Intrinsic
