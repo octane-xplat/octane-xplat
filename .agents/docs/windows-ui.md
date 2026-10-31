@@ -30,6 +30,11 @@ dispatch, native automation, keyboard/pointer input, geometry, Narrator, and
 visual comparison as distinct evidence. A passing prerequisite does not qualify
 every dependent control.
 
+The pinned Windows Core's [accessibility updater](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/core/application/application.windows.ts#L404)
+is an empty upstream stub; Xplat's local patch adds only `SetName`. Generic role
+or state metadata does not supply a List, Table or Tab peer and its patterns.
+Choose genuine native peers and inspect their actual UIA structure.
+
 Check shared ownership seams before making per-control workarounds: pointer
 subscriptions/capture, focus and keyboard routing, controlled rollback, layout
 and percentage sizing, text hosting, locale formatting, and modal cleanup. Keep
