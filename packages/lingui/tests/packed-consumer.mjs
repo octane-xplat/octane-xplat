@@ -4,6 +4,7 @@ import { checkIntlBundle } from '../../../scripts/intl-test-utils.mjs'
 // Node's unsupported TypeScript stripping inside node_modules.
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { createRequire } from 'node:module'
 import {
 	cpSync,
 	mkdirSync,
@@ -88,7 +89,11 @@ assert.equal(typeof babelExtractor.extract, 'function')
    assert.equal(typeof Intl.RelativeTimeFormat, 'undefined')
   `,
 	})
-	run('bun', ['run', 'lingui', 'extract'], app)
+	// Invoke the CLI entrypoint directly: `bun run lingui` resolves the .bin
+	// shim, where commander's `lingui extract` file-subcommand lookup fails.
+	const require = createRequire(join(app, 'package.json'))
+	const linguiDist = dirname(require.resolve('@lingui/cli'))
+	run(process.execPath, [join(linguiDist, 'lingui.js'), 'extract'], app)
 	const catalog = JSON.parse(readFileSync(join(app, 'locales/en/messages.json'), 'utf8'))
 	const entries = Object.values(catalog)
 	assert.ok(entries.some((entry) => entry.message === 'Extraction control from tsx'))
