@@ -6,15 +6,11 @@
 // TODO(octane-xplat#93): TS 6.1+ content mappers can type `icons:*`
 // specifiers natively — the ambient stub then goes away and only this
 // runtime-side resolution remains.
-import { readFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
 import { join } from 'node:path'
 
-import type { IconifyJSON } from '@iconify/types'
-import { getIconData } from '@iconify/utils/lib/icon-set/get-icon'
+import { iconSpecifierParts, readIconData, resolveCollectionJson } from '../build/resolve'
 import type { Plugin } from 'vite'
 
-const specifier = /^icons:([a-z0-9]+(?:-[a-z0-9]+)*)\/([a-z0-9]+(?:-[a-z0-9]+)*)$/
 const virtual = '\0icons:'
 
 interface VirtualIcon {
@@ -44,22 +40,20 @@ export function xplatIcons(): Plugin {
 				return null
 			}
 
-			const match = specifier.exec(source)
+			const match = iconSpecifierParts(source)
 			if (!match) {
 				return this.error(
 					`Invalid icon specifier "${source}" — expected icons:<prefix>/<name> (kebab-case).`,
 				)
 			}
 
-			const [, prefix, name] = match
+			const [prefix, name] = match
 			const anchor =
 				importer && !importer.startsWith('\0')
 					? importer.split(/[?#]/, 1)[0]
 					: join(root, 'package.json')
-			let jsonPath: string
-			try {
-				jsonPath = createRequire(anchor).resolve(`@iconify-json/${prefix}/icons.json`)
-			} catch {
+			const jsonPath = resolveCollectionJson(prefix, anchor)
+			if (!jsonPath) {
 				return this.error(
 					`Cannot resolve @iconify-json/${prefix} for "${source}" — install the collection package.`,
 				)
@@ -78,8 +72,7 @@ export function xplatIcons(): Plugin {
 			}
 
 			this.addWatchFile(entry.jsonPath)
-			const collection = JSON.parse(readFileSync(entry.jsonPath, 'utf8')) as IconifyJSON
-			const icon = getIconData(collection, entry.name)
+			const icon = readIconData(entry.jsonPath, entry.name)
 			if (!icon) {
 				return this.error(
 					`Icon "${entry.name}" not found in @iconify-json/${entry.prefix} — check the name against its icons.json.`,

@@ -5,7 +5,9 @@
 compile-checked, tree-shaking edge instead of a whole `@iconify-json/*`
 collection in the bundle. `<Icon>` accepts that data through `icon=`,
 skipping the registry lookup entirely; `name=` remains for dynamic lookups,
-and `addIcon`/`addIcons` register single icons into it.
+and `addIcon`/`addIcons` register single icons into it. The optional
+`xplat-icons register` codegen emits one `addIcons` module over every
+`icons:` import in the app, so `name=` resolves the same tree-shaken data.
 
 ```tsx
 import xMark from 'icons:heroicons/x-mark'

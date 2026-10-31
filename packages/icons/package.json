@@ -18,13 +18,17 @@
 	},
 	"files": [
 		"src",
-		"dist/vite",
+		"dist",
+		"bin",
 		"icons.d.ts",
 		"types/generated",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
 	],
 	"type": "module",
+	"bin": {
+		"xplat-icons": "./bin/xplat-icons.mjs"
+	},
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
@@ -36,6 +40,14 @@
 		"./vite": {
 			"types": "./types/generated/vite/index.d.ts",
 			"default": "./dist/vite/index.js"
+		},
+		"./build": {
+			"types": "./types/generated/build/index.d.ts",
+			"default": "./dist/build/index.js"
+		},
+		"./build/cli": {
+			"types": "./types/generated/build/cli.d.ts",
+			"default": "./dist/build/cli.js"
 		}
 	},
 	"publishConfig": {
