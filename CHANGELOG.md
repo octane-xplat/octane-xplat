@@ -12,6 +12,34 @@ in the [fixlog](FIXLOG.md).
 Earlier releases retain their original combined notes; older independent
 releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.20.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.20.0) - 2026-10-31
+
+### Type-safe, tree-shaken icons via `icons:*` imports
+
+`@octane-xplat/icons` adds a `xplatIcons` Vite plugin that resolves
+`icons:<prefix>/<name>` specifiers to per-icon modules — each import is a
+compile-checked, tree-shaking edge instead of a whole `@iconify-json/*`
+collection in the bundle. `<Icon>` accepts that data through `icon=`,
+skipping the registry lookup entirely; `name=` remains for dynamic lookups,
+and `addIcon`/`addIcons` register single icons into it.
+
+```tsx
+import xMark from 'icons:heroicons/x-mark'
+
+<Icon icon={xMark} size={16} label="Close" />
+```
+
+See [the icons package](https://github.com/octane-xplat/octane-xplat/tree/main/packages/icons#typed-per-icon-imports).
+
+### A quieter component workshop
+
+The workshop has a compact toolbar, short story names, a breadcrumb above the
+framed preview, and a clearer controls inspector on web and native targets.
+Properties appear before preview settings. Native host diagnostics sit behind
+**Host details**, and iOS/Android retain larger touch targets.
+
+[Component workshop](https://github.com/octane-xplat/octane-xplat/blob/main/packages/workshop/README.md#shell)
+
 ## [Octane Xplat 0.19.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.19.0) - 2026-10-31
 
 ### Preserve modified AppKit action keys

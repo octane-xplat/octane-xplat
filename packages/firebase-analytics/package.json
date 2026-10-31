@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/firebase-analytics",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Firebase Analytics for Octane xplat — logEvent, user properties, screen views via @nativescript/firebase-analytics",
 	"keywords": [
 		"android",
