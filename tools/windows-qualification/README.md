@@ -193,7 +193,24 @@ channel with a fresh sequence, for example:
 Use the existing `revision`, `disabled` and `mounted` commands to change props.
 Only real OS/UIA input may activate `Open row`; its callback records source
 `list-item` and the current fixture revision. This fixture is prepared source,
-not a completed collection driver. Inspect native List/ListItem structure and
+with a separate row-input driver mode. Run it against the recorded package
+commit and version, in the signed-in session under the device/input reservation:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File .\tools\windows-qualification\actions.ps1 `
+  -ExpectedCommit $sourceCommit `
+  -ExpectedPackageVersion $packageVersion `
+  -OutputDirectory "$runRoot\list-item-input" `
+  -ListItemActions
+```
+
+This mode checks Tab/Shift+Tab order, Enter/Space/mouse/Invoke exactly once,
+current callbacks, disabled rejection, prop updates, removal/remount and the
+input peer's frame at wide and narrow sizes. Choose one action mode per run;
+`-ListItemActions` and `-DisplayActions` cannot be combined. Execution results
+belong in Silo and the retained run files.
+
+This is a bounded input prerequisite. Inspect native List/ListItem structure and
 retain the full final gates before claiming support; a row Button peer alone
 does not establish those roles or geometry.
 

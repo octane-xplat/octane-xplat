@@ -41,7 +41,7 @@ assessments; do not relabel Windows evidence as a mobile or AppKit target.
 
 ## List row input prerequisite
 
-This is an unexecuted source candidate. The Windows `ListItem` leaf routes
+This candidate still requires packaged OS/UIA qualification. The Windows `ListItem` leaf routes
 interactive rows through the existing
 measured Pressable peer, without a second root tap handler. It hosts primitive
 leading, label, description, child and trailing content through TextSlot,
@@ -58,8 +58,9 @@ export function MessageRows() {
 }
 ```
 
-New compiled-leaf contracts and the maintained `collections` host scene still
-require testing. A native Button or
+Compiled-leaf contracts exercise the source behavior; the maintained
+[`collections` input mode](../../tools/windows-qualification/README.md#inspect-the-collections-source-fixture)
+checks real input separately. A native Button or
 Hyperlink peer is only the row's input prerequisite: List/ListItem structural
 roles, slot geometry, resize, OS activation, delegation, nested controls,
 navigation and the wider props matrix remain unqualified. Keep both final
@@ -87,7 +88,7 @@ export function SortedRows() {
 }
 ```
 
-This is an unexecuted input candidate. Inspect the maintained `table` scene
+Compiled contracts do not qualify this native input candidate. Inspect the maintained `table` scene
 before choosing native Table/header/row/cell peers; the header Button does not
 supply those structural roles. The source fixture includes controlled rejection
 and a many-row case without a substitute scrolling implementation. OS input,

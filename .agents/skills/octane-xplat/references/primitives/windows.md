@@ -67,8 +67,8 @@ export function LayerTrigger() {
 
 Use ordinary List/ListItem props. The Windows row input candidate composes the
 existing measured Pressable peer for `onPress`/`href` and hosts primitive slots
-as text. It has not passed new compiled or native checks; a Button peer alone
-does not establish List/ListItem structure or complete row semantics.
+as text. Compiled contracts do not establish native behavior; a Button peer
+alone does not establish List/ListItem structure or complete row semantics.
 
 ```tsx
 import { List, ListItem } from '@octane-xplat/ui'
@@ -79,7 +79,7 @@ export function Rows() {
 ```
 
 Before using this as Windows support evidence, run the maintained collections
-fixture and verify the full
+fixture's `-ListItemActions` mode and verify the full
 [input and structural gates](../../../../docs/windows-ui.md#list-row-input-prerequisite).
 Keep delegation, nested controls and navigation separately unqualified.
 

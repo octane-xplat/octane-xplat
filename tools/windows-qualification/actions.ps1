@@ -5,9 +5,11 @@ param(
  [Parameter(Mandatory)][version]$ExpectedPackageVersion,
  [Parameter(Mandatory)][string]$OutputDirectory,
  [switch]$AllowDirtyProbe,
- [switch]$DisplayActions
+ [switch]$DisplayActions,
+ [switch]$ListItemActions
 )
 $ErrorActionPreference='Stop'
+if($DisplayActions -and $ListItemActions){throw 'Choose one action mode per run'}
 Add-Type @'
 using System;
 using System.Runtime.InteropServices;
@@ -406,6 +408,101 @@ function Assert-DisplayRevision([string]$Source,[int]$Revision){
  $events=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -ceq $Source})
  Assert ($events.Count -gt 0 -and $events[-1].fixtureRevision -eq $Revision) 'Display callback observes the current fixture revision' $events[-1]
 }
+function Reset-ListItem([int]$Revision=0){
+ Command 'mounted' $false|Out-Null
+ Command 'revision' $Revision|Out-Null
+ Command 'disabled' $false|Out-Null
+ Command 'scene' 'collections'|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains 'Core20 collections '
+ Status-Contains ("revision=$Revision mounted=true")
+}
+function ListItem-TabOrder([int]$Revision=0,[bool]$Disabled=$false){
+ $names=if($Disabled){@('Before list','After list')}else{@('Before list',"Open row $Revision",'After list')}
+ Focus-Action 'Before list' 'ControlType.Button'
+ for($index=1;$index -lt $names.Count;$index++){
+  Key 9
+  $expected=$names[$index]
+  Wait-For {Focused $expected} "Tab did not reach $expected"
+  Assert $true "Physical Tab focuses $expected"
+ }
+ for($index=$names.Count-2;$index -ge 0;$index--){
+  Key 9 $true
+  $expected=$names[$index]
+  Wait-For {Focused $expected} "Shift+Tab did not return to $expected"
+  Assert $true "Physical Shift+Tab focuses $expected"
+ }
+}
+function Check-ListItemActions {
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='list-item-input';status='running';checks=$null;error=$null;disabledApplicability='required'}
+ try{
+  Reset-ListItem
+  $name='Open row 0'
+  $control=Check-PeerFrame (Capture 'list-item-default') 'list-item' $name 'ControlType.Button' 'list-item-default'
+  Assert $control.enabled 'Enabled ListItem peer reports IsEnabled=true'
+  ListItem-TabOrder
+  Focus-Action $name 'ControlType.Button'
+  Exactly-Once 'list-item' 'Enter' {Key 13}
+  Exactly-Once 'list-item' 'Space' {Key 32}
+  Exactly-Once 'list-item' 'mouse' {Click-Control $control}
+  Exactly-Once 'list-item' 'Invoke' {
+   $invoked=Uia-Action 'invoke' $name 'ControlType.Button'
+   Assert ($invoked.status -eq 'completed') 'ListItem Invoke accepted' $invoked
+  }
+  Command 'revision' 1|Out-Null
+  Status-Contains 'revision=1 mounted=true'
+  $updated=Capture 'list-item-updated'
+  Check-PeerFrame $updated 'list-item' 'Open row 1' 'ControlType.Button' 'list-item-updated'|Out-Null
+  Assert (@($updated|Where-Object {$_.name -ceq $name -and $_.type -ceq 'ControlType.Button'}).Count -eq 0) 'Updated ListItem name replaces its previous name'
+  Exactly-Once 'list-item' 'updated Invoke' {
+   $invoked=Uia-Action 'invoke' 'Open row 1' 'ControlType.Button'
+   Assert ($invoked.status -eq 'completed') 'Updated ListItem Invoke accepted' $invoked
+  }
+  $events=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -ceq 'list-item'})
+  Assert ($events.Count -gt 0 -and $events[-1].fixtureRevision -eq 1) 'ListItem callback observes the current fixture revision' $events[-1]
+  Command 'mounted' $false|Out-Null
+  Status-Contains 'mounted=false'
+  $absent=Capture 'list-item-unmounted'
+  Assert (@($absent|Where-Object {$_.name -in @($name,'Open row 1') -and $_.type -ceq 'ControlType.Button'}).Count -eq 0) 'Unmount removes the ListItem action peer'
+  Command 'revision' 0|Out-Null
+  Command 'mounted' $true|Out-Null
+  Status-Contains 'revision=0 mounted=true'
+  Check-PeerFrame (Capture 'list-item-remounted') 'list-item' $name 'ControlType.Button' 'list-item-remounted'|Out-Null
+  Exactly-Once 'list-item' 'remounted Invoke' {
+   $invoked=Uia-Action 'invoke' $name 'ControlType.Button'
+   Assert ($invoked.status -eq 'completed') 'Remounted ListItem Invoke accepted' $invoked
+  }
+  Command 'disabled' $true|Out-Null
+  $tree=Capture 'list-item-disabled'
+  $disabled=@($tree|Where-Object {$_.name -ceq $name -and $_.type -ceq 'ControlType.Button'})
+  Assert ($disabled.Count -eq 1 -and -not $disabled[0].enabled) 'Disabled ListItem peer reports IsEnabled=false'
+  Assert (Finite $disabled[0]) 'Disabled ListItem retains visible finite bounds' $disabled[0]
+  $focus=Uia-Action 'focus' $name 'ControlType.Button'
+  Assert (-not $focus.targetFocused) 'Disabled ListItem rejects focus' $focus
+  Focus-Action 'Before list' 'ControlType.Button'
+  No-Activation 'list-item' 'Enter' {Key 13}
+  No-Activation 'list-item' 'Space' {Key 32}
+  No-Activation 'list-item' 'mouse' {Click-Control $disabled[0]}
+  No-Activation 'list-item' 'Invoke' {
+   $invoked=Uia-Action 'invoke' $name 'ControlType.Button'
+   Assert ($invoked.status -eq 'rejected') 'Disabled ListItem Invoke rejected' $invoked
+  }
+  ListItem-TabOrder 0 $true
+  Command 'disabled' $false|Out-Null
+  Check-PeerFrame (Capture 'list-item-reenabled') 'list-item' $name 'ControlType.Button' 'list-item-reenabled'|Out-Null
+  Focus-Action $name 'ControlType.Button'
+  Exactly-Once 'list-item' 'reenabled Enter' {Key 13}
+  $wide=Check-PeerFrame (Capture 'list-item-wide') 'list-item' $name 'ControlType.Button' 'list-item-wide'
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned list window'}
+  $narrow=Check-PeerFrame (Capture 'list-item-narrow') 'list-item' $name 'ControlType.Button' 'list-item-narrow'
+  Assert ($narrow.width -lt $wide.width) 'ListItem peer and drawing shrink together on resize' @{wide=$wide.width;narrow=$narrow.width}
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot restore the owned list window'}
+  Check-PeerFrame (Capture 'list-item-wide-restored') 'list-item' $name 'ControlType.Button' 'list-item-wide-restored'|Out-Null
+  $entry.status='assertions-passed'
+ }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+}
 function Check-DisplayActions {
  $displaySpecs=@(
   @{source='clickable-card';displayCase='card';label='Open card';disabled=$true},
@@ -508,7 +605,7 @@ $report=[ordered]@{
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe
- scope=$(if($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 $savedCursor=[Core20ActionInput+Point]::new()
@@ -567,6 +664,8 @@ try {
  if(-not [Core20Desktop]::MoveWindow($windowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot set the wide window size'}
  if($DisplayActions){
   Check-DisplayActions
+ }elseif($ListItemActions){
+  Check-ListItemActions
  }else{
  Command 'action-case' 'all'|Out-Null
  Command 'implicit-names' $false|Out-Null
