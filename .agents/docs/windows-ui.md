@@ -188,6 +188,16 @@ binding together when upgrading; preserve SVG's separate host path. See the
 [Windows image example](../../docs/platform/windows-setup.md#avatars-and-raster-images-candidate)
 for the bounded consumer surface.
 
+## Measurement ref lifecycle
+
+A callback ref can be cleared and rebound to the same view within one commit.
+Windows `useMeasure` releases subscriptions immediately, but defers clearing
+bounds until the next task. Rebinding cancels that clear and retains unchanged
+bounds. Clearing them synchronously creates a null-to-bounds render loop for
+inline Tab refs, starving native layout while the views still measure zero.
+Unmount cancels the deferred clear; a retired null ref cannot restart it.
+Preserve this lifecycle when changing native input peers or measurement refs.
+
 ## Windows type declarations and module selection
 
 The Windows app's typecheck follows its runtime import graph: Windows/native
