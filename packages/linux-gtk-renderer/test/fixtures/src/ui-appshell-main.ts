@@ -150,6 +150,13 @@ async function run() {
 	check('keyboard inset is zero', state.kbinset === 0)
 	check('useContainerReveal returns prop getters', typeof state.reveal?.getContainerProps === 'function')
 	check('useImageMode returns fallback', state.imgmode === 'dark')
+	// The shell's mobile flag is emit-driven — the AppShell breakpoint watch
+	// fires on each layoutChanged, and GTK can hand the window a transient
+	// narrow allocation before the 1100px settle. Wait for the flag to
+	// converge instead of trusting one fixed pump.
+	for (let i = 0; i < 40 && state.mobile?.isMobile !== false; i++) {
+		await pump(75)
+	}
 	check('desktop is not mobile at 1100w', state.mobile?.isMobile === false)
 
 	// Nav item activation: real click on the Docs TopNavItem.

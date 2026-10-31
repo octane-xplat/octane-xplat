@@ -117,6 +117,22 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
 		scroll('block', value, animated)
 	view.scrollToHorizontalOffset = (value: number, animated = false) =>
 		scroll('inline', value, animated)
+	// DOM-shaped seek used by the shared collection leaves (VirtualList's
+	// scrollToOffset and Carousel's slide/prev-next navigation). 'smooth' maps
+	// to the same eased write the platform scroll helpers use; anything else
+	// is an instant clamp write on the adjustment.
+	view.scrollTo = (options: { top?: number; left?: number; behavior?: string } = {}) => {
+		if (options == null || typeof options !== 'object') {
+			return
+		}
+		const animated = options.behavior === 'smooth'
+		if (options.left != null) {
+			scroll('inline', Number(options.left), animated)
+		}
+		if (options.top != null) {
+			scroll('block', Number(options.top), animated)
+		}
+	}
 	return () => {
 		disposed = true
 		stop('inline')

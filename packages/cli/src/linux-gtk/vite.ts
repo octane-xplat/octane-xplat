@@ -8,18 +8,20 @@ import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
-/** Slot-compiled TSRX modules can emit the same `withSlot`/`hookSlots`
+/** Slot-compiled modules can emit the same `withSlot`/`hookSlots`
  *  import binding in two import statements of a single module (octane's
  *  universal compiler dedupes `hookSlots` intra-file but not `withSlot` —
- *  e.g. `Button.tsrx`). Rolldown only dedupes bindings across modules, so
- *  the duplicate survives to a `_$withSlot` redeclaration error in the
- *  merged chunk. Keep the first binding per export and fold later local
- *  names into it. Different specifiers are a real conflict — bail. */
+ *  e.g. `Button.tsrx`; plain `.ts` hook helpers emit duplicate `hookSlots`
+ *  under generated `_$hookSlots$` locals too). Rolldown only dedupes
+ *  bindings across modules, so the duplicate survives to a `_$withSlot`
+ *  redeclaration error in the merged chunk. Keep the first binding per
+ *  export and fold later local names into it. Different specifiers are a
+ *  real conflict — bail. */
 export function xplatGtkSlotDedupe() {
 	return {
 		name: 'xplat-gtk-slot-dedupe',
 		transform(code, id) {
-			if (!/\.(tsrx|tsx)$/.test(id)) { return }
+			if (!/\.(tsrx|tsx|ts|mts|js|mjs)$/.test(id)) { return }
 			if (!code.includes('withSlot as _') && !code.includes('hookSlots as _')) { return }
 			const firstLocal = new Map()
 			const firstSpec = new Map()
@@ -53,7 +55,9 @@ export function xplatGtkSlotDedupe() {
 					return `import { ${kept.join(', ')} } from '${spec}';`
 				})
 			for (const [from, to] of fold) {
-				const rx = new RegExp(from.replace(/\$/g, '\\$') + '\\b', 'g')
+				// `\b` is wrong here: `$` is not a word char, so `_$hookSlots` would
+				// match the prefix of `_$hookSlots$1`. Refuse any name continuation.
+				const rx = new RegExp(from.replace(/\$/g, '\\$') + '(?![\\w$])', 'g')
 				if (rx.test(out)) { changed = true; out = out.replace(rx, to) }
 			}
 			return changed ? { code: out } : undefined
@@ -90,6 +94,12 @@ export async function xplatLinuxGtk(env, options = {}) {
 				hmr: options.hmr ?? false,
 				exclude: options.exclude,
 				renderers: {
+					// Plain .ts/.js hook modules match no rule — the whole
+					// bundle is universal, so the dom default would lower their
+					// useMemo/useCallback to the native memoSlot/memoTake/
+					// memoPublish ABI (octane/internal/client, CURRENT_SCOPE-
+					// bound) instead of the slotted universal useMemo.
+					default: 'gtk',
 					registry: {
 						gtk: {
 							module: renderer,

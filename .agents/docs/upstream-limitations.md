@@ -29,3 +29,32 @@ assumption:
 Check the record when upgrading the upstream dependency. Update its status
 when the limitation changes, and keep historical evidence distinguishable
 from current behavior.
+
+
+
+## octane universal compiler: __methodDep allowlist gap (0.16.3)
+
+The universal compiler emits `import { __methodDep } from 'octane'` when
+a member call (`x.m()`) appears inside a compiled hook callback
+(useMemo/useCallback/useEffect bodies) — e.g. `items.map`, `set.has`,
+`data.filter` inside ui table hooks and OverflowList's useCallback.
+`UNIVERSAL_RUNTIME_IMPORTS` in dist/compiler/compile-universal.js lacks
+`'__methodDep'`, so universal compilation throws even though
+universal-core exports the helper. Patched locally:
+packages/cli/patches/octane@0.16.3.patch adds the name to the allowlist
+(manifest.json records why/dropWhen).
+
+## octane universal compiler: plain .ts helpers fall to the dom default
+
+`slotHooks` (the .ts/.js hook-slotting pass) resolves the file renderer
+via `resolveRendererForFile`; files matching no `renderers.rules`
+include glob land on `default: 'dom'`. Under dom the production pass
+lowers useMemo/useCallback to the native-only `memoSlot`/`memoTake`/
+`memoPublish` helpers imported from 'octane/internal/client' — those
+read CURRENT_SCOPE (render.js), which is null on universal targets, so
+the first useMemo inside a shared .ts hook throws at render
+('r is null'). Fix at our layer: xplatLinuxGtk sets
+`renderers.default: 'gtk'` so every unmatched file gets universal
+slotting (`useMemo(fn, deps, sym)`). Long-term, upstream could treat
+non-component helper files as renderer-agnostic or honor the app-level
+universal runtime instead of the dom default.

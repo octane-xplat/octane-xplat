@@ -1592,3 +1592,43 @@ registerIndicators(defaultIndicators)
 Real Linux checks cover native dimensions, SVG loading, state/size changes,
 custom children, forwarded refs, live registry replacements and cleanup.
 They do not compare pixels or establish assistive-technology output.
+
+
+
+## Collections and tables
+
+The shared collections and table family works on GTK: `Collapsible`,
+`CollapsibleGroup`, `Accordion`, `GridList`, `OverflowList`,
+`VirtualList`, `Carousel`, `TreeList`, the `Table` parts and
+`TableContext`, `TableSelectionToolbar`, and the table plugin hooks —
+sorting, selection, row expansion, grouping, tree data, pagination,
+filtering, and column settings all behave as on other native platforms.
+
+```tsx
+import { Accordion, GridList, Text, View } from "@octane-xplat/ui"
+
+export function Inspector({ items }) {
+	return (
+		<View>
+			<Accordion
+				items={[{ key: "a", header: <Text>SECTION</Text>, content: <Text>Body</Text> }]}
+				onOpenChange={(open) => console.log(open)}
+			/>
+			<GridList
+				items={items}
+				columns={2}
+				selectionMode="single"
+				renderItem={(item) => <Text>{item.name}</Text>}
+				onAction={(key) => console.log(key)}
+			/>
+		</View>
+	)
+}
+```
+
+Limits: `useGridList` reports `isSupported: false` (inert native leaf,
+same as other native platforms); `useTableStickyColumns` and
+`useTableColumnResize` are config-only plugins on native — resize
+accepts columnWidths and merges them into header-cell styles, sticky is
+a documented no-op. `useTableFiltering`'s date/time/entity filter
+editors reference slice-I inputs — string/enum/number filters work.

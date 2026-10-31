@@ -1804,6 +1804,40 @@ function syncVisibility(node: ElementNode, force = false) {
 		source.display !== 'none' && node.props.visible !== false && visibility !== 'collapse'
 	layout.set_visible(visible)
 	layout.set_child_visible(visibility !== 'hidden')
+	// visibility:hidden keeps layout space but must not receive input —
+	// child-invisible children otherwise stay hit-testable and steal clicks
+	// (OverflowList's hidden measurement copy sits over the live list).
+	// can_target is per-widget in GTK, so propagate hidden depth through the
+	// logical tree and apply it per view (attachHiddenDepth covers children
+	// inserted while an ancestor is already hidden).
+	const nowHidden = visibility === 'hidden'
+	if (nowHidden !== (node.ownHiddenState ?? false)) {
+		node.ownHiddenState = nowHidden
+		propagateHiddenDepth(node, nowHidden ? 1 : -1)
+	}
+	layout.set_can_target(!nowHidden && (node.hiddenDepth ?? 0) === 0)
+}
+
+function propagateHiddenDepth(node: ElementNode, delta: number) {
+	for (const child of node.children ?? []) {
+		child.hiddenDepth = (child.hiddenDepth ?? 0) + delta
+		physicalView(child)?.set_can_target(child.hiddenDepth === 0 && !child.ownHiddenState)
+		propagateHiddenDepth(child, delta)
+	}
+}
+
+/** Hidden-ancestor count for an attaching node — descendants of a hidden
+ *  subtree must never become hit-testable, even when they mount after the
+ *  ancestor's own syncVisibility ran. */
+function attachHiddenDepth(node: ElementNode) {
+	let depth = 0
+	for (let p = node.parent; p; p = p.parent) {
+		if (p.ownHiddenState) {
+			depth++
+		}
+	}
+	node.hiddenDepth = depth
+	physicalView(node)?.set_can_target(depth === 0 && !node.ownHiddenState)
 }
 
 /** CSS-driven widget writes that GTK CSS cannot express — direction,
@@ -2991,6 +3025,7 @@ function viewChildAt(parentView: GtkView, index: number): Gtk.Widget | null {
 /** Insert one view into a parent widget at a flattened index. `node` is the
  *  logical child that owns the view (for placement props). */
 function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, index: number) {
+	attachHiddenDepth(node)
 	if (isMasonHostView(parentView)) {
 		// Mason children parent directly on the host widget — the layout
 		// manager assigns rects. Align/expand defaults must be the GTK
@@ -3153,6 +3188,7 @@ function attachViews(container: GtkContainer, node: ElementNode) {
 			)
 		}
 
+		attachHiddenDepth(nodes[0]!)
 		parentView.set_child(views[0])
 		return
 	}
@@ -3229,6 +3265,7 @@ function insert(
 			warn('<scrollview> hosts a single view — replacing its current child')
 		}
 
+		attachHiddenDepth(node)
 		parentView.set_child(view)
 		return
 	}

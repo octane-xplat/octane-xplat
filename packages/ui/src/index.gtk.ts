@@ -748,4 +748,135 @@ export type {
 	NavigationActivationEvent,
 	NavigationTargetProps,
 	NavigationLinkTargetProps,
+} from './props'// Slice H — collections and tables. All components/hooks resolve to the
+// shared universal leaves; the renderer gained the NativeScript-shaped view
+// surface they measure and seek with (scrollTo, eachChildView,
+// getLocationRelativeTo, getChildAt/getChildrenCount,
+// getMeasuredWidth/Height, parent).
+export { Collapsible, CollapsibleGroup } from './Collapsible'
+export { Accordion } from './Accordion'
+export { GridList } from './GridList'
+export { useGridList } from './use-grid-list'
+export type { UseGridListOptions, UseGridListResult } from './use-grid-list'
+export { OverflowList } from './OverflowList'
+export { VirtualList } from './VirtualList'
+export { Carousel } from './Carousel'
+export { Tree as TreeList } from './Tree'
+export { Table } from './Table'
+export { TableHeader } from './Table'
+export { TableBody } from './Table'
+export { TableFooter } from './Table'
+export { TableRow } from './Table'
+export { TableCell } from './Table'
+export { TableHeaderCell } from './Table'
+export { TableSelectionToolbar } from './TableSelectionToolbar'
+export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
+export { useTableSortable } from './table/use-table-sortable'
+export { useTableSortableState } from './table/use-table-sortable-state'
+export { useTablePagination } from './table/use-table-pagination'
+export {
+	useTableColumnSettings,
+	useTableColumnSettingsState,
+} from './table/use-table-column-settings'
+export { useTableColumnResize } from './table/use-table-column-resize'
+export { useTableFilterState } from './table/use-table-filter-state'
+export { useTableFiltering } from './table/use-table-filtering'
+export { useTableStickyColumns } from './table/use-table-sticky-columns'
+export { useTableGroupedRows } from './table/use-table-grouped-rows'
+export { useTableRowIndex } from './table/use-table-row-index'
+export { useTableRowStatus } from './table/use-table-row-status'
+export { useTableRowExpansion } from './table/use-table-row-expansion'
+export { useTableTreeState } from './table/use-table-tree-state'
+export { useTableTreeData } from './table/use-table-tree-data'
+export { TableContext } from './table/table-context'
+export type {
+	AccordionBaseProps,
+	AccordionItemSpec,
+	AccordionMultipleProps,
+	AccordionProps,
+	AccordionSingleProps,
+	CarouselHandle,
+	CarouselProps,
+	CollapsibleGroupProps,
+	CollapsibleProps,
+	GridListProps,
+	OverflowItem,
+	OverflowListProps,
+	ScreenTable,
+	TableCellProps,
+	TableBodyProps,
+	TableColumnAlign,
+	TableDensity,
+	TableDividers,
+	TableFilterFieldRef,
+	TableFooterProps,
+	TableHeaderCellProps,
+	TableHeaderProps,
+	TableProps,
+	TableRowProps,
+	TableSelectionToolbarProps,
+	TableTextOverflow,
+	TableVerticalAlign,
+	TreeListNode,
+	TreeListProps,
+	TreeProps,
+	VirtualListHandle,
+	VirtualListProps,
+	VirtualListScrollOptions,
 } from './props'
+export type {
+	BodyCellRenderProps,
+	BodyRowRenderProps,
+	HeaderCellRenderProps,
+	HeaderRowRenderProps,
+	ScrollWrapperRenderProps,
+	TableContextAction,
+	TableContextActions,
+	TableContextValue,
+	TableFilterState,
+	TableFilterValue,
+	TableFilterVariant,
+	TableHostProps,
+	TablePlugin,
+	TableRenderProps,
+	TableRowStatus,
+	TableRowStatusColor,
+	TableSelectionState,
+	TableSemanticRowStatus,
+	TableSortComparator,
+	TableSortDirection,
+	TableSortEntry,
+	TableSortState,
+	TableTreeRowMeta,
+	UseTableGroupedRowsConfig,
+	UseTableGroupedRowsResult,
+	UseTableRowExpansionConfig,
+	UseTableStickyColumnsConfig,
+	UseTableTreeDataConfig,
+} from './table/types'
+export type {
+	UseTableSelectionConfig,
+	UseTableSelectionStateConfig,
+	UseTableSelectionStateResult,
+} from './table/use-table-selection'
+export type { UseTableSortableConfig } from './table/use-table-sortable'
+export type {
+	UseTableSortableStateConfig,
+	UseTableSortableStateResult,
+} from './table/use-table-sortable-state'
+export type { UseTablePaginationConfig } from './table/use-table-pagination'
+export type {
+	ColumnSettingsOption,
+	UseTableColumnSettingsConfig,
+	UseTableColumnSettingsStateConfig,
+	UseTableColumnSettingsStateReturn,
+} from './table/use-table-column-settings'
+export type { UseTableColumnResizeConfig } from './table/use-table-column-resize'
+export type { UseTableFilteringConfig } from './table/use-table-filtering'
+export type { UseTableRowIndexConfig } from './table/use-table-row-index'
+export type { UseTableRowStatusConfig } from './table/use-table-row-status'
+export type {
+	UseTableTreeStateConfig,
+	UseTableTreeStateResult,
+} from './table/use-table-tree-state'
+export type { UseTableFilterStateResult } from './table/use-table-filter-state'

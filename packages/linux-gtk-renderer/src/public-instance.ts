@@ -1,3 +1,4 @@
+import Gtk from 'gi://Gtk?version=4.0'
 import { bindPopovers } from './popover-instance.js'
 import { bindOverlayHost } from './overlay-host.js'
 import { popupBounds } from './popup-bounds.js'
@@ -131,6 +132,99 @@ export function bindPublicInstance(
 			root.set_focus(null)
 		}
 	}
+	// NativeScript-shaped child/measure surface the shared collection leaves
+	// rely on: OverflowList measures a hidden item row's children, Carousel
+	// reads slide offsets for snap/index navigation, and VirtualList verifies
+	// view-tree reachability. Gtk child order matches paint/layout order.
+	view.eachChildView = (callback: (child: GtkView) => boolean | void) => {
+		if (disposed) {
+			return
+		}
+		for (
+			let child = view.get_first_child();
+			child;
+			child = child.get_next_sibling()
+		) {
+			if (callback(child as GtkView) === false) {
+				return
+			}
+		}
+	}
+	view.getChildAt = (index: number): GtkView | null => {
+		if (disposed || !Number.isInteger(index) || index < 0) {
+			return null
+		}
+		let i = 0
+		for (
+			let child = view.get_first_child();
+			child;
+			child = child.get_next_sibling(), i++
+		) {
+			if (i === index) {
+				return child as GtkView
+			}
+		}
+		return null
+	}
+	view.getChildrenCount = () => {
+		if (disposed) {
+			return 0
+		}
+		let count = 0
+		for (
+			let child = view.get_first_child();
+			child;
+			child = child.get_next_sibling()
+		) {
+			count++
+		}
+		return count
+	}
+	view.getLocationRelativeTo = (other: GtkView | null) => {
+		if (disposed || !other) {
+			return null
+		}
+		const [ok, x, y] = view.translate_coordinates(other, 0, 0) as [
+			boolean,
+			number,
+			number,
+		]
+		return ok ? { x, y } : null
+	}
+	// NS measured size ≈ GTK natural measure for the axis.
+	view.getMeasuredWidth = () => {
+		if (disposed) {
+			return 0
+		}
+		const measured = view.measure(Gtk.Orientation.HORIZONTAL, -1) as unknown
+		const natural = Array.isArray(measured) ? Number(measured[1]) : 0
+		return Number.isFinite(natural) && natural > 0 ? natural : view.get_width()
+	}
+	view.getMeasuredHeight = () => {
+		if (disposed) {
+			return 0
+		}
+		const measured = view.measure(Gtk.Orientation.VERTICAL, -1) as unknown
+		const natural = Array.isArray(measured) ? Number(measured[1]) : 0
+		return Number.isFinite(natural) && natural > 0 ? natural : view.get_height()
+	}
+	Object.defineProperty(view, 'parent', {
+		configurable: true,
+		get: () => {
+			if (disposed) {
+				return null
+			}
+			let parent = view.get_parent()
+			// GtkViewport (css name 'viewport') is scrollview-internal — the
+			// logical parent of a scrolled child is the scroller itself. The
+			// class is absent from the ambient Gtk typings, so match on the
+			// css node name instead of instanceof.
+			while (parent && parent.get_css_name?.() === 'viewport') {
+				parent = parent.get_parent()
+			}
+			return parent
+		},
+	})
 	const bounds = (): GtkBounds | null => {
 		if (disposed || !host || !view.get_parent()) {
 			return null
@@ -245,7 +339,9 @@ export function bindPublicInstance(
 		Object.defineProperty(view, name, {
 			configurable: true,
 			get: () => readStyle(name),
-			set: (value) => writeStyle(name, value),
+			set: (value) => {
+				writeStyle(name, value)
+			},
 		})
 	}
 	view.getActualSize = () => {

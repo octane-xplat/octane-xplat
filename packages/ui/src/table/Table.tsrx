@@ -155,7 +155,10 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 										`vx-table-cell--${density}`,
 										cell.render.classes,
 									)}
-									style={cellStyle(cell.column, { display: 'flex', flexDirection: 'column' })}
+									style={mergeStyle(
+										cellStyle(cell.column, { display: 'flex', flexDirection: 'column' }),
+										cell.render.htmlProps?.style ?? {},
+									)}
 								>
 									<TableSlot value={before} />
 									<masonview

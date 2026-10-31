@@ -1662,3 +1662,33 @@ not verifiable under Xvfb. `openWindow` needs a content source
 (`setWindowContentResolver` or the internal `component` option). Safe
 area and keyboard inset are structural zeros by design. Recipes are
 unchanged.
+
+
+
+### Collections and tables (slice H)
+
+Qualified via ui-collections (34 assertions) + ui-table (32 assertions),
+real X11 input, zero skips. All slice-H components are shared leaves —
+no new `.gtk` files. Collections: Collapsible/CollapsibleGroup/Accordion
+toggle on real clicks; GridList tap selects+actions; OverflowList
+collapses items and reports overflowIndexes under a fixed-width host;
+Carousel prev/next scrolls the viewport, scrollTo lands on the slide
+offset, snap settles on slide edges; TreeList expands/selects; VirtualList
+bounds its window and scrollToIndex mounts destination rows. Table:
+data-mode columns, header sort (controlled sort state), row selection
+with Select-all/Unselect-All + selection toolbar, row expansion,
+grouped/tree rows, pagination page swap, column settings toggle
+hide/show, column resize+sticky config accepted, filter popover
+open/type/apply/reset narrows rows. `useGridList` is an inert native
+leaf (`isSupported: false`), matching other native platforms.
+Compiler fixes this slice: `renderers.default: 'gtk'` in
+`xplatLinuxGtk` (plain .ts hook files previously fell to the dom default
+and emitted native-only memoSlot/memoTake/memoPublish helpers); the GTK
+slot dedupe plugin now covers .ts/.mts/.js emitted duplicates and uses a
+name-continuation-safe fold regex. Octane patch gains `__methodDep` in
+UNIVERSAL_RUNTIME_IMPORTS. Renderer gains: public-instance child-view
+measurement APIs (eachChildView/getChildAt/getChildrenCount/
+getLocationRelativeTo/getMeasuredWidth/Height/parent skipping
+GtkViewport), scroll-instance scrollTo({top,left,behavior}), and
+visibility:hidden propagated as can_target=false so hidden subtrees
+cannot steal real input.

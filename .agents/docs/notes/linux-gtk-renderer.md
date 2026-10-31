@@ -3284,3 +3284,26 @@ on the Xvfb seat), a claim made while the driver defers event dispatch
 web-only (the shared native leaf is semantic-only by contract).
 
 Logs: guest `/tmp/gtk-run.log`, `/tmp/gtk-focus-dbg.log`.
+
+
+
+## Slice H evidence — collections and tables
+
+ui-collections (34 assertions) + ui-table (32 assertions), real input.
+Renderer additions this slice: `scroll-instance.ts` view.scrollTo
+({top,left,behavior}); `public-instance.ts` child-view APIs
+eachChildView/getChildAt/getChildrenCount/getLocationRelativeTo/
+getMeasuredWidth/getMeasuredHeight (Gtk natural measure) and `parent`
+that skips the internal GtkViewport (css-name 'viewport') so public
+parents match logical children; `index.ts` syncVisibility propagates
+`visibility:hidden` as `can_target=false` through the logical node tree
+(ownHiddenState + hiddenDepth + attach at insertViewInto +
+scrolledwindow set_child) — GTK keeps child-invisible widgets
+hit-testable, which stole real input (Carousel/OverflowList hidden
+copies) until propagation landed.
+Compiler-side findings recorded in upstream-limitations: universal
+compiler emits `__methodDep` for member calls inside hook callbacks but
+0.16.3's UNIVERSAL_RUNTIME_IMPORTS lacks it (patched); plain .ts helper
+files fall to the 'dom' renderer default unless renderers.default is
+set — xplatLinuxGtk now sets `default: 'gtk'` so universal slotting
+emits `useMemo(fn, deps, sym)` instead of native memoSlot/memoPublish.
