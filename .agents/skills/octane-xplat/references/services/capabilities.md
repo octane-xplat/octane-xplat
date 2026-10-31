@@ -10,8 +10,10 @@ qualification. Keep one billing owner per account. Never grant from a purchase
 request or pending event; finish only after verified durable server grant, and
 retain the native transaction object. Restore through the same idempotent path.
 StoreKit 2 receiptToken is transaction JSON, not signed server proof; use the
-store's verification API. The wrapper cannot await readiness (#70) and currently
-re-fetches purchase requests as inapp (#69); do not claim subscription checkout.
+store's verification API. Await `billing.connect()` for store readiness before
+availability or catalog calls. For subscriptions, pass the `subs`-fetched
+product to requestPurchase — Play applies its first offer and plan changes are
+unexposed; do not claim qualified subscription checkout without a sandbox run.
 
 ## Background refresh
 

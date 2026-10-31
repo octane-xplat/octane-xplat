@@ -23,7 +23,7 @@ import { billing } from '@octane-xplat/billing'
 
 export async function readProduct(productId: string) {
 	if (!billing.supported) return { status: 'unavailable' as const }
-	billing.connect()
+	await billing.connect()
 	if (!billing.canMakePayments()) return { status: 'retry' as const }
 	const products = await billing.fetchProducts([productId], 'inapp')
 	return { status: 'loaded' as const, product: products[0] ?? null }
@@ -34,12 +34,13 @@ export function closeBillingOwner() {
 }
 ```
 
-Handle a rejected read in your screen's error state. A `retry` result can mean
-that Android is still connecting, or payments are restricted; offer Reload store
-after checking the store account. Connection readiness is not currently awaitable
-([#70](https://github.com/octane-xplat/octane-xplat/issues/70)). If a loaded product
-is absent, check its ID, app identity, availability and tester setup. Release the
-owner when it ends; do not disconnect immediately after initiating a purchase.
+Handle a rejected read in your screen's error state. `connect()` resolves once
+the store reports ready, including reconnects after `disconnect()`. A `retry`
+result after a resolved connect means the store setup failed or payments are
+restricted; offer Reload store after checking the store account. If a loaded
+product is absent, check its ID, app identity, availability and tester setup.
+Release the owner when it ends; do not disconnect immediately after initiating
+a purchase.
 
 ## Complete and restore safely
 
@@ -64,8 +65,16 @@ specifies the [backend contract](https://octane-xplat.goddardai.org/in-app-purch
 and recovery checks; the package supplies neither a server verifier nor an
 entitlement database.
 
-Subscription listing exists, but checkout currently re-fetches every product
-as `inapp`; [#69](https://github.com/octane-xplat/octane-xplat/issues/69) tracks
-subscription initiation. Listing a subscription does not qualify its checkout.
-Use the guide's [support and recovery boundaries](https://octane-xplat.goddardai.org/in-app-purchases#buy-finish-and-recover)
+Subscriptions initiate through the product returned by a `'subs'` fetch, which
+carries the store's offer details into checkout:
+
+```ts
+const [plan] = await billing.fetchProducts(['com.example.plan.monthly'], 'subs')
+if (plan) await billing.requestPurchase(plan)
+```
+
+On Google Play the store applies the product's first offer; choosing between
+base plans or offers and changing an active subscription are not exposed at
+this level. Listing a subscription does not qualify its checkout. Use the
+guide's [support and recovery boundaries](https://octane-xplat.goddardai.org/in-app-purchases#buy-finish-and-recover)
 before choosing consumables or subscriptions.

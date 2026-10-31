@@ -38,7 +38,7 @@ function fixture({ ready = true, supported = true, verify, finish, available = [
 	const store = {
 		supported,
 		canMakePayments: () => ready,
-		connect: () => {
+		connect: async () => {
 			connected = true
 		},
 		disconnect: () => {
@@ -189,6 +189,29 @@ test('readiness has a manual retry and unsupported hosts never open a store conn
 	await unsupported.owner.start()
 	assert.equal(unsupported.connected(), false)
 	assert.match(unsupported.owner.state.getSnapshot().message, /unavailable/)
+})
+
+test('the first load waits for the store connection before fetching', async () => {
+	let release
+	const gate = new Promise((resolve) => {
+		release = resolve
+	})
+	const f = fixture()
+	const order = []
+	f.store.connect = async () => {
+		order.push('connect')
+		await gate
+	}
+	f.store.fetchProducts = async () => {
+		order.push('fetchProducts')
+		return [product]
+	}
+	const starting = f.owner.start()
+	await settled()
+	assert.deepEqual(order, ['connect'])
+	release()
+	await starting
+	assert.deepEqual(order.slice(0, 2), ['connect', 'fetchProducts'])
 })
 
 test('a rejected old transaction does not prevent processing a later valid transaction', async () => {

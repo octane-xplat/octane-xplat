@@ -2,9 +2,11 @@
 // Billing). One Payment client behind the flat service; purchase outcomes
 // fan out to registered listeners.
 import { Payment, type Product as NativeProduct, type Transaction } from '@nativescript/payments'
-import type { Billing, Product, Purchase, PurchaseOptions } from './types'
+import type { Billing, Product, Purchase, RequestPurchaseOptions } from './types'
 
 let client: Payment | null = null
+let ready = false
+const readyWaiters = new Set<() => void>()
 const purchaseListeners = new Set<(purchases: Purchase[]) => void>()
 const errorListeners = new Set<(error: { code: string; message: string }) => void>()
 
@@ -16,6 +18,7 @@ function asProduct(p: NativeProduct): Product {
 		type: p.type,
 		displayPrice: p.priceFormatted,
 		priceMicros: p.priceAmountMicros,
+		native: p,
 	}
 }
 
@@ -35,6 +38,13 @@ function asPurchase(t: Transaction): Purchase {
 function getClient(): Payment {
 	if (!client) {
 		client = new Payment()
+		client.onReady = () => {
+			ready = true
+			for (const resolve of readyWaiters) {
+				resolve()
+			}
+			readyWaiters.clear()
+		}
 		client.onPurchaseUpdate = (purchases, error) => {
 			if (error) {
 				const out = {
@@ -61,12 +71,24 @@ function getClient(): Payment {
 export const billing: Billing = {
 	supported: Payment.isSupported(),
 
-	connect(): void {
-		getClient().connect()
+	connect(): Promise<void> {
+		const c = getClient()
+		if (ready) {
+			return Promise.resolve()
+		}
+		const pending = new Promise<void>((resolve) => readyWaiters.add(resolve))
+		c.connect()
+		return pending
 	},
 
 	disconnect(): void {
+		ready = false
 		client?.disconnect()
+		// @nativescript/payments 4.0.1 never re-fires onReady on a manually
+		// disconnected Payment (its internal flag stays set), so reconnecting
+		// needs a fresh client — a new Payment's init reconnects and re-arms
+		// the callback.
+		client = null
 	},
 
 	canMakePayments(): boolean {
@@ -78,15 +100,28 @@ export const billing: Billing = {
 		return (products ?? []).map(asProduct)
 	},
 
-	async requestPurchase(productId: string, options?: PurchaseOptions): Promise<void> {
+	async requestPurchase(
+		product: Product | string,
+		options?: RequestPurchaseOptions,
+	): Promise<void> {
 		const c = getClient()
-		const [product] = await c.fetchProducts([productId], 'inapp')
-		if (!product) {
-			throw Object.assign(new Error(`billing.requestPurchase: product '${productId}' not found`), {
-				code: 'PRODUCT_UNAVAILABLE',
-			})
+		const { type, ...purchaseOptions } = options ?? {}
+		let native: NativeProduct | undefined
+		if (typeof product === 'string') {
+			const [fetched] = await c.fetchProducts([product], type ?? 'inapp')
+			if (!fetched) {
+				throw Object.assign(new Error(`billing.requestPurchase: product '${product}' not found`), {
+					code: 'PRODUCT_UNAVAILABLE',
+				})
+			}
+			native = fetched
+		} else {
+			native = product.native as NativeProduct | undefined
+			if (!native) {
+				throw new Error('billing.requestPurchase: product lacks its native store reference')
+			}
 		}
-		await c.purchaseProduct(product, options as any)
+		await c.purchaseProduct(native, purchaseOptions)
 	},
 
 	onPurchase(listener: (purchases: Purchase[]) => void): () => void {

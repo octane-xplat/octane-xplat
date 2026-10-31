@@ -7,7 +7,7 @@ const unsupported = () =>
 /** Store billing service — Play Billing / StoreKit. */
 export const billing: Billing = {
 	supported: false,
-	connect: () => {},
+	connect: () => Promise.resolve(),
 	disconnect: () => {},
 	canMakePayments: () => false,
 	fetchProducts: unsupported,

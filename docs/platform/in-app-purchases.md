@@ -94,11 +94,12 @@ shown in [account-owned routing](../app/authentication.md#retire-protected-route
 If you share purchases across several screens, lift this owner to their common
 account parent and pass it down instead of creating a controller on each screen.
 
-On a configured device, expect the product title and localized price. If the
-store is still connecting, press **Reload store**. The current wrapper cannot
-await connection readiness; [issue #70](https://github.com/octane-xplat/octane-xplat/issues/70)
-tracks that gap. Reload performs a new readiness check and product query; it
-does not assume that an arbitrary delay made the connection ready.
+On a configured device, expect the product title and localized price. The
+controller awaits `store.connect()`, which resolves once the store reports
+ready, before checking availability and loading the product. If setup fails or
+payments are restricted, press **Reload store** after checking the store
+account; Reload performs a new connection attempt and product query rather
+than assuming an arbitrary delay made the connection ready.
 
 The controller checks availability before opening a connection. On an unsupported
 target it displays an unavailable message. The component subscribes to its store
@@ -257,23 +258,27 @@ export async function finishVerifiedConsumable(purchase: Purchase) {
 ```
 
 Subscriptions need server handling for renewal, expiry, grace periods and
-revocation. Although products can be fetched with `fetchProducts(ids, 'subs')`,
-the wrapper currently re-fetches every purchase request as `inapp`.
-[Issue #69](https://github.com/octane-xplat/octane-xplat/issues/69) tracks this
-subscription-initiation gap. Do not ship subscription checkout using this guide
-or imply that listing a subscription proves it can be purchased. A catalog
-read alone is only this operation:
+revocation. Fetch the subscription as `'subs'` and pass the returned product
+to `requestPurchase` so its offer details reach checkout — an id alone is
+re-fetched as `'inapp'` unless `options.type` says otherwise:
 
 ```ts
 import { billing } from '@octane-xplat/billing'
 
-export async function readSubscriptionCatalog(productIds: string[]) {
-  return billing.fetchProducts(productIds, 'subs')
+export async function buySubscription(productId: string) {
+  const [plan] = await billing.fetchProducts([productId], 'subs')
+  if (!plan) throw new Error('Subscription product not found')
+  await billing.requestPurchase(plan)
 }
 ```
 
-Call that within an already-connected billing owner. It does not initiate or
-verify a subscription.
+Call that within an already-connected billing owner. On Google Play the store
+applies the product's first offer; choosing between base plans or offers and
+upgrading or downgrading an active subscription are not exposed at this API
+level. The request resolves when the store sheet opens — the same listener,
+verification and finish path from this guide decides the outcome. Qualify a
+real sandbox subscription before shipping; listing a subscription does not
+prove it can be purchased.
 
 ## Check the complete sandbox journey
 

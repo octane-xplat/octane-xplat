@@ -18,6 +18,9 @@ export interface Product {
 	/** Price in micros (1_000_000 = 1 unit) — null on iOS, which reports
 	 *  formatted price only at this API level. */
 	priceMicros: number | null
+	/** Underlying plugin product — pass the fetched Product back to
+	 *  requestPurchase so subscription offer details reach checkout. */
+	native?: unknown
 }
 
 /** Transaction lifecycle: 'pending' awaits external payment action
@@ -57,6 +60,14 @@ export interface PurchaseOptions {
 	ios?: { quantity?: number; simulatesAskToBuyInSandbox?: boolean }
 }
 
+/** requestPurchase() options: store options plus the product kind used to
+ *  fetch an id before checkout. */
+export interface RequestPurchaseOptions extends PurchaseOptions {
+	/** Product kind fetched when `requestPurchase` receives an id rather than
+	 *  a fetched Product; defaults to 'inapp'. Use 'subs' for subscriptions. */
+	type?: 'inapp' | 'subs'
+}
+
 /** A store-reported failure. */
 export interface PurchaseError {
 	/** Normalized store error code (Play Billing response / StoreKit error
@@ -71,18 +82,22 @@ export interface PurchaseError {
 export interface Billing {
 	/** StoreKit/Play Billing client exists (false on web/desktop leaves). */
 	readonly supported: boolean
-	/** Connect the store client — call once at app start, before other calls. */
-	connect(): void
+	/** Connect the store client — call once at app start, before other calls.
+	 *  Resolves once the store reports ready; check canMakePayments() after it
+	 *  resolves. A call after disconnect() awaits the next readiness signal. */
+	connect(): Promise<void>
 	/** Release the store client connection. */
 	disconnect(): void
 	/** The device can make payments (parental controls off, store reachable). */
 	canMakePayments(): boolean
 	/** Fetch store metadata for console-registered product ids. */
 	fetchProducts(productIds: string[], type?: 'inapp' | 'subs'): Promise<Product[]>
-	/** Kick the OS purchase sheet for `productId` — the product is fetched
-	 *  internally first. Outcomes arrive on onPurchase/onPurchaseError and
+	/** Kick the OS purchase sheet. Pass the Product returned by fetchProducts —
+	 *  required for subscriptions, whose 'subs' fetch carries the store's offer
+	 *  details — or a product id, fetched internally as options.type
+	 *  (default 'inapp'). Outcomes arrive on onPurchase/onPurchaseError and
 	 *  must be completed with finishTransaction. */
-	requestPurchase(productId: string, options?: PurchaseOptions): Promise<void>
+	requestPurchase(product: Product | string, options?: RequestPurchaseOptions): Promise<void>
 	/** Purchase-update listener; returns the unsubscribe function. */
 	onPurchase(listener: (purchases: Purchase[]) => void): () => void
 	/** Purchase-failure listener; returns the unsubscribe function. */

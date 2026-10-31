@@ -169,13 +169,13 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		if (closed || !started || !store.supported) {return}
 		update({ busy: true })
 		try {
-			store.connect()
+			await store.connect()
 			if (!store.canMakePayments()) {
 				update({
 					product: null,
 					busy: false,
 					message:
-						'Store is connecting or payments are restricted. Check the store account, then tap Reload store.',
+						'Store setup failed or payments are restricted. Check the store account, then tap Reload store.',
 				})
 				return
 			}
