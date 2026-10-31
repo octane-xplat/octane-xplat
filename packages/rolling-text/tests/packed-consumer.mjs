@@ -97,7 +97,7 @@ const extraFiles = {}
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
 	macos: {
-		jsxImportSource: '@octane-xplat/macos-renderer',
+		jsxImportSource: '@octane-xplat/jsx',
 		moduleSuffixes: ['.macos', ''],
 		customConditions: ['macos', 'native'],
 		types: [],
