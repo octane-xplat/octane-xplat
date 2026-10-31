@@ -2,9 +2,9 @@ import type { JSX as SharedJSX } from '@octane-xplat/jsx/jsx-runtime'
 import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-renderer'
 import type { MacOSRootOptions } from '@octane-xplat/macos-renderer'
 import type { XplatMacOSOptions } from '@octane-xplat/cli/macos/vite'
-import type { JSX } from '@octane-xplat/macos-renderer/intrinsics'
-import type { jsx } from '@octane-xplat/macos-renderer/jsx-runtime'
-import type { jsxs } from '@octane-xplat/macos-renderer/jsx-dev-runtime'
+import type { JSX } from '@octane-xplat/jsx/intrinsics'
+import type { jsx } from '@octane-xplat/jsx/jsx-runtime'
+import type { jsxs } from '@octane-xplat/jsx/jsx-dev-runtime'
 
 declare const host: Parameters<typeof createMacOSRoot>[0]
 declare const descriptor: Parameters<typeof registerFontFamily>[1][number]['descriptor']
