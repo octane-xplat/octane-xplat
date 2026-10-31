@@ -16,6 +16,14 @@ silo table show windows_checks
 silo sql "SELECT key, title, status, source_revision, evidence FROM windows_checks ORDER BY key"
 ```
 
+For the core20 plan, use the exact final component gates. The broader
+`scenario:windows-os-*` prefix also contains older bounded OS scenarios;
+their passes do not establish this plan's fresh-main component qualification.
+
+```sh
+silo query windows-core20-final-gates
+```
+
 Choose a bounded user flow, retain the exact source and packaged artifact, and
 exercise actual OS input when that is the behavior being claimed. Keep handler
 dispatch, native automation, keyboard/pointer input, geometry, Narrator, and
