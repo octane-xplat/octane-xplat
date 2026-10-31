@@ -1070,7 +1070,7 @@ body {
 	box-sizing: border-box;
 	width: 340px;
 	max-width: calc(100% - 81px);
-	margin: 0 81px 56px 0;
+	margin: 0 81px 56px auto;
 	padding: 18px 24px;
 	background-color: var(--doc-card);
 	border-width: 1px;
@@ -1103,6 +1103,7 @@ body {
 }
 
 .doc-next-copy {
+	display: flex;
 	flex: 1;
 	min-width: 0;
 	overflow-wrap: anywhere;
