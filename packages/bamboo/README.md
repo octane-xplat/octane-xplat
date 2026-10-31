@@ -7,7 +7,7 @@ both NativeScript and browsers support (`xplatPortablePreset` and the
 utilities sit under the app's own CSS. A Vite plugin emits the stylesheet.
 
 ```sh
-bun add -D @octane-xplat/bamboo
+bun add -D @octane-xplat/bamboo @bamboocss/dev
 ```
 
 Two entry points:
@@ -19,7 +19,7 @@ import { xplatBambooConfig } from '@octane-xplat/bamboo'
 
 export default defineConfig({
 	...xplatBambooConfig,
-	include: ['src/**/*.ts'],
+	include: ['src/**/*.{ts,tsx}'],
 	outdir: 'src/styled-system',
 })
 ```
@@ -30,10 +30,15 @@ declares is a valid token, compiled to its variable (`warning` →
 `var(--color-warning)`). A token only resolves when that stylesheet is
 imported or the app defines the variable itself.
 
+For TSRX templates, keep `css()` calls in a `.ts` style module and import its
+class strings. Bamboo's standalone source scanner does not parse TSRX `@{}`
+templates; this configuration scans `.ts` and `.tsx` files.
+
 ```ts
+// src/styles.ts
 import { css } from './styled-system/css'
 
-css({ color: 'warning' }) // -> var(--color-warning)
+export const warningText = css({ color: 'warning' }) // Uses --color-warning
 ```
 
 Preflight is off by default and tokens land on `:root, .ns-root`. The

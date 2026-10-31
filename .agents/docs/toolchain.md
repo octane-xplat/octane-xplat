@@ -798,3 +798,29 @@ Raw remote failure evidence: `/tmp/lightbox-audit-webkit-debug.log` on the
 isolated andromeda.local test checkout. Local feedback observation:
 `c1ba3022-51ad-4f95-bd9e-d1bd470f3fc4`. No upstream issue or root cause beyond
 the failing compiler stage was established during this repair.
+
+## Bamboo standalone scanning of TSRX templates
+
+With `@bamboocss/dev` 1.60.1, `bamboo cssgen` rejects a `.tsrx` file containing
+`export function Example() @{ ... }` with `ERR_BAMBOO_EXTRACT_FAILED` and
+`Expected a semicolon or an implicit semicolon after a statement, but found none`.
+The failing source was:
+
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+// src/Example.web.tsrx
+import { css } from './styled-system/css'
+export function Example() @{
+	<div className={css({ padding: '8' })}>TSRX</div>
+}
+```
+
+The probe ran `bamboo cssgen` with the package README config and `.tsrx` added
+to `include`; plain `.ts` and `.tsx` fixtures extracted successfully. This is standalone
+CLI extraction evidence, not a qualification of Vite's transformed-module path.
+
+The [Bamboo README](../../packages/bamboo/README.md) therefore scans `.ts`/`.tsx`
+and keeps shared `css()` calls in a `.ts` module that TSRX components can import.
+No dependency patch was added. Recheck raw template extraction when upgrading
+Bamboo before adding `.tsrx` to this scan. Retained reproduction, versions and
+logs: `~/dev/reports/octane-xplat/package-readme-api-audit-20261031.md`.

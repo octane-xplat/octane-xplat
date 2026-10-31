@@ -146,17 +146,26 @@ For `SortableList`, pass `activationDistance` to configure every row and use
 set, the row itself does not start a drag.
 
 ```tsx
-<SortableList
-	items={items}
-	activationDistance={8}
-	onReorder={setItems}
-	renderItem={(id) => <Text>{String(id)}</Text>}
-	renderHandle={(id, _index, onPan) => (
-		<View onPan={onPan}>
-			<Text>⠿ {String(id)}</Text>
-		</View>
-	)}
-/>
+import { useState } from 'octane'
+import { Text, View } from '@octane-xplat/ui'
+import { SortableList } from '@octane-xplat/dnd-kit'
+
+export function TasksWithHandles() {
+	const [items, setItems] = useState(['alpha', 'beta', 'gamma'])
+	return (
+		<SortableList
+			items={items}
+			activationDistance={8}
+			onReorder={setItems}
+			renderItem={(id) => <Text>{String(id)}</Text>}
+			renderHandle={(id, _index, onPan) => (
+				<View onPan={onPan}>
+					<Text>⠿ {String(id)}</Text>
+				</View>
+			)}
+		/>
+	)
+}
 ```
 
 The default detector prefers pointer intersection then shape overlap. Supply

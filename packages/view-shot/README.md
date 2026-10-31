@@ -59,9 +59,14 @@ and asynchronous children yourself; mounting does not mean those assets have
 finished loading.
 
 ```tsx
-<ViewShot ref={card} style={{ width: 320, height: 180 }}>
-	<Text>Ready to capture</Text>
-</ViewShot>
+import { Text } from '@octane-xplat/ui'
+import ViewShot from '@octane-xplat/view-shot'
+
+export function SizedCard() {
+	return <ViewShot style={{ width: 320, height: 180 }}>
+		<Text>Ready to capture</Text>
+	</ViewShot>
+}
 ```
 
 ## Capture an existing host
@@ -92,9 +97,11 @@ inline strings. The default `tmpfile` returns an owned file URI on native
 hosts and an owned blob URL on web; it is temporary, not durable storage.
 
 ```ts
-import { captureRef } from '@octane-xplat/view-shot'
+import { captureRef, type CaptureTarget } from '@octane-xplat/view-shot'
 
-const inline = await captureRef(card, { format: 'png', result: 'data-uri' })
+export function inlineCard(target: CaptureTarget) {
+	return captureRef(target, { format: 'png', result: 'data-uri' })
+}
 ```
 
 `captureScreen` captures the primary app window on iOS and Android. It does
@@ -103,11 +110,16 @@ an explicit target through `captureRef`. Check capability before offering a
 screen capture action; any individual operation can still reject.
 
 ```ts
-import { captureScreen, viewShot } from '@octane-xplat/view-shot'
+import { captureScreen, releaseCapture, viewShot } from '@octane-xplat/view-shot'
 
-if (viewShot.capabilities.screen) {
+export async function consumeAppScreen(consume: (uri: string) => Promise<void>) {
+	if (!viewShot.capabilities.screen) return
 	const uri = await captureScreen({ format: 'png' })
-	// The caller must release uri when its reader finishes.
+	try {
+		await consume(uri)
+	} finally {
+		releaseCapture(uri)
+	}
 }
 ```
 
@@ -121,14 +133,19 @@ wrapper's content. Avoid updating that same wrapper from `onCapture` in
 `update` mode, which can produce a capture/update loop.
 
 ```tsx
-<ViewShot
-	captureMode="mount"
-	options={{ format: 'png' }}
-	onCapture={(uri) => console.log('Temporary card ready')}
-	onCaptureFailure={(error) => console.log(error.message)}
->
-	<Text>Ready on mount</Text>
-</ViewShot>
+import { Text } from '@octane-xplat/ui'
+import ViewShot from '@octane-xplat/view-shot'
+
+export function AutomaticCard() {
+	return <ViewShot
+		captureMode="mount"
+		options={{ format: 'png' }}
+		onCapture={(uri) => console.log('Temporary card ready')}
+		onCaptureFailure={(error) => console.log(error.message)}
+	>
+		<Text>Ready on mount</Text>
+	</ViewShot>
+}
 ```
 
 Manual captures transfer ownership to the caller. `releaseCapture` is
@@ -139,8 +156,10 @@ is released and the promise rejects. Inline strings need no resource cleanup.
 ```ts
 import { releaseCapture } from '@octane-xplat/view-shot'
 
-releaseCapture(uri)
-releaseCapture(uri) // Already released: safe.
+export function discardCapture(uri: string) {
+	releaseCapture(uri)
+	releaseCapture(uri) // Already released: safe.
+}
 ```
 
 ## Platforms and qualification
@@ -188,9 +207,12 @@ and Android GL handling are outside this subset and reject explicitly.
 digits, underscores or hyphens. `useRenderInContext` is iOS-only.
 
 ```ts
-import { captureRef } from '@octane-xplat/view-shot'
+import { captureRef, type CaptureTarget } from '@octane-xplat/view-shot'
 
-const uri = await captureRef(card, { format: 'png', result: 'tmpfile' })
+// The receiving owner must eventually call releaseCapture on the returned URI.
+export function captureCardFile(target: CaptureTarget) {
+	return captureRef(target, { format: 'png', result: 'tmpfile' })
+}
 ```
 
 See the upstream [react-native-view-shot API](https://github.com/gre/react-native-view-shot)

@@ -37,11 +37,16 @@ driven by the `page` state:
 ```tsx
 import { HStack, Text } from '@octane-xplat/ui'
 
-;<HStack>
-	{titles.map((title, index) => (
-		<Text>{index === page ? '●' : '○'}</Text>
-	))}
-</HStack>
+// Render alongside the Pager inside Onboarding, passing its current page.
+export function PageIndicator({ titles, page }: { titles: readonly string[]; page: number }) {
+	return (
+		<HStack>
+			{titles.map((title, index) => (
+				<Text key={index} accessibilityLabel={title}>{index === page ? '●' : '○'}</Text>
+			))}
+		</HStack>
+	)
+}
 ```
 
 ## Platform support

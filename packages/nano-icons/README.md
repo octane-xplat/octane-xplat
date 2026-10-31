@@ -15,21 +15,23 @@ arbitrary SVG fidelity (gradients, filters, `<defs>` paint servers) keep using
 
 ## Quick start
 
-Generate a font set from a directory of SVGs:
+Put `arrow-right.svg`, `check.svg`, and `bell.svg` in `assets/icons`, then generate
+a font set from that directory:
 
 ```sh
 bun add @octane-xplat/nano-icons
 
-# writes src/icons-font/MyIcons.ttf/.woff2/.glyphmap.json/MyIcons.ts
-bun run nano-icons build --input assets/icons --out src/icons-font --family MyIcons --web
+# writes My-<hash>.{ttf,woff2,glyphmap.json} and My.ts under src/icons-font
+bun run nano-icons build --input assets/icons --out src/icons-font --family My --web
 ```
 
-Every artifact is content-hashed into the family (`MyIcons-<hash>`), so regenerated sets
+Every artifact is content-hashed into the family (`My-<hash>`), so regenerated sets
 never collide with a stale file. The generated `.ts` module registers the set on import —
-drop it into your app and use its bound component or the unbound `NanoIcon`:
+the family `My` produces the set export `MyIcons`. In `src/NextAction.tsx`, use
+its bound component:
 
 ```tsx
-import { MyIcons, NanoIcon as MyIcon } from './icons-font/MyIcons'
+import { MyIcons, NanoIcon as MyIcon } from './icons-font/My'
 
 export function NextAction() {
 	return (
@@ -46,7 +48,7 @@ Or keep using the registry-resolving component — after any `createNanoIconSet`
 
 ```tsx
 import { NanoIcon } from '@octane-xplat/nano-icons'
-import './icons-font/MyIcons' // registers on import
+import './icons-font/My' // registers on import
 
 export function Row() {
 	return <NanoIcon name="bell" size={24} />
@@ -101,7 +103,7 @@ For several sets or repeatable builds, put `.nanoicons.json` at the package root
 	"iconSets": [
 		{
 			"inputDir": "assets/icons",
-			"fontFamily": "MyIcons",
+			"fontFamily": "My",
 			"outputDir": "src/icons-font",
 			"appFontsDir": "app/fonts"
 		}

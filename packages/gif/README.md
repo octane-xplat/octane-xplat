@@ -33,7 +33,9 @@ soon — bytes on disk now, decode still at display time:
 ```tsx
 import { prefetch } from '@octane-xplat/gif'
 
-await prefetch(feed.map((post) => post.imageUrl)) // false if any URL fails
+const feed = [{ imageUrl: 'https://example.com/loading.gif' }]
+const urls = feed.map((post) => post.imageUrl)
+await prefetch(urls) // false if any URL fails
 
 await prefetch(urls, {
 	headers: { Authorization: 'Bearer …' }, // Android only — see below
@@ -61,11 +63,14 @@ same convention as `@octane-xplat/ui`. Native bags assign onto the ui-image
 are reachable where the engine supports them:
 
 ```tsx
-<AnimatedImage
-	src={photo.url}
-	ios={{ noCache: true }}
-	android={{ decodeWidth: 288, decodeHeight: 288 }}
-/>
+// Continue with AnimatedImage imported above.
+export function Photo({ url }: { url: string }) {
+	return <AnimatedImage
+		src={url}
+		ios={{ noCache: true }}
+		android={{ decodeWidth: 288, decodeHeight: 288 }}
+	/>
+}
 ```
 
 Per-target limits are recorded in
