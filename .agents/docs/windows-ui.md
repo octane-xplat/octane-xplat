@@ -148,6 +148,15 @@ component therefore does not supply a stock tab-selection peer. Probe actual
 WinUI tab ownership, SelectionItem and keyboard behavior before choosing a
 Windows tab adapter. Source inspection alone does not qualify that adapter.
 
+With `@nativescript/windows` 0.1.0-alpha.144, direct construction of
+`Microsoft.UI.Xaml.Controls.TabView` throws `ActivateInstance failed` with
+`Not implemented` in the packaged x64 host, before `initNativeView`. Do not
+treat the projected class's presence as usable activation. A separate
+`XamlReader.Load` probe created an object but did not finish mounting native
+tab peers. Neither result establishes tab selection support. Look up
+`scenario:windows-core20-tabs-stock-peer` in Silo for the retained source and
+runtime evidence, and recheck activation after changing the Windows runtime.
+
 ## Raster images and avatar names
 
 The pinned NativeScript Windows preview `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`
