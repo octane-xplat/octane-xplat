@@ -9,5 +9,15 @@ plus keyframe, transform, and clip-path parsing. It is consumed by
 This package is internal to the framework. Its exports are not a stable
 public API and may change without notice.
 
+Renderer contributors can normalize an authored inline style before passing it
+to their host adapter:
+
+```ts
+import { normalizeInlineStyle } from '@octane-xplat/css-engine'
+
+const style = normalizeInlineStyle('opacity: 0.5')
+console.log(style?.opacity) // 0.5
+```
+
 See [`src/vendor/README.md`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/css-engine/src/vendor/README.md) for the provenance of the
 vendored NativeScript selector engine.

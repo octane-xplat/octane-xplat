@@ -61,7 +61,12 @@ if (file) {
 `signal` aborts the read with an `AbortError`.
 
 ```ts
-const bytes = await files.readBytes(file, { maxBytes: 10 * 1024 * 1024 })
+import { files, type FileRef } from '@octane-xplat/files'
+
+// Call with a live ref; keep it until this read finishes.
+export async function readAttachment(file: FileRef) {
+	return files.readBytes(file, { maxBytes: 10 * 1024 * 1024 })
+}
 ```
 
 `files.writeBytes(name, bytes)` mirrors `writeText`: on native it writes into
@@ -88,8 +93,13 @@ concurrent call rejects with an `ExportBusyError` rather than stealing the
 open picker's result.
 
 ```ts
-const result = await files.export('report.pdf', pdfBytes, { mimeType: 'application/pdf' })
-if (result === 'cancelled') console.log('user dismissed')
+import { files } from '@octane-xplat/files'
+
+export async function exportReport(pdfBytes: Uint8Array) {
+	const result = await files.export('report.pdf', pdfBytes, { mimeType: 'application/pdf' })
+	if (result === 'cancelled') console.log('user dismissed')
+	return result
+}
 ```
 
 Picked refs are only guaranteed readable within the picking session. Android

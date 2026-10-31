@@ -24,6 +24,29 @@ Open the printed URL and choose **Workshop / Counter**. Increment, edit step,
 then Reset. Initialization preserves existing app entries; the workshop is a
 separate development page. Keep stories out of the production import graph.
 
+For a small first story, save this as `src/Welcome.stories.tsx`. Choose
+**Examples / Welcome** and edit the message control to update the preview.
+Reset restores “Hello”.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import { defineStory } from '@octane-xplat/workshop'
+
+type Props = { message: string }
+function Welcome(props: Props) {
+	return <Text>{props.message}</Text>
+}
+
+export const Basic = defineStory<Props>({
+	id: 'welcome/basic',
+	title: 'Examples / Welcome',
+	targets: ['web'],
+	component: Welcome,
+	args: { message: 'Hello' },
+	controls: { message: { type: 'string' } },
+})
+```
+
 ## Continue the workflow
 
 - [Declare a typed story](https://octane-xplat.goddardai.org/component-workshop#declaring-stories), then compare control edits with Reset.

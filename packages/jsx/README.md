@@ -80,7 +80,7 @@ under macos conditions.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
-const search = <textfield placeholder="Search" placeholderTextColor="#8a8a8e" />
+const search = <textfield hint="Search" placeholderTextColor="#8a8a8e" />
 ```
 
 ## Augmentation
@@ -102,6 +102,8 @@ Leaf packages that register elements augment `NativeElements` through
 `@octane-xplat/jsx/intrinsics`:
 
 ```ts
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
+
 declare module '@octane-xplat/jsx/intrinsics' {
 	interface NativeElements<TElement> {
 		camerapreview: Attributes<TElement, { src?: string }>
