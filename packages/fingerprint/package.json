@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/fingerprint",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "Expo-shaped native compatibility fingerprints for Octane Xplat projects",
 	"license": "MIT",
 	"repository": {

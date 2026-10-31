@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/store-review",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "In-app store review prompt for Octane xplat — SKStoreReviewController on iOS, Play In-App Review on Android",
 	"keywords": [
 		"android",

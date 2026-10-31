@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/pager",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "Paged swipe container for Octane Xplat — web scroll snap, mobile native paging, experimental AppKit scrolling",
 	"keywords": [
 		"android",

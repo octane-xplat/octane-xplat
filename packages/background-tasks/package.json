@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/background-tasks",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "OS-scheduled periodic background work for Octane xplat \u2014 BGTaskScheduler and WorkManager",
 	"keywords": [
 		"android",

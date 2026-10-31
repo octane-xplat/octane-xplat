@@ -12,6 +12,3164 @@ in the [fixlog](FIXLOG.md).
 Earlier releases retain their original combined notes; older independent
 releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.19.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.19.0) - 2026-10-31
+
+### Preserve modified AppKit action keys
+
+Self-drawn controls now pass Control/Option/Command Enter/Space combinations to
+native key handling. Unmodified and Shift-only activation remain; disabled/
+read-only accessibility state and missing actions also pass through.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save({ save }: { save(): void }) {
+	return <Button label="Save" clickAction={save} />
+}
+```
+
+Actual OS shortcuts, menu equivalents, input-source switching and accessibility
+remain unqualified. See [native activation](https://github.com/octane-xplat/octane-xplat/blob/feat/appkit-native-support/packages/macos-renderer/README.md#self-drawn-control-keyboard-activation).
+
+### Animated image source path on AppKit
+
+The optional GIF package now has an experimental native NSImageView path for
+animated illustrations on AppKit. Add the package, rebuild the native host and
+give the image a size. Native compilation, GIF playback and packaged consumers
+remain unqualified; animated WebP depends on the macOS decoder.
+
+```tsx
+import { AnimatedImage } from '@octane-xplat/gif'
+<AnimatedImage src="~/loading.gif" alt="Loading illustration" width={160} height={120} />
+```
+
+Reduced motion stops frame progression. AppKit prefetch still resolves false.
+See the [AppKit subset](https://github.com/octane-xplat/octane-xplat/tree/main/packages/gif#experimental-appkit-subset).
+
+### Busy feedback on AppKit
+
+AppKit Spinner now renders named sizes, labels and on-media contrast and exposes
+a named progress owner. Switch shows a compact ring while saving or loading.
+
+```tsx
+import { Spinner } from '@octane-xplat/ui'
+
+export function Saving() {
+	return <Spinner size="sm" label="Saving settings" />
+}
+```
+
+Spinner rotation and indeterminate ProgressBar sliding now connect to the
+existing AppKit keyframe sampler. Reduced Motion leaves steady feedback; workspace
+display-option changes refresh its media rule. Native playback, notification
+delivery, appearance, clipping and accessibility remain unqualified. See
+[busy feedback](https://octane-xplat.goddardai.org/app/components#busy-feedback-on-appkit).
+
+```tsx
+import { ProgressBar } from '@octane-xplat/ui'
+export function Upload() {
+	return <ProgressBar label="Uploading" isIndeterminate />
+}
+```
+
+### AppKit button links and busy actions
+
+AppKit Button now opens sanitized hrefs, wraps text children in a native label
+and keeps content mounted while an action is busy. Interruptible overlapping
+calls keep busy state until every call settles. Held presses now use current
+props and active calls, with ownership claimed before URL dispatch. Accepted
+action/error callbacks and pending work survive prop/ref replacement; detached
+presses are ignored. The tooltip prop now sets the native pointer hint on the
+same host, including IconButton and ToggleButton, and clears when removed.
+AppKit owns its delay and appearance; focus-triggered tooltips remain a gap.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Help() { return <Button href="https://example.com/help" tooltip="Open the help guide">Read help</Button> }
+```
+
+Native input, URL opening, busy layout and VoiceOver remain unqualified;
+focus-triggered tooltip presentation remains unsupported. See [AppKit buttons](https://octane-xplat.goddardai.org/app/components#appkit-button-actions-and-links).
+
+IconButton now uses the same AppKit Button owner for group disablement,
+identifiers, href and pending actions, with its required label retained as the
+accessible name.
+
+```tsx
+import { IconButton } from '@octane-xplat/ui'
+
+export function Share({ share }: { share(): Promise<void> }) {
+	return <IconButton label="Share document" icon="share" clickAction={share} />
+}
+```
+
+### AppKit calendar day keyboard source support
+
+AppKit Calendar now uses the shared bounded date-navigation model for arrows,
+row/grid edges and month paging, with one enabled day Tab candidate across panes.
+Enter/Space selects through the existing callback; unfinished ranges handle Escape
+locally. The layer Escape monitor now consults renderer handlers before dismissal.
+Controlled month changes wait for parent acceptance before native focus.
+
+```tsx
+import { Calendar } from '@octane-xplat/ui'
+
+export function Departure() {
+	return <Calendar defaultValue="2026-03-05" min="2026-01-01" max="2026-12-31" numberOfMonths={2} />
+}
+```
+
+Physical keys, native Tab/focus, popup integration, AX/VoiceOver and packaging
+remain unqualified. See [calendar keys](https://octane-xplat.goddardai.org/platform/date-picker#navigate-appkit-calendar-days-with-keys).
+
+### AppKit carousel navigation source support
+
+Carousel now provides its handle and Previous/Next controls on AppKit, with
+viewport paging, indexed slide alignment and end wrapping. Proportional slides
+use measured viewport widths. Requests preserve vertical scrolling and honor
+reported reduced motion.
+
+```tsx
+import { Carousel, Text } from '@octane-xplat/ui'
+
+export function Previews() {
+	return <Carousel label="Previews" hasButtons hasLoop variant="proportional" style={{ width: 320, height: 120 }}>
+		<Text>First</Text><Text>Second</Text>
+	</Carousel>
+}
+```
+
+Native layout/RTL, scroll/input, button hit testing/accessibility and packaging
+remain unqualified. Snap and edge fades remain gaps. See [AppKit carousel navigation](https://octane-xplat.goddardai.org/app/components#navigate-appkit-carousel-slides).
+
+### AppKit carousel snap source support
+
+Carousel now requests the nearest slide edge after native user scrolling settles.
+Live tracking waits for an end notification; unbracketed user updates use a quiet
+period. Programmatic animations do not arm another snap, and new requests or
+teardown cancel pending work.
+
+```tsx
+import { Carousel, Text } from '@octane-xplat/ui'
+
+export function Previews() {
+	return <Carousel label="Previews" hasSnap variant="proportional" style={{ width: 320, height: 120 }}>
+		<Text>First</Text><Text>Second</Text>
+	</Carousel>
+}
+```
+
+Native input/momentum, layout/RTL, animation/accessibility and packaging remain
+unqualified. Edge fades remain a gap. See [AppKit snap](https://octane-xplat.goddardai.org/app/components#snap-appkit-carousel-slides-after-user-scrolling).
+
+### Hover, drag and click native macOS charts
+
+On experimental AppKit, an interactive `Chart` now follows the pointer like it
+does on web. Hovering moves the tooltip and crosshair, dragging calls
+`onScrub`, and clicking calls `onPress` with the point under the pointer
+instead of the chart's center. Real pointer behavior has not yet been checked
+on a running Mac.
+
+```tsx
+import { Chart } from '@octane-xplat/charts'
+
+export function StepsChart() {
+	return <Chart type="line" width={320} height={200} tooltip crosshair accessibilityLabel="Steps per day"
+		data={[{ name: 'Steps', values: [{ x: 1, y: 4200 }, { x: 2, y: 6100 }] }]} />
+}
+```
+
+See [respond to pointing and tapping](https://github.com/octane-xplat/octane-xplat/blob/main/packages/charts/README.md#respond-to-pointing-and-tapping).
+
+### Checkbox-list composition on AppKit
+
+CheckboxList now supports CheckboxListItem children alongside options, with
+shared selection, Field ownership, descriptions/trailing content and native
+checkbox names/mixed state. Value-less items support controlled select-all rows.
+
+```tsx
+import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
+
+export function Features() {
+	return <CheckboxList label="Features" defaultValue={['email']}>
+		<CheckboxListItem value="email" label="Email" description="Daily summary" />
+		<CheckboxListItem value="alerts" label="Alerts" />
+	</CheckboxList>
+}
+```
+
+Native input/Tab, mixed VoiceOver, divider/layout appearance and packaging remain
+unqualified. See [checkbox lists](https://octane-xplat.goddardai.org/app/components#checkbox-lists-on-appkit).
+
+### Checkbox metadata on AppKit
+
+Standalone AppKit Checkbox now renders descriptions and validation messages,
+honors hidden labels and leaves enclosing Field metadata in one place. Label
+tooltips now forward to the existing field info affordance. Actions retain the
+latest local choice before rendering, use current blocking props and ignore
+callback reentry or held callbacks after detachment.
+
+```tsx
+import { useState } from 'octane'
+import { Checkbox } from '@octane-xplat/ui'
+
+export function IncludeArchived() {
+	const [include, setInclude] = useState(false)
+	return <Checkbox label="Include archived" labelTooltip="Include archived records"
+		description="Search older records" value={include} onChange={setInclude} />
+}
+```
+
+Source cases remain unrun; native input/ref timing, layout and accessibility remain unqualified. AppKit changeAction
+remains unsupported. See [checkbox metadata](https://octane-xplat.goddardai.org/app/components#checkbox-metadata-on-appkit).
+
+### Continue typing after clearing AppKit input
+
+TextInput and SearchInput now request focus on the input after clearing, keeping
+onChange('') before onClear. Controlled parents still apply value changes.
+
+```tsx
+import { SearchInput } from '@octane-xplat/ui'
+
+export function Search() {
+	return <SearchInput label="Find records" hasClear defaultValue="recent" />
+}
+```
+
+Native focus/caret/IME, clear activation and accessibility remain unqualified.
+See [clear and continue typing](https://octane-xplat.goddardai.org/app/primitives#clear-and-continue-typing-on-appkit).
+
+### Adjust native macOS color controls from the keyboard and VoiceOver
+
+On experimental AppKit, `ColorArea` and `ColorSlider` (including the parts
+inside `ColorPicker`) are now Tab stops. Arrow keys move the hue by 1° or the
+saturation and brightness by 1%, and Shift moves ten times as far. VoiceOver
+can increment and decrement them and reads the current hue or color. Real
+keyboard and VoiceOver behavior has not yet been checked on a running Mac.
+
+```tsx
+import { ColorSlider } from '@octane-xplat/ui'
+
+export function AccentHue() {
+	return <ColorSlider channel="hue" defaultValue="#4488ff" accessibilityLabel="Accent hue" />
+}
+```
+
+See [color controls](https://octane-xplat.goddardai.org/app/components#color-controls).
+
+### Reveal secondary row actions on AppKit
+
+AppKit now has an experimental hover/focus source path for useContainerReveal.
+Spread its props on the row and its action group. Actions keep their layout
+space and remain mounted; hosts without tracking capability leave them visible.
+Native hover, keyboard and accessibility behavior remain unqualified.
+
+```tsx
+import { Button, HStack, Text, useContainerReveal } from '@octane-xplat/ui'
+export function FileActions() {
+  const reveal = useContainerReveal()
+  return <HStack {...reveal.getContainerProps()}><Text>report.pdf</Text>
+    <HStack {...reveal.getContentRevealProps()}><Button label="Edit report" /></HStack>
+  </HStack>
+}
+```
+
+See the [row-action guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/components.md#media-contrast-and-row-actions).
+
+### AppKit self-drawn control semantics
+
+The renderer now maps switch/tab/slider roles, selected and numeric values,
+and ignored container hosts. Native slider increment/decrement actions dispatch
+the current callbacks; changed value/selection props emit change notifications.
+Disabled hosts now expose the enabled getter AppKit actually queries, and native
+focus policies read that getter.
+
+```tsx
+import { Slider, Switch } from '@octane-xplat/ui'
+
+export function Settings() {
+	return <><Switch label="Alerts" defaultValue /><Slider label="Volume" defaultValue={40} /></>
+}
+```
+
+Native selector registration, VoiceOver, notification ordering and packaged
+support remain unqualified. See [renderer accessibility](https://github.com/octane-xplat/octane-xplat/blob/feat/appkit-native-support/packages/macos-renderer/README.md#self-drawn-control-accessibility).
+
+### Enable AppKit choice actions after mount
+
+Self-drawn checkboxes, switches and radio choices can now acquire a click
+recognizer when a callback appears after an initially disabled/read-only mount.
+Callback changes reuse the recognizer; callback removal disables it.
+
+```tsx
+import { Checkbox } from '@octane-xplat/ui'
+
+export function Choice({ saving }: { saving: boolean }) {
+	return <Checkbox label="Include archived" isDisabled={saving} />
+}
+```
+
+Native re-enable clicks, gesture arbitration and teardown remain unqualified.
+See [click ownership](https://github.com/octane-xplat/octane-xplat/blob/feat/appkit-native-support/packages/macos-renderer/README.md#update-self-drawn-click-actions).
+
+### Preserve AppKit composition during controlled updates
+
+AppKit TextInput, TextArea and SearchInput now defer a different controlled
+value while the native editor has marked text. A newer matching echo cancels
+the older pending value, and removal cancels its observer and scheduled work.
+Single-line and multiline submit paths leave marked-text confirmation to the
+input context.
+
+```tsx
+import { useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+
+export function Name() {
+	const [value, setValue] = useState('')
+	return <TextInput label="Name" value={value} onChange={setValue} />
+}
+```
+
+Real IME, field-editor/selection timing and packaging remain unqualified. See
+[text and keyboard actions](https://octane-xplat.goddardai.org/app/primitives#text-and-keyboard-actions).
+
+### Style native macOS hover, press and focus states with CSS
+
+Experimental AppKit stylesheets now match `:hover`, `:active`, `:focus`,
+`:focus-visible` and `:focus-within`, and re-check `@media` width rules when a
+window resizes. `:focus-visible` matches text fields and keyboard focus, not a
+mouse click on a button. Every window shares the largest window's size for
+media rules. Real pointer, keyboard and resize behavior has not yet been
+checked on a running Mac.
+
+```css
+.row:hover { background-color: #eef3ff; }
+.action:focus-visible { outline: 2px solid #1677ff; }
+@media (max-width: 600px) { .sidebar { display: none; } }
+```
+
+See the [AppKit stylesheet limits](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/README.md#apply-stylesheets).
+
+### Experimental AppKit date and time autofocus
+
+DateInput and TimeInput now wire their existing `hasAutoFocus` flag on macOS.
+The queued request waits for attachment and cancels when the user interacts,
+focus ownership changes or the field becomes blocked or unmounts. A cancelled
+request requires a new false-to-true flag transition; unblocking alone does not
+rearm it. The request never activates a window or opens a picker.
+
+```tsx
+import { DateInput } from '@octane-xplat/ui'
+export function NewBooking() {
+	return <DateInput label="Booking date" hasAutoFocus />
+}
+```
+
+Native focus/caret/IME, notification timing, modal integration, accessibility and
+packaging remain unqualified. See [date focus guidance](https://octane-xplat.goddardai.org/platform/date-picker#request-initial-appkit-date-or-time-focus).
+
+### AppKit date-field focus handles
+
+AppKit DateInput, TimeInput and DateTimeInput now provide their existing ref
+handles. DateRangeInput focus/blur requests now target its trigger. Focus checks
+the current host and blocking state; blur leaves unrelated editors alone.
+
+```tsx
+import { useRef } from 'octane'
+import { Button, DateInput } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+
+export function Booking() {
+	const date = useRef<TextInputHandle | null>(null)
+	return <>
+		<DateInput ref={date} label="Booking date" />
+		<Button label="Edit date" clickAction={() => date.current?.focus()} />
+	</>
+}
+```
+
+Native ref/focus/editor/IME, popup/accessibility and packaging remain unqualified.
+See [date focus handles](https://octane-xplat.goddardai.org/platform/date-picker#focus-an-appkit-date-field-from-a-form-action).
+
+### AppKit typed date/time submit source wiring
+
+DateInput, TimeInput and both DateTimeInput text segments now route native submit
+to the same draft-commit boundary as blur, preserving existing parsing and clears.
+
+```tsx
+import { TimeInput } from '@octane-xplat/ui'
+
+export function StartTime(props: { value: string | null; change(value: string | null): void }) {
+	return <TimeInput label="Start time" value={props.value} onChange={props.change} />
+}
+```
+
+Physical Return, IME/blur ordering, focus/AX and packaging remain unqualified.
+See [typed date/time Return](https://octane-xplat.goddardai.org/platform/date-picker#commit-typed-appkit-date-and-time-drafts-with-return).
+
+### Keep experimental AppKit date-time drafts current
+
+DateTimeInput now checks current blocking/save ownership before draft writes,
+uses current date/time options in retained handlers and preserves parent
+correction or teardown after callbacks. A date-less time draft is available to
+the next edit immediately and can be cleared; unchanged committed values do not
+repeat change/save callbacks.
+
+```tsx
+import { useState } from 'octane'
+import { DateTimeInput } from '@octane-xplat/ui'
+export function Appointment() {
+	const [value, setValue] = useState<string | null>(null)
+	return <DateTimeInput label="Appointment" value={value} onChange={setValue} hasClear />
+}
+```
+
+Native editor/IME, Return/blur/save, picker/keyboard/focus/accessibility and
+packaging remain unqualified. See [date-time drafts](https://octane-xplat.goddardai.org/platform/date-picker#keep-both-appkit-date-time-drafts-current).
+
+### AppKit date-time minute stepping
+
+DateTimeInput now binds plain Up/Down in the closed time field to timeIncrement,
+independently of preset cadence. Steps respect date/time bounds and keep date-less
+time drafts until a date is entered. Parent values remain authoritative and
+pending saves exclude duplicate changes and popup entry.
+
+```tsx
+import { DateTimeInput } from '@octane-xplat/ui'
+
+export function Appointment(props: { value: string | null; change(value: string | null): void }) {
+	return <DateTimeInput label="Appointment" value={props.value} onChange={props.change}
+		timeIncrement={5} timeOptionInterval={15} />
+}
+```
+
+Native keys, editor/IME, popup/focus/accessibility and packaging remain unqualified.
+See [date-time stepping](https://octane-xplat.goddardai.org/platform/date-picker#step-the-appkit-date-time-field-without-opening-presets).
+
+### Draw double and 3D borders on native macOS
+
+Experimental AppKit now draws `double`, `groove`, `ridge`, `inset` and
+`outset` borders instead of painting them solid with a warning. `double` needs
+a width of at least 3 points, and the 3D styles darken some sides so the box
+looks raised or sunken. On rounded corners the inner edges stay straight. The
+borders have not yet been checked on a running Mac.
+
+```css
+.sunken-well { border-width: 3px; border-style: inset; border-color: #888; }
+.picture-frame { border-width: 6px; border-style: double; }
+```
+
+See [AppKit borders](https://octane-xplat.goddardai.org/app/styling#appkit-borders).
+
+### Keep disabled AppKit selection cards discoverable
+
+Disabled SelectableCard now opts into native focus without enabling its action.
+The renderer releases focus ownership on enablement/detach, and FocusScope
+respects the native eligibility while keeping disabled fields excluded.
+
+```tsx
+import { SelectableCard } from '@octane-xplat/ui'
+
+export function Plan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
+	return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>Unavailable</SelectableCard>
+}
+```
+
+Real Tab/VoiceOver/window behavior remains unqualified. See [AppKit cards](https://octane-xplat.goddardai.org/app/interactive-actions#appkit-card-qualification).
+
+### AppKit attachment file-drop source support
+
+FileInput now receives local regular-file URLs in compact and dropzone presentations through the matching
+AppKit renderer and uses the same validation and save ownership as the picker.
+Directories, symlinks, uninspectable files and promised/non-file payloads are excluded.
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Attachments(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
+	return <FileInput label="Attachments" mode="dropzone" value={props.value} onChange={props.change} isMultiple />
+}
+```
+
+Native drag delivery, sandbox access, focus/VoiceOver and packaging remain
+unqualified. See [file entry](https://octane-xplat.goddardai.org/platform/date-picker#drop-local-files-on-appkit).
+
+### Filter macOS attachments with native file types
+
+Experimental AppKit pickers now use OS image, audio, video and text groups, plus
+registered MIME types. FileInput also asks the OS for filename MIME hints so
+formats outside the built-in table can reach validation.
+
+**Breaking change — AppKit:** unresolved or malformed restrictions now raise
+`UnsupportedFileTypeError` before opening a panel. Previously, unknown MIME
+entries could silently leave the picker unrestricted. Use explicit extensions
+for unregistered formats; `*/*` explicitly allows any file.
+
+```ts
+// FileActions.macos.ts
+import { files } from '@octane-xplat/files'
+export async function chooseAttachments() {
+  return files.pickMultiple('image/*,.pdf')
+}
+export async function chooseCustomFormat() {
+  return files.pick('.mydoc')
+}
+```
+
+These are selection and filename hints, not content verification. Native bridge,
+OS panel and installed-app qualification remain pending. See
+[AppKit file filters](https://github.com/octane-xplat/octane-xplat/blob/main/packages/files/README.md#appkit-file-type-filters).
+
+### Read and save files in native macOS apps
+
+The experimental AppKit files service now implements UTF-8 text reads,
+chunked binary reads with size limits and cancellation, Documents writes,
+and user-directed export through the native save panel. Real AppKit and
+packaged-app qualification remain pending.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const draft = await files.writeBytes('draft.bin', new Uint8Array([1, 2, 3]))
+const bytes = await files.readBytes(draft, { maxBytes: 1024 })
+const result = await files.export('draft.bin', bytes)
+```
+
+[Files documentation](https://github.com/octane-xplat/octane-xplat/tree/main/packages/files)
+
+### AppKit multiple-option presentation
+
+AppKit Selector now passes multiple mode to its view, including MultiSelector's
+checkbox/select-all presentation. Blocked/pending rows reject selection, and
+custom option/single-value renderers receive native text hosts.
+
+```tsx
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Channels() {
+	return <MultiSelector options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]}
+		defaultValue={['email']} hasSelectAll />
+}
+```
+
+Popup keyboard/focus, layout and VoiceOver remain unqualified. See [AppKit selection](https://octane-xplat.goddardai.org/app/search-selection#appkit-finite-option-selection).
+
+### Track keyboard and mouse focus in native macOS apps
+
+The experimental AppKit `useFocusVisible` hook now observes keyboard and mouse
+input instead of returning unsupported. `useFocusRing` combines that modality
+with the control's focus callbacks. App deactivation clears the remembered
+modality. Actual OS input and focus appearance still require qualification.
+
+```tsx
+import { Text, useFocusVisible } from '@octane-xplat/ui'
+
+export function InputStatus() {
+  const input = useFocusVisible()
+  return <Text>{input.isSupported ? input.inputModality : 'Unavailable'}</Text>
+}
+```
+
+[Focus behavior](https://octane-xplat.goddardai.org/app/primitives#focus-behavior)
+
+### Keep keyboard focus inside native macOS scopes
+
+The experimental AppKit FocusScope now implements autofocus, containment,
+restoration and nested ownership when its native bridge is available. Empty
+scopes can receive focus without a fake action or normal Tab stop. Actual
+OS keys, IME, focus appearance and VoiceOver remain unqualified.
+
+```tsx
+import { FocusScope, TextInput } from '@octane-xplat/ui'
+
+export function Details() {
+  return <FocusScope contain autoFocus restoreFocus accessibilityLabel="Details">
+    <TextInput label="Name" />
+    <TextInput label="Notes" />
+  </FocusScope>
+}
+```
+
+[Focus behavior](https://octane-xplat.goddardai.org/app/primitives#focus-behavior)
+
+### AppKit focus-within tracking
+
+AppKit can now track focus entering and leaving a group of native controls with
+`useFocusWithin`. Attach its handlers to a raw native container; moving between
+its fields keeps the group focused.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useFocusWithin } from '@octane-xplat/ui'
+
+export function Details() {
+	const within = useFocusWithin({ onFocusWithinChange: (inside) => console.log(inside) })
+	return <masonview {...within.focusWithinProps}>
+		<textfield placeholder="Name" />
+		<textfield placeholder="Notes" />
+	</masonview>
+}
+```
+
+`isSubtreeTrackingSupported` reports native observer availability. Shared `View`
+does not forward these handlers. AppKit runtime qualification remains pending;
+see [focus behavior](https://octane-xplat.goddardai.org/app/primitives#focus-behavior).
+
+### Formatted letter spacing on AppKit
+
+AppKit formatted text now carries inherited letter spacing into attributed
+runs. Use finite points; a span can restore default spacing with zero.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Caption() {
+	return <label><formattedstring style={{ letterSpacing: 1 }}>
+		<span text="Spaced " /><span text="default" style={{ letterSpacing: 0 }} />
+	</formattedstring></label>
+}
+```
+
+Rich text also retains the host’s stylesheet-computed line height.
+
+```css
+.caption { line-height: 24px; }
+```
+
+Native shaping and layout remain unqualified. See the
+[AppKit renderer](https://github.com/octane-xplat/octane-xplat/tree/main/packages/macos-renderer#apply-stylesheets).
+
+### Navigate custom native macOS cell grids
+
+`useGridFocus` now has an AppKit source implementation for marked native cells.
+It reuses the native grid focus and scrolling engine, supports bounded arrow
+and Home/End movement, and leaves selection/activation with the cell. No new
+dependency or public option is added.
+
+```tsx
+// Palette.macos.tsx
+import { useGridFocus } from '@octane-xplat/ui'
+export function Palette() {
+	const grid = useGridFocus<NSView>({ rows: 1, columns: 2 })
+	return <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
+		<button data-grid-cell text="Red" onTap={() => console.log('Red')} />
+		<button data-grid-cell text="Blue" onTap={() => console.log('Blue')} />
+	</masonview>
+}
+```
+
+See [custom AppKit cells](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/components.md#custom-grid-cell-focus-on-appkit).
+Native input, compiled hooks, nested focus, scrolling, layout, VoiceOver,
+cleanup and installed consumers remain unqualified. The selector-based
+`useGridList` hook is a separate remaining gap.
+
+### Navigate GridList rows with keys on AppKit
+
+AppKit `GridList` now implements arrow/Home/End navigation with one roving Tab
+stop. Enter activates a row; Space selects it, and Shift+Space extends a range
+without selecting disabled keys. Focused rows scroll into view.
+
+```tsx
+import { GridList, Text } from '@octane-xplat/ui'
+
+export function Files() {
+	return <GridList items={[{ id: 'notes' }, { id: 'draft' }]} columns={2}
+		selectionMode="multiple" renderItem={(item) => <Text>{item.id}</Text>}
+		onAction={(key) => console.log('open', key)} />
+}
+```
+
+Use `keyboardNavigationBehavior="tab"` for cells containing interactive
+controls. The custom selector-based `useGridList` hook and Shift+click ranges
+remain unavailable on AppKit. Actual OS input, scrolling, accessibility and
+packaging remain unqualified. See [AppKit GridList](https://octane-xplat.goddardai.org/app/components#gridlist-on-appkit).
+
+### Handle hardware keys in native macOS leaves
+
+The experimental AppKit `useKeyboard` hook now attaches normalized key-down/up
+handlers to native intrinsics. It routes from the first responder through
+registered native ancestors, supports cancellation and propagation, and
+coordinates Tab handling with FocusScope. Real OS input and IME remain
+unqualified. Modifier-only changes and extended physical-key mappings remain
+explicit limits.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useKeyboard } from '@octane-xplat/ui'
+
+export function SearchField() {
+  const keys = useKeyboard({ onKeyDown: (event) => {
+    if (!event.isComposing && event.metaKey && event.key.toLowerCase() === 'k') {
+      event.preventDefault()
+    }
+  } })
+  return <textfield accessibilityLabel="Search" {...keys.keyboardProps} />
+}
+```
+
+[Keyboard documentation](https://octane-xplat.goddardai.org/app/keyboard-clipboard#handle-hardware-keys-on-appkit)
+
+### Heading metadata on AppKit
+
+Experimental AppKit Heading now forwards its level to native accessibility.
+Its accessible title follows plain and rich text updates while visible contents
+stay intact. Display typography remains independent of the semantic level.
+
+```tsx
+import { Heading } from '@octane-xplat/ui'
+export function Title({ title }: { title: string }) {
+	return <Heading level={2} type="display-2">{title}</Heading>
+}
+```
+
+Native setter behavior and VoiceOver heading navigation, announcements and updates
+remain unqualified. See the [text guide](https://octane-xplat.goddardai.org/app/components#text).
+
+### Prefetch and manage AppKit image bytes
+
+AppKit image helpers now prefetch HTTP(S) bytes without decoding, report memory
+or disk presence, and evict or clear image-owned caches. Displayed images use
+the same byte cache. Failed or non-cacheable prefetch resolves false; native
+persistence, networking, responsiveness and packaging remain unqualified.
+
+```ts
+import { prefetch, isImageCached, evictImage } from '@octane-xplat/image'
+const src = 'https://example.com/photo.png'
+const warmed = await prefetch(src, { concurrency: 2 })
+console.log(warmed, (await isImageCached(src))[src])
+await evictImage(src)
+```
+
+AppKit HTTP image loading now uses a credential-free dedicated session instead
+of shared cookies/credentials. Configuration fields that previously did nothing
+now throw; use `initializeImageCache()` with default options. Display headers
+now fail before loading instead of being ignored. `cachePolicy="none"` now
+bypasses framework memory/disk caches when UI and renderer support match. Header-aware
+prefetch, transform queries and other engine extensions remain unsupported.
+Eviction preserves mounted images and does not purge unrelated HTTP/account data.
+See the [AppKit image subset](https://github.com/octane-xplat/octane-xplat/tree/main/packages/image#appkit-subset).
+
+```tsx
+import { Image } from '@octane-xplat/image'
+export function FreshPhoto({ src }: { src: string }) {
+	return <Image src={src} cachePolicy="none" alt="Photo" style={{ width: 120, height: 80 }} />
+}
+```
+
+Optional AppKit Image now forwards onLoad/onError with current-request ownership
+and deferred root-scoped delivery. Placeholder-only updates keep the request.
+Dimensions report native representation pixels or 0×0 when unknown; callbacks
+do not prove native drawing. Matching UI/renderer support is required; native
+qualification remains pending.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+export function Preview({ src }: { src: string }) {
+	return <Image src={src} alt="Preview" style={{ width: 120, height: 80 }}
+		onLoad={(event) => console.log(event.width, event.height, event.source)}
+		onError={({ error }) => console.warn(error.message)} />
+}
+```
+
+### Compute clipped AppKit image fit rectangles
+
+AppKit `Image` now computes clipped fit rectangles for cover, contain, fill,
+none and scale-down, with shared keyword, point and percentage positions.
+The optional image package uses the same native path.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function Portrait({ src }: { src: string }) {
+	return <Image src={src} alt="Portrait" contentFit="cover"
+		contentPosition={{ top: 0, right: '25%' }}
+		style={{ width: 120, height: 120 }} />
+}
+```
+
+Native cropping, orientation, density and pixels remain unqualified. Raw CSS
+positions support keywords, px and percentages; unsupported values warn and
+center. See [AppKit image loading](https://octane-xplat.goddardai.org/app/components#image-loading-on-appkit).
+
+### Resolution candidates for AppKit images
+
+AppKit images now choose among resolution candidates using the image box and
+its window's backing density, and reselect after resize or density changes.
+Use a stable styled box; native cross-screen and intrinsic-only behavior still
+need runtime qualification.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function Avatar() {
+	return <Image alt="Avatar" style={{ width: 80, height: 80 }} src={[
+	{ uri: '~/avatar.png', width: 80, height: 80, scale: 1 },
+	{ uri: '~/avatar@2x.png', width: 80, height: 80, scale: 2 },
+]} />
+}
+```
+
+See [AppKit image loading](https://octane-xplat.goddardai.org/app/components#image-loading-on-appkit).
+
+### In-app document browsing on AppKit
+
+Experimental AppKit webBrowser now has an owned WebKit window source path with
+history, reload/stop, close controls, native page alert/confirm/prompt sheets
+and a file-selection panel for page attachments. Add the package to the app and rebuild
+the native host. Actual compilation, presentation and packaging remain
+unqualified.
+
+```ts
+import { webBrowser } from '@octane-xplat/web-browser'
+await webBrowser.openBrowser('https://docs.example.com')
+webBrowser.dismissBrowser()
+```
+
+**Breaking change (macOS):** the external-browser fallback is removed. Missing or
+failing native bridges return cancel. Use platform.openUrl for external launch.
+The external-launch migration is explicit:
+
+```ts
+import { openUrl } from '@octane-xplat/platform'
+openUrl('https://docs.example.com')
+```
+
+The native file picker follows multiple/directory parameters; HTML accept hints
+are not guaranteed native filtering.
+
+```html
+<label>Attachments <input type="file" multiple></label>
+```
+
+Opened reports presentation, not page load; advanced web/auth/download
+flows remain outside this source subset. See the
+[package guide](https://github.com/octane-xplat/octane-xplat/tree/main/packages/web-browser#experimental-appkit-subset).
+
+### Leading icons in AppKit text fields
+
+AppKit TextInput now renders `startIcon`, and SearchInput displays its default
+or custom glyph and supports `icon={false}`. TextInput also forwards placeholder
+text color. Native glyph presentation and accessibility remain unqualified.
+
+```tsx
+import { SearchInput, TextInput } from '@octane-xplat/ui'
+
+export function Fields() {
+	return <>
+		<SearchInput label="Find" icon={false} placeholder="Search items" />
+		<TextInput label="Name" startIcon="xplat-check" />
+	</>
+}
+```
+
+See [building screens](https://octane-xplat.goddardai.org/app/primitives).
+
+### AppKit interactive card links
+
+AppKit ClickableCard now opens sanitized hrefs before its action callback.
+Interactive cards host plain text children and forward variant/elevation classes.
+
+```tsx
+import { ClickableCard } from '@octane-xplat/ui'
+
+export function Help() {
+	return <ClickableCard label="Open help" href="https://example.com/help" elevation="low">Read help</ClickableCard>
+}
+```
+
+Native input/URL launch/layout and disabled-card focus remain unqualified. See [AppKit cards](https://octane-xplat.goddardai.org/app/interactive-actions#appkit-card-qualification).
+
+### Align native macOS label text with logical edges
+
+AppKit labels now resolve start/end alignment from CSS direction, with a
+left-to-right fallback. Left/right/center/justify remain explicit. Changing or
+removing either style refreshes attributed paragraphs; unsupported values warn
+and use the default edge. This adds an alignment source path, with native
+measurement, justification, painting and installed-app qualification pending.
+It does not add CSS bidi overrides or vertical writing.
+
+```css
+.amount { text-align: end; }
+.rtl-copy { direction: rtl; }
+```
+
+See [AppKit text alignment](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/styling.md#appkit-text-alignment).
+
+### Move between AppKit screen regions
+
+AppKit useLandmark now has an experimental F6/Shift+F6 source path within the
+current window and containing FocusScope. Native key delivery, focus, scrolling
+and accessibility remain unqualified.
+
+```tsx
+import { TextInput, VStack, useLandmark } from '@octane-xplat/ui'
+export function SearchRegion() {
+  const { landmarkProps } = useLandmark({ role: 'search', label: 'Document search' })
+  return <VStack {...landmarkProps}><TextInput label="Search" /></VStack>
+}
+```
+
+AppKit follows native view order; web registration order can differ. Hosts
+without the required bridge keep role/label forwarding. See the
+[region guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/navigation-ui.md#move-between-appkit-screen-regions).
+
+### Image gestures in AppKit Lightbox
+
+Experimental AppKit Lightbox now has double-click image zoom and pointer/native
+swipe navigation source paths. Zoom resets between media; swipes stop navigating
+while zoomed and at gallery edges. Actual native input, hit testing, zoom
+coordinates and packaged consumers remain unqualified.
+
+```tsx
+import { Lightbox } from '@octane-xplat/ui'
+export function Photos({ open, setOpen, source }: {
+	open: boolean; setOpen: (open: boolean) => void; source: string
+}) {
+	return <Lightbox isOpen={open} onOpenChange={setOpen} hasZoom media={[{ src: source, alt: 'Photo' }]} />
+}
+```
+
+Lightbox retains its separate renderer-owned native video path; playback remains unqualified. See the
+[AppKit presentation guide](https://octane-xplat.goddardai.org/app/primitives#macos-shared-presentations).
+
+### Logical AppKit scroll offsets
+
+ScrollableArea now follows InternationalizationProvider direction for inline
+seeks, start/end state and inline padding. In RTL, inline zero means the right
+edge; direction changes keep the handle stable and remeasure state.
+
+```tsx
+import { InternationalizationProvider, ScrollableArea, Text } from '@octane-xplat/ui'
+
+export function Notes() {
+	return <InternationalizationProvider dir="rtl">
+		<ScrollableArea axis="inline" width={240} height={80} paddingInlineStart={2}>
+			<Text>Notes</Text>
+		</ScrollableArea>
+	</InternationalizationProvider>
+}
+```
+
+Native content ordering, initial clip position, OS scrolling and animation
+remain unqualified. See [logical scrolling](https://octane-xplat.goddardai.org/app/primitives#logical-scroll-offsets-on-appkit).
+
+### AppKit menu surface keyboard navigation
+
+AppKit menus now have a source keyboard path for wrapping arrows, Home/End,
+label-prefix search, manual activation and directional submenus. Plain Down/Up
+on the closed trigger requests first/last-row opening. Existing row
+state and close owners remain in charge; nested editors keep their menu-surface
+key handling. ContextMenu adds Shift+F10 and plain Context Menu key opening and return intent from a valid
+invoker or visible trigger. With the matching renderer it also requests opening
+from secondary-click and plain Control-primary-click inside the context scope.
+Menu surfaces/rows now map to native menu roles and row titles, and native queries
+read current selected/expanded state. Checked-menu announcements remain incomplete.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
+}
+```
+
+Native key/focus/popup/VoiceOver behavior remains unqualified. Owned dropdown Tab/Shift-Tab now records adjacent-trigger return intent through
+accepted ancestor closure; actual native Tab return remains unqualified. See the
+[AppKit menu guide](https://octane-xplat.goddardai.org/menus#navigate-appkit-menu-surfaces).
+
+### Keep native macOS context menus on the current record
+
+The experimental AppKit context menu now retires outdated actions when items,
+records or views change. It preserves child editing/nested menus, restores prior
+menu ownership on cleanup and blocks disabled or retired selections. The macOS
+demo now uses the native package. Actual pointer, tracking, keyboard and
+VoiceOver qualification remains pending.
+
+```tsx
+// NoteActions.macos.tsx
+import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
+import { Text } from '@octane-xplat/ui'
+export function NoteActions({ noteID }: { noteID: string }) {
+	return <AppKitContextMenu id={`actions-${noteID}`} items={[{ id: 'rename', title: 'Rename' }]}
+		trigger={() => <Text>Right-click this note</Text>} onItemSelected={(id) => console.log(noteID, id)} />
+}
+```
+
+See [native AppKit menus](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/context-menu.md#native-macos-menus).
+
+### Keep native macOS date selection current
+
+The experimental AppKit date picker now keeps uncontrolled selections across
+mode/style changes, uses the current callback and accessibility label, and
+rejects invalid controlled dates or bounds. Disabled, retired and programmatic
+changes do not report user selections. The macOS demo now exercises the native
+control; OS input, layout and VoiceOver qualification remains pending.
+
+```tsx
+// ClosingTime.macos.tsx
+import { useState } from 'octane'
+import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+export function ClosingTime() {
+	const [selection, setSelection] = useState(new Date(2026, 9, 29, 12, 30))
+	return <AppKitDatePicker components="dateAndTime" selection={selection}
+		onSelectionChange={setSelection} accessibilityLabel="Poll closing time" />
+}
+```
+
+See [native AppKit date selection](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/date-picker.md#native-macos-selection-lifecycle).
+
+### Choose values with a native macOS pop-up button
+
+The new `@octane-xplat/picker/macos` entry exports `AppKitPicker` for native
+AppKit apps. It uses the system pop-up button with stable string selection IDs,
+disabled choices and controlled or uncontrolled state. The maintained native
+demo now exercises the control. No additional macOS plugin is required.
+
+```tsx
+// BagPicker.macos.tsx
+import { useState } from 'octane'
+import { AppKitPicker } from '@octane-xplat/picker/macos'
+export function BagPicker() {
+	const [selection, setSelection] = useState('carry')
+	return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
+		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+}
+```
+
+See the [native macOS selection guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/native-picker.md#native-macos-selection).
+Native pointer/keyboard, tracking, focus, layout, VoiceOver, teardown and
+installed-consumer qualification remain pending.
+
+### Keep native macOS sheets attached to their owning window
+
+`AppKitSheet` now owns current dismissal callbacks, waits for its window and
+portal content, and cleans up queued or presented sessions on close or owner
+removal. Its classes/styles apply to the content host. The native demo includes
+record editing, nested sheets and queued requests.
+
+Breaking: the parentless floating-window fallback is removed. Keep the anchor
+mounted in the intended window; a request waits until that window is attached.
+
+```tsx
+// Details.macos.tsx
+import { AppKitSheet } from '@octane-xplat/sheet/macos'
+import { Text } from '@octane-xplat/ui'
+export function Details({ record, open, close }: {
+	record: { id: string; title: string }; open: boolean; close: () => void
+}) {
+	return <AppKitSheet id={`details-${record.id}`} open={open}
+		className="p-4" onDismissed={close}
+		content={() => <Text>{record.title}</Text>} />
+}
+```
+
+See the [native window-sheet guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/sheet.md#native-macos-window-sheets).
+Actual AppKit input, queueing/cancellation, nested presentation, focus, layout,
+VoiceOver and packaged consumers remain unqualified.
+
+### Number field options on AppKit
+
+AppKit NumberInput now supports units, display formatting, optional steppers
+and clear-to-null. Standalone labels and validation use Field, and inherited
+disabled/read-only state also blocks stepper actions. Edit, step and clear
+requests use current props and the latest local value, and reject nested or
+detached actions. Steps and clear wait during marked editor text.
+
+```tsx
+import { NumberInput } from '@octane-xplat/ui'
+
+export function Quantity() {
+	return <NumberInput label="Quantity" defaultValue={2} min={0} max={9}
+		units="kg" hasClear hasNumberSteppers={false} />
+}
+```
+
+The formatter does not add a locale parser. Native input, layout, focus and
+accessibility remain unqualified. See [AppKit number fields](https://octane-xplat.goddardai.org/app/components#number-fields-on-appkit).
+
+### Heading navigation on AppKit
+
+Experimental AppKit Outline now has native heading seeks and uncontrolled
+scroll spy. Supply the native scroll viewport when the navigation sits outside
+its scroll ancestor. Header offsets, controlled selection, click-scroll opt-out
+and reduced-motion seeks have source implementations.
+
+```tsx
+import { Outline, type HostElement } from '@octane-xplat/ui'
+export function Contents({ scroll }: { scroll: { current: HostElement | null } }) {
+	return <Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]}
+		scrollContainerRef={scroll} offset={24} />
+}
+```
+
+Actual native seeks, animation completion, scroll spy, input/VoiceOver and
+packaged consumers remain unqualified. Completion uses a quiet timer fallback.
+See the [content-display guide](https://octane-xplat.goddardai.org/app/content-display#outline-from-markdown-or-a-rendered-tree).
+
+### Heading snapshots on AppKit
+
+Experimental AppKit can now derive Outline items from a native content root
+when the renderer heading-reader bridge is installed. The hook snapshots IDs,
+current heading text and levels; it does not observe later content mutations.
+Native discovery and packaged-consumer qualification remain pending.
+
+```tsx
+import { useOutlineFromView } from '@octane-xplat/ui/macos'
+import { Outline } from '@octane-xplat/ui'
+export function Contents({ root }: { root: object }) {
+	const items = useOutlineFromView(root)
+	return <Outline items={items} hasScrollOnClick={false} />
+}
+```
+
+Older hosts still report unsupported. Native navigation has a separate source
+implementation and remains unqualified. See the [content-display guide](https://octane-xplat.goddardai.org/app/content-display#outline-from-markdown-or-a-rendered-tree).
+
+### Clip overflowing AppKit containers
+
+Experimental AppKit containers now request native bounds clipping for hidden or
+clipped overflow on both axes. Removing the style restores the view's original
+clipping setting, including OS and specialized-view defaults.
+
+```tsx
+<masonview style={{ width: 160, height: 48, overflow: 'hidden' }}>
+	<label text="Content inside the native bounds" />
+</masonview>
+```
+
+Mixed axes and scrolling overflow remain unsupported. Native drawing,
+hit-testing and packaged behavior remain unqualified. See the
+[AppKit clipping subset](https://github.com/octane-xplat/octane-xplat/tree/main/packages/macos-renderer#clip-appkit-container-overflow).
+
+### AppKit overflow-tab keyboard source support
+
+TabMenu now joins its tab strip's focus order and opens first/last options with
+Down/Up. The popup reuses menu focus, typeahead, selection and Tab-return intent;
+empty overflow lists disable the trigger. Parent selection remains authoritative.
+
+```tsx
+import { TabList, Tab, TabMenu } from '@octane-xplat/ui'
+
+export function Sections(props: { value: string; change(value: string): void }) {
+	return <TabList role="tablist" value={props.value} onChange={props.change}>
+		<Tab value="overview" label="Overview" />
+		<TabMenu label="More" options={[{ value: 'settings', label: 'Settings' }]} />
+	</TabList>
+}
+```
+
+Native keys/ref/focus/return, accessibility and packaging remain unqualified.
+Focused-row repair source ownership is also present; native delivery remains unqualified. See [AppKit overflow tabs](https://octane-xplat.goddardai.org/app/components#overflow-tabs-on-appkit).
+
+### Experimental native macOS pages
+
+Pager now has an AppKit source implementation for small onboarding flows and
+galleries, replacing its unsupported placeholder. Pages use the native scrolling
+viewport, current text direction and reduced-motion preference. Settled user
+changes report through the existing callback; programmatic changes do not echo.
+
+```tsx
+import { Pager } from '@octane-xplat/pager'
+import { Text } from '@octane-xplat/ui'
+export function TravelPages() {
+	return <Pager items={['Pack', 'Travel']} defaultPage={1}
+		style={{ width: 320, height: 160 }} renderItem={(title) => <Text>{title}</Text>} />
+}
+```
+
+**Breaking change:** Pager requires `@octane-xplat/ui >=0.18.0 <1` for its public
+native scrolling API. AppKit renders pages eagerly; use a bounded collection.
+Native input/momentum, layout/RTL, focus/accessibility and packaging remain
+unqualified. See the [Pager guide](https://github.com/octane-xplat/octane-xplat/tree/main/packages/pager#platform-support).
+
+### Use dashed and dotted borders on macOS
+
+Native AppKit boxes now paint dashed and dotted borders, including rounded and
+mixed-side styles. The FileInput dropzone's shared theme uses this path. None
+and hidden sides consume no border width; removing style restores the existing
+width-only solid default. Other decorative styles and non-solid outlines keep
+their documented approximations. Native painting and installed-app qualification
+remain pending.
+
+```css
+.attachment-target {
+	border-width: 2px;
+	border-color: #225588;
+	border-style: dashed;
+	border-radius: 8px;
+}
+```
+
+See [native AppKit borders](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/styling.md#appkit-borders).
+
+### Move backward through an AppKit PIN
+
+Pressing plain Backspace in an empty editable AppKit PIN cell now requests focus
+on the preceding cell. It leaves the code unchanged; filled-cell deletion and
+IME or modified shortcuts keep native editor behavior.
+
+```tsx
+import { PinInput } from '@octane-xplat/ui'
+
+export function Code() {
+	return <PinInput label="Verification code" length={4} />
+}
+```
+
+Actual native key delivery, focus and VoiceOver remain unqualified. See
+[AppKit PIN fields](https://octane-xplat.goddardai.org/app/primitives#pin-fields-on-appkit).
+
+### AppKit PIN field metadata
+
+PinInput now inherits Field state and renders standalone metadata once. Each
+cell has its own ID and accessible digit name; blocked groups cancel pending
+focus advance, and validation changes preserve entered values.
+
+```tsx
+import { PinInput } from '@octane-xplat/ui'
+
+export function Code() {
+	return <PinInput label="Account code" description="Enter four characters" length={4} />
+}
+```
+
+Shared paste/deletion behavior is unchanged. Native focus/IME/secure fields,
+VoiceOver and OTP autofill remain unqualified or open. See
+[PIN fields](https://octane-xplat.goddardai.org/app/primitives#pin-fields-on-appkit).
+
+### Keep timestamps when editing native macOS filters
+
+AppKit PowerSearch now preserves an unchanged absolute timestamp's time and
+precision and rejects invalid UTC calendar input. Date-only operators deliberately
+save midnight UTC. Calendar widgets and timezone-specific display still need a
+custom editor; native input and accessibility qualification is pending.
+
+```ts
+import type { DateAbsoluteOperatorValue } from '@octane-xplat/ui'
+const timestamp: DateAbsoluteOperatorValue = { type: 'date_absolute' }
+const day: DateAbsoluteOperatorValue = { type: 'date_absolute', isDateOnly: true }
+```
+
+See [AppKit absolute dates](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/power-search.md#edit-native-appkit-absolute-dates).
+
+### Select entity filters on native macOS
+
+The experimental AppKit PowerSearch editor now selects entities from a search
+source, removes/clears selections and supports optional free entries. Configured
+paste splitting uses a separate **Add entries** action and keeps the draft intact
+if a lookup fails. Apps still own entity matching; native input and accessibility
+qualification is pending.
+
+```ts
+import type { EntityListOperatorValue } from '@octane-xplat/ui'
+const tags: EntityListOperatorValue = {
+	type: 'entity_list', isArbitraryStringAllowed: true, tokenization: {},
+}
+```
+
+See [AppKit entity filters](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/power-search.md#edit-native-appkit-entity-filters).
+
+### Focus AppKit PowerSearch once its input attaches
+
+Experimental AppKit PowerSearch now waits for its first native input attachment
+when initial focus is requested. User activity, a newer focus owner, blocking,
+filter editing and removal cancel stale requests.
+
+```tsx
+import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
+const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
+export function Search() {
+	return <PowerSearch config={config} filters={[]} onChange={() => {}} hasAutoFocus />
+}
+```
+
+Native focus, IME, modal and packaging behavior remain unqualified. See
+[initial AppKit search focus](https://octane-xplat.goddardai.org/app/power-search#request-initial-appkit-search-focus).
+
+### Validate numeric filters on native macOS
+
+AppKit PowerSearch now rejects invalid numbers and enforces configured bounds
+before saving. Scalar drafts follow the current filter, honor its default operator
+and block stale or read-only saves. Native input and accessibility qualification
+remains pending.
+
+```ts
+import type { IntegerOperatorValue } from '@octane-xplat/ui'
+const year: IntegerOperatorValue = { type: 'integer', minValue: 1800, maxValue: 2100 }
+// 1968 is valid; blank, NaN, fractions and out-of-range years do not save.
+```
+
+See [AppKit numeric filters](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/power-search.md#validate-native-appkit-numeric-filters).
+
+### Edit date-range filters on native macOS
+
+AppKit PowerSearch now has a built-in range form for Now, UTC date/time and
+relative endpoints, plus named interval presets. Invalid or reversed ranges do
+not save. Timezone display and expression-string presets still need a custom
+editor; native input and accessibility qualification remains pending.
+
+```ts
+import { createPowerSearchConfig } from '@octane-xplat/ui'
+const { config } = createPowerSearchConfig([{ key: 'created', type: 'date', label: 'Created' }] as const)
+// Use config with PowerSearch and choose the date field's between operator.
+```
+
+See [native AppKit range editing](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/power-search.md#edit-native-appkit-date-ranges).
+
+### AppKit preset-time keyboard source support
+
+DateTimeInput now opens presets with Alt+Down and requests native option focus.
+Bounded arrows/Home/End move without committing; Enter/Space uses the existing
+selection path. Tab records field-neighbor return intent through popup closure.
+
+```tsx
+import { DateTimeInput } from '@octane-xplat/ui'
+
+export function Appointment(props: { value: string | null; change(value: string | null): void }) {
+	return <DateTimeInput label="Appointment" value={props.value} onChange={props.change} timeOptionInterval={15} />
+}
+```
+
+Physical keys, focus/Tab/return, IME, scroll/AX and packaging remain unqualified.
+Row text relay and full listbox accessibility remain gaps. See [preset time keys](https://octane-xplat.goddardai.org/platform/date-picker#choose-appkit-preset-times-with-keys).
+
+### AppKit action identifiers
+
+AppKit Pressable and Button now forward testID and accessible. Concrete native
+hosts map testID to an accessibility identifier, keeping CSS IDs and spoken
+labels separate.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save({ save }: { save(): void }) {
+	return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
+}
+```
+
+Native selector replay and VoiceOver remain unqualified. See
+[AppKit identifiers](https://octane-xplat.goddardai.org/testing/test-identifiers#appkit-source-implementation).
+
+### Radio choices on AppKit
+
+RadioList now supports RadioListItem children alongside options, with one
+selection owner, descriptions/trailing content and Field metadata. Native rows
+have explicit radio names and checked state. Ordinary form groups now request
+selection after Arrow/Home/End focus, respect RTL horizontal keys and use owned
+roving Tab exclusions when the native bridges are available.
+
+```tsx
+import { RadioList, RadioListItem } from '@octane-xplat/ui'
+
+export function Plan() {
+	return <RadioList label="Plan" defaultValue="free">
+		<RadioListItem value="free" label="Free" description="Personal use" />
+		<RadioListItem value="team" label="Team" />
+	</RadioList>
+}
+```
+
+Native input/Tab/focus/reveal, VoiceOver and layout remain unqualified;
+toolbar-specific radio navigation remains unsupported. See [radio choices](https://octane-xplat.goddardai.org/app/components#radio-choices-on-appkit).
+
+### Owned AppKit radio selection
+
+Experimental AppKit radio choices now use current group/item state and callbacks
+for selection. Disabled, removed or retired rows cannot select, and repeated
+uncontrolled selection before render reports once. Controlled parents keep
+checked-state authority.
+
+```tsx
+import { RadioList } from '@octane-xplat/ui'
+export function Plan() {
+	return <RadioList label="Plan" defaultValue="free"
+		options={[{ value: 'free', label: 'Free' }, { value: 'team', label: 'Team' }]} />
+}
+```
+
+Native input, focus, accessibility and packaging remain unqualified. See
+[AppKit radio choices](https://octane-xplat.goddardai.org/app/components#radio-choices-on-appkit).
+
+### Use native macOS window and lifecycle hooks through platform entries
+
+AppKit now selects the same native implementations through the platform root
+and screen, lifecycle, safe-area and breakpoint subpaths. Hook calls live in
+files included by the AppKit compiler. Window snapshots are stable read-only
+content sizes, and subscriptions retain their native owner through cleanup.
+
+```tsx
+import { useWindowSize, useAppState } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function WindowStatus() {
+	const size = useWindowSize(), state = useAppState()
+	return <Text>{`${state}: ${size.width}×${size.height}`}</Text>
+}
+```
+
+**Breaking change:** AppKit `useBackHandler` returns `void`, matching the shared
+contract. Remove assignment/calls of its former no-op cleanup. It remains an
+Android-only back interception hook with no AppKit listener. Treat returned
+window snapshots as immutable; copy them before changing a local value.
+
+```tsx
+import { useBackHandler } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function Editor() {
+	useBackHandler(() => false)
+	return <Text>Editor</Text>
+}
+```
+
+See [AppKit window and activity state](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/platform-services.md#read-appkit-window-and-activity-state).
+Primary-window scope, zero insets and existing missing-host fallbacks remain;
+compiler/native resize/activity/input/AX/memory and installed-app qualification
+are pending.
+
+### Adapt native macOS layouts to window size
+
+The experimental AppKit `useMediaQuery` hook now follows primary-window resize
+notifications and reports desktop fine-pointer/hover traits. Native query
+matching also rejects invalid pointer/hover values and respects `and` before
+`or`. Actual resize/rendering and packaged-app qualification remain pending.
+
+```tsx
+import { Text, useMediaQuery } from '@octane-xplat/ui'
+
+export function WindowLayout() {
+  const wide = useMediaQuery('(min-width: 800px)')
+  return <Text>{wide ? 'Wide layout' : 'Compact layout'}</Text>
+}
+```
+
+[Responsive AppKit layout](https://octane-xplat.goddardai.org/app/components#responsive-appkit-layout)
+
+### Preserve AppKit search composition during query updates
+
+Raw native search fields now defer differing programmatic text while the native
+editor has marked text. Changed writes still emit the existing text-change event.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Search({ query, onQuery }: { query: string; onQuery(value: string): void }) {
+	return <searchbar text={query} onTextChange={(event) => onQuery(event.value)} />
+}
+```
+
+Actual IME, selection and packaging remain unqualified. See the
+[AppKit editing contract](https://github.com/octane-xplat/octane-xplat/tree/main/packages/macos-renderer#controlled-text-during-composition).
+
+### Choose views with native macOS segments
+
+The experimental AppKit SegmentedControl now renders options and child items,
+tracks selection and disabled/read-only state, and implements scoped arrow,
+Home and End navigation. AppKit radio roles now expose checked values.
+OS input, VoiceOver and presentation parity remain unqualified.
+
+```tsx
+import { SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
+
+export function ViewMode() {
+  return <SegmentedControl defaultValue="list" accessibilityLabel="View">
+    <SegmentedControlItem value="list" label="List" />
+    <SegmentedControlItem value="grid" label="Grid" />
+  </SegmentedControl>
+}
+```
+
+[Component documentation](https://octane-xplat.goddardai.org/app/components#appkit-segmented-control)
+
+### AppKit Selector keyboard flow
+
+AppKit Selector now has source paths for opening and navigating by keyboard,
+manual option focus, Enter/Space commits, prefix/local-search input and Escape/
+Tab close intent. It reuses native choice ordering and popup focus ownership.
+
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function Fruit() {
+	return <Selector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
+		searchable defaultValue="apple" />
+}
+```
+
+Physical keys, IME, popup/return focus, VoiceOver and packaging remain unqualified.
+See [AppKit selection keys](https://octane-xplat.goddardai.org/app/search-selection#use-selector-keys-on-appkit).
+
+### Removable AppKit selection badges
+
+AppKit MultiSelector now supports removable selected-value badges. Removal follows
+the existing save and rollback flow, with disabled/read-only/pending guards.
+
+```tsx
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Channels() {
+	return <MultiSelector triggerDisplay="badges" defaultValue={['email']}
+		options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
+}
+```
+
+Native pointer/focus/VoiceOver behavior remains unqualified. See the
+[AppKit badge guide](https://octane-xplat.goddardai.org/app/search-selection#remove-selected-values-on-appkit).
+
+### AppKit Selector field metadata
+
+Standalone AppKit Selector now renders FormField labels, descriptions and status;
+an enclosing Field keeps ownership instead. Trigger IDs stay stable, testID is
+forwarded, and ghost mode forwards its existing chrome class.
+
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function Region() {
+	return <Selector label="Region" description="Choose a region" testID="profile.region" variant="ghost"
+		options={[{ value: 'west', label: 'West' }]} isRequired />
+}
+```
+
+Native layout, label/tooltip behavior, VoiceOver and identifier replay remain
+unqualified. See [Selector metadata](https://octane-xplat.goddardai.org/app/search-selection#appkit-selector-field-metadata).
+
+### Settings and range sliders on AppKit
+
+AppKit Slider now implements bounded scalar/range values, steps, marks,
+formatted readouts and separate thumb adjustments. Field disabled/read-only
+state also blocks changes. Default fractional readouts retain their value on
+web as well.
+
+```tsx
+import { Slider } from '@octane-xplat/ui'
+
+export function Budget() {
+	return <Slider label="Budget" defaultValue={[20, 80]} min={0} max={100}
+		step={5} valueDisplay="text" />
+}
+```
+
+Native input, focus, accessibility and layout remain unqualified. See
+[AppKit Slider](https://octane-xplat.goddardai.org/app/components#slider-on-appkit).
+
+### Save switch changes on AppKit
+
+AppKit Switch now invokes changeAction, reports busy while saving, and restores
+the previous value through onChange on failure. Overlapping saves are blocked;
+completion after unmount is ignored. Save ownership now starts before onChange
+callbacks, preventing reentrant duplicate saves; cached handlers use current
+blocking props. Rapid uncontrolled requests now continue from the latest local
+choice before rendering, and failed saves restore that choice before rollback.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Preference({ save }: { save(next: boolean): Promise<void> }) {
+	return <Switch accessibilityLabel="Preference" defaultValue changeAction={save} />
+}
+```
+
+Source cases remain unrun; native activation/ref timing and loading presentation remain unqualified. See
+[switch saves](https://octane-xplat.goddardai.org/app/components#save-a-switch-setting-on-appkit).
+
+### Activate AppKit switches from their labels
+
+AppKit Switch labels now use the same toggle/save handler as the track and
+request focus on the control. The label target uses the renderer's Tab exclusion
+lease so it does not introduce a second sequential keyboard stop.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Alerts() {
+	return <Switch label="Alerts" description="Daily summary" defaultValue />
+}
+```
+
+Native hit testing, tooltip arbitration, focus, Tab order and accessibility
+remain unqualified. Without the renderer's suppression bridge, use the track.
+See [switch settings](https://octane-xplat.goddardai.org/app/components#save-a-switch-setting-on-appkit).
+
+### Labeled AppKit switches
+
+Standalone AppKit Switch now renders labels, descriptions and validation status.
+Label-side/spacing options and compact size use the shared CSS layout; an
+existing Field retains metadata ownership.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Alerts() {
+	return <Switch label="Alerts" description="Daily summary" defaultValue
+		labelPosition="start" labelSpacing="spread" width={280} />
+}
+```
+
+Activate the track; label-click activation remains a gap. Native layout, focus
+and accessibility are unqualified. See
+[switch settings](https://octane-xplat.goddardai.org/app/components#save-a-switch-setting-on-appkit).
+
+### Open System Settings on macOS
+
+AppKit `openSettings` can now open the installed System Settings application.
+Check support and availability from an explicit user action:
+
+```ts
+import { openSettings } from '@octane-xplat/platform'
+
+if (openSettings.supported && await openSettings.isAvailable()) {
+	const accepted = openSettings.open()
+	console.log(accepted)
+}
+```
+
+This does not choose an app-specific permission page or change permissions.
+A true result means the launch request was accepted; actual AppKit presentation
+and packaged behavior remain unqualified. See [opening settings](https://octane-xplat.goddardai.org/platform/platform-services#open-settings).
+
+### AppKit tab-strip focus and scrolling
+
+AppKit TabList now uses native geometry to reveal selected/focused tabs and
+adds roving focus for registered Tab children. Arrows/Home/End move focus;
+Enter/Space activate. Visible tabs gain explicit accessible names, and disabled
+tabs retain their native role/state.
+
+```tsx
+import { useState } from 'octane'
+import { TabList, Tab } from '@octane-xplat/ui'
+
+export function Sections() {
+	const [value, setValue] = useState('overview')
+	return <TabList role="tablist" value={value} onChange={setValue}>
+		<Tab value="overview" label="Overview" />
+		<Tab value="details" label="Details" />
+	</TabList>
+}
+```
+
+Actual keyboard/Tab, scroll visibility, VoiceOver, panel relationships and
+layout remain unqualified. TabMenu stays an independent trigger. See
+[AppKit tab strips](https://octane-xplat.goddardai.org/app/components#tab-strips-on-appkit).
+
+### Scroll wide data tables on AppKit
+
+AppKit data Table now has an experimental horizontal viewport source path.
+Constrain its container; pixel widths remain fixed and proportional columns
+honor minimum widths. Controlled useTableColumnResize overrides now update
+header, body and scroll sizing together. Native layout, scrolling and packaging
+remain unqualified.
+
+```tsx
+import { Table, View, pixel } from '@octane-xplat/ui'
+<View style={{ width: 360 }}><Table data={[{ name: 'Ada', team: 'Platform' }]}
+  columns={[{ key: 'name', width: pixel(180) }, { key: 'team', width: pixel(400) }]} />
+</View>
+```
+
+Child-composed tables keep their existing flow. AppKit sticky columns now have an experimental measured native placement
+source path; actual positioning, hit-testing and accessibility remain unqualified. See the [table guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/tables.md#wide-data-tables-on-appkit).
+
+
+```tsx
+import { useTableColumnResize } from '@octane-xplat/ui'
+export function usePeopleWidths() {
+  return useTableColumnResize({ columnWidths: { name: 320 } })
+}
+// Call usePeopleWidths inside a component and pass its plugin to Table.
+```
+
+
+```tsx
+import { useTableStickyColumns } from '@octane-xplat/ui'
+export function usePeoplePins() {
+  return useTableStickyColumns({ startKeys: ['name'], endKeys: ['status'] })
+}
+// Inside a component, pass the returned plugin to Table.
+```
+
+
+AppKit also has experimental native resize handles with drag previews,
+keyboard limits and splitter accessibility source paths. Accept controlled
+commits in the parent; native interaction and accessibility remain unqualified.
+
+```tsx
+import { useState } from 'octane'
+import { useTableColumnResize } from '@octane-xplat/ui'
+export function useEditableWidths() {
+  const [columnWidths, setWidths] = useState<Record<string, number>>({})
+  return useTableColumnResize({ columnWidths, onColumnResizeEnd: setWidths,
+    minWidth: 80, maxWidth: 520 })
+}
+```
+
+### Choose how native macOS table text overflows
+
+AppKit data tables now apply `textOverflow="truncate"` to default-rendered body
+labels as one line with a tail ellipsis; wrapping is the default. Switching
+modes preserves the full value. Custom cells and headers keep their own text
+behavior. Native measurement, painting and installed-app qualification remain
+pending.
+
+```tsx
+import { Table, pixel } from '@octane-xplat/ui'
+export function Trips() {
+  return <Table data={[{ name: 'A long weekend in the mountains' }]}
+    columns={[{ key: 'name', width: pixel(180) }]} textOverflow="truncate" />
+}
+```
+
+See [AppKit table text](https://github.com/octane-xplat/octane-xplat/blob/main/docs/tables.md#choose-body-text-wrapping-on-appkit).
+
+### Readable text composition on AppKit
+
+Experimental AppKit now composes nested Text and RichText as styled runs under
+one text owner. Text inside Heading uses that owner too. RichText purpose
+imports share the root leaf, and RichTextSpan.text now displays its explicit
+value without duplicating child content. Root text hosts retain parent-layout
+props; native layout and accessibility qualification remain pending.
+
+```tsx
+import { RichText, RichTextSpan, Text } from '@octane-xplat/ui'
+export function Notice() {
+	return <>
+		<Text>Read <Text weight="bold">carefully</Text>.</Text>
+		<RichText><RichTextSpan text="Ready to review" /></RichText>
+	</>
+}
+```
+
+Per-span press hit testing remains unimplemented. See the
+[text component guide](https://octane-xplat.goddardai.org/app/components#text).
+
+### Owned AppKit text entry state
+
+Experimental AppKit text fields now use current editable state and callbacks
+for edits, submit and clear. Clear preserves callback-chosen focus; retained
+handles and handlers become inert after removal. Composing drafts still report
+edits, while submit and clear wait for committed text.
+
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+export function Name() {
+	return <TextInput label="Name" defaultValue="Ada" hasClear
+		onChange={(text) => console.log(text)} onSubmit={() => console.log('Submit')} />
+}
+```
+
+Native editing, IME, caret, clear/focus and packaging remain unqualified. See
+[AppKit text action ownership](https://octane-xplat.goddardai.org/app/text-entry#keep-appkit-text-actions-owned-by-the-current-field).
+
+### Labels and validation for AppKit text fields
+
+Standalone AppKit TextInput, TextArea and SearchInput now display their labels,
+descriptions and validation messages through the native Field wrapper. Existing
+Fields keep ownership of those messages. Native layout and VoiceOver remain
+unqualified.
+
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+
+export function Name() {
+	return <TextInput label="Name" description="Shown publicly" width={280}
+		status={{ type: 'error', message: 'Enter a name' }} />
+}
+```
+
+See [text and keyboard actions](https://octane-xplat.goddardai.org/app/primitives#text-and-keyboard-actions).
+
+### Choose native macOS text overflow with CSS
+
+AppKit labels now apply normal/nowrap whitespace and clip/ellipsis overflow
+from CSS when explicit label props are absent. Removing styles restores the
+remaining cascade and releases the implicit one-line height. Decorated and
+letter-spaced labels retain the current paragraph mode. Native measurement,
+painting and installed-app qualification remain pending; CSS preservation,
+balanced wrapping and line-clamp remain outside the supported subset.
+
+```css
+.compact-title { width: 180px; white-space: nowrap; text-overflow: ellipsis; }
+```
+
+See [AppKit text wrapping](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/styling.md#appkit-text-wrapping).
+
+### Length limits for AppKit text areas
+
+AppKit TextArea now implements `maxLength` for committed user edits. It keeps
+text outside a paste/replacement and leaves marked input intact until commit.
+The cap counts UTF-16 units; initial and external values are not truncated.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function Note() {
+	return <TextArea label="Short note" maxLength={80} autoGrow maxRows={4} />
+}
+```
+
+Real IME, undo/redo, selection and native packaging remain unqualified. See
+[multiline fields](https://octane-xplat.goddardai.org/app/primitives#grow-a-multiline-field).
+
+### Preserve experimental AppKit time drafts
+
+TimeInput now checks current blocking/save ownership before changing a draft,
+and retained submit/edit callbacks use the current text, seconds and bounds.
+Callback teardown or parent correction cannot be overwritten by an old draft
+clear. The existing AppKit marked-text guard remains in use.
+
+```tsx
+import { useState } from 'octane'
+import { TimeInput } from '@octane-xplat/ui'
+export function StartTime() {
+	const [time, setTime] = useState<string | null>('14:30')
+	return <TimeInput label="Start time" value={time} onChange={setTime}
+		min="09:00" max="18:00" hasClear />
+}
+```
+
+Native editor/IME, Return/blur/save ordering, focus/accessibility and packaging
+remain unqualified. See [AppKit time drafts](https://octane-xplat.goddardai.org/platform/date-picker#keep-appkit-time-drafts-owned-by-the-current-edit).
+
+### AppKit time-field minute stepping
+
+TimeInput now binds plain Up/Down to its minute increment on AppKit. Steps use
+the committed value, preserve optional seconds, wrap at midnight and respect
+bounds. Parent values stay authoritative while pending saves exclude new edits.
+
+```tsx
+import { TimeInput } from '@octane-xplat/ui'
+
+export function Start(props: { value: string | null; change(value: string | null): void }) {
+	return <TimeInput label="Starts" value={props.value} onChange={props.change} increment={15} />
+}
+```
+
+Native keys, IME, focus/accessibility and packaging remain unqualified. See
+[AppKit time stepping](https://octane-xplat.goddardai.org/platform/date-picker#step-appkit-time-values-with-arrow-keys).
+
+### AppKit toggle-button save actions
+
+AppKit ToggleButton now shares Button's busy/action handling and inherited props.
+Save actions show pending state, block duplicates and report errors while keeping
+the optimistic choice. Accepted toggles now keep local intent separate from
+controlled/group display, including parent updates during URL dispatch.
+Group members retain group-owned selection.
+
+```tsx
+import { ToggleButton } from '@octane-xplat/ui'
+
+export function Pin({ save }: { save(pressed: boolean): Promise<void> }) {
+	return <ToggleButton label="Pin" pressedChangeAction={save} />
+}
+```
+
+Pressed native accessibility, input and layout remain unqualified. See
+[toggle saves](https://octane-xplat.goddardai.org/app/components#save-a-toggle-button-action-on-appkit).
+
+### Backspace removes the last AppKit token
+
+Experimental AppKit token fields can request removal of the current last token
+with Backspace when both query and native editor text are empty. Composing and
+modified keys preserve editing; current read-only/disabled state blocks removal.
+
+```tsx
+import { useState } from 'octane'
+import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
+const people = [{ id: 'ada', label: 'Ada' }]
+const source = createStaticSource(people)
+export function Tags() {
+	const [tags, setTags] = useState(people)
+	return <Tokenizer searchSource={source} value={tags} onChange={setTags} />
+}
+```
+
+Native key, IME, focus and overflow behavior remain unqualified. See the
+[AppKit token-entry guide](https://octane-xplat.goddardai.org/app/search-selection#remove-appkit-tokens-with-empty-input-backspace).
+
+### Native AppKit tokenizer overflow counting
+
+Experimental AppKit token fields now use native bounds and rectangle conversion
+for collapsed-row counts, with the counter outside the clipped token viewport.
+Layer token copies use separate refs, and widening the field can reclaim the
+counter's space when every token fits.
+
+```tsx
+import { useState } from 'octane'
+import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
+const people = [{ id: 'ada', label: 'Ada Lovelace' }]
+const source = createStaticSource(people)
+export function Tags() {
+	const [tags, setTags] = useState(people)
+	return <Tokenizer label="People" width={240} searchSource={source} value={tags}
+		onChange={setTags} tokenOverflowBehavior="unfocusedInline" />
+}
+```
+
+Native drawing, sizing, focus, accessibility and packaging remain unqualified;
+the token layer still renders inline. See the
+[AppKit token overflow subset](https://octane-xplat.goddardai.org/app/search-selection#collapse-appkit-token-rows-with-native-geometry).
+
+### AppKit toolbar action focus
+
+AppKit Toolbar now moves focus between discrete actions with axis arrows and
+Home/End, without activating them. Hidden/disabled actions are skipped, and
+changing orientation preserves slot controls and their local state. The native
+accessibility metadata follows the current axis.
+
+```tsx
+import { Button, Toolbar } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <Toolbar label="Page actions" startContent={<Button label="Save" />}
+		endContent={<Button label="Share" />} />
+}
+```
+
+Editors, sliders and nested composites keep their own keys and Tab stops.
+Complete mixed-control roving and stock native-control Tab suppression remain
+gaps. Native keys, Tab, VoiceOver,
+layout and installed behavior remain unqualified. See [toolbar actions](https://octane-xplat.goddardai.org/app/navigation-ui#add-toolbar-actions-and-responsive-overflow).
+
+### AppKit typeahead suggestion roles and links
+
+Experimental AppKit typeahead fields now declare combo/list/option roles and
+link their current native suggestion list and highlighted pending row. Closing,
+blocking, replacing or removing the field restores previous native metadata.
+Highlighting remains separate from committing the controlled value.
+
+```tsx
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function People() {
+	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+		hasEntriesOnFocus accessibilityLabel="Choose a person" />
+}
+```
+
+Native AX hierarchy, VoiceOver navigation/announcements, focus/IME and packaging
+remain unqualified. See the
+[AppKit role/link subset](https://octane-xplat.goddardai.org/app/search-selection#expose-appkit-suggestion-roles-and-relationships).
+
+### Experimental AppKit typeahead focus
+
+BaseTypeahead now opens bootstrap results on focus, honors its autofocus request,
+and cancels searches when the user leaves the field. New queries retire old
+responses before debounce; source changes, blocking and teardown cannot reopen
+retired results. Refs read the current host and blur preserves other editors.
+Typeahead click-to-edit reports its query once, and readonly fields omit clear.
+
+```tsx
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function PersonSearch() {
+	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+		hasEntriesOnFocus accessibilityLabel="Person" />
+}
+```
+
+Native input/IME/focus/click/layout and packaging remain unqualified. Results
+remain inline; keyboard option selection and listbox accessibility remain gaps.
+See [AppKit typeahead](https://octane-xplat.goddardai.org/app/search-selection#bootstrap-appkit-typeahead-results-on-focus).
+
+### Experimental AppKit typeahead keyboard selection
+
+BaseTypeahead now offers results with ArrowDown, moves highlight with arrows and
+Home/End, selects with Enter and closes its list with Escape. Tab closes results
+while preserving native traversal. Highlighting keeps input focus and requests
+native row reveal. The existing consumer key hook runs first and can cancel the
+built-in policy; modified shortcuts and composing input retain native defaults.
+
+```tsx
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function PersonSearch() {
+	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+		hasEntriesOnFocus accessibilityLabel="Person" />
+}
+```
+
+Native delivery/IME/repeat, Tab/layers, reveal and packaging remain unqualified.
+Inline result hosting, listbox accessibility and announcements retain documented
+limits. See [AppKit typeahead keys](https://octane-xplat.goddardai.org/app/search-selection#choose-appkit-typeahead-results-with-keys).
+
+### Source-owned AppKit suggestion panel
+
+Experimental AppKit search suggestions now use a source-owned panel in the
+field's native window, with bounded scrolling and anchor-based sizing. Custom
+result content keeps the field's providers. Typeahead and Tokenizer inherit the
+result view. The matching AppKit renderer is required; native runtime behavior
+and packaging remain unqualified.
+
+```tsx
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function People() {
+	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+		hasEntriesOnFocus menuWidth={280} placement="bottom" accessibilityLabel="Person" />
+}
+```
+
+Tokenizer's outer unfocused editor layer remains inline. See
+[floating AppKit suggestions](https://octane-xplat.goddardai.org/app/search-selection#float-appkit-search-suggestions).
+
+### Embedded video source support on AppKit
+
+Experimental AppKit Video now has an AVPlayerLayer surface with shared playback
+controls, posters, mute, loop and millisecond seek commands. Rebuild the native
+host after adding the package. Native compilation, playback and packaged-consumer
+qualification are still pending.
+
+```tsx
+import { Video } from '@octane-xplat/video'
+export function Clip({ source }: { source: string }) {
+	return <Video src={source} controls style={{ width: 320, height: 220 }}
+		onError={({ message }) => console.warn(message)} />
+}
+```
+
+AppKit reports generic errors; mobile plugin errors remain unavailable. Lightbox
+video is separate. See the [video guide](https://octane-xplat.goddardai.org/app/primitives#video-playback)
+and [AppKit subset](https://github.com/octane-xplat/octane-xplat/tree/main/packages/video#experimental-appkit-playback).
+
+### Control speech playback and update growing queues
+
+Audio queues now expose pitch-preserving playback speed, volume, and mute on
+web, iOS, Android, and experimental macOS. Settings survive source changes;
+muting retains the selected volume. Append future items without restarting a
+matching current track; incomplete queues distinguish waiting from completion.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+const player = createAudioPlayer()
+await player.setPlaybackRate(1.5)
+await player.setVolume(0.4)
+await player.setMuted(true)
+const first = { id: '1', source: 'https://example.com/1.mp3' }
+await player.setQueue([first], 0, { complete: false })
+await player.updateQueue([first, { id: '2', source: 'https://example.com/2.mp3' }], { complete: true })
+player.dispose()
+```
+
+[Audio documentation](https://octane-xplat.goddardai.org/media-services#playback-speed-and-volume)
+
+### Run Xplat with Bun or a standalone executable
+
+**Breaking change:** the npm `xplat` command now requires Bun 1.4.4 or later
+on your PATH. Install Bun before running an existing app's CLI commands:
+
+```sh
+bun --version
+bun run xplat doctor
+```
+
+Standalone release executables include Bun and the CLI dependencies in one
+file. They extract a cached payload on first launch. Node, Bun, and platform
+toolchains remain necessary for app builds.
+
+[CLI setup and executables](https://github.com/octane-xplat/octane-xplat/blob/main/packages/cli/README.md#single-file-executable)
+
+### Manage framework patches with Bun or pnpm
+
+`xplat patches` now detects Bun and pnpm projects, including workspace members
+and catalog dependencies. Both use the same framework patch files:
+
+```sh
+bun run xplat patches apply
+bun install
+bun run xplat patches check
+```
+
+Use Bun 1.4.4 or later for the complete patch set. For pnpm 11, rerun
+`xplat patches apply`: it now writes `pnpm-workspace.yaml` even for a standalone
+app, because pnpm 11 ignores `package.json.pnpm.patchedDependencies`.
+
+[Framework patches](https://github.com/octane-xplat/octane-xplat/blob/main/packages/cli/README.md#framework-patches)
+
+### Create and maintain apps with Bun
+
+**Breaking change:** new apps and libraries use Bun 1.4.4 for installation
+and project commands. Their `package.json` owns catalogs and patch registrations;
+local patch files are ready before the first install.
+
+```sh
+bun create octane-xplat my-app
+cd my-app
+bun run dev
+```
+
+`xplat upgrade` and `xplat doctor` support the Bun setup. `xplat add` now requires
+a Bun project. Native fingerprints also accept Bun lockfiles. `xplat patches`
+retains pnpm support.
+
+[Create your first app](https://octane-xplat.goddardai.org/toolchain)
+
+### Hash and encrypt app data
+
+The new crypto package adds Expo-shaped secure random bytes, UUIDs, hashes and
+AES-GCM key/sealed-data APIs. Browsers use Web Crypto, Apple uses CryptoKit and
+Android uses JCA; Android runtime remains unverified. The portable AES subset
+uses fresh 12-byte nonces and 16-byte tags.
+
+```ts
+import { AESEncryptionKey, aesEncryptAsync, aesDecryptAsync } from '@octane-xplat/crypto'
+
+export async function encryptAndReopen(bytes: Uint8Array) {
+	const key = await AESEncryptionKey.generate()
+	const sealed = await aesEncryptAsync(bytes, key)
+	return aesDecryptAsync(sealed, key)
+}
+```
+
+[Crypto setup, key ownership and platform limits](https://github.com/octane-xplat/octane-xplat/blob/main/packages/crypto/README.md)
+
+### Read the docs more comfortably on phones and tablets
+
+The docs site uses larger text, code examples, tables, and touch controls on
+phones and tablets. Tablet navigation moves into the menu to give the reading
+column more room.
+
+[Read the documentation](https://octane-xplat.goddardai.org/)
+
+### Mobile drawers include edge gestures
+
+**Breaking change:** import `Drawer` and `DrawerProps` from
+`@octane-xplat/drawer`. The UI root Drawer and platform-specific SideDrawer and
+DrawerLayout exports are removed. Installing the drawer package brings its
+mobile plugins; unrelated UI widget imports no longer initialize them.
+
+```tsx
+import { useState } from 'octane'
+import { Drawer } from '@octane-xplat/drawer'
+
+export function Menu() {
+	const [open, setOpen] = useState(false)
+	return <Drawer open={open} onOpenChange={setOpen} main={null} drawer={null} />
+}
+```
+
+Mobile users can open from the left edge and drag closed. Web and desktop use
+explicit controls and backdrop dismissal.
+
+[Drawer setup and migration](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/drawer.md)
+
+### Match phone updates to their native binary
+
+The new fingerprint build tool adds Expo-shaped hash/source/diff APIs for
+NativeScript inputs. OTA publishing, staging and native startup now require
+the exact fingerprint baked into the binary. Publishing rejects changed native
+inputs and debug payloads; different native binaries retain separate channel
+pointers.
+
+This replaces minimum-native-version manifests and channel keys. Add the build
+tool as a development dependency, review/regenerate the existing prepare hook,
+rebuild binaries and deploy the matching server. Preserve the private build
+record with your release payload. Android runtime qualification is unverified.
+
+```sh
+pnpm add -D @octane-xplat/fingerprint
+pnpm exec xplat updates init
+pnpm exec xplat-fingerprint --dir . --platform ios
+```
+
+[Phone update setup and migration](https://octane-xplat.goddardai.org/updates) ·
+[Fingerprint API and custom inputs](https://github.com/octane-xplat/octane-xplat/blob/main/packages/fingerprint/README.md)
+
+### Report stored sign-in deletion failures
+
+**Breaking change:** hosted sign-out now rejects if credential deletion fails
+or reports false. Memory is still signed out, and server revocation is still
+attempted. Previously a deletion failure could be hidden and the stored
+session could return after restart.
+
+```ts
+// Use the hosted auth client configured by your app.
+import { auth } from './auth'
+try {
+  await auth.signOut()
+} catch {
+  console.log('Stored sign-in could not be cleared. Try again.')
+}
+```
+
+[Hosted sign-in documentation](https://github.com/octane-xplat/octane-xplat/tree/main/packages/auth#hosted-sign-in-ceremonies)
+
+### Resize and crop photo attachments
+
+The new image-manipulator package transforms image pixels and exports JPEG or
+PNG files using an Expo-shaped editing context. Rendered images and saved files
+have separate cleanup so a preview can outlive its editing context.
+
+```ts
+import { ImageManipulator } from '@octane-xplat/image-manipulator'
+
+export async function resizePhoto(sourceUri: string) {
+	const context = ImageManipulator.manipulate(sourceUri)
+	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+	try {
+		context.resize({ width: 800 })
+		image = await context.renderAsync()
+		return await image.saveAsync({ format: 'jpeg', compress: 0.8 })
+	} finally {
+		image?.release()
+		context.release()
+	}
+}
+// The result's preview/upload owner calls releaseImage(result) when finished.
+```
+
+[Image manipulation guide and platform limits](https://github.com/octane-xplat/octane-xplat/blob/main/packages/image-manipulator/README.md)
+
+### Read HTTP responses as they arrive
+
+The optional network package adds incremental response bytes on web,
+iOS, Android, and experimental AppKit. Cancellation releases the request;
+unread native data is bounded. This is a byte-stream API with an explicit
+request subset, not a replacement for global fetch.
+
+```ts
+import { requestStream } from '@octane-xplat/network'
+const response = await requestStream('https://example.com/api/events')
+const reader = response.body.getReader()
+try { console.log((await reader.read()).value?.byteLength) }
+finally { await reader.cancel(); reader.releaseLock() }
+```
+
+[Network documentation](https://github.com/octane-xplat/octane-xplat/tree/main/packages/network)
+
+### Add configurable keyboard shortcuts
+
+The optional `@octane-xplat/shortcuts` package adds scoped commands, sequences,
+shortcut recording, atomic rebinding and dispatch diagnostics. Browser, GTK/X11 and WinUI input have runtime checks; AppKit has a native
+event-queue check. Native desktop adapters remain experimental. Mobile hardware shortcuts are unsupported.
+
+```ts
+import { createShortcuts } from '@octane-xplat/shortcuts'
+
+const shortcuts = createShortcuts({ target: document })
+shortcuts.bind({ combo: 'Mod+k', preventDefault: true, handler: () => console.log('Open commands') })
+// When the owner closes: shortcuts.dispose()
+```
+
+[Keyboard shortcuts guide](https://octane-xplat.goddardai.org/keyboard-shortcuts)
+
+### Native localization and text segmentation initialize their own Intl support
+
+Lingui now installs the Intl APIs used by its messages and formatting hooks on
+iOS and Android. RollingText supplies text segmentation. Apps do not need to
+install FormatJS or initialize those APIs. UI remains independent and handles
+missing or partially installed capabilities.
+
+Choose additional Lingui formatting data before activating its catalog:
+
+```ts
+// locale-data.mobile.ts
+import '@octane-xplat/lingui/locales/de'
+```
+
+[Native formatting data](https://octane-xplat.goddardai.org/app/localization#native-formatting-data)
+
+### Leaf packages ship generated declarations
+
+**Breaking change:** leaf packages now emit their type declarations with
+`tsrx-typegen` instead of shipping hand-written `types/` facades. Component
+exports that were declared as `UniversalComponent<Props>` constants are now
+generated function declarations — `function Badge(props: BadgeProps): unknown`
+on native and `JSX.Element` on web — matching what TypeScript sees when it
+type-checks the source directly.
+
+```ts
+// before (hand-written facade)
+export declare const Badge: UniversalComponent<BadgeProps>
+// after (generated)
+export declare function Badge(props: BadgeProps): unknown
+```
+
+Source imports and subpath layouts are unchanged; update any code that typed a
+component value as `UniversalComponent<P>` to use `typeof Badge` or the props
+type directly.
+
+A few platforms are typed more honestly than the facades they replace: web
+components now return `JSX.Element` (or `null` where the source returns it),
+unsupported-platform stubs declare their real `() => never` signatures, and
+`IntersectionObserver` exports its class type rather than a constructor
+interface.
+
+### Try native GTK windows from an npm app
+
+The experimental Linux GTK renderer joins the lockstep release. Workshop and
+CLI consumers can install it without a framework checkout after the first
+automated release. It ships JavaScript, uses Gtk.Box when the optional native
+Mason build is absent, and applies explicit accessible names through GTK.
+Production qualification remains incomplete.
+
+```sh
+pnpm add -D @octane-xplat/linux-gtk
+pnpm exec xplat workshop doctor
+```
+
+[Linux GTK setup](https://octane-xplat.goddardai.org/linux-gtk)
+
+### Read barcodes from images on native macOS
+
+`barcodeScanner.scanImage` now works in experimental AppKit apps. It uses
+Apple's Vision framework to read QR codes and the other supported barcode
+formats from a local image file or an `NSImage`, and reports each code's
+position in image pixels. Live camera scanning is still unavailable on macOS.
+Decoding has not yet been checked on a running Mac.
+
+```ts
+import { barcodeScanner } from '@octane-xplat/barcode-scanner'
+
+const codes = await barcodeScanner.scanImage('/Users/me/Desktop/ticket.png', ['qr'])
+console.log(codes[0]?.data)
+```
+
+See [@octane-xplat/barcode-scanner](https://github.com/octane-xplat/octane-xplat/tree/main/packages/barcode-scanner#decode-a-qr-image).
+
+### CameraView renders a live preview on macOS
+
+`CameraView` from `@octane-xplat/ui/macos` now mounts the AppKit camera
+backend from `@octane-xplat/camera` instead of an unsupported label. The
+AVCaptureSession preview, permission flow, and `onReady`/`onError`
+lifecycle come from the camera leaf unchanged — `@octane-xplat/ui` gains a
+workspace dependency on `@octane-xplat/camera`.
+
+```tsx
+import { CameraView } from '@octane-xplat/ui/macos'
+
+export function Preview() {
+	return <CameraView facing="back" onReady={() => console.log('live')} />
+}
+```
+
+See the [camera package](https://github.com/octane-xplat/octane-xplat/tree/main/packages/camera)
+for the full preview and capture contract.
+
+### macOS/AppKit CSS paint coverage
+
+AppKit now paints layered CSS backgrounds, non-solid outlines, full
+`box-shadow` lists, and per-window `@media` results.
+
+- `background`/`background-image` plus `background-repeat`, `-position`,
+  `-size`, `-origin` and `-clip` paint comma-separated `url()` image and
+  `linear`/`radial`/`conic` gradient layers (including `repeating-`
+  variants) under the border, in CSS order. The `background` shorthand
+  resets unmentioned longhands.
+- `outline`/`outline-*` paints `dashed`, `dotted`, `double`, `groove`,
+  `ridge`, `inset` and `outset` instead of falling back to a solid ring.
+- `box-shadow` paints every list entry: multiple outset shadows render on
+  sibling layers so corner clipping stays on, and `inset` shadows carry
+  real blur, offset and spread.
+- `@media` width/height resolves per window — portal content uses its own
+  window's size, and resizing restyles only the affected windows'
+  containers instead of every root.
+
+```css
+.card { background-image: linear-gradient(rgba(0,0,0,0.3), transparent), url(~/card.png); }
+.field:focus-visible { outline: 3px dashed #1677ff; }
+.hero { box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 2px 6px rgba(0,0,0,0.3); }
+```
+
+Known limits: `background-attachment`, `background-blend-mode` and
+`background-clip: text` warn and stay unsupported, matching the GTK target.
+
+### Cursor and user-select on macOS
+
+AppKit views now honor `cursor` — the matching cursor shows while the pointer
+is inside the element (`cursor: none` hides it) — and `user-select` toggles
+text selection on labels and html views.
+
+```css
+.link { cursor: pointer; user-select: none; }
+```
+
+[AppKit styling](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/README.md#apply-stylesheets)
+
+### Gradient backgrounds on macOS
+
+AppKit views now paint linear-gradient backgrounds and resize them with the view.
+
+```css
+.fade { background-image: linear-gradient(to right, #152b36, transparent); }
+```
+
+[AppKit styling](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/README.md#apply-stylesheets)
+
+### Haptic feedback on macOS trackpads
+
+`@octane-xplat/haptics` now supports the AppKit host through
+`NSHapticFeedbackManager`: presets play as discrete trackpad feedback on
+compatible hardware. Timed `playPattern` envelopes and realtime sessions
+report unsupported — `capabilities()` marks `presets: true` and
+`patterns`/`realtime: false`, so gate advanced usage on the flags as
+usual.
+
+```ts
+import { haptics } from '@octane-xplat/haptics'
+
+if (haptics.supported) {
+	haptics.impact('medium')
+	haptics.selection()
+}
+```
+
+See the [haptics package](https://github.com/octane-xplat/octane-xplat/tree/main/packages/haptics)
+for the capability contract.
+
+### Build macOS native leaves on Intel Macs
+
+Experimental AppKit apps with native leaves now build on Intel Macs as well as
+Apple Silicon. The shipped `objc-metadata-generator` is a universal binary, and
+the CLI no longer rejects x86_64 build hosts. Each build host needs Command
+Line Tools whose `libclang` carries that host's architecture; Intel CLT
+installations provide it natively.
+
+```sh
+pnpm xplat build --targets macos   # works on Intel and Apple Silicon Macs
+```
+
+See the [macOS native leaves guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/macos-native.md).
+
+### Run native macOS apps on Intel Macs
+
+`xplat build --targets macos` now produces a universal app that runs on both
+Apple Silicon and Intel Macs running macOS 13.5 or later. The output moved to
+`artifacts/macos-universal/<Name>.app` and `<Name>-macos-universal.dmg`.
+Apps without native leaves can also be packaged on an Intel Mac. Apps with
+native leaves still need an Apple Silicon build Mac, and each prebuilt
+`.dylib` a package ships must contain both `arm64` and `x86_64` slices:
+
+```sh
+lipo -create libengine-arm64.dylib libengine-x86_64.dylib \
+	-output platforms/macos/prebuilt/libengine.dylib
+```
+
+See [Experimental AppKit target](https://octane-xplat.goddardai.org/start/toolchain#experimental-appkit-target).
+
+### Label padding, letter-spacing, italic, and visibility on macOS
+
+AppKit labels now honor `padding`, `letter-spacing`, and italic `font-style`,
+and every element honors `visibility: hidden` (keeps its slot) and
+`visibility: collapse` (leaves the layout).
+
+```css
+.caption { padding: 2px 6px; letter-spacing: 0.5px; font-style: italic; }
+.ghost { visibility: hidden; }
+```
+
+[AppKit styling](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/README.md#apply-stylesheets)
+
+### Outlines on macOS
+
+AppKit views now paint `outline`/`outline-*` as a solid ring outside the
+border edge, tracking the view's frame and corner radius.
+
+```css
+.ring { outline: 1.5px solid #0a0a0a; outline-offset: 2px; }
+```
+
+[AppKit styling](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/README.md#apply-stylesheets)
+
+### Select renders an AppKit pop-up button on macOS
+
+`@octane-xplat/picker/macos` is a new target entry exporting `Select`,
+`SelectOption`, and `SelectProps`. It renders a labeled `NSPopUpButton` and
+uses the same `label`, `options`, `value`/`defaultValue`, and `onChange`
+contract as the web entry — including per-option `disabled` states.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Select } from '@octane-xplat/picker/macos'
+
+export function Region() {
+	return (
+		<Select
+			label="Region"
+			options={[{ value: 'sfo', label: 'San Francisco' }]}
+			defaultValue="sfo"
+			onChange={(value) => console.log(value)}
+		/>
+	)
+}
+```
+
+See the [picker package](https://github.com/octane-xplat/octane-xplat/tree/main/packages/picker)
+for the platform entries and prop shapes.
+
+### Browse device photos and manage albums
+
+The new media-library package provides Expo-shaped `Asset`, `Album`, and `Query`
+APIs plus an Octane permission hook. Build a custom gallery, save an app image,
+or edit an album. iOS has lifecycle test coverage; Android runtime and authorized
+AppKit data workflows remain unverified. Browser hosts report unavailable.
+
+```ts
+import { MediaLibrary, Query, requestPermissionsAsync } from '@octane-xplat/media-library'
+
+export async function libraryPage() {
+	if (!MediaLibrary.supported) return []
+	const permission = await requestPermissionsAsync(false, ['photo'])
+	return permission.granted ? new Query().limit(20).exeForMetadata() : []
+}
+```
+
+[Media-library setup, ownership and platform limits](https://github.com/octane-xplat/octane-xplat/blob/main/packages/media-library/README.md)
+
+### Keep dragging through layout changes
+
+Dragging now works through layout changes. A dragged host takes over from its current animated position and stays at the pointer while the host or its ancestors move.
+
+```tsx
+<motion.View layout drag="x" dragMomentum={false}
+  style={{ marginLeft: shifted ? 100 : 0, width: 100, height: 80 }} />
+```
+
+Release and cleanup restore ordinary layout animation. See [dragging through layout changes](https://octane-xplat.goddardai.org/animation-gestures#keep-dragging-through-layout-changes).
+
+### Inertia transitions for motion values
+
+`MotionValue.animate` now accepts `type: 'inertia'` — motion-dom's
+velocity-driven release with optional `min`/`max` bounds, matching upstream
+drag-release semantics. The `target` argument is ignored; pass the current
+value.
+
+```ts
+x.animate(x.get(), {
+	type: 'inertia',
+	velocity: vx,
+	min: -100,
+	max: 100,
+	power: 0.5,
+	timeConstant: 280,
+	bounceStiffness: 360,
+	bounceDamping: 36,
+})
+```
+
+[Motion documentation](https://octane-xplat.goddardai.org/animation-gestures)
+
+### Animate layout changes with `layout`
+
+`motion.View`, `motion.Row`, `motion.Pressable` and `motion.create` hosts now
+animate automatically when their measured box changes — resizes, moves and
+keyed list reorders — on web, iOS, Android, and the experimental macOS host.
+
+```tsx
+<motion.Pressable layout onPress={toggle} style={{ width: wide ? 260 : 120 }}>
+	<Text>Tap to expand</Text>
+</motion.Pressable>
+```
+
+Nested `layout` children keep their size inside a scaling parent
+(`layout="position"` animates position only), `layoutDependency` limits the
+animation to changes of one value, and `transition={{ layout: {...} }}` tunes
+the 0.45 s default. Root/anchor variants are not supported yet; border-radius and box-shadow stretch during
+scale, and existing CSS transforms still belong on an outer container.
+
+[Animation and gestures](https://octane-xplat.goddardai.org/animation-gestures#layout-animations)
+
+### Move Motion containers with layout roots and anchors
+
+Motion containers can now use `layoutRoot` to move immediately while their children animate relative to them. Use `layoutAnchor` to choose where a child attaches inside a resizing parent.
+
+```tsx
+<motion.View layoutRoot>
+  <motion.View layout="position" layoutAnchor={{ x: 1, y: 1 }} />
+</motion.View>
+```
+
+See [layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations).
+
+### Steady corners and shadows during layout animation
+
+Layout animations now keep numeric rounded corners and shadows steady during resizing. Authored styles are restored when projection ends.
+
+```tsx
+<motion.View layout style={{ borderRadius: 20, width: expanded ? 300 : 150 }} />
+```
+
+Native corners and scalar blur are exact under uniform scale and approximate otherwise. Multiple web or Mason core shadows remain uncorrected. See [layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations).
+
+### Account for scrolling in layout transitions
+
+Shared layout transitions now account for scrolling that happens before the source is removed. Fixed-position web containers ignore scrolling outside their fixed tree.
+
+```tsx
+<ScrollableArea style={{ height: 200 }}>
+  <motion.View layoutId="card" style={{ width: 150, height: 100 }} />
+</ScrollableArea>
+```
+
+Scroll offsets are detected automatically. See [layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations).
+
+### Move an element between components
+
+Give motion hosts the same `layoutId` to animate position and size between
+them. Use a distinct `LayoutGroup id` for independent controls. With `Presence`,
+outgoing content crossfades and stays mounted until the handoff finishes;
+changing direction during the animation continues from its current position.
+
+```tsx
+import { LayoutGroup, Presence, motion } from '@octane-xplat/motion'
+import { View } from '@octane-xplat/ui'
+
+export function Highlight({ expanded }: { expanded: boolean }) {
+	return <LayoutGroup id="card">
+		<View style={{ position: 'relative', height: 160 }}>
+			<Presence present={!expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+				<motion.View layoutId="surface" style={{ width: 120, height: 80 }} />
+			</Presence>
+			<Presence present={expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+				<motion.View layoutId="surface" style={{ width: 240, height: 160 }} />
+			</Presence>
+		</View>
+	</LayoutGroup>
+}
+```
+
+[Shared-element animations](https://octane-xplat.goddardai.org/animation-gestures#move-an-element-between-components)
+
+### Name web dialogs from visible text
+
+Web overlays can now use visible title and description elements to name and
+describe their dialog, through `accessibilityLabelledBy` and
+`accessibilityDescribedBy`. Native hosts continue to use `accessibilityLabel`.
+
+```tsx
+<Overlay open isModal accessibilityLabelledBy="gallery-title">
+	<h2 id="gallery-title">Trip photos</h2>
+</Overlay>
+```
+
+See [Overlay documentation](https://octane-xplat.goddardai.org/components#overlays).
+
+### Shade-free modal overlays
+
+`Overlay` gains `isModal`: a modal layer without the dimmed shade. It gets
+focus isolation and Escape dismissal on web, modal accessibility on iOS, and
+Android back dismissal — which now also applies to `shadeCover` overlays.
+
+```tsx
+import { Overlay } from '@octane-xplat/ui'
+
+<Overlay open={open} isModal accessibilityLabel="Photo viewer" onDismiss={close}>
+	{content}
+</Overlay>
+```
+
+[Overlay documentation](https://octane-xplat.goddardai.org/components#overlays)
+
+### Print receipts and create PDF reports
+
+The new print package opens native print UI and exports HTML as PDF files with
+Expo-shaped functions. Exported files have explicit cleanup, while browser file
+export reports unavailable. Android runtime remains unverified; macOS support
+is experimental.
+
+```ts
+import { printToFileAsync, releasePrintFile } from '@octane-xplat/print'
+
+export async function uploadReceipt(upload: (uri: string) => Promise<void>) {
+	const pdf = await printToFileAsync({ html: '<h1>Receipt</h1>' })
+	try {
+		await upload(pdf.uri)
+	} finally {
+		releasePrintFile(pdf)
+	}
+}
+```
+
+[Print/PDF setup, ownership and platform limits](https://github.com/octane-xplat/octane-xplat/blob/main/packages/print/README.md)
+
+### Updated runtime dependencies
+
+**Breaking change:** Apps now use Octane 0.16.3 and require Node.js 22.22.2 or
+newer. Update Node before creating or upgrading an app. The supported compiler
+and runtime versions move together through `xplat upgrade`.
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm install
+```
+
+See the [toolchain setup](https://github.com/octane-xplat/octane-xplat/blob/main/docs/start/toolchain.md).
+
+### Choose a phone's interface orientation
+
+`@octane-xplat/screen-orientation` adds Expo-shaped orientation queries, locks,
+default restoration and removable change subscriptions. iOS requires an app-delegate
+callback; browsers and Android have OS restrictions. Android runtime remains unverified.
+
+```ts
+import { OrientationLock, lockAsync } from '@octane-xplat/screen-orientation'
+
+await lockAsync(OrientationLock.LANDSCAPE)
+```
+
+See [setup and platform limits](https://github.com/octane-xplat/octane-xplat/tree/main/packages/screen-orientation).
+
+### Use the shared JSX types on every platform
+
+**Breaking change.** Every Octane Xplat package types its JSX against the type-only facade
+`@octane-xplat/jsx` (native: iOS/Android/Windows/macOS/GTK) or
+`@octane-xplat/jsx/dom` (browser). The renderer pragmas are gone — this is
+breaking for any consumer code that still carries them:
+
+```diff
+-/** @jsxImportSource @nativescript-community/octane */
++/** @jsxImportSource @octane-xplat/jsx */
+
+-/** @jsxImportSource @octane-xplat/macos-renderer */
++/** @jsxImportSource @octane-xplat/jsx */
+
+-/** @jsxImportSource octane */          // browser file
++/** @jsxImportSource @octane-xplat/jsx/dom */
+```
+
+`@octane-xplat/macos-renderer` no longer exports `./intrinsics`,
+`./jsx-runtime`, or `./jsx-dev-runtime`.
+
+The shared `HostElement` is now `object`: annotate refs with the concrete
+host type where declared instead of casting:
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useRef } from 'octane'
+import type { View } from '@nativescript/core'
+
+export function NativeLabel() {
+	const labelRef = useRef<View | null>(null)
+	return <label ref={labelRef} text="Trip details" />
+}
+```
+
+Leaf element registration moves to the facade intrinsics module:
+
+```ts
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		mytag: Attributes<TElement, { prop?: string }>
+	}
+}
+```
+
+Layout on intrinsics goes through `style`/`className` only — there are no
+layout props on host elements.
+
+[JSX configuration and types](https://github.com/octane-xplat/octane-xplat/tree/main/packages/jsx#select-a-jsx-source)
+
+### Keep the phone launch screen until the app is ready
+
+The new splash-screen package adds Expo-shaped prevention, dismissal and
+animation options. Arm it before Application.run(), then reveal the loaded
+page after its required data is ready. A native timeout releases an abandoned
+hold. Android runtime qualification remains unverified.
+
+```ts
+import { preventAutoHideAsync, hide } from '@octane-xplat/splash-screen'
+
+void preventAutoHideAsync()
+// Call from the root Page's ready handler:
+export function revealReadyPage() { hide() }
+```
+
+[Native setup, lifecycle and platform limits](https://github.com/octane-xplat/octane-xplat/blob/main/packages/splash-screen/README.md)
+
+### Add guest checkout with Stripe
+
+The new stripe package provides Expo-shaped PaymentSheet operations using the
+official native SDKs and a Stripe-hosted web payment form. Your server owns
+PaymentIntent creation and payment verification. Test-mode success and wallets
+still require qualification; Android runtime remains unverified.
+
+```ts
+import { initPaymentSheet, presentPaymentSheet } from '@octane-xplat/stripe'
+
+// After initStripe, using a client secret created by your app's backend:
+export async function pay(paymentIntentClientSecret: string, returnURL: string) {
+	const initialized = await initPaymentSheet({
+		merchantDisplayName: 'Example store',
+		paymentIntentClientSecret,
+		returnURL,
+	})
+	return initialized.error ? initialized : presentPaymentSheet()
+}
+```
+
+[Stripe setup, server ownership and platform limits](https://github.com/octane-xplat/octane-xplat/blob/main/packages/stripe/README.md)
+
+### Ask for tracking authorization from an app action
+
+`@octane-xplat/tracking-transparency` adds Expo-shaped permission methods and
+an Octane hook, with iOS ATT configuration checks and explicit advertising-ID
+access. Android uses an asynchronous worker-thread getter. Other hosts report
+their capabilities and supported subsets; real prompt choices and device IDs
+remain unqualified.
+
+```ts
+import { requestTrackingPermissionsAsync } from '@octane-xplat/tracking-transparency'
+
+export async function requestFromButton() {
+	return requestTrackingPermissionsAsync()
+}
+```
+
+See [setup, consent and platform limits](https://github.com/octane-xplat/octane-xplat/tree/main/packages/tracking-transparency).
+
+### Capture a card as an image
+
+`@octane-xplat/view-shot` adds familiar view capture functions and an Octane
+ViewShot wrapper with temporary-image cleanup. Platform formats and capture
+strategies have explicit subsets. Runtime image output is not yet qualified.
+
+```ts
+import { captureRef, releaseCapture } from '@octane-xplat/view-shot'
+
+const uri = await captureRef(card, { format: 'png' })
+try {
+	// Await the operation that shares or saves uri.
+} finally {
+	releaseCapture(uri)
+}
+```
+
+See [setup, ownership and platform limits](https://github.com/octane-xplat/octane-xplat/tree/main/packages/view-shot).
+
+### WebView page-to-host messaging
+
+`WebView` gains a bounded `onMessage` channel: the embedded document calls
+`postToHost` (exported from `@octane-xplat/ui`) with a JSON-serializable
+value, and the host's `onMessage` receives `{ data, url?, origin? }` —
+ordered, at-least-once, with no reply. This is the supported way for trusted,
+app-embedded content to signal readiness or events; it is not a general
+script bridge. Delivery is immediate over `postMessage` on web and
+poll-drained (~200 ms) on native; origin and payload validation stay with
+the app.
+
+```tsx
+import { WebView, postToHost } from '@octane-xplat/ui'
+
+// Host:
+;<WebView src="https://example.com/widget" onMessage={(e) => console.log(e.data)} />
+
+// Inside the embedded document:
+postToHost({ type: 'ready' })
+```
+
+Host→page evaluation and request/reply remain on the `native` handle or the
+platform escape bags. See [WebView content sizing and messaging](https://octane-xplat.goddardai.org/app/primitives).
+
+### Use native action input on Windows
+
+Button, Pressable and Link now use native focus and activation in the
+experimental Windows host. Link's text children also render inside a native
+text host.
+
+```tsrx
+import { Button, Link, Pressable, Text, VStack } from '@octane-xplat/ui'
+
+export function Actions() @{
+  <VStack width="100%" gap={2}>
+    <Button clickAction={() => console.log('Saved')}>Save</Button>
+    <Pressable accessibilityLabel="Refresh" onPress={() => console.log('Refreshed')}>
+      <Text>Refresh</Text>
+    </Pressable>
+    <Link href="https://example.com/help">Help</Link>
+  </VStack>
+}
+```
+
+Packaged x64 keyboard, mouse and UI Automation checks passed. External URL
+launching, Narrator and visual review were not part of that run. See the
+[Windows action boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#buttons-and-links).
+
+### Read packaged Windows app metadata
+
+The experimental native Windows app-info adapter reads the installed package's
+identifier and four-part version without importing mobile APIs. Unpackaged
+hosts report unavailable. Values are read lazily after startup.
+
+```ts
+import { appInfo } from '@octane-xplat/platform'
+
+const versionLabel = appInfo.supported ? appInfo.version ?? 'Unknown version' : 'Unavailable'
+```
+
+Packaged values and app integration remain unqualified. The standalone x64
+check covers only the unavailable result in an unpackaged process.
+[App metadata](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/platform-services.md#read-the-installed-app-version)
+
+### Show complete notices on Windows
+
+Windows banners now include their title, supporting text and trailing action.
+Dismissal removes the notice, and the Details button expands its body. The
+Windows target remains experimental.
+
+```tsx
+import { Banner, Text } from '@octane-xplat/ui'
+
+export function SavedNotice() {
+  return <Banner title="Changes saved" description="Your draft is ready." isDismissable>
+    <Text>You can continue editing.</Text>
+  </Banner>
+}
+```
+
+[Windows Banner guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#banner-candidate)
+
+### Use CheckboxInput with a Windows keyboard
+
+The experimental native Windows `CheckboxInput` now accepts Tab/Space, pointer
+input and Windows toggle automation while keeping the shared indicator and
+label. Mixed state is exposed to automation and activation requests `true`.
+
+```tsx
+import { CheckboxInput } from '@octane-xplat/ui'
+
+export function SelectItems() {
+  return <CheckboxInput label="Select items" defaultValue="indeterminate" />
+}
+```
+
+Packaged x64 checks cover common input and state flows. The complete field
+contract, screen-reader and visual parity remain open. See the [Windows qualification boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#checkbox-input).
+
+### Use checkbox lists with a Windows keyboard
+
+The experimental native Windows `CheckboxList` and `CheckboxListItem` now
+support keyboard and toggle automation input while keeping shared checkbox
+appearance. Controlled selection, select-all and keyed option reorder use the
+same public API:
+
+```tsx
+import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
+
+export function Channels() {
+  return <CheckboxList ariaLabel="Channels" defaultValue={['email']}>
+    <CheckboxListItem value="email" label="Email" />
+    <CheckboxListItem value="sms" label="Text message" />
+  </CheckboxList>
+}
+```
+
+Packaged x64 checks cover common input and selection flows. Full field behavior,
+screen-reader and visual parity remain open. See the [Windows list qualification boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#checkbox-lists).
+
+### Add experimental Windows text and binary file I/O
+
+Native Windows selects a file-service leaf without loading the mobile document
+picker. Text and bounded binary reads/writes are implemented as WinRT candidates.
+Writes create uniquely named temporary copies; release schedules deletion of
+owned copies only.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const copy = await files.writeText('report.txt', 'Packing list')
+try {
+  const bytes = await files.readBytes(copy, { maxBytes: 1024 })
+} finally {
+  files.release(copy)
+}
+```
+
+Windows picker and export dialogs remain unavailable. Standalone x64 NativeScript
+text/binary reads, writes and owned-only release passed using a task-owned
+folder. Packaged temporary-folder access, app integration, cancellation and
+packaging remain unqualified. Input-stream reclamation depends on the preview
+runtime releasing its proxy because `Close` is not projected.
+[Windows file I/O boundary](https://github.com/octane-xplat/octane-xplat/blob/main/packages/files/README.md#experimental-native-windows-file-io)
+
+### Request an awake display on native Windows
+
+Experimental Windows keep-awake now uses WinRT DisplayRequest. Independent tags
+share one request; app suspension releases it and resume reapplies remaining
+owners. Failed release keeps ownership so cleanup can retry. Native construction
+and mocked contracts passed; app grants and physical sleep prevention remain
+unqualified.
+
+```tsx
+import { useKeepAwake } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function ReadingScreen() {
+	useKeepAwake()
+	return <Text>Reading</Text>
+}
+```
+
+[Keep a screen awake](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/keep-awake.md)
+
+### Add Windows input-aware media-query candidates
+
+The experimental Windows `useMediaQuery` leaf samples pointer, hover and
+animation preferences instead of assuming a touch-only device. Hybrid devices
+can match both `any-pointer` accuracies. The existing streaming-text hook can
+observe the Windows reduced-motion preference through this leaf.
+
+```tsx
+import { useMediaQuery } from '@octane-xplat/ui'
+
+export function useCompactTouchLayout() {
+  return useMediaQuery('(max-width: 1024px) and (pointer: coarse) and (hover: none)')
+}
+```
+
+Standalone x64 NativeScript input/preference projection checks passed. Actual
+hook execution, live device/settings changes and secondary-window behavior
+remain unqualified.
+[Windows media-query boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#media-query-candidate)
+
+### Add Windows native import and service candidates
+
+The experimental Windows preset selects a dedicated UI root and Windows overlay,
+gradient and announcement helpers. Windows platform leaves add text clipboard
+operations, secure random bytes, device identity and packaged-app settings.
+Hosted auth now reports unavailable instead of selecting Android code. Windows
+preferences preserve string storage, while `flush()` returns false because the
+host cannot confirm a blocking durable commit.
+
+```ts
+import { clipboard, random, authSession } from '@octane-xplat/platform'
+
+const copied = await clipboard.writeText('Packing list')
+if (random.supported) {
+  const nonce = random.bytes(16)
+}
+// Windows hosted authentication remains unavailable.
+const canSignIn = authSession.supported
+```
+
+Windows compilation, OS behavior, accessibility and packaging remain unverified
+for these candidates.
+[Windows support status](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md)
+
+### Drag with the mouse on native Windows
+
+The experimental Windows target now delivers cumulative mouse movement to
+`onPan`, including release outside the control and cancellation when capture
+is lost. Existing numeric Slider dragging uses the same path.
+
+```tsx
+import { View, Text } from '@octane-xplat/ui'
+
+export function DragArea() {
+  return <View onPan={({ state, dx, dy }) => console.log(state, dx, dy)}>
+    <Text>Drag here</Text>
+  </View>
+}
+```
+
+Packaged x64 checks cover mouse input. Touch, pen, velocity and the complete
+Slider contract remain open. See the [Windows mouse-dragging boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#mouse-dragging).
+
+### Use native connectivity for Windows query clients
+
+Experimental Windows query clients now select the NativeScript environment
+instead of the browser adapter. Network availability follows the WinRT connection
+level, so an unknown transport no longer implies offline state. App activity
+uses suspension and window visibility. App reconnect delivery and lifecycle
+refresh still need runtime qualification.
+
+```ts
+import { createQueryClient } from '@octane-xplat/ui/data'
+
+const queries = createQueryClient({ namespace: 'travel' })
+```
+
+[Query lifecycle](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/data.md#the-shared-query-cache)
+
+### Choose exclusive settings on native Windows
+
+The experimental Windows RadioList now uses native radio input with the shared
+row design. Options and child items support caller-owned selection, disabled
+choices and read-only groups.
+
+```tsx
+import { RadioList } from '@octane-xplat/ui'
+
+export function DeliveryMethod() {
+  return <RadioList ariaLabel="Delivery" defaultValue="email"
+    options={[{ value: 'email', label: 'Email' }, { value: 'sms', label: 'Text message' }]} />
+}
+```
+
+See the [Windows radio qualification boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#radio-choices).
+
+### Add experimental native Windows credential storage
+
+Packaged Windows apps have a Credential Locker adapter for session strings,
+scoped by package family. It preserves empty values and distinguishes missing
+keys from read failures, with sanitized errors and no plaintext fallback.
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+
+async function rememberSession(token: string) {
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+  return secureStorage.set('session-token', token)
+}
+```
+
+Standalone x64 vault operations passed using task namespaces. Real package
+identity, cross-launch persistence and app integration remain unqualified.
+Windows/account policy can roam entries; package namespaces do not isolate
+credentials from other desktop apps. See the
+[Windows boundary](https://github.com/octane-xplat/octane-xplat/blob/main/packages/secure-storage/README.md#experimental-native-windows)
+and Microsoft's [Credential Locker guide](https://learn.microsoft.com/en-us/windows/apps/develop/security/credential-locker).
+
+### Switch segments with the keyboard on native Windows
+
+The experimental Windows SegmentedControl now uses native radio input for each
+segment. Arrow keys, Tab, pointer and screen-reader selection all work, including
+icon-only segments, read-only controls and disabled segments.
+
+```tsx
+import { SegmentedControl } from '@octane-xplat/ui'
+
+export function ViewMode() {
+  return <SegmentedControl ariaLabel="View" defaultValue="list"
+    options={[{ value: 'list', label: 'List' }, { value: 'grid', label: 'Grid' }]} />
+}
+```
+
+See the [Windows segmented-control boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#segmented-choices).
+
+### Adjust values and ranges on native Windows
+
+The experimental Windows Slider now uses native keyboard and value automation
+input with the shared track and thumb design. It supports local defaults,
+controlled values, two-thumb ranges, steps, marks and formatted readouts.
+
+```tsx
+import { Slider } from '@octane-xplat/ui'
+
+export function PlaybackRange() {
+  return <Slider label="Playback range" defaultValue={[20, 80]} step={5}
+    valueDisplay="tooltip" formatValue={(value) => `${value}%`} />
+}
+```
+
+Read-only controls reject changes, but the native automation read-only flag
+remains incomplete. See the [Windows Slider qualification boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#slider-input).
+
+### Use the shared Switch with a Windows keyboard
+
+The experimental native Windows `Switch` now accepts Tab/Space, pointer input
+and Windows toggle automation while keeping the shared track and thumb.
+Controlled and uncontrolled state use the existing API.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Notifications() {
+  return <Switch label="Notifications" defaultValue={false} />
+}
+```
+
+Packaged x64 checks cover common input and state flows. Screen-reader and visual
+parity checks remain open. See the [Windows qualification boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#switch-input).
+
 ## [tsrx-typegen 0.5.0](https://github.com/octane-xplat/octane-xplat/releases/tag/tsrx-typegen-v0.5.0) - 2026-10-31
 
 ### Declaration generation no longer type-checks

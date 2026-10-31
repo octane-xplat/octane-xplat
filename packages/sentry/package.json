@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/sentry",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "Sentry error and performance reporting for Octane xplat \u2014 @nativescript-community/sentry on iOS/Android, @sentry/browser on web",
 	"keywords": [
 		"android",
