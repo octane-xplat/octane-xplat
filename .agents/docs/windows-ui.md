@@ -99,6 +99,25 @@ does not implement or qualify TabItem/SelectionItem, a single Tab stop or arrow
 navigation. Use the [driver guide](../../tools/windows-qualification/README.md#inspect-table-and-tab-source-fixtures)
 to select these scenes and retain their native/UIA failures.
 
+## Anchored layers and menu inspection
+
+Use the maintained `selector`, `dropdown-menu` and `layer` scenes to inspect the
+actual public paths. These private fixtures declare the Screen owner required
+for their RootLayout presentation. The other scenes retain their original
+VStack props and child markup. Select one through the recorded command channel:
+
+```json
+{ "sequence": "layer-inspection-1", "action": "scene", "value": "layer" }
+```
+
+The [driver guide](../../tools/windows-qualification/README.md#inspect-menus-and-anchored-layers)
+describes controlled rejection, current-callback events, native snapshots and
+mount/disabled commands. Inspect actual trigger/surface bounds and choose a
+point outside the measured surface; a named outside target can be covered after
+flip or resize. Keep direct useLayer anchoring/dismissal separate from Selector
+and DropdownMenu qualification. These are unexecuted source fixtures, with no
+new keyboard or native-role implementation and no runtime pass.
+
 ## Raster images and avatar names
 
 The pinned NativeScript Windows preview `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`

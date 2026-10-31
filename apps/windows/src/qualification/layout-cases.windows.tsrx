@@ -7,6 +7,7 @@ import { LegacyLayout } from './legacy-layout.windows'
 import { ListCases } from './collections-cases.windows'
 import { TableCases } from './table-cases.windows'
 import { TabCases } from './tabs-cases.windows'
+import { LayerCases, layerCases } from './layer-cases.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
 import {
 	Text,
@@ -16,12 +17,13 @@ import {
 	HStack,
 	Center,
 	Section,
+	Screen,
 	Button,
 	Pressable,
 	Link,
 } from '@octane-xplat/ui'
 
-import type { LinkProps } from '@octane-xplat/ui'
+import type { LinkProps, Renderable } from '@octane-xplat/ui'
 
 declare const __WINDOWS_QUALIFICATION_SOURCE__: { commit: string; dirty: boolean }
 
@@ -70,10 +72,27 @@ function QualificationRouteLink(
 	</Pressable>
 }
 
+/** Layer scenes need the declaring Screen. Keep the ordinary cases' original
+ * VStack props and child markup; actual native frames still need checking. */
+function QualificationFrame(props: { layer: boolean; children?: Renderable }): unknown @{
+	const content = (
+		<VStack width="100%" gap={2} padding={4} style={{ flexGrow: 1 }}>
+			{props.children}
+		</VStack>
+	)
+
+	@if (props.layer) {
+		<Screen id="core20-layer-screen">{content}</Screen>
+	} @else {
+		<>{content}</>
+	}
+}
+
 export function Qualification() @{
 	const [revision, setRevision] = useState(0)
 	const [mounted, setMounted] = useState(true)
 	const [scene, setScene] = useState('layout')
+	const layerCase = layerCases.find((name) => name === scene)
 	const [layoutCase, setLayoutCase] = useState<(typeof layoutCases)[number]>('text')
 	const [disabled, setDisabled] = useState(false)
 	const [displayCase, setDisplayCase] = useState<DisplayCase>('card')
@@ -175,6 +194,7 @@ export function Qualification() @{
 								'collections',
 								'table',
 								'tabs',
+								...layerCases,
 							].includes(command.value)
 						) {
 							setScene(command.value)
@@ -201,7 +221,7 @@ export function Qualification() @{
 
 	// The Page is not a flex parent; percentages need an explicit root width.
 
-	<VStack width="100%" gap={2} padding={4} style={{ flexGrow: 1 }}>
+	<QualificationFrame layer={layerCase != null}>
 		<Text id="core20-status">{`Core20 ${scene} case=${layoutCase} revision=${revision} mounted=${mounted} activations=${activations}`}</Text>
 		@if (scene === 'actions') {
 			<Text id="core20-destination">{`Destination ${destination}`}</Text>
@@ -212,7 +232,8 @@ export function Qualification() @{
 				scene === 'legacy-layout' ||
 				scene === 'collections' ||
 				scene === 'table' ||
-				scene === 'tabs'
+				scene === 'tabs' ||
+				layerCase != null
 			) {
 				@try {
 					@if (scene === 'display') {
@@ -230,6 +251,14 @@ export function Qualification() @{
 						<TableCases revision={revision} onActivate={activate} />
 					} @else if (scene === 'tabs') {
 						<TabCases revision={revision} disabled={disabled} onActivate={activate} />
+					} @else if (layerCase != null) {
+						<LayerCases
+							caseName={layerCase}
+							revision={revision}
+							disabled={disabled}
+							onActivate={activate}
+							onEvent={record}
+						/>
 					} @else {
 						<LegacyLayout revision={revision} />
 					}
@@ -402,5 +431,5 @@ export function Qualification() @{
 				}
 			}
 		}
-	</VStack>
+	</QualificationFrame>
 }

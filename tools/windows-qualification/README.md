@@ -235,6 +235,63 @@ mount state are controlled by commands; neither scene provides an action
 dispatch command. Preserve failed UIA/geometry/input captures, keep final gates
 pending, and use the same fresh-main package required by the plan.
 
+## Inspect menus and anchored layers
+
+The `selector`, `dropdown-menu` and `layer` scenes exercise the public Selector,
+DropdownMenu and direct context-mode useLayer paths. They declare their Screen
+owner. No substitute menu peers, keyboard adapter or dismissal implementation
+is added by these fixtures. Select a scene through the recorded command channel:
+
+```json
+{ "sequence": "selector-inspection-1", "action": "scene", "value": "selector" }
+```
+
+Use `"dropdown-menu"` or `"layer"` as the value to inspect the other paths. Open
+them with actual OS/UIA input on the named trigger. Read the numeric native
+snapshot and UIA surface/trigger frames before checking anchoring or choosing an
+outside click point. The before-focus anchors have IDs ending in `-outside`;
+use one only when its actual bounds lie outside the surface. A flipped or wide
+surface can cover a candidate target. For native frames, request a snapshot:
+
+```json
+{ "sequence": "layer-snapshot-1", "action": "snapshot" }
+```
+
+Each fixture keeps open state while names and callbacks change. Selector's
+controlled value starts at `first`, changes to `third` at revision1, and rejects
+selection changes at revision2. DropdownMenu and direct useLayer reject requested
+open-state changes at revision2. Use revision0 or1 for ordinary dismissal checks.
+For example, change props while the surface is open:
+
+```json
+{ "sequence": "layer-revision-1", "action": "revision", "value": 1 }
+```
+
+Open/close requests produce a separate event from action callbacks. Count them
+by source and launch ID to detect duplicate dismissal. This is an example
+payload shape, not a captured result:
+
+```json
+{ "bootId": "launch-id", "event": "layer-open-change", "source": "selector", "open": false, "fixtureRevision": 1 }
+```
+
+Selection/item callbacks still use `activation`: `selector-value:<value>`,
+`menu-first`, `menu-disabled`, `menu-third` and `layer-content`, with the current
+fixture revision. The `Unavailable` option/item is always disabled. The existing
+`disabled` command controls the trigger, and `mounted` removes/remounts the
+fixture while retaining its declaring owner. Remount starts closed. Commands
+never open a surface or dispatch its item/action callbacks:
+
+```json
+{ "sequence": "layer-unmount-1", "action": "mounted", "value": false }
+```
+
+These scenes have not been compiled or run on Windows. They provide no pass for
+anchoring, outside dismissal, Escape/focus return, option/menu roles, arrow
+navigation, controlled ownership, geometry or cleanup. Direct useLayer is a
+separate prerequisite from the two final component gates. Preserve failures and
+qualify them from the same fresh-main MSIX required by the plan.
+
 ## Run the legacy Flexbox regression
 
 This opt-in case exercises NativeScript Flexbox, separately from the Mason
