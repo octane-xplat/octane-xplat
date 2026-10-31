@@ -128,6 +128,7 @@
 		"@tiptap/starter-kit": "3.32.0",
 		"@tiptap/static-renderer": "3.32.0",
 		"lexical": "0.52.0",
+		"oxlint-tsgolint": "7.0.2005",
 		"regenerate": "1.5.0",
 		"vite>esbuild": "0.27.7"
 	},

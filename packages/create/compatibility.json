@@ -239,6 +239,7 @@
 		"@nativescript-community/vite-octane>esbuild": "0.27.7",
 		"vite>esbuild": "0.27.7",
 		"regenerate": "1.5.0",
+		"oxlint-tsgolint": "7.0.2005",
 		"@lexical/a11y": "0.52.0",
 		"@lexical/code": "0.52.0",
 		"@lexical/devtools-core": "0.52.0",

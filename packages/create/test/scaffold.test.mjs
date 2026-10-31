@@ -13,6 +13,7 @@ import { managedSpecifier } from '../dist/compatibility.js'
 const TPL = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'package.json'), 'utf8'))
 import {
 	composeTargets,
+	composeLibrary,
 	applyTarget,
 	resolveTargets,
 	targetEnabled,
@@ -70,6 +71,23 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 	composeTargets(['ios'], native)
 	const nativeYaml = readFileSync(join(native, 'package.json'), 'utf8')
 	assert.match(nativeYaml, /@nativescript\/core@9\.1\.3/)
+})
+
+// Oxlint 1.90.0's optional checker peer wants >=7.0.2005; generated
+// workspaces must carry the managed pin so isolated installs stay
+// peer-compatible (registry resolved 7.0.2002 without it).
+test('generated workspaces carry the managed oxlint-tsgolint override', (t) => {
+	for (const ids of [['web'], ALL]) {
+		const dir = project(t)
+		composeTargets(ids, dir)
+		const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+		assert.equal(pkg.overrides['oxlint-tsgolint'], '7.0.2005')
+	}
+
+	const dir = project(t)
+	composeLibrary(join(dir, 'travel-controls'), '@example/travel-controls')
+	const pkg = JSON.parse(readFileSync(join(dir, 'travel-controls/package.json'), 'utf8'))
+	assert.equal(pkg.overrides['oxlint-tsgolint'], '7.0.2005')
 })
 
 test('every target-owned file exists in the template', async () => {

@@ -90,6 +90,11 @@ test('upgrade adopts managed pins and compiler peer, preserving app dependencies
 	assert.equal(ws.catalogs.xplat.vitest, managedSpecifier('vitest'))
 	assert.deepEqual(ws.catalogs.custom, { vite: '^7.0.0' })
 	assert.equal(ws.catalog.octane, '0.10.0', 'a shared user catalog is not rewritten')
+	assert.equal(
+		ws.overrides['oxlint-tsgolint'],
+		'7.0.2005',
+		'upgrade reconciles the managed lint-checker pin',
+	)
 	assert.equal(ws.configDependencies['@octane-xplat/patches'], compatibility.frameworkVersion)
 	assert.ok(ws.patchedDependencies[`octane@${managedSpecifier('octane')}`].startsWith(patchPrefix))
 	assert.equal(planUpgrade(root).files.length, 0, 'upgrade must be idempotent')

@@ -169,12 +169,11 @@ bun run xplat doctor
 bunx @octane-xplat/cli@latest upgrade --check
 ```
 
-The current isolated install also reports an optional lint-checker peer mismatch:
-`oxlint-tsgolint` 7.0.2002 versus Oxlint 1.90.0's required >=7.0.2005.
-Ordinary lint passed; type-aware lint compatibility is not established by that
-result. [Issue #76](https://github.com/octane-xplat/octane-xplat/issues/76)
-tracks carrying the repository's compatible version into generated workspaces.
-Inspect the install rather than silently ignoring a peer warning:
+The generated workspace pins the lint checker's optional `oxlint-tsgolint`
+peer at 7.0.2005 through its managed overrides, matching Oxlint 1.90.0's
+requirement. Ordinary lint passed in qualification; type-aware lint
+compatibility is a separate question. Inspect the install rather than silently
+ignoring a peer warning:
 
 ```sh
 bun pm ls --all
