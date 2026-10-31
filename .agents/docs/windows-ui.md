@@ -65,6 +65,33 @@ roles, slot geometry, resize, OS activation, delegation, nested controls,
 navigation and the wider props matrix remain unqualified. Keep both final
 component gates pending until the complete plan criteria pass.
 
+## Table header input prerequisite
+
+The Windows sortable-header source candidate uses the existing measured
+Pressable peer in place of the native default's raw tap handler. It preserves
+the controlled single-column sort cycle and names the peer from the current
+header and sort direction. Primitive header text, including zero, receives a
+text host. Public props and plugin composition stay the same:
+
+```tsx
+import { Table, useTableSortable, useTableSortableState } from '@octane-xplat/ui'
+
+export function SortedRows() {
+	const state = useTableSortableState({ data: [{ name: 'Inbox' }, { name: 'Archive' }] })
+	const sortable = useTableSortable(state.sortConfig)
+	return <Table data={state.sortedData}
+		columns={[{ key: 'name', header: 'Name', sortable: true }]}
+		plugins={{ sortable }} />
+}
+```
+
+This is an unexecuted input candidate. Inspect actual native behavior before
+choosing Table/header/row/cell peers; the header Button does not supply those
+structural roles. OS input,
+geometry, scrolling, remount and current-main checks remain required. Shift
+multi-sort, header context menus and the wider plugin matrix are not added by
+this prerequisite. Keep the final Table gate pending.
+
 ## Raster images and avatar names
 
 The pinned NativeScript Windows preview `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`

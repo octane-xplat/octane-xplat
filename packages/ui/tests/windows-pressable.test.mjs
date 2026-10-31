@@ -197,6 +197,32 @@ export function ListRowWithContext(props) @{
 )
 const { ListRowWithContext } = await import(listRowWithContext)
 
+const tableSlots = compiled(
+	'table-slot',
+	readFileSync(new URL('../src/table/table-slot.tsrx', import.meta.url), 'utf8'),
+)
+const tableSortable = compiled(
+	'table-sortable',
+	readFileSync(new URL('../src/table/use-table-sortable.windows.tsrx', import.meta.url), 'utf8'),
+	{
+		'../components/actions/Pressable': pressable,
+		'../components/forms/text-slot': slot,
+		'../components/media/Icon': icon,
+		'./table-slot': tableSlots,
+	},
+)
+const sortableHeader = compiled(
+	'sortable-header-fixture',
+	`import {useTableSortable} from ${JSON.stringify(tableSortable)};
+import {TableSlot} from ${JSON.stringify(tableSlots)};
+export function SortableHeader(props) @{
+  const plugin = useTableSortable(props.config)
+  const cell = plugin.transformHeaderCell({htmlProps:{},classes:[],content:props.content},props.column)
+  <TableSlot value={cell.content} />
+}`,
+)
+const { SortableHeader } = await import(sortableHeader)
+
 function mount(component, props) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -586,6 +612,76 @@ test('Windows ListItem routes a hyperlink peer through its current href and reje
 		assert.equal(links()[0].props.isEnabled, false)
 		links()[0].props.settings.onPress()
 		assert.deepEqual(followed, ['/first', '/next'])
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows sortable header uses one native peer and retains controlled sort cycles', () => {
+	const requests = []
+	const onSortChange = (next) => requests.push(next)
+	const column = { key: 'name', header: 'Name', sortable: true }
+	const f = mount(SortableHeader, { column, content: 'Name', config: { sort: [], onSortChange } })
+	try {
+		assert.equal(buttons(f).length, 1)
+		assert.equal(buttons(f)[0].props.settings.label, 'Sort by Name')
+		assert.ok(f.nodes().every((node) => node.props.onTap === undefined))
+		buttons(f)[0].props.settings.onPress()
+		assert.deepEqual(requests, [[{ sortKey: 'name', direction: 'ascending' }]])
+		assert.equal(buttons(f)[0].props.settings.label, 'Sort by Name')
+		for (const [direction, expected] of [
+			['ascending', [{ sortKey: 'name', direction: 'descending' }]],
+			['descending', []],
+		]) {
+			f.render({
+				column,
+				content: 'Name',
+				config: { sort: [{ sortKey: 'name', direction }], onSortChange },
+			})
+			assert.equal(buttons(f).length, 1)
+			assert.equal(buttons(f)[0].props.settings.label, `Sorted by Name ${direction}`)
+			buttons(f)[0].props.settings.onPress()
+			assert.deepEqual(requests.at(-1), expected)
+		}
+		assert.equal(requests.length, 3)
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows sortable header reads current config and preserves zero and component slots', async () => {
+	const { tableSlot } = await import(tableSlots)
+	const { Icon } = await import(icon)
+	let stale = 0
+	const requests = []
+	const column = { key: 'name', header: 'Name', sortable: { sortKey: 'title' } }
+	const f = mount(SortableHeader, {
+		column,
+		content: 'Name',
+		config: { sort: [], onSortChange: () => stale++ },
+	})
+	try {
+		const oldHandler = buttons(f)[0].props.settings.onPress
+		const config = {
+			sort: [{ sortKey: 'title', direction: 'descending' }],
+			allowUnsortedState: false,
+			onSortChange: (next) => requests.push(next),
+		}
+		f.render({ column: { ...column, header: 'Title' }, content: 0, config })
+		assert.equal(buttons(f)[0].props.settings.label, 'Sorted by Title descending')
+		assert.ok(text(f).includes('0'))
+		oldHandler()
+		assert.equal(stale, 0)
+		assert.deepEqual(requests, [[{ sortKey: 'title', direction: 'ascending' }]])
+		f.render({ column, content: tableSlot(Icon, { name: 'Custom header' }), config })
+		assert.ok(text(f).includes('Custom header'))
+		f.render({
+			column: { key: 'name', sortable: false },
+			content: tableSlot(Icon, { name: 'Plain' }),
+			config,
+		})
+		assert.equal(buttons(f).length, 0)
+		assert.deepEqual(text(f), ['Plain'])
 	} finally {
 		f.root.unmount()
 	}

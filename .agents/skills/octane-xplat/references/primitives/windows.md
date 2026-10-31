@@ -83,6 +83,29 @@ fixture and verify the full
 [input and structural gates](../../../../docs/windows-ui.md#list-row-input-prerequisite).
 Keep delegation, nested controls and navigation separately unqualified.
 
+## Windows Table header input candidate
+
+The Windows sortable header composes the existing measured Pressable peer and
+retains the native default's controlled single-column cycle. Use the public
+Table plugin API:
+
+```tsx
+import { Table, useTableSortable, useTableSortableState } from '@octane-xplat/ui'
+
+export function SortedRows() {
+	const state = useTableSortableState({ data: [{ name: 'Inbox' }, { name: 'Archive' }] })
+	const sortable = useTableSortable(state.sortConfig)
+	return <Table data={state.sortedData}
+		columns={[{ key: 'name', header: 'Name', sortable: true }]}
+		plugins={{ sortable }} />
+}
+```
+
+New compiled and native checks are unexecuted. This input prerequisite does not
+provide Table/header/row/cell structure or qualify scrolling, geometry or the
+wider sorting/plugin matrix. Probe those separately using the
+[Table qualification boundary](../../../../docs/windows-ui.md#table-header-input-prerequisite).
+
 ## Experimental Windows Switch
 
 The Windows leaf preserves the shared track and thumb and uses a transparent
