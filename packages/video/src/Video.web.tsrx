@@ -71,18 +71,28 @@ export function Video(props: VideoProps): JSX.Element @{
 		props.onPlayingChange?.(next)
 	}
 
-	const handle = (v: HTMLVideoElement): VideoHandle => ({
-		play: () => v.play(),
-		pause: () => v.pause(),
+	// Resolve the element at call time, not factory time: element refs can
+	// rebind without this effect re-running, and a captured element would
+	// keep describing the outgoing clip after a keyed swap.
+	const handle: VideoHandle = {
+		play: () => el.current?.play(),
+		pause: () => el.current?.pause(),
 		seekTo: (ms: number) => {
-			v.currentTime = ms / 1000
+			if (el.current) {
+				el.current.currentTime = ms / 1000
+			}
 		},
-		currentTime: () => v.currentTime * 1000,
-		duration: () => (Number.isFinite(v.duration) ? v.duration * 1000 : 0),
-		native: v,
-	})
+		currentTime: () => (el.current?.currentTime ?? 0) * 1000,
+		duration: () => {
+			const v = el.current
+			return v !== null && Number.isFinite(v.duration) ? v.duration * 1000 : 0
+		},
+		get native() {
+			return el.current
+		},
+	}
 
-	useImperativeHandle(props.ref, () => handle(el.current!), [])
+	useImperativeHandle(props.ref, () => handle, [])
 
 	<div
 		id={props.id}

@@ -43,9 +43,10 @@ export function Video(props: VideoProps): unknown @{
 	const muted = props.muted ?? internalMuted
 	const appliedSrc = useRef<string | undefined>(undefined)
 
-	// Stable identity — an inline closure re-fires ref(null)/ref(v) per
-	// render, which would bounce host.current around the effects below.
-	useImperativeHandle(props.ref, () => handle(host.current!), [])
+	// Resolve the host at call time, not factory time: element refs can
+	// rebind without this effect re-running, and a captured view would
+	// keep describing the outgoing clip after a keyed swap.
+	useImperativeHandle(props.ref, () => handle, [])
 
 	const bindHost = useCallback((v: any) => {
 		host.current = v
@@ -102,14 +103,20 @@ export function Video(props: VideoProps): unknown @{
 		props.onPlayingChange?.(next)
 	}
 
-	const handle = (v: any): VideoHandle => ({
-		play: () => v.play(),
-		pause: () => v.pause(),
-		seekTo: (ms: number) => seekToTime(v, ms, platform),
-		currentTime: () => v.getCurrentTime(),
-		duration: () => v.getDuration(),
-		native: v,
-	})
+	const handle: VideoHandle = {
+		play: () => host.current?.play(),
+		pause: () => host.current?.pause(),
+		seekTo: (ms: number) => {
+			if (host.current) {
+				seekToTime(host.current, ms, platform)
+			}
+		},
+		currentTime: () => host.current?.getCurrentTime() ?? 0,
+		duration: () => host.current?.getDuration() ?? 0,
+		get native() {
+			return host.current
+		},
+	}
 
 	<masonview
 		id={props.id}
