@@ -33,5 +33,3 @@ reduced-motion behavior.
 - AC4: [Progress usage and limitations](../../../docs/app/components.md#busy-feedback-on-appkit), four [object-driver cases](../../../packages/ui/src/components/feedback/progress-bar.macos.mobile.test.tsrx), [manual target fixture](../../../examples/probes/progress-bar.macos.tsrx) and [target progress](../exploration.md#operational-evidence). Native drawing/theme/AX/animation/layout and packaging require separate target qualification.
 
 - AC5: [Meter subset and usage](../../../docs/app/components.md#busy-feedback-on-appkit), four [Meter source cases](../../../packages/ui/src/components/feedback/meter.macos.mobile.test.tsrx), [shared progress fixture](../../../examples/probes/progress-bar.macos.tsrx) and [target note](../exploration.md#operational-evidence). value arc/color and native layout/drawing/AX/packaging remain gaps.
-
-
