@@ -158,7 +158,7 @@ for (const [file, names] of [
 		],
 	],
 	['.agents/skills/octane-xplat/references/services/motion.md', ['SharedCard']],
-	['packages/motion/README.md', ['LayoutCard']],
+	['docs/packages/package-motion.md', ['LayoutCard']],
 	['docs/testing/known-limits.md', ['LayoutSelection']],
 	['packages/motion/UPSTREAM.md', ['GroupNamespace', 'SharedPresence']],
 ]) {

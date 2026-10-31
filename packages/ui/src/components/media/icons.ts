@@ -138,7 +138,7 @@ export function registerIcon(name: string, glyph: IconGlyph): void {
  * import { registerIcons, Icon } from '@octane-xplat/ui'
  *
  * registerIcons({ 'xplat-search': { markup: '<svg/>' } })
- * <Icon name="xplat-search" />
+ * const searchIcon = <Icon name="xplat-search" />
  * ```
  * @see IconGlyph, IconRegistry.
  */

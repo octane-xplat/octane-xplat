@@ -49,13 +49,13 @@ skill give your coding agent the conventions to work with.
 
 Add officially supported packages as your app grows:
 
-- **Polished interfaces:** [icons](packages/icons/README.md),
-  [motion](packages/motion/README.md), sheets, and menus.
-- **Device capabilities:** [camera](packages/camera/README.md),
-  [audio](packages/audio/README.md), [video](packages/video/README.md), haptics,
+- **Polished interfaces:** [icons](docs/packages/package-icons.md),
+  [motion](docs/packages/package-motion.md), sheets, and menus.
+- **Device capabilities:** [camera](docs/packages/package-camera.md),
+  [audio](docs/packages/package-audio.md), [video](docs/packages/package-video.md), haptics,
   and location.
 - **App foundations:** [authentication and secure storage](docs/platform/platform-services.md),
-  [SQLite](packages/sqlite/README.md), and notifications.
+  [SQLite](docs/packages/package-sqlite.md), and notifications.
 
 The packages follow shared conventions and compatible releases, so more of
 your effort stays focused on your app.

@@ -10,4 +10,4 @@ intrinsic axis is still 0, matching iOS sizing (`214` wide → `160.5` high for 
 <Image src={dataUri} alt="Preview" style={{ width: 214 }} />
 ```
 
-See [the Image component](https://github.com/octane-xplat/octane-xplat/tree/main/packages/ui#image).
+See [the Image component](https://octane-xplat.goddardai.org/package-ui#image).

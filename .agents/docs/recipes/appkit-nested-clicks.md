@@ -22,7 +22,7 @@ container's primary click.
 
 ## Documentation
 
-- AC1: [Renderer contract](../../../packages/macos-appkit/README.md#nested-primary-clicks) and [coordinate/ancestry cases](../../../packages/macos-appkit/test/primary-click.test.ts).
-- AC2: The [renderer contract](../../../packages/macos-appkit/README.md#nested-primary-clicks) and [boundary classification cases](../../../packages/macos-appkit/test/primary-click.test.ts) document passive versus interactive descendants.
+- AC1: [Renderer contract](../../../docs/packages/package-macos-appkit.md#nested-primary-clicks) and [coordinate/ancestry cases](../../../packages/macos-appkit/test/primary-click.test.ts).
+- AC2: The [renderer contract](../../../docs/packages/package-macos-appkit.md#nested-primary-clicks) and [boundary classification cases](../../../packages/macos-appkit/test/primary-click.test.ts) document passive versus interactive descendants.
 - AC3: [Action lifecycle cases](../../../packages/macos-appkit/test/click-action-lifecycle.test.ts) and [delegate cases](../../../packages/macos-appkit/test/gestures.test.ts) cover live ownership and opt-in gates.
 - AC4: The contract and [target note](../exploration.md#operational-evidence) record limitations and exact deferred commands. All authored cases require separate execution evidence.

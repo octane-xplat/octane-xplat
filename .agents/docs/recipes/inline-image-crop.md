@@ -24,7 +24,7 @@ image source with known decoded, oriented natural dimensions.
 
 ## Documentation
 
-- AC1: [Install and use](../../../packages/image-crop/README.md#install-and-use) and [maintained example](../../../packages/image-crop/examples/selection.tsrx).
-- AC2: [Coordinates and control](../../../packages/image-crop/README.md#coordinates-and-control).
-- AC3: [Coordinates and control](../../../packages/image-crop/README.md#coordinates-and-control), [file output](../../../packages/image-crop/README.md#boundaries-and-verification), and [image manipulation](../../../packages/image-manipulator/README.md#crop-a-selection).
-- AC4: [Verification](../../../packages/image-crop/README.md#boundaries-and-verification) and [maintained example](../../../packages/image-crop/examples/selection.tsrx).
+- AC1: [Install and use](../../../docs/packages/package-image-crop.md#install-and-use) and [maintained example](../../../packages/image-crop/examples/selection.tsrx).
+- AC2: [Coordinates and control](../../../docs/packages/package-image-crop.md#coordinates-and-control).
+- AC3: [Coordinates and control](../../../docs/packages/package-image-crop.md#coordinates-and-control), [file output](../../../docs/packages/package-image-crop.md#boundaries-and-verification), and [image manipulation](../../../docs/packages/package-image-manipulator.md#crop-a-selection).
+- AC4: [Verification](../../../docs/packages/package-image-crop.md#boundaries-and-verification) and [maintained example](../../../packages/image-crop/examples/selection.tsrx).

@@ -24,7 +24,7 @@ isolated controls remain useful diagnostic probes.
 
 ## Existing harness evidence
 
-[`packages/demos`](../../packages/demos/) contains small screens that exercise
+[`packages/demos`](../../packages/demos) contains small screens that exercise
 individual framework behaviors. They are not the four product examples above.
 The following mounting instructions and findings are the historical mobile/web
 exploration record, including old component names and limitations. For current

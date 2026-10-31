@@ -87,7 +87,7 @@ record the related Octane 0.11.0 limitation.
 The isolated AppKit overlay fixture previously passed its overlay assertions
 (`bun run --filter @xplat/macos test:overlays`); that qualifies handler dispatch,
 not physical OS input. See the
-[renderer setup and verification boundary](../../packages/macos-appkit/README.md).
+[renderer setup and verification boundary](../../docs/packages/package-macos-appkit.md).
 
 The broader `@octane-xplat/ui` native suite is green: the universal entries
 export `Children` again, and the focused imperative-sheet service tests pass

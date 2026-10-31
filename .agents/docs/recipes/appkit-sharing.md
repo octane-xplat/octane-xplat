@@ -25,7 +25,7 @@ picker with owned lifecycle and explicit qualification limits.
 
 ## Documentation
 
-- AC1: [Package guide](../../../packages/share/README.md#native-appkit-sharing), Octane services reference, fix note, [facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m), [metadata verifier](../../../packages/share/tests/verify-macos.mjs), [consumer lanes](../../../packages/share/tests/packed-consumer.mjs) and [target note](../exploration.md#operational-evidence).
-- AC2: The same [package guide](../../../packages/share/README.md#native-appkit-sharing), [facade cases](../../../packages/share/tests/share.macos.test.ts) and [intercepted picker](../../../packages/share/tests/native-picker.m).
-- AC3: The same [package guide](../../../packages/share/README.md#native-appkit-sharing), [facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m) and [target note](../exploration.md#operational-evidence).
+- AC1: [Package guide](../../../docs/packages/package-share.md#native-appkit-sharing), Octane services reference, fix note, [facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m), [metadata verifier](../../../packages/share/tests/verify-macos.mjs), [consumer lanes](../../../packages/share/tests/packed-consumer.mjs) and [target note](../exploration.md#operational-evidence).
+- AC2: The same [package guide](../../../docs/packages/package-share.md#native-appkit-sharing), [facade cases](../../../packages/share/tests/share.macos.test.ts) and [intercepted picker](../../../packages/share/tests/native-picker.m).
+- AC3: The same [package guide](../../../docs/packages/package-share.md#native-appkit-sharing), [facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m) and [target note](../exploration.md#operational-evidence).
 - AC4: [Manual fixture](../../../examples/probes/share.macos.tsrx); mounting it performs no file write, share action, OS UI or delivery.

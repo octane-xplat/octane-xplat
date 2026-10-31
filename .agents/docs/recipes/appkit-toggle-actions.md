@@ -26,7 +26,7 @@ busy behavior and local intent.
 
 - AC1: [Toggle save guide](../../../docs/app/components.md#save-a-toggle-button-action-on-appkit) and [authored action cases](../../../packages/ui/src/components/actions/toggle-button.macos.mobile.test.tsrx).
 - AC2: The same [guide](../../../docs/app/components.md#save-a-toggle-button-action-on-appkit)/[cases](../../../packages/ui/src/components/actions/toggle-button.macos.mobile.test.tsrx) cover group policy, metadata and icons; existing ActionControlsDemo retains the public API.
-- AC3: [Native pressed contract](../../../packages/macos-appkit/README.md#pressed-action-accessibility) and [authored renderer cases](../../../packages/macos-appkit/test/common-control-accessibility.test.ts).
+- AC3: [Native pressed contract](../../../docs/packages/package-macos-appkit.md#pressed-action-accessibility) and [authored renderer cases](../../../packages/macos-appkit/test/common-control-accessibility.test.ts).
 - AC4: [Target note](../exploration.md#operational-evidence), [direct-dispatch fixture](../../../examples/probes/toggle-button.macos.tsrx) and exact deferred commands. The fixture require separate execution evidence.
 
 - AC5: [Toggle guide](../../../docs/app/components.md#save-a-toggle-button-action-on-appkit), three new [authored source cases](../../../packages/ui/src/components/actions/toggle-button.macos.mobile.test.tsrx) (nine total), [fixture mode controls](../../../examples/probes/toggle-button.macos.tsrx), Octane reference and [target note](../exploration.md#operational-evidence). the existing scripted path directly dispatches save handlers and reads native metadata, without OS input.

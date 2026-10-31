@@ -8,7 +8,7 @@ This page preserves the initial framework plan. Package names such as
 `List`, `Modal`, and `useNavigate`, below are historical proposals. Current
 routing and shared components ship in `@octane-xplat/ui`; use
 [architecture](../../../docs/start/architecture.md), [navigation](../../../docs/app/navigation.md), and the
-[starter](../../../packages/create/template/) for implementation instructions.
+[starter](../../../packages/create/template) for implementation instructions.
 
 ## The model
 

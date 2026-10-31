@@ -45,7 +45,7 @@ After its first stable automated release, npm consumers install the optional ren
 at the same Xplat release. The `0.0.1` bootstrap stub is not usable. No Mason
 binary ships: the default warns and uses approximate Gtk.Box layout; native
 Mason needs a separately pinned host build. Use the [GTK guide](../../../../docs/platform/linux-gtk.md)
-and [native setup](../../../../packages/linux-gtk-renderer/README.md#optional-native-layout).
+and [native setup](../../../../docs/packages/package-linux-gtk-renderer.md#optional-native-layout).
 Do not treat publication or AT-SPI names as production qualification.
 
 ```sh

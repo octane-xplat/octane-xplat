@@ -5,7 +5,7 @@
 - **Default (`--retained`)** audits the archived Rosemary runs 12–16 reviewed
   by Rory. It never certifies anything and always exits nonzero.
 - **`--contract`** assesses a new schema-2 proof run against the exact item-1
-  contract and the declared [bounded run policy](./linux-gtk-run-policy.md),
+  contract and the declared [bounded run policy](linux-gtk-run-policy.md),
   fail-closed. Its `pass` is a producer-side verdict only; the item-4
   independent review still decides the gate.
 
@@ -60,7 +60,7 @@ must review it before native implementation begins.
 
 A strengthened run emits schema-2 JSONL: the same `domain`/`phase`/`kind`
 shape as the retained logs plus the record set declared by the
-[bounded run policy](./linux-gtk-run-policy.md), anchored by a predeclared
+[bounded run policy](linux-gtk-run-policy.md), anchored by a predeclared
 `contract-header` and a terminal `run-status`. Assess it with:
 
 ```sh

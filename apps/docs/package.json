@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun run gen && vite",
+		"dev": "bun run turbo run api --filter=@xplat/docs && bun run gen && vite",
 		"build": "bun run gen && vite build && vite build --config vite.demo.config.ts && node scripts/build-llms.ts",
 		"typecheck": "bun run gen && tsrx-tsc --noEmit",
 		"test": "node --test *.test.mjs",
@@ -13,7 +13,8 @@
 		"smoke:keys": "NODE_ENV=development bun run smoke",
 		"test:demos": "node demos.browser.mjs",
 		"test:responsive": "node responsive.browser.mjs",
-		"gen": "xplat routes"
+		"gen": "xplat routes",
+		"api": "node scripts/build-api.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/intersection-observer": "workspace:*",
@@ -29,6 +30,7 @@
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
+		"exports-md": "0.2.20",
 		"jsdom": "catalog:",
 		"playwright": "1.63.0",
 		"typescript": "catalog:",

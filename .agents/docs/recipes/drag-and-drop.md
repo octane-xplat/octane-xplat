@@ -26,9 +26,9 @@ scroll owner without putting browser APIs into shared app code.
 
 ## Documentation
 
-- AC1: [Install and reorder](../../../packages/dnd-kit/README.md#install-and-reorder), [maintained example](../../../packages/dnd-kit/examples/sortable.tsx).
-- AC2: [Compose drag and drop](../../../packages/dnd-kit/README.md#compose-drag-and-drop).
-- AC3: [Compose drag and drop](../../../packages/dnd-kit/README.md#compose-drag-and-drop), [native core tests](../../../packages/dnd-kit/src/controller.mobile.test.ts), [Web pointer regression](../../../packages/dnd-kit/src/components.web.test.tsx).
-- AC4: [Auto-scroll](../../../packages/dnd-kit/README.md#auto-scroll), [AppKit scroll example](../../../packages/dnd-kit/examples/sortable.macos.tsx).
-- AC5: [Limits and verification](../../../packages/dnd-kit/README.md#limits-and-verification).
-- AC6: [Compose drag and drop](../../../packages/dnd-kit/README.md#compose-drag-and-drop) and [maintained example](../../../packages/dnd-kit/examples/sortable.tsx).
+- AC1: [Install and reorder](../../../docs/packages/package-dnd-kit.md#install-and-reorder), [maintained example](../../../packages/dnd-kit/examples/sortable.tsx).
+- AC2: [Compose drag and drop](../../../docs/packages/package-dnd-kit.md#compose-drag-and-drop).
+- AC3: [Compose drag and drop](../../../docs/packages/package-dnd-kit.md#compose-drag-and-drop), [native core tests](../../../packages/dnd-kit/src/controller.mobile.test.ts), [Web pointer regression](../../../packages/dnd-kit/src/components.web.test.tsx).
+- AC4: [Auto-scroll](../../../docs/packages/package-dnd-kit.md#auto-scroll), [AppKit scroll example](../../../packages/dnd-kit/examples/sortable.macos.tsx).
+- AC5: [Limits and verification](../../../docs/packages/package-dnd-kit.md#limits-and-verification).
+- AC6: [Compose drag and drop](../../../docs/packages/package-dnd-kit.md#compose-drag-and-drop) and [maintained example](../../../packages/dnd-kit/examples/sortable.tsx).

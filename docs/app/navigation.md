@@ -2473,7 +2473,7 @@ for destinations another application should open. Native compilation, actual
 presentation/navigation, cookies, sandbox/ATS, close cleanup and VoiceOver
 remain unqualified. Mobile-only browser options and Android warmup hints do
 not change the AppKit window; advanced web dialogs/downloads/auth flows remain
-outside this source subset. See the [package contract](../../packages/web-browser/README.md#experimental-appkit-subset).
+outside this source subset. See the [package contract](../packages/package-web-browser.md#experimental-appkit-subset).
 
 ```ts
 import { webBrowser } from '@octane-xplat/web-browser'

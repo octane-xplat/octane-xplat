@@ -5,7 +5,7 @@ The leaf follows Expo SplashScreen58.0.12's four method signatures and
 returns void, hideAsync acknowledges the same dismissal request, and setOptions
 accepts duration/fade. The controller is process-scoped and cannot re-show a
 finished startup. Platform entry points keep browser/desktop imports safe and
-report explicit unavailability. See the [package guide](../../../packages/splash-screen/README.md).
+report explicit unavailability. See the [package guide](../../../docs/packages/package-splash-screen.md).
 
 ## Native lifetime
 

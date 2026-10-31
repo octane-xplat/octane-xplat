@@ -26,7 +26,7 @@ owned items, guarded actions and clean teardown.
 
 ## Documentation
 
-- AC1: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../packages/context-menu/README.md), Octane primitives reference, feature note, [target progress](../exploration.md#operational-evidence) and [owner-model cases](../../../packages/context-menu/tests/context-menu-owner.macos.test.mjs).
+- AC1: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../docs/packages/package-context-menu.md), Octane primitives reference, feature note, [target progress](../exploration.md#operational-evidence) and [owner-model cases](../../../packages/context-menu/tests/context-menu-owner.macos.test.mjs).
 - AC2: [Actual renderer-branch cases](../../../packages/macos-appkit/test/context-menu.test.ts); simulated menu slots/actions do not prove native responder propagation or tracking.
 - AC3: [Maintained demo](../../../packages/demos/src/NativeContextMenuDemo.macos.tsrx) and [idle probe](../../../examples/probes/native-context-menu.macos.tsrx). The delayed operation starts only after an explicit button action; no menu/input operation runs automatically.
-- AC4: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../packages/context-menu/README.md), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).
+- AC4: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../docs/packages/package-context-menu.md), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).

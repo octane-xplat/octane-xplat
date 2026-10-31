@@ -177,7 +177,7 @@ bun run xplat-fingerprint --dir . \
   --diff .xplat/fingerprints/ios.json
 ```
 
-See [fingerprint input coverage](../../packages/fingerprint/README.md#include-a-custom-native-input)
+See [fingerprint input coverage](../packages/package-fingerprint.md#include-a-custom-native-input)
 if your native generator consumes custom files. This identifies collected build
 inputs, not arbitrary compiler behavior. The server and native boot guard also
 check exact identity; downloaded JavaScript cannot change the baked value.

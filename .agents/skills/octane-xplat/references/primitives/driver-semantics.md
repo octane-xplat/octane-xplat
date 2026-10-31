@@ -103,7 +103,7 @@ export function Caption() {
 }
 ```
 
-See the [AppKit renderer](../../../../../packages/macos-appkit/README.md)
+See the [AppKit renderer](../../../../../docs/packages/package-macos-appkit.md)
 for overflow and line-limit behavior.
 
 ## AppKit target and delegate selectors

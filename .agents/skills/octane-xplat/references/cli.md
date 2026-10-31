@@ -3,7 +3,7 @@
 The npm `xplat` command requires Bun >=1.4.4 on PATH. Standalone release
 executables embed Bun and unpack their production payload into a writable
 local cache; they still require the app's Node/Bun/platform toolchains.
-See [CLI installation and executable builds](../../../../packages/cli/README.md#single-file-executable).
+See [CLI installation and executable builds](../../../../docs/packages/package-cli.md#single-file-executable).
 
 ```sh
 bun --version
@@ -21,7 +21,7 @@ root `package.json`; Bun patches use top-level `patchedDependencies`. pnpm 11
 patches always use `pnpm-workspace.yaml`, including standalone apps. Require
 Bun >=1.4.4 for the complete framework patch set; 1.4.3 failed the NativeScript
 Vite patch. A retained binary `bun.lockb` needs conversion to `bun.lock` first.
-The [CLI patch guide](../../../../packages/cli/README.md#framework-patches)
+The [CLI patch guide](../../../../docs/packages/package-cli.md#framework-patches)
 owns setup and recovery. `xplat dev` and `build`, including agent adapters,
 use the selected project's package manager.
 
@@ -119,7 +119,7 @@ For questions phrased differently from the docs, prepare local embeddings with
 never downloads one. Check `data.retrieval` for the actual mode and fallback
 reason. Re-index after editing linked-checkout docs. Release entries have their
 own `releaseVersion`, separate from snapshot provenance. See
-[local documentation search](../../../../packages/cli/README.md#local-documentation-search).
+[local documentation search](../../../../docs/packages/package-cli.md#local-documentation-search).
 
 ```sh
 bun run xplat docs index --json

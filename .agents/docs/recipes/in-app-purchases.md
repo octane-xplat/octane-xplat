@@ -25,7 +25,7 @@ Keep unsupported purchase types and store/device qualification explicit.
 
 ## Documentation
 
-- AC1: [Store registration](../../../docs/platform/in-app-purchases.md#register-one-product), [connection/screen](../../../docs/platform/in-app-purchases.md#own-the-store-connection-and-screen) and [billing README](../../../packages/billing/README.md) provide setup, awaitable `connect()` readiness and manual readiness retry. Service-initiated connection drops are not observable — `canMakePayments()` remains the post-connect authority.
+- AC1: [Store registration](../../../docs/platform/in-app-purchases.md#register-one-product), [connection/screen](../../../docs/platform/in-app-purchases.md#own-the-store-connection-and-screen) and [billing README](../../../docs/packages/package-billing.md) provide setup, awaitable `connect()` readiness and manual readiness retry. Service-initiated connection drops are not observable — `canMakePayments()` remains the post-connect authority.
 - AC2: [Purchase lifecycle](../../../docs/platform/in-app-purchases.md#buy-finish-and-recover), [maintained controller](../../../packages/demos/src/billing-guide/purchases.ts) and [controlled regressions](../../../packages/billing/tests/purchase-guide.test.mjs).
 - AC3: [Backend contract](../../../docs/platform/in-app-purchases.md#implement-the-backend-contract-before-buying) specifies the required verification, ownership and ledger invariants; store integration and database deployment are explicit starting prerequisites, not a supplied server.
 - AC4: [Purchase recovery](../../../docs/platform/in-app-purchases.md#buy-finish-and-recover) and [controller regressions](../../../packages/billing/tests/purchase-guide.test.mjs) cover finish retry, restoration, repeated delivery and disposal.

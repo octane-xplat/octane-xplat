@@ -164,7 +164,7 @@ assets. Manual dispatch retains artifacts without uploading to a release.
 The normal checks job also runs the Linux executable smoke test, without a
 browser or device. Build on each host to select matching native dependencies;
 see [executable packaging](toolchain.md#cli-runtime-and-executable-packaging)
-and [consumer installation](../../packages/cli/README.md#single-file-executable).
+and [consumer installation](../../docs/packages/package-cli.md#single-file-executable).
 Binaries are excluded from npm tarballs: the npm bin requires installed Bun,
 while Vite and MCP exports remain per-module ESM.
 

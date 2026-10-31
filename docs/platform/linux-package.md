@@ -102,7 +102,7 @@ access host services:
 import '@octane-xplat/platform/bridge.linux.ts'
 ```
 
-The [maintained consumer fixture](../../packages/cli/test/fixtures/linux-app/)
+The [maintained consumer fixture](../../packages/cli/test/fixtures/linux-app)
 provides the complete manifest, Vite config, HTML entry, and Octane screen.
 It also exercises the typed desktop client and cold/warm incoming links.
 

@@ -5,7 +5,7 @@ The supported AES-GCM subset uses 12-byte nonces and 16-byte tags, including
 explicit options and sealed-data parsing. Other sizes reject. AES-128/256 work
 across supported hosts; AES-192 is Apple/Android-only, matching Expo's web limit.
 SHA-1/256/384/512 are portable. MD5 is native-only for compatibility; MD2/MD4
-always report unavailable. See the [public guide](../../../packages/crypto/README.md).
+always report unavailable. See the [public guide](../../../docs/packages/package-crypto.md).
 
 ```ts
 import { Crypto, AESEncryptionKey, aesEncryptAsync } from '@octane-xplat/crypto'

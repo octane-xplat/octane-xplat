@@ -27,7 +27,7 @@ IDs, selection and actions stay owned by the current attachment.
 
 ## Documentation
 
-- AC1–AC4: [Native selection guide](../../../docs/platform/native-picker.md#native-macos-selection), [README](../../../packages/picker/README.md#native-macos-picker), public type comments, Octane primitives reference, feature and [target note](../exploration.md#operational-evidence).
+- AC1–AC4: [Native selection guide](../../../docs/platform/native-picker.md#native-macos-selection), [README](../../../docs/packages/package-picker.md#native-macos-picker), public type comments, Octane primitives reference, feature and [target note](../exploration.md#operational-evidence).
 - AC1: [Packed consumer](../../../packages/picker/tests/packed-consumer.mjs); type-only lane does not compile the native component or prove native resolution.
 - AC2: [Owner-model cases](../../../packages/picker/tests/picker-owner.macos.test.mjs).
 - AC3: [Actual renderer-branch cases](../../../packages/macos-appkit/test/picker.test.ts) and [existing raw ListPicker model](../../../packages/macos-appkit/test/raw-list-picker.test.ts). Native fakes do not prove selector ABI, menu tracking, BOOL getters or layout.

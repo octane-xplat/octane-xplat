@@ -1,0 +1,63 @@
+# `@octane-xplat/haptics`
+
+> Advanced, capability-aware haptics for Octane xplat
+
+Haptic feedback for Octane xplat apps, in two layers. The `haptics`
+service mirrors the platform contract — `impact(style)`,
+`notification(kind)`, `selection()`. `createHaptics()` is the advanced
+engine: named presets, timed `playPattern` envelopes (`{duration, points:
+[{at, intensity, sharpness}]}`), gesture-driven realtime sessions
+(`startRealtime()` → `{update, stop}`), and cancellation.
+
+```sh
+bun add @octane-xplat/haptics
+```
+
+```ts
+import { createHaptics, haptics } from '@octane-xplat/haptics'
+
+if (haptics.supported) {
+	haptics.impact('medium') // simple path
+	haptics.notification('success')
+}
+
+const engine = createHaptics() // advanced path
+if (engine.capabilities().presets) engine.play('success')
+if (engine.capabilities().patterns) {
+	engine.playPattern({ duration: 300, points: [{ at: 0, intensity: 1 }] })
+}
+```
+
+`capabilities()` reports `supported` plus `presets`, `patterns`, and
+`realtime` independently — check the flag for the feature you use. With
+`realtime`, `startRealtime(intensity)` returns a session for
+gesture-driven feedback: call `update(intensity, sharpness)` as the
+gesture changes and `stop()` when it ends or is cancelled.
+
+```ts
+// engine is the createHaptics() instance above.
+if (engine.capabilities().realtime) {
+	const session = engine.startRealtime(0.2)
+	session.update(0.8, 0.5)
+	session.stop()
+}
+engine.dispose() // after the owner has finished all feedback
+```
+
+Native is backed by Pulsar: Android needs compile SDK 36+ for
+`com.swmansion.pulsar` (runtime support reaches API 24) and iOS needs
+app-level wiring — add the Pulsar Swift package to `ios.SPMPackages` and
+this package's `platforms/ios/src/**/*.swift` to `ios.NativeSource` in
+the app's NativeScript config. Web maps onto the Vibration API, which
+many desktop browsers expose but ignore.
+
+macOS uses `NSHapticFeedbackManager`, which gives discrete trackpad
+feedback on compatible hardware: `presets` reports `true` while
+`patterns` and `realtime` report `false`. `selection` plays an alignment
+tick, `impact-*` presets play a level-change bump, and `success`,
+`warning`, `error` play generic feedback.
+
+Guide: [Media services](https://octane-xplat.goddardai.org/media-services); per-target
+availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
+
+[Generated API reference](https://octane-xplat.goddardai.org/api-haptics).

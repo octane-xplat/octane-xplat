@@ -484,7 +484,7 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
 - Canonical framework patch files live in `packages/cli/patches/` and ship
   with the CLI. Root Bun registration and consumer pnpm configuration are
   synchronized from that manifest; see the package-manager contract above and
-  [the patch workflow](../../packages/cli/README.md#framework-patches).
+  [the patch workflow](../../docs/packages/package-cli.md#framework-patches).
   The patch package's prepack uses `sync-patches.ts --package-only`, refreshing
   only its generated files. Root configuration and starter changes belong to
   the explicit `bun run sync:patches` command. Remove a patch when upstream
@@ -563,7 +563,7 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   Git/eslint ignores, JSON extends, rule options and file overrides. Config
   selection is rooted at cwd; nested configs and JS/TS/JSONC configs are
   unsupported. TSRX checks only `xplat/*` and has no lint autofixes. See the
-  [consumer contract](../../packages/lint/README.md).
+  [consumer contract](../../docs/packages/package-lint.md).
 - Format: `bun run format` delegates to `xplat fmt`
   (`packages/cli/src/commands/fmt.ts`, engine `@octane-xplat/fmt` — in-process
   safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc
@@ -819,7 +819,7 @@ The probe ran `bamboo cssgen` with the package README config and `.tsrx` added
 to `include`; plain `.ts` and `.tsx` fixtures extracted successfully. This is standalone
 CLI extraction evidence, not a qualification of Vite's transformed-module path.
 
-The [Bamboo README](../../packages/bamboo/README.md) therefore scans `.ts`/`.tsx`
+The [Bamboo README](../../docs/packages/package-bamboo.md) therefore scans `.ts`/`.tsx`
 and keeps shared `css()` calls in a `.ts` module that TSRX components can import.
 No dependency patch was added. Recheck raw template extraction when upgrading
 Bamboo before adding `.tsrx` to this scan. Retained reproduction, versions and

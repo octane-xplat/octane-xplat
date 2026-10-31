@@ -1359,7 +1359,7 @@ export type DateTimeInputPresentation = PickerPresentation
  *
  * const cal = useRef<CalendarHandle>()
  * cal.current?.navigateTo('2026-06-01')
- * <Calendar ref={cal} value={day} onChange={setDay} />
+ * const calendar = <Calendar ref={cal} value={day} onChange={setDay} />
  * ```
  */
 export interface CalendarHandle {
@@ -1497,9 +1497,9 @@ export interface CalendarRangeProps extends CalendarBaseProps {
  * ```tsx
  * import { Calendar } from '@octane-xplat/ui'
  *
- * <Calendar value={day} onChange={(iso) => setDay(iso)} min="2026-01-01" />
+ * const singleDate = <Calendar value={day} onChange={(iso) => setDay(iso)} min="2026-01-01" />
  *
- * <Calendar mode="range" value={range} onChange={setRange} maxRangeSpan={14} />
+ * const dateRange = <Calendar mode="range" value={range} onChange={setRange} maxRangeSpan={14} />
  * ```
  * `null` is an explicit empty value; omitting `value` leaves selection
  * uncontrolled. The change callback reports selections, not clears.
@@ -2083,7 +2083,7 @@ export interface UseScrollableAreaContentProps<TElement extends object = object>
  *
  * const area = useScrollableArea<HTMLElement>({ axis: 'block' })
  * const content = <span>Scrollable content</span>
- * <div {...area.getViewportProps()}>
+ * const viewport = <div {...area.getViewportProps()}>
  * 	<div {...area.getContentProps()}>{content}</div>
  * </div>
  * ```
@@ -3160,7 +3160,7 @@ export interface IconRegistry {
  * import { IconRegistryProvider, createIconRegistry } from '@octane-xplat/ui'
  *
  * const icons = createIconRegistry()
- * <IconRegistryProvider value={icons}>{app}</IconRegistryProvider>
+ * const registeredApp = <IconRegistryProvider value={icons}>{app}</IconRegistryProvider>
  * ```
  */
 export interface IconRegistryProviderProps {
@@ -3179,8 +3179,8 @@ export interface IconRegistryProviderProps {
  * ```tsx
  * import { Heading } from '@octane-xplat/ui'
  *
- * <Heading level={2}>Details</Heading>
- * <Heading level={1} type="display-1">Hero</Heading>
+ * const sectionTitle = <Heading level={2}>Details</Heading>
+ * const heroTitle = <Heading level={1} type="display-1">Hero</Heading>
  * ```
  * @see TextProps.
  */
@@ -3282,7 +3282,7 @@ export interface PopoverAnchorRef {
  * import { Popover, Button } from '@octane-xplat/ui'
  *
  * const anchor = useRef()
- * <>
+ * const filterPanel = <>
  * 	<Button ref={anchor} label="Filter" />
  * 	<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom">
  * 		{panel}
@@ -4065,7 +4065,7 @@ export interface UseMeasureOptions {
  * import { useMeasure, View } from '@octane-xplat/ui'
  *
  * const { ref, bounds } = useMeasure()
- * <View ref={ref}>{bounds ? `${bounds.width}×${bounds.height}` : 'measuring…'}</View>
+ * const measuredView = <View ref={ref}>{bounds ? `${bounds.width}×${bounds.height}` : 'measuring…'}</View>
  * ```
  */
 export interface MeasureResult {
@@ -4589,8 +4589,8 @@ export interface ImperativeAlertDialogReturn {
  * import { useRef } from 'octane'
  *
  * const carousel = useRef<CarouselHandle>()
- * <Carousel ref={carousel}>{slides}</Carousel>
- * <Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
+ * const slidesView = <Carousel ref={carousel}>{slides}</Carousel>
+ * const nextButton = <Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
  * ```
  */
 export interface CarouselHandle {
@@ -9162,14 +9162,14 @@ export type SelectVariant = 'input' | 'ghost'
  * ```tsx
  * import { Selector, MultiSelector } from '@octane-xplat/ui'
  *
- * <Selector
+ * const assigneeSelector = <Selector
  * 	label="Assignee"
  * 	options={people.map((p) => ({ value: p.id, label: p.name }))}
  * 	value={assignee}
  * 	onValueChange={setAssignee}
  * />
  *
- * <MultiSelector options={tags} value={selected} onValueChange={setSelected} />
+ * const tagSelector = <MultiSelector options={tags} value={selected} onValueChange={setSelected} />
  * ```
  * @see SelectOption, MultiSelectorProps — `MultiSelector` is the multi-select preset.
  */
@@ -9535,7 +9535,7 @@ export interface BaseTypeaheadProps<
  * import { Typeahead, createStaticSource } from '@octane-xplat/ui'
  *
  * const people = createStaticSource([{ id: '1', label: 'Ada' }])
- * <Typeahead label="Assignee" searchSource={people} value={assignee} onChange={setAssignee} />
+ * const assigneeTypeahead = <Typeahead label="Assignee" searchSource={people} value={assignee} onChange={setAssignee} />
  * ```
  * @see BaseTypeaheadProps for the unstyled engine, TokenizerProps for multi-select.
  */
@@ -14780,7 +14780,7 @@ export type PowerSearchComponents = Partial<
  * 	{ key: 'status', type: 'enum', label: 'Status', enumValues: [{ value: 'open', label: 'Open' }] },
  * ] as const)
  *
- * <PowerSearch config={config} filters={filters} onChange={(next) => setFilters(next)} />
+ * const search = <PowerSearch config={config} filters={filters} onChange={(next) => setFilters(next)} />
  * ```
  * @see PowerSearchConfig, PowerSearchFilterFor, PowerSearchComponents.
  */
@@ -15915,7 +15915,7 @@ export interface OutlineFromViewCapabilities {
  * import { Outline, useOutlineFromMarkdown } from '@octane-xplat/ui'
  *
  * const items = useOutlineFromMarkdown(doc)
- * <Outline items={items} activeId={active} onActiveIdChange={setActive} />
+ * const outline = <Outline items={items} activeId={active} onActiveIdChange={setActive} />
  * ```
  * @see OutlineItem, OutlineFromViewCapabilities — item derivation is
  *  platform-specific while the resulting data stays portable.
@@ -16133,9 +16133,9 @@ export interface MarkdownTextProps {
  * ```tsx
  * import { Markdown } from '@octane-xplat/ui/markdown'
  *
- * <Markdown text={source} isStreaming />
+ * const streamingText = <Markdown text={source} isStreaming />
  * // or a pre-parsed doc (e.g. a baked .md route):
- * <Markdown data={doc} />
+ * const parsedDocument = <Markdown data={doc} />
  * ```
  * @see MarkdownDataProps, MarkdownTextProps, createMarkdownStreamParser.
  */

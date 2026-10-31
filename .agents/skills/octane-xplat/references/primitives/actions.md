@@ -60,7 +60,7 @@ Self-drawn action hosts now reserve Enter/Space activation for unmodified or
 Shift-only keys. Control/Option/Command combinations, disabled/read-only
 accessibility state and absent actions pass through native key handling. This
 is source behavior, not proof of OS shortcuts/menu equivalents or input-source
-switching. See [native activation](../../../../../packages/macos-appkit/README.md#self-drawn-control-keyboard-activation).
+switching. See [native activation](../../../../../docs/packages/package-macos-appkit.md#self-drawn-control-keyboard-activation).
 
 ```tsx
 import { Button } from '@octane-xplat/ui'

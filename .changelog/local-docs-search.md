@@ -11,4 +11,4 @@ xplat docs search "navigation" --corpus changelog --json
 ```
 
 The first preparation downloads a model; document text and questions stay local.
-See [local documentation search](https://github.com/octane-xplat/octane-xplat/tree/main/packages/cli#local-documentation-search).
+See [local documentation search](https://octane-xplat.goddardai.org/package-cli#local-documentation-search).
