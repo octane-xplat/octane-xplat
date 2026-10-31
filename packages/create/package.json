@@ -34,9 +34,14 @@
 	],
 	"type": "module",
 	"exports": {
-		"./scaffold": "./dist/scaffold.js",
+		"./scaffold": {
+			"types": "./scaffold.ts",
+			"bun": "./scaffold.ts",
+			"default": "./dist/scaffold.js"
+		},
 		"./compatibility": {
 			"types": "./compatibility.ts",
+			"bun": "./compatibility.ts",
 			"default": "./dist/compatibility.js"
 		},
 		"./compatibility.json": "./compatibility.json"
