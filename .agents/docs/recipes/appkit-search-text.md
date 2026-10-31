@@ -9,6 +9,11 @@ Related APIs: searchbar, text, onTextChange, onSubmit
 A raw native search field receives a programmatic query while its editor is
 composing text. Shared SearchInput is a separate normalized control.
 
+## Requirements
+
+Update a raw AppKit search field's programmatic query while a native editor is
+composing, without losing marked text or echoing events.
+
 ## Acceptance criteria
 
 - AC1: Read edits from the live field editor and preserve marked text while queuing the latest differing programmatic query. Keep native submit/cancel separate from text changes.
@@ -18,5 +23,5 @@ composing text. Shared SearchInput is a separate normalized control.
 ## Documentation
 
 - AC1: [Renderer contract](../../../packages/macos-renderer/README.md#controlled-text-during-composition) and [authored search cases](../../../packages/macos-renderer/test/search-bar.test.ts).
-- AC2: The same contract/cases use the shared writer and controlled scheduler. Production teardown already disposes that writer; native lifecycle requires separate target qualification.
+- AC2: The same [contract](../../../packages/macos-renderer/README.md#controlled-text-during-composition)/[cases](../../../packages/macos-renderer/test/search-bar.test.ts) use the shared writer and controlled scheduler. Production teardown already disposes that writer; native lifecycle requires separate target qualification.
 - AC3: [Target note](../exploration.md#operational-evidence) records event scope and deferred commands. No native/physical-input result is claimed.

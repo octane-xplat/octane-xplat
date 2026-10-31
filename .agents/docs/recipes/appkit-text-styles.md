@@ -9,6 +9,11 @@ Related APIs: Text, Heading, RichText, RichTextSpan, style
 A content/settings screen renders headings, body text and styled inline runs.
 ContentDisplayDemo and shared text primitives provide the demand examples.
 
+## Requirements
+
+Preserve authored styles on AppKit Text, Heading and RichText content through
+shared parsing, composition and native metadata.
+
 ## Acceptance criteria
 
 - AC1: Text and Heading preserve declared style objects/strings and runtime array ordering over type-scale defaults. Root and purpose Heading paths share one implementation; classes, content and truncation props survive updates/removal.
@@ -25,7 +30,7 @@ ContentDisplayDemo and shared text primitives provide the demand examples.
 
 - AC1: [Text usage](../../../docs/app/components.md#text), four [UI source cases](../../../packages/ui/src/components/forms/text-style.macos.mobile.test.tsrx) and [manual target fixture](../../../examples/probes/text-styles.macos.tsrx).
 - AC2: [Renderer contract](../../../packages/macos-renderer/README.md#apply-stylesheets), four [parser cases](../../../packages/css-engine/test/inline-style.test.ts), two [host/validation cases](../../../packages/macos-renderer/test/inline-style.test.ts) and [target note](../exploration.md#operational-evidence). Source cases do not qualify a native application.
-- AC3: The same usage, source cases and fixture describe current forwarding/removal. Native shaping/measurement/truncation/VoiceOver and root/purpose packed consumers require separate target qualification; no evidence gate is closed.
+- AC3: The same [usage](../../../docs/app/components.md#text), [source cases](../../../packages/ui/src/components/forms/text-style.macos.mobile.test.tsrx) and [fixture](../../../examples/probes/text-styles.macos.tsrx) describe current forwarding/removal. Native shaping/measurement/truncation/VoiceOver and root/purpose packed consumers require separate target qualification; no evidence gate is closed.
 
 - AC4: [AppKit text composition](../../../docs/app/components.md#text), four [composition source cases](../../../packages/ui/src/components/forms/text-composition.macos.mobile.test.tsrx), updated [target fixture](../../../examples/probes/text-styles.macos.tsrx) and [target note](../exploration.md#operational-evidence). Readable source runs do not qualify native rendering, glyph hit testing, links, AX or packaging.
 

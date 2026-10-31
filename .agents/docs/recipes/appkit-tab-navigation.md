@@ -8,6 +8,11 @@ Related APIs: TabList, Tab, Tabs, TabMenu
 
 A controlled settings/detail tab strip, including disabled tabs and overflow.
 
+## Requirements
+
+Navigate an AppKit tab strip by keys and overflow menu with owned roving focus,
+reveal and selection requests.
+
 ## Acceptance criteria
 
 - AC1: Registered tabs use native child order and owned roving Tab exclusions. Arrows/Home/End move focus manually, skip disabled/hidden tabs, respect RTL, preserve modified/composing input and leave vertical keys to a tablist's page. Enter/Space activate through the existing press path; focus changes alone do not request selection.

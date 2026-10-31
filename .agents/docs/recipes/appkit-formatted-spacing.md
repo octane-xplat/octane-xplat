@@ -8,6 +8,11 @@ Related APIs: formattedstring, span
 
 A caption mixes spaced text and a span using its font's default spacing.
 
+## Requirements
+
+Apply letter spacing and paragraph line height to formatted AppKit text through
+shared style props and resets.
+
 ## Acceptance criteria
 
 - AC1: Finite numeric spacing inherits through logical runs, accepts negative values and permits zero/normal resets. Reject invalid authored values.
@@ -18,7 +23,7 @@ A caption mixes spaced text and a span using its font's default spacing.
 ## Documentation
 
 - AC1: [Renderer contract and example](../../../packages/macos-renderer/README.md#apply-stylesheets) and [authored source cases](../../../packages/macos-renderer/test/formatted-text.test.ts).
-- AC2: The same source cases cover host defaults, removal and reparenting.
+- AC2: The same [source cases](../../../packages/macos-renderer/test/formatted-text.test.ts) cover host defaults, removal and reparenting.
 - AC3: [Target note](../exploration.md#operational-evidence) records the native attribute policy and exact deferred checks. No native glyph or layout result is claimed.
 
 - AC4: [Renderer line-height contract](../../../packages/macos-renderer/README.md#apply-stylesheets), authored host/paragraph source cases and [deferred-check note](../exploration.md#operational-evidence).

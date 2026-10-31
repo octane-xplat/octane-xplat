@@ -10,6 +10,11 @@ An AppKit data table has a horizontal viewport. A name/action column should
 stay at the logical start and a status/editor column at the end while middle
 columns scroll, including controlled and expanded proportional widths.
 
+## Requirements
+
+Keep chosen AppKit table columns pinned to the start or end while middle columns
+scroll, including controlled and expanded proportional widths.
+
 ## Acceptance criteria
 
 - AC1: AppKit selects a dedicated plugin, preserving shared contiguous-run/start-precedence membership. Forward header/body refs and compose wrapper refs. Missing placement bridge or empty config leaves ordinary scrolling; use one instance per data Table.
@@ -19,5 +24,7 @@ columns scroll, including controlled and expanded proportional widths.
 
 ## Documentation
 
-- AC1–AC4: [AppKit pinning guide](../../../docs/tables.md#sticky-columns-on-appkit), primitive skill, feature note and [target note](../exploration.md#operational-evidence).
-- AC2–AC4: Three new [pin/order cases](../../../packages/macos-renderer/test/layout-pins.test.ts), six [geometry/observer cases](../../../packages/ui/src/table/sticky-columns-state.macos.test.ts), two [compiler cases](../../../packages/ui/tests/table-universal.test.mjs) and [manual controls](../../../examples/probes/table-scroll.macos.tsrx). Callback dispatch and computed constraint values do not establish OS hit-testing or native frame timing.
+- AC1: [AppKit pinning guide](../../../docs/app/tables.md#sticky-columns-on-appkit), primitive skill, feature note and [target note](../exploration.md#operational-evidence).
+- AC2: The same [pinning guide](../../../docs/app/tables.md#sticky-columns-on-appkit) and [target note](../exploration.md#operational-evidence), plus three new [pin/order cases](../../../packages/macos-renderer/test/layout-pins.test.ts), six [geometry/observer cases](../../../packages/ui/src/table/sticky-columns-state.macos.test.ts), two [compiler cases](../../../packages/ui/tests/table-universal.test.mjs) and [manual controls](../../../examples/probes/table-scroll.macos.tsrx). Callback dispatch and computed constraint values do not establish OS hit-testing or native frame timing.
+- AC3: The same [pinning guide](../../../docs/app/tables.md#sticky-columns-on-appkit), [pin/order cases](../../../packages/macos-renderer/test/layout-pins.test.ts), [geometry/observer cases](../../../packages/ui/src/table/sticky-columns-state.macos.test.ts), [compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual controls](../../../examples/probes/table-scroll.macos.tsrx) and [target note](../exploration.md#operational-evidence).
+- AC4: The same [pinning guide](../../../docs/app/tables.md#sticky-columns-on-appkit), [pin/order cases](../../../packages/macos-renderer/test/layout-pins.test.ts), [geometry/observer cases](../../../packages/ui/src/table/sticky-columns-state.macos.test.ts), [compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual controls](../../../examples/probes/table-scroll.macos.tsrx) and [target note](../exploration.md#operational-evidence). Callback dispatch and computed constraint values do not establish OS hit-testing or native frame timing.

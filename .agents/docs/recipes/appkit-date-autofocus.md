@@ -9,6 +9,11 @@ Related APIs: DateInput, TimeInput, TextInputHandle
 An onboarding or booking form whose newly mounted date/time field requests
 initial focus. Other input or modal focus remains user-owned.
 
+## Requirements
+
+Request initial focus for a newly mounted AppKit date or time field and cancel
+that request on user input, state changes or teardown.
+
 ## Acceptance criteria
 
 - AC1: Wire existing hasAutoFocus to one queued post-commit attempt; wait for first visible/attached host only with native window/input observation. Observe current props/state and accept property/callable native guards. Do not activate windows, open pickers, parse text or emit value changes.

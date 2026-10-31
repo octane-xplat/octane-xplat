@@ -8,6 +8,11 @@ Related APIs: TextInput, SearchInput
 
 A search or text field with a clear affordance and an existing value.
 
+## Requirements
+
+Give an AppKit text or search field a clear action that empties the value and
+returns focus to the retained input.
+
 ## Acceptance criteria
 
 - AC1: Clear requests onChange('') then onClear and requests focus on the retained input. Uncontrolled values clear; controlled display follows parent feedback. A callback that unmounts the input does not focus its detached host.

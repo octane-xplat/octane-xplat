@@ -10,6 +10,11 @@ An AppKit data table needs width adjustment by native dragging or keys, beyond
 programmatic columnWidths. The shared plan already aligns header/body/scroll
 widths, and sticky columns retain native cells.
 
+## Requirements
+
+Resize AppKit data table columns by native drag handles or keys within declared
+limits, honoring RTL and controlled previews.
+
 ## Acceptance criteria
 
 - AC1: Preserve existing header overlay content while adding native handles only for unlocked columns. Reuse shared AppKit pan/key infrastructure, source-native cursor/focus and measured parent geometry; forward overlays from Table without clones or DOM imports.
@@ -19,5 +24,7 @@ widths, and sticky columns retain native cells.
 
 ## Documentation
 
-- AC1–AC4: [AppKit resize guide](../../../docs/tables.md#resize-columns-on-appkit), primitive skill, existing feature note and [target note](../exploration.md#operational-evidence).
-- AC2–AC4: Six [state cases](../../../packages/ui/src/table/column-resize-state.macos.test.ts), one [splitter case](../../../packages/macos-renderer/test/common-control-accessibility.test.ts), two [handle compiler cases](../../../packages/ui/tests/table-universal.test.mjs) and [manual fixture](../../../examples/probes/table-scroll.macos.tsrx). Native callback dispatch is not OS input/AX proof.
+- AC1: [AppKit resize guide](../../../docs/app/tables.md#resize-columns-on-appkit), primitive skill, existing feature note and [target note](../exploration.md#operational-evidence).
+- AC2: The same [resize guide](../../../docs/app/tables.md#resize-columns-on-appkit) and [target note](../exploration.md#operational-evidence), plus six [state cases](../../../packages/ui/src/table/column-resize-state.macos.test.ts), one [splitter case](../../../packages/macos-renderer/test/common-control-accessibility.test.ts), two [handle compiler cases](../../../packages/ui/tests/table-universal.test.mjs) and [manual fixture](../../../examples/probes/table-scroll.macos.tsrx). Native callback dispatch is not OS input/AX proof.
+- AC3: The same [resize guide](../../../docs/app/tables.md#resize-columns-on-appkit), [state cases](../../../packages/ui/src/table/column-resize-state.macos.test.ts), [splitter case](../../../packages/macos-renderer/test/common-control-accessibility.test.ts), [handle compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual fixture](../../../examples/probes/table-scroll.macos.tsrx) and [target note](../exploration.md#operational-evidence).
+- AC4: The same [resize guide](../../../docs/app/tables.md#resize-columns-on-appkit), [state cases](../../../packages/ui/src/table/column-resize-state.macos.test.ts), [splitter case](../../../packages/macos-renderer/test/common-control-accessibility.test.ts), [handle compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual fixture](../../../examples/probes/table-scroll.macos.tsrx) and [target note](../exploration.md#operational-evidence). Native callback dispatch is not OS input/AX proof.

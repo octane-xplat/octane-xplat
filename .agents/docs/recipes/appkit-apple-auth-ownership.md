@@ -12,6 +12,12 @@ key/main/first window and had no presenter close cleanup. A partial native
 class-registration failure also prevented later retries. Source inspection
 found these paths; no OS sign-in or credential failure was observed.
 
+## Requirements
+
+Keep a native Apple sign-in anchored to the AppKit window that started it and
+retire the attempt's JS and native ownership cleanly across presenter teardown,
+partial registration failure and late callbacks.
+
 ## Acceptance criteria
 
 - AC1: Capture scopes/nonce before native provider work, retain an eligible initiating visible key/main window without an attached sheet and exclude arbitrary first-window fallback. Anchor/result callbacks require owned native controller and delegate/provider identity, allowing equivalent native wrappers. Stale/foreign results do not begin credential decoding; conversion reentry cannot settle a retired attempt.
@@ -21,5 +27,7 @@ found these paths; no OS sign-in or credential failure was observed.
 
 ## Documentation
 
-- AC1–AC4: [Apple guide](../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window), [provider setup](../../../docs/platform/platform-services.md#macos-provider-sign-in), Octane services reference, fix note and [target note](../exploration.md#operational-evidence).
-- AC1–AC4: [Model cases](../../../packages/auth/tests/macos.test.mjs), and [official-button fixture](../../../examples/probes/apple-auth.macos.tsrx). The fixture displays status only; mounting controls does not qualify consent, entitlements or a credential exchange.
+- AC1: [Apple guide](../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window), [provider setup](../../../docs/platform/platform-services.md#macos-provider-sign-in), Octane services reference, fix note, [model cases](../../../packages/auth/tests/macos.test.mjs) and [target note](../exploration.md#operational-evidence).
+- AC2: The same [Apple guide](../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window) and [model cases](../../../packages/auth/tests/macos.test.mjs) cover observer acquisition and cleanup ordering; [target note](../exploration.md#operational-evidence) records deferred checks.
+- AC3: The same [Apple guide](../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window) and [model cases](../../../packages/auth/tests/macos.test.mjs) cover registration caching and reentry guards.
+- AC4: The same [Apple guide](../../../packages/auth/README.md#keep-apple-sign-in-with-its-initiating-window), [model cases](../../../packages/auth/tests/macos.test.mjs), [official-button fixture](../../../examples/probes/apple-auth.macos.tsrx) and [target note](../exploration.md#operational-evidence). The fixture displays status only; mounting controls does not qualify consent, entitlements or a credential exchange.

@@ -8,6 +8,11 @@ Related APIs: Link, LinkProvider, as, href
 
 A native desktop screen has an external help link and app-relative navigation.
 
+## Requirements
+
+Open external and app-relative links on AppKit with sanitized destinations and
+owner-controlled navigation.
+
 ## Acceptance criteria
 
 - AC1: Normalize/sanitize href before dispatch. External scheme URLs use the platform opener without creating an app window; relative destinations use canonical routing.
@@ -19,5 +24,5 @@ A native desktop screen has an external help link and app-relative navigation.
 
 - AC1: [AppKit URL guide](../../../docs/app/navigation.md#open-links-on-appkit) and [authored helper cases](../../../packages/ui/src/components/navigation/nav-href.macos.mobile.test.tsrx).
 - AC2: The same guide and [authored Link cases](../../../packages/ui/src/components/navigation/link.macos.mobile.test.tsrx).
-- AC3: The same guide/cases cover function injection precedence, navigation ownership and unsafe handoff rejection.
+- AC3: The same [guide](../../../docs/app/navigation.md#open-links-on-appkit)/[cases](../../../packages/ui/src/components/navigation/link.macos.mobile.test.tsrx) cover function injection precedence, navigation ownership and unsafe handoff rejection.
 - AC4: [Target note](../exploration.md#operational-evidence) records exact deferred commands and native evidence limits.

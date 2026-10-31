@@ -11,6 +11,11 @@ state. Reuse the existing Network.framework bridge and shared environment shape;
 no dependency or native engine changes. An available route is not proof of
 internet access. Unknown connectivity must not become measured offline.
 
+## Requirements
+
+Read current network and activity state on AppKit through owned native monitors
+that share samples, isolate failures and retire cleanly.
+
 ## Acceptance criteria
 
 - AC1: Share a current bridge-owned monitor across independent registrations, keep monitored reads on its latest sample, return independent state objects, isolate event-time consumer failures, retain native one-shot reads without subscribers, and retire before cleanup despite stop failure. Reject stale/partial/replaced bridges, make teardown idempotent and buffer synchronous startup samples until acquisition succeeds.

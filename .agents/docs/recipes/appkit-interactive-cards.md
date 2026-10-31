@@ -8,6 +8,11 @@ Related APIs: ClickableCard, SelectableCard
 
 A collection screen opens a help URL or requests a controlled selection change.
 
+## Requirements
+
+Make AppKit cards clickable or selectable with sanitized links, controlled
+selection and preserved disabled-focus behavior.
+
 ## Acceptance criteria
 
 - AC1: ClickableCard sanitizes href before platform opening, invokes onPress afterward, blocks disabled activation and uses link/button semantics according to href presence.
@@ -21,7 +26,7 @@ A collection screen opens a help URL or requests a controlled selection change.
 
 - AC1: [Interactive card guide](../../../docs/app/interactive-actions.md#interactive-cards) and [authored source cases](../../../packages/ui/src/components/actions/interactive-cards.macos.mobile.test.tsrx).
 - AC2: [AppKit card qualification](../../../docs/app/interactive-actions.md#appkit-card-qualification) and the same source cases.
-- AC3: The guide and source cases cover controlled requests/feedback and retained checkbox semantics.
+- AC3: The [guide](../../../docs/app/interactive-actions.md#interactive-cards) and [source cases](../../../packages/ui/src/components/actions/interactive-cards.macos.mobile.test.tsrx) cover controlled requests/feedback and retained checkbox semantics.
 - AC4: [Target note](../exploration.md#operational-evidence) records scope and exact deferred commands.
 
 - AC5: [Disabled-card source contract](../../../packages/macos-renderer/README.md#focus-on-disabled-selection-cards), authored renderer ownership and UI card/FocusScope cases, and [target note](../exploration.md#operational-evidence).

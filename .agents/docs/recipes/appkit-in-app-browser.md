@@ -11,6 +11,11 @@ ownership. The existing URL-link recipe covers external launch; this recipe
 covers a package-owned WebKit window. Callback-based authentication stays with
 the auth-session service.
 
+## Requirements
+
+Open an owned WebKit browser window inside an AppKit app for help or document
+pages, including dialogs and file controls, with clean replacement and teardown.
+
 ## Acceptance criteria
 
 - AC1: Declare the package and rebuild its native Swift/AppKit/WebKit bridge. Report capability conditionally, validate HTTP(S)/host through Foundation without requiring JS URL globals, and cancel missing/invalid/failed opens without external delegation. Document the external-opener hard cutover and explicit platform opener.
@@ -23,9 +28,10 @@ the auth-session service.
 
 ## Documentation
 
-- AC1–AC3: [Package subset and migration](../../../packages/web-browser/README.md#experimental-appkit-subset), [app guide](../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window), public type comments and Octane service reference.
-- AC2, AC4: Five [owner cases](../../../packages/web-browser/tests/browser-owner.macos.test.ts), [manual fixture](../../../apps/macos/test/fixtures/browser-service.macos.tsrx) and [target note](../exploration.md#operational-evidence).
-- AC4: AppKit package dependency and manual lock importer link include the native service; the scoped Turbo package task orders app/CLI prerequisites without entering normal PR checks. Installs, task execution/graph validation, Swift/native execution, VoiceOver and relocated/package/signing checks remain deferred. Capability and opened are not runtime qualification.
+- AC1: [Package subset and migration](../../../packages/web-browser/README.md#experimental-appkit-subset), [app guide](../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window), public type comments and Octane service reference.
+- AC2: The same [package subset](../../../packages/web-browser/README.md#experimental-appkit-subset) and [app guide](../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window), plus five [owner cases](../../../packages/web-browser/tests/browser-owner.macos.test.ts), [manual fixture](../../../apps/macos/test/fixtures/browser-service.macos.tsrx) and [target note](../exploration.md#operational-evidence).
+- AC3: The same [package subset](../../../packages/web-browser/README.md#experimental-appkit-subset), [app guide](../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window), public type comments and Octane service reference.
+- AC4: Five [owner cases](../../../packages/web-browser/tests/browser-owner.macos.test.ts), [manual fixture](../../../apps/macos/test/fixtures/browser-service.macos.tsrx) and [target note](../exploration.md#operational-evidence). AppKit package dependency and manual lock importer link include the native service; the scoped Turbo package task orders app/CLI prerequisites without entering normal PR checks. Installs, task execution/graph validation, Swift/native execution, VoiceOver and relocated/package/signing checks remain deferred. Capability and opened are not runtime qualification.
 - AC5: [Manual page](../../../apps/macos/test/fixtures/browser-dialogs.html), package subset and [dialog source note](../exploration.md#operational-evidence). No dialog automation or native execution has run.
 
 - AC6: [Manual file controls](../../../apps/macos/test/fixtures/browser-file-selection.html), package subset and [file-control source note](../exploration.md#operational-evidence). No native picker or upload was executed.

@@ -8,6 +8,11 @@ Related APIs: Checkbox, Field
 
 A form with standalone and Field-owned checkbox metadata, including mixed selection.
 
+## Requirements
+
+Label a standalone or Field-owned AppKit checkbox, including descriptions,
+validation messages, tooltips and mixed selection.
+
 ## Acceptance criteria
 
 - AC1: Standalone labels/descriptions/status and label tooltip affordances render once, hidden text retains its accessible name, and enclosing Field owns metadata. Preserve class/style forms, ID ownership and host/state when metadata changes.
@@ -20,4 +25,4 @@ A form with standalone and Field-owned checkbox metadata, including mixed select
 - AC1: [Checkbox guide](../../../docs/app/components.md#checkbox-metadata-on-appkit) and [authored metadata/retention cases](../../../packages/ui/src/components/forms/checkbox.macos.mobile.test.tsrx). the one-prop tooltip correction received source/syntax review only, with native tooltip behavior unqualified.
 - AC2: The same guide and tests describe state/Field gates; [target progress](../exploration.md#operational-evidence) records exact deferred commands and the unresolved changeAction/mixed rollback contract. No runtime qualification is claimed.
 
-- AC3: [Current checkbox workflow](../../../docs/app/components.md#checkbox-metadata-on-appkit), [six new source cases](../../../packages/ui/src/components/forms/checkbox.macos.mobile.test.tsrx), [maintained fixture](../../../examples/probes/checkbox-list.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives/selection.md#appkit-checkbox-metadata), [feature note](../../../.changelog/appkit-checkbox-metadata.md) and [target note](../exploration.md#operational-evidence). All cases/probes require separate execution evidence; the original fixture run hook still exercises only direct list-child selection.
+- AC3: [Current checkbox workflow](../../../docs/app/components.md#checkbox-metadata-on-appkit), [six new source cases](../../../packages/ui/src/components/forms/checkbox.macos.mobile.test.tsrx), [maintained fixture](../../../examples/probes/checkbox-list.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives/selection.md#appkit-checkbox-metadata), [target leaf](../../../packages/ui/src/components/forms/Checkbox.macos.tsrx) and [target note](../exploration.md#operational-evidence). All cases/probes require separate execution evidence; the original fixture run hook still exercises only direct list-child selection.

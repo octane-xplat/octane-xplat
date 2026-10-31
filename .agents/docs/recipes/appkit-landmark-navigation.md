@@ -10,6 +10,11 @@ An AppKit screen contains navigation, primary content and supporting regions.
 The public landmark hook should offer a region-key source path without escaping
 modal containment or converting empty regions into Tab stops.
 
+## Requirements
+
+Cycle keyboard focus through an AppKit screen's regions with F6 and Shift+F6
+while respecting FocusScope boundaries and modal containment.
+
 ## Acceptance criteria
 
 - AC1: AppKit selects its dedicated hook with identical public role/label/ref types. Register native roots through owned refs and programmatic focus claims; missing dispatch/monitor/focus bridge preserves semantic forwarding. No direct app hook callers were found, so demand is an explicit multi-region-navigation assumption.
@@ -19,5 +24,7 @@ modal containment or converting empty regions into Tab stops.
 
 ## Documentation
 
-- AC1–AC4: [Region guide](../../../docs/app/navigation-ui.md#move-between-appkit-screen-regions), Octane navigation reference, feature note and [target note](../exploration.md#operational-evidence).
-- AC2–AC4: [Routing/compiler cases](../../../packages/ui/src/internal/accessibility/landmark-state.macos.test.ts), [containment query](../../../packages/ui/src/internal/accessibility/focus-scope-state.macos.test.ts) and [manual fixture](../../../examples/probes/landmark.macos.tsrx). Native dispatch callbacks are not OS input proof.
+- AC1: [Region guide](../../../docs/app/navigation-ui.md#move-between-appkit-screen-regions), Octane navigation reference, feature note and [target note](../exploration.md#operational-evidence).
+- AC2: The same [region guide](../../../docs/app/navigation-ui.md#move-between-appkit-screen-regions) and [target note](../exploration.md#operational-evidence), plus [routing/compiler cases](../../../packages/ui/src/internal/accessibility/landmark-state.macos.test.ts), [containment query](../../../packages/ui/src/internal/accessibility/focus-scope-state.macos.test.ts) and [manual fixture](../../../examples/probes/landmark.macos.tsrx). Native dispatch callbacks are not OS input proof.
+- AC3: The same [region guide](../../../docs/app/navigation-ui.md#move-between-appkit-screen-regions), [routing/compiler cases](../../../packages/ui/src/internal/accessibility/landmark-state.macos.test.ts), [containment query](../../../packages/ui/src/internal/accessibility/focus-scope-state.macos.test.ts), [manual fixture](../../../examples/probes/landmark.macos.tsrx) and [target note](../exploration.md#operational-evidence).
+- AC4: The same [region guide](../../../docs/app/navigation-ui.md#move-between-appkit-screen-regions), [routing/compiler cases](../../../packages/ui/src/internal/accessibility/landmark-state.macos.test.ts), [containment query](../../../packages/ui/src/internal/accessibility/focus-scope-state.macos.test.ts), [manual fixture](../../../examples/probes/landmark.macos.tsrx) and [target note](../exploration.md#operational-evidence). Native dispatch callbacks are not OS input proof.

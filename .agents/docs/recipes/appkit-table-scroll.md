@@ -10,6 +10,11 @@ A data table has more columns than its available width, as in the Astryx sticky
 columns example. A native horizontal viewport and stable sizing are needed
 before column pinning can work.
 
+## Requirements
+
+Scroll a wide AppKit data table in a native horizontal viewport with stable
+column sizing and preserved shared slots.
+
 ## Acceptance criteria
 
 - AC1: Data-mode Table has one native horizontal scroll viewport and a column document that preserves shared render-plan minimum width. Measure clip width on native geometry changes without repeated unchanged state writes. Child-composed tables retain their existing flow; document that boundary.
@@ -23,9 +28,11 @@ before column pinning can work.
 
 ## Documentation
 
-- AC1–AC4: [AppKit table guide](../../../docs/tables.md#wide-data-tables-on-appkit), Octane primitive reference and [target note](../exploration.md#operational-evidence).
+- AC1: [AppKit table guide](../../../docs/app/tables.md#wide-data-tables-on-appkit), Octane primitive reference and [target note](../exploration.md#operational-evidence).
+- AC2: The same [AppKit table guide](../../../docs/app/tables.md#wide-data-tables-on-appkit), Octane primitive reference and [target note](../exploration.md#operational-evidence).
+- AC3: The same [AppKit table guide](../../../docs/app/tables.md#wide-data-tables-on-appkit), Octane primitive reference and [target note](../exploration.md#operational-evidence).
 - AC4: [Manual fixture](../../../examples/probes/table-scroll.macos.tsrx). Existing pipeline/width tests do not prove native viewport layout or scrolling.
 
 - AC5: Five [plan integration cases](../../../packages/ui/src/table/column-resize-plan.macos.test.ts) and the manual fixture width toggle; app guide and primitive reference explain controlled widths. See the [width-plan source note](../exploration.md#operational-evidence).
 
-- AC6: [Body text guide](../../../docs/tables.md#choose-body-text-wrapping-on-appkit), [Octane guidance](../../skills/octane-xplat/references/primitives/tables.md#grouped-and-tree-tables), [four object-driver cases](../../../packages/ui/src/table/table-text-overflow.macos.mobile.test.tsrx), [two compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual fixture](../../../examples/probes/table-scroll.macos.tsrx) and [source note](../exploration.md#operational-evidence). All authored checks require separate execution evidence.
+- AC6: [Body text guide](../../../docs/app/tables.md#choose-body-text-wrapping-on-appkit), [Octane guidance](../../skills/octane-xplat/references/primitives/tables.md#grouped-and-tree-tables), [four object-driver cases](../../../packages/ui/src/table/table-text-overflow.macos.mobile.test.tsrx), [two compiler cases](../../../packages/ui/tests/table-universal.test.mjs), [manual fixture](../../../examples/probes/table-scroll.macos.tsrx) and [source note](../exploration.md#operational-evidence). All authored checks require separate execution evidence.

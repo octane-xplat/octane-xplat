@@ -8,6 +8,11 @@ Related APIs: Pressable, Button, testID, accessible
 
 A native save action needs a stable testing identifier and a human-facing name.
 
+## Requirements
+
+Give an AppKit Pressable or Button a stable native test identifier without
+changing its spoken accessibility name.
+
 ## Acceptance criteria
 
 - AC1: Concrete native hosts map testID to accessibilityIdentifier, independent of CSS id and spoken label. Updates retain the host; removal clears the identifier. Viewless nodes do not allocate a view/identifier.

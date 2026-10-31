@@ -8,6 +8,11 @@ Related APIs: CheckboxList, CheckboxListItem, Field
 
 A preferences form with multiple selected features and an optional select-all row.
 
+## Requirements
+
+Render a multi-choice AppKit checkbox list with shared selection state, per-row
+metadata and keyboard reachability.
+
 ## Acceptance criteria
 
 - AC1: Options and child members share a controlled/default checked set, preserve batched uncontrolled requests, avoid duplicate membership writes and keep controlled display until parent feedback. Standalone/value-less mixed rows use isChecked/onCheck independently.
@@ -17,5 +22,5 @@ A preferences form with multiple selected features and an optional select-all ro
 ## Documentation
 
 - AC1: [AppKit checkbox-list guide](../../../docs/app/components.md#checkbox-lists-on-appkit) and [authored selection/mixed cases](../../../packages/ui/src/components/forms/checkbox-list.macos.mobile.test.tsrx).
-- AC2: The guide, target leaves and same cases cover metadata/Field blocking; the macOS root export selects CheckboxListItem.macos.tsrx.
+- AC2: The [guide](../../../docs/app/components.md#checkbox-lists-on-appkit), target leaves and same [cases](../../../packages/ui/src/components/forms/checkbox-list.macos.mobile.test.tsrx) cover metadata/Field blocking; the macOS root export selects CheckboxListItem.macos.tsrx.
 - AC3: [Maintained fixture](../../../examples/probes/checkbox-list.macos.tsrx) checks direct child selection only; [target note](../exploration.md#operational-evidence) records all native gates and exact deferred commands. No runtime appearance or keyboard proof is claimed.

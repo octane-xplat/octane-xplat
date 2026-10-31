@@ -11,6 +11,11 @@ URLs to framework readers. Its responsive/Services fixtures need live layout and
 activity, and its maintained native route-link installer consumes launch links. Use the
 existing host bridge and listener sets; no new dependency or native engine.
 
+## Requirements
+
+Deliver native AppKit activity, resize and incoming URLs to framework readers
+through owned, isolated listener sets with consume-once queueing.
+
 ## Acceptance criteria
 
 - AC1: Capture native listener membership before each broadcast, skip removed registrations, keep newly added/re-registered callbacks for the next broadcast, and isolate synchronous live consumer errors, without claiming to await async work. Capture one resize-window payload and commit activity before notification. Keep registrations independently owned/idempotently removable even with identical callbacks.

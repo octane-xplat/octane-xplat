@@ -8,6 +8,11 @@ Related APIs: Switch, Slider, TabList, Tab
 
 Self-drawn settings controls and tab strips hosted in AppKit Mason views.
 
+## Requirements
+
+Expose self-drawn AppKit controls' roles, values and keyboard activation through
+native accessibility semantics without claiming VoiceOver or OS-input proof.
+
 ## Acceptance criteria
 
 - AC1: Map switch/tab/tablist/adjustable/link roles and checked/selected/numeric values to AppKit semantics. Honor explicit ignored hosts without conflating source mappings with VoiceOver support.
@@ -22,7 +27,7 @@ Self-drawn settings controls and tab strips hosted in AppKit Mason views.
 
 - AC1: [Renderer contract](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility) and [authored source regressions](../../../packages/macos-renderer/test/common-control-accessibility.test.ts).
 - AC2: The same contract and source cases cover action dispatch/guards; [target note](../exploration.md#operational-evidence) records exact deferred commands.
-- AC3: The renderer contract and source regressions document notification scope and remaining native qualification gates. No runtime or assistive-technology evidence is claimed.
+- AC3: The [renderer contract](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility) and [source regressions](../../../packages/macos-renderer/test/common-control-accessibility.test.ts) document notification scope and remaining native qualification gates. No runtime or assistive-technology evidence is claimed.
 
 - AC4: [Native activation contract](../../../packages/macos-renderer/README.md#self-drawn-control-keyboard-activation) and [authored shortcut/guard cases](../../../packages/macos-renderer/test/common-control-accessibility.test.ts). No actual OS key or shortcut run is claimed.
 

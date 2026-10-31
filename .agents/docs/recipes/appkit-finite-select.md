@@ -8,6 +8,11 @@ Related APIs: Selector, MultiSelector
 
 A finite option picker supports single/multiple choices and optional save actions.
 
+## Requirements
+
+Present finite single- and multi-choice pickers on AppKit with keyboard
+navigation, custom rendering and owned save and selection state.
+
 ## Acceptance criteria
 
 - AC1: Multiple mode and the preset reach checkbox/select-all presentation. Bulk selection includes visible enabled options, emits arrays and exposes mixed/checked bulk state.
@@ -25,8 +30,8 @@ A finite option picker supports single/multiple choices and optional save action
 ## Documentation
 
 - AC1: [AppKit selection guide](../../../docs/app/search-selection.md#appkit-finite-option-selection) and [authored object-driver cases](../../../packages/ui/src/components/forms/select.macos.mobile.test.tsrx).
-- AC2: The same guide/cases cover native-host guards, pending rollback and selection semantics.
-- AC3: The guide/cases cover custom/default content and missing-option fallback; native anchor/search lifetime requires separate target qualification.
+- AC2: The same [guide](../../../docs/app/search-selection.md#appkit-finite-option-selection)/[cases](../../../packages/ui/src/components/forms/select.macos.mobile.test.tsrx) cover native-host guards, pending rollback and selection semantics.
+- AC3: The [guide](../../../docs/app/search-selection.md#appkit-finite-option-selection)/[cases](../../../packages/ui/src/components/forms/select.macos.mobile.test.tsrx) cover custom/default content and missing-option fallback; native anchor/search lifetime requires separate target qualification.
 - AC4: [Target note](../exploration.md#operational-evidence) records exact deferred commands and remaining native evidence.
 
 - AC5: [AppKit keyboard guide](../../../docs/app/search-selection.md#use-selector-keys-on-appkit), [authored key-policy cases](../../../packages/ui/src/components/forms/select-keyboard.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/select-keyboard.macos.tsrx)..

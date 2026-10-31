@@ -8,6 +8,11 @@ Related APIs: TextArea, maxLength, value, defaultValue, onChange
 
 An AppKit note/composer field that accepts typing, pastes and composed text.
 
+## Requirements
+
+Bound an AppKit multiline field's committed text to a character cap without
+corrupting composition, selection or deletion.
+
 ## Acceptance criteria
 
 - AC1: A committed insertion/replacement fits the UTF-16 cap while preserving unchanged prefix/suffix and valid surrogate pairs. Deletion remains possible. Zero, omitted and invalid caps have explicit behavior; initial/external programmatic values are not truncated.

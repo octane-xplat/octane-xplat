@@ -11,6 +11,11 @@ while displaying outside the field's layout. This renderer prerequisite is now
 used by the [AppKit result host](appkit-typeahead-focus.md); native runtime
 qualification remains separate.
 
+## Requirements
+
+Stage a source-owned AppKit window layer that keeps the declaring tree's
+providers and gates reveal on the real portal commit.
+
 ## Acceptance criteria
 
 - AC1: A supplied source outlet bypasses standalone root creation. Gate geometry/reveal on the current content commit; explicit deferred show must not activate windows or change focus. Retired commits cannot resize or reopen a closed/replaced request.
@@ -22,7 +27,7 @@ qualification remains separate.
 ## Documentation
 
 - AC1: [Renderer contract](../../../packages/macos-renderer/README.md#stage-a-source-owned-window-layer), [target host](../../../packages/macos-renderer/src/layer.ts), eight new [authored source cases](../../../packages/macos-renderer/test/layer.test.ts) and [manual fixture](../../../examples/probes/window-layer-portal.macos.tsrx).
-- AC2: The same source/cases cover current owner/commit and native cleanup/geometry policies; fake method calls do not establish native focus or hit testing.
+- AC2: The same [source](../../../packages/macos-renderer/src/layer.ts)/[cases](../../../packages/macos-renderer/test/layer.test.ts) cover current owner/commit and native cleanup/geometry policies; fake method calls do not establish native focus or hit testing.
 - AC3: [Target note](../exploration.md#operational-evidence) records exact deferred renderer commands. The [result-host note](../exploration.md#operational-evidence) records component integration and remaining runtime limits. The fixture runner only waits/records.
 
 - AC4: [Native custom popover guide](../../../docs/app/search-selection.md#anchor-appkit-custom-popovers), [private owner](../../../packages/ui/src/components/overlays/popover-owner.macos.ts), eight [policy cases](../../../packages/ui/src/components/overlays/popover-owner.macos.mobile.test.ts), three [actual source-portal cases](../../../packages/ui/src/components/overlays/popover.macos.mobile.test.tsrx), [manual fixture](../../../examples/probes/popover.macos.tsrx) and [target note](../exploration.md#operational-evidence).

@@ -12,6 +12,11 @@ overwrite, lost prior slots and unguarded stale/disabled/partial-failure actions
 Common row/file actions motivate this work. An action/delegate selector metadata
 prerequisite was repaired first; none of this is native input evidence.
 
+## Requirements
+
+Attach a native AppKit context menu scoped to its current record and view, with
+owned items, guarded actions and clean teardown.
+
 ## Acceptance criteria
 
 - AC1: Own current view/item/scope sessions; snapshot primitive content and detect in-place changes while equal arrays/callback-only changes preserve the menu. Record id/view/content replacement and teardown retire callbacks before cleanup; current handlers receive enabled IDs only, blocking removed/unknown/stale/reentrant selections. Reject duplicate IDs or non-string IDs/titles with a generic status; empty content removes this custom menu and the trigger stays inline.
@@ -21,7 +26,7 @@ prerequisite was repaired first; none of this is native input evidence.
 
 ## Documentation
 
-- AC1–AC4: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../packages/context-menu/README.md), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).
-- AC1: [Owner-model cases](../../../packages/context-menu/tests/context-menu-owner.macos.test.mjs).
+- AC1: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../packages/context-menu/README.md), Octane primitives reference, feature note, [target progress](../exploration.md#operational-evidence) and [owner-model cases](../../../packages/context-menu/tests/context-menu-owner.macos.test.mjs).
 - AC2: [Actual renderer-branch cases](../../../packages/macos-renderer/test/context-menu.test.ts); simulated menu slots/actions do not prove native responder propagation or tracking.
 - AC3: [Maintained demo](../../../packages/demos/src/NativeContextMenuDemo.macos.tsrx) and [idle probe](../../../examples/probes/native-context-menu.macos.tsrx). The delayed operation starts only after an explicit button action; no menu/input operation runs automatically.
+- AC4: [Public native menus](../../../docs/platform/context-menu.md#native-macos-menus), [package README](../../../packages/context-menu/README.md), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).

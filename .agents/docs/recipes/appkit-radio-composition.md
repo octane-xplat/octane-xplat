@@ -8,6 +8,11 @@ Related APIs: RadioList, RadioListItem, Field
 
 A form choosing one plan, using option data or child parts.
 
+## Requirements
+
+Compose single-choice AppKit radio groups with shared selection, Field metadata
+and keyboard navigation.
+
 ## Acceptance criteria
 
 - AC1: Options and child items share controlled/default selection, report changes once and honor group/item disabled/read-only state. Preserve state/hosts when metadata changes and leave standalone items presentational.

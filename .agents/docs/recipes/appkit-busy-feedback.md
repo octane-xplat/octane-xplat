@@ -8,6 +8,12 @@ Related APIs: Spinner, ActivityIndicator, Switch, ProgressBar, Meter, ProgressGr
 
 A settings screen that saves a switch preference and displays progress feedback.
 
+## Requirements
+
+Show pending and progress feedback on AppKit through Spinner, Switch,
+ProgressBar and Meter while preserving control state, accessible names and
+reduced-motion behavior.
+
 ## Acceptance criteria
 
 - AC1: Spinner honors named sizes, contrast, text/node labels, accessible names, class/style forms and busy=false removal. A labeled ring has one ID and one progress owner.
@@ -22,10 +28,10 @@ A settings screen that saves a switch preference and displays progress feedback.
 
 - AC1: [Busy feedback guide](../../../docs/app/components.md#busy-feedback-on-appkit) and [authored Spinner source cases](../../../packages/ui/src/components/forms/activity-indicator.macos.mobile.test.tsrx).
 - AC2: [Switch source cases](../../../packages/ui/src/components/forms/switch.macos.mobile.test.tsrx) and the same guide. Native busy presentation requires separate target qualification.
-- AC3: The guide and [target progress](../exploration.md#operational-evidence) record historical limits; the [animation follow-up](../exploration.md#operational-evidence) records current source wiring and exact deferred commands; no runtime or pixel claim is made.
+- AC3: One added [animation-reset case](../../../packages/css-engine/test/css-cascade.test.ts), three [busy CSS/sampler/playback source cases](../../../packages/macos-renderer/test/busy-animations.test.ts), two [workspace observer source cases](../../../packages/macos-renderer/test/accessibility-display.test.ts) and one added [progress-class case](../../../packages/ui/src/components/feedback/progress-bar.macos.mobile.test.tsrx). The guide and [target progress](../exploration.md#operational-evidence) record historical limits and exact deferred commands; the [target fixture](../../../examples/probes/progress-bar.macos.tsrx) now mounts a spinner as well, though its runner records mounting only. No runtime or pixel claim is made; actual CSS preprocessing/bundling, native notifications/playback/teardown and reduced-motion behavior require separate target qualification.
 
 - AC4: [Progress usage and limitations](../../../docs/app/components.md#busy-feedback-on-appkit), four [object-driver cases](../../../packages/ui/src/components/feedback/progress-bar.macos.mobile.test.tsrx), [manual target fixture](../../../examples/probes/progress-bar.macos.tsrx) and [target progress](../exploration.md#operational-evidence). Native drawing/theme/AX/animation/layout and packaging require separate target qualification.
 
 - AC5: [Meter subset and usage](../../../docs/app/components.md#busy-feedback-on-appkit), four [Meter source cases](../../../packages/ui/src/components/feedback/meter.macos.mobile.test.tsrx), [shared progress fixture](../../../examples/probes/progress-bar.macos.tsrx) and [target note](../exploration.md#operational-evidence). value arc/color and native layout/drawing/AX/packaging remain gaps.
 
-- AC3: One added [animation-reset case](../../../packages/css-engine/test/css-cascade.test.ts), three [busy CSS/sampler/playback source cases](../../../packages/macos-renderer/test/busy-animations.test.ts), two [workspace observer source cases](../../../packages/macos-renderer/test/accessibility-display.test.ts) and one added [progress-class case](../../../packages/ui/src/components/feedback/progress-bar.macos.mobile.test.tsrx). The [target fixture](../../../examples/probes/progress-bar.macos.tsrx) now mounts a spinner as well; its runner records mounting only. Actual CSS preprocessing/bundling, native notifications/playback/teardown and reduced-motion behavior require separate target qualification.
+

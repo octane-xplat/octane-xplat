@@ -12,6 +12,11 @@ Source review found no-op timestamp loss and possible NaN/calendar rollover.
 Date-filter demand extends common record filtering beyond the maintained demo's
 book title/year fields; no runtime failure was observed.
 
+## Requirements
+
+Edit absolute-date filters in the AppKit PowerSearch editor with strict UTC
+parsing, preserved precision and explicit limits.
+
 ## Acceptance criteria
 
 - AC1: Reuse the range form's strict UTC parser for absolute dates. Preserve unchanged stored precision/time/expanded years. Typed four-digit-year dates/date-times accept UTC, seconds/milliseconds, with a plain date meaning midnight; reject invalid calendar rollover, incomplete/ambiguous/offset text and nonfinite/out-of-range stored drafts without exceptions or NaN saves.
@@ -20,6 +25,6 @@ book title/year fields; no runtime failure was observed.
 
 ## Documentation
 
-- AC1–AC3: [Public absolute-date workflow](../../../docs/app/power-search.md#edit-native-appkit-absolute-dates), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).
-- AC1–AC2: [Date model cases](../../../packages/ui/src/components/forms/power-search-absolute-date.macos.mobile.test.ts).
-- AC2–AC3: [Scalar mocked-control cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-scalars.macos.tsrx); not native input/calendar/AX evidence.
+- AC1: [Public absolute-date workflow](../../../docs/app/power-search.md#edit-native-appkit-absolute-dates), Octane primitives reference, feature note, [target progress](../exploration.md#operational-evidence) and [date model cases](../../../packages/ui/src/components/forms/power-search-absolute-date.macos.mobile.test.ts).
+- AC2: The same [absolute-date workflow](../../../docs/app/power-search.md#edit-native-appkit-absolute-dates), [date model cases](../../../packages/ui/src/components/forms/power-search-absolute-date.macos.mobile.test.ts), [scalar mocked-control cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-scalars.macos.tsrx); not native input/calendar/AX evidence.
+- AC3: The same [absolute-date workflow](../../../docs/app/power-search.md#edit-native-appkit-absolute-dates), [scalar mocked-control cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx), [manual fixture](../../../examples/probes/power-search-scalars.macos.tsrx) and [target progress](../exploration.md#operational-evidence); not native input/calendar/AX evidence.

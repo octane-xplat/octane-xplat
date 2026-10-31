@@ -14,6 +14,11 @@ floating fallback. Reuse `beginSheet` and the existing portal bridge. The shared
 surface engine deliberately renders inside a window and is not a substitute
 for an authentic window sheet. None of these findings is native runtime proof.
 
+## Requirements
+
+Present an AppKit window sheet owned by the declaring tree, with controlled
+close reporting and clean observer teardown.
+
 ## Acceptance criteria
 
 - AC1: Prepare a current portal/native session; show only after portal commit. Callback/content updates preserve the session and use current callbacks. Native dismissal or accepted/queued controlled close reports once; a still-true open request does not reopen. Retire before cleanup, ignoring stale/reentrant callbacks; unmount/id/view replacement and pre-presentation cancellation are silent. Missing/throwing preparation and native failure drop the portal and show a generic retryable message.
@@ -23,7 +28,7 @@ for an authentic window sheet. None of these findings is native runtime proof.
 
 ## Documentation
 
-- AC1–AC4: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../packages/sheet/README.md#native-macos-window-sheets), Octane overlays reference and [target note](../exploration.md#operational-evidence).
-- AC1: [Owner-model cases](../../../packages/sheet/tests/sheet-owner.macos.test.mjs).
+- AC1: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../packages/sheet/README.md#native-macos-window-sheets), Octane overlays reference, [target note](../exploration.md#operational-evidence) and [owner-model cases](../../../packages/sheet/tests/sheet-owner.macos.test.mjs).
 - AC2: [Native controller-model cases](../../../packages/macos-renderer/test/sheet.test.ts) and [actual renderer factory cases](../../../packages/macos-renderer/test/sheet-native-bridge.test.ts). The factory cases exercise the actual classes/bridge against fakes, not the ObjC ABI.
 - AC3: [Maintained demo](../../../packages/demos/src/NativeSheetDemo.macos.tsrx) and [idle probe](../../../examples/probes/native-sheet.macos.tsrx). No sheet/input action runs automatically.
+- AC4: [Native lifecycle](../../../docs/platform/sheet.md#native-macos-window-sheets), [README](../../../packages/sheet/README.md#native-macos-window-sheets), Octane overlays reference and [target note](../exploration.md#operational-evidence).

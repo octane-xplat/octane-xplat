@@ -9,6 +9,12 @@ Related APIs: @octane-xplat/gif, AnimatedImage, AnimatedImageProps, prefetch
 A shared gallery or onboarding screen needs a small animated illustration.
 Core Image is a static image path; the optional GIF package owns animation.
 
+## Requirements
+
+Display an animated illustration on AppKit through the optional GIF package,
+replace or retire it without stale work, and keep native playback qualification
+separate from source evidence.
+
 ## Acceptance criteria
 
 - AC1: Declare the package and rebuild its native NSImageView bridge. Avoid mobile-plugin imports at the AppKit leaf, preserve shared props and document missing-bridge failure and explicit sizing.
@@ -18,5 +24,7 @@ Core Image is a static image path; the optional GIF package owns animation.
 
 ## Documentation
 
-- AC1–AC4: [Package subset](../../../packages/gif/README.md#experimental-appkit-subset), Octane primitive reference, shared demo and [target note](../exploration.md#operational-evidence).
-- AC3–AC4: Six [ownership cases](../../../packages/gif/tests/animated-image-owner.macos.test.ts) and [manual fixture](../../../examples/probes/animated-image.macos.tsrx). Existing packed suite checks declarations and cannot prove native animation.
+- AC1: [Package subset](../../../packages/gif/README.md#experimental-appkit-subset), Octane primitive reference, shared demo and [target note](../exploration.md#operational-evidence).
+- AC2: The same [package subset](../../../packages/gif/README.md#experimental-appkit-subset), Octane primitive reference, shared demo and [target note](../exploration.md#operational-evidence).
+- AC3: The same [package subset](../../../packages/gif/README.md#experimental-appkit-subset) and [target note](../exploration.md#operational-evidence), plus six [ownership cases](../../../packages/gif/tests/animated-image-owner.macos.test.ts) and [manual fixture](../../../examples/probes/animated-image.macos.tsrx). Existing packed suite checks declarations and cannot prove native animation.
+- AC4: The same [package subset](../../../packages/gif/README.md#experimental-appkit-subset), six [ownership cases](../../../packages/gif/tests/animated-image-owner.macos.test.ts), [manual fixture](../../../examples/probes/animated-image.macos.tsrx) and [target note](../exploration.md#operational-evidence). Existing packed suite checks declarations and cannot prove native animation.

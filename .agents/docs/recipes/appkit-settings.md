@@ -10,6 +10,11 @@ A native AppKit screen offers a user action for changing a system preference
 or following up a denied permission. The shared Services screen already has
 an Open settings action.
 
+## Requirements
+
+Open System Settings from an explicit AppKit user action, reporting availability
+and launch failures without claiming permission changes.
+
 ## Acceptance criteria
 
 - AC1: Check cheap native-method support separately from installed-application availability. Availability must not launch an application; missing/partial/late native bridges are reflected live.

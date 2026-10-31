@@ -8,6 +8,11 @@ Related APIs: Switch, Field
 
 A settings toggle whose changeAction saves the requested value asynchronously.
 
+## Requirements
+
+Save an AppKit switch change asynchronously with owned pending state, rollback
+on failure and label-press routing.
+
 ## Acceptance criteria
 
 - AC1: Call onChange before changeAction, report pending busy state and prevent overlapping actions. Keep uncontrolled state on success; controlled display follows the parent.
@@ -25,7 +30,7 @@ A settings toggle whose changeAction saves the requested value asynchronously.
 ## Documentation
 
 - AC1: [Switch save guide](../../../docs/app/components.md#save-a-switch-setting-on-appkit) and [authored pending/order tests](../../../packages/ui/src/components/forms/switch.macos.mobile.test.tsrx).
-- AC2: The same guide and tests describe rollback, teardown and Field blocking.
+- AC2: The same [guide](../../../docs/app/components.md#save-a-switch-setting-on-appkit) and [tests](../../../packages/ui/src/components/forms/switch.macos.mobile.test.tsrx) describe rollback, teardown and Field blocking.
 - AC3: [Target progress](../exploration.md#operational-evidence) records source-only evidence and exact deferred commands. Native qualification remains open.
 
 - AC4: [Metadata usage and label-click qualification](../../../docs/app/components.md#save-a-switch-setting-on-appkit), [source cases](../../../packages/ui/src/components/forms/switch.macos.mobile.test.tsrx) and [metadata fixture](../../../examples/probes/switch.macos.tsrx). Native layout, focus and accessibility require separate target qualification.
@@ -34,4 +39,4 @@ A settings toggle whose changeAction saves the requested value asynchronously.
 
 - AC6: [Switch save guide](../../../docs/app/components.md#save-a-switch-setting-on-appkit), four added source cases and [target note](../exploration.md#operational-evidence).
 
-- AC7: [Latest local switch choices](../../../docs/app/components.md#save-a-switch-setting-on-appkit), [five added object-driver cases](../../../packages/ui/src/components/forms/switch.macos.mobile.test.tsrx), [extended fixture](../../../examples/probes/switch.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives/selection.md#appkit-switch-saves), [unreleased feature note](../../../.changelog/appkit-switch-actions.md) and [target note](../exploration.md#operational-evidence). All cases/probes require separate execution evidence; the original fixture run hook still covers metadata/direct button dispatch only.
+- AC7: [Latest local switch choices](../../../docs/app/components.md#save-a-switch-setting-on-appkit), [five added object-driver cases](../../../packages/ui/src/components/forms/switch.macos.mobile.test.tsrx), [extended fixture](../../../examples/probes/switch.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives/selection.md#appkit-switch-saves), [target leaf](../../../packages/ui/src/components/forms/Switch.macos.tsrx) and [target note](../exploration.md#operational-evidence). All cases/probes require separate execution evidence; the original fixture run hook still covers metadata/direct button dispatch only.

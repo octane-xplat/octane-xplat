@@ -9,6 +9,11 @@ Related APIs: TextInput, TextArea, SearchInput, TextInputHandle, NumberInput, on
 Ordinary name, message and search fields like Home and ComponentsDemo, with
 controlled or uncontrolled text and parent updates during callbacks.
 
+## Requirements
+
+Keep AppKit text and number field actions owned by the current field across
+callbacks, composition and teardown.
+
 ## Acceptance criteria
 
 - AC1: Held edit/submit/clear callbacks read current props/inherited blocking and callback/return-key policy. Mounted-host and reentry guards reject retired/nested mutations. Rapid uncontrolled edits update current local text before render; controlled parents own display. isLoading remains descriptive.
@@ -21,7 +26,7 @@ controlled or uncontrolled text and parent updates during callbacks.
 ## Documentation
 
 - AC1: [Guide](../../../docs/app/text-entry.md#keep-appkit-text-actions-owned-by-the-current-field), [target controls](../../../packages/ui/src/components/forms/text-controls.macos.tsrx), ten [authored object-driver cases](../../../packages/ui/src/components/forms/text-entry-ownership.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/text-entry-ownership.macos.tsrx). Existing text-control cases provide related source coverage.
-- AC2: The same source/cases cover direct/editor marked state, accepted callback order, parent correction/replacement/teardown and callback-driven focus. This does not add a public autofocus prop or establish IME/Return ordering.
+- AC2: The same [source](../../../packages/ui/src/components/forms/text-controls.macos.tsrx)/[cases](../../../packages/ui/src/components/forms/text-entry-ownership.macos.mobile.test.tsrx) cover direct/editor marked state, accepted callback order, parent correction/replacement/teardown and callback-driven focus. This does not add a public autofocus prop or establish IME/Return ordering.
 - AC3: [Private native handle](../../../packages/ui/src/components/forms/date-field-handle.macos.ts) is reused without behavior changes. [Target note](../exploration.md#operational-evidence) records exact deferred checks and qualification limits.
 - AC4: [Pending-value guide](../../../docs/app/text-entry.md#keep-pending-appkit-values-with-their-field), [renderer contract](../../../packages/macos-renderer/README.md#own-pending-value-work), [writer](../../../packages/macos-renderer/src/text-value.ts), [fourteen authored cases](../../../packages/macos-renderer/test/text-value-ownership.test.ts), [existing adapter models](../../../packages/macos-renderer/test/text-value.test.ts), [manual fixture](../../../examples/probes/text-entry-ownership.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives/text-entry.md#controlled-appkit-text-during-composition) and [target note](../exploration.md#operational-evidence). All cases/compiler/native/installed checks require separate execution evidence.
 

@@ -9,6 +9,11 @@ Related APIs: Pager, ScrollableArea, InternationalizationProvider
 A small onboarding flow or gallery, matching PagerDemo's full-host pages and
 caller-owned navigation. Native support is experimental and unqualified.
 
+## Requirements
+
+Page through bounded AppKit content one viewport at a time, reporting settled
+user scrolls to the caller-owned page state.
+
 ## Acceptance criteria
 
 - AC1: Bound the viewport; each page fills it. Seed defaultPage once, clamp current count, apply controlled page changes without callback echoes, and render empty/refilled content. RTL follows current context; respect reduced motion.

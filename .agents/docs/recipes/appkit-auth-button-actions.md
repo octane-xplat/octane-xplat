@@ -12,6 +12,12 @@ still-pending attempt. Google's gesture container did not use native NSButton
 actions. The renderer also ignored the shared intrinsic isEnabled spelling.
 These are source findings, not observed native input/sign-in failures.
 
+## Requirements
+
+Keep each mounted AppKit provider sign-in button's pending action owned by that
+button across presses, errors and teardown, without cancelling provider work or
+reaching retired components.
+
 ## Acceptance criteria
 
 - AC1: Each mounted AppKit provider button owns one pending action. Read current props, ignore disabled/pending/reentrant presses, and recheck observed owner/disabled state after onPress without treating its return as a gate. Keep current onResult ownership through prop/style changes and while disabled; retire it on unmount/replacement without cancelling provider work.
@@ -21,6 +27,7 @@ These are source findings, not observed native input/sign-in failures.
 
 ## Documentation
 
-- AC1–AC4: [Button guide](../../../packages/auth/README.md#appkit-button-action-ownership), Octane services reference, fix note and [target note](../exploration.md#operational-evidence).
-- AC1–AC2, AC4: [Action model](../../../packages/auth/tests/button-action.macos.test.mjs).
-- AC3–AC4: [Native renderer branch cases](../../../packages/macos-renderer/test/button-state.test.ts) and [manual fixture](../../../examples/probes/auth-buttons.macos.tsrx). Direct branch dispatch is not native keyboard or AX input proof.
+- AC1: [Button guide](../../../packages/auth/README.md#appkit-button-action-ownership), Octane services reference, fix note, [action model](../../../packages/auth/tests/button-action.macos.test.mjs) and [target note](../exploration.md#operational-evidence).
+- AC2: The same [button guide](../../../packages/auth/README.md#appkit-button-action-ownership) and [action model](../../../packages/auth/tests/button-action.macos.test.mjs) cover owned errors, reentry and stale settlement.
+- AC3: The same [button guide](../../../packages/auth/README.md#appkit-button-action-ownership), plus [native renderer branch cases](../../../packages/macos-renderer/test/button-state.test.ts) and [manual fixture](../../../examples/probes/auth-buttons.macos.tsrx). Direct branch dispatch is not native keyboard or AX input proof.
+- AC4: The same [button guide](../../../packages/auth/README.md#appkit-button-action-ownership), [action model](../../../packages/auth/tests/button-action.macos.test.mjs), [renderer branch cases](../../../packages/macos-renderer/test/button-state.test.ts), [manual fixture](../../../examples/probes/auth-buttons.macos.tsrx) and [target note](../exploration.md#operational-evidence). Direct branch dispatch is not native keyboard or AX input proof.

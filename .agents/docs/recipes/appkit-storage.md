@@ -12,6 +12,11 @@ query workflows establish demand. Prefer NSUserDefaults through the existing
 host hooks; add no dependencies. Ordinary settings and refetchable query cache
 need different fallback policies. Source models are not native persistence proof.
 
+## Requirements
+
+Save ordinary settings and purge query snapshots on AppKit through host-owned
+storage with correct handoff, fallback and teardown behavior.
+
 ## Acceptance criteria
 
 - AC1: Keep ordinary settings immediately readable across missing set/remove hooks, preserve removal tombstones, adopt explicit pre-host mutations once a host appears, isolate previous-host state, treat native misses as authoritative for acknowledged mirrors and preserve method receivers. Reads must not replay writes. Missing handoff keeps flush false; synchronous writer-only hosts still confirm handoff. Preserve intent on native failure and newer reentrant writes during a bounded flush.
@@ -21,6 +26,7 @@ need different fallback policies. Source models are not native persistence proof
 
 ## Documentation
 
-- AC1–AC2: [AppKit settings](../../../docs/platform/platform-services.md#appkit-settings), [platform README](../../../packages/platform/README.md), [storage leaf](../../../packages/platform/src/storage.macos.ts), [host contract](../../../packages/platform/src/appkit-host.ts) and [storage models](../../../packages/platform/tests/storage.test.mjs). Eight additional source-model cases are authored. Existing writer-only and lazy-subscription expectations remain in place.
+- AC1: [AppKit settings](../../../docs/platform/platform-services.md#appkit-settings), [platform README](../../../packages/platform/README.md), [storage leaf](../../../packages/platform/src/storage.macos.ts), [host contract](../../../packages/platform/src/appkit-host.ts) and [storage models](../../../packages/platform/tests/storage.test.mjs). Eight additional source-model cases are authored. Existing writer-only and lazy-subscription expectations remain in place.
+- AC2: The same [AppKit settings guide](../../../docs/platform/platform-services.md#appkit-settings), [host contract](../../../packages/platform/src/appkit-host.ts) and [storage models](../../../packages/platform/tests/storage.test.mjs). Eight additional source-model cases are authored; existing lazy-subscription expectations remain in place.
 - AC3: [Persistence guide](../../../docs/app/data.md#persisting-records), [query adapter](../../../packages/ui/src/data/query-storage.macos.ts) and [query adapter models](../../../packages/ui/tests/query-storage.macos.test.mjs). Five additional cases and a revised failed-purge case are authored. Query-cache purge source already propagates adapter removal failures; no shared engine changes.
 - AC4: [Manual controls](../../../packages/app/src/Storage.macos.tsrx), [Services integration](../../../packages/app/src/Services.macos.tsrx), [idle probe](../../../examples/probes/storage.macos.tsrx), [skill guidance](../../skills/octane-xplat/references/services/storage.md#storage--keyvalue) and [target note](../exploration.md#operational-evidence). All authored checks, native NSUserDefaults/restart/lifecycle/input/AX/memory and installed consumers require separate execution evidence/unqualified. The probe's run function waits only for mounting and never presses a button.

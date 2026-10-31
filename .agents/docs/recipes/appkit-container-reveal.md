@@ -9,6 +9,11 @@ Related APIs: useContainerReveal, UseContainerRevealOptions, UseContainerRevealR
 A file list needs secondary actions revealed by pointer hover or keyboard focus,
 as in the Astryx sandbox's file-row example. Actions must remain reachable.
 
+## Requirements
+
+Reveal secondary row actions on AppKit by pointer hover or keyboard focus while
+keeping the actions mounted and reachable.
+
 ## Acceptance criteria
 
 - AC1: The AppKit export selects its own hook leaf and registers native-compatible CSS; the shared API stays isEnabled plus container/content prop getters. Missing hover/focus tracking or disabled reveal leaves actions visible.
@@ -18,5 +23,7 @@ as in the Astryx sandbox's file-row example. Actions must remain reachable.
 
 ## Documentation
 
-- AC1–AC4: [App guide](../../../docs/app/components.md#media-contrast-and-row-actions), Octane primitive reference and [target note](../exploration.md#operational-evidence).
-- AC2–AC4: Two new cases in [CSS machinery tests](../../../packages/macos-renderer/test/css-machinery.test.ts) and [manual fixture](../../../examples/probes/container-reveal.macos.tsrx). Simulated cascade/notification cases cannot prove OS input or accessibility.
+- AC1: [App guide](../../../docs/app/components.md#media-contrast-and-row-actions), Octane primitive reference and [target note](../exploration.md#operational-evidence).
+- AC2: The same [app guide](../../../docs/app/components.md#media-contrast-and-row-actions) and [target note](../exploration.md#operational-evidence), plus two new cases in [CSS machinery tests](../../../packages/macos-renderer/test/css-machinery.test.ts) and [manual fixture](../../../examples/probes/container-reveal.macos.tsrx). Simulated cascade/notification cases cannot prove OS input or accessibility.
+- AC3: The same [app guide](../../../docs/app/components.md#media-contrast-and-row-actions), [CSS machinery cases](../../../packages/macos-renderer/test/css-machinery.test.ts), [manual fixture](../../../examples/probes/container-reveal.macos.tsrx) and [target note](../exploration.md#operational-evidence).
+- AC4: The same [app guide](../../../docs/app/components.md#media-contrast-and-row-actions), [CSS machinery cases](../../../packages/macos-renderer/test/css-machinery.test.ts), [manual fixture](../../../examples/probes/container-reveal.macos.tsrx) and [target note](../exploration.md#operational-evidence). Simulated cascade/notification cases cannot prove OS input or accessibility.

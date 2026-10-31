@@ -9,6 +9,11 @@ Related APIs: Tokenizer, tokenOverflowBehavior, renderToken
 A compact tag/people field like the sandbox token-entry examples, with long
 labels and embedded actions. AppKit support remains experimental.
 
+## Requirements
+
+Collapse overflowing AppKit token rows into a native-clipped viewport with an
+outside counter driven by real geometry.
+
 ## Acceptance criteria
 
 - AC1: Use a native-clipped flex viewport with an outside counter. Separate collapsed-row measurement refs from expanded layer token copies. Convert current native rectangles into viewport coordinates, count partial/whole clipping on both edges and preserve RTL/nonzero bounds behavior.
@@ -18,5 +23,5 @@ labels and embedded actions. AppKit support remains experimental.
 ## Documentation
 
 - AC1: [Guide](../../../docs/app/search-selection.md#collapse-appkit-token-rows-with-native-geometry), [target leaf](../../../packages/ui/src/components/forms/Tokenizer.macos.tsrx), [native geometry](../../../packages/ui/src/components/forms/tokenizer-overflow.macos.ts), eight [authored geometry cases](../../../packages/ui/src/components/forms/tokenizer-overflow.macos.test.ts), five [object-driver cases](../../../packages/ui/src/components/forms/tokenizer-overflow.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/tokenizer-overflow.macos.tsrx).
-- AC2: The same source/cases cover current identities, incomplete layout, resizing, counter reclamation/stale notifications and teardown. Fake geometry does not prove actual native layout ordering.
+- AC2: The same [source](../../../packages/ui/src/components/forms/tokenizer-overflow.macos.ts)/[cases](../../../packages/ui/src/components/forms/tokenizer-overflow.macos.test.ts) cover current identities, incomplete layout, resizing, counter reclamation/stale notifications and teardown. Fake geometry does not prove actual native layout ordering.
 - AC3: [Target note](../exploration.md#operational-evidence) records exact deferred commands, [clipping prerequisite](appkit-overflow-clipping.md), and remaining qualification/inline-layer limits.

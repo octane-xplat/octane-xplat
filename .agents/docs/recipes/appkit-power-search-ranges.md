@@ -12,6 +12,11 @@ string/number filtering, so date-range demand is an explicit extension to common
 record filtering, not a newly observed failing demo. Pager's stale audit placeholder
 was checked first: source paging already exists and remains runtime-unqualified.
 
+## Requirements
+
+Edit date-range filters in the AppKit PowerSearch editor using existing native
+controls, with draft ownership and validated bounds.
+
 ## Acceptance criteria
 
 - AC1: Route AppKit date_range to existing native text/segmented/button controls. Support NOW, UTC absolute date/time and signed/fractional/scientific relative amounts with declared units and preserved anchor metadata. No-op absolute edits preserve original precision/expanded years; new text accepts canonical four-digit UTC dates/date-times without calendar rollover.
@@ -21,6 +26,7 @@ was checked first: source paging already exists and remains runtime-unqualified.
 
 ## Documentation
 
-- AC1–AC4: [Public range form](../../../docs/app/power-search.md#edit-native-appkit-date-ranges), Octane primitives reference, feature note and [target note](../exploration.md#operational-evidence).
-- AC1–AC2, AC4: [Value model](../../../packages/ui/src/components/forms/power-search-date-range.macos.mobile.test.ts).
-- AC3–AC4: [Mocked-control compiler cases](../../../packages/ui/src/components/forms/power-search-range-editor.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-range.macos.tsrx). These do not qualify real control events, focus, IME or AX.
+- AC1: [Public range form](../../../docs/app/power-search.md#edit-native-appkit-date-ranges), Octane primitives reference, feature note, [target note](../exploration.md#operational-evidence) and [value model](../../../packages/ui/src/components/forms/power-search-date-range.macos.mobile.test.ts).
+- AC2: The same [range form](../../../docs/app/power-search.md#edit-native-appkit-date-ranges) and [value model](../../../packages/ui/src/components/forms/power-search-date-range.macos.mobile.test.ts).
+- AC3: The same [range form](../../../docs/app/power-search.md#edit-native-appkit-date-ranges), plus [mocked-control compiler cases](../../../packages/ui/src/components/forms/power-search-range-editor.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/power-search-range.macos.tsrx). These do not qualify real control events, focus, IME or AX.
+- AC4: The same [range form](../../../docs/app/power-search.md#edit-native-appkit-date-ranges), [value model](../../../packages/ui/src/components/forms/power-search-date-range.macos.mobile.test.ts), [mocked-control compiler cases](../../../packages/ui/src/components/forms/power-search-range-editor.macos.mobile.test.tsrx), [manual fixture](../../../examples/probes/power-search-range.macos.tsrx) and [target note](../exploration.md#operational-evidence). These do not qualify real control events, focus, IME or AX.

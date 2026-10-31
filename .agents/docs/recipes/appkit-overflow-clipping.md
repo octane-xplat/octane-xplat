@@ -9,6 +9,11 @@ Related APIs: style.overflow, style.overflowX, style.overflowY, NSView.clipsToBo
 A fixed-width native container whose children exceed its bounds. Token entry
 and other compact application rows need this renderer prerequisite.
 
+## Requirements
+
+Clip AppKit container overflow explicitly per axis and restore the native
+baseline when styles are removed.
+
 ## Acceptance criteria
 
 - AC1: Apply explicit native bounds clipping for two clipped axes and explicit visibility for two visible axes. Resolve shorthand and axis overrides from the final style; keep rounded layer masking independent.

@@ -13,6 +13,11 @@ control/action engine rather than add another native plugin. Keep that raw
 index contract separate from the new platform-authentic ID API. Presence and
 source models are not evidence of native input or package qualification.
 
+## Requirements
+
+Offer finite record choices through a native AppKit picker whose stable option
+IDs, selection and actions stay owned by the current attachment.
+
 ## Acceptance criteria
 
 - AC1: Add a macOS-only platform entry with AppKitPicker, AppKitPickerOption and AppKitPickerProps, standalone matching declarations and a typed packed-consumer lane in both Bundler/NodeNext modes. Preserve the empty root, use existing declared dependencies, and keep mobile adapters outside the AppKit import path. Authored consumers require separate execution evidence.

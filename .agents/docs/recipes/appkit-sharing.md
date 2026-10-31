@@ -11,6 +11,11 @@ previously required a private harness-global seam; that host treated file URLs
 as raw paths and returned shared on picker launch. No real picker failure or
 recipient behavior was observed; these findings come from source inspection.
 
+## Requirements
+
+Share text, links and local files from AppKit through a package-owned native
+picker with owned lifecycle and explicit qualification limits.
+
 ## Acceptance criteria
 
 - AC1: Native AppKit resolves a package-owned compiled bridge without requiring the harness seam. Preserve the public API/types and export ShareFileOptions in macOS declarations. Header/source/framework metadata are packaged and missing/stale metadata is unavailable; native invocation errors reject.
@@ -20,6 +25,7 @@ recipient behavior was observed; these findings come from source inspection.
 
 ## Documentation
 
-- AC1–AC4: [Package guide](../../../packages/share/README.md#native-appkit-sharing), Octane services reference, fix note and [target note](../exploration.md#operational-evidence).
-- AC1–AC4: [Facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m), [metadata verifier](../../../packages/share/tests/verify-macos.mjs) and [consumer lanes](../../../packages/share/tests/packed-consumer.mjs).
+- AC1: [Package guide](../../../packages/share/README.md#native-appkit-sharing), Octane services reference, fix note, [facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m), [metadata verifier](../../../packages/share/tests/verify-macos.mjs), [consumer lanes](../../../packages/share/tests/packed-consumer.mjs) and [target note](../exploration.md#operational-evidence).
+- AC2: The same [package guide](../../../packages/share/README.md#native-appkit-sharing), [facade cases](../../../packages/share/tests/share.macos.test.ts) and [intercepted picker](../../../packages/share/tests/native-picker.m).
+- AC3: The same [package guide](../../../packages/share/README.md#native-appkit-sharing), [facade cases](../../../packages/share/tests/share.macos.test.ts), [intercepted picker](../../../packages/share/tests/native-picker.m) and [target note](../exploration.md#operational-evidence).
 - AC4: [Manual fixture](../../../examples/probes/share.macos.tsrx); mounting it performs no file write, share action, OS UI or delivery.

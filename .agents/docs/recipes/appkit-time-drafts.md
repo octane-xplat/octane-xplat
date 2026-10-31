@@ -9,6 +9,11 @@ Related APIs: TimeInput, DateTimeInput, hasSeconds, changeAction, hasClear
 A controlled booking/settings time or date-time field with typing, Return/blur commit and a
 pending save. Native support remains experimental.
 
+## Requirements
+
+Keep AppKit time and date-time drafts current across typing, commit and pending
+saves without committing composing text.
+
 ## Acceptance criteria
 
 - AC1: Text/submit/clear handlers check current native attachment, disabled/read-only/loading, callback reentry and pending-save ownership before draft writes. Retained callbacks use latest pending text, seconds and bounds. Work rejected by these ownership guards preserves the draft; parent correction remains authoritative. Completed invalid drafts retain the existing submit/blur revert behavior.

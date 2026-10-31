@@ -8,6 +8,11 @@ Related APIs: ScrollableArea, useScrollableArea, InternationalizationProvider
 
 An LTR or RTL viewport with inline scrolling and caller-owned direction.
 
+## Requirements
+
+Seek and measure an AppKit scroll viewport from its logical start in LTR and
+RTL, with owned geometry observation and viewport metadata.
+
 ## Acceptance criteria
 
 - AC1: Public inline seek/state count from logical start; RTL mirrors physical clip x across the scrollable range. Clamp valid seeks, ignore invalid/missing axes and preserve the other axis. Internal physical callers retain their coordinate contract.
@@ -21,7 +26,7 @@ An LTR or RTL viewport with inline scrolling and caller-owned direction.
 ## Documentation
 
 - AC1: [Logical scroll guide](../../../docs/app/primitives.md#logical-scroll-offsets-on-appkit), [conversion helper](../../../packages/ui/src/components/layout/scrollable-area-logical.macos.ts) and [authored cases](../../../packages/ui/src/components/layout/scrollable-area-appkit.mobile.test.tsrx).
-- AC2: The same guide/tests cover direction changes, stable handles and padding.
+- AC2: The same [guide](../../../docs/app/primitives.md#logical-scroll-offsets-on-appkit)/[tests](../../../packages/ui/src/components/layout/scrollable-area-appkit.mobile.test.tsrx) cover direction changes, stable handles and padding.
 - AC3: The guide and [target note](../exploration.md#operational-evidence) record scope, exact deferred commands and remaining native gates.
 
 - AC4: [Viewport metadata guide](../../../docs/app/primitives.md#macos-scrolling-and-refresh), [native description mapping](../../../packages/macos-renderer/README.md#scroll-viewport-accessibility-descriptions), one added [UI source case](../../../packages/ui/src/components/layout/scrollable-area-appkit.mobile.test.tsrx), one [real native prop-branch case](../../../packages/macos-renderer/test/scroll-accessibility.test.ts), [manual fixture](../../../examples/probes/scroll-metadata.macos.tsrx) and [target note](../exploration.md#operational-evidence). Native VoiceOver hierarchy/descendant navigation, updates/removal, identity and packing require separate target qualification.

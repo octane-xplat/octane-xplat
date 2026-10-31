@@ -8,6 +8,11 @@ Related APIs: Slider, Field
 
 A settings screen with a scalar volume and a bounded price range.
 
+## Requirements
+
+Adjust scalar or range values on AppKit with bounded steps, per-thumb keyboard
+access and owned drag previews.
+
 ## Acceptance criteria
 
 - AC1: Scalar and pair values respect explicit bounds, positive steps and noncrossing thumbs. Uncontrolled changes persist; controlled changes request parent feedback. Define omitted-step, equal-bound and invalid-number behavior. A drag preview accepts matching normalized starting/latest-requested parent feedback; other parent values, control-mode/limits/shape changes or blocking retire it. Keys/adjustments retire the preview; equal normalized writes do not signal reset.

@@ -9,6 +9,11 @@ Related APIs: BaseTypeahead, Typeahead, TypeaheadInputHandle, SearchSource, hasE
 A people/label search in an ordinary form, matching ComponentsDemo's Typeahead
 and the sandbox's token-entry examples. Native support remains experimental.
 
+## Requirements
+
+Own AppKit typeahead focus, search requests, keys, roles and floating results
+through the current input's editor.
+
 ## Acceptance criteria
 
 - AC1: Connect existing focus/bootstrap and autofocus flags. Retain stable native attachment, current live handles and owned blur, native enabled/editable state and inherited blocking. Keep field-leave blur separate from moving into result descendants.
@@ -24,7 +29,7 @@ and the sandbox's token-entry examples. Native support remains experimental.
 ## Documentation
 
 - AC1: [AppKit typeahead guide](../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus), [container](../../../packages/ui/src/components/forms/BaseTypeahead.macos.tsrx), [view](../../../packages/ui/src/components/forms/BaseTypeaheadView.macos.tsrx), [authored cases](../../../packages/ui/src/components/forms/typeahead-focus.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/typeahead-focus.macos.tsrx).
-- AC2: The same guide/cases cover current request ownership and callback teardown. Source inspection includes Typeahead's wrapper; no other target leaf or shared runner changed.
+- AC2: The same [guide](../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus)/[cases](../../../packages/ui/src/components/forms/typeahead-focus.macos.mobile.test.tsrx) cover current request ownership and callback teardown. Source inspection includes Typeahead's wrapper; no other target leaf or shared runner changed.
 - AC3: [Target note](../exploration.md#operational-evidence) records exact deferred commands and remaining gates. Results now have the separate source-owned portal below; native popup/keyboard/AX parity requires separate target qualification.
 
 - AC4: [AppKit key guide](../../../docs/app/search-selection.md#choose-appkit-typeahead-results-with-keys), [policy](../../../packages/ui/src/components/forms/typeahead-keys.macos.ts), seven [policy cases](../../../packages/ui/src/components/forms/typeahead-keys.macos.test.ts), five [wiring cases](../../../packages/ui/src/components/forms/typeahead-keys.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/typeahead-keys.macos.tsrx). Native input/repeat/IME/Tab/layer/reveal/AX and packaging require separate target qualification.

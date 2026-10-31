@@ -11,6 +11,11 @@ reads, explicit requests and sends. The existing AppKit facade routed both permi
 methods to the native authorization-request selector. Source inspection found the
 mismatch; no real prompt was observed during this work.
 
+## Requirements
+
+Read, request and send local-notification permissions on AppKit with distinct
+settings-only reads and owned lifecycle.
+
 ## Acceptance criteria
 
 - AC1: Native AppKit reads use a dedicated settings-only selector; request remains explicit. Both direct and shared-dispatcher reads preserve undetermined/granted/denied/unsupported and canAskAgain. Missing/stale/throwing capability metadata or an unbundled host is unsupported without an ensure fallback.
@@ -20,6 +25,7 @@ mismatch; no real prompt was observed during this work.
 
 ## Documentation
 
-- AC1–AC4: [Local notification guide](../../../docs/platform/local-notifications.md), [package README](../../../packages/notifications/README.md), Octane services reference and [target note](../exploration.md#operational-evidence).
-- AC1–AC2, AC4: [Facade cases](../../../packages/notifications/tests/notifications.macos.test.ts), [intercepted center](../../../packages/notifications/tests/native-center.m) and [native verifier](../../../packages/notifications/tests/verify-macos.mjs).
-- AC3–AC4: [Manual fixture](../../../examples/probes/notification-permissions.macos.tsrx) and native Services screen. Mounting controls alone proves neither native callback behavior nor OS permission/delivery.
+- AC1: [Local notification guide](../../../docs/platform/local-notifications.md), [package README](../../../packages/notifications/README.md), Octane services reference, [facade cases](../../../packages/notifications/tests/notifications.macos.test.ts), [intercepted center](../../../packages/notifications/tests/native-center.m), [native verifier](../../../packages/notifications/tests/verify-macos.mjs) and [target note](../exploration.md#operational-evidence).
+- AC2: The same [local notification guide](../../../docs/platform/local-notifications.md), [facade cases](../../../packages/notifications/tests/notifications.macos.test.ts), [intercepted center](../../../packages/notifications/tests/native-center.m) and [native verifier](../../../packages/notifications/tests/verify-macos.mjs).
+- AC3: The same [local notification guide](../../../docs/platform/local-notifications.md) and [package README](../../../packages/notifications/README.md), plus [manual fixture](../../../examples/probes/notification-permissions.macos.tsrx) and native Services screen. Mounting controls alone proves neither native callback behavior nor OS permission/delivery.
+- AC4: The same [local notification guide](../../../docs/platform/local-notifications.md), [facade cases](../../../packages/notifications/tests/notifications.macos.test.ts), [intercepted center](../../../packages/notifications/tests/native-center.m), [native verifier](../../../packages/notifications/tests/verify-macos.mjs), [manual fixture](../../../examples/probes/notification-permissions.macos.tsrx) and [target note](../exploration.md#operational-evidence). Mounting controls alone proves neither native callback behavior nor OS permission/delivery.

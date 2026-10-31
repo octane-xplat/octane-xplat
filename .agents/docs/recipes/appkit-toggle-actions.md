@@ -8,6 +8,11 @@ Related APIs: ToggleButton, ToggleButtonGroup, Button
 
 A pin/favorite action saves the next pressed state asynchronously.
 
+## Requirements
+
+Save an AppKit toggle button's next pressed state asynchronously with owned
+busy behavior and local intent.
+
 ## Acceptance criteria
 
 - AC1: Uncontrolled state flips before onPressedChange/save; controlled display follows the parent. Use Button busy ownership to block duplicate noninterruptible presses and track interruptible overlap. Failures report without rollback; unmount cancels pending UI writes.
@@ -20,7 +25,7 @@ A pin/favorite action saves the next pressed state asynchronously.
 ## Documentation
 
 - AC1: [Toggle save guide](../../../docs/app/components.md#save-a-toggle-button-action-on-appkit) and [authored action cases](../../../packages/ui/src/components/actions/toggle-button.macos.mobile.test.tsrx).
-- AC2: The same guide/cases cover group policy, metadata and icons; existing ActionControlsDemo retains the public API.
+- AC2: The same [guide](../../../docs/app/components.md#save-a-toggle-button-action-on-appkit)/[cases](../../../packages/ui/src/components/actions/toggle-button.macos.mobile.test.tsrx) cover group policy, metadata and icons; existing ActionControlsDemo retains the public API.
 - AC3: [Native pressed contract](../../../packages/macos-renderer/README.md#pressed-action-accessibility) and [authored renderer cases](../../../packages/macos-renderer/test/common-control-accessibility.test.ts).
 - AC4: [Target note](../exploration.md#operational-evidence), [direct-dispatch fixture](../../../examples/probes/toggle-button.macos.tsrx) and exact deferred commands. The fixture require separate execution evidence.
 

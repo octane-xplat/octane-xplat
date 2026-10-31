@@ -11,6 +11,12 @@ transport. The existing AppKit provider queried the current window repeatedly,
 retained an attempt without observing presenter close and read mutable callback
 options. These findings are source inspection, not observed sign-in failures.
 
+## Requirements
+
+Anchor a hosted authentication session to its initiating AppKit window and retire
+the session's JS and native ownership cleanly across presenter teardown, setup
+failure and late callbacks.
+
 ## Acceptance criteria
 
 - AC1: Snapshot callback scheme/ephemeral preference before native reentry; retain the eligible initiating key/main window, reject invisible/attached-sheet/arbitrary first-window fallbacks and return that anchor only to the owning native session (including equivalent wrappers).
@@ -20,5 +26,7 @@ options. These findings are source inspection, not observed sign-in failures.
 
 ## Documentation
 
-- AC1–AC4: [Public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), Octane services reference, fix note and [target note](../exploration.md#operational-evidence).
-- AC1–AC4: [Model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) and [manual cancellation fixture](../../../examples/probes/auth-session.macos.tsrx). example.com is not a real authentication provider.
+- AC1: [Public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), Octane services reference, fix note, [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) and [target note](../exploration.md#operational-evidence).
+- AC2: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership) and [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) cover observer registration and owned teardown.
+- AC3: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership) and [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs) cover partial registration, reentry and removal-failure limits.
+- AC4: The same [public guide](../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership), [model cases](../../../packages/platform/tests/auth-session.macos.test.mjs), [manual cancellation fixture](../../../examples/probes/auth-session.macos.tsrx) and [target note](../exploration.md#operational-evidence). example.com is not a real authentication provider.

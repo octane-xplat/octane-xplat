@@ -10,6 +10,11 @@ A native AppKit screen previews picked images, displays avatars or reuses the
 same image source in a bounded collection. The native Services screen already
 previews picked image files.
 
+## Requirements
+
+Load, fit and replace images on AppKit, including cached, bypass and event
+paths, with owned lifecycle and explicit native qualification limits.
+
 ## Acceptance criteria
 
 - AC1: Render supported local/HTTP(S) sources with meaningful alt text, declared parent-layout props, composed class names and object/inline-CSS styles.
@@ -30,11 +35,10 @@ previews picked image files.
 
 - AC1: [AppKit image loading](../../../docs/app/components.md#image-loading-on-appkit), [layout regressions](../../../packages/ui/src/components/media/image.macos.mobile.test.tsrx) and [maintained probe](../../../examples/probes/image-loading.macos.tsrx).
 - AC2: [Renderer image contract](../../../packages/macos-renderer/README.md#render-local-images-and-overlays), [request regressions](../../../packages/macos-renderer/test/image-requests.test.ts) and [remote lifecycle regressions](../../../packages/macos-renderer/test/image-remote.test.ts). These source cases do not qualify OS networking, threading or cancellation.
-- AC3: [Optional-package AppKit subset](../../../packages/image/README.md#appkit-subset), [source qualification limits](../../../docs/testing/known-limits.md#experimental-appkit-renderer) and [target progress](../exploration.md#operational-evidence). Runtime, layout/pixel, memory/responsiveness and packaged checks remain deferred; header/configuration/transform options and engine features remain gaps; default cache helpers now have the AC6 source path below.
+- AC3: [Optional-package AppKit subset](../../../packages/image/README.md#appkit-subset), [source qualification limits](../../../docs/testing/known-limits.md#experimental-appkit-renderer), [resolution candidate selection](../../../docs/app/components.md#image-loading-on-appkit), [geometry callback regressions](../../../packages/macos-renderer/test/image-geometry.test.ts), [component selection regressions](../../../packages/ui/src/components/media/image.macos.mobile.test.tsrx) and [target progress](../exploration.md#operational-evidence). Source selection remains a source contract. Runtime, layout/pixel, memory/responsiveness and packaged checks remain deferred; header/configuration/transform options and engine features remain gaps; default cache helpers now have the AC6 source path below. Native resize/screen transfer, density, intrinsic-only sizing and packaging require separate target qualification; tests require execution evidence.
 
 - AC4: [AppKit fit and position](../../../docs/app/components.md#image-loading-on-appkit), [geometry regressions](../../../packages/macos-renderer/test/image-fit.test.ts), [fake drawing/resize regressions](../../../packages/macos-renderer/test/image-drawing.test.ts), [style-removal regressions](../../../packages/macos-renderer/test/style-reconcile.test.ts) and [maintained fit probe](../../../examples/probes/image-fit.macos.tsrx). Tests, native drawing, resize/orientation/density and pixel checks require execution evidence; visual analysis remains unauthorized.
 
-- AC3: [Resolution candidate selection](../../../docs/app/components.md#image-loading-on-appkit), [geometry callback regressions](../../../packages/macos-renderer/test/image-geometry.test.ts) and [component selection regressions](../../../packages/ui/src/components/media/image.macos.mobile.test.tsrx) cover source selection as a source contract. Native resize/screen transfer, density, intrinsic-only sizing and packaging require separate target qualification; tests require execution evidence.
 
 - AC5: [Private renderer memory contract](../../../packages/macos-renderer/README.md#render-local-images-and-overlays), six added [request-policy cases](../../../packages/macos-renderer/test/image-requests.test.ts), two [fake remote cases](../../../packages/macos-renderer/test/image-remote.test.ts) and [manual fixture](../../../examples/probes/image-memory-cache.macos.tsrx). [Target note](../exploration.md#operational-evidence) records exact deferred commands. The separate AC6 source path now connects default public helpers to image-owned disk bytes. Advanced headers/configuration/engine options and native cache qualification remain incomplete; this memory-only seam does not close those gates.
 

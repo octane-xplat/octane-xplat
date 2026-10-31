@@ -8,6 +8,11 @@ Related APIs: Checkbox, Switch, RadioList, CheckboxList
 
 A self-drawn choice is disabled or read-only on mount and enabled later.
 
+## Requirements
+
+Let a disabled or read-only self-drawn AppKit choice gain, update and lose click
+actions after mount through one owned recognizer.
+
 ## Acceptance criteria
 
 - AC1: An existing accessibility/action ID must not prevent acquiring a click recognizer when a callback appears. Update callbacks through one recognizer without duplicate delivery; clearing a noninteractive host must not manufacture an action.

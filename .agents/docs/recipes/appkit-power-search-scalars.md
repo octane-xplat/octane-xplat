@@ -12,6 +12,11 @@ integers; useState(initialText) retained the preceding filter's draft. This is
 source evidence only, not an observed native failure. Common text/number filters
 take priority over custom/nested editor expansion.
 
+## Requirements
+
+Validate numeric filters and keep text drafts current in the AppKit PowerSearch
+editor across rapid changes and teardown.
+
 ## Acceptance criteria
 
 - AC1: Numeric Apply accepts finite decimal/scientific input; rejects blank/nondecimal/partial/nonfinite input, unsafe/fractional integers and inclusive-bound violations. Invalid/nonfinite/reversed configured bounds block saving, never clamp. Display units/bounds; document dot decimal and exact-integer limits.
@@ -21,7 +26,7 @@ take priority over custom/nested editor expansion.
 
 ## Documentation
 
-- AC1–AC4: [Public numeric/scalar workflow](../../../docs/app/power-search.md#validate-native-appkit-numeric-filters), Octane primitives reference, feature note and [target note](../exploration.md#operational-evidence).
-- AC1: [Numeric model cases](../../../packages/ui/src/components/forms/power-search-number.macos.mobile.test.ts).
-- AC2–AC3: [Mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx); not native control/input proof.
+- AC1: [Public numeric/scalar workflow](../../../docs/app/power-search.md#validate-native-appkit-numeric-filters), Octane primitives reference, feature note, [target note](../exploration.md#operational-evidence) and [numeric model cases](../../../packages/ui/src/components/forms/power-search-number.macos.mobile.test.ts).
+- AC2: The same [numeric/scalar workflow](../../../docs/app/power-search.md#validate-native-appkit-numeric-filters) and [mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx); not native control/input proof.
+- AC3: The same [numeric/scalar workflow](../../../docs/app/power-search.md#validate-native-appkit-numeric-filters) and [mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx); not native control/input proof.
 - AC4: [Manual fixture](../../../examples/probes/power-search-scalars.macos.tsrx); mounts only, applies no filter automatically.

@@ -12,6 +12,11 @@ string/number filters; assignee/customer selection is an explicit common-app
 demand assumption beyond that demo. Existing Tokenizer owns native selection and
 search, so the new target form reuses it without shared API or dependency changes.
 
+## Requirements
+
+Select entity filters in the AppKit PowerSearch editor through Tokenizer search
+and pasted entries with owned draft and cancellation behavior.
+
 ## Acceptance criteria
 
 - AC1: Route entity_list into controlled Tokenizer selection, source lookup, custom rows, optional arbitrary strings, removal/clear and read-only behavior. Preserve source draft rows; store only id/label/optional top-level string photo, deduplicated by exact ID. Explain missing-source behavior and app/backend matching.
@@ -21,6 +26,7 @@ search, so the new target form reuses it without shared API or dependency change
 
 ## Documentation
 
-- AC1–AC4: [Public entity workflow](../../../docs/app/power-search.md#edit-native-appkit-entity-filters), Octane primitives reference, feature note and [target progress](../exploration.md#operational-evidence).
-- AC1–AC3: [Value/batch cases](../../../packages/ui/src/components/forms/power-search-entities.macos.mobile.test.ts) and [mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-entity-editor.macos.mobile.test.tsrx). Mock controls do not prove native input/selection/IME/AX.
+- AC1: [Public entity workflow](../../../docs/app/power-search.md#edit-native-appkit-entity-filters), Octane primitives reference, feature note, [target progress](../exploration.md#operational-evidence), [value/batch cases](../../../packages/ui/src/components/forms/power-search-entities.macos.mobile.test.ts) and [mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-entity-editor.macos.mobile.test.tsrx). Mock controls do not prove native input/selection/IME/AX.
+- AC2: The same [entity workflow](../../../docs/app/power-search.md#edit-native-appkit-entity-filters), [value/batch cases](../../../packages/ui/src/components/forms/power-search-entities.macos.mobile.test.ts) and [mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-entity-editor.macos.mobile.test.tsrx). Mock controls do not prove native input/selection/IME/AX.
+- AC3: The same [entity workflow](../../../docs/app/power-search.md#edit-native-appkit-entity-filters), [value/batch cases](../../../packages/ui/src/components/forms/power-search-entities.macos.mobile.test.ts), [mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-entity-editor.macos.mobile.test.tsrx) and [target progress](../exploration.md#operational-evidence).
 - AC4: [Idle manual fixture](../../../examples/probes/power-search-entities.macos.tsrx). It mounts controls only and applies no filter automatically.
