@@ -27,6 +27,10 @@ export default function AppKitSvgProbe() {
 			<Icon id="svg-late" name="probe-late:new" />
 			<Icon id="svg-gradient" name="appkit-svg:gradient" />
 			<Icon id="svg-alias" name="appkit-svg:turned" />
+			<Icon
+				id="svg-value"
+				icon={{ width: 32, height: 16, body: '<path fill="currentColor" d="M0 0h32v16H0z"/>' }}
+			/>
 			<Image
 				id="svg-inline"
 				src='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="9"><path d="M0 0h18v9H0z"/></svg>'
@@ -63,6 +67,8 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('gradient image valid', ctx.find('svg-gradient').image.valid, true)
 	ctx.assert('alias image width', ctx.find('svg-alias').image.size.width, 12)
 	ctx.assert('alias image height', ctx.find('svg-alias').image.size.height, 24)
+	ctx.assert('value icon image valid', ctx.find('svg-value').image.valid, true)
+	ctx.assert('value icon width', ctx.find('svg-value').image.size.width, 48)
 	selection.set({ name: 'appkit-svg:turned', color: '#00ff00', size: 40 })
 	await ctx.waitFor(() => ctx.find('svg-primary').image.size.height === 40)
 	ctx.assert('updated width', ctx.find('svg-primary').image.size.width, 20)

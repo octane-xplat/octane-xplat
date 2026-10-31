@@ -9,7 +9,7 @@ import { iconToSvg } from './svg'
 /** Render a bundled icon through ui's vendored SVGView; missing names render nothing. */
 export function Icon(props: IconProps): unknown @{
 	useStore(registry)
-	const icon = resolveIcon(props.name)
+	const icon = props.icon ?? (props.name ? resolveIcon(props.name) : undefined)
 
 	const svg = useMemo(
 		() =>

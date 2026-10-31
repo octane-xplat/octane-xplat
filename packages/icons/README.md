@@ -3,7 +3,7 @@
 Render bundled Iconify icons on web, iOS, Android, and experimental AppKit macOS. Apps choose their sets;
 this package ships no icon data, default collection, or Iconify API client.
 
-## Install and register
+## Install
 
 In an Octane-xplat app with `@octane-xplat/ui` already configured:
 
@@ -11,7 +11,60 @@ In an Octane-xplat app with `@octane-xplat/ui` already configured:
 bun add @octane-xplat/icons @iconify-json/heroicons
 ```
 
-Register bundled JSON before mounting the app, then use `prefix:name`:
+Heroicons is an example, not a default. Register any number of
+`@iconify-json/*` collections the same way. A collection's `prefix`
+determines its namespace; there is no automatic package discovery,
+fetching, or fallback set.
+
+## Typed per-icon imports
+
+The preferred form imports icon **data** through `icons:<prefix>/<name>`
+virtual modules — no registry lookup and no collection in the bundle.
+Each import is a tree-shaking edge; a misspelled name fails the build.
+
+```tsx
+import xMark from 'icons:heroicons/x-mark'
+import { Icon } from '@octane-xplat/icons'
+
+export function Close() {
+	return <Icon icon={xMark} size={24} color="#2563eb" label="Close" />
+}
+```
+
+`icon` takes normalized `IconifyIcon` data — collection dimensions and
+aliases are baked in at resolve time. `name` (below) stays for dynamic
+lookups; passing `icon` skips the registry entirely.
+
+The `icons:` specifier is resolved by the `xplatIcons` Vite plugin.
+Register it in the app's Vite config, before the Octane plugins:
+
+```ts
+import { xplatIcons } from '@octane-xplat/icons/vite'
+
+// vite.config.ts — plugins: [xplatIcons(), ...octane(), ...]
+```
+
+For typing, include the package's `icons.d.ts` ambient stub in the app —
+reference it from an existing ambient declaration file:
+
+```ts
+// src/icons.d.ts (any app file swept into your tsconfig)
+/// <reference path="../node_modules/@octane-xplat/icons/icons.d.ts" />
+```
+
+Or copy its `declare module 'icons:*'` block into an app `.d.ts`, or add the
+file to your tsconfig `include`. Every `icons:*` specifier then types its
+default export as `IconifyIcon`; the build still fails on an icon that does
+not exist in the collection. A stricter per-collection name union and
+specifier-level declarations are future work — see issue
+[octane-xplat#93](https://github.com/octane-xplat/octane-xplat/issues/93).
+
+## Runtime registry
+
+The registry resolves `name="prefix:name"` at runtime — use it for names
+decided dynamically, or for sets shared with components outside the Vite
+build (iOS/Android bundlers have no `icons:` plugin yet). Register bundled
+JSON before mounting the app, then use `prefix:name`:
 
 ```tsx
 import { icons as heroicons } from '@iconify-json/heroicons'
@@ -24,19 +77,36 @@ export function NextAction() {
 }
 ```
 
-Heroicons is an example, not a default. Register any number of
-`@iconify-json/*` collections the same way. A collection's `prefix`
-determines its namespace; there is no automatic package discovery,
-fetching, or fallback set.
+Importing a whole collection bundles that collection. To keep the `name=`
+path small, register single icons instead — `addIcon(name, icon)` and
+`addIcons(record)` take `IconifyIcon` values keyed by `prefix:name`; a
+registered name shadows collection data for that name. The values can be
+`icons:` module imports where the plugin is active:
 
 ```ts
-// heroicons and addCollection are imported above.
-addCollection(heroicons)
-console.log(heroicons.prefix) // The prefix is used before the colon in name.
+import xMark from 'icons:heroicons/x-mark'
+import plus from 'icons:heroicons/plus'
+import { addIcons } from '@octane-xplat/icons'
+
+addIcons({ 'heroicons:x-mark': xMark, 'heroicons:plus': plus })
 ```
 
-Importing a whole collection bundles that collection. To keep a small bundle,
-provide equivalent Iconify JSON containing only the icons you use:
+Or data you inline yourself — keep each icon's own `width`/`height` when it
+differs from the square default:
+
+```ts
+import { addIcon } from '@octane-xplat/icons'
+
+addIcon('app:next', {
+	width: 24,
+	height: 24,
+	body: '<path fill="none" d="M4 12h16m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2"/>',
+})
+```
+
+You can also provide equivalent Iconify JSON containing only the icons you
+use — keep collection dimensions and any parent icons needed by aliases when
+pruning an existing set:
 
 ```ts
 addCollection({
@@ -51,8 +121,7 @@ addCollection({
 })
 ```
 
-Keep collection dimensions and any parent icons needed by aliases when pruning
-an existing set. Use only trusted bundled SVG data; conversion does not sanitize
+Use only trusted bundled SVG data; conversion does not sanitize
 SVG bodies. Treat registered JSON as immutable.
 
 ## Rendering and updates
@@ -93,7 +162,8 @@ if (!icon) console.log('Register this icon collection before rendering')
 
 | Prop              | Behavior                                                                                         |
 | ----------------- | ------------------------------------------------------------------------------------------------ |
-| `name`            | Required `prefix:name`                                                                           |
+| `icon`            | `IconifyIcon` data rendered as-is; skips the registry. Either `icon` or `name` is required       |
+| `name`            | Registered `prefix:name`, resolved through the registry. Ignored when `icon` is set              |
 | `size`            | Positive finite height in logical pixels, default 24; width follows the transformed aspect ratio |
 | `color`           | Replaces `currentColor` and supplies default fill; explicit multicolor fills remain intact       |
 | `rotate`          | Quarter turns; applied after the icon's own transforms                                           |

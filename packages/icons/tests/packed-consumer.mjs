@@ -81,18 +81,25 @@ try {
 			writeFileSync(
 				join(consumer, 'consumer.tsx'),
 				`
-import { Icon, addCollection, resolveIcon, iconToSvg, type IconProps, type IconifyJSON } from '@octane-xplat/icons'
+import { Icon, addCollection, addIcon, addIcons, resolveIcon, iconToSvg, type IconProps, type IconifyIcon, type IconifyJSON } from '@octane-xplat/icons'
 const collection: IconifyJSON = { prefix: 'app', icons: { arrow: { body: '<path d="M0 0h16"/>' } } }
 addCollection(collection)
 const data = resolveIcon('app:arrow')
 if (data) iconToSvg(data, { size: 20, color: 'red', rotate: 1 })
 const props: IconProps = { name: 'app:arrow', size: 20, label: 'Next', hFlip: true }
 const element = <Icon {...props} />
-// @ts-expect-error name is required
+const byValue: IconifyIcon = { body: '<path d="M0 0h8"/>' }
+addIcon('app:direct', byValue)
+addIcons({ 'app:bulk': byValue })
+const valueElement = <Icon icon={byValue} label="Direct" />
+const bothElement = <Icon name="app:arrow" icon={byValue} />
+// @ts-expect-error a name or icon value is required
 const missing = <Icon size={20} />
+// @ts-expect-error icon takes IconifyIcon data, not a name string
+const badIcon = <Icon icon="app:arrow" />
 // @ts-expect-error dimensions are numbers on every target
 const invalid = <Icon name="app:arrow" size="1em" />
-void element; void missing; void invalid
+void element; void missing; void invalid; void valueElement; void bothElement; void badIcon
 `,
 			)
 

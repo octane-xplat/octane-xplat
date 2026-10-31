@@ -10,7 +10,7 @@ import { svgDataUri } from './svg-image.macos'
 /** AppKit's renderer aliases the universal renderer entry and decodes SVG with NSImage. */
 export function Icon(props: IconProps): unknown @{
 	useStore(registry)
-	const icon = resolveIcon(props.name)
+	const icon = props.icon ?? (props.name ? resolveIcon(props.name) : undefined)
 
 	const image = useMemo(() => {
 		if (!icon) {

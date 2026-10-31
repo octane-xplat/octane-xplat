@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"module": "esnext",
+		"target": "ES2022",
+		"moduleResolution": "bundler",
+		"types": ["node"],
+		"lib": ["ESNext"],
+		"strict": true,
+		"noEmit": true,
+		"moduleSuffixes": ["", ".web", ".ios", ".android", ".mobile", ".native", ".macos", ".linux", ".windows"],
+		"allowImportingTsExtensions": true
+	},
+	"files": ["src/vite/index.ts"]
+}

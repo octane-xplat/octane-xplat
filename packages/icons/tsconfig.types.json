@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"jsxImportSource": "@octane-xplat/jsx",
 		"isolatedDeclarations": true,
+		"types": ["node"],
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"declaration": true,
 		"emitDeclarationOnly": true,
@@ -22,5 +23,5 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"files": ["src/index.ts", "src/index.web.ts", "src/index.macos.ts"]
+	"files": ["src/index.ts", "src/index.web.ts", "src/index.macos.ts", "src/vite/index.ts"]
 }

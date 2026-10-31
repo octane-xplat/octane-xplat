@@ -9,7 +9,7 @@ import type { JSX } from 'octane/jsx-runtime'
 /** Render a bundled icon as inline SVG; missing names render nothing. */
 export function Icon(props: IconProps): JSX.Element | null @{
 	useStore(registry)
-	const icon = resolveIcon(props.name)
+	const icon = props.icon ?? (props.name ? resolveIcon(props.name) : undefined)
 
 	const svg = useMemo(
 		() =>
