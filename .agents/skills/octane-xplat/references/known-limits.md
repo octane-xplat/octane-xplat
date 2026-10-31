@@ -399,3 +399,16 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
 - `GtkEntry` focus delegates to the inner `GtkText` — `window.get_focus()` returns the delegate; compare via a parent-chain walk, not `===`.
 - `Gtk.Label` reports `get_can_focus() === true` inside realized cells — grid cells must be the *outermost* focusable descendants (a cell's own children are part of the cell).
 - `useLandmark` F6 region cycling is web-only — the shared native leaf is semantic-only by contract (role + label forwarding, which the landmark `A11Y_ROLES` additions now honor).
+
+- **GTK renderer GC teardown (slice I):** incremental GC sweeps could finalize
+  view wrappers while GTK still emitted `map`/`unmap`/`layout`/`key-pressed`/
+  `TickCallback` — GJS blocks callbacks during the sweeping phase, so
+  `root.unmount()` now runs `imports.system.gc()` first, fixtures call
+  `window.destroy()`, and `disposeOverlayHost()` runs at public-instance
+  dispose. Shared window controllers are window-scoped and persist across
+  unmount by design.
+- **GTK slice-I input limits:** `RichTextSpan` `className` styles do not
+  fold into the host label — the viewless span never enters the CSS engine;
+  use inline `style` props (mapped to Pango attributes) instead. `Token`
+  `href` opens through the host URI seam and is smoke-qualified only (real
+  OS input not exercised). `Tokenizer` `unfocusedLayer` is untested on GTK.

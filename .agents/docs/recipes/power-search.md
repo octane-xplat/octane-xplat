@@ -27,3 +27,15 @@ operator, and value filters. The reader knows controlled component state.
 - AC1: [Structured search guide example](../../../docs/app/power-search.md#structured-search) and the maintained [PowerSearch demo](../../../packages/demos/src/PowerSearchDemo.tsrx).
 - AC2: [Field definitions and filter limits](../../../docs/app/power-search.md#field-definitions-and-local-filtering).
 - AC3: [Portable implementation and upstream seams](../../../docs/app/power-search.md#portable-implementation-and-upstream-seams).
+
+## GTK coverage
+
+`PowerSearch`, `PowerSearchToken`, `PowerSearchFilterEditor` and
+`usePowerSearchConfig` are curated GTK root exports. The public-root
+[power-search fixture](../../../packages/linux-gtk-renderer/test/ui-powersearch.test.mjs)
+runs 11 assertions with real X11 input: typing a field token, opening the
+filter editor, applying a filter, and pressing a token to reopen its
+editor. This contributes to AC1 and the typeahead/popover portions of AC3
+on the GTK target; local-filter execution against app data, localization
+and packaged-consumer behavior are not established. Record GTK coverage
+separately from execution evidence in gtk_recipe_checks.

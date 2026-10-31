@@ -8,7 +8,9 @@ import { runDateChangeAction } from './date-field-action'
 import { Icon } from '../media/Icon'
 import { Pressable } from '../actions/Pressable'
 import { FormField } from './FormField'
+import { Popover } from '../overlays/Popover'
 import { BottomSheet } from '../overlays/BottomSheet'
+import { hasCoarsePointer } from '../../coarse-pointer'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar'
 import { formatDateValue, resolveLocale } from './datetime'
@@ -75,6 +77,59 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 		undefined,
 	)
 
+	const picker = (
+		<masonview
+			className="vx-daterangeinput-dialog"
+			style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+		>
+			{props.presets?.length ? (
+				<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
+				<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
+					{props.presets.map((preset, index) => (
+						<masonview
+						key={preset.label}
+						id={`${inputId}-preset-${index}`}
+						onTap={() => {
+							if (!isPresetDisabled(preset)) {
+								selectRange(preset.getRange())
+							}
+						}}
+						className={cx(
+							'vx-daterangeinput-preset',
+							isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
+						)}
+						accessibilityRole="button"
+						isEnabled={!isPresetDisabled(preset)}
+						accessibilityState={nativeAccessibilityState({
+							selected: isSelectedPreset(preset),
+							disabled: isPresetDisabled(preset),
+						})}
+						style={{ display: 'flex' }}
+						>
+						<label text={preset.label} />
+						</masonview>
+					))}
+				</masonview>
+				</scrollview>
+			) : null}
+			<Calendar
+				locale={props.locale}
+				direction={props.direction}
+				messages={props.messages}
+				mode="range"
+				value={shown}
+				onChange={selectRange}
+				min={props.min}
+				max={props.max}
+				dateConstraints={props.dateConstraints}
+				maxRangeSpan={props.maxRangeSpan}
+				minRangeSpan={props.minRangeSpan}
+				numberOfMonths={props.numberOfMonths}
+				weekStartsOn={props.weekStartsOn}
+			/>
+		</masonview>
+	)
+
 	<>
 		<masonview
 			className={cx(
@@ -133,64 +188,27 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				/>
 			) : null}
 		</masonview>
-		<BottomSheet
-			isOpen={open}
-			onOpenChange={(isOpen) => setOpen(isOpen)}
-			label={props.label ?? props.accessibilityLabel ?? 'Choose a date range'}
-			height="hug"
-			className="vx-daterangeinput-sheet"
-		>
-			<masonview
-				className="vx-daterangeinput-dialog"
-				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+		{hasCoarsePointer() ? (
+			<BottomSheet
+				isOpen={open}
+				onOpenChange={(isOpen) => setOpen(isOpen)}
+				label={props.label ?? props.accessibilityLabel ?? 'Choose a date range'}
+				height="hug"
+				className="vx-daterangeinput-sheet"
 			>
-				{props.presets?.length ? (
-					<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
-						<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
-							{props.presets.map((preset, index) => (
-								<masonview
-									key={preset.label}
-									id={`${inputId}-preset-${index}`}
-									onTap={() => {
-										if (!isPresetDisabled(preset)) {
-											selectRange(preset.getRange())
-										}
-									}}
-									className={cx(
-										'vx-daterangeinput-preset',
-										isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
-									)}
-									accessibilityRole="button"
-									isEnabled={!isPresetDisabled(preset)}
-									accessibilityState={nativeAccessibilityState({
-										selected: isSelectedPreset(preset),
-										disabled: isPresetDisabled(preset),
-									})}
-									style={{ display: 'flex' }}
-								>
-									<label text={preset.label} />
-								</masonview>
-							))}
-						</masonview>
-					</scrollview>
-				) : null}
-				<Calendar
-					locale={props.locale}
-					direction={props.direction}
-					messages={props.messages}
-					mode="range"
-					value={shown}
-					onChange={selectRange}
-					min={props.min}
-					max={props.max}
-					dateConstraints={props.dateConstraints}
-					maxRangeSpan={props.maxRangeSpan}
-					minRangeSpan={props.minRangeSpan}
-					numberOfMonths={props.numberOfMonths}
-					weekStartsOn={props.weekStartsOn}
-				/>
-			</masonview>
-		</BottomSheet>
+				{picker}
+			</BottomSheet>
+		) : (
+			<Popover
+				anchor={hostRef}
+				open={open}
+				onDismiss={() => setOpen(false)}
+				placement="bottom"
+				className="vx-daterangeinput-popover"
+			>
+				{picker}
+			</Popover>
+		)}
 	</>
 }
 

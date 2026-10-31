@@ -302,3 +302,126 @@ export function gtkStyleCss(
 	}
 	return rules.join('\n')
 }
+
+
+// ---------------------------------------------------------------------------
+// Viewless <span> runs — style-bag → Pango markup for Gtk.Label hosts. GTK
+// CSS cannot address sub-fragments of label text; the renderer folds span
+// children into the host's label, and styled runs ride Pango attributes in
+// `set_markup` instead. Unmapped keys (e.g. textShadow, textStroke) have no
+// fragment-level equivalent and stay dropped, as before.
+// ---------------------------------------------------------------------------
+
+/** Escapes text for Pango markup (attribute-safe too: ' and " go through). */
+export function markupEscape(text: string): string {
+	return text
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/'/g, '&apos;')
+		.replace(/"/g, '&quot;')
+}
+
+/** NS StyleProp → flat bag; arrays merge later-over-earlier, non-objects drop. */
+export function normalizeStyleBag(style: unknown): PropBag {
+	const out: PropBag = {}
+	const walk = (v: unknown) => {
+		if (Array.isArray(v)) {
+			v.forEach(walk)
+		} else if (v !== null && typeof v === 'object') {
+			Object.assign(out, v)
+		}
+	}
+	walk(style)
+	return out
+}
+
+function pangoColor(value: unknown): string | null {
+	if (typeof value === 'string' && value.trim() !== '') {
+		return value.trim()
+	}
+	return null
+}
+
+/** fontSize → Pango `font_size`: numbers/px/pt become 1024ths of a point;
+ *  keyword and % sizes pass through. */
+function pangoSize(value: unknown): string | null {
+	if (typeof value === 'number' && Number.isFinite(value)) {
+		return String(Math.round(value * 1024))
+	}
+	if (typeof value === 'string') {
+		const s = value.trim()
+		const n = parseFloat(s)
+		if (s.endsWith('px') || s.endsWith('pt')) {
+			return Number.isFinite(n) ? String(Math.round(n * 1024)) : null
+		}
+		return s === '' ? null : s
+	}
+	return null
+}
+
+/** One span's style bag → Pango attribute map for a `<span ...>` run.
+ *  Both hyphenated and camel inputs arrive (props.style is camelCase; a
+ *  className carries no per-fragment cascade so it is not consulted). */
+export function spanPangoAttrs(style: PropBag): Record<string, string> {
+	const attrs: Record<string, string> = {}
+	const put = (key: string, value: unknown) => {
+		if (value !== null && value !== undefined && value !== '') {
+			attrs[key] = String(value)
+		}
+	}
+
+	put('foreground', pangoColor(style.color))
+	put('background', pangoColor(style.backgroundColor))
+	put('font_weight', style.fontWeight)
+	put('font_style', style.fontStyle)
+	put('font_family', style.fontFamily)
+	put('font_size', pangoSize(style.fontSize))
+	put('stretch', style.fontStretch)
+
+	const letterSpacing = Number(style.letterSpacing)
+	if (Number.isFinite(letterSpacing) && letterSpacing !== 0) {
+		put('letter_spacing', Math.round(letterSpacing * 1024))
+	}
+
+	const opacity = Number(style.opacity)
+	if (Number.isFinite(opacity)) {
+		put('alpha', `${Math.round(Math.min(1, Math.max(0, opacity)) * 100)}%`)
+	}
+
+	if (style.fontVariant === 'small-caps' || style.fontVariant === 'smallcaps') {
+		put('variant', 'smallcaps')
+	} else if (style.fontVariant === 'normal') {
+		put('variant', 'normal')
+	}
+
+	const deco = `${style.textDecoration ?? ''} ${style.textDecorationLine ?? ''}`.toLowerCase()
+	if (deco.includes('underline')) {
+		put('underline', style.textDecorationStyle === 'double' ? 'double' : 'single')
+	}
+	if (deco.includes('line-through') || deco.includes('linethrough')) {
+		put('strikethrough', 'true')
+	}
+	const decoColor = pangoColor(style.textDecorationColor)
+	if (decoColor !== null) {
+		put('underline_color', decoColor)
+		put('strikethrough_color', decoColor)
+	}
+
+	return attrs
+}
+
+/** textTransform has no Pango fragment attribute — the run text is rewritten
+ *  before markup assembly, matching the visual result of the CSS property. */
+export function spanTextTransform(style: PropBag): ((text: string) => string) | null {
+	switch (style?.textTransform) {
+		case 'uppercase':
+			return (s) => s.toUpperCase()
+		case 'lowercase':
+			return (s) => s.toLowerCase()
+		case 'capitalize':
+			return (s) => s.replace(/(^|\s)(\p{L})/gu, (_m, sp: string, c: string) => sp + c.toUpperCase())
+		default:
+			return null
+	}
+}

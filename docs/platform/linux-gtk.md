@@ -113,12 +113,20 @@ theme/environment surface (Theme, useTheme, useThemeName,
 useThemeScheme, getThemeScheme, useThemePreference, setThemePreference,
 getThemePreference, onThemeSchemeChange, themeSchemeClasses,
 applyThemeClasses, useColorScheme, getColorScheme, useMediaQuery,
-useClipboard, copyText, useAnnounce), and focus/keyboard hooks
+useClipboard, copyText, useAnnounce), focus/keyboard hooks
 (useFocus, useFocusRing, useFocusVisible, isFocusVisible,
-useFocusWithin, useLandmark, useKeyboard, useGridFocus) —
-behave identically to native; slot-bearing hooks (useCalendarDays,
-useTableSortableState, usePowerSearchConfig, styled) and thumbHashUri
-are not yet exposed.
+useFocusWithin, useLandmark, useKeyboard, useGridFocus), the
+navigation/app-chrome family (Screen, Tabs, RouteOutlet, NavigationMenu,
+AppShell, TopNav/SideNav, MobileNav, SafeArea, KeyboardAvoiding,
+openWindow and friends), collections and tables (Collapsible, Accordion,
+GridList, OverflowList, VirtualList, Carousel, TreeList, Table and its
+parts/hooks), and the remaining inputs (RichText, RichTextSpan,
+SelectableCard, BaseTypeahead, Typeahead, TypeaheadItem, Token,
+Tokenizer, ComplexSelector, PowerSearch, PowerSearchToken,
+PowerSearchFilterEditor, usePowerSearchConfig, Calendar, DateInput,
+TimeInput, DateTimeInput, DateRangeInput, useCalendarDays,
+useCalendarConstraints, useCalendarNavigation, ColorArea, ColorSlider,
+ColorField, ColorPicker) — behave identically to native.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -1632,3 +1640,48 @@ same as other native platforms); `useTableStickyColumns` and
 accepts columnWidths and merges them into header-cell styles, sticky is
 a documented no-op. `useTableFiltering`'s date/time/entity filter
 editors reference slice-I inputs — string/enum/number filters work.
+
+## Date, color, and search inputs
+
+The rest of the shared input surface works on GTK. `Tokenizer` and the
+typeahead family (`BaseTypeahead`, `Typeahead`, `TypeaheadItem`, `Token`,
+`ComplexSelector`) filter a `searchSource` — `createStaticSource` wraps a
+plain array — and `PowerSearch` renders the faceted-filter surface.
+`Calendar` and the date/time fields (`DateInput`, `TimeInput`,
+`DateTimeInput`, `DateRangeInput`) take ISO strings; on a fine-pointer
+desktop their pickers open as anchored popovers, while
+`presentation="bottom-sheet"` or a touch seat selects the sheet. The color
+family (`ColorArea`, `ColorSlider`, `ColorField`, `ColorPicker`) works in
+lowercase `#rrggbb` hex, and `RichText`/`RichTextSpan` render styled,
+tappable runs.
+
+```tsx
+import { ColorField, DateInput, Tokenizer, createStaticSource } from "@octane-xplat/ui"
+
+const tagSource = createStaticSource([
+	{ id: "ui", label: "UI" },
+	{ id: "docs", label: "Docs" },
+])
+
+export function EventForm({ tags, setTags, date, setDate, accent, setAccent }) {
+	return (
+		<>
+			<Tokenizer
+				label="Tags"
+				searchSource={tagSource}
+				value={tags}
+				onChange={setTags}
+				hasCreate
+			/>
+			<DateInput label="Date" value={date} onChange={setDate} />
+			<ColorField label="Accent" value={accent} onChange={setAccent} />
+		</>
+	)
+}
+```
+
+Limits: `RichTextSpan` styles only through inline `style` props —
+`className` styles do not fold into the label. `Token` `href` opens
+through the host URI seam and is smoke-qualified. `useGridList` remains
+inert on native targets, and `useTableFiltering`'s date/entity editors
+now resolve to these inputs.

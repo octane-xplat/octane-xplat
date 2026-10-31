@@ -12,6 +12,7 @@ import {
 
 import type { DateInputProps, ISODateString } from '../../props'
 import { cx } from '@octane-xplat/lib'
+import { hasCoarsePointer } from './coarse-pointer'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
@@ -362,7 +363,7 @@ function DateInputControl(inputProps: CoreProps) @{
 export function DateInput(props: DateInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const effective = effectivePresentation(props.presentation)
-	const resolved = resolveInputSurface(effective, true)
+	const resolved = resolveInputSurface(effective, hasCoarsePointer())
 	const surface: 'popover' | 'sheet' =
 		resolved === 'popover' || resolved === 'typed' ? 'popover' : 'sheet'
 

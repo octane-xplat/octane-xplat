@@ -48,4 +48,15 @@ standalone presentation part remains available — see
 [GTK selectors](../../../docs/platform/linux-gtk.md#choose-one-or-many-options),
 and the maintained
 [GTK case](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-selector-main.ts).
-The remaining search/token criteria have no GTK workflow execution.
+
+The public-root [typeahead fixture](../../../packages/linux-gtk-renderer/test/ui-typeahead.test.mjs)
+adds real X11 input evidence (35 assertions): `Typeahead` typed query and
+result pick with close (AC2 partial — clear/edit/restore cycles, custom
+result content and disabled reason are not exercised), `Tokenizer` Return-add,
+`hasCreate` create and `Token` remove/press (AC3 partial — cap/overflow and
+`htmlName` serialization are not exercised), and `ComplexSelector`
+open/commit/close (AC4 partial — asynchronous `changeAction` revert is not
+exercised). See
+[GTK date, color and search inputs](../../../docs/platform/linux-gtk.md#date-color-and-search-inputs).
+`SelectableCard` toggling on real clicks is covered in the same fixture.
+CommandPalette (AC7) is qualified separately through its own GTK leaf.

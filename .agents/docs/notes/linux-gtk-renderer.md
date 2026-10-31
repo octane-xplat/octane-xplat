@@ -3307,3 +3307,43 @@ compiler emits `__methodDep` for member calls inside hook callbacks but
 files fall to the 'dom' renderer default unless renderers.default is
 set — xplatLinuxGtk now sets `default: 'gtk'` so universal slotting
 emits `useMemo(fn, deps, sym)` instead of native memoSlot/memoPublish.
+
+## Unmount/GC lifecycle (slice I)
+
+`root.unmount()` runs a synchronous `imports.system.gc()` before the universal
+teardown so any in-flight incremental sweep finishes while JS still controls
+the stack — sweep-phase callbacks are dropped by GJS, not deferred, which
+previously wedged the harness with `Gjs-CRITICAL` callbacks from finalized
+`map`/`unmap`/`layout`/`key-pressed`/`TickCallback` sources. The public-instance
+disposer also finally calls `disposeOverlayHost()` (bound but never invoked),
+and window wiring records `[emitter, id]` pairs (`windowConnections`) because
+the `layout` watch lives on the GdkSurface, not the window. Shared window
+controllers (layer-key, modality) are window-scoped and persist across
+unmount; fixture `window.destroy()` performs the final teardown while the JS
+context is alive.
+
+## Viewless span runs -> Pango markup (slice I)
+
+`RichText` renders a `label` + `formattedstring`; `RichTextSpan` renders a
+viewless `<span>` carrying `text`, `style` and `onLinkTap` (mapped from the
+public `onPress`). `syncText` folds every viewless child into the host:
+each span contributes a `SpanChain` — `spanPangoAttrs(style)` Pango
+attributes, a link callback, and a `spanTextTransform` text rewrite —
+with inner spans overriding outer attrs and composing transforms. Runs
+with attributes emit `<span attr='v'>…</span>`; linkable runs wrap in
+`<a href='octane-span://N'>` and `bindSpanLinks` wires the label's
+`activate-link` signal to a per-label `Map` of callbacks, rebuilt on every
+fold so stale runs can never dispatch (returns `true` to claim the click).
+
+The host switches to `set_markup(markup)` only when at least one run is
+styled and the anchor is a Gtk.Label (`typeof set_markup === 'function'`);
+buttons keep plain folded text — the GtkButton label child has no markup
+seam. `markupEscape` covers `& < > ' "` for both text and attribute
+values. `spanPangoAttrs` maps color/background (foreground/background),
+fontWeight/Style/Family/Stretch, fontSize (px/pt/number → 1024ths of a
+point; keyword/% pass through), letterSpacing (×1024), opacity → alpha%,
+fontVariant small-caps → variant smallcaps, and textDecoration(Line/Color)
+→ underline/strikethrough(+_color). `textTransform` has no Pango fragment
+attribute, so the run text is rewritten before assembly. Span `className`
+styles do not fold — the viewless span never enters the CSS engine; only
+inline `style` props reach Pango attributes (recorded limit).

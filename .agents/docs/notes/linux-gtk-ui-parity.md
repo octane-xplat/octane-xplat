@@ -7,9 +7,11 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 247 runtime values and 338 types in index.gtk.ts, including
+Current availability is 355 runtime values and 636 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption, and the remaining input
+families (RichText, SelectableCard, typeahead/tokenizer, ComplexSelector,
+PowerSearch, Calendar and the date/time fields, and the color controls). Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1692,3 +1694,49 @@ getLocationRelativeTo/getMeasuredWidth/Height/parent skipping
 GtkViewport), scroll-instance scrollTo({top,left,behavior}), and
 visibility:hidden propagated as can_target=false so hidden subtrees
 cannot steal real input.
+
+### Remaining inputs (slice I)
+
+The rest of the shared input surface is public on GTK — `RichText`/
+`RichTextSpan`, `SelectableCard`, the typeahead family (`BaseTypeahead`,
+`Typeahead`, `TypeaheadItem`, `Token`, `Tokenizer`,
+`ComplexSelector`), the `PowerSearch` surface (`PowerSearch`,
+`PowerSearchToken`, `PowerSearchFilterEditor`, `usePowerSearchConfig`),
+`Calendar`, the date/time fields (`DateInput`, `TimeInput`,
+`DateTimeInput`, `DateRangeInput` plus `useCalendarDays`/
+`useCalendarConstraints`/`useCalendarNavigation`), and the color family
+(`ColorArea`, `ColorSlider`, `ColorField`, `ColorPicker`), plus about
+135 sibling prop/state/config types. Availability is 355 values and 636
+types.
+
+All components reuse their shared leaves. Three new GTK leaves landed:
+`LinearGradient.gtk.tsrx` paints gradients through GTK CSS (the color
+controls depend on it), `coarse-pointer.gtk.ts` answers
+`hasCoarsePointer()` from `Gdk.Seat` TOUCH capability so `'adaptive'`
+presentations pick the anchored popover on fine-pointer desktops and the
+sheet on touch seats, and `menu-sheet.gtk.tsrx` was deduplicated to share
+that signal instead of its own seat probe. `RichTextSpan` is viewless —
+the renderer folds styled runs into the host label's `set_markup` Pango
+markup and wires `activate-link` for tappable spans; date/time fields and
+menus resolve `'adaptive'` through the same coarse-pointer signal.
+
+Five maintained fixtures qualify the slice with real X11 input:
+`ui-typeahead.test.mjs` (35 assertions: typeahead option pick,
+BaseTypeahead create/pick, Token remove/click, Tokenizer Return-add and
+create, ComplexSelector commit, SelectableCard toggle), `ui-dates.test.mjs`
+(35: typed date commit, calendar popover day pick, range pick, time sheet
+wheel scroll+pick, datetime month pick preserving the time part),
+`ui-dates-cal.test.mjs` (14: Calendar single/range and the calendar
+hooks), `ui-powersearch.test.mjs` (11: field token add, filter editor
+apply, token press reopening the editor), and `ui-colors.test.mjs` (16:
+RichText fold/markup/link tap, ColorArea/ColorSlider drags,
+ColorField/ColorPicker commits). 135 slice-I Equal/Assert type contracts
+compile clean in ui-types.gtk.ts.
+
+Limits: `RichTextSpan` `className` styles do not fold — only inline
+`style` props reach Pango attributes. `Token` `href` opens through the
+host URI seam and is smoke-qualified, not exercised by real input.
+Tokenizer `unfocusedLayer` is untested on GTK. Calendar popovers anchor
+on the pending value, not `props.value`. Range picking commits
+same-day anchors as single-day ranges — the fixture drives alternate
+single clicks.

@@ -51,7 +51,7 @@ import { bindPublicInstance } from './public-instance.js'
 import { normalizeKeyEvent } from './key-event.js'
 import { createGtkWindowService, type GtkWindowService } from './window-service.js'
 
-import { CSS_PROPS, gtkStyleCss } from './style-css.js'
+import { CSS_PROPS, gtkStyleCss, markupEscape, normalizeStyleBag, spanPangoAttrs, spanTextTransform } from './style-css.js'
 import { resolveTransform, cssTransformText } from './transform-style.js'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
@@ -206,8 +206,10 @@ export interface GtkContainer {
 	cssDirty?: Set<ElementNode>
 	cssFlushQueued?: boolean
 	inBatch?: boolean
-	/** Resize watch on the root Gtk.Window (media/orientation re-eval). */
-	windowSignalIds?: number[]
+	/** Resize watch on the root Gtk.Window (media/orientation re-eval) —
+	 *  [emitter, handlerId] pairs: the GdkSurface `layout` watch lives on the
+	 *  surface, not the window, so bare ids cannot be disconnected safely. */
+	windowConnections?: Array<[any, number]>
 	rootSignalId?: number
 	window?: Gtk.Window
 	surfaceWired?: boolean
@@ -1459,7 +1461,7 @@ function onWindowResize() {
  *  re-eval — once per window, retried when the host later gets a root
  *  (fixtures mount a bare box that gains a window afterwards). */
 function wireContainerWindow(container: GtkContainer) {
-	if (container.windowSignalIds?.length) {
+	if (container.windowConnections?.length) {
 		return
 	}
 	const root = container.host.get_root?.()
@@ -1494,7 +1496,7 @@ function wireContainerWindow(container: GtkContainer) {
 		root.add_controller(keys)
 		container.layerKeyController = keys
 	}
-	const ids: number[] = []
+	const ids: Array<[any, number]> = []
 	// Focus-visible input modality — capture-phase so the watch sees input
 	// before the target widget. Chorded shortcuts do not count as keyboard
 	// modality (same rule as the web leaf's meta/alt/ctrl exclusion — the
@@ -1527,13 +1529,14 @@ function wireContainerWindow(container: GtkContainer) {
 		root.add_controller(pointer)
 		container.modalityControllers = [keys, pointer]
 		try {
-			ids.push(
+			ids.push([
+				root,
 				root.connect('notify::is-active', () => {
 					if (!root.is_active) {
 						setInputModality('unknown')
 					}
 				}),
-			)
+			])
 		} catch {
 			// pre-window roots — modality stays at its last observed value
 		}
@@ -1545,7 +1548,7 @@ function wireContainerWindow(container: GtkContainer) {
 		'notify::fullscreened',
 	]) {
 		try {
-			ids.push(root.connect(signal, () => onWindowResize()))
+			ids.push([root, root.connect(signal, () => onWindowResize())])
 		} catch {
 			// older GTK lacks some signals — keep the rest
 		}
@@ -1564,18 +1567,18 @@ function wireContainerWindow(container: GtkContainer) {
 			// set_default_size request AND for WM-driven resizes that never
 			// touch the default-width property — so the media env reads
 			// fresh numbers.
-			ids.push(surface.connect('layout', () => onWindowResize()))
+			ids.push([surface, surface.connect('layout', () => onWindowResize())])
 		} catch {
 			// no surface access — the default-size notifies above still cover it
 		}
 	}
 	wireSurface()
 	try {
-		ids.push(root.connect('realize', wireSurface))
+		ids.push([root, root.connect('realize', wireSurface)])
 	} catch {
 		// older GTK — covered by the default-size notifies above
 	}
-	container.windowSignalIds = ids
+	container.windowConnections = ids
 	container.window = root
 }
 
@@ -2894,6 +2897,50 @@ function nearestViewAncestor(node: ElementNode | null): ElementNode | null {
 	return cur
 }
 
+/** Per-run span context accumulated while folding — Pango attributes, the
+ *  link callback, and the composed textTransform. Inner span props override
+ *  outer ones for the same attribute name. */
+interface SpanChain {
+	attrs: Record<string, string>
+	link: (() => void) | null
+	tx: (text: string) => string
+}
+
+const SPAN_LINK_SCHEME = 'octane-span://'
+
+function spanChain(node: ElementNode): SpanChain {
+	const style = normalizeStyleBag(node.props?.style)
+	const tap = node.props?.onLinkTap ?? node.props?.onPress
+	return {
+		attrs: spanPangoAttrs(style),
+		link: typeof tap === 'function' ? () => (tap as () => void)() : null,
+		tx: spanTextTransform(style) ?? ((s) => s),
+	}
+}
+
+/** Wire a label's `activate-link` signal to per-span callbacks. Pango
+ *  `<a href>` runs get `octane-span://N` URIs; the map is rebuilt on every
+ *  fold so stale runs can never dispatch. */
+function bindSpanLinks(view: GtkView, links: Array<() => void>): void {
+	const w = view as any
+	if (!w.__octaneSpanLinks) {
+		w.__octaneSpanLinks = new Map<string, () => void>()
+		w.connect('activate-link', (_label: any, uri: string) => {
+			const cb = w.__octaneSpanLinks?.get(uri)
+			if (cb) {
+				cb()
+				return true
+			}
+			return false
+		})
+	}
+	const map = w.__octaneSpanLinks as Map<string, () => void>
+	map.clear()
+	for (let i = 0; i < links.length; i++) {
+		map.set(SPAN_LINK_SCHEME + i, links[i])
+	}
+}
+
 function syncText(anchor: ElementNode | null) {
 	if (anchor === null || anchor.view === null) {
 		return
@@ -2901,23 +2948,60 @@ function syncText(anchor: ElementNode | null) {
 	if (!TEXT_HOSTS.has(anchor.type)) {
 		return
 	}
+	const links: Array<() => void> = []
 	let text = ''
+	let markup = ''
 	let found = false
-	const collect = (node: ElementNode) => {
+	let styled = false
+
+	const emitRun = (raw: string, chain: SpanChain) => {
+		if (raw === '') {
+			return
+		}
+		found = true
+		const run = chain.tx(raw)
+		text += run
+		let segment = markupEscape(run)
+		const attrs = Object.entries(chain.attrs)
+		if (attrs.length > 0) {
+			styled = true
+			segment =
+				'<span ' +
+				attrs.map(([k, v]) => `${k}='${markupEscape(v)}'`).join(' ') +
+				'>' +
+				segment +
+				'</span>'
+		}
+		if (chain.link !== null) {
+			styled = true
+			segment = `<a href='${SPAN_LINK_SCHEME}${links.length}'>${segment}</a>`
+			links.push(chain.link)
+		}
+		markup += segment
+	}
+
+	const collect = (node: ElementNode, chain: SpanChain) => {
 		for (const child of node.children) {
 			if (child.view !== null) {
 				continue
 			}
-
-			if (child.type === TEXT || child.type === 'span') {
-				text += child.text
-				found = true
+			if (child.type === 'span') {
+				const own = spanChain(child)
+				const next: SpanChain = {
+					attrs: { ...chain.attrs, ...own.attrs },
+					link: own.link ?? chain.link,
+					tx: (s) => own.tx(chain.tx(s)),
+				}
+				emitRun(child.text, next)
+				collect(child, next)
+			} else if (child.type === TEXT) {
+				emitRun(child.text, chain)
 			} else {
-				collect(child)
+				collect(child, chain)
 			}
 		}
 	}
-	collect(anchor)
+	collect(anchor, { attrs: {}, link: null, tx: (s) => s })
 	if (!found) {
 		// Last text child left — the element's own text prop owns the label
 		// again, or empty if it was never set.
@@ -2930,7 +3014,15 @@ function syncText(anchor: ElementNode | null) {
 		return
 	}
 	anchor.textApplied = true
-	anchor.view.label = text
+	if (styled && anchor.type === 'label' && typeof anchor.view.set_markup === 'function') {
+		// Per-fragment styling needs Pango markup — Gtk.Label's plain-text
+		// property carries no run attributes. Buttons keep folded text (the
+		// GtkButton label child has no markup seam here).
+		anchor.view.set_markup(markup)
+		bindSpanLinks(anchor.view, links)
+	} else {
+		anchor.view.label = text
+	}
 	syncAccessibleName(anchor)
 }
 
@@ -4634,6 +4726,10 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
 	// the last root goes away.
 	const universalUnmount = root.unmount.bind(root)
 	;(root as any).unmount = () => {
+		// Settle any in-flight incremental GC while JS still controls the
+		// stack — teardown emissions (map/unmap/state-flags/idle sources)
+		// dispatched during a sweep are blocked and dropped, not deferred.
+		try { (globalThis as any).imports?.system?.gc?.() } catch { }
 		universalUnmount()
 		for (const layer of Array.from(container.overlayLayerHandles ?? [])) { layer.dispose() }
 		const overlay = container.overlay

@@ -374,3 +374,10 @@ software-keyboard overlay to host.
 - `use-grid-focus.gtk.ts` — arrow/Home/End navigation over the host's outermost focusable descendants; claims handled keys so GTK directional nav cannot double-move.
 - `useFocus`/`useFocusRing`/`useLandmark` need no leaf — shared impls ride `onFocus`/`onBlur` props and the landmark roles added to `A11Y_ROLES`.
 - `key-event.ts` (renderer) — `normalizeKeyEvent` maps `keyval_to_unicode` + `KEY_NAMES` to DOM key names; the dispatched event must be the normalize result itself (`eventName`/`object` attached) — a spread copy breaks `preventDefault`/`stopPropagation` closures.
+
+
+### Remaining inputs (slice I)
+- `LinearGradient.gtk.tsrx` — internal gradient surface (not a root export; the color controls compose it). GTK CSS parses `linear-gradient()` natively on `backgroundImage`, so the leaf renders a plain `masonview` — the shared native leaf's `linear-gradient-apply` platform view hook is not needed.
+- `coarse-pointer.ts` / `coarse-pointer.gtk.ts` — `hasCoarsePointer()` is the `'adaptive'`/'`adaptive-*`' presentation signal. The shared leaf returns `true` (every NativeScript target is touch-first); the GTK leaf probes `Gdk.Display` seats for `SeatCapability.TOUCH`, so fine-pointer desktops resolve `adaptive` to anchored popovers and touch seats to sheets.
+- `menu-sheet.gtk.tsrx` — deduplicated: its private `Gdk.Seat` probe moved into `coarse-pointer.gtk`, now shared with the date-input surfaces. Behavior unchanged (sheet on coarse, popover on fine).
+- `DateRangeInput.tsrx` (shared leaf, no `.gtk` file) — gained a fine-pointer `Popover` branch: `hasCoarsePointer()` picks the sheet on touch seats and an anchored `Popover` hosting presets + range `Calendar` on fine-pointer hosts. `DateInput`/`TimeInput`/`DateTimeInput` make the smaller version of the same change — `resolveInputSurface(effective, hasCoarsePointer())` replaces the hardcoded `true`.

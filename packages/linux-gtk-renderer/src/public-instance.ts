@@ -430,6 +430,7 @@ export function bindPublicInstance(
 		range.dispose()
 		disposeTooltips()
 		disposePopovers()
+		disposeOverlayHost()
 		disposeScrolling()
 		disposed = true
 		host = null

@@ -76,6 +76,11 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 				// One xdotool process keeps both presses inside GTK's
 				// double-click time; separate invocations land too far apart.
 				send('click', '--repeat', '2', '--delay', '60', '1')
+			} else if (phase.scroll) {
+				// Real scroll-wheel input: button 4 = up, 5 = down.
+				send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
+				const button = phase.scroll < 0 ? '4' : '5'
+				for (let i = 0; i < Math.abs(phase.scroll); i++) { send('click', button) }
 			} else if (phase.drag) {
 				const x = Math.round(phase.x),
 					y = Math.round(phase.y)

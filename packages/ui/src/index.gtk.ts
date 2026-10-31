@@ -189,7 +189,11 @@ export {
 export { LinkProvider } from './LinkProvider'
 export { useLinkComponent } from './use-link-component'
 export { LinkContext } from './link-context'
-export { createPowerSearchConfig, resolveOperatorLabel } from './power-search-config'
+export {
+	createPowerSearchConfig,
+	usePowerSearchConfig,
+	resolveOperatorLabel,
+} from './power-search-config'
 export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'
 export { Button } from './Button'
 export { IconButton } from './IconButton'
@@ -880,3 +884,175 @@ export type {
 	UseTableTreeStateResult,
 } from './table/use-table-tree-state'
 export type { UseTableFilterStateResult } from './table/use-table-filter-state'
+
+// Slice I — remaining inputs (typeahead/token/complex-selector, dates, colors,
+// power search, rich text). Shared leaves; GTK leaves: LinearGradient.gtk.tsrx,
+// coarse-pointer.gtk.ts. See research/GTK-SLICES.md row I.
+export { RichText, RichTextSpan } from './RichText'
+export { SelectableCard } from './SelectableCard'
+export { BaseTypeahead } from './BaseTypeahead'
+export { Typeahead } from './Typeahead'
+export { TypeaheadItem } from './TypeaheadItem'
+export { Token } from './Token'
+export { Tokenizer } from './Tokenizer'
+export { ComplexSelector } from './ComplexSelector'
+export {
+	PowerSearch,
+	PowerSearchToken,
+	PowerSearchFilterEditor,
+} from './PowerSearch'
+export { Calendar } from './Calendar'
+export { DateInput } from './DateInput'
+export { TimeInput } from './TimeInput'
+export { DateTimeInput } from './DateTimeInput'
+export { DateRangeInput } from './DateRangeInput'
+export {
+	useCalendarDays,
+	useCalendarConstraints,
+	useCalendarNavigation,
+} from './calendar-hooks'
+export { ColorArea } from './ColorArea'
+export { ColorSlider } from './ColorSlider'
+export { ColorField } from './ColorField'
+export { ColorPicker } from './ColorPicker'
+
+export type {
+	UseCalendarDaysOptions,
+	UseCalendarDaysReturn,
+	UseCalendarConstraintsOptions,
+	UseCalendarConstraintsReturn,
+	UseCalendarNavigationOptions,
+	UseCalendarNavigationReturn,
+} from './calendar-hooks'
+
+export type {
+	RichTextProps,
+	RichTextSpanProps,
+	SelectableCardProps,
+	BaseTypeaheadProps,
+	TypeaheadProps,
+	TypeaheadItemProps,
+	TypeaheadInputHandle,
+	TypeaheadKeyDownHandler,
+	TypeaheadKeyEvent,
+	TokenColor,
+	TokenProps,
+	TokenSize,
+	TokenizerChange,
+	TokenizerHandle,
+	TokenizerOverflowBehavior,
+	TokenizerProps,
+	TokenizerSize,
+	ComplexSelectorHandle,
+	ComplexSelectorProps,
+	ComplexSelectorRenderProps,
+	ComplexSelectorRenderState,
+	ComplexSelectorSize,
+	ComplexSelectorVariant,
+	PowerSearchProps,
+	PowerSearchSize,
+	PowerSearchTokenProps,
+	PowerSearchEditorProps,
+	PowerSearchFilterEditorProps,
+	PowerSearchComponentOverride,
+	PowerSearchComponents,
+	PowerSearchHandle,
+	PowerSearchChangeType,
+	PowerSearchField,
+	PowerSearchOperator,
+	PowerSearchOperatorBase,
+	PowerSearchOperatorWithLabel,
+	PowerSearchOperatorWithI18nKey,
+	CustomOperatorEditorProps,
+	OperatorValue,
+	EmptyOperatorValue,
+	StringOperatorValue,
+	StringListOperatorValue,
+	IntegerOperatorValue,
+	FloatOperatorValue,
+	TimeOperatorValue,
+	DateAbsoluteOperatorValue,
+	DateRelativeOperatorValue,
+	DateRangeOperatorValue,
+	EnumOperatorValue,
+	EnumListOperatorValue,
+	EntityListOperatorValue,
+	CustomOperatorValue,
+	NestedOperatorValue,
+	FilterValue,
+	FilterValueEmpty,
+	FilterValueString,
+	FilterValueStringList,
+	FilterValueInteger,
+	FilterValueFloat,
+	FilterValueTime,
+	FilterValueDateAbsolute,
+	FilterValueDateRelative,
+	FilterValueDateRange,
+	FilterValueEnum,
+	FilterValueEnumList,
+	FilterValueEntityList,
+	FilterValueCustom,
+	FilterValueNested,
+	PowerSearchFilter,
+	PartialFilter,
+	PowerSearchEntity,
+	DateTimeRange,
+	DateTimeRangePart,
+	DateRangeFilterPreset,
+	RelativeDateFilterPreset,
+	FieldDefinition,
+	PowerSearchFieldType,
+	PowerSearchFieldTypeToJS,
+	InferData,
+	PowerSearchDefInfo,
+	PowerSearchFilterFor,
+	PowerSearchItem,
+	PowerSearchAuxData,
+	EnumItem,
+	OperatorTokenizationConfig,
+	CalendarProps,
+	DateLocaleProps,
+	DateInputMessages,
+	CalendarSingleProps,
+	CalendarRangeProps,
+	CalendarHandle,
+	DateInputProps,
+	DateInputSize,
+	DateInputFormat,
+	DateInputPresentation,
+	DateInputStatus,
+	DateInputStatusType,
+	DateRangeInputProps,
+	DateRangeInputSize,
+	DateRangeInputStatus,
+	DateRangeInputStatusType,
+	DateTimeInputProps,
+	DateTimeInputSize,
+	DateTimeInputHourFormat,
+	DateTimeInputPresentation,
+	DateTimeInputTimeIncrement,
+	DateTimeInputTimeOptionInterval,
+	DateTimeInputStatus,
+	DateTimeInputStatusType,
+	DayOfWeek,
+	DayOfWeekName,
+	InputPresentation,
+	ISODateTimeString,
+	ISOInstantString,
+	ISOTimeString,
+	PickerPresentation,
+	DateRangePreset,
+	TimeInputProps,
+	TimeInputSize,
+	TimeInputHourFormat,
+	TimeInputPresentation,
+	TimeInputStatus,
+	TimeInputStatusType,
+	ColorAreaProps,
+	ColorBaseProps,
+	ColorFieldProps,
+	ColorPickerProps,
+	ColorSliderProps,
+	ColorValueProps,
+} from './props'
