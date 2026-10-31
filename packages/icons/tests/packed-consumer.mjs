@@ -47,9 +47,12 @@ try {
 	const packed = join(extracted, 'package')
 	const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
 	assert.equal(manifest.dependencies['@octane-xplat/ui'].startsWith('workspace:'), false)
-	assert.ok(manifest.exports['.'].web.default.startsWith('./src/'))
-	assert.ok(manifest.exports['.'].native.default.startsWith('./src/'))
-	assert.ok(manifest.exports['.'].macos.default.startsWith('./src/'))
+	for (const condition of ['web', 'native', 'macos']) {
+		const conditionExport = manifest.exports['.'][condition]
+		const conditionTarget =
+			typeof conditionExport === 'string' ? conditionExport : conditionExport?.default
+		assert.ok(conditionTarget.startsWith('./src/'))
+	}
 	const macosComponent = readFileSync(join(packed, 'src/Icon.macos.tsrx'), 'utf8')
 	assert.equal(
 		macosComponent,
@@ -67,7 +70,7 @@ try {
 				'octane',
 				'@iconify/types',
 				...(target === 'native' ? ['@nativescript-community/octane'] : []),
-				...(target === 'macos' ? ['@octane-xplat/macos-renderer'] : []),
+				...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-renderer'] : []),
 			]) {
 				const destination = join(modules, dependency)
 				mkdirSync(dirname(destination), { recursive: true })
@@ -109,7 +112,7 @@ void element; void missing; void invalid
 							target === 'native'
 								? '@nativescript-community/octane'
 								: target === 'macos'
-									? '@octane-xplat/macos-renderer'
+									? '@octane-xplat/jsx'
 									: 'octane',
 						customConditions: [target],
 						moduleSuffixes:
