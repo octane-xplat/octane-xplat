@@ -82,6 +82,12 @@ void invalidFit
 					target: 'esnext',
 					jsx: 'react-jsx',
 					jsxImportSource: 'octane',
+					moduleSuffixes:
+						target === 'web'
+							? ['.web', '']
+							: target === 'macos'
+								? ['.macos', '']
+								: ['.ios', '.android', '.mobile', ''],
 					customConditions: [target],
 					skipLibCheck: false,
 				},
