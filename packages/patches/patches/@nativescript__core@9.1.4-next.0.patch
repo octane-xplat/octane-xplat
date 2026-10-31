@@ -104,10 +104,10 @@ index 333ac76a172c54da8049ed6807439fa52d09a0aa..0974c33b80b8f25d0542487c7f231bdf
                  // If value is not initial or unset and view has a parent that has non-default value, use it as the reset value.
                  if (value !== 'initial' && parent && parent[sourceKey] !== 0 /* ValueSource.Default */) {
 diff --git a/ui/core/view/index.windows.d.ts b/ui/core/view/index.windows.d.ts
-index 1366081b803aa1b7130d6495704ff53f09f52afd..33cf4022dc10a5ac29bc8ca8c8da9117b4cf04be 100644
+index 1366081b803aa1b7130d6495704ff53f09f52afd..cc38beb7ebb94773939b91c0483850363352f1de 100644
 --- a/ui/core/view/index.windows.d.ts
 +++ b/ui/core/view/index.windows.d.ts
-@@ -1,19 +1,18 @@
+@@ -1,19 +1,20 @@
  export * from './view-common';
  export * from './view-helper';
  export * from '../properties';
@@ -127,12 +127,14 @@ index 1366081b803aa1b7130d6495704ff53f09f52afd..33cf4022dc10a5ac29bc8ca8c8da9117
 -} | null;
 +export { _ensureNativeTransforms } from './native-transforms.windows';
  export declare class View extends ViewCommon {
++    // Native property symbols are dynamic across View subclasses.
++    [key: symbol]: unknown;
 +    [isEnabledProperty.setNative]: (value: boolean) => void;
 +    [accessibilityLabelProperty.setNative]: (_value: string) => void;
      [backgroundInternalProperty.getDefault]: () => any;
      [backgroundInternalProperty.setNative]: (value: any) => void;
      [widthProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
-@@ -83,7 +82,12 @@
+@@ -83,7 +84,12 @@
      private _applyTiledBackgroundImage;
      private _lastLayoutW;
      private _lastLayoutH;
@@ -145,7 +147,7 @@ index 1366081b803aa1b7130d6495704ff53f09f52afd..33cf4022dc10a5ac29bc8ca8c8da9117
      _getCurrentLayoutBounds(): {
          left: number;
          top: number;
-@@ -91,6 +95,7 @@
+@@ -91,6 +97,7 @@
          bottom: number;
      };
      addEventListener(eventNames: string, callback: (data: any) => void, thisArg?: any, once?: boolean): void;

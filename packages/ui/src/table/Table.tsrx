@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
+import { refList } from '../internal/accessibility/ref-list'
 import type {
 	TableProps,
 	TableColumn,
@@ -17,7 +18,7 @@ import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } 
 
 import { TableContext, TableContextProvider } from './table-context'
 import { TableSlot } from './table-slot'
-import { useContext } from 'octane'
+import { useContext, useMemo } from 'octane'
 
 /** Column width → native cell style: pixel widths become dips, proportional
  *  shares become flexGrow. */
@@ -82,6 +83,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 	} = props
 
 	const plugins = resolveTablePlugins<T>([], pluginRecord)
+	const forwardedRef = useMemo(() => refList(ref), [ref])
 	const ctx = { density, dividers, isStriped, hasHover, verticalAlign, textOverflow }
 	const tableClasses = cx(
 		'vx-table',
@@ -98,7 +100,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
 		const node = (
 			<masonview
-				ref={ref}
+				ref={forwardedRef}
 				id={id}
 				className={cx(tableClasses, table.classes)}
 				style={mergeStyle(

@@ -1,9 +1,12 @@
 import { Application, Image, TextBase, type View } from '@nativescript/core'
 
+// The preview returns ViewCommon children; registry Core returns View.
+type ChildView = Parameters<Parameters<View['eachChildView']>[0]>[0]
+
 /** Numeric host readout complements UIA; it does not establish accessibility. */
 export function layoutReadout() {
 	const nodes: Record<string, unknown>[] = []
-	const visit = (view: View, parent: number | null) => {
+	const visit = (view: ChildView, parent: number | null) => {
 		const index = nodes.length
 		const location = view.getLocationOnScreen()
 		const size = view.getActualSize()

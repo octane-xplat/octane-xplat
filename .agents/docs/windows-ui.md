@@ -188,6 +188,29 @@ binding together when upgrading; preserve SVG's separate host path. See the
 [Windows image example](../../docs/platform/windows-setup.md#avatars-and-raster-images-candidate)
 for the bounded consumer surface.
 
+## Windows type declarations and module selection
+
+The Windows app's typecheck follows its runtime import graph: Windows/native
+conditions and suffixes, with app sources as roots. Imported package sources
+remain checked. Other platforms' unrelated entrypoints are checked by their
+own package programs rather than added as Windows app roots. The harness
+includes UI's existing driver-prop declarations explicitly when checking its
+workspace source.
+
+The pinned Core `abae298` Windows declarations infer incompatible symbol-indexed
+setter unions on `View` and its layout subclasses. The Core patch gives `View`
+an `unknown` symbol index, so a `FlexboxLayout` or `StackLayout` can be passed to
+`addChild` without casts. Named properties retain their declared types, and
+dynamic symbol values require narrowing before use. The maintained
+`scripts/windows-core-view-types.test.mjs` checks the installed declaration and
+reproduces the original assignability failure when that line is removed.
+This is TypeScript evidence; it does not establish native layout behavior.
+
+Child traversal derives its node type from `View.eachChildView`, which exposes
+`ViewCommon` in the Windows preview and `View` in registry Core. Revisit the declaration patch when upgrading Core;
+remove it once the upstream Windows view and layout declarations preserve
+assignability without it.
+
 ## Find local evidence
 
 The former UI register, lab report, and later qualification report are indexed
