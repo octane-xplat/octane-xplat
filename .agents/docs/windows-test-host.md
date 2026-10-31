@@ -85,6 +85,20 @@ Keep the host's resource reservation for the entire phase. Configure only the
 helper's registered task. Allow enough time for installation and compilation,
 and verify that owned child processes have stopped before a retry.
 
+Record the native child's exit code separately from the scheduled helper.
+PowerShell can report a null `ExitCode` after `Start-Process -PassThru` and
+`WaitForExit`; a helper exiting zero does not prove that child succeeded.
+Retain the process handle before waiting, as the maintained UIA clients do,
+and reject a missing status:
+
+```powershell
+$child = Start-Process -FilePath $executable -ArgumentList $arguments -PassThru
+$null = $child.Handle
+$child.WaitForExit()
+if ($null -eq $child.ExitCode) { throw 'Native child exit status is missing' }
+if ($child.ExitCode -ne 0) { throw "Native child failed: $($child.ExitCode)" }
+```
+
 ## Read live diagnostic files without locking their writers
 
 Use explicit read/write sharing when inspecting a live console or stage file.
