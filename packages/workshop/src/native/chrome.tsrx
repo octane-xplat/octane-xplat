@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import type { JSX } from '@octane-xplat/jsx/jsx-runtime'
 import { useRef, useEffect, useState } from 'octane'
 import { useStore } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
@@ -467,7 +468,7 @@ function PreviewHeading(p: { controller: NativeWorkshopController }) {
 	)
 }
 
-export function NativeWorkshopChrome(p: NativeChromeProps) {
+export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
 	const s = useStore(p.controller.store)
 	const opener = useRef<unknown>(null)
 	const search = useRef<unknown>(null)

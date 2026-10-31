@@ -776,7 +776,7 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 
 // ---------- app ----------
 
-export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
+export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
 	const s = useStore(props.runtime.store)
 	const openerRef = useRef<HTMLElement | null>(null)
 	const openerKeyRef = useRef<string | null>(null)
