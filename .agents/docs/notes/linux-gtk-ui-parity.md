@@ -1740,3 +1740,45 @@ Tokenizer `unfocusedLayer` is untested on GTK. Calendar popovers anchor
 on the pending value, not `props.value`. Range picking commits
 same-day anchors as single-day ranges — the fixture drives alternate
 single clicks.
+
+### Web content and declaration parity (slices J and K)
+
+`WebView` is public on GTK. The renderer gained a `webview` intrinsic
+backed by WebKitGTK 6.0 (`src/webview-instance.ts`, lazy `imports.gi`
+resolution like the Mason bridge — hosts without the typelib only fail
+when an app mounts `<webview>`). `src`/`html` loading, `onLoad`/
+`onError`/`onLayoutContent`, `scrollEnabled`, `matchContents` and the
+imperative `WebViewHandle` (`reload`, `goBack`, `goForward`,
+`stopLoading`, `native`) follow the macOS contract; the shared
+`onLoadStarted`/`onLoadFinished`/`onLoadError` names also fire. The leaf
+is `WebView.gtk.tsrx`. Slice J fixture `ui-webview.test.mjs` passes 28
+assertions on the real WebKit web process: mount, inline + `data:` loads,
+load ordering, DNS failure -> `onError` (no spurious `onLoad` on the
+error page cycle), scroll freeze injection, `matchContents` resize,
+handle navigation, and `stopLoading` cancellation reporting neither
+`onError` nor `onLoad`.
+
+Limits and environment notes: the web process needs a session D-Bus for
+the WebKitGTK bubblewrap sandbox (loads stall without one — the harness
+already provides `dbus-run-session`). Connection-refused loads commit an
+empty document without `load-failed` (WebKitGTK quirk; DNS failures are
+the reliable error probe). `scrollEnabled={false}` injects
+`overflow:hidden` — WebKitGTK 6.0 exposes no GtkScrollable surface.
+`load_html` documents create no history entries, so `goBack` cannot
+return to an `html` document. `matchContents` sizes through
+`set_size_request`. No JS bridge, matching the shared contract.
+
+Slice K exported the remaining declaration-parity type aliases (~118
+`works-as-is` shared types — props, event, route-manifest, styled,
+toast, layer, stack and column config shapes) for a final availability
+of 356 values and ~758 types. `WebView` was the last pending value;
+no GTK-qualified value remains pending.
+
+## State of parity
+
+All planned UI values are exported and runtime-qualified on GTK:
+356 values and ~758 types, every value proven by maintained GJS/GTK
+fixtures on real X11 input or real host machinery, and every public type
+present in the GTK root. Remaining limits are documented per-slice and
+in known-limits (no visual/AT qualification, WebView environment
+requirements above, and the per-value gaps each section lists).

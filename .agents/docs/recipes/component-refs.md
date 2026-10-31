@@ -45,6 +45,9 @@ also checks object ref replacement during a native role swap.
 
 This is a subset of AC1/AC2, not the complete workflow target list above.
 Callback/nested-array ref forms, cleanup during replacement, attachment-hook
-composition and migration need their own GTK assessment. Other control handles
-remain unqualified. Record GTK coverage separately from execution evidence in
-gtk_recipe_checks.
+composition and migration need their own GTK assessment. `WebView`'s
+imperative handle (`reload`, `goBack`, `goForward`, `stopLoading`, `native`)
+is qualified through the
+[webview fixture](../../../packages/linux-gtk-renderer/test/ui-webview.test.mjs);
+other control handles remain unqualified. Record GTK coverage separately
+from execution evidence in gtk_recipe_checks.

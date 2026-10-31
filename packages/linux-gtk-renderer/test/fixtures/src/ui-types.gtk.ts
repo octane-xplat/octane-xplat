@@ -852,3 +852,7 @@ type UseCalendarConstraintsOptionsContract = Assert<Equal<GtkUI.UseCalendarConst
 type UseCalendarConstraintsReturnContract = Assert<Equal<GtkUI.UseCalendarConstraintsReturn, NativeUI.UseCalendarConstraintsReturn>>
 type UseCalendarNavigationOptionsContract = Assert<Equal<GtkUI.UseCalendarNavigationOptions, NativeUI.UseCalendarNavigationOptions>>
 type UseCalendarNavigationReturnContract = Assert<Equal<GtkUI.UseCalendarNavigationReturn, NativeUI.UseCalendarNavigationReturn>>
+type WebViewPropsContract = Assert<Equal<GtkUI.WebViewProps, NativeUI.WebViewProps>>
+type WebViewHandleContract = Assert<Equal<GtkUI.WebViewHandle, NativeUI.WebViewHandle>>
+type WebViewLoadEventContract = Assert<Equal<GtkUI.WebViewLoadEvent, NativeUI.WebViewLoadEvent>>
+type WebViewContentSizeContract = Assert<Equal<GtkUI.WebViewContentSize, NativeUI.WebViewContentSize>>

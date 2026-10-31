@@ -3347,3 +3347,8 @@ fontVariant small-caps → variant smallcaps, and textDecoration(Line/Color)
 attribute, so the run text is rewritten before assembly. Span `className`
 styles do not fold — the viewless span never enters the CSS engine; only
 inline `style` props reach Pango attributes (recorded limit).
+
+### WebView intrinsic (slice J)
+
+`webview` instantiates a lazy-resolved `WebKit.WebView` (imports.gi, version 6.0 — GTK4 pairing) in `src/webview-instance.ts`, mirroring macos-renderer/src/webview.ts state machine. Document props are read from `node.props` by `updateWebView` once per apply; the six document event props (`onLoad`/`onError`/`onLayoutContent`/`onLoadStarted`/`onLoadFinished`/`onLoadError`) stay ordinary props fired from GI navigation signals, so they bypass the universal event-command path and the unclassified-on* warning. `load-failed` returning true suppresses the error page and reports `onError`/`onLoadError`; a `failed` flag stops the trailing error-document FINISHED from emitting `onLoad`; cancelled loads (`NetworkError.CANCELLED` or superseded) report nothing. `scrollEnabled`/`matchContents`/`onLayoutContent` run `evaluate_javascript` (6-arg GJS binding — scroll freeze + `scrollHeight` measure); `matchContents` resizes via `set_size_request`. `disposeWebView` disconnects signals + `stop_loading` on destroy/recreate. Evidence: `test/ui-webview.test.mjs` — 28 assertions on the real web process (mount, data:/inline loads, load ordering, DNS error path, scroll freeze, matchContents, handle nav, stopLoading cancel, teardown).
+

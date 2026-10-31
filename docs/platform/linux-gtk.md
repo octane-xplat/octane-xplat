@@ -1685,3 +1685,41 @@ Limits: `RichTextSpan` styles only through inline `style` props —
 through the host URI seam and is smoke-qualified. `useGridList` remains
 inert on native targets, and `useTableFiltering`'s date/entity editors
 now resolve to these inputs.
+
+## Embed web content
+
+`WebView` embeds a web document inside the GTK layout — `src` for a URL,
+`html` for inline markup — backed by WebKitGTK 6.0's `WebKit.WebView`.
+`onLoad` fires after each successful load and `onError` on failure;
+`scrollEnabled={false}` freezes inner scrolling, `matchContents` resizes
+the frame to the measured document height, and `onLayoutContent` reports
+that measurement. The `ref` handle exposes `reload`, `goBack`,
+`goForward`, `stopLoading`, and `native` for the raw WebKit view.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useRef } from 'octane'
+import { WebView, type WebViewHandle } from '@octane-xplat/ui'
+
+export function HelpPane() {
+	const view = useRef<WebViewHandle | null>(null)
+	return (
+		<WebView
+			ref={(handle) => {
+				view.current = handle
+			}}
+			src="https://example.com/docs"
+			onLoad={(e) => console.log('loaded', e.url)}
+			onError={(e) => console.log('failed', e.error)}
+		/>
+	)
+}
+```
+
+Limits: the WebKit web process is sandboxed and needs a session D-Bus —
+wrap headless runs in `dbus-run-session` (the dev harness already does) —
+and the host needs the WebKitGTK 6.0 typelib (`gir1.2-webkit-6.0` on
+Debian/Ubuntu). A cancelled load — a superseded navigation or
+`stopLoading` — reports neither `onLoad` nor `onError`. `html` documents
+create no session-history entries, so `goBack` cannot return to one.
+There is no shared JS bridge, matching the contract on other platforms.

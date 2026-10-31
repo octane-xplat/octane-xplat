@@ -184,7 +184,9 @@ async function run() {
 	apply([8, 7, 6, 5, 4, 3, 2, 1].map((id) => command('destroy', id)))
 	check(
 		'destroy clears native hosts and node records',
-		host.get_first_child() == null && container.nodes.size === 0,
+		// The renderer-owned overlay stays in the outer host for the
+		// container's lifetime — content nodes live in contentHost and must clear.
+		(container as any).contentHost.get_first_child() == null && container.nodes.size === 0,
 	)
 	window.destroy()
 	print(

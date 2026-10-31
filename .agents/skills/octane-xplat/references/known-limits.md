@@ -412,3 +412,8 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
   use inline `style` props (mapped to Pango attributes) instead. `Token`
   `href` opens through the host URI seam and is smoke-qualified only (real
   OS input not exercised). `Tokenizer` `unfocusedLayer` is untested on GTK.
+
+### WebView (Linux GTK)
+- Requires the WebKitGTK 6.0 typelib (`gir1.2-webkit-6.0`) and a session D-Bus for the WebKit sandbox — headless runs need `dbus-run-session`.
+- `load_html` documents create no history entries (goBack cannot return to an `html` document); `scrollEnabled={false}` injects `overflow:hidden`; `matchContents` sizes via `set_size_request`. Connection-refused loads commit an empty document without `load-failed` — DNS failures are the reliable `onError` probe.
+

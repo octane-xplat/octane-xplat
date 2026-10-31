@@ -50,6 +50,7 @@ import { bindOverlayHost } from './overlay-host.js'
 import { bindPublicInstance } from './public-instance.js'
 import { normalizeKeyEvent } from './key-event.js'
 import { createGtkWindowService, type GtkWindowService } from './window-service.js'
+import { disposeWebView, makeWebView, updateWebView } from './webview-instance.js'
 
 import { CSS_PROPS, gtkStyleCss, markupEscape, normalizeStyleBag, spanPangoAttrs, spanTextTransform } from './style-css.js'
 import { resolveTransform, cssTransformText } from './transform-style.js'
@@ -252,6 +253,19 @@ const EVENT_PROP_TYPE: Record<
 
 const EVENT_PROP = /^on([A-Z])(.*)$/
 
+/** The webview surface fires its document events from GI navigation signals
+ *  (src/webview-instance.ts) — they stay ordinary props and never classify
+ *  as universal event commands, so the unclassified-on* warning would be a
+ *  false positive for exactly these names. */
+const WEBVIEW_EVENT_PROPS = new Set([
+	'onLoad',
+	'onError',
+	'onLayoutContent',
+	'onLoadStarted',
+	'onLoadFinished',
+	'onLoadError',
+])
+
 const warn = (...args: any[]) => console.warn('[linux-gtk]', ...args)
 
 /** on* props that never classify as events still drop out of the props bag
@@ -376,6 +390,8 @@ function instantiate(type: string): GtkView {
 			return new Gtk.ProgressBar()
 		case 'activityindicator':
 			return new Gtk.Spinner()
+		case 'webview':
+			return makeWebView()
 		default:
 			throw new Error(`linux-gtk driver: <${type}> is not a registered element.`)
 	}
@@ -2254,7 +2270,9 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		return
 	}
 	if (EVENT_PROP.test(name)) {
-		warnEventProp(node, name)
+		if (node.type !== 'webview' || !WEBVIEW_EVENT_PROPS.has(name)) {
+			warnEventProp(node, name)
+		}
 		return // classified events arrive as `event` commands
 	}
 	// Cascade-fed props apply on viewless nodes too — contentview and friends
@@ -2677,6 +2695,15 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			}
 
 			return
+		case 'webview':
+			// Document props (src/html/scrollEnabled/matchContents) are read
+			// from node.props by updateWebView after the apply pass — no
+			// per-key write happens here (macos-renderer parity).
+			if (!['src', 'html', 'scrollEnabled', 'matchContents'].includes(name)) {
+				warn(`<webview> ignored prop ${name}`)
+			}
+
+			return
 		default:
 			warn(`<${node.type}> ignored prop ${name}`)
 	}
@@ -2710,6 +2737,17 @@ function applyProps(node: ElementNode, props: PropBag) {
 		syncAccessibilityState(node.view, props)
 	}
 	syncAccessibleName(node)
+	// Document loads settle once per apply — updateWebView diffs the merged
+	// bag itself, so create and update take the same path (macOS parity).
+	if (node.type === 'webview' && node.view !== null) {
+		updateWebView(node, props, (height) => {
+			const layout = physicalView(node)
+			if (layout) {
+				const [w] = layout.get_size_request()
+				layout.set_size_request(w, Math.ceil(height))
+			}
+		})
+	}
 }
 
 /** Explicit reset for a dropped prop. setProp skips `undefined`, so resets
@@ -4255,6 +4293,9 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			}
 
 			node.picture?.dispose()
+			if (node.type === 'webview' && node.view !== null) {
+				disposeWebView(node.view)
+			}
 			node.disposePublicInstance?.()
 			node.destroyed = true
 			container.cssDirty?.delete(node)
@@ -4308,6 +4349,9 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 					? oldFocus
 					: null
 			node.picture?.dispose()
+			if (node.type === 'webview' && oldView !== null) {
+				disposeWebView(oldView)
+			}
 			node.disposePublicInstance?.()
 			disposeListeners(node)
 			node.muted.clear()
@@ -4505,7 +4549,11 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 	const overlay = new Gtk.Overlay()
 	overlay.set_hexpand(true)
 	overlay.set_vexpand(true)
-	const contentHost = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+	// Mirror a Gtk.Fixed host so root `left`/`top` props position children
+	// through the same put/move path the host uses for its own children.
+	const contentHost = host instanceof Gtk.Fixed
+		? new Gtk.Fixed()
+		: new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 	overlay.set_child(contentHost)
 	// Attach the overlay to whatever widget the caller handed in — Box
 	// `append`, Fixed `put`, Grid `attach`, or a content-view `set_child`.

@@ -381,3 +381,8 @@ software-keyboard overlay to host.
 - `coarse-pointer.ts` / `coarse-pointer.gtk.ts` — `hasCoarsePointer()` is the `'adaptive'`/'`adaptive-*`' presentation signal. The shared leaf returns `true` (every NativeScript target is touch-first); the GTK leaf probes `Gdk.Display` seats for `SeatCapability.TOUCH`, so fine-pointer desktops resolve `adaptive` to anchored popovers and touch seats to sheets.
 - `menu-sheet.gtk.tsrx` — deduplicated: its private `Gdk.Seat` probe moved into `coarse-pointer.gtk`, now shared with the date-input surfaces. Behavior unchanged (sheet on coarse, popover on fine).
 - `DateRangeInput.tsrx` (shared leaf, no `.gtk` file) — gained a fine-pointer `Popover` branch: `hasCoarsePointer()` picks the sheet on touch seats and an anchored `Popover` hosting presets + range `Calendar` on fine-pointer hosts. `DateInput`/`TimeInput`/`DateTimeInput` make the smaller version of the same change — `resolveInputSurface(effective, hasCoarsePointer())` replaces the hardcoded `true`.
+
+### Web content (slice J)
+- `WebView.gtk.tsrx` — mirrors the macOS leaf; the imperative handle calls the WebKit.WebView GI methods (`reload`, `go_back`, `go_forward`, `stop_loading`) and `native` is the widget.
+- `webview-instance.ts` (renderer) — lazy `imports.gi.WebKit` (6.0) resolution, `load_html`/`load_uri` split, `load-changed`/`load-failed`/`web-process-terminated` signals, JS eval measure for `onLayoutContent`/`matchContents`/`scrollEnabled`.
+
