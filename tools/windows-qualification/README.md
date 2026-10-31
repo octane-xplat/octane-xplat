@@ -169,6 +169,24 @@ Tab and Shift+Tab must enter and leave the controls in order. Disabled Card and
 end-action peers must be skipped. Banner dismissal has no public disabled prop;
 the output records that applicability boundary.
 
+To repeat one control, add `-DisplayActionCase clickable-card`, `banner-action`
+or `banner-dismiss`. The default `all` runs all three, and the report records
+the selected case. For example, a focused dismissal run keeps every dismissal
+assertion:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File .\tools\windows-qualification\actions.ps1 `
+  -ExpectedCommit $sourceCommit -ExpectedPackageVersion $packageVersion `
+  -OutputDirectory "$runRoot\banner-dismiss" -DisplayActions -DisplayActionCase banner-dismiss
+```
+
+The driver writes completed cases to `case-progress.json` after each case. Its
+status stays `partial`; use the final `result.json` and process exit status for
+the full invocation. This preserves finished assertions if a later case or
+external watchdog stops the run. After launch, event parsing selects that boot
+before decoding JSON, so earlier launches' layout snapshots do not slow each
+command check.
+
 Enter, Space, mouse and Invoke must each call the correct callback exactly once.
 Dismissal must also remove the Banner and its native action peer. Prop updates
 must replace the name, and an activation event must carry the current fixture

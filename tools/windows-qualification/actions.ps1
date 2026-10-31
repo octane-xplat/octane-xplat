@@ -6,10 +6,12 @@ param(
  [Parameter(Mandatory)][string]$OutputDirectory,
  [switch]$AllowDirtyProbe,
  [switch]$DisplayActions,
+ [ValidateSet('all','clickable-card','banner-action','banner-dismiss')][string]$DisplayActionCase='all',
  [switch]$ListItemActions
 )
 $ErrorActionPreference='Stop'
 if($DisplayActions -and $ListItemActions){throw 'Choose one action mode per run'}
+if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
 using System.Runtime.InteropServices;
@@ -59,7 +61,10 @@ function Read-Events {
   if($reader){$reader.Dispose()}
   if($stream){$stream.Dispose()}
  }
+ # Callers already select this boot. Avoid reparsing older layout snapshots.
+ $bootMarker=if($script:Boot){'"bootId":"'+$script:Boot.bootId+'"'}else{$null}
  foreach($line in $lines){
+  if($bootMarker -and -not $line.Contains($bootMarker)){continue}
   $marker='[windows-core20] '
   $i=$line.IndexOf($marker)
   if($i -ge 0){try{$line.Substring($i+$marker.Length)|ConvertFrom-Json}catch{}}
@@ -502,7 +507,19 @@ function Check-ListItemActions {
   Check-PeerFrame (Capture 'list-item-wide-restored') 'list-item' $name 'ControlType.Button' 'list-item-wide-restored'|Out-Null
   $entry.status='assertions-passed'
  }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
- finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry);Save-CaseProgress}
+}
+function Save-CaseProgress {
+ $progress=[ordered]@{
+  schemaVersion=1;status='partial';qualification='pending'
+  packageVersion=$report.packageVersion;source=$report.source;launchId=$report.launchId
+  driverSha256=$report.driverSha256;masonSha256=$report.masonSha256
+  displayActionCase=$DisplayActionCase;preflightChecks=$report.preflightChecks
+  cases=@($script:Cases.ToArray())
+ }
+ $path=Join-Path $OutputDirectory 'case-progress.json'
+ [IO.File]::WriteAllText(($path+'.tmp'),($progress|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))
+ Move-Item -LiteralPath ($path+'.tmp') -Destination $path -Force
 }
 function Check-DisplayActions {
  $displaySpecs=@(
@@ -510,6 +527,8 @@ function Check-DisplayActions {
   @{source='banner-action';displayCase='banner';label='Banner action';disabled=$true},
   @{source='banner-dismiss';displayCase='banner';label='Dismiss Banner';disabled=$false}
  )
+ if($DisplayActionCase -ne 'all'){$displaySpecs=@($displaySpecs|Where-Object {$_.source -eq $DisplayActionCase})}
+ if(-not $displaySpecs.Count){throw 'The selected display action case is missing'}
  foreach($spec in $displaySpecs){
   $script:Checks.Clear()
   $entry=[ordered]@{case=$spec.source;status='running';checks=$null;error=$null;disabledApplicability=if($spec.disabled){'required'}else{'not-applicable: BannerProps has no disabled dismissal prop'}}
@@ -597,7 +616,7 @@ function Check-DisplayActions {
    Display-Peer $spec $name ($spec.source+'-wide')|Out-Null
    $entry.status='assertions-passed'
   }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
-  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry);Save-CaseProgress}
  }
 }
 $report=[ordered]@{
@@ -605,10 +624,11 @@ $report=[ordered]@{
  driverSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
- expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe
+ expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
  scope=$(if($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
+if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
 $savedCursor=[Core20ActionInput+Point]::new()
 if(-not [Core20ActionInput]::GetCursorPos([ref]$savedCursor)){throw 'Cannot preserve pointer position'}
 try {
@@ -792,7 +812,7 @@ try {
    $entry.status='assertions-passed'
   }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
   finally{
-   $entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)
+   $entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry);Save-CaseProgress
    Command 'disabled' $false|Out-Null
    Command 'implicit-names' $false|Out-Null
    Command 'revision' 0|Out-Null

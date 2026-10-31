@@ -57,7 +57,10 @@ function Read-Events {
   if($reader){$reader.Dispose()}
   if($stream){$stream.Dispose()}
  }
+ # Callers already select this boot. Avoid reparsing older layout snapshots.
+ $bootMarker=if($script:Boot){'"bootId":"'+$script:Boot.bootId+'"'}else{$null}
  foreach($line in $lines){
+  if($bootMarker -and -not $line.Contains($bootMarker)){continue}
   $marker='[windows-core20] '
   $i=$line.IndexOf($marker)
   if($i -ge 0){try{$line.Substring($i+$marker.Length)|ConvertFrom-Json}catch{}}
