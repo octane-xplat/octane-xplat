@@ -7,6 +7,7 @@ import type {
 	TablePlugin,
 	HeaderCellRenderProps,
 	TableSortDirection,
+	TableSortState,
 	UseTableSortableConfig,
 } from './types'
 
@@ -49,20 +50,22 @@ function getNextDirection(
 function SortHeaderButton<T extends Record<string, unknown>>(props: {
 	column: TableColumn<T>
 	children: any
+	sort: TableSortState
+	isMultiSortEnabled?: boolean
 	configRef: { current: UseTableSortableConfig }
 }) @{
-	const config = props.configRef.current
+	const sort = props.sort
 	const sortKey = resolveSortKey(props.column) ?? ''
-	const entryIndex = config.sort.findIndex((e) => e.sortKey === sortKey)
-	const direction = entryIndex >= 0 ? config.sort[entryIndex]!.direction : null
+	const entryIndex = sort.findIndex((e) => e.sortKey === sortKey)
+	const direction = entryIndex >= 0 ? sort[entryIndex]!.direction : null
 	const label = typeof props.column.header === 'string' ? props.column.header : props.column.key
 	const rank =
-		config.isMultiSortEnabled && config.sort.length > 1 && entryIndex >= 0 ? entryIndex + 1 : null
+		props.isMultiSortEnabled && sort.length > 1 && entryIndex >= 0 ? entryIndex + 1 : null
 	const name =
 		direction == null
 			? `Sort by ${label}`
 			: rank != null
-				? `Sorted by ${label} ${direction} (priority ${rank} of ${config.sort.length})`
+				? `Sorted by ${label} ${direction} (priority ${rank} of ${sort.length})`
 				: `Sorted by ${label} ${direction}`
 	const iconName =
 		direction === 'ascending'
@@ -119,7 +122,14 @@ export function useTableSortable<
 
 			return {
 				...props,
-				content: tableSlot(SortHeaderButton, { column, configRef, children: props.content }),
+				content: tableSlot(SortHeaderButton, {
+					column,
+					configRef,
+					// Ref mutation alone does not rerender an unchanged-prop native child.
+					sort: configRef.current.sort,
+					isMultiSortEnabled: configRef.current.isMultiSortEnabled,
+					children: props.content,
+				}),
 			}
 		},
 	}

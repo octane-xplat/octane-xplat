@@ -71,7 +71,9 @@ The Windows sortable-header source candidate uses the existing measured
 Pressable peer in place of the native default's raw tap handler. It preserves
 the controlled single-column sort cycle and names the peer from the current
 header and sort direction. Primitive header text, including zero, receives a
-text host. Public props and plugin composition stay the same:
+text host. Current sort state is passed as header props so an unchanged column
+still rerenders after controlled updates; the ref retains live callback policy.
+Public props and plugin composition stay the same:
 
 ```tsx
 import { Table, useTableSortable, useTableSortableState } from '@octane-xplat/ui'

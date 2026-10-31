@@ -101,9 +101,10 @@ export function SortedRows() {
 }
 ```
 
-New compiled and native checks are unexecuted. This input prerequisite does not
-provide Table/header/row/cell structure or qualify scrolling, geometry or the
-wider sorting/plugin matrix. Probe those separately using the
+Keep current sort state in header props; ref mutation alone does not rerender
+an unchanged-prop child. Compiled contracts are source evidence only. This input
+prerequisite does not provide Table/header/row/cell structure or qualify native
+input, scrolling, geometry or the wider sorting/plugin matrix. Probe those separately using the
 [Table qualification boundary](../../../../docs/windows-ui.md#table-header-input-prerequisite).
 
 ## Experimental Windows Switch

@@ -625,13 +625,14 @@ test('Windows sortable header uses one native peer and retains controlled sort c
 	try {
 		assert.equal(buttons(f).length, 1)
 		assert.equal(buttons(f)[0].props.settings.label, 'Sort by Name')
+		assert.ok(text(f).includes('xplat-arrows-up-down'))
 		assert.ok(f.nodes().every((node) => node.props.onTap === undefined))
 		buttons(f)[0].props.settings.onPress()
 		assert.deepEqual(requests, [[{ sortKey: 'name', direction: 'ascending' }]])
 		assert.equal(buttons(f)[0].props.settings.label, 'Sort by Name')
-		for (const [direction, expected] of [
-			['ascending', [{ sortKey: 'name', direction: 'descending' }]],
-			['descending', []],
+		for (const [direction, expected, marker] of [
+			['ascending', [{ sortKey: 'name', direction: 'descending' }], 'xplat-arrow-up'],
+			['descending', [], 'xplat-arrow-down'],
 		]) {
 			f.render({
 				column,
@@ -640,6 +641,7 @@ test('Windows sortable header uses one native peer and retains controlled sort c
 			})
 			assert.equal(buttons(f).length, 1)
 			assert.equal(buttons(f)[0].props.settings.label, `Sorted by Name ${direction}`)
+			assert.ok(text(f).includes(marker))
 			buttons(f)[0].props.settings.onPress()
 			assert.deepEqual(requests.at(-1), expected)
 		}
