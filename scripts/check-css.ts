@@ -15,7 +15,7 @@
 // on purpose" set.
 import { parsePlatformCss } from '../packages/cli/src/css-platform.ts'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, relative, sep } from 'node:path'
+import { join, relative, resolve, sep } from 'node:path'
 import { globSync } from 'node:fs'
 
 const registry = JSON.parse(
@@ -52,10 +52,17 @@ const WEB_ONLY_BLOCK =
 	/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g
 
 const cwd = process.cwd()
-// Vendor trees may include upstream docs and demo styles outside our runtime CSS.
-const FILES = globSync('{packages/*/src,packages/create/template/src}/**/*.css', { cwd }).filter(
-	(file) => !relative(cwd, file).split(sep).includes('vendor'),
+// An explicit root bounds the audit to that tree — the fixture test passes its
+// own directory so repository styles cannot affect fixture assertions. Without
+// one the audit covers every shared stylesheet shipped to native.
+const root = process.argv[2] ? resolve(cwd, process.argv[2]) : cwd
+const FILES = globSync(
+	process.argv[2] ? '**/*.css' : '{packages/*/src,packages/create/template/src}/**/*.css',
+	{ cwd: root },
 )
+	.map((file) => join(root, file))
+	// Vendor trees may include upstream docs and demo styles outside our runtime CSS.
+	.filter((file) => !relative(root, file).split(sep).includes('vendor'))
 
 let errors = 0
 let warned = 0
@@ -65,7 +72,7 @@ for (const file of FILES) {
 		continue
 	}
 
-	const rel = relative(process.cwd(), file)
+	const rel = relative(root, file)
 	// Strip web-only blocks but preserve line count — reported line
 	// numbers must match the authored file.
 	const stripped = readFileSync(file, 'utf8').replace(WEB_ONLY_BLOCK, (m) =>

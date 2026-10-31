@@ -1,17 +1,20 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 
+const checker = new URL('./check-css.ts', import.meta.url).pathname
+
 function audit(files) {
-	const root = mkdtempSync(join(process.cwd(), 'packages/create/template/src/css-audit-'))
+	const root = mkdtempSync(join(tmpdir(), 'css-audit-'))
 	try {
 		for (const [name, css] of Object.entries(files)) {
 			writeFileSync(join(root, name), css)
 		}
 
-		return spawnSync(process.execPath, ['scripts/check-css.ts'], { encoding: 'utf8' })
+		return spawnSync(process.execPath, [checker, root], { encoding: 'utf8' })
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}

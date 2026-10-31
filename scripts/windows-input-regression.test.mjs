@@ -154,6 +154,10 @@ function setup() {
 
 	const helper = load('ui/gestures/pointer-events.windows.js', context, 'subscribeNativeEvent')
 	Object.assign(context, helper)
+	Object.assign(
+		context,
+		load('ui/core/view/key-events.windows.js', context, 'takeWindowsKeyHandled'),
+	)
 	const { EditableTextBase } = load(
 		'ui/editable-text-base/index.windows.js',
 		context,
