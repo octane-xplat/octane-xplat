@@ -114,6 +114,19 @@ bun run xplat code search "RouteOutlet" --corpus framework --mode exact --json
 bun run xplat code read --ref CODE_REF --json
 ```
 
+For questions phrased differently from the docs, prepare local embeddings with
+`docs index`. This explicit step may download a pinned model; ordinary search
+never downloads one. Check `data.retrieval` for the actual mode and fallback
+reason. Re-index after editing linked-checkout docs. Release entries have their
+own `releaseVersion`, separate from snapshot provenance. See
+[local documentation search](../../../../packages/cli/README.md#local-documentation-search).
+
+```sh
+bun run xplat docs index --json
+bun run xplat docs search "remember input between pages" --json
+bun run xplat docs search "navigation" --corpus changelog --json
+```
+
 ## Choose an app-building operation
 
 Use existing project scripts and focused help for ordinary changes. Formatting

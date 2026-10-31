@@ -11,7 +11,7 @@ import type { Platform } from '../types/contracts/identity'
 
 export function registerDocsTools(server: McpServer, context: WorkspaceContext, respond: Respond) {
 	const run =
-		(method: 'search' | 'read' | 'guidance') =>
+		(method: 'index' | 'search' | 'read' | 'guidance') =>
 		async (args: any): Promise<ReturnType<Respond>> => {
 			const permission = context.policy.require('workspace')
 			if (!permission.granted) {
@@ -38,11 +38,22 @@ export function registerDocsTools(server: McpServer, context: WorkspaceContext, 
 		}
 
 	server.registerTool(
+		'xplat_docs_index',
+		{
+			description:
+				'Prepare local embeddings for the selected app’s version-bound docs and release notes. May download the pinned embedding model; document contents and queries stay local.',
+			inputSchema: { package: z.string().optional(), version: z.string().optional() },
+		},
+		run('index'),
+	)
+
+	server.registerTool(
 		'xplat_docs_search',
 		{
 			description:
 				'Search the selected app’s installed-version docs. Results include version/snapshot provenance, unavailable packages, conflicts, and separately labeled project guidance.',
 			inputSchema: {
+				mode: z.enum(['hybrid', 'lexical', 'exact']).optional().default('hybrid'),
 				query: z.string().trim().min(1).max(500),
 				package: z.string().optional(),
 				version: z
@@ -51,7 +62,7 @@ export function registerDocsTools(server: McpServer, context: WorkspaceContext, 
 					.describe('Explicit comparison version, visibly outside the installed binding.'),
 				platform: z.enum(PLATFORMS as Platform[]).optional(),
 				corpus: z
-					.enum(['guide', 'recipe', 'design-note', 'implementation-note'])
+					.enum(['guide', 'readme', 'changelog', 'recipe', 'design-note', 'implementation-note'])
 					.optional()
 					.default('guide'),
 				limit: z.number().int().min(1).max(50).optional(),

@@ -37,6 +37,7 @@
 		"build": "vite build",
 		"prepack": "bun run build",
 		"test": "bun run build && node --test tests/*.test.mjs",
+		"test:docs-search": "node --test tests/docs.test.mjs",
 		"test:consumer": "bun run build && node tests/consumer-workflow.mjs",
 		"typecheck": "tsc -p tsconfig.json"
 	},

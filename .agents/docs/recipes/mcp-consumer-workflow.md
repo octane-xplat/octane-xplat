@@ -28,6 +28,7 @@ cleanup restricted to owned resources.
 - AC4: Automatically discover and invoke an app-declared action, validate its result, separately assert app state, and exclude its declaration and handler from production artifacts.
 - AC5: Refuse capture without current visual approval, release owned browser/server/profile resources, reject stopped identities, and preserve attached user-owned sessions.
 - AC6: Report the mandatory remaining native targets, attached inspection and approved screenshot qualification; a Chromium pass cannot satisfy full six-platform acceptance.
+- AC7: Prepare local docs embeddings explicitly, retrieve paraphrased guide and release-note queries within the selected version, preserve release-entry identity, and disclose lexical fallback without downloading models during search.
 
 ## Documentation
 
@@ -37,6 +38,7 @@ cleanup restricted to owned resources.
 - AC4: [Declare, invoke, and assert an action](../../../docs/testing/development-actions.md), [agent authoring guidance](../../skills/octane-xplat/references/development-actions.md), [app declaration and acceptance](../../../packages/mcp/README.md#run-the-consumer-acceptance-lane), [maintained runners](../../../packages/mcp/tests/consumer-workflow.mjs)
 - AC5: [Capture gate](../../../packages/mcp/README.md#inspect-and-interact-with-chromium), [cleanup](../../../packages/mcp/README.md#build-run-and-stop-an-app)
 - AC6: [Remaining acceptance](../../../packages/mcp/README.md#remaining-acceptance)
+- AC7: [Local search setup](../../../packages/cli/README.md#local-documentation-search), [MCP documentation tools](../../../packages/mcp/README.md#retrieve-the-apps-documentation), [deterministic retrieval tests](../../../packages/docs-search/tests/search.test.mjs), [real-model smoke](../../../packages/docs-search/tests/model-smoke.mjs), and [version-binding tests](../../../packages/cli/test/mcp-docs.test.mjs). The model smoke is a separate local task, outside the PR gate.
 
 The packed-stdio lane ([prepare](../../../packages/mcp/tests/prepare-packed-consumer.mjs), [runner](../../../packages/mcp/tests/packed-stdio-consumer.mjs)) exercises the same criteria against packed tarballs over stdin/stdout.
 

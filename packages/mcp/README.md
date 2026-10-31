@@ -92,6 +92,25 @@ Missing matching docs return an installed-source fallback instead of latest docs
 }
 ```
 
+Prepare local vector search with `xplat_docs_index`, then use the existing search
+tool. Preparation may download the pinned embedding model. Search runs locally
+and reports a lexical fallback when preparation or the cached model is missing.
+See [local documentation search](../cli/README.md#local-documentation-search)
+for cache setup and recovery. These tools run on the developer host and do not
+need a browser or device.
+
+```json
+{ "name": "xplat_docs_index", "arguments": {} }
+```
+
+Select release notes with `corpus: "changelog"` or package setup with
+`corpus: "readme"`. Release entries retain their original release version even
+when found in a later snapshot; the enclosing snapshot has separate provenance.
+
+```json
+{ "name": "xplat_docs_search", "arguments": { "query": "route state", "corpus": "changelog", "mode": "hybrid" } }
+```
+
 Read a result using its `ref`. A ref from an older installation remains tied
 to that version and is labeled outside the installed binding after an upgrade.
 `xplat_project_status` reports provider readiness; each search reports actual

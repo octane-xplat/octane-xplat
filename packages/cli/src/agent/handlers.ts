@@ -241,8 +241,13 @@ export const handlers = {
 		return result.error ? fail(result.error) : ok(result)
 	},
 
+	async 'docs index'({ context }, args) {
+		return docsCall(context, 'index', { package: args.package, version: args.version })
+	},
+
 	async 'docs search'({ context }, args) {
 		return docsCall(context, 'search', {
+			mode: args.mode,
 			query: args.query,
 			package: args.package,
 			version: args.version,

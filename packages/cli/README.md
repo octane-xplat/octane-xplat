@@ -305,6 +305,45 @@ xplat code search <query> # current source: app corpus and framework corpus stay
 xplat code read --ref <ref>
 ```
 
+### Local documentation search
+
+From the selected app's directory, prepare its versioned docs once, then ask
+questions in ordinary language. Preparation downloads a pinned embedding model
+from Hugging Face and writes a local cache. Document text and questions stay
+on your machine; model inference runs on the CPU.
+
+```sh
+xplat docs index --json
+xplat docs search "remember input when switching pages" --json
+```
+
+Search defaults to hybrid keyword/vector retrieval when embeddings are ready.
+Otherwise `data.retrieval` reports `used: "lexical"` and `reason: "index-not-ready"`
+or `"model-unavailable"`. Search never downloads a model or waits for indexing.
+Repeat preparation after changing linked-checkout documentation. Cached release
+snapshots and the prepared model can serve offline. The default cache lives at
+`~/.cache/octane-xplat/mcp-docs`; `XPLAT_MCP_CACHE` overrides it.
+
+```sh
+xplat docs search "RouteOutlet" --mode lexical --json
+xplat docs search "RouteOutlet" --mode exact --json
+```
+
+Guides are the default corpus. Choose `readme` for the selected package's README
+or `changelog` for features, breaking changes, and fixes. A release hit's
+`releaseVersion` and `releaseDate` describe the entry; its provenance describes
+the snapshot containing it. Explicit comparison versions remain labeled outside
+the installed binding. Open returned refs with `docs read` for the full page.
+
+```sh
+xplat docs search "route state" --corpus changelog --json
+xplat docs search "setup" --corpus readme --package @octane-xplat/ui --json
+xplat docs index --package @octane-xplat/ui --version 0.19.0 --json
+xplat docs search "navigation" --package @octane-xplat/ui --version 0.19.0 --json
+```
+
+### Select an app and operate it
+
 `xplat <command> --schema` describes a command's inputs, outputs, and error
 codes without running it; `xplat docs --help` works outside a project.
 Selection precedence is `--app` for one invocation, then the `app select`

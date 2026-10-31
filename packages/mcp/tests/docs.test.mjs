@@ -21,6 +21,12 @@ test('MCP docs bind each selected pnpm consumer to its installed release and ref
 		writeFile(remote, 'docs/control.md', `# Control\n\nUse control version ${version} on web.\n`)
 		writeFile(
 			remote,
+			'FIXLOG.md',
+			`# Fixlog\n\n## [Octane Xplat ${version}](tag) - 2026-10-31\n\n### Control fix\n\nControl state is restored on web.\n`,
+		)
+
+		writeFile(
+			remote,
 			'.agents/design/control.md',
 			'# Internal control design\n\ncontrol speculation\n',
 		)
@@ -53,7 +59,16 @@ test('MCP docs bind each selected pnpm consumer to its installed release and ref
 	const context = createWorkspaceContext({
 		workspaceRoot: root,
 		evidenceRoot: join(root, '.ev'),
-		docs: { repo: remote, cacheDir: join(root, '.cache') },
+		docs: {
+			repo: remote,
+			cacheDir: join(root, '.cache'),
+			searchEmbedder: {
+				id: 'mcp-fixture',
+				async embed(texts) {
+					return texts.map(() => [1, 0])
+				},
+			},
+		},
 	})
 
 	const { server, shutdown } = createXplatMcpServer(context)
@@ -75,11 +90,24 @@ test('MCP docs bind each selected pnpm consumer to its installed release and ref
 	)
 
 	await call('xplat_select_app', { app: 'a' })
+	const release = (await call('xplat_docs_search', { query: 'restored', corpus: 'changelog' })).data
+	assert.equal(release.retrieval[0].used, 'lexical')
+	assert.equal(release.results[0].releaseVersion, '1.0.0')
+	assert.equal(release.results[0].provenance.servedVersion, '1.0.0')
+	assert.equal(
+		(await client.listTools()).tools.some((tool) => tool.name === 'xplat_docs_index'),
+		true,
+	)
 	const first = (await call('xplat_docs_search', { query: 'control' })).data
 	assert.equal(first.results.length, 1, JSON.stringify(first))
 	assert.equal(first.results[0].provenance.servedVersion, '1.0.0')
 	assert.equal(first.results[0].provenance.match, 'exact')
 	const ref = first.results[0].ref
+	const prepared = (await call('xplat_docs_index')).data
+	assert.equal(prepared.results[0].status, 'ready')
+	const semantic = (await call('xplat_docs_search', { query: 'remember a screen' })).data
+	assert.equal(semantic.retrieval[0].used, 'hybrid')
+	assert.equal(semantic.results[0].provenance.servedVersion, '1.0.0')
 	assert.match(JSON.stringify((await call('xplat_docs_read', { ref })).data), /1.0.0/)
 	await call('xplat_select_app', { app: 'b' })
 	assert.equal(

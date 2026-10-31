@@ -28,6 +28,9 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 ## Working records
 
+- [Local versioned docs retrieval](docs-retrieval.md) — search/version boundaries,
+  model loading constraints, and host verification.
+
 - [Docs UI and host boundaries](docs-site.md) — shared presentation components
   and the remaining browser integrations.
 
