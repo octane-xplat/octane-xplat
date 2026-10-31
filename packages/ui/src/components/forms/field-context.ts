@@ -117,9 +117,13 @@ export function useFieldControlProps<
  *  the label, so third-party controls can compose with Field without nesting. */
 export function useFieldControl<
 	T extends FieldControlProps & {
+		/** Control id forwarded to the host element. */
 		id?: string
+		/** Accessible name override for the control. */
 		accessibilityLabel?: string
+		/** Accessible hint merged into the resolved description. */
 		accessibilityHint?: string
+		/** Web-only prop bag forwarded verbatim. */
 		web?: Record<string, any>
 	},
 >(props: T): {

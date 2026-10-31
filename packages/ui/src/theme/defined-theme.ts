@@ -200,7 +200,12 @@ export function resolveThemeTokens(
 /** Single-token convenience wrapper over {@link resolveThemeTokens}. */
 export function resolveThemeToken(
 	name: string,
-	options: { theme?: DefinedTheme | null; mode: 'light' | 'dark' },
+	options: {
+		/** Theme whose tokens override the defaults — null resolves defaults only. */
+		theme?: DefinedTheme | null
+		/** Which side of `[light, dark]` token pairs to resolve. */
+		mode: 'light' | 'dark'
+	},
 ): string {
 	return resolveThemeTokens(options.theme, { mode: options.mode })[name] ?? ''
 }
