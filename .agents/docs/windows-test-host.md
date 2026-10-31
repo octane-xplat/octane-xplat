@@ -19,15 +19,13 @@ Install these Windows tools:
 - Enable Windows Developer Mode in Settings. NativeScript uses it for its
   development install flow.
 
-Enable pnpm through Corepack using the version pinned in this workspace's
-`package.json`:
+Make **Bun 1.4.4** available using the
+[Bun installation instructions](https://bun.com/docs/installation). On a shared
+host, a task-local executable and process-local `PATH` can select this version
+without replacing another task's runtime.
 
-```powershell
-corepack enable
-corepack prepare pnpm@11.24.0 --activate
-```
-
-Check that Node, pnpm, and .NET are available in the same PowerShell session:
+Check that Node, Bun, and .NET are available in the same PowerShell session.
+`bun --version` must print `1.4.4`:
 
 ```powershell
 node --version
@@ -51,7 +49,7 @@ and retained evidence outside that disposable tree.
 From the repository root, the intended checks are:
 
 ```powershell
-bun install
+bun install --frozen-lockfile
 bun run --cwd apps/windows xplat doctor
 $env:NODE_OPTIONS = '--max-old-space-size=4096'
 bun run turbo run build:windows typecheck --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful
