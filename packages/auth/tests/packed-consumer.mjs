@@ -64,6 +64,13 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
 		// platform's packed declarations import the capability contract.
 		symlinkSync(join(repoRoot, 'packages/lib'), join(modules, '@octane-xplat/lib'), 'dir')
+
+		// The macos lane's jsxImportSource lives in the jsx pack.
+		symlinkSync(
+			join(packageRoot, 'node_modules/@octane-xplat/jsx'),
+			join(modules, '@octane-xplat/jsx'),
+			'dir',
+		)
 	}
 
 	writeFileSync(
