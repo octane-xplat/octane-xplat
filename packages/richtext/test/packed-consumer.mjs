@@ -34,6 +34,7 @@ for (const name of [
 	'macos-renderer',
 	'cli',
 	'lib',
+	'lint',
 	'create',
 ]) {
 	const dir = join(repo, 'packages', name)
