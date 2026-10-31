@@ -1,6 +1,24 @@
 import { useRef, useState } from 'octane'
-import type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
-export type { GridFocusOptions, GridFocusResult }
+export interface GridFocusOptions {
+	/** Grid row count — bounds arrow navigation. */
+	rows: number
+	/** Grid column count — bounds arrow navigation. */
+	columns: number
+	/** Reports focus-index changes as arrows move the active cell. */
+	onFocusChange?: (index: number) => void
+}
+
+/** useGridFocus result — focused-cell state and grid wiring props. */
+export interface GridFocusResult<T = any> {
+	/** Attach to the grid container so the hook can wire keyboard input. */
+	ref: { current: T | null }
+	/** Active cell index (row-major). */
+	focusIndex: number
+	/** Key handler to spread onto the container — implements arrow navigation. */
+	onKeyDown: (event: any) => void
+	/** Focuses a cell directly, for leaves that manage focus imperatively. */
+	onFocusCell?: (index: number) => void
+}
 
 /**
  * GTK `useGridFocus` — arrow-key navigation across the host's focusable
