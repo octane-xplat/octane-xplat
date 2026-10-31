@@ -93,7 +93,7 @@ export function Checkout({ returnURL, getCheckout, verifyOrder }: CheckoutProps)
 		<VStack>
 			<Button
 				label={busy ? 'Checkout open…' : 'Pay'}
-				disabled={busy || !Stripe.supported}
+				isDisabled={busy || !Stripe.supported}
 				clickAction={() => {
 					void pay()
 				}}

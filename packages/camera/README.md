@@ -42,7 +42,7 @@ export function Preview() {
 	return (
 		<CameraView
 			web={{ playsInline: true }}
-			ref={(handle) => console.log(handle.native)}
+			ref={(handle) => console.log(handle?.native)}
 			onError={(error) => console.log(error.message)}
 		/>
 	)

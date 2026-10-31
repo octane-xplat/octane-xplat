@@ -168,22 +168,25 @@ Current limits:
 the declaring Octane tree. The host application still owns the target view;
 the renderer inserts and removes only the portal's child views. Use a
 caller-owned view or a view from the same Octane root; targets owned by another
-Octane root are rejected.
+Octane root are rejected. The shared JSX type is opaque, so the native portal
+boundary names its compiled `UniversalRenderable` type explicitly.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-appkit */
-import { createContext, createPortal, useContext, useEffect, useRef, useState } from 'octane'
+/** @jsxImportSource @octane-xplat/jsx */
+import { createContext, useContext, useEffect, useRef, useState } from 'octane'
+import { createPortal, type UniversalRenderable } from '@octane-xplat/macos-appkit'
+import type { HostElement } from '@octane-xplat/jsx/jsx-runtime'
 
 const AccountName = createContext('Guest')
-const AccountNameProvider: any = AccountName
+const AccountNameProvider = AccountName
 
 function AccountLabel() {
 	return <label text={'Account: ' + useContext(AccountName)} />
 }
 
 export function AccountPage() {
-	const targetRef = useRef<any>(null)
-	const [target, setTarget] = useState<any>(null)
+	const targetRef = useRef<HostElement | null>(null)
+	const [target, setTarget] = useState<HostElement | null>(null)
 
 	useEffect(() => {
 		setTarget(targetRef.current)
@@ -192,7 +195,7 @@ export function AccountPage() {
 	return (
 		<AccountNameProvider value="Avery">
 			<rootlayout ref={targetRef} style={{ width: 280, height: 120 }} />
-			{target ? createPortal(<AccountLabel />, target) : null}
+			{target ? createPortal(<AccountLabel /> as UniversalRenderable, target) : null}
 		</AccountNameProvider>
 	)
 }
@@ -339,97 +342,23 @@ export function UpdatingTitle(props: { title: string; compact: boolean }) {
 
 ## Container layout channels
 
-A container can arrange its content through direct props or an inline style
-object. Both declarations below make the same row with a 12-point gap and
-vertically centered content. The renderer recognizes these inputs on
-`flexboxlayout` and `stack`; other elements retain unsupported-style diagnostics.
+Use `masonview` for authored layout and put layout properties in `style`.
+This row places two labels 12 points apart and centers them vertically:
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-appkit */
-export function Rows() {
+/** @jsxImportSource @octane-xplat/jsx */
+export function Row() {
 	return (
-		<stack>
-			<flexboxlayout flexDirection="row" gap={12} alignItems="center" justifyContent="start">
-				<label text="Name" />
-				<label text="Value" />
-			</flexboxlayout>
-			<flexboxlayout
-				style={{ flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'start' }}
-			>
-				<label text="Name" />
-				<label text="Value" />
-			</flexboxlayout>
-		</stack>
-	)
-}
-```
-
-Inline style wins over recognized classes, which win over direct props,
-regardless of prop order. Removing or setting an input to `null` or `undefined`
-restores the next source. With no source, defaults are column direction, zero
-gap, stretch alignment, and start justification. Here, removing `style.gap`
-restores `gap-2` (8 points); removing the class then restores `gap={4}`.
-
-```tsx
-/** @jsxImportSource @octane-xplat/macos-appkit */
-export function ConflictingRow({ inlineGap }: { inlineGap?: number }) {
-	return (
-		<flexboxlayout
-			gap={4}
-			className="flex-row gap-2 items-center justify-end"
-			style={{ gap: inlineGap }}
-		>
+		<masonview style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
 			<label text="Name" />
 			<label text="Value" />
-		</flexboxlayout>
+		</masonview>
 	)
 }
 ```
 
-The supported subset is direction `row`/`column`; nonnegative numeric gaps
-in points; alignment `start`, `end`, `center`, `stretch`, and horizontal
-`baseline`; justification `start`, `end`, `center`, and `space-between`.
-`flex-start`/`flex-end` are accepted aliases. `rowGap` applies to columns and
-`columnGap` to rows; within each channel, the matching axis gap wins over `gap`.
-The class forms are `flex-row`/`flex-col`, `gap-1/2/3/4/6`,
-`items-start/end/center/stretch/baseline`, and `justify-start/end/center/between`.
-
-```tsx
-/** @jsxImportSource @octane-xplat/macos-appkit */
-export function AxisGap() {
-	return (
-		<flexboxlayout style={{ flexDirection: 'row', gap: 4, columnGap: 12 }}>
-			<label text="Name" />
-			<label text="Value" />
-		</flexboxlayout>
-	)
-}
-```
-
-This subset does not implement child `flexGrow`, `flexShrink`, `alignSelf`,
-`order`, wrapping, reverse directions, or `space-around`/`space-evenly`.
-Existing `flex-1`/`shrink-0` class approximations are not full child-flex
-semantics. Attached parent-placement metadata remains a direct prop contract:
-container channel normalization does not move `row`, `col`, spans, or absolute
-placement into styles. Keep those values on the child host.
-
-```tsx
-/** @jsxImportSource @octane-xplat/macos-appkit */
-export function PositionedRow() {
-	return (
-		<absolutelayout>
-			<flexboxlayout
-				left={20}
-				top={12}
-				style={{ width: 240, height: 40, flexDirection: 'row', gap: 12 }}
-			>
-				<label text="Name" />
-				<label text="Value" />
-			</flexboxlayout>
-		</absolutelayout>
-	)
-}
-```
+Application screens can use the shared [layout components](../../docs/app/primitives.md)
+instead of authoring native host elements directly.
 
 ## Mason layout engine
 

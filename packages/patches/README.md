@@ -10,4 +10,13 @@ The canonical patch files and their rationale live in
 package's `patches/` directory from that source. Do not edit the copies here
 by hand.
 
+In an existing Xplat app with the CLI installed, apply the matching patch set,
+install dependencies, then verify registration:
+
+```sh
+bun run xplat patches apply
+bun install
+bun run xplat patches check
+```
+
 For app maintenance, follow [the CLI upgrade guide](https://github.com/octane-xplat/octane-xplat/blob/main/packages/cli/README.md#compatible-versions).

@@ -20,7 +20,7 @@ import { xplatBambooConfig } from '@octane-xplat/bamboo'
 export default defineConfig({
 	...xplatBambooConfig,
 	include: ['src/**/*.ts'],
-	outdir: 'src/styled',
+	outdir: 'src/styled-system',
 })
 ```
 
@@ -31,6 +31,8 @@ declares is a valid token, compiled to its variable (`warning` →
 imported or the app defines the variable itself.
 
 ```ts
+import { css } from './styled-system/css'
+
 css({ color: 'warning' }) // -> var(--color-warning)
 ```
 

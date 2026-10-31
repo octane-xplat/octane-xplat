@@ -74,14 +74,19 @@ visible without crashing the tree.
 ## Input sources
 
 `buildNanoIconFont` accepts a directory (`inputDir`), explicit `{ name, svg }` inputs, or
-an Iconify collection — names become `<prefix>:<name>`, matching `Icon`/`NanoIcon` naming:
+an Iconify collection — names become `<prefix>:<name>`, matching `Icon`/`NanoIcon` naming.
+Install the collection used by the following build script first:
+
+```sh
+bun add -D @iconify-json/heroicons
+```
 
 ```ts
 import { buildNanoIconFont, iconifyCollectionToSvgs } from '@octane-xplat/nano-icons/build'
 import heroicons from '@iconify-json/heroicons/icons.json' with { type: 'json' }
 
 await buildNanoIconFont({
-	inputs: iconifyCollectionToSvgs(heroicons),
+	icons: iconifyCollectionToSvgs(heroicons),
 	outputDir: 'src/icons-font',
 	fontFamily: 'HeroIcons',
 	web: true,
@@ -171,7 +176,7 @@ used `NanoIcon` with `addCollection` names:
 import {
 	buildNanoIconFont, // Node: run the pipeline
 	iconifyCollectionToSvgs, // Node: Iconify collection → svg inputs
-	type NanoIconFontOptions, // inputDir/inputs, outputDir, fontFamily, web, appFontsDir…
+	type NanoIconFontOptions, // inputDir/icons, outputDir, fontFamily, web, appFontsDir…
 } from '@octane-xplat/nano-icons/build'
 import {
 	NanoIcon, // registry-resolving component

@@ -43,6 +43,7 @@ export function Player() {
 			web={{ preload: 'metadata' }}
 			onError={(event) => console.log(event.message)}
 			ref={(handle) => {
+				if (!handle) return
 				console.log(handle.duration(), handle.native)
 				handle.seekTo(1000)
 			}}

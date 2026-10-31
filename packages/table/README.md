@@ -314,11 +314,20 @@ Selection uses the same ownership pattern. The callback receives either a new
 value or a function that updates the previous value; `useState` accepts both:
 
 ```tsx
-const [rowSelection, setRowSelection] =
-    useState<TableState<DataGridFeatures>['rowSelection']>({})
-;<DataGrid data={rows} columns={columns} getRowId={row => row.id}
-    showRowSelection getRowLabel={row => row.original.name}
-    state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection }} />
+import { useState } from 'octane'
+import { DataGrid, type DataGridFeatures, type TableState } from '@octane-xplat/table'
+
+const selectableOrders = [{ id: 'passport', name: 'Passport' }]
+export function SelectableOrders() {
+	const [rowSelection, setRowSelection] =
+		useState<TableState<DataGridFeatures>['rowSelection']>({})
+	return (
+		<DataGrid data={selectableOrders} columns={[{ accessorKey: 'name', header: 'Name' }]}
+			getRowId={row => row.id} showRowSelection
+			getRowLabel={row => row.original.name}
+			state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection }} />
+	)
+}
 ```
 
 Click a checkbox and the selected count should update. A `state` snapshot

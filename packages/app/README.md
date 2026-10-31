@@ -6,11 +6,12 @@ framework seam on real targets, not to be a product.
 
 Exports the mounted root and the app contract:
 
-```ts
-import { navigate, goBack } from '@xplat/app'
+```tsx
+import { App } from '@xplat/app'
 
-navigate('demo/:id', { id: 'counter' }, { into: 'demos' })
-goBack({ into: 'demos' })
+export function Harness() {
+	return <App />
+}
 ```
 
 - `app/` holds file-based routes — `_layout.tsrx` is the shell, `[id].tsrx`

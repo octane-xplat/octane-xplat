@@ -199,12 +199,19 @@ export const auth = createHostedAuth({
 	apiOrigin: 'https://api.example.com',
 	flow: {
 		async begin({ fetch, pkce }) {
+			if (!pkce) throw new Error('PKCE is required')
 			const res = await postJson(fetch, 'https://api.example.com/oauth/attempt', {
 				code_challenge: pkce.challenge,
 				scheme: 'myapp',
 			})
 			if (!res.ok) throw new Error(`attempt rejected (${res.status})`)
-			const { attempt_id, state } = await res.json()
+			const payload = await res.json()
+			if (!payload || typeof payload !== 'object' ||
+				!('attempt_id' in payload) || typeof payload.attempt_id !== 'string' ||
+				!('state' in payload) || typeof payload.state !== 'string') {
+				throw new Error('Invalid sign-in attempt response')
+			}
+			const { attempt_id, state } = payload
 			return {
 				url: `https://api.example.com/sign-in?attempt=${attempt_id}&state=${state}`,
 				callbackScheme: 'myapp',
@@ -212,13 +219,22 @@ export const auth = createHostedAuth({
 			}
 		},
 		async complete(callbackUrl, attempt, { fetch, pkce }) {
+			const code = queryParam(callbackUrl, 'code')
+			if (!pkce || !attempt.state || !code) return null
 			const res = await postJson(fetch, 'https://api.example.com/oauth/exchange', {
-				code: queryParam(callbackUrl, 'code'),
+				code,
 				code_verifier: pkce.verifier,
 				state: attempt.state,
 			})
 			if (!res.ok) return null
-			const { token, expires_at, session_token } = await res.json()
+			const payload = await res.json()
+			if (!payload || typeof payload !== 'object' ||
+				!('token' in payload) || typeof payload.token !== 'string' ||
+				!('expires_at' in payload) || typeof payload.expires_at !== 'number' ||
+				!('session_token' in payload) || typeof payload.session_token !== 'string') {
+				return null
+			}
+			const { token, expires_at, session_token } = payload
 			return { expiresAt: expires_at * 1000, sessionToken: session_token, token }
 		},
 	},

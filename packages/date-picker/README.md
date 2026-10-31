@@ -15,10 +15,10 @@ bun add @octane-xplat/date-picker
 
 ```tsx
 import { useState } from 'octane'
-import { DateInput } from '@octane-xplat/ui'
+import { DateInput, type ISODateString } from '@octane-xplat/ui'
 
 export function DepartureDate() {
-	const [date, setDate] = useState<string | null>('2026-10-02')
+	const [date, setDate] = useState<ISODateString | null>('2026-10-02')
 	return <DateInput value={date} onChange={setDate} label="Departure" />
 }
 ```
