@@ -23,6 +23,10 @@ export function layoutReadout() {
 							width: view.imageSource?.width ?? 0,
 							height: view.imageSource?.height ?? 0,
 							isLoading: view.isLoading,
+							// Sync byte sources retain zero ImageSource dimensions on Windows.
+							// Inspect the actual native bitmap to establish successful decode.
+							nativeWidth: Number((view as any).windows?.Source?.PixelWidth ?? 0),
+							nativeHeight: Number((view as any).windows?.Source?.PixelHeight ?? 0),
 						}
 					: undefined,
 			box: location

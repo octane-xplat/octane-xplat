@@ -25,7 +25,7 @@ export function DisplayCases(props: {
 					id="core20-card"
 					width="100%"
 					maxWidth={320}
-					padding={2}
+					padding={props.revision === 0 ? 2 : 3}
 					header={<Text id="core20-card-header">{`Card header ${props.revision}`}</Text>}
 					footer={<Text id="core20-card-footer">{`Card footer ${props.revision}`}</Text>}
 				>
