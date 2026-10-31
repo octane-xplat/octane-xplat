@@ -179,6 +179,24 @@ This mode does not replace display content, slot-order, wrapping, image or
 narrow-layout checks. Exit0 still leaves the plan's completion audit pending.
 Keep an action pass separate from any unresolved geometry failure.
 
+## Inspect the collections source fixture
+
+A package containing the maintained `collections` scene exposes named List
+and ListItem examples, leading/trailing slots, primitive-zero content, a row
+action, and focus anchors. Select it through the package's recorded command
+channel with a fresh sequence, for example:
+
+```json
+{ "sequence": "collections-inspection-1", "action": "scene", "value": "collections" }
+```
+
+Use the existing `revision`, `disabled` and `mounted` commands to change props.
+Only real OS/UIA input may activate `Open row`; its callback records source
+`list-item` and the current fixture revision. This fixture is prepared source,
+not a completed collection driver. Inspect native List/ListItem structure and
+retain the full final gates before claiming support; a row Button peer alone
+does not establish those roles or geometry.
+
 ## Run the legacy Flexbox regression
 
 This opt-in case exercises NativeScript Flexbox, separately from the Mason

@@ -4,6 +4,7 @@ import { knownFolders, File } from '@nativescript/core'
 import { layoutReadout } from './readout.windows'
 import { DisplayCases, displayCases, type DisplayCase } from './display-cases.windows'
 import { LegacyLayout } from './legacy-layout.windows'
+import { ListCases } from './collections-cases.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
 import {
 	Text,
@@ -163,7 +164,11 @@ export function Qualification() @{
 						setDestination('/')
 						break
 					case 'scene':
-						if (['layout', 'actions', 'display', 'legacy-layout'].includes(command.value)) {
+						if (
+							['layout', 'actions', 'display', 'legacy-layout', 'collections'].includes(
+								command.value,
+							)
+						) {
 							setScene(command.value)
 						}
 
@@ -194,7 +199,11 @@ export function Qualification() @{
 			<Text id="core20-destination">{`Destination ${destination}`}</Text>
 		}
 		@if (mounted) {
-			@if (scene === 'display' || scene === 'legacy-layout') {
+			@if (
+				scene === 'display' ||
+				scene === 'legacy-layout' ||
+				scene === 'collections'
+			) {
 				@try {
 					@if (scene === 'display') {
 						<DisplayCases
@@ -205,6 +214,8 @@ export function Qualification() @{
 							details={bannerDetails}
 							onActivate={activate}
 						/>
+					} @else if (scene === 'collections') {
+						<ListCases revision={revision} disabled={disabled} onActivate={activate} />
 					} @else {
 						<LegacyLayout revision={revision} />
 					}

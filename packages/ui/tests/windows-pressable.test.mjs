@@ -44,6 +44,13 @@ function compiled(name, source, imports = {}, template = true) {
 	)
 }
 
+const refs = compiled(
+	'refs',
+	readFileSync(new URL('../src/internal/accessibility/ref-list.ts', import.meta.url), 'utf8'),
+	{},
+	false,
+)
+
 const support = moduleFile(
 	'support',
 	`
@@ -51,7 +58,7 @@ import {Children} from ${JSON.stringify(runtimeUrl)};
 export const cx=(...values)=>values.flat(Infinity).filter(Boolean).join(' ');
 export const mergeStyle=(base,style)=>({...base,...style});
 export const styleRecord=style=>style??{};
-export const refList=(...refs)=>refs.filter(Boolean);
+export {refList} from ${JSON.stringify(refs)};
 export const applyEscapeProps=()=>{};
 export const nativeAccessibilityRole=value=>value;
 export const nativeAccessibilityState=value=>value?.disabled?'disabled':undefined;
@@ -62,6 +69,8 @@ export const useLinkComponent=value=>value??'a';
 export const Utils={openUrl:()=>true};
 export const toChildArray=Children.toArray;
 export const mapChildren=Children.map;
+export const followed=[];
+export const followHref=href=>followed.push(href);
 `,
 )
 
@@ -163,6 +172,30 @@ const banner = compiled(
 )
 
 const { Banner } = await import(banner)
+
+const listContext = compiled('list-context', read('collections/list-context.ts'), {}, false)
+const listItem = compiled('list-item', read('collections/ListItem.windows.tsrx'), {
+	'../../internal/layout/style-merge': support,
+	'../../internal/accessibility/ref-list': support,
+	'@octane-xplat/lib': support,
+	'../overlays/escape-props': support,
+	'../actions/Pressable': pressable,
+	'../forms/text-slot': slot,
+	'./list-context': listContext,
+	'../navigation/nav-href': support,
+})
+const { ListItem } = await import(listItem)
+const listRowWithContext = compiled(
+	'list-row-with-context',
+	`import {ListItem} from ${JSON.stringify(listItem)};
+import {ListProvider} from ${JSON.stringify(listContext)};
+export function ListRowWithContext(props) @{
+  <ListProvider value={{density:props.density??'compact',hasDividers:false,listStyle:'none'}}>
+    <ListItem {...props} />
+  </ListProvider>
+}`,
+)
+const { ListRowWithContext } = await import(listRowWithContext)
 
 function mount(component, props) {
 	const container = createObjectContainer('nativescript')
@@ -465,6 +498,94 @@ test('Windows ClickableCard preserves text, current callbacks and disabled seman
 		assert.equal(current, 1)
 		f.render({ id: 'clickable', label: 'Details', href: '/details', children: 'Details' })
 		assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowslink').length, 1)
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows ListItem renders primitive slots without creating an action peer', () => {
+	const props = {
+		id: 'row',
+		label: 0,
+		description: 'Details',
+		startContent: 'Leading',
+		children: 'Body',
+		endContent: 0,
+	}
+	const f = mount(ListRowWithContext, props)
+	try {
+		assert.deepEqual(text(f), ['Leading', '0', 'Details', 'Body', '0'])
+		assert.equal(buttons(f).length, 0)
+		assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowslink').length, 0)
+		const host = f.nodes().find((node) => node.props.id === 'row')
+		assert.ok(host.props.className.includes('vx-listitem--density-compact'))
+		assert.equal(host.props.onTap, undefined)
+		f.render({ ...props, density: 'balanced' })
+		assert.ok(
+			f
+				.nodes()
+				.find((node) => node.props.id === 'row')
+				.props.className.includes('vx-listitem--density-balanced'),
+		)
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows ListItem uses one native action with current names, callbacks and disabled guards', () => {
+	let first = 0
+	let current = 0
+	const f = mount(ListItem, { id: 'row', label: 'Open', onPress: () => first++ })
+	try {
+		assert.equal(buttons(f).length, 1)
+		assert.equal(buttons(f)[0].props.settings.label, 'Open')
+		assert.equal(f.nodes().find((node) => node.props.id === 'row').props.onTap, undefined)
+		assert.equal(buttons(f)[0].props.onTap, undefined)
+		buttons(f)[0].props.settings.onPress()
+		assert.equal(first, 1)
+		f.render({ id: 'row', label: 0, isDisabled: true, onPress: () => current++ })
+		assert.equal(buttons(f).length, 1)
+		assert.equal(buttons(f)[0].props.settings.label, '0')
+		assert.equal(buttons(f)[0].props.isEnabled, false)
+		buttons(f)[0].props.settings.onPress()
+		assert.equal(current, 0)
+		f.render({ id: 'row', label: 'Next', isSelected: true, onPress: () => current++ })
+		assert.equal(buttons(f)[0].props.settings.label, 'Next')
+		assert.equal(buttons(f)[0].props.isEnabled, true)
+		buttons(f)[0].props.settings.onPress()
+		assert.equal(current, 1)
+		assert.equal(first, 1)
+		assert.ok(
+			f
+				.nodes()
+				.find((node) => node.props.id === 'row')
+				.props.className.includes('vx-listitem--selected'),
+		)
+		f.render({ id: 'row', label: 'Static' })
+		assert.equal(buttons(f).length, 0)
+		assert.deepEqual(text(f), ['Static'])
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows ListItem routes a hyperlink peer through its current href and rejects disabled navigation', async () => {
+	const { followed } = await import(support)
+	followed.length = 0
+	const f = mount(ListItem, { label: 'Details', accessibilityLabel: 'Destination', href: '/first' })
+	const links = () => f.nodes().filter((node) => node.type === 'xplatwindowslink')
+	try {
+		assert.equal(links().length, 1)
+		assert.equal(links()[0].props.settings.label, 'Destination')
+		links()[0].props.settings.onPress()
+		assert.deepEqual(followed, ['/first'])
+		f.render({ label: 'Updated', href: '/next' })
+		links()[0].props.settings.onPress()
+		assert.deepEqual(followed, ['/first', '/next'])
+		f.render({ label: 'Disabled', href: '/blocked', isDisabled: true })
+		assert.equal(links()[0].props.isEnabled, false)
+		links()[0].props.settings.onPress()
+		assert.deepEqual(followed, ['/first', '/next'])
 	} finally {
 		f.root.unmount()
 	}

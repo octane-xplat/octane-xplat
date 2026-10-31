@@ -39,6 +39,32 @@ upstream repair scope and removal conditions in the
 Use `windows_recipe_checks` for per-criterion documentation and execution
 assessments; do not relabel Windows evidence as a mobile or AppKit target.
 
+## List row input prerequisite
+
+This is an unexecuted source candidate. The Windows `ListItem` leaf routes
+interactive rows through the existing
+measured Pressable peer, without a second root tap handler. It hosts primitive
+leading, label, description, child and trailing content through TextSlot,
+including numeric zero. The shared props remain unchanged:
+
+```tsx
+import { List, ListItem } from '@octane-xplat/ui'
+
+export function MessageRows() {
+	return <List>
+		<ListItem label="Inbox" onPress={() => console.log('Opened')} />
+		<ListItem label={0} description="Unread" />
+	</List>
+}
+```
+
+New compiled-leaf contracts and the maintained `collections` host scene still
+require testing. A native Button or
+Hyperlink peer is only the row's input prerequisite: List/ListItem structural
+roles, slot geometry, resize, OS activation, delegation, nested controls,
+navigation and the wider props matrix remain unqualified. Keep both final
+component gates pending until the complete plan criteria pass.
+
 ## Raster images and avatar names
 
 The pinned NativeScript Windows preview `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`
