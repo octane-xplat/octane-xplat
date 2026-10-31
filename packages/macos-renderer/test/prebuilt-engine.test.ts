@@ -62,6 +62,31 @@ test('the engine manifest checksum matches the shipped bytes', () => {
 	assert.equal(prebuilt.sha256['libxplatmason.dylib'], sha)
 })
 
+test('the engine manifest records the pinned mason-c desktop artifact', () => {
+	const prebuilt = JSON.parse(
+		readFileSync(join(packageRoot, 'platforms/macos/prebuilt/manifest.json'), 'utf8'),
+	)
+	const pin = JSON.parse(
+		readFileSync(join(packageRoot, 'native/xplatmason/mason-core.pin.json'), 'utf8'),
+	)
+	assert.equal(prebuilt.source.mason.repository, pin.repository)
+	assert.equal(prebuilt.source.mason.revision, pin.revision)
+	assert.equal(prebuilt.source.mason.crate, 'mason-c')
+	assert.equal(prebuilt.source.engine.artifact, `dist/native/mason-core/desktop/${pin.target}`)
+	assert.equal(prebuilt.source.engine.archiveSha256, pin.archiveSha256)
+	assert.equal(prebuilt.source.engine.headerSha256, pin.headerSha256)
+})
+
+test('the facade compiles against the shipped generated header', () => {
+	const facade = readFileSync(join(packageRoot, 'native/xplatmason/XPLMason.m'), 'utf8')
+	assert.match(facade, /#import "mason_native\.h"/)
+	assert.doesNotMatch(
+		facade,
+		/^extern\b[^;]*\bmason_\w+\s*\(/m,
+		'facade must not hand-declare mason-c functions',
+	)
+})
+
 test('the engine is a universal Mach-O within the app deployment target', () => {
 	const bytes = readFileSync(dylibPath)
 	assert.equal(bytes.readUInt32BE(0), 0xcafebabe, 'expected a universal (fat) binary')

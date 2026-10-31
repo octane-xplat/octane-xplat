@@ -1,57 +1,13 @@
 #import "XPLMason.h"
 #import <AppKit/AppKit.h>
 
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
+// mason-c exports (crates/mason-c), declared by the generated header shipped
+// with the pinned desktop engine archive — build.sh adds its include dir to
+// the compile and links the archive statically into this dylib.
+#import "mason_native.h"
 
-// mason-c exports (crates/mason-c). Linked statically into this dylib.
-extern void *mason_init(void);
-extern void mason_release(void *mason);
-extern void mason_set_device_scale(void *mason, float scale);
-extern void *mason_node_new_node(void *mason, bool anonymous);
-extern void *mason_node_new_node_with_context(
-    void *mason, void *measure_data,
-    long long (*measure)(const void *, float, float, float, float));
-extern void mason_node_destroy(void *node);
-extern void mason_node_set_children(void *mason, void *node, void *const *children,
-                                    size_t children_size);
-extern void mason_node_mark_dirty(void *mason, void *node);
-extern void mason_node_compute_wh(void *mason, void *node, float width, float height);
-extern void *mason_node_layout(void *mason, void *node,
-                               void *(*cb)(const float *, size_t));
-extern void *mason_node_compute_max_content_and_layout(
-    void *mason, void *node, void *(*cb)(const float *, size_t));
-extern void mason_style_set_with_values(
-    void *mason, void *node, signed char display, signed char position,
-    signed char direction, signed char flex_direction, signed char flex_wrap,
-    signed char overflow, signed char align_items, signed char align_self,
-    signed char align_content, signed char justify_items, signed char justify_self,
-    signed char justify_content, signed char inset_left_type, float inset_left_value,
-    signed char inset_right_type, float inset_right_value, signed char inset_top_type,
-    float inset_top_value, signed char inset_bottom_type, float inset_bottom_value,
-    signed char margin_left_type, float margin_left_value, signed char margin_right_type,
-    float margin_right_value, signed char margin_top_type, float margin_top_value,
-    signed char margin_bottom_type, float margin_bottom_value, signed char padding_left_type,
-    float padding_left_value, signed char padding_right_type, float padding_right_value,
-    signed char padding_top_type, float padding_top_value, signed char padding_bottom_type,
-    float padding_bottom_value, signed char border_left_type, float border_left_value,
-    signed char border_right_type, float border_right_value, signed char border_top_type,
-    float border_top_value, signed char border_bottom_type, float border_bottom_value,
-    float flex_grow, float flex_shrink, signed char flex_basis_type, float flex_basis_value,
-    signed char width_type, float width_value, signed char height_type, float height_value,
-    signed char min_width_type, float min_width_value, signed char min_height_type,
-    float min_height_value, signed char max_width_type, float max_width_value,
-    signed char max_height_type, float max_height_value, signed char gap_row_type,
-    float gap_row_value, signed char gap_column_type, float gap_column_value,
-    float aspect_ratio, const char *grid_auto_rows, const char *grid_auto_columns,
-    signed char grid_auto_flow, const char *grid_column, const char *grid_column_start,
-    const char *grid_column_end, const char *grid_row, const char *grid_row_start,
-    const char *grid_row_end, const char *grid_template_rows,
-    const char *grid_template_columns, signed char overflow_x, signed char overflow_y,
-    float scrollbar_width, signed char text_align, signed char box_sizing,
-    const char *grid_area, const char *grid_template_areas);
+#include <math.h>
+#include <string.h>
 
 // The layout callback is a plain C function pointer, so it cannot capture.
 // The host is single-threaded; a static collector is safe between calls.
@@ -90,23 +46,6 @@ static long long XPLViewMeasure(const void *ctx, float knownW, float knownH,
   }
   if (!(h >= 0)) {
     h = 0;
-  }
-  // Intrinsic size is unconstrained. A wrapping label must be measured at
-  // Mason's assigned/available width or the engine keeps its one-line height.
-  // Editable text controls own their separate sizing policy.
-  if ([view isKindOfClass:[NSTextField class]]) {
-    NSTextField *field = (NSTextField *)view;
-    CGFloat width = isfinite(knownW) && knownW >= 0 ? knownW : availW;
-    if (!field.editable && field.cell.wraps && isfinite(width) && width >= 0) {
-      // Renderer pins use alignment rects; NSTextField's drawing frame adds
-      // horizontal cell insets. Measure the same text width it will draw at.
-      NSRect bounds = [field frameForAlignmentRect:NSMakeRect(0, 0, width, 0)];
-      bounds.size.height = CGFLOAT_MAX;
-      NSSize wrapped = [field.cell cellSizeForBounds:bounds];
-      NSRect aligned = [field alignmentRectForFrame:NSMakeRect(0, 0, wrapped.width, wrapped.height)];
-      w = (float)MIN(width, MAX(0, aligned.size.width));
-      h = (float)MAX(0, aligned.size.height);
-    }
   }
   uint32_t wb;
   uint32_t hb;
@@ -187,7 +126,7 @@ static const char *XStr(NSDictionary *s, NSString *key) {
   return [value isKindOfClass:[NSString class]] ? [value UTF8String] : NULL;
 }
 
-static void XSetStyle(void *engine, void *node, NSDictionary *s) {
+static void XSetStyle(CMason *engine, CMasonNode *node, NSDictionary *s) {
   static NSDictionary<NSString *, NSNumber *> *displayMap;
   static NSDictionary<NSString *, NSNumber *> *positionMap;
   static NSDictionary<NSString *, NSNumber *> *directionMap;
@@ -307,7 +246,7 @@ static void XSetStyle(void *engine, void *node, NSDictionary *s) {
 }
 
 @implementation XPLMason {
-  void *_engine;
+  CMason *_engine;
 }
 
 // The bridge cannot fabricate members for metadata-free classes fetched via
@@ -364,12 +303,11 @@ static void XSetStyle(void *engine, void *node, NSDictionary *s) {
   if ([op isEqualToString:@"children"]) {
     NSArray<NSValue *> *children = args[1];
     NSUInteger count = children.count;
-    void **list = count ? malloc(sizeof(void *) * count) : NULL;
+    CMasonNode **list = count ? malloc(sizeof(CMasonNode *) * count) : NULL;
     for (NSUInteger i = 0; i < count; i++) {
       list[i] = [children[i] pointerValue];
     }
-    mason_node_set_children(_engine, [args[0] pointerValue], (void *const *)list,
-                            (size_t)count);
+    mason_node_set_children(_engine, [args[0] pointerValue], list, count);
     free(list);
     return nil;
   }

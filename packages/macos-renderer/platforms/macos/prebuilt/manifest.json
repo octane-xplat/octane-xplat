@@ -1,16 +1,33 @@
 {
 	"library": "libxplatmason.dylib",
-	"architectures": ["arm64", "x86_64"],
+	"architectures": [
+		"arm64",
+		"x86_64"
+	],
 	"minimumSystemVersion": "13.5",
 	"source": {
 		"facade": "native/xplatmason/XPLMason.m",
 		"mason": {
 			"repository": "https://github.com/octane-xplat/nativescript-mason",
-			"revision": "27281f978bf5848c9af464a244cd37db6e79d3a5",
-			"crate": "mason-c"
+			"revision": "0cdc3c80ea1b7cff74ce6b723f1d10a11f983a0d",
+			"crate": "mason-c",
+			"toolchain": "stable",
+			"pin": "native/xplatmason/mason-core.pin.json"
+		},
+		"engine": {
+			"artifact": "dist/native/mason-core/desktop/aarch64-apple-darwin",
+			"rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+			"archiveSha256": "3e68f43009b732df983e9b7f76cbdfa075cdc3569af2756bfe4c550889d61617",
+			"headerSha256": "4da33f0446f6da08f0bf3cb7f72bd509adf14e1c68fc1380881efc2de9a24193",
+			"headerSourceSha256": "deb575db60cc8142f0255fa0784d835dded067e244b822508a4b7d653d638769",
+			"cargoLockSha256": "82ed9a6fcd4e2381ff382d129a7f881eabc4f56bfd0ae65c06f16eba89a29aa4",
+			"slices": {
+				"arm64": "pinned archive aarch64-apple-darwin",
+				"x86_64": "built from crate source at the pinned revision — upstream ships no x86_64-apple-darwin desktop target"
+			}
 		}
 	},
 	"sha256": {
-		"libxplatmason.dylib": "7bbc6ac79237c2c7b3e6e06ac3e2e89d3b2a03c46caee814612c4003492ebe34"
+		"libxplatmason.dylib": "b1b9c76cc2f1826b3760caea1a7893f34873e94cd6505395c65feba3d2b7fef4"
 	}
 }

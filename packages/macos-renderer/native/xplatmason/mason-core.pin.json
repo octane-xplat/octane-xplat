@@ -1,0 +1,11 @@
+{
+	"repository": "https://github.com/octane-xplat/nativescript-mason",
+	"revision": "0cdc3c80ea1b7cff74ce6b723f1d10a11f983a0d",
+	"crate": "mason-c",
+	"toolchain": "stable",
+	"target": "aarch64-apple-darwin",
+	"archiveSha256": "3e68f43009b732df983e9b7f76cbdfa075cdc3569af2756bfe4c550889d61617",
+	"headerSha256": "4da33f0446f6da08f0bf3cb7f72bd509adf14e1c68fc1380881efc2de9a24193",
+	"headerSourceSha256": "deb575db60cc8142f0255fa0784d835dded067e244b822508a4b7d653d638769",
+	"cargoLockSha256": "82ed9a6fcd4e2381ff382d129a7f881eabc4f56bfd0ae65c06f16eba89a29aa4"
+}
