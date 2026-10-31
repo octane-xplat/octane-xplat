@@ -200,7 +200,7 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	assert.ok(existsSync(join(packedRoot, 'platforms/macos/src/XplatLocalNotifications.m')))
-	assert.ok(existsSync(join(packedRoot, 'types/index.macos.d.ts')))
+	assert.ok(existsSync(join(packedRoot, 'types/generated/index.macos.d.ts')))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
 	const exportMaps = [
