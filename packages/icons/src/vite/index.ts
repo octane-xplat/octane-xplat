@@ -31,7 +31,7 @@ interface VirtualIcon {
  * include the package's icons.d.ts in the app's types.
  */
 export function xplatIcons(): Plugin {
-	let root = process.cwd()
+	let root = ''
 	const resolved = new Map<string, VirtualIcon>()
 
 	return {
