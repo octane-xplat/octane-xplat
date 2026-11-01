@@ -36,6 +36,12 @@ encoding path, using checksummed model metadata and lazy macOS ICU normalization
 Its differential gate covers exact token IDs and Unicode normalization; it does
 not yet provide native ONNX inference. The Apache-2.0 port attribution is included
 in the native package notices.
+`minilm_model.nim` and its ONNX C adapter are exercised by a separate real-model
+qualification task. CPU graph optimizations and quantized rounding can change
+embeddings and retrieval order relative to WASM. The strict comparison currently
+exposes a ranking difference, so this adapter is not connected to public commands.
+Keep that gate intact and preserve distinct engine/cache identities while
+resolving inference and delivery; executing the C API alone does not qualify search.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

@@ -120,6 +120,30 @@ modified port's Apache-2.0 attribution ships in `NOTICE.txt`.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim tokenizer qualification"}' -- bun run turbo run test:nim-tokenizer --filter=@octane-xplat/cli
 ```
 
+The optional real-model gate downloads checksummed q8 weights and the official
+ONNX Runtime 1.31.1 macOS arm64 archive into task-local storage. It extracts the
+C API header, runtime library and notices. A small C shim preserves the pinned
+function-table ABI; inference runs natively with no JS bridge. This task is
+excluded from ordinary offline tests and the release gate. The upstream library
+declares a macOS 14 minimum; only the development host has executed this probe,
+and its qualification task currently supports only arm64.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native model qualification build"}' -- bun run turbo run build:nim-model --filter=@octane-xplat/cli
+bun run turbo run test:nim-model --filter=@octane-xplat/cli --only
+```
+
+The model gate runs its native processes with network access denied. It compares
+pooling, asset validation, batch independence, disposal, engine identities and
+actual maintained-guide rankings with the WASM reference. It also records raw/
+gzip runtime, weight and probe bytes in `research/nim-cli/model-qualification.json`.
+The strict ranking assertion currently fails on one guide query: do not treat
+successful native inference as a passing parity gate or enable public docs
+search/index on that evidence. Basic native graph optimization reduces output
+drift relative to extended/all, but does not eliminate it. Model engine assets
+are not included in the current CLI tarball, and their measured delivery cost
+must remain separate from the current partial executable's size/startup results.
+
 Measure the public executable after a build. The benchmark checks the host,
 source fingerprint and executable hash against the build record before recording
 raw/gzip bytes and warm process startup. It refuses stale or replaced artifacts.

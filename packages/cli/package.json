@@ -92,7 +92,10 @@
 		"test:nim-docs": "node --test ../../tools/cli-nim/docs.test.mjs ../../tools/cli-nim/docs-service.test.mjs ../../tools/cli-nim/guidance-command.test.mjs ../../tools/cli-nim/docs-read-command.test.mjs",
 		"test:nim-index": "node --test ../../tools/cli-nim/sqlite.test.mjs ../../tools/cli-nim/docs-index.test.mjs",
 		"prepare:nim-tokenizer": "node ../../tools/cli-nim/model-fixtures.mjs --tokenizer-only",
-		"test:nim-tokenizer": "node --test ../../tools/cli-nim/tokenizer.test.mjs"
+		"test:nim-tokenizer": "node --test ../../tools/cli-nim/tokenizer.test.mjs",
+		"prepare:nim-model": "node ../../tools/cli-nim/ort-fixtures.mjs",
+		"build:nim-model": "node ../../tools/cli-nim/build-model.mjs",
+		"test:nim-model": "node --test ../../tools/cli-nim/model.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

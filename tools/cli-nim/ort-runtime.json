@@ -1,0 +1,15 @@
+{
+  "version": "1.31.1",
+  "release": "https://github.com/microsoft/onnxruntime/releases/tag/v1.31.1",
+  "targets": {
+    "darwin-arm64": {
+      "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.1/onnxruntime-osx-arm64-1.31.1.tgz",
+      "sha256": "2e1344a1926ee50eb25b38153cb6992c3567515aef0e677a1a520a1798896d6f",
+      "bytes": 36936435,
+      "directory": "onnxruntime-osx-arm64-1.31.1",
+      "headerSha256": "43d584f596ef66820421317df32a79a95fc1d39ee46cb3971a870c08d8ba4baa",
+      "library": "lib/libonnxruntime.1.31.1.dylib",
+      "librarySha256": "17500d6b1e37e70f43a2c57d94233a1bc29fbcb297be0a5f8c7c13184f3307ba"
+    }
+  }
+}

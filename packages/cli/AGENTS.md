@@ -214,3 +214,17 @@ but do not call a destructor for that instance. A size-only normalization call
 returns the required UTF-16 capacity with `U_BUFFER_OVERFLOW_ERROR`; reset the
 error before the real call and check its returned length. Use explicit close
 operations and reject use after close, including empty-input fast paths.
+
+For large C function tables, compile a small C shim against the pinned public
+header instead of maintaining table offsets in Nim. Keep the dynamically loaded
+library alive until every session and borrowed output is released. A synchronous
+FFI call may borrow Nim input buffers for its duration; do not let the foreign
+library retain them beyond their owner. Preserve model Float32 values before
+pooling them into Nim `float`/JS Number accumulators.
+
+Matching model bytes and runtime version numbers do not establish cross-engine
+inference parity. Native CPU graph optimizations can change quantized outputs
+and search order. Include engine/settings in cache identities and compare actual
+retrieval results; normalization and plausible vectors alone are insufficient.
+Validate every pinned asset required by the reference, including metadata that
+the native computation does not directly consume.
