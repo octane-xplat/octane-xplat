@@ -34,7 +34,7 @@ proc number(raw: string): float =
       if digit < 0 or digit >= base: raise newException(ValueError, "Invalid number")
       result = result * float(base) + float(digit)
   else: result = parseFloat(s)
-proc jsNumber(n: float): string =
+proc jsNumber*(n: float): string =
   if n == 0: return "0"
   if abs(n) < 1e21 and n == trunc(n):
     result = formatFloat(n, ffDecimal, 0)

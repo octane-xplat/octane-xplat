@@ -17,7 +17,9 @@ for (const key of ["dependencies", "devDependencies", "optionalDependencies", "p
 pkg.version=version;pkg.bin={xplat:'bin/xplat.exe'};pkg.scripts={postinstall:'node install-native.mjs'}
 pkg.files=['bin','native','install-native.mjs'];pkg.publishConfig={access:'public',tag:'nim'}
 mkdirSync(join(stage,'bin'));mkdirSync(join(stage,'native'))
+cpSync(resolve(root,'LICENSE'),join(stage,'LICENSE'))
 cpSync(resolve(import.meta.dirname,'install-native.mjs'),join(stage,'install-native.mjs'))
+cpSync(resolve(root,'research/nim-cli/native/NOTICE.txt'),join(stage,'native/NOTICE.txt'))
 writeFileSync(join(stage,'bin/xplat.exe'),'#!/bin/sh\necho "Run the package postinstall to select the native CLI" >&2\nexit 3\n',{mode:0o755})
 const hosts=['darwin-arm64','darwin-x64','linux-arm64','linux-x64','win32-x64']
 const selected=hostOnly?[`${process.platform}-${process.arch}`]:hosts

@@ -14,7 +14,13 @@ const repo = resolve(here, '../..')
 const compiler = resolve(repo, `research/nim-cli/core${process.platform === 'win32' ? '.exe' : ''}`)
 const runRoot = join(repo, 'research/nim-cli', `${process.platform}-${process.arch}-${Date.now()}`)
 mkdirSync(runRoot, { recursive: true })
-const results = { nimSourceSha256: createHash('sha256').update(readFileSync(join(here,'core.nim'))).update(readFileSync(join(repo,'packages/cli/nim/core.nim'))).digest('hex'), revision: spawnSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8'}).stdout.trim(), platform: process.platform, arch: process.arch, referenceRuntime: process.version, compiler: 'Nim 2.2.12', checks: [], artifacts: [] }
+const nativeInputs = [
+ ...readdirSync(join(repo,'packages/cli/nim')).filter(file=>file.endsWith('.nim')).sort().map(file=>`packages/cli/nim/${file}`),
+ 'tools/cli-nim/core.nim', 'tools/cli-nim/catalog.json', 'tools/cli-nim/nim-dependencies.json',
+]
+const nativeInputHash = createHash('sha256')
+for(const file of nativeInputs)nativeInputHash.update(file).update('\0').update(readFileSync(join(repo,file))).update('\0')
+const results = { nativeInputs, nimSourceSha256: nativeInputHash.digest('hex'), revision: spawnSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8'}).stdout.trim(), platform: process.platform, arch: process.arch, referenceRuntime: process.version, compiler: 'Nim 2.2.12', checks: [], artifacts: [] }
 const check = async (name, action) => {
 	try {
 		await action()

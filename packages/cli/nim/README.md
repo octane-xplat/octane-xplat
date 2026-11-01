@@ -13,6 +13,8 @@ research/nim-cli/native/xplat catalog --json
 `core.nim` contains discovery, platform detection and framework-binding routines
 shared with the differential probe. `main.nim` owns the public command entry.
 `workspace.nim` owns per-invocation selection, client preferences and task policy.
+`package_manager.nim` and `workspace_glob.nim` own workspace/lockfile interpretation;
+`jsonc.nim` validates comment-bearing Bun data separately from strict manifests.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Framework-version binding stays internal until the remaining package-manager

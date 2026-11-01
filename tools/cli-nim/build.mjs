@@ -9,7 +9,7 @@ const work = resolve(root, 'research/nim-cli')
 const version = process.env.XPLAT_NIM_VERSION ?? JSON.parse(readFileSync(resolve(root, 'packages/cli/package.json'))).version + '-nim.0'
 if (!/^\d+\.\d+\.\d+-nim\.[0-9]+$/.test(version)) throw Error('Require an exact x.y.z-nim.N prerelease')
 // Reuse the checksum-verified compiler/YAML preparation and source pins.
-await import('./prepare.mjs')
+const { dependencyPaths } = await import('./prepare.mjs')
 const compiler = await getToolchain({cacheDir:resolve(work,'toolchain')})
 const cli = resolve(root, 'packages/cli/src/cli.ts')
 function reference(args) {
@@ -32,12 +32,18 @@ for(const c of AGENT_COMMANDS) {
 writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:""}))
 mkdirSync(resolve(work,'native'),{recursive:true})
 const binary=resolve(work,process.platform==='win32'?'native/xplat.exe':'native/xplat')
-const flags=['c','-d:release','--opt:size','--mm:orc',...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),`--path:${work}/yaml`,`--nimcache:${work}/native-cache`,`-o:${binary}`,resolve(root,'packages/cli/nim/main.nim')]
+const flags=['c','-d:release','--opt:size','--mm:orc',...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/native-cache`,`-o:${binary}`,resolve(root,'packages/cli/nim/main.nim')]
 for(const [cmd,args] of [[compiler.nim,flags],...(process.platform==='win32'?[]:[['strip',[binary]]])]) {
  const r=spawnSync(cmd,args,{stdio:'inherit'});if(r.status!==0)throw Error('Native build failed')
 }
 writeFileSync(resolve(work,'native/build.json'),JSON.stringify({version,platform:process.platform,arch:process.arch,flags}))
 
+writeFileSync(resolve(work,'native/NOTICE.txt'), readFileSync(resolve(work,'NOTICE.txt')))
+
 const parser=resolve(work,process.platform==='win32'?'native/args-probe.exe':'native/args-probe')
 const parserBuild=spawnSync(compiler.nim,['c','-d:release',`--nimcache:${work}/args-cache`,`-o:${parser}`,resolve(import.meta.dirname,'args_probe.nim')],{stdio:'inherit'})
 if(parserBuild.status!==0)throw Error('Argument probe build failed')
+
+const packageProbe=resolve(work,process.platform==='win32'?'native/package-probe.exe':'native/package-probe')
+const packageBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/package-cache`,`-o:${packageProbe}`,resolve(import.meta.dirname,'package_probe.nim')],{stdio:'inherit'})
+if(packageBuild.status!==0)throw Error('Package-manager probe build failed')

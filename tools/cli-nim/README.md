@@ -11,8 +11,10 @@ executable runs with an empty PATH and contains no JavaScript engine.
 Use the repository's Bun 1.4.4 install, Node 24 or later, Git, tar, and Xcode
 Command Line Tools. Compiler downloads and C caches stay in `research/nim-cli`.
 The private workspace pins `nim-toolchain@0.1.0` (Nim 2.2.12); the wrapper checks
-the upstream archive SHA-256 before extraction. NimYAML's exact source revision
-and license are declared in `nim-dependencies.json`.
+the upstream archive SHA-256 before extraction. All Nim dependency revisions and
+license paths are declared in
+`nim-dependencies.json`; the installer checks the pinned source revisions and
+keeps sources in task-local storage. Package staging includes their notices.
 
 ```sh
 bun install --ignore-scripts
@@ -42,13 +44,22 @@ research/nim-cli/core catalog
 research/nim-cli/core binding "$PWD" "$PWD/apps/web"
 ```
 
-This differential probe stops at discovery, platform config, framework binding,
-plain HTTP, and child process control. Production package-manager-root selection
-has richer workspace glob/exclusion behavior; this probe searches ancestors only
-through its supplied workspace root. Node's global package lookup paths, malformed
-lockfile behavior, unusual scalar types, filesystem permission failures, symlink
-loops, and all Bun identity variants still require a wider differential corpus.
-The program reads JSON manifests, never evaluates `vite.config.ts`.
+The probe exercises shared workspace/package-manager code as well as discovery,
+plain HTTP and child processes. Workspace membership uses a pinned pure Nim glob
+engine, with filesystem traversal and compatibility rules qualified against Node.
+The focused package-manager corpus also checks strict/JSONC distinctions, importer
+ownership, installed-package shadowing and pnpm conflict behavior.
+
+```sh
+bun run turbo run test:nim-packages --filter=@octane-xplat/cli
+```
+
+Broader qualification remains necessary for advanced nested negated glob
+combinations, unusual YAML scalar/collection keys and recursive aliases, non-finite/large JSON
+numbers, inaccessible files and Node's installation-prefix global lookup when
+Node is absent from PATH. Those are open compatibility requirements for the full
+rewrite. They are not implied by the passing common-pattern corpus. Project
+metadata is read as data; JavaScript configuration is not evaluated.
 
 HTTP uses Nim's standard client without TLS enabled. HTTPS, certificate trust,
 redirect/proxy behavior, streaming, and cancellation during a network request are

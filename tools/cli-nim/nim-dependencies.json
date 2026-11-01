@@ -1,1 +1,38 @@
-{"compiler":{"npm":"nim-toolchain","version":"0.1.0","nim":"2.2.12"},"yaml":{"url":"https://github.com/flyx/NimYAML.git","revision":"dbeeafe0155d61ff12a3600d3aea27674e78e34d","license":"MIT"}}
+{
+  "compiler": {
+    "npm": "nim-toolchain",
+    "version": "0.1.0",
+    "nim": "2.2.12"
+  },
+  "yaml": {
+    "url": "https://github.com/flyx/NimYAML.git",
+    "revision": "dbeeafe0155d61ff12a3600d3aea27674e78e34d",
+    "license": "MIT",
+    "sourceDir": ".",
+    "licenseFile": "copying.txt"
+  },
+  "glob": {
+    "url": "https://github.com/haltcase/glob.git",
+    "revision": "ab6087b0cfb56096258cb48f7e756a8c3e8e40cf",
+    "version": "0.11.3",
+    "sourceDir": "src",
+    "license": "MIT",
+    "licenseFile": "license"
+  },
+  "regex": {
+    "url": "https://github.com/nitely/nim-regex.git",
+    "revision": "b078cd018ffa91bb46acff7751882a156601d47e",
+    "version": "0.27.0",
+    "sourceDir": "src",
+    "license": "MIT",
+    "licenseFile": "LICENSE"
+  },
+  "unicodedb": {
+    "url": "https://github.com/nitely/nim-unicodedb.git",
+    "revision": "b70aac15a3fdc7647997bd6cd10bccd8b2c00e54",
+    "version": "0.14.1",
+    "sourceDir": "src",
+    "license": "MIT",
+    "licenseFile": "LICENSE"
+  }
+}

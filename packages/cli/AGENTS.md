@@ -23,7 +23,8 @@ JS exports, or runtime dependency tree; the small installer runs only at install
   integers. Port accepted syntax, finite/integer checks, bounds, and diagnostics
   explicitly. Nim floating-point parsing accepts separators such as `1_0` that
   JS `Number()` rejects. JSON serialization also needs deliberate handling of
-  negative zero: `JSON.stringify(-0)` emits `0`. Nim `formatFloat(x, ffDecimal, 0)` can leave a trailing decimal dot;
+  negative zero: `JSON.stringify(-0)` emits `0`. Nim
+  `formatFloat(x, ffDecimal, 0)` can leave a trailing decimal dot;
   normalize it when the contract requires JS whole-number formatting. Keep
   differential tests for numeric edge cases rather than trusting matching types.
 - Successful Nim JSON parsing does not establish strict `JSON.parse` or
@@ -58,6 +59,23 @@ qualified. Compare structured results, errors, exit codes and stream ownership;
 compilation or a successful happy path does not prove semantic parity. For pure
 logic, a test-only native program reading NDJSON can exercise a large case corpus
 in one process. Do not ship test-only entry points in the production binary.
+
+Treat dependency semantics as independent of successful compilation. In particular,
+NimYAML's JSON construction can overwrite duplicate keys that the reference YAML
+reader rejects; validate the event stream when key uniqueness is part of the
+input contract. With Nim variant (`case`) objects, inspect the active kind before
+accessing branch-specific fields. When rewriting an event's kind, construct a new
+variant value instead of changing the tag and then using fields from the old
+branch; otherwise runtime field checks can raise `FieldDefect`.
+
+A glob matcher and a filesystem walker have separate behavior:
+explicitly choose hidden-entry, symlink, exclusion and literal-directory rules.
+Compare path sets when the reference does not promise enumeration order.
+
+Normalize comment-bearing JSON without repairing invalid syntax. Strip comments
+only outside quoted strings and check that a trailing comma follows a complete
+value; blindly deleting `,]` would turn invalid `[,]` into an accepted array.
+Keep format-specific validation separate from strict project manifests.
 
 Compiler pins and Nim dependencies are declared under `tools/cli-nim`. Keep
 compiler downloads and caches task-local in ignored `research/nim-cli` storage.

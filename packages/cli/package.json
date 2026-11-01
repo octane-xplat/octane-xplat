@@ -83,7 +83,8 @@
 		"test:patches-install": "node --test test/patches-*.test.mjs standalone/patches-install.test.mjs",
 		"build:nim": "node ../../tools/cli-nim/build.mjs",
 		"test:nim": "node --test ../../tools/cli-nim/native.test.mjs ../../tools/cli-nim/package.test.mjs ../../tools/cli-nim/args.test.mjs ../../tools/cli-nim/workspace.test.mjs",
-		"pack:nim": "node ../../tools/cli-nim/pack.mjs"
+		"pack:nim": "node ../../tools/cli-nim/pack.mjs",
+		"test:nim-packages": "node --test ../../tools/cli-nim/package-manager.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

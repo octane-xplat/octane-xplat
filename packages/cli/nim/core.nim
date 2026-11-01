@@ -1,30 +1,8 @@
 import std/[json, os, strutils, algorithm]
-import yaml/tojson
-import ./strictjson
+import ./jsonutil, ./package_manager
+from ./args import jsNumber
+export jsonutil
 
-proc readJson*(path: string): JsonNode =
-  try: result = parseStrictJson(readFile(path))
-  except CatchableError: result = newJNull()
-proc field*(n: JsonNode, key: string): JsonNode =
-  if n != nil and n.kind == JObject: n.getOrDefault(key)
-  else: nil
-proc text*(n: JsonNode): string =
-  if n != nil and n.kind == JString: n.getStr else: ""
-proc truthy*(n: JsonNode): bool =
-  if n == nil: return false
-  case n.kind
-  of JNull: false
-  of JBool: n.getBool()
-  of JInt: n.getBiggestInt() != 0
-  of JFloat: n.getFloat() != 0
-  of JString: n.getStr().len > 0
-  else: true
-proc deps*(n: JsonNode): JsonNode =
-  result = newJObject()
-  for section in ["dependencies", "devDependencies"]:
-    let d = field(n, section)
-    if d != nil and d.kind == JObject:
-      for k, v in d: result[k] = v
 proc platforms*(dir: string): JsonNode =
   result = newJArray()
   let m = readJson(dir / "package.json")
@@ -74,74 +52,25 @@ proc discover*(root: string): JsonNode =
 proc binding*(root, app: string): JsonNode =
   let declared = deps(readJson(app / "package.json"))
   var installed = newJArray()
-  var locked = newJArray()
   var resolved = false
   for name, spec in declared:
     if not name.startsWith("@octane-xplat/"): continue
-    var dir = app
-    var version = ""
-    while true:
-      version = text(field(readJson(dir / "node_modules" / name / "package.json"), "version"))
-      if version != "" or parentDir(dir) == dir: break
-      dir = parentDir(dir)
-    if version != "":
-      installed.add(%*{"name": name, "version": version, "source": "installed"})
+    let packageRoot = installedPackageRoot(app,name)
+    let manifest = if packageRoot == nil: nil else: readJson(packageRoot.getStr() / "package.json")
+    if truthy(field(manifest,"version")):
+      installed.add(%*{"name": name, "version": manifest["version"], "source": "installed"})
       resolved = true
     elif text(spec) == "workspace:*" or text(spec).startsWith("link:") or text(spec).startsWith("file:"):
       installed.add(%*{"name": name, "version": spec, "source": "workspace", "declared": spec})
       resolved = true
     else: installed.add(%*{"name": name, "version": newJNull(), "source": "unresolved", "declared": spec})
-  var dir = app
-  var lock: JsonNode
-  var bun = false
-  while true:
-    if fileExists(dir / "bun.lock"):
-      # Nim's JSON parser accepts comments and trailing commas; parity tested below.
-      lock = parseJson(readFile(dir / "bun.lock"))
-      bun = true
-      break
-    if dir == root or parentDir(dir) == dir: break
-    dir = parentDir(dir)
-  if not bun:
-    dir = app
-    while true:
-      if fileExists(dir / "pnpm-lock.yaml"):
-        try:
-          let docs = loadToJson(readFile(dir / "pnpm-lock.yaml"))
-          if docs.len > 0: lock = docs[0]
-        except CatchableError: discard
-        break
-      if dir == root or parentDir(dir) == dir: break
-      dir = parentDir(dir)
-  if lock != nil:
-    var importer = field(field(lock, "importers"), relativePath(app, dir))
-    if importer == nil: importer = field(field(lock, "importers"), ".")
-    let ld = deps(importer)
-    for name, spec in declared:
-      if not name.startsWith("@octane-xplat/"): continue
-      var version: JsonNode
-      if bun:
-        let workspaces = field(lock, "workspaces")
-        var owner = text(field(readJson(app / "package.json"), "name"))
-        if workspaces != nil:
-          for path, member in workspaces:
-            if normalizedPath(dir / path) == normalizedPath(app): owner = text(field(member, "name"))
-        var entry = field(field(lock, "packages"), owner & "/" & name)
-        if entry == nil: entry = field(field(lock, "packages"), name)
-        if entry != nil and entry.kind == JArray and entry.len > 0:
-          let identity = text(entry[0])
-          let specifier = identity[identity.find('@', 1)+1..^1]
-          if specifier.startsWith("workspace:"): version = field(field(workspaces, specifier[10..^1]), "version")
-          elif specifier.len > 0 and specifier[0].isDigit: version = %specifier
-      else:
-        version = field(field(ld, name), "version")
-        if version == nil: version = field(field(ld, name), "specifier")
-      locked.add(%*{"name": name, "version": (if version == nil: newJNull() else: version), "source": "lockfile", "declared": spec})
+  let locked = lockedVersions(root,app,declared)
+  if installed.len == 0 and locked.len == 0: return %*{"packages": [], "status": "unresolved"}
   result = %*{"packages": (if resolved: installed else: locked), "status": (if resolved: "installed" else: "provisional")}
-  if installed.len == 0 and locked.len == 0: result["status"] = %"unresolved"
-  for l in locked:
-    for a in installed:
-      let v = text(l["version"])
-      if a["name"] == l["name"] and text(a["version"]) != "" and v != "" and a["version"] != l["version"] and not (v.startsWith("workspace:") or v.startsWith("link:") or v.startsWith("file:")):
-        result["discrepancy"] = %("Lockfile records " & text(l["name"]) & "@" & v & " but the installation has " & text(a["version"]) & "; using the actual installation.")
-
+  for lock in locked:
+    for actual in installed:
+      let version = text(lock["version"])
+      if actual["name"] == lock["name"] and truthy(actual["version"]) and truthy(lock["version"]) and actual["version"] != lock["version"] and not (version.startsWith("workspace:") or version.startsWith("link:") or version.startsWith("file:")):
+        let rendered = if lock["version"].kind == JString: version elif lock["version"].kind == JFloat: jsNumber(lock["version"].getFloat()) else: $lock["version"]
+        let installedVersion = if actual["version"].kind == JString: text(actual["version"]) elif actual["version"].kind == JFloat: jsNumber(actual["version"].getFloat()) else: $actual["version"]
+        result["discrepancy"] = %("Lockfile records " & text(lock["name"]) & "@" & rendered & " but the installation has " & installedVersion & "; using the actual installation.")
