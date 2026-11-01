@@ -1,6 +1,7 @@
 import { Application, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
-import { Qualification } from './layout-cases.windows'
+// NativeScript Vite detects TSRX imports by their explicit extension.
+import { Qualification } from './layout-cases.windows.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import './layouts.css'

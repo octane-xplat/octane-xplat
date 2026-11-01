@@ -2,12 +2,14 @@ param(
     [Parameter(Mandatory)][string]$ScratchDirectory,
     [string]$SourceArchive,
     [string]$MsBuildPath = 'C:/BuildTools/MSBuild/Current/Bin/MSBuild.exe',
-    [switch]$PrepareOnly
+    [switch]$PrepareOnly,
+    [switch]$PreferredSizeCandidate
 )
 $ErrorActionPreference = 'Stop'
 $commit = 'abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b'
 $archiveHash = 'E5AFF3114F26CBD6E7F78920A4C28EA9A5B43E890233C8603CFF3EEAE9618F94'
 $patchHash = '1FF8F2A68F8D70E48AD7772A877E0DB58BEA65A0B559D2C9C9BC90BAB5BD45CB'
+$preferredPatchHash = '46638EA2A1490857544B384DE7FFC7242BF012A1C9B48581990B7F4B8418EA48'
 $patch = Join-Path $PSScriptRoot '../patches/windows-layout/native-padding.patch'
 $taskRoot = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE 'agent-scratch/octane-xplat'))
 $scratch = [IO.Path]::GetFullPath($ScratchDirectory)
@@ -45,6 +47,20 @@ if ($LASTEXITCODE -ne 0) { throw 'Native patch application failed.' }
 & git.exe -C "$scratch/source" apply --reverse --check $nativePatch
 if ($LASTEXITCODE -ne 0) { throw 'Applied native patch failed its reverse check.' }
 $manifest = [ordered]@{sourceCommit=$commit;sourceArchiveSha256=$archiveHash;nativePatchSha256=$patchHash;architecture='x64';preparedOnly=[bool]$PrepareOnly;artifacts=@()}
+if ($PreferredSizeCandidate) {
+    # Opt-in lab repair: its Core parent-lifecycle patch must be paired with
+    # these artifacts. Do not replace the repository-selected pair implicitly.
+    $preferredPatch = Join-Path $PSScriptRoot '../patches/windows-layout/native-preferred-size.patch'
+    if ((Get-FileHash $preferredPatch).Hash -ne $preferredPatchHash) { throw 'Preferred-size candidate patch changed; review its matching Core patch and native pair.' }
+    & git.exe -C "$scratch/source" apply --check $preferredPatch
+    if ($LASTEXITCODE -ne 0) { throw 'Preferred-size candidate does not apply after padding.' }
+    & git.exe -C "$scratch/source" apply $preferredPatch
+    if ($LASTEXITCODE -ne 0) { throw 'Preferred-size candidate application failed.' }
+    & git.exe -C "$scratch/source" apply --reverse --check $preferredPatch
+    if ($LASTEXITCODE -ne 0) { throw 'Preferred-size candidate failed its reverse check.' }
+    $manifest.preferredNativePatchSha256 = $preferredPatchHash
+    $manifest.requiredCorePatch = 'tools/platform-qualification/patches/windows-layout/core-preferred-package.patch'
+}
 if (-not $PrepareOnly) {
     $env:CL = '/MP2'
     $project = "$scratch/source/packages/ui-mobile-base/windows/widgets-cpp/NativeScript.Widgets.vcxproj"

@@ -424,9 +424,10 @@ Activity Back → interceptors → top modal → visible Frame/pane → OS fallb
 The renderer ships the Mason engine prebuilt
 (`platforms/macos/prebuilt/libxplatmason.dylib`); the fixture's bootstrap
 loads it automatically. Rebuild it with
-`packages/macos-renderer/native/xplatmason/build.sh` against the pinned
-`research/nativescript-mason` revision only when the engine changes. The
-fixture checks its consumer types, builds production JS and runs the
+`packages/macos-renderer/native/xplatmason/build.sh` — it consumes the pinned
+mason-c desktop archive recorded in `native/xplatmason/mason-core.pin.json` —
+only when the engine changes. The fixture checks its consumer types, builds
+production JS and runs the
 JavaScriptCore/AppKit host.
 
 ```sh

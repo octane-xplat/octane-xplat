@@ -136,15 +136,31 @@ function readBounds(view: View): MeasureBounds | null {
 
 /** Observe Windows layout, including same-size native views reattached by keyed moves. */
 export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
-	const [bounds, setBounds] = useState<MeasureBounds | null>(null)
+	const [bounds, setBounds, getBounds] = useState<MeasureBounds | null>(null)
 	const detach = useRef<(() => void) | null>(null)
+	const pendingClear = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+	const disposed = useRef(false)
 	const observe = options.observe ?? true
 	const ref = useCallback(
 		(element: unknown) => {
+			if (pendingClear.current !== undefined) {
+				clearTimeout(pendingClear.current)
+				pendingClear.current = undefined
+			}
+
 			detach.current?.()
 			detach.current = null
 			if (!(element instanceof View)) {
-				setBounds(null)
+				// A replaced callback ref is cleared and rebound in one commit.
+				// Clearing bounds synchronously makes that commit schedule another
+				// render even when the same view still has identical bounds.
+				if (!disposed.current && getBounds() !== null) {
+					pendingClear.current = setTimeout(() => {
+						pendingClear.current = undefined
+						setBounds(null)
+					}, 0)
+				}
+
 				return
 			}
 
@@ -222,7 +238,18 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 		[observe],
 	)
 
-	useEffect(() => () => detach.current?.(), [])
+	useEffect(() => {
+		disposed.current = false
+		return () => {
+			disposed.current = true
+			detach.current?.()
+			detach.current = null
+			if (pendingClear.current !== undefined) {
+				clearTimeout(pendingClear.current)
+				pendingClear.current = undefined
+			}
+		}
+	}, [])
 
 	return { ref, bounds }
 }

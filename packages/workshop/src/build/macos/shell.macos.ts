@@ -208,6 +208,7 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 				) {
 					return event
 				}
+
 				return null
 			} catch {
 				return event
@@ -302,6 +303,7 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 				NSEvent.removeMonitor(escapeMonitor)
 				escapeMonitor = null
 			}
+
 			window.delegate = null
 		} catch (error) {
 			console.error('[workshop-macos] close teardown failed', error)
@@ -320,6 +322,8 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 						seq: cmdSeq,
 						d: ++dumpSeq,
 						...controller.inspect(),
+						catalogCollapsed: controller.state.catalogCollapsed,
+						controlsCollapsed: controller.state.controlsCollapsed,
 						openWindows: openWindowCount(),
 					}),
 			)
@@ -349,9 +353,9 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 
 	// Dispatches through the view's real recognizer/control action. This is
 	// gesture-action dispatch for qualification, not OS-synthesized input.
-	const pressLabel = (label) => {
+	const pressLabel = (label, scope = stage) => {
 		let target = null
-		eachSubview(stage, (view) => {
+		eachSubview(scope, (view) => {
 			let name = ''
 			try {
 				name = String(
@@ -419,23 +423,27 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 				controller.control(arg.slice(0, space), JSON.parse(arg.slice(space + 1)))
 			} else if (verb === 'unset' && arg) {
 				controller.control(arg, UNSET)
+			} else if (verb === 'chrome-press' && arg) {
+				pressLabel(arg, content)
 			} else if (verb === 'press' && arg) {
 				pressLabel(arg)
 			} else if (verb === 'key' && arg === 'escape') {
 				// Synthesize a keyDown Escape through AppKit dispatch — this
 				// exercises the monitor path, not OS-synthesized input.
-				const event = NSEvent.keyEventWithTypeLocationModifierFlagsTimestampWindowNumberContextCharactersCharactersIgnoringModifiersIsARepeatKeyCode(
-					NSEventType.KeyDown,
-					{ x: 0, y: 0 },
-					0,
-					NSProcessInfo.processInfo.systemUptime,
-					window.windowNumber,
-					null,
-					'\u001b',
-					'\u001b',
-					false,
-					53,
-				)
+				const event =
+					NSEvent.keyEventWithTypeLocationModifierFlagsTimestampWindowNumberContextCharactersCharactersIgnoringModifiersIsARepeatKeyCode(
+						NSEventType.KeyDown,
+						{ x: 0, y: 0 },
+						0,
+						NSProcessInfo.processInfo.systemUptime,
+						window.windowNumber,
+						null,
+						'\u001b',
+						'\u001b',
+						false,
+						53,
+					)
+
 				if (event) {
 					NSApp.sendEvent(event)
 				}

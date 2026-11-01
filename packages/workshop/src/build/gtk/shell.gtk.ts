@@ -46,6 +46,7 @@ const requireModule = (specifier) => {
 		if (version) {
 			imports.gi.versions[name] = version
 		}
+
 		return imports.gi[name]
 	}
 	let key = specifier
@@ -183,6 +184,7 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 									String(error?.stack ?? ''),
 							)
 						} catch {}
+
 						controller.session.markCompileError(error)
 					}
 				})
@@ -221,7 +223,13 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 			try {
 				print(
 					'WORKSHOP_STATE ' +
-						JSON.stringify({ seq: cmdSeq, d: ++dumpSeq, ...controller.inspect() }),
+						JSON.stringify({
+							seq: cmdSeq,
+							d: ++dumpSeq,
+							...controller.inspect(),
+							catalogCollapsed: controller.state.catalogCollapsed,
+							controlsCollapsed: controller.state.controlsCollapsed,
+						}),
 				)
 			} catch (error) {
 				print('WORKSHOP_STATE {"inspectError":' + JSON.stringify(String(error)) + '}')
@@ -230,9 +238,9 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 
 		// Dispatches the widget's real activation: emits 'clicked' on the
 		// stage widget matching accessible label / widget name / label text.
-		const pressLabel = (label) => {
+		const pressLabel = (label, scope = stage) => {
 			let target = null
-			eachChild(stage, (widget) => {
+			eachChild(scope, (widget) => {
 				try {
 					// GTK4 exposes no readable accessible name here; match the
 					// widget name, the button label, or a child GtkLabel's text.
@@ -252,12 +260,16 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 				print(`WORKSHOP_PRESS_MISS "${label}"`)
 				const dumpTree = (w, depth) => {
 					try {
-						print('  '.repeat(depth) + `${w?.$gtype?.name ?? typeof w} name=${w?.name ?? ''} label=${w?.label ?? w?.child?.label ?? ''}`)
+						print(
+							'  '.repeat(depth) +
+								`${w?.$gtype?.name ?? typeof w} name=${w?.name ?? ''} label=${w?.label ?? w?.child?.label ?? ''}`,
+						)
 					} catch {}
 					for (let c = w?.get_first_child?.(); c; c = c.get_next_sibling()) {
 						dumpTree(c, depth + 1)
 					}
 				}
+
 				dumpTree(stage, 0)
 				return
 			}
@@ -278,8 +290,10 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 								fired = true
 							}
 						}
+
 						cursor = cursor.get_parent?.()
 					}
+
 					if (!fired) {
 						print(`WORKSHOP_PRESS_MISS "${label}"`)
 					}
@@ -314,6 +328,8 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 					controller.control(arg.slice(0, space), JSON.parse(arg.slice(space + 1)))
 				} else if (verb === 'unset' && arg) {
 					controller.control(arg, UNSET)
+				} else if (verb === 'chrome-press' && arg) {
+					pressLabel(arg, content)
 				} else if (verb === 'press' && arg) {
 					pressLabel(arg)
 				} else if (verb === 'reset') {
@@ -334,6 +350,7 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 							String(error?.stack ?? ''),
 					)
 				} catch {}
+
 				controller.session.markCompileError(error)
 			}
 			dump()
@@ -384,6 +401,7 @@ export function startGtkWorkshop({ bundleFile, initialStoryId = null } = {}) {
 						void close()
 						return false
 					}
+
 					if (status === GLib.IOStatus.NORMAL) {
 						return dispatchLine(strbuf.replace(/[\r\n]+$/, '')) !== false
 					}

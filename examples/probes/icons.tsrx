@@ -19,6 +19,8 @@ export default function IconsProbe() {
 			<Icon id="icon-other" name="probe-other:dot" />
 			<Icon id="icon-gradient-a" name="probe-icons:gradient" />
 			<Icon id="icon-gradient-b" name="probe-icons:gradient" />
+			<Icon id="icon-value" icon={iconFixture.icons.wide} color="#123456" />
+			<Icon id="icon-both" name="probe-other:dot" icon={iconFixture.icons.wide} />
 			<Icon id="icon-late" name="probe-late:new" />
 		</Column>
 	)
@@ -44,6 +46,16 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('gradient definition exists', typeof first, 'string')
 	ctx.assert('instance IDs differ', first !== second, true)
 	ctx.assert('missing icon has no host', !!ctx.find('icon-late'), false)
+	ctx.assert(
+		'value icon mounts without registry',
+		iconSnapshot(ctx.find('icon-value')).body.includes('M0 0h32v16'),
+		true,
+	)
+	ctx.assert(
+		'icon= wins over name=',
+		iconSnapshot(ctx.find('icon-both')).body.includes('M0 0h32v16'),
+		true,
+	)
 
 	addCollection({ prefix: 'probe-late', icons: { new: { body: '<path d="M0 0h16v16z"/>' } } })
 	await ctx.waitFor(() => ctx.find('icon-late'))

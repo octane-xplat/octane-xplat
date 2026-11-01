@@ -1,0 +1,72 @@
+--- a/packages/core/ui/layouts/flexbox-layout/index.windows.ts
++++ b/packages/core/ui/layouts/flexbox-layout/index.windows.ts
+@@ -104,6 +104,69 @@
+ export class FlexboxLayout extends FlexboxLayoutBase {
+     nativeViewProtected!: WidgetFlexboxLayout;
+ 
++    private _preferredChildren = new Map<View, { native: any; sync: () => void }>();
++
++    private _preferredLength(value: any): number {
++        // Match the pinned core's fixed XAML length input; percentages remain
++        // owned by its existing percentage lifecycle and flex-basis protocol.
++        const fixed = typeof value === 'number' ? value
++            : value && typeof value === 'object' && value.unit !== '%' ? value.value : NaN;
++        return Number.isFinite(fixed) && fixed >= 0 ? fixed : -1;
++    }
++
++    private _observePreferredChild(child: View): void {
++        if (typeof (FlexboxWidget as any).SetPreferredWidth !== 'function'
++            || typeof (FlexboxWidget as any).SetPreferredHeight !== 'function') return;
++        this._releasePreferredChild(child);
++        const native = child.nativeViewProtected as any;
++        if (!native) return;
++        const entry = { native, sync: () => {
++            if (this._preferredChildren.get(child) !== entry
++                || child.parent !== this || child.nativeViewProtected !== native) return;
++            const width = this._preferredLength(child.style.width);
++            const height = this._preferredLength(child.style.height);
++            if ((FlexboxWidget as any).GetPreferredWidth(native) !== width)
++                (FlexboxWidget as any).SetPreferredWidth(native, width);
++            if ((FlexboxWidget as any).GetPreferredHeight(native) !== height)
++                (FlexboxWidget as any).SetPreferredHeight(native, height);
++        }};
++        this._preferredChildren.set(child, entry);
++        child.style.on('widthChange', entry.sync);
++        child.style.on('heightChange', entry.sync);
++        entry.sync();
++    }
++
++    private _releasePreferredChild(child: View): void {
++        const entry = this._preferredChildren.get(child);
++        if (!entry) return;
++        this._preferredChildren.delete(child);
++        child.style.off('widthChange', entry.sync);
++        child.style.off('heightChange', entry.sync);
++        if (child.nativeViewProtected !== entry.native) return;
++        const width = (FlexboxWidget as any).GetPreferredWidth(entry.native);
++        const height = (FlexboxWidget as any).GetPreferredHeight(entry.native);
++        if (Number.isFinite(width) && width >= 0) entry.native.Width = width;
++        if (Number.isFinite(height) && height >= 0) entry.native.Height = height;
++        (FlexboxWidget as any).SetPreferredWidth(entry.native, -1);
++        (FlexboxWidget as any).SetPreferredHeight(entry.native, -1);
++    }
++
++    public _addViewToNativeVisualTree(child: View, atIndex?: number): boolean {
++        const added = super._addViewToNativeVisualTree(child, atIndex);
++        if (added) this._observePreferredChild(child);
++        return added;
++    }
++
++    public _removeViewFromNativeVisualTree(child: View): void {
++        super._removeViewFromNativeVisualTree(child);
++        this._releasePreferredChild(child);
++    }
++
++    public disposeNativeView(): void {
++        for (const child of this._preferredChildren.keys()) this._releasePreferredChild(child);
++        super.disposeNativeView();
++    }
++
+     public createNativeView(): WidgetFlexboxLayout {
+         return new FlexboxWidget() as WidgetFlexboxLayout;
+     }

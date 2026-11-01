@@ -63,6 +63,52 @@ export function LayerTrigger() {
 }
 ```
 
+## Windows list-row input candidate
+
+Use ordinary List/ListItem props. The Windows row input candidate composes the
+existing measured Pressable peer for `onPress`/`href` and hosts primitive slots
+as text. Compiled contracts do not establish native behavior; a Button peer
+alone does not establish List/ListItem structure or complete row semantics.
+Keep the Windows List content wrapper in a column with stretched children so
+automatic-width rows fill the available width; retain native resize checks.
+
+```tsx
+import { List, ListItem } from '@octane-xplat/ui'
+
+export function Rows() {
+	return <List><ListItem label="Inbox" onPress={() => console.log('Opened')} /></List>
+}
+```
+
+Before using this as Windows support evidence, run the maintained collections
+fixture's `-ListItemActions` mode and verify the full
+[input and structural gates](../../../../docs/windows-ui.md#list-row-input-prerequisite).
+Keep delegation, nested controls and navigation separately unqualified.
+
+## Windows Table header input candidate
+
+The Windows sortable header composes the existing measured Pressable peer and
+retains the native default's controlled single-column cycle. Use the public
+Table plugin API:
+
+```tsx
+import { Table, useTableSortable, useTableSortableState } from '@octane-xplat/ui'
+
+export function SortedRows() {
+	const state = useTableSortableState({ data: [{ name: 'Inbox' }, { name: 'Archive' }] })
+	const sortable = useTableSortable(state.sortConfig)
+	return <Table data={state.sortedData}
+		columns={[{ key: 'name', header: 'Name', sortable: true }]}
+		plugins={{ sortable }} />
+}
+```
+
+Keep current sort state in header props; ref mutation alone does not rerender
+an unchanged-prop child. Compiled contracts are source evidence only. This input
+prerequisite does not provide Table/header/row/cell structure or qualify native
+input, scrolling, geometry or the wider sorting/plugin matrix. Probe those separately using the
+[Table qualification boundary](../../../../docs/windows-ui.md#table-header-input-prerequisite).
+
 ## Experimental Windows Switch
 
 The Windows leaf preserves the shared track and thumb and uses a transparent

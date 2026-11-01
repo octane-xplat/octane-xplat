@@ -16,6 +16,8 @@ import {
 
 import { createImageContentBinding } from './image-content-binding'
 import { hashToPngBase64 } from './hash-image'
+import { resolveRasterSource } from './raster-source'
+import { bindImageAccessibility } from './image-accessibility'
 
 /** Resolves `placeholder` to an ImageSource synchronously — a placeholder
  *  that must fetch first defeats its purpose, so remote URLs are ignored.
@@ -169,20 +171,14 @@ export function Image(props: ImageProps): unknown @{
 		[srcString],
 	)
 
-	const source = useMemo(() => {
-		const comma = srcString.indexOf(',')
-		if (
-			srcString.startsWith('data:') &&
-			comma > 0 &&
-			srcString.slice(0, comma).endsWith(';base64')
-		) {
-			return ImageSource.fromBase64Sync(srcString.slice(comma + 1))
-		}
-
-		return srcString
-	}, [srcString])
+	const source = useMemo(() => resolveRasterSource(srcString), [srcString])
 
 	const update = { source: sources ? null : source, sources, fit, position, computed }
+
+	useLayoutEffect(
+		() => (svg == null ? bindImageAccessibility(imageRef.current, props.alt) : undefined),
+		[props.alt, svg, computed],
+	)
 
 	useLayoutEffect(() => {
 		const view = imageRef.current

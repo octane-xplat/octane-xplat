@@ -1,8 +1,10 @@
 import { rankOf, slugFor, titleOf } from './doc-meta'
+import { CHANGELOG_DOC } from './changelog'
 
 // Reader-facing doc corpus — docs/**/*.md, imported raw at build time.
 // Subdirectories organize by topic; slugs stay flat basenames so site paths
-// don't encode the folder layout.
+// don't encode the folder layout. The changelog page joins them generated
+// from the repo's root logs.
 const files = import.meta.glob('../../../docs/**/*.md', {
 	query: '?raw',
 	import: 'default',
@@ -22,8 +24,8 @@ export interface DocPage {
 }
 
 const seen = new Set<string>()
-export const DOCS: DocPage[] = Object.entries(files)
-	.map(([path, md]) => {
+export const DOCS: DocPage[] = [
+	...Object.entries(files).map(([path, md]) => {
 		const rel = path.split('/docs/')[1].replace(/\.md$/, '')
 		const segs = rel.split('/')
 		const dir = segs.slice(0, -1).join('/')
@@ -42,11 +44,12 @@ export const DOCS: DocPage[] = Object.entries(files)
 			dir,
 			section: dir || 'start',
 		}
-	})
-	.sort((a, b) => {
-		const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
-		return d || a.slug.localeCompare(b.slug)
-	})
+	}),
+	CHANGELOG_DOC,
+].sort((a, b) => {
+	const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
+	return d || a.slug.localeCompare(b.slug)
+})
 
 // The introduction uses '/'; all other guides use their flat slug path.
 export function routeForDoc(doc: DocPage | undefined) {

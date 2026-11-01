@@ -1,4 +1,4 @@
-import type { IconifyTransformations } from '@iconify/types'
+import type { IconifyIcon, IconifyTransformations } from '@iconify/types'
 
 /** SVG sizing, tint, and transforms shared by every target. */
 export interface IconOptions extends IconifyTransformations {
@@ -8,10 +8,8 @@ export interface IconOptions extends IconifyTransformations {
 	color?: string
 }
 
-/** Props for a bundled Iconify icon. */
-export interface IconProps extends IconOptions {
-	/** Registered collection prefix and icon name, such as `heroicons:arrow-right`. */
-	name: string
+/** Host and accessibility props shared by both icon forms. */
+interface IconHostProps extends IconOptions {
 	/** Element id passed through to the host element. */
 	id?: string
 	/** Class list applied to the rendered svg element. */
@@ -19,6 +17,24 @@ export interface IconProps extends IconOptions {
 	/** Accessible description. Omit for a decorative icon. */
 	label?: string
 }
+
+/** Props for a bundled Iconify icon. Pass `icon` data directly (a typed,
+ *  tree-shaken `icons:prefix/name` module value) or a registry `name` —
+ *  `icon` wins when both are set. `name` stays for dynamic lookups. */
+export type IconProps = IconHostProps &
+	(
+		| {
+				/** Registered collection prefix and icon name, such as `heroicons:arrow-right`. */
+				name: string
+				/** Iconify data rendered as-is — skips the registry lookup. */
+				icon?: IconifyIcon
+		  }
+		| {
+				name?: string
+				/** Iconify data rendered as-is — skips the registry lookup. */
+				icon: IconifyIcon
+		  }
+	)
 
 /** DOM-free SVG output, ready for an inline SVG or native SVGView. */
 export interface IconSvg {

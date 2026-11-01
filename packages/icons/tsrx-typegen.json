@@ -15,6 +15,15 @@
 					"types": [
 						"./types/generated/index.d.ts"
 					]
+				},
+				"./vite": {
+					"source": "src/vite/index.ts",
+					"runtime": [
+						"./dist/vite/index.js"
+					],
+					"types": [
+						"./types/generated/vite/index.d.ts"
+					]
 				}
 			}
 		}

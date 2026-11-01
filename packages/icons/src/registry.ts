@@ -2,6 +2,7 @@ import type { IconifyIcon, IconifyJSON } from '@iconify/types'
 import { getIconData } from '@iconify/utils/lib/icon-set/get-icon'
 
 const collections = new Map<string, IconifyJSON>()
+const singles = new Map<string, IconifyIcon>()
 const cache = new Map<string, IconifyIcon | undefined>()
 const listeners = new Set<() => void>()
 let revision = 0
@@ -48,6 +49,20 @@ export function addCollection(collection: IconifyJSON): void {
 		aliases: Object.assign(Object.create(null), collection.aliases),
 	})
 
+	notifyChanged()
+}
+
+/** `prefix:name` split and validation shared by addIcon/addIcons/resolveIcon. */
+function iconNameParts(name: string): [string, string] | undefined {
+	const parts = name.split(':')
+	if (parts.length !== 2 || !parts.every((part) => identifier.test(part))) {
+		return undefined
+	}
+
+	return [parts[0], parts[1]]
+}
+
+function notifyChanged(): void {
 	cache.clear()
 	revision++
 	// Snapshot subscriptions so re-subscription during notification is deferred.
@@ -57,15 +72,58 @@ export function addCollection(collection: IconifyJSON): void {
 	}
 }
 
-/** Resolve `prefix:name`, including aliases and collection dimensions; missing/invalid names return undefined. */
+/**
+ * Register a single `prefix:name` icon — the tree-shaken counterpart to
+ * addCollection for data already in hand, such as `icons:prefix/name` module
+ * values from the Vite plugin. A registered name shadows collection data for
+ * the same name. Treat the supplied icon as immutable after registration.
+ * @throws TypeError if the name is not `prefix:name` or the icon lacks a body.
+ */
+export function addIcon(name: string, icon: IconifyIcon): void {
+	if (!iconNameParts(name) || !icon || typeof icon.body !== 'string') {
+		throw new TypeError('Expected a `prefix:name` name and Iconify data with a string body')
+	}
+
+	singles.set(name, icon)
+	notifyChanged()
+}
+
+/**
+ * Register a record of `prefix:name` → IconifyIcon entries in one shot —
+ * composes with `icons:prefix/name` imports:
+ * `addIcons({ 'heroicons:x-mark': xMark, 'heroicons:plus': plus })`.
+ * @throws TypeError if any key is not `prefix:name` or lacks a string body.
+ */
+export function addIcons(icons: Record<string, IconifyIcon>): void {
+	if (!icons || typeof icons !== 'object') {
+		throw new TypeError('Expected a record of `prefix:name` → IconifyIcon entries')
+	}
+
+	for (const [name, icon] of Object.entries(icons)) {
+		if (!iconNameParts(name) || !icon || typeof icon.body !== 'string') {
+			throw new TypeError(`Expected a \`prefix:name\` name and Iconify data with a string body: ${name}`)
+		}
+
+		singles.set(name, icon)
+	}
+
+	notifyChanged()
+}
+
+/** Resolve `prefix:name` — single-icon registrations first, then collection data including aliases and dimensions; missing/invalid names return undefined. */
 export function resolveIcon(name: string): IconifyIcon | undefined {
 	if (cache.has(name)) {
 		return cache.get(name)
 	}
 
-	const parts = name.split(':')
-	if (parts.length !== 2 || !parts.every((part) => identifier.test(part))) {
+	const parts = iconNameParts(name)
+	if (!parts) {
 		return undefined
+	}
+
+	const single = singles.get(name)
+	if (single) {
+		return single
 	}
 
 	const collection = collections.get(parts[0])

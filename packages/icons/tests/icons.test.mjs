@@ -1,7 +1,7 @@
 import { loadSource } from '../../../scripts/load-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-const { addCollection, resolveIcon, registry } = await loadSource(
+const { addCollection, addIcon, addIcons, resolveIcon, registry } = await loadSource(
 	new URL('../src/registry.ts', import.meta.url),
 )
 
@@ -65,6 +65,38 @@ test('collection replacement invalidates misses and cached icons and notifies su
 	assert.throws(() => addCollection({ prefix: '', icons: {} }), TypeError)
 	assert.throws(() => addCollection({ icons: {} }), TypeError)
 	assert.throws(() => addCollection({ prefix: 'bad', icons: [] }), TypeError)
+})
+
+test('addIcon/addIcons register single icons that shadow collections, invalidate misses, and notify', () => {
+	assert.equal(resolveIcon('single:arrow'), undefined)
+	let notifications = 0
+	const unsubscribe = registry.subscribe(() => notifications++)
+
+	addIcon('single:arrow', { body: '<path d="M0 0h8"/>' })
+	assert.equal(resolveIcon('single:arrow').body, '<path d="M0 0h8"/>')
+	assert.equal(notifications, 1)
+
+	// A single-icon registration shadows collection data for the same name.
+	addCollection({ prefix: 'single', icons: { arrow: { body: '<circle r="1"/>' } } })
+	assert.equal(resolveIcon('single:arrow').body, '<path d="M0 0h8"/>')
+
+	// Collection misses stay cached only until the next registration bump.
+	assert.equal(resolveIcon('bulk:plus'), undefined)
+	addIcons({
+		'bulk:plus': { body: '<path d="M1 1h2"/>' },
+		'bulk:minus': { body: '<path d="M3 3h2"/>' },
+	})
+	assert.equal(resolveIcon('bulk:plus').body, '<path d="M1 1h2"/>')
+	assert.equal(resolveIcon('bulk:minus').body, '<path d="M3 3h2"/>')
+	unsubscribe()
+
+	assert.throws(() => addIcon('arrow', { body }), TypeError)
+	assert.throws(() => addIcon('single:Body', { body }), TypeError)
+	assert.throws(() => addIcon('single:noicon', {}), TypeError)
+	assert.throws(() => addIcon('single:noicon2', null), TypeError)
+	assert.throws(() => addIcons({ 'bulk:nope' : null }), TypeError)
+	assert.throws(() => addIcons({ broken: { body } }), TypeError)
+	assert.throws(() => addIcons(null), TypeError)
 })
 
 test('SVG conversion preserves bodies and multicolor fills, escapes tint, and rewrites definition references', () => {

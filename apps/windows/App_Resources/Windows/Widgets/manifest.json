@@ -6,25 +6,34 @@
   "nativePatchSha256": "1ff8f2a68f8d70e48ad7772a877e0db58bea65a0b559d2c9c9bc90bab5bd45cb",
   "architecture": "x64",
   "license": "MIT",
-  "scope": "Native Flexbox Padding projection, measurement and arrangement. The flex shrink algorithm is unchanged.",
+  "scope": "Native Flexbox padding and fixed preferred-size inputs for non-overlapping shrink slots, axis changes and parent-owned lifecycle. x64 only; not complete flex sizing parity.",
   "build": {
     "configuration": "Release",
     "toolset": "v143",
     "project": "packages/ui-mobile-base/windows/widgets-cpp/NativeScript.Widgets.vcxproj",
-    "commandReference": "tools/platform-qualification/windows-layout/build-widgets.ps1"
+    "commandReference": "tools/platform-qualification/windows-layout/build-widgets.ps1",
+    "arguments": [
+      "-PreferredSizeCandidate"
+    ]
   },
   "files": [
     {
       "name": "NativeScript.Widgets.dll",
-      "sha256": "75a690a2a2bf0077037ab9a1da991761f8b52d92ea51119511b696cc0183c241",
-      "bytes": 598528,
+      "sha256": "bb150aaa870e64ea0d0585b346a0db8b820809e9a2efaac8098ebfffbe3ee494",
+      "bytes": 603648,
       "upstreamSha256": "c267f9445c673a81a124efb6a175a12c0036605020afe865943a93861dfad235"
     },
     {
       "name": "NativeScript.Widgets.winmd",
-      "sha256": "decde1efd06230eecba30b339707cafe2e586a0af1650bff0b0924304ac60293",
-      "bytes": 10752,
+      "sha256": "b00f4b099d0c8e68ab858a692d55a333132686f293b4abedb45e9d6c17df1a0a",
+      "bytes": 11264,
       "upstreamSha256": "765d779a340596c4787a72e50c0a8031d8516f87ef89ecb60b69c150ead37b46"
     }
-  ]
+  ],
+  "preferredSizePatch": "tools/platform-qualification/patches/windows-layout/native-preferred-size.patch",
+  "preferredNativePatchSha256": "46638ea2a1490857544b384de7ffc7242bf012a1c9b48581990b7f4b8418ea48",
+  "coreModule": {
+    "specifier": "@nativescript/core/ui/layouts/flexbox-layout/index.windows.js",
+    "sha256": "2083568296c2406aee856c7d7693d43fbcf53be765bb036d3e147d281d3df644"
+  }
 }

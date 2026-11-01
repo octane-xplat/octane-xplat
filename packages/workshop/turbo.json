@@ -1,12 +1,40 @@
 {
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
 		"test:packed": {
-			"dependsOn": ["typegen", "build", "build:assets", "create-octane-xplat#build"],
+			"dependsOn": [
+				"typegen",
+				"build",
+				"build:assets",
+				"create-octane-xplat#build"
+			],
 			"cache": false
 		},
 		"test:packed:linux": {
-			"dependsOn": ["build", "typegen", "^build", "^typegen", "create-octane-xplat#build"],
+			"dependsOn": [
+				"build",
+				"typegen",
+				"^build",
+				"^typegen",
+				"create-octane-xplat#build"
+			],
+			"cache": false
+		},
+		"test": {
+			"dependsOn": [
+				"build",
+				"^typegen",
+				"^build"
+			]
+		},
+		"test:packed:mobile": {
+			"dependsOn": [
+				"typegen",
+				"build",
+				"^build"
+			],
 			"cache": false
 		}
 	}

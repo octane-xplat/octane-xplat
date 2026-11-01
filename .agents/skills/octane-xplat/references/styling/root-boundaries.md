@@ -8,6 +8,17 @@ classes. For remaining independent roots and platform exceptions, consult the
 
 ## Apply the shared theme
 
+Match theme classes on the styled root itself as well as on an ancestor when
+supporting both renderer roots and nested hosts. A descendant selector alone
+does not match a root that carries both classes.
+
+```css
+.trip-host.ns-dark,
+.ns-dark .trip-host {
+	background-color: var(--color-surface, #171717);
+}
+```
+
 Use the shared preference APIs instead of introducing another manual-override
 store. Subscribe in each independently rendered root, and apply theme classes
 to its root view. A native host created by app code needs the same treatment.

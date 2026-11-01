@@ -104,10 +104,10 @@ index 333ac76a172c54da8049ed6807439fa52d09a0aa..0974c33b80b8f25d0542487c7f231bdf
                  // If value is not initial or unset and view has a parent that has non-default value, use it as the reset value.
                  if (value !== 'initial' && parent && parent[sourceKey] !== 0 /* ValueSource.Default */) {
 diff --git a/ui/core/view/index.windows.d.ts b/ui/core/view/index.windows.d.ts
-index 1366081b803aa1b7130d6495704ff53f09f52afd..33cf4022dc10a5ac29bc8ca8c8da9117b4cf04be 100644
+index 1366081b803aa1b7130d6495704ff53f09f52afd..cc38beb7ebb94773939b91c0483850363352f1de 100644
 --- a/ui/core/view/index.windows.d.ts
 +++ b/ui/core/view/index.windows.d.ts
-@@ -1,19 +1,18 @@
+@@ -1,19 +1,20 @@
  export * from './view-common';
  export * from './view-helper';
  export * from '../properties';
@@ -127,12 +127,14 @@ index 1366081b803aa1b7130d6495704ff53f09f52afd..33cf4022dc10a5ac29bc8ca8c8da9117
 -} | null;
 +export { _ensureNativeTransforms } from './native-transforms.windows';
  export declare class View extends ViewCommon {
++    // Native property symbols are dynamic across View subclasses.
++    [key: symbol]: unknown;
 +    [isEnabledProperty.setNative]: (value: boolean) => void;
 +    [accessibilityLabelProperty.setNative]: (_value: string) => void;
      [backgroundInternalProperty.getDefault]: () => any;
      [backgroundInternalProperty.setNative]: (value: any) => void;
      [widthProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
-@@ -83,7 +82,12 @@
+@@ -83,7 +84,12 @@
      private _applyTiledBackgroundImage;
      private _lastLayoutW;
      private _lastLayoutH;
@@ -145,7 +147,7 @@ index 1366081b803aa1b7130d6495704ff53f09f52afd..33cf4022dc10a5ac29bc8ca8c8da9117
      _getCurrentLayoutBounds(): {
          left: number;
          top: number;
-@@ -91,6 +95,7 @@
+@@ -91,6 +97,7 @@
          bottom: number;
      };
      addEventListener(eventNames: string, callback: (data: any) => void, thisArg?: any, once?: boolean): void;
@@ -1348,6 +1350,85 @@ index 0000000000000000000000000000000000000000..a91f00b138b49528669d8752f1962552
 +
 +// Share the host-owned registry with optional leaves without deep-importing core.
 +globalThis.__xplatWindowsEvents = { subscribe: subscribeNativeEvent };
+diff --git a/ui/layouts/flexbox-layout/index.windows.js b/ui/layouts/flexbox-layout/index.windows.js
+--- a/ui/layouts/flexbox-layout/index.windows.js
++++ b/ui/layouts/flexbox-layout/index.windows.js
+@@ -77,6 +77,75 @@
+     FlexboxWidget.SetAlignSelf(native, alignSelfMap[value]);
+ });
+ export class FlexboxLayout extends FlexboxLayoutBase {
++    constructor() {
++        super(...arguments);
++        this._preferredChildren = new Map();
++    }
++    _preferredLength(value) {
++        // Match the pinned core's fixed XAML length input; percentages remain
++        // owned by its existing percentage lifecycle and flex-basis protocol.
++        const fixed = typeof value === 'number' ? value
++            : value && typeof value === 'object' && value.unit !== '%' ? value.value : NaN;
++        return Number.isFinite(fixed) && fixed >= 0 ? fixed : -1;
++    }
++    _observePreferredChild(child) {
++        if (typeof FlexboxWidget.SetPreferredWidth !== 'function'
++            || typeof FlexboxWidget.SetPreferredHeight !== 'function')
++            return;
++        this._releasePreferredChild(child);
++        const native = child.nativeViewProtected;
++        if (!native)
++            return;
++        const entry = { native, sync: () => {
++                if (this._preferredChildren.get(child) !== entry
++                    || child.parent !== this || child.nativeViewProtected !== native)
++                    return;
++                const width = this._preferredLength(child.style.width);
++                const height = this._preferredLength(child.style.height);
++                if (FlexboxWidget.GetPreferredWidth(native) !== width)
++                    FlexboxWidget.SetPreferredWidth(native, width);
++                if (FlexboxWidget.GetPreferredHeight(native) !== height)
++                    FlexboxWidget.SetPreferredHeight(native, height);
++            } };
++        this._preferredChildren.set(child, entry);
++        child.style.on('widthChange', entry.sync);
++        child.style.on('heightChange', entry.sync);
++        entry.sync();
++    }
++    _releasePreferredChild(child) {
++        const entry = this._preferredChildren.get(child);
++        if (!entry)
++            return;
++        this._preferredChildren.delete(child);
++        child.style.off('widthChange', entry.sync);
++        child.style.off('heightChange', entry.sync);
++        if (child.nativeViewProtected !== entry.native)
++            return;
++        const width = FlexboxWidget.GetPreferredWidth(entry.native);
++        const height = FlexboxWidget.GetPreferredHeight(entry.native);
++        if (Number.isFinite(width) && width >= 0)
++            entry.native.Width = width;
++        if (Number.isFinite(height) && height >= 0)
++            entry.native.Height = height;
++        FlexboxWidget.SetPreferredWidth(entry.native, -1);
++        FlexboxWidget.SetPreferredHeight(entry.native, -1);
++    }
++    _addViewToNativeVisualTree(child, atIndex) {
++        const added = super._addViewToNativeVisualTree(child, atIndex);
++        if (added)
++            this._observePreferredChild(child);
++        return added;
++    }
++    _removeViewFromNativeVisualTree(child) {
++        super._removeViewFromNativeVisualTree(child);
++        this._releasePreferredChild(child);
++    }
++    disposeNativeView() {
++        for (const child of this._preferredChildren.keys())
++            this._releasePreferredChild(child);
++        super.disposeNativeView();
++    }
++
+     createNativeView() {
+         return new FlexboxWidget();
+     }
 diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
 index 50c747a85135d761c1a646a007c4930f790fb0a3..8f3a627224cf903555574480a0cdeba74b1c3e35 100644
 --- a/ui/layouts/flexbox-layout/flexbox-layout-common.js

@@ -88,6 +88,9 @@ export const GROUPS = [
 			'known-limits',
 		],
 	},
+	// No docs/ directory — the changelog page is generated from the repo's
+	// root logs (apps/docs/src/changelog.ts), so the group holds its slug.
+	{ dir: 'releases', label: 'Releases', slugs: ['changelog'] },
 ]
 
 // The index doc lives at '/', not /README.

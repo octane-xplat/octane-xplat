@@ -1,0 +1,124 @@
+diff --git a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp
+--- a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp
++++ b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp
+@@ -75,6 +75,20 @@
+     {
+         static DependencyProperty const prop = DependencyProperty::RegisterAttached(
+             L"FlexBasisPercent", winrt::xaml_typename<double>(), winrt::xaml_typename<winrt::NativeScript::Widgets::FlexboxLayout>(),
++            PropertyMetadata{ winrt::box_value(-1.0), PropertyChangedCallback{ &FlexboxLayout::OnChildPropertyChanged } });
++        return prop;
++    }
++    DependencyProperty FlexboxLayout::PreferredWidthProperty()
++    {
++        static DependencyProperty const prop = DependencyProperty::RegisterAttached(
++            L"PreferredWidth", winrt::xaml_typename<double>(), winrt::xaml_typename<winrt::NativeScript::Widgets::FlexboxLayout>(),
++            PropertyMetadata{ winrt::box_value(-1.0), PropertyChangedCallback{ &FlexboxLayout::OnChildPropertyChanged } });
++        return prop;
++    }
++    DependencyProperty FlexboxLayout::PreferredHeightProperty()
++    {
++        static DependencyProperty const prop = DependencyProperty::RegisterAttached(
++            L"PreferredHeight", winrt::xaml_typename<double>(), winrt::xaml_typename<winrt::NativeScript::Widgets::FlexboxLayout>(),
+             PropertyMetadata{ winrt::box_value(-1.0), PropertyChangedCallback{ &FlexboxLayout::OnChildPropertyChanged } });
+         return prop;
+     }
+@@ -96,6 +110,10 @@
+     void FlexboxLayout::SetAlignSelf(UIElement const& e, int32_t v) { e.SetValue(AlignSelfProperty(), winrt::box_value<int32_t>(v)); }
+     double FlexboxLayout::GetFlexBasisPercent(UIElement const& e) { return winrt::unbox_value_or<double>(e.GetValue(FlexBasisPercentProperty()), -1.0); }
+     void FlexboxLayout::SetFlexBasisPercent(UIElement const& e, double v) { e.SetValue(FlexBasisPercentProperty(), winrt::box_value(v)); }
++    double FlexboxLayout::GetPreferredWidth(UIElement const& e) { return winrt::unbox_value_or<double>(e.GetValue(PreferredWidthProperty()), -1.0); }
++    void FlexboxLayout::SetPreferredWidth(UIElement const& e, double v) { e.SetValue(PreferredWidthProperty(), winrt::box_value(v)); }
++    double FlexboxLayout::GetPreferredHeight(UIElement const& e) { return winrt::unbox_value_or<double>(e.GetValue(PreferredHeightProperty()), -1.0); }
++    void FlexboxLayout::SetPreferredHeight(UIElement const& e, double v) { e.SetValue(PreferredHeightProperty(), winrt::box_value(v)); }
+     bool FlexboxLayout::GetWrapBefore(UIElement const& e) { return winrt::unbox_value_or<bool>(e.GetValue(WrapBeforeProperty()), false); }
+     void FlexboxLayout::SetWrapBefore(UIElement const& e, bool v) { e.SetValue(WrapBeforeProperty(), winrt::box_value(v)); }
+ 
+@@ -162,9 +180,32 @@
+         // MeasureInitial: each item at its flex-basis (or natural) main size.
+         for (auto& item : items)
+         {
++            // A fixed XAML Width/Height wins over a smaller Arrange slot. Keep
++            // the style value separately as flex basis and let XAML stretch in
++            // the resolved main-axis slot. Restore the cross-axis dimension
++            // when direction changes; style updates replace the preferred input.
++            const double preferredWidth = GetPreferredWidth(item.Element);
++            const double preferredHeight = GetPreferredHeight(item.Element);
++            if (auto element = item.Element.try_as<FrameworkElement>())
++            {
++                if (std::isfinite(preferredWidth) && preferredWidth >= 0)
++                {
++                    if (isRow) { if (!std::isnan(element.Width())) element.Width(dNaN); }
++                    else if (element.Width() != preferredWidth) element.Width(preferredWidth);
++                }
++                if (std::isfinite(preferredHeight) && preferredHeight >= 0)
++                {
++                    if (!isRow) { if (!std::isnan(element.Height())) element.Height(dNaN); }
++                    else if (element.Height() != preferredHeight) element.Height(preferredHeight);
++                }
++                const auto margin = element.Margin();
++                const double preferred = isRow ? preferredWidth : preferredHeight;
++                if (std::isfinite(preferred) && preferred >= 0)
++                    item.PreferredMain = preferred + (isRow ? margin.Left + margin.Right : margin.Top + margin.Bottom);
++            }
+             const double basisMain = (!mainInf && item.FlexBasisPercent >= 0)
+                 ? mainAv * item.FlexBasisPercent / 100.0
+-                : dNaN;
++                : item.PreferredMain >= 0 ? item.PreferredMain : dNaN;
+ 
+             const Size constraint = AsSize(
+                 std::isnan(basisMain) ? static_cast<double>(fInf) : basisMain,
+@@ -255,6 +296,8 @@
+                             if (it.CrossSize > maxCross) maxCross = it.CrossSize;
+                         }
+                         line.CrossSize = maxCross;
++                        line.MainSize = mainGap * (line.Items.size() - 1);
++                        for (auto const& it : line.Items) line.MainSize += it.MainSize;
+                     }
+                 }
+             }
+diff --git a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h
+--- a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h
++++ b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h
+@@ -51,6 +51,10 @@
+         static void SetAlignSelf(winrt::Microsoft::UI::Xaml::UIElement const& e, int32_t v);
+         static double GetFlexBasisPercent(winrt::Microsoft::UI::Xaml::UIElement const& e);
+         static void SetFlexBasisPercent(winrt::Microsoft::UI::Xaml::UIElement const& e, double v);
++        static double GetPreferredWidth(winrt::Microsoft::UI::Xaml::UIElement const& e);
++        static void SetPreferredWidth(winrt::Microsoft::UI::Xaml::UIElement const& e, double v);
++        static double GetPreferredHeight(winrt::Microsoft::UI::Xaml::UIElement const& e);
++        static void SetPreferredHeight(winrt::Microsoft::UI::Xaml::UIElement const& e, double v);
+         static bool GetWrapBefore(winrt::Microsoft::UI::Xaml::UIElement const& e);
+         static void SetWrapBefore(winrt::Microsoft::UI::Xaml::UIElement const& e, bool v);
+ 
+@@ -62,6 +66,8 @@
+         static winrt::Microsoft::UI::Xaml::DependencyProperty FlexShrinkProperty();
+         static winrt::Microsoft::UI::Xaml::DependencyProperty AlignSelfProperty();
+         static winrt::Microsoft::UI::Xaml::DependencyProperty FlexBasisPercentProperty();
++        static winrt::Microsoft::UI::Xaml::DependencyProperty PreferredWidthProperty();
++        static winrt::Microsoft::UI::Xaml::DependencyProperty PreferredHeightProperty();
+         static winrt::Microsoft::UI::Xaml::DependencyProperty WrapBeforeProperty();
+ 
+         // When a child's flex attached property changes, re-measure the owning FlexboxLayout.
+@@ -90,6 +96,7 @@
+             double FlexBasisPercent{ -1.0 };
+             int32_t AlignSelf{ -1 };
+             bool WrapBefore{ false };
++            double PreferredMain{ -1.0 };
+             double MainSize{ 0.0 };
+             double CrossSize{ 0.0 };
+         };
+diff --git a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl
+--- a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl
++++ b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl
+@@ -36,6 +36,11 @@
+         static void SetAlignSelf(Microsoft.UI.Xaml.UIElement element, Int32 value);
+         static Double GetFlexBasisPercent(Microsoft.UI.Xaml.UIElement element);
+         static void SetFlexBasisPercent(Microsoft.UI.Xaml.UIElement element, Double value);
++        // Style dimensions are flex inputs, not hard XAML Width/Height constraints.
++        static Double GetPreferredWidth(Microsoft.UI.Xaml.UIElement element);
++        static void SetPreferredWidth(Microsoft.UI.Xaml.UIElement element, Double value);
++        static Double GetPreferredHeight(Microsoft.UI.Xaml.UIElement element);
++        static void SetPreferredHeight(Microsoft.UI.Xaml.UIElement element, Double value);
+         static Boolean GetWrapBefore(Microsoft.UI.Xaml.UIElement element);
+         static void SetWrapBefore(Microsoft.UI.Xaml.UIElement element, Boolean value);
+     }

@@ -1,0 +1,17 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test:e2e": {
+			"dependsOn": ["^typegen", "^build"],
+			"cache": false
+		},
+		"test:e2e:macos": {
+			"dependsOn": ["^typegen", "^build"],
+			"cache": false
+		},
+		"test:e2e:gtk": {
+			"dependsOn": ["^typegen", "^build"],
+			"cache": false
+		}
+	}
+}

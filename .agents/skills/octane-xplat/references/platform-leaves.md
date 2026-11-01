@@ -33,6 +33,13 @@ experimental; native GTK and DOM webviews are different targets. Read
 The [module-resolution guide](../../../../docs/platform/module-resolution.md)
 explains the common suffix and JSX contract.
 
+For the pinned Windows NativeScript preview's build checker, a `.ts` entry
+must import a TSRX component with an explicit `.tsrx` extension to select the
+TSRX compiler. Its detection does not follow extensionless imports. Keep this
+workaround in the Windows entry; shared imports still use the basename. See
+[Windows checker limits](../../../docs/windows-ui.md#windows-type-declarations-and-module-selection)
+when changing or upgrading that harness.
+
 ## Rules
 
 1. A file speaks ONE element vocabulary. Browser implementations use DOM

@@ -36,6 +36,9 @@ export function Pressable(props: PressableProps): unknown @{
 	const peerProps = {
 		style: {
 			position: 'absolute' as const,
+			// Auto offsets use the padded content's static position.
+			left: 0,
+			top: 0,
 			width: measured.bounds?.width ?? 0,
 			height: measured.bounds?.height ?? 0,
 		},

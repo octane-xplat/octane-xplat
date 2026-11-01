@@ -224,6 +224,9 @@ body {
 	max-height: none;
 }
 .agent-prompt-expand {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	position: absolute;
 	left: 50%;
 	bottom: 0;
@@ -1067,7 +1070,7 @@ body {
 	box-sizing: border-box;
 	width: 340px;
 	max-width: calc(100% - 81px);
-	margin: 0 81px 56px 0;
+	margin: 0 81px 56px auto;
 	padding: 18px 24px;
 	background-color: var(--doc-card);
 	border-width: 1px;
@@ -1100,6 +1103,7 @@ body {
 }
 
 .doc-next-copy {
+	display: flex;
 	flex: 1;
 	min-width: 0;
 	overflow-wrap: anywhere;
@@ -1365,6 +1369,7 @@ body {
 
 .home-actions {
 	display: flex;
+	flex-direction: row;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px;
@@ -1525,7 +1530,8 @@ body {
 
 /* Sketch 29E3CD0E: square green highlight, 3px sides and 1px top/bottom.
    Clone the background and padding on each wrapped line. */
-.doc .highlight {
+.doc .highlight,
+.doc > .h1 + .quote .highlight {
 	background-color: var(--doc-highlight-bg);
 	color: var(--doc-highlight-ink);
 	font-weight: 350;

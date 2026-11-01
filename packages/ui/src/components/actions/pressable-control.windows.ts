@@ -3,6 +3,9 @@ import { Microsoft, NSWinRT } from '@octane-xplat/platform/windows'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
+// Follow the callback contract across registry Core and the Windows preview.
+type ChildView = Parameters<Parameters<View['eachChildView']>[0]>[0]
+
 interface ActionSettings {
 	label?: string
 	accessible?: boolean
@@ -69,7 +72,7 @@ class WindowsActionControl extends View {
 		// Content is drawn outside the peer's template. Collect its live text so
 		// ordinary Button/Link children still supply their implicit name.
 		const parts: string[] = []
-		const visit = (view: View) => {
+		const visit = (view: ChildView) => {
 			if (view === this || view.accessible === false) {
 				return
 			}

@@ -7,6 +7,13 @@ framework repository's private `apps/windows` harness; it depends on workspace
 packages and preview NativeScript versions. It is a framework development
 workflow, not a downstream app setup guide.
 
+The harness keeps its patched Core layout module and app-local x64 Widgets
+binaries together. Its build rejects a stale installed Core module before
+bundling. After pulling framework changes, refresh dependencies from the
+project's frozen lockfile; do not copy an older native pair over the selected
+repair. Framework contributors can inspect the
+[layout repair and verification limits](../../.agents/docs/windows-layout-repair.md).
+
 `create-octane-xplat` does not currently offer Windows as a selectable target.
 The CLI can detect a manually configured NativeScript Windows app, but that
 alone does not establish a supported downstream setup. You do not need to clone
@@ -118,6 +125,32 @@ Packaged x64 checks cover slot order, padding updates, wrapping, remounting
 and the clickable control shape. Keyboard/mouse/Invoke activation, the full
 props matrix, Narrator, visual review and final clean-main qualification remain
 pending.
+
+## Avatars and raster images candidate
+
+Use `Avatar.name` for initials when no image is supplied. A base64 data URI
+loads through the Windows async image loader; `Image.alt` supplies the image's
+accessible name. This example uses a tiny embedded bitmap so it needs no network
+or asset setup:
+
+```tsx
+import { Avatar, Image } from '@octane-xplat/ui'
+
+const bitmap = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGOQL9z6HwAEPQJFam2brwAAAABJRU5ErkJggg=='
+
+export function People() {
+  return <>
+    <Avatar name="Ada Lovelace" size="lg" />
+    <Avatar name="Grace Hopper" src={bitmap} size="lg" />
+    <Image src={bitmap} alt="Example image" decoding="async" style={{ width: 40, height: 40 }} />
+  </>
+}
+```
+
+Bounded packaged x64 checks cover bitmap decoding, image and initials names,
+finite bounds, updates, remounting and resizing. Explicit synchronous
+decoding, placeholders, fallback after a failed load, SVG accessibility,
+Narrator, visual review and final clean-main qualification remain pending.
 
 ## Badge text candidate
 

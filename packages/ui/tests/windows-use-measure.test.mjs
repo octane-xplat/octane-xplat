@@ -67,6 +67,7 @@ function fixture(options) {
 									}
 									bounds = value
 								},
+								() => bounds,
 							],
 							useRef: (current) => ({ current }),
 							useCallback: (callback) => callback,
@@ -198,6 +199,28 @@ test('rebind cancels the previous host read and releases all ancestor listeners'
 	measurement.unmount()
 })
 
+test('synchronous callback-ref replacement preserves unchanged bounds without scheduling renders', () => {
+	for (const observe of [true, false]) {
+		for (const width of [0, 240]) {
+			const host = view()
+			host.size = { width, height: width ? 32 : 0 }
+			const measurement = fixture({ observe })
+			measurement.ref(host)
+			const writes = measurement.writes
+			for (let index = 0; index < 8; index++) {
+				measurement.ref(null)
+				assert.equal(host.listeners, 0)
+				measurement.ref(host)
+			}
+
+			assert.equal(measurement.writes, writes)
+			assert.equal(measurement.pending, 0)
+			assertSize(measurement, width, width ? 32 : 0)
+			measurement.unmount()
+		}
+	}
+})
+
 test('null refs and unmount cancel pending reads and subscriptions', () => {
 	for (const detach of ['ref', 'unmount']) {
 		const host = view(view())
@@ -213,13 +236,25 @@ test('null refs and unmount cancel pending reads and subscriptions', () => {
 
 		assert.equal(host.listeners, 0)
 		assert.equal(host.parent.listeners, 0)
-		assert.equal(measurement.pending, 0)
+		assert.equal(measurement.pending, detach === 'ref' ? 1 : 0)
+		measurement.flush()
 		if (detach === 'ref') {
 			assert.equal(measurement.bounds, null)
 		}
-
-		measurement.flush()
 	}
+})
+
+test('unmount cancels a deferred clear and late null refs cannot restart it', () => {
+	const measurement = fixture()
+	measurement.ref(view())
+	const writes = measurement.writes
+	measurement.ref(null)
+	assert.equal(measurement.pending, 1)
+	measurement.unmount()
+	measurement.ref(null)
+	assert.equal(measurement.pending, 0)
+	measurement.flush()
+	assert.equal(measurement.writes, writes)
 })
 
 test('layout and ancestor scrolling retain app-surface DIP coordinates', () => {

@@ -4,7 +4,8 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[a-f0-9]{40}$')][string]$ExpectedCommit,
  [Parameter(Mandatory)][version]$ExpectedPackageVersion,
  [Parameter(Mandatory)][string]$OutputDirectory,
- [switch]$AllowDirtyProbe
+ [switch]$AllowDirtyProbe,
+ [switch]$LegacyLayout
 )
 $ErrorActionPreference='Stop'
 Add-Type @'
@@ -56,7 +57,10 @@ function Read-Events {
   if($reader){$reader.Dispose()}
   if($stream){$stream.Dispose()}
  }
+ # Callers already select this boot. Avoid reparsing older layout snapshots.
+ $bootMarker=if($script:Boot){'"bootId":"'+$script:Boot.bootId+'"'}else{$null}
  foreach($line in $lines){
+  if($bootMarker -and -not $line.Contains($bootMarker)){continue}
   $marker='[windows-core20] '
   $i=$line.IndexOf($marker)
   if($i -ge 0){try{$line.Substring($i+$marker.Length)|ConvertFrom-Json}catch{}}
@@ -91,7 +95,8 @@ function Read-Tree {
   $nodes=Get-Content ($prefix+'-rows.json') -Raw|ConvertFrom-Json
   foreach($node in $nodes){$node}
  }finally{
-  if(-not $client.HasExited){$client.Kill();$client.WaitForExit()}
+  # Let the owning driver stop a hung app instead of waiting indefinitely.
+  if(-not $client.HasExited){$client.Kill();$null=$client.WaitForExit(5000)}
   $client.Dispose()
  }
 }
@@ -250,13 +255,75 @@ function Check-Layout([string]$Case,$Tree,$Nodes){
   }
  }
 }
+function Check-LegacyLayout {
+ # The fixture sets ordinary styles only. Core must wire preferred inputs.
+ Command 'mounted' $false|Out-Null
+ Command 'revision' 0|Out-Null
+ Command 'scene' 'legacy-layout'|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains 'revision=0 mounted=true'
+ function Frames([string]$Stage){
+  $tree=Capture $Stage
+  $nodes=Snapshot $Stage
+  return @{tree=$tree;nodes=$nodes}
+ }
+ $initial=Frames 'legacy-layout-default'
+ Command 'revision' 1|Out-Null
+ Status-Contains 'revision=1 mounted=true'
+ $updated=Frames 'legacy-layout-updated'
+ Command 'mounted' $false|Out-Null
+ Status-Contains 'mounted=false'
+ $unmounted=Frames 'legacy-layout-unmounted'
+ Assert (@($unmounted.nodes|Where-Object {$_.id -ceq 'core20-legacy'}).Count -eq 0) 'Unmount removes the native legacy fixture'
+ Command 'revision' 0|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains 'revision=0 mounted=true'
+ $remounted=Frames 'legacy-layout-remounted'
+ $automatic=@{}
+ foreach($revision in @(2,3,4,5,6,7)){
+  Command 'revision' $revision|Out-Null
+  Status-Contains ("revision=$revision mounted=true")
+  $automatic[$revision]=Frames ("automatic-$revision")
+ }
+ $process.Refresh()
+ $widgets=@($process.Modules|Where-Object {$_.ModuleName -eq 'NativeScript.Widgets.dll'})
+ Assert ($widgets.Count -eq 1 -and $widgets[0].FileName.StartsWith($pkg.InstallLocation,[StringComparison]::OrdinalIgnoreCase)) 'Exactly one package-owned Widgets DLL is loaded for the legacy probe'
+ Assert ((Get-FileHash $widgets[0].FileName).Hash -eq $report.widgetsSha256) 'Loaded Widgets hash matches the retained package'
+ $root=Native-Id $initial.nodes 'core20-legacy-fixed';$child=Native-Id $initial.nodes 'core20-legacy-fixed-child'
+ Assert ((Near $child.box.width 170) -and (Near $child.box.height 10)) 'Legacy Flexbox fixed child has the 170 by 10 padded content box' $child.box
+ Assert ((Near ($child.box.x-$root.box.x) 17) -and (Near ($child.box.y-$root.box.y) 7)) 'Legacy Flexbox fixed child begins at 17,7' @{parent=$root.box;child=$child.box}
+ $auto=Native-Id $initial.nodes 'core20-legacy-auto';$empty=Native-Id $initial.nodes 'core20-legacy-empty'
+ Assert ((Near $auto.box.height 28) -and (Near $empty.box.height 18)) 'Legacy Flexbox auto and empty heights retain padding' @{auto=$auto.box;empty=$empty.box}
+ $changedRoot=Native-Id $updated.nodes 'core20-legacy-fixed';$changedChild=Native-Id $updated.nodes 'core20-legacy-fixed-child'
+ Assert ((Near $changedChild.box.width 184) -and (Near ($changedChild.box.x-$changedRoot.box.x) 23) -and (Near ($changedChild.box.y-$changedRoot.box.y) 9)) 'Legacy padding invalidates without remount' @{parent=$changedRoot.box;child=$changedChild.box}
+ foreach($stage in @($initial,$remounted,$automatic[3])){
+  $row=Native-Id $stage.nodes 'core20-auto-row';$a=Native-Id $stage.nodes 'core20-auto-child-0';$b=Native-Id $stage.nodes 'core20-auto-child-1'
+  Assert ((Near $a.requestedWidth 100) -and (Near $b.requestedWidth 100)) 'Automatic shrink preserves both100-DIP requested widths'
+  Assert ((Near $a.box.width 85) -and (Near $b.box.width 85)) 'Automatic inputs shrink actual widths to85' @{a=$a;b=$b}
+  Assert ((Near ($a.box.x-$row.box.x) 0) -and (Near ($b.box.x-$row.box.x) 85) -and $a.box.x+$a.box.width -le $b.box.x+0.5) 'Automatic row slots are ordered without overlap'
+  Assert ($row.preferredChildCount -eq 2 -and $a.preferredSize.width -eq 100 -and $b.preferredSize.width -eq 100) 'Flex parent owns both preferred inputs' @{row=$row;a=$a;b=$b}
+ }
+ $a=Native-Id $updated.nodes 'core20-auto-child-0';$b=Native-Id $updated.nodes 'core20-auto-child-1'
+ Assert ((Near $a.box.width 120) -and (Near $b.box.width 100) -and $a.preferredSize.width -eq 120) 'Fixed width prop updates replace the preferred input' @{a=$a;b=$b}
+ $row=Native-Id $automatic[2].nodes 'core20-auto-row';$a=Native-Id $automatic[2].nodes 'core20-auto-child-0';$b=Native-Id $automatic[2].nodes 'core20-auto-child-1'
+ Assert ((Near $row.box.height 170) -and (Near $a.requestedHeight 100) -and (Near $b.requestedHeight 100) -and (Near $a.box.height 85) -and (Near $b.box.height 85)) 'Column direction shrinks requested100-DIP heights to85' @{row=$row;a=$a;b=$b}
+ Assert ((Near ($b.box.y-$a.box.y) 85) -and $a.box.y+$a.box.height -le $b.box.y+0.5 -and (Near $a.box.width 10)) 'Axis change restores the fixed cross width and prevents vertical overlap'
+ $row=Native-Id $automatic[4].nodes 'core20-auto-row';$destination=Native-Id $automatic[4].nodes 'core20-auto-destination';$a=Native-Id $automatic[4].nodes 'core20-auto-child-0'
+ Assert ($a.parent -eq $destination.index -and (Near $a.box.width 100) -and $a.preferredSize.width -eq -1 -and (Near $a.preferredSize.hardWidth 100) -and $row.preferredChildCount -eq 1) 'Removal restores hard width and releases the old parent input' @{row=$row;a=$a;destination=$destination}
+ $a=Native-Id $automatic[5].nodes 'core20-auto-child-0'
+ Assert ((Near $a.requestedWidth 90) -and (Near $a.box.width 90) -and $a.preferredSize.width -eq -1) 'Width changes outside Flexbox are independent of the old parent' $a
+ $row=Native-Id $automatic[6].nodes 'core20-auto-row';$a=Native-Id $automatic[6].nodes 'core20-auto-child-0';$b=Native-Id $automatic[6].nodes 'core20-auto-child-1'
+ Assert ($a.parent -eq $row.index -and $row.preferredChildCount -eq 2 -and (Near $a.box.width 85) -and (Near $b.box.width 85) -and (Near ($a.box.x-$b.box.x) 85)) 'Reparenting back recreates exactly one preferred-size owner' @{row=$row;a=$a;b=$b}
+ $a=Native-Id $automatic[7].nodes 'core20-auto-child-0';$b=Native-Id $automatic[7].nodes 'core20-auto-child-1'
+ Assert ($a.requestedWidth -eq 'auto' -and $a.preferredSize.width -eq -1 -and $a.box.width -lt 85 -and $a.box.x -ge $b.box.x+$b.box.width-0.5) 'Auto width clears the previous fixed flex basis' @{a=$a;b=$b}
+}
 $report=[ordered]@{
  schemaVersion=1;packageVersion=$pkg.Version.ToString();packageFamilyName=$pkg.PackageFamilyName
  driverSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe
- scope='Seven layout/text fixtures and the maintained fixed-width shrink regression; action, display, collection and navigation checks remain separate.'
- qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
+ scope=$(if($LegacyLayout){'NativeScript Flexbox padding and automatic preferred-size lifecycle regression. Requires matching candidate Core and Widgets; not final component qualification.'}else{'Seven layout/text fixtures and the maintained fixed-width shrink regression; action, display, collection and navigation checks remain separate.'})
+ qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;widgetsSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 try {
  $owned=@(Get-Process windows -ErrorAction SilentlyContinue|Where-Object {$_.Path -and $_.Path.StartsWith($pkg.InstallLocation,[StringComparison]::OrdinalIgnoreCase)})
@@ -310,11 +377,18 @@ try {
  $report.masonSha256=(Get-FileHash $mason[0].FileName -Algorithm SHA256).Hash
  $report.preflightChecks=@($script:Checks.ToArray())
  $labels=@{vstack='Vertical';hstack='Horizontal';stack='Stack';view='View';center='Center';section='Section'}
- foreach($case in @('text','vstack','hstack','stack','view','center','section','shrink')){
+ $selectedCases=if($LegacyLayout){@('legacy-layout')}else{@('text','vstack','hstack','stack','view','center','section','shrink')}
+ foreach($case in $selectedCases){
   $script:Checks.Clear()
   $entry=[ordered]@{case=$case;status='running';checks=$null;error=$null}
   try {
    if(-not [Core20Desktop]::MoveWindow($windowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot set the wide window size'}
+   if($case -eq 'legacy-layout'){
+    $report.widgetsSha256=(Get-FileHash (Join-Path $pkg.InstallLocation 'NativeScript.Widgets.dll')).Hash
+    Check-LegacyLayout
+    $entry.status='assertions-passed'
+    continue
+   }
    Command 'scene' 'layout'|Out-Null
    Command 'case' $case|Out-Null
    Command 'revision' 0|Out-Null

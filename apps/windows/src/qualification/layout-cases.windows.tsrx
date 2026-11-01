@@ -4,6 +4,10 @@ import { knownFolders, File } from '@nativescript/core'
 import { layoutReadout } from './readout.windows'
 import { DisplayCases, displayCases, type DisplayCase } from './display-cases.windows'
 import { LegacyLayout } from './legacy-layout.windows'
+import { ListCases } from './collections-cases.windows'
+import { TableCases } from './table-cases.windows'
+import { TabCases } from './tabs-cases.windows'
+import { LayerCases, layerCases } from './layer-cases.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
 import {
 	Text,
@@ -13,12 +17,13 @@ import {
 	HStack,
 	Center,
 	Section,
+	Screen,
 	Button,
 	Pressable,
 	Link,
 } from '@octane-xplat/ui'
 
-import type { LinkProps } from '@octane-xplat/ui'
+import type { LinkProps, Renderable } from '@octane-xplat/ui'
 
 declare const __WINDOWS_QUALIFICATION_SOURCE__: { commit: string; dirty: boolean }
 
@@ -67,10 +72,27 @@ function QualificationRouteLink(
 	</Pressable>
 }
 
+/** Layer scenes need the declaring Screen. Keep the ordinary cases' original
+ * VStack props and child markup; actual native frames still need checking. */
+function QualificationFrame(props: { layer: boolean; children?: Renderable }): unknown @{
+	const content = (
+		<VStack width="100%" gap={2} padding={4} style={{ flexGrow: 1 }}>
+			{props.children}
+		</VStack>
+	)
+
+	@if (props.layer) {
+		<Screen id="core20-layer-screen">{content}</Screen>
+	} @else {
+		<>{content}</>
+	}
+}
+
 export function Qualification() @{
 	const [revision, setRevision] = useState(0)
 	const [mounted, setMounted] = useState(true)
 	const [scene, setScene] = useState('layout')
+	const layerCase = layerCases.find((name) => name === scene)
 	const [layoutCase, setLayoutCase] = useState<(typeof layoutCases)[number]>('text')
 	const [disabled, setDisabled] = useState(false)
 	const [displayCase, setDisplayCase] = useState<DisplayCase>('card')
@@ -81,10 +103,10 @@ export function Qualification() @{
 	const [routedLink, setRoutedLink] = useState(false)
 	const [destination, setDestination] = useState('/')
 	const [activations, setActivations, getActivations] = useState(0)
-	const activate = (source: string) => {
+	const activate = (source: string, fixtureRevision?: number) => {
 		const count = getActivations() + 1
 		setActivations(count)
-		record('activation', { source, count })
+		record('activation', { source, count, fixtureRevision })
 	}
 
 	useEffect(() => {
@@ -123,7 +145,11 @@ export function Qualification() @{
 						record('layout', { sequence, nodes: layoutReadout() })
 						break
 					case 'revision':
-						setRevision(command.value === 1 ? 1 : 0)
+						if (!Number.isInteger(command.value) || command.value < 0 || command.value > 7) {
+							throw new Error('Revision must be an integer from 0 to 7')
+						}
+
+						setRevision(command.value)
 						break
 					case 'mounted':
 						setMounted(command.value === true)
@@ -159,7 +185,18 @@ export function Qualification() @{
 						setDestination('/')
 						break
 					case 'scene':
-						if (['layout', 'actions', 'display', 'legacy-layout'].includes(command.value)) {
+						if (
+							[
+								'layout',
+								'actions',
+								'display',
+								'legacy-layout',
+								'collections',
+								'table',
+								'tabs',
+								...layerCases,
+							].includes(command.value)
+						) {
 							setScene(command.value)
 						}
 
@@ -184,13 +221,20 @@ export function Qualification() @{
 
 	// The Page is not a flex parent; percentages need an explicit root width.
 
-	<VStack width="100%" gap={2} padding={4} style={{ flexGrow: 1 }}>
+	<QualificationFrame layer={layerCase != null}>
 		<Text id="core20-status">{`Core20 ${scene} case=${layoutCase} revision=${revision} mounted=${mounted} activations=${activations}`}</Text>
 		@if (scene === 'actions') {
 			<Text id="core20-destination">{`Destination ${destination}`}</Text>
 		}
 		@if (mounted) {
-			@if (scene === 'display' || scene === 'legacy-layout') {
+			@if (
+				scene === 'display' ||
+				scene === 'legacy-layout' ||
+				scene === 'collections' ||
+				scene === 'table' ||
+				scene === 'tabs' ||
+				layerCase != null
+			) {
 				@try {
 					@if (scene === 'display') {
 						<DisplayCases
@@ -200,6 +244,20 @@ export function Qualification() @{
 							image={avatarImage}
 							details={bannerDetails}
 							onActivate={activate}
+						/>
+					} @else if (scene === 'collections') {
+						<ListCases revision={revision} disabled={disabled} onActivate={activate} />
+					} @else if (scene === 'table') {
+						<TableCases revision={revision} onActivate={activate} />
+					} @else if (scene === 'tabs') {
+						<TabCases revision={revision} disabled={disabled} onActivate={activate} />
+					} @else if (layerCase != null) {
+						<LayerCases
+							caseName={layerCase}
+							revision={revision}
+							disabled={disabled}
+							onActivate={activate}
+							onEvent={record}
 						/>
 					} @else {
 						<LegacyLayout revision={revision} />
@@ -373,5 +431,5 @@ export function Qualification() @{
 				}
 			}
 		}
-	</VStack>
+	</QualificationFrame>
 }
