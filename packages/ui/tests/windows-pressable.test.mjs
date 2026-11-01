@@ -342,6 +342,58 @@ export function WindowsTabFixture(props) @{
 
 const { WindowsTabFixture } = await import(windowsTabFixture)
 
+const selectSupport = moduleFile(
+	'select-support',
+	`
+export const useTranslator=()=>value=>value;
+export const useIndicator=()=>undefined;
+export const useFieldControlProps=props=>props;
+`,
+)
+
+const selectFallback = compiled(
+	'select-fallback',
+	'export function SelectView() @{ <label text="shared-fallback" /> }',
+)
+
+const selectOptions = compiled('select-options', read('forms/select-options.ts'), {}, false)
+const selectState = compiled(
+	'select-state',
+	read('forms/useSelect.tsx'),
+	{
+		'../../internal/platform/internationalization': selectSupport,
+		'./select-options': selectOptions,
+	},
+	false,
+)
+
+const selectIndicators = compiled(
+	'select-indicators',
+	'export function CheckIndicator(props) @{ <label text={props.state} /> }',
+)
+
+const selectView = compiled(
+	'select-view',
+	read('forms/SelectView.windows.tsrx').replace(/^import ['"].*['"]\s*;?$/gm, ''),
+	{
+		'@octane-xplat/lib': support,
+		'../../internal/layout/style-merge': support,
+		'../layout/useMeasure': support,
+		'../media/Icon': icon,
+		'../feedback/indicators': selectIndicators,
+		'../feedback/use-indicator': selectSupport,
+		'./SelectView.tsrx': selectFallback,
+	},
+)
+
+const selectContainer = compiled('select-container', read('forms/Select.windows.tsrx'), {
+	'./field-context': selectSupport,
+	'./useSelect': selectState,
+	'./SelectView.windows.tsrx': selectView,
+})
+
+const { Select: WindowsSelect } = await import(selectContainer)
+
 function mount(component, props) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -881,6 +933,105 @@ test('Windows sortable header reads current config and preserves zero and compon
 
 		assert.equal(buttons(f).length, 0)
 		assert.deepEqual(text(f), ['Plain'])
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows Selector compiled container keeps finite state ownership and current controlled callbacks', async () => {
+	const calls = []
+	const options = [
+		{ value: 'first', label: 'First' },
+		{ value: 'disabled', label: 'Unavailable', isDisabled: true },
+		{ value: 'third', label: 'Third' },
+	]
+	const f = mount(WindowsSelect, {
+		id: 'choice',
+		options,
+		value: 'first',
+		open: false,
+		accessibilityLabel: 'Pick',
+		onValueChange: (value) => calls.push(value),
+	})
+	const peer = () => f.nodes().find((n) => n.type === 'xplatwindowsselect')
+	try {
+		assert.equal(peer().props.settings.value, 'first')
+		assert.equal(peer().props.settings.label, 'Pick')
+		assert.deepEqual(peer().props.style, {
+			position: 'absolute',
+			left: 0,
+			top: 0,
+			width: 120,
+			height: 32,
+		})
+
+		assert.equal(f.nodes().filter((n) => n.type === 'xplatwindowsselectoption').length, 3)
+		peer().props.settings.onPick('disabled')
+		assert.deepEqual(calls, [])
+		peer().props.settings.onPick('third')
+		assert.deepEqual(calls, ['third'])
+		assert.equal(peer().props.settings.value, 'first')
+		f.render({
+			options,
+			value: 'third',
+			open: true,
+			accessibilityLabel: 'Revised',
+			onValueChange: (value) => calls.push('current:' + value),
+		})
+
+		assert.equal(peer().props.settings.value, 'third')
+		assert.equal(peer().props.settings.open, true)
+		assert.equal(peer().props.settings.label, 'Revised')
+		peer().props.settings.onPick('first')
+		assert.deepEqual(calls, ['third', 'current:first'])
+		f.render({ options, value: 'first', isDisabled: true })
+		assert.equal(peer().props.settings.blocked, true)
+		peer().props.settings.onPick('third')
+		assert.deepEqual(calls, ['third', 'current:first'])
+	} finally {
+		f.root.unmount()
+	}
+	assert.equal(f.nodes().length, 0)
+})
+
+test('Windows Selector compiled uncontrolled choice closes once and async failure restores its previous value', async () => {
+	const calls = [],
+		opens = []
+	let reject
+	const options = [
+		{ value: 'a', label: 'A' },
+		{ value: 'b', label: 'B' },
+	]
+	const props = {
+		options,
+		defaultValue: 'a',
+		defaultOpen: true,
+		onOpenChange: (open) => opens.push(open),
+		onValueChange: (value) => calls.push(value),
+		changeAction: () =>
+			new Promise((_resolve, fail) => {
+				reject = fail
+			}),
+	}
+	const f = mount(WindowsSelect, props),
+		peer = () => f.nodes().find((n) => n.type === 'xplatwindowsselect')
+	try {
+		peer().props.settings.onPick('b')
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		assert.equal(peer().props.settings.value, 'b')
+		assert.equal(peer().props.settings.blocked, true)
+		assert.deepEqual(calls, ['b'])
+		assert.deepEqual(opens, [false])
+		peer().props.settings.onPick('b')
+		assert.deepEqual(calls, ['b'])
+		reject(new Error('save rejected'))
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		assert.equal(peer().props.settings.value, 'a')
+		assert.equal(peer().props.settings.blocked, false)
+		assert.deepEqual(calls, ['b', 'a'])
+		f.render({ ...props, multiple: undefined, selectionMode: 'multiple' })
+		assert.equal(peer(), undefined)
+		assert.ok(f.nodes().some((n) => n.props.text === 'shared-fallback'))
 	} finally {
 		f.root.unmount()
 	}

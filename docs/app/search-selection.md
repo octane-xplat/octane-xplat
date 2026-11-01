@@ -150,8 +150,11 @@ On web, arrows navigate enabled rows; Home/End and PageUp/PageDown navigate the
 list. Enter commits, Escape closes and restores trigger focus, and Tab leaves
 the surface. Printable keys match options or start a searchable query.
 Ctrl/Cmd+A toggles filtered select-all when enabled. IME composition is ignored.
-The search clear button has its own keyboard stop. Native controls expose tap,
-search, clear, and bulk actions; hardware-keyboard navigation is not implemented.
+The search clear button has its own keyboard stop. The shared native view exposes
+tap, search, clear, and bulk actions without hardware-keyboard navigation. The
+[experimental Windows single-selection candidate](../platform/windows-setup.md#single-selection-candidate)
+uses a separate native ComboBox path for ungrouped, nonsearchable single choices
+without a clear control; its packaged input qualification remains separate.
 `maxMenuHeight` bounds the scrolling list (default 280).
 
 ```tsx

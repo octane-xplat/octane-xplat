@@ -618,3 +618,28 @@ one segment per control. Read-only controls keep focus navigation and reject
 changes, and disabled segments reject input. Long labels can be wider than a
 fill segment, and how they overflow is not yet checked. Narrator, visual parity, other
 Windows versions/architectures and downstream consumers also remain unqualified.
+
+## Single selection candidate
+
+A single-choice Selector can keep its selected value in application state.
+The Windows candidate uses a native ComboBox for input while retaining the
+framework's trigger and option content. Press F4 or click to open it, use arrow
+keys to preview enabled options, press Enter to commit, and Escape to cancel.
+Put this component in your screen:
+
+```tsx
+import { useState } from 'octane'
+import { Selector } from '@octane-xplat/ui'
+
+export function Choice() {
+  const [value, setValue] = useState<string | null>('first')
+  return <Selector selectionMode="single" value={value} onValueChange={setValue}
+    options={[{ value: 'first', label: 'First' }, { value: 'third', label: 'Third' }]} />
+}
+```
+
+This candidate is experimental. Search, multiple selection, clear controls,
+empty lists and groups still use the shared native view and retain its input
+limits. The bounded native input checks do not establish the full props matrix,
+long-list scrolling, Narrator, visual parity or the final fresh-install
+core-component qualification.
