@@ -1,9 +1,6 @@
 ### Turn GIF attachments into videos and encode WebP images
 
-Use `@octane-xplat/media-converter` for GIF-to-MP4 jobs with progress,
-cancellation, and temporary-output cleanup. Browser hosts can also produce
-WebM when their encoder supports it. Native converters take local files;
-native Windows and GTK adapters are not available yet.
+Use `@octane-xplat/media-converter` for GIF-to-MP4 jobs with progress, cancellation, and temporary-output cleanup. Browser hosts can also produce WebM when their encoder supports it. Native converters take local files; native Windows and GTK adapters are not available yet.
 
 ```ts
 import { convertGif, releaseVideo } from '@octane-xplat/media-converter'
@@ -18,8 +15,7 @@ export async function uploadAnimation(source: string, upload: (uri: string) => P
 }
 ```
 
-`@octane-xplat/image-manipulator` adds Apple WebP encoding and a bundled browser
-fallback when canvas cannot encode WebP. Rebuild native apps after installation.
+`@octane-xplat/image-manipulator` adds Apple WebP encoding and a bundled browser fallback when canvas cannot encode WebP. Rebuild native apps after installation.
 
 ```ts
 import { ImageManipulator, SaveFormat } from '@octane-xplat/image-manipulator'
@@ -38,5 +34,4 @@ export async function toWebP(source: string) {
 // The receiving owner releases the saved result after its last use.
 ```
 
-[GIF conversion guide](https://octane-xplat.goddardai.org/package-media-converter)
-· [WebP encoding guide](https://octane-xplat.goddardai.org/package-image-manipulator#encode-webp)
+[GIF conversion guide](https://octane-xplat.goddardai.org/package-media-converter) · [WebP encoding guide](https://octane-xplat.goddardai.org/package-image-manipulator#encode-webp)

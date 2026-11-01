@@ -1,7 +1,6 @@
 ### Keep supplied slider values during rejected drags
 
-Shared native and web sliders now keep the supplied value when a controlled
-parent rejects a drag, matching their keyboard editing behavior.
+Shared native and web sliders now keep the supplied value when a controlled parent rejects a drag, matching their keyboard editing behavior.
 
 ```tsx
 import { useState } from 'octane'
