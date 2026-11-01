@@ -79,13 +79,12 @@ function SwitchControl(inputProps: SwitchProps & { standalone?: boolean }) @{
  *  the track (tapping the row toggles) and a detached status line below.
  *  Inside a FormField the field owns that chrome. */
 export function Switch(inputProps: SwitchProps): unknown @{
-	const props = useFieldControlProps(inputProps)
 	const inField = useContext(FieldContext) != null
 	@if (inField) {
-		<SwitchControl {...props} />
+		<SwitchControl {...inputProps} />
 	} @else {
-		<NativeToggleField {...props}>
-			<SwitchControl {...props} standalone />
+		<NativeToggleField {...inputProps}>
+			<SwitchControl {...inputProps} standalone />
 		</NativeToggleField>
 	}
 }
