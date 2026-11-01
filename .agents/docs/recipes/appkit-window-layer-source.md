@@ -26,7 +26,7 @@ providers and gates reveal on the real portal commit.
 
 ## Documentation
 
-- AC1: [Renderer contract](../../../packages/macos-renderer/README.md#stage-a-source-owned-window-layer), [target host](../../../packages/macos-renderer/src/layer.ts), eight new [authored source cases](../../../packages/macos-renderer/test/layer.test.ts) and [manual fixture](../../../examples/probes/window-layer-portal.macos.tsrx).
+- AC1: [renderer contract and target host](../../../packages/macos-renderer/src/layer.ts), eight new [authored source cases](../../../packages/macos-renderer/test/layer.test.ts) and [manual fixture](../../../examples/probes/window-layer-portal.macos.tsrx).
 - AC2: The same [source](../../../packages/macos-renderer/src/layer.ts)/[cases](../../../packages/macos-renderer/test/layer.test.ts) cover current owner/commit and native cleanup/geometry policies; fake method calls do not establish native focus or hit testing.
 - AC3: [Target note](../exploration.md#operational-evidence) records exact deferred renderer commands. The [result-host note](../exploration.md#operational-evidence) records component integration and remaining runtime limits. The fixture runner only waits/records.
 
