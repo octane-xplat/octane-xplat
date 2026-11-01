@@ -75,6 +75,17 @@ child; it does not establish runtime-session process-tree cleanup.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim code qualification"}' -- bun run turbo run test:nim-code --filter=@octane-xplat/cli
 ```
 
+The local documentation gate compares Markdown sections, release ownership,
+inventory, exact search, references and UTF-16 page reads against the live
+TypeScript providers. Document ordering uses a lazy macOS system ICU adapter;
+the gate compares actual language orders rather than substituting a byte sort.
+Other host collation adapters and public documentation command providers remain
+migration work. ICU data differences across OS versions need qualification.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim documentation qualification"}' -- bun run turbo run test:nim-docs --filter=@octane-xplat/cli
+```
+
 Measure the public executable after a build. The benchmark checks the host,
 source fingerprint and executable hash against the build record before recording
 raw/gzip bytes and warm process startup. It refuses stale or replaced artifacts.

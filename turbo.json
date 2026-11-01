@@ -6,6 +6,7 @@
 		"test:nim-packages": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-identity": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-code": { "dependsOn": ["build:nim"], "cache": false },
+		"test:nim-docs": { "dependsOn": ["build:nim"], "cache": false },
 		"check:nim": { "cache": false },
 		"benchmark:nim": { "dependsOn": ["build:nim"], "cache": false, "passThroughEnv": ["XPLAT_NIM_VERSION"] },
 		"test:nim": { "dependsOn": ["build:nim"], "cache": false },

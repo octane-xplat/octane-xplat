@@ -60,3 +60,7 @@ if(identityBuild.status!==0)throw Error('Identity/corpus probe build failed')
 const codeProbe=resolve(work,process.platform==='win32'?'native/code-probe.exe':'native/code-probe')
 const codeBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/code-cache`,`-o:${codeProbe}`,resolve(import.meta.dirname,'code_probe.nim')],{stdio:'inherit'})
 if(codeBuild.status!==0)throw Error('Code provider/index probe build failed')
+
+const docsProbe=resolve(work,process.platform==='win32'?'native/docs-probe.exe':'native/docs-probe')
+const docsBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/docs-cache`,`-o:${docsProbe}`,resolve(import.meta.dirname,'docs_probe.nim')],{stdio:'inherit'})
+if(docsBuild.status!==0)throw Error('Documentation retrieval probe build failed')

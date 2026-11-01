@@ -159,3 +159,11 @@ different operations. Full mappings can expand a character (`İ` becomes two
 code points), and Greek sigma depends on surrounding cased/ignorable characters.
 Use the pinned Unicode database and explicit context rules when matching JS;
 ASCII lowering or an unconditional rune map silently changes search results.
+
+Locale ordering is also a contract: `localeCompare` is not a byte comparator.
+Keep its native adapter at a platform boundary and test the actual engine and
+locale used. When passing text through an FFI, use explicit code-unit lengths
+where the API supports them; a C string alone truncates embedded NUL characters.
+Successful regex compilation likewise does not establish JavaScript regex
+semantics. Spell out required whitespace, word and line-boundary rules rather
+than assuming similarly named flags and classes behave identically.
