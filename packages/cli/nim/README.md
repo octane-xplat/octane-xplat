@@ -31,6 +31,11 @@ search and local embedding/index integration remain migration work.
 explicit embedding-provider boundary. Its macOS system SQLite adapter and
 fixture-embedding comparisons do not qualify actual tokenizer/model inference;
 public docs search/index remain pending until that provider is connected.
+`minilm_tokenizer.nim` implements the pinned single-sequence BERT/WordPiece
+encoding path, using checksummed model metadata and lazy macOS ICU normalization.
+Its differential gate covers exact token IDs and Unicode normalization; it does
+not yet provide native ONNX inference. The Apache-2.0 port attribution is included
+in the native package notices.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

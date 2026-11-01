@@ -187,6 +187,12 @@ code points), and Greek sigma depends on surrounding cased/ignorable characters.
 Use the pinned Unicode database and explicit context rules when matching JS;
 ASCII lowering or an unconditional rune map silently changes search results.
 
+Port each text loop according to its source operation. One dependency can mix
+scalar iteration (`for...of`) and indexed UTF-16 units in the same algorithm.
+Replacing every loop with Nim `runes` can change behavior even when the port
+looks more Unicode-aware. Qualify the dependency's actual encoding path; settings
+present in a model JSON file may be ignored by that implementation.
+
 Locale ordering is also a contract: `localeCompare` is not a byte comparator.
 Keep its native adapter at a platform boundary and test the actual engine and
 locale used. When passing text through an FFI, use explicit code-unit lengths
@@ -201,3 +207,10 @@ value is integral. Copy borrowed C result bytes before stepping/resetting a
 statement, and finalize statements before unloading their connection's library.
 Query the linked engine's version API when qualifying compatibility; process or
 package version metadata may describe a different build.
+
+Keep shared C singleton pointers separate from owned allocations. For example,
+ICU's `unorm2_getNFDInstance` returns a borrowed singleton: retain the library,
+but do not call a destructor for that instance. A size-only normalization call
+returns the required UTF-16 capacity with `U_BUFFER_OVERFLOW_ERROR`; reset the
+error before the real call and check its returned length. Use explicit close
+operations and reject use after close, including empty-input fast paths.

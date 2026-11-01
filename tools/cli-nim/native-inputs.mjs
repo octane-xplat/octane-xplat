@@ -6,7 +6,8 @@ import { join } from 'node:path'
 export function nativeInputs(root) {
  const files = [...readdirSync(join(root, 'packages/cli/nim')).filter(file => file.endsWith('.nim')).map(file => `packages/cli/nim/${file}`),
   'packages/cli/nim/metadata.json', 'tools/cli-nim/nim-dependencies.json', 'tools/cli-nim/build.mjs',
-  'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/package.json'].sort()
+  'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs',
+  'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/package.json'].sort()
  const hash = createHash('sha256')
  for (const file of files) hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0')
  return { files, sha256: hash.digest('hex') }

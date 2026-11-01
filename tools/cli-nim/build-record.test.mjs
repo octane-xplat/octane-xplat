@@ -9,7 +9,8 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  const root = mkdtempSync(join(tmpdir(), 'xplat-nim-record-'))
  t.after(() => rmSync(root, { recursive: true, force: true }))
  const files = ['packages/cli/nim/main.nim', 'packages/cli/nim/metadata.json', 'tools/cli-nim/nim-dependencies.json',
-  'tools/cli-nim/build.mjs', 'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/package.json']
+  'tools/cli-nim/build.mjs', 'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs',
+  'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/package.json']
  for (const path of files) { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), path) }
  const bytes = Buffer.from('fixture executable bytes; this fixture does not qualify a native target')
  const record = { version: '0.19.0-nim.0', platform: process.platform, arch: process.arch,
@@ -27,5 +28,8 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  writeFileSync(join(root, 'packages/cli/nim/main.nim'), 'packages/cli/nim/main.nim')
  assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
  writeFileSync(join(root, 'packages/cli/nim/extra.nim'), 'new native module')
+ assert.throws(() => assertCurrentNativeBuild(root, record, bytes), /Sources differ/)
+ rmSync(join(root, 'packages/cli/nim/extra.nim'))
+ writeFileSync(join(root, 'tools/cli-nim/licenses/tokenizers-js.txt'), 'changed attribution')
  assert.throws(() => assertCurrentNativeBuild(root, record, bytes), /Sources differ/)
 })

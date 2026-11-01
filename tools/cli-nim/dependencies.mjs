@@ -6,6 +6,7 @@ export function prepareDependencies(cache, toolchain) {
  if(toolchain.version!==pin.compiler.nim)throw Error(`Compiler pin mismatch: expected Nim ${pin.compiler.nim}, got ${toolchain.version}`)
  const paths = []
  const notices = [`Nim ${toolchain.version}\n\n${readFileSync(resolve(toolchain.directory,'copying.txt'),'utf8')}`]
+ notices.push(readFileSync(new URL('./licenses/tokenizers-js.txt', import.meta.url), 'utf8'))
  for(const [name, dependency] of Object.entries(pin)) {
   if(name==='compiler')continue
   const directory=resolve(cache,'dependencies',`${name}-${dependency.revision}`)

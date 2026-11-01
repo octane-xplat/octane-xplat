@@ -108,6 +108,18 @@ from SQL queries rather than assuming Node's process metadata matches its engine
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim index qualification"}' -- bun run turbo run test:nim-index --filter=@octane-xplat/cli
 ```
 
+The tokenizer gate prepares three small, checksummed files from the reference's
+immutable MiniLM revision in task-local storage. It downloads no ONNX weights.
+It compares the native BERT/WordPiece path with the pinned JS dependency over
+the real vocabulary, special tokens, explicit 512-token truncation, repository
+Markdown and all Unicode scalars. Lazy macOS ICU provides NFD normalization;
+other host adapters and actual native inference remain migration work. The
+modified port's Apache-2.0 attribution ships in `NOTICE.txt`.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim tokenizer qualification"}' -- bun run turbo run test:nim-tokenizer --filter=@octane-xplat/cli
+```
+
 Measure the public executable after a build. The benchmark checks the host,
 source fingerprint and executable hash against the build record before recording
 raw/gzip bytes and warm process startup. It refuses stale or replaced artifacts.
