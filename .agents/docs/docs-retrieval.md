@@ -12,30 +12,38 @@ entry, while provenance describes its enclosing snapshot. Changes to linked
 files produce a different inventory fingerprint even without a Git commit.
 Exact search and page reads must remain independent of database/model readiness.
 
-## Model loading limitation
+## Text-only inference
 
-Transformers.js 4.3.2's `pipeline()` passes only device/dtype into preliminary
-file discovery, dropping revision, cache location and `local_files_only`.
-`loadTokenizer()` also calls `get_tokenizer_files()` without those options.
-A cached model loaded by repository ID therefore attempts remote metadata
-requests despite local-only configuration. This was reproduced on macOS arm64
-with Node 26.12.0 by rejecting `fetch` during the real-model smoke task.
-See upstream [pipeline loading](https://github.com/huggingface/transformers.js/blob/4.3.2/packages/transformers/src/pipelines.js)
-and [tokenizer loading](https://github.com/huggingface/transformers.js/blob/4.3.2/packages/transformers/src/tokenization_utils.js).
+Use `@huggingface/tokenizers` and `onnxruntime-web/wasm` with the pinned q8
+MiniLM model. The previous Transformers.js dependency pulled in native ONNX,
+browser ONNX and image processing. The text-only dependency closure is less than
+half its installed size; compare fresh installs when changing the runtime.
 
 Xplat downloads four named files from an immutable model revision during explicit
-preparation, validates their SHA-256 hashes, and loads an absolute local model
-directory. Absolute paths avoid remote model-ID discovery without changing
-Transformers.js global environment settings. Search validates those cached files
-and never repairs them over the network. Missing/invalid files yield an explicit
-lexical fallback. Recheck this workaround when upgrading Transformers.js;
-remove it only after model-ID loading passes the network-blocked smoke task.
+preparation and validates their SHA-256 hashes. Tokenizer configuration, model
+bytes and WASM runtime assets all load from local files during search. There is
+no model discovery or CDN fallback. Missing/invalid model files yield an explicit
+lexical fallback. Keep the fetch-blocked smoke when upgrading dependencies.
+
+Node's WASM execution provider supports one thread; the embedder sets
+`env.wasm.numThreads = 1` before session creation. See the upstream
+[runtime support table](https://onnxruntime.ai/docs/get-started/with-javascript/web.html).
+Run each sequence separately so padding and q8 batch composition cannot change
+the vector for a content hash. Truncate to 512 tokens while retaining the final
+separator; mean-pool attended tokens and normalize the 384-dimensional output.
+
+The embedding identity includes the model revision, runtime/tokenizer versions,
+pooling, normalization and sequence policy. Changing any of these requires
+`docs index` to rebuild embeddings. Keep the existing model files and previous
+vectors in the disposable cache; never mix vectors from different identities.
 
 ## Maintained verification
 
 Deterministic engine, CLI service and MCP transport tests need no model download.
 The separate `test:model` task prepares a real model, blocks fetch during search,
-and checks guide/release retrieval across two versions. It stays outside PR CI.
+checks guide/release retrieval across two versions, and evaluates paraphrased
+queries against maintained guides. It also covers empty, Unicode and truncated
+inputs and independence from batch companions. It stays outside PR CI.
 These are developer-host checks; they do not qualify native UI behavior.
 
 ```sh

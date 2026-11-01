@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { encodeText, poolEmbedding } from './inference.ts'
 
 /** Model identity participates in all embedding/cache keys. */
 export const MODEL = {
@@ -8,6 +9,7 @@ export const MODEL = {
 	revision: '751bff37182d3f1213fa05d7196b954e230abad9',
 	dtype: 'q8',
 	dimensions: 384,
+	maxTokens: 512,
 } as const
 
 /** Embedding boundary; tests can supply deterministic vectors without model downloads. */
@@ -19,7 +21,7 @@ export interface Embedder {
 }
 
 /** Cache identity covering model files, inference settings and engine version. */
-export const modelId = `${MODEL.name}@${MODEL.revision}:${MODEL.dtype}:mean:normalized:transformers-4.3.2:v1`
+export const modelId = `${MODEL.name}@${MODEL.revision}:${MODEL.dtype}:mean:normalized:wasm-1.31.1:tokenizers-0.2.0:single-sequence-512:v1`
 
 // Immutable model files from the pinned Hugging Face revision, including q8 weights.
 const FILES = {
@@ -71,20 +73,25 @@ async function modelDirectory(cacheDir: string, download: boolean) {
 
 /** Load CPU inference lazily; only explicit preparation permits model downloads. */
 export function localEmbedder(cacheDir: string, download = false): Embedder {
-	let extractor: Awaited<ReturnType<typeof load>> | undefined
+	let loading: ReturnType<typeof load> | undefined
 	async function load() {
-		// 4.3.2 metadata discovery drops local-only/revision options. An absolute
-		// model directory prevents remote discovery without changing global env.
 		const dir = await modelDirectory(cacheDir, download)
-		const { pipeline } = await import('@huggingface/transformers')
-		return pipeline('feature-extraction', dir, {
-			revision: MODEL.revision,
-			dtype: MODEL.dtype,
-			device: 'cpu' as const,
-			cache_dir: join(cacheDir, 'models'),
-			local_files_only: true,
-			session_options: { intraOpNumThreads: 1, interOpNumThreads: 1 },
-		})
+		const [{ Tokenizer }, ort] = await Promise.all([
+			import('@huggingface/tokenizers'),
+			import('onnxruntime-web/wasm'),
+		])
+		const tokenizer = new Tokenizer(
+			JSON.parse(readFileSync(join(dir, 'tokenizer.json'), 'utf8')),
+			JSON.parse(readFileSync(join(dir, 'tokenizer_config.json'), 'utf8')),
+		)
+		// Node's WASM execution provider supports a single thread. Runtime assets
+		// resolve from the installed package; inference never needs a CDN.
+		ort.env.wasm.numThreads = 1
+		const session = await ort.InferenceSession.create(
+			new Uint8Array(readFileSync(join(dir, 'onnx/model_quantized.onnx'))),
+			{ executionProviders: ['wasm'] },
+		)
+		return { tokenizer, ort, session }
 	}
 	return {
 		id: modelId,
@@ -92,13 +99,46 @@ export function localEmbedder(cacheDir: string, download = false): Embedder {
 			await modelDirectory(cacheDir, download)
 		},
 		async embed(texts) {
-			extractor ??= await load()
-			const output = await extractor(texts, { pooling: 'mean', normalize: true })
-			return output.tolist() as number[][]
+			if (!texts.length) {
+				return []
+			}
+			loading ??= load()
+			const { tokenizer, ort, session } = await loading
+			const vectors: number[][] = []
+			// One sequence per run avoids padding and batch-dependent q8 outputs.
+			for (const text of texts) {
+				const encoded = encodeText(tokenizer, text, MODEL.maxTokens)
+				const inputs = Object.fromEntries(
+					Object.entries(encoded).map(([name, values]) => [
+						name,
+						new ort.Tensor('int64', BigInt64Array.from(values.map(BigInt)), [1, values.length]),
+					]),
+				)
+
+				const outputs = await session.run(inputs)
+				const output = outputs.last_hidden_state
+				if (
+					!output ||
+					output.type !== 'float32' ||
+					output.dims.length !== 3 ||
+					output.dims[0] !== 1 ||
+					output.dims[1] !== encoded.input_ids.length ||
+					output.dims[2] !== MODEL.dimensions
+				) {
+					throw new Error('Unexpected MiniLM embedding output')
+				}
+
+				vectors.push(
+					poolEmbedding(output.data as Float32Array, encoded.attention_mask, MODEL.dimensions),
+				)
+			}
+			return vectors
 		},
 		async dispose() {
-			await extractor?.dispose()
-			extractor = undefined
+			const current = loading
+			loading = undefined
+			const loaded = await current?.catch(() => undefined)
+			await loaded?.session.release()
 		},
 	}
 }

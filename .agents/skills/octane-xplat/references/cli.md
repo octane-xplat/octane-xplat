@@ -117,8 +117,9 @@ bun run xplat code read --ref CODE_REF --json
 For questions phrased differently from the docs, prepare local embeddings with
 `docs index`. This explicit step may download a pinned model; ordinary search
 never downloads one. Check `data.retrieval` for the actual mode and fallback
-reason. Re-index after editing linked-checkout docs. Release entries have their
-own `releaseVersion`, separate from snapshot provenance. See
+reason. Re-index after editing linked-checkout docs or upgrading the embedding
+backend; vectors from the previous backend are not reused. Release entries have
+their own `releaseVersion`, separate from snapshot provenance. See
 [local documentation search](../../../../docs/packages/package-cli.md#local-documentation-search).
 
 ```sh

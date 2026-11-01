@@ -323,8 +323,9 @@ xplat docs search "remember input when switching pages" --json
 Search defaults to hybrid keyword/vector retrieval when embeddings are ready.
 Otherwise `data.retrieval` reports `used: "lexical"` and `reason: "index-not-ready"`
 or `"model-unavailable"`. Search never downloads a model or waits for indexing.
-Repeat preparation after changing linked-checkout documentation. Cached release
-snapshots and the prepared model can serve offline. The default cache lives at
+Repeat preparation after changing linked-checkout documentation or upgrading the
+embedding backend. Cached release snapshots and the prepared model can serve
+offline. The default cache lives at
 `~/.cache/octane-xplat/mcp-docs`; `XPLAT_MCP_CACHE` overrides it.
 
 ```sh

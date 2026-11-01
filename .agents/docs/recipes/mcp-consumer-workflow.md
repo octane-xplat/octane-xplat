@@ -28,7 +28,7 @@ cleanup restricted to owned resources.
 - AC4: Automatically discover and invoke an app-declared action, validate its result, separately assert app state, and exclude its declaration and handler from production artifacts.
 - AC5: Refuse capture without current visual approval, release owned browser/server/profile resources, reject stopped identities, and preserve attached user-owned sessions.
 - AC6: Report the mandatory remaining native targets, attached inspection and approved screenshot qualification; a Chromium pass cannot satisfy full six-platform acceptance.
-- AC7: Prepare local docs embeddings explicitly, retrieve paraphrased guide and release-note queries within the selected version, preserve release-entry identity, and disclose lexical fallback without downloading models during search.
+- AC7: Prepare local docs embeddings explicitly, rebuild after an embedding backend change, retrieve paraphrased guide and release-note queries within the selected version, preserve release-entry identity, and disclose lexical fallback without downloading models during search.
 
 ## Documentation
 
