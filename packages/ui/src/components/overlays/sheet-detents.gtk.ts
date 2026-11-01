@@ -57,21 +57,22 @@ export function attachSheetDetents(
 	closeNowOrOptions?: any,
 	optionsArg?: SheetDetentsOptions,
 ): SheetDetentsController {
-	// Shared-service call shape (host, detents, close, options) maps onto the
-	// GTK form with no grabber and the panel height as viewport.
+	// The GTK form carries closeNow at position five — a function there means
+	// (panel, grabber, detents, vh, close, options); the shared-service shape
+	// (host, detents, close, options) leaves it undefined.
 	let grabber: any, detents: readonly number[], vh: () => number, closeNow: () => void, options: SheetDetentsOptions
-	if (typeof closeNowOrOptions === "function" || closeNowOrOptions === undefined) {
-		detents = grabberOrDetents
-		grabber = undefined
-		vh = () => panel?.get_allocated_height?.() ?? 0
-		closeNow = detentsOrVh
-		options = closeNowOrOptions ?? vhOrClose ?? {}
-	} else {
+	if (typeof closeNowOrOptions === "function") {
 		grabber = grabberOrDetents
 		detents = detentsOrVh
 		vh = vhOrClose
 		closeNow = closeNowOrOptions
 		options = optionsArg ?? {}
+	} else {
+		detents = grabberOrDetents
+		grabber = undefined
+		vh = () => panel?.get_allocated_height?.() ?? 0
+		closeNow = detentsOrVh
+		options = closeNowOrOptions ?? vhOrClose ?? {}
 	}
 	const sorted = normalizeDetents(detents)
 	const swipeOnly = options.swipeOnly === true || !sorted.length
