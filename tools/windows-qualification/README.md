@@ -4,7 +4,7 @@ These private drivers collect UI Automation (UIA) and numeric host-frame evidenc
 for the seven layout/text components and the maintained fixed-width shrink
 regression, plus native Button, Pressable and Link input in the Windows
 core-component plan.
-The action driver also has an opt-in Card/Banner mode.
+The action driver also has opt-in Card/Banner, ListItem and panel-tab modes.
 [Qualification host constraints](../../.agents/docs/parity/windows-support-progress.md#qualification-host-constraints)
 explain root sizing, measurement, and evidence boundaries. Current runtime
 qualification lives in Silo; a diagnostic result is not component qualification.
@@ -105,8 +105,8 @@ recorded in the preflight checks.
 
 Exit 0 means the driver's current assertions passed. `qualification` remains
 `pending-completion-audit`: review the plan's full acceptance criteria before
-updating a component row in Silo. Display, collections, menus and tabs require
-their own OS-input checks.
+updating a component row in Silo. Display, collections and menus require
+their own OS-input checks; panel-tab input uses the opt-in mode below.
 
 ## Run action checks
 
@@ -162,6 +162,27 @@ Keep exact run counts, package identities and remaining qualification gates
 in Silo. When monitoring live files, use
 [read/write sharing](../../.agents/docs/windows-test-host.md#read-live-diagnostic-files-without-locking-their-writers)
 so observation does not block the writer.
+
+## Run panel-tab checks
+
+Select `-TabActions` to exercise the public `TabList`/`Tab` scene. Use one action
+mode per run and a new output folder:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File .\tools\windows-qualification\actions.ps1 `
+  -ExpectedCommit $sourceCommit `
+  -ExpectedPackageVersion 1.0.0.107 `
+  -OutputDirectory "$runRoot\tabs" `
+  -TabActions
+```
+
+The mode checks genuine TabItem/SelectionItem peers, one forward/backward Tab
+stop, mouse and arrow/Home/End selection, matching panel content, disabled
+rejection, updated names/current callbacks, controlled rejection and remount.
+It retains failed requests as well as passing captures. Structural
+insertion/reordering, rich-slot geometry and overflow resizing need separate
+checks. Passing this mode alone does not qualify the final fresh-install
+core-component run.
 
 Controller and compiled-leaf regressions run without a Windows desktop:
 

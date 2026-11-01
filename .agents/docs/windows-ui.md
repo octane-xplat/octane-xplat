@@ -114,8 +114,8 @@ multi-sort, header context menus and the wider plugin matrix are not added by
 this prerequisite. Keep the final Table gate pending.
 
 The maintained `tabs` scene similarly exposes the actual TabList/Tab composition,
-controlled acceptance/rejection, disabled stops and matching panel content. It
-does not implement or qualify TabItem/SelectionItem, a single Tab stop or arrow
+controlled acceptance/rejection, disabled stops and matching panel content. The
+fixture alone does not establish TabItem/SelectionItem, a single Tab stop or arrow
 navigation. Use the [driver guide](../../tools/windows-qualification/README.md#inspect-table-and-tab-source-fixtures)
 to select these scenes and retain their native/UIA failures.
 
@@ -179,6 +179,39 @@ so current upstream subclass source is not proof of that binary's capability.
 Look up `scenario:windows-core20-tabs-stock-peer` in Silo for the exact source,
 runtime evidence and failed alternatives. This engine result does not qualify
 public TabList/Tab. Recheck activation after changing the Windows runtime.
+
+During NativeScript native setup on that binary, the tested JavaScript
+`TabItems.InsertAt` and `Append` paths fail with HRESULT `0x80004005`, including
+stock/minimal item templates, string/framework headers and an explicitly typed
+index. Named items declared inside the loaded XAML support framework headers
+without those collection calls:
+
+```ts
+const tabs = Microsoft.UI.Xaml.Markup.XamlReader.Load(`
+<TabView xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  IsAddTabButtonVisible="False">
+  <TabViewItem x:Name="FirstItem" IsClosable="False" />
+</TabView>`)
+const first = tabs.FindName('FirstItem')
+first.Header = new Microsoft.UI.Xaml.Controls.Grid()
+```
+
+The bounded named-item probe establishes genuine peers and nonempty framework
+header frames with the stock item template. It does not establish a custom
+template, keyboard selection, controlled rejection or structural-update
+lifecycle. Keep those checks with `scenario:windows-core20-tabs-public-adapter`
+in Silo. Reprobe the failed calls after a runtime change before removing a local
+construction workaround; this result does not establish a general collection
+defect in other call contexts.
+
+Defer controlled rollback until the native selection event returns. In the
+pinned host, a render update can occur inside a rollback write and leave the
+container index and item selection flags inconsistent. Reassigning the same
+index in a later task did not repair that state. Retire queued reconciliation
+on unload or native-tree replacement, and check selected peers against both
+the controlled value and displayed panel. The public-adapter Silo record keeps
+the reproduction and runtime boundary.
 
 ## Raster images and avatar names
 

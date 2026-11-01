@@ -259,6 +259,46 @@ readonly/disabled rejection, multiline Enter and consumed raw Return. IME,
 editable secure fields, remount and multiple-window behavior remain unqualified.
 Raw native key events do not supply the portable hardware-key contract.
 
+## Panel tabs candidate
+
+Use `role="tablist"` for tabs that switch content within the current page.
+The experimental Windows adapter keeps the shared header content and exposes
+native tab-selection peers. Your component owns both the selected value and
+the matching panel:
+
+```tsrx
+import { useState } from 'octane'
+import { Tab, TabList, Text, VStack } from '@octane-xplat/ui'
+
+export function DetailsTabs() @{
+  const [tab, setTab] = useState('summary')
+  <VStack width="100%">
+    <TabList role="tablist" layout="fill" value={tab} onChange={setTab}>
+      <Tab value="summary" label="Summary" panelId="summary-panel" />
+      <Tab value="files" label="Files" panelId="files-panel" />
+      <Tab value="later" label="Coming soon" isDisabled />
+    </TabList>
+    @if (tab === 'summary') {
+      <Text id="summary-panel">Summary content</Text>
+    } @else {
+      <Text id="files-panel">Files content</Text>
+    }
+  </VStack>
+}
+```
+
+The adapter uses one Tab stop. Left/Right, Home and End request selection and
+skip disabled tabs. The caller can reject a request by retaining its current
+value. Omitting `role="tablist"` keeps the existing navigation-tab path.
+
+Bounded packaged x64 checks passed native selection, one Tab stop, keyboard
+and mouse input, disabled rejection, controlled updates and remounting with the
+shown fill layout. The run reused a compiled native payload; a fresh source
+build remains a separate gate. Structural insertion/reordering, rich-header
+geometry, alternate layouts, overflow behavior, panel relations,
+Narrator, visual parity and the full props matrix remain unqualified. This
+candidate does not establish the final fresh-install core-component run.
+
 ## Switch input
 
 The Windows `Switch` keeps the shared track and thumb, with a
