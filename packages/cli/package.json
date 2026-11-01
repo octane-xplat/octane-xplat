@@ -61,7 +61,8 @@
 			"default": "./dist/mcp/docs-service.js"
 		},
 		"./mcp/*": "./dist/mcp/*.js",
-		"./mcp/*.mjs": "./dist/mcp/*.js"
+		"./mcp/*.mjs": "./dist/mcp/*.js",
+		"./bin": "./bin/xplat.mjs"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -80,7 +81,8 @@
 		"build:executable": "bun standalone/build.mjs",
 		"test:executable": "node --test standalone/test.mjs",
 		"test:patches-pnpm": "node --test standalone/patches-pnpm.test.mjs",
-		"test:patches-install": "node --test test/patches-*.test.mjs standalone/patches-install.test.mjs"
+		"test:patches-install": "node --test test/patches-*.test.mjs standalone/patches-install.test.mjs",
+		"test:toolchain": "node --test test/package-root.test.mjs test/compatibility.test.mjs test/build.test.mjs test/dev-selection.test.mjs test/web-targets.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

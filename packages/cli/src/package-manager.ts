@@ -1,3 +1,4 @@
+import { installedPackageRoot, installedToolPackageRoot } from './package-root.ts'
 import { existsSync, globSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { parseDocument } from 'yaml'
@@ -116,6 +117,16 @@ export function readBunLock(root: string): Record<string, any> | null {
 /** Resolve an installed tool through the selected project package manager. */
 export function packageManagerExec(dir: string, args: string[]): { cmd: string; args: string[] } {
 	const cmd = packageManagerFor(dir)
+	const tools: Record<string, string> = { vite: 'vite', 'tsrx-tsc': '@tsrx/typescript-plugin' }
+	const tool = tools[args[0]]
+	const root = tool && !installedPackageRoot(dir, tool) && installedToolPackageRoot(dir, tool)
+	if (root) {
+		const manifest = readProjectPackage(root)
+		const bin = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.[args[0]]
+		if (bin) {
+			return { cmd: 'node', args: [join(root, bin), ...args.slice(1)] }
+		}
+	}
 	return { cmd, args: [cmd === 'bun' ? 'run' : 'exec', ...args] }
 }
 
@@ -146,6 +157,7 @@ export function bunLockedVersions(dir: string): Record<string, string> | undefin
 		if (typeof identity !== 'string') {
 			continue
 		}
+
 		const spec = identity.slice(identity.indexOf('@', 1) + 1)
 		if (spec.startsWith('workspace:')) {
 			const member = lock.workspaces?.[spec.slice('workspace:'.length)]

@@ -29,6 +29,8 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 
 - AC8: The reader can apply/check the same canonical patch set in Bun and pnpm projects, including workspace members, catalogs, transitive dependencies, lockfile selection, conflicts, and deferred installation; pnpm 11 configuration is YAML, while Bun configuration is root package.json.
 
+- AC9: New apps use the octane-xplat toolchain facade; upgrades manage its lockstep pin without dropping direct runtime, ambient-type, compiler-peer, platform, or app-specific dependency declarations.
+
 ## Documentation
 
 - AC1: [Compatible versions](../../../docs/packages/package-cli.md#compatible-versions), [creator](../../../docs/packages/package-create.md), [compatibility manifest](../../../packages/create/compatibility.json), and [template synchronization](../../../scripts/sync-compatibility.ts).
@@ -40,3 +42,5 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 - AC7: [Core engine choice](../../../docs/packages/package-cli.md#compatible-versions), [native preset](../../../docs/packages/package-cli.md#native-vite-preset), [compatibility regressions](../../../packages/cli/test/compatibility.test.mjs), and the [shared FontManager runtime regression](../../../apps/mobile/src/tests/font-manager-coinstallation.spec.tsrx).
 
 - AC8: [Patches with Bun and pnpm](../../../docs/packages/package-cli.md#framework-patches), [lockfile and conflict tests](../../../packages/cli/test/patches-bun.test.mjs), and [real frozen-install tests](../../../packages/cli/standalone/patches-install.test.mjs).
+
+- AC9: [Shared toolchain](../../../docs/packages/package-toolchain.md), [creator template](../../../packages/create/template/package.json), and [packed isolated toolchain consumer](../../../packages/toolchain/test/packed.mjs).

@@ -6,6 +6,15 @@
 > Status: `0.x` — the API surface is still moving. iOS/Android targets need
 > the NativeScript toolchain (Xcode/JDK + `ns`).
 
+For the standard development toolchain, use the
+[`octane-xplat` package](https://octane-xplat.goddardai.org/package-toolchain).
+It includes this CLI; install `@octane-xplat/cli` separately when managing
+your own toolchain.
+
+```sh
+bun add -D octane-xplat
+```
+
 For a new app, start with the [creator](https://octane-xplat.goddardai.org/package-create). The CLI runs
 configured web, iOS, and Android targets, plus opt-in experimental macOS,
 Windows, and Linux apps. Desktop setup and support depend on the selected
@@ -40,8 +49,9 @@ bun run xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts 
 bun run xplat fonts add @fontsource-variable/inter --install  # Fontsource package
 ```
 
-The scaffolded app's `bun run dev` / `bun run build` / `bun run dev:ios` scripts drive
-the supported targets directly; `xplat` is the multi-target front end. The
+The scaffolded app's `bun run dev` / `bun run build` / `bun run dev:ios` scripts select
+their configured targets; the web scripts use `xplat` and the phone scripts
+use NativeScript. The
 experimental macOS target is configured by the app and packaged by `xplat`.
 
 ```sh

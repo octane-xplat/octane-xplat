@@ -1,5 +1,4 @@
-import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { defineConfig, xplatNative } from 'octane-xplat/vite'
 
 // The shared preset owns the renderer rules, octane→universal/native alias,
 // suffix extension chain, deps-bundle plugin exclusions, the HMR watchdog,

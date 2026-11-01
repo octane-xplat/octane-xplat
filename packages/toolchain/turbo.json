@@ -1,0 +1,18 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"test:packed": {
+			"dependsOn": [
+				"^build",
+				"^typegen",
+				"@octane-xplat/lint#build",
+				"@octane-xplat/ui#typegen",
+				"@octane-xplat/ui#build",
+				"@octane-xplat/platform#typegen"
+			],
+			"cache": false
+		}
+	}
+}

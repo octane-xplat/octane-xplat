@@ -11,6 +11,7 @@ import { contractError } from '../../contracts/errors.ts'
 import { execText, spawnManaged } from '../process.ts'
 import { waitForLogMatch } from '../readiness.ts'
 import { packageManagerExec, packageManagerFor } from '../../../package-manager.ts'
+import { installedToolPackageRoot } from '../../../package-root.ts'
 import { hostBlock } from '../targets.ts'
 
 const readJson = (file) => {
@@ -54,7 +55,8 @@ export function gitRevision(app, { exec = execText } = {}) {
 /** Resolve a file inside the app's own installed @octane-xplat/cli. */
 export function appCliFile(app, exportPath, siblingFile) {
 	try {
-		const require = createRequire(join(app.root, 'package.json'))
+		const cli = installedToolPackageRoot(app.root, '@octane-xplat/cli')
+		const require = createRequire(join(cli ?? app.root, 'package.json'))
 		const resolved = require.resolve(`@octane-xplat/cli/${exportPath}`)
 		const file = join(dirname(resolved), siblingFile)
 		return existsSync(file) ? file : null

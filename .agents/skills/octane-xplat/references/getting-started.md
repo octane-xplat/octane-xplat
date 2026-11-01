@@ -10,6 +10,12 @@ for platforms, installs dependencies, and starts the development server.
 bun create octane-xplat my-app
 ```
 
+Starters install `octane-xplat` for the shared CLI/compiler toolchain and
+import Vite helpers from `octane-xplat/vite`. Keep direct declarations for
+packages named in app imports, ambient types, or compiler peer contracts;
+do not rely on umbrella dependencies being hoisted. Runtime and target-specific
+packages stay app-owned. See the [toolchain package](../../../../docs/packages/package-toolchain.md).
+
 Run checks and subsequent dev sessions from the generated app directory. Only
 use platform scripts enabled in that app's manifest.
 

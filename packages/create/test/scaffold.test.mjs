@@ -111,7 +111,7 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 
 	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
 	assert.equal(manifest.main, undefined)
-	assert.equal(manifest.scripts.dev, 'vite')
+	assert.equal(manifest.scripts.dev, 'xplat dev web')
 	assert.equal(manifest.scripts['dev:ios'], undefined)
 	assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
 	assert.equal(manifest.scripts.lint, 'xplat lint')
@@ -120,10 +120,9 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 	assert.equal(manifest.devDependencies['@octane-xplat/lint'], undefined)
 	assert.ok(!('dependencies' in manifest && '@nativescript/core' in manifest.dependencies))
 	assert.equal(manifest.devDependencies['@nativescript/ios'], undefined)
-	assert.equal(
-		manifest.devDependencies['@octanejs/vite-plugin'],
-		TPL.devDependencies['@octanejs/vite-plugin'],
-	)
+	assert.equal(manifest.devDependencies['octane-xplat'], 'catalog:xplat')
+	assert.equal(manifest.devDependencies['@octane-xplat/cli'], undefined)
+	assert.equal(manifest.devDependencies['@octanejs/vite-plugin'], undefined)
 
 	// Web testing is included without the native runner, specs or scripts.
 	assert.ok(!existsSync(join(dir, 'vitest.config.mts')))

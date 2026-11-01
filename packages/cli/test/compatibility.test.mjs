@@ -563,3 +563,19 @@ test('Bun upgrade retains top-level named catalog ownership', (t) => {
 	assert.equal(json(join(root, 'package.json')).catalogs.xplat.octane, managedSpecifier('octane'))
 	assert.equal(planUpgrade(root).files.length, 0)
 })
+
+test('upgrade aligns the umbrella pin while preserving app-owned toolchain declarations', (t) => {
+	const root = project(t, {
+		dependencies: { octane: managedSpecifier('octane') },
+		devDependencies: { 'octane-xplat': '^0.1.0', vite: '^7.0.0', '@tsrx/oxc': '^0.1.0' },
+		scripts: { build: 'xplat build --targets web' },
+	})
+	applyUpgrade(planUpgrade(root))
+	const pkg = json(join(root, 'package.json'))
+	assert.equal(pkg.devDependencies['octane-xplat'], 'catalog:xplat')
+	assert.equal(yaml(root).catalogs.xplat['octane-xplat'], compatibility.frameworkVersion)
+	assert.equal(pkg.devDependencies.vite, 'catalog:xplat')
+	assert.equal(pkg.devDependencies['@tsrx/oxc'], 'catalog:xplat')
+	assert.equal(pkg.devDependencies['@octane-xplat/cli'], undefined)
+	assert.equal(pkg.scripts.build, 'xplat build --targets web')
+})

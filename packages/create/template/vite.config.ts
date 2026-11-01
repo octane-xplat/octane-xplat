@@ -1,6 +1,11 @@
-import { defineConfig } from 'vite'
-import { octane } from '@octanejs/vite-plugin'
-import { xplatCss, xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import {
+	defineConfig,
+	octane,
+	xplatCss,
+	xplatBoundary,
+	xplatDevBridge,
+	xplatNodeEnvDefine,
+} from 'octane-xplat/vite'
 
 // The web build. For native (iOS/Android), the same source runs through
 // @nativescript-community/vite-octane with `conditions: ['native']`, the

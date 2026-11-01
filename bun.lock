@@ -2585,6 +2585,21 @@
         "octane",
       ],
     },
+    "packages/toolchain": {
+      "name": "octane-xplat",
+      "version": "0.19.0",
+      "bin": {
+        "xplat": "./bin/xplat.mjs",
+      },
+      "dependencies": {
+        "@octane-xplat/cli": "workspace:*",
+        "@octanejs/vite-plugin": "0.5.0",
+        "@tsrx/oxc": "0.20.0",
+        "@tsrx/typescript-plugin": "0.4.11",
+        "typescript": "5.9.3",
+        "vite": "8.3.0",
+      },
+    },
     "packages/tracking-transparency": {
       "name": "@octane-xplat/tracking-transparency",
       "version": "0.19.0",
@@ -5493,6 +5508,8 @@
     "obug": ["obug@2.2.1", "", {}, "sha512-XrsrhT5sybtKI6wakr2SPOlGZWWYbUXZ7a0jT8/QOeAPau+1X/bSegNe5YR75oJmEZQbKningirmGOEJCIk61Q=="],
 
     "octane": ["octane@0.16.3", "", { "dependencies": { "@tsrx/core": "0.5.5", "@types/react": "19.3.0", "@volar/language-core": "2.4.28", "@volar/typescript": "2.4.28", "csstype": "3.2.3", "devalue": "6.0.3", "es-module-lexer": "1.7.0", "esrap": "2.3.7" }, "peerDependencies": { "@tsrx/oxc": "0.20.0", "react": "^19.0.0", "react-dom": "^19.0.0", "typescript": "^5.9.3 || ^6.0.0 || >=7.1.0-0", "vite": "^8.0.16" }, "optionalPeers": ["@tsrx/oxc", "react", "react-dom", "typescript", "vite"] }, "sha512-Oow4JxIOOqKmNW8MtDDC2YyOyPE56r7nB6C8AuegJMskKH50s/EiphUktOxM53TRXGclV3pKDN9pSD88pRwauA=="],
+
+    "octane-xplat": ["octane-xplat@workspace:packages/toolchain"],
 
     "omggif": ["omggif@1.0.10", "", {}, "sha512-LMJTtvgc/nugXj0Vcrrs68Mn2D1r0zf630VNtqtpI1FEO7e+O9FP4gqs9AcnBaSEeoHIPm28u6qgPR0oyEpGSw=="],
 

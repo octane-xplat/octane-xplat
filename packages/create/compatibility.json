@@ -95,7 +95,8 @@
 		"@octane-xplat/web-browser",
 		"@octane-xplat/web-host",
 		"@octane-xplat/workshop",
-		"create-octane-xplat"
+		"create-octane-xplat",
+		"octane-xplat"
 	],
 	"packages": {
 		"octane": {

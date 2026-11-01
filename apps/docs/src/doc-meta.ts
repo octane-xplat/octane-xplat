@@ -106,6 +106,7 @@ export const GROUPS = [
 			'package-canvas',
 			'package-charts',
 			'package-cli',
+			'package-toolchain',
 			'package-contacts',
 			'package-context-menu',
 			'package-create',

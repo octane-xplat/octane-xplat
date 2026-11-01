@@ -25,7 +25,7 @@ const SKIP_DIRS = new Set([
 ])
 
 const MAX_DEPTH = 5
-const XPLAT_DEP = /^@octane-xplat\//
+const XPLAT_DEP = /^(?:@octane-xplat\/|octane-xplat$)/
 
 const readJson = (file) => {
 	try {

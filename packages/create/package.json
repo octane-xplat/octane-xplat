@@ -53,7 +53,8 @@
 		"build": "vite build",
 		"prepack": "bun run build",
 		"typecheck": "tsc -p tsconfig.json",
-		"test:library": "node test/library-guide.mjs"
+		"test:library": "node test/library-guide.mjs",
+		"test": "node --test test/*.test.mjs"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.8.1",

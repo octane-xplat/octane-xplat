@@ -75,6 +75,11 @@ test('release bumps regenerate framework catalogs and patch config pins without 
 	const result = bump(version)
 	assert.equal(result.status, 0, result.stderr)
 	const after = readJson(join(root, 'packages/create/compatibility.json'))
+	const toolchain = readJson(join(root, 'packages/toolchain/package.json'))
+	assert.equal(toolchain.version, version)
+	assert.equal(toolchain.dependencies.vite, before.packages.vite.version)
+	assert.equal(toolchain.dependencies.typescript, before.packages.typescript.version)
+	assert.equal(toolchain.engines.node, `>=${before.tools.nodeMinimum}`)
 	assert.equal(after.frameworkVersion, version)
 	// A published in-repo tsrx-typegen version moves its starter pin; every
 	// other external pin stays untouched.
@@ -84,7 +89,11 @@ test('release bumps regenerate framework catalogs and patch config pins without 
 	for (const template of ['template', 'library-template']) {
 		const ws = parse(readFileSync(join(root, 'packages/create', template, 'package.json'), 'utf8'))
 
-		assert.equal(ws.workspaces.catalogs.xplat['@octane-xplat/cli'], version)
+		assert.equal(
+			ws.workspaces.catalogs.xplat[template === 'template' ? 'octane-xplat' : '@octane-xplat/cli'],
+			version,
+		)
+
 		assert.equal(ws.workspaces.catalogs.xplat['@tsrx/oxc'], before.packages['@tsrx/oxc'].version)
 		assert.equal(ws.packageManager, `bun@${before.tools.bun}`)
 	}

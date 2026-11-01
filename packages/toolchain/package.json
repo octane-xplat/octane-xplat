@@ -1,0 +1,42 @@
+{
+	"name": "octane-xplat",
+	"version": "0.19.0",
+	"description": "The supported Octane Xplat development toolchain",
+	"license": "MIT",
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/toolchain"
+	},
+	"bin": {
+		"xplat": "./bin/xplat.mjs"
+	},
+	"exports": {
+		"./vite": {
+			"types": "./vite.d.ts",
+			"default": "./vite.js"
+		}
+	},
+	"files": [
+		"bin",
+		"vite.js",
+		"vite.d.ts"
+	],
+	"scripts": {
+		"typecheck": "tsc -p tsconfig.json",
+		"test:packed": "node test/packed.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octanejs/vite-plugin": "0.5.0",
+		"@tsrx/oxc": "0.20.0",
+		"@tsrx/typescript-plugin": "0.4.11",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"engines": {
+		"bun": ">=1.4.4",
+		"node": ">=22.22.2"
+	}
+}

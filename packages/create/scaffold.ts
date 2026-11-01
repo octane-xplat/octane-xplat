@@ -37,7 +37,7 @@ export const targets: Record<string, any> = {
 			'src/test-setup.web.ts',
 		],
 		scripts: ['dev', 'build', 'test', 'test:web'],
-		devDeps: ['@octanejs/vite-plugin', 'jsdom'],
+		devDeps: ['jsdom'],
 	},
 	ios: {
 		label: 'iOS (NativeScript)',
@@ -285,6 +285,7 @@ function ensurePatchEntries(appRoot, enabledIds, manifest) {
 		if (!needed.has(name) || present.has(name)) {
 			continue
 		}
+
 		const source = join(TEMPLATE_DIR, path)
 		const destination = join(root, path)
 		if (existsSync(destination) && !readFileSync(source).equals(readFileSync(destination))) {
@@ -292,6 +293,7 @@ function ensurePatchEntries(appRoot, enabledIds, manifest) {
 				`Custom patch ${destination} differs from the framework patch; reconcile it first`,
 			)
 		}
+
 		mkdirSync(dirname(destination), { recursive: true })
 		cpSync(source, destination)
 		pkg.patchedDependencies[specifier] = path

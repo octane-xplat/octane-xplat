@@ -1,5 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-import { existsSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 
@@ -33,4 +33,18 @@ export function installedPackageDir(fromDir, name) {
 	}
 
 	return null
+}
+
+/** Resolve an app's tool, falling back only to the installed umbrella's declared tools. */
+export function installedToolPackageRoot(fromDir, name) {
+	const direct = installedPackageRoot(fromDir, name)
+	if (direct) {
+		return direct
+	}
+	const umbrella = installedPackageRoot(fromDir, 'octane-xplat')
+	if (!umbrella) {
+		return null
+	}
+	const manifest = JSON.parse(readFileSync(join(umbrella, 'package.json'), 'utf8'))
+	return manifest.dependencies?.[name] ? installedPackageRoot(umbrella, name) : null
 }

@@ -3,6 +3,17 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
+## Shared consumer toolchain
+
+`packages/toolchain` publishes `octane-xplat`: the CLI bin, the `/vite`
+configuration facade, and common compiler/build dependencies. External pins
+come from `packages/create/compatibility.json` through `sync:compatibility`;
+internal workspace dependencies follow lockstep publication. The private root
+is named `@xplat/workspace` so it cannot shadow the published package.
+Keep app runtime/target dependencies explicit. Tool execution may resolve
+compiler tools through the installed umbrella, but ordinary app imports do
+not gain access to those transitive packages.
+
 ## CLI runtime and executable packaging
 
 `xplat` uses Bun. Repository installs and script dispatch use Bun 1.4.4;

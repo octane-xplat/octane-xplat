@@ -12,7 +12,8 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
-import { installedPackageRoot } from '../dist/package-root.js'
+import { installedPackageRoot, installedToolPackageRoot } from '../dist/package-root.js'
+import { appCliFile } from '../dist/mcp/runtime/adapters/shared.js'
 import { sourceOnlyDeps, xplatNative } from '../dist/vite.js'
 import { inspectMacOSRuntimePackage } from '../dist/macos/runtime-package.js'
 
@@ -61,6 +62,33 @@ afterEach(() => {
 	for (const dir of dirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true })
 	}
+})
+
+describe('installedToolPackageRoot', () => {
+	it('resolves only declared umbrella tools and prefers the app tool', () => {
+		const app = tmp('xplat-toolchain-app-')
+		makePkg(app, { name: 'app' })
+		const umbrella = makePkg(join(app, 'node_modules/octane-xplat'), {
+			name: 'octane-xplat',
+			dependencies: { typescript: '5.9.3', '@octane-xplat/cli': '1.0.0' },
+		})
+		const compiler = makePkg(join(umbrella, 'node_modules/typescript'), { name: 'typescript' })
+		makePkg(join(umbrella, 'node_modules/unrelated'), { name: 'unrelated' })
+		assert.equal(installedToolPackageRoot(app, 'typescript'), compiler)
+		assert.equal(installedToolPackageRoot(app, 'unrelated'), null)
+		const cli = makePkg(
+			join(umbrella, 'node_modules/@octane-xplat/cli'),
+			{
+				name: '@octane-xplat/cli',
+				exports: { './macos': './dist/macos.js' },
+			},
+			{ 'dist/macos.js': '', 'dist/host.js': '' },
+		)
+		assert.equal(appCliFile({ root: app }, 'macos', 'host.js'), join(cli, 'dist/host.js'))
+		assert.equal(installedPackageRoot(app, 'typescript'), null)
+		const direct = makePkg(join(app, 'node_modules/typescript'), { name: 'typescript' })
+		assert.equal(installedToolPackageRoot(app, 'typescript'), direct)
+	})
 })
 
 describe('installedPackageRoot', () => {

@@ -1,4 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+import { installedToolPackageRoot } from '../package-root.ts'
 import { command, flag, option, optional, string } from '@alloc/cmd-ts'
 import { parseModule } from '@tsrx/core'
 import {
@@ -200,7 +201,8 @@ function walk(dir, out = []) {
 /** Vite from the consuming app — same createRequire dance as vite.mjs:
  *  under pnpm's isolated linker a bare import here misses the app's copy. */
 function appVite(cwd) {
-	const req = createRequire(join(cwd, 'package.json'))
+	const root = installedToolPackageRoot(cwd, 'vite')
+	const req = createRequire(join(root ?? cwd, 'package.json'))
 	return import(pathToFileURL(realpathSync(req.resolve('vite'))).href)
 }
 

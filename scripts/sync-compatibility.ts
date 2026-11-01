@@ -37,6 +37,24 @@ export function syncCompatibility(check = false) {
 
 	compatibility.frameworkPackages = framework.map((pkg) => pkg.name).sort()
 	sync('packages/create/compatibility.json', JSON.stringify(compatibility, null, '\t') + '\n')
+	const toolchainPath = 'packages/toolchain/package.json'
+	const toolchain = JSON.parse(readFileSync(join(repo, toolchainPath), 'utf8'))
+	for (const name of Object.keys(toolchain.dependencies)) {
+		if (!name.startsWith('@octane-xplat/')) {
+			const version = managedSpecifier(name)
+			if (!version) {
+				throw new Error(`Toolchain dependency ${name} has no compatibility pin`)
+			}
+
+			toolchain.dependencies[name] = version
+		}
+	}
+	toolchain.engines = {
+		...toolchain.engines,
+		node: `>=${compatibility.tools.nodeMinimum}`,
+		bun: `>=${compatibility.tools.bun}`,
+	}
+	sync(toolchainPath, JSON.stringify(toolchain, null, '\t') + '\n')
 	for (const template of ['template', 'library-template']) {
 		const base = `packages/create/${template}`
 		const pkg = JSON.parse(readFileSync(join(repo, base, 'package.json'), 'utf8'))
@@ -66,6 +84,7 @@ export function syncCompatibility(check = false) {
 			node: `>=${compatibility.tools.nodeMinimum}`,
 			bun: `>=${compatibility.tools.bun}`,
 		}
+
 		ws.catalogs ??= {}
 		ws.catalogs[managedCatalog()] = Object.fromEntries(Object.entries(pins).sort())
 		for (const [selector, version] of Object.entries(compatibility.overrides)) {
