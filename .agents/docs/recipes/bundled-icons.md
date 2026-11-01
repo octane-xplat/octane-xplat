@@ -23,7 +23,7 @@ understand missing names, updates, accessibility, tint, and native SVG limits.
 
 ## Documentation
 
-- AC1: [Install and register](../../../docs/packages/package-icons.md#install-and-register), [licenses](../../../docs/packages/package-icons.md#licenses), and [app-owned probe data](../../../examples/probes/icons-data.ts).
+- AC1: [Install and register](../../../docs/packages/package-icons.md#install), [licenses](../../../docs/packages/package-icons.md#licenses), and [app-owned probe data](../../../examples/probes/icons-data.ts).
 - AC2: [Rendering and updates](../../../docs/packages/package-icons.md#rendering-and-updates), [maintained web/mobile probe](../../../examples/probes/icons.tsrx), and [AppKit probe](../../../examples/probes/icons.macos.tsrx). For screens repeating the same icon many times, [`@octane-xplat/nano-icons`](../../../docs/packages/package-nano-icons.md) compiles an icon set to a font and renders a same-props `NanoIcon` from glyphs instead of per-instance SVG.
 - AC3: [Rendering and updates](../../../docs/packages/package-icons.md#rendering-and-updates), [maintained web/mobile probe](../../../examples/probes/icons.tsrx), and [AppKit probe](../../../examples/probes/icons.macos.tsrx).
 - AC4: [Rendering and updates](../../../docs/packages/package-icons.md#rendering-and-updates) and [verification boundaries](../../../docs/packages/package-icons.md#verification-and-example).
