@@ -7,6 +7,7 @@ import { join, resolve, dirname } from 'node:path'
 import { chunkMarkdown } from '../../packages/docs-search/src/chunks.ts'
 import { listDocs, searchDocs, readPage, platformsOf, docRef, parseDocRef } from '../../packages/cli/src/mcp/docs-retrieval.ts'
 import { ensureSnapshot, remoteTagSha, boundProvenance } from '../../packages/cli/src/mcp/docs-snapshots.ts'
+import { tailoredGuidance } from '../../packages/cli/src/mcp/docs-guidance.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 const binary = join(root, `research/nim-cli/native/docs-probe${process.platform === 'win32' ? '.exe' : ''}`)
@@ -18,6 +19,7 @@ function expected(request) {
  const { operation, root, document, path, content, query, corpus, platform, limit, packageDir, offset, reference, locale, left, right } = request
  switch (operation) {
  case 'chunks': return chunkMarkdown(document)
+ case 'guidance': return tailoredGuidance(request.installation)
  case 'title': return content.match(/^#\s+(.+)$/m)?.[1].trim() ?? path.split('/').at(-1).replace(/\.md$/, '')
  case 'platforms': return platformsOf(path, content)
  case 'list': return listDocs(root)
@@ -77,6 +79,20 @@ test('document titles and platform labels preserve JS line, word and UTF-16 rule
   'İOS Σ WINDOWS', '😀'.repeat(999) + 'web', '😀'.repeat(1000) + 'web', '\ud800web'])
   for (const path of ['docs/guide.md', 'docs/web.md', 'docs/web_ios.md']) cases.push({ operation: 'platforms', path, content })
  compare(cases, 'labels')
+})
+
+test('tailored guidance preserves installation versions, duplicates, linked sources and discrepancies', () => {
+ const cases = []
+ for (const packages of [[], [{ name: '@octane-xplat/ui', version: '0.19.0', kind: 'registry' }],
+  [{ name: '@octane-xplat/ui', version: '0.19.0', kind: 'linked' }, { name: '@octane-xplat/ui', version: '0.19.0', kind: 'linked' }],
+  [{ name: '@octane-xplat/ui', version: '0.19.0', kind: 'linked' }, { name: 'tsrx-typegen', version: '0.9.0', kind: 'registry' }],
+  [{ name: '@octane-xplat/ui', version: '\ud800', kind: 'linked' }],
+  [{ name: 'numeric', version: -0, kind: 'registry' }, { name: 'array', version: [1, null, '2'], kind: 'linked' }], [{}]])
+  for (const discrepancies of [[], ['fixture mismatch'], ['first mismatch', 'second mismatch'], ['\ud800'], [null, true, { value: 1 }]])
+   cases.push({ operation: 'guidance', installation: { packages, discrepancies } })
+ const values = compare(cases, 'guidance')
+ assert.ok(values.some(entries => entries.some(entry => entry.id === 'discrepancy')))
+ assert.ok(values.some(entries => entries.some(entry => entry.id === 'linked')))
 })
 
 test('doc refs preserve greedy package grouping and line terminators inside only the version class', () => {

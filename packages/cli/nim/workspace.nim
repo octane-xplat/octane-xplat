@@ -2,7 +2,7 @@
 ## Retains the TypeScript envelope/selection distinction:
 ## a sole-app selection does not mutate boundApp or the envelope's projectId.
 import std/[times, json, os, strutils]
-import ./core, ./args, ./code_service, ./json_wire
+import ./core, ./args, ./code_service, ./json_wire, ./docs_guidance, ./docs_binding
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -83,7 +83,7 @@ proc policyCheck(grant: JsonNode): JsonNode =
   else: %*{"action": "Ask the developer to grant this permission for the current task"}
   %*{"granted": false, "error": {"code": "permission_denied", "message": "Permission \"" & scope & "\" has not been granted.", "recovery": recovery, "context": {"scope": scope, "state": grant["state"]}}}
 proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
-  if name notin ["app select", "permissions", "code read", "code search"]: return nil
+  if name notin ["app select", "permissions", "code read", "code search", "guidance"]: return nil
   var context: WorkspaceContext
   try: context = makeContext(values)
   except CatchableError as error:
@@ -117,6 +117,14 @@ proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
           createDir(cacheDir(context.root))
           writeFile(path, preferenceJson(%*{"client": context.client, "appId": context.boundApp["id"], "appName": context.boundApp["name"], "selectedAt": isoNow()}))
           payload = %*{"bound": context.boundApp, "reason": "explicit", "preference": {"client": context.client, "path": path}}
+    elif name == "guidance":
+      let selected = context.selection()
+      if text(selected["state"]) != "bound":
+        failure = %*{"code": (if text(selected["state"]) == "ambiguous": "ambiguous_selection" else: "invalid_selection"),
+          "message": "Bind an app before retrieving docs.",
+          "recovery": {"action": "Bind an app first — `xplat app select` (CLI) or xplat_select_app (MCP)."}}
+      else:
+        payload = %*{"bindingRevision": 1,"entries": tailoredGuidance(resolveInstallations(text(selected["app"]["root"])))}
     else:
       let selected = context.selection()
       if text(selected["state"]) == "ambiguous":
@@ -148,6 +156,10 @@ proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
   if failure != nil: result["error"] = failure
   else: result["data"] = payload
 proc workspaceHuman*(name: string, payload: JsonNode): string =
+  if name == "guidance":
+    var lines: seq[string]
+    for entry in payload["entries"]: lines.add(text(entry["title"]) & ": ")
+    return lines.join("\n")
   if name == "app select":
     return "Bound " & text(payload["bound"]["id"]) & " (" & text(payload["bound"]["name"]) & ") — preference saved for client \"" & text(payload["preference"]["client"]) & "\""
   if name == "code read":

@@ -2,7 +2,7 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-clean, app selection, permissions, code search and code read; other agent commands provide help and schemas with execution marked
+clean, app selection, permissions, code search, code read and guidance; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -58,6 +58,14 @@ write-path bug tracked in [issue #97](https://github.com/octane-xplat/octane-xpl
 ```sh
 research/nim-cli/native/xplat app select apps/web --project "$PWD" --client agent_one --json
 research/nim-cli/native/xplat permissions --scope visual-capture --project "$PWD" --client agent_one --json
+```
+
+Guidance reports the selected app's installed framework versions, linked source
+status and install/lockfile discrepancies. Its instructions retain the existing
+CLI contract; use catalog coverage to check which native operations are ported.
+
+```sh
+research/nim-cli/native/xplat guidance --project "$PWD" --app apps/web --json
 ```
 
 Permission reporting preserves the existing task-authorization baseline. A

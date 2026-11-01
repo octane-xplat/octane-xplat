@@ -1,12 +1,13 @@
 ## Test-only documentation retrieval entry; never shipped in the native package.
 import std/[json, strtabs]
-import ../../packages/cli/nim/[docs_retrieval, markdown_chunks, locale_sort, jsonutil, json_wire, strictjson, docs_snapshots]
+import ../../packages/cli/nim/[docs_retrieval, markdown_chunks, locale_sort, jsonutil, json_wire, strictjson, docs_snapshots, docs_guidance]
 for line in stdin.lines:
   let request = parseStrictJson(line)
   try:
     var value: JsonNode
     case text(request["operation"])
     of "chunks": value = chunkMarkdown(request["document"])
+    of "guidance": value = tailoredGuidance(request["installation"])
     of "title": value = %titleOf(text(request["content"]),text(request["path"]))
     of "platforms": value = platformsOf(text(request["path"]),text(request["content"]))
     of "list": value = listDocs(text(request["root"]))

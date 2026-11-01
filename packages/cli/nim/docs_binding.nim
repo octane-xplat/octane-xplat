@@ -13,7 +13,7 @@ proc releaseMapping*(name, version: string, repo: JsonNode = nil): JsonNode =
   elif name.startsWith("@octane-xplat/"): directory = "packages/" & name[14..^1]; tag = "v" & version
   else: return nil
   %*{"repo": (if repo == nil: %releaseRepo else: repo), "dir": directory, "tag": tag}
-proc scalarString(value: JsonNode): string =
+proc scalarString*(value: JsonNode): string =
   if value == nil: return "undefined"
   case value.kind
   of JString: value.getStr()
