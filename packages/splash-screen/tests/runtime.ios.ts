@@ -1,23 +1,22 @@
 import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
 import * as Splash from '../src/index'
+import { diagnostics } from '../src/backend.ios'
 
 const folder = knownFolders.documents().path
 const requestFile = File.fromPath(path.join(folder, 'splash-request.json'))
 const request = JSON.parse(requestFile.readTextSync()) as { mode: string; nonce: string }
-const bridge = (globalThis as any).XplatSplashScreen
 const results: string[] = []
 const windows: unknown[] = []
-const visibleName = (globalThis as any).UIWindowDidBecomeVisibleNotification
-Application.ios.addNotificationObserver(visibleName, (notification) => {
+Application.ios.addNotificationObserver(UIWindowDidBecomeVisibleNotification, (notification) => {
 	const window = notification.object as UIWindow
 	windows.push({
-		name: String(visibleName),
+		name: 'UIWindowDidBecomeVisibleNotification',
 		level: window.windowLevel,
 		root: !!window.rootViewController,
 		hidden: window.hidden,
 	})
 })
-const state = () => JSON.parse(bridge.state())
+const state = () => JSON.parse(diagnostics())
 const record = (error?: unknown) =>
 	File.fromPath(path.join(folder, 'splash-result.json')).writeTextSync(
 		JSON.stringify({
@@ -25,7 +24,7 @@ const record = (error?: unknown) =>
 			mode: request.mode,
 			passed: !error,
 			checks: results,
-			state: bridge ? state() : null,
+			state: state(),
 			message: error ? String(error) : null,
 			windows,
 		}),
@@ -40,7 +39,10 @@ const wait = (milliseconds: number) =>
 	new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
 let held: Promise<boolean> | undefined
 try {
-	assert(bridge, 'native plugin class discovered from the installed package')
+	assert(
+		['unprepared', 'waiting'].includes(state().state),
+		'TypeScript launch-screen controller initialized inside the app runtime',
+	)
 	assert(Splash.SplashScreen.capabilities.hold, 'configured launch storyboard available')
 	if (request.mode !== 'late') {
 		Splash.setOptions({ duration: 60, fade: request.mode === 'manual' })

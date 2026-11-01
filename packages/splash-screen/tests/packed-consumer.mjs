@@ -19,15 +19,16 @@ try {
 	assert.ok(archive)
 	run('tar', ['-xzf', join(pack, archive), '-C', pack], root)
 	const packed = join(pack, 'package')
-	for (const file of [
-		'platforms/ios/src/XplatSplashScreen.swift',
-		'platforms/android/java/com/octanexplat/splashscreen/SplashScreenBridge.java',
-	]) {
-		assert.equal(
-			await readFile(join(packed, file), 'utf8'),
-			await readFile(join(root, file), 'utf8'),
-		)
-	}
+	// The iOS backend is TypeScript-only: no native wrapper may ship. Android
+	// keeps its Java bridge and its file contents must be packed verbatim.
+	assert.ok(
+		!(await readdir(join(packed, 'platforms'), { withFileTypes: true })).some(
+			(entry) => entry.name === 'ios',
+		),
+		'packed splash-screen must not ship iOS native wrapper sources',
+	)
+	const java = 'platforms/android/java/com/octanexplat/splashscreen/SplashScreenBridge.java'
+	assert.equal(await readFile(join(packed, java), 'utf8'), await readFile(join(root, java), 'utf8'))
 	for (const target of ['web', 'ios', 'android', 'macos', 'linux', 'windows']) {
 		const app = join(temporary, target)
 		await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
@@ -69,7 +70,7 @@ void held; void dismissed; void supported; void fade
 		)
 	}
 	console.log(
-		'Packed splash consumer: six target declarations without native ambient types; shipped Swift/Java file contents verified. Native runtime is a separate check.',
+		'Packed splash consumer: six target declarations without native ambient types; iOS ships no native wrapper; shipped Java file contents verified. Native runtime is a separate check.',
 	)
 } finally {
 	await rm(temporary, { recursive: true, force: true })

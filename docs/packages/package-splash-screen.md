@@ -13,13 +13,14 @@ Android holds the system launch screen by delaying its first draw.
 
 ## Keep the launch screen until a page loads
 
-Start with a working phone app. Install the package and rebuild the native
-binary so it contains the UIKit/Android bridge. JavaScript updates alone cannot
-install that bridge. Keep the app's existing launch storyboard and Android theme.
+Start with a working phone app. On iOS the package calls UIKit directly through
+NativeScript, so a JavaScript refresh is enough — no native rebuild installs it.
+On Android, rebuild the native binary so it contains the Java bridge;
+JavaScript updates alone cannot install that bridge. Keep the app's existing
+launch storyboard and Android theme.
 
 ```sh
 bun add @octane-xplat/splash-screen
-bun run ns build ios --release
 bun run ns build android --release
 ```
 
@@ -181,10 +182,11 @@ key-window or interaction settings, add an Expo runtime, or mark an update
 healthy. Keep [OTA startup confirmation](https://octane-xplat.goddardai.org/updates#create-one-client)
 after your own essential screen/data checks.
 
-Four shared tests and skymac.local Swift 4/5 API checks pass. On iOS26.2, five
-cold-launch cases pass 42 lifecycle assertions in an unsigned release app,
-including manual fade, automatic dismissal, the native timeout and late calls.
-The final run reuses its compiled native executable with refreshed release
-JavaScript. Android compilation/runtime remains explicitly unverified. No image
-inspection, pixel parity, OS touch delivery or signed-device qualification is
-claimed. See the [verification record](../../.agents/docs/notes/splash-screen.md).
+Shared unit tests, binding-prerequisite checks and packed-consumer declaration
+checks pass. On iOS26.2, five cold-launch cases pass lifecycle assertions in an
+unsigned release app, including manual fade, automatic dismissal, the native
+timeout and late calls. The final run reuses its compiled native executable
+with refreshed release JavaScript. Android compilation/runtime remains
+explicitly unverified. No image inspection, pixel parity, OS touch delivery or
+signed-device qualification is claimed. See the
+[verification record](../../.agents/docs/notes/splash-screen.md).

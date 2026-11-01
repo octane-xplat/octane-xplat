@@ -1,7 +1,7 @@
 {
 	"extends": ["//"],
 	"tasks": {
-		"test:ios-bridge": { "cache": false },
+		"test:ios-api": { "cache": false },
 		"test:ios-runtime": {
 			"dependsOn": ["^typegen"],
 			"cache": false,

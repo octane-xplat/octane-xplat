@@ -32,6 +32,20 @@ Window resizing uses native autoresizing. The controller observes only its
 window and drops notification/KVO observers, scheduled work and view ownership
 when dismissed. It does not implement image generation or an Expo config plugin.
 
+The iOS controller is TypeScript in `src/backend.ios.ts`, calling UIKit
+notifications, KVO and libdispatch directly through the NativeScript bridge —
+the former `platforms/ios` Swift wrapper is removed, so Apple consumers need no
+plugin rebuild. It registers its `UIWindowDidBecomeVisibleNotification` block
+observer during entry-module evaluation (before `Application.run()` invokes
+`UIApplicationMain`), attaches on the first normal unhidden window, and
+reattaches through a `rootViewController` KVO observer when NativeScript's
+scene delegate assigns the root and UIKit drops the existing subviews. The hold
+deadline uses `dispatch_after` on the main queue (`NSOperationQueue.mainQueue`
+.`underlyingQueue`; `dispatch_get_main_queue` is a C macro outside the runtime
+metadata), the next-turn auto-hide uses `addOperationWithBlock`, and both carry
+a cancelled flag matching the removed `DispatchWorkItem` semantics. The Android
+Java bridge is unchanged.
+
 NativeScript core9.1.3's scene delegate makes its primary window visible before
 resolving the root controller. A release probe recorded the visible notification
 with root=false. Gating attachment on a root misses that event. Attaching at
@@ -66,17 +80,17 @@ has not yet adopted its global root reference, so getRootView() cannot identify
 a late request. The release regression exposed that difference; the final
 guard returns false without installing another observer.
 
-Four focused shared tests and the combined source typecheck pass. UIKit API
-checks pass in Swift language modes4 and5 on skymac.local. The actual
-NativeScript release app discovers the Swift class from the declared leaf's
-platforms/ios/src directory, without copying it into App_Resources. That proves
-plugin source discovery and metadata. On skymac.local iOS26.2, five cold-launch
-cases pass 42 assertions: manual hold/fade, auto-hide, native timeout, early
-hide, and late prevention. Frontmost order, geometry, window ownership and
-notification/KVO/timeout cleanup are checked without screenshots. The final run
-reuses the compiled native executable with refreshed release JavaScript.
-Signed devices, OS touch delivery, pixel parity and npm-installed native
-consumers remain unverified.
+Stubbed-host Vitest cases exercise the TypeScript controller's state machine
+(guards, hold/deadline, attach/reattach, disposal); the packed consumer checks
+six target declarations and that no iOS native wrapper ships; `test:ios-api`
+checks the iPhoneSimulator SDK and @nativescript/types-iOS declarations carry
+every bound member. On iOS26.2, five cold-launch cases pass lifecycle
+assertions in an unsigned release app: manual hold/fade, auto-hide, native
+timeout, early hide, and late prevention. Frontmost order, geometry, window
+ownership and notification/KVO/timeout cleanup are checked without
+screenshots. The final run reuses the compiled native executable with
+refreshed release JavaScript. Signed devices, OS touch delivery, pixel parity
+and npm-installed native consumers remain unverified.
 
 The maintained fixture builds one unsigned release and launches five cases:
 manual hold/fade, default auto-hide, native timeout, early hide and late hold.
@@ -103,6 +117,6 @@ andromeda.local or ssh windy according to target.
 
 - [Expo SplashScreen](https://docs.expo.dev/versions/latest/sdk/splash-screen/)
 - [Android splash lifecycle and first-draw hold](https://developer.android.com/develop/ui/views/launch/splash-screen)
-- NativeScript CLI9.1.1 ios-project-service.preparePluginNativeCode registers plugin platforms/ios/src sources in the app target.
-- NativeScript core9.1.3 application.ios.ts SceneDelegate.sceneWillConnectToSessionOptions makes the primary window visible before resolving content.
+- NativeScript core9.1.3 application.ios.js iOSApplication.runAsMainApp invokes UIApplicationMain from JavaScript, so entry-module calls land before it.
+- NativeScript core9.1.3 application.ios.js SceneDelegate.sceneWillConnectToSessionOptions makes the primary window visible before resolving content.
 - Expo and Capacitor source informed the platform/lifecycle comparison; their React/Capacitor host ownership does not fit the NativeScript host directly.

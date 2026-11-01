@@ -1,6 +1,6 @@
 {
 	"tasks": {
-		"test:ios-bridge": {
+		"test:ios-api": {
 			"cache": false
 		},
 		"test:ios-runtime": {

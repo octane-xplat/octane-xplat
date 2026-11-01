@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"test:ios-bridge": "node ../ios-bridge.mjs",
+		"test:ios-api": "node ../native-api.mjs ios",
 		"test:ios-runtime": "node ../ios-runtime.mjs"
 	},
 	"packageManager": "bun@1.4.4"
