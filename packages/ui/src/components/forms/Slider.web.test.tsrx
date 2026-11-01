@@ -97,6 +97,9 @@ it('skips disabled controls and ignores keyboard changes', () => {
 it('keeps fractional values in the default text readout', () => {
 	const { slider } = mount({ value: 0.5, min: 0, max: 1, valueDisplay: 'text' })
 	expect(slider.querySelector('.vx-slider-value')?.textContent).toBe('0.5')
+})
+
+
 it('seeds scalar and range defaults once and retains local keyboard edits', () => {
 	const scalar = mount({ defaultValue: 40, step: 5 })
 	expect(scalar.slider.getAttribute('aria-valuenow')).toBe('40')

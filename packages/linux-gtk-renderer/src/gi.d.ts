@@ -298,8 +298,6 @@ declare module 'gi://Gtk?version=4.0' {
 			constructor()
 		}
 
-		const EventControllerLegacy: any
-		const PropagationPhase: { CAPTURE: number; BUBBLE: number }
 		class EventControllerKey extends EventController {
 			constructor()
 		}
@@ -321,7 +319,6 @@ declare module 'gi://Gtk?version=4.0' {
 
 		// Editable is a GTK4 interface; class-declared for instanceof checks.
 		class Editable extends Widget {}
-		class TextView extends Widget {}
 		class DropDown extends Widget {}
 
 		class CssProvider {

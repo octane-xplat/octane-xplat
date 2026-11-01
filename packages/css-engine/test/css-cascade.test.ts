@@ -263,6 +263,8 @@ test('explicit animation none resets earlier rules and earlier declarations but 
 	assert.equal(animations('reset-base', 'reset-in-rule').length, 0)
 	assert.equal(animations('reset-base', 'reset-name').length, 0)
 	assert.equal(animations('reset-base', 'reset-stop', 'reset-again')[0].duration, 2000)
+})
+
 test('desktop CSS ids select independently of numeric host identity and reset on change', () => {
 	registerStylesheet(
 		'desktop-css-ids',
