@@ -51,6 +51,7 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript/types',
 	'@nstudio/nativescript-exoplayer',
+	'@octane-xplat/platform',
 	'@octane-xplat/ui',
 ]
 
@@ -185,16 +186,12 @@ try {
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 	assert.ok(
-		existsSync(join(packedRoot, 'platforms/macos/src/XplatVideoView.swift')),
-		'the AppKit engine source is packed',
+		existsSync(join(packedRoot, 'src/video-view.macos.ts')),
+		'the TypeScript AppKit engine is packed',
 	)
 	assert.ok(
-		packedManifest.xplat?.macos?.frameworks?.includes('AVFoundation'),
-		'AppKit declares its engine framework',
-	)
-	assert.ok(
-		packedManifest.xplat?.macos?.swiftHeaderImports?.includes('AppKit/AppKit.h'),
-		'AppKit view types reach the Swift header',
+		!existsSync(join(packedRoot, 'platforms')),
+		'no native platforms directory ships for the AppKit engine',
 	)
 
 	const exportMaps = [
@@ -241,6 +238,11 @@ try {
 				typecheck(consumerPackage, target, mode, index)
 			}
 		}
+	}
+
+	if (process.argv.includes('--macos-runtime')) {
+		const { verifyMacOS } = await import('./verify-macos.mjs')
+		await verifyMacOS(packedRoot, temporary)
 	}
 
 	console.log('video packed consumer: exports typecheck in Bundler and NodeNext modes')

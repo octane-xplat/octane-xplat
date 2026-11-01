@@ -5,7 +5,7 @@
 Embedded video player for Octane xplat apps: `<video>` on web and
 `@nstudio/nativescript-exoplayer` on native (ExoPlayer on Android,
 `AVPlayerViewController` on iOS). Experimental AppKit now has an
-AVPlayerLayer source implementation backed by the package's own Swift view. The OS engine owns
+AVPlayerLayer source implementation backed by the package's own TypeScript AppKit view. The OS engine owns
 the pixels while all chrome is self-drawn, so `controls` looks identical
 on every target.
 
@@ -65,9 +65,10 @@ Per-target limits are recorded in
 
 ## Experimental AppKit playback
 
-Rebuild the AppKit app after adding this package so the CLI includes its Swift
-view and system frameworks. No additional player dependency is needed for
-AppKit. Missing native bridge setup fails explicitly before mounting. Use a
+The AppKit engine is TypeScript driving AVFoundation through the host's
+Objective-C bindings — adding this package needs no Swift compilation or
+extra player dependency. Rebuild the app bundle to pick up the dependency;
+missing bridged classes fail explicitly before mounting. Use a
 bounded frame and HTTP(S), an absolute file, a file URL, or a ~/ path relative
 to the app bundle's resources. Empty source stays idle. Native compilation,
 codecs, sandbox access, rendering and packaging have not yet been qualified.
@@ -124,10 +125,13 @@ export function ControlledClip({ source }: { source: string }) {
 ```
 
 Nine owner cases and the [AppKit fixture](../../examples/probes/video.macos.tsrx)
-are authored but unrun. Packed-consumer source checks now require the Swift
-source/configuration to ship, but packing has not run. Actual bridge discovery,
-Swift compilation, frame/audio playback, seeking/looping, notification/thread
-behavior, input/AX, fit/resize, memory/power and packaged consumers remain
-unqualified. DRM, subtitles, background playback and full streaming support are
+cover the owner and mounting path; the packed-consumer check requires the
+TypeScript engine source to ship. On the AppKit/JavaScriptCore host the engine
+is runtime-verified for local and remote playback: readiness, play/pause,
+seeking (including mid-transfer), end/failure notifications, looping,
+window attach/detach pausing, and mid-flight teardown. Visible frame/audio
+output, OS input, accessibility, memory/power and packaged-app behavior are
+not established — no visual analysis has been performed. DRM, subtitles,
+background playback and full streaming support are
 not established by this source implementation. Lightbox retains its separate renderer-owned AVPlayerView path; this leaf does
 not qualify its playback or lifecycle.

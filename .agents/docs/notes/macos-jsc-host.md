@@ -111,6 +111,18 @@ in-flight. The package keeps the Swift `URLSession` data-task pipeline
 delivers non-main-queue or block-based callbacks reliably; recheck after a
 runtimes pin bump.
 
+Scope boundary (runtime-verified 2026-11-01, `packages/video` migration):
+the starvation applies to transfers the JS side is involved in delivering
+(bridged `NSURLSession`). `AVPlayer`/`AVPlayerItem` remote HTTP(S) loading
+runs entirely inside AVFoundation — no JS-involved session exists — so
+`setTimeout` keeps firing (observed ~70% rate, never stalled), main-queue
+`NSNotificationCenter` blocks deliver, and
+`seekToTimeToleranceBeforeToleranceAfterCompletionHandler` completes, all
+while a drip-fed remote transfer is still in flight
+(`tests/verify-macos.mjs` under `test:macos-runtime`). A native pipeline
+whose callbacks only ever fire on the main runloop remains a safe TypeScript
+port; do not generalize the gif finding to it.
+
 ## Other verified host quirks
 
 Recorded where they were found rather than repeated here:

@@ -7,18 +7,13 @@ import { mergeStyle } from './style-merge'
 import { VideoChrome } from './video-chrome.tsrx'
 import {
 	createAppKitVideoOwner,
-	type AppKitVideoNative,
 	type AppKitVideoState,
 } from './video-owner.macos.ts'
+import { createVideoView } from './video-view.macos.ts'
 
-declare const XplatVideoView: { create(): AppKitVideoNative }
-
-/** AVPlayerLayer surface with shared self-drawn chrome. Native qualification pending. */
+/** AVPlayerLayer surface with shared self-drawn chrome. Playback is
+ *  runtime-verified on the AppKit host; visible frame/audio output is not. */
 export function Video(props: VideoProps): unknown @{
-	if (typeof XplatVideoView === 'undefined') {
-		throw Error('AppKit Video bridge is unavailable; rebuild with @octane-xplat/video')
-	}
-
 	const latest = useRef(props)
 	latest.current = props
 	const [state, setState] = useState<AppKitVideoState>({
@@ -35,7 +30,7 @@ export function Video(props: VideoProps): unknown @{
 	)
 
 	const create = useCallback((event: any) => {
-		const native = XplatVideoView.create()
+		const native = createVideoView()
 		event.view = native
 		owner.attach(native)
 	}, [])

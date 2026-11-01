@@ -1,0 +1,14 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"test:macos-runtime": {
+			"dependsOn": [
+				"^typegen",
+				"@octane-xplat/cli#build"
+			],
+			"cache": false
+		}
+	}
+}
