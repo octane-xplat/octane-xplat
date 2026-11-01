@@ -21,12 +21,12 @@ const catalog=JSON.parse(reference(['catalog','--json']))
 // Version denotes this native build; execution coverage must never be inferred
 // from the reference schemas' implemented status.
 catalog.data.cli.version=version
-for(const c of catalog.data.commands) c.status=c.command==='catalog'?'implemented':'pending'
+for(const c of catalog.data.commands) c.status=['catalog','permissions','app select'].includes(c.command)?'implemented':'pending'
 for(const c of catalog.data.orchestration) c.status=c.name==='clean'?'implemented':'pending'
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
- schema.data.status=c.name==='catalog'?'implemented':'pending'
+ schema.data.status=['catalog','permissions','app select'].includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
 writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:""}))

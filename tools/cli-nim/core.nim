@@ -1,4 +1,6 @@
-include "../../packages/cli/nim/core"
+import ../../packages/cli/nim/core
+import std/[json, os, strutils, httpclient, osproc]
+when defined(posix): import std/posix
 
 when defined(posix):
   var childPid: Pid

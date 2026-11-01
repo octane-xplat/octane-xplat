@@ -1,7 +1,6 @@
 ## Parallel native entry. Never falls back to the TypeScript CLI.
-include core
-import ./args
-import std/[sysrand, terminal]
+import ./core, ./args, ./workspace, ./strictjson
+import std/[sysrand, terminal, json, os, strutils]
 
 const metadata = staticRead("metadata.json")
 let data = parseJson(metadata)
@@ -31,7 +30,7 @@ proc failure(command, code, message: string, status: int) =
 
 if argv.len == 0 or argv == @["--help"] or argv == @["-h"]:
   echo "xplat — experimental Nim CLI"
-  echo "Native commands: catalog, clean; all agent commands expose --help and --schema."
+  echo "Native commands: catalog, clean, permissions, app select; all agent commands expose --help and --schema."
   echo "Other command execution is pending. Install @octane-xplat/cli@latest for the TypeScript CLI."
   quit(0)
 if argv == @["--version"]:
@@ -73,8 +72,16 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, clean. Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, clean, permissions, app select. Other command execution is pending; use --json for contracts and coverage."
     quit(0)
+  let reply = workspaceCommand(name, parsed["values"])
+  if reply != nil:
+    if truthy(field(parsed["values"],"json")): emit(reply)
+    elif reply["ok"].getBool(): echo workspaceHuman(name, reply["data"])
+    else: humanError(name, reply["error"])
+    if reply["ok"].getBool(): quit(0)
+    let code = text(reply["error"]["code"])
+    quit(if code in ["invalid_selection", "ambiguous_selection", "not_found"]: 2 elif code == "permission_denied": 4 else: 5)
   failure(name, "unavailable", "Command execution is not yet ported to Nim: " & name, 3)
 if name == "clean":
   if argv.len > 1:

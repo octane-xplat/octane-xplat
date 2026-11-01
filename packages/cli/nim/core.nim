@@ -1,26 +1,34 @@
-import std/[json, os, strutils, algorithm, httpclient, osproc]
+import std/[json, os, strutils, algorithm]
 import yaml/tojson
 import ./strictjson
-when defined(posix): import std/posix
 
-proc readJson(path: string): JsonNode =
+proc readJson*(path: string): JsonNode =
   try: result = parseStrictJson(readFile(path))
   except CatchableError: result = newJNull()
-proc field(n: JsonNode, key: string): JsonNode =
+proc field*(n: JsonNode, key: string): JsonNode =
   if n != nil and n.kind == JObject: n.getOrDefault(key)
   else: nil
-proc text(n: JsonNode): string =
+proc text*(n: JsonNode): string =
   if n != nil and n.kind == JString: n.getStr else: ""
-proc deps(n: JsonNode): JsonNode =
+proc truthy*(n: JsonNode): bool =
+  if n == nil: return false
+  case n.kind
+  of JNull: false
+  of JBool: n.getBool()
+  of JInt: n.getBiggestInt() != 0
+  of JFloat: n.getFloat() != 0
+  of JString: n.getStr().len > 0
+  else: true
+proc deps*(n: JsonNode): JsonNode =
   result = newJObject()
   for section in ["dependencies", "devDependencies"]:
     let d = field(n, section)
     if d != nil and d.kind == JObject:
       for k, v in d: result[k] = v
-proc platforms(dir: string): JsonNode =
+proc platforms*(dir: string): JsonNode =
   result = newJArray()
   let m = readJson(dir / "package.json")
-  if m.kind != JObject: return
+  if not truthy(m): return
   for ext in ["js", "mjs", "ts", "cjs", "mts", "cts"]:
     if fileExists(dir / ("vite.config." & ext)):
       result.add(%"web")
@@ -32,7 +40,7 @@ proc platforms(dir: string): JsonNode =
   let targets = field(field(m, "xplat"), "targets")
   if text(field(field(targets, "macos"), "runtime")) == "appkit-node-api": result.add(%"macos")
   if text(field(field(targets, "linux"), "runtime")) in ["gtk", "webkitgtk"]: result.add(%"linux")
-proc discover(root: string): JsonNode =
+proc discover*(root: string): JsonNode =
   let rm = readJson(root / "package.json")
   let framework = text(field(rm, "name")) == "octane-xplat" or text(field(readJson(root / "packages/ui/package.json"), "name")) == "@octane-xplat/ui"
   var dirs = @[root]
@@ -52,7 +60,7 @@ proc discover(root: string): JsonNode =
   var apps = newJArray()
   for dir in dirs:
     let m = readJson(dir / "package.json")
-    if m.kind != JObject: continue
+    if not truthy(m): continue
     let targets = field(field(m, "xplat"), "targets")
     let ps = platforms(dir)
     var xd = false
@@ -60,10 +68,10 @@ proc discover(root: string): JsonNode =
       if name.startsWith("@octane-xplat/") or name in ["octane", "@nativescript-community/octane"]: xd = true
     if targets == nil and not (xd and (ps.len > 0 or fileExists(dir / "nativescript.config.ts"))): continue
     let rel = relativePath(dir, root)
-    let name = if field(m, "name") != nil: m["name"] else: %lastPathPart(rel)
+    let name = if field(m, "name") != nil and field(m, "name").kind != JNull: m["name"] else: %lastPathPart(rel)
     apps.add(%*{"id": rel, "name": name, "root": dir, "relativeRoot": rel, "kind": (if framework and rel.startsWith("packages/"): "framework-package" else: "consumer-app"), "platforms": ps})
-  result = %*{"workspace": {"root": root, "kind": (if rm.kind != JObject: "empty" elif framework: "framework-repo" else: "consumer")}, "apps": apps}
-proc binding(root, app: string): JsonNode =
+  result = %*{"workspace": {"root": root, "kind": (if not truthy(rm): "empty" elif framework: "framework-repo" else: "consumer")}, "apps": apps}
+proc binding*(root, app: string): JsonNode =
   let declared = deps(readJson(app / "package.json"))
   var installed = newJArray()
   var locked = newJArray()

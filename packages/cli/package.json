@@ -82,7 +82,7 @@
 		"test:patches-pnpm": "node --test standalone/patches-pnpm.test.mjs",
 		"test:patches-install": "node --test test/patches-*.test.mjs standalone/patches-install.test.mjs",
 		"build:nim": "node ../../tools/cli-nim/build.mjs",
-		"test:nim": "node --test ../../tools/cli-nim/native.test.mjs ../../tools/cli-nim/package.test.mjs ../../tools/cli-nim/args.test.mjs",
+		"test:nim": "node --test ../../tools/cli-nim/native.test.mjs ../../tools/cli-nim/package.test.mjs ../../tools/cli-nim/args.test.mjs ../../tools/cli-nim/workspace.test.mjs",
 		"pack:nim": "node ../../tools/cli-nim/pack.mjs"
 	},
 	"dependencies": {

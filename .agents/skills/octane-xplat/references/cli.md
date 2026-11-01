@@ -6,7 +6,7 @@ local cache; they still require the app's Node/Bun/platform toolchains.
 See [CLI installation and executable builds](../../../../docs/packages/package-cli.md#single-file-executable).
 
 The parallel Nim implementation is experimental and intended for the npm `nim`
-tag. It currently executes catalog and clean only; other command execution is
+tag. It currently executes catalog, clean, app selection and permission reporting; other command execution is
 pending, even when help/schema discovery is available. Keep using the TypeScript
 CLI for app workflows. See the [native migration boundaries](../../../../packages/cli/nim/README.md).
 

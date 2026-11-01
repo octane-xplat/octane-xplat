@@ -1,8 +1,8 @@
 # Parallel Nim CLI
 
 This directory owns the native CLI implementation. The TypeScript entry and
-package exports remain in place. The native command currently implements catalog
-and clean; other agent commands provide help and schemas with execution marked
+package exports remain in place. The native command currently implements catalog,
+clean, app selection and permissions; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -12,15 +12,33 @@ research/nim-cli/native/xplat catalog --json
 
 `core.nim` contains discovery, platform detection and framework-binding routines
 shared with the differential probe. `main.nim` owns the public command entry.
+`workspace.nim` owns per-invocation selection, client preferences and task policy.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
-The production entry must only expose discovery routines after their remaining
-package-manager semantics are reconciled with the reference.
+Framework-version binding stays internal until the remaining package-manager
+semantics are reconciled with the reference. App selection uses manifest and
+filesystem discovery without making installed-version or runtime-readiness claims.
 
 ```sh
 research/nim-cli/native/xplat status --schema
 research/nim-cli/native/xplat clean --help
 ```
+
+App selection writes a client-scoped cache preference. Explicit `--app` choices
+beat that preference on subsequent commands; several matching apps remain an
+error. Client IDs for writes must contain 1–64 ASCII letters, digits, underscores
+or hyphens. Nim rejects traversal values rather than reproducing the TypeScript
+write-path bug tracked in [issue #97](https://github.com/octane-xplat/octane-xplat/issues/97).
+
+```sh
+research/nim-cli/native/xplat app select apps/web --project "$PWD" --client agent_one --json
+research/nim-cli/native/xplat permissions --scope visual-capture --project "$PWD" --client agent_one --json
+```
+
+Permission reporting preserves the existing task-authorization baseline. A
+visual-capture permission is required unless explicitly granted; discovering an
+app never grants it. Reporting permissions neither starts an app nor opens a
+visual capture.
 
 The [evaluation tooling](../../../tools/cli-nim/README.md) owns compiler pins,
 probe qualification and package staging. Clean only removes known generated

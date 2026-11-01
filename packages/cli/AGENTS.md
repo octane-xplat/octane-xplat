@@ -41,6 +41,15 @@ Nim source module basenames must be valid Nim identifiers. Use underscores,
 not hyphens, in `.nim` filenames; output executable names may contain hyphens.
 Use focused modules for parsing, discovery, process/HTTP boundaries and command
 behavior so pure logic can be tested without starting project tools or sessions.
+Export shared symbols explicitly with `*` and import their owning modules.
+`include` shares the caller's scope and can hide dependencies on its locals;
+prefer imported modules for reusable code rather than relying on include order.
+
+`std/json.pretty()` accepts an indentation width, not an indentation character.
+If matching a tab-indented file contract, convert only the generated line prefixes;
+replacing spaces globally would corrupt string values. For UTC timestamps, convert
+with `.utc` before formatting a trailing `Z`: formatting a zone marker alone does
+not change the instant's timezone.
 
 ## Verify behavior across language boundaries
 

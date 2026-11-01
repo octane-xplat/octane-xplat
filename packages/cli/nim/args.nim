@@ -14,7 +14,7 @@ proc utf16Len(s: string): int =
 proc jsWhitespace(r: Rune): bool =
   let n = int(r)
   n in [9,10,11,12,13,32,0xa0,0x1680,0x2028,0x2029,0x202f,0x205f,0x3000,0xfeff] or (n >= 0x2000 and n <= 0x200a)
-proc jsTrim(raw: string): string =
+proc jsTrim*(raw: string): string =
   let runes = raw.toRunes()
   var first = 0
   var last = runes.len
