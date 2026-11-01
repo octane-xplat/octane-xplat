@@ -131,7 +131,8 @@ disabled flag. Its injected router component must receive the exact `href`
 once and publish the destination after each input method.
 
 `action-uia.ps1` performs focus, Invoke and SelectionItem.Select operations in a
-bounded MTA process. A selection request targets a genuine TabItem peer. Replace
+bounded MTA process. Selection requests can target genuine TabItem/ListItem
+peers; ComboBox focus is also supported. Replace
 the example handle and process ID with the owned app's current values:
 
 ```json
@@ -149,6 +150,18 @@ the selection container's name to the ordinary bounds/pattern capture:
 
 ```json
 { "selected": true, "selectionContainerName": "Stock WinUI tabs" }
+```
+
+Popup queries can return the same UIA element more than once. Both helpers
+deduplicate nonempty runtime IDs within each query, retaining distinct controls
+that share a name. Captures include `runtimeId` and `className`; reader metadata
+keeps raw `elementCount`, unique `rowsCaptured` and `duplicateElementsSkipped`.
+Action results retain raw and unique matching/focused counts. Treat
+[runtime IDs](https://learn.microsoft.com/en-us/dotnet/api/system.windows.automation.automationelement.getruntimeid?view=windowsdesktop-10.0)
+as opaque comparison values; do not persist them as identities across captures.
+
+```json
+{ "elementCount": 6, "rowsCaptured": 3, "duplicateElementsSkipped": 3 }
 ```
 
 These helper capabilities do not establish public TabList/Tab qualification.
