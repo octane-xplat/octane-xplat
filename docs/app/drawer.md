@@ -10,7 +10,7 @@ gesturehandler separately.
 bun add @octane-xplat/drawer
 ```
 
-Use the same `Drawer` import on web, iOS, Android, macOS, and Windows. On phones,
+Use the same `Drawer` import on web, iOS, Android, macOS, Windows, and GTK4/GJS (Linux). On phones,
 users can open it from the left edge and drag it closed. Web and desktop use a
 panel with explicit controls and backdrop dismissal; they have no edge-swipe
 recognizer. The content and its appearance belong to your app.
@@ -90,5 +90,7 @@ with system Back gestures still require target-specific qualification. See
 [the implementation evidence](../../.agents/docs/native-drawer.md) for actual
 checks and remaining limits.
 
-The experimental GTK4/GJS renderer does not yet support Drawer. Its entry point
-rejects rendering explicitly; Linux WebView applications use the web panel.
+On the GTK4/GJS renderer `Drawer` mounts a start-docked panel over a modal
+scrim layer inside the app window. Backdrop presses and Escape dismiss it;
+the `gtk` export condition resolves the leaf automatically. There is no edge
+swipe — supply an explicit open and close control like on desktop.

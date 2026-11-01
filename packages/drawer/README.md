@@ -1,6 +1,6 @@
 # @octane-xplat/drawer
 
-One Drawer API across web, iOS, Android, macOS, and Windows. Mobile edge-open
+One Drawer API across web, iOS, Android, macOS, Windows, and GTK4/GJS (Linux). Mobile edge-open
 and drag-close gestures use `@nativescript-community/ui-drawer`; its gesture
 engine is owned by this package. Apps using unrelated UI widgets do not install
 this package.
