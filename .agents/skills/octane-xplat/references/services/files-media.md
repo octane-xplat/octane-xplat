@@ -106,9 +106,12 @@ before releasing manual tmpfile results; the wrapper owns automatic results
 until replacement/disposal. Wait for loaded images/fonts explicitly. Continuous
 mode, full-scroll content, RAW/ZIP and Android GL handling reject. Check the
 selected backend's capabilities: only phones implement primary app-screen
-capture; GTK/experimental Windows implement PNG views only. Source/compiler/API
-checks have passed, but no capture output is runtime-qualified. Do not treat
-those checks as pixel evidence or bypass a visual-analysis restriction.
+capture; GTK/experimental Windows implement PNG views only. Apple backends are
+TypeScript over the ObjC bridge (no native rebuild); iOS simulator and macOS
+runtime checks verify real PNG/JPEG bytes, owned-file release and refusals.
+Pixel fidelity is uninspected and Android/GTK/Windows output remains
+unqualified — do not treat source checks as pixel evidence or bypass a
+visual-analysis restriction.
 
 ```ts
 import { captureRef, releaseCapture } from '@octane-xplat/view-shot'

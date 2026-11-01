@@ -6,9 +6,10 @@ Related APIs: @octane-xplat/view-shot, ViewShot, captureRef, captureScreen, rele
 
 ## Starting point
 
-A working app with a laid-out card. Phone/native macOS apps rebuild their
-native plugins after installation. GTK uses the gtk condition; native Windows
-is experimental. Capture output qualification is still open.
+A working app with a laid-out card. Android apps rebuild their Java capture
+bridge after installation; iOS and native macOS need no rebuild. GTK uses the
+gtk condition; native Windows is experimental. Apple capture output is
+runtime-qualified; other hosts remain open.
 
 ## Requirements
 
@@ -20,11 +21,11 @@ is experimental. Capture output qualification is still open.
 
 ## Acceptance criteria
 
-- AC1: A reader can install, rebuild native plugins, mount a visible wrapper, wait for assets, and capture a real host or component ref without numeric React handles.
+- AC1: A reader can install, rebuild where a native bridge remains (Android), mount a visible wrapper, wait for assets, and capture a real host or component ref without numeric React handles.
 - AC2: Options validate dimensions/limits, encoding and result types; unsupported strategies reject rather than silently returning a different result.
 - AC3: Manual temporary results remain alive until explicitly released; automatic results release on replacement/disposal, and late results do not reach stale callbacks or delete foreign files.
 - AC4: Capabilities distinguish view capture from primary app-screen capture, platform subsets and unsupported/protected subtrees; capture errors remain visible.
-- AC5: Documentation distinguishes source/compiler/API evidence from real captures, deferred Android compilation/runtime, and unverified encoding/pixel fidelity/native consumer behavior.
+- AC5: Documentation distinguishes source/compiler/API evidence from real captures, deferred Android compilation/runtime, uninspected pixel fidelity, and unverified GTK/Windows output and installed consumer behavior.
 
 ## Documentation
 

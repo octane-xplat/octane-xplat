@@ -17,10 +17,10 @@ a late manual result is released and rejects. Unsupported continuous mode
 fails explicitly. This is not an image/font loading barrier.
 
 Service requests snapshot validated options and share a recovering FIFO queue.
-The target is validated again at dispatch. Native engines and DOM/GJS/Windows
-adapters keep exact URI ownership maps, so foreign cleanup requests cannot
-remove arbitrary files. Inline results never need deletion; Apple/Android
-adapters avoid passing their large payloads through native remove bridges.
+The target is validated again at dispatch. TypeScript adapters and the Windows
+bridge keep exact URI ownership maps, so foreign cleanup requests cannot
+remove arbitrary files. Inline results never need deletion; the Android
+adapter avoids passing its large payloads through the native remove bridge.
 
 ## Platform engines
 
@@ -34,12 +34,17 @@ creates a genuine owned blob URL; it is not silently a data URI. The engine
 has incomplete CSS/asset fidelity and can omit unavailable images. DOM
 screen capture is unavailable. Reject iframe/video/object/embed targets.
 
-UIKit uses UIGraphicsImageRenderer and drawHierarchy, with an explicit
-CALayer.render strategy option. AppKit uses caching display and bitmap
-encoding. Both reject detected WebKit/video/GPU descendants and recursively
-inspect backing sublayers; neither claims protected media capture. Main-thread
-checks precede allocation and atomic temporary file writes. Swift 4/5 syntax
-is retained for the supported native build tooling.
+Both Apple backends are TypeScript over the host ObjC bridge; the previous
+XplatViewShotEngine Swift wrappers are removed. UIKit uses
+UIGraphicsImageRenderer and drawHierarchy, with an explicit CALayer.render
+strategy option. AppKit uses cacheDisplay, an NSBitmapImageRep target context
+and bitmap encoding. Both reject detected WebKit/video/GPU descendants and
+recursively inspect backing sublayers; neither claims protected media capture.
+Main-thread checks precede allocation and atomic temporary file writes.
+UIWindow.window is nil for the window itself, so iOS attachment checks a
+window target's windowScene; screen targets take their scale from the window's
+screen. The Swift engine's detached check never runtime-ran there, so
+captureScreen was refused on iOS until the TypeScript port.
 
 Android uses public Bitmap/Canvas/View.draw, exact cache-file ownership,
 main-thread checks and FLAG_SECURE refusal. SurfaceView, TextureView and WebView
@@ -69,7 +74,12 @@ and [SoftwareBitmap buffer copy](https://learn.microsoft.com/en-us/uwp/api/windo
 Seventeen string-only lifecycle/service and universal compiler tests pass, as do
 combined source and seven-target packed consumer declarations without native
 ambient types. A nonexecuting browser graph check links the final 2.4.5 DOM
-engine and excludes NativeScript. Swift 4/5 iOS and macOS API typechecks pass on skymac.local.
+engine and excludes NativeScript. The iOS runtime probe executes fifteen
+capture assertions on a booted simulator (tmpfile PNG signature and owned
+release, base64/data-uri output, scaled and renderInContext renders, protected
+and detached refusals); the macOS API check mounts an offscreen AppKit view
+inside the node-api ObjC runtime and asserts real PNG/JPEG bytes, nonblank
+pixel output and owned-file release.
 Sixteen GTK introspection assertions pass in andromeda.local's octane-linux VM
 (GTK 4.14.5), without initializing a window or invoking snapshot/encoding APIs.
 The VM must be entered with `orb -m octane-linux -w /tmp`; its default mirrored
@@ -86,12 +96,12 @@ reported the mistake to the user and recorded it in local feedback. These
 misrouted attempts do not qualify output fidelity or the native backends.
 
 Visual analysis is not authorized for this task. Keep the maintained component
-fixture's guards; do not invoke real capture APIs to finish a smoke fixture. Runtime output/encoding fidelity, native
-file ownership, protected-surface refusals, live component rendering and
-installed consumer qualification remain open. Android app compilation/runtime
-are explicitly deferred. Run eventual Apple/GTK/Windows checks only on
-skymac.local/andromeda.local/ssh windy respectively. No heavy app build was
-needed for the API checks. Creator catalog-owner and documentation/example/recipe/compatibility checks pass.
+fixture's guards; do not invoke real capture APIs to finish a smoke fixture. Apple
+output/encoding fidelity, native file ownership and protected-surface refusals
+are runtime-proven as above; pixel fidelity is uninspected, and live component
+rendering plus installed consumer qualification remain open. Android app compilation/runtime
+are explicitly deferred. Run eventual GTK/Windows checks only on
+andromeda.local/ssh windy respectively. Creator catalog-owner and documentation/example/recipe/compatibility checks pass.
 The batched dependent check found that another renderer's narrower ambient GJS
 namespace hid capture APIs. The GTK bridge now keeps its SDK contract local to
 this module, using the same APIs checked on andromeda; this changes types only

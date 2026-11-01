@@ -12,9 +12,10 @@ option and component shapes, adapted to Octane refs and lifecycle hooks.
 ## Capture a card
 
 Start with a running Octane Xplat app and install the package in its directory.
-Phone apps need NativeScript core 9.1.3 or later. Rebuild phone and native macOS
-apps after installation so their capture bridge is included. A JavaScript-only
-refresh cannot install native code.
+Phone apps need NativeScript core 9.1.3 or later. Android apps rebuild after
+installation so their Java capture bridge is included; a JavaScript-only
+refresh cannot install native code. iOS and native macOS apps need no rebuild —
+capture runs in TypeScript through the host's UIKit/AppKit bindings.
 
 ```sh
 bun add @octane-xplat/view-shot
@@ -170,14 +171,15 @@ export function discardCapture(uri: string) {
 ## Platforms and qualification
 
 These are implemented API subsets, not a claim of verified image fidelity.
-**Capture output is not runtime-qualified.** The maintained component check
-uses a guarded string-only backend. Source/compiler checks,
-iOS/macOS Swift API checks on `skymac.local`, and GTK API checks on
-`andromeda.local` pass. Windows bridge source was inspected through `ssh windy`;
+**Apple capture output is runtime-qualified.** An iOS simulator probe and a
+macOS AppKit runtime check execute real captures: PNG/JPEG signatures, scaled
+output, owned tmpfile release, protected-surface and detached-view refusals
+pass on real hosts. Pixel fidelity is not visually inspected — compare
+before relying on exact output. The maintained component check uses a guarded
+string-only backend. GTK API checks on `andromeda.local` pass; GTK capture
+output is unverified. Windows bridge source was inspected through `ssh windy`;
 Windows adapter execution and output remain unverified. Android compilation
-and runtime are deferred. Encoding, pixel fidelity, real output ownership,
-protected-surface refusals and installed native consumers need runtime
-qualification before relying on them in production.
+and runtime are deferred.
 
 | Host                        | Implemented view formats | App screen         | Boundary                                                              |
 | --------------------------- | ------------------------ | ------------------ | --------------------------------------------------------------------- |
