@@ -40,16 +40,28 @@ No native release is implied by the presence of this workflow.
 gh workflow run release.yml -f track=nim -f nim_version=0.19.0-nim.1
 ```
 
-The generated npm tarball retains existing JS exports and dependencies for
-project build tools. Its postinstall verifies the matching bundled binary's
-checksum and copies it to `bin/xplat.exe`; npm links directly to that native
-file on Unix and Windows. Node runs only the installer, never command startup.
-The `.exe` suffix is also used on Unix so npm can use one bin path across OSes.
-Disabling install scripts leaves a diagnostic placeholder; run
-`node node_modules/@octane-xplat/cli/install-native.mjs` to select the executable.
-No installation-time executable download is needed. The tarball contains all
-five binaries; native per-host downloads can remain one file. The total npm
-install also includes JS build dependencies, so it has a different size budget.
+The Nim npm tarball contains native executables, their checksum manifest, and a
+small install-time selector. It has no JavaScript implementation payload,
+JavaScript exports, or runtime dependency tree. TypeScript remains in the
+repository as the migration reference; stable/nightly packaging is unchanged.
+Existing `@octane-xplat/cli/vite` and MCP imports are not provided by this
+experimental tarball. Project build plugins need their own installed package
+before the Nim CLI can replace those workflows.
+
+```sh
+# After a Nim prerelease is published:
+bun add --dev @octane-xplat/cli@nim
+```
+
+Postinstall verifies the matching bundled binary and copies it to
+`bin/xplat.exe`; npm links directly to the native file on Unix and Windows.
+Node runs only the installer. The `.exe` suffix lets npm use one bin path across
+OSes. Disabling install scripts leaves a diagnostic placeholder; run the
+selector explicitly if needed. There is no executable download during install.
+
+```sh
+node node_modules/@octane-xplat/cli/install-native.mjs
+```
 
 ```sh
 # Local host-only staging; this package is private and cannot be published:
@@ -59,5 +71,5 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 Linux/Windows build flags and native jobs are supplied but remain unqualified
 until those jobs execute. TLS, full argument/error parity, runtime sessions,
 project tool dispatch, updates, and most commands remain migration work. Do not
-promote the `nim` tag to `latest` until command contracts, packed project exports,
+promote the `nim` tag to `latest` until command contracts, separately installed project build tools,
 real project journeys and native OS behavior have equivalent coverage.
