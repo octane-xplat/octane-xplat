@@ -233,6 +233,50 @@ export async function liveSwitchConformance(page) {
 	})
 	assert.equal(await page.evaluate(async () => (await window.take.stop()).kind), 'clip')
 
+	// A source can finish acquisition before the shared session resumes. Stop
+	// in that window must retire it and recover the previously selected camera.
+	await page.evaluate(() => {
+		window.failCamera = undefined
+		window.take = window.session.startRecording()
+	})
+	await page.waitForFunction(() => window.take.state === 'recording')
+	await page.waitForTimeout(400)
+	const uncommitted = await page.evaluate(async () => {
+		window.acquiredBeforeStop = false
+		window.afterSwitchAcquired = () => {
+			window.acquiredBeforeStop = true
+			window.take.stop()
+		}
+		try {
+			const issue = await window.session.switchCamera({ deviceId: 'b' }).then(
+				() => 'unexpected',
+				(error) => error.kind,
+			)
+
+			const outcome = await window.take.completion
+			return {
+				issue,
+				kind: outcome.kind,
+				camera: window.session.snapshot().activeCamera.id,
+				acquiredBeforeStop: window.acquiredBeforeStop,
+			}
+		} finally {
+			window.afterSwitchAcquired = undefined
+		}
+	})
+	assert.deepEqual(uncommitted, {
+		issue: 'invalidState',
+		kind: 'clip',
+		camera: 'a',
+		acquiredBeforeStop: true,
+	})
+	await page.waitForFunction(() => window.switchSources.at(-1).readyState === 'live')
+	assert.equal(await page.evaluate(() => window.switchSources.at(-1).getSettings().deviceId), 'a')
+	console.log(
+		'stop after acquisition restores the prior browser camera:',
+		JSON.stringify(uncommitted),
+	)
+
 	// Stop has priority over a pending acquisition, including late getUserMedia.
 	await page.evaluate(() => {
 		window.failCamera = undefined

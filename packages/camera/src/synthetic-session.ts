@@ -265,14 +265,20 @@ function createSyntheticBackend(
 		},
 		switchCamera: (camera) => {
 			let cancelled = false
+			const next = selection(camera)
 			return {
 				completion: Promise.resolve().then(() => {
 					if (cancelled) {
 						throw new Error('Synthetic camera switch cancelled')
 					}
-					selected = selection(camera)
-					return { ...selected }
+					return { ...next }
 				}),
+				commit: () => {
+					if (cancelled) {
+						throw new Error('Synthetic camera switch cancelled')
+					}
+					selected = next
+				},
 				cancel: () => {
 					cancelled = true
 				},

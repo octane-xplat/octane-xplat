@@ -84,6 +84,7 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	private int rotation;
 	private Quality recordingQuality;
 	private boolean switching;
+	private boolean awaitingSwitchCommit;
 	private boolean rollingBack;
 	private String switchPrevious;
 	private String switchError;
@@ -107,9 +108,10 @@ public final class CameraSessionBridge implements LifecycleOwner {
 		if (value && switching) {
 			boolean restored = rollingBack;
 			String failure = switchError;
-			clearSwitch();
+			awaitingSwitchCommit = !restored;
+			clearSwitch(!restored);
 			try { emit(restored ? "switchFailed" : "switchFinished", restored ? failure : new JSONObject().put("id", cameraId).put("label", cameraId).put("facing", facing).toString()); }
-			catch (Exception cause) { emit("switchFailed", cause.toString()); }
+			catch (Exception cause) { cancelCameraSwitch(); emit("switchFailed", cause.toString()); }
 		}
 	}
 	public boolean isReady() { return ready && streaming && sourceFrameRate > 0 && !detached && !released; }
@@ -219,7 +221,7 @@ public final class CameraSessionBridge implements LifecycleOwner {
 	}
 	/** Rebind the existing recorder; never pause audio or create a second file. */
 	public void switchCamera(String selected) {
-		if (recording == null || !started || finalizing || switching || released || detached || backgrounded) throw new IllegalStateException("Camera cannot switch now");
+		if (recording == null || !started || finalizing || switching || awaitingSwitchCommit || released || detached || backgrounded) throw new IllegalStateException("Camera cannot switch now");
 		try {
 			CameraSelector selector = selectCamera(selected);
 			CameraInfo info = provider.getAvailableCameraInfos().stream().filter(i -> !selector.filter(Collections.singletonList(i)).isEmpty()).findFirst().orElseThrow(() -> new IllegalArgumentException("Selected camera unavailable"));
@@ -236,7 +238,10 @@ public final class CameraSessionBridge implements LifecycleOwner {
 		handler.postDelayed(switchTimeout, 5000);
 	}
 	private void clearSwitch() {
-		if (host != null) host.releaseHeldPreview();
+		clearSwitch(false);
+	}
+	private void clearSwitch(boolean keepPreview) {
+		if (!keepPreview && host != null) host.releaseHeldPreview();
 		if (switchTimeout != null) handler.removeCallbacks(switchTimeout);
 		switchTimeout = null; switching = false; rollingBack = false;
 	}
@@ -255,13 +260,21 @@ public final class CameraSessionBridge implements LifecycleOwner {
 		try { bindCamera(host, switchPrevious, true); } catch (Exception cause) { failSwitch(cause.toString()); }
 	}
 	public void cancelCameraSwitch() {
-		if (!switching) return;
+		if (!switching && !awaitingSwitchCommit) return;
 		// Cancellation accompanies stop/lifecycle teardown. Restore the selected
 		// preview after finalization; never rebind underneath finalizing output.
 		selection = switchPrevious;
+		awaitingSwitchCommit = false;
 		resumeAfterFinalization = host != null && !detached && !released && !backgrounded;
 		clearSwitch();
 		emit("switchFailed", "Camera switching was cancelled");
+	}
+	/** Acquisition is provisional until JS rechecks the still-active take. */
+	public void confirmCameraSwitch(String id) {
+		if (!awaitingSwitchCommit || !id.equals(cameraId) || recording == null || finalizing || released || detached || backgrounded) throw new IllegalStateException("Camera switch is no longer active");
+		awaitingSwitchCommit = false;
+		switchPrevious = null;
+		if (host != null) host.releaseHeldPreview();
 	}
 	private CameraSelector selectCamera(String selected) throws androidx.camera.core.CameraInfoUnavailableException {
 		if (selected.startsWith("id:")) return new CameraSelector.Builder().addCameraFilter(infos -> {

@@ -1,10 +1,28 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Application } from '@nativescript/core'
-import { CameraView, createCameraSession } from '@octane-xplat/camera'
+import { CameraView } from '@octane-xplat/camera'
+import { SharedCameraSession } from '../src/session-core'
+import { createSessionBackend } from '../src/session-backend.android'
 import type { ProbeContext } from '../../../scripts/probe/context'
 // Maintained physical-device case: permissions prompt on this isolated app.
 // Metadata and encoded packet timing only; no screenshots or frame analysis.
-const session = createCameraSession({ camera: 'back', audio: true })
+const config = { camera: 'back' as const, audio: true }
+const backend = createSessionBackend(config)
+const switchCamera = backend.switchCamera!
+let afterAcquired: (() => void) | undefined
+// Inject stop between native acquisition and the shared lifecycle recheck.
+backend.switchCamera = (camera) => {
+	const operation = switchCamera(camera)
+	return {
+		...operation,
+		completion: operation.completion.then((selected) => {
+			afterAcquired?.()
+			return selected
+		}),
+	}
+}
+
+const session = new SharedCameraSession(backend, config)
 let ready = false
 export default function Preview(): unknown @{
 	<CameraView
@@ -69,6 +87,37 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('stop during flip keeps clip', stoppedDuringSwitch.kind, 'clip')
 	ctx.assert('stop during flip reason', stoppedDuringSwitch.endReason, 'stopped')
 	ctx.record('stopDuringSwitch', stoppedDuringSwitch)
+	await ctx.waitFor(async () => (await session.capabilities()).available, { timeout: 15000 })
+	const provisional = session.startRecording()
+	await ctx.waitFor(() => provisional.state === 'recording')
+	await new Promise((resolve) => setTimeout(resolve, 700))
+	let acquiredBeforeStop = false
+	afterAcquired = () => {
+		acquiredBeforeStop = true
+		provisional.stop()
+	}
+
+	try {
+		const issue = await session.switchCamera('front').then(
+			() => 'completed',
+			(error) => error.kind,
+		)
+
+		const output = await provisional.completion
+		ctx.assert('acquisition reached before stop', acquiredBeforeStop, true)
+		ctx.assert('uncommitted switch cancelled', issue, 'invalidState')
+		ctx.assert('uncommitted switch keeps clip', output.kind, 'clip')
+		ctx.assert(
+			'uncommitted switch keeps previous selection',
+			session.snapshot().activeCamera?.facing,
+			'back',
+		)
+
+		ctx.record('stopAfterAcquisition', output)
+	} finally {
+		afterAcquired = undefined
+	}
+
 	await ctx.waitFor(async () => (await session.capabilities()).available, { timeout: 15000 })
 	const resumed = session.startRecording()
 	await ctx.waitFor(() => resumed.state === 'recording')

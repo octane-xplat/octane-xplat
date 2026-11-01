@@ -22,6 +22,11 @@ session operation and must preserve one take, completion and durable output.
   interruption. Keep explicit background/stop/disposal handling: persistence
   otherwise outlives lifecycle unbinding. Roll back failed acquisition and bound
   both acquisition and rollback.
+  Native acquisition is provisional: keep the previous selection and held
+  preview until `confirmCameraSwitch` acknowledges the shared lifecycle check.
+  A cancelled acquisition restores the previous preview after finalization.
+  If acknowledgement fails, finalize usable output with a warning instead of
+  continuing to record an uncommitted camera.
 - iOS still uses AVCaptureMovieFileOutput and reports live switching unavailable
   ([#86](https://github.com/octane-xplat/octane-xplat/issues/86)). A guard removal
   or input-swap transaction is not a continuation implementation. The candidate
@@ -47,6 +52,13 @@ producing frames on the existing recording path. This confirms source readiness,
 not encoding of a particular frame. Reject overlapping switches, retire stale callbacks and let stop,
 limits and lifecycle loss keep their original exactly-once completion cause.
 Preview rebind readiness must not rearm automatic recording.
+
+Web, Android, the synthetic source and the iOS candidate defer their cached
+selection update to the backend operation's synchronous `commit`. Stop can win
+after `completion` resolves but before the shared session resumes; cancellation
+must remain effective in that window. Web retires the uncommitted video source
+and reacquires the previous camera after finalization. Neither acquisition nor
+preview readiness alone commits the app's saved selection.
 
 The candidate iOS writer owns samples on its serial queue and runs capture-session
 transactions on main so input replacement cannot block audio sample processing.

@@ -365,6 +365,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				host.srcObject = stream ?? null
 				void host.play().catch(() => {})
 			}
+
 			recordingVideo.release()
 			recordingVideo = undefined
 		}
@@ -645,17 +646,21 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			const previous = currentConfig.camera
 			const microphones = stream?.getAudioTracks() ?? []
 			let cancelled = false
+			let acquired = false
 			let rejectCancellation: (error: Error) => void = () => {}
 			const cancellation = new Promise<never>((_resolve, reject) => {
 				rejectCancellation = reject
 			})
 			const operation = {
 				cancel: () => {
-					if (cancelled) {
+					if (cancelled || pendingSwitch !== operation) {
 						return
 					}
 					cancelled = true
 					videoSource.hold()
+					stream?.getVideoTracks().forEach((track) => track.stop())
+					markReady(false)
+					pendingSwitch = undefined
 					rejectCancellation(
 						error('invalidState', 'switchCamera', 'Camera switching was cancelled'),
 					)
@@ -703,6 +708,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 					const settings = acquired.getVideoTracks()[0]!.getSettings()
 					const expectedFacing =
 						selection === 'front' ? 'user' : selection === 'back' ? 'environment' : undefined
+
 					if (expectedFacing && settings.facingMode !== expectedFacing) {
 						throw error(
 							'unsupportedConfiguration',
@@ -710,9 +716,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 							'The requested camera facing could not be confirmed; choose a device ID',
 						)
 					}
+
 					for (const microphone of microphones) {
 						acquired.addTrack(microphone)
 					}
+
 					stream = acquired
 					observeTracks(acquired)
 					await videoSource.setSource(acquired)
@@ -720,6 +728,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 					if (host) {
 						host.style.transform = settings.facingMode === 'user' ? 'scaleX(-1)' : ''
 					}
+
 					markReady(true)
 					check()
 					return {
@@ -745,7 +754,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				markReady(false)
 				try {
 					const selected = await install(camera)
-					currentConfig = { ...currentConfig, camera }
+					acquired = true
 					return selected
 				} catch (cause) {
 					if (!cancelled && !released) {
@@ -758,20 +767,37 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 								'Camera switching and rollback failed; the captured take was finalized',
 								rollback,
 							)
+
 							sink?.finishing('cameraUnavailable')
 							stop()
 						}
 					}
+
 					throw cause instanceof CameraCaptureError
 						? cause
 						: error('unavailable', 'switchCamera', 'Could not acquire the requested camera', cause)
 				} finally {
-					if (pendingSwitch === operation) {
+					if (!acquired && pendingSwitch === operation) {
 						pendingSwitch = undefined
 					}
 				}
 			})()
-			return { completion, cancel: operation.cancel }
+			return {
+				completion,
+				commit: () => {
+					check()
+					if (!acquired || pendingSwitch !== operation) {
+						throw error(
+							'invalidState',
+							'switchCamera',
+							'Camera switching was cancelled before commit',
+						)
+					}
+					currentConfig = { ...currentConfig, camera }
+					pendingSwitch = undefined
+				},
+				cancel: operation.cancel,
+			}
 		},
 		startCapture: (request, target) => {
 			sink = target
@@ -847,6 +873,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 							'Camera source became inactive before recording',
 						)
 					}
+
 					if (supportsRecordingVideoSource()) {
 						const settings = video.getSettings()
 						recordingVideo = createRecordingVideoSource(
@@ -854,11 +881,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 							settings.height ?? 720,
 							settings.frameRate ?? 30,
 						)
+
 						await recordingVideo.setSource(source)
 						recordingStream = new MediaStream([
 							...recordingVideo.stream.getVideoTracks(),
 							...(request.audio ? audio : []),
 						])
+
 						if (host) {
 							host.srcObject = recordingVideo.stream
 							await host.play()

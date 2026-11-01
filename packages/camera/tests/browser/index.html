@@ -8,7 +8,19 @@
 		import { SharedCameraSession } from '../../src/session-core.ts'
 		import { createSessionBackend } from '../../src/session-backend.web.ts'
 		window.createTestSession = (config = {}) => {
-			const session = new SharedCameraSession(createSessionBackend(config), config)
+			const backend = createSessionBackend(config)
+			const switchCamera = backend.switchCamera
+			backend.switchCamera = (camera) => {
+				const operation = switchCamera(camera)
+				return {
+					...operation,
+					completion: operation.completion.then((selected) => {
+						window.afterSwitchAcquired?.()
+						return selected
+					}),
+				}
+			}
+			const session = new SharedCameraSession(backend, config)
 			window.session = session
 			window.events = []
 			session.subscribe((event) => window.events.push(event))
