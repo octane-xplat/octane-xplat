@@ -6,6 +6,13 @@ param(
 $ErrorActionPreference='Stop'
 $result=[ordered]@{status='starting';apartment=[Threading.Thread]::CurrentThread.GetApartmentState().ToString();clientProcessId=$PID}
 function Stage([string]$Name){[IO.File]::WriteAllText($OutputPrefix+'-stage.txt',$Name,[Text.UTF8Encoding]::new($false))}
+function Unique-Elements($Elements){
+ $seen=[System.Collections.Generic.HashSet[string]]::new()
+ foreach($element in $Elements){
+  $runtimeId=@($element.GetRuntimeId())
+  if($runtimeId.Count -eq 0 -or $seen.Add(($runtimeId -join ','))){$element}
+ }
+}
 try {
  if($result.apartment -ne 'MTA'){throw 'UIA action requires its dedicated MTA process'}
  $request=Get-Content $RequestPath -Raw|ConvertFrom-Json
@@ -33,16 +40,24 @@ public static class Core20ActionWindow {
  if($request.operation -eq 'focused'){
   $condition=[System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::HasKeyboardFocusProperty,$true)
   $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,$condition)
+  Stage 'unique-focused-elements'
+  $result.rawFocusedCount=$elements.Count
+  $elements=@(Unique-Elements $elements)
+  $result.uniqueFocusedCount=$elements.Count
   $focused=@()
   foreach($element in $elements){
    $focused+=@{name=$element.Current.Name;type=$element.Current.ControlType.ProgrammaticName;processId=$element.Current.ProcessId}
   }
   $result.focused=$focused
  }else{
-  if($request.controlType -notin @('ControlType.Button','ControlType.Hyperlink','ControlType.TabItem')){throw 'Unexpected action control type'}
+  if($request.controlType -notin @('ControlType.Button','ControlType.Hyperlink','ControlType.TabItem','ControlType.ListItem','ControlType.ComboBox')){throw 'Unexpected action control type'}
   $condition=[System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,[string]$request.name)
   $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,$condition)
   $matching=@($elements|Where-Object {$_.Current.ControlType.ProgrammaticName -ceq $request.controlType})
+  Stage 'unique-name-matches'
+  $result.rawMatchingCount=$matching.Count
+  $matching=@(Unique-Elements $matching)
+  $result.uniqueMatchingCount=$matching.Count
   if($matching.Count -ne 1){throw "Expected exactly one $($request.controlType) named $($request.name)"}
   $element=$matching[0]
   $result.target=@{name=$element.Current.Name;type=$element.Current.ControlType.ProgrammaticName;enabled=$element.Current.IsEnabled;focusable=$element.Current.IsKeyboardFocusable}

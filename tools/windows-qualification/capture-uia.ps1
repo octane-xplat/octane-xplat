@@ -43,9 +43,19 @@ public static class Core20UiaWindow {
  Stage 'before-find-all'
  $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,[System.Windows.Automation.Condition]::TrueCondition)
  $result.elementCount=$elements.Count
+ $seen=[System.Collections.Generic.HashSet[string]]::new()
+ $result.duplicateElementsSkipped=0
  for($index=0;$index -lt $elements.Count;$index++){
   $element=$elements[$index]
-  $row=[ordered]@{}
+  Stage "element-$index-runtime-id"
+  $runtimeId=@($element.GetRuntimeId())
+  if($runtimeId.Count -gt 0 -and -not $seen.Add(($runtimeId -join ','))){
+   $result.duplicateElementsSkipped++
+   continue
+  }
+  $row=[ordered]@{runtimeId=$runtimeId}
+  Stage "element-$index-class"
+  $row.className=$element.Current.ClassName
   Stage "element-$index-name"
   $row.name=$element.Current.Name
   Stage "element-$index-type"
