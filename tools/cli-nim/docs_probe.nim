@@ -1,6 +1,6 @@
 ## Test-only documentation retrieval entry; never shipped in the native package.
-import std/json
-import ../../packages/cli/nim/[docs_retrieval, markdown_chunks, locale_sort, jsonutil, json_wire, strictjson]
+import std/[json, strtabs]
+import ../../packages/cli/nim/[docs_retrieval, markdown_chunks, locale_sort, jsonutil, json_wire, strictjson, docs_snapshots]
 for line in stdin.lines:
   let request = parseStrictJson(line)
   try:
@@ -18,6 +18,21 @@ for line in stdin.lines:
       (if field(request,"limit") == nil: 24000.0 else: request["limit"].getFloat()))
     of "reference": value = %docRef(text(request["package"]),text(request["version"]),text(request["path"]))
     of "parse-reference": value = parseDocRef(text(request["reference"]))
+    of "snapshot", "remote-tag", "bound-provenance":
+      if text(request["operation"]) == "bound-provenance":
+        value = boundProvenance(request["snapshot"],request["options"])
+      else:
+        let environment = newStringTable(modeCaseSensitive)
+        let overrides = field(request,"env")
+        if overrides != nil:
+          for key, entry in overrides: environment[key] = text(entry)
+        var context = newSnapshotContext(text(field(request,"cacheDir")),
+          (if field(request,"gitPath") == nil: "git" else: text(request["gitPath"])),
+          (if field(request,"timeoutMs") == nil: 60000 else: request["timeoutMs"].getInt()),environment)
+        if text(request["operation"]) == "remote-tag":
+          context.runner = proc(args: seq[string], cwd: string): string = text(request["stdout"])
+          value = context.remoteTagSha(text(request["repo"]),text(request["tag"]))
+        else: value = context.ensureSnapshot(request["options"])
     of "collation":
       var sorter = newLocaleSorter(text(field(request,"locale")))
       try: value = %sorter.compare(text(request["left"]),text(request["right"]))

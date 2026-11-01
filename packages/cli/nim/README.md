@@ -24,6 +24,10 @@ command providers remain migration work. `docs_retrieval.nim` and
 sections. Their macOS locale-order adapter is exercised independently; snapshot
 acquisition, installed-version command wiring and indexed docs retrieval are not
 implied by those checks.
+`docs_snapshots.nim` acquires exact Git tags into commit-pinned caches, validates
+package metadata, preserves offline bindings and reports moved/deleted tags.
+It never executes fetched package scripts. Public docs command wiring and local
+embedding/index integration remain separate migration work.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Framework-version binding stays internal until the remaining package-manager

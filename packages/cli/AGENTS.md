@@ -118,6 +118,12 @@ to EOF first can block forever when the other pipe fills. Bound retained output,
 close unused stdin, and kill/reap the owned child on timeout or capture failure.
 Direct-child cleanup does not establish process-tree cancellation.
 
+Do not assume `startProcess(env=..., options={poUsePath})` searches the child's
+PATH. On macOS the launcher can search the parent's PATH while passing the
+supplied environment to the child. For an explicit PATH contract, resolve the
+executable against that PATH and the child cwd first, then launch without PATH
+search. Test with a named executable that exists only in the overridden PATH.
+
 ## Filesystem and byte boundaries
 
 Nim's `parentDir` returns an empty string at an absolute filesystem root.

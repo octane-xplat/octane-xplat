@@ -81,6 +81,10 @@ TypeScript providers. Document ordering uses a lazy macOS system ICU adapter;
 the gate compares actual language orders rather than substituting a byte sort.
 Other host collation adapters and public documentation command providers remain
 migration work. ICU data differences across OS versions need qualification.
+The same gate exercises real temporary Git repositories for snapshot metadata,
+offline caches, annotated/moved/deleted tags, explicit rebinds and a tag that
+moves between lookup and fetch. Explicit child environment/PATH cases qualify
+the short Git capture boundary without claiming process-tree cancellation.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim documentation qualification"}' -- bun run turbo run test:nim-docs --filter=@octane-xplat/cli

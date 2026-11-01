@@ -12,3 +12,17 @@ proc provenance*(fields: JsonNode): JsonNode =
     let value = field(fields,key)
     if value != nil and value.kind != JNull: result[key] = value
   result["offline"] = %(field(fields,"offline") == %true)
+
+proc unavailable*(reason: string, fields: JsonNode): JsonNode =
+  let labeled = fields.copy()
+  labeled["match"] = %"unavailable"
+  result = %*{"status": "unavailable","reason": reason,"provenance": provenance(labeled)}
+  let fallback = field(fields,"fallback")
+  if truthy(fallback): result["fallback"] = fallback
+
+proc tagConflict*(cached, remote, fields: JsonNode): JsonNode =
+  let labeled = fields.copy()
+  let commit = field(cached,"commit")
+  if commit != nil: labeled["commit"] = commit
+  labeled["match"] = %"tag-conflict"
+  %*{"status": "tag-conflict","cached": cached,"remote": remote,"provenance": provenance(labeled)}

@@ -1,11 +1,12 @@
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, chmodSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve, dirname } from 'node:path'
 import { chunkMarkdown } from '../../packages/docs-search/src/chunks.ts'
 import { listDocs, searchDocs, readPage, platformsOf, docRef, parseDocRef } from '../../packages/cli/src/mcp/docs-retrieval.ts'
+import { ensureSnapshot, remoteTagSha, boundProvenance } from '../../packages/cli/src/mcp/docs-snapshots.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 const binary = join(root, `research/nim-cli/native/docs-probe${process.platform === 'win32' ? '.exe' : ''}`)
@@ -146,4 +147,163 @@ test('real repository documentation inventory, chunks, queries and continuations
   cases.push({ operation: 'read', root, path, limit: 500 }, { operation: 'read', root, path, offset: 500, limit: 500 })
  }
  compare(cases, 'real-docs')
+})
+
+function nativeRequests(cases) {
+ const run = spawnSync(binary, [], { input: cases.map(value => JSON.stringify(value)).join('\n') + '\n',
+  encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 30000, env: { ...process.env, PATH: '' } })
+ assert.equal(run.status, 0, run.stderr || run.error?.message)
+ assert.equal(run.stderr, '')
+ const replies = run.stdout.trim().split('\n').map(line => JSON.parse(line))
+ assert.equal(replies.length, cases.length)
+ return replies
+}
+test('remote tags peel annotations and preserve absent, whitespace and malformed output policy', async () => {
+ const cases = ['', '\n', 'aaa\trefs/tags/v1\n', 'aaa refs/tags/v1\nbbb refs/tags/v1^{}\n',
+  'bbb refs/tags/v1^{}\naaa refs/tags/v1\n', '  aaa\u00a0refs/tags/v1  \r\n', 'aaa refs/tags/v1\nbbb refs/tags/other\n', 'aaa', 'aaa\u0085refs/tags/v1']
+  .map(stdout => ({ operation: 'remote-tag', repo: 'local-fixture', tag: 'v1', stdout }))
+ const expected = []
+ for (const request of cases) {
+  try { expected.push({ ok: true, value: await remoteTagSha({ execFile: async () => ({ stdout: request.stdout }) }, request.repo, request.tag) }) }
+  catch { expected.push({ ok: false }) }
+ }
+ const actual = nativeRequests(cases)
+ for (const [at, reply] of actual.entries()) {
+  assert.equal(reply.ok, expected[at].ok, JSON.stringify(cases[at]))
+  if (reply.ok) assert.deepEqual(reply.value, expected[at].value)
+ }
+ assert.equal(expected.filter(value => !value.ok).length, 2)
+})
+
+test('snapshot provenance preserves offline, compatible and absent-field semantics', () => {
+ const cases = []
+ for (const snapshot of [{ dir: 'fixture', commit: 'abc', tag: 'v1', offline: false },
+  { commit: 'abc', tag: 'v1', offline: true, repo: 'local-fixture' }, { offline: 'true' }, {}])
+  for (const shared of [false, true]) cases.push({ operation: 'bound-provenance', snapshot, options: { packageName: '@octane-xplat/ui', version: '1.2.3', shared } })
+ const actual = nativeRequests(cases)
+ for (const [at, reply] of actual.entries()) {
+  assert.equal(reply.ok, true)
+  assert.deepEqual(reply.value, JSON.parse(JSON.stringify(boundProvenance(cases[at].snapshot, cases[at].options))))
+ }
+})
+
+test('real Git snapshots preserve pinned caches, moved/deleted tags, metadata checks and offline reads', macOnly, async () => {
+ const dir = fixture()
+ const repo = join(dir, 'release repo')
+ mkdirSync(repo)
+ const gitPath = '/usr/bin/git'
+ const env = { GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_AUTHOR_DATE: '2026-01-01T00:00:00Z', GIT_COMMITTER_DATE: '2026-01-01T00:00:00Z' }
+ function git(args) {
+  const result = spawnSync(gitPath, ['-C', repo, ...args], { encoding: 'utf8', env: { ...process.env, ...env } })
+  assert.equal(result.status, 0, result.stderr)
+  return result.stdout.trim()
+ }
+ git(['init', '-q'])
+ git(['config', 'user.name', 'Native fixture'])
+ git(['config', 'user.email', 'native-fixture@example.invalid'])
+ file(join(repo, 'packages/ui/package.json'), JSON.stringify({ name: '@octane-xplat/ui', version: '1.2.3' }))
+ file(join(repo, 'docs/guide.md'), '# Version 1\nweb\n')
+ git(['add', '.']); git(['commit', '-qm', 'initial'])
+ const first = git(['rev-parse', 'HEAD'])
+ git(['tag', '-a', 'v1.2.3', '-m', 'annotated release'])
+ const nodeCache = join(dir, 'node cache'), nativeCache = join(dir, 'native cache')
+ const base = { packageName: '@octane-xplat/ui', version: '1.2.3', repo, tag: 'v1.2.3', packageDir: 'packages/ui' }
+ function cache(cacheDir) {
+  if (!existsSync(join(cacheDir, 'bindings.json'))) return null
+  const bindings = JSON.parse(readFileSync(join(cacheDir, 'bindings.json'), 'utf8'))
+  for (const binding of Object.values(bindings)) {
+   assert.match(binding.verifiedAt, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/)
+   delete binding.verifiedAt
+  }
+  return bindings
+ }
+ function normalize(value, path) { return JSON.parse(JSON.stringify(value).split(path).join('<cache>')) }
+ async function parity(options = base, overrides = {}) {
+  const context = { gitPath, env, timeoutMs: 5000, ...overrides }
+  const expected = await ensureSnapshot({ ...context, cacheDir: nodeCache }, options)
+  const [actual] = nativeRequests([{ operation: 'snapshot', ...context, cacheDir: nativeCache, options }])
+  assert.equal(actual.ok, true, JSON.stringify(actual))
+  assert.deepEqual(normalize(actual.value, nativeCache), normalize(expected, nodeCache))
+  assert.deepEqual(normalize(cache(nativeCache), nativeCache), normalize(cache(nodeCache), nodeCache))
+  for (const path of [nativeCache, nodeCache]) if (existsSync(path)) assert.ok(!readdirSync(path).some(name => name.startsWith('tmp-') || name.endsWith('.tmp')))
+  return actual.value
+ }
+ assert.equal((await parity(base, { gitPath: join(dir, 'missing-git') })).reason, 'git-unavailable')
+ const acquired = await parity()
+ assert.equal(acquired.commit, first)
+ assert.equal(readFileSync(join(acquired.dir, 'docs/guide.md'), 'utf8'), '# Version 1\nweb\n')
+ assert.equal((await parity()).offline, false)
+ assert.equal((await parity(base, { gitPath: join(dir, 'missing-git') })).offline, true)
+ assert.equal((await parity({ ...base, repo: join(dir, 'offline repo') })).offline, true)
+ assert.equal((await parity({ ...base, version: '9.9.9' })).reason, 'metadata-mismatch')
+ assert.equal((await parity({ ...base, packageName: 'wrong-package' })).reason, 'metadata-mismatch')
+ assert.equal((await parity({ ...base, version: '0.0.0', tag: 'missing' })).reason, 'tag-absent')
+ git(['tag', '-d', 'v1.2.3'])
+ const deleted = await parity()
+ assert.equal(deleted.status, 'tag-conflict'); assert.equal(deleted.remote.commit, null)
+ file(join(repo, 'docs/guide.md'), '# Version 2\nmacos\n')
+ git(['add', '.']); git(['commit', '-qm', 'moved release'])
+ const second = git(['rev-parse', 'HEAD'])
+ git(['tag', 'v1.2.3'])
+ const moved = await parity()
+ assert.equal(moved.status, 'tag-conflict'); assert.equal(moved.cached.commit, first); assert.equal(moved.remote.commit, second)
+ const accepted = await parity({ ...base, acceptMovedTag: true })
+ assert.equal(accepted.commit, second)
+ assert.equal(readFileSync(join(accepted.dir, 'docs/guide.md'), 'utf8'), '# Version 2\nmacos\n')
+ assert.equal((await parity()).commit, second)
+})
+
+test('snapshot Git probes inherit the environment and apply explicit noninteractive overrides', macOnly, async () => {
+ const dir = fixture()
+ const helper = join(dir, 'git env check')
+ file(helper, '#!/bin/sh\n[ "$GIT_TERMINAL_PROMPT" = "0" ] || exit 81\n[ "$GIT_ASKPASS" = "fixture-askpass" ] || exit 82\n[ "$XPLAT_NIM_GIT_FIXTURE" = "inherited" ] || exit 83\nif [ "$1" = "--version" ]; then exit 0; fi\nexit 84\n')
+ chmodSync(helper, 0o755)
+ const options = { packageName: '@octane-xplat/ui', version: '1.2.3', repo: 'local', tag: 'v1', packageDir: 'packages/ui' }
+ const context = { gitPath: helper, env: { GIT_ASKPASS: 'fixture-askpass', XPLAT_NIM_GIT_FIXTURE: 'inherited' }, timeoutMs: 500 }
+ const reference = await ensureSnapshot({ ...context, cacheDir: join(dir, 'node') }, options)
+ const [actual] = nativeRequests([{ operation: 'snapshot', ...context, cacheDir: join(dir, 'native'), options }])
+ assert.equal(actual.ok, true)
+ assert.deepEqual(actual.value, JSON.parse(JSON.stringify(reference)))
+ assert.equal(reference.reason, 'remote-unavailable', 'the environment check must pass --version before remote failure')
+ const named = { ...context, gitPath: 'git env check', env: { ...context.env, PATH: dir } }
+ const namedReference = await ensureSnapshot({ ...named, cacheDir: join(dir, 'node named') }, options)
+ const [namedActual] = nativeRequests([{ operation: 'snapshot', ...named, cacheDir: join(dir, 'native named'), options }])
+ assert.equal(namedActual.ok, true)
+ assert.equal(namedReference.reason, 'remote-unavailable')
+ assert.deepEqual(namedActual.value, JSON.parse(JSON.stringify(namedReference)))
+})
+
+test('a tag moved between lookup and fetch never writes a new binding', macOnly, async () => {
+ const dir = fixture(), repo = join(dir, 'race repo')
+ mkdirSync(repo)
+ const env = { GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_AUTHOR_DATE: '2026-01-01T00:00:00Z', GIT_COMMITTER_DATE: '2026-01-01T00:00:00Z' }
+ const git = args => {
+  const result = spawnSync('/usr/bin/git', ['-C', repo, ...args], { encoding: 'utf8', env: { ...process.env, ...env } })
+  assert.equal(result.status, 0, result.stderr)
+  return result.stdout.trim()
+ }
+ git(['init', '-q']); git(['config', 'user.name', 'Native fixture']); git(['config', 'user.email', 'native-fixture@example.invalid'])
+ file(join(repo, 'packages/ui/package.json'), JSON.stringify({ name: '@octane-xplat/ui', version: '1.2.3' }))
+ file(join(repo, 'docs/guide.md'), '# Before\n')
+ git(['add', '.']); git(['commit', '-qm', 'before'])
+ const before = git(['rev-parse', 'HEAD'])
+ file(join(repo, 'docs/guide.md'), '# After\n')
+ git(['add', '.']); git(['commit', '-qm', 'after'])
+ const after = git(['rev-parse', 'HEAD'])
+ const helper = join(dir, 'moving git')
+ file(helper, '#!/bin/sh\nif [ "$1" = "ls-remote" ]; then\n /usr/bin/git "$@"\n status=$?\n /usr/bin/git -C "$XPLAT_FIXTURE_REPO" tag -f v1.2.3 "$XPLAT_FIXTURE_MOVE_TO" >/dev/null\n exit "$status"\nfi\nexec /usr/bin/git "$@"\n')
+ chmodSync(helper, 0o755)
+ const options = { packageName: '@octane-xplat/ui', version: '1.2.3', repo, tag: 'v1.2.3', packageDir: 'packages/ui' }
+ const context = { gitPath: helper, env: { ...env, XPLAT_FIXTURE_REPO: repo, XPLAT_FIXTURE_MOVE_TO: after }, timeoutMs: 5000 }
+ git(['tag', '-f', 'v1.2.3', before])
+ const reference = await ensureSnapshot({ ...context, cacheDir: join(dir, 'node') }, options)
+ git(['tag', '-f', 'v1.2.3', before])
+ const [actual] = nativeRequests([{ operation: 'snapshot', ...context, cacheDir: join(dir, 'native'), options }])
+ assert.equal(actual.ok, true)
+ assert.deepEqual(actual.value, JSON.parse(JSON.stringify(reference)))
+ assert.equal(reference.status, 'tag-conflict')
+ assert.equal(reference.cached.commit, null)
+ assert.equal(reference.remote.commit, before)
+ assert.notEqual(before, after)
+ for (const cache of ['node', 'native']) assert.equal(existsSync(join(dir, cache, 'bindings.json')), false)
 })

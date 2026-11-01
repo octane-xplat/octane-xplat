@@ -1,7 +1,7 @@
 ## Bounded argv-only capture for short control probes such as git freshness.
 ## Long-lived tools, process-tree ownership and Windows capture are separate
 ## process-runtime work; callers must handle an unavailable probe honestly.
-import std/[os, osproc, streams, monotimes, times]
+import std/[os, osproc, streams, monotimes, times, strtabs, strutils]
 when defined(posix): import std/posix
 
 type CommandOutput* = object
@@ -10,9 +10,24 @@ type CommandOutput* = object
   timedOut*: bool
 
 proc captureCommand*(command: string, args: seq[string], cwd = "", timeoutMs = 5000,
-    maxBytes = 1024*1024): CommandOutput =
+    maxBytes = 1024*1024, environment: StringTableRef = nil): CommandOutput =
   when defined(posix):
-    let child = startProcess(command,workingDir=cwd,args=args,options={poUsePath})
+    var executable = command
+    var options = {poUsePath}
+    if environment != nil and environment.hasKey("PATH"):
+      # posix_spawnp can search the parent's PATH even when envp supplies a
+      # different one. Resolve against the supplied PATH and child cwd first.
+      options = {}
+      if '/' notin command:
+        executable = ""
+        let base = if cwd == "": getCurrentDir() else: absolutePath(cwd)
+        for directory in environment["PATH"].split(PathSep):
+          let candidate = absolutePath((if directory == "": "." else: directory) / command,base)
+          if access(cstring(candidate),X_OK) == 0 and not dirExists(candidate):
+            executable = candidate
+            break
+        if executable == "": raise newException(OSError,"Command is not available on the supplied PATH")
+    let child = startProcess(executable,workingDir=cwd,args=args,env=environment,options=options)
     defer:
       if child.running():
         child.kill()
