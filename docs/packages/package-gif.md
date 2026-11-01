@@ -124,7 +124,10 @@ await prefetch('https://example.com/illustration.gif') // false on AppKit
 ```
 
 Six ownership cases and an idle [manual fixture](../../examples/probes/animated-image.macos.tsrx)
-are authored, all unrun. Native Swift/class discovery, decoding/frame progression,
-fit/clipping/layout, source/hidden/window lifetimes, reduced motion, network/ATS/
-sandbox, VoiceOver and clean native packaged consumers remain unqualified.
+are maintained. Runtime verification on the AppKit host covered HTTP(S)
+install and animation, remote replacement, stale-completion rejection,
+empty/404 sources, absolute-file and data-URI loads, hidden-gated
+animation and mid-flight disposal. `~/` bundle resources, decoding/frame
+progression, fit/clipping/layout geometry, reduced motion, ATS/sandbox,
+VoiceOver and clean native packaged consumers remain unqualified.
 The existing packed test checks declarations, not actual AppKit animation.

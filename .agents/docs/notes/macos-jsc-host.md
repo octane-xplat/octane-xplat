@@ -82,6 +82,35 @@ script bug.
   the map during a bridged call, or moves all erase operations off the
   finalizer path.
 
+## JS callback delivery is main-queue-only and starves under in-flight transfers (upstream)
+
+Runtime-verified on the prebuilt arm64 host 2026-11-01 (gif probes under
+`research/gif-runtime/`):
+
+- JS blocks are only invoked on the main queue. `dispatch_async` on global
+  queues, custom `NSOperationQueue`s, and `NSURLSession` completion handlers
+  on default/delegate queues never deliver; several crash the host.
+- `NSURLSession` task **completion blocks never deliver at all** — the task
+  resumes and the request reaches the server, but no JS callback arrives.
+  `NSURLConnection`'s block API fails the same way. A JS
+  `NSURLSessionDataDelegate` on `NSOperationQueue.mainQueue` does dispatch.
+- Even main-queue delivery is unreliable while a remote transfer is in
+  flight: JS callbacks registered from outside a callback context can be
+  dropped. A `mainQueue.addOperationWithBlock` op that re-arms itself from
+  inside its own op keeps being delivered.
+- Only enumerable prototype members register as ObjC methods on a JS
+  `NativeClass` delegate, so the prototype must be re-defined enumerable
+  before `NativeClass(this)` — same constraint as "Other verified host
+  quirks" below.
+
+Consequence: a TypeScript port of `XplatAnimatedImageView` could drive its
+view/layout/animation surface but could not reliably complete remote
+HTTP(S) image loads — the only JS-reachable delivery channel starves
+in-flight. The package keeps the Swift `URLSession` data-task pipeline
+(native completion handlers don't cross the bridge). Revisit if upstream
+delivers non-main-queue or block-based callbacks reliably; recheck after a
+runtimes pin bump.
+
 ## Other verified host quirks
 
 Recorded where they were found rather than repeated here:

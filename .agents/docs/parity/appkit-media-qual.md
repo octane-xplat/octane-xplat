@@ -75,8 +75,16 @@ Research probes (gitignored `research/probes-cases/`):
    sibling-removal reuse all verified. Cache APIs (prefetch/isCached/
    evict/clear) and HTTP loads remain unqualified (manual fixture).
 
-4. **AnimatedImage — mounted only**: bridge view is a subview of the
-   placeholder host; animation/frames not yet verified.
+4. **AnimatedImage — partial** (2026-11-01, `research/gif-runtime/
+   swift-restore-verify.macos.tsrx`, 19/19 assertions through the mounted
+   `<AnimatedImage>` path): remote HTTP(S) GIF loads and animates (16×12
+   then 32×24 replacement), intrinsic size follows the image, hitTest stays
+   nil, hide/unhide gates `animates`, a cleared source drops the in-flight
+   remote result, 404 leaves the surface empty, absolute-file and `data:`
+   sources install, and mid-flight `dispose()` prevents late installs.
+   Remaining unqualified: `~/` bundle-resource sources, reduced-motion ON,
+   VoiceOver, sandbox/packaged profile, WebP/OS-format decode, and actual
+   frame progression/loop counts.
 
 5. **Lightbox — partial**: the `test:overlays` fixture previously checked
    full-window presentation, `allowsMagnification`/`maxMagnification` = 4,
@@ -134,7 +142,8 @@ Research probes (gitignored `research/probes-cases/`):
 
 10. **Still unqualified** (need real input/visual or further harness work):
     Chart hover/drag coordinates via OS pointer events; Image HTTP +
-    cache APIs; AnimatedImage frames/animation; Pager live
+    cache APIs; AnimatedImage frame progression/loop counts, `~/` bundle
+    sources, reduced-motion, VoiceOver and WebP/OS-format decode; Pager live
     scroll/momentum/settlement; Lightbox zoom gestures + video;
     Popover/typeahead surface behavior (blocked by #6); Tooltip display
     (only `NSView.toolTip` property set/clear is checkable nonvisually);

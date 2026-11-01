@@ -25,6 +25,7 @@
 	"files": [
 		"types",
 		"src",
+		"platforms",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
 	],
@@ -52,8 +53,7 @@
 	},
 	"dependencies": {
 		"@nativescript-community/ui-image": "5.0.18",
-		"@octane-xplat/jsx": "workspace:*",
-		"@octane-xplat/platform": "workspace:*"
+		"@octane-xplat/jsx": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
@@ -77,6 +77,17 @@
 		},
 		"@nativescript/core": {
 			"optional": true
+		}
+	},
+	"xplat": {
+		"macos": {
+			"swiftHeaderImports": [
+				"AppKit/AppKit.h"
+			],
+			"frameworks": [
+				"AppKit",
+				"QuartzCore"
+			]
 		}
 	}
 }
