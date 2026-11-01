@@ -9,11 +9,16 @@ initialization.
 
 ## Platform engines
 
-- iOS: AppTrackingTransparency and AdSupport Swift bridge. Status reads never
-  prompt. Requests require main thread, non-extension app, nonblank purpose and
-  active UIApplication before reading determined status or calling ATT. Native
-  and JS coordinators prevent overlapping requests. Failures release JS state
-  for a new explicit retry. Legacy iOS uses its advertising preference.
+- iOS: TypeScript backend calling AppTrackingTransparency and AdSupport
+  through NativeScript bindings; both frameworks sit outside the default
+  ambient/link set, so the adapter loads them through NSBundle before first
+  use and declares the members it binds (photos-runtime precedent). Status
+  reads never prompt. Requests require main thread, non-extension app,
+  nonblank purpose and active UIApplication before reading determined status
+  or calling ATT. The backend admits one pending native request and releases
+  it when the completion handler runs on the main queue; the JS coordinator
+  shares in-flight work and releases failures for an explicit retry. Legacy
+  iOS without ATT uses its advertising preference.
 - Android: Google play-services-ads-identifier 18.3.0, AD_ID manifest merge,
   worker-thread getter, main-thread callback, limit-ad-tracking/zero normalization.
   Google forbids synchronous calls on the main thread; NativeScript shares its
@@ -35,20 +40,27 @@ pending writes. Only in-flight promises are shared; completed IDs are not cached
 
 ## Verification
 
-- Twelve Vitest service/component/universal-compiler tests pass, including
-  permission mappings, failed-request retry, identifier normalization/noncache,
-  immediate explicit hook actions and unmount/stale response handling.
+- Fifteen Vitest service/component/backend/compiler tests pass, including
+  permission mappings, failed-request retry, native guard rejections,
+  single-request serialization with settlement release, identifier
+  normalization/noncache, immediate explicit hook actions and unmount/stale
+  response handling.
 - Combined source and maintained examples typecheck; seven isolated packed
   declaration consumers pass without native ambient types.
-- skymac.local: Swift 4/5 SDK API checks pass. One native executable was built;
-  subsequent runs reused it with JS refresh. A real simulator app passes 28
-  assertions across missing-purpose and configured variants: actual OS status,
-  synchronous/asynchronous null IDFA, reads without status changes, request
-  coalescing, configuration rejection/retry and inactive-request rejection.
-  No ATT choice was displayed and no real identifier was retrieved.
-- The remote native probe uses installed Octane 0.11.0, while current hook
-  compilation/component checks use 0.16.3 locally. This SDK/service harness does
-  not qualify the current native hook or an installed current consumer.
+- tests/native-api.mjs asserts the package ships no iOS native wrapper
+  sources, that the iPhoneSimulator SDK still carries AppTrackingTransparency
+  and AdSupport, and that the shipped @nativescript/types-ios declarations
+  still expose the members the backend binds.
+- Local iOS simulator (xplat-tracking-probe): a release-built app exercising
+  the TypeScript backend through real NativeScript bindings passes 28
+  assertions across missing-purpose and configured variants: actual
+  ATTrackingManager status, synchronous/asynchronous null IDFA, reads without
+  status changes, request coalescing, configuration rejection/retry and
+  inactive-request rejection. No ATT prompt was displayed and no real
+  identifier was retrieved; an interactive ATT choice and physical-device ID
+  access remain unexercised.
+- The release harness builds and launches the package from source; it does
+  not qualify an installed packaged consumer.
 - ssh windy: eleven synthetic adapter assertions plus an actual WinRT type
   lookup pass. The host's advertising identifier was never read or logged;
   NativeScript getter projection and OS opt-out transitions remain unqualified.
@@ -56,8 +68,10 @@ pending writes. Only in-flight promises are shared; completed IDs are not cached
   denial/restriction/return from settings), physical-device ID access, live
   Windows NativeScript getters and signed consumers remain unqualified.
 
-Logs for this work session: /tmp/xplat-tracking-final-checks.log,
-/tmp/xplat-tracking-ios-final.log, the remote native build/API logs. Windows
+Release-harness evidence for the TypeScript backend:
+~/dev/reports/octane-xplat/tracking-transparency-ts-migration/ (results and
+build log). Earlier session logs: /tmp/xplat-tracking-final-checks.log,
+/tmp/xplat-tracking-ios-final.log. Windows
 contract output is in the tool transcript; maintained fixtures live in tests/.
 No screenshots or visual analysis were used. Twenty recipe_audit rows cover
 web/iOS/Android/macOS at the implementation commit, with five GTK and five

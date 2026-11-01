@@ -1,57 +1,117 @@
-import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { TrackingBackend } from './backend-types'
-interface Engine {
-	available(): boolean
-	read(): string
-	request(completion: (json: string) => void): void
-	advertisingId(): string | null
-}
-let instance: Engine | undefined
-function engine(): Engine | undefined {
-	const Type = (globalThis as unknown as { XplatTrackingTransparency?: { 'new'(): Engine } })
-		.XplatTrackingTransparency
-	return (instance ??= Type?.new())
-}
-function required(): Engine {
-	const value = engine()
-	if (!value) {
-		throw new UnavailabilityError('Native tracking bridge; rebuild the app after installation')
+
+// AppTrackingTransparency ships in @nativescript/types-ios but is outside its
+// default ambient framework set — declare the two members this adapter uses.
+// The framework is also outside the default link set, so the class is exposed
+// by loading it through NSBundle before first use (photos-runtime precedent).
+declare const ATTrackingManager:
+	| {
+			readonly trackingAuthorizationStatus: number
+			requestTrackingAuthorizationWithCompletionHandler(completion: (status: number) => void): void
+	  }
+	| undefined
+
+// ATTrackingManagerAuthorizationStatus — the ambient const enum is not in the
+// default type set and cannot be read under verbatimModuleSyntax.
+const statusNotDetermined = 0
+const statusAuthorized = 3
+// UIApplicationStateActive from UIKit.
+const applicationStateActive = 0
+const zeroIdentifier = '00000000-0000-0000-0000-000000000000'
+
+function loadFramework(path: string): boolean {
+	try {
+		return Boolean(NSBundle.bundleWithPath(path)?.load())
+	} catch {
+		return false
 	}
-	return value
 }
-function status(json: string): number {
-	const value: unknown = JSON.parse(json)
-	if (!value || typeof value !== 'object') {
-		throw new Error('Malformed tracking permission reply')
+function manager(): typeof ATTrackingManager {
+	if (!loadFramework('/System/Library/Frameworks/AppTrackingTransparency.framework')) {
+		return undefined
 	}
-	const reply = value as { error?: unknown; status?: unknown }
-	if (typeof reply.error === 'string') {
-		throw new Error(reply.error)
-	}
-	if (typeof reply.status !== 'number') {
-		throw new Error('Malformed tracking permission status')
-	}
-	return reply.status
+	return typeof ATTrackingManager === 'undefined' ? undefined : ATTrackingManager
 }
+function identifiers(): typeof ASIdentifierManager | undefined {
+	if (!loadFramework('/System/Library/Frameworks/AdSupport.framework')) {
+		return undefined
+	}
+	return typeof ASIdentifierManager === 'undefined' ? undefined : ASIdentifierManager
+}
+
+let requesting = false
+
 export const backend: TrackingBackend = {
 	capabilities: () => ({
-		prompt: Boolean(engine()?.available()),
-		advertisingId: Boolean(engine()),
-		advertisingIdAsync: Boolean(engine()),
+		prompt: Boolean(manager()),
+		advertisingId: Boolean(identifiers()),
+		advertisingIdAsync: Boolean(identifiers()),
 	}),
-	read: () => status(required().read()),
+	read: () => {
+		const tracking = manager()
+		return tracking ? Number(tracking.trackingAuthorizationStatus) : -1
+	},
 	request: () =>
 		new Promise<number>((resolve, reject) => {
-			required().request((json) => {
-				try {
-					resolve(status(json))
-				} catch (error) {
-					reject(error)
-				}
+			if (!NSThread.isMainThread) {
+				reject(new Error('Tracking requests require the main thread'))
+				return
+			}
+			if (String(NSBundle.mainBundle.bundlePath).endsWith('.appex')) {
+				reject(new Error('Tracking prompts are unavailable in app extensions'))
+				return
+			}
+			const tracking = manager()
+			if (!tracking) {
+				resolve(-1)
+				return
+			}
+			const purpose = NSBundle.mainBundle.objectForInfoDictionaryKey(
+				'NSUserTrackingUsageDescription',
+			)
+			if (typeof purpose !== 'string' || !purpose.trim()) {
+				reject(
+					new Error(
+						'Configure NSUserTrackingUsageDescription in Info.plist and rebuild before requesting tracking',
+					),
+				)
+				return
+			}
+			if (Number(UIApplication.sharedApplication.applicationState) !== applicationStateActive) {
+				reject(new Error('Request tracking only from an active foreground app action'))
+				return
+			}
+			const status = Number(tracking.trackingAuthorizationStatus)
+			if (status !== statusNotDetermined) {
+				resolve(status)
+				return
+			}
+			if (requesting) {
+				reject(new Error('A native tracking request is already pending'))
+				return
+			}
+			requesting = true
+			tracking.requestTrackingAuthorizationWithCompletionHandler((next) => {
+				NSOperationQueue.mainQueue.addOperationWithBlock(() => {
+					requesting = false
+					resolve(Number(next))
+				})
 			})
 		}),
-	advertisingId: () => required().advertisingId(),
+	advertisingId: () => {
+		const tracking = manager()
+		const shared = identifiers()?.sharedManager()
+		if (tracking) {
+			if (Number(tracking.trackingAuthorizationStatus) !== statusAuthorized) {
+				return null
+			}
+		} else if (!shared?.advertisingTrackingEnabled) {
+			return null
+		}
+		const identifier = shared?.advertisingIdentifier.UUIDString
+		return !identifier || identifier === zeroIdentifier ? null : identifier
+	},
 	async advertisingIdAsync() {
-		return required().advertisingId()
+		return backend.advertisingId()
 	},
 }

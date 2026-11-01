@@ -6,7 +6,8 @@ Related APIs: @octane-xplat/tracking-transparency, useTrackingPermissions, reque
 
 ## Starting point
 
-A running app with an explicit consent action. Native apps rebuild the plugin;
+A running app with an explicit consent action. Native apps rebuild after
+installation so platform configuration applies;
 iOS requests configure their real tracking purpose string. Android compilation
 and runtime are deferred. No real advertising identifier is needed for checks.
 

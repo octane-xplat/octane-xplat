@@ -13,7 +13,7 @@ permission methods and hook tuple, with explicit platform subsets.
 
 Start with a running Octane Xplat app. Install the package in its directory,
 complete the native setup below, and rebuild the native app. A JavaScript-only
-refresh cannot install the bridge or change native permission configuration.
+refresh cannot change bundled native permission configuration.
 
 ```sh
 bun add @octane-xplat/tracking-transparency
@@ -187,7 +187,9 @@ this package. Windows returns null when the OS advertising ID is disabled;
 its identifier is alphanumeric rather than an Apple/Google UUID. Apple's macOS ATT header explicitly documents an always-
 undetermined result; the leaf does not pretend that supplies a working prompt.
 On iOS below 14, ATT is unavailable and permission methods return the same
-no-gate result. A missing iOS bridge is a rebuild error, rather than a grant.
+no-gate result. The package loads AppTrackingTransparency through the OS at
+runtime; a host that cannot load the framework reads as unavailable rather
+than granted.
 
 ```ts
 import { TrackingTransparency } from '@octane-xplat/tracking-transparency'
@@ -197,14 +199,16 @@ if (!TrackingTransparency.capabilities.advertisingIdAsync) {
 }
 ```
 
-Twelve unit/component/compiler tests, source checks, and seven-target packed
-declarations pass. Swift 4/5 API checks and a built iOS simulator app with 28
-permission-read and request-guard assertions pass on `skymac.local`. The native
-harness uses an older Octane runtime and does not qualify the current native
-hook or an installed consumer. Eleven synthetic Windows adapter assertions
+Fifteen unit/component/compiler tests, iOS binding-prerequisite source checks,
+and seven-target packed declarations pass. A release-built iOS simulator app
+running the TypeScript backend through real NativeScript bindings passes 28
+permission-read and request-guard assertions across missing-purpose and
+configured variants; it does not qualify an installed packaged consumer.
+Eleven synthetic Windows adapter assertions
 and a real WinRT type lookup pass through `ssh windy`; no host ID was read.
-Android application compilation and runtime are deferred. Successful ATT
-choices, physical-device identifier retrieval, live Windows NativeScript ID
-access and signed installed consumers remain unqualified.
+Android application compilation and runtime are deferred. A real interactive
+ATT prompt and completed system choice, physical-device identifier retrieval,
+live Windows NativeScript ID access and signed installed consumers remain
+unqualified.
 See the [Expo reference](https://docs.expo.dev/versions/latest/sdk/tracking-transparency/)
 and [Google's main-thread restriction](https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient).

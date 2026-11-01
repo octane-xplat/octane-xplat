@@ -1,10 +1,16 @@
 const applicationActive = 0 // UIApplicationStateActive from UIKit.
 import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
 import * as Tracking from '../src/index'
-const NativeTracking = (
-	globalThis as unknown as { XplatTrackingTransparency: { 'new'(): { read(): string } } }
-).XplatTrackingTransparency.new()
-const nativeStatus = () => Number(JSON.parse(NativeTracking.read()).status)
+const nativeStatus = () => {
+	NSBundle.bundleWithPath('/System/Library/Frameworks/AppTrackingTransparency.framework')?.load()
+	return Number(
+		(
+			globalThis as {
+				ATTrackingManager?: { trackingAuthorizationStatus: number }
+			}
+		).ATTrackingManager?.trackingAuthorizationStatus ?? -1,
+	)
+}
 const folder = knownFolders.documents().path
 const request = JSON.parse(
 	File.fromPath(path.join(folder, 'tracking-request.json')).readTextSync(),
@@ -74,10 +80,10 @@ page.on(Page.loadedEvent, () => {
 				UIApplication.sharedApplication.applicationState === applicationActive,
 				'real UIApplication is active after launch',
 			)
-			assert(Tracking.isAvailable(), 'native tracking bridge is available')
+			assert(Tracking.isAvailable(), 'iOS tracking capability is available')
 			assert(
 				Tracking.TrackingTransparency.capabilities.prompt,
-				'iOS ATT prompt capability comes from the real native bridge',
+				'iOS ATT prompt capability resolves through the real ATTrackingManager binding',
 			)
 			const before = nativeStatus()
 			const permission = await Tracking.getTrackingPermissionsAsync()
