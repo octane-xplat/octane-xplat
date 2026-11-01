@@ -1464,7 +1464,7 @@ body {
 	font-size: 16px;
 	font-weight: 300;
 	line-height: 1.75;
-	margin-top: 14px;
+	margin: 14px 0 0;
 	flex-wrap: wrap;
 	letter-spacing: 0.003em;
 }

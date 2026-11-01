@@ -34,6 +34,7 @@ import { usePageActions, useTableScrollEdges } from './docs-host'
 import { nbDark } from './nb-theme'
 import { DemoPreview } from './DemoPreview.tsrx'
 import { AgentPrompt } from './AgentPrompt.tsrx'
+import { Paragraph } from './Paragraph'
 import { docsIcons } from './icons'
 
 // JS regex engine — no wasm fetch, fully sync. Code slabs are always black,
@@ -230,9 +231,9 @@ function BlockView(props: {
 
 	if (b.kind === 'p') {
 		return (
-			<Text className="p">
+			<Paragraph>
 				<Spans spans={b.spans} dir={props.dir} />
-			</Text>
+			</Paragraph>
 		)
 	}
 
