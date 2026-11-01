@@ -18,6 +18,10 @@ const load = (overrides = {}) => {
 	const context = vm.createContext({
 		session: { stopRunning: () => events.push('stop') },
 		captureSink: undefined,
+		writerDriver: undefined,
+		writerRelease: Promise.resolve(),
+		nativeWriter: undefined,
+		writerSourceReady: false,
 		previewHost: undefined,
 		interrupted: true,
 		clearObservers: () => events.push('clear'),
@@ -58,4 +62,22 @@ test('uninterrupted teardown restores availability without a spurious ended even
 	const { context, events } = load({ interrupted: false })
 	context.stop()
 	assert.deepEqual(events, ['stop', 'clear', ['availability', true]])
+})
+
+test('idle teardown releases the candidate writer and retracts its readiness', () => {
+	let releases = 0
+	const { context } = load({
+		writerDriver: {
+			release: async () => {
+				releases++
+			},
+		},
+		nativeWriter: {},
+		writerSourceReady: true,
+	})
+	context.stop()
+	assert.equal(releases, 1)
+	assert.equal(context.writerDriver, undefined)
+	assert.equal(context.nativeWriter, undefined)
+	assert.equal(context.writerSourceReady, false)
 })

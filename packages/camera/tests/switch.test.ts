@@ -24,6 +24,7 @@ async function setup() {
 	const swaps: {
 		result: ReturnType<typeof Promise.withResolvers<CameraDeviceInfo>>
 		cancel: ReturnType<typeof vi.fn>
+		commit: ReturnType<typeof vi.fn>
 	}[] = []
 	const backend: CameraSessionBackend = {
 		platform: 'test',
@@ -42,8 +43,9 @@ async function setup() {
 		switchCamera: vi.fn(() => {
 			const result = Promise.withResolvers<CameraDeviceInfo>()
 			const cancel = vi.fn()
-			swaps.push({ result, cancel })
-			return { completion: result.promise, cancel }
+			const commit = vi.fn()
+			swaps.push({ result, cancel, commit })
+			return { completion: result.promise, cancel, commit }
 		}),
 		startCapture: (_request, target) => {
 			sink = target
@@ -285,4 +287,57 @@ describe('switching cameras within one take', () => {
 		await expect(h.session.switchCamera('front')).rejects.toMatchObject({ kind: 'invalidState' })
 		await session.dispose()
 	})
+})
+
+it('commits a provisional source only after checking the still-active take', async () => {
+	const h = await setup()
+	const take = h.session.startRecording()
+	const flip = h.session.switchCamera('front')
+	await flush()
+	h.swaps[0]!.commit.mockImplementation(() =>
+		expect(h.session.snapshot().activeCamera?.facing).toBe('back'),
+	)
+	h.swaps[0]!.result.resolve({ id: 'synthetic-front', label: 'Front', facing: 'front' })
+	await flip
+	expect(h.swaps[0]!.commit).toHaveBeenCalledOnce()
+	take.stop()
+	h.finish()
+	await take.completion
+	await h.session.dispose()
+})
+
+it('does not commit when stop wins after acquisition but before the continuation', async () => {
+	const h = await setup()
+	const take = h.session.startRecording()
+	const flip = h.session.switchCamera('front')
+	const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+	await flush()
+	h.swaps[0]!.result.resolve({ id: 'synthetic-front', label: 'Front', facing: 'front' })
+	take.stop()
+	await rejected
+	expect(h.swaps[0]!.commit).not.toHaveBeenCalled()
+	h.finish()
+	await take.completion
+	await h.session.dispose()
+})
+
+it('cancels a failed commit without changing the selected camera or ending the take', async () => {
+	const h = await setup()
+	const take = h.session.startRecording()
+	const flip = h.session.switchCamera('front')
+	const error = new Error('Native acknowledgement failed')
+	const rejected = expect(flip).rejects.toBe(error)
+	await flush()
+	h.swaps[0]!.commit.mockImplementation(() => {
+		throw error
+	})
+	h.swaps[0]!.result.resolve({ id: 'synthetic-front', label: 'Front', facing: 'front' })
+	await rejected
+	expect(h.swaps[0]!.cancel).toHaveBeenCalledOnce()
+	expect(h.session.snapshot().activeCamera?.facing).toBe('back')
+	expect(h.session.snapshot().state).toBe('recording')
+	take.stop()
+	h.finish()
+	await take.completion
+	await h.session.dispose()
 })

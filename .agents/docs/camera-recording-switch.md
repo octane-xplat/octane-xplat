@@ -24,9 +24,17 @@ session operation and must preserve one take, completion and durable output.
   both acquisition and rollback.
 - iOS still uses AVCaptureMovieFileOutput and reports live switching unavailable
   ([#86](https://github.com/octane-xplat/octane-xplat/issues/86)). A guard removal
-  or input-swap transaction is not a continuation implementation. A candidate
-  sample-output/AVAssetWriter replacement needs timeline, writer, orientation,
-  recovery and physical-device qualification before being enabled.
+  or input-swap transaction is not a continuation implementation. The candidate
+  sample-output/AVAssetWriter backend is selected only by the internal
+  `createSessionBackend(config, true)` qualification entry. The public factory
+  never supplies that argument. Use the maintained iOS case below to qualify
+  timeline, audio continuity, preview hold, orientation, and recovery before
+  removing this gate; a build or mocked adapter pass is insufficient.
+  The maintained native source is
+  `packages/camera/platforms/ios/src/XplatSwitchingMovieWriter.swift`;
+  do not overwrite it with the historical ignored research prototype.
+  After qualification, cut the public factory over and remove the old recorder
+  and internal selection argument rather than keeping permanent dual modes.
 - macOS has a separate AppKit movie-file writer; Windows uses MediaCapture;
   Linux has a separate host adapter. None currently supplies the dedicated live
   operation. Do not infer their support from the browser implementation.
@@ -40,6 +48,18 @@ not encoding of a particular frame. Reject overlapping switches, retire stale ca
 limits and lifecycle loss keep their original exactly-once completion cause.
 Preview rebind readiness must not rearm automatic recording.
 
+The candidate iOS writer owns samples on its serial queue and runs capture-session
+transactions on main so input replacement cannot block audio sample processing.
+Acquisition remains provisional until the shared session rechecks the take and
+synchronously commits the switch. Native retains the previous input and preview
+hold until that acknowledgement, so stop can restore the previous selection even
+after acquisition succeeds but before JavaScript resumes.
+Retire source generations before cancellation/restoration, wait for fresh source
+frames before admitting the next take, and clear writer ownership before terminal
+callbacks. The preview hold uses an in-memory layer; it is never persisted for
+verification. Failed writer output is verified before returning a partial clip;
+unverified candidate output bytes are not removed as cleanup.
+
 Expo's official camera documentation says flipping ends recording. Its
 `expo-camera@58.0.14` source at `075c93fe58bb4f76316183ac7fdb005403475970`
 uses movie-file output input replacement on iOS and nonpersistent CameraX
@@ -49,6 +69,9 @@ our pinned 1.5.3 dependency; inspect its contract when upgrading.
 
 See [the public workflow](../../docs/app/movie-capture.md#switch-cameras-during-a-take)
 and [the maintained Android case](../../packages/camera/tests/movie-switch.android.tsrx).
+The [iOS qualification case](../../packages/camera/tests/movie-switch.ios.tsrx)
+uses the internal candidate entry, not the public iOS factory. Run it only when
+signed physical-device testing is available; it does not establish public support.
 Standalone source findings, platform evidence and the private consumer migration
 belong in `~/dev/reports/octane-xplat/camera-recording-switch.md`. Qualification
 must distinguish encoded timing and native source events from visual results.

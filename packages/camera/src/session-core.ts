@@ -118,6 +118,9 @@ export interface CameraSessionBackend {
 
 export interface BackendCameraSwitch {
 	completion: Promise<CameraDeviceInfo>
+	/** Commit a provisionally acquired source after the lifecycle recheck.
+	 *  Cancellation must remain effective until this synchronous handoff. */
+	commit?(): void
 	cancel(): void
 }
 
@@ -473,6 +476,17 @@ export class SharedCameraSession implements CameraSession {
 					}
 					const selected = await operation.completion
 					check()
+					try {
+						operation.commit?.()
+					} catch (error) {
+						try {
+							operation.cancel()
+						} catch {
+							/* Preserve the original commit error. */
+						}
+
+						throw error
+					}
 					this.config = { ...this.config, camera }
 					this.activeCamera = selected
 				})(),
