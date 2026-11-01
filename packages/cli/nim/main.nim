@@ -1,5 +1,6 @@
 ## Parallel native entry. Never falls back to the TypeScript CLI.
 include core
+import ./args
 import std/[sysrand, terminal]
 
 const metadata = staticRead("metadata.json")
@@ -17,6 +18,11 @@ proc emit(payload: JsonNode) =
   var envelope = payload.copy()
   envelope["requestId"] = %requestId()
   echo envelope.pretty()
+proc humanError(command: string, error: JsonNode) =
+  var message = "xplat " & command & ": " & text(error["code"]) & ": " & text(error["message"])
+  let action = text(field(field(error, "recovery"), "action"))
+  if action != "": message.add("\n  → " & action)
+  stderr.writeLine(message)
 proc failure(command, code, message: string, status: int) =
   if "--json" in argv:
     emit(%*{"contractVersion": 1, "ok": false, "context": {"command": command, "projectId": newJNull()}, "error": {"code": code, "message": message}})
@@ -33,20 +39,39 @@ if argv == @["--version"]:
   quit(0)
 var name = argv[0]
 var count = 1
-if argv.len > 1 and data["commands"].hasKey(name & " " & argv[1]):
+var members: seq[string]
+for candidate, spec in data["commands"]:
+  if candidate.startsWith(name & " "): members.add(candidate)
+if members.len > 0:
+  if argv.len == 1 or argv[1] in ["--help", "-h"]:
+    if "--json" in argv:
+      emit(%*{"contractVersion": 1, "ok": false, "context": {"command": name, "projectId": newJNull()}, "error": {"code": "invalid_selection", "message": "`xplat " & name & "` needs a subcommand.", "recovery": {"action": "Commands: " & members.join(", ") & "."}}})
+      quit(2)
+    echo "xplat " & name & " — command group\n\nCommands:"
+    for member in members:
+      echo "  " & member.alignLeft(16) & " " & text(data["commands"][member]["descriptor"]["summary"])
+    echo "\nRun `xplat " & name & " <command> --help` or `--schema` for a command's contract."
+    quit(0)
+  if argv[1] == "--schema":
+    var schemas = newJArray()
+    for member in members: schemas.add(data["commands"][member]["schema"]["data"])
+    emit(%*{"contractVersion": 1, "ok": true, "context": {"command": name, "projectId": newJNull()}, "data": {"commands": schemas}})
+    quit(0)
   name.add(" " & argv[1]); count = 2
 if data["commands"].hasKey(name):
   let cmd = data["commands"][name]
   if "--schema" in argv:
     emit(cmd["schema"]); quit(0)
-  if "--help" in argv or "-h" in argv:
-    # Help only succeeds for valid supplied options, as in the reference parser.
-    if argv.len == count + 1:
-      stdout.write(text(cmd["help"])); quit(0)
+  let parsed = parseArgs(cmd["descriptor"], argv[count..^1])
+  if parsed.hasKey("errors"):
+    let error = parsed["errors"][0]
+    if "--json" in argv:
+      emit(%*{"contractVersion": 1, "ok": false, "context": {"command": name, "projectId": newJNull()}, "error": error})
+    else: humanError(name, error)
+    quit(2)
+  if parsed["help"].getBool():
+    stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
-    for arg in argv[count..^1]:
-      if arg != "--json":
-        failure(name, "invalid_selection", "Unexpected catalog argument: " & arg, 2)
     if "--json" in argv: emit(data["catalog"])
     else: echo "Native commands: catalog, clean. Other command execution is pending; use --json for contracts and coverage."
     quit(0)
@@ -59,7 +84,11 @@ if name == "clean":
     failure(name, "invalid_selection", "clean takes no arguments", 2)
   let root = getCurrentDir()
   # Match strict JSON.parse before any deletion; invalid manifests must not clean.
-  let manifest = if fileExists(root / "package.json"): parseJson(readFile(root / "package.json")) else: newJObject()
+  var manifest = newJObject()
+  if fileExists(root / "package.json"):
+    try: manifest = parseStrictJson(readFile(root / "package.json"))
+    except CatchableError:
+      failure(name, "execution_failure", "Cannot read package.json: invalid JSON", 5)
   var paths: seq[string]
   for path in ["dist", ".ns-vite-build", "node_modules/.vite", "node_modules/.cache/xplat"]:
     if dirExists(root / path) or fileExists(root / path): paths.add(path)
@@ -78,4 +107,7 @@ if name == "clean":
     else: removeDir(target)
   echo "Cleaned " & paths.join(", ")
   quit(0)
-failure(name, "invalid_selection", "Unknown command: " & name, 2)
+if "--json" in argv:
+  emit(%*{"contractVersion": 1, "ok": false, "context": {"command": name, "projectId": newJNull()}, "error": {"code": "invalid_selection", "message": "Unknown command `xplat " & name & "`.", "recovery": {"action": "Run `xplat catalog --json` for the machine-readable command list, or `xplat " & argv[0] & " --help`."}}})
+else: stderr.writeLine("Unknown command `xplat " & name & "`.")
+quit(2)

@@ -42,7 +42,7 @@ research/nim-cli/core catalog
 research/nim-cli/core binding "$PWD" "$PWD/apps/web"
 ```
 
-The port intentionally stops at discovery, platform config, framework binding,
+This differential probe stops at discovery, platform config, framework binding,
 plain HTTP, and child process control. Production package-manager-root selection
 has richer workspace glob/exclusion behavior; this probe searches ancestors only
 through its supplied workspace root. Node's global package lookup paths, malformed
@@ -69,8 +69,7 @@ would not qualify those hosts. The compiler wrapper supports Darwin arm64/x64,
 glibc Linux arm64/x64, and Windows x64; its support matrix is not this probe's
 runtime qualification. It is a build dependency, never part of the download.
 
-Prefer Nim for further small-core investigation if a rewrite is acceptable.
-Retain the differential harness as a migration gate: compile success and low size
-do not prove Node semantics. Resolve TLS delivery and platform process behavior
-before committing to a production architecture. Operational measurements belong
+Retain the differential harness as a migration gate during the full rewrite:
+compile success and low size do not prove Node semantics. Resolve TLS delivery
+and platform process behavior before qualifying production workflows. Operational measurements belong
 in local reports and Silo rather than this guide.

@@ -27,7 +27,7 @@ const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
  schema.data.status=c.name==='catalog'?'implemented':'pending'
- commands[c.name]={schema,help:reference([...c.path,'--help'])}
+ commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
 writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:""}))
 mkdirSync(resolve(work,'native'),{recursive:true})
@@ -37,3 +37,7 @@ for(const [cmd,args] of [[compiler.nim,flags],...(process.platform==='win32'?[]:
  const r=spawnSync(cmd,args,{stdio:'inherit'});if(r.status!==0)throw Error('Native build failed')
 }
 writeFileSync(resolve(work,'native/build.json'),JSON.stringify({version,platform:process.platform,arch:process.arch,flags}))
+
+const parser=resolve(work,process.platform==='win32'?'native/args-probe.exe':'native/args-probe')
+const parserBuild=spawnSync(compiler.nim,['c','-d:release',`--nimcache:${work}/args-cache`,`-o:${parser}`,resolve(import.meta.dirname,'args_probe.nim')],{stdio:'inherit'})
+if(parserBuild.status!==0)throw Error('Argument probe build failed')

@@ -41,3 +41,44 @@ test('clean preserves authored macOS and plugin platforms and unlinks symlinks',
   symlinkSync(authored,join(dir,'dist'));assert.equal(run(['clean'],dir).status,0);assert.ok(existsSync(join(authored,'keep')))
  }
 })
+
+test('agent groups preserve help, schema and JSON selection failures',()=>{
+ const groups=[...new Set(AGENT_COMMANDS.filter(c=>c.path.length>1).map(c=>c.path[0]))]
+ for(const head of groups){
+  for(const suffix of [[],['--help'],['--json'],['missing','--json'],['--schema']]) {
+   const args=[head,...suffix]
+   const expected=reference(args),actual=run(args)
+   assert.equal(actual.status,expected.status,actual.stderr)
+   if(suffix.includes('--schema')) {
+    const value=normalized(expected.stdout)
+    for(const schema of value.data.commands)schema.status=schema.command==='catalog'?'implemented':'pending'
+    assert.deepEqual(normalized(actual.stdout),value)
+   } else if(suffix.includes('--json')) assert.deepEqual(normalized(actual.stdout),normalized(expected.stdout))
+   else assert.equal(actual.stdout,expected.stdout)
+  }
+ }
+})
+
+test('clean rejects malformed strict JSON before deleting any output',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'xplat-nim-invalid-manifest-'))
+ mkdirSync(join(dir,'dist'))
+ for(const source of ['// comment\n{}','{"name":"demo",}','{"value":01}','{"value":1_0}','{"value":.1}','{"value":1.}','{"value":true} false']){
+  writeFileSync(join(dir,'package.json'),source)
+  const result=run(['clean'],dir)
+  assert.equal(result.status,5,source)
+  assert.equal(result.stdout,'')
+  assert.ok(existsSync(join(dir,'dist')),source)
+ }
+})
+
+test('agent argument failures preserve human stderr and JSON envelopes',()=>{
+ for(const args of [['catalog','--unknown'],['catalog','extra'],['docs','search'],['docs','search','hello','--limit=1.5'],['status','--platform=invalid'],['catalog','--help','--json=false']]) {
+  for(const json of [false,true]){
+   const argv=[...args,...(json?['--json']:[])]
+   const expected=reference(argv), actual=run(argv)
+   assert.equal(actual.status,expected.status,argv.join(' '))
+   if(json)assert.deepEqual(normalized(actual.stdout),normalized(expected.stdout))
+   else {assert.equal(actual.stdout,expected.stdout);assert.equal(actual.stderr,expected.stderr)}
+  }
+ }
+})

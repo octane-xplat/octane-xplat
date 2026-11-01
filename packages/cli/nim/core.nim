@@ -1,9 +1,10 @@
 import std/[json, os, strutils, algorithm, httpclient, osproc]
 import yaml/tojson
+import ./strictjson
 when defined(posix): import std/posix
 
 proc readJson(path: string): JsonNode =
-  try: result = parseJson(readFile(path))
+  try: result = parseStrictJson(readFile(path))
   except CatchableError: result = newJNull()
 proc field(n: JsonNode, key: string): JsonNode =
   if n != nil and n.kind == JObject: n.getOrDefault(key)
