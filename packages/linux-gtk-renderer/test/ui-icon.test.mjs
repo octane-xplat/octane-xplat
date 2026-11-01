@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict'
-import { spawnSync, spawn, execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { spawn, execFileSync } from 'node:child_process'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createServer } from 'node:http'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test(
@@ -14,6 +15,10 @@ test(
 	{ timeout: 120000 },
 	async (t) => {
 		const outDir = join(fixture, 'dist-ui-icon')
+		if (!gjsAvailable() || !masonTypelibPresent()) {
+			t.skip('GJS and XplatMason required for runtime')
+			return
+		}
 		await build({
 			logLevel: 'error',
 			...(await xplatLinuxGtk('production', {
@@ -25,13 +30,6 @@ test(
 		const bundle = join(outDir, 'app.js')
 		assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\\.createElement|window\\.document/)
 		const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-		if (
-			spawnSync('gjs', ['--version']).status !== 0 ||
-			!existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-		) {
-			t.skip('Build passed; runtime requires GJS and XplatMason')
-			return
-		}
 		const svg =
 			'<svg xmlns="http://www.w3.org/2000/svg" width="13" height="9"><path d="M0 0h13v9H0z"/></svg>'
 		writeFileSync(join(outDir, 'fixture-icon.svg'), svg)

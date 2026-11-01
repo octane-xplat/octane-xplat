@@ -1,17 +1,22 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test(
 	'GTK form layouts update native grid tracks and preserve editors across direction changes',
 	{ timeout: 90000 },
 	async (t) => {
 		const outDir = join(fixture, 'dist-ui-form-layout')
+		if (!gjsAvailable() || !masonTypelibPresent()) {
+			t.skip('GJS and XplatMason required for runtime')
+			return
+		}
 		await build({
 			logLevel: 'error',
 			...(await xplatLinuxGtk('production', {
@@ -23,13 +28,6 @@ test(
 		const bundle = join(outDir, 'app.js')
 		assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 		const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-		if (
-			spawnSync('gjs', ['--version']).status !== 0 ||
-			!existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-		) {
-			t.skip('Build passed; GJS/XplatMason required for runtime')
-			return
-		}
 		const result = spawnSync('gjs', ['-m', bundle], {
 			env: { ...process.env, GTK_A11Y: 'test', XPLAT_MASON_TYPELIB: nativeDir },
 			encoding: 'utf8',

@@ -1,18 +1,22 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 test(
 	'GTK checkbox and switch support native keyboard ownership and mixed selection',
 	{ timeout: 120000 },
 	async (t) => {
 		const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 		const outDir = join(fixture, 'dist-ui-toggle-controls')
+		if (!gjsAvailable() || !masonTypelibPresent()) {
+			t.skip('GJS and XplatMason required for runtime')
+			return
+		}
 		await build({
 			logLevel: 'error',
 			...(await xplatLinuxGtk('production', {
@@ -22,13 +26,6 @@ test(
 			})),
 		})
 		const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-		if (
-			spawnSync('gjs', ['--version']).status !== 0 ||
-			!existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-		) {
-			t.skip('Build passed; GJS and XplatMason required for runtime')
-			return
-		}
 		const osInput =
 			process.platform === 'linux' &&
 			!!process.env.DISPLAY &&

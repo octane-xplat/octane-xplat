@@ -6,10 +6,15 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test('curated UI primitives compile and dispatch through real GTK controllers', async (t) => {
 	const outDir = join(fixture, 'dist-ui-primitives')
+	if (!gjsAvailable()) {
+		t.skip('gjs is not installed')
+		return
+	}
 	await build({
 		logLevel: 'error',
 		...(await xplatLinuxGtk('production', {
@@ -20,10 +25,6 @@ test('curated UI primitives compile and dispatch through real GTK controllers', 
 	})
 	const bundle = join(outDir, 'app.js')
 	assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
-	if (spawnSync('gjs', ['--version']).status !== 0) {
-		t.diagnostic('Build evidence only; GJS is unavailable')
-		return
-	}
 	const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
 	const hasMason = existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
 	const env = { ...process.env, ...(hasMason ? { XPLAT_MASON_TYPELIB: nativeDir } : {}) }

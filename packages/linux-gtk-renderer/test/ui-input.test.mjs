@@ -1,20 +1,15 @@
 import assert from 'node:assert/strict'
 import { spawn, spawnSync, execFileSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable, gtkOsInputReady } from './gjs-availability.mjs'
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', async (t) => {
-	if (
-		process.platform !== 'linux' ||
-		!process.env.DISPLAY ||
-		spawnSync('gjs', ['--version']).status !== 0 ||
-		spawnSync('xdotool', ['version']).status !== 0
-	) {
+	if (!gtkOsInputReady() || !gjsAvailable()) {
 		t.skip('Requires Linux, X11 DISPLAY, GJS and xdotool')
 		return
 	}

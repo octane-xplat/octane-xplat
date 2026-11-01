@@ -4,27 +4,23 @@
 // state that Gtk.test_accessible_has_property can read back.
 import assert from 'node:assert/strict'
 import { rmSync } from 'node:fs'
-import { execFileSync, execSync, spawnSync } from 'node:child_process'
+import { execSync, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable } from './gjs-availability.mjs'
 
 const pkg = fileURLToPath(new URL('..', import.meta.url))
 const fixture = join(pkg, 'test', 'fixtures')
 const outDir = join(fixture, 'dist-a11y')
 
-function gjsAvailable() {
-	try {
-		execFileSync('gjs', ['--version'], { stdio: 'pipe' })
-		return true
-	} catch {
-		return false
-	}
-}
-
 test('accessible labels and widget names land on real GJS+GTK', async (t) => {
+	if (!gjsAvailable()) {
+		t.skip('gjs is not installed')
+		return
+	}
 	rmSync(outDir, { recursive: true, force: true })
 	await build({
 		logLevel: 'error',
@@ -43,10 +39,6 @@ test('accessible labels and widget names land on real GJS+GTK', async (t) => {
 			outDir: join(fixture, 'dist-atspi'),
 		})),
 	})
-	if (!gjsAvailable()) {
-		t.skip('gjs is not installed')
-		return
-	}
 
 	// Homebrew gjs needs its lib dir on the dyld fallback path; on Linux the
 	// system GI paths are enough.

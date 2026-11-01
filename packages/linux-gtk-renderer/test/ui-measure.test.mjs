@@ -6,10 +6,19 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test('measurement and aspect ratio follow real GTK allocation and scrolling', async (t) => {
 	const outDir = join(fixture, 'dist-ui-measure')
+	if (!gjsAvailable()) {
+		t.skip('gjs is not installed')
+		return
+	}
+	if (!masonTypelibPresent()) {
+		t.skip('XplatMason typelib required for runtime')
+		return
+	}
 	await build({
 		logLevel: 'error',
 		...(await xplatLinuxGtk('production', {
@@ -20,16 +29,8 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
 	})
 	const bundle = join(outDir, 'app.js')
 	assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
-	if (spawnSync('gjs', ['--version']).status !== 0) {
-		t.diagnostic('Build evidence only; GJS is unavailable')
-		return
-	}
 	const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
 	const hasMason = existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
-	if (!hasMason) {
-		t.skip('Runtime measurement qualification requires the XplatMason typelib; build passed')
-		return
-	}
 	const env = { ...process.env, ...(hasMason ? { XPLAT_MASON_TYPELIB: nativeDir } : {}) }
 	if (process.platform === 'darwin') {
 		env.DYLD_FALLBACK_LIBRARY_PATH = [

@@ -1,16 +1,25 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test('ScrollableArea handles and refresh lifecycle work on real GTK with native Spinner', async (t) => {
 	const outDir = join(fixture, 'dist-ui-area')
+	if (!gjsAvailable()) {
+		t.skip('gjs is not installed')
+		return
+	}
+	if (!masonTypelibPresent()) {
+		t.skip('XplatMason typelib required for runtime')
+		return
+	}
 	await build({
 		logLevel: 'error',
 		...(await xplatLinuxGtk('production', {
@@ -21,15 +30,7 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
 	})
 	const bundle = join(outDir, 'app.js')
 	assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
-	if (spawnSync('gjs', ['--version']).status !== 0) {
-		t.diagnostic('Build evidence only; GJS unavailable')
-		return
-	}
 	const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-	if (!existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))) {
-		t.skip('Runtime scrolling qualification requires XplatMason; build passed')
-		return
-	}
 	const osPull =
 		process.platform === 'linux' &&
 		!!process.env.DISPLAY &&

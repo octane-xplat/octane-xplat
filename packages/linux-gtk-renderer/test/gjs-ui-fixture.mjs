@@ -1,15 +1,22 @@
 import assert from 'node:assert/strict'
-import { execFileSync, spawn, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { execFileSync, spawn } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gtkRuntimeReady, gtkOsInputReady } from './gjs-availability.mjs'
 
 /** Build one maintained UI fixture and drive its optional F12 input protocol.
  * Results name the real runtime and distinguish OS input from property checks. */
 export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input = true }) {
+	// Availability first — building the bundle is pointless when nothing can
+	// run it, and CI without the GTK toolchain must hit the skip path directly.
+	if (!gtkRuntimeReady()) {
+		t.skip('GJS and XplatMason artifacts required for runtime')
+		return
+	}
 	const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 	const outDir = join(fixture, 'dist-' + stem)
 	await build({
@@ -23,20 +30,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 	const bundle = join(outDir, 'app.js')
 	assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
 	const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-	const lib = process.platform === 'darwin' ? 'libxplatmason-gtk.dylib' : 'libxplatmason-gtk.so'
-	if (
-		spawnSync('gjs', ['--version']).status !== 0 ||
-		!existsSync(join(nativeDir, 'XplatMason-1.0.typelib')) ||
-		!existsSync(join(nativeDir, lib))
-	) {
-		t.skip('Build passed; GJS and XplatMason artifacts required for runtime')
-		return
-	}
-	const osInput =
-		input &&
-		process.platform === 'linux' &&
-		!!process.env.DISPLAY &&
-		spawnSync('xdotool', ['version']).status === 0
+	const osInput = input && gtkOsInputReady()
 	const env = {
 		...process.env,
 		GTK_A11Y: 'test',

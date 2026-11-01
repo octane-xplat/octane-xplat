@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 for (const fallback of [false, true]) {
 	test(
 		'GTK radio lists preserve fields and grouped keyboard navigation (' +
@@ -16,6 +16,10 @@ for (const fallback of [false, true]) {
 		async (t) => {
 			const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 			const outDir = join(fixture, 'dist-ui-radio-list')
+			if (!gjsAvailable() || (!fallback && !masonTypelibPresent())) {
+				t.skip('GJS required, plus XplatMason for Mason mode')
+				return
+			}
 			await build({
 				logLevel: 'error',
 				...(await xplatLinuxGtk('production', {
@@ -25,13 +29,6 @@ for (const fallback of [false, true]) {
 				})),
 			})
 			const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-			if (
-				spawnSync('gjs', ['--version']).status !== 0 ||
-				(!fallback && !existsSync(join(nativeDir, 'XplatMason-1.0.typelib')))
-			) {
-				t.skip('Build passed; GJS required, plus XplatMason for Mason mode')
-				return
-			}
 			const osInput =
 				process.platform === 'linux' &&
 				!!process.env.DISPLAY &&
