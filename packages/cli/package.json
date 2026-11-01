@@ -89,7 +89,8 @@
 		"test:nim-code": "node --test ../../tools/cli-nim/code.test.mjs ../../tools/cli-nim/code-command.test.mjs ../../tools/cli-nim/build-record.test.mjs",
 		"check:nim": "node ../../tools/cli-nim/check.mjs",
 		"benchmark:nim": "node ../../tools/cli-nim/benchmark.mjs",
-		"test:nim-docs": "node --test ../../tools/cli-nim/docs.test.mjs ../../tools/cli-nim/docs-service.test.mjs ../../tools/cli-nim/guidance-command.test.mjs ../../tools/cli-nim/docs-read-command.test.mjs"
+		"test:nim-docs": "node --test ../../tools/cli-nim/docs.test.mjs ../../tools/cli-nim/docs-service.test.mjs ../../tools/cli-nim/guidance-command.test.mjs ../../tools/cli-nim/docs-read-command.test.mjs",
+		"test:nim-index": "node --test ../../tools/cli-nim/sqlite.test.mjs ../../tools/cli-nim/docs-index.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

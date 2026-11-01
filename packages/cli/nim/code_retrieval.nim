@@ -52,11 +52,11 @@ proc searchCodeFiles*(files: JsonNode, query: string, limit = 10): JsonNode =
     let hay = jsLower(text(file["rel"]) & "\n" & content)
     var score = 0
     for token in tokens:
-      if hay.contains(token): inc score
+      if utf16Contains(hay,token): inc score
     if score == 0: continue
-    if hay.contains(needle): score += 100
+    if utf16Contains(hay,needle): score += 100
     if boost and boundaryMatch(content,trimmed): score += 25
-    if jsLower(text(file["rel"])).contains(needle): score += 10
+    if utf16Contains(jsLower(text(file["rel"])),needle): score += 10
     let excerpt = excerptAt(content,needle,tokens)
     scored.add(%*{"corpus": file["corpus"],"file": file,"score": score,
       "line": excerpt["line"],"endLine": excerpt["endLine"],"excerpt": excerpt["excerpt"],

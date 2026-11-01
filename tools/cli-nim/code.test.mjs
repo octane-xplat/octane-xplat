@@ -46,6 +46,7 @@ async function expected(r) {
    case 'lower': value = r.text.toLowerCase(); break
    case 'decode': value = Buffer.from(r.bytes).toString('utf8'); break
    case 'slice': value = r.text.slice(r.first, r.last); break
+   case 'find': value = r.text.indexOf(r.needle); break
    case 'wire': value = JSON.parse(r.source); break
    case 'json-semantics': value = jsonSemantics(JSON.parse(r.source)); break
    case 'read-json': case 'read-json-semantics': {
@@ -155,14 +156,23 @@ test('exact search preserves identifier boundaries, ranking, duplicate tokens, e
   'src/unicode.ts': 'İ'.repeat(12) + '\nAΣ café 中文\n😀 '.repeat(15) + '\n' + 'CameraView'.repeat(100),
   'src/late.ts': '\n'.repeat(51) + 'CameraView and camera\n' + 'after\n'.repeat(10),
   'src/nul.ts': 'CameraView\0useCameraCapture',
+  'src/surrogate.ts': 'Camera😀View\nx😀y\n',
  }
  const files = []
  for (const [rel, content] of Object.entries(sources)) { const path = join(dir, rel); file(path, content); files.push(tagged(path, rel, corpus)) }
  files.push({ abs: join(dir, 'missing.ts'), rel: 'missing.ts', corpus })
  const requests = []
- for (const query of ['CameraView', 'camera', 'Camera', 'useCameraCapture', '$token', 'foo$', 'a b', 'café', 'İ', 'AΣ', '中文', '😀', 'missing', '_', '$', ' ', 'camera camera', 'phrase token', 'CameraView.ts'])
+ for (const query of ['CameraView', 'camera', 'Camera', 'useCameraCapture', '$token', 'foo$', 'a b', 'café', 'İ', 'AΣ', '中文', '😀', 'missing', '_', '$', ' ', 'camera camera', 'phrase token', 'CameraView.ts', 'Camera\ud83d', 'x\ud83d', '\ude00View'])
   for (const limit of [0, 1, 10, 50, -1]) requests.push({ operation: 'search', files, query, limit })
  await compare(requests, 'exact')
+})
+
+test('substring positions preserve lone UTF-16 queries inside valid non-BMP characters', async () => {
+ const requests = []
+ const values = ['', 'ascii', 'a😀b', '😀😀', '\ud800', '\udc00', '\ud800 x \udc00', '한글', '\0😀\0']
+ for (const text of values) for (const needle of [...values, 'a', 'b', '\ud83d', '\ude00', '😀b', 'missing'])
+  requests.push({ operation: 'find', text, needle })
+ await compare(requests, 'find')
 })
 
 test('bounded reads preserve UTF-16 continuation, split surrogates, malformed UTF-8 and binary refusal', async () => {

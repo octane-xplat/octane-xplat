@@ -21,7 +21,16 @@ proc wireJson*(node: JsonNode, pretty = false, indent = 2): string =
   let encoded = if pretty: safe.pretty(indent=indent) else: $safe
   var at = 0
   while at < encoded.len:
-    if at+2 < encoded.len and ord(encoded[at]) == 0xed and
+    if encoded[at] == '\\' and at+1 < encoded.len:
+      # Nim uses uppercase hex for some ASCII controls; JSON.stringify uses
+      # lowercase. Escaped backslashes must stay literal, not be reinterpreted.
+      if encoded[at+1] == 'u' and at+5 < encoded.len:
+        result.add("\\u" & encoded[at+2..at+5].toLowerAscii())
+        at += 6
+      else:
+        result.add(encoded[at..at+1])
+        at += 2
+    elif at+2 < encoded.len and ord(encoded[at]) == 0xed and
         ord(encoded[at+1]) in 0xa0..0xbf and ord(encoded[at+2]) in 0x80..0xbf:
       let code = ((ord(encoded[at]) and 0xf) shl 12) or
         ((ord(encoded[at+1]) and 0x3f) shl 6) or (ord(encoded[at+2]) and 0x3f)

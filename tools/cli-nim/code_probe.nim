@@ -47,6 +47,7 @@ proc run(request: JsonNode): JsonNode =
     for value in request["bytes"]: bytes.add(char(value.getInt()))
     return %decodeUtf8(bytes)
   of "slice": return %utf16SliceNumber(text(request["text"]),request["first"].getFloat(),request["last"].getFloat())
+  of "find": return %utf16Find(text(request["text"]),text(request["needle"]))
   of "wire": return parseStrictJson(text(request["source"]))
   of "json-semantics": return jsonSemantics(parseStrictJson(text(request["source"])))
   of "read-json": return readJson(text(request["path"]))

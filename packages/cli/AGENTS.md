@@ -157,11 +157,19 @@ dependency just to calculate local content fingerprints. For filesystem time
 contracts expressed in milliseconds, combine whole seconds and nanoseconds
 deliberately; dropping fractional milliseconds can silently change cache keys.
 
+When serialized JSON feeds a fingerprint, compare encoded bytes as well as
+parsed values. Equivalent escapes such as `\u001B` and `\u001b` have different
+hashes. Preserve literal backslash sequences when normalizing actual JSON escapes.
+
 JavaScript string slicing may split a UTF-16 surrogate pair. A continuation
 contract based on JS offsets must preserve that code unit, rather than silently
 rounding to a Unicode scalar boundary. Escape lone surrogates in JSON output;
 replace them when writing a human UTF-8 stream. Keep this internal representation
 separate from decoding malformed UTF-8 bytes received from a file or process.
+
+JS substring queries can also match one UTF-16 unit inside a valid non-BMP
+character. A byte search for a lone surrogate's WTF-8 encoding will miss that
+match. Keep a UTF-16 comparison path for semantic strings containing those units.
 
 Apply that JSON policy to persisted files as well as stdout. Plain `pretty()`
 does not make a WTF-8 string valid UTF-8. JSON escaping preserves lone code units;
@@ -186,3 +194,10 @@ where the API supports them; a C string alone truncates embedded NUL characters.
 Successful regex compilation likewise does not establish JavaScript regex
 semantics. Spell out required whitespace, word and line-boundary rules rather
 than assuming similarly named flags and classes behave identically.
+
+At an FFI boundary, preserve the source API's types rather than inferring them
+from `JsonNode` storage: `node:sqlite` binds JS Numbers as doubles even when the
+value is integral. Copy borrowed C result bytes before stepping/resetting a
+statement, and finalize statements before unloading their connection's library.
+Query the linked engine's version API when qualifying compatibility; process or
+package version metadata may describe a different build.

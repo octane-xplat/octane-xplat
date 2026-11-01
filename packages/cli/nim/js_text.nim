@@ -81,10 +81,27 @@ proc utf16SliceNumber*(value: string, first, last: float): string =
   let length = utf16Length(value)
   utf16Slice(value,numberIndex(first,length),numberIndex(last,length))
 
+proc hasSurrogateUnits(value: string): bool =
+  var at = value.find('\xed')
+  while at >= 0:
+    if at+2 < value.len and ord(value[at+1]) in 0xa0..0xbf and ord(value[at+2]) in 0x80..0xbf: return true
+    at = value.find('\xed',at+1)
+  false
 proc utf16Find*(value, needle: string): int =
+  if hasSurrogateUnits(value) or hasSurrogateUnits(needle):
+    let source = utf16Units(value)
+    let target = utf16Units(needle)
+    if target.len > source.len: return -1
+    for at in 0..source.len-target.len:
+      var matches = true
+      for offset, unit in target:
+        if source[at+offset] != unit: matches = false; break
+      if matches: return at
+    return -1
   let at = value.find(needle)
   if at < 0: return -1
   utf16Length(value[0..<at])
+proc utf16Contains*(value, needle: string): bool = utf16Find(value,needle) >= 0
 
 proc cased(rune: Rune): bool = utmCased in rune.unicodeTypes()
 proc caseIgnorable(rune: Rune): bool =

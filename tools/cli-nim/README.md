@@ -95,6 +95,19 @@ qualify HTTPS transport.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim documentation qualification"}' -- bun run turbo run test:nim-docs --filter=@octane-xplat/cli
 ```
 
+The index gate compares the native SQLite C boundary and documentation index
+with `node:sqlite` and the TypeScript search engine. It covers text/number
+bindings, FTS5 rankings, shared on-disk caches, transactions/lock timeouts,
+exact chunk fingerprints, resumable batches, model cache identities and real
+Markdown data. Fixture embedding callbacks isolate the index algorithm; they do
+not qualify a native model runtime. The SQLite library is loaded lazily from
+macOS, with other hosts explicitly unimplemented. Record actual engine versions
+from SQL queries rather than assuming Node's process metadata matches its engine.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim index qualification"}' -- bun run turbo run test:nim-index --filter=@octane-xplat/cli
+```
+
 Measure the public executable after a build. The benchmark checks the host,
 source fingerprint and executable hash against the build record before recording
 raw/gzip bytes and warm process startup. It refuses stale or replaced artifacts.

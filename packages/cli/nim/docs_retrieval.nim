@@ -96,16 +96,16 @@ proc searchDocs*(root, query: string, corpus = "", platform = "", limit = 10, pa
         let hay = jsLower(text(chunk["heading"]) & "\n" & region)
         var hits = 0
         for token in tokens:
-          if hay.contains(token): inc hits
-        if hits > 0: scored.add((doc,region,chunk,hits+(if hay.contains(needle): 100 else: 0)))
+          if utf16Contains(hay,token): inc hits
+        if hits > 0: scored.add((doc,region,chunk,hits+(if utf16Contains(hay,needle): 100 else: 0)))
       continue
     if platform != "" and %platform notin platformsOf(path,content): continue
     let hay = jsLower(path & "\n" & titleOf(content,path) & "\n" & content)
     var hits = 0
     for token in tokens:
-      if hay.contains(token): inc hits
+      if utf16Contains(hay,token): inc hits
     if hits == 0: continue
-    let score = hits+(if hay.contains(needle): 100 else: 0)+(if jsLower(path).contains(needle): 10 else: 0)
+    let score = hits+(if utf16Contains(hay,needle): 100 else: 0)+(if utf16Contains(jsLower(path),needle): 10 else: 0)
     scored.add((doc,content,nil,score))
   scored.sort(proc(a,b: typeof(scored[0])): int = cmp(b.score,a.score))
   let stop = if limit < 0: max(0,scored.len+limit) else: min(scored.len,limit)

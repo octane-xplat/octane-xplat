@@ -27,6 +27,10 @@ package metadata, preserves offline bindings and reports moved/deleted tags.
 It never executes fetched package scripts. `docs_service.nim` owns installation
 refresh, version-bound reads, provenance and tag-conflict resolution. Public docs
 search and local embedding/index integration remain migration work.
+`docs_index.nim` now owns the FTS5 and embedding-cache algorithm behind an
+explicit embedding-provider boundary. Its macOS system SQLite adapter and
+fixture-embedding comparisons do not qualify actual tokenizer/model inference;
+public docs search/index remain pending until that provider is connected.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

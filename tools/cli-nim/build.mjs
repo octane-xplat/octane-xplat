@@ -64,3 +64,11 @@ if(codeBuild.status!==0)throw Error('Code provider/index probe build failed')
 const docsProbe=resolve(work,process.platform==='win32'?'native/docs-probe.exe':'native/docs-probe')
 const docsBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/docs-cache`,`-o:${docsProbe}`,resolve(import.meta.dirname,'docs_probe.nim')],{stdio:'inherit'})
 if(docsBuild.status!==0)throw Error('Documentation retrieval probe build failed')
+
+const sqliteProbe=resolve(work,process.platform==='win32'?'native/sqlite-probe.exe':'native/sqlite-probe')
+const sqliteBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/sqlite-cache`,`-o:${sqliteProbe}`,resolve(import.meta.dirname,'sqlite_probe.nim')],{stdio:'inherit'})
+if(sqliteBuild.status!==0)throw Error('SQLite boundary probe build failed')
+
+const indexProbe=resolve(work,process.platform==='win32'?'native/docs-index-probe.exe':'native/docs-index-probe')
+const indexBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/docs-index-cache`,`-o:${indexProbe}`,resolve(import.meta.dirname,'docs_index_probe.nim')],{stdio:'inherit'})
+if(indexBuild.status!==0)throw Error('Documentation index probe build failed')
