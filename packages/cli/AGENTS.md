@@ -15,7 +15,9 @@ JS exports, or runtime dependency tree; the small installer runs only at install
 - `for key, value in jsonNode` is object iteration: the key is a string.
   For an array with numeric positions, use `for i in 0..<node.len` and
   `let value = node[i]`. Do not assume a two-variable loop means array indices.
-- Nim strings are UTF-8 bytes. Use `runes` for Unicode scalar values; JavaScript
+- Nim strings store bytes; decode raw input before treating it as UTF-8.
+  Iterating `runes` does not validate an arbitrary byte buffer. Use `runes`
+  for Unicode scalar values; JavaScript
   string lengths count UTF-16 code units. Choose deliberately when porting length
   limits or offsets; one non-BMP character counts as two JS code units.
 - Number parsing and formatting are contracts, not mechanical substitutions.
@@ -40,6 +42,11 @@ JS exports, or runtime dependency tree; the small installer runs only at install
 - Successful Nim JSON parsing does not establish strict `JSON.parse` or
   `jsonc-parser` equivalence. Test comments, trailing commas, malformed documents,
   scalar roots, and parse-error behavior for each file format separately.
+- `std/json`'s `%` conversion turns non-finite floating-point values into strings
+  such as `"inf"` and `"nan"`. When preserving numeric values until a wire-policy
+  decision, construct `newJFloat(value)` explicitly; the JSON writer can then
+  encode non-finite numbers as `null`. Do not rewrite literal strings with those
+  spellings. Keep negative-zero handling at the same serialization boundary.
 
 ## Compile-time data and module boundaries
 
@@ -94,6 +101,10 @@ expensive compilation. Qualify actual native targets; cross-compilation is build
 evidence only. Run reports and operational status belong in local reports/Silo,
 not in this guidance file.
 
+`nim check` checks Nim semantics without compiling C or producing an executable.
+Compiler-VM (`static`) checks can verify pure logic, but neither establishes
+native runtime, FFI, process or platform behavior. Keep native execution gates.
+
 ## Filesystem and byte boundaries
 
 Nim's `parentDir` returns an empty string at an absolute filesystem root.
@@ -113,3 +124,15 @@ hex digests against independent vectors. Do not add a runtime crypto-library
 dependency just to calculate local content fingerprints. For filesystem time
 contracts expressed in milliseconds, combine whole seconds and nanoseconds
 deliberately; dropping fractional milliseconds can silently change cache keys.
+
+JavaScript string slicing may split a UTF-16 surrogate pair. A continuation
+contract based on JS offsets must preserve that code unit, rather than silently
+rounding to a Unicode scalar boundary. Escape lone surrogates in JSON output;
+replace them when writing a human UTF-8 stream. Keep this internal representation
+separate from decoding malformed UTF-8 bytes received from a file or process.
+
+Unicode case folding, per-rune lowercasing and full string lowercasing are
+different operations. Full mappings can expand a character (`İ` becomes two
+code points), and Greek sigma depends on surrounding cased/ignorable characters.
+Use the pinned Unicode database and explicit context rules when matching JS;
+ASCII lowering or an unconditional rune map silently changes search results.
