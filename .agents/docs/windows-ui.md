@@ -368,3 +368,48 @@ current-main qualification.
 
 The maintained [Selector input mode](../../tools/windows-qualification/README.md#run-selector-input-checks)
 keeps its final gate pending independently of these implementation prerequisites.
+
+## Native menu engine constraints
+
+Use a native attached flyout on a loaded, laid-out Microsoft XAML host for
+controller-driven opening. In the pinned runtime, detaching `Button.Flyout`
+and invoking the instance `ShowAt` method lost the process with both Mason and
+Microsoft Grid anchors; retaining native ownership did not repair that path.
+Windows application events identified an access violation in `nativescript.DLL`.
+The static attached-flyout API passed the same keyboard, action, focus and
+dismissal checks. The instance-call failure's underlying cause remains unresolved.
+
+```ts
+import { Microsoft } from '@octane-xplat/platform/windows'
+
+function showNativeMenu(attachedHost: any, menu: any): void {
+  const flyouts = Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase
+  flyouts.SetAttachedFlyout(attachedHost, menu)
+  flyouts.ShowAttachedFlyout(attachedHost)
+}
+```
+
+Named XAML MenuFlyoutItem slots can host framework views through `Tag` and a
+stretched ContentPresenter inside a transparent focus-target Grid. Keep the
+framework content in the native checks; plain-text items do not establish its
+layout or automation behavior.
+
+```xml
+<MenuFlyoutItem x:Name="ActionSlot" MinHeight="32" Padding="0"
+ HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+ <MenuFlyoutItem.Template>
+  <ControlTemplate TargetType="MenuFlyoutItem">
+   <Grid x:Name="LayoutRoot" Background="Transparent" Control.IsTemplateFocusTarget="True">
+    <ContentPresenter Content="{TemplateBinding Tag}"
+     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+   </Grid>
+  </ControlTemplate>
+ </MenuFlyoutItem.Template>
+</MenuFlyoutItem>
+```
+
+This is an engine prerequisite, not public DropdownMenu qualification. A stock
+popup's Menu peer can have an empty name and a width below the trigger's width;
+verify the public label, minimum width, shared trigger, controlled rejection,
+updates and lifecycle separately. Look up `scenario:windows-core20-menu-engine`
+in Silo for the exact private source mappings and retained results.
