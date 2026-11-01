@@ -131,6 +131,16 @@ rounding to a Unicode scalar boundary. Escape lone surrogates in JSON output;
 replace them when writing a human UTF-8 stream. Keep this internal representation
 separate from decoding malformed UTF-8 bytes received from a file or process.
 
+Apply that JSON policy to persisted files as well as stdout. Plain `pretty()`
+does not make a WTF-8 string valid UTF-8. JSON escaping preserves lone code units;
+encoding a semantic JS string for a hash or byte stream replaces them. Choose
+the boundary deliberately instead of using one conversion for both.
+
+Canonicalize equivalent UTF-16 spellings before `std/json` constructs object
+keys. A JSON string can mix escaped and raw surrogate units. Repairing keys in
+a post-parse walk can lose the last-write order of duplicate properties after
+the constructor has already overwritten earlier entries.
+
 Unicode case folding, per-rune lowercasing and full string lowercasing are
 different operations. Full mappings can expand a character (`İ` becomes two
 code points), and Greek sigma depends on surrounding cased/ignorable characters.
