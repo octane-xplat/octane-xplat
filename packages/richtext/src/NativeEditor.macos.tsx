@@ -4,8 +4,7 @@ import { layoutChildProps } from './layout-child'
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'octane'
 import type { RichTextEditorProps } from './types'
 import { createEditorSession } from './host-session.macos'
-
-declare const XplatEditorHost: { alloc(): { init(): any } }
+import { createEditorHost } from './editor-host.macos'
 
 type HostProps = RichTextEditorProps & {
 	/** Bundled browser page URL loaded into the WKWebView bridge. */
@@ -33,7 +32,7 @@ export function NativeEditor(props: HostProps): unknown {
 			return
 		}
 
-		const native = XplatEditorHost.alloc().init()
+		const native = createEditorHost()
 		const next = createEditorSession(
 			(packet) => native.deliver(packet),
 			native,

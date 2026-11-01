@@ -33,6 +33,7 @@ for (const name of [
 	'jsx',
 	'macos-appkit',
 	'cli',
+	'docs-search',
 	'lib',
 	'lint',
 	'create',

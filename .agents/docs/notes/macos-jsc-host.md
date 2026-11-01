@@ -123,6 +123,25 @@ while a drip-fed remote transfer is still in flight
 whose callbacks only ever fire on the main runloop remains a safe TypeScript
 port; do not generalize the gif finding to it.
 
+## Callable ObjC blocks in JS delegates need protocol-metadata signatures
+
+Runtime-verified 2026-11-01 (richtext WKWebView channel probe): an
+`exposedMethods` parameter can only encode `@` — blocks arriving through it
+marshal as opaque, non-callable `CallbackObject` wrappers (WebKit decision
+handlers carry no `_Block_signature`). Omit `exposedMethods` for protocol
+methods and name members with the jsified selector spelling
+(`webViewDecidePolicyForNavigationActionDecisionHandler`); the bridge then
+resolves the signature from protocol metadata, and the block arrives as a
+callable JS function. Omitting the method entirely is not an option:
+unexposed members are never registered, and WebKit invokes required
+`WKScriptMessageHandler` methods unguarded → `unrecognized selector` abort.
+
+State cannot be keyed by `interop.handleof(this)` inside delegate callbacks —
+the bridge may deliver a different wrapper for the same native receiver. Key
+state by a created-and-held native argument instead (e.g. `message.webView`),
+whose wrapper identity is stable — same shape as the embedded webview's
+`states` WeakMap.
+
 ## Other verified host quirks
 
 Recorded where they were found rather than repeated here:

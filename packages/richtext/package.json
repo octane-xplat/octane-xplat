@@ -97,15 +97,9 @@
 			"ios": "9.1.0"
 		}
 	},
-	"xplat": {
-		"macos": {
-			"frameworks": [
-				"WebKit"
-			]
-		}
-	},
 	"dependencies": {
-		"@octane-xplat/jsx": "workspace:*"
+		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"types": "./types/generated/index.d.ts"
 }

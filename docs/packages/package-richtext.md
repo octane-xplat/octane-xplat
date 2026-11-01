@@ -105,5 +105,5 @@ See the framework guide for the full contract and the demo:
 The macOS export mounts a bundled local editor document in WKWebView.
 RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
-and commands cross WebKit asynchronously. The `native` handle is the Swift
-host transport. See [AppKit setup and engine limits](https://octane-xplat.goddardai.org/rich-text#macos-appkit-editing).
+and commands cross WebKit asynchronously. The `native` handle is the
+host transport, implemented in TypeScript over the runtime's WebKit bridge. See [AppKit setup and engine limits](https://octane-xplat.goddardai.org/rich-text#macos-appkit-editing).
