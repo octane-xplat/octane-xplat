@@ -186,6 +186,7 @@ const list = compiled(
 		'./list-context': listContext,
 	},
 )
+
 const listItem = compiled('list-item', read('collections/ListItem.windows.tsrx'), {
 	'../../internal/layout/style-merge': support,
 	'../../internal/accessibility/ref-list': support,
@@ -196,6 +197,7 @@ const listItem = compiled('list-item', read('collections/ListItem.windows.tsrx')
 	'./list-context': listContext,
 	'../navigation/nav-href': support,
 })
+
 const { ListItem } = await import(listItem)
 const listRowWithContext = compiled(
 	'list-row-with-context',
@@ -207,12 +209,14 @@ export function ListRowWithContext(props) @{
   </List>
 }`,
 )
+
 const { ListRowWithContext } = await import(listRowWithContext)
 
 const tableSlots = compiled(
 	'table-slot',
 	readFileSync(new URL('../src/table/table-slot.tsrx', import.meta.url), 'utf8'),
 )
+
 const tableSortable = compiled(
 	'table-sortable',
 	readFileSync(new URL('../src/table/use-table-sortable.windows.tsrx', import.meta.url), 'utf8'),
@@ -223,6 +227,7 @@ const tableSortable = compiled(
 		'./table-slot': tableSlots,
 	},
 )
+
 const sortableHeader = compiled(
 	'sortable-header-fixture',
 	`import {useTableSortable} from ${JSON.stringify(tableSortable)};
@@ -233,6 +238,7 @@ export function SortableHeader(props) @{
   <TableSlot value={cell.content} />
 }`,
 )
+
 const { SortableHeader } = await import(sortableHeader)
 
 const sizeContext = compiled('size-context', read('layout/size-context.ts'), {}, false)
@@ -244,6 +250,7 @@ const navContexts = compiled(
 	},
 	false,
 )
+
 const navSupport = moduleFile(
 	'tab-navigation-support',
 	`
@@ -255,6 +262,7 @@ export const navLinkIsActive=()=>false;
 export const navLinkActivation=()=>({defaultPrevented:false,preventDefault(){this.defaultPrevented=true}});
 `,
 )
+
 const navigationItem = compiled(
 	'tab-navigation-item',
 	read('navigation/use-navigation-item.shared.tsrx'),
@@ -264,14 +272,17 @@ const navigationItem = compiled(
 		'./nav-link': navSupport,
 	},
 )
+
 const tabText = compiled(
 	'tab-text',
 	'export function Text(props) @{ <label text={props.children} /> }',
 )
+
 const tabPopover = moduleFile(
 	'tab-popover',
 	`export {Collapsible as Popover} from ${JSON.stringify(collapsible)};`,
 )
+
 const tabs = compiled('tab-list', read('collections/TabList.tsrx'), {
 	'../../internal/layout/style-merge': support,
 	'@octane-xplat/lib': support,
@@ -285,6 +296,7 @@ const tabs = compiled('tab-list', read('collections/TabList.tsrx'), {
 	'../overlays/Popover': tabPopover,
 	'../actions/Pressable': pressable,
 })
+
 const tabFixture = compiled(
 	'tab-list-fixture',
 	`
@@ -297,7 +309,38 @@ export function TabFixture(props) @{
   </TabList>
 }`,
 )
+
 const { TabFixture } = await import(tabFixture)
+
+const windowsTabs = compiled(
+	'windows-tab-list',
+	read('collections/TabList.windows.tsrx').replace(/^import ['"].*['"]\s*;?$/gm, ''),
+	{
+		'../../internal/layout/style-merge': support,
+		'@octane-xplat/lib': support,
+		'../overlays/escape-props': support,
+		'../layout/size-context': sizeContext,
+		'../navigation/nav-contexts': navContexts,
+		'../navigation/use-navigation-item.shared.tsrx': navigationItem,
+		'../media/Icon': icon,
+		'../content/Text': tabText,
+		'./TabList.tsrx': tabs,
+	},
+)
+
+const windowsTabFixture = compiled(
+	'windows-tab-list-fixture',
+	`import {Tab,TabList} from ${JSON.stringify(windowsTabs)};
+export function WindowsTabFixture(props) @{
+ <TabList role={props.role} value={props.value} onChange={props.onChange}>
+  <Tab value="first" label={props.label} icon="regular" selectedIcon="selected" endContent={<label text="Trailing slot" />} />
+  <Tab value="disabled" label="Unavailable" isDisabled />
+  <Tab value="third" label="Third" isLabelHidden icon="third-icon" />
+ </TabList>
+}`,
+)
+
+const { WindowsTabFixture } = await import(windowsTabFixture)
 
 function mount(component, props) {
 	const container = createObjectContainer('nativescript')
@@ -333,6 +376,54 @@ test('Windows TabList mounts and refreshes controlled tabs without adding peers'
 		f.root.unmount()
 	}
 	assert.equal(f.nodes().length, 0)
+})
+
+test('Windows panel tabs keep header slots and current callbacks without button peers', () => {
+	const old = []
+	const current = []
+	const f = mount(WindowsTabFixture, {
+		role: 'tablist',
+		value: 'first',
+		label: 'First',
+		onChange: (value) => old.push(value),
+	})
+	try {
+		const headers = () => f.nodes().filter((node) => node.type === 'xplatwindowstabheader')
+		assert.equal(headers().length, 3)
+		assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowstabstrip').length, 1)
+		assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowsbutton').length, 0)
+		assert.equal(headers()[1].props.settings.disabled, true)
+		assert.equal(headers()[2].props.settings.label, 'Third')
+		assert.ok(f.nodes().some((node) => node.props.text === 'Trailing slot'))
+		assert.ok(f.nodes().some((node) => node.props.text === 'selected'))
+		headers()[2].props.settings.request()
+		assert.deepEqual(old, ['third'])
+		f.render({
+			role: 'tablist',
+			value: 'third',
+			label: 'Updated first',
+			onChange: (value) => current.push(value),
+		})
+
+		assert.equal(headers().length, 3)
+		assert.equal(headers()[0].props.settings.label, 'Updated first')
+		headers()[0].props.settings.request()
+		assert.deepEqual(old, ['third'])
+		assert.deepEqual(current, ['first'])
+	} finally {
+		f.root.unmount()
+	}
+	assert.equal(f.nodes().length, 0)
+})
+
+test('Windows navigation tabs retain the shared button and href path', () => {
+	const f = mount(WindowsTabFixture, { value: 'first', label: 'First', onChange: () => {} })
+	try {
+		assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowsbutton').length, 3)
+		assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowstabstrip').length, 0)
+	} finally {
+		f.root.unmount()
+	}
 })
 
 test('Windows Pressable mounts a native host and updates its peer kind and callback', () => {
@@ -688,6 +779,7 @@ test('Windows ListItem uses one native action with current names, callbacks and 
 				.find((node) => node.props.id === 'row')
 				.props.className.includes('vx-listitem--selected'),
 		)
+
 		f.render({ id: 'row', label: 'Static' })
 		assert.equal(buttons(f).length, 0)
 		assert.deepEqual(text(f), ['Static'])
@@ -740,12 +832,14 @@ test('Windows sortable header uses one native peer and retains controlled sort c
 				content: 'Name',
 				config: { sort: [{ sortKey: 'name', direction }], onSortChange },
 			})
+
 			assert.equal(buttons(f).length, 1)
 			assert.equal(buttons(f)[0].props.settings.label, `Sorted by Name ${direction}`)
 			assert.ok(text(f).includes(marker))
 			buttons(f)[0].props.settings.onPress()
 			assert.deepEqual(requests.at(-1), expected)
 		}
+
 		assert.equal(requests.length, 3)
 	} finally {
 		f.root.unmount()
@@ -770,6 +864,7 @@ test('Windows sortable header reads current config and preserves zero and compon
 			allowUnsortedState: false,
 			onSortChange: (next) => requests.push(next),
 		}
+
 		f.render({ column: { ...column, header: 'Title' }, content: 0, config })
 		assert.equal(buttons(f)[0].props.settings.label, 'Sorted by Title descending')
 		assert.ok(text(f).includes('0'))
@@ -783,6 +878,7 @@ test('Windows sortable header reads current config and preserves zero and compon
 			content: tableSlot(Icon, { name: 'Plain' }),
 			config,
 		})
+
 		assert.equal(buttons(f).length, 0)
 		assert.deepEqual(text(f), ['Plain'])
 	} finally {

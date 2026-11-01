@@ -109,6 +109,38 @@ prerequisite does not provide Table/header/row/cell structure or qualify native
 input, scrolling, geometry or the wider sorting/plugin matrix. Probe those separately using the
 [Table qualification boundary](../../../../docs/windows-ui.md#table-header-input-prerequisite).
 
+## Windows panel tabs candidate
+
+Use the shared controlled API with `role="tablist"` for local panels. The
+Windows leaf hosts the framework header content inside genuine WinUI tab
+selection peers; keep panel rendering in the caller. Navigation tabs retain
+the shared navigation implementation.
+
+```tsx
+import { useState } from 'octane'
+import { Tab, TabList, Text } from '@octane-xplat/ui'
+
+export function Panels() {
+  const [tab, setTab] = useState('overview')
+  return <>
+    <TabList role="tablist" layout="fill" value={tab} onChange={setTab}>
+      <Tab value="overview" label="Overview" />
+      <Tab value="details" label="Details" />
+    </TabList>
+    <Text>{tab === 'overview' ? 'Overview panel' : 'Details panel'}</Text>
+  </>
+}
+```
+
+Use the maintained `-TabActions` driver for selection, one Tab stop, arrows,
+disabled rejection, controlled updates and remount. Bounded packaged x64
+checks passed those inputs with the fill layout on a reused native payload. A
+fresh source build and final core-component qualification remain pending;
+source and mock results alone do not establish OS behavior.
+Keep rich-slot geometry, structural updates, overflow and native panel
+relations separate. See the [public boundary](../../../../../docs/platform/windows-setup.md#panel-tabs-candidate)
+and [construction constraints](../../../../docs/windows-ui.md#native-tab-semantics).
+
 ## Experimental Windows Switch
 
 The Windows leaf preserves the shared track and thumb and uses a transparent
