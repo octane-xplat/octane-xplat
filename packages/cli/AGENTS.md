@@ -27,6 +27,16 @@ JS exports, or runtime dependency tree; the small installer runs only at install
   `formatFloat(x, ffDecimal, 0)` can leave a trailing decimal dot;
   normalize it when the contract requires JS whole-number formatting. Keep
   differential tests for numeric edge cases rather than trusting matching types.
+- Use shortest-roundtrip floating-point digits before applying JavaScript's
+  decimal/scientific notation thresholds. Printing the exact binary value with
+  fixed-point formatting can produce a different integer string. `std/json`
+  also stores overflowing integer tokens as raw-number `JString` nodes;
+  `getFloat()` on those nodes silently returns its default. Normalize numeric
+  decoding at the JSON boundary and test integers beyond the safe-double range.
+- JavaScript string coercion is separate from JSON serialization. Arrays coerce
+  by joining their elements, with null elements empty; objects normally become
+  `[object Object]`. Match the intended conversion before hashing identities or
+  composing diagnostics instead of assuming `$jsonNode` has the same meaning.
 - Successful Nim JSON parsing does not establish strict `JSON.parse` or
   `jsonc-parser` equivalence. Test comments, trailing commas, malformed documents,
   scalar roots, and parse-error behavior for each file format separately.
@@ -83,3 +93,23 @@ Run repository builds/tests through Turbo and reserve `native_builds` before
 expensive compilation. Qualify actual native targets; cross-compilation is build
 evidence only. Run reports and operational status belong in local reports/Silo,
 not in this guidance file.
+
+## Filesystem and byte boundaries
+
+Nim's `parentDir` returns an empty string at an absolute filesystem root.
+For ancestor walks, use a helper that returns the root itself there, then stop
+when parent equals current. Joining an empty parent with `node_modules` or a
+config filename would silently search the process working directory.
+
+`absolutePath` and `normalizedPath` provide lexical paths; they do not establish
+symlink containment. Use `expandFilename` for the canonical existing target and
+handle its failure. Scope-sensitive reads must check both the requested name
+and the canonical target: an allowed alias can point at a private file or outside
+the corpus, while an alias to the corpus root must support ordinary safe reads.
+Keep lexical keys for references and canonical paths for containment checks.
+
+Hash explicit UTF-8 bytes with a pinned implementation and compare lowercase
+hex digests against independent vectors. Do not add a runtime crypto-library
+dependency just to calculate local content fingerprints. For filesystem time
+contracts expressed in milliseconds, combine whole seconds and nanoseconds
+deliberately; dropping fractional milliseconds can silently change cache keys.

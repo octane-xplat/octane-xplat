@@ -47,3 +47,7 @@ if(parserBuild.status!==0)throw Error('Argument probe build failed')
 const packageProbe=resolve(work,process.platform==='win32'?'native/package-probe.exe':'native/package-probe')
 const packageBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/package-cache`,`-o:${packageProbe}`,resolve(import.meta.dirname,'package_probe.nim')],{stdio:'inherit'})
 if(packageBuild.status!==0)throw Error('Package-manager probe build failed')
+
+const identityProbe=resolve(work,process.platform==='win32'?'native/identity-probe.exe':'native/identity-probe')
+const identityBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/identity-cache`,`-o:${identityProbe}`,resolve(import.meta.dirname,'identity_probe.nim')],{stdio:'inherit'})
+if(identityBuild.status!==0)throw Error('Identity/corpus probe build failed')

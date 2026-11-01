@@ -2,14 +2,14 @@
 import std/[json, os, strutils, sets, tables]
 import yaml/[parser, stream, data]
 import yaml/tojson
-import ./jsonutil, ./strictjson, ./jsonc, ./workspace_glob
+import ./jsonutil, ./strictjson, ./jsonc, ./workspace_glob, ./pathutil
 
 proc present(node: JsonNode): bool = node != nil and node.kind != JNull
 proc exists(path: string): bool = fileExists(path) or dirExists(path)
 proc readProjectPackage*(root: string): JsonNode =
   if exists(root / "package.json"): parseStrictJson(readFile(root / "package.json"))
   else: newJObject()
-proc oneYaml(source: string): JsonNode =
+proc parseYamlDocument*(source: string): JsonNode =
   type Frame = object
     mapping, key: bool
     seen: HashSet[string]
@@ -61,7 +61,7 @@ proc readProjectWorkspace*(root: string, selectedManager: JsonNode = nil): JsonN
   let yaml = root / "pnpm-workspace.yaml"
   if manager != "bun" and exists(yaml):
     try:
-      let parsed = oneYaml(readFile(yaml))
+      let parsed = parseYamlDocument(readFile(yaml))
       return if present(parsed): parsed else: newJObject()
     except CatchableError as error: raise newException(ValueError,"Cannot read " & yaml & ": " & error.msg)
   let workspace = field(pkg,"workspaces")
@@ -88,11 +88,11 @@ proc workspaceMembers*(root: string, manager: JsonNode = nil): seq[string] =
   workspaceGlob(normalizedPath(absolutePath(root)),included,excluded)
 proc packageManagerRoot*(dir: string): string =
   let start = normalizedPath(absolutePath(dir))
-  var at = parentDir(start)
-  while at != parentDir(at):
+  var at = parentOrSelf(start)
+  while at != parentOrSelf(at):
     if exists(at / "package.json") or exists(at / "pnpm-workspace.yaml"):
       if start in workspaceMembers(at): return at
-    at = parentDir(at)
+    at = parentOrSelf(at)
   start
 proc packageManagerFor*(dir: string, explicit: JsonNode = nil): string =
   let root = packageManagerRoot(dir)
@@ -163,14 +163,15 @@ proc bunLockedVersions*(dir: string): JsonNode =
       let member = field(workspaces,spec[10..^1])
       if truthy(field(member,"version")): result[name] = member["version"]
     elif versionPrefix(spec): result[name] = %spec
-proc installedPackageRoot*(fromDir, name: string): JsonNode =
+proc nodeModulesDirs*(fromDir: string): seq[string] =
   var dir = normalizedPath(absolutePath(fromDir))
-  var paths: seq[string]
   while true:
-    if lastPathPart(dir) != "node_modules": paths.add(dir / "node_modules")
-    let next = parentDir(dir)
+    if lastPathPart(dir) != "node_modules": result.add(dir / "node_modules")
+    let next = parentOrSelf(dir)
     if next == dir: break
     dir = next
+proc installedPackageRoot*(fromDir, name: string): JsonNode =
+  var paths = nodeModulesDirs(fromDir)
   var globalPaths: seq[string]
   for path in getEnv("NODE_PATH").split(PathSep):
     if path != "": globalPaths.add(path)
@@ -198,7 +199,7 @@ proc lockedVersions*(workspaceRoot, appDir: string, declared: JsonNode): JsonNod
     let file = dir / "pnpm-lock.yaml"
     if exists(file):
       try:
-        let doc = oneYaml(readFile(file))
+        let doc = parseYamlDocument(readFile(file))
         var importer = field(field(doc,"importers"),relativePath(appDir,dir))
         if not present(importer): importer = field(field(doc,"importers"),".")
         let locked = deps(importer)
@@ -209,6 +210,6 @@ proc lockedVersions*(workspaceRoot, appDir: string, declared: JsonNode): JsonNod
           result.add(%*{"name": name,"version": (if present(version): version else: newJNull()),"source": "lockfile","declared": spec})
       except CatchableError: result = newJArray()
       return
-    let next = parentDir(dir)
+    let next = parentOrSelf(dir)
     if next == dir or not normalizedPath(absolutePath(next)).startsWith(normalizedPath(absolutePath(workspaceRoot))): return
     dir = next

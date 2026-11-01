@@ -54,9 +54,20 @@ ownership, installed-package shadowing and pnpm conflict behavior.
 bun run turbo run test:nim-packages --filter=@octane-xplat/cli
 ```
 
+The identity/corpus probe compares installation fingerprints, linked and
+provisional docs bindings, release mappings, source-file enumeration and scoped
+path resolution with the TypeScript reference. It exercises empty consumers,
+real repository data, canonical symlink targets, private aliases, finite numeric
+coercion, SHA-256 vectors and platform filters with an empty native PATH. Keep
+this test entry out of the published executable.
+
+```sh
+bun run turbo run test:nim-identity --filter=@octane-xplat/cli
+```
+
 Broader qualification remains necessary for advanced nested negated glob
-combinations, unusual YAML scalar/collection keys and recursive aliases, non-finite/large JSON
-numbers, inaccessible files and Node's installation-prefix global lookup when
+combinations, unusual YAML scalar/collection keys and recursive aliases, non-finite
+JSON numbers and lone surrogate handling, inaccessible files and Node's installation-prefix global lookup when
 Node is absent from PATH. Those are open compatibility requirements for the full
 rewrite. They are not implied by the passing common-pattern corpus. Project
 metadata is read as data; JavaScript configuration is not evaluated.

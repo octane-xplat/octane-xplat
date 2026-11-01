@@ -1,4 +1,5 @@
 import ../../packages/cli/nim/core
+import ../../packages/cli/nim/[docs_binding, code_scope]
 import std/[json, os, strutils, httpclient, osproc]
 when defined(posix): import std/posix
 
@@ -23,6 +24,9 @@ try:
   of "discover": echo discover(absolutePath(args[1]))
   of "platforms": echo platforms(absolutePath(args[1]))
   of "binding": echo binding(absolutePath(args[1]), absolutePath(args[2]))
+  of "identity": echo resolveInstallations(absolutePath(args[1]))
+  of "files": echo listCorpusFiles(absolutePath(args[1]), limit = parseInt(args[2]))
+  of "repo-roots": echo frameworkRepoRoots(absolutePath(args[1]))
   of "http":
     try:
       let client = newHttpClient(timeout = 10000)

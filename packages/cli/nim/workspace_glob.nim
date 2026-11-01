@@ -2,6 +2,7 @@
 ## glob matcher. Never implicitly expand a literal directory into descendants.
 import std/[os, strutils, tables, sets]
 import glob as engine
+import ./pathutil
 
 proc bracePatterns(pattern: string): seq[string] =
   var start = -1
@@ -138,7 +139,7 @@ proc workspaceGlob*(root: string, included, excluded: seq[string]): seq[string] 
           return
         let part = parts[index]
         if part == "" or part == ".": visit(path,index+1); return
-        if part == "..": visit(parentDir(path),index+1); return
+        if part == "..": visit(parentOrSelf(path),index+1); return
         if part == "**":
           visit(path,index+1)
           try:

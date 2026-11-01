@@ -36,11 +36,34 @@ proc number(raw: string): float =
   else: result = parseFloat(s)
 proc jsNumber*(n: float): string =
   if n == 0: return "0"
-  if abs(n) < 1e21 and n == trunc(n):
-    result = formatFloat(n, ffDecimal, 0)
-    if result.endsWith("."): result.setLen(result.len-1)
-    return
-  result = $n
+  case classify(n)
+  of fcNan: return "NaN"
+  of fcInf: return "Infinity"
+  of fcNegInf: return "-Infinity"
+  else: discard
+  # Nim's pinned runtime uses Dragonbox shortest-roundtrip digits. Preserve
+  # those digits, but use ECMAScript's decimal/scientific notation thresholds.
+  let raw = $abs(n)
+  let exponentAt = raw.find({'e','E'})
+  let coefficient = if exponentAt < 0: raw else: raw[0..<exponentAt]
+  let exponent = if exponentAt < 0: 0 else: parseInt(raw[exponentAt+1..^1])
+  let dot = coefficient.find('.')
+  var point = (if dot < 0: coefficient.len else: dot) + exponent
+  var digits = coefficient.replace(".", "")
+  while digits.len > 1 and digits[0] == '0':
+    digits.delete(0..0)
+    dec point
+  while digits.len > 1 and digits[^1] == '0': digits.setLen(digits.len-1)
+  if n < 0: result.add('-')
+  if point > 21 or point <= -6:
+    result.add(digits[0])
+    if digits.len > 1: result.add('.'); result.add(digits[1..^1])
+    result.add('e')
+    if point > 0: result.add('+')
+    result.add($(point-1))
+  elif point <= 0: result.add("0." & repeat('0',-point) & digits)
+  elif point >= digits.len: result.add(digits & repeat('0',point-digits.len))
+  else: result.add(digits[0..<point] & "." & digits[point..^1])
 
 proc parseArgs*(command: JsonNode, argv: seq[string]): JsonNode =
   let name = str(command["name"])

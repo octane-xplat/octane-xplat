@@ -90,6 +90,15 @@ for (const name of ['catalog', 'project', 'io']) {
   const call = name === 'io' ? 'Io' : name[0].toUpperCase() + name.slice(1)
   writeFileSync(join(stage, `${name}.entry.ts`), readFileSync(join(stage, `${name}.ts`), 'utf8') + `\nrun${call}(process.argv.slice(2))\n`)
 }
+writeFileSync(join(stage, 'identity.entry.ts'), `
+import { resolveInstallations } from './cli/mcp/docs-binding.ts'
+import { listCorpusFiles, frameworkRepoRoots } from './cli/mcp/code-scope.ts'
+const [operation, root, limit] = process.argv.slice(2)
+const value = operation === 'identity' ? resolveInstallations(root)
+ : operation === 'files' ? listCorpusFiles(root, { limit: Number(limit) })
+ : frameworkRepoRoots(root)
+console.log(JSON.stringify(value))
+`)
 const bytes = readFileSync(compiler)
 results.artifacts.push({name:'core',bytes:bytes.length,gzipBytes:gzipSync(bytes).length,sha256:createHash('sha256').update(bytes).digest('hex')})
 if (binaries.core) {
@@ -374,6 +383,10 @@ if (binaries.io) {
 
 await check('real repository discovery parity', () => parity(compiler, 'project.entry.ts', ['discover', repo]))
 await check('real repository binding parity', () => parity(compiler, 'project.entry.ts', ['binding', repo, join(repo, 'apps/web')]))
+await check('real repository installation identity parity', () => parity(compiler, 'identity.entry.ts', ['identity', repo]))
+await check('real app installation identity parity', () => parity(compiler, 'identity.entry.ts', ['identity', join(repo, 'apps/web')]))
+await check('real repository source enumeration parity', () => parity(compiler, 'identity.entry.ts', ['files', join(repo, 'packages/cli/src'), '20']))
+await check('real repository framework corpus parity', () => parity(compiler, 'identity.entry.ts', ['repo-roots', repo]))
 await check('all generated schemas parity', () => {
   // Discover names from the source descriptors rather than a second hardcoded list.
   const names = execute(process.execPath, ['catalog.entry.ts', '--help']).stdout.split('\n').filter(Boolean).map(line => line.split(':')[0])

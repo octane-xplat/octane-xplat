@@ -4,6 +4,7 @@ import std/json
 
 proc parseStrictJson*(source: string): JsonNode =
   var at = 0
+  var floatIntegers: seq[int]
   proc invalid() {.noreturn.} =
     raise newException(ValueError, "Invalid JSON")
   proc whitespace() =
@@ -58,24 +59,43 @@ proc parseStrictJson*(source: string): JsonNode =
       for ch in literal: take(ch)
     of '-', '0'..'9':
       if source[at] == '-': inc at
+      let digitsStart = at
       if at >= source.len: invalid()
       if source[at] == '0': inc at
       elif source[at] in {'1'..'9'}:
         while at < source.len and source[at] in {'0'..'9'}: inc at
       else: invalid()
+      let digitsEnd = at
+      var integer = true
       if at < source.len and source[at] == '.':
+        integer = false
         inc at
         let start = at
         while at < source.len and source[at] in {'0'..'9'}: inc at
         if at == start: invalid()
       if at < source.len and source[at] in {'e','E'}:
+        integer = false
         inc at
         if at < source.len and source[at] in {'+','-'}: inc at
         let start = at
         while at < source.len and source[at] in {'0'..'9'}: inc at
         if at == start: invalid()
+      # JSON.parse uses IEEE doubles. std/json otherwise preserves overflowing
+      # integer tokens as a private raw-string variant, whose getFloat is 0.
+      if integer:
+        let digits = source[digitsStart..<digitsEnd]
+        if digits.len > 16 or (digits.len == 16 and digits > "9007199254740991"):
+          floatIntegers.add(at)
     else: invalid()
   value(0)
   whitespace()
   if at != source.len: invalid()
-  parseJson(source)
+  if floatIntegers.len == 0: return parseJson(source)
+  var normalized = ""
+  var copied = 0
+  for stop in floatIntegers:
+    normalized.add(source[copied..<stop])
+    normalized.add(".0")
+    copied = stop
+  normalized.add(source[copied..^1])
+  parseJson(normalized)

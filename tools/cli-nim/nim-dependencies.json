@@ -34,5 +34,13 @@
     "sourceDir": "src",
     "license": "MIT",
     "licenseFile": "LICENSE"
+  },
+  "nimcrypto": {
+    "url": "https://github.com/cheatfate/nimcrypto.git",
+    "revision": "48f4079cf84640e85970298ca7fdf963c6966283",
+    "version": "0.7.3",
+    "sourceDir": ".",
+    "license": "MIT",
+    "licenseFile": "LICENSE"
   }
 }

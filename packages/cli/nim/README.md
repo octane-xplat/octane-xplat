@@ -15,6 +15,11 @@ shared with the differential probe. `main.nim` owns the public command entry.
 `workspace.nim` owns per-invocation selection, client preferences and task policy.
 `package_manager.nim` and `workspace_glob.nim` own workspace/lockfile interpretation;
 `jsonc.nim` validates comment-bearing Bun data separately from strict manifests.
+`docs_binding.nim` resolves installation identities and release mappings without
+executing package code. `code_scope.nim` owns source enumeration and direct-read
+boundaries, including symlink targets and private/generated exclusions. These
+modules are qualified by an independent differential probe while their command
+providers remain migration work.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Framework-version binding stays internal until the remaining package-manager

@@ -4,6 +4,7 @@
 	"tasks": {
 		"build:nim": { "dependsOn": ["build", "^build"], "cache": false, "passThroughEnv": ["XPLAT_NIM_VERSION"] },
 		"test:nim-packages": { "dependsOn": ["build:nim"], "cache": false },
+		"test:nim-identity": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim": { "dependsOn": ["build:nim"], "cache": false },
 		"pack:nim": { "dependsOn": ["build:nim"], "cache": false, "passThroughEnv": ["XPLAT_NIM_VERSION"] },
 		"@xplat/cli-nim-probe#test": { "cache": false },
