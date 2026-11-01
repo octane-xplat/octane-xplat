@@ -42,7 +42,7 @@ proc errorExit(code: string): int =
 
 if argv.len == 0 or argv == @["--help"] or argv == @["-h"]:
   echo "xplat — experimental Nim CLI"
-  echo "Native commands: catalog, clean, permissions, app select, code search, code read, guidance; all agent commands expose --help and --schema."
+  echo "Native commands: catalog, clean, permissions, app select, code search, code read, guidance, docs read; all agent commands expose --help and --schema."
   echo "Other command execution is pending. Install @octane-xplat/cli@latest for the TypeScript CLI."
   quit(0)
 if argv == @["--version"]:
@@ -84,7 +84,7 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, clean, permissions, app select, code search, code read, guidance. Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, clean, permissions, app select, code search, code read, guidance, docs read. Other command execution is pending; use --json for contracts and coverage."
     quit(0)
   let reply = workspaceCommand(name, parsed["values"])
   if reply != nil:

@@ -1,6 +1,6 @@
 ## Exact documentation retrieval over a caller-bound snapshot or development root.
 import std/[json, os, strutils, algorithm, unicode]
-import ./jsonutil, ./js_text, ./markdown_chunks, ./locale_sort
+import ./jsonutil, ./js_text, ./markdown_chunks, ./locale_sort, ./file_text
 from ./args import jsTrim
 
 const corpora = [(".agents/design","design-note"),(".agents/docs/notes","implementation-note"),
@@ -88,7 +88,7 @@ proc searchDocs*(root, query: string, corpus = "", platform = "", limit = 10, pa
       if (packageDir == "packages/tsrx-typegen") != (path == "packages/tsrx-typegen/CHANGELOG.md"): continue
     if packageDir != "" and category == "readme" and path != packageDir & "/README.md": continue
     if corpus != "" and category != corpus: continue
-    let content = decodeUtf8(readFile(text(doc["file"])))
+    let content = readTextFile(text(doc["file"]))
     if category == "changelog":
       for chunk in chunkMarkdown(%*{"path": path,"corpus": category,"content": content}):
         let region = text(chunk["content"])
@@ -125,8 +125,8 @@ proc searchDocs*(root, query: string, corpus = "", platform = "", limit = 10, pa
 proc readPage*(root, path: string, offset = 0.0, limit = 24000.0): JsonNode =
   if not path.endsWith(".md") or path.startsWith('/') or ".." in path.split('/'): return nil
   let file = normalizedPath(root / path)
-  if not exists(file): return nil
-  let content = decodeUtf8(readFile(file))
+  if not exists(utf8ForWrite(file)): return nil
+  let content = readTextFile(file)
   var corpus = "guide"
   for doc in listDocs(root):
     if text(doc["path"]) == path: corpus = text(doc["corpus"]); break

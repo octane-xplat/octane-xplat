@@ -64,7 +64,8 @@ proc acquire(ctx: SnapshotContext, options: JsonNode): JsonNode =
   discard ctx.git(@["checkout","-q","--detach","FETCH_HEAD"],temporary)
   let commit = jsTrim(ctx.git(@["rev-parse","HEAD"],temporary))
   let package = readJson(temporary / text(options["packageDir"]) / "package.json")
-  if field(package,"name") != field(options,"packageName") or field(package,"version") != field(options,"version"):
+  if not jsStrictEqual(field(package,"name"),field(options,"packageName")) or
+      not jsStrictEqual(field(package,"version"),field(options,"version")):
     let found = newJObject()
     for key in ["name","version"]:
       let value = field(package,key)
@@ -98,7 +99,7 @@ proc pickCached(cached: JsonNode, offline: bool): JsonNode =
     if value != nil: result[key] = value
 
 proc ensureSnapshot*(ctx: SnapshotContext, options: JsonNode): JsonNode =
-  let key = text(options["packageName"]) & "@" & text(options["version"])
+  let key = scalarString(options["packageName"]) & "@" & scalarString(options["version"])
   let bindings = ctx.readBindings()
   let cached = field(bindings,key)
   let fields = %*{"package": options["packageName"],"requestedVersion": options["version"],

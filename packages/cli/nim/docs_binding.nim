@@ -2,7 +2,6 @@
 ## Resolve installed metadata without executing any installed dependency.
 import std/[json, os, strutils, algorithm, sets]
 import ./jsonutil, ./package_manager, ./digests, ./pathutil, ./js_text
-from ./args import jsNumber
 
 const releaseRepo = "https://github.com/octane-xplat/octane-xplat"
 proc exists(path: string): bool = fileExists(path) or dirExists(path)
@@ -13,18 +12,6 @@ proc releaseMapping*(name, version: string, repo: JsonNode = nil): JsonNode =
   elif name.startsWith("@octane-xplat/"): directory = "packages/" & name[14..^1]; tag = "v" & version
   else: return nil
   %*{"repo": (if repo == nil: %releaseRepo else: repo), "dir": directory, "tag": tag}
-proc scalarString*(value: JsonNode): string =
-  if value == nil: return "undefined"
-  case value.kind
-  of JString: value.getStr()
-  of JFloat, JInt: jsNumber(value.getFloat())
-  of JObject: "[object Object]"
-  of JArray:
-    var parts: seq[string]
-    for item in value:
-      parts.add(if item.kind == JNull: "" else: scalarString(item))
-    parts.join(",")
-  else: $value
 proc linkedSpec(root: string, spec: JsonNode): bool =
   let value = text(spec)
   if value.startsWith("link:") or value.startsWith("workspace:") or value.startsWith("portal:"): return true

@@ -2,7 +2,8 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-clean, app selection, permissions, code search, code read and guidance; other agent commands provide help and schemas with execution marked
+clean, app selection, permissions, code search, code read, guidance and docs read;
+other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -18,20 +19,18 @@ shared with the differential probe. `main.nim` owns the public command entry.
 `docs_binding.nim` resolves installation identities and release mappings without
 executing package code. `code_scope.nim` owns source enumeration and direct-read
 boundaries, including symlink targets and private/generated exclusions. These
-modules are qualified by independent TypeScript differential probes. Documentation
-command providers remain migration work. `docs_retrieval.nim` and
+modules are qualified by independent TypeScript differential probes. `docs_retrieval.nim` and
 `markdown_chunks.nim` provide exact local Markdown retrieval and release-aware
-sections. Their macOS locale-order adapter is exercised independently; snapshot
-acquisition, installed-version command wiring and indexed docs retrieval are not
-implied by those checks.
+sections. Their macOS locale-order adapter is exercised independently.
 `docs_snapshots.nim` acquires exact Git tags into commit-pinned caches, validates
 package metadata, preserves offline bindings and reports moved/deleted tags.
-It never executes fetched package scripts. Public docs command wiring and local
-embedding/index integration remain separate migration work.
+It never executes fetched package scripts. `docs_service.nim` owns installation
+refresh, version-bound reads, provenance and tag-conflict resolution. Public docs
+search and local embedding/index integration remain migration work.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
-Framework-version binding stays internal until the remaining package-manager
-semantics are reconciled with the reference. App selection uses manifest and
+Installed versions drive guidance and documentation reads; advanced workspace
+glob and unusual YAML compatibility still need qualification. App selection uses manifest and
 filesystem discovery without making installed-version or runtime-readiness claims.
 
 ```sh
@@ -66,6 +65,16 @@ CLI contract; use catalog coverage to check which native operations are ported.
 
 ```sh
 research/nim-cli/native/xplat guidance --project "$PWD" --app apps/web --json
+```
+
+Read documentation from the selected app's linked checkout or exact release
+snapshot. Missing snapshots and moved tags are reported; cached snapshots can
+serve offline. A reference from an earlier search retains its requested version.
+The page slice uses UTF-16 offsets, matching the existing continuation contract.
+
+```sh
+research/nim-cli/native/xplat docs read --project "$PWD" --app apps/web \
+  --package @octane-xplat/ui --path docs/packages/package-cli.md --limit 800 --json
 ```
 
 Permission reporting preserves the existing task-authorization baseline. A

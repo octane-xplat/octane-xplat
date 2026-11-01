@@ -1,6 +1,6 @@
 ## Installation-scoped guidance; versions come from discovery, never guesses.
 import std/[json, strutils, sets]
-import ./jsonutil, ./docs_binding, ./provenance
+import ./jsonutil, ./provenance
 
 proc tailoredGuidance*(installation: JsonNode): JsonNode =
   var versions, linked: seq[string]

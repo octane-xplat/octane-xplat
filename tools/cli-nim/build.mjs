@@ -23,13 +23,13 @@ delete catalog.requestId
 // Version denotes this native build; execution coverage must never be inferred
 // from the reference schemas' implemented status.
 catalog.data.cli.version=version
-for(const c of catalog.data.commands) c.status=['catalog','permissions','app select','code search','code read','guidance'].includes(c.command)?'implemented':'pending'
+for(const c of catalog.data.commands) c.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.command)?'implemented':'pending'
 for(const c of catalog.data.orchestration) c.status=c.name==='clean'?'implemented':'pending'
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
  delete schema.requestId
- schema.data.status=['catalog','permissions','app select','code search','code read','guidance'].includes(c.name)?'implemented':'pending'
+ schema.data.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
 writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:""}))

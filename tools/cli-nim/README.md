@@ -79,12 +79,17 @@ The local documentation gate compares Markdown sections, release ownership,
 inventory, exact search, references and UTF-16 page reads against the live
 TypeScript providers. Document ordering uses a lazy macOS system ICU adapter;
 the gate compares actual language orders rather than substituting a byte sort.
-Other host collation adapters and public documentation command providers remain
-migration work. ICU data differences across OS versions need qualification.
+Other host collation adapters, public docs search and embedding/index integration
+remain migration work. ICU data differences across OS versions need qualification.
 The same gate exercises real temporary Git repositories for snapshot metadata,
 offline caches, annotated/moved/deleted tags, explicit rebinds and a tag that
 moves between lookup and fetch. Explicit child environment/PATH cases qualify
 the short Git capture boundary without claiming process-tree cancellation.
+Service and public-command comparisons also cover installation refresh, linked
+and release page reads, versioned refs, explicit comparisons, cold caches,
+offline pins and POSIX directory/permission failures. Registry command fixtures
+redirect only their child Git processes to owned local repositories; they do not
+qualify HTTPS transport.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim documentation qualification"}' -- bun run turbo run test:nim-docs --filter=@octane-xplat/cli

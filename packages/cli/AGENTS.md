@@ -39,6 +39,10 @@ JS exports, or runtime dependency tree; the small installer runs only at install
   by joining their elements, with null elements empty; objects normally become
   `[object Object]`. Match the intended conversion before hashing identities or
   composing diagnostics instead of assuming `$jsonNode` has the same meaning.
+- Choose JSON equality deliberately. Nim's object/array equality compares
+  contents; JavaScript `===` compares their identities. Nim also stores integer
+  and floating-point JSON nodes separately, while JS uses one Number type.
+  Version binding and metadata validation need tests across those distinctions.
 - Successful Nim JSON parsing does not establish strict `JSON.parse` or
   `jsonc-parser` equivalence. Test comments, trailing commas, malformed documents,
   scalar roots, and parse-error behavior for each file format separately.
@@ -77,6 +81,10 @@ compilation or a successful happy path does not prove semantic parity. For pure
 logic, a test-only native program reading NDJSON can exercise a large case corpus
 in one process. Do not ship test-only entry points in the production binary.
 
+Assert that positive fixtures actually reach the intended successful result.
+Two implementations returning the same unavailable/default value do not qualify
+the successful path that a fixture was meant to exercise.
+
 Treat dependency semantics as independent of successful compilation. In particular,
 NimYAML's JSON construction can overwrite duplicate keys that the reference YAML
 reader rejects; validate the event stream when key uniqueness is part of the
@@ -106,6 +114,11 @@ Compiler-VM (`static`) checks can verify pure logic, but neither establishes
 native runtime, FFI, process or platform behavior. Keep native execution gates.
 
 ## Async and child-process boundaries
+
+C-imported constants can be runtime values in Nim's bindings. For example,
+macOS POSIX errno values cannot be used as Nim compile-time `case` labels.
+Use runtime comparisons when the binding is not a Nim `const`; do not replace
+platform error constants with hardcoded numeric values.
 
 An async procedure runs synchronously until an unfinished await. A small build
 can therefore be ready before its returned future's cleanup callback runs;
