@@ -151,7 +151,11 @@ export async function xplatLinuxGtk(env, options = {}) {
 				// Workspace UI leaves import the selected renderer from their own graph;
 				// resolve it through the app without adding a UI renderer dependency.
 				{ find: /^@octane-xplat\/linux-gtk$/, replacement: rendererEntry },
-				{ find: './escape-props', replacement: resolveApp(`${renderer}/compat/escape-props`) },
+				// Any depth of relative specifier lands here — shared importers
+				// reach the leaf as ../overlays/escape-props, overlays siblings as
+				// ./escape-props. The regex must span the whole specifier: alias
+				// replacements go through String.replace.
+				{ find: /(^|.*\/)escape-props$/, replacement: resolveApp(`${renderer}/compat/escape-props`) },
 				{
 					find: /^@nativescript\/core$/,
 					replacement: resolveApp(`${renderer}/compat/native-core`),
