@@ -414,3 +414,24 @@ axis change, moving a child to StackLayout, updates outside Flexbox, reparenting
 native frames. Fixture commands select states0–7 and never set preferred native
 sizes or activate input handlers. This is a layout/lifecycle regression; it does
 not qualify the 20 public components or their OS input behavior.
+
+## Run Selector input checks
+
+Run `actions.ps1 -SelectorActions` in the signed-in desktop session with the
+same required source/package/output arguments as the other action modes. It
+uses the maintained `selector` scene and real OS input; fixture commands only
+change props and mount state.
+
+```powershell
+.\actions.ps1 -SelectorActions -ExpectedCommit $commit `
+  -ExpectedPackageVersion $version -OutputDirectory $newEvidenceDirectory
+```
+
+The run checks the single-select ComboBox and SelectionItem peers, finite and
+ordered option/shared-content frames, one closed Tab stop, F4 opening, arrow
+preview, Enter/mouse commits, Escape/focus return, one outside close request,
+retained names/callbacks, controlled rejection, disabled input, remount and
+measured trigger resizing.
+It preserves failures and helper hashes. Search, multiple selection, clear,
+groups, long-list scrolling, Narrator, visual parity and the final fresh
+current-main package remain separate gates. Do not qualify those from a pass.
