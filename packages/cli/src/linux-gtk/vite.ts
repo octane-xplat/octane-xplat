@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs-style module; annotations pending (transitional)
 import { createRequire } from 'node:module'
-import { realpathSync } from 'node:fs'
+import { existsSync, realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
@@ -69,6 +69,35 @@ export function xplatGtkSlotDedupe() {
  *  Produces a single ESM file `gjs -m` executes — the Octane universal
  *  runtime and the app's components are bundled; `gi://` introspection
  *  imports stay external because the GI libraries are the platform. */
+/** Shared sources import siblings with explicit extensions so Node can
+ *  type-strip them — but the extension pins the native-default leaf and
+ *  skips platform resolution. A GTK bundle redirects to the .gtk sibling
+ *  when one exists, restoring what extension probing did when the same
+ *  imports were extensionless. */
+export function xplatGtkLeafResolve() {
+	return {
+		name: 'xplat-gtk-leaf-resolve',
+		resolveId: {
+			order: 'pre',
+			handler(source, importer) {
+				if (!importer || !/^\.{1,2}\//.test(source)) {
+					return null
+				}
+				const match = source.match(/\.(tsrx|tsx|ts|mts|mjs|jsx|js)$/)
+				if (!match || source.includes('.gtk.') || source.includes('.d.')) {
+					return null
+				}
+				const stem = source.slice(0, -match[0].length)
+				if (stem.endsWith('.gtk')) {
+					return null
+				}
+				const candidate = join(importer, '..', stem + '.gtk' + match[0])
+				return existsSync(candidate) ? candidate : null
+			},
+		},
+	}
+}
+
 export async function xplatLinuxGtk(env, options = {}) {
 	const mode = typeof env === 'string' ? env : env.mode
 	const root = resolve(options.root ?? process.cwd())
@@ -86,6 +115,7 @@ export async function xplatLinuxGtk(env, options = {}) {
 		root,
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
+			xplatGtkLeafResolve(),
 			xplatGtkSlotDedupe(),
 			xplatCss('gtk'),
 			xplatInlineStylesheets(),
