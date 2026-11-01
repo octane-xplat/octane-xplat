@@ -65,9 +65,28 @@ this test entry out of the published executable.
 bun run turbo run test:nim-identity --filter=@octane-xplat/cli
 ```
 
+The code-provider gate compares native search/read commands and the shared local
+index with the TypeScript providers. It covers Unicode decoding and lowercase,
+UTF-16 continuation, ranking, stale chunks, corpus bounds, selection, provenance,
+Git freshness, and short subprocess capture. The capture helper owns one direct
+child; it does not establish runtime-session process-tree cleanup.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim code qualification"}' -- bun run turbo run test:nim-code --filter=@octane-xplat/cli
+```
+
+Measure the public executable after a build. The benchmark checks the host,
+source fingerprint and executable hash against the build record before recording
+raw/gzip bytes and warm process startup. It refuses stale or replaced artifacts.
+The download and startup goals are recorded separately from measured values.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim benchmark build"}' -- bun run turbo run benchmark:nim --filter=@octane-xplat/cli
+```
+
 Broader qualification remains necessary for advanced nested negated glob
-combinations, unusual YAML scalar/collection keys and recursive aliases, non-finite
-JSON numbers and lone surrogate handling, inaccessible files and Node's installation-prefix global lookup when
+combinations, unusual YAML scalar/collection keys and recursive aliases,
+inaccessible files and Node's installation-prefix global lookup when
 Node is absent from PATH. Those are open compatibility requirements for the full
 rewrite. They are not implied by the passing common-pattern corpus. Project
 metadata is read as data; JavaScript configuration is not evaluated.

@@ -1,7 +1,7 @@
 ## Installation identity for version-bound docs and framework code corpora.
 ## Resolve installed metadata without executing any installed dependency.
 import std/[json, os, strutils, algorithm, sets]
-import ./jsonutil, ./package_manager, ./digests, ./pathutil
+import ./jsonutil, ./package_manager, ./digests, ./pathutil, ./js_text
 from ./args import jsNumber
 
 const releaseRepo = "https://github.com/octane-xplat/octane-xplat"
@@ -40,7 +40,7 @@ proc documentationLockVersions(root: string): JsonNode =
   result = newJObject()
   if not exists(root / "pnpm-lock.yaml"): return
   var doc: JsonNode
-  try: doc = parseYamlDocument(readFile(root / "pnpm-lock.yaml"))
+  try: doc = parseYamlDocument(decodeUtf8(readFile(root / "pnpm-lock.yaml")))
   except CatchableError: return
   let importer = field(field(doc,"importers"),".")
   let declared = deps(importer)
@@ -94,7 +94,7 @@ proc resolveInstallations*(root: string): JsonNode =
       let provisionalKind = if linkedSpec(root,field(specs,name)): "linked" else: "registry"
       packages.add(%*{"name": name,"version": lock,"kind": provisionalKind,"installPath": newJNull(),"source": "lockfile-provisional"})
       identities.add(name & "@" & scalarString(lock) & ":" & provisionalKind)
-  %*{"packages": packages,"discrepancies": discrepancies,"fingerprint": sha256Hex(identities.join("\n"))}
+  %*{"packages": packages,"discrepancies": discrepancies,"fingerprint": sha256Hex(utf8ForWrite(identities.join("\n")))}
 proc developmentDocsDir*(installPath: string): JsonNode =
   var directory = expandFilename(installPath)
   for level in 0..<8:

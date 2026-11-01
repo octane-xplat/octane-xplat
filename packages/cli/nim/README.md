@@ -2,7 +2,7 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-clean, app selection and permissions; other agent commands provide help and schemas with execution marked
+clean, app selection, permissions, code search and code read; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -18,8 +18,8 @@ shared with the differential probe. `main.nim` owns the public command entry.
 `docs_binding.nim` resolves installation identities and release mappings without
 executing package code. `code_scope.nim` owns source enumeration and direct-read
 boundaries, including symlink targets and private/generated exclusions. These
-modules are qualified by an independent differential probe while their command
-providers remain migration work.
+modules are qualified by independent TypeScript differential probes. Documentation
+command providers remain migration work.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Framework-version binding stays internal until the remaining package-manager
@@ -29,6 +29,16 @@ filesystem discovery without making installed-version or runtime-readiness claim
 ```sh
 research/nim-cli/native/xplat status --schema
 research/nim-cli/native/xplat clean --help
+```
+
+Code retrieval searches selected app and installed framework sources, respects
+private/generated file exclusions and checks symlink targets. Reads use UTF-16
+offsets to preserve the existing continuation contract. Exact search remains
+available while the bounded local semantic index prepares.
+
+```sh
+research/nim-cli/native/xplat code search useStore --project "$PWD" --app apps/web --json
+research/nim-cli/native/xplat code read --ref xplat-code://app/apps/web/src/main.tsrx --project "$PWD" --app apps/web --json
 ```
 
 App selection writes a client-scoped cache preference. Explicit `--app` choices

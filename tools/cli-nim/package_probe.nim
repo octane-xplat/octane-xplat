@@ -1,7 +1,7 @@
 import std/[json, os]
-import ../../packages/cli/nim/[package_manager, core, workspace_glob, jsonc]
+import ../../packages/cli/nim/[package_manager, core, workspace_glob, jsonc, strictjson, json_wire]
 for line in stdin.lines:
-  let r = parseJson(line)
+  let r = parseStrictJson(line)
   try:
     var value: JsonNode
     let dir = if r.hasKey("dir"): r["dir"].getStr() else: getCurrentDir()
@@ -26,5 +26,5 @@ for line in stdin.lines:
       value = %workspaceGlob(dir,included,excluded)
     of "jsonc": value = parseJsonc(r["source"].getStr())
     else: raise newException(ValueError,"Unknown operation")
-    echo %*{"ok": true,"value": (if value == nil: newJNull() else: value)}
-  except CatchableError as error: echo %*{"ok": false,"message": error.msg}
+    echo wireJson(%*{"ok": true,"value": (if value == nil: newJNull() else: value)})
+  except CatchableError as error: echo wireJson(%*{"ok": false,"message": error.msg})

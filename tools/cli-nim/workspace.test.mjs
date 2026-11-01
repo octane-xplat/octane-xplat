@@ -116,3 +116,15 @@ test('selection uses normalized lexical paths, Unicode names and bounded directo
  parity(['app','select','café 😀','--project',join(workspace,'apps','..'),'--client','unicode_agent','--json'])
  parity(['app','select','packages/unnamed','--project',workspace,'--client','unicode_agent','--json'])
 })
+
+test('app preference JSON preserves lone UTF-16 units while human output writes valid UTF-8',()=>{
+ for(const name of ['name\ud800tail','\udfff','😀\ud800']){
+  const workspace=fixtures();app(workspace,name)
+  parity(['app','select','.','--project',workspace,'--client','json_units','--json'])
+  parity(['app','select','.','--project',workspace,'--client','json_units'])
+  const stored=readFileSync(join(workspace,'node_modules/.cache/xplat/agent/json_units.json'),'utf8')
+  assert.equal(JSON.parse(stored).appName,name)
+  assert.match(stored,/\\u[dD][89a-fA-F][0-9a-fA-F]{2}/)
+  parity(['permissions','--project',workspace,'--client','json_units','--json'])
+ }
+})

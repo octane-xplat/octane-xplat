@@ -93,7 +93,7 @@ test('workspace roots use manager declarations and included membership, not near
  compare(requests)
 })
 test('Bun JSONC rejects malformed grammar while preserving comments and string contents',()=>{
- const sources=['{}','[]','true','null','0','{"a":1,}','[1,]','[,]', '{,}', '[1,,]', '{"a":,}', '/*x*/ {"url":"https://x//a","text":"/*no*/",}', '//x\n{"a":[1,2,],}', '{"number":01}', '{"number":1_0}', '{"number":.1}', '{"number":1.}', '{} extra', '/* unfinished', '{"a":"escaped \\" // string"}', '\ufeff{}']
+ const sources=['{}','[]','true','null','0','[-0,1e400]','{"unit":"\\ud800","low":"\\udfff",}', '{"\\ud83d\\ude00":1,"😀":2}', '{"a":1,}','[1,]','[,]', '{,}', '[1,,]', '{"a":,}', '/*x*/ {"url":"https://x//a","text":"/*no*/",}', '//x\n{"a":[1,2,],}', '{"number":01}', '{"number":1_0}', '{"number":.1}', '{"number":1.}', '{} extra', '/* unfinished', '{"a":"escaped \\" // string"}', '\ufeff{}']
  const requests=[]
  for(const source of sources){
   requests.push({operation:'jsonc',source})

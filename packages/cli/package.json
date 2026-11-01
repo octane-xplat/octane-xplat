@@ -85,7 +85,10 @@
 		"test:nim": "node --test ../../tools/cli-nim/native.test.mjs ../../tools/cli-nim/package.test.mjs ../../tools/cli-nim/args.test.mjs ../../tools/cli-nim/workspace.test.mjs",
 		"pack:nim": "node ../../tools/cli-nim/pack.mjs",
 		"test:nim-packages": "node --test ../../tools/cli-nim/package-manager.test.mjs",
-		"test:nim-identity": "node --test ../../tools/cli-nim/identity.test.mjs"
+		"test:nim-identity": "node --test ../../tools/cli-nim/identity.test.mjs",
+		"test:nim-code": "node --test ../../tools/cli-nim/code.test.mjs ../../tools/cli-nim/code-command.test.mjs ../../tools/cli-nim/build-record.test.mjs",
+		"check:nim": "node ../../tools/cli-nim/check.mjs",
+		"benchmark:nim": "node ../../tools/cli-nim/benchmark.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

@@ -1,10 +1,13 @@
 ## Parallel native entry. Never falls back to the TypeScript CLI.
-import ./core, ./args, ./workspace, ./strictjson
+import ./core, ./args, ./workspace, ./strictjson, ./json_wire, ./js_text
 import std/[sysrand, terminal, json, os, strutils]
 
 const metadata = staticRead("metadata.json")
 let data = parseJson(metadata)
-let argv = commandLineParams()
+let argv = block:
+  var decoded: seq[string]
+  for arg in commandLineParams(): decoded.add(decodeUtf8(arg))
+  decoded
 proc requestId(): string =
   var bytes = urandom(16)
   bytes[6] = (bytes[6] and 15) or 64
@@ -16,21 +19,30 @@ proc requestId(): string =
 proc emit(payload: JsonNode) =
   var envelope = payload.copy()
   envelope["requestId"] = %requestId()
-  echo envelope.pretty()
+  echo wireJson(envelope,pretty=true)
 proc humanError(command: string, error: JsonNode) =
   var message = "xplat " & command & ": " & text(error["code"]) & ": " & text(error["message"])
   let action = text(field(field(error, "recovery"), "action"))
   if action != "": message.add("\n  → " & action)
-  stderr.writeLine(message)
+  stderr.writeLine(utf8ForWrite(message))
 proc failure(command, code, message: string, status: int) =
   if "--json" in argv:
     emit(%*{"contractVersion": 1, "ok": false, "context": {"command": command, "projectId": newJNull()}, "error": {"code": code, "message": message}})
   else: stderr.writeLine(message)
   quit(status)
+proc errorExit(code: string): int =
+  case code
+  of "invalid_selection", "ambiguous_selection", "not_found": 2
+  of "prerequisite_missing", "unavailable", "unsupported_capability", "target_busy": 3
+  of "permission_denied": 4
+  of "disconnected_runtime": 6
+  of "timeout": 7
+  of "cancelled": 8
+  else: 5
 
 if argv.len == 0 or argv == @["--help"] or argv == @["-h"]:
   echo "xplat — experimental Nim CLI"
-  echo "Native commands: catalog, clean, permissions, app select; all agent commands expose --help and --schema."
+  echo "Native commands: catalog, clean, permissions, app select, code search, code read; all agent commands expose --help and --schema."
   echo "Other command execution is pending. Install @octane-xplat/cli@latest for the TypeScript CLI."
   quit(0)
 if argv == @["--version"]:
@@ -72,16 +84,16 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, clean, permissions, app select. Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, clean, permissions, app select, code search, code read. Other command execution is pending; use --json for contracts and coverage."
     quit(0)
   let reply = workspaceCommand(name, parsed["values"])
   if reply != nil:
     if truthy(field(parsed["values"],"json")): emit(reply)
-    elif reply["ok"].getBool(): echo workspaceHuman(name, reply["data"])
+    elif reply["ok"].getBool(): echo utf8ForWrite(workspaceHuman(name, reply["data"]))
     else: humanError(name, reply["error"])
     if reply["ok"].getBool(): quit(0)
     let code = text(reply["error"]["code"])
-    quit(if code in ["invalid_selection", "ambiguous_selection", "not_found"]: 2 elif code == "permission_denied": 4 else: 5)
+    quit(errorExit(code))
   failure(name, "unavailable", "Command execution is not yet ported to Nim: " & name, 3)
 if name == "clean":
   if argv.len > 1:
@@ -93,7 +105,7 @@ if name == "clean":
   # Match strict JSON.parse before any deletion; invalid manifests must not clean.
   var manifest = newJObject()
   if fileExists(root / "package.json"):
-    try: manifest = parseStrictJson(readFile(root / "package.json"))
+    try: manifest = parseStrictJson(decodeUtf8(readFile(root / "package.json")))
     except CatchableError:
       failure(name, "execution_failure", "Cannot read package.json: invalid JSON", 5)
   var paths: seq[string]

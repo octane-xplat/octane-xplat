@@ -140,7 +140,7 @@ test('installed docs identities preserve links, lock conflicts, peers, hoisting 
  file(join(app, 'node_modules/@octane-xplat/ui/package.json'), '{')
  compare([{ operation: 'installations', root: app }])
  const scalarRequests = []
- for (const version of [true, 1, 1e21, 1e-7, 0.000001, 1.2345678901234567, 1.0000000000000001e20, [1, 2], { major: 1 }, null, '']) {
+ for (const version of [true, 1, 1e21, 1e-7, 0.000001, 1.2345678901234567, 1.0000000000000001e20, [1, 2], { major: 1 }, '\ud800', '\udfff', 'a\ud800b', null, '']) {
   const dir = fixture()
   json(join(dir, 'package.json'), {})
   pkg(join(dir, 'node_modules/@octane-xplat/ui'), '@octane-xplat/ui', version)

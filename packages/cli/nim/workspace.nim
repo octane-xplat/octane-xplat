@@ -2,7 +2,7 @@
 ## Retains the TypeScript envelope/selection distinction:
 ## a sole-app selection does not mutate boundApp or the envelope's projectId.
 import std/[times, json, os, strutils]
-import ./core, ./args
+import ./core, ./args, ./code_service, ./json_wire
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -21,7 +21,7 @@ proc safeClient(client: string): bool =
 proc preferenceJson(node: JsonNode): string =
   # std/json pretty() accepts an indentation width, not an indentation char.
   var lines: seq[string]
-  for line in node.pretty(indent=1).splitLines():
+  for line in wireJson(node,pretty=true,indent=1).splitLines():
     var prefix = 0
     while prefix < line.len and line[prefix] == ' ': inc prefix
     lines.add(repeat('\t', prefix) & line[prefix..^1])
@@ -83,7 +83,7 @@ proc policyCheck(grant: JsonNode): JsonNode =
   else: %*{"action": "Ask the developer to grant this permission for the current task"}
   %*{"granted": false, "error": {"code": "permission_denied", "message": "Permission \"" & scope & "\" has not been granted.", "recovery": recovery, "context": {"scope": scope, "state": grant["state"]}}}
 proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
-  if name notin ["app select", "permissions"]: return nil
+  if name notin ["app select", "permissions", "code read", "code search"]: return nil
   var context: WorkspaceContext
   try: context = makeContext(values)
   except CatchableError as error:
@@ -117,6 +117,31 @@ proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
           createDir(cacheDir(context.root))
           writeFile(path, preferenceJson(%*{"client": context.client, "appId": context.boundApp["id"], "appName": context.boundApp["name"], "selectedAt": isoNow()}))
           payload = %*{"bound": context.boundApp, "reason": "explicit", "preference": {"client": context.client, "path": path}}
+    else:
+      let selected = context.selection()
+      if text(selected["state"]) == "ambiguous":
+        var candidates = newJArray()
+        for app in selected["candidates"]: candidates.add(app["id"])
+        failure = %*{"code": "ambiguous_selection",
+          "message": "Several apps are detected — code retrieval targets the bound app and its installed packages, never a guessed one.",
+          "recovery": {"action": "Bind an app first — `xplat app select` (CLI) or xplat_select_app (MCP)."},
+          "context": {"candidates": candidates}}
+      else:
+        let options = values.copy()
+        options["app"] = if text(selected["state"]) == "bound": selected["app"] else: newJNull()
+        options["workspaceKind"] = context.discovery["workspace"]["kind"]
+        let service = newCodeService(context.root)
+        payload = if name == "code read": service.codeRead(options) else: service.codeSearch(options)
+        if truthy(field(payload,"status")):
+          var detail = field(payload,"detail")
+          if detail == nil or detail.kind == JNull: detail = field(payload,"reason")
+          if detail == nil or detail.kind == JNull: detail = payload["status"]
+          var errorContext = newJObject()
+          for key in ["status","reason","corpus","path"]:
+            let value = field(payload,key)
+            if value != nil: errorContext[key] = value
+          failure = %*{"code": (if text(payload["status"]) == "unavailable": "unavailable" else: "invalid_selection"),
+            "message": detail,"context": errorContext}
   except CatchableError as error:
     failure = %*{"code": "execution_failure", "message": error.msg}
   result = %*{"contractVersion": 1, "ok": failure == nil, "context": envelopeContext(context, name, values)}
@@ -125,6 +150,14 @@ proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
 proc workspaceHuman*(name: string, payload: JsonNode): string =
   if name == "app select":
     return "Bound " & text(payload["bound"]["id"]) & " (" & text(payload["bound"]["name"]) & ") — preference saved for client \"" & text(payload["preference"]["client"]) & "\""
+  if name == "code read":
+    return text(payload["path"]) & " (" & text(payload["corpus"]) & ")\n" & text(payload["content"])
+  if name == "code search":
+    var lines: seq[string]
+    for hit in payload["results"]:
+      lines.add(text(hit["corpus"]) & ":" & text(hit["path"]) & ":" & $hit["line"] & " — " & jsTrim(text(hit["excerpt"]).split('\n')[0]))
+      lines.add("  ref: " & text(hit["ref"]))
+    return if lines.len == 0: "No hits." else: lines.join("\n")
   var grants = field(payload,"grants")
   if grants == nil: grants = %*[payload["grant"]]
   var lines: seq[string]

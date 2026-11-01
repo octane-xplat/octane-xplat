@@ -2,12 +2,12 @@
 import std/[json, os, strutils, sets, tables]
 import yaml/[parser, stream, data]
 import yaml/tojson
-import ./jsonutil, ./strictjson, ./jsonc, ./workspace_glob, ./pathutil
+import ./jsonutil, ./strictjson, ./jsonc, ./workspace_glob, ./pathutil, ./js_text
 
 proc present(node: JsonNode): bool = node != nil and node.kind != JNull
 proc exists(path: string): bool = fileExists(path) or dirExists(path)
 proc readProjectPackage*(root: string): JsonNode =
-  if exists(root / "package.json"): parseStrictJson(readFile(root / "package.json"))
+  if exists(root / "package.json"): parseStrictJson(decodeUtf8(readFile(root / "package.json")))
   else: newJObject()
 proc parseYamlDocument*(source: string): JsonNode =
   type Frame = object
@@ -61,7 +61,7 @@ proc readProjectWorkspace*(root: string, selectedManager: JsonNode = nil): JsonN
   let yaml = root / "pnpm-workspace.yaml"
   if manager != "bun" and exists(yaml):
     try:
-      let parsed = parseYamlDocument(readFile(yaml))
+      let parsed = parseYamlDocument(decodeUtf8(readFile(yaml)))
       return if present(parsed): parsed else: newJObject()
     except CatchableError as error: raise newException(ValueError,"Cannot read " & yaml & ": " & error.msg)
   let workspace = field(pkg,"workspaces")
@@ -118,7 +118,7 @@ proc readBunLock*(root: string): JsonNode =
       raise newException(ValueError,"xplat patches needs bun.lock. Run bun install --save-text-lockfile --lockfile-only to convert bun.lockb.")
     return nil
   try:
-    result = parseJsonc(readFile(file))
+    result = parseJsonc(decodeUtf8(readFile(file)))
     if result == nil or result.kind notin {JObject,JArray}: raise newException(ValueError,"Invalid root")
   except CatchableError: raise newException(ValueError,"Cannot read " & file & ": invalid Bun lockfile")
 proc versionPrefix(spec: string): bool =
@@ -199,7 +199,7 @@ proc lockedVersions*(workspaceRoot, appDir: string, declared: JsonNode): JsonNod
     let file = dir / "pnpm-lock.yaml"
     if exists(file):
       try:
-        let doc = parseYamlDocument(readFile(file))
+        let doc = parseYamlDocument(decodeUtf8(readFile(file)))
         var importer = field(field(doc,"importers"),relativePath(appDir,dir))
         if not present(importer): importer = field(field(doc,"importers"),".")
         let locked = deps(importer)

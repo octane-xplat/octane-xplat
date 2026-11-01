@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { getToolchain } from 'nim-toolchain'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
+import { nativeInputs, artifactFingerprint } from './native-inputs.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const work = resolve(root, 'research/nim-cli')
 const version = process.env.XPLAT_NIM_VERSION ?? JSON.parse(readFileSync(resolve(root, 'packages/cli/package.json'))).version + '-nim.0'
@@ -18,25 +19,29 @@ function reference(args) {
  return r.stdout
 }
 const catalog=JSON.parse(reference(['catalog','--json']))
+delete catalog.requestId
 // Version denotes this native build; execution coverage must never be inferred
 // from the reference schemas' implemented status.
 catalog.data.cli.version=version
-for(const c of catalog.data.commands) c.status=['catalog','permissions','app select'].includes(c.command)?'implemented':'pending'
+for(const c of catalog.data.commands) c.status=['catalog','permissions','app select','code search','code read'].includes(c.command)?'implemented':'pending'
 for(const c of catalog.data.orchestration) c.status=c.name==='clean'?'implemented':'pending'
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
- schema.data.status=['catalog','permissions','app select'].includes(c.name)?'implemented':'pending'
+ delete schema.requestId
+ schema.data.status=['catalog','permissions','app select','code search','code read'].includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
 writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:""}))
 mkdirSync(resolve(work,'native'),{recursive:true})
 const binary=resolve(work,process.platform==='win32'?'native/xplat.exe':'native/xplat')
 const flags=['c','-d:release','--opt:size','--mm:orc',...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/native-cache`,`-o:${binary}`,resolve(root,'packages/cli/nim/main.nim')]
+const inputs=nativeInputs(root)
 for(const [cmd,args] of [[compiler.nim,flags],...(process.platform==='win32'?[]:[['strip',[binary]]])]) {
  const r=spawnSync(cmd,args,{stdio:'inherit'});if(r.status!==0)throw Error('Native build failed')
 }
-writeFileSync(resolve(work,'native/build.json'),JSON.stringify({version,platform:process.platform,arch:process.arch,flags}))
+if(nativeInputs(root).sha256!==inputs.sha256)throw Error('Native sources changed during compilation; rebuild before qualifying this artifact')
+writeFileSync(resolve(work,'native/build.json'),JSON.stringify({version,platform:process.platform,arch:process.arch,flags,stripped:process.platform!=='win32',nativeInputs:inputs,nativeArtifact:artifactFingerprint(readFileSync(binary))}))
 
 writeFileSync(resolve(work,'native/NOTICE.txt'), readFileSync(resolve(work,'NOTICE.txt')))
 
@@ -51,3 +56,7 @@ if(packageBuild.status!==0)throw Error('Package-manager probe build failed')
 const identityProbe=resolve(work,process.platform==='win32'?'native/identity-probe.exe':'native/identity-probe')
 const identityBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/identity-cache`,`-o:${identityProbe}`,resolve(import.meta.dirname,'identity_probe.nim')],{stdio:'inherit'})
 if(identityBuild.status!==0)throw Error('Identity/corpus probe build failed')
+
+const codeProbe=resolve(work,process.platform==='win32'?'native/code-probe.exe':'native/code-probe')
+const codeBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/code-cache`,`-o:${codeProbe}`,resolve(import.meta.dirname,'code_probe.nim')],{stdio:'inherit'})
+if(codeBuild.status!==0)throw Error('Code provider/index probe build failed')

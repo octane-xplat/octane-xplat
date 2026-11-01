@@ -1,8 +1,8 @@
 import std/[json, math]
-import ./strictjson
+import ./strictjson, ./js_text
 
 proc readJson*(path: string): JsonNode =
-  try: result = parseStrictJson(readFile(path))
+  try: result = parseStrictJson(decodeUtf8(readFile(path)))
   except CatchableError: result = newJNull()
 proc field*(n: JsonNode, key: string): JsonNode =
   if n != nil and n.kind == JObject: n.getOrDefault(key)

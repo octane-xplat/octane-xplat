@@ -105,6 +105,19 @@ not in this guidance file.
 Compiler-VM (`static`) checks can verify pure logic, but neither establishes
 native runtime, FFI, process or platform behavior. Keep native execution gates.
 
+## Async and child-process boundaries
+
+An async procedure runs synchronously until an unfinished await. A small build
+can therefore be ready before its returned future's cleanup callback runs;
+track result state and pending ownership separately. Initialize the async
+dispatcher before registering callbacks on already-completed futures, and test
+both immediate completion and a build that yields to the event loop.
+
+Drain stdout and stderr concurrently when capturing a child. Reading one pipe
+to EOF first can block forever when the other pipe fills. Bound retained output,
+close unused stdin, and kill/reap the owned child on timeout or capture failure.
+Direct-child cleanup does not establish process-tree cancellation.
+
 ## Filesystem and byte boundaries
 
 Nim's `parentDir` returns an empty string at an absolute filesystem root.

@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 export function prepareDependencies(cache, toolchain) {
  const pin = JSON.parse(readFileSync(new URL('./nim-dependencies.json',import.meta.url)))
+ if(toolchain.version!==pin.compiler.nim)throw Error(`Compiler pin mismatch: expected Nim ${pin.compiler.nim}, got ${toolchain.version}`)
  const paths = []
  const notices = [`Nim ${toolchain.version}\n\n${readFileSync(resolve(toolchain.directory,'copying.txt'),'utf8')}`]
  for(const [name, dependency] of Object.entries(pin)) {

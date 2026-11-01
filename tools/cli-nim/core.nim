@@ -1,5 +1,6 @@
 import ../../packages/cli/nim/core
 import ../../packages/cli/nim/[docs_binding, code_scope]
+import ../../packages/cli/nim/json_wire
 import std/[json, os, strutils, httpclient, osproc]
 when defined(posix): import std/posix
 
@@ -19,20 +20,20 @@ try:
     elif cmd == "schema":
       if args.len < 2 or not data["schemas"].hasKey(args[1]):
         stderr.writeLine("Unknown command"); quit(2)
-      echo data["schemas"][args[1]]
-    else: echo data["catalog"]
-  of "discover": echo discover(absolutePath(args[1]))
-  of "platforms": echo platforms(absolutePath(args[1]))
-  of "binding": echo binding(absolutePath(args[1]), absolutePath(args[2]))
-  of "identity": echo resolveInstallations(absolutePath(args[1]))
-  of "files": echo listCorpusFiles(absolutePath(args[1]), limit = parseInt(args[2]))
-  of "repo-roots": echo frameworkRepoRoots(absolutePath(args[1]))
+      echo wireJson(data["schemas"][args[1]])
+    else: echo wireJson(data["catalog"])
+  of "discover": echo wireJson(discover(absolutePath(args[1])))
+  of "platforms": echo wireJson(platforms(absolutePath(args[1])))
+  of "binding": echo wireJson(binding(absolutePath(args[1]), absolutePath(args[2])))
+  of "identity": echo wireJson(resolveInstallations(absolutePath(args[1])))
+  of "files": echo wireJson(listCorpusFiles(absolutePath(args[1]), limit = parseInt(args[2])))
+  of "repo-roots": echo wireJson(frameworkRepoRoots(absolutePath(args[1])))
   of "http":
     try:
       let client = newHttpClient(timeout = 10000)
       defer: client.close()
       let response = client.request(args[1])
-      echo %*{"status": int(response.code), "body": response.body}
+      echo wireJson(%*{"status": int(response.code), "body": response.body})
     except CatchableError:
       stderr.writeLine("HTTP request failed"); quit(5)
   of "child":

@@ -1,5 +1,6 @@
 import std/[json, os]
 import ../../packages/cli/nim/[docs_binding, code_scope, digests]
+import ../../packages/cli/nim/json_wire
 from ../../packages/cli/nim/strictjson import parseStrictJson
 from ../../packages/cli/nim/args import jsNumber
 for line in stdin.lines:
@@ -24,5 +25,5 @@ for line in stdin.lines:
     of "resolve": value = resolveCodePath(r["corpora"],r["corpus"].getStr(),r["key"].getStr())
     of "key": value = %codeKeyFor(r["corpus"],r["file"])
     else: raise newException(ValueError,"Unknown operation")
-    echo %*{"ok": true,"value": (if value == nil: newJNull() else: value)}
-  except CatchableError as error: echo %*{"ok": false,"message": error.msg}
+    echo wireJson(%*{"ok": true,"value": (if value == nil: newJNull() else: value)})
+  except CatchableError as error: echo wireJson(%*{"ok": false,"message": error.msg})
