@@ -95,6 +95,7 @@ test('macOS public source import does not evaluate mobile APIs', () => {
 	const root = load('../src/index.macos.ts', {
 		'./recorder.macos': load('../src/recorder.macos.ts', {
 			'./recorder-core.macos': { createMacOSRecorder },
+			'./recorder-host.macos': { createNativeRecorderHost: () => undefined },
 		}),
 		'./types': {},
 	})

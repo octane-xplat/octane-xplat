@@ -209,7 +209,11 @@ try {
 	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
-	assert.ok(existsSync(join(packedRoot, 'platforms/macos/src/XplatAudioRecorder.swift')))
+	assert.ok(
+		!existsSync(join(packedRoot, 'platforms/macos')),
+		'macOS backend ships no native leaf — TypeScript drives the ObjC bridge',
+	)
+	assert.ok(existsSync(join(packedRoot, 'src/recorder-host.macos.ts')))
 	// Resolve and execute the actual public condition with no mobile modules
 	// installed. A missing native bridge must be a safe unsupported recorder.
 	const importRoot = join(temporary, 'macos-import')

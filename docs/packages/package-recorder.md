@@ -68,7 +68,8 @@ Notes and limits:
 - iOS: the leaf sets `AVAudioSessionCategoryPlayAndRecord` (mix + duck) while
   a take is open and deactivates on stop/cancel.
 - The mobile native entry requires iOS or Android. macOS uses the `macos`
-  export condition and its own Swift leaf; see setup below.
+  export condition and drives `AVAudioRecorder` from TypeScript through the
+  host's Objective-C bridge — no native rebuild is needed; see setup below.
 
 For playback of the result see [`@octane-xplat/audio`](https://octane-xplat.goddardai.org/package-audio).
 Permission dispatch through `@octane-xplat/platform` answers
@@ -139,7 +140,8 @@ console.log(take.path, take.bytes.length) // app owns deletion of this finished 
 
 The [voice-memo example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/recorder/voice-memo.ts) connects cleanup
 to an app-owned Stop action. Adapter state/failure tests, packed public
-consumers and native bridge checks cover software behavior. Real microphone
-capture, privacy prompts, input removal, metering and foreground recovery
-remain queued for hardware qualification; these checks do not establish
-runtime capture parity. No background recording is promised.
+consumers and real AppKit/JSC host checks cover software behavior, including
+an actual `AVAudioRecorder` take to a finalized WAV in the packaged host.
+Foreground-app capture with a privacy prompt, physical input removal,
+metering against live signal and foreground loss remain queued for hardware
+qualification. No background recording is promised.

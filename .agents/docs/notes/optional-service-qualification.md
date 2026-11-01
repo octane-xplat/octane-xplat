@@ -210,15 +210,21 @@ Web, iOS and Android, and no error-only or mocked demo counts as end-to-end succ
 
 ## macOS recorder qualification
 
-2026-10-11: the recorder's `macos` export loads without mobile APIs. Software
-checks cover authorization admission, state transitions, pause/resume,
-interruptions, metering snapshots, stop failures, cancellation and disposal.
-Packed consumers typecheck in Bundler and NodeNext modes, including the
-[voice-memo example](../../../examples/recorder/voice-memo.ts). The actual AppKit
-host loads the packed Swift leaf and exercises undeclared-permission guards
-and disposal without requesting access. A separate AVFoundation fixture writes
-and closes a 16000 Hz stereo WAV; its int16 samples, RIFF lengths and derived
-metadata pass validation.
+2026-11-01: the macOS backend is TypeScript-only — `src/recorder-host.macos.ts`
+drives `AVAudioRecorder`, `AVCaptureDevice`, `NSNotificationCenter` and
+`NSFileManager` through the node-api ObjC bridge; the Swift leaf and
+`xplat.macos` packaging are removed. Software checks cover authorization
+admission, state transitions, pause/resume, interruptions, metering snapshots,
+stop failures, cancellation and disposal. Packed consumers typecheck in
+Bundler and NodeNext modes, including the
+[voice-memo example](../../../examples/recorder/voice-memo.ts). `test:macos-runtime`
+bundles the packed package and runs it inside the real AppKit/JSC host
+(`[NSApp run]`) with declared and undeclared sibling `Info.plist` fixtures:
+permission guards, start/resume refusal, disposal and — when the host identity
+is already microphone-authorized — a real `AVAudioRecorder` take to a
+finalized 16 kHz WAV with the delegate callback firing. A separate
+AVFoundation fixture writes and closes a 16000 Hz stereo WAV; its int16
+samples, RIFF lengths and derived metadata pass validation.
 
 ```sh
 pnpm --filter @octane-xplat/recorder test
