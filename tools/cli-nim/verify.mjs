@@ -11,10 +11,10 @@ import { gzipSync } from 'node:zlib'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '../..')
-const compiler = resolve(repo, 'research/nim-cli/core')
+const compiler = resolve(repo, `research/nim-cli/core${process.platform === 'win32' ? '.exe' : ''}`)
 const runRoot = join(repo, 'research/nim-cli', `${process.platform}-${process.arch}-${Date.now()}`)
 mkdirSync(runRoot, { recursive: true })
-const results = { nimSourceSha256: createHash('sha256').update(readFileSync(join(here,'core.nim'))).digest('hex'), revision: spawnSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8'}).stdout.trim(), platform: process.platform, arch: process.arch, referenceRuntime: process.version, compiler: 'Nim 2.2.12', checks: [], artifacts: [] }
+const results = { nimSourceSha256: createHash('sha256').update(readFileSync(join(here,'core.nim'))).update(readFileSync(join(repo,'packages/cli/nim/core.nim'))).digest('hex'), revision: spawnSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8'}).stdout.trim(), platform: process.platform, arch: process.arch, referenceRuntime: process.version, compiler: 'Nim 2.2.12', checks: [], artifacts: [] }
 const check = async (name, action) => {
 	try {
 		await action()

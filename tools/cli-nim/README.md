@@ -1,6 +1,8 @@
 # Evaluate Nim for the CLI
 
-This bounded contributor prototype evaluates a standalone control layer. It does
+This bounded contributor prototype evaluates a standalone control layer.
+The [parallel implementation](../../packages/cli/nim/README.md) now owns the
+shared core and public native entry; this tool retains the independent probe. It does
 not replace `xplat`. Node runs the build and comparison harness; the resulting
 executable runs with an empty PATH and contains no JavaScript engine.
 
@@ -58,7 +60,8 @@ research/nim-cli/core http http://127.0.0.1:8080/status
 research/nim-cli/core child /absolute/path/to/project/tool --version
 ```
 
-Only macOS build flags and stripping are implemented. Native Linux and Windows
+Build flags now select macOS dead stripping, Linux section collection, or the
+Windows compiler defaults; only macOS has been executed locally. Native Linux and Windows
 build jobs, libc baselines, TLS libraries, Windows process control, signing,
 notarization, archive checksums, and installer/update behavior remain distribution
 work. Nim emits C requiring a target C compiler and SDK; cross-compilation alone

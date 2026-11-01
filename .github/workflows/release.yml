@@ -15,8 +15,12 @@ on:
       track:
         description: Release channel to attempt
         type: choice
-        options: [stable, nightly]
+        options: [stable, nightly, nim]
         default: stable
+      nim_version:
+        description: Exact Nim prerelease version (x.y.z-nim.N)
+        required: false
+        type: string
       typegen_version:
         description: tsrx-typegen version override (blank = Conventional Commit inference)
         required: false
@@ -708,3 +712,77 @@ jobs:
           gh release delete nightly --yes 2>/dev/null || true
           gh release create nightly --title nightly --prerelease \
             --notes "Nightly prerelease of ${TESTED_SHA} — install with \`bun add @octane-xplat/<pkg>@nightly\` (published as $VERSION)."
+
+  nim-build:
+    if: github.event_name == 'workflow_dispatch' && inputs.track == 'nim' && github.ref == 'refs/heads/main'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            target: darwin-arm64
+          - runner: macos-15-intel
+            target: darwin-x64
+          - runner: ubuntu-24.04
+            target: linux-x64
+          - runner: ubuntu-24.04-arm
+            target: linux-arm64
+          - runner: windows-latest
+            target: win32-x64
+            extension: .exe
+    runs-on: ${{ matrix.runner }}
+    env:
+      XPLAT_NIM_VERSION: ${{ inputs.nim_version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: bun install --frozen-lockfile
+      - run: bun run turbo run test:nim --filter=@octane-xplat/cli
+      - name: Stage executable
+        shell: bash
+        run: |
+          mkdir -p research/nim-cli/artifacts
+          cp "research/nim-cli/native/xplat${{ matrix.extension }}" "research/nim-cli/artifacts/xplat-${{ matrix.target }}${{ matrix.extension }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nim-${{ matrix.target }}
+          path: research/nim-cli/artifacts/*
+
+  nim-publish:
+    needs: nim-build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      XPLAT_NIM_VERSION: ${{ inputs.nim_version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: bun install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nim-*
+          merge-multiple: true
+          path: research/nim-cli/artifacts
+      - run: bun run turbo run pack:nim --filter=@octane-xplat/cli
+      - name: Publish the parallel CLI under nim only
+        shell: bash
+        run: npm publish research/nim-cli/package/*.tgz --access public --tag nim --provenance
