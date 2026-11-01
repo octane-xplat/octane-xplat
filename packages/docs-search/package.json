@@ -36,7 +36,8 @@
 		"prepack": "bun run build"
 	},
 	"dependencies": {
-		"@huggingface/transformers": "4.3.2"
+		"@huggingface/tokenizers": "0.2.0",
+		"onnxruntime-web": "1.31.1"
 	},
 	"devDependencies": {
 		"@types/node": "24.10.1",

@@ -10,5 +10,6 @@ xplat docs search "remember input between pages" --json
 xplat docs search "navigation" --corpus changelog --json
 ```
 
-The first preparation downloads a model; document text and questions stay local.
+The text-only WASM runtime keeps inference local. The first preparation downloads
+a model; document text and questions stay on your machine.
 See [local documentation search](https://octane-xplat.goddardai.org/package-cli#local-documentation-search).

@@ -87,6 +87,21 @@ test('content changes invalidate linked checkout embeddings; unchanged files rem
 	assert.equal((await prepareIndex({ ...ctx, documents: edited })).embedded, 1)
 })
 
+test('a new backend identity requires fresh embeddings and preserves lexical fallback until prepared', async (t) => {
+	const ctx = fixture(t)
+	const documents = [document('routes.md', '# Navigation\n\nRetain inactive screens.')]
+	await prepareIndex({ ...ctx, documents })
+	const replacement = { ...embedder(), id: 'fixture-wasm-v1' }
+	const options = { ...ctx, documents, embedder: replacement }
+	const before = await searchIndex({ ...options, query: 'screens' })
+	assert.equal(before.retrieval.reason, 'index-not-ready')
+	assert.equal(replacement.calls, 0)
+	assert.equal((await prepareIndex(options)).embedded, 1)
+	const after = await searchIndex({ ...options, query: 'remember' })
+	assert.equal(after.retrieval.used, 'hybrid')
+	assert.equal(after.results[0].path, 'routes.md')
+})
+
 test('keyword identifiers survive punctuation; unavailable model falls back explicitly', async (t) => {
 	const ctx = fixture(t)
 	const documents = [document('api.md', '# API\n\nUse RouteOutlet and captureV2().')]

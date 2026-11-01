@@ -15,7 +15,8 @@ xplat docs search "remember input when switching pages" --json
 ```
 
 The first preparation downloads a pinned, quantized MiniLM model from Hugging
-Face. Inference stays local. SQLite stores section chunks, FTS5 keyword entries,
+Face. Text-only inference uses ONNX Runtime WASM and Hugging Face's tokenizer
+on the CPU. SQLite stores section chunks, FTS5 keyword entries,
 and content-addressed embeddings; search combines keyword and cosine rankings.
 Results preserve source lines and release-entry identity. Consumers must supply
 already validated snapshot content and a binding identity; this engine does not
@@ -36,12 +37,15 @@ console.log(found.retrieval.used, found.results)
 
 Search never downloads a model. Missing embeddings or a missing local model
 produce an explicit lexical fallback. Cache identity includes the chunker,
-binding, document contents, and model revision. Identical text reuses embeddings
-across snapshots. Fenced examples remain intact; exceptionally large sections
+binding, document contents, model revision and inference backend. Run preparation
+again after an embedding backend upgrade; old vectors cannot serve the new
+backend. Identical text reuses embeddings across snapshots. Fenced examples remain
+intact; exceptionally large sections
 can exceed the embedding model's input window, so exact reads remain authoritative.
 
 ```sh
 xplat docs search "RouteOutlet" --mode exact --json
+xplat docs index --json
 ```
 
 Maintainers run deterministic tests without downloading models. The separate
