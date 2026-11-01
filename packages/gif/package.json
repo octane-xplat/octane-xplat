@@ -25,7 +25,6 @@
 	"files": [
 		"types",
 		"src",
-		"platforms",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
 	],
@@ -48,11 +47,13 @@
 		"test:packed": "node tests/packed-consumer.mjs",
 		"typegen": "tsrx-typegen --target octane",
 		"pack:check": "tsrx-typegen --pack-check",
-		"test": "node --experimental-strip-types --test tests/*.test.ts"
+		"test": "node --experimental-strip-types --test tests/*.test.ts",
+		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"dependencies": {
 		"@nativescript-community/ui-image": "5.0.18",
-		"@octane-xplat/jsx": "workspace:*"
+		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
@@ -76,17 +77,6 @@
 		},
 		"@nativescript/core": {
 			"optional": true
-		}
-	},
-	"xplat": {
-		"macos": {
-			"swiftHeaderImports": [
-				"AppKit/AppKit.h"
-			],
-			"frameworks": [
-				"AppKit",
-				"QuartzCore"
-			]
 		}
 	}
 }

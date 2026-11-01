@@ -1,0 +1,51 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx"
+	},
+	"environments": {
+		"web": {
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsrx"
+			],
+			"exclude": [
+				"src/**/*.macos.ts",
+				"src/**/*.macos.tsrx",
+				"src/**/*.windows.ts",
+				"src/**/*.windows.tsrx",
+				"src/**/*.test.ts"
+			]
+		},
+		"native": {
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsrx"
+			],
+			"exclude": [
+				"src/**/*.web.ts",
+				"src/**/*.web.tsrx",
+				"src/**/*.macos.ts",
+				"src/**/*.macos.tsrx",
+				"src/**/*.windows.ts",
+				"src/**/*.windows.tsrx",
+				"src/**/*.test.ts"
+			]
+		},
+		"macos": {
+			"include": [
+				"src/index.macos.ts",
+				"src/**/*.macos.ts",
+				"src/**/*.macos.tsrx"
+			]
+		},
+		"windows": {
+			"include": [
+				"src/index.windows.ts",
+				"src/**/*.windows.ts",
+				"src/**/*.windows.tsrx"
+			]
+		}
+	}
+}
