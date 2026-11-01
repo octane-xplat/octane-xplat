@@ -316,3 +316,55 @@ The former UI register, lab report, and later qualification report are indexed
 in `local_artifacts`. Use [operational evidence lookup](exploration.md#operational-evidence)
 to retrieve their file paths and provenance. Historical parked/implemented
 counts do not describe current source or close current qualification gates.
+
+## Single-selection controller candidate
+
+Keep finite selection state in `useSelect`; the Windows container selects its
+Windows view explicitly because the native default imports `SelectView.tsrx`
+with an extension. The candidate hosts shared option drawing in named WinUI
+ComboBoxItem slots and measures a transparent collapsed peer over the shared
+trigger. Search, multiple selection, clear, empty lists and grouped options
+retain the shared view and its existing input limits.
+
+```tsx
+import { useState } from 'octane'
+import { Selector } from '@octane-xplat/ui'
+
+export function Choice() {
+  const [value, setValue] = useState<string | null>('first')
+  return <Selector selectionMode="single" value={value} onValueChange={setValue}
+    options={[{ value: 'first', label: 'First' }, { value: 'third', label: 'Third' }]} />
+}
+```
+
+Keep template geometry in the qualification scope. Preserve WinUI's stock outer
+template; a simplified outer template can leave popup options offscreen. Give
+each custom ComboBoxItem template a named `LayoutRoot` Grid with a transparent
+background and `Control.IsTemplateFocusTarget="True"`, with the shared drawing
+inside its stretched ContentPresenter. A presenter-only template left unselected
+framework-content peers without UIA bounds; adding the Grid restored all three
+option frames in the bounded public-component run. Plain string content did not
+exhibit that failure, so a string-only engine probe cannot qualify hosted views.
+
+The pinned host also limits template traversal: `VisualTreeHelper.GetChild`
+returns wrappers whose derived `Name`/`Margin`/`Opacity` members are undefined.
+Reading dependency properties returns boxed references, whose `Value` member was
+also undefined in the tested payload. Borrow typed framework accessors from a
+known native Grid and call them with the base child as `this`. Packaged bounds
+checks verified zeroing the stock negative highlight margin and hiding collapsed
+chrome through these setters. Keep all parts measured, skip the popup subtree,
+and reset only while closed; do not infer the contract from TypeScript casts or
+current upstream source alone.
+
+Stock ComboBox engine probes establish that enabled items must remain keyboard
+focusable and hosted ContentViews need stretched vertical content alignment.
+Do not copy the tab strip's selected-only Tab-stop policy into option items.
+Keep committed selection timing, ignore writes as user intents, defer controlled
+reconciliation until native events unwind, and retire handlers/timers on unload
+and rebuild. Qualify the collapsed chrome reset and option template through the
+public component; a stock-engine pass alone does not qualify them. Keep the
+bounded diagnostic result separate from a fresh source build and final
+current-main qualification.
+
+The maintained [Selector input mode](../../tools/windows-qualification/README.md#run-selector-input-checks)
+keeps its final gate pending independently of these implementation prerequisites.

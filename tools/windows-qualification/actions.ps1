@@ -825,7 +825,7 @@ function Check-SelectorActions {
   Assert ((Selector-ClosedRequests) -eq $closedBefore+1) 'Escape reports one close request'
   Wait-For {Focused 'Choice 0'} 'Escape did not return focus to ComboBox'
   Click-Control $trigger;Selector-Open 0 'selector-before-outside'|Out-Null
-  $outside=Named (Capture 'selector-outside-target') 'Before selector'
+  $outside=Named @((Capture 'selector-outside-target')|Where-Object {$_.type -eq 'ControlType.Button'}) 'Before selector'
   $closedBefore=Selector-ClosedRequests;Click-Control $outside;Selector-State 'first' $false 'selector-outside-dismiss'
   Assert ((Selector-ClosedRequests) -eq $closedBefore+1) 'Outside dismissal reports one close request'
   Focus-Action 'Choice 0' 'ControlType.ComboBox';Key 115
