@@ -124,6 +124,35 @@ test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
 	)
 	assert.deepEqual(result.growEnd, { x: 100, w: 140 })
 
+	assert.deepEqual(result.borderAuto, {
+		w: 48,
+		h: 26,
+		contentX: 5,
+		contentY: 2,
+		contentW: 40,
+		contentH: 20,
+		natW: 48,
+		natH: 26,
+	})
+	assert.deepEqual(result.borderDropped, {
+		w: 40,
+		h: 20,
+		contentX: 0,
+		contentY: 0,
+		contentW: 40,
+		contentH: 20,
+		natW: 40,
+		natH: 20,
+	})
+	assert.equal(result.borderFixed.w, 70)
+	assert.equal(result.borderFixed.h, 50)
+	assert.equal(result.borderFixed.natW, 70)
+	assert.equal(result.borderFixed.natH, 50)
+	assert.equal(result.borderFixed.contentX, 5)
+	assert.equal(result.borderFixed.contentY, 2)
+	assert.equal(result.borderFixed.contentW, 40)
+	assert.equal(result.borderFixed.contentH, 20)
+
 	assert.equal(result.destroyed, true)
 }, 120000)
 

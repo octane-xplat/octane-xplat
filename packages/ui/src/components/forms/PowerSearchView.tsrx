@@ -5,6 +5,7 @@ import type { PowerSearchHandle } from '../../props'
 import { useSize } from '../layout/size-context'
 import type { PowerSearchViewProps } from './power-search-view'
 import { SearchInput } from './SearchInput.tsrx'
+import { FormField } from './FormField'
 import { Icon } from '../media/Icon'
 import { Button } from '../actions/Button.tsrx'
 import { Pressable } from '../actions/Pressable'
@@ -86,21 +87,22 @@ export function PowerSearchView(props: PowerSearchViewProps): unknown @{
 					/>
 				)
 			})}
-			<SearchInput
-				ref={(h: any) => (inputHandle.current = h)}
-				className="vx-power-search-input"
-				value={query}
-				placeholder={props.placeholder ?? powerSearchTranslate('@astryx.powersearch.placeholder')}
-				onChange={props.onQueryChange}
-				onFocus={props.onInputFocus}
-				onBlur={props.onBlur}
-				isDisabled={props.isDisabled}
-				isReadOnly={props.isReadOnly}
-				isLoading={props.isLoading}
-				description={props.disabledMessage}
-				hasClear={false}
-				accessibilityLabel={props.label ?? 'Search'}
-			/>
+			<FormField className="vx-power-search-input" size={size}>
+				<SearchInput
+					ref={(h: any) => (inputHandle.current = h)}
+					value={query}
+					placeholder={props.placeholder ?? powerSearchTranslate('@astryx.powersearch.placeholder')}
+					onChange={props.onQueryChange}
+					onFocus={props.onInputFocus}
+					onBlur={props.onBlur}
+					isDisabled={props.isDisabled}
+					isReadOnly={props.isReadOnly}
+					isLoading={props.isLoading}
+					description={props.disabledMessage}
+					hasClear={false}
+					accessibilityLabel={props.label ?? 'Search'}
+				/>
+			</FormField>
 			{props.resultCount != null ? (
 				<label
 					className="vx-power-search-count"

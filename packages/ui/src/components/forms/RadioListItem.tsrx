@@ -2,7 +2,7 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { RadioListItemProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
@@ -29,18 +29,22 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
 			props.className,
 		]}
 		style={mergeStyle({ display: 'flex' }, props.style)}
-		accessibilityState={nativeAccessibilityState({ selected, disabled })}
-		onTap={blocked ? undefined : () => ctx?.select?.(props.value)}
+		isEnabled={!disabled}
+		accessibilityRole={ctx ? nativeAccessibilityRole('radio') : undefined}
+		accessibilityLabel={props.label ?? props.value}
+		accessibilityHint={props.description}
+		accessibilityState={ctx ? nativeAccessibilityState({ checked: selected, disabled, readOnly: ctx.isReadOnly }) : undefined}
+		onTap={!ctx || blocked ? undefined : () => ctx.select?.(props.value)}
 	>
 		<Ind
 			state={selected ? 'checked' : 'unchecked'}
 			size={ctx?.size === 'sm' ? 'sm' : 'md'}
 			isDisabled={disabled}
 		/>
-		<masonview className="vx-radio-label-col" style={{ display: 'flex', flexDirection: 'column' }}>
-			{props.label != null ? <label className="vx-radio-label" text={props.label} /> : null}
+		<masonview className="vx-radio-label-col" style={{ display: 'flex' }}>
+			{props.label != null ? <label className="vx-radio-label" text={props.label} textWrap /> : null}
 			{props.description != null ? (
-				<label className="vx-radio-description" text={props.description} />
+				<label className="vx-radio-description" text={props.description} textWrap />
 			) : null}
 		</masonview>
 		{props.endContent != null ? (

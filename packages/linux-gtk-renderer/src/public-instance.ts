@@ -1,0 +1,443 @@
+import Gtk from 'gi://Gtk?version=4.0'
+import { bindPopovers } from './popover-instance.js'
+import { bindOverlayHost } from './overlay-host.js'
+import { popupBounds } from './popup-bounds.js'
+import { bindRangeInstance } from './range-instance.js'
+import { bindTooltips } from './tooltip-instance.js'
+import { bindMotion } from './motion-instance.js'
+import { bindScrolling } from './scroll-instance.js'
+import type { ElementNode, GtkView } from './index.js'
+
+export interface GtkBounds {
+	x: number
+	y: number
+	width: number
+	height: number
+}
+
+type RefEvent =
+	| 'loaded'
+	| 'unloaded'
+	| 'layoutChanged'
+	| 'scroll'
+	| 'pan'
+	| 'fontChanged'
+	| 'accessibilityIncrement'
+	| 'accessibilityDecrement'
+type Listener = (event: { eventName: RefEvent; object: unknown; [key: string]: unknown }) => void
+
+const NUMERIC_STYLE_KEYS = new Set([
+	'opacity',
+	'translateX',
+	'translateY',
+	'scale',
+	'scaleX',
+	'scaleY',
+	'rotate',
+	'rotateX',
+	'rotateY',
+	'perspective',
+	'width',
+	'height',
+	'minWidth',
+	'minHeight',
+	'maxWidth',
+	'maxHeight',
+	'margin',
+	'marginTop',
+	'marginRight',
+	'marginBottom',
+	'marginLeft',
+	'padding',
+	'paddingTop',
+	'paddingRight',
+	'paddingBottom',
+	'paddingLeft',
+	'borderWidth',
+	'borderTopWidth',
+	'borderRightWidth',
+	'borderBottomWidth',
+	'borderLeftWidth',
+	'borderRadius',
+	'borderTopLeftRadius',
+	'borderTopRightRadius',
+	'borderBottomLeftRadius',
+	'borderBottomRightRadius',
+	'fontSize',
+	'letterSpacing',
+	'lineHeight',
+])
+
+interface StyleHost {
+	watchFont(notify: () => void): () => void
+	read(property: string): unknown
+	write(property: string, value: number | undefined): void
+}
+
+/** Keep refs as real Gtk widgets, with app-surface measurement and subscriptions.
+ * A frame callback observes ancestor allocation/scroll changes too; GTK's
+ * notify::width alone does not observe changes to position. */
+export function bindPublicInstance(
+	node: ElementNode,
+	styles: StyleHost,
+	subscribePan: (listener: (payload: any) => void) => () => void,
+): () => void {
+	const view = node.view
+	if (!view) {
+		return () => {}
+	}
+	let host: typeof view | null = node.container.host
+	let styleHost: StyleHost | null = styles
+	let panHost: typeof subscribePan | null = subscribePan
+	let disposePan: (() => void) | null = null
+	let disposeFont: (() => void) | null = null
+	let motion: ReturnType<typeof bindMotion> | null = null
+	let disposed = false
+	let tick: number | null = null
+	let previous: string | undefined
+	const listeners = new Map<RefEvent, Set<Listener>>()
+	// Match native view lookup on the logical subtree, including viewless
+	// parents. Automation names and private GTK control hosts are separate.
+	view.getViewById = (id: string): GtkView | undefined => {
+		if (disposed) {
+			return undefined
+		}
+		const find = (current: ElementNode): GtkView | undefined => {
+			if (current.destroyed) {
+				return undefined
+			}
+			if (current.view && current.props.id === id) {
+				return current.view
+			}
+			for (const child of current.children) {
+				const match = find(child)
+				if (match) {
+					return match
+				}
+			}
+			return undefined
+		}
+		return find(node)
+	}
+	view.focus = () => !disposed && view.grab_focus()
+	view.blur = () => {
+		if (disposed) {
+			return
+		}
+		const root = view.get_root()
+		const focused = root?.get_focus()
+		// Entry delegates focus to its internal GtkText. Only release focus
+		// owned by this widget; a stale blur must not clear a sibling's focus.
+		if (focused && (focused === view || focused.is_ancestor(view))) {
+			root.set_focus(null)
+		}
+	}
+	// NativeScript-shaped child/measure surface the shared collection leaves
+	// rely on: OverflowList measures a hidden item row's children, Carousel
+	// reads slide offsets for snap/index navigation, and VirtualList verifies
+	// view-tree reachability. Gtk child order matches paint/layout order.
+	view.eachChildView = (callback: (child: GtkView) => boolean | void) => {
+		if (disposed) {
+			return
+		}
+		for (
+			let child = view.get_first_child();
+			child;
+			child = child.get_next_sibling()
+		) {
+			if (callback(child as GtkView) === false) {
+				return
+			}
+		}
+	}
+	view.getChildAt = (index: number): GtkView | null => {
+		if (disposed || !Number.isInteger(index) || index < 0) {
+			return null
+		}
+		let i = 0
+		for (
+			let child = view.get_first_child();
+			child;
+			child = child.get_next_sibling(), i++
+		) {
+			if (i === index) {
+				return child as GtkView
+			}
+		}
+		return null
+	}
+	view.getChildrenCount = () => {
+		if (disposed) {
+			return 0
+		}
+		let count = 0
+		for (
+			let child = view.get_first_child();
+			child;
+			child = child.get_next_sibling()
+		) {
+			count++
+		}
+		return count
+	}
+	view.getLocationRelativeTo = (other: GtkView | null) => {
+		if (disposed || !other) {
+			return null
+		}
+		const [ok, x, y] = view.translate_coordinates(other, 0, 0) as [
+			boolean,
+			number,
+			number,
+		]
+		return ok ? { x, y } : null
+	}
+	// NS measured size ≈ GTK natural measure for the axis.
+	view.getMeasuredWidth = () => {
+		if (disposed) {
+			return 0
+		}
+		const measured = view.measure(Gtk.Orientation.HORIZONTAL, -1) as unknown
+		const natural = Array.isArray(measured) ? Number(measured[1]) : 0
+		return Number.isFinite(natural) && natural > 0 ? natural : view.get_width()
+	}
+	view.getMeasuredHeight = () => {
+		if (disposed) {
+			return 0
+		}
+		const measured = view.measure(Gtk.Orientation.VERTICAL, -1) as unknown
+		const natural = Array.isArray(measured) ? Number(measured[1]) : 0
+		return Number.isFinite(natural) && natural > 0 ? natural : view.get_height()
+	}
+	Object.defineProperty(view, 'parent', {
+		configurable: true,
+		get: () => {
+			if (disposed) {
+				return null
+			}
+			let parent = view.get_parent()
+			// GtkViewport (css name 'viewport') is scrollview-internal — the
+			// logical parent of a scrolled child is the scroller itself. The
+			// class is absent from the ambient Gtk typings, so match on the
+			// css node name instead of instanceof.
+			while (parent && parent.get_css_name?.() === 'viewport') {
+				parent = parent.get_parent()
+			}
+			return parent
+		},
+	})
+	const bounds = (): GtkBounds | null => {
+		if (disposed || !host || !view.get_parent()) {
+			return null
+		}
+		const [ok, rect] = view.compute_bounds(host) as [boolean, any]
+		return ok
+			? { x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height }
+			: popupBounds(view, host)
+	}
+	const emit = (eventName: RefEvent, detail: Record<string, unknown> = {}) => {
+		for (const listener of [...(listeners.get(eventName) ?? [])]) {
+			if (disposed) {
+				break
+			}
+			listener({ eventName, object: view, ...detail })
+		}
+	}
+	const stop = () => {
+		if (tick !== null) {
+			view.remove_tick_callback(tick)
+		}
+		tick = null
+	}
+	const start = () => {
+		if (disposed || tick !== null || !listeners.get('layoutChanged')?.size) {
+			return
+		}
+		previous = undefined
+		tick = view.add_tick_callback(() => {
+			const next = JSON.stringify(bounds())
+			if (next !== previous) {
+				previous = next
+				emit('layoutChanged')
+			}
+			return !disposed && !!listeners.get('layoutChanged')?.size
+		})
+	}
+	const range = bindRangeInstance(view, emit, (name) => !!listeners.get(name as RefEvent)?.size)
+	const disposeTooltips = bindTooltips(view)
+	const disposePopovers = bindPopovers(view, () => host)
+	const disposeOverlayHost = bindOverlayHost(view, node.container)
+	const disposeScrolling = bindScrolling(view, emit)
+	const mapped = view.connect('map', () => {
+		emit('loaded')
+		start()
+	})
+	const unmapped = view.connect('unmap', () => {
+		stop()
+		emit('unloaded')
+	})
+	const readStyle = (name: string) => {
+		const key = name === 'scale' ? 'scaleX' : name
+		const value = styleHost?.read(key)
+		if (value != null) {
+			return value
+		}
+		switch (key) {
+			case 'scaleX':
+			case 'scaleY':
+				return 1
+			case 'perspective':
+				return 300
+			case 'opacity':
+				return view.get_opacity()
+			case 'width':
+				return view.get_width()
+			case 'height':
+				return view.get_height()
+			default:
+				return 0
+		}
+	}
+
+	const writeStyle = (name: string, value: unknown) => {
+		if (!styleHost) {
+			return
+		}
+		if (!NUMERIC_STYLE_KEYS.has(name)) {
+			throw new Error('linux-gtk ref: unsupported numeric style ' + name)
+		}
+		if (value != null && (typeof value !== 'number' || !Number.isFinite(value))) {
+			throw new Error('linux-gtk ref: numeric style requires a finite number: ' + name)
+		}
+		motion?.beforeWrite(name)
+		for (const key of name === 'scale' ? ['scaleX', 'scaleY'] : [name]) {
+			styleHost.write(key, value == null ? undefined : (value as number))
+		}
+	}
+	motion = bindMotion(view, { read: readStyle, write: writeStyle })
+	view.style = new Proxy(Object.create(null), {
+		get: (_target, key) => (typeof key === 'string' ? readStyle(key) : undefined),
+		set: (_target, key, value) => {
+			writeStyle(String(key), value)
+			return true
+		},
+		deleteProperty: (_target, key) => {
+			writeStyle(String(key), undefined)
+			return true
+		},
+	})
+	for (const name of [
+		'translateX',
+		'translateY',
+		'scale',
+		'scaleX',
+		'scaleY',
+		'rotate',
+		'rotateX',
+		'rotateY',
+		'perspective',
+	]) {
+		Object.defineProperty(view, name, {
+			configurable: true,
+			get: () => readStyle(name),
+			set: (value) => {
+				writeStyle(name, value)
+			},
+		})
+	}
+	view.getActualSize = () => {
+		if (disposed) {
+			return { width: 0, height: 0 }
+		}
+		const [ok, rect] = view.compute_bounds(view) as [boolean, any]
+		return ok
+			? { width: rect.size.width, height: rect.size.height }
+			: { width: view.get_width(), height: view.get_height() }
+	}
+	view.getBounds = bounds
+	view.on = (name: RefEvent, listener: Listener) => {
+		if (disposed) {
+			return
+		}
+		if (
+			![
+				'loaded',
+				'unloaded',
+				'layoutChanged',
+				'scroll',
+				'pan',
+				'fontChanged',
+				'accessibilityIncrement',
+				'accessibilityDecrement',
+				'isLoadingChange',
+			].includes(name)
+		) {
+			throw new Error(`linux-gtk ref: unsupported subscription ${name}`)
+		}
+		let set = listeners.get(name)
+		if (!set) {
+			listeners.set(name, (set = new Set()))
+		}
+		set.add(listener)
+		if (name === 'accessibilityIncrement' || name === 'accessibilityDecrement') {
+			range.refresh()
+		}
+		if (name === 'fontChanged' && !disposeFont && styleHost) {
+			disposeFont = styleHost.watchFont(() => emit('fontChanged'))
+		}
+		if (name === 'pan' && !disposePan && panHost) {
+			disposePan = panHost((payload) =>
+				emit('pan', {
+					...payload,
+					state: ({ began: 1, moved: 2, ended: 3, cancelled: 0 } as Record<string, number>)[
+						payload.state
+					],
+					deltaX: payload.x,
+					deltaY: payload.y,
+				}),
+			)
+		}
+
+		if (name === 'layoutChanged') {
+			start()
+		}
+	}
+	view.off = (name: RefEvent, listener?: Listener) => {
+		if (listener) {
+			listeners.get(name)?.delete(listener)
+		} else {
+			listeners.delete(name)
+		}
+		if (!listeners.get('pan')?.size && disposePan) {
+			disposePan()
+			disposePan = null
+		}
+		if (!listeners.get('fontChanged')?.size && disposeFont) {
+			disposeFont()
+			disposeFont = null
+		}
+		if (!listeners.get('layoutChanged')?.size) {
+			stop()
+		}
+	}
+	return () => {
+		disposePan?.()
+		disposePan = null
+		panHost = null
+		motion?.dispose()
+		motion = null
+		disposeFont?.()
+		disposeFont = null
+		range.dispose()
+		disposeTooltips()
+		disposePopovers()
+		disposeOverlayHost()
+		disposeScrolling()
+		disposed = true
+		host = null
+		styleHost = null
+		stop()
+		listeners.clear()
+		view.disconnect(mapped)
+		view.disconnect(unmapped)
+	}
+}

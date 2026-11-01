@@ -16,17 +16,23 @@ import { FormField } from './FormField'
  *  write coerces ios.userInteractionEnabled to NO (dead field) — the
  *  driver's skip-undefined patch covers it, the ?? stays as documentation.
  *  `text` isn't a bound prop: the leaf writes it imperatively so the
- *  Android selection survives controlled writes (see text-write). */
+ *  Android selection survives controlled writes (see text-write). The editor
+ *  has a stable host key so optional leading content cannot replace it. */
 function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
 	const el = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
+	const [editVersion, setEditVersion] = useState(0)
 	const value = props.value ?? internal
-	useEffect(() => writeText(el.current, value), [value])
+	useEffect(() => writeText(el.current, value), [value, editVersion])
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const setValue = (next: string) => {
 		if (props.value === undefined) {
 			setInternal(next)
+		} else {
+			// Reconcile even if the parent rejects an edit without changing value.
+			// A counter also handles the same rejected string entered repeatedly.
+			setEditVersion((version) => version + 1)
 		}
 
 		props.onChange?.(next)
@@ -66,6 +72,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 			</masonview>
 		) : null}
 		<textfield
+			key="editor"
 			ref={(v: any) => {
 				el.current = v
 				if (!v) {
@@ -95,7 +102,13 @@ function TextInputControl(inputProps: TextInputProps) @{
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
 			accessibilityHint={props.accessibilityHint}
-			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+			accessibilityState={nativeAccessibilityState({
+				disabled: props.isDisabled,
+				readOnly: props.isReadOnly,
+				required: props.isRequired,
+				busy: props.isLoading,
+				invalid: props.status?.type === 'error',
+			})}
 			secure={props.secure}
 			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 			returnKeyType={props.returnKeyType}
@@ -111,7 +124,12 @@ function TextInputControl(inputProps: TextInputProps) @{
 			onBlur={props.onBlur}
 		/>
 		{props.hasClear && value !== '' && !isBlocked ? (
-			<Pressable className="vx-input-clear" accessibilityLabel="Clear input" onPress={clear}>
+			<Pressable
+				className="vx-input-clear"
+				accessibilityRole="button"
+				accessibilityLabel="Clear input"
+				onPress={clear}
+			>
 				<label text="×" />
 			</Pressable>
 		) : null}
@@ -120,33 +138,35 @@ function TextInputControl(inputProps: TextInputProps) @{
 
 /** Standalone inputs render Astryx's visible field chrome: outside a
  *  FormField, wrap the control in one (label, description, status). Inside a
- *  field the FormField owns that chrome, so the control renders bare. */
-export function TextInput(props: TextInputProps): unknown @{
+ *  field the FormField owns that chrome, so the control renders bare. Keep
+ *  the automatic wrapper mounted even without visible chrome: adding a label
+ *  or validation message must not replace the editor owner, reset
+ *  uncontrolled text, move focus or discard its selection. */
+export function TextInput(inputProps: TextInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
-	const needsChrome =
-		!inField &&
-		(props.label != null ||
-			props.description != null ||
-			props.status != null ||
-			props.isRequired ||
-			props.isOptional)
+	const props = useFieldControlProps(inputProps)
 
-	@if (needsChrome) {
+	@if (inField) {
+		<TextInputControl {...inputProps} />
+	} @else {
 		<FormField
+			inputID={props.id}
 			label={props.label}
 			description={props.description}
 			status={props.status}
+			statusVariant={props.statusVariant}
 			isRequired={props.isRequired}
 			isOptional={props.isOptional}
 			isLabelHidden={props.isLabelHidden}
 			isDisabled={props.isDisabled}
+			isReadOnly={props.isReadOnly}
+			isLoading={props.isLoading}
+			size={props.size}
 			labelTooltip={props.labelTooltip}
 			disabledMessage={props.disabledMessage}
 			width={props.width}
 		>
-			<TextInputControl {...props} />
+			<TextInputControl {...inputProps} />
 		</FormField>
-	} @else {
-		<TextInputControl {...props} />
 	}
 }

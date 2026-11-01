@@ -318,8 +318,9 @@
 	/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
 	/* xplat-web-only:end */
 
-	/* Self-drawn slider — host is a grid (native) / relative div (web);
-   track + fill + thumb overlay the same box. */
+	/* Self-drawn slider — track, fill and thumbs share one control frame. */
+	.vx-slider--native .vx-slider-mark-label { width: 100%; text-align: center; font-size: 0.75em; color: var(--color-text-secondary); }
+	.vx-slider--native.vx-slider--disabled { opacity: 0.5; }
 	.vx-slider-track {
 		border-radius: 2px;
 		background-color: var(--color-border);
@@ -591,6 +592,14 @@
 	.vx-field-status {
 		font-size: 12px;
 		line-height: 20px;
+	}
+	.vx-field-status-trigger {
+		width: 20px;
+		height: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		align-self: flex-start;
 	}
 	.vx-field-info {
 		font-size: 12px;
@@ -942,6 +951,9 @@
 	}
 
 	/* InputNumber — steppers flanking a centered field. */
+	.vx-inputnumber--native { display: flex; flex-direction: row; align-items: center; width: 100%; min-width: 0; }
+	.vx-inputnumber--native > .vx-input-shell { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+	.vx-inputnumber--native > .vx-inputnumber-step, .vx-inputnumber--native > .vx-inputnumber-clear { flex-shrink: 0; }
 	.vx-inputnumber-step {
 		border-width: 1px;
 		border-color: var(--color-border);
@@ -952,6 +964,9 @@
 	}
 
 	/* PinInput — row of single cells. */
+	.vx-pininput--native { display: flex; flex-direction: row; gap: 8px; }
+	.vx-pininput--native > .vx-input-shell { width: 40px; min-width: 0; flex-shrink: 0; }
+	.vx-pininput--native .vx-pininput-cell { width: 100%; min-width: 0; margin-right: 0; }
 	.vx-pininput--disabled {
 		opacity: 0.5;
 	}
@@ -3201,19 +3216,25 @@
 }
 
 /* Unit-5 form/selection additions */
-.vx-radio-label-col { display: inline-flex; flex-direction: column; }
+.vx-radio-label-col { display: inline-flex; flex-direction: column; flex-grow: 1; flex-shrink: 1; min-width: 0; }
 .vx-radio-description, .vx-checkbox-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
 .vx-radio-row, .vx-checkbox-row { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 /* xplat-web-only:start — auto margins are ignored on native; the row's own
    flex alignment owns end placement there. */
 .vx-radio-end, .vx-checkbox-end { margin-inline-start: auto; }
 /* xplat-web-only:end */
+.vx-checkbox-group--native { display: flex; flex-direction: column; width: 100%; min-width: 0; }
+.vx-checkbox-group--native.vx-checkbox-group--row { flex-direction: row; }
+.vx-checkboxlist-item--native .vx-checkbox-label-col { display: flex; flex-direction: column; flex-grow: 1; flex-shrink: 1; min-width: 0; }
 .vx-checkbox-group--divided .vx-checkbox-row + .vx-checkbox-row,
 .vx-checkbox-group--divided .vx-checkboxlist-item + .vx-checkboxlist-item {
 	border-top-width: 1px;
 	border-top-color: var(--color-border, #ddd);
 	border-top-style: solid;
 }
+.vx-segmented--native { flex-direction: row; align-self: flex-start; }
+.vx-segment--native { flex-direction: row; align-items: center; justify-content: center; gap: 4px; }
+.vx-segment--native .vx-segment-icon { flex-shrink: 0; }
 .vx-segmented--fill { display: flex; width: 100%; }
 .vx-segmented--fill .vx-segment { flex: 1; }
 .vx-segment-icon { display: inline-flex; /* xplat-web-only:start */ margin-inline-end: 4px; /* xplat-web-only:end */ }

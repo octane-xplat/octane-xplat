@@ -35,3 +35,16 @@ does not qualify the complete action-control composition below.
 - AC3: [Interactive cards and links](../../../docs/app/interactive-actions.md#interactive-cards).
 - AC4: [Button compatibility](../../../docs/app/interactive-actions.md#button-states-and-actions).
 - AC5: [Icon registry scope](../../../docs/app/components.md#component-index) and its scoped registry example.
+
+
+## GTK coverage
+
+The action-control surface is qualified on GTK: `Button`, `IconButton`,
+`ToggleButton`, `ToggleButtonGroup`, `ButtonGroup`, `Pressable`, `ClickableCard`
+and `MoreMenu` are curated root exports covered by earlier slice fixtures
+(buttons/menus real-input checks), and slice I adds `SelectableCard`
+selection toggles proven with real X11 clicks in the
+[typeahead fixture](../../../packages/linux-gtk-renderer/test/ui-typeahead.test.mjs).
+This partially covers AC1–AC3 on the GTK target; keyboard/focus contracts
+and the web/native link distinctions need their own assessment. Record GTK
+coverage separately from execution evidence in gtk_recipe_checks.

@@ -79,3 +79,20 @@ picker bundled with `@octane-xplat/files`.
 - AC17: [AppKit date save guide](../../../docs/platform/date-picker.md#keep-appkit-date-saves-owned-by-one-edit), seven object-driver cases, [maintained fixture](../../../examples/probes/date-save.macos.tsrx), skill reference and [target note](../exploration.md#operational-evidence). Cases/fixture/package/native checks require separate execution evidence.
 
 - AC18: [Filter workflow](../../../docs/platform/date-picker.md#choose-file-types-on-appkit), [files contract](../../../packages/files/README.md#appkit-file-type-filters), [native filter/loader](../../../packages/files/src/file-pick-filter.macos.ts), [ten helper cases](../../../packages/files/src/file-pick-filter.macos.test.ts), [four added panel cases](../../../packages/files/src/files.macos.test.ts), [four added metadata/controller cases](../../../packages/files/src/file-input-details.macos.test.ts), [idle fixture](../../../examples/probes/fileinput-drop.macos.tsrx), [skill](../../skills/octane-xplat/references/primitives/media.md#appkit-file-type-filters-and-mime-hints), [native type table](../../../packages/files/src/file-types.macos.ts) and [target note](../exploration.md#operational-evidence). All authored cases and compiler/native/installed/visual qualification require separate execution evidence.
+
+## GTK coverage
+
+`Calendar`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput` and
+the `useCalendarDays`/`useCalendarConstraints`/`useCalendarNavigation`
+hooks are curated GTK root exports — this covers the AC1 date-control
+portion only (`FileInput`/`@octane-xplat/files` have no GTK surface). The
+public-root [dates fixture](../../../packages/linux-gtk-renderer/test/ui-dates.test.mjs)
+(35 assertions) and [calendar fixture](../../../packages/linux-gtk-renderer/test/ui-dates-cal.test.mjs)
+(14 assertions) run real X11 input: typed date commits, calendar popover
+day picks, range picks, time sheet wheel scroll+pick, and datetime month
+picks that preserve the time part — contributing to AC2 and the
+`presentation`-driven surface selection in AC5 (anchored popover on
+fine-pointer seats, sheet on coarse). `@octane-xplat/date-picker` OS
+leaves, FileInput ACs (AC3/AC4/AC8) and web keyboard specifics (AC7)
+remain outside this evidence. Record GTK coverage separately from
+execution evidence in gtk_recipe_checks.

@@ -3,6 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
+import { hasCoarsePointer } from './coarse-pointer'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
@@ -290,7 +291,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 export function TimeInput(props: TimeInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const effective = effectivePresentation(props.presentation)
-	const resolved = resolveInputSurface(effective, true)
+	const resolved = resolveInputSurface(effective, hasCoarsePointer())
 	const surface: 'typed' | 'sheet' =
 		resolved === 'sheet' || resolved === 'native' ? 'sheet' : 'typed'
 

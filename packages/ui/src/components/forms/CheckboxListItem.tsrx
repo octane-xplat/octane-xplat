@@ -2,7 +2,7 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { CheckboxListItemProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
@@ -22,6 +22,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 	const blocked = disabled || ctx?.isReadOnly
 	const Ind = useIndicator('checkbox') ?? CheckboxIndicator
 	const toggle = () => {
+		if (blocked) return
 		if (groupMode) {
 			ctx!.select?.(props.value!, state !== 'checked')
 		} else {
@@ -35,23 +36,30 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 		className={[
 			'vx-checkbox-row',
 			'vx-checkboxlist-item',
+			'vx-checkboxlist-item--native',
+			ctx?.isReadOnly && 'vx-checkbox--readonly',
 			indicatorScope,
 			state === 'checked' && 'vx-checkbox--on',
 			disabled && 'vx-checkbox--disabled',
 			props.className,
 		]}
 		style={mergeStyle({ display: 'flex' }, props.style)}
-		accessibilityState={nativeAccessibilityState({ checked: state === 'checked', disabled })}
+		isEnabled={!disabled}
+		accessibilityRole={nativeAccessibilityRole('checkbox')}
+		accessibilityLabel={props.label ?? props.value}
+		accessibilityHint={props.description}
+		accessibilityValue={state === 'indeterminate' ? 'Partially selected' : undefined}
+		accessibilityState={nativeAccessibilityState({ checked: state === 'indeterminate' ? 'mixed' : state === 'checked', disabled, readOnly: ctx?.isReadOnly })}
 		onTap={blocked ? undefined : toggle}
 	>
 		<Ind state={state as any} size={ctx?.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 		<masonview
 			className="vx-checkbox-label-col"
-			style={{ display: 'flex', flexDirection: 'column' }}
+			style={{ display: 'flex' }}
 		>
-			{props.label != null ? <label className="vx-checkbox-label" text={props.label} /> : null}
+			{props.label != null ? <label className="vx-checkbox-label" text={props.label} textWrap /> : null}
 			{props.description != null ? (
-				<label className="vx-checkbox-description" text={props.description} />
+				<label className="vx-checkbox-description" text={props.description} textWrap />
 			) : null}
 		</masonview>
 		{props.endContent != null ? (

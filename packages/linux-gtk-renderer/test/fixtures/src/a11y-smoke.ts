@@ -11,7 +11,17 @@ import type { GtkContainer } from '@octane-xplat/linux-gtk'
 import type { UniversalHostCommand } from 'octane/universal/native'
 
 function apply(container: GtkContainer, commands: UniversalHostCommand[]) {
-	gtkDriver.prepareBatch(container, { renderer: 'gtk', commands }).apply()
+	gtkDriver
+		.prepareBatch(
+			container,
+			{ renderer: 'gtk', version: 1, commands },
+			{
+				invokeLocalCallback() {
+					throw new Error('Raw GTK fixture has no local callback owners')
+				},
+			},
+		)
+		.apply()
 }
 
 const cmd = (op: string, id: number, extra: Record<string, unknown> = {}) =>
@@ -47,7 +57,7 @@ apply(container, [
 	cmd('insert', 3, { parent: null, before: null }),
 ])
 
-const view = (id: number) => container.nodes.get(id)?.view
+const view = (id: number) => container.nodes.get(id)!.view!
 const hasLabel = (id: number) =>
 	Gtk.test_accessible_has_property(view(id), Gtk.AccessibleProperty.LABEL)
 

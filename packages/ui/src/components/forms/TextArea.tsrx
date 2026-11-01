@@ -3,6 +3,7 @@ import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'oc
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { Utils } from '@nativescript/core'
+import { fitTextArea } from './text-area-fit'
 import type { TextAreaProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
@@ -10,66 +11,37 @@ import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField'
+import { Icon } from '../media/Icon'
 
-/** Multiline input — <textview>. TextView measures to content natively, so
- *  `autoGrow` is its default; `rows`/`maxRows` have no NS equivalent, so the
- *  leaf converts them to min/maxHeight in dips using the widget's own line
- *  height (iOS `font.lineHeight`, Android `getLineHeight()` px→dip — measured
- *  on `loaded`, re-fit every commit for prop/style changes). Imperative
- *  writes suppress their synchronous textChange echo through text-write. */
+/** Multiline input. Fixed rows match the web default; autoGrow measures to
+ * content and maxRows caps that growth. Platform helpers use native line
+ * metrics and remove old generated constraints when sizing props change. */
 function TextAreaControl(inputProps: TextAreaProps) @{
 	const props = useFieldControlProps(inputProps)
 	const el = useRef<any>(null)
 	const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send'
 
-	const lineDip = (v: any): number => {
-		const ios = v?.ios?.font?.lineHeight
-		if (ios > 0) {
-			return ios
-		}
-
-		const px = v?.android?.getLineHeight?.()
-		if (px > 0) {
-			return Utils.layout.toDeviceIndependentPixels(px)
-		}
-
-		return 24 // ≈ default 17pt at 1.4 — only hit before widget load
-	}
-
-	const fit = (v: any) => {
-		if (!v) {
-			return
-		}
-
-		if (styleRecord(props.style)?.height != null) {
-			return
-		} // explicit height wins
-
-		const line = lineDip(v)
-		const rows = props.rows ?? (props.autoGrow ? 1 : 3)
-		v.style.minHeight = rows * line
-		if (props.maxRows) {
-			v.style.maxHeight = props.maxRows * line
-		} else if (!props.autoGrow) {
-			v.style.maxHeight = rows * line
-		}
-	}
-
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
+	const [editVersion, setEditVersion] = useState(0)
 	const value = props.value ?? internal
 	const setValue = (next: string) => {
 		if (props.value === undefined) {
 			setInternal(next)
+		} else {
+			// Restore the owner value even when an edit is rejected unchanged.
+			setEditVersion((version) => version + 1)
 		}
 
 		props.onChange?.(next)
 	}
 
-	// Explicit deps — tsrx infers effect deps from closure reads, and `fit`
-	//  hides the prop reads one level down.
-	useEffect(() => fit(el.current), [props.rows, props.autoGrow, props.maxRows, props.style])
+	// Explicit deps — the sizing helper hides prop reads one level down.
+	useEffect(
+		() => fitTextArea(el.current, props),
+		[props.rows, props.autoGrow, props.maxRows, props.style, props.className, props.size],
+	)
 	// Imperative controlled write — Android setText resets selection to 0.
-	useEffect(() => writeText(el.current, value), [value])
+	useEffect(() => writeText(el.current, value), [value, editVersion])
 
 	useImperativeHandle(
 		props.ref,
@@ -89,7 +61,15 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 		)}
 		style={mergeStyle({ flexDirection: 'column', alignItems: 'stretch' }, { display: 'flex' })}
 	>
+		{props.startIcon != null ? (
+			<masonview key="icon" className="vx-textarea-icon">
+				{typeof props.startIcon === 'string' ? (
+					<Icon name={props.startIcon} size={16} />
+				) : props.startIcon}
+			</masonview>
+		) : null}
 		<textview
+			key="editor"
 			id={props.id}
 			testID={props.testID ?? ''}
 			ref={(v: any) => {
@@ -114,16 +94,22 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 				props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},
 			)}
 			hint={props.placeholder}
+			maxLength={props.maxLength ?? Infinity}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
 			accessibilityHint={props.accessibilityHint}
-			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+			accessibilityState={nativeAccessibilityState({
+				disabled: props.isDisabled,
+				readOnly: props.isReadOnly,
+				required: props.isRequired,
+				busy: props.isLoading,
+				invalid: props.status?.type === 'error',
+			})}
 			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 			returnKeyType={props.returnKeyType}
 			isEnabled={!props.isDisabled}
 			editable={!props.isDisabled && !props.isReadOnly}
-			onLoaded={(e: any) => fit(e.object)}
 			onTextChange={(e: any) => {
 				if (!isWritingText(e.object)) {
 					setValue(e.value)
@@ -140,33 +126,37 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 
 /** Standalone text areas render Astryx's visible field chrome: outside a
  *  FormField, wrap the control in one (label, description, status). Inside a
- *  field the FormField owns that chrome, so the control renders bare. */
-export function TextArea(props: TextAreaProps): unknown @{
+ *  field the FormField owns that chrome, so the control renders bare. Keep
+ *  the automatic field owner mounted while labels and status change, so
+ *  uncontrolled text, native focus, selection and handles survive. */
+export function TextArea(inputProps: TextAreaProps): unknown @{
+	if (inputProps.secure) {
+		throw new Error('native TextArea: secure multiline input is unavailable; use TextInput with secure instead.')
+	}
 	const inField = useContext(FieldContext) != null
-	const needsChrome =
-		!inField &&
-		(props.label != null ||
-			props.description != null ||
-			props.status != null ||
-			props.isRequired ||
-			props.isOptional)
+	const props = useFieldControlProps(inputProps)
 
-	@if (needsChrome) {
+	@if (inField) {
+		<TextAreaControl {...inputProps} />
+	} @else {
 		<FormField
+			inputID={props.id}
 			label={props.label}
 			description={props.description}
 			status={props.status}
+			statusVariant={props.statusVariant}
 			isRequired={props.isRequired}
 			isOptional={props.isOptional}
 			isLabelHidden={props.isLabelHidden}
 			isDisabled={props.isDisabled}
+			isReadOnly={props.isReadOnly}
+			isLoading={props.isLoading}
+			size={props.size}
 			labelTooltip={props.labelTooltip}
 			disabledMessage={props.disabledMessage}
 			width={props.width}
 		>
-			<TextAreaControl {...props} />
+			<TextAreaControl {...inputProps} />
 		</FormField>
-	} @else {
-		<TextAreaControl {...props} />
 	}
 }

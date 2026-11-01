@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useState } from 'octane'
+import { useState, useContext } from 'octane'
 import type { RadioGroupProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
-import { useFieldControlProps } from './field-context'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import { FieldContext, useFieldControlProps } from './field-context'
+import { NativeToggleField } from './NativeToggleField'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator'
 import { RadioListProvider } from './option-list-contexts'
@@ -12,13 +13,14 @@ import { RadioListProvider } from './option-list-contexts'
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Options come from the `options` prop or `RadioListItem`
  *  children (Astryx child part). */
-export function RadioGroup(inputProps: RadioGroupProps): unknown @{
+function RadioGroupControl(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue)
 	const current = props.value ?? internal
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const Ind = useIndicator('radio') ?? RadioIndicator
 	const select = (value: string) => {
+		if (isBlocked || value === current) return
 		if (props.value === undefined) {
 			setInternal(value)
 		}
@@ -47,15 +49,16 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 			props.size && `vx-radio-group--size-${props.size}`,
 			props.className,
 		)}
-		style={mergeStyle(
-			{ flexDirection: props.horizontal ? 'row' : 'column' },
-			mergeStyle({ display: 'flex' }, props.style),
-		)}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+		isEnabled={!props.isDisabled}
+		accessibilityRole={nativeAccessibilityRole('radiogroup')}
 		accessibilityLabel={
 			props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 		}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled,
+			readOnly: props.isReadOnly, required: props.isRequired, busy: props.isLoading,
+			invalid: props.status?.type === 'error' })}
 	>
 		{(props.options ?? []).map((opt: any) => {
 			const selected = current === opt.value
@@ -71,6 +74,11 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 						disabled && 'vx-radio--disabled',
 						props.isReadOnly && 'vx-radio--readonly',
 					)}
+					isEnabled={!disabled}
+					accessibilityRole={nativeAccessibilityRole('radio')}
+					accessibilityLabel={opt.label ?? opt.value}
+					accessibilityHint={opt.description}
+					accessibilityState={nativeAccessibilityState({ checked: selected, disabled, readOnly: props.isReadOnly })}
 					onTap={blocked ? undefined : () => select(opt.value)}
 					style={{ display: 'flex' }}
 				>
@@ -81,11 +89,11 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 					/>
 					<masonview
 						className="vx-radio-label-col"
-						style={{ display: 'flex', flexDirection: 'column' }}
+						style={{ display: 'flex' }}
 					>
-						{opt.label != null ? <label className="vx-radio-label" text={opt.label} /> : null}
+						{opt.label != null ? <label className="vx-radio-label" text={opt.label} textWrap /> : null}
 						{opt.description != null ? (
-							<label className="vx-radio-description" text={opt.description} />
+							<label className="vx-radio-description" text={opt.description} textWrap />
 						) : null}
 					</masonview>
 					{opt.endContent != null ? (
@@ -100,4 +108,16 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 			<RadioListProvider value={ctx}>{props.children}</RadioListProvider>
 		) : null}
 	</masonview>
+}
+
+
+export function RadioGroup(props: RadioGroupProps): unknown @{
+	const inField = useContext(FieldContext) != null
+	@if (inField) {
+		<RadioGroupControl {...props} />
+	} @else {
+		<NativeToggleField {...props} inlineLabel={false} isGroupLabel>
+			<RadioGroupControl {...props} />
+		</NativeToggleField>
+	}
 }

@@ -43,7 +43,7 @@ function mount(component: any, props: any = {}) {
 
 function findByClass(node: any, cls: string): any {
 	if (!node) {
-		return undefined
+		return null
 	}
 
 	const classes = String(node.props?.className ?? '').split(' ')
@@ -58,7 +58,7 @@ function findByClass(node: any, cls: string): any {
 		}
 	}
 
-	return undefined
+	return null
 }
 
 describe('native flow Stack', () => {
@@ -171,7 +171,7 @@ describe('native FormLayout + InputGroup', () => {
 
 describe('native indicators + list', () => {
 	it('Checkbox renders through the indicator registry', () => {
-		const { container, root } = mount(Checkbox as any, { checked: true })
+		const { container, root } = mount(Checkbox, { value: true })
 		expect(findByClass(container.children[0], 'vx-ind-checkbox--checked')).not.toBeNull()
 		root.unmount()
 	})

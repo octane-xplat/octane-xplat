@@ -1,7 +1,6 @@
 /// <reference path="./gi.d.ts" />
 import type Gtk from 'gi://Gtk?version=4.0'
-import type { GtkContainer, GtkView } from './index.js'
-import type { UniversalRoot } from 'octane/universal/native'
+import type { GtkContainer, GtkRoot, GtkView } from './index.js'
 
 export interface GtkAppOptions {
 	/** Reverse-DNS app id, e.g. `dev.xplat.demo`. */
@@ -18,7 +17,7 @@ export interface GtkAppMount {
 	window: Gtk.ApplicationWindow
 	content: GtkView
 	container: GtkContainer
-	root: UniversalRoot
+	root: GtkRoot
 }
 
 /** Create the application window, mount a universal root on a vertical

@@ -4,20 +4,23 @@ import { useMemo, useId } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { InputGroupProps, InputGroupTextProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { FormField } from './FormField'
+import { useFieldControlProps } from './field-context'
+import { TextSlot } from './text-slot'
 import { InputGroupProvider } from './input-group-context'
 import { SizeProvider, useSize } from '../layout/size-context'
 
 /** InputGroup — a labeled, visually joined input surface: the `Field`
  *  carries label/description/status; members read `useInputGroup()` and
- *  drop their own borders into the shared skin. NS has no group role —
- *  the row is a plain flexbox; label/description/status ids still flow to
- *  members through the FieldContext. */
+ *  drop their own borders into the shared skin. The role adapter preserves
+ *  GTK's group role and maps to NativeScript's available role vocabulary.
+ *  Member controls share label/help/state, without sharing a control ID. */
 export function InputGroup(props: InputGroupProps): unknown @{
+	const fieldProps = useFieldControlProps(props)
 	const groupId = useId()
-	const size = useSize(props.size, 'md')
-	const group = { isDisabled: props.isDisabled, size }
+	const size = useSize(fieldProps.size, 'md')
+	const group = { isDisabled: fieldProps.isDisabled, size }
 
 	const forwardedRef = useMemo(
 		() =>
@@ -36,11 +39,16 @@ export function InputGroup(props: InputGroupProps): unknown @{
 		labelID={`${groupId}-label`}
 		description={props.description}
 		descriptionID={props.description != null ? `${groupId}-description` : undefined}
-		status={props.status}
-		statusID={props.status?.message != null ? `${groupId}-status` : undefined}
-		isDisabled={props.isDisabled}
-		isRequired={props.isRequired}
-		isOptional={props.isOptional}
+		status={fieldProps.status}
+		statusID={fieldProps.status?.message != null ? `${groupId}-status` : undefined}
+		isDisabled={fieldProps.isDisabled}
+		isRequired={fieldProps.isRequired}
+		isOptional={fieldProps.isOptional}
+		isReadOnly={fieldProps.isReadOnly}
+		isLoading={fieldProps.isLoading}
+		disabledMessage={fieldProps.disabledMessage}
+		statusVariant={fieldProps.statusVariant}
+		width={props.width}
 		size={size}
 		labelTooltip={props.labelTooltip}
 		id={props.id}
@@ -53,11 +61,19 @@ export function InputGroup(props: InputGroupProps): unknown @{
 					ref={forwardedRef}
 					className={cx(
 						'vx-inputgroup',
-						props.isDisabled && 'vx-inputgroup--disabled',
-						props.status && `vx-inputgroup--status-${props.status.type}`,
+						fieldProps.isDisabled && 'vx-inputgroup--disabled',
+						fieldProps.status && `vx-inputgroup--status-${fieldProps.status.type}`,
 						`vx-inputgroup--size-${size}`,
 					)}
-					accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+					isEnabled={!fieldProps.isDisabled}
+					accessibilityRole={nativeAccessibilityRole('group')}
+					accessibilityLabel={props.label}
+					accessibilityHint={fieldProps.accessibilityHint}
+					accessibilityState={nativeAccessibilityState({
+						disabled: fieldProps.isDisabled,
+						busy: fieldProps.isLoading,
+						invalid: fieldProps.status?.type === 'error',
+					})}
 					style={mergeStyle({ flexDirection: 'row', alignItems: 'stretch' }, { display: 'flex' })}
 				>
 					{props.children}
@@ -86,6 +102,6 @@ export function InputGroupText(props: InputGroupTextProps): unknown @{
 		className={cx('vx-inputgroup-text', props.className)}
 		style={mergeStyle({ display: 'flex' }, props.style)}
 	>
-		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
+		<TextSlot>{props.children}</TextSlot>
 	</masonview>
 }

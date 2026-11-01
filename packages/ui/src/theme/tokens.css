@@ -717,6 +717,21 @@
 		justify-content: center;
 		height: 64px;
 	}
+	@platform gtk {
+		.vx-refresh-wrap {
+			grid-template-rows: 1fr;
+			grid-template-columns: 1fr;
+			overflow: hidden;
+		}
+		.vx-refresh-wrap > * {
+			grid-row: 1 / span 1;
+			grid-column: 1 / span 1;
+		}
+		.vx-refresh-wrap > .vx-scrollable {
+			min-width: 0;
+			min-height: 0;
+		}
+	}
 	/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
    absolute overlay; native clips via the wrapper grid
    (clipsToBounds/ViewGroup) and stacks children in one cell. */
@@ -796,7 +811,6 @@
 	}
 	/* xplat-web-only:end */
 
-
 	@platform macos {
 		.vx-checkbox-group--appkit { display: flex; flex-direction: column; }
 		.vx-checkbox-group--appkit.vx-checkbox-group--row { flex-direction: row; }
@@ -842,7 +856,8 @@
 	}
 
 	/* Self-drawn slider — host is a grid (native) / relative div (web);
-   track + fill + thumb overlay the same box. */
+   track + fill + thumb overlay the same box. Track, fill and thumbs share
+   one control frame. */
 	.vx-slider {
 		height: 28px;
 	}
@@ -5009,7 +5024,32 @@
 	.vx-listitem {
 		align-items: center;
 	}
+	.vx-inputgroup {
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+		border-width: 1px;
+		border-style: solid;
+		border-color: var(--color-border-strong);
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface);
+	}
+	.vx-input-shell--ingroup {
+		flex-grow: 1;
+		flex-shrink: 1;
+		min-width: 0;
+		border-width: 0;
+		border-radius: 0;
+		background-color: transparent;
+	}
+	.vx-input--ingroup {
+		flex-shrink: 1;
+		border-width: 0;
+		border-radius: 0;
+		background-color: transparent;
+	}
 	.vx-inputgroup-text {
+		padding: 0 8px;
 		justify-content: center;
 		align-items: center;
 	}

@@ -9,6 +9,14 @@ export const Utils = {
 			throw new Error('NativeScript display density is unavailable in the GTK renderer')
 		},
 	},
+	/** Token href activation goes through the host URI seam (Gtk.show_uri_full
+	 *  on the app's main window), same path as ui's nav-href.gtk. */
+	openUrl(url: string): void {
+		const open = (globalThis as any).__octaneGtkHost?.openUri
+		if (typeof open !== 'function' || open(url) !== true) {
+			console.warn(`[linux-gtk] Cannot open external URI on this GTK host: ${url}`)
+		}
+	},
 }
 
 // The GTK build may resolve a shared native leaf before tree-shaking it.

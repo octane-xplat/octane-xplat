@@ -91,19 +91,276 @@ Contributor implementation details and qualification evidence live in the
 
 ## Exports
 
-| Export                     | Contents                                                            |
-| -------------------------- | ------------------------------------------------------------------- |
-| `.`                        | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `registerStylesheet`, `octane/universal/native` re-export |
-| `./host`                   | `runGtkApp` — GtkApplication + window + content box + mounted root    |
-| `./compat/native-core`     | `@nativescript/core` shim for leaves evaluated in a GTK bundle      |
-| `./compat/escape-props`    | escape-props shim                                                   |
+| Export                  | Contents                                                                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `.`                     | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `registerStylesheet`, `octane/universal/native` re-export |
+| `./host`                | `runGtkApp` — GtkApplication + window + content box + mounted root                                         |
+| `./compat/native-core`  | `@nativescript/core` shim for leaves evaluated in a GTK bundle                                             |
+| `./compat/escape-props` | escape-props shim                                                                                          |
 
 Implemented intrinsics: `masonview` (the single layout container — every
 layout semantic arrives through `style`/`className`), `label`, `button`,
-`scrollview`, `textfield`, `switch`, `slider`, `progress`,
-`activityindicator`, plus viewless `#text`, `span`, `formattedstring`,
+`scrollview`, `textfield`, `textview`, `switch`, `slider`, `progress`,
+`activityindicator`, `image`, `svgview`, plus viewless `#text`, `span`, `formattedstring`,
 `contentview`, `proxyviewcontainer`, `rootlayout`. Anything else throws a
 named driver error at mount.
+
+## Icon sources
+
+The shared Icon component uses Gtk.Picture for SVG and raster sources, and
+Gtk.Label for font/text fallbacks. Registry providers and explicit registries
+use the same shared UI implementation.
+
+```tsx
+import { Icon } from '@octane-xplat/ui'
+
+export function SearchGlyph() {
+  return <Icon name="xplat-search" size={20} accessibilityLabel="Search" />
+}
+```
+
+The picture source loader accepts inline SVG, data URIs, local paths, file URIs,
+bundle-relative `~/` paths, registered GResource names through `res://`, and
+HTTP(S) URLs. HTTP loading requires the Soup 3 GI typelib; SVG decoding requires
+the installed GdkPixbuf SVG loader (librsvg on the qualified Ubuntu host).
+The loader cancels stale requests and disposes textures with their widget.
+The Image component's wider sizing/placeholder contract is still unqualified.
+
+```tsx
+// A custom icon set can point to an asset beside the emitted app.js bundle.
+import { Icon, createIconRegistry } from '@octane-xplat/ui'
+
+const icons = createIconRegistry()
+icons.registerIcon('brand', { src: '~/brand.svg' })
+export function BrandGlyph() {
+  return <Icon name="brand" registry={icons} size={24} />
+}
+```
+
+## Textfield refs
+
+A textfield ref keeps its real Gtk.Entry identity while adding focus(), blur()
+and a controlled .text setter. Read-only entries keep focus and selection;
+isEnabled=false disables interaction. Programmatic text writes preserve Unicode
+cursor/selection ranges and do not echo through onTextChange. A blur only releases
+focus inside its own widget.
+
+```tsx
+import { useRef } from 'octane'
+import type { HostElement } from '@octane-xplat/jsx/intrinsics'
+import { Pressable, Text, View } from '@octane-xplat/ui'
+
+export function FocusableField() {
+	const field = useRef<HostElement | null>(null)
+	return (
+		<View>
+			<textfield ref={field} text="Copy this text" editable={false} />
+			<Pressable
+				onPress={() => {
+					field.current?.focus()
+				}}
+			>
+				<Text>Focus the field</Text>
+			</Pressable>
+			<Pressable
+				onPress={() => {
+					field.current?.blur()
+				}}
+			>
+				<Text>Release focus</Text>
+			</Pressable>
+		</View>
+	)
+}
+```
+
+## Text entry
+
+TextInput is available from the GTK UI root. Use value with onChange to keep
+the text in your component's state, or defaultValue for an input that manages
+its own text. Pressing Return calls onSubmit; hasClear adds a keyboard-accessible
+clear action.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { TextInput, Text, View } from '@octane-xplat/ui'
+
+export function AccountEntry() {
+  const [value, setValue] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  return (
+    <View>
+      <TextInput
+        label="Account"
+        placeholder="Work account"
+        value={value}
+        onChange={setValue}
+        hasClear
+        onSubmit={() => setSubmitted(true)}
+      />
+      <Text>{submitted ? 'Return received' : ''}</Text>
+    </View>
+  )
+}
+```
+
+keyboardType is a hint for the input method, not validation. A controlled
+parent can reject an edit by keeping its value unchanged. This example accepts
+digits and shows a validation tooltip while empty. Status messages, labels
+and leading content can change without replacing the editor.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+
+export function ReferenceEntry() {
+  const [value, setValue] = useState('')
+  return (
+    <TextInput
+      label="Reference"
+      value={value}
+      onChange={(next) => { if (/^\d*$/.test(next)) setValue(next) }}
+      keyboardType="number"
+      isRequired
+      status={value ? undefined : { type: 'error', message: 'Enter digits' }}
+      statusVariant="tooltip"
+    />
+  )
+}
+```
+
+GTK Entry has no per-field Return-key caption selector in the inspected API.
+returnKeyType therefore keeps Return submission working and emits one diagnostic
+that its caption hint is unavailable. It does not move focus for next.
+IME, assistive-technology clients, Wayland and visual parity remain
+outside this qualification.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+
+export function SearchEntry(props: { search: () => void }) {
+  return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
+}
+```
+
+These raw-ref methods do not provide a general NativeScript View facade.
+\n
+
+### Search fields
+
+SearchInput includes a registered search icon and a clear action. Labels,
+descriptions, validation and width use the shared field contract. Return
+submits the search; clearing reports onChange('') before onClear and returns
+focus to the editor.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { SearchInput } from '@octane-xplat/ui'
+
+export function FindFiles(props: { search: (query: string) => void }) {
+  const [query, setQuery] = useState('')
+  return (
+    <SearchInput label="Find files" description="All folders" width="100%"
+      placeholder="Search files" value={query} onChange={setQuery}
+      onSubmit={() => props.search(query)} onClear={() => console.log('Cleared')} />
+  )
+}
+```
+
+The maintained Linux check uses actual keyboard and pointer input. OS keyboard
+captions, composition, assistive-technology clients and visual parity remain
+unqualified.
+
+## Multiline fields
+
+Import TextArea from the GTK root for a labeled multiline field. It supports
+controlled or local text, row sizing, capped growth, placeholders, length limits
+and leading icons. Registered icon names use the native icon registry.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { TextArea } from '@octane-xplat/ui'
+
+export function Notes() {
+  const [notes, setNotes] = useState('')
+  return (
+    <TextArea label="Notes" value={notes} onChange={setNotes}
+      placeholder="Write a note" rows={3} autoGrow maxRows={6}
+      maxLength={200} startIcon="xplat-check" />
+  )
+}
+```
+
+GTK has no built-in secure multiline editor. TextArea rejects secure=true;
+use TextInput for password entry. IME composition, OS keyboards, screen-reader
+clients, full bidirectional editing and pixel parity remain unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+export function Password() {
+  return <TextInput label="Password" secure />
+}
+```
+
+## Low-level multiline editor
+
+The GTK textview intrinsic supports multiline text, Unicode selection,
+focus and change events. Replacing selected text reports one completed
+change. An empty editor shows hint text, styled with
+placeholderColor; the hint is separate from its accessible label.
+Long text scrolls within its assigned height;
+read-only editors remain scrollable. Return inserts a newline;
+done or send with an onReturnPress handler submits instead. Shift+Return
+keeps a newline. Tab moves focus to the next control.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function NotesEditor(props: { readOnly?: boolean }) {
+  return (
+    <textview
+      text={'A line\n'.repeat(20)}
+      editable={!props.readOnly}
+      hint="Write a note"
+      maxLength={200}
+      accessibilityLabel="Notes"
+      returnKeyType="done"
+      onTextChange={(event) => console.log(event.value)}
+      onReturnPress={() => console.log('Submitted')}
+      style={{ width: 260, height: 120, placeholderColor: '#777' }}
+    />
+  )
+}
+```
+
+maxLength caps new input in UTF-16 units, matching JavaScript String.length.
+A paste keeps the prefix that fits. For example, 😀 consumes two units and
+is kept whole. App-authored text can exceed the cap, and clearing maxLength removes
+it.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function ShortNote() {
+	return (
+		<textview
+			text=""
+			hint="Short note"
+			maxLength={200}
+			onTextChange={(event) => console.log(event.value)}
+		/>
+	)
+}
+```
+
+The maintained TextArea fixture imports the component through the GTK root.
+Source-harness row, growth and X11 keyboard/wheel checks are recorded in the
+[renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
+the renderer reports that limit once when returnKeyType is supplied.
 
 ## Apply stylesheets
 
@@ -265,3 +522,180 @@ GTK host element type. There is no renderer-owned `jsx-runtime` export.
 which wires the Octane compiler's `gtk` renderer, `gi://` externals, the
 `.gtk` extension chain, and the `octane` → `octane/universal/native` retarget.
 The output is one ESM file run with `gjs -m`.
+
+For a focused maintained runtime fixture, pass its file through Turbo so
+dependency builds and declaration generation still run first:
+
+```sh
+xvfb-run -a pnpm exec turbo run test:runtime --filter=@octane-xplat/linux-gtk -- test/ui-icon.test.mjs
+```
+
+## Portal targets
+
+Universal portals retain their original context and state while rendering into
+a local multi-child GTK layout target. External Box, Fixed and Grid targets
+retain caller-owned children; an owned Mason or viewless layout ref joins its
+existing layout graph. Keep the target alive until portal removal. See the
+[host integration example](../../docs/platform/linux-gtk.md#portals-for-gtk-host-integrations).
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import { createPortal, type UniversalRenderable } from '@octane-xplat/linux-gtk'
+
+export function PortalContent(props: { target: unknown }) {
+	return createPortal(
+		(<Text>Content in the target container</Text>) as UniversalRenderable,
+		props.target,
+	)
+}
+```
+
+Other overlays need their own focus, dismissal and geometry integration; Tooltip is covered below. Transported targets and single-child
+widgets are rejected explicitly. CSS follows physical target ancestry. The
+maintained ui-portal fixture checks preparation/abort, ordering, retargeting,
+context/state, CSS refresh and disposal in GJS; it does not prove OS input,
+accessibility-client behavior or pixels.
+
+## Native tooltips
+
+The curated GTK UI root now exports Tooltip, TooltipProps and PopoverPlacement.
+The GTK leaf uses same-root universal portals into a renderer-owned GtkPopover.
+Pointer intent has open/close delays; focus on a focusable child opens immediately.
+Blur, Escape, ancestor scrolling, disabling and disposal dismiss and clean up.
+Native popup coordinates follow anchor allocation changes without a second root.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Tooltip } from '@octane-xplat/ui'
+
+export function DeliveryHelp() {
+  return (
+    <Tooltip
+      trigger={<button text="Delivery details" />}
+      content="Orders ship on the next business day."
+      placement="right"
+      openDelay={300}
+    />
+  )
+}
+```
+
+GTK 4.14+ is required for the accessible-list reference used by DESCRIBED_BY;
+older GTK is rejected explicitly when mounting Tooltip. The panel exposes the
+native TOOLTIP role and accepts contentClassName/contentStyle. The native surface
+is noninteractive and retains trigger focus. Plain generic views are not given
+an extra tab stop; use a focusable trigger when keyboard access is required.
+The maintained ui-tooltip fixture separates real X11 pointer/Tab/Escape evidence
+from controller dispatch and checks native metadata, not pixels or an AT client.
+
+## Accessibility state records
+
+accessibilityState now preserves independent disabled, selected, checked,
+pressed, busy, expanded, hidden, invalid and visited state. checked/pressed also
+accept 'mixed'; invalid accepts true/false, 'grammar' or 'spelling'. required and
+readOnly are native accessible properties. The legacy selected/checked/unchecked/
+disabled strings are still accepted because existing native callers send them.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function AccountField(props: { required: boolean; loading: boolean; invalid: boolean }) {
+  return (
+    <textfield
+      accessibilityLabel="Account"
+      accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
+      text=""
+    />
+  )
+}
+```
+
+Apply interaction through widget props, not metadata. GtkEditable editability,
+widget sensitivity and accessible=false remain authoritative when they would
+contradict metadata. Removing an explicit checked override on a native switch
+restores its actual active value. Removing other managed flags/properties clears
+their old GTK storage. Shared TextInput now forwards resolved read-only, required,
+loading and error state through the GTK adapter; it remains a direct-source
+fixture while the rest of its field/prop contract is qualified.
+
+The maintained ui-accessibility fixture compares native stored values using
+fixed-signature bindings of GTK's variadic test helpers. Rebuild XplatMason after
+updating the facade: older typelibs do not contain those check functions. This is
+stronger than attribute-presence checks and does not claim AT-client or pixel
+qualification.
+
+## Keyboard press actions
+
+A Pressable with accessibilityRole="button" accepts Tab focus and activates on
+Return or Space release. With accessibilityRole="link", it activates on Return.
+Press-in runs once when the key goes down; press-out runs before activation.
+Moving focus, disabling the action or removing it cancels a held key.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function SaveAction(props: { disabled: boolean; save: () => void }) {
+	return (
+		<Pressable
+			accessibilityRole="button"
+			accessibilityLabel="Save"
+			disabled={props.disabled}
+			onPress={props.save}
+		>
+			<Text>Save</Text>
+		</Pressable>
+	)
+}
+```
+
+A Pressable without a button or link role keeps its existing pointer behavior
+and adds no keyboard stop. Keyboard events from a focused child textfield do
+not activate its parent Pressable.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function PointerAction(props: { disabled: boolean; save: () => void }) {
+  return (
+    <Pressable disabled={props.disabled} onPress={props.save}>
+      <Text>Save</Text>
+    </Pressable>
+  )
+}
+```
+
+Maintainer qualification now includes the [field-chrome runtime fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx).
+The fixture also checks editor retention while labels or validation messages change.
+TextInput and Field are available from the curated root. The current
+[field and selection guide](https://octane-xplat.goddardai.org/linux-gtk#single-choice-fields)
+also covers FormLayout, InputGroup, FieldGroup, CheckboxInput, Switch, RadioList,
+RadioListItem, NumberInput, CheckboxList, CheckboxListItem and the SegmentedControl family; maintained fixtures qualify named behavior rather than the
+complete assistive-client or visual contract.
+
+
+GTK field labels now resolve their associated control by its logical id and
+request focus. A testID automation name does not replace the control id.
+The lookup stays inside the field subtree and becomes inert after disposal.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+export function AccountField() {
+  return <TextInput id="account" testID="account-editor" label="Account" />
+}
+```
+
+
+Multiline text and placeholder hints support textAlign. Use a numeric or pixel
+lineHeight for a fixed logical-pixel row spacing; TextArea row fitting also
+reads that value from ancestor CSS. Relative line-height units are not yet
+qualified for row fitting.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function AlignedNotes() {
+  return <textview text="Notes" hint="Write a note"
+    style={{ width: 280, height: 96, textAlign: 'center', lineHeight: 48 }} />
+}
+```

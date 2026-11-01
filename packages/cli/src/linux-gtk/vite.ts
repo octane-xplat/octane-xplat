@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs-style module; annotations pending (transitional)
 import { createRequire } from 'node:module'
-import { realpathSync } from 'node:fs'
+import { existsSync, realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
@@ -8,10 +8,96 @@ import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
+/** Slot-compiled modules can emit the same `withSlot`/`hookSlots`
+ *  import binding in two import statements of a single module (octane's
+ *  universal compiler dedupes `hookSlots` intra-file but not `withSlot` —
+ *  e.g. `Button.tsrx`; plain `.ts` hook helpers emit duplicate `hookSlots`
+ *  under generated `_$hookSlots$` locals too). Rolldown only dedupes
+ *  bindings across modules, so the duplicate survives to a `_$withSlot`
+ *  redeclaration error in the merged chunk. Keep the first binding per
+ *  export and fold later local names into it. Different specifiers are a
+ *  real conflict — bail. */
+export function xplatGtkSlotDedupe() {
+	return {
+		name: 'xplat-gtk-slot-dedupe',
+		transform(code, id) {
+			if (!/\.(tsrx|tsx|ts|mts|js|mjs)$/.test(id)) { return }
+			if (!code.includes('withSlot as _') && !code.includes('hookSlots as _')) { return }
+			const firstLocal = new Map()
+			const firstSpec = new Map()
+			const fold = new Map()
+			let changed = false
+			let out = code.replace(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?/g,
+				(stmt, names, spec) => {
+					const kept = []
+					for (const raw of names.split(',')) {
+						const part = raw.trim()
+						const m = part.match(/^(withSlot|hookSlots) as (_\$[A-Za-z0-9_$]+)$/)
+						if (!m) {
+							if (part) { kept.push(part) }
+							continue
+						}
+						const [, kind, local] = m
+						const prev = firstSpec.get(kind)
+						if (prev !== undefined && prev !== spec) {
+							throw new Error(`xplat-gtk-slot-dedupe: ${kind} imported from '${prev}' and '${spec}' in ${id}`)
+						}
+						if (firstLocal.has(kind)) {
+							if (local !== firstLocal.get(kind)) { fold.set(local, firstLocal.get(kind)) }
+							changed = true
+							continue
+						}
+						firstLocal.set(kind, local)
+						firstSpec.set(kind, spec)
+						kept.push(part)
+					}
+					if (!kept.length) { changed = true; return '' }
+					return `import { ${kept.join(', ')} } from '${spec}';`
+				})
+			for (const [from, to] of fold) {
+				// `\b` is wrong here: `$` is not a word char, so `_$hookSlots` would
+				// match the prefix of `_$hookSlots$1`. Refuse any name continuation.
+				const rx = new RegExp(from.replace(/\$/g, '\\$') + '(?![\\w$])', 'g')
+				if (rx.test(out)) { changed = true; out = out.replace(rx, to) }
+			}
+			return changed ? { code: out } : undefined
+		},
+	}
+}
+
 /** GTK4/GJS compiler and bundle setup; the consuming app owns the toolchain.
  *  Produces a single ESM file `gjs -m` executes — the Octane universal
  *  runtime and the app's components are bundled; `gi://` introspection
  *  imports stay external because the GI libraries are the platform. */
+/** Shared sources import siblings with explicit extensions so Node can
+ *  type-strip them — but the extension pins the native-default leaf and
+ *  skips platform resolution. A GTK bundle redirects to the .gtk sibling
+ *  when one exists, restoring what extension probing did when the same
+ *  imports were extensionless. */
+export function xplatGtkLeafResolve() {
+	return {
+		name: 'xplat-gtk-leaf-resolve',
+		resolveId: {
+			order: 'pre',
+			handler(source, importer) {
+				if (!importer || !/^\.{1,2}\//.test(source)) {
+					return null
+				}
+				const match = source.match(/\.(tsrx|tsx|ts|mts|mjs|jsx|js)$/)
+				if (!match || source.includes('.gtk.') || source.includes('.d.')) {
+					return null
+				}
+				const stem = source.slice(0, -match[0].length)
+				if (stem.endsWith('.gtk')) {
+					return null
+				}
+				const candidate = join(importer, '..', stem + '.gtk' + match[0])
+				return existsSync(candidate) ? candidate : null
+			},
+		},
+	}
+}
+
 export async function xplatLinuxGtk(env, options = {}) {
 	const mode = typeof env === 'string' ? env : env.mode
 	const root = resolve(options.root ?? process.cwd())
@@ -29,6 +115,8 @@ export async function xplatLinuxGtk(env, options = {}) {
 		root,
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
+			xplatGtkLeafResolve(),
+			xplatGtkSlotDedupe(),
 			xplatCss('gtk'),
 			xplatInlineStylesheets(),
 			xplatBoundary('gtk'),
@@ -36,6 +124,12 @@ export async function xplatLinuxGtk(env, options = {}) {
 				hmr: options.hmr ?? false,
 				exclude: options.exclude,
 				renderers: {
+					// Plain .ts/.js hook modules match no rule — the whole
+					// bundle is universal, so the dom default would lower their
+					// useMemo/useCallback to the native memoSlot/memoTake/
+					// memoPublish ABI (octane/internal/client, CURRENT_SCOPE-
+					// bound) instead of the slotted universal useMemo.
+					default: 'gtk',
 					registry: {
 						gtk: {
 							module: renderer,
@@ -87,7 +181,11 @@ export async function xplatLinuxGtk(env, options = {}) {
 				// Workspace UI leaves import the selected renderer from their own graph;
 				// resolve it through the app without adding a UI renderer dependency.
 				{ find: /^@octane-xplat\/linux-gtk$/, replacement: rendererEntry },
-				{ find: './escape-props', replacement: resolveApp(`${renderer}/compat/escape-props`) },
+				// Any depth of relative specifier lands here — shared importers
+				// reach the leaf as ../overlays/escape-props, overlays siblings as
+				// ./escape-props. The regex must span the whole specifier: alias
+				// replacements go through String.replace.
+				{ find: /(^|.*\/)escape-props$/, replacement: resolveApp(`${renderer}/compat/escape-props`) },
 				{
 					find: /^@nativescript\/core$/,
 					replacement: resolveApp(`${renderer}/compat/native-core`),

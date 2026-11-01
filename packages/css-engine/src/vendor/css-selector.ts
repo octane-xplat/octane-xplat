@@ -1251,6 +1251,12 @@ export abstract class SelectorScope<T extends Node> implements LookupSorter {
 		if (id) {
 			appendSelectorCandidates(candidates, this.id[id]);
 		}
+		// Desktop renderers keep the authored id separately from the host node id.
+		// Match and candidate lookup must use the same identity channels.
+		const cssId = (node as Node & { cssId?: string }).cssId;
+		if (cssId && cssId !== id) {
+			appendSelectorCandidates(candidates, this.id[cssId]);
+		}
 
 		if (cssType) {
 			appendSelectorCandidates(candidates, this.type[cssType]);

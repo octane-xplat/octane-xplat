@@ -10,7 +10,17 @@ const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(box)
 const container = createGtkContainer(box)
 const apply = (commands: UniversalHostCommand[]) =>
-	gtkDriver.prepareBatch(container, { renderer: 'gtk', commands }).apply()
+	gtkDriver
+		.prepareBatch(
+			container,
+			{ renderer: 'gtk', version: 1, commands },
+			{
+				invokeLocalCallback() {
+					throw new Error('Raw GTK fixture has no local callback owners')
+				},
+			},
+		)
+		.apply()
 
 const cmd = (op: string, id: number, extra: Record<string, unknown> = {}) =>
 	({ op, id, ...extra }) as UniversalHostCommand

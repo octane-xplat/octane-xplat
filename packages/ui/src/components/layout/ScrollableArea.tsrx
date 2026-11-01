@@ -18,6 +18,18 @@ import { createPullToRefresh } from './refresh'
 import { spacingStep } from './spacing'
 import { scrollableAreaOffset } from './scrollable-area-offset'
 
+function viewportStyle(props: ScrollableAreaProps) {
+	return mergeStyle(
+		{
+			width: props.width,
+			height: props.height,
+			maxWidth: props.maxWidth,
+			minHeight: props.minHeight,
+		},
+		props.style,
+	)
+}
+
 /** Native padding — logical start/end map to left/right (NativeScript has
  *  no logical properties; RTL mirroring is the app's escape-hatch job). */
 function contentPadding(props: ScrollableAreaProps) {
@@ -130,7 +142,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				v.ios.clipsToBounds = true
 			}
 		}}
-		{...layoutChildProps(props, mergeStyle({ display: 'grid' }, props.style))}
+		{...layoutChildProps(props, mergeStyle({ display: 'grid' }, viewportStyle(props)))}
 		className={cx('vx-refresh-wrap', props.className)}
 	>
 		<scrollview
@@ -155,8 +167,10 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				indicator.current = v
 			}}
 			className="vx-refresh"
-			translateY={-REFRESH_HEADER_HEIGHT}
-			style={mergeStyle({ display: 'flex' }, { alignSelf: 'start' })}
+			style={mergeStyle(
+				{ display: 'flex' },
+				{ alignSelf: 'start', translateY: -REFRESH_HEADER_HEIGHT },
+			)}
 		>
 			<ActivityIndicator />
 		</masonview>
@@ -202,18 +216,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 		ref={forwardedRef}
 		id={props.id}
 		testID={props.testID ?? ''}
-		{...layoutChildProps(
-			props,
-			mergeStyle(
-				{
-					width: props.width,
-					height: props.height,
-					maxWidth: props.maxWidth,
-					minHeight: props.minHeight,
-				},
-				props.style,
-			),
-		)}
+		{...layoutChildProps(props, viewportStyle(props))}
 		className={cx('vx-scrollable', props.className)}
 		orientation={both ? 'vertical' : horizontal ? 'horizontal' : 'vertical'}
 		{...a11y(props)}

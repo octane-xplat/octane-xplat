@@ -288,6 +288,89 @@ await new Promise<void>((resolve) =>
 
 out.growEnd = growBox()
 
+// Mason walks nested containers directly, so their GTK border boxes must
+// contribute to intrinsic sizing. Current GTK measure/allocate roots consume
+// content dimensions and must not count the same border twice.
+const borderStyle = {
+	display: 'flex',
+	borderTopWidth: 2,
+	borderRightWidth: 3,
+	borderBottomWidth: 4,
+	borderLeftWidth: 5,
+}
+apply(container, [
+	{
+		op: 'create',
+		id: 30,
+		type: 'masonview',
+		props: {
+			style: {
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'flex-start',
+				width: 200,
+				height: 120,
+			},
+		},
+	} as UniversalHostCommand,
+	{
+		op: 'create',
+		id: 31,
+		type: 'masonview',
+		props: { style: borderStyle },
+	} as UniversalHostCommand,
+	{
+		op: 'create',
+		id: 32,
+		type: 'masonview',
+		props: { style: { width: 40, height: 20 } },
+	} as UniversalHostCommand,
+	{ op: 'insert', id: 30, parent: null, before: null } as UniversalHostCommand,
+	{ op: 'insert', id: 31, parent: 30, before: null } as UniversalHostCommand,
+	{ op: 'insert', id: 32, parent: 31, before: null } as UniversalHostCommand,
+])
+const borderParent = container.nodes.get(30)!.view!
+const borderBox = container.nodes.get(31)!.view!
+const borderContent = container.nodes.get(32)!.view!
+const borderSample = () => {
+	borderParent.size_allocate(rect(0, 0, 200, 120), -1)
+	const [boxOk, box] = borderBox.compute_bounds(borderParent)
+	const [contentOk, content] = borderContent.compute_bounds(borderParent)
+	const [, natW] = borderBox.measure(Gtk.Orientation.HORIZONTAL, -1)
+	const [, natH] = borderBox.measure(Gtk.Orientation.VERTICAL, -1)
+	return {
+		w: boxOk ? box.size.width : -1,
+		h: boxOk ? box.size.height : -1,
+		contentX: contentOk ? content.origin.x : -1,
+		contentY: contentOk ? content.origin.y : -1,
+		contentW: contentOk ? content.size.width : -1,
+		contentH: contentOk ? content.size.height : -1,
+		natW,
+		natH,
+	}
+}
+out.borderAuto = borderSample()
+apply(container, [
+	{ op: 'update', id: 31, props: { style: { display: 'flex' } } } as UniversalHostCommand,
+])
+out.borderDropped = borderSample()
+apply(container, [
+	{
+		op: 'update',
+		id: 31,
+		props: { style: { ...borderStyle, width: 70, height: 50 } },
+	} as UniversalHostCommand,
+])
+out.borderFixed = borderSample()
+apply(container, [
+	{ op: 'remove', id: 32 } as UniversalHostCommand,
+	{ op: 'destroy', id: 32 } as UniversalHostCommand,
+	{ op: 'remove', id: 31 } as UniversalHostCommand,
+	{ op: 'destroy', id: 31 } as UniversalHostCommand,
+	{ op: 'remove', id: 30 } as UniversalHostCommand,
+	{ op: 'destroy', id: 30 } as UniversalHostCommand,
+])
+
 apply(container, [
 	{ op: 'remove', id: 20 } as UniversalHostCommand,
 	{ op: 'destroy', id: 20 } as UniversalHostCommand,

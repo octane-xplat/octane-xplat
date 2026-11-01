@@ -3,6 +3,7 @@
 // platform-free (no AppKit, no GI).
 export {
 	computeCascade,
+	evaluateCssVariables,
 	INHERITED_CSS_PROPERTIES,
 	type CascadeOptions,
 	type CssHostNode,
@@ -11,6 +12,7 @@ export {
 } from './cascade.ts'
 
 export {
+	evalMediaQuery,
 	registerStylesheet,
 	unregisterStylesheet,
 	stylesheetScope,
@@ -19,7 +21,6 @@ export {
 	stylesheetsHaveMediaRules,
 	stylesheetMediaQueries,
 	refreshMediaQueries,
-	evalMediaQuery,
 	onStylesheetsChanged,
 	setStyleEnvironment,
 	type CssEnvironment,

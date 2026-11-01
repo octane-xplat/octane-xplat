@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useRef, useState } from 'octane'
+import { useEffect, useRef, useState } from 'octane'
 import type { PanEvent, SliderProps } from '../../props'
 import { useMeasure } from '../layout/useMeasure.web.tsrx'
+import { useTooltip } from '../overlays/use-tooltip.web.tsrx'
 import { usePan } from '../layout/pan.web.tsrx'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useFieldControlProps } from './field-context'
@@ -19,28 +20,35 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 	const host = useRef<HTMLElement | null>(null)
 	const measure = useMeasure()
 	const drag = useRef<{ lo0: number; hi0: number; which: 'lo' | 'hi' } | null>(null)
-	const [dragValue, setDragValue] = useState<number | [number, number] | null>(null)
+	const [internal, setInternal] = useState(props.defaultValue ?? props.min ?? props.minValue ?? 0)
+	const origin = useRef(0)
+	const tooltip = useTooltip({ isEnabled: props.valueDisplay === 'tooltip' && !props.disabled && !props.isDisabled, delay: 0 })
 	const generatedId = useId()
 	const controlId = props.id ?? generatedId
 
 	const min = props.min ?? props.minValue ?? 0
 	const max = props.max ?? props.maxValue ?? 100
-	const isRange = Array.isArray(props.value ?? props.defaultValue)
-	const raw = dragValue ?? props.value ?? (isRange ? ([min, max] as [number, number]) : min)
+	const isRange = Array.isArray(props.value ?? internal)
+	const raw = props.value ?? internal
 	const lo = Array.isArray(raw)
 		? Math.min(max, Math.max(min, raw[0]))
 		: Math.min(max, Math.max(min, raw))
 
 	const hi = Array.isArray(raw) ? Math.min(max, Math.max(min, raw[1])) : lo
-	const disabled = Boolean(props.disabled || props.isDisabled || props.isReadOnly)
+	const disabled = Boolean(props.disabled || props.isDisabled)
+	const blocked = disabled || props.isReadOnly
 	const width = measure.bounds?.width ?? 0
 	const step = props.step ?? 0
-	const snap = (n: number) => (step > 0 ? Math.round(n / step) * step : n)
+	const snap = (n: number) => n <= min ? min : n >= max ? max
+		: step > 0 ? min + Math.round((n - min) / step) * step : n
 	const ratio = (n: number) => (max === min ? 0 : (n - min) / (max - min))
 	const fmt = (n: number) => (props.formatValue ? props.formatValue(n) : String(n))
 	const readout = isRange ? `${fmt(lo)} – ${fmt(hi)}` : fmt(lo)
 
-	const emit = (next: number | [number, number]) => props.onValueChange?.(next)
+	const emit = (next: number | [number, number]) => {
+		if (props.value === undefined) setInternal(next)
+		props.onValueChange?.(next)
+	}
 	const move = (which: 'lo' | 'hi', next: number) => {
 		if (isRange) {
 			const clamped = Math.min(max, Math.max(min, snap(next)))
@@ -63,7 +71,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 	}
 
 	const onKeyDown = (event: KeyboardEvent) => {
-		if (disabled || event.defaultPrevented) {
+		if (blocked || event.defaultPrevented) {
 			return
 		}
 
@@ -93,13 +101,23 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 		move('hi', next)
 	}
 
+	useEffect(() => {
+		const node = host.current
+		if (!node) return
+		const down = (event: PointerEvent) => {
+			origin.current = event.clientX - node.getBoundingClientRect().left
+		}
+		node.addEventListener('pointerdown', down, true)
+		return () => node.removeEventListener('pointerdown', down, true)
+	}, [])
+
 	usePan(host, (e: PanEvent) => {
-		if (disabled) {
+		if (blocked) {
 			return
 		}
 
 		if (e.state === 'began') {
-			const frac = width > 0 ? e.x / width : 0
+			const frac = width > 0 ? origin.current / width : 0
 			const at = min + frac * (max - min)
 			const which = isRange && Math.abs(at - lo) <= Math.abs(at - hi) ? 'lo' : 'hi'
 			drag.current = { lo0: lo, hi0: hi, which }
@@ -113,10 +131,9 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 		if (e.state === 'moved') {
 			const base = drag.current.which === 'lo' ? drag.current.lo0 : drag.current.hi0
 			const next = base + (e.dx / width) * (max - min)
-			setDragValue(move(drag.current.which, next))
+			move(drag.current.which, next)
 		} else {
 			drag.current = null
-			setDragValue(null)
 		}
 	})
 
@@ -135,9 +152,10 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 			onKeyDown={onKeyDown}
 			aria-valuemin={min}
 			aria-valuemax={max}
-			aria-valuenow={lo}
+			aria-valuenow={hi}
 			aria-valuetext={readout}
 			aria-disabled={disabled || undefined}
+			aria-readonly={props.isReadOnly || undefined}
 			aria-label={props.ariaLabel}
 			aria-labelledby={props.ariaLabelledBy}
 			className={[
@@ -151,6 +169,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 			ref={(el: any) => {
 				host.current = el
 				measure.ref(el)
+				tooltip.interactionRef(el)
 				applyWebProps(el, props.web)
 			}}
 		>
@@ -163,7 +182,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 				}}
 				aria-hidden="true"
 			/>
-			<div className="vx-slider-thumb" style={{ left: ratio(hi) * width }} aria-hidden="true" />
+			<div className="vx-slider-thumb" ref={tooltip.positionRef} style={{ left: ratio(hi) * width }} aria-hidden="true" />
 			{isRange ? (
 				<div
 					className="vx-slider-thumb vx-slider-thumb--lo"
@@ -181,6 +200,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 					{m.label != null ? <span className="vx-slider-mark-label">{m.label}</span> : null}
 				</div>
 			))}
+			{tooltip.renderTooltip(readout)}
 			{props.valueDisplay === 'text' ? <span className="vx-slider-value">{readout}</span> : null}
 		</div>
 	)

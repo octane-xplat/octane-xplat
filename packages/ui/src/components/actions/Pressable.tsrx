@@ -42,6 +42,7 @@ export function Pressable(props: PressableProps): unknown @{
 			),
 		)}
 		className={cx('vx-pressable', props.className)}
+		isEnabled={!props.disabled}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}

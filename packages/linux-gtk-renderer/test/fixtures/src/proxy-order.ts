@@ -34,7 +34,10 @@ function apply(commands: UniversalHostCommand[]) {
 
 function labels(): string[] {
 	const result: string[] = []
-	for (let child = host.get_first_child(); child; child = child.get_next_sibling()) {
+	// Root content mounts into the renderer-owned overlay's contentHost —
+	// the outer host box only holds the overlay widget.
+	const content = (container as any).contentHost ?? host
+	for (let child = content.get_first_child(); child; child = child.get_next_sibling()) {
 		result.push(String((child as any).label))
 	}
 	return result

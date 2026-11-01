@@ -1423,3 +1423,15 @@ index 1e7a3b90..5c9d02f1 100644
      if (owner !== void 0) NATIVE_READ_DRIVER.stampQueuedPublication(owner, entry);
    }
  }
+diff --git a/dist/compiler/compile-universal.js b/dist/compiler/compile-universal.js
+index 229c024159..f453bb4e4d 100644
+--- a/dist/compiler/compile-universal.js
++++ b/dist/compiler/compile-universal.js
+@@ -415,6 +415,7 @@
+ 	'useId',
+ 	'useImperativeHandle',
+ 	'useInsertionEffect',
++	'__methodDep',
+ 	'useLayoutEffect',
+ 	'useLinkedState',
+ 	'useMemo',

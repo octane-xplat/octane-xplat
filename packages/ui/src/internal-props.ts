@@ -20,6 +20,9 @@ export interface PopoverLayerPosition {
 	 *  (upstream `min(anchor-size(width), …)`). `DropdownMenu` sets it so an
 	 *  unset `menuWidth` defaults to the trigger width. */
 	anchorMinWidth?: boolean
+	/** GTK only: `useLayer` fixed mode places the panel at page-coordinate
+	 *  x/y — this override replaces the computed anchor-relative position. */
+	fixedPosition?: { x: number; y: number }
 }
 
 /** `Tokenizer` appends query-derived "Create …" entries to `BaseTypeahead`
