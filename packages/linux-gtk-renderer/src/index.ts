@@ -2259,9 +2259,14 @@ function writeEntryText(node: ElementNode, view: GtkView, value: unknown) {
 }
 
 // Keep automation identifiers separate from the AT-visible accessible label.
+// Shared components pass testID={props.testID ?? ''} — an empty string is
+// unset, so the first non-empty identifier wins, not the first non-null.
 function widgetName(node: ElementNode): string {
 	const { testID, automationText, id, accessibilityLabel } = node.props
-	return String(testID ?? automationText ?? id ?? accessibilityLabel ?? '')
+	const value = [testID, automationText, id, accessibilityLabel].find(
+		(value) => value != null && String(value).length > 0,
+	)
+	return String(value ?? '')
 }
 
 function setProp(node: ElementNode, name: string, value: unknown) {
