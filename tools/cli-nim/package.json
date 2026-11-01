@@ -1,0 +1,1 @@
+{"name":"@xplat/cli-nim-probe","private":true,"type":"module","scripts":{"test":"node verify.mjs"},"devDependencies":{"nim-toolchain":"0.1.0"}}

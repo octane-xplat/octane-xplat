@@ -65,3 +65,5 @@ Reusable fixtures and patch sources are in
 and [desktop audit tooling](../../tools/desktop-support/README.md).
 [Operational state and raw evidence](exploration.md#operational-evidence) stay
 in Silo/local storage. Plans are maintained outside `.agents/`.
+
+- [Nim CLI evaluation](../../tools/cli-nim/README.md) — bounded native control-layer tooling, pins, and qualification limits.

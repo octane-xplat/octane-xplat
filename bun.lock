@@ -2883,6 +2883,12 @@
         "typescript": "catalog:",
       },
     },
+    "tools/cli-nim": {
+      "name": "@xplat/cli-nim-probe",
+      "devDependencies": {
+        "nim-toolchain": "0.1.0",
+      },
+    },
     "tools/feedback-worker": {
       "name": "@xplat/feedback-worker",
       "version": "0.0.0",
@@ -4593,6 +4599,8 @@
 
     "@xplat/auth-guide": ["@xplat/auth-guide@workspace:tools/auth-guide"],
 
+    "@xplat/cli-nim-probe": ["@xplat/cli-nim-probe@workspace:tools/cli-nim"],
+
     "@xplat/demos": ["@xplat/demos@workspace:packages/demos"],
 
     "@xplat/docs": ["@xplat/docs@workspace:apps/docs"],
@@ -5454,6 +5462,8 @@
     "negotiator": ["negotiator@1.1.0", "", { "dependencies": { "content-type": "2.1.0" } }, "sha512-NMPBRMJgiQHjbd8phG3Vebdx4kZ1H121rbl5IkMqeOsahptB9BKo/d7oJ3zTXqTgagn2bWlNSXkh0QUGM31RYg=="],
 
     "nice-try": ["nice-try@1.0.5", "", {}, "sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ=="],
+
+    "nim-toolchain": ["nim-toolchain@0.1.0", "", { "bin": { "nim": "bin/nim.js", "nimble": "bin/nimble.js", "nimsuggest": "bin/nimsuggest.js", "nim-toolchain": "bin/nim.js" } }, "sha512-AdU+4lcBKMLIP3ecDAyTlonrYIYrKJNxY7i0Oe7ehv0lwdb1UGJZx267ZIkwDIDzKZ2AvR+Wr47wr/NXtXN1Sw=="],
 
     "node-addon-api": ["node-addon-api@7.1.1", "", {}, "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="],
 

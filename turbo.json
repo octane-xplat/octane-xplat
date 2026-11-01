@@ -2,6 +2,7 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"@xplat/cli-nim-probe#test": { "cache": false },
 		"//#test:perry-cli": {
 			"cache": false,
 			"passThroughEnv": ["PERRY_BIN", "PERRY_WORKSPACE_ROOT", "PERRY_SLICES"]
