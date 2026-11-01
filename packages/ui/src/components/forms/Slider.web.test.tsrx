@@ -4,7 +4,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { Slider } from './Slider.web.tsrx'
 import type { SliderProps } from '../../props'
 
-vi.mock('./useMeasure.web.tsrx', () => ({
+vi.mock('../layout/useMeasure.web.tsrx', () => ({
 	useMeasure: () => ({ bounds: { x: 0, y: 0, width: 200, height: 28 }, ref() {} }),
 }))
 
