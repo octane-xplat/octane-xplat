@@ -23,6 +23,13 @@ const values = (): any => {
 const readEntry = (key: string): unknown => {
 	const container = values()
 	if (!container) return undefined
+	// IMap.Lookup is the canonical projection read; the indexer can miss keys.
+	if (typeof container.Lookup === 'function') {
+		try {
+			const value = container.Lookup(key)
+			if (value !== undefined) return value
+		} catch {}
+	}
 	try {
 		const direct = container[key]
 		if (direct !== undefined) return direct

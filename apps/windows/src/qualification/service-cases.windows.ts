@@ -9,6 +9,7 @@ import {
 	storage,
 } from '@octane-xplat/platform'
 import { files } from '@octane-xplat/files'
+import { Windows } from '@octane-xplat/platform/windows'
 
 type Emit = (event: string, data?: Record<string, unknown>) => void
 
@@ -75,6 +76,28 @@ async function randomSpec(): Promise<Record<string, unknown>> {
 	}
 }
 
+function storageProbe(): Record<string, unknown> {
+	try {
+		const values = Windows?.Storage?.ApplicationData?.Current?.LocalSettings?.Values
+		if (!values) {
+			return { valuesPresent: false }
+		}
+		return {
+			valuesPresent: true,
+			hasLookup: typeof values.Lookup === 'function',
+			hasInsert: typeof values.Insert === 'function',
+			hasRemove: typeof values.Remove === 'function',
+			hasHasKey: typeof values.HasKey === 'function',
+			hasFirst: typeof values.First === 'function',
+			hasSize: typeof values.Size === 'number' || typeof values.Size === 'function',
+			ownKeys: Object.getOwnPropertyNames(values).slice(0, 24).join(','),
+			protoKeys: Object.getOwnPropertyNames(Object.getPrototypeOf(values) ?? {}).slice(0, 24).join(','),
+		}
+	} catch (error) {
+		return { valuesPresent: false, probeError: String(error) }
+	}
+}
+
 async function storageSpec(persistValue?: string): Promise<Record<string, unknown>> {
 	const key = 'core20-service-rt'
 	const hadBefore = storage.getString(key)
@@ -99,6 +122,7 @@ async function storageSpec(persistValue?: string): Promise<Record<string, unknow
 		persistRead,
 		persistWrote: persistValue ?? null,
 		flush: storage.flush(),
+		probe: storageProbe(),
 	}
 }
 
