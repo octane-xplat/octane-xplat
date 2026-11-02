@@ -4,7 +4,7 @@ import {
 	ThemePalettePreview,
 	type TonalColor,
 	type CoreSwatch,
-} from '../../themePreview/ThemePalettePreview'
+} from '../../themePreview/ThemePalettePreview.tsrx'
 
 const TONAL_COLORS: TonalColor[] = [
 	{ name: 'Neutral', sourceHex: '#e5e5e5', note: 'C=0' },

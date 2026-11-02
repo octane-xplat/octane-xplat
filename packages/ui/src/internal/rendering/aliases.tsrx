@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Select } from '../../components/forms/Select'
+import { Select } from '../../components/forms/Select.tsrx'
 import type { MultiSelectorProps } from '../../props'
 
 /** SelectMenu — multi-select anchored listbox (`Selector` with selectionMode="multiple"). */

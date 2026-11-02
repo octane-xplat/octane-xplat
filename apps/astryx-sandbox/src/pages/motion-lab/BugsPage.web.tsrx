@@ -19,7 +19,7 @@ import { cx } from '../../cx'
  */
 
 import {useCallback, useEffect, useRef, useState} from 'octane';
-import {LabPage} from './PageFrame';
+import {LabPage} from './PageFrame.tsrx';
 import {
   ComparePanes,
   DemoBody,
@@ -27,8 +27,8 @@ import {
   LabSlider,
   Runner,
   useLoop,
-} from './LabPrimitives';
-import {useMotionLab} from './MotionLabStore';
+} from './LabPrimitives.tsrx';
+import {useMotionLab} from './MotionLabStore.tsrx';
 import {
   AUDIT_COUNTS,
   DURATION_WITHOUT_CURVE,

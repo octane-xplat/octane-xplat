@@ -1,6 +1,6 @@
 import { createRoot } from 'octane'
 import { composeStory } from 'storybook/preview-api'
-import meta, { CheckedLight, UncheckedLight } from './Switch.stories.web'
+import meta, { CheckedLight, UncheckedLight } from './Switch.stories.web.tsrx'
 import './stage.web.css'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'

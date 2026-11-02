@@ -6,10 +6,10 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
-import { Pressable } from '../actions/Pressable'
-import { Icon } from '../media/Icon'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Icon } from '../media/Icon.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { FormField } from './FormField'
+import { FormField } from './FormField.tsrx'
 
 /** Controlled single-line input. Imperative writes suppress their synchronous
  *  textChange echo through text-write. `isReadOnly` defaults false: an undefined

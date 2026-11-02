@@ -11,7 +11,7 @@ import {
 	Selector, Table, Text, Token, VStack,
 } from '@octane-xplat/ui'
 import type { TableColumn } from '@octane-xplat/ui'
-import { ChartLines } from './charts'
+import { ChartLines } from './charts.tsrx'
 
 type Segment = 'all' | 'web' | 'ios' | 'android'
 type FunnelWindow = '7d' | '30d' | '90d'

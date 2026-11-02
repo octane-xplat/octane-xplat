@@ -6,7 +6,7 @@ import type { CollapsibleProps, CollapsibleGroupProps } from '../../props'
 import { CollapsibleGroupContext, CollapsibleGroupProvider } from './collapsible-context'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 
 /** Self-drawn collapsible — `trigger` toggles `children` between shown and
  *  hidden (unmounted). Controlled via `open`/`onOpenChange`, uncontrolled

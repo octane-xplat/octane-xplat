@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const compiled = Object.fromEntries(await Promise.all(['clipboard.macos', 'appkit-host', 'index.macos'].map(async (name) => [name,
 	ts.transpile(await readFile(new URL(`../src/${name}.ts`, import.meta.url), 'utf8'), {

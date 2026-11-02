@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'octane'
-import { useMediaQuery } from '../../internal/platform/use-media-query'
+import { useMediaQuery } from '../../internal/platform/use-media-query.tsrx'
 
 /** Streaming reveal pace — natural typewriter cadence, fast, or instant. */
 export type StreamingTextSpeed = 'natural' | 'fast' | 'instant'

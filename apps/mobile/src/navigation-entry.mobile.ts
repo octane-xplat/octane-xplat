@@ -4,18 +4,14 @@ import { addBackInterceptor, getStack, registerStack } from '@octane-xplat/ui/ro
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { bindRouterFlow } from '../../../packages/ui/src/routing/router-instance'
 import { createNativeModalRouterHost } from '../../../packages/ui/src/routing/native-modal-router-host'
-// oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
 import { qualifyNativeAuthentication } from '../../../packages/ui/tests/authentication-native-example.tsrx'
-// oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
 import { qualifyRouteRetention } from '../../../packages/ui/tests/route-retention-example.tsrx'
-// oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
 import { qualifyPaneRouterExample } from '../../../packages/ui/tests/pane-router-example.tsrx'
 import { nativeMotion, sampleViewMotion } from './navigation-motion'
 import { requestNavigationSwipe } from './navigation-swipe-events'
 import { checkNativeBackEvents } from './navigation-engine-events.mobile'
 
 import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
-// oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
 import {
 	runtimeRoutes,
 	redirectedRoutes,
@@ -24,7 +20,6 @@ import {
 	loaderFailureControl,
 } from './navigation-fixture.mobile.tsrx'
 
-// oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
 import {
 	createRefinedNavigation,
 	RefinedNavigationShell,

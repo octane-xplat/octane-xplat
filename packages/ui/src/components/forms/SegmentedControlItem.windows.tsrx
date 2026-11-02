@@ -2,7 +2,7 @@
 import { useCallback, useContext, useEffect, useRef } from 'octane'
 import type { View } from '@nativescript/core'
 import { WindowsRadioContext } from './radio-context.windows'
-import { useMeasure } from '../layout/useMeasure'
+import { useMeasure } from '../layout/useMeasure.tsrx'
 import './radio-control.windows'
 import './RadioGroup.windows.css'
 import { mergeStyle } from '../../internal/layout/style-merge'

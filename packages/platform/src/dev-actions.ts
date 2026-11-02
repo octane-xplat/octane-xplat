@@ -35,4 +35,4 @@ export {
 	useDevActionHandler,
 	useDevEffect,
 	type DevActionHookOptions,
-} from './use-dev-action'
+} from './use-dev-action.tsrx'

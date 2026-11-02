@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Meter.parity.check.ts.
-import { Meter } from './Meter'
+import { Meter } from './Meter.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function MeterFixture() @{

@@ -3,9 +3,9 @@ import { Absolute, View, useMeasure } from '@octane-xplat/ui'
 import type { PanEvent } from '@octane-xplat/ui'
 import type { CropHandle, ImageCropProps, PixelCrop, Size } from './props'
 import { constrainCrop, containFrame, convertToPercentCrop, dragCrop } from './geometry'
-import { Gesture } from './Gesture'
-import { Guide } from './Guide'
-import { Source } from './Source'
+import { Gesture } from './Gesture.tsrx'
+import { Guide } from './Guide.tsrx'
+import { Source } from './Source.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const

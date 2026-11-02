@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { build } from 'vite'
 import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 

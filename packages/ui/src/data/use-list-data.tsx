@@ -1,6 +1,6 @@
 import { useRef } from 'octane'
 import { createListData, type ListData, type ListDataOptions } from './list-data'
-import { useStore } from './use-store'
+import { useStore } from './use-store.tsrx'
 
 /**
  * React Aria useListData counterpart: one immutable list store per component.

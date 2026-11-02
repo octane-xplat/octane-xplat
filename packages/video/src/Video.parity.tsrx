@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Video.parity.check.ts.
-import { Video } from './Video'
+import { Video } from './Video.tsrx'
 import type { ParityFixture } from '@octane-xplat/ui/parity'
 
 // Inline raster keeps the fixture independent of file/network loading.

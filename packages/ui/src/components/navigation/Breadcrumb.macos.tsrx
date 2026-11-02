@@ -18,8 +18,8 @@ import type {
 
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Pressable } from '../actions/Pressable.macos'
-import { Text } from '../content/Text.macos'
+import { Pressable } from '../actions/Pressable.macos.tsrx'
+import { Text } from '../content/Text.macos.tsrx'
 import { followHref } from './nav-href.macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'

@@ -11,7 +11,7 @@ import {
 	SegmentedControl, SegmentedControlItem, StackItem, Text, Timestamp,
 	useMediaQuery, VStack,
 } from '@octane-xplat/ui'
-import { ChartLines } from './charts'
+import { ChartLines } from './charts.tsrx'
 
 type Period = 'WoW' | 'MoM' | 'QoQ'
 type Rag = 'green' | 'amber' | 'red'

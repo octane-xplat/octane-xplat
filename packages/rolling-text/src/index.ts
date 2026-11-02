@@ -1,4 +1,4 @@
-export { RollingText } from './RollingText'
+export { RollingText } from './RollingText.tsrx'
 export type {
 	RollingTextProps,
 	RollingTextDirection,

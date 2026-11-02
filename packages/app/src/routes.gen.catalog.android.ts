@@ -18,7 +18,8 @@ const files = import.meta.glob(
 		'!./app/**/*.ios.{tsrx,tsx}',
 		'!./app/**/*.macos.{tsrx,tsx}',
 		'!./app/**/*.windows.{tsrx,tsx}',
-		'!./app/**/*.linux.{tsrx,tsx}'
+		'!./app/**/*.linux.{tsrx,tsx}',
+		'!./app/list-nested-probe.tsrx'
 	],
 )
 const layouts = import.meta.glob(
@@ -28,7 +29,8 @@ const layouts = import.meta.glob(
 		'!./app/**/*.ios.{tsrx,tsx}',
 		'!./app/**/*.macos.{tsrx,tsx}',
 		'!./app/**/*.windows.{tsrx,tsx}',
-		'!./app/**/*.linux.{tsrx,tsx}'
+		'!./app/**/*.linux.{tsrx,tsx}',
+		'!./app/list-nested-probe.tsrx'
 	],
 	{ eager: true },
 )

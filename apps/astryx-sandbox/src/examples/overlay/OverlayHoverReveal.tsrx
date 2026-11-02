@@ -1,6 +1,6 @@
 // Port of upstream Overlay/OverlayHoverReveal.tsx (Astryx 0.6.4, MIT).
 import { AspectRatio, Button, View } from '@octane-xplat/ui'
-import { MediaOverlay } from './MediaOverlay'
+import { MediaOverlay } from './MediaOverlay.tsrx'
 
 export function OverlayHoverReveal() @{
 	return (

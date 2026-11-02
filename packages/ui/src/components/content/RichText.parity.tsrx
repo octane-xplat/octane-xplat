@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in RichText.parity.check.ts.
-import { RichText } from './RichText'
+import { RichText } from './RichText.tsrx'
 import { RichTextSpan } from '../../index.shared'
 import type { ParityFixture } from '../../parity'
 

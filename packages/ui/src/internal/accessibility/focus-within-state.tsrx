@@ -1,5 +1,5 @@
 import { useRef } from 'octane'
-import type { FocusEventPayload } from './use-focus'
+import type { FocusEventPayload } from './use-focus.tsrx'
 import { normalizeFocusWithinEvent, type FocusWithinEvent } from './focus-within-event'
 
 /** Default mobile leaf: a single-element focus toggle. Web and AppKit

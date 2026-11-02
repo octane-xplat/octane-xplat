@@ -2,7 +2,7 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatSystemMessageProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Separator } from '../components/feedback/Separator'
+import { Separator } from '../components/feedback/Separator.tsrx'
 
 /** Centered system message — "conversation started", date separators, status
  *  changes. `divider` renders hairlines flanking the content. */

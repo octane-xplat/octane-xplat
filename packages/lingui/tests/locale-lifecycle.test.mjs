@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import vm from 'node:vm'
 import { setupI18n } from '@lingui/core'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const source = ts.transpile(readFileSync(new URL('../src/lingui.ts', import.meta.url), 'utf8'), {
 	module: ts.ModuleKind.CommonJS,

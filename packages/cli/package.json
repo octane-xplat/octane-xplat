@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/cli",
 	"version": "0.19.0",
-	"description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
+	"description": "xplat \u2014 dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
 	"keywords": [
 		"build",
 		"cli",
@@ -77,12 +77,13 @@
 		"test:css-platform": "node --test test/css-platform.test.mjs",
 		"test:updates": "node --test test/updates.test.mjs",
 		"test:postcss-consumer": "node test/postcss-consumer.mjs",
-		"typecheck": "tsc -p tsconfig.json",
+		"typecheck": "tsrx-tsc -p tsconfig.json",
 		"build:executable": "bun standalone/build.mjs",
 		"test:executable": "node --test standalone/test.mjs",
 		"test:patches-pnpm": "node --test standalone/patches-pnpm.test.mjs",
 		"test:patches-install": "node --test test/patches-*.test.mjs standalone/patches-install.test.mjs",
-		"test:toolchain": "node --test test/package-root.test.mjs test/compatibility.test.mjs test/build.test.mjs test/dev-selection.test.mjs test/web-targets.test.mjs"
+		"test:toolchain": "node --test test/package-root.test.mjs test/compatibility.test.mjs test/build.test.mjs test/dev-selection.test.mjs test/web-targets.test.mjs",
+		"test:typescript": "node --test test/tsrx-leaf.test.ts test/typescript-native.test.mjs test/vite-platform-resolution.test.mjs test/tsconfig-envs.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",
@@ -111,6 +112,11 @@
 		"@types/node": "24.10.1",
 		"abort-controller": "3.0.0",
 		"nativescript-vite-8-0-21": "npm:@nativescript/vite@8.0.21",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"typescript-classic": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript": "catalog:",
+		"octane": "catalog:"
 	}
 }

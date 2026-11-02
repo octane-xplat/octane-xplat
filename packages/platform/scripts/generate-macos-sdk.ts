@@ -16,7 +16,7 @@ import { createRequire } from 'node:module'
 import { basename, dirname, join } from 'node:path'
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const pkgDir = join(__dirname, '..')

@@ -163,6 +163,54 @@ index a05696b679b3feecd1bafa267de44b59db559162..06648067a3fcf7f8c74437a82b94ec01
      }
      return ['.native', ''];
  }
+diff --git a/helpers/typescript.js b/helpers/typescript.js
+index fe9c9fe948862def734df7bc5b817a9989155019..c1b23e10c64669cc0354364713ca6a57e1b81d55 100644
+--- a/helpers/typescript.js
++++ b/helpers/typescript.js
+@@ -6,23 +6,33 @@ let loaded;
+  * The compiler API backs the NativeClass ES5 downlevel and build-time type
+  * checking, but a plain JavaScript app has no reason to install `typescript`.
+  * Loading it on demand keeps every config helper importable without it; each
+- * call site decides what to do when it is absent. The project's own copy is
+- * preferred over one reachable from this package so type checking runs on the
+- * version the app was written against.
++ * call site decides what to do when it is absent. Prefer the project's
++ * explicit classic API alias; a native TypeScript launcher is not an API.
++ * TSRX checking still delegates to the project's tsrx-tsc.
+  */
+ export function loadTypeScript() {
+-    if (loaded !== undefined)
+-        return loaded;
+-    loaded = null;
++    if (loaded !== undefined) return loaded;
++    let incompatible = false;
+     for (const paths of [[getProjectRootPath()], undefined]) {
+-        try {
+-            loaded = require(require.resolve('typescript', paths ? { paths } : undefined));
+-            break;
++        for (const name of ['typescript-classic', 'typescript']) {
++            let candidate;
++            try {
++                candidate = require(require.resolve(name, paths ? { paths } : undefined));
++            } catch { continue; }
++            if (typeof candidate.transpileModule === 'function' && typeof candidate.getParsedCommandLineOfConfigFile === 'function') {
++                loaded = candidate;
++                return loaded;
++            }
++            incompatible = true;
+         }
+-        catch { }
+     }
++    if (incompatible) {
++        throw new Error('[ns-vite] Native TypeScript does not provide the classic compiler API used by NativeClass and config parsing. Install typescript-classic@npm:typescript@5.9.3; project typechecks can keep native TypeScript.');
++    }
++    loaded = null;
+     return loaded;
+ }
++
+ let warned = false;
+ /**
+  * Logged once per process. A `@NativeClass` source that is not downleveled
 diff --git a/hmr/helpers/ast-normalizer.js b/hmr/helpers/ast-normalizer.js
 index 77f5533a289902b644f2dba4c8a558f5a00c8314..5c1d57f34a5e863ae3e684012a99f9bb8796e974 100644
 --- a/hmr/helpers/ast-normalizer.js
@@ -1338,14 +1386,12 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..8951fe0d26c6cd73ad713bf672ca2424
  }
  function canResolveDependencyPackageJson(specifier, projectRequire) {
      try {
-@@ -938,5 +975,4 @@ function parseEnvList(value) {
-         .split(',')
+@@ -939,4 +997,3 @@ function parseEnvList(value) {
          .map((token) => token.trim())
          .filter(Boolean);
--}
--//# sourceMappingURL=manifest-collect.js.map
+ }
 \ No newline at end of file
-+}
+-//# sourceMappingURL=manifest-collect.js.map
 \ No newline at end of file
 diff --git a/hmr/shared/vendor/manifest.js b/hmr/shared/vendor/manifest.js
 index 54ba11ef9c329df049fa93b01b2ce47c9fb1ac3e..f7e3d0d1bd71919584834ef5a56e42f74ad2cf28 100644

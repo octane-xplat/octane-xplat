@@ -33,3 +33,6 @@ declare global {
 }
 
 export {}
+
+/** GJS exposes the current module URL through import.meta. */
+declare global { interface ImportMeta { readonly url: string } }

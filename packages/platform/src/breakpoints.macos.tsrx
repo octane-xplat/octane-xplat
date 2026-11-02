@@ -1,5 +1,5 @@
 import type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
-import { useWindowSize } from './screen.macos'
+import { useWindowSize } from './screen.macos.tsrx'
 
 export function useBreakpoints$<T extends BreakpointMap>(thresholds: T): BreakpointMatches<T> {
 	const width = useWindowSize().width

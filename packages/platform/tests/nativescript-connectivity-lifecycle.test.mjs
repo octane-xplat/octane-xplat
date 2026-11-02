@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const code = ts.transpileModule(
 	readFileSync(

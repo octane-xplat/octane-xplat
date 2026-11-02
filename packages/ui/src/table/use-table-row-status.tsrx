@@ -14,11 +14,11 @@ import type {
 
 import type { TableColumn, IconName } from '../props'
 import { pixel } from './column-utils'
-import { Icon } from '../components/media/Icon'
-import { Tooltip } from '../components/overlays/Tooltip'
-import { VisuallyHidden } from '../components/content/VisuallyHidden'
-import { View } from '../components/layout/View'
-import { tableSlot } from './table-slot'
+import { Icon } from '../components/media/Icon.tsrx'
+import { Tooltip } from '../components/overlays/Tooltip.tsrx'
+import { VisuallyHidden } from '../components/content/VisuallyHidden.tsrx'
+import { View } from '../components/layout/View.tsrx'
+import { tableSlot } from './table-slot.tsrx'
 
 /** Configuration for `useTableRowStatus`. */
 export interface UseTableRowStatusConfig<T extends Record<string, unknown>> {

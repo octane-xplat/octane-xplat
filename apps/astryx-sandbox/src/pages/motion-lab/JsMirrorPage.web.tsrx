@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Card, CodeBlock, Grid, Link, VStack, Heading, Text, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@octane-xplat/ui'
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
@@ -23,9 +23,9 @@ import { cx } from '../../cx'
  */
 
 import {useCallback, useEffect, useRef} from 'octane';
-import {LabPage} from './PageFrame';
-import {ComparePanes, DemoBody, DemoCard, useLoop} from './LabPrimitives';
-import {parseMs, useMotionLab} from './MotionLabStore';
+import {LabPage} from './PageFrame.tsrx';
+import {ComparePanes, DemoBody, DemoCard, useLoop} from './LabPrimitives.tsrx';
+import {parseMs, useMotionLab} from './MotionLabStore.tsrx';
 import {
   SEMANTIC_DURATIONS,
   SEMANTIC_EASES,

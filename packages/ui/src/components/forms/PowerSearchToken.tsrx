@@ -6,7 +6,7 @@ import {
 	createInternalConfig,
 } from './power-search-config'
 
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 /** Committed filter rendered as a removable token. */

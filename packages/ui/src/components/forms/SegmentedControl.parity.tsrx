@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in SegmentedControl.parity.check.ts.
-import { SegmentedControl } from './SegmentedControl'
+import { SegmentedControl } from './SegmentedControl.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SegmentedControlFixture() @{

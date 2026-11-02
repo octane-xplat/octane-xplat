@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatMessageMetadataProps, ChatMessageStatus } from '../props'
 import { Icon } from '../components/media/Icon.web.tsrx'
-import { useChatMessageContext } from './chat-context'
+import { useChatMessageContext } from './chat-context.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 const STATUS_ICON: Record<ChatMessageStatus, string> = {

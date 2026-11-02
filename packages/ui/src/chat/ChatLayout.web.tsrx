@@ -7,7 +7,7 @@ import type { ChatLayoutProps } from '../props'
 import { useChatStreamScroll } from './useChatStreamScroll.web.tsrx'
 import { useChatNewMessages } from './useChatNewMessages.web.tsrx'
 import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.web.tsrx'
-import { ChatLayoutProvider } from './chat-context'
+import { ChatLayoutProvider } from './chat-context.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 const hasVisibleContent = (children: any): boolean => {

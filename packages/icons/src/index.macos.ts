@@ -1,4 +1,4 @@
-export { Icon } from './Icon.macos'
+export { Icon } from './Icon.macos.tsrx'
 export { addCollection, addIcon, addIcons, resolveIcon, registry as iconRegistry } from './registry'
 export { iconToSvg } from './svg'
 export type { IconProps, IconOptions, IconSvg } from './props'

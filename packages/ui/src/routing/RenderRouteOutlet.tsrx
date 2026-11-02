@@ -1,6 +1,6 @@
 // Renderer-neutral composition; View resolves to the platform container.
 import { useLayoutEffect, useMemo, useSyncExternalStore } from 'octane'
-import { RoutePane } from './RoutePane'
+import { RoutePane } from './RoutePane.tsrx'
 import { ClientRouteView } from './ClientRouteView.tsrx'
 import { RouterRenderScopeProvider } from './router-hooks.tsrx'
 import type { RenderRouteOutletProps } from '../props'

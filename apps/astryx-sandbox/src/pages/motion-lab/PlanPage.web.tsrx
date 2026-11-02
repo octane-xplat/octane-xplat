@@ -17,8 +17,8 @@ import { cx } from '../../cx'
  */
 
 import {AUDIT_COUNTS} from './motionAudit';
-import {DemoBody, DemoCard} from './LabPrimitives';
-import {LabPage} from './PageFrame';
+import {DemoBody, DemoCard} from './LabPrimitives.tsrx';
+import {LabPage} from './PageFrame.tsrx';
 import {
   BRIEF_DEFECTS,
   COMMITMENTS,

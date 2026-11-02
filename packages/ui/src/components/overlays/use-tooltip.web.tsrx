@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { ContextRenderProps, TooltipOptions, TooltipReturn } from '../../props'
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 const ACTION_SELECTOR =

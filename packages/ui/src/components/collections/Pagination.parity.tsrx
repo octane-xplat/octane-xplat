@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Pagination.parity.check.ts.
-import { Pagination } from './Pagination'
+import { Pagination } from './Pagination.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function PaginationFixture() @{

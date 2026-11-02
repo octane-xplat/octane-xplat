@@ -2,7 +2,7 @@
 import { mergeStyle, styleRecord } from '../internal/layout/style-merge'
 import type { ChatMessageBubbleProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { useChatMessageContext } from './chat-context'
+import { useChatMessageContext } from './chat-context.tsrx'
 
 const renderable = (v: any) => v != null && v !== false && v !== true
 

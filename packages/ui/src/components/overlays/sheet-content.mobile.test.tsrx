@@ -8,7 +8,7 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
-import { SheetContent } from './sheet-content'
+import { SheetContent } from './sheet-content.tsrx'
 let edit = (_value: number) => {},
 	retired = 0
 

@@ -33,7 +33,7 @@ import {
 } from '@octane-xplat/ui'
 
 import type { PowerSearchFilter, TableFilterState, TableColumn } from '@octane-xplat/ui'
-import { useJobBatches } from './use-job-batches.web'
+import { useJobBatches } from './use-job-batches.web.tsrx'
 import { allJobs, STATUS_META } from './job-data'
 import type { ServiceJob } from './job-data'
 

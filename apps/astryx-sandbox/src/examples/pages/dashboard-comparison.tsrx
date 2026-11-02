@@ -11,7 +11,7 @@ import {
 	Text, VStack,
 } from '@octane-xplat/ui'
 import type { TableColumn } from '@octane-xplat/ui'
-import { ChartBars, ChartLines, ChartSparkline } from './charts'
+import { ChartBars, ChartLines, ChartSparkline } from './charts.tsrx'
 
 type DateRange = '7d' | '30d' | '90d'
 type Segment = 'all' | 'new' | 'returning'

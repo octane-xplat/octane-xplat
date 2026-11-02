@@ -1,7 +1,7 @@
 // Measured parity fixtures — assertions live in HoverCard.parity.check.ts.
-import { HoverCard } from './HoverCard'
-import { Text } from '../content/Text'
-import { View } from '../layout/View'
+import { HoverCard } from './HoverCard.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 // Popup contents only mount after pointer/focus intent; compare each default anchor state here.

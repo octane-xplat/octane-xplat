@@ -2,14 +2,14 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { SearchInputProps } from '../../props'
-import { Icon } from '../media/Icon'
+import { Icon } from '../media/Icon.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { FormField } from './FormField'
-import { Pressable } from '../actions/Pressable'
+import { FormField } from './FormField.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 
 /** Chrome-reset search field — a styled TextField (not UISearchBar) with a
  *  leading glyph and a self-drawn clear button, matching the web leaf.

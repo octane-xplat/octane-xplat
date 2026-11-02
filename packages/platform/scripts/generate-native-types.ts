@@ -17,7 +17,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const require_ = createRequire(import.meta.url)
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')

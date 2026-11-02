@@ -62,7 +62,9 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"@octane-xplat/cli": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.0 <10",

@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { FieldChrome, inputRef, actions } from './ui-field-chrome.gtk'
+import { FieldChrome, inputRef, actions } from './ui-field-chrome.gtk.tsrx'
 
 Gtk.init()
 const window = new Gtk.Window({

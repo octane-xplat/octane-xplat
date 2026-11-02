@@ -2,15 +2,15 @@
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type { NavigationMenuImplementation } from '../navigation/nav-link'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { MenuData } from './MenuParts'
-import { MenuSurface } from './MenuSurface'
+import { MenuData } from './MenuParts.tsrx'
+import { MenuSurface } from './MenuSurface.tsrx'
 import { useRef, useState } from 'octane'
 import type { ContextMenuProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
-import { Pressable } from '../actions/Pressable'
-import { Popover } from './Popover'
-import { MenuSheet, useMenuSheet } from './menu-sheet'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Popover } from './Popover.tsrx'
+import { MenuSheet, useMenuSheet } from './menu-sheet.tsrx'
 
 /** Self-drawn context menu — long-press opens the same anchored list as
  *  DropdownMenu, positioned over the children. There is no right-click on

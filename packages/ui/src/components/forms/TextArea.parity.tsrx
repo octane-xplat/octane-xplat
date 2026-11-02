@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in TextArea.parity.check.ts.
-import { TextArea } from './TextArea'
+import { TextArea } from './TextArea.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function TextAreaFixture(props: { value?: string }) @{

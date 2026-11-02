@@ -1,7 +1,7 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { Probe } from './ui-display.gtk'
+import { Probe } from './ui-display.gtk.tsrx'
 
 Gtk.init()
 const window = new Gtk.Window({ title: 'Octane GTK Display test', default_width: 900, default_height: 800, decorated: false })

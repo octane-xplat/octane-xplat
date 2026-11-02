@@ -2,8 +2,8 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatDictationButtonProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Icon } from '../components/media/Icon'
-import { Button } from '../components/actions/Button'
+import { Icon } from '../components/media/Icon.tsrx'
+import { Button } from '../components/actions/Button.tsrx'
 
 const BAR_COUNT = 5
 

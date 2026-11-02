@@ -10,7 +10,6 @@ import {
 import { Frame, GridLayout, Page } from '@nativescript/core'
 import { createClientRouteEntry, type ClientRouteEntry } from './client-route-entry'
 import { prepareHistoryEntry } from './prepare-history-entry'
-// oxlint-disable-next-line xplat/no-ts-imports-tsrx -- Compiled component value for owned roots; no hooks run here.
 import { ClientRouteView } from './ClientRouteView.tsrx'
 import { createRouterRenderScope, type RouterRenderScope } from './router-render-scope'
 import { bindRouterFlow } from './router-instance'

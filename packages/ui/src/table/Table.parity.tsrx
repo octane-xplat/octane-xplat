@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Table.parity.check.ts.
-import { Table } from './Table'
-import { View } from '../components/layout/View'
+import { Table } from './Table.tsrx'
+import { View } from '../components/layout/View.tsrx'
 import { pixel } from './column-utils'
 import type { ParityFixture } from '../parity'
 

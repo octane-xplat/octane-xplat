@@ -6,13 +6,13 @@ import type { ChatKeyboardBinding } from './chat-keyboard-types'
 import { checkChatPanelHeight } from './chat-keyboard-types'
 import { KeyboardAvoidanceContext } from '../internal/keyboard/keyboard-avoidance-context'
 import { ConsumedInsetsContext } from '../components/layout/inset-consumption'
-import { useSafeAreaInsets } from '../components/layout/safeAreaInsets'
+import { useSafeAreaInsets } from '../components/layout/safeAreaInsets.tsrx'
 import type { ChatLayoutProps } from '../props'
 import { cx } from '@octane-xplat/lib'
 import { useChatStreamScroll } from './useChatStreamScroll.tsrx'
 import { useChatNewMessages } from './useChatNewMessages.tsrx'
 import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.tsrx'
-import { ChatLayoutProvider } from './chat-context'
+import { ChatLayoutProvider } from './chat-context.tsrx'
 
 const hasVisibleContent = (children: any): boolean => {
 	if (children == null || children === false || children === true) {

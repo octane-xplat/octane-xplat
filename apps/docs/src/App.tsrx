@@ -26,7 +26,7 @@ import { DocNavigationProvider } from './DocPage.tsrx'
 import { searchDocs, type SearchHit } from './search'
 import { resetDocScroll } from './scroll'
 import { readThemePreference, saveThemePreference } from './docs-preferences'
-import { useDocsKeyboard, restoreMenu, animateMenuDismiss } from './docs-host'
+import { useDocsKeyboard, restoreMenu, animateMenuDismiss } from './docs-host.tsrx'
 import { ConstellationMark, DocTopSentinel } from './ConstellationMark.tsrx'
 
 import logoMark from './assets/logo-mark.svg'

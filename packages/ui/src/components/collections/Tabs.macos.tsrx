@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { RouteOutlet } from '../../routing/RouteOutlet.macos.tsrx'
 import { routeTabKey, useRouteTabsSelection } from '../../routing/route-tabs-selection.tsrx'
-import { RoutePane } from '../../routing/RoutePane'
+import { RoutePane } from '../../routing/RoutePane.tsrx'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'
 import { TabList, Tab } from './TabList.macos.tsrx'

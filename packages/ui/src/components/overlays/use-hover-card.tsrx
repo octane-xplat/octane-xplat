@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { HoverCardOptions, HoverCardReturn } from '../../props'
 import { cx } from '@octane-xplat/lib'

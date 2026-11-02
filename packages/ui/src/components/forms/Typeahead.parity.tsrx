@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Typeahead.parity.check.ts.
-import { Typeahead } from './Typeahead'
+import { Typeahead } from './Typeahead.tsrx'
 import { createStaticSource } from './typeahead-source'
 import type { ParityFixture } from '../../parity'
 

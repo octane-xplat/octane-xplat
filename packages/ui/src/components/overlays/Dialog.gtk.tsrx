@@ -7,7 +7,7 @@ import type { DialogHeaderProps, DialogProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { useLayerDismissal } from './layer-dismissal.tsrx'
 import { DialogContext, DialogProvider } from './dialog-context'
-import { Button } from '../actions/Button'
+import { Button } from '../actions/Button.tsrx'
 
 /** The modal body rendered in the overlay layer — a centered panel above
  *  the root content on the same window. `purpose` gates the scrim tap. */

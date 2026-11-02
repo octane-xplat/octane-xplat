@@ -52,7 +52,13 @@ try {
 
 		execFileSync(
 			process.execPath,
-			[join(root, 'node_modules/typescript/bin/tsc'), '--noEmit', '-p', config],
+			[
+				join(root, 'node_modules/typescript/bin/tsc'),
+				'--runExternalCode',
+				'--noEmit',
+				'-p',
+				config,
+			],
 			{ cwd: root, stdio: 'inherit' },
 		)
 

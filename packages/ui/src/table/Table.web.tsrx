@@ -16,9 +16,9 @@ import type { TableContextActions, TablePlugin, TableRenderProps } from './types
 import { applyPlugins, planTableRender, wrapTableContext, resolveTablePlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
-import { TableSlot } from './table-slot'
-import { Empty as EmptyState } from '../components/feedback/Empty'
-import { ContextMenu } from '../components/overlays/ContextMenu'
+import { TableSlot } from './table-slot.tsrx'
+import { Empty as EmptyState } from '../components/feedback/Empty.tsrx'
+import { ContextMenu } from '../components/overlays/ContextMenu.tsrx'
 import { useContext } from 'octane'
 import type { JSX } from 'octane/jsx-runtime'
 

@@ -5,7 +5,7 @@ import type { CheckboxListItemProps } from '../../props'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 
 /** `CheckboxListItem` — one row inside a `CheckboxList` (Astryx child
  *  part). With `value` it joins the group's checked set; without it,

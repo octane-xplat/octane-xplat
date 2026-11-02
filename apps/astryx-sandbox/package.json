@@ -26,6 +26,7 @@
 		"@tsrx/typescript-plugin": "catalog:",
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	}
 }

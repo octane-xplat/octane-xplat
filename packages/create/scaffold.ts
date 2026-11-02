@@ -31,6 +31,7 @@ export const targets: Record<string, any> = {
 		files: [
 			'index.html',
 			'vite.config.ts',
+			'src/main.tsrx',
 			'src/main.web.tsrx',
 			'vitest.web.config.mts',
 			'src/app.web.test.tsx',
@@ -92,6 +93,7 @@ export const targets: Record<string, any> = {
 			'@nativescript/unit-test-runner',
 			'@nativescript/vite',
 			'nativescript',
+			'typescript-classic',
 		],
 		typecheck: 'xplat typecheck',
 	},

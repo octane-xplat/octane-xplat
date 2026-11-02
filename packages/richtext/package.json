@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/richtext",
 	"version": "0.19.0",
-	"description": "Native rich-text editing leaf for Octane xplat — Android Aztec and AppKit WKWebView StarterKit",
+	"description": "Native rich-text editing leaf for Octane xplat \u2014 Android Aztec and AppKit WKWebView StarterKit",
 	"keywords": [
 		"android",
 		"aztec",
@@ -73,7 +73,8 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

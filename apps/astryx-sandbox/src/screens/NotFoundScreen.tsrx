@@ -2,7 +2,7 @@
 // shell.
 
 import { Text, VStack, Heading, Layout, LayoutHeader, LayoutContent } from '@octane-xplat/ui'
-import { SandboxShell } from '../shell/SandboxShell'
+import { SandboxShell } from '../shell/SandboxShell.tsrx'
 
 export function NotFoundScreen(props: { title?: string; message?: string }) @{
 	return (

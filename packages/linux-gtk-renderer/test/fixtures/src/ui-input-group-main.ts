@@ -11,7 +11,7 @@ import {
 	RoleScene,
 	roleRef,
 	roleHandle,
-} from './ui-input-group.gtk'
+} from './ui-input-group.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK input group test',

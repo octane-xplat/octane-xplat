@@ -2,7 +2,7 @@
 // Keep inactive viewports measured: display:none collapses NSScrollView's
 // document and AppKit clamps its retained offset to zero. Hidden absolute panes
 // leave the active layout flow while preserving their viewport geometry.
-import { View } from '../components/layout/View'
+import { View } from '../components/layout/View.tsrx'
 import { RouterFlowVisibilityContext } from './router-hook-context'
 const Visibility: any = RouterFlowVisibilityContext
 import type { RoutePaneProps } from '../props'

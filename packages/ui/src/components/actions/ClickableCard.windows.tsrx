@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { ClickableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
-import { TextSlot } from '../forms/text-slot'
-import { Pressable } from './Pressable'
+import { TextSlot } from '../forms/text-slot.tsrx'
+import { Pressable } from './Pressable.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { Utils } from '@nativescript/core'

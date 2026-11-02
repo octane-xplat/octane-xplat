@@ -2,7 +2,7 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import type { View } from '@nativescript/core'
-import { useMeasure } from '../layout/useMeasure'
+import { useMeasure } from '../layout/useMeasure.tsrx'
 import './pressable-control.windows'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
@@ -14,7 +14,7 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from '../layout/layout-child'
-import { usePan } from '../layout/pan'
+import { usePan } from '../layout/pan.tsrx'
 /** Keep the shared drawing and layout, with a measured native control for
  * focus and activation. Only Click invokes onPress: a second tap listener
  * would dispatch mouse activation twice. */

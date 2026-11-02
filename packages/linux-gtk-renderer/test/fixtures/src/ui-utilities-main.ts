@@ -38,9 +38,9 @@ import {
 	sortTableData,
 	toSearchFilters,
 } from '@octane-xplat/ui'
-import { Probe } from './ui-utilities.gtk'
+import { Probe } from './ui-utilities.gtk.tsrx'
 import { results } from './ui-utilities-results'
-import { FrProbe } from './ui-utilities-fr.gtk'
+import { FrProbe } from './ui-utilities-fr.gtk.tsrx'
 
 Gtk.init()
 const window = new Gtk.Window({ title: 'Octane GTK Utilities test', default_width: 400, default_height: 300, decorated: false })

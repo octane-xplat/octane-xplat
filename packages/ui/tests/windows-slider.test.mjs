@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { pathToFileURL } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const require = createRequire(import.meta.url)
 const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).href
@@ -93,11 +93,11 @@ const slider = compiled(
 	{
 		'@octane-xplat/lib': support,
 		'./field-context': field,
-		'./FormField': chrome,
+		'./FormField.tsrx': chrome,
 		'../overlays/escape-props': support,
 		'../../internal/layout/style-merge': support,
-		'../layout/useMeasure': support,
-		'../layout/pan': support,
+		'../layout/useMeasure.tsrx': support,
+		'../layout/pan.tsrx': support,
 		'./slider-control': support,
 		'./slider-model.windows': model,
 	},

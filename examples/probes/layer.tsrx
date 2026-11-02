@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Pressable, Text, VStack, View, useLayer } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
-import { LayerHost } from './LayerHost'
+import { LayerHost } from './LayerHost.tsrx'
 
 let anchoredLayer: ReturnType<typeof useLayer> | null = null
 let fixedLayer: ReturnType<typeof useLayer> | null = null

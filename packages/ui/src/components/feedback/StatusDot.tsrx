@@ -8,7 +8,7 @@ import { useColorScheme } from '../../theme/colorScheme'
 import { statusDotColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
 import { isRenderable } from '../../internal/rendering/is-renderable'
-import { Tooltip } from '../overlays/Tooltip'
+import { Tooltip } from '../overlays/Tooltip.tsrx'
 
 /** StatusDot — an 8pt colored status signal. `label` is the dot's accessible
  *  name. `isPulsing` loops an opacity animation on the native view (no CSS

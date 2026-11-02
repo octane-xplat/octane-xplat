@@ -1,6 +1,6 @@
 // Port of upstream Overlay/OverlayBottomStrip.tsx (Astryx 0.6.4, MIT).
 import { AspectRatio, Badge, Text, View, VStack } from '@octane-xplat/ui'
-import { MediaOverlay } from './MediaOverlay'
+import { MediaOverlay } from './MediaOverlay.tsrx'
 
 export function OverlayBottomStrip() @{
 	return (

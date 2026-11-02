@@ -1,4 +1,4 @@
-import type { TriggerMenuState } from './useTriggerMenu'
+import type { TriggerMenuState } from './useTriggerMenu.tsrx'
 import type { ChatComposerTriggerItem } from '../../props'
 import type { JSX } from 'octane/jsx-runtime'
 

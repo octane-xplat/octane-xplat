@@ -2,8 +2,8 @@
 import { createRouter } from '../src/routing/router-instance'
 import { defineRoute } from '../src/routing/define-route'
 import { defineRoutes, defineRuntimeRoutes } from '../src/routing/route-table'
-import { NavLink } from '../src/components/navigation/NavLink'
-import { Text } from '../src/components/content/Text'
+import { NavLink } from '../src/components/navigation/NavLink.tsrx'
+import { Text } from '../src/components/content/Text.tsrx'
 import { RouterProvider } from '../src/routing/router-hooks.tsrx'
 import type { PreparedRouteMatch, RouterHost, ValidatedDestination } from '../src/props'
 

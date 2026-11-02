@@ -3,7 +3,7 @@ import type { View } from '@nativescript/core'
 import type { BadgeProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { TextSlot } from '../forms/text-slot'
+import { TextSlot } from '../forms/text-slot.tsrx'
 
 /** Badge — native text hosts preserve primitive children, including zero. */
 export function Badge(props: BadgeProps): unknown @{

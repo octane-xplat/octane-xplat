@@ -1,4 +1,4 @@
-export { ImageCrop } from './ImageCrop'
+export { ImageCrop } from './ImageCrop.tsrx'
 export {
 	containFrame,
 	constrainCrop,

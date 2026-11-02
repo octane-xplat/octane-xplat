@@ -1,1 +1,2 @@
-{"extends":"../../../tsconfig.base.json"}
+{
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],"extends":"../../../tsconfig.base.json"}

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 // Actual host methods with fake Foundation registration; this is not ObjC execution.
 const hostSource = ts.transpile(await readFile(new URL('../../../apps/macos/src/appkit.ts', import.meta.url), 'utf8'), {

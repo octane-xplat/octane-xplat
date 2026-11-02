@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'octane'
 import { createAsyncListData, type AsyncListData, type AsyncListOptions } from './async-list'
 
-import { useStore } from './use-store'
+import { useStore } from './use-store.tsrx'
 
 /**
  * React Aria useAsyncList counterpart: managed async list state with

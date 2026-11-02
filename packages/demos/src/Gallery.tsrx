@@ -67,8 +67,8 @@ import { Reorder } from './Reorder.tsrx'
 import { ComponentsDemo } from './ComponentsDemo.tsrx'
 // Extensionless on purpose — .macos/.windows twins substitute a stub leaf
 // (the motion leaf's hosts are mobile + web only).
-import { MotionPatterns } from './MotionPatterns'
-import { FancyComponents } from './FancyComponents'
+import { MotionPatterns } from './MotionPatterns.tsrx'
+import { FancyComponents } from './FancyComponents.tsrx'
 import { useLastDemo } from './store.tsrx'
 
 // kind: 'app' = a self-contained mini-app a human pokes to build trust;

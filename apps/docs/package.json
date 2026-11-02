@@ -35,6 +35,8 @@
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"wrangler": "^4.0.0"
+		"wrangler": "^4.0.0",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
 	}
 }

@@ -1,7 +1,8 @@
+import { xplatTsrx } from '@octane-xplat/cli/vite'
 import { defineConfig } from 'vitest/config'
 import { octane } from 'octane/compiler/vite'
 export default defineConfig({
-	plugins: [octane({ ssr: false })],
+	plugins: [xplatTsrx('web'), octane({ ssr: false })],
 	resolve: {
 		conditions: ['web'],
 		extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.mjs', '.js', '.json'],

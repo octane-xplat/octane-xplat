@@ -6,7 +6,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { MetadataListProvider } from './metadata-list-context'
 import { Grid } from '../layout/Grid.tsrx'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { toChildArray } from '../../internal/rendering/child-array'
 
 /** Repeat an 'auto,*' label/value track pair (or a '*' cell for stacked

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 function load(path, context, names) {
 	const source = readFileSync(new URL(path, import.meta.url), 'utf8')

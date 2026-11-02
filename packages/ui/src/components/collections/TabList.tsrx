@@ -13,10 +13,10 @@ import {
 	nativeAccessibilityState,
 } from '../overlays/escape-props'
 
-import { Icon } from '../media/Icon'
-import { Text } from '../content/Text'
-import { Popover } from '../overlays/Popover'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { Popover } from '../overlays/Popover.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { followHref } from '../navigation/nav-href'
 import { TabListContext, TabListProvider } from '../navigation/nav-contexts'
 

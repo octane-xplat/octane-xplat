@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
-import { useOwnedContent } from './use-owned-content'
+import { useOwnedContent } from './use-owned-content.tsrx'
 import { openBottomSheetWithOwner } from './bottom-sheet-service'
 import type { ImperativeBottomSheetReturn, OpenBottomSheet } from '../../props'
 

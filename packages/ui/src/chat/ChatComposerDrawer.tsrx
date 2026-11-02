@@ -3,7 +3,7 @@ import { mergeStyle } from '../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { ChatComposerDrawerProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Badge } from '../components/feedback/Badge'
+import { Badge } from '../components/feedback/Badge.tsrx'
 import {
 	nativeAccessibilityRole,
 	nativeAccessibilityState,

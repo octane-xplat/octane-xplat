@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Button, CodeBlock, Grid, Link, MetadataList, MetadataListItem, VStack, Heading, Text, SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
@@ -24,9 +24,9 @@ import { cx } from '../../cx'
  */
 
 import {useCallback, useRef, useState} from 'octane';
-import {LabPage} from './PageFrame';
-import {DemoBody, DemoCard, LabSlider, Runner, useLoop} from './LabPrimitives';
-import {useMotionLab} from './MotionLabStore';
+import {LabPage} from './PageFrame.tsrx';
+import {DemoBody, DemoCard, LabSlider, Runner, useLoop} from './LabPrimitives.tsrx';
+import {useMotionLab} from './MotionLabStore.tsrx';
 import {SPRINGS} from './motionTokens';
 import {createSpring, plotPath} from './spring';
 

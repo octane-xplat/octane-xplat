@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import { Icon } from './Icon.macos.tsrx'
 import { ActivityIndicator } from '../actions/controls.macos.tsrx'
 import { Skeleton } from '../feedback/Skeleton.macos.tsrx'
-import { Tooltip } from '../overlays/Tooltip'
+import { Tooltip } from '../overlays/Tooltip.tsrx'
 import { isRenderable } from '../../internal/rendering/is-renderable'
 
 const SIZE = 40

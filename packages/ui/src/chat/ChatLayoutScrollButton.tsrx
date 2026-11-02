@@ -2,8 +2,8 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatLayoutScrollButtonProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Icon } from '../components/media/Icon'
-import { Pressable } from '../components/actions/Pressable'
+import { Icon } from '../components/media/Icon.tsrx'
+import { Pressable } from '../components/actions/Pressable.tsrx'
 
 /** Floating scroll-to-bottom pill for ChatLayout. Native keeps the same
  *  anatomy (centered pill above the composer, optional expanding label);

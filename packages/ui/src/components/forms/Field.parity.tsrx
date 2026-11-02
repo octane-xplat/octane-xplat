@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Field.parity.check.ts.
-import { TextInput } from './TextInput'
+import { TextInput } from './TextInput.tsrx'
 import { Field } from '../../index.shared'
 import type { ParityFixture } from '../../parity'
 

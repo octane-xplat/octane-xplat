@@ -7,7 +7,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
+import { parseModule } from '@tsrx/core'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const sourceDir = join(root, 'packages/ui/src')
@@ -23,6 +24,27 @@ const barrels = [
 	'chat/index.ts',
 ]
 
+// Wrappers that render only components can share their implementation. Literal
+// host elements require a browser leaf so a web barrel cannot select native UI.
+function hasHostElements(source, file) {
+	const visit = (node) => {
+		if (!node || typeof node !== 'object') {
+			return false
+		}
+		if (
+			node.type === 'JSXOpeningElement' &&
+			node.name?.type === 'JSXIdentifier' &&
+			/^[a-z]/.test(node.name.name)
+		) {
+			return true
+		}
+		return Object.values(node).some((value) =>
+			Array.isArray(value) ? value.some(visit) : visit(value),
+		)
+	}
+	return visit(parseModule(source, file))
+}
+
 const webSpecifier = (dir, specifier) => {
 	const extension = specifier.endsWith('.tsrx') ? '.tsrx' : ''
 	const base = extension ? specifier.slice(0, -extension.length) : specifier
@@ -31,7 +53,10 @@ const webSpecifier = (dir, specifier) => {
 		return candidate
 	}
 
-	if (extension && /@jsxImportSource/.test(readFileSync(join(dir, specifier), 'utf8'))) {
+	if (
+		extension &&
+		hasHostElements(readFileSync(join(dir, specifier), 'utf8'), join(dir, specifier))
+	) {
 		throw new Error(`shared UI export ${specifier} has no ${candidate} leaf`)
 	}
 

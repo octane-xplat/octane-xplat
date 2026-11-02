@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { View, HStack, SearchInput } from '@octane-xplat/ui'
-import { FormField } from '../../../../ui/src/components/forms/FormField'
+import { FormField } from '../../../../ui/src/components/forms/FormField.tsrx'
 import type { SearchInputProps, TextInputHandle } from '../../../../ui/src/props'
 export const searchRef: { current: TextInputHandle | null } = { current: null }
 export function SearchHarness(props: SearchInputProps) @{

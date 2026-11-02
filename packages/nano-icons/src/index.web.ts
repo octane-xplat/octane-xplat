@@ -1,4 +1,4 @@
-import { NanoIcon } from './NanoIcon.web'
+import { NanoIcon } from './NanoIcon.web.tsrx'
 import { createNanoIconSetImpl } from './set'
 import { registerNanoIconFont } from './font.web'
 

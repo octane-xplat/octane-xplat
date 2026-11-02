@@ -5,7 +5,7 @@ import type { CheckboxListItemProps } from '../../props'
 import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
 import { indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 
 /** Group members and standalone/select-all rows keep separate value owners. */
 export function CheckboxListItem(props: CheckboxListItemProps): unknown @{

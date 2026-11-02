@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const source = readFileSync(
 	new URL('../src/vendor/ui-svg/src/index.android.ts', import.meta.url),

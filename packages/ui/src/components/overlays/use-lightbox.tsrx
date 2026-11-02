@@ -2,7 +2,7 @@
 import { useCallback, useState } from 'octane'
 import type { LightboxTriggerProps, UseLightboxOptions, UseLightboxReturn } from '../../props'
 
-import { Lightbox } from './Lightbox'
+import { Lightbox } from './Lightbox.tsrx'
 
 /** Imperative lightbox control (Astryx `useLightbox`), native leaf. */
 export function useLightbox(options: UseLightboxOptions): UseLightboxReturn @{

@@ -3,8 +3,9 @@
 > Generate consumer-ready TypeScript declarations for TSRX libraries
 
 Generate `.d.ts` declaration files for packages that export `.tsrx` modules.
-Use it when publishing an Octane/tsrx component package: it runs the consuming
-package's own TypeScript and tsrx compiler, then rewrites source-extension
+Use it when publishing an Octane/tsrx component package: it includes TypeScript 5.9
+and a TSRX checker adapter for declaration generation, loads the package's target compiler,
+and rewrites source-extension
 imports in the emitted declarations to JavaScript module specifiers.
 
 Generation emits each file independently under `isolatedDeclarations`
@@ -29,11 +30,13 @@ as vendored files, leave the flag off and map their generated output to a
 handwritten declaration through `overrides`, described below; tsrx-typegen
 still applies `isolatedDeclarations` itself.
 
-Install `tsrx-typegen` as a development tool alongside `typescript` and
-`@tsrx/typescript-plugin`, then run it against a named target:
+Install `tsrx-typegen` as a development tool, then run it against a named
+target. Its classic compiler dependencies are internal, so the project can use
+TypeScript 7.1 for checking. Keep your target compiler, such as Octane, installed
+in the project:
 
 ```sh
-bun add -D tsrx-typegen typescript @tsrx/typescript-plugin
+bun add -D tsrx-typegen
 bun run tsrx-typegen --target octane          # generate declarations
 bun run tsrx-typegen --target octane --check  # verify output is fresh
 bun run tsrx-typegen --pack-check             # validate the packed tarball

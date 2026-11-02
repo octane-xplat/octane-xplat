@@ -28,9 +28,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "tsc -p tsconfig.build.json",
-		"typegen": "tsc -p tsconfig.build.json",
-		"typecheck": "tsc -p tsconfig.json",
+		"build": "tsrx-tsc -p tsconfig.build.json",
+		"typegen": "tsrx-tsc -p tsconfig.build.json",
+		"typecheck": "tsrx-tsc -p tsconfig.json",
 		"test": "node --test tests/*.test.mjs",
 		"test:model": "node tests/model-smoke.mjs && bun tests/model-smoke.mjs",
 		"prepack": "bun run build"
@@ -41,6 +41,8 @@
 	},
 	"devDependencies": {
 		"@types/node": "24.10.1",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	}
 }

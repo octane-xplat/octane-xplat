@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Switch.parity.check.ts.
-import { Switch } from './Switch'
+import { Switch } from './Switch.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SwitchFixture(props: { checked: boolean }) @{

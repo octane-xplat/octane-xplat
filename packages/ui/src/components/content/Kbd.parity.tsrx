@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Kbd.parity.check.ts.
-import { Kbd } from './Kbd'
-import { Text } from './Text'
+import { Kbd } from './Kbd.tsrx'
+import { Text } from './Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function KbdFixture() @{

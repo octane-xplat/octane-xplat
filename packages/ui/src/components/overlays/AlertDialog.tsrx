@@ -2,9 +2,9 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { AlertDialogProps } from '../../props'
-import { Dialog } from './Dialog'
+import { Dialog } from './Dialog.tsrx'
 import { Button } from '../actions/Button.tsrx'
-import { Text } from '../content/Text'
+import { Text } from '../content/Text.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { android } from '@octane-xplat/platform/android'
 

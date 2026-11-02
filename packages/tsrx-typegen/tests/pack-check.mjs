@@ -8,7 +8,7 @@ import { checkPackedPackage, verifyPackedPackage } from '../dist/pack-check.js'
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const fixtureRoot = resolve(toolRoot, '../typegen-fixture')
-const ts = createRequire(join(fixtureRoot, 'package.json'))('typescript')
+const ts = createRequire(import.meta.url)('typescript')
 const root = mkdtempSync(join(tmpdir(), 'tsrx-typegen-pack-fixture-'))
 
 function writePackage(files) {

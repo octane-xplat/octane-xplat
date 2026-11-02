@@ -1,6 +1,8 @@
 {
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "./tsconfig.types.json",
 	"compilerOptions": {
+		"rootDir": "src",
 		"emitDeclarationOnly": false,
 		"declaration": false,
 		"outDir": "dist",

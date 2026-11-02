@@ -14,7 +14,7 @@ import type {
 } from '../../props'
 
 import { useThemeScheme } from '../../theme/theme-scheme'
-import { Popover } from './Popover'
+import { Popover } from './Popover.tsrx'
 import type { PopoverInternalProps } from '../../internal-props'
 import { cx } from '@octane-xplat/lib'
 import { ownAnchorName } from './layer-position.web'

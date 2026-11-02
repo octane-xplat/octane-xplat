@@ -1,7 +1,10 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { parseModule } from '@tsrx/core'
-import { checkNoDomGlobals, checkNoNativeDeadStyle } from '../packages/lint/src/xplat-rules.ts'
+import { checkNoDomGlobals, checkNoNativeDeadStyle, checkTsrxDefault } from '../packages/lint/src/xplat-rules.ts'
 
 function violations(source, filename = 'sample.macos.ts') {
 	return checkNoDomGlobals(parseModule(source, filename), source, filename).map(
@@ -211,5 +214,21 @@ test('native paint shadows are supported while unsupported style properties stil
 			checkNoNativeDeadStyle(parseModule(unsupported, filename), unsupported, filename).length,
 			1,
 		)
+	}
+})
+
+
+test('platform TSRX source requires a default contract, including declaration-only stubs', () => {
+	const root = mkdtempSync(join(tmpdir(), 'xplat-default-contract-'))
+	try {
+		mkdirSync(join(root, 'src'))
+		const file = join(root, 'src/Card.web.tsrx')
+		const source = 'export declare function Card(): unknown'
+		const ast = parseModule(source, file)
+		assert.equal(checkTsrxDefault(ast, source, file, {}).length, 1)
+		writeFileSync(join(root, 'src/Card.tsrx'), source)
+		assert.deepEqual(checkTsrxDefault(ast, source, file, {}), [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
 	}
 })

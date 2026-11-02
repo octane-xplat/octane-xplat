@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
-import { ChatDictationButton } from './ChatDictationButton.web'
+import { ChatDictationButton } from './ChatDictationButton.web.tsrx'
 import type { UseSpeechRecognitionReturn } from '../props'
 
 it('keeps a sized icon-only button while listening and respects unavailable capability', () => {

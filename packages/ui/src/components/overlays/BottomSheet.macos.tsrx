@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { SheetContent } from './sheet-content'
+import { SheetContent } from './sheet-content.tsrx'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { BottomSheetProps, BottomSheetSwitcherProps } from '../../props'

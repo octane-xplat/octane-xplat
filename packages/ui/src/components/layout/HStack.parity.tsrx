@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in HStack.parity.check.ts.
-import { HStack } from './HStack'
-import { View } from './View'
+import { HStack } from './HStack.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function RowLayoutFixture() @{

@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import test from 'node:test'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const root = path.resolve(import.meta.dirname, '..')
 const appRequire = createRequire(path.join(root, 'apps/windows/package.json'))

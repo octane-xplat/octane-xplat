@@ -38,7 +38,7 @@ import {
   BackIcon,
   TrashIcon,
   type SheetHeight,
-} from './primitives';
+} from './primitives.tsrx';
 
 
 

@@ -11,7 +11,7 @@ import {
 } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { generateMarkdownForModule } from 'exports-md'
 
 /** Keep reference signatures valid TypeScript outside a .d.ts file. */
@@ -244,6 +244,8 @@ export async function packageMarkdown(manifestPath) {
 		}
 		writeFileSync(join(staging, 'package.json'), JSON.stringify(manifest))
 		const result = await generateMarkdownForModule(join(staging, 'package.json'), {
+			// exports-md parses declarations through TypeScript's classic JavaScript API.
+			cwd: dirname(ts.sys.getExecutingFilePath()),
 			followImports: false,
 			followReExports: true,
 			propertyDocs: 'list',

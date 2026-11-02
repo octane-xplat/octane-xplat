@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'octane'
 import type { ToastProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
-import { Text } from '../content/Text'
+import { Text } from '../content/Text.tsrx'
 
 const SWIPE_DISMISS_DIP = 44
 

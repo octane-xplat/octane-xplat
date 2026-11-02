@@ -1,6 +1,6 @@
 import { useRef } from 'octane'
 import { createTreeData, type TreeData, type TreeDataOptions } from './tree-data'
-import { useStore } from './use-store'
+import { useStore } from './use-store.tsrx'
 
 /**
  * React Aria useTreeData counterpart: one immutable tree store per component.

@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in SearchInput.parity.check.ts.
-import { SearchInput } from './SearchInput'
+import { SearchInput } from './SearchInput.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SearchInputFixture() @{

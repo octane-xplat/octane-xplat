@@ -6,7 +6,7 @@ export type * from './types'
 export type * from './props'
 
 export { KeyboardScrollController } from './scroll-controller'
-export { KeyboardAwareScrollView } from './KeyboardAwareScrollView'
+export { KeyboardAwareScrollView } from './KeyboardAwareScrollView.tsrx'
 export type * from './scroll-types'
 
-export { KeyboardStickyView } from './KeyboardStickyView'
+export { KeyboardStickyView } from './KeyboardStickyView.tsrx'

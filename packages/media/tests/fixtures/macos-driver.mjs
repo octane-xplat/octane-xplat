@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const defaultRoot = fileURLToPath(new URL('../..', import.meta.url))
 

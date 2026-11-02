@@ -23,6 +23,7 @@ for (const tsrx of [false, true]) {
 			writeFileSync(
 				path.join(directory, 'tsconfig.json'),
 				JSON.stringify({
+					contentMappers: [{ package: '@tsrx/content-mapper', extensions: ['.tsrx'] }],
 					compilerOptions: {
 						target: 'ES2022',
 						module: 'ESNext',

@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Text.parity.check.ts.
-import { Text } from './Text'
-import { View } from '../layout/View'
+import { Text } from './Text.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function TextClassFixture(props: { sizeClass: string; content: string }) @{

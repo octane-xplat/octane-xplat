@@ -676,8 +676,10 @@ const stagedInline = authorRoute({
 const reorderedPreparation = authorRoute({
   path: '/staged-reordered',
   loader: ({ search }) => {
-    // @ts-expect-error A dependent callback before its parser has conservative input.
+    // TypeScript 7 infers this input from the later parser too.
     const text: string = search.returnTo
+    // @ts-expect-error Earlier callbacks retain the parser's type rather than any.
+    const count: number = search.returnTo
     return search
   },
   validateSearch(raw: { returnTo?: unknown }) { return { returnTo: String(raw.returnTo ?? '/') } },
@@ -786,9 +788,11 @@ void [destination, missing]
 		const diagnostic = literalDiagnostic.stdout + literalDiagnostic.stderr
 		expect(diagnostic.match(/error TS\d+/g), diagnostic).toHaveLength(1)
 		expect(diagnostic).toContain('Preserve literal paths with as const')
-		expect(diagnostic.indexOf('Preserve literal paths with as const')).toBeLessThan(
-			diagnostic.indexOf("Property 'baked' is missing"),
-		)
+		// Native TypeScript can omit the incidental missing-property explanation.
+		const incidental = diagnostic.indexOf("Property 'baked' is missing")
+		if (incidental >= 0) {
+			expect(diagnostic.indexOf('Preserve literal paths with as const')).toBeLessThan(incidental)
+		}
 
 		const result = spawnSync(
 			process.execPath,

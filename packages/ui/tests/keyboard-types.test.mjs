@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 for (const [target, moduleSuffixes] of [
 	['web', ['.web', '']],

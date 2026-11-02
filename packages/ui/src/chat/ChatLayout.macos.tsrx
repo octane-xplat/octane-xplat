@@ -6,10 +6,10 @@ import type { ChatKeyboardBinding } from './chat-keyboard-types'
 import { checkChatPanelHeight } from './chat-keyboard-types'
 import type { ChatLayoutProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { useChatStreamScroll } from './useChatStreamScroll'
-import { useChatNewMessages } from './useChatNewMessages'
-import { ChatLayoutScrollButton } from './ChatLayoutScrollButton'
-import { ChatLayoutProvider } from './chat-context'
+import { useChatStreamScroll } from './useChatStreamScroll.tsrx'
+import { useChatNewMessages } from './useChatNewMessages.tsrx'
+import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.tsrx'
+import { ChatLayoutProvider } from './chat-context.tsrx'
 
 const hasVisibleContent = (children: any): boolean => {
 	if (children == null || children === false || children === true) {

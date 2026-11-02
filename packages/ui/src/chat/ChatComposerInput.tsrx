@@ -21,7 +21,7 @@ import {
 
 import { useChatComposerTokens } from './useChatComposerTokens.tsrx'
 import { ChatTokenChip } from './chat-tokens.tsrx'
-import { useChatComposerContext } from './chat-context'
+import { useChatComposerContext } from './chat-context.tsrx'
 
 interface TokenRecord {
 	id: string

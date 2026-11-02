@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import test from 'node:test'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 function load(path, dependencies) {
 	const exports = {}

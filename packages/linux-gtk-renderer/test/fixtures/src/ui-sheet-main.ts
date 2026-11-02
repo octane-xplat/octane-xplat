@@ -4,7 +4,7 @@ import Gdk from 'gi://Gdk?version=4.0'
 import Graphene from 'gi://Graphene?version=1.0'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { closeBottomSheet } from '@octane-xplat/ui'
-import { SheetProbe } from './ui-sheet.gtk'
+import { SheetProbe } from './ui-sheet.gtk.tsrx'
 
 Gtk.init()
 

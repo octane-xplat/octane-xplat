@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { SheetContent } from './sheet-content'
+import { SheetContent } from './sheet-content.tsrx'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import { createPortal } from '../../internal/platform/native-portal'
 import { SizeProvider } from '../layout/size-context'

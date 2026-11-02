@@ -8,7 +8,7 @@ import {
 	CheckboxListContextScene,
 	CheckboxStandaloneScene,
 	SwitchFocusScene,
-} from './ui-checkbox-list.gtk'
+} from './ui-checkbox-list.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK checkbox list test',

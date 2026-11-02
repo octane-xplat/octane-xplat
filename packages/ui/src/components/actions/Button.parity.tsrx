@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Button.parity.check.ts.
-import { Button } from './Button'
-import { Text } from '../content/Text'
+import { Button } from './Button.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ButtonFixture(props: { width: number; height: number; label: string }) @{

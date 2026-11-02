@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { pathToFileURL } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const require = createRequire(import.meta.url)
 const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).href
@@ -100,7 +100,7 @@ const item = compiled(
 		'../../internal/layout/style-merge': support,
 		'./option-list-contexts': contexts,
 		'./radio-context.windows': nativeContext,
-		'../layout/useMeasure': support,
+		'../layout/useMeasure.tsrx': support,
 	},
 )
 
@@ -113,7 +113,7 @@ const control = compiled(
 	{
 		'./radio-control.windows': support,
 		'./radio-context.windows': nativeContext,
-		'./SegmentedControlItem.windows': item,
+		'./SegmentedControlItem.windows.tsrx': item,
 		'../../internal/layout/style-merge': support,
 		'@octane-xplat/lib': support,
 		'../overlays/escape-props': support,

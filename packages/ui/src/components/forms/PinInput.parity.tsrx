@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in PinInput.parity.check.ts.
-import { PinInput } from './PinInput'
+import { PinInput } from './PinInput.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function PinInputFixture() @{

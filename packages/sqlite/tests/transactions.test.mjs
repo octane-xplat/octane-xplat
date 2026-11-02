@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { DatabaseSync } from 'node:sqlite'
 import test from 'node:test'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import initSqlite from '@sqlite.org/sqlite-wasm'
 
 function load(file, dependencies = {}, globals = {}) {

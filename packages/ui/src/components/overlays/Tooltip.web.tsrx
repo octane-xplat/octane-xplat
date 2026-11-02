@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef, useState } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 import { View } from '../layout/View.web.tsrx'
 import type { TooltipProps } from '../../props'
 import { cx } from '@octane-xplat/lib'

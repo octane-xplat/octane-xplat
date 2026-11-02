@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { SheetContent } from './sheet-content'
+import { SheetContent } from './sheet-content.tsrx'
 import { LayerDepthContext, LayerDepthProvider } from './layer-dismissal.tsrx'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { SizeProvider } from '../layout/size-context'

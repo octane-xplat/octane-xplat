@@ -11,7 +11,7 @@ import {
 } from '../overlays/escape-props'
 
 import { resolveStackLayout } from './stack-layout'
-import { usePan } from './pan'
+import { usePan } from './pan.tsrx'
 
 /** Astryx flow Stack — a flex masonview in `direction`, `hAlign`/`vAlign`
  *  mapped to main/cross axes, spacing-step gap/padding (steps × 4 dips).

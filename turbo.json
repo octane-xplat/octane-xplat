@@ -6,6 +6,8 @@
 		"packages/linux-gtk-renderer/src/gi.d.ts"
 	],
 	"tasks": {
+		"test:typescript": { "dependsOn": ["build", "^typegen"], "outputs": [] },
+		"create-octane-xplat#test": { "dependsOn": ["build", "^typegen", "^build"], "outputs": [] },
 		"test:docs-search": { "dependsOn": ["build", "^build"], "outputs": [] },
 		"test:model": {
 			"dependsOn": ["build"],

@@ -7,9 +7,9 @@ import { useContext, useMemo } from 'octane'
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
-import { Text } from '../content/Text'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { followHref } from './nav-href'
 import {
 	NavHeadingCloseContext,

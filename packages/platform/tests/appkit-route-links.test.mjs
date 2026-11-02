@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 // Future source execution only; fake producers/router do not prove native hooks.
 const source = await readFile(new URL('../../app/src/appkit-route-links.macos.ts', import.meta.url), 'utf8')

@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot, createGtkContainer, gtkDriver } from '@octane-xplat/linux-gtk'
-import { Measurement } from './ui-measure.gtk'
+import { Measurement } from './ui-measure.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({ default_width: 300, default_height: 450 })
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })

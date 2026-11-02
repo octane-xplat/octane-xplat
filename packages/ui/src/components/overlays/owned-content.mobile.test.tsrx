@@ -9,7 +9,7 @@ import {
 } from 'octane/universal/native'
 
 import { createContentOwner } from './owned-content'
-import { useOwnedContent } from './use-owned-content'
+import { useOwnedContent } from './use-owned-content.tsrx'
 
 vi.mock('../../internal/platform/native-portal', () => ({ createPortal: (children: any) => children }))
 const Name = createContext('missing')

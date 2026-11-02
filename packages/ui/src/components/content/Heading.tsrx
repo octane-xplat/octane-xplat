@@ -3,7 +3,7 @@ import { AccessibilityRole } from '@nativescript/core'
 import type { HeadingProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../../internal/platform/platformProps'
-import { useTheme } from '../../theme/use-theme'
+import { useTheme } from '../../theme/use-theme.tsrx'
 import { headingScaleStyle } from '../forms/text-scale'
 import { styleRecord } from '../../internal/layout/style-merge'
 

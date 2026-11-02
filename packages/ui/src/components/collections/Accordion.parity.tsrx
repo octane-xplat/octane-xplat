@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Accordion.parity.check.ts.
-import { Accordion } from './Accordion'
-import { View } from '../layout/View'
+import { Accordion } from './Accordion.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function AccordionFixture() @{

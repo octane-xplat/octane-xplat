@@ -5,7 +5,7 @@ import { Pressable } from './Pressable.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { openUrl } from '@octane-xplat/platform'
 import { sanitizeUrl } from '../../routing/safe-url'
-import { TextSlot } from '../forms/text-slot'
+import { TextSlot } from '../forms/text-slot.tsrx'
 export function ClickableCard(props: ClickableCardProps): unknown @{
 	const activate = () => {
 		if (props.isDisabled) {

@@ -19,8 +19,8 @@ import {
 } from '@octane-xplat/ui'
 
 import { categories } from '../data/sandboxPages'
-import { ProjectCard } from '../shell/ProjectCard'
-import { SandboxShell } from '../shell/SandboxShell'
+import { ProjectCard } from '../shell/ProjectCard.tsrx'
+import { SandboxShell } from '../shell/SandboxShell.tsrx'
 
 const homeCategories = categories.filter((category) => category.slug !== 'templates')
 const CATEGORY_FILTERS = ['All', ...homeCategories.map((c) => c.label)]

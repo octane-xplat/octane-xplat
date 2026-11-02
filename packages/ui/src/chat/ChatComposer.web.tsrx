@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import type { ChatComposerDraft, ChatComposerInputControl, ChatComposerProps } from '../props'
-import { ChatComposerProvider } from './chat-context'
+import { ChatComposerProvider } from './chat-context.tsrx'
 import { ChatComposerInput } from './ChatComposerInput.web.tsrx'
 import { ChatSendButton } from './ChatSendButton.web.tsrx'
 import { Icon } from '../components/media/Icon.web.tsrx'

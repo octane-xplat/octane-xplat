@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { TooltipProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { View } from '../layout/View'
+import { View } from '../layout/View.tsrx'
 
 /** Touch-target leaf: renders the trigger unchanged and never mounts the
  *  hint layer — hover/focus intent has no touch semantic (decision #47,

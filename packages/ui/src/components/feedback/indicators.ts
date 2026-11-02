@@ -6,9 +6,9 @@ import type {
 	ReadableStore,
 } from '../../props'
 
-import { CheckboxIndicator } from '../forms/CheckboxIndicator'
-import { CheckIndicator } from './CheckIndicator'
-import { RadioIndicator } from '../forms/RadioIndicator'
+import { CheckboxIndicator } from '../forms/CheckboxIndicator.tsrx'
+import { CheckIndicator } from './CheckIndicator.tsrx'
+import { RadioIndicator } from '../forms/RadioIndicator.tsrx'
 import { createStore } from '../../data/store'
 
 /** Class applied by a host whose hover/focus should drive descendant

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/firebase-crashlytics",
 	"version": "0.19.0",
-	"description": "Firebase Crashlytics for Octane xplat — crash capture and non-fatal reporting via @nativescript/firebase-crashlytics",
+	"description": "Firebase Crashlytics for Octane xplat \u2014 crash capture and non-fatal reporting via @nativescript/firebase-crashlytics",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -61,7 +61,9 @@
 		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

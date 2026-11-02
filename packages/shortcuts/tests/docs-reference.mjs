@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const page = fileURLToPath(new URL('../../../docs/app/keyboard-shortcuts-api.md', import.meta.url))

@@ -2,7 +2,7 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { Utils } from '@nativescript/core'
 import type { LinkProps } from '../../props'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { useLinkComponent } from './use-link-component.tsrx'
 
 /**

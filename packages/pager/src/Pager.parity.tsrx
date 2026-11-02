@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Pager.parity.check.ts.
-import { Pager } from './Pager'
+import { Pager } from './Pager.tsrx'
 import { View } from '@octane-xplat/ui'
 import type { ParityFixture } from '@octane-xplat/ui/parity'
 

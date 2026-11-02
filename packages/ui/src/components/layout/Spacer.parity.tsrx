@@ -1,7 +1,7 @@
 // Measured parity fixtures — assertions live in Spacer.parity.check.ts.
-import { HStack } from './HStack'
-import { Spacer } from './Spacer'
-import { View } from './View'
+import { HStack } from './HStack.tsrx'
+import { Spacer } from './Spacer.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SpacerLayoutFixture() @{

@@ -8,7 +8,7 @@
 import { globSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, basename } from 'node:path'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const errors: string[] = []

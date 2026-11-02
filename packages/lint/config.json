@@ -1,6 +1,11 @@
 {
-	"jsPlugins": ["./dist/oxlint-plugin.js"],
-	"ignorePatterns": [".agents/", "**/*.gen.*"],
+	"jsPlugins": [
+		"./dist/oxlint-plugin.js"
+	],
+	"ignorePatterns": [
+		".agents/",
+		"**/*.gen.*"
+	],
 	"rules": {
 		"curly": "error",
 		"xplat/no-dom-globals": "error",
@@ -12,7 +17,6 @@
 		"xplat/no-line-height-unitless": "error",
 		"xplat/no-style-string": "error",
 		"xplat/no-unknown-class": "warn",
-		"xplat/no-ts-imports-tsrx": "error",
 		"xplat/signal-dollar-suffix": "error",
 		"xplat/require-signals-runtime": "warn",
 		"xplat/no-view-onpress": "error",
@@ -24,6 +28,7 @@
 		"xplat/no-removed-routing-api": "error",
 		"xplat/no-route-augmentation": "error",
 		"xplat/no-destination-cast": "error",
-		"xplat/no-interpolated-route-path": "error"
+		"xplat/no-interpolated-route-path": "error",
+		"xplat/require-default-tsrx": "error"
 	}
 }

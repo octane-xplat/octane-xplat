@@ -11,7 +11,7 @@ import { BottomSheet } from './BottomSheet.tsrx'
 import { TextInput } from '../forms/TextInput.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { announceCommandPalette } from './command-palette-accessibility'
-import { Icon } from '../media/Icon'
+import { Icon } from '../media/Icon.tsrx'
 
 function PaletteBody<T extends CommandPaletteItem>(props: {
 	options: CommandPaletteProps<T>

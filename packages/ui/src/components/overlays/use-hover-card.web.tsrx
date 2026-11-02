@@ -7,7 +7,7 @@ import type {
 	PopoverPlacement,
 } from '../../props'
 
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 /** Elements a tap "belongs to" — under `touchTrigger: 'auto'` their tap

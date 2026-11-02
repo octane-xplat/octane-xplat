@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in NavigationMenu.parity.check.ts.
-import { NavigationMenu } from './NavigationMenu'
+import { NavigationMenu } from './NavigationMenu.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function NavigationMenuFixture() @{

@@ -12,10 +12,10 @@ const ThemeNestingProviderEl: any = ThemeNestingContext
 import { setRootThemeScope } from './theme-scope'
 import { ensureThemeCss, syncDocumentRootTheme } from './theme-css-inject'
 import { useThemeScheme } from './theme-scheme'
-import { View } from '../components/layout/View'
+import { View } from '../components/layout/View.tsrx'
 
-import type { ThemeProps } from './Theme'
-export type { ThemeProps } from './Theme'
+import type { ThemeProps } from './Theme.tsrx'
+export type { ThemeProps } from './Theme.tsrx'
 
 export function Theme(props: ThemeProps): unknown @{
 	const parent = useContext(ThemeContext)

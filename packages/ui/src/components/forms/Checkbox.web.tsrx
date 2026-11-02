@@ -7,7 +7,7 @@ import { useFieldControl } from './field-context'
 import { announce } from '../../internal/accessibility/announce.web'
 import { STATUS_ICON_PATHS } from '../../theme/status-icons'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** Self-drawn checkbox following Astryx's CheckboxInput: a visually hidden

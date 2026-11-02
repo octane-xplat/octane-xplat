@@ -1,4 +1,5 @@
 {
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	// Package source is consumed as raw .ts (exports map → ./src/*), so
 	// consumer dev transforms resolve THIS directory's nearest tsconfig.json.
 	// Vendored plugin files use decorators (@CSSType/@NativeClass) — without

@@ -11,7 +11,7 @@ import {
 	Table, Text, Timestamp, Token, useMediaQuery, VStack,
 } from '@octane-xplat/ui'
 import type { TableColumn } from '@octane-xplat/ui'
-import { ChartLines, ChartSparkline } from './charts'
+import { ChartLines, ChartSparkline } from './charts.tsrx'
 
 type Environment = 'production' | 'staging' | 'development'
 type TimeWindow = '1h' | '1d' | '7d'

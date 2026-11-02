@@ -3,7 +3,7 @@ import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { thumbHashUri, rgbaToThumbHashUri } from '@octane-xplat/ui'
 import Gio from 'gi://Gio'
-import { ImageProbe, PNG_2x2 } from './ui-images.gtk'
+import { ImageProbe, PNG_2x2 } from './ui-images.gtk.tsrx'
 
 Gtk.init()
 

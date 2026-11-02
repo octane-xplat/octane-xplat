@@ -11,7 +11,7 @@ import {
 	changes,
 	hasPending,
 	settle,
-} from './ui-toggle-fields.gtk'
+} from './ui-toggle-fields.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK toggle fields test',

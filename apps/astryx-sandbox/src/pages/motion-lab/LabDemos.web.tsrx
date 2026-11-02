@@ -34,9 +34,9 @@ import {
 import {
   Tab as ProposedTab,
   TabList as ProposedTabList,
-} from './ProposedTabList';
-import {useMotionLab} from './MotionLabStore';
-import {useLoop} from './LabPrimitives';
+} from './ProposedTabList.tsrx';
+import {useMotionLab} from './MotionLabStore.tsrx';
+import {useLoop} from './LabPrimitives.tsrx';
 
 export type Mode = 'before' | 'after';
 

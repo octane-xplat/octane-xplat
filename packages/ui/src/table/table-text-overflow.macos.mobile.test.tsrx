@@ -3,7 +3,7 @@ import { expect, it } from 'vitest'
 import { useState } from 'octane'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { Table } from './Table.macos.tsrx'
-import { tableSlot } from './table-slot'
+import { tableSlot } from './table-slot.tsrx'
 
 // Object-driver source contract only; no AppKit sizing, painting or OS input.
 function mount(props: any) {

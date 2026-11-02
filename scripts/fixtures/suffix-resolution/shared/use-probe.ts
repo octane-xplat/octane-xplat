@@ -1,3 +1,3 @@
-import { probe } from './Probe'
+import { probe } from './Probe.tsrx'
 
 export { probe }

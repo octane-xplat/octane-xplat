@@ -19,28 +19,28 @@
 //   @octane-xplat/ui/linux         — GTK-specific contracts.
 
 // Foundations and common controls
-export { View } from './components/layout/View'
+export { View } from './components/layout/View.tsrx'
 /** Vertical flow stack (Astryx `Stack` with direction="vertical"). */
-export { VStack } from './components/layout/VStack'
+export { VStack } from './components/layout/VStack.tsrx'
 /** Horizontal flow stack (Astryx `Stack` with direction="horizontal"). */
-export { HStack } from './components/layout/HStack'
-export { Grid, GridSpan } from './components/layout/Grid'
+export { HStack } from './components/layout/HStack.tsrx'
+export { Grid, GridSpan } from './components/layout/Grid.tsrx'
 /** Flow container — `direction`, `hAlign`/`vAlign`, spacing-step
  *  `gap`/`padding`. Overlapping children belong in `Absolute`. */
-export { Stack } from './components/layout/Stack'
+export { Stack } from './components/layout/Stack.tsrx'
 /** Per-child size/alignment override inside `Stack`. */
-export { StackItem } from './components/layout/StackItem'
-export { Center } from './components/layout/Center'
-export { Section } from './components/collections/Section'
+export { StackItem } from './components/layout/StackItem.tsrx'
+export { Center } from './components/layout/Center.tsrx'
+export { Section } from './components/collections/Section.tsrx'
 /** Five-slot page region primitive (Astryx `Layout` + its header/content
  *  regions). AppShell owns the app frame; Layout structures inside it. */
-export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './components/layout/Layout'
-export { AspectRatio } from './components/layout/AspectRatio'
-export { VisuallyHidden } from './components/content/VisuallyHidden'
+export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './components/layout/Layout.tsrx'
+export { AspectRatio } from './components/layout/AspectRatio.tsrx'
+export { VisuallyHidden } from './components/content/VisuallyHidden.tsrx'
 /** Keyboard focus containment — React Aria's FocusScope. Check
  *  `getFocusScopeCapabilities()` before relying on the behavior flags. */
-export { FocusScope, getFocusScopeCapabilities } from './components/overlays/FocusScope'
-export { Absolute } from './components/layout/Absolute'
+export { FocusScope, getFocusScopeCapabilities } from './components/overlays/FocusScope.tsrx'
+export { Absolute } from './components/layout/Absolute.tsrx'
 export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
 export type {
 	ClassValue,
@@ -59,38 +59,38 @@ export type {
 } from './props'
 
 export { setTranslate } from './internal/layout/translate'
-export { Spacer } from './components/layout/Spacer'
-export { Text } from './components/content/Text'
-export { RichText, RichTextSpan } from './components/content/RichText'
-export { Pressable } from './components/actions/Pressable'
-export { Button } from './components/actions/Button'
-export { IconButton } from './components/media/IconButton'
-export { ButtonGroup } from './components/actions/ButtonGroup'
-export { ToggleButton, ToggleButtonGroup } from './components/actions/ToggleButton'
-export { ClickableCard } from './components/actions/ClickableCard'
-export { SelectableCard } from './components/actions/SelectableCard'
-export { MoreMenu } from './components/overlays/MoreMenu'
-export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './components/forms/PowerSearch'
+export { Spacer } from './components/layout/Spacer.tsrx'
+export { Text } from './components/content/Text.tsrx'
+export { RichText, RichTextSpan } from './components/content/RichText.tsrx'
+export { Pressable } from './components/actions/Pressable.tsrx'
+export { Button } from './components/actions/Button.tsrx'
+export { IconButton } from './components/media/IconButton.tsrx'
+export { ButtonGroup } from './components/actions/ButtonGroup.tsrx'
+export { ToggleButton, ToggleButtonGroup } from './components/actions/ToggleButton.tsrx'
+export { ClickableCard } from './components/actions/ClickableCard.tsrx'
+export { SelectableCard } from './components/actions/SelectableCard.tsrx'
+export { MoreMenu } from './components/overlays/MoreMenu.tsrx'
+export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './components/forms/PowerSearch.tsrx'
 export {
 	createPowerSearchConfig,
 	usePowerSearchConfig,
 	resolveOperatorLabel,
 } from './components/forms/power-search-config'
 
-export { Collapsible, CollapsibleGroup } from './components/collections/Collapsible'
-export { Accordion } from './components/collections/Accordion'
+export { Collapsible, CollapsibleGroup } from './components/collections/Collapsible.tsrx'
+export { Accordion } from './components/collections/Accordion.tsrx'
 /** Self-drawn checkbox, exported under Astryx's component name. */
-export { Checkbox as CheckboxInput } from './components/forms/Checkbox'
+export { Checkbox as CheckboxInput } from './components/forms/Checkbox.tsrx'
 /** Single-choice option list, exported under Astryx's component name. */
-export { RadioGroup as RadioList } from './components/forms/RadioGroup'
-export { DropdownMenu } from './components/overlays/DropdownMenu'
-export { ContextMenu } from './components/overlays/ContextMenu'
-export { Badge } from './components/feedback/Badge'
+export { RadioGroup as RadioList } from './components/forms/RadioGroup.tsrx'
+export { DropdownMenu } from './components/overlays/DropdownMenu.tsrx'
+export { ContextMenu } from './components/overlays/ContextMenu.tsrx'
+export { Badge } from './components/feedback/Badge.tsrx'
 /** Visual separator between content sections, exported under Astryx's name. */
-export { Separator as Divider } from './components/feedback/Separator'
-export { Skeleton } from './components/feedback/Skeleton'
-export { Avatar, AvatarStatusDot } from './components/media/Avatar'
-export { AvatarGroup, AvatarGroupOverflow } from './components/media/AvatarGroup'
+export { Separator as Divider } from './components/feedback/Separator.tsrx'
+export { Skeleton } from './components/feedback/Skeleton.tsrx'
+export { Avatar, AvatarStatusDot } from './components/media/Avatar.tsrx'
+export { AvatarGroup, AvatarGroupOverflow } from './components/media/AvatarGroup.tsrx'
 export type {
 	AccordionItemSpec,
 	AccordionProps,
@@ -194,46 +194,46 @@ export type {
 
 // Forms and data entry
 /** Labeled control wrapper, exported under Astryx's component name. */
-export { FormField as Field } from './components/forms/FormField'
+export { FormField as Field } from './components/forms/FormField.tsrx'
 export { useFieldControl } from './components/forms/field-context'
 /** Shared element-size cascade (Astryx `SizeContext`/`SizeProvider`/`useSize`). */
 export { SizeContext, SizeProvider, useSize } from './components/layout/size-context'
-export { FieldGroup } from './components/forms/FieldGroup'
+export { FieldGroup } from './components/forms/FieldGroup.tsrx'
 /** Form-field arrangement container (Astryx FormLayout). */
-export { FormLayout } from './components/forms/FormLayout'
-export { InputGroup, InputGroupText } from './components/forms/InputGroup'
+export { FormLayout } from './components/forms/FormLayout.tsrx'
+export { InputGroup, InputGroupText } from './components/forms/InputGroup.tsrx'
 /** Reusable labeled row, exported under Astryx's component name. */
-export { Item } from './components/collections/Item'
+export { Item } from './components/collections/Item.tsrx'
 /** Content list + row (Astryx `List`/`ListItem` — not a virtualized list). */
-export { List } from './components/collections/List'
-export { ListItem } from './components/collections/ListItem'
+export { List } from './components/collections/List.tsrx'
+export { ListItem } from './components/collections/ListItem.tsrx'
 /** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
-export { GridList } from './components/collections/GridList'
-export { useGridList } from './components/collections/use-grid-list'
-export type { UseGridListOptions, UseGridListResult } from './components/collections/use-grid-list'
+export { GridList } from './components/collections/GridList.tsrx'
+export { useGridList } from './components/collections/use-grid-list.tsrx'
+export type { UseGridListOptions, UseGridListResult } from './components/collections/use-grid-list.tsrx'
 /** Bounded numeric entry, exported under Astryx's component name. */
-export { InputNumber as NumberInput } from './components/forms/InputNumber'
-export { PinInput } from './components/forms/PinInput'
+export { InputNumber as NumberInput } from './components/forms/InputNumber.tsrx'
+export { PinInput } from './components/forms/PinInput.tsrx'
 /** Option picker, exported under Astryx's component name. */
-export { Select as Selector } from './components/forms/Select'
+export { Select as Selector } from './components/forms/Select.tsrx'
 /** Multi-choice option picker, exported under Astryx's component name. */
-export { SelectMenu as MultiSelector } from './internal/rendering/aliases'
-export { BaseTypeahead } from './components/forms/BaseTypeahead'
-export { Typeahead } from './components/forms/Typeahead'
-export { TypeaheadItem } from './components/forms/TypeaheadItem'
+export { SelectMenu as MultiSelector } from './internal/rendering/aliases.tsrx'
+export { BaseTypeahead } from './components/forms/BaseTypeahead.tsrx'
+export { Typeahead } from './components/forms/Typeahead.tsrx'
+export { TypeaheadItem } from './components/forms/TypeaheadItem.tsrx'
 export { createStaticSource } from './components/forms/typeahead-source'
-export { Token } from './components/forms/Token'
-export { Tokenizer } from './components/forms/Tokenizer'
-export { ComplexSelector } from './components/collections/ComplexSelector'
-export { InputRating } from './components/forms/InputRating'
+export { Token } from './components/forms/Token.tsrx'
+export { Tokenizer } from './components/forms/Tokenizer.tsrx'
+export { ComplexSelector } from './components/collections/ComplexSelector.tsrx'
+export { InputRating } from './components/forms/InputRating.tsrx'
 /** Multi-choice checkbox list, exported under Astryx's component name. */
-export { CheckboxGroup as CheckboxList } from './components/forms/CheckboxGroup'
-export { Calendar } from './components/forms/Calendar'
-export { DateInput } from './components/forms/DateInput'
-export { TimeInput } from './components/forms/TimeInput'
-export { DateTimeInput } from './components/forms/DateTimeInput'
-export { DateRangeInput } from './components/forms/DateRangeInput'
-export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks'
+export { CheckboxGroup as CheckboxList } from './components/forms/CheckboxGroup.tsrx'
+export { Calendar } from './components/forms/Calendar.tsrx'
+export { DateInput } from './components/forms/DateInput.tsrx'
+export { TimeInput } from './components/forms/TimeInput.tsrx'
+export { DateTimeInput } from './components/forms/DateTimeInput.tsrx'
+export { DateRangeInput } from './components/forms/DateRangeInput.tsrx'
+export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks.tsrx'
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
 export type { CalendarDay, CalendarMonthGrid } from './components/forms/calendar-core'
 export type {
@@ -243,7 +243,7 @@ export type {
 	UseCalendarConstraintsReturn,
 	UseCalendarNavigationOptions,
 	UseCalendarNavigationReturn,
-} from './components/forms/calendar-hooks'
+} from './components/forms/calendar-hooks.tsrx'
 
 export type {
 	CheckboxGroupProps,
@@ -333,8 +333,8 @@ export type {
 
 // Navigation and command surfaces
 /** Ancestor path trail, exported under Astryx's component name. */
-export { AppShell } from './components/layout/AppShell'
-export { AppShellMobileContext } from './components/layout/AppShell'
+export { AppShell } from './components/layout/AppShell.tsrx'
+export { AppShellMobileContext } from './components/layout/AppShell.tsrx'
 export {
 	TopNav,
 	TopNavHeading,
@@ -343,9 +343,9 @@ export {
 	TopNavMegaMenu,
 	TopNavMegaMenuItem,
 	TopNavMegaMenuFeaturedCard,
-} from './components/navigation/TopNav'
+} from './components/navigation/TopNav.tsrx'
 
-export { TopNavRenderContext, useTopNavRenderMode } from './components/navigation/TopNav'
+export { TopNavRenderContext, useTopNavRenderMode } from './components/navigation/TopNav.tsrx'
 export {
 	SideNav,
 	SideNavSection,
@@ -355,21 +355,21 @@ export {
 	useSideNavCollapse,
 	SideNavRenderContext,
 	useSideNavRenderMode,
-} from './components/navigation/SideNav'
+} from './components/navigation/SideNav.tsrx'
 
-export { MobileNav, MobileNavToggle, useAppShellMobile } from './components/navigation/MobileNav'
-export { NavIcon } from './components/navigation/NavIcon'
-export { NavHeadingMenu, NavHeadingMenuItem } from './components/navigation/NavMenu'
+export { MobileNav, MobileNavToggle, useAppShellMobile } from './components/navigation/MobileNav.tsrx'
+export { NavIcon } from './components/navigation/NavIcon.tsrx'
+export { NavHeadingMenu, NavHeadingMenuItem } from './components/navigation/NavMenu.tsrx'
 export {
 	NavHeadingMenuContext,
 	NavHeadingCloseContext,
 	useNavHeadingMenuContext,
 	useNavHeadingCloseContext,
-} from './components/navigation/NavMenu'
+} from './components/navigation/NavMenu.tsrx'
 
-export { TabList, Tab, TabMenu, useTabListContext } from './components/collections/TabList'
-export { Toolbar } from './components/layout/Toolbar'
-export { OverflowList } from './components/collections/OverflowList'
+export { TabList, Tab, TabMenu, useTabListContext } from './components/collections/TabList.tsrx'
+export { Toolbar } from './components/layout/Toolbar.tsrx'
+export { OverflowList } from './components/collections/OverflowList.tsrx'
 export { useResizable, ResizeHandle } from './components/layout/Resizable'
 export { pixel, percent } from './components/layout/resize-math'
 export type {
@@ -440,11 +440,11 @@ export type {
 	UseResizableSingleConfig,
 } from './props'
 
-export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './components/navigation/Breadcrumb'
-export { Pagination } from './components/collections/Pagination'
-export { Stepper } from './components/collections/Stepper'
-export { NavigationMenu } from './components/navigation/NavigationMenu'
-export { CommandPalette } from './components/overlays/CommandPalette'
+export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './components/navigation/Breadcrumb.tsrx'
+export { Pagination } from './components/collections/Pagination.tsrx'
+export { Stepper } from './components/collections/Stepper.tsrx'
+export { NavigationMenu } from './components/navigation/NavigationMenu.tsrx'
+export { CommandPalette } from './components/overlays/CommandPalette.tsrx'
 export type {
 	BreadcrumbEntry,
 	BreadcrumbItemProps,
@@ -472,14 +472,14 @@ export type {
 } from './props'
 
 // Content and display
-export { Table } from './table/Table'
-export { TableHeader } from './table/Table'
-export { TableBody } from './table/Table'
-export { TableFooter } from './table/Table'
-export { TableRow } from './table/Table'
-export { TableCell } from './table/Table'
-export { TableHeaderCell } from './table/Table'
-export { TableSelectionToolbar } from './table/TableSelectionToolbar'
+export { Table } from './table/Table.tsrx'
+export { TableHeader } from './table/Table.tsrx'
+export { TableBody } from './table/Table.tsrx'
+export { TableFooter } from './table/Table.tsrx'
+export { TableRow } from './table/Table.tsrx'
+export { TableCell } from './table/Table.tsrx'
+export { TableHeaderCell } from './table/Table.tsrx'
+export { TableSelectionToolbar } from './table/TableSelectionToolbar.tsrx'
 export {
 	proportional,
 	generateColumns,
@@ -490,39 +490,39 @@ export {
 } from './table/column-utils'
 
 export { paginateData } from './table/paginate-data'
-export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
-export { useTableSortable } from './table/use-table-sortable'
+export { useTableSelection, useTableSelectionState } from './table/use-table-selection.tsrx'
+export { useTableSortable } from './table/use-table-sortable.tsrx'
 export { useTableSortableState, sortTableData } from './table/use-table-sortable-state'
-export { useTablePagination } from './table/use-table-pagination'
+export { useTablePagination } from './table/use-table-pagination.tsrx'
 export {
 	useTableColumnSettings,
 	useTableColumnSettingsState,
 } from './table/use-table-column-settings'
 
-export { useTableColumnResize } from './table/use-table-column-resize'
+export { useTableColumnResize } from './table/use-table-column-resize.tsrx'
 export { useTableFilterState } from './table/use-table-filter-state'
-export { useTableFiltering } from './table/use-table-filtering'
-export { useTableStickyColumns } from './table/use-table-sticky-columns'
-export { useTableGroupedRows } from './table/use-table-grouped-rows'
-export { useTableRowIndex } from './table/use-table-row-index'
-export { useTableRowStatus } from './table/use-table-row-status'
-export { useTableRowExpansion } from './table/use-table-row-expansion'
-export { useTableTreeState } from './table/use-table-tree-state'
-export { useTableTreeData } from './table/use-table-tree-data'
+export { useTableFiltering } from './table/use-table-filtering.tsrx'
+export { useTableStickyColumns } from './table/use-table-sticky-columns.tsrx'
+export { useTableGroupedRows } from './table/use-table-grouped-rows.tsrx'
+export { useTableRowIndex } from './table/use-table-row-index.tsrx'
+export { useTableRowStatus } from './table/use-table-row-status.tsrx'
+export { useTableRowExpansion } from './table/use-table-row-expansion.tsrx'
+export { useTableTreeState } from './table/use-table-tree-state.tsrx'
+export { useTableTreeData } from './table/use-table-tree-data.tsrx'
 export { toSearchFilters } from './table/to-search-filters'
 export { TableContext } from './table/table-context'
-export { Timeline } from './components/forms/Timeline'
+export { Timeline } from './components/forms/Timeline.tsrx'
 /** Expandable hierarchy, exported under Astryx's component name. */
-export { Tree as TreeList } from './components/collections/Tree'
-export { Alert } from './components/overlays/Alert'
-export { Card } from './components/actions/Card'
-export { Chip } from './components/actions/Chip'
-export { Kbd } from './components/content/Kbd'
+export { Tree as TreeList } from './components/collections/Tree.tsrx'
+export { Alert } from './components/overlays/Alert.tsrx'
+export { Card } from './components/actions/Card.tsrx'
+export { Chip } from './components/actions/Chip.tsrx'
+export { Kbd } from './components/content/Kbd.tsrx'
 /** Empty-state block, exported under Astryx's component name. */
-export { Empty as EmptyState } from './components/feedback/Empty'
-export { Banner } from './components/feedback/Banner'
-export { User } from './components/content/User'
-export { ProgressGroup } from './components/feedback/ProgressGroup'
+export { Empty as EmptyState } from './components/feedback/Empty.tsrx'
+export { Banner } from './components/feedback/Banner.tsrx'
+export { User } from './components/content/User.tsrx'
+export { ProgressGroup } from './components/feedback/ProgressGroup.tsrx'
 export type {
 	AlertProps,
 	BannerProps,
@@ -603,15 +603,15 @@ export type {
 	UseTableSelectionConfig,
 	UseTableSelectionStateConfig,
 	UseTableSelectionStateResult,
-} from './table/use-table-selection'
+} from './table/use-table-selection.tsrx'
 
-export type { UseTableSortableConfig } from './table/use-table-sortable'
+export type { UseTableSortableConfig } from './table/use-table-sortable.tsrx'
 export type {
 	UseTableSortableStateConfig,
 	UseTableSortableStateResult,
 } from './table/use-table-sortable-state'
 
-export type { UseTablePaginationConfig } from './table/use-table-pagination'
+export type { UseTablePaginationConfig } from './table/use-table-pagination.tsrx'
 export type {
 	ColumnSettingsOption,
 	UseTableColumnSettingsConfig,
@@ -619,33 +619,33 @@ export type {
 	UseTableColumnSettingsStateReturn,
 } from './table/use-table-column-settings'
 
-export type { UseTableColumnResizeConfig } from './table/use-table-column-resize'
-export type { UseTableFilteringConfig } from './table/use-table-filtering'
-export type { UseTableRowIndexConfig } from './table/use-table-row-index'
-export type { UseTableRowStatusConfig } from './table/use-table-row-status'
-export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state'
+export type { UseTableColumnResizeConfig } from './table/use-table-column-resize.tsrx'
+export type { UseTableFilteringConfig } from './table/use-table-filtering.tsrx'
+export type { UseTableRowIndexConfig } from './table/use-table-row-index.tsrx'
+export type { UseTableRowStatusConfig } from './table/use-table-row-status.tsrx'
+export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state.tsrx'
 export type { UseTableFilterStateResult } from './table/use-table-filter-state'
 export type { ResolvedColumnWidth, ResolvedColumnWidths } from './table/column-utils'
 
 // Links, input, scrolling, media, and overlays
-export { Link } from './components/navigation/Link'
-export { NavLink } from './components/navigation/NavLink'
+export { Link } from './components/navigation/Link.tsrx'
+export { NavLink } from './components/navigation/NavLink.tsrx'
 /** LinkProvider + useLinkComponent — the subtree link-component injection
  *  contract (Astryx `Link` family). */
-export { LinkProvider } from './components/navigation/LinkProvider'
-export { useLinkComponent } from './components/navigation/use-link-component'
+export { LinkProvider } from './components/navigation/LinkProvider.tsrx'
+export { useLinkComponent } from './components/navigation/use-link-component.tsrx'
 export { LinkContext } from './components/navigation/link-context'
-export { TextInput } from './components/forms/TextInput'
-export { TextArea } from './components/forms/TextArea'
-export { SearchInput } from './components/forms/SearchInput'
-export { SegmentedControl } from './components/forms/SegmentedControl'
+export { TextInput } from './components/forms/TextInput.tsrx'
+export { TextArea } from './components/forms/TextArea.tsrx'
+export { SearchInput } from './components/forms/SearchInput.tsrx'
+export { SegmentedControl } from './components/forms/SegmentedControl.tsrx'
 /** Scrollable region with axis-aware accessibility — Astryx
  *  `ScrollableArea`. */
-export { ScrollableArea } from './components/layout/ScrollableArea'
-export { useScrollableArea } from './components/layout/use-scrollable-area'
-export { VirtualList } from './components/collections/VirtualList'
+export { ScrollableArea } from './components/layout/ScrollableArea.tsrx'
+export { useScrollableArea } from './components/layout/use-scrollable-area.tsrx'
+export { VirtualList } from './components/collections/VirtualList.tsrx'
 export type { VirtualListProps, VirtualListHandle, VirtualListScrollOptions } from './props'
-export { Image } from './components/media/Image'
+export { Image } from './components/media/Image.tsrx'
 /** RGBA pixels → ThumbHash bytes (Evan Wallace reference port; inputs
  *  ≤100px). Compute a placeholder client-side at upload time and store it
  *  with the image metadata — the server never has to decode user uploads. */
@@ -660,7 +660,7 @@ export {
  *  extract, encode. Same src grammar as `Image`; compute at pick/upload
  *  time and store beside the image. */
 export { thumbHashUri } from './components/media/thumbhash'
-export { WebView } from './components/media/WebView'
+export { WebView } from './components/media/WebView.tsrx'
 export { postToHost } from './components/media/webview-post'
 export type {
 	WebViewContentSize,
@@ -669,28 +669,28 @@ export type {
 	WebViewMessageEvent,
 	WebViewProps,
 } from './props'
-export { Overlay } from './components/overlays/Overlay'
-export { Popover } from './components/overlays/Popover'
+export { Overlay } from './components/overlays/Overlay.tsrx'
+export { Popover } from './components/overlays/Popover.tsrx'
 /** Anchored-layer primitive — anchor-relative (context) or fixed x/y
  *  overlay content (Astryx `useLayer`). */
-export { useLayer } from './components/overlays/use-layer'
-export { usePopover } from './components/overlays/use-popover'
-export { useTooltip } from './components/overlays/use-tooltip'
-export { useMediaQuery } from './internal/platform/use-media-query'
-export { LayerProvider, LayerContext, useLayerContext } from './components/overlays/layer-provider'
-export { Dialog, DialogHeader } from './components/overlays/Dialog'
-export { useImperativeDialog } from './components/overlays/use-imperative-dialog'
-export { AlertDialog } from './components/overlays/AlertDialog'
-export { useImperativeAlertDialog } from './components/overlays/use-imperative-alert-dialog'
-export { HoverCard } from './components/overlays/HoverCard'
-export { useHoverCard } from './components/overlays/use-hover-card'
-export { Tooltip } from './components/overlays/Tooltip'
-export { Carousel } from './components/layout/Carousel'
-export { Lightbox } from './components/overlays/Lightbox'
-export { useLightbox } from './components/overlays/use-lightbox'
-export { Toast } from './components/overlays/Toast'
-export { ToastViewport } from './components/overlays/toast-viewport'
-export { showToast, useToast } from './components/overlays/toast-service'
+export { useLayer } from './components/overlays/use-layer.tsrx'
+export { usePopover } from './components/overlays/use-popover.tsrx'
+export { useTooltip } from './components/overlays/use-tooltip.tsrx'
+export { useMediaQuery } from './internal/platform/use-media-query.tsrx'
+export { LayerProvider, LayerContext, useLayerContext } from './components/overlays/layer-provider.tsrx'
+export { Dialog, DialogHeader } from './components/overlays/Dialog.tsrx'
+export { useImperativeDialog } from './components/overlays/use-imperative-dialog.tsrx'
+export { AlertDialog } from './components/overlays/AlertDialog.tsrx'
+export { useImperativeAlertDialog } from './components/overlays/use-imperative-alert-dialog.tsrx'
+export { HoverCard } from './components/overlays/HoverCard.tsrx'
+export { useHoverCard } from './components/overlays/use-hover-card.tsrx'
+export { Tooltip } from './components/overlays/Tooltip.tsrx'
+export { Carousel } from './components/layout/Carousel.tsrx'
+export { Lightbox } from './components/overlays/Lightbox.tsrx'
+export { useLightbox } from './components/overlays/use-lightbox.tsrx'
+export { Toast } from './components/overlays/Toast.tsrx'
+export { ToastViewport } from './components/overlays/toast-viewport.tsrx'
+export { showToast, useToast } from './components/overlays/toast-service.tsrx'
 export type {
 	AlertDialogProps,
 	DialogHeaderProps,
@@ -769,7 +769,7 @@ export type {
 } from './props'
 
 // Animation, theme, styling, and host services
-export { useAnimation } from './internal/platform/anim'
+export { useAnimation } from './internal/platform/anim.tsrx'
 export type { AnimatedValue, AnimationResult } from './props'
 export {
 	useThemeScheme,
@@ -787,8 +787,8 @@ export type { ThemeClassHost } from './theme/theme-host'
 /** Astryx-style named themes: `defineTheme` builds a flat token map, `Theme`
  *  stamps it on a subtree (nestable, mode-aware), `useTheme` reads resolved
  *  token values for non-CSS consumers. */
-export { Theme } from './theme/Theme'
-export type { ThemeProps } from './theme/Theme'
+export { Theme } from './theme/Theme.tsrx'
+export type { ThemeProps } from './theme/Theme.tsrx'
 export {
 	defineTheme,
 	isDefinedTheme,
@@ -809,33 +809,33 @@ export type {
 	ResolveThemeTokensOptions,
 } from './theme/defined-theme'
 
-export { useTheme, useThemeName } from './theme/use-theme'
-export type { UseThemeReturn } from './theme/use-theme'
+export { useTheme, useThemeName } from './theme/use-theme.tsrx'
+export type { UseThemeReturn } from './theme/use-theme.tsrx'
 
 export { useColorScheme, getColorScheme } from './theme/colorScheme'
 export type { ColorScheme } from './theme/colorScheme'
-export { styled } from './internal/layout/styled'
+export { styled } from './internal/layout/styled.tsrx'
 export { openWindow } from './internal/platform/windows'
 
 // Screens, visual controls, and icons
-export { Screen } from './components/layout/Screen'
-export { Tabs } from './components/collections/Tabs'
-export type { TabSpec } from './components/collections/Tabs'
-export { Switch } from './components/forms/Switch'
-export { RadioListItem } from './components/forms/RadioListItem'
-export { CheckboxListItem } from './components/forms/CheckboxListItem'
-export { SegmentedControlItem } from './components/forms/SegmentedControlItem'
-export { SelectorOption } from './components/forms/SelectorOption'
-export { Step } from './components/collections/Step'
-export { FieldLabel } from './components/forms/FieldLabel'
-export { FieldStatus } from './components/forms/FieldStatus'
+export { Screen } from './components/layout/Screen.tsrx'
+export { Tabs } from './components/collections/Tabs.tsrx'
+export type { TabSpec } from './components/collections/Tabs.tsrx'
+export { Switch } from './components/forms/Switch.tsrx'
+export { RadioListItem } from './components/forms/RadioListItem.tsrx'
+export { CheckboxListItem } from './components/forms/CheckboxListItem.tsrx'
+export { SegmentedControlItem } from './components/forms/SegmentedControlItem.tsrx'
+export { SelectorOption } from './components/forms/SelectorOption.tsrx'
+export { Step } from './components/collections/Step.tsrx'
+export { FieldLabel } from './components/forms/FieldLabel.tsrx'
+export { FieldStatus } from './components/forms/FieldStatus.tsrx'
 export { useGridFocus } from './components/collections/use-grid-focus'
 export type { GridFocusOptions, GridFocusResult } from './components/collections/use-grid-focus'
-export { SafeArea } from './components/layout/SafeArea'
-export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding'
-export { useSafeAreaInsets } from './components/layout/safeAreaInsets'
-export type { SafeAreaInsets } from './components/layout/safeAreaInsets'
-export { useMeasure } from './components/layout/useMeasure'
+export { SafeArea } from './components/layout/SafeArea.tsrx'
+export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding.tsrx'
+export { useSafeAreaInsets } from './components/layout/safeAreaInsets.tsrx'
+export type { SafeAreaInsets } from './components/layout/safeAreaInsets.tsrx'
+export { useMeasure } from './components/layout/useMeasure.tsrx'
 export type {
 	MeasureBounds,
 	MeasureResult,
@@ -844,18 +844,18 @@ export type {
 } from './props'
 
 /** Loading indicator, exported under Astryx's component name. */
-export { ActivityIndicator as Spinner } from './components/feedback/ActivityIndicator'
-export { Meter } from './components/feedback/Meter'
-export { Slider } from './components/forms/Slider'
+export { ActivityIndicator as Spinner } from './components/feedback/ActivityIndicator.tsrx'
+export { Meter } from './components/feedback/Meter.tsrx'
+export { Slider } from './components/forms/Slider.tsrx'
 /** Color suite — React Aria counterparts (fixed-composition ColorPicker). */
-export { ColorArea } from './components/forms/ColorArea'
-export { ColorSlider } from './components/forms/ColorSlider'
-export { ColorSwatch } from './components/forms/ColorSwatch'
-export { ColorField } from './components/forms/ColorField'
-export { ColorPicker } from './components/forms/ColorPicker'
-export { Icon } from './components/media/Icon'
-export { IconRegistryProvider } from './components/media/IconRegistryProvider'
-export { Heading } from './components/content/Heading'
+export { ColorArea } from './components/forms/ColorArea.tsrx'
+export { ColorSlider } from './components/forms/ColorSlider.tsrx'
+export { ColorSwatch } from './components/forms/ColorSwatch.tsrx'
+export { ColorField } from './components/forms/ColorField.tsrx'
+export { ColorPicker } from './components/forms/ColorPicker.tsrx'
+export { Icon } from './components/media/Icon.tsrx'
+export { IconRegistryProvider } from './components/media/IconRegistryProvider.tsrx'
+export { Heading } from './components/content/Heading.tsrx'
 export { createIconRegistry, registerIcon, registerIcons } from './components/media/icons'
 export type { IconGlyph, IconRegistry } from './components/media/icons'
 export type {
@@ -932,14 +932,14 @@ export type {
 // Focus hooks — React Aria useFocus/useFocusRing/useFocusVisible/
 // useFocusWithin/useLandmark counterparts. Modality tracking and landmark
 // cycling are web leaves; native leaves keep the same API shape.
-export { useFocus, useFocusRing } from './internal/accessibility/use-focus'
-export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './internal/accessibility/use-focus'
-export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible'
-export type { FocusInputModality, UseFocusVisibleResult } from './internal/accessibility/use-focus-visible'
-export { useFocusWithin } from './internal/accessibility/use-focus-within'
-export type { UseFocusWithinOptions, UseFocusWithinResult } from './internal/accessibility/use-focus-within'
-export { useLandmark } from './internal/accessibility/use-landmark'
-export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark'
+export { useFocus, useFocusRing } from './internal/accessibility/use-focus.tsrx'
+export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './internal/accessibility/use-focus.tsrx'
+export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible.tsrx'
+export type { FocusInputModality, UseFocusVisibleResult } from './internal/accessibility/use-focus-visible.tsrx'
+export { useFocusWithin } from './internal/accessibility/use-focus-within.tsrx'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './internal/accessibility/use-focus-within.tsrx'
+export { useLandmark } from './internal/accessibility/use-landmark.tsrx'
+export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark.tsrx'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
 export { mergeProps } from './internal/layout/merge-props'
@@ -947,13 +947,13 @@ export { useKeyboardInset } from './internal/keyboard/use-keyboard-inset.tsrx'
 export { useKeyboard } from './internal/keyboard/use-keyboard'
 export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './internal/keyboard/use-keyboard'
 export { useObjectRef } from './internal/accessibility/use-object-ref'
-export { useClipboard } from './internal/platform/use-clipboard'
-export type { UseClipboardOptions, UseClipboardResult } from './internal/platform/use-clipboard'
+export { useClipboard } from './internal/platform/use-clipboard.tsrx'
+export type { UseClipboardOptions, UseClipboardResult } from './internal/platform/use-clipboard.tsrx'
 export { copyText } from './internal/platform/clipboard-write'
 export { refList, mergedRef } from './internal/accessibility/ref-list'
 export type { FlatRef } from './internal/accessibility/ref-list'
 
-export { BottomSheet, BottomSheetSwitcher } from './components/overlays/BottomSheet'
+export { BottomSheet, BottomSheetSwitcher } from './components/overlays/BottomSheet.tsrx'
 export { openBottomSheet, closeBottomSheet } from './components/overlays/bottom-sheet-service'
 export type {
 	BottomSheetHandle,
@@ -975,7 +975,7 @@ export {
 	indicatorScope,
 } from './components/feedback/indicators'
 
-export { useIndicator } from './components/feedback/use-indicator'
+export { useIndicator } from './components/feedback/use-indicator.tsrx'
 
 export type {
 	IndicatorComponent,
@@ -1084,18 +1084,18 @@ export type {
 } from './props'
 
 // ---------- content display (Astryx parity) ----------
-export { Blockquote } from './components/content/Blockquote'
-export { Code } from './components/content/Code'
-export { CodeBlock } from './components/content/CodeBlock'
-export { MetadataList } from './components/content/MetadataList'
-export { MetadataListItem } from './components/content/MetadataListItem'
-export { Thumbnail } from './components/media/Thumbnail'
-export { ProgressBar } from './components/feedback/ProgressBar'
-export { StatusDot } from './components/feedback/StatusDot'
-export { Timestamp } from './components/forms/Timestamp'
-export { Timer } from './components/forms/Timer'
-export { Citation } from './components/content/Citation'
-export { Outline } from './components/collections/Outline'
+export { Blockquote } from './components/content/Blockquote.tsrx'
+export { Code } from './components/content/Code.tsrx'
+export { CodeBlock } from './components/content/CodeBlock.tsrx'
+export { MetadataList } from './components/content/MetadataList.tsrx'
+export { MetadataListItem } from './components/content/MetadataListItem.tsrx'
+export { Thumbnail } from './components/media/Thumbnail.tsrx'
+export { ProgressBar } from './components/feedback/ProgressBar.tsrx'
+export { StatusDot } from './components/feedback/StatusDot.tsrx'
+export { Timestamp } from './components/forms/Timestamp.tsrx'
+export { Timer } from './components/forms/Timer.tsrx'
+export { Citation } from './components/content/Citation.tsrx'
+export { Outline } from './components/collections/Outline.tsrx'
 export type {
 	BlockquoteProps,
 	CodeProps,
@@ -1229,18 +1229,18 @@ export type {
 	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
 } from './props'
 
-export { useImperativeBottomSheet } from './components/overlays/use-imperative-bottom-sheet'
+export { useImperativeBottomSheet } from './components/overlays/use-imperative-bottom-sheet.tsrx'
 
-export { RouteOutlet } from './routing/RouteOutlet'
+export { RouteOutlet } from './routing/RouteOutlet.tsrx'
 
 export type { ImperativeBottomSheetReturn, RouteOutletProps } from './props'
 
 // Registry interfaces must share the props symbol for generated augmentation.
 export type { AppRouteContracts, AppRouteStacks, AppRouteTransitions } from './props'
 
-export { useContainerReveal } from './components/layout/use-container-reveal'
+export { useContainerReveal } from './components/layout/use-container-reveal.tsrx'
 export type { UseContainerRevealOptions, UseContainerRevealReturn } from './props'
-export { useImageMode } from './components/media/use-image-mode'
+export { useImageMode } from './components/media/use-image-mode.tsrx'
 export type { UseImageModeOptions, ImageSampleRegion } from './props'
 
 export { InternationalizationProvider } from './components/forms/InternationalizationProvider.tsrx'

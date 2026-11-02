@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { FormField } from './FormField'
+import { FormField } from './FormField.tsrx'
 import type { FieldControlProps, Renderable } from '../../props'
 
 /** Field owner for native selection controls. Boolean toggles keep inline

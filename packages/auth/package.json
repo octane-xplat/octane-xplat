@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/auth",
 	"version": "0.19.0",
-	"description": "Sign in with Apple + Google Sign-In + hosted-auth sessions for Octane xplat — native SDKs on iOS/Android, platform web SDKs in the browser",
+	"description": "Sign in with Apple + Google Sign-In + hosted-auth sessions for Octane xplat \u2014 native SDKs on iOS/Android, platform web SDKs in the browser",
 	"keywords": [
 		"android",
 		"apple",
@@ -68,7 +68,9 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

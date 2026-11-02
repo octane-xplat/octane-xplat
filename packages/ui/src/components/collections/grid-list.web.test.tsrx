@@ -2,8 +2,8 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
-import { GridList } from './GridList'
-import { useGridList } from './use-grid-list'
+import { GridList } from './GridList.tsrx'
+import { useGridList } from './use-grid-list.tsrx'
 
 // GridList web lane — role structure, roving-tabindex 2D arrow navigation,
 // and RA selection semantics (toggle/replace/single/shift-range) on the

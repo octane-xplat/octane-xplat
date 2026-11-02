@@ -11,7 +11,7 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from '../layout/layout-child'
-import { usePan } from '../layout/pan'
+import { usePan } from '../layout/pan.tsrx'
 /** masonview, not contentview — ContentView is single-child: the driver
  *  assigns each child to `.content`, so every sibling but the last was
  *  silently dropped. Column flex matches View's shape (and the web div);

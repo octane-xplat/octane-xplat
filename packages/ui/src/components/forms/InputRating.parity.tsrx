@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in InputRating.parity.check.ts.
-import { InputRating } from './InputRating'
+import { InputRating } from './InputRating.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function InputRatingFixture() @{

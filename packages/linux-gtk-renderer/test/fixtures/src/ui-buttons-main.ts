@@ -2,7 +2,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { Probe, counts } from './ui-buttons.gtk'
+import { Probe, counts } from './ui-buttons.gtk.tsrx'
 
 Gtk.init()
 const window = new Gtk.Window({ title: 'Octane GTK Buttons test', default_width: 640, default_height: 480, decorated: false })

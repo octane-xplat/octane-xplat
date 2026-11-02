@@ -76,7 +76,9 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"@octane-xplat/cli": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",

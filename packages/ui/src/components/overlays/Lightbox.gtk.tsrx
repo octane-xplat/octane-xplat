@@ -8,9 +8,9 @@ import type { LightboxProps, LightboxMedia } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { useLayerDismissal, LayerDepthProvider } from './layer-dismissal.tsrx'
 import { themeSchemeClasses } from '../../theme/theme-host'
-import { Icon } from '../media/Icon'
-import { Pressable } from '../actions/Pressable'
-import { Text } from '../content/Text'
+import { Icon } from '../media/Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Text } from '../content/Text.tsrx'
 
 const clampIndex = (i: number, count: number) =>
 	count <= 0 ? 0 : Math.min(Math.max(i, 0), count - 1)

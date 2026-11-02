@@ -2,7 +2,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Graphene from 'gi://Graphene'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { Portals, refs, lifetime } from './ui-portal.gtk'
+import { Portals, refs, lifetime } from './ui-portal.gtk.tsrx'
 
 Gtk.init()
 const window = new Gtk.Window({

@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Tabs.parity.check.ts.
-import { Tabs } from './Tabs'
-import { View } from '../layout/View'
+import { Tabs } from './Tabs.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function TabsFixture() @{

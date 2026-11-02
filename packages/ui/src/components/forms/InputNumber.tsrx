@@ -5,9 +5,9 @@ import type { InputNumberProps, TextInputHandle } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { FormField } from './FormField'
+import { FormField } from './FormField.tsrx'
 import { TextInput } from './TextInput.tsrx'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 
 /** One numeric owner supplies both the editor and the optional actions.
  * TextInput reconciles rejected edits without replacing its native editor. */

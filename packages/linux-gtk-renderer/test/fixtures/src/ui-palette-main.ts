@@ -3,7 +3,7 @@ import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'
 import Graphene from 'gi://Graphene?version=1.0'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { PaletteProbe } from './ui-palette.gtk'
+import { PaletteProbe } from './ui-palette.gtk.tsrx'
 
 Gtk.init()
 

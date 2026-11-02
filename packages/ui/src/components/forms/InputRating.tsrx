@@ -6,8 +6,8 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { getIcon } from '../media/icons'
 import { useIconRegistry } from '../media/icon-registry-context'
-import { Icon } from '../media/Icon'
-import { NativeToggleField } from './NativeToggleField'
+import { Icon } from '../media/Icon.tsrx'
+import { NativeToggleField } from './NativeToggleField.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. `icon`

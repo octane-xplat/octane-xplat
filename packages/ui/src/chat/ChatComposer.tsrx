@@ -3,10 +3,10 @@ import { mergeStyle } from '../internal/layout/style-merge'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import type { ChatComposerDraft, ChatComposerInputControl, ChatComposerProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { ChatComposerProvider } from './chat-context'
+import { ChatComposerProvider } from './chat-context.tsrx'
 import { ChatComposerInput } from './ChatComposerInput.tsrx'
 import { ChatSendButton } from './ChatSendButton.tsrx'
-import { Icon } from '../components/media/Icon'
+import { Icon } from '../components/media/Icon.tsrx'
 
 const EMPTY_DRAFT: ChatComposerDraft = { text: '', tokens: [] }
 

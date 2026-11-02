@@ -8,7 +8,7 @@ import {
 	Button, Card, Divider, DropdownMenu, Grid, GridSpan, Heading, HStack,
 	Icon, Layout, LayoutContent, Link, List, ListItem, Table, Text, VStack, pixel } from '@octane-xplat/ui'
 import type { TableColumn } from '@octane-xplat/ui'
-import { ChartLines, ChartSparkline } from './charts'
+import { ChartLines, ChartSparkline } from './charts.tsrx'
 
 // Deterministic LCG so the sparklines are stable across renders.
 function genSpark(seed: number, start: number, end: number, volatility: number, N = 48): number[] {

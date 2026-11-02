@@ -10,14 +10,22 @@ import type { Plugin, UserConfig } from 'vite'
  * `xplatCss('web')` to their Vite plugins. Defaults to `web`. */
 export function xplatCss(platform?: CssPlatform): Plugin
 
+/** Select platform implementations for explicit TSRX paths in a custom
+ * compiler or test setup. Standard platform presets and xplatBoundary include it. */
+export function xplatTsrx(
+	platform?: 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'gtk' | 'visionos' | 'native',
+): Plugin
+
 export const nativeExtensions: string[]
 
-/** Fails `vite build` when a platform-suffixed module foreign to the target
+/** Selects platform implementations for unsuffixed explicit `.tsrx` imports.
+ * Declaration-only contracts require a target implementation.
+ * Fails `vite build` when a platform-suffixed module foreign to the target
  *  is reachable in the graph (e.g. a `.web` leaf pulled into a mobile
  *  bundle transitively — lint catches direct imports, this catches the
  *  transitive path). Warns once per module in dev. */
 export function xplatBoundary(
-	platform?: 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'visionos' | 'native',
+	platform?: 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'gtk' | 'visionos' | 'native',
 ): Plugin
 
 /** `define` entries implementing the `process.env.NODE_ENV` npm convention —

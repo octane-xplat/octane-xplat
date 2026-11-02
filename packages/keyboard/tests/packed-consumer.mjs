@@ -107,7 +107,7 @@ void [KeyboardProvider,KeyboardAwareScrollView,KeyboardStickyView,KeyboardAvoidi
 			run(
 				process.execPath,
 				[
-					join(root, 'packages/keyboard/node_modules/typescript/lib/tsc.js'),
+					join(root, 'packages/keyboard/node_modules/typescript/bin/tsc'),
 					'-p',
 					join(temporary, 'tsconfig.json'),
 				],

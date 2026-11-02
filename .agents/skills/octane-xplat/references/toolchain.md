@@ -209,3 +209,19 @@ TypeScript's fixed suffix order.
 ```sh
 bun run turbo run typecheck --filter=...@octane-xplat/ui
 ```
+
+## Native TypeScript and declaration generation
+
+TypeScript 7.1 uses `@tsrx/content-mapper`; keep it declared in TSRX configs and
+use `tsrx-tsc` for checks. Import TSRX modules with explicit `.tsrx`, without a
+platform tag. The unsuffixed module supplies the contract, while the build
+selects the implementation. See [platform files](platform-leaves.md).
+`tsrx-typegen` owns its classic compiler API and adapter independently of the
+project's checker; do not add classic TypeScript as a consumer peer or switch
+the emitter to the native launcher's nonexistent JavaScript API.
+
+NativeScript build helpers still need the classic API for config parsing and
+NativeClass lowering. Keep the managed `typescript-classic` alias in native
+apps; the canonical Vite loader patch selects it. The project checker remains
+native TypeScript. Manual `exports-md` calls also need a classic compiler cwd;
+use `packages/tsrx-typegen` with absolute source/declaration paths.

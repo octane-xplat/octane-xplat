@@ -1,7 +1,7 @@
 import { useState } from 'octane'
 import { DataGrid, type DataGridFeatures, type Row, type TableState } from '@octane-xplat/table'
 import { View, Text } from '@octane-xplat/ui'
-import { GridHost } from './host'
+import { GridHost } from './host.tsrx'
 import { selectionState, rowPosition, scrollBody } from './selection-host'
 import type { ProbeContext } from '../../../scripts/probe/context'
 

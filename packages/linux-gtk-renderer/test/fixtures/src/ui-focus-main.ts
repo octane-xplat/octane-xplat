@@ -4,7 +4,7 @@ import Gdk from 'gi://Gdk?version=4.0'
 import GObject from 'gi://GObject'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { isFocusVisible } from '@octane-xplat/ui'
-import { FocusProbe, events, state, api } from './ui-focus.gtk'
+import { FocusProbe, events, state, api } from './ui-focus.gtk.tsrx'
 
 Gtk.init()
 

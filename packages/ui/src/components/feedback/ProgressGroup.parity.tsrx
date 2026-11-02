@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in ProgressGroup.parity.check.ts.
-import { ProgressGroup } from './ProgressGroup'
+import { ProgressGroup } from './ProgressGroup.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ProgressGroupFixture() @{

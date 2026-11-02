@@ -30,11 +30,11 @@ import langCss from 'shiki/langs/css.mjs'
 import { DOCS, routeForDoc } from './docs'
 import { docSlugFor, repoPathFor } from './doc-meta'
 import { inlineSpans, parseMd, type Block, type Span } from './md'
-import { usePageActions, useTableScrollEdges } from './docs-host'
+import { usePageActions, useTableScrollEdges } from './docs-host.tsrx'
 import { nbDark } from './nb-theme'
 import { DemoPreview } from './DemoPreview.tsrx'
 import { AgentPrompt } from './AgentPrompt.tsrx'
-import { Paragraph } from './Paragraph'
+import { Paragraph } from './Paragraph.tsrx'
 import { docsIcons } from './icons'
 
 // JS regex engine — no wasm fetch, fully sync. Code slabs are always black,

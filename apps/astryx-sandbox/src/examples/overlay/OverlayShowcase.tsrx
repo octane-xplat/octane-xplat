@@ -2,7 +2,7 @@
 // Upstream Overlay = media scrim (name collides with Xplat modal Overlay);
 // composed with View + absolute content layer; <img> → themed gradient stub.
 import { AspectRatio, Button, Text, View, VStack } from '@octane-xplat/ui'
-import { MediaOverlay } from './MediaOverlay'
+import { MediaOverlay } from './MediaOverlay.tsrx'
 
 export function OverlayShowcase() @{
 	return (

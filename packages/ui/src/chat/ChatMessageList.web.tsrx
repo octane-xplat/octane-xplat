@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useMemo } from 'octane'
 import { chatMessageKey, markChatRow } from './chat-scroll-state'
 import type { ChatMessageData, ChatMessageListProps } from '../props'
-import { ChatListProvider, useChatLayoutContext } from './chat-context'
+import { ChatListProvider, useChatLayoutContext } from './chat-context.tsrx'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.web.tsrx'
 import { ChatMessage as ChatMessageView } from './ChatMessage.web.tsrx'
 import { ChatMessageBubble } from './ChatMessageBubble.web.tsrx'

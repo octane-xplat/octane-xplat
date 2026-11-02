@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
-import { StorageControls } from './Storage'
+import { StorageControls } from './Storage.tsrx'
 import { secureStorage } from '@octane-xplat/secure-storage'
 import { files } from '@octane-xplat/files'
 import { media } from '@octane-xplat/media'

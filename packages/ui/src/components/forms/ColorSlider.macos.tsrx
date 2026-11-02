@@ -4,13 +4,13 @@ import { useCallback, useRef } from 'octane'
 import type { ColorSliderProps, PanEvent } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
 import { cx } from '@octane-xplat/lib'
-import { useMeasure } from '../layout/useMeasure'
-import { usePan } from '../layout/pan'
+import { useMeasure } from '../layout/useMeasure.tsrx'
+import { usePan } from '../layout/pan.tsrx'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
 import { nativeAccessibilityRole } from '../overlays/escape-props'
-import { LinearGradient } from '../media/LinearGradient'
+import { LinearGradient } from '../media/LinearGradient.tsrx'
 import { clampHsb, hsbToHex, type Hsb } from '../../theme/color'
-import { useColorState } from '../../theme/color-state'
+import { useColorState } from '../../theme/color-state.tsrx'
 
 const THUMB = 20
 const HUE_STOPS = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00ff', '#ff0000']

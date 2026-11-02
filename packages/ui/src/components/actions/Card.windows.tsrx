@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { View } from '@nativescript/core'
-import { TextSlot } from '../forms/text-slot'
+import { TextSlot } from '../forms/text-slot.tsrx'
 import type { CardProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'

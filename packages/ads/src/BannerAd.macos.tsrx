@@ -3,9 +3,8 @@
 // reports once via onAdEvent error, matching the web leaf's honest contract.
 import { useEffect } from 'octane'
 import type { BannerAdProps } from './props'
-import type { JSX } from 'octane/jsx-runtime'
 
-export function BannerAd(props: BannerAdProps): JSX.Element @{
+export function BannerAd(props: BannerAdProps): unknown @{
 	useEffect(() => {
 		props.onAdEvent?.({
 			type: 'error',

@@ -4,7 +4,7 @@ import { hostGlobal } from '../../internal/platform/host-bridge'
 import type { ShowToastFn, ToastOptions, ToastPosition } from '../../props'
 import { ToastViewportContext } from './toast-context'
 import { FALLBACK_TOAST_VIEWPORT, pushToast, registerToastViewport, toastHandleFor } from './toast-store'
-import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surface.gtk'
+import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surface.gtk.tsrx'
 
 /** The fallback stack's dedicated universal root inside nonmodal overlay
  *  layers — mounted once on the first toast that has no declaring

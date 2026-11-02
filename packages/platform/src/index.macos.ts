@@ -88,10 +88,10 @@ export function announce(text: string): void {
 	}
 }
 
-export { useAppState, useBackHandler } from './lifecycle.macos'
-export { useWindowSize } from './screen.macos'
-export { useSafeAreaInsets } from './safe-area.macos'
-export { useBreakpoints$ } from './breakpoints.macos'
+export { useAppState, useBackHandler } from './lifecycle.macos.tsrx'
+export { useWindowSize } from './screen.macos.tsrx'
+export { useSafeAreaInsets } from './safe-area.macos.tsrx'
+export { useBreakpoints$ } from './breakpoints.macos.tsrx'
 
 export function onDeepLink(listener: (url: string) => void): () => void {
 	return host().onDeepLink?.(listener) ?? (() => {})
@@ -102,5 +102,5 @@ export function consumeInitialUrl(): string | null {
 }
 
 export { keepAwake, KeepAwakeDefaultTag } from './keep-awake.macos'
-export { useKeepAwake } from './use-keep-awake.macos'
+export { useKeepAwake } from './use-keep-awake.macos.tsrx'
 export type { KeepAwakeImpl, KeepAwakeOptions } from './keep-awake.types'

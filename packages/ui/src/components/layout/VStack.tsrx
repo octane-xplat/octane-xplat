@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { VStackProps } from '../../props'
-import { Stack } from './Stack'
+import { Stack } from './Stack.tsrx'
 
 /** Vertical flow stack — `Stack` with `direction="vertical"`.
  *  `vAlign` is the main axis (justify-content), `hAlign` the cross axis. */

@@ -6,8 +6,8 @@ import { useMemo } from 'octane'
 import type { TablePlugin } from './types'
 import type { Renderable, TableColumn } from '../props'
 import { pixel } from './column-utils'
-import { Text } from '../components/content/Text'
-import { tableSlot } from './table-slot'
+import { Text } from '../components/content/Text.tsrx'
+import { tableSlot } from './table-slot.tsrx'
 
 /**
  * Configuration for `useTableRowIndex`.

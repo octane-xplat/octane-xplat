@@ -17,11 +17,11 @@ import { cx } from '../../cx'
  * says something slightly different in several places.
  */
 
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import {AUDIT_COUNTS, CORE_VERSION} from './motionAudit';
 import {GUIDANCE_CONFLICTS, PUBLISHED_PAGE_URL} from './publishedGuidance';
 import {MOTION_SECTIONS} from './sections';
-import {LabPage} from './PageFrame';
+import {LabPage} from './PageFrame.tsrx';
 
 
 

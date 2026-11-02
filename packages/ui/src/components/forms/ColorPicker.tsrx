@@ -2,12 +2,12 @@
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import type { ColorPickerProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { ColorAreaView } from './ColorArea'
-import { ColorSliderView } from './ColorSlider'
-import { ColorField } from './ColorField'
-import { ColorSwatch } from './ColorSwatch'
+import { ColorAreaView } from './ColorArea.tsrx'
+import { ColorSliderView } from './ColorSlider.tsrx'
+import { ColorField } from './ColorField.tsrx'
+import { ColorSwatch } from './ColorSwatch.tsrx'
 import { normalizeHex } from '../../theme/color'
-import { useColorState } from '../../theme/color-state'
+import { useColorState } from '../../theme/color-state.tsrx'
 
 /** Fixed composite picker — ColorArea, hue ColorSlider, then a row of
  *  ColorSwatch + ColorField. One shared HSB state drives every part so the

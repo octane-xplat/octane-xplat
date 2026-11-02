@@ -1,7 +1,7 @@
 import type { HeadingProps } from '../../props'
 import { normStyle } from '../layout/layout-child.web'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
-import { useTheme } from '../../theme/use-theme'
+import { useTheme } from '../../theme/use-theme.tsrx'
 import { headingScaleStyle } from '../forms/text-scale'
 import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'

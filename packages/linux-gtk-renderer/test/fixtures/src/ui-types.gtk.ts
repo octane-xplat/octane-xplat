@@ -59,7 +59,7 @@ import type {
 	UniversalRoot,
 } from '@octane-xplat/linux-gtk'
 import type { GtkAppMount } from '@octane-xplat/linux-gtk/host'
-import { App } from './ui-primitives.gtk'
+import { App } from './ui-primitives.gtk.tsrx'
 
 declare const sourceRoot: GtkRoot
 declare const createdRoot: ReturnType<typeof createGtkRoot>['root']

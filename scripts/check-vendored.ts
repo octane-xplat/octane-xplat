@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { readFile } from 'node:fs/promises'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 /** Vendored-copy drift gate: each VENDORED file must stay semantically
  *  identical to its source. Comparison walks the TypeScript AST and ignores

@@ -1,3 +1,4 @@
+/// <reference path="./assets.d.ts" />
 /**
  * Shared native JSX contract — the renderer-neutral element, prop, event, and
  * ref surface consumed through `@octane-xplat/jsx/jsx-runtime` under the
@@ -279,8 +280,6 @@ export interface CommonEvents<TElement> {
 	onSubmit?: HostHandler<NativeEvent<TElement>>
 	onFocus?: HostHandler<NativeEvent<TElement>>
 	onBlur?: HostHandler<NativeEvent<TElement>>
-	onKeyDown?: HostHandler<KeyEvent<TElement>>
-	onKeyUp?: HostHandler<KeyEvent<TElement>>
 	onLoaded?: HostHandler<NativeEvent<TElement>>
 	onUnloaded?: HostHandler<NativeEvent<TElement>>
 	onLayoutChanged?: HostHandler<NativeEvent<TElement>>

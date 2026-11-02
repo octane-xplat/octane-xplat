@@ -1,10 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useMeasure } from '../layout/useMeasure'
-import { Icon } from '../media/Icon'
+import { useMeasure } from '../layout/useMeasure.tsrx'
+import { Icon } from '../media/Icon.tsrx'
 import { CheckIndicator } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 import { SelectView as SharedSelectView } from './SelectView.tsrx'
 import type { SelectViewProps } from './select-view'
 import './select-control.windows'

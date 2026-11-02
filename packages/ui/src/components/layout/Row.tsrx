@@ -11,7 +11,7 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from './layout-child'
-import { usePan } from './pan'
+import { usePan } from './pan.tsrx'
 export function Row(props: RowProps): unknown @{
 	const forwardedRef = useMemo(
 		() =>

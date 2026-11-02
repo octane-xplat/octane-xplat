@@ -1,8 +1,8 @@
 import { useRef } from 'octane'
-import type { FocusEventPayload } from './use-focus'
+import type { FocusEventPayload } from './use-focus.tsrx'
 import { normalizeFocusWithinEvent, type FocusWithinEvent } from './focus-within-event'
-import type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state'
-export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state'
+import type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state.tsrx'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state.tsrx'
 
 /**
  * Web leaf of useFocusWithin — real subtree semantics via relatedTarget:

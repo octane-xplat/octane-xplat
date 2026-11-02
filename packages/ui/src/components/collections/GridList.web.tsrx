@@ -7,7 +7,7 @@ import { defaultItemKey, type Key, type Selection } from '../../data/list-data'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
-import { useGridList } from './use-grid-list'
+import { useGridList } from './use-grid-list.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** GridList — interactive 2D cell collection, React Aria's GridList.

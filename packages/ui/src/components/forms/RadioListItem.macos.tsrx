@@ -5,7 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import type { RadioListItemProps } from '../../props'
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator } from './RadioIndicator.macos.tsrx'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 import { indicatorScope } from '../feedback/indicators'
 import { AppKitRadioViewsContext } from './radio-focus-context.macos'
 

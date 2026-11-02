@@ -27,9 +27,23 @@ import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
 import { masonCorePackage, masonEngine } from './mason-engine.ts'
 import { nativeUnicodeRegex } from './native-regex.ts'
+import { resolveTsrxLeaf } from './tsrx-leaf.ts'
 
 export { xplatCss } from './css-platform.ts'
 export { xplatDevBridge } from './mcp/dev-bridge.ts'
+
+/** Select platform TSRX implementations in custom Vite and Vitest setups. */
+export function xplatTsrx(platform = 'native') {
+	return {
+		name: 'xplat-tsrx-resolution',
+		resolveId: {
+			order: 'pre',
+			handler(source, importer) {
+				return resolveTsrxLeaf(source, importer, platform)
+			},
+		},
+	}
+}
 
 // The toolchain modules (vite, vite-octane, the nativescript renderer)
 // belong to the CONSUMING app, not to this package — under pnpm's isolated
@@ -549,6 +563,7 @@ export function xplatBoundary(platform = 'native') {
 	return {
 		...serverBoundary(),
 		name: 'xplat-platform-boundary',
+		resolveId: xplatTsrx(platform).resolveId,
 		configResolved(config) {
 			command = config.command
 			root = config.root

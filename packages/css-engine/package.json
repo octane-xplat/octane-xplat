@@ -25,11 +25,15 @@
 	},
 	"scripts": {
 		"test": "node --experimental-strip-types --test test/*.test.ts",
-		"typecheck": "tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@csstools/css-calc": "3.4.3",
 		"css-tree": "3.2.1",
 		"css-what": "8.0.0"
+	},
+	"devDependencies": {
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	}
 }

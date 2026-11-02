@@ -10,8 +10,8 @@ import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-p
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { FormField } from './FormField'
-import { Icon } from '../media/Icon'
+import { FormField } from './FormField.tsrx'
+import { Icon } from '../media/Icon.tsrx'
 
 /** Multiline input. Fixed rows match the web default; autoGrow measures to
  * content and maxRows caps that growth. Platform helpers use native line

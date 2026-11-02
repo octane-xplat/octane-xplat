@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Heading.parity.check.ts.
-import { Heading } from './Heading'
+import { Heading } from './Heading.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function HeadingFixture(props: {

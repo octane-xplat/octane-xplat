@@ -1,9 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { ChatSendButtonProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Icon } from '../components/media/Icon'
-import { Pressable } from '../components/actions/Pressable'
-import { useChatComposerContext } from './chat-context'
+import { Icon } from '../components/media/Icon.tsrx'
+import { Pressable } from '../components/actions/Pressable.tsrx'
+import { useChatComposerContext } from './chat-context.tsrx'
 
 /** Circular send/stop toggle for the chat composer. Reads
  *  ChatComposerContext by default — every value is prop-overridable for

@@ -15,7 +15,7 @@ import {
 	useImageMode,
 } from '@octane-xplat/ui'
 
-import { useImageModeTest, type Algorithm } from './useImageModeTest'
+import { useImageModeTest, type Algorithm } from './useImageModeTest.tsrx'
 // =============================================================================
 // Algorithm metadata
 // =============================================================================

@@ -60,7 +60,9 @@
 		"rouzer": "6.0.2",
 		"zod": "4.6.5",
 		"playwright": "1.63.0",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

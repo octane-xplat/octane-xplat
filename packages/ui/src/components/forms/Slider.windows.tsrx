@@ -4,11 +4,11 @@ import type { View } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
 import type { SliderProps } from '../../props'
 import { useFieldControl } from './field-context'
-import { FormField } from './FormField'
+import { FormField } from './FormField.tsrx'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useMeasure } from '../layout/useMeasure'
-import { usePan } from '../layout/pan'
+import { useMeasure } from '../layout/useMeasure.tsrx'
+import { usePan } from '../layout/pan.tsrx'
 import {
 	moveSliderThumb,
 	normalizeSliderValue,

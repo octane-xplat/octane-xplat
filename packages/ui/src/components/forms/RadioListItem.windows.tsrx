@@ -2,7 +2,7 @@
 import { useCallback, useContext, useEffect, useRef } from 'octane'
 import type { View } from '@nativescript/core'
 import { WindowsRadioContext } from './radio-context.windows'
-import { useMeasure } from '../layout/useMeasure'
+import { useMeasure } from '../layout/useMeasure.tsrx'
 import './radio-control.windows'
 import './RadioGroup.windows.css'
 import { mergeStyle } from '../../internal/layout/style-merge'
@@ -10,7 +10,7 @@ import type { RadioListItemProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 
 /** `RadioListItem` — one option row inside a `RadioList` (Astryx child
  *  part). Reads the selected value and commit callback from the group's

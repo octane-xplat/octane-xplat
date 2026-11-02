@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { MotionPatterns } from './MotionPatterns'
+import { MotionPatterns } from './MotionPatterns.tsrx'
 
 // Motion patterns showcase — first-slice regression checks on the web
 // (jsdom) renderer. Fake timers drive the motion clock (rAF) and the

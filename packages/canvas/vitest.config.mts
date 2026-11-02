@@ -1,9 +1,10 @@
+import { xplatTsrx } from '@octane-xplat/cli/vite'
 import { defineConfig } from 'vitest/config'
 import { octane } from 'octane/compiler/vite'
 
 // Web-condition resolution so Canvas.web.tsrx resolves.
 export default defineConfig({
-	plugins: [octane({ ssr: false })],
+	plugins: [xplatTsrx('web'), octane({ ssr: false })],
 	resolve: {
 		conditions: ['web'],
 		extensions: [

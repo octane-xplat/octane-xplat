@@ -13,7 +13,7 @@ import {
 } from 'octane/universal/native'
 
 import { createStore } from './store'
-import { useStore } from './use-store'
+import { useStore } from './use-store.tsrx'
 
 // Universal-runtime scheduler semantics, exercised through the object driver
 // (the same retain/dirty-epoch path the NativeScript driver runs). These tests

@@ -7,7 +7,7 @@ import {
 	SegmentedScene,
 	SegmentedContextScene,
 	SegmentedStandaloneScene,
-} from './ui-segmented-control.gtk'
+} from './ui-segmented-control.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK segmented control test',

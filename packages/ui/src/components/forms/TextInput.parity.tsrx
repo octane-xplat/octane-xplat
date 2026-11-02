@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in TextInput.parity.check.ts.
-import { TextInput } from './TextInput'
+import { TextInput } from './TextInput.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function TextInputFixture(props: { value?: string }) @{

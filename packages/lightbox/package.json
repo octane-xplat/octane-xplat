@@ -2,7 +2,7 @@
 	"name": "@octane-xplat/lightbox",
 	"version": "0.17.1",
 	"private": true,
-	"description": "Full-screen media lightbox for Octane xplat — thumbnail morph, pinch/double-tap zoom, pull to dismiss, swipe paging",
+	"description": "Full-screen media lightbox for Octane xplat \u2014 thumbnail morph, pinch/double-tap zoom, pull to dismiss, swipe paging",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -70,7 +70,9 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"@octane-xplat/cli": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",

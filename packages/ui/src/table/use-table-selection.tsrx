@@ -7,10 +7,10 @@
 import { useMemo, useRef } from 'octane'
 import type { TablePlugin, TableSelectionState } from './types'
 import type { TableColumn } from '../props'
-import { Checkbox as CheckboxInput } from '../components/forms/Checkbox'
-import { View } from '../components/layout/View'
+import { Checkbox as CheckboxInput } from '../components/forms/Checkbox.tsrx'
+import { View } from '../components/layout/View.tsrx'
 import { pixel } from './column-utils'
-import { tableSlot } from './table-slot'
+import { tableSlot } from './table-slot.tsrx'
 
 /** Selection plugin config — mode, selected keys, and change callback. */
 export interface UseTableSelectionConfig<T extends Record<string, unknown>> {

@@ -11,13 +11,13 @@
 // decided by the coverage registry, not by the route table.
 
 import { configureRouter, defineRoute, defineRoutes } from '@octane-xplat/ui/routing'
-import { HomeScreen } from './screens/HomeScreen'
-import { CategoryScreen } from './screens/CategoryScreen'
-import { TemplatesIndexScreen } from './screens/TemplatesIndexScreen'
-import { TemplateScreen } from './screens/TemplateScreen'
-import { PageScreen } from './screens/PageScreen'
-import { NotFoundScreen } from './screens/NotFoundScreen'
-import { CatchAllScreen } from './screens/CatchAllScreen'
+import { HomeScreen } from './screens/HomeScreen.tsrx'
+import { CategoryScreen } from './screens/CategoryScreen.tsrx'
+import { TemplatesIndexScreen } from './screens/TemplatesIndexScreen.tsrx'
+import { TemplateScreen } from './screens/TemplateScreen.tsrx'
+import { PageScreen } from './screens/PageScreen.tsrx'
+import { NotFoundScreen } from './screens/NotFoundScreen.tsrx'
+import { CatchAllScreen } from './screens/CatchAllScreen.tsrx'
 
 // Embed URLs carry `?embed=1&theme=<name>&mode=<light|dark>` (upstream's
 // embed contract); the router rejects search params unless the route

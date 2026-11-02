@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Timeline.parity.check.ts.
-import { Timeline } from './Timeline'
+import { Timeline } from './Timeline.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function TimelineFixture() @{

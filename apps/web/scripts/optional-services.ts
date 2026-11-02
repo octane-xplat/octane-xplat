@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import http from 'node:http'
 import { chromium, firefox, webkit } from 'playwright'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const audioMode = process.env.XPLAT_WEB_AUDIO_MODE ?? 'playback'

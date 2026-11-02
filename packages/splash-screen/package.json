@@ -57,7 +57,8 @@
 		"typescript": "catalog:",
 		"vitest": "catalog:",
 		"tsrx-typegen": "workspace:*",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.0 <10"

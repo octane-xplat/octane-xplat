@@ -4,7 +4,7 @@ import Gdk from 'gi://Gdk?version=4.0'
 import Graphene from 'gi://Graphene?version=1.0'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { showToast } from '@octane-xplat/ui'
-import { ToastProbe, pushRenderToast } from './ui-toast.gtk'
+import { ToastProbe, pushRenderToast } from './ui-toast.gtk.tsrx'
 
 Gtk.init()
 

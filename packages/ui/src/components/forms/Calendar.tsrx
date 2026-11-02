@@ -5,8 +5,8 @@ import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octan
 import type { CalendarProps, DateRange, ISODateString } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
-import { Icon } from '../media/Icon'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 import {
 	DATE_FORMAT_WITH_WEEKDAY,
 	normalizeDayOfWeek,

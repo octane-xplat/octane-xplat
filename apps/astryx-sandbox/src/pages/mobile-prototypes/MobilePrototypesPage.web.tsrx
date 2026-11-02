@@ -20,8 +20,8 @@ import {useEffect, useMemo, useState, type ReactNode} from 'octane';
 
 
 import {SANDBOX_THEMES, setMode, setThemeName, useThemeName, useThemePreference} from '../../theme'
-import {PROTOTYPES, type Prototype, type PrototypeCategory} from './prototypes';
-import {PhoneFrame, TabletFrame, ChevronRight} from './primitives';
+import {PROTOTYPES, type Prototype, type PrototypeCategory} from './prototypes.tsrx';
+import {PhoneFrame, TabletFrame, ChevronRight} from './primitives.tsrx';
 
 const CATEGORIES: PrototypeCategory[] = ['Blocks migration', 'Enhancement'];
 

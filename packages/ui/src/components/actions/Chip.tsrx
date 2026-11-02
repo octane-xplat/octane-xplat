@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { ChipProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { Pressable } from './Pressable'
+import { Pressable } from './Pressable.tsrx'
 
 /** Chip — small action/filter element with a selected state and an
  *  optional ✕ remove affordance. */

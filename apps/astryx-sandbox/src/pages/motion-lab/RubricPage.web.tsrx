@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Card, Grid, Link, HStack, VStack, Heading, Text, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@octane-xplat/ui'
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
@@ -27,7 +27,7 @@ import {
   LOOP_INVENTORY,
 } from './motionCost';
 import type {ReactNode} from 'octane';
-import {LabPage} from './PageFrame';
+import {LabPage} from './PageFrame.tsrx';
 import {
   BudgetMeter,
   ComparePanes,
@@ -35,7 +35,7 @@ import {
   DemoCard,
   Runner,
   TokenSlider,
-} from './LabPrimitives';
+} from './LabPrimitives.tsrx';
 import {
   CheckTickRig,
   InterruptRig,
@@ -44,7 +44,7 @@ import {
   OriginRig,
   OutlineMarkerRig,
   PressRig,
-} from './LabDemos';
+} from './LabDemos.tsrx';
 import {
   AUDIT_COUNTS,
   HARDCODED_SITES,

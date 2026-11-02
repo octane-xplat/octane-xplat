@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
-import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.web'
+import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.web.tsrx'
 
 it('removes hidden buttons from interaction and supports visibility changes', () => {
 	const el = document.createElement('div')

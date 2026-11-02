@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Slider.parity.check.ts.
-import { Slider } from './Slider'
+import { Slider } from './Slider.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SliderFixture(props: { id?: string; value: number }) @{

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/jsx",
 	"version": "0.19.0",
-	"description": "Shared native JSX type contract for Octane xplat — one intrinsic element vocabulary for the NativeScript and AppKit drivers, with DOM types exposed separately",
+	"description": "Shared native JSX type contract for Octane xplat \u2014 one intrinsic element vocabulary for the NativeScript and AppKit drivers, with DOM types exposed separately",
 	"keywords": [
 		"android",
 		"appkit",
@@ -51,7 +51,6 @@
 				"default": "./src/intrinsics.d.ts"
 			}
 		},
-
 		"./dom": {
 			"types": "./src/dom/index.d.ts"
 		},
@@ -64,14 +63,16 @@
 		"./package.json": "./package.json"
 	},
 	"scripts": {
-		"typecheck": "tsc -p tsconfig.json",
+		"typecheck": "tsrx-tsc -p tsconfig.json",
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"devDependencies": {
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"octane": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.0 <10",

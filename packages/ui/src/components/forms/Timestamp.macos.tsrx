@@ -15,7 +15,7 @@ import {
 
 import { cx } from '@octane-xplat/lib'
 import { textRoleClasses } from './text-role'
-import { HoverCard } from '../overlays/HoverCard'
+import { HoverCard } from '../overlays/HoverCard.tsrx'
 
 /** Timestamp — macOS leaf. The AppKit host's HoverCard carries the tooltip
  *  card (labels + copyable values as plain rows; the copy affordance is

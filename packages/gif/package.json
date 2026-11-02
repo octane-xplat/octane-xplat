@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/gif",
 	"version": "0.19.0",
-	"description": "Animated images (GIF/animated webp) for Octane xplat — web <img> + @nativescript-community/ui-image",
+	"description": "Animated images (GIF/animated webp) for Octane xplat \u2014 web <img> + @nativescript-community/ui-image",
 	"keywords": [
 		"android",
 		"animated-image",
@@ -64,7 +64,8 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

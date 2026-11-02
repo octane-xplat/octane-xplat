@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { Input } from './ui-input.gtk'
+import { Input } from './ui-input.gtk.tsrx'
 import './ui-input.css'
 Gtk.init()
 const window = new Gtk.Window({

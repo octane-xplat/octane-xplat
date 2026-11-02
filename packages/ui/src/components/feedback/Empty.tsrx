@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { EmptyProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
+import { Icon } from '../media/Icon.tsrx'
 
 /** Empty — empty-state block: icon + title + description + actions. */
 export function Empty(props: EmptyProps): unknown @{

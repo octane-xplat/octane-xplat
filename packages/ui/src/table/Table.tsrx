@@ -17,7 +17,7 @@ import { applyEscapeProps } from '../components/overlays/escape-props'
 import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
-import { TableSlot } from './table-slot'
+import { TableSlot } from './table-slot.tsrx'
 import { useContext, useMemo } from 'octane'
 
 /** Column width → native cell style: pixel widths become dips, proportional

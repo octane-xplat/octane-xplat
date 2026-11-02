@@ -10,7 +10,7 @@ import {
 	themeSchemeClasses,
 	applyThemeClasses,
 } from '@octane-xplat/ui'
-import { ThemeProbe } from './ui-theme.gtk'
+import { ThemeProbe } from './ui-theme.gtk.tsrx'
 
 Gtk.init()
 

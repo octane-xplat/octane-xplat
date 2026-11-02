@@ -5,8 +5,8 @@
 export { registerStack, getStack, stackEntries } from '../components/layout/stacks.web'
 export { addBackInterceptor } from './back-interceptors.web'
 
-export { RouteBoundary } from './RouteBoundary'
-export { useBackInterceptor } from './use-back'
+export { RouteBoundary } from './RouteBoundary.web.tsrx'
+export { useBackInterceptor } from './use-back.web.tsrx'
 export {
 	defineRoute,
 	defineRouteGroup,

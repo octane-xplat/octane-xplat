@@ -5,7 +5,7 @@ import { layoutChildProps } from '../layout/layout-child'
 import type { RichTextProps, RichTextSpanProps, TextProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'
-import { useTheme } from '../../theme/use-theme'
+import { useTheme } from '../../theme/use-theme.tsrx'
 import { textScaleStyle } from '../forms/text-scale'
 
 export function Text(props: TextProps): unknown @{

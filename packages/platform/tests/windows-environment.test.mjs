@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 function code(name) {
 	return ts.transpileModule(

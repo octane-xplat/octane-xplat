@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatMessageBubbleProps } from '../props'
 import { styleRecord } from '../internal/layout/style-merge'
-import { useChatMessageContext } from './chat-context'
+import { useChatMessageContext } from './chat-context.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 const renderable = (v: any) => v != null && v !== false && v !== true

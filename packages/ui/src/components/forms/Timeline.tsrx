@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { TimelineProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
+import { Icon } from '../media/Icon.tsrx'
 
 /** Timeline — vertical event list: dot + connector + content per item. */
 export function Timeline(props: TimelineProps): unknown @{

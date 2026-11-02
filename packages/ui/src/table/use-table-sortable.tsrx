@@ -12,8 +12,8 @@ import type {
 } from './types'
 
 import type { TableColumn } from '../props'
-import { Icon } from '../components/media/Icon'
-import { TableSlot, tableSlot } from './table-slot'
+import { Icon } from '../components/media/Icon.tsrx'
+import { TableSlot, tableSlot } from './table-slot.tsrx'
 
 export function resolveSortKey<T extends Record<string, unknown>>(
 	column: TableColumn<T>,

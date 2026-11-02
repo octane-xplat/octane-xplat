@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in View.parity.check.ts.
-import { View } from './View'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ViewLayoutFixture() @{

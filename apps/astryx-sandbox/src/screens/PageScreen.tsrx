@@ -8,10 +8,10 @@ import { View, Heading, Layout, LayoutHeader, LayoutContent } from '@octane-xpla
 import { routeRow } from '../coverage/coverage'
 import { pageFor } from '../pages/registry'
 import { isEmbed } from '../theme'
-import { PendingScreen } from '../shell/PendingScreen'
-import { PreviewShell } from '../shell/PreviewShell'
-import { SandboxShell } from '../shell/SandboxShell'
-import { NotFoundScreen } from './NotFoundScreen'
+import { PendingScreen } from '../shell/PendingScreen.tsrx'
+import { PreviewShell } from '../shell/PreviewShell.tsrx'
+import { SandboxShell } from '../shell/SandboxShell.tsrx'
+import { NotFoundScreen } from './NotFoundScreen.tsrx'
 
 export function PageScreen(props: { params: { rest?: string } }) @{
 	const route = `/pages/${props.params.rest ?? ''}/`

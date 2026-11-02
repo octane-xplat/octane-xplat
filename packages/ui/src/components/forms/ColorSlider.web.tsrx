@@ -6,9 +6,9 @@ import type { ColorSliderViewProps } from '../../internal-props'
 import { useMeasure } from '../layout/useMeasure.web.tsrx'
 import { usePan } from '../layout/pan.web.tsrx'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
-import { LinearGradient } from '../media/LinearGradient'
+import { LinearGradient } from '../media/LinearGradient.tsrx'
 import { hsbToHex } from '../../theme/color'
-import { useColorState } from '../../theme/color-state'
+import { useColorState } from '../../theme/color-state.tsrx'
 
 const THUMB = 20
 const HUE_STOPS = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00ff', '#ff0000']

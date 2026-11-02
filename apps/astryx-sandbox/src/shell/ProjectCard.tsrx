@@ -2,7 +2,7 @@
 // `SandboxLink` preserves upstream's LinkProvider injection shape.
 
 import { Heading, Text, Card, VStack } from '@octane-xplat/ui'
-import { SandboxLink } from './SandboxLink'
+import { SandboxLink } from './SandboxLink.tsrx'
 import type { SandboxPage } from '../data/sandboxPages'
 
 export function ProjectCard(props: { page: SandboxPage }) @{

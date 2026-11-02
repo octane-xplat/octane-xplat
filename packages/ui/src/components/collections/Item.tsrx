@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { ItemComponent, ItemProps, ItemSlotProps } from '../../props'
-import { Pressable } from '../actions/Pressable'
-import { Text } from '../content/Text'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Text } from '../content/Text.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 function StartContent(props: ItemSlotProps) @{

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useMemo, useRef } from 'octane'
 import { GridLayout } from '@nativescript/core'
-import { useOwnedContent } from '../overlays/use-owned-content'
+import { useOwnedContent } from '../overlays/use-owned-content.tsrx'
 import type { ContentRoot } from '../overlays/owned-content'
 
 class CellHost extends GridLayout {

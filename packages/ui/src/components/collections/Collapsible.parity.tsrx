@@ -1,7 +1,7 @@
 // Measured parity fixtures — assertions live in Collapsible.parity.check.ts.
-import { Collapsible } from './Collapsible'
-import { Text } from '../content/Text'
-import { View } from '../layout/View'
+import { Collapsible } from './Collapsible.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function CollapsibleFixture() @{

@@ -8,7 +8,7 @@ import { Button } from '@octane-xplat/ui'
 import { Card } from '@octane-xplat/ui'
 import { TextArea } from '@octane-xplat/ui'
 import { categories } from '../../data/sandboxPages'
-import DocTopNav from './DocTopNav'
+import DocTopNav from './DocTopNav.tsrx'
 
 const allPages = categories.flatMap((cat) => cat.pages.map((p) => ({ ...p, category: cat.label })))
 

@@ -9,7 +9,7 @@ import type {
 
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Image } from './Image'
+import { Image } from './Image.tsrx'
 
 /** Avatar — circular image with a text fallback when `src` is absent.
  *  `size` sets the square + border-radius inline so the circle is identical

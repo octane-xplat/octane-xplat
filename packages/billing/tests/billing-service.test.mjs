@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 // The native leaf wraps one @nativescript/payments Payment client. These run
 // it against a scripted Payment so connection readiness, reconnects and

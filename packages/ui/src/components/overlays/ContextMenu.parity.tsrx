@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in ContextMenu.parity.check.ts.
-import { ContextMenu } from './ContextMenu'
-import { View } from '../layout/View'
+import { ContextMenu } from './ContextMenu.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ContextMenuFixture() @{

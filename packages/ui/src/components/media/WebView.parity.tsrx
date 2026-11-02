@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in WebView.parity.check.ts.
-import { WebView } from './WebView'
+import { WebView } from './WebView.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function WebViewFixture() @{

@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import { createRequire } from 'node:module'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const source = ts.transpile(
 	await readFile(new URL('../src/biometrics.macos.ts', import.meta.url), 'utf8'),

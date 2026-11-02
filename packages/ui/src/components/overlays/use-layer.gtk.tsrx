@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
-import { Popover } from './Popover'
+import { Popover } from './Popover.tsrx'
 import { cx } from '@octane-xplat/lib'
 import type {
 	ContextLayerReturn,

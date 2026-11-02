@@ -7,7 +7,7 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
 import { Tooltip } from '../overlays/Tooltip.tsrx'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { nativeFieldStatusVariant } from './field-status-variant'
 
 /** Shared field wrapper for labels, descriptions, and validation status.

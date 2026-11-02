@@ -3,8 +3,8 @@ import { mergeStyle } from '../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { ChatToolCallItem, ChatToolCallStatus, ChatToolCallsProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Icon } from '../components/media/Icon'
-import { Badge } from '../components/feedback/Badge'
+import { Icon } from '../components/media/Icon.tsrx'
+import { Badge } from '../components/feedback/Badge.tsrx'
 import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
 import {
 	nativeAccessibilityRole,

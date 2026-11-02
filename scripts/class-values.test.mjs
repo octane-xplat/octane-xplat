@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import test from 'node:test'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const uiRequire = createRequire(new URL('../packages/ui/package.json', import.meta.url))
 

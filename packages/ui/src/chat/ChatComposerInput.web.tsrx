@@ -32,7 +32,7 @@ import { useTriggerMenu } from '../components/overlays/useTriggerMenu.web.tsrx'
 import { useChatPasteAsToken } from './useChatPasteAsToken.web.tsrx'
 import { ChatPastedTextToken } from './ChatPastedTextToken.web.tsrx'
 import { ChatTokenChip } from './chat-tokens.web.tsrx'
-import { useChatComposerContext } from './chat-context'
+import { useChatComposerContext } from './chat-context.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 const LINE_HEIGHT_PX = 22

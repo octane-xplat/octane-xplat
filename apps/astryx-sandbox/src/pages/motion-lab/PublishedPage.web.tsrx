@@ -19,9 +19,9 @@ import { cx } from '../../cx'
  */
 
 import type {ReactNode} from 'octane';
-import {ComparePanes, DemoCard} from './LabPrimitives';
-import {LayerRig, LoopRig} from './LabDemos';
-import {LabPage} from './PageFrame';
+import {ComparePanes, DemoCard} from './LabPrimitives.tsrx';
+import {LayerRig, LoopRig} from './LabDemos.tsrx';
+import {LabPage} from './PageFrame.tsrx';
 import {
   CORRECTED_EXIT_RULE,
   GUIDANCE_CONFLICTS,

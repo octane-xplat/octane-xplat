@@ -38,6 +38,8 @@
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
 	}
 }

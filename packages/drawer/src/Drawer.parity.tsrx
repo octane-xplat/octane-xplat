@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Drawer.parity.check.ts.
-import { Drawer } from './Drawer'
+import { Drawer } from './Drawer.tsrx'
 import { View } from '@octane-xplat/ui'
 import type { ParityFixture } from '@octane-xplat/ui/parity'
 

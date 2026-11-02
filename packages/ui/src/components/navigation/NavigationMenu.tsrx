@@ -12,9 +12,9 @@ import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
-import { Text } from '../content/Text'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { followHref } from './nav-href'
 
 function NavigationMenuRow(props: {

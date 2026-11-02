@@ -6,7 +6,7 @@ import {
 	registerStylesheet,
 	gtkDriver,
 } from '@octane-xplat/linux-gtk'
-import { Portals, refs, lifetime } from './ui-portal.gtk'
+import { Portals, refs, lifetime } from './ui-portal.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK portal test',

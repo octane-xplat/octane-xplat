@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { pathToFileURL } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const require = createRequire(import.meta.url)
 const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).href
@@ -108,7 +108,7 @@ const avatar = compiled(
 		'../../internal/layout/style-merge': support,
 		'@octane-xplat/lib': support,
 		'../overlays/escape-props': support,
-		'./Image': image,
+		'./Image.tsrx': image,
 	},
 	true,
 )

@@ -1,5 +1,5 @@
 import type { IndicatorComponent, IndicatorMap, IndicatorName } from '../../props'
-import { useStore } from '../../data/use-store'
+import { useStore } from '../../data/use-store.tsrx'
 import { defaultIndicators, indicatorOverrides } from './indicators'
 
 /**

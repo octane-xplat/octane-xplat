@@ -2,7 +2,7 @@ import { DataGrid, type DataGridFeatures, type Row, type TableState } from '@oct
 import { useState } from 'octane'
 import { View, Text } from '@octane-xplat/ui'
 import { pan } from './gesture'
-import { GridHost } from './host'
+import { GridHost } from './host.tsrx'
 import type { ProbeContext } from '../../../scripts/probe/context'
 
 type GridRow = { id: string; name: string; count: number }

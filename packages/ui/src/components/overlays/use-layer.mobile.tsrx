@@ -14,7 +14,7 @@ import type {
 	LayerOptions,
 } from '../../props'
 
-import { Popover } from './Popover'
+import { Popover } from './Popover.tsrx'
 import type { PopoverInternalProps } from '../../internal-props'
 import { applyNativeProps } from '../../internal/platform/platformProps'
 import { useThemeScheme } from '../../theme/theme-scheme'

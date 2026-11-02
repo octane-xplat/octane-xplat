@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { HoverCardProps } from '../../props'
-import { useHoverCard } from './use-hover-card'
+import { useHoverCard } from './use-hover-card.tsrx'
 import { cx } from '@octane-xplat/lib'
-import { View } from '../layout/View'
+import { View } from '../layout/View.tsrx'
 
 /** Hover/focus-triggered floating card — GTK leaf. Identical to the shared
  *  leaf; the `useHoverCard` hook resolves to `use-hover-card.gtk.tsrx`, which

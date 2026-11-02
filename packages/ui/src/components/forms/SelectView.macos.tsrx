@@ -15,10 +15,10 @@ import { cx } from '@octane-xplat/lib'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { Icon } from '../media/Icon.macos.tsrx'
 import { Popover } from '../overlays/Popover.macos.tsrx'
-import { TextSlot } from './text-slot'
+import { TextSlot } from './text-slot.tsrx'
 
 import { CheckIndicator, CheckboxIndicator } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 import { nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 
 function SelectOptionRow(input: {

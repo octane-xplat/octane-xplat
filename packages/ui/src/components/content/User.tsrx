@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { UserProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Avatar } from '../media/Avatar'
+import { Avatar } from '../media/Avatar.tsrx'
 
 /** User — avatar + name/description row. `onSelect` makes the row
  *  tappable. */

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { pathToFileURL } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const require = createRequire(import.meta.url)
 const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).href
@@ -79,8 +79,8 @@ const imports = Object.fromEntries(
 		'./field-context',
 		'./option-list-contexts',
 		'../../internal/layout/style-merge',
-		'../feedback/use-indicator',
-		'../layout/useMeasure',
+		'../feedback/use-indicator.tsrx',
+		'../layout/useMeasure.tsrx',
 	].map((name) => [name, support]),
 )
 
@@ -96,7 +96,7 @@ const groupUrl = compiled(
 		new URL('../src/components/forms/CheckboxGroup.windows.tsrx', import.meta.url),
 		'utf8',
 	),
-	{ ...imports, './Checkbox': visuals },
+	{ ...imports, './Checkbox.tsrx': visuals },
 )
 
 const itemUrl = compiled(

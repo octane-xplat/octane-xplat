@@ -24,7 +24,7 @@ const ThemeNestingProviderEl: any = ThemeNestingContext
 import { setRootThemeScope } from './theme-scope'
 import { ensureThemeCss, syncDocumentRootTheme } from './theme-css-inject'
 import { useThemeScheme } from './theme-scheme'
-import { View } from '../components/layout/View'
+import { View } from '../components/layout/View.tsrx'
 
 /** Props for the Theme provider. */
 export interface ThemeProps {

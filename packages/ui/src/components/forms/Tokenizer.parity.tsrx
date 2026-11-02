@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Tokenizer.parity.check.ts.
-import { Tokenizer } from './Tokenizer'
+import { Tokenizer } from './Tokenizer.tsrx'
 import { createStaticSource } from './typeahead-source'
 import type { ParityFixture } from '../../parity'
 

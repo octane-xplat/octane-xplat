@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 // Future source models; no Octane compiler, native window or OS event is exercised.
 const files = ['appkit-state.macos.ts', 'screen.macos.tsrx', 'lifecycle.macos.tsrx',

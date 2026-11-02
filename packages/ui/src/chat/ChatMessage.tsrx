@@ -4,7 +4,7 @@ import { mergeStyle } from '../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import type { ChatMessageProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { ChatMessageProvider, useChatListContext } from './chat-context'
+import { ChatMessageProvider, useChatListContext } from './chat-context.tsrx'
 
 const renderable = (v: any) => v != null && v !== false && v !== true
 

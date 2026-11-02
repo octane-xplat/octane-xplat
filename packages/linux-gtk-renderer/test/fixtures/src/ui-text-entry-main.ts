@@ -12,7 +12,7 @@ import {
 	controlledRef,
 	controlledChanges,
 	controlledValue,
-} from './ui-text-entry.gtk'
+} from './ui-text-entry.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK text entry test',

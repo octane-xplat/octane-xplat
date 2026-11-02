@@ -827,47 +827,17 @@ export function checkPlatformSubpathImport(program, _src, filename, options) {
 	return out
 }
 
-// Only shared .ts files are flagged: platform leaves (.mobile.ts/.web.ts)
-// importing .tsrx is the normal leaf pattern — the bundler owns both.
-export function checkNoTsImportsTsrx(program, _src, filename, options) {
-	const f = norm(filename)
-	if (
-		!/\.(m|c)?ts$/.test(f) ||
-		f.endsWith('.d.ts') ||
-		!isSharedFile(f) ||
-		isTestFile(f) ||
-		fileExcluded(f, options)
-	) {
+/** Platform TSRX families always expose an unsuffixed type contract. */
+export function checkTsrxDefault(program, _source, filename, options) {
+	const file = norm(filename)
+	const match = /^(.*)\.(web|mobile|ios|android|macos|windows|linux|gtk)\.tsrx$/.exec(file)
+	if (!match || !file.includes('/src/') || /\/(test|tests|fixtures|vendor)\//.test(file) || fileExcluded(file, options)) {
 		return []
 	}
-
-	const out: any[] = []
-	for (const [node] of walk(program)) {
-		if (node.type !== 'ImportDeclaration') {
-			continue
-		}
-
-		// Type-only imports emit no module edge — `import type` and
-		// specifier-level `type` markers can never reach the consumer's
-		// runtime graph.
-		const specifiers = node.specifiers ?? []
-		const typeOnly =
-			node.importKind === 'type' ||
-			(specifiers.length > 0 && specifiers.every((s) => s.importKind === 'type'))
-
-		if (
-			!typeOnly &&
-			typeof node.source?.value === 'string' &&
-			node.source.value.endsWith('.tsrx')
-		) {
-			out.push({
-				node: node.source,
-				message: `'.ts' modules can't import '.tsrx' — the consumer gets an untransformed module. JSX-free leaves must stay .ts.`,
-			})
-		}
+	if (['.tsrx', '.tsx', '.ts'].some(extension => existsSync(match[1] + extension))) {
+		return []
 	}
-
-	return out
+	return [{ node: program, message: 'Platform TSRX modules need an unsuffixed implementation or declaration-only type contract.' }]
 }
 
 // ---------- style object rules (invariant #6 + NS silent drops) ----------
@@ -1571,6 +1541,7 @@ export function checkNoRootLogicalRender(program, _src, filename, options) {
 // ---------- rule table ----------
 
 export const XPLAT_CHECKS = {
+	'require-default-tsrx': checkTsrxDefault,
 	'no-dom-globals': checkNoDomGlobals,
 	'no-web-only-api': checkNoWebOnlyApi,
 	'element-vocabulary': checkElementVocabulary,
@@ -1581,7 +1552,6 @@ export const XPLAT_CHECKS = {
 	'no-line-height-unitless': checkNoLineHeightUnitless,
 	'no-style-string': checkNoStyleString,
 	'no-unknown-class': checkNoUnknownClass,
-	'no-ts-imports-tsrx': checkNoTsImportsTsrx,
 	'signal-dollar-suffix': checkSignalDollarSuffix,
 	'require-signals-runtime': checkRequireSignalsRuntime,
 	'no-view-onpress': checkNoViewOnPress,

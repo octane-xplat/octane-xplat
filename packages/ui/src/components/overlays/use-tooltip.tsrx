@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useId, useRef } from 'octane'
 import type { ContextRenderProps, TooltipOptions, TooltipReturn } from '../../props'
 import { appKitHost } from '../../internal/platform/host-bridge'
-import { View } from '../layout/View'
+import { View } from '../layout/View.tsrx'
 
 const host = () => appKitHost() ?? {}
 

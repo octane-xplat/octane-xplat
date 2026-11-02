@@ -1,4 +1,4 @@
-export { Icon } from './Icon.web'
+export { Icon } from './Icon.web.tsrx'
 export { addCollection, addIcon, addIcons, resolveIcon, registry as iconRegistry } from './registry'
 export { iconToSvg } from './svg'
 export type { IconProps, IconOptions, IconSvg } from './props'

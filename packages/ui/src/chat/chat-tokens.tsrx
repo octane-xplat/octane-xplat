@@ -2,7 +2,7 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatComposerToken, ChatComposerTokenCustom } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Icon } from '../components/media/Icon'
+import { Icon } from '../components/media/Icon.tsrx'
 
 /** Is this token the custom-render form? Shared by the input and the
  *  tokenized-text renderer. */

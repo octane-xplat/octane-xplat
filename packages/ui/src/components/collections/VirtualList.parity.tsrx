@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in VirtualList.parity.check.ts.
-import { View } from '../layout/View'
-import { VirtualList } from './VirtualList'
+import { View } from '../layout/View.tsrx'
+import { VirtualList } from './VirtualList.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function VirtualListFixture() @{

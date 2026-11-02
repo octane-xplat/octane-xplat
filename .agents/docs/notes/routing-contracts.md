@@ -98,9 +98,9 @@ function Item(props: RouteScreenProps<typeof route>) { return props.data.id }
 const item = route.screen(Item)
 ```
 
-Inline callbacks still follow TypeScript's inference order: validator, guard,
-loader. Earlier dependent inputs remain conservative; named parser values are
-inferred independently of property order. Screen attachment happens after this
+Keep inline callbacks in dependency order: validator, guard, loader. TypeScript
+7.1 can also infer an earlier loader input from a later parser; named parser
+values retain their inferred output independently of property order. Screen attachment happens after this
 phase, avoiding the old `any`/`never` fallback problem. This boundary follows the
 documented [TypeScript inference model](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7#improved-function-inference-in-objects-and-methods);
 [TanStack Router's order rule](https://tanstack.com/router/latest/docs/eslint/create-route-property-order)

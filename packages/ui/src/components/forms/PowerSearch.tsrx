@@ -9,8 +9,8 @@ import type {
 	PowerSearchItem,
 } from '../../props'
 
-import { PowerSearchToken } from './PowerSearchToken'
-import { PowerSearchFilterEditor } from './PowerSearchFilterEditor'
+import { PowerSearchToken } from './PowerSearchToken.tsrx'
+import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.tsrx'
 import { createInternalConfig, createPowerSearchSource } from './power-search-config'
 import { PowerSearchView } from './PowerSearchView.tsrx'
 

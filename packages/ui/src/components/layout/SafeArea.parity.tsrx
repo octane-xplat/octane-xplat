@@ -1,8 +1,8 @@
 // Measured parity fixtures — assertions live in SafeArea.parity.check.ts.
 import { useSafeAreaInsets } from '@octane-xplat/platform'
-import { HStack } from './HStack'
-import { SafeArea } from './SafeArea'
-import { View } from './View'
+import { HStack } from './HStack.tsrx'
+import { SafeArea } from './SafeArea.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SafeAreaLayoutFixture() @{

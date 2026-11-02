@@ -1,9 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { MoreMenuPresentation } from '../../props'
 import { hasCoarsePointer } from '../forms/coarse-pointer'
-import { BottomSheet } from './BottomSheet'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { MenuProvider } from './menu-context'
-import { MenuData } from './MenuParts'
+import { MenuData } from './MenuParts.tsrx'
 import { mergeStyle } from '../../internal/layout/style-merge'
 
 // menu-sheet — GTK leaf. Explicit 'bottom-sheet' presents the menu in a

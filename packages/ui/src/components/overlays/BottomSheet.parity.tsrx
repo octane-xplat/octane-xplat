@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in BottomSheet.parity.check.ts.
-import { BottomSheet } from './BottomSheet'
-import { View } from '../layout/View'
+import { BottomSheet } from './BottomSheet.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SheetLayoutFixture(props: { marker: string }) @{

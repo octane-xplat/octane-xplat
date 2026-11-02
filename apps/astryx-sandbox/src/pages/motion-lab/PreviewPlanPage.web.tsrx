@@ -19,7 +19,7 @@ import { cx } from '../../cx'
 
 import {COST_LABEL, COST_VARIANT} from './motionCost';
 import {useMemo, useState} from 'octane';
-import {LabPage} from './PageFrame';
+import {LabPage} from './PageFrame.tsrx';
 import {
   PREVIEW_GROUPS,
   PREVIEW_PLAN,

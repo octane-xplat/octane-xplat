@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { VirtualList } from '../src/components/collections/VirtualList'
-import { View } from '../src/components/layout/View'
-import { Text } from '../src/components/content/Text'
+import { VirtualList } from '../src/components/collections/VirtualList.tsrx'
+import { View } from '../src/components/layout/View.tsrx'
+import { Text } from '../src/components/content/Text.tsrx'
 import type { VirtualListHandle } from '../src/props'
 import type { ProbeContext } from '../../../scripts/probe/context'
 

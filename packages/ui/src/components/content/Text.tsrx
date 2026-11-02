@@ -11,7 +11,7 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from '../layout/layout-child'
-import { useTheme } from '../../theme/use-theme'
+import { useTheme } from '../../theme/use-theme.tsrx'
 import { textScaleStyle } from '../forms/text-scale'
 
 import type { JSX } from 'octane/jsx-runtime'

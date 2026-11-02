@@ -4,7 +4,7 @@ import type { RadioListItemProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** `RadioListItem` — one option row inside a `RadioList` (Astryx child

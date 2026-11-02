@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Alert.parity.check.ts.
-import { Alert } from './Alert'
-import { Text } from '../content/Text'
+import { Alert } from './Alert.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function AlertFixture() @{

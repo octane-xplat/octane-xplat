@@ -7,7 +7,7 @@ import { getIcon } from '../components/media/icons'
 import { Icon } from '../components/media/Icon.tsrx'
 import { Pressable } from '../components/actions/Pressable.tsrx'
 import { Text } from '../components/content/Text.tsrx'
-import { RouteOutlet } from '../routing/RouteOutlet'
+import { RouteOutlet } from '../routing/RouteOutlet.tsrx'
 import type { BottomNavigationViewProps, PlatformTabSpec } from '../props'
 import { applyEscapeProps } from '../components/overlays/escape-props'
 

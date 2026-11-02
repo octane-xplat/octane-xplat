@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Card, CodeBlock, Grid, Link, HStack, VStack, Heading, Text, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@octane-xplat/ui'
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
@@ -18,10 +18,10 @@ import { cx } from '../../cx'
  * caption about what would happen.
  */
 
-import {LabPage} from './PageFrame';
-import {ComparePanes, DemoBody, DemoCard} from './LabPrimitives';
-import {LoopRig, TintRig} from './LabDemos';
-import {useMotionLab, type ReducedMotionMode} from './MotionLabStore';
+import {LabPage} from './PageFrame.tsrx';
+import {ComparePanes, DemoBody, DemoCard} from './LabPrimitives.tsrx';
+import {LoopRig, TintRig} from './LabDemos.tsrx';
+import {useMotionLab, type ReducedMotionMode} from './MotionLabStore.tsrx';
 import {
   AUDIT_COUNTS,
   HARDCODED_SITES,

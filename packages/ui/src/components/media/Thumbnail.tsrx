@@ -9,11 +9,11 @@ import {
 	nativeAccessibilityState,
 } from '../overlays/escape-props'
 
-import { Icon } from './Icon'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from './Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'
-import { Skeleton } from '../feedback/Skeleton'
-import { Tooltip } from '../overlays/Tooltip'
+import { Skeleton } from '../feedback/Skeleton.tsrx'
+import { Tooltip } from '../overlays/Tooltip.tsrx'
 import { isRenderable } from '../../internal/rendering/is-renderable'
 
 const SIZE = 40

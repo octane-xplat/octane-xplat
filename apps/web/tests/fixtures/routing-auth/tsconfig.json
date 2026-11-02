@@ -1,4 +1,5 @@
 {
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
   "extends": "../../../tsconfig.json",
   "compilerOptions": { "paths": {}, "customConditions": ["web"], "moduleSuffixes": [".web", ""] },
   "include": ["fixture.web.tsrx", "../../../../../packages/ui/tests/authentication-routing-example.web.tsrx"]

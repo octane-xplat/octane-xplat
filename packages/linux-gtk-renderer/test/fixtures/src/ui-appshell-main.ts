@@ -5,7 +5,7 @@ import { createGtkRoot, registerStylesheet } from '@octane-xplat/linux-gtk'
 import { openWindow } from '@octane-xplat/ui'
 import tokensCss from '@octane-xplat/ui/theme/tokens.css?raw'
 import chromeCss from '@octane-xplat/ui/theme/chrome.css?raw'
-import { AppShellProbe, ChildWindow, events, state } from './ui-appshell.gtk'
+import { AppShellProbe, ChildWindow, events, state } from './ui-appshell.gtk.tsrx'
 
 Gtk.init()
 

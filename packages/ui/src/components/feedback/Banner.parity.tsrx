@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Banner.parity.check.ts.
-import { Banner } from './Banner'
-import { Text } from '../content/Text'
+import { Banner } from './Banner.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function BannerFixture() @{

@@ -5,9 +5,9 @@ import type { ColorAreaViewProps } from '../../internal-props'
 import { useMeasure } from '../layout/useMeasure.web.tsrx'
 import { usePan } from '../layout/pan.web.tsrx'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
-import { LinearGradient } from '../media/LinearGradient'
+import { LinearGradient } from '../media/LinearGradient.tsrx'
 import { hsbToHex, type Hsb } from '../../theme/color'
-import { useColorState } from '../../theme/color-state'
+import { useColorState } from '../../theme/color-state.tsrx'
 
 import type { JSX } from 'octane/jsx-runtime'
 const THUMB = 16

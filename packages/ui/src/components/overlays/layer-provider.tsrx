@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useMemo } from 'octane'
 import type { LayerContextValue, LayerProviderProps, LayerToastConfig } from '../../props'
-import { ToastViewport } from './toast-viewport'
+import { ToastViewport } from './toast-viewport.tsrx'
 import type { Context } from 'octane'
 
 /** Context published by `LayerProvider` — `null` means no provider, in

@@ -7,8 +7,8 @@ import {
 	createUniversalRoot,
 } from 'octane/universal/native'
 
-import { VirtualList } from './VirtualList'
-import { Pressable } from '../actions/Pressable'
+import { VirtualList } from './VirtualList.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { VirtualListSizeIndex } from './virtual-list-layout'
 
 vi.mock('@nativescript/core', () => ({ isAndroid: true, isIOS: false }))

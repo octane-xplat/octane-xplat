@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Absolute.parity.check.ts.
-import { Absolute } from './Absolute'
-import { View } from './View'
+import { Absolute } from './Absolute.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function AbsoluteLayoutFixture() @{

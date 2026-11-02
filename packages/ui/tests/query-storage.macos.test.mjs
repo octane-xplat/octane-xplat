@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 // Isolate the macOS leaf from the workspace package graph; its only import is
 // a type-only QueryStorageAdapter that transpiles away.

@@ -4,7 +4,7 @@ import Gdk from 'gi://Gdk?version=4.0'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { App, events } from './ui-primitives.gtk'
+import { App, events } from './ui-primitives.gtk.tsrx'
 import './ui-primitives.css'
 Gtk.init()
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })

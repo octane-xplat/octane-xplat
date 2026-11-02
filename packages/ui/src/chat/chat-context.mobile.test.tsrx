@@ -7,7 +7,7 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
-import { ChatLayoutProvider, useChatLayoutContext } from './chat-context'
+import { ChatLayoutProvider, useChatLayoutContext } from './chat-context.tsrx'
 
 function Reader(props: { seen: string[] }) @{
 	const context = useChatLayoutContext()

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/ui",
 	"version": "0.19.0",
-	"description": "Cross-platform UI for Octane xplat — shared primitives, stacks, routes and theming across web (DOM), iOS and Android (NativeScript)",
+	"description": "Cross-platform UI for Octane xplat \u2014 shared primitives, stacks, routes and theming across web (DOM), iOS and Android (NativeScript)",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -161,7 +161,7 @@
 		"test:overlay-keyboard:ios": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.ios.tsrx --target ios",
 		"test:overlay-keyboard:android": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.android.tsrx --target android",
 		"test:overlay-keyboard:macos": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos",
-		"build": "tsc -p tsconfig.node.json",
+		"build": "tsrx-tsc -p tsconfig.node.json",
 		"test:intl": "node --test tests/intl-bundle.test.mjs",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
@@ -183,7 +183,10 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:",
+		"@octane-xplat/cli": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.0 <10",

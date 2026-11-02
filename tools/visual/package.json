@@ -33,6 +33,7 @@
 		"storybook": "10.6.1",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"vitest-plugin-vis": "5.1.7"
+		"vitest-plugin-vis": "5.1.7",
+		"@octane-xplat/cli": "workspace:*"
 	}
 }

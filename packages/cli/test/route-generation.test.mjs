@@ -346,7 +346,7 @@ navigate({ to: '/settings', transition: 'invented' })
 		const result = spawnSync(
 			process.execPath,
 			[
-				require.resolve('typescript/bin/tsc'),
+				join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'),
 				'--strict',
 				'--skipLibCheck',
 				'--noEmit',
@@ -433,7 +433,7 @@ router.push({ to: '/beta/:slug' })
 		const checked = spawnSync(
 			process.execPath,
 			[
-				require.resolve('typescript/bin/tsc'),
+				join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'),
 				'--strict',
 				'--skipLibCheck',
 				'--noEmit',
@@ -534,7 +534,7 @@ router.push({ to: '/items/:id' })
 			const checked = spawnSync(
 				process.execPath,
 				[
-					require.resolve('typescript/bin/tsc'),
+					join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'),
 					'--strict',
 					'--skipLibCheck',
 					'--noEmit',
@@ -817,7 +817,7 @@ fallback.data.fabricated
 		const checked = spawnSync(
 			process.execPath,
 			[
-				require.resolve('typescript/bin/tsc'),
+				join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'),
 				'--strict',
 				'--skipLibCheck',
 				'--noEmit',
@@ -880,6 +880,32 @@ fallback.data.fabricated
 			generateRoutes(root, 'src/app', undefined, { bake: false }),
 			/baked route 'default'.*has no loader sibling/,
 		)
+	} finally {
+		await rm(root, { recursive: true, force: true })
+	}
+})
+
+test('declaration-only defaults do not make a platform route available elsewhere', async () => {
+	const root = await mkdtemp(join(tmpdir(), 'xplat-route-contract-'))
+	try {
+		await mkdir(join(root, 'src/app'), { recursive: true })
+		await writeFile(
+			join(root, 'src/app/example.tsrx'),
+			'declare const Screen: () => unknown\nexport default Screen\n',
+		)
+
+		await writeFile(
+			join(root, 'src/app/example.web.tsrx'),
+			'export default function Screen() { return null }\n',
+		)
+
+		await generateRoutes(root, 'src/app', undefined, { bake: false })
+		const manifest = JSON.parse(await readFile(join(root, 'src/routes.gen.manifest.json'), 'utf8'))
+		assert.ok(!JSON.stringify(manifest).includes('"file":"example.tsrx"'))
+		for (const target of ['web', 'mobile', 'macos', 'windows', 'linux']) {
+			const catalog = await readFile(join(root, `src/routes.gen.catalog.${target}.ts`), 'utf8')
+			assert.ok(catalog.includes('!./app/example.tsrx'), target)
+		}
 	} finally {
 		await rm(root, { recursive: true, force: true })
 	}

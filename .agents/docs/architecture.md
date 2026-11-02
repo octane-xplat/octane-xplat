@@ -62,7 +62,11 @@ carried on the package (#62).
    module. The default and `.web`, `.mobile`, `.ios`, `.android`, `.macos`,
    `.windows`, and `.linux` variants must expose the same names and public
    types. Keep shared prop types in `props.ts`; platform differences belong
-   in the implementation, not in the exported contract. For intentional
+   in the implementation, not in the exported contract. TSRX imports use an
+   explicit `.tsrx` extension without a platform tag. Every TSRX family needs
+   an unsuffixed module; a declaration-only contract may stand in for a missing
+   default implementation. Builds must select a real implementation for the
+   requested platform. For intentional
    pass-through behavior, follow the criteria in `docs/start/architecture.md`.
 
 Drawer is owned by `@octane-xplat/drawer` (#133), including its mobile gesture

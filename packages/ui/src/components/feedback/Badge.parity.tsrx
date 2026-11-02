@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Badge.parity.check.ts.
-import { Badge } from './Badge'
-import { Text } from '../content/Text'
+import { Badge } from './Badge.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function BadgeFixture() @{

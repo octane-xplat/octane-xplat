@@ -5,7 +5,7 @@ import { cpus, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { generateRoutes } from '../packages/cli/src/commands/routes.ts'
 
 // Manual contributor benchmark, deliberately outside the lightweight PR gate.

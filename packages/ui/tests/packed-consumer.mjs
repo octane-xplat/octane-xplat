@@ -1,6 +1,6 @@
 import { loadSource } from '../../../scripts/load-source.ts'
 import assert from 'node:assert/strict'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { build } from 'vite'
 import { octane } from 'octane/compiler/vite'
 import { buildMacOSBarrel } from './macos-barrel.mjs'

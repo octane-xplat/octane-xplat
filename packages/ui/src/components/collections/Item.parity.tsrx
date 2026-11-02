@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Item.parity.check.ts.
-import { Item } from './Item'
-import { Text } from '../content/Text'
+import { Item } from './Item.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ListItemFixture() @{

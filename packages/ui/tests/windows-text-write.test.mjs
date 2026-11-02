@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const source = ts.transpileModule(
 	readFileSync(new URL('../src/components/forms/text-write.windows.ts', import.meta.url), 'utf8'),

@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type { TooltipOptions, TooltipReturn } from '../../props'
-import { View } from '../layout/View'
-import { Text } from '../content/Text'
+import { View } from '../layout/View.tsrx'
+import { Text } from '../content/Text.tsrx'
 import { createPortal } from '../../internal/platform/native-portal'
 
 /** GTK positioning and interaction can belong to different native views.

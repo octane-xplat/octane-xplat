@@ -10,7 +10,7 @@ import {
 	nativeAccessibilityState,
 } from '../overlays/escape-props'
 
-import { useMeasure } from './useMeasure'
+import { useMeasure } from './useMeasure.tsrx'
 
 /** AspectRatio — native has no aspect-ratio layout property, so the box
  *  measures its laid-out width and derives `height = width / ratio`

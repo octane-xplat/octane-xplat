@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useState } from 'octane'
 import type { AlertDialogProps, ImperativeAlertDialogReturn } from '../../props'
-import { AlertDialog } from './AlertDialog'
+import { AlertDialog } from './AlertDialog.tsrx'
 
 /** Imperative AlertDialog control (Astryx `useImperativeAlertDialog`).
  *  `show(options)` mounts the confirmation dialog; `element` renders it —

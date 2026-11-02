@@ -1,15 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from '../../props'
 import type { NavigationMenuImplementation } from '../navigation/nav-link'
-import { MenuData } from './MenuParts'
-import { MenuSurface } from './MenuSurface'
+import { MenuData } from './MenuParts.tsrx'
+import { MenuSurface } from './MenuSurface.tsrx'
 import { useRef, useState } from 'octane'
 import type { DropdownMenuProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { Button } from '../actions/Button'
-import { Icon } from '../media/Icon'
-import { Popover } from './Popover'
-import { MenuSheet, useMenuSheet } from './menu-sheet'
+import { Button } from '../actions/Button.tsrx'
+import { Icon } from '../media/Icon.tsrx'
+import { Popover } from './Popover.tsrx'
+import { MenuSheet, useMenuSheet } from './menu-sheet.tsrx'
 import { useButtonGroup } from '../actions/button-group-context'
 
 /** Self-drawn dropdown menu — a shared-`Button` trigger (`button` props,

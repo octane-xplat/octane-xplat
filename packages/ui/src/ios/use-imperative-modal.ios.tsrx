@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
-import { useOwnedContent } from '../components/overlays/use-owned-content'
+import { useOwnedContent } from '../components/overlays/use-owned-content.tsrx'
 import { openModalWithOwner } from './openModal.ios'
 import type { ImperativeModalReturn, OpenModal } from '../props'
 

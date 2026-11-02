@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { randomUUID } from 'node:crypto'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const requireLib = createRequire(import.meta.url)
 

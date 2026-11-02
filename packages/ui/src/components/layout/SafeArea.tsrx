@@ -4,7 +4,7 @@ import { useContext } from 'octane'
 import type { SafeAreaProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { useSafeAreaInsets } from './safeAreaInsets'
+import { useSafeAreaInsets } from './safeAreaInsets.tsrx'
 import {
 	ConsumedInsetsContext,
 	ConsumedInsetsProvider,

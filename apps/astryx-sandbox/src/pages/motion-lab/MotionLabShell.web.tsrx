@@ -28,8 +28,8 @@ import { useRouterState } from '@octane-xplat/ui/routing'
 import './MotionLab.css'
 import './generated-classes.css'
 import {useEffect, useRef, type ReactNode} from 'octane';
-import {MotionLabProvider, useMotionLab} from './MotionLabStore';
-import {MotionControlRail} from './MotionControlRail';
+import {MotionLabProvider, useMotionLab} from './MotionLabStore.tsrx';
+import {MotionControlRail} from './MotionControlRail.tsrx';
 import {MOTION_SECTIONS} from './sections';
 
 

@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in User.parity.check.ts.
-import { User } from './User'
+import { User } from './User.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function UserFixture() @{

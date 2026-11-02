@@ -4,7 +4,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot, registerStylesheet } from '@octane-xplat/linux-gtk'
 import { setTranslate } from '@octane-xplat/ui'
-import { Animated, animations } from './ui-animation.gtk'
+import { Animated, animations } from './ui-animation.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({ default_width: 320, default_height: 280 })
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })

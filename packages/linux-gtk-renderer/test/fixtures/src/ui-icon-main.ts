@@ -4,7 +4,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Gio from 'gi://Gio'
 import { createGtkRoot, registerStylesheet } from '@octane-xplat/linux-gtk'
-import { Icons, left } from './ui-icon.gtk'
+import { Icons, left } from './ui-icon.gtk.tsrx'
 Gtk.init()
 Gio.resources_register(Gio.Resource.load(GLib.getenv('GTK_ICON_RESOURCE')!))
 const window = new Gtk.Window({ default_width: 320, default_height: 360 })

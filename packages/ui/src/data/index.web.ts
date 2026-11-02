@@ -3,7 +3,7 @@
 // shared query cache. Visual lists and ordinary inputs stay at the package
 // root; application data lifecycle lives here.
 export { createStore } from './store'
-export { useStore } from './use-store'
+export { useStore } from './use-store.web.tsrx'
 
 // Immutable collection data stores — React Aria useListData/useTreeData/
 // useAsyncList counterparts

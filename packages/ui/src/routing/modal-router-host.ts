@@ -1,5 +1,4 @@
 import { prepareHistoryEntry } from './prepare-history-entry'
-// oxlint-disable-next-line xplat/no-ts-imports-tsrx -- Compiled component value for owned roots; no hooks run here.
 import { ClientRouteOutlet } from './ClientRouteOutlet.tsrx'
 import { createRenderRouterHost } from './render-router-host'
 import { createRouterRenderScope } from './router-render-scope'

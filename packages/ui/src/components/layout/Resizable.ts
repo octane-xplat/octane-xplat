@@ -1,2 +1,2 @@
-export { useResizable } from './useResizable'
-export { ResizeHandle } from './ResizeHandle'
+export { useResizable } from './useResizable.tsrx'
+export { ResizeHandle } from './ResizeHandle.tsrx'

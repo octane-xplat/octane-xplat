@@ -3,7 +3,8 @@ import { promisify } from 'node:util'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import ts from 'typescript-classic'
 import { test } from 'node:test'
 import { generateMarkdownForModule } from 'exports-md'
 
@@ -48,6 +49,7 @@ test('exports-md preserves TSDoc across declaration re-exports and subpaths', as
 		'/** Configure the widget. */\nexport interface Options {\n/** Visible label. */\nlabel: string\n}\n',
 	)
 	const result = await generateMarkdownForModule(join(root, 'package.json'), {
+		cwd: dirname(ts.sys.getExecutingFilePath()),
 		followImports: false,
 		followReExports: true,
 		propertyDocs: 'list',

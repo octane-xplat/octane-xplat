@@ -4,7 +4,7 @@ import { useState } from 'octane'
 import type { AccordionProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Collapsible } from './Collapsible'
+import { Collapsible } from './Collapsible.tsrx'
 
 /** Self-drawn accordion — a list of Collapsibles sharing one open-state.
  *  Controlled via `open` (key, or keys with `multiple`), uncontrolled via

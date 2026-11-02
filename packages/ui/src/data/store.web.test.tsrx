@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import { act, createRoot } from 'octane'
 import { createStore } from './store'
-import { useStore } from './use-store'
+import { useStore } from './use-store.tsrx'
 
 // DOM-renderer counterpart to store.mobile.test.ts. Here a parent re-render
 // re-invokes children with unchanged props (React semantics — memo() is the

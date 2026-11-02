@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { TextSlot } from '../forms/text-slot'
+import { TextSlot } from '../forms/text-slot.tsrx'
 import type { BlockquoteProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'

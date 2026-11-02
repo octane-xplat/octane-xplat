@@ -12,10 +12,10 @@ import type {
 } from './types'
 
 import type { TableColumn } from '../props'
-import { Icon } from '../components/media/Icon'
-import { Pressable } from '../components/actions/Pressable'
-import { TextSlot } from '../components/forms/text-slot'
-import { TableSlot, tableSlot } from './table-slot'
+import { Icon } from '../components/media/Icon.tsrx'
+import { Pressable } from '../components/actions/Pressable.tsrx'
+import { TextSlot } from '../components/forms/text-slot.tsrx'
+import { TableSlot, tableSlot } from './table-slot.tsrx'
 
 export function resolveSortKey<T extends Record<string, unknown>>(
 	column: TableColumn<T>,

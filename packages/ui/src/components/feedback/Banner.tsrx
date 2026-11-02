@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { BannerProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
+import { Icon } from '../media/Icon.tsrx'
 
 /** Banner — inline notice strip with optional dismiss affordance. */
 const statusIcon: Record<string, string> = {

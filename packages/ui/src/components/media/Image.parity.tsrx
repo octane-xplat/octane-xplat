@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Image.parity.check.ts.
-import { Image } from './Image'
+import { Image } from './Image.tsrx'
 import type { ParityFixture } from '../../parity'
 
 // Inline raster keeps the fixture independent of file/network loading.

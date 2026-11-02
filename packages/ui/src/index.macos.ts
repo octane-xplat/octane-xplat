@@ -59,7 +59,7 @@ export { List } from './components/collections/List.macos.tsrx'
 export { ListItem } from './components/collections/ListItem.macos.tsrx'
 /** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
 export { GridList } from './components/collections/GridList.macos.tsrx'
-export { useGridList } from './components/collections/use-grid-list'
+export { useGridList } from './components/collections/use-grid-list.tsrx'
 export { FormLayout } from './components/forms/FormLayout.macos.tsrx'
 export { InputGroup, InputGroupText } from './components/forms/InputGroup.macos.tsrx'
 export { CheckboxIndicator } from './components/forms/CheckboxIndicator.macos.tsrx'
@@ -73,7 +73,7 @@ export {
 	indicatorScope,
 } from './components/feedback/indicators'
 
-export { useIndicator } from './components/feedback/use-indicator'
+export { useIndicator } from './components/feedback/use-indicator.tsrx'
 
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './components/forms/InputNumber.macos.tsrx'
@@ -93,7 +93,7 @@ export { DateInput } from './components/forms/DateInput.macos.tsrx'
 export { TimeInput } from './components/forms/TimeInput.macos.tsrx'
 export { DateTimeInput } from './components/forms/DateTimeInput.macos.tsrx'
 export { DateRangeInput } from './components/forms/DateRangeInput.macos.tsrx'
-export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks'
+export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks.tsrx'
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
 
 export { InputRating } from './components/forms/InputRating.macos.tsrx'
@@ -152,7 +152,7 @@ export { TableFooter } from './table/Table.macos.tsrx'
 export { TableRow } from './table/Table.macos.tsrx'
 export { TableCell } from './table/Table.macos.tsrx'
 export { TableHeaderCell } from './table/Table.macos.tsrx'
-export { TableSelectionToolbar } from './table/TableSelectionToolbar'
+export { TableSelectionToolbar } from './table/TableSelectionToolbar.tsrx'
 export {
 	proportional,
 	generateColumns,
@@ -163,10 +163,10 @@ export {
 } from './table/column-utils'
 
 export { paginateData } from './table/paginate-data'
-export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
-export { useTableSortable } from './table/use-table-sortable'
+export { useTableSelection, useTableSelectionState } from './table/use-table-selection.tsrx'
+export { useTableSortable } from './table/use-table-sortable.tsrx'
 export { useTableSortableState, sortTableData } from './table/use-table-sortable-state'
-export { useTablePagination } from './table/use-table-pagination'
+export { useTablePagination } from './table/use-table-pagination.tsrx'
 export {
 	useTableColumnSettings,
 	useTableColumnSettingsState,
@@ -174,14 +174,14 @@ export {
 
 export { useTableColumnResize } from './table/use-table-column-resize.macos.tsrx'
 export { useTableFilterState } from './table/use-table-filter-state'
-export { useTableFiltering } from './table/use-table-filtering'
+export { useTableFiltering } from './table/use-table-filtering.tsrx'
 export { useTableStickyColumns } from './table/use-table-sticky-columns.macos.tsrx'
-export { useTableGroupedRows } from './table/use-table-grouped-rows'
-export { useTableRowIndex } from './table/use-table-row-index'
-export { useTableRowStatus } from './table/use-table-row-status'
-export { useTableRowExpansion } from './table/use-table-row-expansion'
-export { useTableTreeState } from './table/use-table-tree-state'
-export { useTableTreeData } from './table/use-table-tree-data'
+export { useTableGroupedRows } from './table/use-table-grouped-rows.tsrx'
+export { useTableRowIndex } from './table/use-table-row-index.tsrx'
+export { useTableRowStatus } from './table/use-table-row-status.tsrx'
+export { useTableRowExpansion } from './table/use-table-row-expansion.tsrx'
+export { useTableTreeState } from './table/use-table-tree-state.tsrx'
+export { useTableTreeData } from './table/use-table-tree-data.tsrx'
 export { toSearchFilters } from './table/to-search-filters'
 export { TableContext } from './table/table-context'
 export { Timeline } from './components/forms/Timeline.macos.tsrx'
@@ -276,9 +276,9 @@ export const isNative = true as const
 
 // Focus hooks — shared/native leaves; focus modality and landmark cycling
 // are web-only, so these keep API shape with constant results.
-export { useFocus, useFocusRing } from './internal/accessibility/use-focus'
-export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible'
-export { useFocusWithin } from './internal/accessibility/use-focus-within.macos'
+export { useFocus, useFocusRing } from './internal/accessibility/use-focus.tsrx'
+export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible.tsrx'
+export { useFocusWithin } from './internal/accessibility/use-focus-within.macos.tsrx'
 export { useLandmark } from './internal/accessibility/use-landmark.macos.tsrx'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
@@ -286,7 +286,7 @@ export { mergeProps } from './internal/layout/merge-props'
 export { useKeyboardInset } from './internal/keyboard/use-keyboard-inset.macos.tsrx'
 export { useKeyboard } from './internal/keyboard/use-keyboard'
 export { useObjectRef } from './internal/accessibility/use-object-ref'
-export { useClipboard } from './internal/platform/use-clipboard'
+export { useClipboard } from './internal/platform/use-clipboard.tsrx'
 export { copyText } from './internal/platform/clipboard-write'
 export { refList, mergedRef } from './internal/accessibility/ref-list'
 
@@ -376,7 +376,7 @@ export { FieldLabel } from './components/forms/FieldLabel.tsrx'
 export { FieldStatus } from './components/forms/FieldStatus.tsrx'
 export { LinkContext } from './components/navigation/link-context'
 export { LinkProvider } from './components/navigation/LinkProvider.tsrx'
-export { useLinkComponent } from './components/navigation/use-link-component'
+export { useLinkComponent } from './components/navigation/use-link-component.tsrx'
 export { useGridFocus } from './components/collections/use-grid-focus.macos.tsrx'
 export { Theme } from './theme/Theme.macos.tsrx'
 export {
@@ -391,4 +391,4 @@ export {
 } from './theme/defined-theme'
 
 export { generateThemeCss } from './theme/theme-css'
-export { useTheme, useThemeName } from './theme/use-theme'
+export { useTheme, useThemeName } from './theme/use-theme.tsrx'

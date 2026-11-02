@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../internal/layout/style-merge'
-import { useNativeListCells } from '../components/collections/use-native-list-cells.mobile'
+import { useNativeListCells } from '../components/collections/use-native-list-cells.mobile.tsrx'
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octane'

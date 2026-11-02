@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Center.parity.check.ts.
-import { Center } from './Center'
-import { View } from './View'
+import { Center } from './Center.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function CenterFixedChildFixture() @{

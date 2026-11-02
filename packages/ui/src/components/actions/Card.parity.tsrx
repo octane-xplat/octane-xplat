@@ -1,7 +1,7 @@
 // Measured parity fixtures — assertions live in Card.parity.check.ts.
-import { Card } from './Card'
-import { Text } from '../content/Text'
-import { View } from '../layout/View'
+import { Card } from './Card.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function CardFixture() @{

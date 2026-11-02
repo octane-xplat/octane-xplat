@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Pressable.parity.check.ts.
-import { Pressable } from './Pressable'
-import { Text } from '../content/Text'
+import { Pressable } from './Pressable.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function PressableFixture(props: { width: number; height: number; label: string }) @{

@@ -62,6 +62,7 @@ try {
 		devDependencies: {
 			'octane-xplat': overrides['octane-xplat'],
 			'@tsrx/oxc': pins['@tsrx/oxc'],
+			'@tsrx/content-mapper': pins['@tsrx/content-mapper'],
 			vite: pins.vite,
 		},
 		overrides: { ...template.overrides, ...overrides },
@@ -83,6 +84,7 @@ createRoot(document.getElementById('root')!).render(<App />)
 	)
 
 	write(join(app, 'tsconfig.json'), {
+		contentMappers: [{ package: '@tsrx/content-mapper', extensions: ['.tsrx'] }],
 		compilerOptions: {
 			strict: true,
 			target: 'ESNext',

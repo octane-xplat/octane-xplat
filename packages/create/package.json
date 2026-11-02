@@ -52,7 +52,7 @@
 	"scripts": {
 		"build": "vite build",
 		"prepack": "bun run build",
-		"typecheck": "tsc -p tsconfig.json",
+		"typecheck": "tsrx-tsc -p tsconfig.json",
 		"test:library": "node test/library-guide.mjs",
 		"test": "node --test test/*.test.mjs"
 	},
@@ -62,6 +62,8 @@
 	},
 	"devDependencies": {
 		"@types/node": "24.10.1",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	}
 }

@@ -1,8 +1,8 @@
 // Port of upstream (fullscreen)/pages/y2k-palette/page.tsx (Astryx 0.6.4, MIT).
 import { y2kTheme } from '../../themes/y2k'
 import { y2kPalettes } from '../../themes/y2kPalettes'
-import { ThemePalettePreview, type TonalColor } from '../../themePreview/ThemePalettePreview'
-import { DisplayTextSection } from './shared'
+import { ThemePalettePreview, type TonalColor } from '../../themePreview/ThemePalettePreview.tsrx'
+import { DisplayTextSection } from './shared.tsrx'
 
 const TONAL_COLORS: TonalColor[] = [
 	{ name: 'Y2K Neutral', sourceHex: '#c3b7ab', note: 'H=75 C=8', tones: y2kPalettes.neutral },

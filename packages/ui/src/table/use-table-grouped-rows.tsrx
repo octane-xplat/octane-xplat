@@ -6,8 +6,8 @@
 import { useMemo, useRef } from 'octane'
 import type { TablePlugin, UseTableGroupedRowsConfig, UseTableGroupedRowsResult } from './types'
 import { flattenGroups, isGroupHeader, makeGroupedIdKey } from './grouped-rows'
-import { Icon } from '../components/media/Icon'
-import { TableSlot, tableSlot } from './table-slot'
+import { Icon } from '../components/media/Icon.tsrx'
+import { TableSlot, tableSlot } from './table-slot.tsrx'
 
 function GroupHeaderLabel(props: { groupKey: string; count: number }) @{
 	<masonview className="vx-table-group-label" style={{ flexDirection: 'row' }}>

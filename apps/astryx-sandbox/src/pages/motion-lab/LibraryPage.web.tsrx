@@ -21,9 +21,9 @@ import {
   AUDIT_COUNTS,
   TRANSFORM_TRANSITIONS,
 } from './motionAudit';
-import {ComparePanes, DemoBody, DemoCard} from './LabPrimitives';
-import {PressRig} from './LabDemos';
-import {LabPage} from './PageFrame';
+import {ComparePanes, DemoBody, DemoCard} from './LabPrimitives.tsrx';
+import {PressRig} from './LabDemos.tsrx';
+import {LabPage} from './PageFrame.tsrx';
 import {
   ALREADY_RIGHT,
   BLOCKERS,

@@ -14,8 +14,8 @@ import { createKeyboardOverlayHost } from '../../internal/keyboard/keyboard-over
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
 import { DialogContext, DialogProvider } from './dialog-context'
 import { spacingStep } from '../layout/spacing'
-import { Icon } from '../media/Icon'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 
 /** The modal body rendered in a portal host — a centered
  *  (or `position`-anchored) panel on the page's RootLayout. `purpose`

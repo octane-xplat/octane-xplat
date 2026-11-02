@@ -5,7 +5,7 @@ import type { View } from '@nativescript/core'
 import type { CheckboxGroupProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
-import { Checkbox } from './Checkbox'
+import { Checkbox } from './Checkbox.tsrx'
 import { useFieldControlProps } from './field-context'
 import { CheckboxListProvider } from './option-list-contexts'
 

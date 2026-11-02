@@ -1,5 +1,5 @@
 import type { NativeEvent } from '@octane-xplat/jsx/intrinsics'
-import type { FocusEventPayload } from './use-focus'
+import type { FocusEventPayload } from './use-focus.tsrx'
 
 /** Input accepted by focus-within attachments on DOM and native hosts. */
 export type FocusWithinEvent = FocusEventPayload | NativeEvent<object>

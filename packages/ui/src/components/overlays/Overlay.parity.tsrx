@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Overlay.parity.check.ts.
-import { Overlay } from './Overlay'
-import { View } from '../layout/View'
+import { Overlay } from './Overlay.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function OverlayLayoutFixture(props: { marker: string }) @{

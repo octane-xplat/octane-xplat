@@ -3,7 +3,7 @@ import type { JSX } from 'octane/jsx-runtime'
 import { useCallback, useId, useMemo, useState } from 'octane'
 import type { AppShellProps, MobileNavConfig } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { useMediaQuery } from '../../internal/platform/useMediaQuery.web'
+import { useMediaQuery } from '../../internal/platform/useMediaQuery.web.tsrx'
 import { MobileNavToggle } from '../navigation/MobileNav.web.tsrx'
 import { isMobileNavConfig } from './app-shell-config'
 import {

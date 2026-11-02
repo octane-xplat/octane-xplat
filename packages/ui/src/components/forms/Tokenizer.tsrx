@@ -21,13 +21,13 @@ import type {
 import { useSize } from '../layout/size-context'
 import type { TypeaheadQueryEntries } from '../../internal-props'
 import { cx } from '@octane-xplat/lib'
-import { FormField } from './FormField'
-import { BaseTypeahead } from './BaseTypeahead'
-import { Token } from './Token'
+import { FormField } from './FormField.tsrx'
+import { BaseTypeahead } from './BaseTypeahead.tsrx'
+import { Token } from './Token.tsrx'
 import { ActivityIndicator } from '../feedback/ActivityIndicator.tsrx'
-import { Icon } from '../media/Icon'
-import { Pressable } from '../actions/Pressable'
-import { Popover } from '../overlays/Popover'
+import { Icon } from '../media/Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Popover } from '../overlays/Popover.tsrx'
 import {
 	BusyLaneProvider,
 	createBusyIndicatorLane,

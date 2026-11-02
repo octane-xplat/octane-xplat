@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { assertMacOSPush } from './macos-contract.mjs'
 
 test('macOS import and subscriptions stay inert without SDK or host access', async () => {

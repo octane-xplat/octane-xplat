@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useRef, useState } from 'octane'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { cx } from '@octane-xplat/lib'
 import type { GridListProps } from '../../props'
 import { defaultItemKey, type Key, type Selection } from '../../data/list-data'

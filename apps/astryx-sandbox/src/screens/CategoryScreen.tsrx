@@ -15,9 +15,9 @@ import {
 } from '@octane-xplat/ui'
 
 import { categories } from '../data/sandboxPages'
-import { ProjectCard } from '../shell/ProjectCard'
-import { SandboxShell } from '../shell/SandboxShell'
-import { NotFoundScreen } from './NotFoundScreen'
+import { ProjectCard } from '../shell/ProjectCard.tsrx'
+import { SandboxShell } from '../shell/SandboxShell.tsrx'
+import { NotFoundScreen } from './NotFoundScreen.tsrx'
 
 export function CategoryScreen(props: { slug: string }) @{
 	const category = categories.find((c) => c.slug === props.slug)

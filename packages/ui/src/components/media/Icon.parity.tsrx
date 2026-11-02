@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Icon.parity.check.ts.
-import { Icon } from './Icon'
+import { Icon } from './Icon.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function IconFixture() @{

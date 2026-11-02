@@ -25,7 +25,7 @@ import {
   useMotionLab,
   type CompareMode,
   type ReducedMotionMode,
-} from './MotionLabStore';
+} from './MotionLabStore.tsrx';
 
 
 

@@ -27,7 +27,7 @@ import {
   useState,
   type ReactNode,
 } from 'octane';
-import {useMotionLab, parseMs} from './MotionLabStore';
+import {useMotionLab, parseMs} from './MotionLabStore.tsrx';
 import {
   bezierAt,
   formatBezier,

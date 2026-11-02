@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { AlertProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
-import { Icon } from '../media/Icon'
+import { Icon } from '../media/Icon.tsrx'
 
 /** Alert — status callout. `tone` picks a class modifier. */
 export function Alert(props: AlertProps): unknown @{

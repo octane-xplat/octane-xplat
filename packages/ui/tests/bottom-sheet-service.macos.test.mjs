@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 // Isolate the imperative service from its AppKit-rendered content wrapper.
 const source = readFileSync(
 	new URL('../src/components/overlays/bottom-sheet-service.macos.ts', import.meta.url),

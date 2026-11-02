@@ -2,8 +2,8 @@
 import { mergeStyle } from '../internal/layout/style-merge'
 import type { ChatMessageMetadataProps, ChatMessageStatus } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { Icon } from '../components/media/Icon'
-import { useChatMessageContext } from './chat-context'
+import { Icon } from '../components/media/Icon.tsrx'
+import { useChatMessageContext } from './chat-context.tsrx'
 
 const STATUS_ICON: Record<ChatMessageStatus, string> = {
 	sending: 'xplat-clock',

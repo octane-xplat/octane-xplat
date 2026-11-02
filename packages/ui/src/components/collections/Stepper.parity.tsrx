@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Stepper.parity.check.ts.
-import { Stepper } from './Stepper'
+import { Stepper } from './Stepper.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function StepperFixture() @{

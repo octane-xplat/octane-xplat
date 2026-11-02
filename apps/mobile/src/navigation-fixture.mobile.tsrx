@@ -17,7 +17,7 @@ import type {
 } from '../../../packages/ui/src/props'
 
 import { NavLink } from '../../../packages/ui/src/components/navigation/NavLink.tsrx'
-import { NavigationTabs } from './navigation-tabs'
+import { NavigationTabs } from './navigation-tabs.tsrx'
 import type { TabSpec } from '@octane-xplat/ui'
 
 let fixtureNavigation: RouterInstance<any>

@@ -8,11 +8,11 @@ import {
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 vi.mock('../../components/media/Icon', () => ({ Icon: () => null }))
-import { Pressable } from '../../components/actions/Pressable'
-import { View } from '../../components/layout/View'
-import { Stack } from '../../components/layout/Stack'
-import { TextInput } from '../../components/forms/TextInput'
-import { SearchInput } from '../../components/forms/SearchInput'
+import { Pressable } from '../../components/actions/Pressable.tsrx'
+import { View } from '../../components/layout/View.tsrx'
+import { Stack } from '../../components/layout/Stack.tsrx'
+import { TextInput } from '../../components/forms/TextInput.tsrx'
+import { SearchInput } from '../../components/forms/SearchInput.tsrx'
 
 function ActionWithChild(props: any) {
 	return (

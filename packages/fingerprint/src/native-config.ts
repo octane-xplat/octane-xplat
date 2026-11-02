@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { compileFunction } from 'node:vm'
-import { ModuleKind, transpileModule } from 'typescript'
+import { ModuleKind, transpileModule } from 'typescript-classic'
 
 /** Evaluate the trusted app config as NativeScript does, with a fresh module per call. */
 export async function readNativeConfig(root: string): Promise<Record<string, any>> {

@@ -3,13 +3,13 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { PanEvent, SliderProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { useMeasure } from '../layout/useMeasure'
-import { useTooltip } from '../overlays/use-tooltip'
-import { usePan } from '../layout/pan'
+import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useTooltip } from '../overlays/use-tooltip.tsrx'
+import { usePan } from '../layout/pan.tsrx'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { applySliderAccessibility } from './slider-accessibility'
-import { NativeToggleField } from './NativeToggleField'
+import { NativeToggleField } from './NativeToggleField.tsrx'
 
 /** One retained field owns scalar/range state and the drawn track. */
 function SliderControl(inputProps: SliderProps) @{

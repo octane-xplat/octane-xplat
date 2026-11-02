@@ -79,7 +79,8 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

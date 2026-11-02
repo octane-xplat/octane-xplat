@@ -5,7 +5,7 @@ import type { RadioListItemProps } from '../../props'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 
 /** `RadioListItem` — one option row inside a `RadioList` (Astryx child
  *  part). Reads the selected value and commit callback from the group's

@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import type { TooltipProps } from '../../props'
-import { View } from '../layout/View'
-import { Text } from '../content/Text'
+import { View } from '../layout/View.tsrx'
+import { Text } from '../content/Text.tsrx'
 import { createPortal } from '../../internal/platform/native-portal'
 
 /** Native GTK owns intent and popup geometry; the portal keeps content in

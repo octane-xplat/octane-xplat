@@ -6,7 +6,7 @@ import { styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useLayoutEffect, useRef } from 'octane'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { cx } from '@octane-xplat/lib'
-import { TextSlot } from '../forms/text-slot'
+import { TextSlot } from '../forms/text-slot.tsrx'
 export function SelectableCard(props: SelectableCardProps): unknown @{
 	const view = useRef<NSView | null>(null)
 	const release = useRef<(() => void) | null>(null)

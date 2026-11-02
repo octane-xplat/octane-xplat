@@ -1,7 +1,7 @@
 // Measured parity fixtures — assertions live in Tooltip.parity.check.ts.
-import { Text } from '../content/Text'
-import { Tooltip } from './Tooltip'
-import { View } from '../layout/View'
+import { Text } from '../content/Text.tsrx'
+import { Tooltip } from './Tooltip.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function TooltipFixture() @{

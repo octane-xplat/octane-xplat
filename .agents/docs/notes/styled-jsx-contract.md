@@ -6,7 +6,8 @@ two-parameter components compile under the shared facade. Native runtime
 behavior was not exercised: rendering a factory result or provider on a
 device/simulator is still unqualified.
 
-`packages/ui/src/internal/layout/styled.tsrx` returns the result of
+`packages/ui/src/internal/layout/styled.tsrx` re-exports its native helper from
+`styled-native.ts`, which returns the result of
 `defineUniversalComponent`. Its emitted declaration in
 `types/generated/styled.d.ts` requires `(props, context)`, and the shared
 JSX facade's `ElementTypeOf` previously accepted only a single-prop callable.

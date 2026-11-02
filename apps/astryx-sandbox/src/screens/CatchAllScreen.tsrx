@@ -2,8 +2,8 @@
 // index pattern, so this route also wins '/': an empty splat delegates to
 // the home screen; anything else is the pinned 404 surface.
 
-import { HomeScreen } from './HomeScreen'
-import { NotFoundScreen } from './NotFoundScreen'
+import { HomeScreen } from './HomeScreen.tsrx'
+import { NotFoundScreen } from './NotFoundScreen.tsrx'
 
 export function CatchAllScreen(props: { params: { rest?: string } }) @{
 	if (!props.params?.rest) {

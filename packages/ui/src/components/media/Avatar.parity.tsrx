@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Avatar.parity.check.ts.
-import { Avatar } from './Avatar'
+import { Avatar } from './Avatar.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function AvatarFixture() @{

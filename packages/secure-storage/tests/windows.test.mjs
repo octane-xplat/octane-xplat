@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const source = ts.transpileModule(
 	readFileSync(new URL('../src/secure-storage.windows.ts', import.meta.url), 'utf8'),

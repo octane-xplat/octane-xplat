@@ -5,7 +5,7 @@ import { RouterOutletBoundary } from './router-outlet-boundary.tsrx'
 import { useContext, useLayoutEffect, useMemo } from 'octane'
 import { RouterFlowVisibilityContext } from './router-hook-context'
 import { RouterRenderScopeProvider } from './router-hooks.tsrx'
-import { useOwnedContent } from '../components/overlays/use-owned-content'
+import { useOwnedContent } from '../components/overlays/use-owned-content.tsrx'
 import type { ClientRouteOutletProps } from '../props'
 import { RenderRouteOutlet } from './RenderRouteOutlet.tsrx'
 

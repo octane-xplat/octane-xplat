@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 import {
 	macOSHostArch,

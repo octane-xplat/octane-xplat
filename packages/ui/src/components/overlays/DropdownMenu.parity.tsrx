@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in DropdownMenu.parity.check.ts.
-import { DropdownMenu } from './DropdownMenu'
+import { DropdownMenu } from './DropdownMenu.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function DropdownMenuFixture() @{

@@ -1,7 +1,7 @@
 // Renderer-neutral composition; platform hosts own actual view containers.
 import { useLayoutEffect } from 'octane'
 import { RouterRenderScopeProvider } from './router-hooks.tsrx'
-import { RouteBoundary } from './RouteBoundary'
+import { RouteBoundary } from './RouteBoundary.tsrx'
 import type { ClientRouteEntry } from './client-route-entry'
 
 function ClientRenderBoundary(props: { entry: ClientRouteEntry; children?: any }): any @{

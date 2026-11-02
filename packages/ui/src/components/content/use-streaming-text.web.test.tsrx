@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
-import { useStreamingText } from './use-streaming-text'
+import { useStreamingText } from './use-streaming-text.tsrx'
 
 function Probe(props: {
 	text: string

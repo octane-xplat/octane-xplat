@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/table",
 	"version": "0.19.0",
-	"description": "Headless data grid for Octane xplat — @tanstack/table-core row model (sorting, filtering, pagination, selection, grouping) rendered through shared VirtualList on web, iOS, Android, and macOS",
+	"description": "Headless data grid for Octane xplat \u2014 @tanstack/table-core row model (sorting, filtering, pagination, selection, grouping) rendered through shared VirtualList on web, iOS, Android, and macOS",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -66,7 +66,9 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"@octane-xplat/cli": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

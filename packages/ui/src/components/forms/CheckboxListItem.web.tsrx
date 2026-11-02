@@ -4,7 +4,7 @@ import type { CheckboxListItemProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** `CheckboxListItem` — one row inside a `CheckboxList` (Astryx child

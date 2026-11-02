@@ -18,6 +18,7 @@ import type {
 	Ref,
 	FormattedStringProps,
 	SpanProps,
+	RootLayoutProps,
 } from './shared.js'
 
 export * from './shared.js'
@@ -56,7 +57,7 @@ export declare namespace JSX {
 	> {
 		proxyviewcontainer: Attributes<LogicalElement>
 		contentview: Attributes<LogicalElement>
-		rootlayout: Attributes<LogicalElement>
+		rootlayout: Attributes<LogicalElement, RootLayoutProps>
 		formattedstring: Attributes<LogicalElement, FormattedStringProps>
 		span: Attributes<LogicalElement, SpanProps>
 	}

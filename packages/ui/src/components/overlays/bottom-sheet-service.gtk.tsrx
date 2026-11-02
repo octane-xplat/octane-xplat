@@ -2,7 +2,7 @@
 import { type ContentOwner } from './owned-content'
 import { hostGlobal } from '../../internal/platform/host-bridge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
-import { GtkSheetPanel } from './BottomSheet.gtk'
+import { GtkSheetPanel } from './BottomSheet.gtk.tsrx'
 import type {
 	BottomSheetHandle,
 	BottomSheetOpenOptions,

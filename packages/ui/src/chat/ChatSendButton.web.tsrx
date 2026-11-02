@@ -2,7 +2,7 @@
 import type { ChatSendButtonProps } from '../props'
 import { Icon } from '../components/media/Icon.web.tsrx'
 import { Pressable } from '../components/actions/Pressable.web.tsrx'
-import { useChatComposerContext } from './chat-context'
+import { useChatComposerContext } from './chat-context.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** Circular send/stop toggle for the chat composer. Reads

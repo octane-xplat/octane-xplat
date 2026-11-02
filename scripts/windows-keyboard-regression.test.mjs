@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 // Installed patched core by default; an isolated extracted candidate may be supplied.
 const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))

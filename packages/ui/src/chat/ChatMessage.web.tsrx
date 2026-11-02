@@ -2,7 +2,7 @@
 import { useId, useMemo } from 'octane'
 import { markChatRow } from './chat-scroll-state'
 import type { ChatMessageProps } from '../props'
-import { ChatMessageProvider, useChatListContext } from './chat-context'
+import { ChatMessageProvider, useChatListContext } from './chat-context.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 const renderable = (v: any) => v != null && v !== false && v !== true

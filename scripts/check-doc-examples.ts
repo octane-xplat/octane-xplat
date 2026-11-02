@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseSync, type Language } from '@tsrx/oxc/parser'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { parseAllDocuments } from 'yaml'
 import { checkDocumentation, markdownParts, type Fence } from './check-docs.ts'
 

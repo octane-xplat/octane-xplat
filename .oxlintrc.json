@@ -16,7 +16,9 @@
 		"packages/platform/src/types/macos*/**",
 		"packages/macos-appkit/types/**"
 	],
-	"jsPlugins": ["./packages/lint/src/oxlint-plugin.ts"],
+	"jsPlugins": [
+		"./packages/lint/src/oxlint-plugin.ts"
+	],
 	"rules": {
 		"curly": "error",
 		"xplat/no-dom-globals": [
@@ -36,7 +38,12 @@
 		"xplat/no-web-only-api": [
 			"error",
 			{
-				"exclude": ["apps/web/", "apps/docs/", "apps/linux/", "apps/astryx-sandbox/"]
+				"exclude": [
+					"apps/web/",
+					"apps/docs/",
+					"apps/linux/",
+					"apps/astryx-sandbox/"
+				]
 			}
 		],
 		"xplat/element-vocabulary": [
@@ -55,20 +62,30 @@
 		"xplat/no-nativescript-import": [
 			"error",
 			{
-				"exclude": ["apps/mobile/", "apps/windows/", "packages/cli/test/fixtures/"]
+				"exclude": [
+					"apps/mobile/",
+					"apps/windows/",
+					"packages/cli/test/fixtures/"
+				]
 			}
 		],
 		"xplat/no-ns-deep-import": [
 			"error",
 			{
-				"exclude": ["scripts/probe/mobile-host.mobile.ts"]
+				"exclude": [
+					"scripts/probe/mobile-host.mobile.ts"
+				]
 			}
 		],
 		"xplat/platform-subpath-import": "error",
 		"xplat/no-native-dead-style": [
 			"error",
 			{
-				"exclude": ["apps/web/", "apps/docs/", "apps/astryx-sandbox/"]
+				"exclude": [
+					"apps/web/",
+					"apps/docs/",
+					"apps/astryx-sandbox/"
+				]
 			}
 		],
 		"xplat/no-line-height-unitless": "error",
@@ -76,19 +93,8 @@
 		"xplat/no-unknown-class": [
 			"warn",
 			{
-				"exclude": ["scripts/"]
-			}
-		],
-		"xplat/no-ts-imports-tsrx": [
-			"error",
-			{
 				"exclude": [
-					"packages/ui/src/ios/",
-					"packages/ui/src/android/",
-					"packages/ui/src/web/",
-					"packages/ui/src/macos/",
-					"packages/ui/src/linux/",
-					"packages/ui/src/native/"
+					"scripts/"
 				]
 			}
 		],
@@ -103,6 +109,7 @@
 		"xplat/no-removed-routing-api": "error",
 		"xplat/no-route-augmentation": "error",
 		"xplat/no-destination-cast": "error",
-		"xplat/no-interpolated-route-path": "error"
+		"xplat/no-interpolated-route-path": "error",
+		"xplat/require-default-tsrx": "error"
 	}
 }

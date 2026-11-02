@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { FancyComponents } from './FancyComponents'
+import { FancyComponents } from './FancyComponents.tsrx'
 
 // Fancy components showcase — first-slice regression checks on the web
 // (jsdom) renderer. Fake timers drive the motion clock (rAF) and the

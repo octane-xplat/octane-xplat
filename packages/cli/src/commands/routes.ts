@@ -24,6 +24,7 @@ import { mdToDoc } from '../markdown.ts'
 import { assertRouteDataJson } from '../route-data.ts'
 import { loadRoutingConfig } from '../route-config.ts'
 import { createRouteWatcher } from '../route-watch.ts'
+import { isTsrxContract } from '../tsrx-leaf.ts'
 import {
 	normalizeRouteSegment as normSegment,
 	routeParamName as segmentParam,
@@ -331,6 +332,7 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 	const seen = new Map()
 	const variants = new Map()
 	const routePaths = []
+	const contractPaths = []
 	const layoutDirs = new Set()
 	const files = existsSync(join(cwd, dir))
 		? walk(join(cwd, dir)).filter(
@@ -339,6 +341,11 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 		: []
 	for (const file of files) {
 		const routePath = relative(join(cwd, dir), file).split(sep).join('/')
+		if (file.endsWith('.tsrx') && isTsrxContract(readFileSync(file, 'utf8'), file)) {
+			contractPaths.push(routePath)
+			continue
+		}
+
 		if (LOADER_FILE.test(routePath)) {
 			continue
 		}
@@ -790,9 +797,12 @@ export const bakedRouteData: Record<string, unknown> = JSON.parse(${JSON.stringi
 		for (const file of candidates) {
 			best.set(file.identity, Math.min(best.get(file.identity) ?? Infinity, file.rank))
 		}
-		return candidates
-			.filter((file) => file.rank > best.get(file.identity))
-			.map((file) => `\t\t'!${globDir}/${globLiteral(file.path)}'`)
+		return [
+			...contractPaths.map((path) => `\t\t'!${globDir}/${globLiteral(path)}'`),
+			...candidates
+				.filter((file) => file.rank > best.get(file.identity))
+				.map((file) => `\t\t'!${globDir}/${globLiteral(file.path)}'`),
+		]
 	}
 
 	// Markdown routes become baked programmatic specs — the AST rides

@@ -17,12 +17,14 @@
 				"@octane-xplat/nativescript-mason-core": "1.0.0-beta.5",
 				"@octane-xplat/platform": "0.19.0",
 				"@octane-xplat/ui": "0.19.0",
+				"@tsrx/content-mapper": "0.1.2",
 				"@tsrx/oxc": "0.20.0",
 				"@valor/nativescript-websockets": "2.0.3",
 				"jsdom": "30.1.1",
 				"nativescript": "9.1.1",
 				"octane": "0.16.3",
 				"octane-xplat": "0.19.0",
+				"typescript-classic": "npm:typescript@5.9.3",
 				"vite": "8.3.0",
 				"vitest": "4.1.11"
 			}
@@ -69,7 +71,9 @@
 		"nativescript": "catalog:xplat",
 		"octane-xplat": "catalog:xplat",
 		"vite": "catalog:xplat",
-		"vitest": "catalog:xplat"
+		"vitest": "catalog:xplat",
+		"@tsrx/content-mapper": "catalog:xplat",
+		"typescript-classic": "catalog:xplat"
 	},
 	"overrides": {
 		"@lexical/a11y": "0.52.0",
@@ -124,7 +128,8 @@
 		"lexical": "0.52.0",
 		"oxlint-tsgolint": "7.0.2005",
 		"regenerate": "1.5.0",
-		"vite>esbuild": "0.27.7"
+		"vite>esbuild": "0.27.7",
+		"@nativescript/vite>typescript": "5.9.3"
 	},
 	"engines": {
 		"bun": ">=1.4.4",
@@ -138,7 +143,6 @@
 		"@nativescript/vite@8.0.20": "patches/@nativescript__vite@8.0.20.patch",
 		"@nativescript-community/octane@0.2.5": "patches/@nativescript-community__octane@0.2.5.patch",
 		"@nativescript-community/vite-octane@0.2.1": "patches/@nativescript-community__vite-octane@0.2.1.patch",
-		"@tsrx/typescript-plugin@0.4.11": "patches/@tsrx__typescript-plugin@0.4.11.patch",
 		"@octanejs/tiptap@0.0.61": "patches/@octanejs__tiptap@0.0.61.patch",
 		"@nativescript/doctor@2.0.18": "patches/@nativescript__doctor@2.0.18.patch",
 		"@sveltejs/acorn-typescript@1.0.13": "patches/@sveltejs__acorn-typescript@1.0.13.patch",

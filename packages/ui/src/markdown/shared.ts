@@ -39,5 +39,5 @@ export type {
 	CodeTokenizer,
 } from '../props'
 
-export { useStreamingText } from '../components/content/use-streaming-text'
-export type { StreamingTextSpeed, UseStreamingTextOptions } from '../components/content/use-streaming-text'
+export { useStreamingText } from '../components/content/use-streaming-text.tsrx'
+export type { StreamingTextSpeed, UseStreamingTextOptions } from '../components/content/use-streaming-text.tsrx'

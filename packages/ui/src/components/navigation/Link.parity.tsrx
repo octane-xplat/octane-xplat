@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Link.parity.check.ts.
-import { Link } from './Link'
-import { Text } from '../content/Text'
+import { Link } from './Link.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function LinkFixture() @{

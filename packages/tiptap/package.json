@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/tiptap",
 	"version": "0.19.0",
-	"description": "Unified rich-text editor facade for Octane xplat — live tiptap on web/AppKit, Aztec + tiptap document model on iOS/Android",
+	"description": "Unified rich-text editor facade for Octane xplat \u2014 live tiptap on web/AppKit, Aztec + tiptap document model on iOS/Android",
 	"keywords": [
 		"cross-platform",
 		"editor",
@@ -68,7 +68,8 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

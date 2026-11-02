@@ -1,5 +1,5 @@
 import { setThemePreference } from '@octane-xplat/ui'
-import { Parity } from '../app/parity'
+import { Parity } from '../app/parity.tsrx'
 
 let running = false
 // The AppKit route host presents pushed root routes as dialog surfaces that

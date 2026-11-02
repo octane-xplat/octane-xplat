@@ -1,5 +1,5 @@
 import { View, Text, Button, Link, WebView } from '@octane-xplat/ui'
-import { useDemoPreview } from './docs-host'
+import { useDemoPreview } from './docs-host.tsrx'
 
 export function DemoPreview(props: { demo: string }) @{
 	const { state, attempt, launch, url, start, close, fail, frameProps } = useDemoPreview(props.demo)

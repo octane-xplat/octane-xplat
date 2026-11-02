@@ -1,4 +1,4 @@
-import { NanoIcon } from './NanoIcon.macos'
+import { NanoIcon } from './NanoIcon.macos.tsrx'
 import { createNanoIconSetImpl } from './set'
 import { registerNanoIconFont } from './font.macos'
 

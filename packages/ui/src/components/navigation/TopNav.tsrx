@@ -20,12 +20,12 @@ import type {
 
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
-import { Text } from '../content/Text'
-import { Image } from '../media/Image'
-import { Pressable } from '../actions/Pressable'
-import { Popover } from '../overlays/Popover'
-import { MobileNav, MobileNavToggle } from './MobileNav'
+import { Icon } from '../media/Icon.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { Image } from '../media/Image.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Popover } from '../overlays/Popover.tsrx'
+import { MobileNav, MobileNavToggle } from './MobileNav.tsrx'
 import { followHref } from './nav-href'
 import {
 	NavHeadingCloseContext,

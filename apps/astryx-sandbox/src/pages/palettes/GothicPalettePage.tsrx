@@ -5,9 +5,9 @@ import {
 	ThemePalettePreview,
 	type TonalColor,
 	type CoreSwatch,
-} from '../../themePreview/ThemePalettePreview'
+} from '../../themePreview/ThemePalettePreview.tsrx'
 
-import { DisplayTextSection } from './shared'
+import { DisplayTextSection } from './shared.tsrx'
 
 const TONAL_COLORS: TonalColor[] = [
 	{

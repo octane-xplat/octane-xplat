@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Grid, Link, VStack, Heading, Text } from '@octane-xplat/ui'
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
@@ -17,8 +17,8 @@ import { cx } from '../../cx'
  * order the brief argues for and the order these should be picked up in.
  */
 
-import {LabPage} from './PageFrame';
-import {ComparePanes, DemoBody, DemoCard, TokenSlider} from './LabPrimitives';
+import {LabPage} from './PageFrame.tsrx';
+import {ComparePanes, DemoBody, DemoCard, TokenSlider} from './LabPrimitives.tsrx';
 import {
   CheckTickRig,
   ChipRig,
@@ -28,7 +28,7 @@ import {
   SkeletonSwapRig,
   StatCountRig,
   TabIndicatorRig,
-} from './LabDemos';
+} from './LabDemos.tsrx';
 
 export function PreviewsPage() {
   return (

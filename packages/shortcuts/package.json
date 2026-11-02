@@ -29,7 +29,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "tsc -p tsconfig.build.json --declaration false",
+		"build": "tsrx-tsc -p tsconfig.build.json --declaration false",
 		"typegen": "tsrx-typegen --target shortcuts",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run",
@@ -52,7 +52,9 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:"
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript/core": ">=9.1.4-0 <10"

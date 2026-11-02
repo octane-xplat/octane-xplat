@@ -7,7 +7,7 @@ import { createAppKitColumnResizeState } from './column-resize-state.macos'
 import { AppKitColumnResizeHandle } from './column-resize-handle.macos.tsrx'
 import { useDirection } from '../internal/platform/internationalization'
 import { mergeStyle } from '../internal/layout/style-merge'
-import { TableSlot } from './table-slot'
+import { TableSlot } from './table-slot.tsrx'
 export type { UseTableColumnResizeConfig } from './use-table-column-resize.tsrx'
 
 /** Native preview/commit ownership plus shared column-plan sizing. */

@@ -5,9 +5,9 @@
 // shape parity but have no xplat `Pagination` equivalent yet — recorded gap.
 
 import type { TablePlugin } from './types'
-import { Pagination } from '../components/collections/Pagination'
-import { View } from '../components/layout/View'
-import { TableSlot, tableSlot } from './table-slot'
+import { Pagination } from '../components/collections/Pagination.tsrx'
+import { View } from '../components/layout/View.tsrx'
+import { TableSlot, tableSlot } from './table-slot.tsrx'
 
 /** Pagination plugin config — controlled page state plus pager presentation options. */
 export interface UseTablePaginationConfig {

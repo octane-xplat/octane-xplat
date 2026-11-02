@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Screen.parity.check.ts.
-import { Screen } from './Screen'
-import { View } from './View'
+import { Screen } from './Screen.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ScreenLayoutFixture() @{

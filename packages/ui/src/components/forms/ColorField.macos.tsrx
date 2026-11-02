@@ -6,7 +6,7 @@ import { cx } from '@octane-xplat/lib'
 import { Text } from '../content/Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { normalizeHex } from '../../theme/color'
-import { useColorState } from '../../theme/color-state'
+import { useColorState } from '../../theme/color-state.tsrx'
 
 /** Hex text field — keeps a draft while editing; commits on submit/blur:
  *  valid input fires onChange + onChangeEnd, invalid restores the value. */

@@ -133,6 +133,10 @@ for (const targets of ['web', 'ios', 'android', 'web,ios,android', 'web+add-ios'
 			mkdirSync(dirname(destination), { recursive: true })
 			symlinkSync(join(repo, 'packages/ui/node_modules', name), destination, 'dir')
 		}
+		assert.ok(manifest.devDependencies['@tsrx/content-mapper'])
+		const mapper = join(modules, '@tsrx/content-mapper')
+		mkdirSync(dirname(mapper), { recursive: true })
+		symlinkSync(join(repo, 'node_modules/@tsrx/content-mapper'), mapper, 'dir')
 		writeFileSync(join(app, 'native.tsx'), native)
 		writeFileSync(join(app, 'dom.web.tsx'), dom)
 		const probe = {
@@ -144,7 +148,7 @@ for (const targets of ['web', 'ios', 'android', 'web,ios,android', 'web+add-ios'
 		}
 		writeFileSync(join(app, 'tsconfig.probe.json'), JSON.stringify(probe))
 		const tsc = join(repo, 'node_modules/typescript/bin/tsc')
-		run(process.execPath, [tsc, '-p', 'tsconfig.probe.json'], app)
+		run(process.execPath, [tsc, '--runExternalCode', '-p', 'tsconfig.probe.json'], app)
 
 		// Manifest-based apps must preserve the same explicitly selected facade.
 		// Their fixed suffix order can include targets beyond the app starter.
@@ -159,13 +163,13 @@ for (const targets of ['web', 'ios', 'android', 'web,ios,android', 'web+add-ios'
 			}),
 		)
 		const [program] = expandEnvPrograms(app, loadEnvManifest(app))
-		run(process.execPath, [tsc, '-p', program.configPath], app)
+		run(process.execPath, [tsc, '--runExternalCode', '-p', program.configPath], app)
 
 		if (manifest.dependencies['@nativescript/core']) {
 			writeFileSync(join(app, 'native.tsx'), concreteNative)
 			probe.compilerOptions.customConditions = ['native']
 			writeFileSync(join(app, 'tsconfig.probe.json'), JSON.stringify(probe))
-			run(process.execPath, [tsc, '-p', 'tsconfig.probe.json'], app)
+			run(process.execPath, [tsc, '--runExternalCode', '-p', 'tsconfig.probe.json'], app)
 		}
 	})
 }

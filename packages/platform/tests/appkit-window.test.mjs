@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import vm from 'node:vm'
 import { readFile } from 'node:fs/promises'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const eventContext = { exports: {} }
 vm.runInNewContext(ts.transpile(

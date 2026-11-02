@@ -1,9 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { MenuSurfaceProps } from '../../props'
 import { MenuProvider } from './menu-context'
-import { View } from '../layout/View'
-import { Pressable } from '../actions/Pressable'
-import { Text } from '../content/Text'
+import { View } from '../layout/View.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Text } from '../content/Text.tsrx'
 
 /** Native popup roots receive explicit menu ownership instead of relying on context crossing roots. */
 export function MenuSurface(props: MenuSurfaceProps): unknown @{

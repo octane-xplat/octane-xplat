@@ -36,7 +36,7 @@ explains the common suffix and JSX contract.
 For the pinned Windows NativeScript preview's build checker, a `.ts` entry
 must import a TSRX component with an explicit `.tsrx` extension to select the
 TSRX compiler. Its detection does not follow extensionless imports. Keep this
-workaround in the Windows entry; shared imports still use the basename. See
+workaround in the Windows entry; shared TSRX imports also include `.tsrx`, without naming a platform. See
 [Windows checker limits](../../../docs/windows-ui.md#windows-type-declarations-and-module-selection)
 when changing or upgrading that harness.
 
@@ -45,8 +45,11 @@ when changing or upgrading that harness.
 1. A file speaks ONE element vocabulary. Browser implementations use DOM
    intrinsics in `.web` files; NativeScript implementations use NS intrinsics
    in `.mobile`, `.ios`, `.android`, or the unsuffixed native default.
-   - **Import the unsuffixed basename** (`import { Card } from './Card'`) and
-     let the resolver pick — never name a platform suffix in a shared import.
+   - **Import the unsuffixed basename** (`import { Card } from './Card.tsrx'`) and
+     let the build resolver pick — never name a platform suffix in a shared import.
+     Every TSRX family needs an unsuffixed module, including a typed `declare`
+     contract when there is no default implementation. Include platform leaves
+     separately in checking; contract stubs must never become runtime fallbacks.
      Runtime branching (`isNative`, `Platform.OS`) swaps values inside one
      file; it cannot change which renderer owns the file or mix `<div>` with
      `<masonview>`. Divergent element vocabulary must be a file split.
@@ -397,3 +400,9 @@ software-keyboard overlay to host.
 - `WebView.gtk.tsrx` — mirrors the macOS leaf; the imperative handle calls the WebKit.WebView GI methods (`reload`, `go_back`, `go_forward`, `stop_loading`) and `native` is the widget.
 - `webview-instance.ts` (renderer) — lazy `imports.gi.WebKit` (6.0) resolution, `load_html`/`load_uri` split, `load-changed`/`load-failed`/`web-process-terminated` signals, JS eval measure for `onLayoutContent`/`matchContents`/`scrollEnabled`.
 
+
+Custom compiler and Vitest configurations that bypass a platform preset need
+`xplatTsrx(target)` from `@octane-xplat/cli/vite`; a Vite `resolve.extensions`
+list alone does not redirect explicit TSRX paths. Standard presets and
+`xplatBoundary` already perform that resolution. Declaration-only defaults do
+not count as implementations during route discovery.

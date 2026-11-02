@@ -3,10 +3,10 @@
 // selection is non-empty; clear resets the full selection state.
 
 import type { TableSelectionToolbarProps } from '../props'
-import { Toolbar } from '../components/layout/Toolbar'
-import { Button } from '../components/actions/Button'
-import { Text } from '../components/content/Text'
-import { HStack } from '../components/layout/HStack'
+import { Toolbar } from '../components/layout/Toolbar.tsrx'
+import { Button } from '../components/actions/Button.tsrx'
+import { Text } from '../components/content/Text.tsrx'
+import { HStack } from '../components/layout/HStack.tsrx'
 
 /** Selection-count toolbar shown while table rows are selected. */
 export function TableSelectionToolbar(props: TableSelectionToolbarProps): any @{

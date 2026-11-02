@@ -26,7 +26,7 @@ vi.mock('./svg', () => ({
 	svgSource: (src: string) => src,
 }))
 
-import { Image } from './Image'
+import { Image } from './Image.tsrx'
 
 describe('Image recyclingKey', () => {
 	it('clears the previous bitmap only when a recycled cell binds a new identity', () => {

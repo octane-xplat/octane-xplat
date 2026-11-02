@@ -2,14 +2,14 @@
 import { createContext, useContext, useEffect, useState } from 'octane'
 import { knownFolders, File } from '@nativescript/core'
 import { layoutReadout } from './readout.windows'
-import { DisplayCases, displayCases, type DisplayCase } from './display-cases.windows'
-import { LegacyLayout } from './legacy-layout.windows'
-import { ListCases } from './collections-cases.windows'
-import { TableCases } from './table-cases.windows'
-import { TabCases } from './tabs-cases.windows'
-import { LayerCases, layerCases } from './layer-cases.windows'
+import { DisplayCases, displayCases, type DisplayCase } from './display-cases.windows.tsrx'
+import { LegacyLayout } from './legacy-layout.windows.tsrx'
+import { ListCases } from './collections-cases.windows.tsrx'
+import { TableCases } from './table-cases.windows.tsrx'
+import { TabCases } from './tabs-cases.windows.tsrx'
+import { LayerCases, layerCases } from './layer-cases.windows.tsrx'
 import { runServiceSpec } from './service-cases.windows'
-import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
+import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity.tsrx'
 import {
 	Text,
 	View,

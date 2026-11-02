@@ -10,7 +10,7 @@ import {
 	DATA_DOC,
 	NAV_DOC_A,
 	NAV_DOC_B,
-} from './ui-webview.gtk'
+} from './ui-webview.gtk.tsrx'
 
 Gtk.init()
 

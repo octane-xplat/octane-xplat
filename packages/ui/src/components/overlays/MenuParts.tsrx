@@ -22,13 +22,13 @@ import type {
 } from '../../props'
 
 import { MenuRadioContext, MenuRadioProvider, useDropdownMenuContext } from './menu-context'
-import { View } from '../layout/View'
-import { Text } from '../content/Text'
-import { Pressable } from '../actions/Pressable'
-import { Icon } from '../media/Icon'
-import { Separator } from '../feedback/Separator'
-import { Popover } from './Popover'
-import { MenuSurface } from './MenuSurface'
+import { View } from '../layout/View.tsrx'
+import { Text } from '../content/Text.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { Icon } from '../media/Icon.tsrx'
+import { Separator } from '../feedback/Separator.tsrx'
+import { Popover } from './Popover.tsrx'
+import { MenuSurface } from './MenuSurface.tsrx'
 
 /** One selectable action inside a DropdownMenu/ContextMenu (and BreadcrumbMenu overflow). */
 export function DropdownMenuItem(props: MenuItemProps): unknown @{

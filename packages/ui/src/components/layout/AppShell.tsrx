@@ -4,7 +4,7 @@ import { useCallback, useId, useMemo, useState } from 'octane'
 import type { AppShellProps, MobileNavConfig } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { MobileNavToggle } from '../navigation/MobileNav'
+import { MobileNavToggle } from '../navigation/MobileNav.tsrx'
 import { isMobileNavConfig } from './app-shell-config'
 import {
 	AppShellMobileContext,

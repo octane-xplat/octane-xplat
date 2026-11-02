@@ -28,7 +28,7 @@ import {
 import type { TablePlugin } from '@octane-xplat/ui'
 import { generateRows, labColumns } from './lab-data'
 import type { LabRow } from './lab-data'
-import { useScrollMetrics } from './use-scroll-metrics.web'
+import { useScrollMetrics } from './use-scroll-metrics.web.tsrx'
 
 const pluginLabels = {
 	selection: 'Selection',

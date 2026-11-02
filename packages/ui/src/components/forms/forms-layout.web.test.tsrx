@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest'
 import { act, createRoot } from 'octane'
 import { Stack } from '../layout/Stack.web.tsrx'
 import { StackItem } from '../layout/StackItem.web.tsrx'
-import { HStack } from '../layout/HStack'
-import { VStack } from '../layout/VStack'
+import { HStack } from '../layout/HStack.tsrx'
+import { VStack } from '../layout/VStack.tsrx'
 import { Center } from '../layout/Center.web.tsrx'
 import { Section } from '../collections/Section.web.tsrx'
 import { AspectRatio } from '../layout/AspectRatio.web.tsrx'
@@ -27,7 +27,7 @@ import {
 	registerIndicator,
 } from '../feedback/indicators'
 
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 
 function mount(node: any) {
 	const el = document.createElement('div')

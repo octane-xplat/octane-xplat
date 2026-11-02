@@ -9,7 +9,7 @@ import type {
 } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Image } from './Image'
+import { Image } from './Image.tsrx'
 
 const namedSizes: Record<string, number> = { xsm: 16, sm: 24, md: 32, lg: 40, xl: 48 }
 // A source-less WinUI Image peer has no automation bounds. A transparent RGBA

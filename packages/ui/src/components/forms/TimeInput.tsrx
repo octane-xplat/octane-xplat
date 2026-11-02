@@ -7,11 +7,11 @@ import { hasCoarsePointer } from './coarse-pointer'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
-import { Icon } from '../media/Icon'
-import { Pressable } from '../actions/Pressable'
-import { FormField } from './FormField'
-import { Popover } from '../overlays/Popover'
-import { BottomSheet } from '../overlays/BottomSheet'
+import { Icon } from '../media/Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { FormField } from './FormField.tsrx'
+import { Popover } from '../overlays/Popover.tsrx'
+import { BottomSheet } from '../overlays/BottomSheet.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { nativeAccessibilityState } from '../overlays/escape-props'
 import { isWritingText, writeText } from './text-write'
@@ -27,7 +27,7 @@ import {
 	resolveInputSurface,
 } from './datetime'
 
-import { TimeWheelPanel } from './TimeWheelPanel'
+import { TimeWheelPanel } from './TimeWheelPanel.tsrx'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 

@@ -3,7 +3,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import type { NavIconProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
+import { Icon } from '../media/Icon.tsrx'
 
 /** Circular icon container for navigation headers (TopNavHeading,
  *  SideNavHeading). Display-only — the `icon` prop takes an element or a

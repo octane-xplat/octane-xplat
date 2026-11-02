@@ -29,7 +29,7 @@ function usage() {
        tsrx-typegen --target <name> [--check]
        tsrx-typegen --pack-check [--target <name>]
 
-Generate declarations with the consuming project's TypeScript and tsrx compiler.
+Generate declarations with the bundled classic TypeScript and the project's TSRX target compiler.
 
 Options:
   --project <path>  TypeScript config for declaration generation
@@ -106,11 +106,6 @@ function configuredTargetNames(projectRoot, selectedTarget) {
 	}
 
 	return { names: selectedTarget ? [selectedTarget] : Object.keys(targets), targets }
-}
-
-function loadProjectModule(projectRoot, specifier) {
-	const require = createRequire(join(projectRoot, 'package.json'))
-	return require.resolve(specifier)
 }
 
 function readProjectConfig(ts, configPath, projectRoot, target) {
@@ -1241,7 +1236,7 @@ function runTarget(projectRoot, args) {
 		args.target,
 	)
 
-	const tsPath = loadProjectModule(projectRoot, 'typescript')
+	const tsPath = createRequire(import.meta.url).resolve('typescript')
 	const ts = createRequire(import.meta.url)(tsPath)
 	const { outDir, options, rootDir, fileNames } = readProjectConfig(
 		ts,
@@ -1258,7 +1253,7 @@ function runTarget(projectRoot, args) {
 		overrideFiles,
 	)
 
-	const compilerPath = loadProjectModule(projectRoot, '@tsrx/typescript-plugin/dist/tsc.js')
+	const compilerPath = createRequire(import.meta.url).resolve('@tsrx/typescript-plugin/dist/tsc.js')
 	const requireModule = createRequire(import.meta.url)
 	const plugin = loadLanguagePlugin(requireModule, compilerPath, ts, project)
 	const temporaryRoot = mkdtempSync(join(tmpdir(), 'tsrx-typegen-'))
@@ -1349,7 +1344,7 @@ function run() {
 		}
 	}
 
-	const tsPath = loadProjectModule(projectRoot, 'typescript')
+	const tsPath = createRequire(import.meta.url).resolve('typescript')
 	const ts = createRequire(import.meta.url)(tsPath)
 	checkPackedPackage(projectRoot, ts)
 }

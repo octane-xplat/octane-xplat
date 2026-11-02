@@ -8,8 +8,8 @@ vi.mock('@octane-xplat/platform', () => ({ announce: vi.fn() }))
 
 import { announce } from '@octane-xplat/platform'
 import { copyText } from './clipboard-write'
-import { useClipboard } from './use-clipboard'
-import type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
+import { useClipboard } from './use-clipboard.tsrx'
+import type { UseClipboardOptions, UseClipboardResult } from './use-clipboard.tsrx'
 
 // DOM-renderer lane — same contract as the universal-renderer suite:
 // transient isCopied with reset/restart/unmount cleanup, per-attempt boolean

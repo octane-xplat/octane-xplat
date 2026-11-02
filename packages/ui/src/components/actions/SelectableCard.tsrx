@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { SelectableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
-import { Pressable } from './Pressable'
+import { Pressable } from './Pressable.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 /**

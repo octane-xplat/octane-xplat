@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane'
-import { useFocusVisible } from './use-focus-visible'
+import { useFocusVisible } from './use-focus-visible.tsrx'
 
 /**
  * Focus-event composition — React Aria's useFocus/useFocusRing family.

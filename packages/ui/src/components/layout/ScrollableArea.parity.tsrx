@@ -1,7 +1,7 @@
 // Measured parity fixtures — assertions live in ScrollableArea.parity.check.ts.
-import { ScrollableArea } from './ScrollableArea'
-import { VStack } from './VStack'
-import { View } from './View'
+import { ScrollableArea } from './ScrollableArea.tsrx'
+import { VStack } from './VStack.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ScrollViewLayoutFixture() @{

@@ -3,7 +3,7 @@
 // root; application data lifecycle lives here.
 export { createStore } from './store'
 export type { Store, ReadableStore, StoreSnapshot } from './store'
-export { useStore } from './use-store'
+export { useStore } from './use-store.tsrx'
 
 // Immutable collection data stores — React Aria useListData/useTreeData/
 // useAsyncList counterparts

@@ -1,2 +1,2 @@
-export { Drawer } from './Drawer.gtk'
+export { Drawer } from './Drawer.gtk.tsrx'
 export type { DrawerProps } from './props'

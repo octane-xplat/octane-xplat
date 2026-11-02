@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Chip.parity.check.ts.
-import { Chip } from './Chip'
-import { Text } from '../content/Text'
+import { Chip } from './Chip.tsrx'
+import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ChipFixture() @{

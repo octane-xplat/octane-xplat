@@ -4,7 +4,7 @@ import type { AvatarGroupProps, AvatarGroupOverflowProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
-import { Avatar } from './Avatar'
+import { Avatar } from './Avatar.tsrx'
 
 /** AvatarGroup — row of overlapping avatars. `max` collapses the rest into
  *  a `+N` avatar. Overlap is one-third of `size`, applied per-item so it

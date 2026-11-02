@@ -11,7 +11,7 @@ import {
 	StandaloneEditor,
 	standaloneRef,
 	standaloneChanges,
-} from './ui-text-area.gtk'
+} from './ui-text-area.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK text area test',

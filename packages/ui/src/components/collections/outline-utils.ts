@@ -7,7 +7,7 @@
 // docs/app/components.md).
 import type { OutlineItem } from '../../props'
 export type { OutlineItem } from '../../props'
-import type { MdDoc, MdInline } from '../../markdown/Markdown'
+import type { MdDoc, MdInline } from '../../markdown/Markdown.tsrx'
 
 /** Slug a heading label the same way upstream's parser does: lowercase,
  *  quotes dropped, non-alphanumerics collapse to '-', edges trimmed. */

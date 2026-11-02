@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { KbdProps } from '../../props'
-import { TextSlot } from '../forms/text-slot'
+import { TextSlot } from '../forms/text-slot.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 const aliases: Record<string, string> = {

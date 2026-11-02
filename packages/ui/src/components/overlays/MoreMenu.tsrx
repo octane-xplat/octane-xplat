@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import type { MoreMenuProps, MoreMenuPlacement } from '../../props'
-import { DropdownMenu } from './DropdownMenu'
-import { Button } from '../actions/Button'
-import { Pressable } from '../actions/Pressable'
-import { BottomSheet } from './BottomSheet'
-import { Icon } from '../media/Icon'
+import { DropdownMenu } from './DropdownMenu.tsrx'
+import { Button } from '../actions/Button.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { BottomSheet } from './BottomSheet.tsrx'
+import { Icon } from '../media/Icon.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 function popoverPlacement(placement?: MoreMenuPlacement): any {

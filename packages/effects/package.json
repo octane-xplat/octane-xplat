@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/effects",
 	"version": "0.19.0",
-	"description": "Platform view-effect shaders for Octane xplat — iOS stitchable Metal via @nativescript/swift-ui, Android AGSL RuntimeShader",
+	"description": "Platform view-effect shaders for Octane xplat \u2014 iOS stitchable Metal via @nativescript/swift-ui, Android AGSL RuntimeShader",
 	"keywords": [
 		"agsl",
 		"android",
@@ -51,7 +51,7 @@
 	},
 	"scripts": {
 		"build:metal": "sh scripts/build-metal.sh",
-		"typecheck": "tsc -p tsconfig.types.json",
+		"typecheck": "tsrx-tsc -p tsconfig.types.json",
 		"prepack": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check"
@@ -68,7 +68,9 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

@@ -9,7 +9,7 @@ import { accentColor, mutedColor, textColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
 import { sanitizeUrl } from '../../routing/safe-url'
 import { isRenderable } from '../../internal/rendering/is-renderable'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 
 let warnedBlockedUrl = false
 

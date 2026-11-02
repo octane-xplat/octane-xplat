@@ -10,12 +10,12 @@ import type {
 } from '../../props'
 
 import type { NavigationMenuImplementation } from '../navigation/nav-link'
-import { Button } from '../actions/Button'
+import { Button } from '../actions/Button.tsrx'
 import { useButtonGroup } from '../actions/button-group-context'
-import { Text } from '../content/Text'
-import { View } from '../layout/View'
-import { useMeasure } from '../layout/useMeasure'
-import { Icon } from '../media/Icon'
+import { Text } from '../content/Text.tsrx'
+import { View } from '../layout/View.tsrx'
+import { useMeasure } from '../layout/useMeasure.tsrx'
+import { Icon } from '../media/Icon.tsrx'
 import { DropdownMenu as SharedDropdownMenu } from './DropdownMenu.tsrx'
 import './menu-control.windows'
 

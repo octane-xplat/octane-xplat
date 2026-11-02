@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useState } from 'octane'
 import type { DialogOptions, ImperativeDialogReturn } from '../../props'
-import { Dialog } from './Dialog'
+import { Dialog } from './Dialog.tsrx'
 
 /** Imperative dialog control (Astryx `useImperativeDialog`). `show()`
  *  mounts the dialog with arbitrary content; `element` renders it — keep

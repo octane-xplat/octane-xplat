@@ -10,7 +10,7 @@ import {
 	LayoutContent, Link, ProgressBar, Table, Text, VStack,
 } from '@octane-xplat/ui'
 import type { TableColumn } from '@octane-xplat/ui'
-import { ChartLines, ChartSparkline, ChartStackedBar } from './charts'
+import { ChartLines, ChartSparkline, ChartStackedBar } from './charts.tsrx'
 
 const chartColors = {
 	allUsers: '#3b82f6',

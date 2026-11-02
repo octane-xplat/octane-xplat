@@ -1,4 +1,5 @@
 {
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"compilerOptions": {
 		"module": "esnext",
 		"target": "ES2020",

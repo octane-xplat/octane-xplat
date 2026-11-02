@@ -115,7 +115,7 @@
 			"singleton": true
 		},
 		"typescript": {
-			"version": "5.9.3",
+			"version": "7.1.0-beta",
 			"group": "compiler"
 		},
 		"@tsrx/oxc": {
@@ -123,7 +123,7 @@
 			"group": "compiler"
 		},
 		"@tsrx/typescript-plugin": {
-			"version": "0.4.11",
+			"version": "0.6.3",
 			"group": "compiler"
 		},
 		"tsrx-typegen": {
@@ -217,6 +217,15 @@
 		"@nativescript/font-manager": {
 			"version": "1.0.20",
 			"group": "plugin"
+		},
+		"@tsrx/content-mapper": {
+			"version": "0.1.2",
+			"group": "compiler"
+		},
+		"typescript-classic": {
+			"version": "5.9.3",
+			"specifier": "npm:typescript@5.9.3",
+			"group": "compiler"
 		}
 	},
 	"profiles": {

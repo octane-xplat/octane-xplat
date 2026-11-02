@@ -2,8 +2,8 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { Utils } from '@nativescript/core'
 import type { LinkProps } from '../../props'
-import { Pressable } from '../actions/Pressable'
-import { TextSlot } from '../forms/text-slot'
+import { Pressable } from '../actions/Pressable.tsrx'
+import { TextSlot } from '../forms/text-slot.tsrx'
 import { useLinkComponent } from './use-link-component.tsrx'
 
 /**

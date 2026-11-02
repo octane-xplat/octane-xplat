@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in CommandPalette.parity.check.ts.
-import { CommandPalette } from './CommandPalette'
+import { CommandPalette } from './CommandPalette.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function CommandPaletteFixture() @{

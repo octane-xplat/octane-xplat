@@ -46,6 +46,39 @@ pairs; npm still ships the Node-compatible ESM exports and Bun bin launcher.
 
 ## Runtime dependency compatibility
 
+TypeScript checking uses `7.1.0-beta` with `@tsrx/content-mapper` 0.1.2 and
+`@tsrx/typescript-plugin` 0.6.3. Keep explicit `.tsrx` imports and unsuffixed
+contracts: native TypeScript does not support extensionless custom-extension
+resolution or Xplat's platform suffix placement. `xplatBoundary` redirects
+unsuffixed explicit TSRX paths at build time; declaration-only defaults throw
+when the target has no implementation. See [TSRX's upstream gap tracker](https://github.com/tsrx-org/tsrx/issues/136).
+
+TypeScript 7 has no classic JavaScript compiler API. `tsrx-typegen` owns
+TypeScript 5.9.3 and its 0.4.11 checker adapter; it resolves the target compiler
+from the project, but not the checker. The older plugin patch remains for that
+classic declaration path. Other API consumers explicitly import the
+`typescript-classic` alias. That alias also exposes `tsc`, so repository scripts
+use `tsrx-tsc` to avoid `.bin` collisions and select the project's compiler.
+Consumers must declare `@tsrx/content-mapper` directly: native TypeScript
+resolves the config's mapper from the project, not from the umbrella toolchain.
+NativeScript Vite 8.0.20 and the 8.0.21 Windows preview also use the classic
+API for configuration parsing and NativeClass lowering. Their upstream
+`loadTypeScript` prefers the project's `typescript`, which is a native launcher
+in this version set and lacks `getParsedCommandLineOfConfigFile` and
+`transpileModule`. The canonical Vite patches select the explicit
+`typescript-classic` alias, supplied directly by native apps and starters.
+TSRX checks still delegate to the project's native `tsrx-tsc`; the Vite plain
+TypeScript fallback and NativeClass transformer use the classic API. Remove
+that loader hunk when upstream supports native compiler projects. Source:
+[NativeScript's loader](https://github.com/NativeScript/NativeScript/blob/abae298/packages/vite/helpers/typescript.ts).
+Source and host checker tests establish this API boundary, not device behavior.
+
+Documentation's exports-md calls bind `cwd` to the classic installation for
+parsing. For manual `exports-md` retrieval, run from `packages/tsrx-typegen`
+and pass absolute input paths so nearest-compiler discovery finds the classic
+API. Do not replace these API dependencies with the native launcher.
+
+
 The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and
 `@octanejs/vite-plugin` 0.5.0. The parser pin is explicit at the root so a
 hoisted installation cannot select the older optional peer from another

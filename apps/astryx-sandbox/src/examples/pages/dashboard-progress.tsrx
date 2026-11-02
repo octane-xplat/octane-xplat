@@ -9,7 +9,7 @@ import {
 	Badge, Card, Divider, Heading, HStack, Icon, Layout, LayoutContent,
 	LayoutHeader, ProgressBar, Table, Text, useMediaQuery, VStack, pixel } from '@octane-xplat/ui'
 import type { TableColumn } from '@octane-xplat/ui'
-import { ChartLines } from './charts'
+import { ChartLines } from './charts.tsrx'
 
 type Rag = 'onTrack' | 'atRisk' | 'blocked'
 type ReleasePhase = 'build' | 'beta' | 'ga'

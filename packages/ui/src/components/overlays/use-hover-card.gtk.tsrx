@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import Gtk from 'gi://Gtk?version=4.0'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { HoverCardOptions, HoverCardReturn } from '../../props'
 import { cx } from '@octane-xplat/lib'

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 // The plugin installs `firebase().crashlytics` at module evaluation
 // (Object.defineProperty in index.ios.js/index.android.js), so the leaf must

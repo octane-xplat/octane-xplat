@@ -1,3 +1,4 @@
+import { xplatTsrx } from '@octane-xplat/cli/vite'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
@@ -12,7 +13,7 @@ const NATIVE_EXTS = [
 ]
 const configDir = dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
-	plugins: [octane({ ssr: false, renderers: { registry: { nativescript: nativeScriptRenderer }, rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }] } })],
+	plugins: [xplatTsrx('ios'), octane({ ssr: false, renderers: { registry: { nativescript: nativeScriptRenderer }, rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }] } })],
 	resolve: {
 		conditions: ['native'],
 		alias: [

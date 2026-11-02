@@ -1,6 +1,6 @@
 import { DataGrid } from '@octane-xplat/table'
 import { View } from '@octane-xplat/ui'
-import { GridHost } from './host'
+import { GridHost } from './host.tsrx'
 import { pan } from './gesture'
 import type { ProbeContext } from '../../../scripts/probe/context'
 

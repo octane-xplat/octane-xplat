@@ -7,7 +7,7 @@
 import { RouteOutlet, Theme, LinkProvider, LayerProvider } from '@octane-xplat/ui'
 import './icons'
 import { themeFor, useThemeName, useThemePreference } from './theme'
-import { SandboxLink } from './shell/SandboxLink'
+import { SandboxLink } from './shell/SandboxLink.tsrx'
 import './routes'
 
 export function App() @{

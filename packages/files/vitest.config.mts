@@ -1,3 +1,4 @@
+import { xplatTsrx } from '@octane-xplat/cli/vite'
 import { defineConfig } from 'vitest/config'
 import { URL } from 'node:url'
 import { octane } from 'octane/compiler/vite'
@@ -5,7 +6,7 @@ import { octane } from 'octane/compiler/vite'
 // Web-condition resolution so FileInput.web.tsrx and files.web.ts resolve;
 // the bridge suite mocks the native globals explicitly.
 export default defineConfig({
-	plugins: [octane({ ssr: false })],
+	plugins: [xplatTsrx('web'), octane({ ssr: false })],
 	resolve: {
 		conditions: ['web'],
 		alias: [

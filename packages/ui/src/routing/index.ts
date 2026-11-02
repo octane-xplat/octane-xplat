@@ -4,8 +4,8 @@
 export { registerStack, getStack, stackEntries } from '../components/layout/stacks'
 export { addBackInterceptor } from './back-interceptors'
 
-export { RouteBoundary } from './RouteBoundary'
-export { useBackInterceptor } from './use-back'
+export { RouteBoundary } from './RouteBoundary.tsrx'
+export { useBackInterceptor } from './use-back.tsrx'
 export {
 	defineRoute,
 	defineRouteGroup,

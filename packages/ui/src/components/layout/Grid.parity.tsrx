@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Grid.parity.check.ts.
-import { Grid } from './Grid'
-import { View } from './View'
+import { Grid } from './Grid.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function GridLayoutFixture() @{

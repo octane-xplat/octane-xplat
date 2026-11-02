@@ -4,7 +4,7 @@ import { nativeAccessibilityState } from '../overlays/escape-props'
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { Pressable } from '../actions/Pressable'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { formatISOTime, isTimeInRange, parseISOTime } from './datetime'
 
 interface TimeWheelProps {

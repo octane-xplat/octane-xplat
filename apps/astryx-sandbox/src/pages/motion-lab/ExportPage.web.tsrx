@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Card, CodeBlock, EmptyState, Link, VStack, Heading, Text, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@octane-xplat/ui'
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
@@ -19,8 +19,8 @@ import { cx } from '../../cx'
  * keep both honest.
  */
 
-import {LabPage} from './PageFrame';
-import {parseMs, useMotionLab} from './MotionLabStore';
+import {LabPage} from './PageFrame.tsrx';
+import {parseMs, useMotionLab} from './MotionLabStore.tsrx';
 import {
   ALL_TUNABLE_TOKENS,
   CURRENT_EASE,

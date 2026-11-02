@@ -4,7 +4,7 @@ import type { RadioGroupProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { useFieldControlProps } from './field-context'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
 import { RadioListProvider } from './option-list-contexts'
 import type { JSX } from 'octane/jsx-runtime'
 

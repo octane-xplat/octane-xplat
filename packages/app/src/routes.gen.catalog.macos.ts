@@ -20,6 +20,7 @@ const files = import.meta.glob(
 		'!./app/**/*.mobile.{tsrx,tsx}',
 		'!./app/**/*.windows.{tsrx,tsx}',
 		'!./app/**/*.linux.{tsrx,tsx}',
+		'!./app/list-nested-probe.tsrx',
 		'!./app/motion-probe.tsrx',
 		'!./app/parity.tsrx'
 	],
@@ -33,6 +34,7 @@ const layouts = import.meta.glob(
 		'!./app/**/*.mobile.{tsrx,tsx}',
 		'!./app/**/*.windows.{tsrx,tsx}',
 		'!./app/**/*.linux.{tsrx,tsx}',
+		'!./app/list-nested-probe.tsrx',
 		'!./app/motion-probe.tsrx',
 		'!./app/parity.tsrx'
 	],

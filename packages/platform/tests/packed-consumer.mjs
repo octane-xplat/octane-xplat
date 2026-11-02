@@ -24,7 +24,7 @@ const { nativeScriptRenderer } = await import(
 	require.resolve('@nativescript-community/octane/config')
 )
 
-const ts = require('typescript')
+const ts = require('typescript-classic')
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const temporary = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-platform-source-')))
 const modules = join(temporary, 'node_modules/@octane-xplat')

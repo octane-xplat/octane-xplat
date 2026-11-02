@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in AvatarGroup.parity.check.ts.
-import { Avatar } from './Avatar'
-import { AvatarGroup } from './AvatarGroup'
+import { Avatar } from './Avatar.tsrx'
+import { AvatarGroup } from './AvatarGroup.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function AvatarGroupFixture() @{

@@ -9,7 +9,7 @@ import { generateRoutes } from '../dist/commands/routes.js'
 
 const workspace = fileURLToPath(new URL('../../../', import.meta.url))
 const require = createRequire(join(workspace, 'packages/ui/package.json'))
-const ts = require('typescript')
+const ts = require('typescript-classic')
 const { build } = await import('vite')
 async function fixture() {
 	const root = await mkdtemp(join(tmpdir(), 'xplat-platform-contracts-'))

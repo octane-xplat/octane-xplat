@@ -1,5 +1,5 @@
 // Measured parity fixtures — assertions live in Skeleton.parity.check.ts.
-import { Skeleton } from './Skeleton'
+import { Skeleton } from './Skeleton.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SkeletonFixture() @{

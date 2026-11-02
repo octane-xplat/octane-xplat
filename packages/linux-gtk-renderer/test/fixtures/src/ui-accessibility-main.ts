@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { Accessibility, inputRef } from './ui-accessibility.gtk'
+import { Accessibility, inputRef } from './ui-accessibility.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({ default_width: 340, default_height: 420 })
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })

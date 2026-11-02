@@ -13,8 +13,8 @@ vi.mock('@octane-xplat/platform', () => ({ announce: vi.fn() }))
 
 import { announce } from '@octane-xplat/platform'
 import { copyText } from './clipboard-write'
-import { useClipboard } from './use-clipboard'
-import type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
+import { useClipboard } from './use-clipboard.tsrx'
+import type { UseClipboardOptions, UseClipboardResult } from './use-clipboard.tsrx'
 
 // Universal-renderer lane — the hook owns a transient `isCopied` flag with a
 // reset timer, an optional polite announcement, and per-attempt boolean

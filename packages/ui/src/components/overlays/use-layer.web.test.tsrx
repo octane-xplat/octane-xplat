@@ -3,7 +3,7 @@
 import { act, createRoot } from 'octane'
 import { describe, expect, it, vi } from 'vitest'
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 import { ownAnchorName } from './layer-position.web'
 
 let layer: any

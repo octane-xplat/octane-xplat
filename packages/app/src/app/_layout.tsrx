@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { Screen, RouteOutlet, Tabs, Text, useThemeScheme } from '@octane-xplat/ui'
-import { Parity } from './parity'
+import { Parity } from './parity.tsrx'
 import { Home } from '../Home.tsrx'
 import { Test } from '../Test.tsrx'
 import { Gallery } from '@xplat/demos'

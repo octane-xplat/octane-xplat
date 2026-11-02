@@ -6,7 +6,7 @@
 // `@octane-xplat/ui/macos` (outline-view.macos.tsrx).
 import { useMemo } from 'octane'
 import { outlineFromDoc, parseOutlineFromMarkdown } from './outline-utils'
-import type { MdDoc } from '../../markdown/Markdown'
+import type { MdDoc } from '../../markdown/Markdown.tsrx'
 import type { OutlineItem } from '../../props'
 
 /** Heading outline items derived from Markdown source — one entry per ATX or

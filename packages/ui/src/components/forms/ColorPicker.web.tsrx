@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ColorPickerProps } from '../../props'
-import { ColorAreaView } from './ColorArea'
-import { ColorSliderView } from './ColorSlider'
-import { ColorField } from './ColorField'
-import { ColorSwatch } from './ColorSwatch'
+import { ColorAreaView } from './ColorArea.tsrx'
+import { ColorSliderView } from './ColorSlider.tsrx'
+import { ColorField } from './ColorField.tsrx'
+import { ColorSwatch } from './ColorSwatch.tsrx'
 import { normalizeHex } from '../../theme/color'
-import { useColorState } from '../../theme/color-state'
+import { useColorState } from '../../theme/color-state.tsrx'
 
 import type { JSX } from 'octane/jsx-runtime'
 /** Fixed composite picker — ColorArea, hue ColorSlider, then a row of

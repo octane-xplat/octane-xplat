@@ -1,7 +1,7 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { Multiline, changes, submits, focusEvents } from './ui-text-view.gtk'
+import { Multiline, changes, submits, focusEvents } from './ui-text-view.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK multiline test',

@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in NavLink.parity.check.ts.
-import { NavLink } from './NavLink'
-import { Text } from '../content/Text'
+import { NavLink } from './NavLink.tsrx'
+import { Text } from '../content/Text.tsrx'
 import { RouterProvider } from '../../routing/router-hooks.tsrx'
 import { createRouter } from '../../routing/router-instance'
 import { defineRoute } from '../../routing/define-route'

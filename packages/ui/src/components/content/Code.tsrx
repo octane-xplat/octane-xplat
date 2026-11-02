@@ -3,7 +3,7 @@ import { useColorScheme } from '../../theme/colorScheme'
 import { styleRecord } from '../../internal/layout/style-merge'
 import type { CodeProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { Text } from './Text'
+import { Text } from './Text.tsrx'
 import { mutedColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
 

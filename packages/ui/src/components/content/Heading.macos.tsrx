@@ -3,7 +3,7 @@ import { AppKitTextScope } from '../forms/text-context.macos.tsrx'
 import type { HeadingProps } from '../../props'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { cx } from '@octane-xplat/lib'
-import { useTheme } from '../../theme/use-theme'
+import { useTheme } from '../../theme/use-theme.tsrx'
 import { headingScaleStyle } from '../forms/text-scale'
 
 export function Heading(props: HeadingProps): unknown @{

@@ -11,7 +11,7 @@ import {
 } from '../overlays/escape-props'
 
 import { stackItemStyle } from './stack-layout'
-import { usePan } from './pan'
+import { usePan } from './pan.tsrx'
 
 /** StackItem — per-child size (`fill` grows into remaining space) and
  *  cross-axis alignment inside a `Stack`. `isScrollable` hosts the content

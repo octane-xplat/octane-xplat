@@ -6,8 +6,8 @@ import { Utils } from '@nativescript/core'
 import type { TokenProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
-import { Icon } from '../media/Icon'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 
 /** Token — inline entity chip. Native leaf: a chip row; `onClick`/`href`
  *  (opens the URL) make it pressable, `onRemove` adds the ✕ affordance. */

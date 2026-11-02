@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { MoreMenuPresentation } from '../../props'
-import { BottomSheet } from './BottomSheet'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { MenuProvider } from './menu-context'
-import { MenuData } from './MenuParts'
+import { MenuData } from './MenuParts.tsrx'
 import { mergeStyle } from '../../internal/layout/style-merge'
 
 /** iOS/Android resolve 'adaptive' to the sheet — the platform is already a

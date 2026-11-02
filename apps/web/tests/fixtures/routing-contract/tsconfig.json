@@ -1,4 +1,5 @@
 {
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
 	"extends": "../../../tsconfig.json",
 	"compilerOptions": {
 		"paths": {},

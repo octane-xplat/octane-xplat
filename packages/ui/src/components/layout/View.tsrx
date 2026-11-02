@@ -10,7 +10,7 @@ import {
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from './layout-child'
-import { usePan } from './pan'
+import { usePan } from './pan.tsrx'
 /** Neutral flex-column container — flex-direction:column masonview on native.
  *  Gesture props map 1:1 to NS gesture events (onPan → 'pan', etc.) —
  *  the driver's onX → eventName rule covers them generically. Payloads

@@ -4,7 +4,7 @@
 import './PolymorphicLinkPage.css'
 
 import { useState } from 'octane'
-import type { SandboxLinkProps } from '../../shell/SandboxLink'
+import type { SandboxLinkProps } from '../../shell/SandboxLink.tsrx'
 
 import { VStack } from '@octane-xplat/ui'
 import { Text, Heading } from '@octane-xplat/ui'

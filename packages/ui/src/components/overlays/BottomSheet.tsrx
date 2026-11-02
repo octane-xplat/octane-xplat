@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { SheetContent } from './sheet-content'
+import { SheetContent } from './sheet-content.tsrx'
 import type { PercentLengthType } from '@nativescript/core'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import { GridLayout, Screen, isAndroid, isIOS } from '@nativescript/core'
@@ -27,7 +27,7 @@ import {
 	keyboardOverlayAnimation,
 } from '../../internal/keyboard/keyboard-overlay-host'
 
-import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal'
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
 
 interface ToastOwner {

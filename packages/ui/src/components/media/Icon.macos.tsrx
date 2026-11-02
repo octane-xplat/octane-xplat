@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { IconProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { Image } from './Image.macos'
+import { Image } from './Image.macos.tsrx'
 import { glyphSvgMarkup } from './svg-glyph'
 import { getIcon } from './icons'
 import { useIconRegistry } from './icon-registry-context'

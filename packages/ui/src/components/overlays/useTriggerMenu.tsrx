@@ -3,8 +3,8 @@ import type { UseTriggerMenuResult } from './use-trigger-menu-result'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type { ChatComposerTrigger, ChatComposerTriggerItem } from '../../props'
-import { Popover } from './Popover'
-import { Pressable } from '../actions/Pressable'
+import { Popover } from './Popover.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 import { groupChatItems } from '../../chat/chat-group-items'
 
 export interface TriggerMenuState {

@@ -12,7 +12,7 @@ import { Card } from '@octane-xplat/ui'
 import { SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
 import { Divider } from '@octane-xplat/ui'
 import { EmptyState } from '@octane-xplat/ui'
-import DocTopNav from './DocTopNav'
+import DocTopNav from './DocTopNav.tsrx'
 
 type Category = 'All' | 'Components' | 'Patterns' | 'Templates' | 'Tools'
 const CATEGORIES: Category[] = ['All', 'Components', 'Patterns', 'Templates', 'Tools']

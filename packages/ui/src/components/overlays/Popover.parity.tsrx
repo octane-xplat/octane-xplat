@@ -1,7 +1,7 @@
 // Measured parity fixtures — assertions live in Popover.parity.check.ts.
 import { useRef } from 'octane'
-import { Popover } from './Popover'
-import { View } from '../layout/View'
+import { Popover } from './Popover.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function PopoverLayoutFixture(props: { marker: string }) @{

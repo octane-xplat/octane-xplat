@@ -17,8 +17,8 @@ import {
 } from '@octane-xplat/ui'
 
 import { coverageRows, coverageSummary, familyRows, type CoverageRow } from '../coverage/coverage'
-import { SandboxShell } from '../shell/SandboxShell'
-import { SandboxLink } from '../shell/SandboxLink'
+import { SandboxShell } from '../shell/SandboxShell.tsrx'
+import { SandboxLink } from '../shell/SandboxLink.tsrx'
 
 function StatusBadge(props: { status: CoverageRow['status'] }) @{
 	return <Text className={`sb-status sb-status--${props.status}`}>{props.status}</Text>

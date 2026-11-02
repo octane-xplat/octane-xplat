@@ -20,7 +20,7 @@ import { applyEscapeProps } from '../components/overlays/escape-props'
 import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './pipeline'
 
 import { TableContext, TableContextProvider } from './table-context'
-import { TableSlot } from './table-slot'
+import { TableSlot } from './table-slot.tsrx'
 import { DEFAULT_MIN_COLUMN_WIDTH } from './column-utils'
 import { refList } from '../internal/accessibility/ref-list'
 

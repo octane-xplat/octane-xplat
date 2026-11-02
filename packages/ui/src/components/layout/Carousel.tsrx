@@ -6,8 +6,8 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 import { spacingStep } from './spacing'
 import { cx } from '@octane-xplat/lib'
-import { Icon } from '../media/Icon'
-import { Pressable } from '../actions/Pressable'
+import { Icon } from '../media/Icon.tsrx'
+import { Pressable } from '../actions/Pressable.tsrx'
 
 const EPS = 1
 const SNAP_DEBOUNCE_MS = 140

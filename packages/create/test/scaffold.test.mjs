@@ -58,8 +58,10 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 
 	const yaml = readFileSync(join(dir, 'package.json'), 'utf8')
 	assert.ok(yaml.includes(`octane@${managedSpecifier('octane')}`))
-	assert.match(yaml, /@tsrx\/typescript-plugin@0\.4\.11/)
+	assert.doesNotMatch(yaml, /@tsrx\/typescript-plugin@/)
 	const pkg = JSON.parse(yaml)
+	assert.equal(pkg.devDependencies['@tsrx/content-mapper'], 'catalog:xplat')
+	assert.equal(pkg.devDependencies['typescript-classic'], undefined)
 	assert.equal(pkg.packageManager, 'bun@1.4.4')
 	for (const path of Object.values(pkg.patchedDependencies)) {
 		assert.ok(existsSync(join(dir, path)))
@@ -71,6 +73,7 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 	composeTargets(['ios'], native)
 	const nativeYaml = readFileSync(join(native, 'package.json'), 'utf8')
 	assert.match(nativeYaml, /@nativescript\/core@9\.1\.3/)
+	assert.equal(JSON.parse(nativeYaml).devDependencies['typescript-classic'], 'catalog:xplat')
 })
 
 // Oxlint 1.90.0's optional checker peer wants >=7.0.2005; generated
@@ -105,6 +108,10 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 
 	assert.ok(existsSync(join(dir, 'index.html')))
 	assert.ok(existsSync(join(dir, 'src/main.web.tsrx')))
+	assert.equal(
+		readFileSync(join(dir, 'src/main.tsrx'), 'utf8'),
+		'// Type contract only.\nexport {}\n',
+	)
 	assert.ok(!existsSync(join(dir, 'nativescript.config.ts')))
 	assert.ok(!existsSync(join(dir, 'src/main.ts')))
 	assert.ok(!existsSync(join(dir, 'App_Resources')))

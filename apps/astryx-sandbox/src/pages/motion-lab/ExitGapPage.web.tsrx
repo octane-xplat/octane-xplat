@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 import { Badge, Banner, Card, CodeBlock, Grid, Link, HStack, VStack, Heading, Text } from '@octane-xplat/ui'
-import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web'
+import { SandboxLink as RouterLink } from '../../shell/SandboxLink.web.tsrx'
 import { cx } from '../../cx'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
@@ -25,9 +25,9 @@ import { cx } from '../../cx'
  * that genuinely want one.
  */
 
-import {LabPage} from './PageFrame';
-import {ComparePanes, DemoBody, DemoCard, TokenSlider} from './LabPrimitives';
-import {DialogRig, LayerRig, NativePopoverProbe} from './LabDemos';
+import {LabPage} from './PageFrame.tsrx';
+import {ComparePanes, DemoBody, DemoCard, TokenSlider} from './LabPrimitives.tsrx';
+import {DialogRig, LayerRig, NativePopoverProbe} from './LabDemos.tsrx';
 import {CORRECTED_EXIT_RULE, GUIDANCE_CONFLICTS} from './publishedGuidance';
 
 

@@ -4,7 +4,7 @@
 
 import { AppShell } from '@octane-xplat/ui'
 import { useRouterState } from '@octane-xplat/ui/routing'
-import { SandboxNav } from './SandboxNav'
+import { SandboxNav } from './SandboxNav.tsrx'
 
 const FULLSCREEN_PATHS = [
 	'/pages/color-studio',

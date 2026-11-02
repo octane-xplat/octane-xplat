@@ -22,7 +22,7 @@ import {
 	useReducedMotion,
 } from '@octane-xplat/motion'
 
-import { usePauseOnHidden } from './motion-patterns-lifecycle'
+import { usePauseOnHidden } from './motion-patterns-lifecycle.tsrx'
 
 // Motion patterns showcase — first slice of plans/motion-primitives-patterns.md.
 // A cohesive "Activity overview" demo plus a focused view per pattern. All four

@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Stack.parity.check.ts.
-import { Absolute } from './Absolute'
-import { View } from './View'
+import { Absolute } from './Absolute.tsrx'
+import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 // Overlap migrated to Absolute: the public Stack is now the Astryx flow

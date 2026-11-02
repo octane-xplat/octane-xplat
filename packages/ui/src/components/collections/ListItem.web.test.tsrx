@@ -2,8 +2,8 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
-import { List } from './List.web'
-import { ListItem } from './ListItem.web'
+import { List } from './List.web.tsrx'
+import { ListItem } from './ListItem.web.tsrx'
 
 const roots: any[] = []
 afterEach(() => {

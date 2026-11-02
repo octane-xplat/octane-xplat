@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in FieldGroup.parity.check.ts.
-import { FieldGroup } from './FieldGroup'
-import { TextInput } from './TextInput'
+import { FieldGroup } from './FieldGroup.tsrx'
+import { TextInput } from './TextInput.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function FieldGroupFixture() @{

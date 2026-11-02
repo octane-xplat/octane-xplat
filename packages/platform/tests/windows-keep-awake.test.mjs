@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { setImmediate } from 'node:timers/promises'
 import test from 'node:test'
 import vm from 'node:vm'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const source = ts.transpileModule(
 	readFileSync(new URL('../src/keep-awake.windows.ts', import.meta.url), 'utf8'),

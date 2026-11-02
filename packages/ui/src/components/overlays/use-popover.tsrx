@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useCallback } from 'octane'
 import type { ContextRenderProps, UsePopoverOptions, UsePopoverReturn } from '../../props'
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 
 /** Headless popover (Astryx `usePopover`) built on `useLayer`: the trigger
  *  binds `triggerRef` (+ `triggerProps` for `aria-haspopup`/`aria-expanded`/

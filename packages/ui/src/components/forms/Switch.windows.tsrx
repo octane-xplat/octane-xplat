@@ -6,7 +6,7 @@ import type { SwitchProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useMeasure } from '../layout/useMeasure'
+import { useMeasure } from '../layout/useMeasure.tsrx'
 import './switch-control'
 import './Switch.windows.css'
 

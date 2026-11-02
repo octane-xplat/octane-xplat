@@ -1,6 +1,6 @@
 // Measured parity fixtures — assertions live in Section.parity.check.ts.
-import { Section } from './Section'
-import { View } from '../layout/View'
+import { Section } from './Section.tsrx'
+import { View } from '../layout/View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SectionColumnFixture() @{

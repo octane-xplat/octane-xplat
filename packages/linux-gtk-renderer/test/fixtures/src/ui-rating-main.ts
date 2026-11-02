@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { RatingScene, RatingContextScene } from './ui-rating.gtk'
+import { RatingScene, RatingContextScene } from './ui-rating.gtk.tsrx'
 
 Gtk.init()
 const window = new Gtk.Window({

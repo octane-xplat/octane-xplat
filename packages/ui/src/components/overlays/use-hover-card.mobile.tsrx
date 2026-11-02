@@ -2,7 +2,7 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useRef, useState } from 'octane'
 import type { HoverCardOptions, HoverCardReturn } from '../../props'
-import { useLayer } from './use-layer'
+import { useLayer } from './use-layer.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 /**

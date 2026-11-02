@@ -2,12 +2,12 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
-import { useFocus, useFocusRing } from './use-focus'
-import type { FocusEventPayload } from './use-focus'
-import { isFocusVisible, useFocusVisible } from './use-focus-visible'
-import { useFocusWithin } from './use-focus-within'
-import { useLandmark } from './use-landmark'
-import { FocusScope, getFocusScopeCapabilities } from '../../components/overlays/FocusScope'
+import { useFocus, useFocusRing } from './use-focus.tsrx'
+import type { FocusEventPayload } from './use-focus.tsrx'
+import { isFocusVisible, useFocusVisible } from './use-focus-visible.tsrx'
+import { useFocusWithin } from './use-focus-within.tsrx'
+import { useLandmark } from './use-landmark.tsrx'
+import { FocusScope, getFocusScopeCapabilities } from '../../components/overlays/FocusScope.tsrx'
 
 // Web lane for the React Aria focus family — the octane DOM renderer maps
 // onFocus/onBlur props to focusin/focusout, so hook props spread onto host

@@ -23,7 +23,7 @@ platform example. Platform divergence belongs at file boundaries.
   relying on React habits for hooks, state, context, refs, error boundaries, or
   `children`; native targets accept only a subset of `octane` runtime imports.
 - Keep one intrinsic vocabulary per file, with no DOM globals in shared/native
-  implementations. Import unsuffixed basenames so the resolver selects the leaf.
+  implementations. Import unsuffixed module names with explicit `.tsrx` extensions for TSRX; the build selects the leaf.
   The unsuffixed file is the native default; `.web`, `.mobile`, and OS suffixes
   provide overrides. See [platform leaves](references/platform-leaves.md).
 - New apps default to the shared `@octane-xplat/jsx` types. An explicit native

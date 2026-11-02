@@ -12,8 +12,8 @@ import {
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator'
-import { NativeToggleField } from './NativeToggleField'
+import { useIndicator } from '../feedback/use-indicator.tsrx'
+import { NativeToggleField } from './NativeToggleField.tsrx'
 
 function CheckboxControl(inputProps: CheckboxProps & { standalone?: boolean }) @{
 	const props = useFieldControlProps(inputProps)

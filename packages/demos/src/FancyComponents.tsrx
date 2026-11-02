@@ -24,7 +24,7 @@ import {
 	type MotionValue,
 } from '@octane-xplat/motion'
 
-import { usePauseOnHidden } from './motion-patterns-lifecycle'
+import { usePauseOnHidden } from './motion-patterns-lifecycle.tsrx'
 import { clipMarquee } from './fancy-clip'
 
 // Fancy components showcase — the Fancy Components port (upstream

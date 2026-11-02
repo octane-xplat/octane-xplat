@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { parseListTemplate, validateListProps, listFactory } from '../src/list-template.ts'
 import { templateProps } from '../src/template-props.ts'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { fileURLToPath } from 'node:url'
 
 test('string template prop inventory matches every canonical shared tag and attribute', () => {

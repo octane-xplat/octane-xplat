@@ -14,8 +14,8 @@ import type {
 } from './types'
 
 import type { Renderable, TableColumn } from '../props'
-import { Icon } from '../components/media/Icon'
-import { TableSlot, tableSlot } from './table-slot'
+import { Icon } from '../components/media/Icon.tsrx'
+import { TableSlot, tableSlot } from './table-slot.tsrx'
 
 /** Indent step per level (dips), matching the web spacing tokens. */
 const INDENT_STEP = { sm: 12, md: 16, lg: 24 } as const

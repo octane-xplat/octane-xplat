@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { ToastPosition, ToastViewportProps } from '../../props'
 import { ToastViewportProvider, type ToastViewportContextValue } from './toast-context'
 import { registerToastViewport, toastStore } from './toast-store'
-import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surface.gtk'
+import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surface.gtk.tsrx'
 
 /** Toast stack container (Astryx `ToastViewport`), GTK leaf. Toasts render
  *  on corner-docked, nonmodal overlay layers above the root content — one

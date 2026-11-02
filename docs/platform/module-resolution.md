@@ -28,12 +28,12 @@ Card.linux.tsrx    legacy Linux WebKitGTK override
 ```
 
 Import `Card` without naming a platform, for example
-`import { Card } from './Card'`. The **resolver**, the tool that selects files,
+`import { Card } from './Card.tsrx'`. The **resolver**, the tool that selects files,
 tries the most specific version first. “Unsuffixed” means a file without a
 platform name, such as `Card.tsrx`.
 
 ```tsx
-import { Card } from './Card'
+import { Card } from './Card.tsrx'
 
 // Each Card variant exports the same component and props.
 export function Screen() {
@@ -156,7 +156,17 @@ The build selects the active platform using the resolution order above.
 The scaffold's TypeScript program checks every variant together. Its fixed
 `moduleSuffixes` order starts with the unsuffixed file, so a passing typecheck
 checks the files' contracts, rather than proving runtime platform selection.
-Keep imports extensionless so the build can select the right file.
+For TSRX modules, include `.tsrx` but leave out the platform name. TypeScript
+checks the unsuffixed contract; the platform preset selects the runtime leaf.
+Every platform family needs an unsuffixed module; lint checks this for source
+files. If no default implementation
+exists, use a declaration-only contract and provide implementations for the
+targets that import it. The build rejects a contract without an implementation.
+
+```tsrx
+// Card.tsrx — contract for a module implemented only by platform leaves.
+export declare function Card(props: { title: string }): unknown
+```
 
 New apps directly depend on `@octane-xplat/jsx` and select its shared native
 vocabulary in `tsconfig.json`:
@@ -230,24 +240,64 @@ its environments; manifests without an explicit source resolve the facade defaul
 }
 ```
 
-Plain `tsc` doesn't probe `.tsrx` for extensionless specifiers — the suffix
-probe uses a hardcoded extension table (`.ts`/`.tsx`/`.d.ts`/`.js`/`.jsx`).
-This repo's `@tsrx/typescript-plugin` patch enables Volar's
-`resolveHiddenExtensions`, which maps each `.d.ts` probe — including
-`moduleSuffixes`-rewritten ones — back to the `.tsrx` source, so `tsrx-tsc`
-resolves `import './Leaf'` to `Leaf.web.tsrx` / `Leaf.ios.tsrx` /
-`Leaf.mobile.tsrx` (measured by `bun run check:suffix-resolution`). Lanes that
-run unpatched TypeScript — plain `tsc`, or a consumer that didn't materialize
-the patch set — still need a same-name `.ts` shim re-exporting the component
-(`Card.mobile.ts` → `Card.mobile.tsrx`) or an explicit `.tsrx` specifier; the
-Vite resolver selects the `.tsrx` component directly at runtime either way.
-The upstream form of the fix is [tsrx-org/tsrx#971](https://github.com/tsrx-org/tsrx/pull/971),
-still open — the shims stay supported until that or an equivalent lands in a
-released plugin.
+TypeScript 7.1 checks TSRX through a **content mapper**, a compiler process
+that presents each TSRX file as typed source. Starters declare the mapper as a
+development dependency. In an existing app, install it and keep this entry in
+configurations that contain TSRX. `tsrx-tsc` enables
+external compiler code when launching native TypeScript. A direct native
+compiler command must opt in with `--runExternalCode`.
+
+```sh
+bun add -D @tsrx/content-mapper
+```
+
+```json
+{
+  "contentMappers": [
+    { "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }
+  ]
+}
+```
+
+```sh
+bun run tsrx-tsc --noEmit
+# Equivalent with native TypeScript's launcher:
+node node_modules/typescript/bin/tsc --runExternalCode --noEmit
+```
+
+Native TypeScript does not resolve extensionless imports to TSRX files, and
+its platform-suffix probing does not match `Card.web.tsrx`. Xplat therefore
+uses explicit source extensions and resolves platforms in the build preset.
+See the [upstream support tracker](https://github.com/tsrx-org/tsrx/issues/136)
+for native compiler and editor limitations.
 
 ```ts
-// Card.mobile.ts — a shim for an unpatched TypeScript lane.
-export { Card } from './Card.mobile.tsrx'
+import { Card } from './Card.tsrx'
+// The web build selects Card.web.tsrx; the checker reads Card.tsrx.
+```
+
+NativeScript build helpers still use TypeScript's classic compiler API for
+configuration parsing and native-class transforms. Native starters supply the
+separate `typescript-classic` dependency. When updating an existing native app,
+install that alias too; your project checker can keep TypeScript 7.1.
+
+```sh
+bun add -D typescript-classic@npm:typescript@5.9.3
+```
+
+A custom compiler or test configuration needs the same platform selection.
+Add `xplatTsrx` when configuring Octane directly. Standard platform presets and
+`xplatBoundary` already include it.
+
+```ts
+import { defineConfig } from 'vitest/config'
+import { octane } from 'octane/compiler/vite'
+import { xplatTsrx } from '@octane-xplat/cli/vite'
+
+export default defineConfig({
+  plugins: [xplatTsrx('web'), octane({ ssr: false })],
+  test: { environment: 'jsdom' },
+})
 ```
 
 For `ns build`'s type check (`@nativescript/vite` ≥ 8.0.12, NativeScript PR

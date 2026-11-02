@@ -11,7 +11,7 @@ import {
 
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
-import { NativeToggleField } from './NativeToggleField'
+import { NativeToggleField } from './NativeToggleField.tsrx'
 
 /** One state/action owner for track, label and keyboard activation. */
 function SwitchControl(inputProps: SwitchProps & { standalone?: boolean }) @{

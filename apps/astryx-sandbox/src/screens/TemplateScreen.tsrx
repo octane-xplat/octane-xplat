@@ -7,10 +7,10 @@
 import { Heading, Text, VStack, View } from '@octane-xplat/ui'
 import { templateRow } from '../coverage/coverage'
 import { exampleFor } from '../examples/registry'
-import { SandboxLink } from '../shell/SandboxLink'
-import { PendingScreen } from '../shell/PendingScreen'
-import { PreviewShell } from '../shell/PreviewShell'
-import { SandboxShell } from '../shell/SandboxShell'
+import { SandboxLink } from '../shell/SandboxLink.tsrx'
+import { PendingScreen } from '../shell/PendingScreen.tsrx'
+import { PreviewShell } from '../shell/PreviewShell.tsrx'
+import { SandboxShell } from '../shell/SandboxShell.tsrx'
 
 export function TemplateScreen(props: { params: { name: string } }) @{
 	const row = templateRow(props.params.name)

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { pathToFileURL } from 'node:url'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const require = createRequire(import.meta.url)
 const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).href
@@ -84,8 +84,8 @@ const pressable = compiled(
 		'@octane-xplat/lib': support,
 		'../overlays/escape-props': support,
 		'../layout/layout-child': support,
-		'../layout/useMeasure': support,
-		'../layout/pan': support,
+		'../layout/useMeasure.tsrx': support,
+		'../layout/pan.tsrx': support,
 	},
 )
 
@@ -96,7 +96,7 @@ const slot = compiled('text-slot', read('forms/text-slot.tsrx'), {
 const badge = compiled('badge', read('feedback/Badge.windows.tsrx'), {
 	'@octane-xplat/lib': support,
 	'../overlays/escape-props': support,
-	'../forms/text-slot': slot,
+	'../forms/text-slot.tsrx': slot,
 })
 
 const { Badge } = await import(badge)
@@ -105,7 +105,7 @@ const card = compiled('card', read('actions/Card.windows.tsrx'), {
 	'../../internal/layout/style-merge': support,
 	'@octane-xplat/lib': support,
 	'../overlays/escape-props': support,
-	'../forms/text-slot': slot,
+	'../forms/text-slot.tsrx': slot,
 })
 
 const safeUrl = compiled(
@@ -120,8 +120,8 @@ const clickableCard = compiled('clickable-card', read('actions/ClickableCard.win
 	'@octane-xplat/lib': support,
 	'@nativescript/core': support,
 	'../../routing/safe-url': safeUrl,
-	'./Pressable': pressable,
-	'../forms/text-slot': slot,
+	'./Pressable.tsrx': pressable,
+	'../forms/text-slot.tsrx': slot,
 })
 
 const { Card } = await import(card)
@@ -130,8 +130,8 @@ const { ClickableCard } = await import(clickableCard)
 const link = compiled('link', read('navigation/Link.windows.tsrx'), {
 	'../../internal/layout/style-merge': support,
 	'@nativescript/core': support,
-	'../actions/Pressable': pressable,
-	'../forms/text-slot': slot,
+	'../actions/Pressable.tsrx': pressable,
+	'../forms/text-slot.tsrx': slot,
 	'./use-link-component.tsrx': support,
 })
 
@@ -153,7 +153,7 @@ const collapsible = compiled('collapsible', read('collections/Collapsible.tsrx')
 	'../../internal/layout/style-merge': support,
 	'@octane-xplat/lib': support,
 	'../overlays/escape-props': support,
-	'../actions/Pressable': pressable,
+	'../actions/Pressable.tsrx': pressable,
 	'./collapsible-context': collapsibleContext,
 })
 
@@ -164,10 +164,10 @@ const banner = compiled(
 		'../../internal/layout/style-merge': support,
 		'@octane-xplat/lib': support,
 		'../overlays/escape-props': support,
-		'../actions/Pressable': pressable,
-		'../media/Icon': icon,
-		'../forms/text-slot': slot,
-		'../collections/Collapsible': collapsible,
+		'../actions/Pressable.tsrx': pressable,
+		'../media/Icon.tsrx': icon,
+		'../forms/text-slot.tsrx': slot,
+		'../collections/Collapsible.tsrx': collapsible,
 	},
 )
 
@@ -192,8 +192,8 @@ const listItem = compiled('list-item', read('collections/ListItem.windows.tsrx')
 	'../../internal/accessibility/ref-list': support,
 	'@octane-xplat/lib': support,
 	'../overlays/escape-props': support,
-	'../actions/Pressable': pressable,
-	'../forms/text-slot': slot,
+	'../actions/Pressable.tsrx': pressable,
+	'../forms/text-slot.tsrx': slot,
 	'./list-context': listContext,
 	'../navigation/nav-href': support,
 })
@@ -221,10 +221,10 @@ const tableSortable = compiled(
 	'table-sortable',
 	readFileSync(new URL('../src/table/use-table-sortable.windows.tsrx', import.meta.url), 'utf8'),
 	{
-		'../components/actions/Pressable': pressable,
-		'../components/forms/text-slot': slot,
-		'../components/media/Icon': icon,
-		'./table-slot': tableSlots,
+		'../components/actions/Pressable.tsrx': pressable,
+		'../components/forms/text-slot.tsrx': slot,
+		'../components/media/Icon.tsrx': icon,
+		'./table-slot.tsrx': tableSlots,
 	},
 )
 
@@ -291,10 +291,10 @@ const tabs = compiled('tab-list', read('collections/TabList.tsrx'), {
 	'../navigation/nav-contexts': navContexts,
 	'../navigation/use-navigation-item.shared.tsrx': navigationItem,
 	'../navigation/nav-href': support,
-	'../media/Icon': icon,
-	'../content/Text': tabText,
-	'../overlays/Popover': tabPopover,
-	'../actions/Pressable': pressable,
+	'../media/Icon.tsrx': icon,
+	'../content/Text.tsrx': tabText,
+	'../overlays/Popover.tsrx': tabPopover,
+	'../actions/Pressable.tsrx': pressable,
 })
 
 const tabFixture = compiled(
@@ -322,8 +322,8 @@ const windowsTabs = compiled(
 		'../layout/size-context': sizeContext,
 		'../navigation/nav-contexts': navContexts,
 		'../navigation/use-navigation-item.shared.tsrx': navigationItem,
-		'../media/Icon': icon,
-		'../content/Text': tabText,
+		'../media/Icon.tsrx': icon,
+		'../content/Text.tsrx': tabText,
 		'./TabList.tsrx': tabs,
 	},
 )
@@ -378,10 +378,10 @@ const selectView = compiled(
 	{
 		'@octane-xplat/lib': support,
 		'../../internal/layout/style-merge': support,
-		'../layout/useMeasure': support,
-		'../media/Icon': icon,
+		'../layout/useMeasure.tsrx': support,
+		'../media/Icon.tsrx': icon,
 		'../feedback/indicators': selectIndicators,
-		'../feedback/use-indicator': selectSupport,
+		'../feedback/use-indicator.tsrx': selectSupport,
 		'./SelectView.tsrx': selectFallback,
 	},
 )
@@ -411,10 +411,10 @@ const menuSpinner = compiled(
 const menuButton = compiled('menu-button', read('actions/Button.tsrx'), {
 	'@nativescript/core': support,
 	'@octane-xplat/lib': support,
-	'../forms/text-slot': slot,
-	'./Pressable': pressable,
+	'../forms/text-slot.tsrx': slot,
+	'./Pressable.tsrx': pressable,
 	'../feedback/ActivityIndicator.tsrx': menuSpinner,
-	'../media/Icon': icon,
+	'../media/Icon.tsrx': icon,
 	'./button-group-context': menuSupport,
 	'../layout/size-context': menuSupport,
 	'../../routing/safe-url': safeUrl,
@@ -439,12 +439,12 @@ const windowsMenu = compiled(
 	read('overlays/DropdownMenu.windows.tsrx').replace(/^import ['"].*['"]\s*;?$/gm, ''),
 	{
 		'@octane-xplat/lib': support,
-		'../actions/Button': menuButton,
+		'../actions/Button.tsrx': menuButton,
 		'../actions/button-group-context': menuSupport,
-		'../content/Text': tabText,
-		'../layout/View': menuView,
-		'../layout/useMeasure': support,
-		'../media/Icon': icon,
+		'../content/Text.tsrx': tabText,
+		'../layout/View.tsrx': menuView,
+		'../layout/useMeasure.tsrx': support,
+		'../media/Icon.tsrx': icon,
 		'./DropdownMenu.tsrx': menuFallback,
 	},
 )

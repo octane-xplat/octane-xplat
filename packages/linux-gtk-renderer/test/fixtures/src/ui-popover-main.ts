@@ -5,7 +5,7 @@ import Gdk from 'gi://Gdk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { positionPopover } from '../../../../ui/src/components/overlays/popover-position'
-import { Popovers, counts, refs } from './ui-popover.gtk'
+import { Popovers, counts, refs } from './ui-popover.gtk.tsrx'
 
 Gtk.init()
 const window = new Gtk.Window({ title: 'Octane GTK Popover test', default_width: 800, default_height: 600, decorated: false })

@@ -15,7 +15,7 @@ import {
 	CustomBox,
 	CustomRadio,
 	CustomCheck,
-} from './ui-indicators.gtk'
+} from './ui-indicators.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK indicator test',

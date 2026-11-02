@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
