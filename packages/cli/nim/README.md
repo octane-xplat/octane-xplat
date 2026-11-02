@@ -58,6 +58,12 @@ These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
 the process-group cleanup guarantee. Other process host adapters are unimplemented.
+`typecheck_envs.nim` expands the combined environment program natively, preserving
+ambient precedence, root-file union, compiler-option checks and generated JSON
+bytes. Its differential gate exercises real repository manifests and filesystem
+glob semantics. The caller still supplies an ambient source root explicitly;
+installed resource resolution, route generation and tagged compiler execution
+must be connected before public `typecheck` is implemented.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

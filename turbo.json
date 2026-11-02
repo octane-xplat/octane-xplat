@@ -17,6 +17,8 @@
 		"test:nim-http-live": { "dependsOn": ["build:nim"], "cache": false },
 		"build:nim-http": { "dependsOn": ["build:nim"], "cache": false },
 		"build:nim-process": { "dependsOn": ["build:nim"], "cache": false },
+		"build:nim-env": { "dependsOn": ["build:nim"], "cache": false },
+		"test:nim-env": { "dependsOn": ["build:nim-env"], "cache": false },
 		"test:nim-process": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-build-tools": { "dependsOn": ["build:nim", "@octane-xplat/build#build"], "cache": false },
 		"test:nim-tokenizer": { "dependsOn": ["build:nim", "prepare:nim-tokenizer"], "cache": false },

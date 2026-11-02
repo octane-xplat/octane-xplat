@@ -1,8 +1,9 @@
 ## Node-style workspace enumeration: platform traversal plus the pinned pure Nim
 ## glob matcher. Never implicitly expand a literal directory into descendants.
-import std/[os, strutils, tables, sets]
+import std/[os, strutils, tables, sets, unicode]
 import glob as engine
 import ./pathutil
+from ./js_text import utf16Units
 
 proc bracePatterns(pattern: string): seq[string] =
   var start = -1
@@ -66,14 +67,25 @@ proc compatiblePattern(pattern: string): string =
     if ch == '\\' and at+1 < pattern.len:
       result.add(pattern[at..at+1]); at += 2; continue
     if ch == '[' and pattern.find(']',at+1) < 0: result.add("\\[")
+    elif ch == '[' and at+1 < pattern.len and pattern[at+1] == '^':
+      result.add("[!"); at += 2; continue
     else: result.add(ch)
     inc at
 
-proc workspaceGlob*(root: string, included, excluded: seq[string]): seq[string] =
+proc globUnits(value: string): string =
+  # Node's non-Unicode minimatch regex consumes UTF-16 units. Map surrogate
+  # units past the Unicode surrogate gap for the Nim matcher. Shift all later
+  # units too: the map is injective and preserves character-class range order.
+  for unit in utf16Units(value):
+    let code = int(unit)
+    result.add(Rune(if code >= 0xd800: code+0x800 else: code).toUTF8())
+
+proc filesystemGlob*(root: string, included, excluded: seq[string],
+    skippedNames: seq[string] = @[]): seq[string] =
   var compiled = initTable[string,engine.Glob]()
   var seen = initHashSet[string]()
   var found: seq[string]
-  proc partMatches(input, pattern: string, checkPeriod = true): bool =
+  proc unitMatches(input, pattern: string, checkPeriod = true): bool =
     if checkPeriod and input.startsWith(".") and not (pattern.startsWith(".") or pattern.startsWith("[.]")): return false
     # The upstream negated extglob converter excludes prefixes. Node excludes
     # the complete alternative, so match its variable span explicitly here.
@@ -93,14 +105,16 @@ proc workspaceGlob*(root: string, included, excluded: seq[string]): seq[string] 
       let suffix = pattern[closing+1..^1]
       for first in 0..input.len:
         if first < input.len and (ord(input[first]) and 0xc0) == 0x80: continue
-        if not partMatches(input[0..<first],prefix,false): continue
+        if not unitMatches(input[0..<first],prefix,false): continue
         for last in first..input.len:
           if last < input.len and (ord(input[last]) and 0xc0) == 0x80: continue
-          if not partMatches(input[first..<last],banned,false) and partMatches(input[last..^1],suffix,false): return true
+          if not unitMatches(input[first..<last],banned,false) and unitMatches(input[last..^1],suffix,false): return true
       return false
     let adjusted = compatiblePattern(pattern)
     if not compiled.hasKey(adjusted): compiled[adjusted] = engine.glob(adjusted,isDos=false,ignoreCase=false)
     engine.matches(input,compiled[adjusted])
+  proc partMatches(input, pattern: string): bool =
+    unitMatches(globUnits(input),globUnits(pattern))
   proc pathMatches(input, pattern: string): bool =
     let actual = input.replace('\\','/').split('/')
     var adjusted = pattern
@@ -119,7 +133,7 @@ proc workspaceGlob*(root: string, included, excluded: seq[string]): seq[string] 
   proc ignored(path: string): bool =
     let relative = relativePath(path,root).replace('\\','/')
     for segment in relative.split('/'):
-      if segment in ["node_modules", ".git"]: return true
+      if segment in skippedNames: return true
     for pattern in exclusions:
       if pathMatches(relative,pattern): return true
   proc collect(path: string) =
@@ -159,3 +173,6 @@ proc workspaceGlob*(root: string, included, excluded: seq[string]): seq[string] 
         except OSError: discard
       visit(base,0)
   result = found
+
+proc workspaceGlob*(root: string, included, excluded: seq[string]): seq[string] =
+  filesystemGlob(root,included,excluded,@["node_modules", ".git"])

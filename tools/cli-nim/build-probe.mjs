@@ -4,8 +4,8 @@ import { spawnSync } from 'node:child_process'
 import { getToolchain } from 'nim-toolchain'
 import { prepareDependencies } from './dependencies.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { httpProbeInputs, processProbeInputs, artifactFingerprint } from './native-inputs.mjs'
-const probes = { http: { entry: 'http_probe.nim', inputs: httpProbeInputs }, process: { entry: 'process_probe.nim', inputs: processProbeInputs } }
+import { httpProbeInputs, processProbeInputs, envProbeInputs, artifactFingerprint } from './native-inputs.mjs'
+const probes = { http: { entry: 'http_probe.nim', inputs: httpProbeInputs }, process: { entry: 'process_probe.nim', inputs: processProbeInputs }, env: { entry: 'env_probe.nim', inputs: envProbeInputs } }
 const selected = process.argv[2]
 if (!Object.hasOwn(probes, selected)) throw Error(`Choose a probe: ${Object.keys(probes).join(', ')}`)
 const root = resolve(import.meta.dirname, '../..')
@@ -14,7 +14,7 @@ const compiler = await getToolchain({ cacheDir: join(work, 'toolchain') })
 const paths = prepareDependencies(work, compiler)
 const inputs = probes[selected].inputs(root)
 const binary = join(work, `native/${selected}-probe${process.platform === 'win32' ? '.exe' : ''}`)
-const run = spawnSync(compiler.nim, ['c','-d:release','--opt:size','--mm:orc', ...paths.map(path => `--path:${path}`),
+const run = spawnSync(compiler.nim, ['c','-d:release','--opt:size','--mm:orc', ...(process.argv.includes('--debug') ? ['--stackTrace:on', '--lineTrace:on'] : []), ...paths.map(path => `--path:${path}`),
  `--nimcache:${join(work, `${selected}-cache`)}`, `-o:${binary}`,
  join(import.meta.dirname, probes[selected].entry)], { stdio: 'inherit' })
 if (run.status !== 0) process.exit(run.status ?? 1)
