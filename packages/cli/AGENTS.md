@@ -182,6 +182,12 @@ for its actual version; a version embedded by the reference runtime cannot prove
 that a standalone executable can launch that tool. Probe the project's selected
 package manager rather than requiring an unused one.
 
+Keep asynchronous tool queries separate from synchronous data assembly. Pass
+their observed freshness/availability into read services explicitly so composing
+a report does not launch a second, unowned synchronous query. Native capability
+reports must describe wired providers: importing contract IDs or compiling a
+helper does not establish a usable command or runtime workflow.
+
 Pipe chunks may split a UTF-8 sequence. When decorating a passthrough stream,
 preserve raw bytes and track line starts separately for stdout and stderr;
 decoding each chunk can replace part of a valid character. Keep bounded decoded

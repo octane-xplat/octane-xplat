@@ -1,8 +1,9 @@
 ## Per-invocation discovery, explicit binding, client preference and task policy.
 ## Retains the TypeScript envelope/selection distinction:
 ## a sole-app selection does not mutate boundApp or the envelope's projectId.
-import std/[times, json, os, strutils]
+import std/[times, json, os, strutils, asyncdispatch]
 import ./core, ./args, ./code_service, ./json_wire, ./docs_service
+import ./project_status, ./command_probe
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -160,7 +161,59 @@ proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
   result = %*{"contractVersion": 1, "ok": failure == nil, "context": envelopeContext(context, name, values)}
   if failure != nil: result["error"] = failure
   else: result["data"] = payload
+proc workspaceStatusCommand*(name: string, values, metadata: JsonNode): Future[JsonNode] {.async.} =
+  var context: WorkspaceContext
+  try: context = makeContext(values)
+  except CatchableError as error:
+    return %*{"contractVersion": 1,"ok": false,"context": {"command": name,"projectId": newJNull()},
+      "error": {"code": "execution_failure","message": "Workspace discovery failed: " & error.msg}}
+  result = %*{"contractVersion": 1,"ok": true,"context": envelopeContext(context,name,values)}
+  try:
+    let report = await buildNativeStatus(context.root,context.discovery,context.selection(),
+      %*{"name": "@octane-xplat/cli","version": metadata["version"]},grantList(),
+      metadata["capabilityIds"],metadata["boundaries"])
+    if name == "status": result["data"] = report
+    else:
+      var matrices = newJArray()
+      for matrix in report["capabilities"]:
+        if not truthy(field(values,"platform")) or matrix["platform"] == values["platform"]: matrices.add(matrix)
+      result["data"] = %*{"capabilities": matrices}
+  except CatchableError as error:
+    result["ok"] = %false
+    result["error"] = %*{"code": (if error of ProbeCancelledError: "cancelled" else: "execution_failure"),"message": error.msg}
+
 proc workspaceHuman*(name: string, payload: JsonNode): string =
+  if name == "status":
+    var lines = @["Workspace: " & text(payload["identity"]["workspace"]["root"]) & " (" & text(payload["identity"]["workspace"]["kind"]) & ")",
+      "Server: " & text(payload["server"]["name"]) & "@" & text(payload["server"]["version"])]
+    let selected = payload["identity"]["selection"]
+    case text(selected["state"])
+    of "bound": lines.add("App: " & scalarString(selected["app"]["id"]) & " (" & scalarString(selected["app"]["name"]) & ") — " & scalarString(selected["reason"]))
+    of "ambiguous":
+      var candidates: seq[string]
+      for app in selected["candidates"]: candidates.add(scalarString(app["id"]))
+      lines.add("App: ambiguous — candidates: " & candidates.join(", "))
+    else: lines.add("App: none detected (" & scalarString(selected["reason"]) & ")")
+    let framework = field(payload["identity"],"framework")
+    if framework != nil and framework.kind != JNull:
+      for package in framework["packages"]:
+        let version = field(package,"version")
+        lines.add("  " & scalarString(package["name"]) & "@" & (if version == nil or version.kind == JNull: "?" else: scalarString(version)) & " (" & scalarString(package["source"]) & ")")
+    lines.add("Docs: " & text(payload["docs"]["state"]) & " — " & text(payload["docs"]["detail"]))
+    lines.add("Code: " & text(payload["codeIndex"]["state"]) & " — " & text(payload["codeIndex"]["detail"]))
+    for prerequisite in payload["prerequisites"]:
+      if text(prerequisite["status"]) == "missing": lines.add("Missing: " & text(prerequisite["name"]) & " — " & text(prerequisite["remedy"]))
+    for step in payload["nextSteps"]: lines.add("Next: " & text(step))
+    return lines.join("\n")
+  if name == "capabilities":
+    var lines: seq[string]
+    for matrix in payload["capabilities"]:
+      lines.add(text(matrix["platform"]) & (if matrix["declared"].getBool(): ":" else: " (not declared):"))
+      for capability in matrix["capabilities"]:
+        var line = "  " & text(capability["capability"]) & ": " & text(capability["status"])
+        if truthy(field(capability,"detail")): line.add(" — " & text(capability["detail"]))
+        lines.add(line)
+    return lines.join("\n")
   if name == "docs read":
     if truthy(field(payload,"status")): return text(payload["status"]) & ": " & text(field(payload,"reason"))
     let provenance = field(payload,"provenance")

@@ -118,6 +118,17 @@ bun run turbo run build:nim --filter=@octane-xplat/cli
 research/nim-cli/native/xplat catalog --json
 ```
 
+Native `status` discovers apps, installed framework versions, project guidance,
+source coverage and tools on your PATH without needing Node or Bun to run the
+report. Missing tools are reported with installation hints. Use `capabilities`
+to check which operations your native build provides; a tool being installed
+does not mean an SDK, device or running app is ready:
+
+```sh
+research/nim-cli/native/xplat status --project "$PWD" --json
+research/nim-cli/native/xplat capabilities --project "$PWD" --json
+```
+
 Native `typecheck` uses the selected project's installed package manager and
 TSRX checker. The project must already contain compatible `@octane-xplat/build`,
 `@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,

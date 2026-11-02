@@ -2,7 +2,7 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-clean, typecheck, routes, app selection, permissions, code search, code read, guidance
+status, capabilities, clean, typecheck, routes, app selection, permissions, code search, code read, guidance
 and docs read; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
@@ -61,8 +61,14 @@ opt-in SIGINT/SIGTERM handling; normal owner exit also releases its groups.
 owner. Missing tools, nonzero exits, output overflow and deadlines produce absent
 observations; cancellation propagates after cleanup. `prerequisites.nim` checks
 the actual selected PATH and package manager. Browser readiness remains unknown
-without launching a browser. These helpers do not qualify SDKs/devices or enable
-the still-pending public status command.
+without launching a browser. These helpers do not qualify SDKs/devices.
+`project_status.nim` composes fresh selection, installed bindings, guidance,
+docs/code status, permissions and native capabilities. It supplies owned async
+observations to synchronous read services instead of starting another Git process
+there. `capabilities.nim` reports only the providers wired into the native build;
+runtime/session/evidence operations remain unavailable and semantic retrieval
+remains partial. Contract IDs and product boundaries are embedded from the
+canonical reference at build time.
 These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
@@ -107,6 +113,8 @@ filesystem discovery without making installed-version or runtime-readiness claim
 
 ```sh
 research/nim-cli/native/xplat status --schema
+research/nim-cli/native/xplat status --project "$PWD" --app apps/macos --json
+research/nim-cli/native/xplat capabilities --project "$PWD" --app apps/macos --platform macos --json
 research/nim-cli/native/xplat clean --help
 ```
 
@@ -201,8 +209,8 @@ JavaScript exports, or runtime dependency tree. TypeScript remains in the
 repository as the migration reference; stable/nightly packaging is unchanged.
 Existing `@octane-xplat/cli/vite` and MCP imports are not provided by this
 experimental tarball. Project build plugins are separately packaged as
-[`@octane-xplat/build`](../../build/README.md); the native build/dev/typecheck
-commands and complete app workflows still require migration and qualification.
+[`@octane-xplat/build`](../../build/README.md); native build/dev commands and
+complete app workflows still require migration and qualification.
 
 ```sh
 # After a Nim prerelease is published:

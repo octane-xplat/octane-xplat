@@ -1,5 +1,5 @@
 ## Current-source retrieval with labeled corpora, freshness and local indexing.
-import std/[json, os, strutils, sets, times, math, asyncdispatch]
+import std/[json, os, strutils, sets, times, math, asyncdispatch, options]
 import ./jsonutil, ./code_scope, ./code_retrieval, ./code_index, ./js_text, ./provenance, ./command_output
 from ./args import jsTrim
 
@@ -81,10 +81,11 @@ proc option(options: JsonNode, key: string, default: JsonNode): JsonNode =
   let value = field(options,key)
   if value == nil: default else: value
 
-proc codeStatus*(service: CodeService, app: JsonNode = nil, workspaceKind: JsonNode = nil): JsonNode =
+proc codeStatus*(service: CodeService, app: JsonNode = nil, workspaceKind: JsonNode = nil,
+    freshness: Option[string] = none(string)): JsonNode =
   let collected = corpusFiles(service.corporaFor(app,workspaceKind))
   %*{"state": "ready","detail": "exact search reads current source; semantic index is local-only and builds on demand",
-    "freshness": service.treeMarker(),"files": collected["files"].len,"corpora": collected["coverage"],
+    "freshness": (if freshness.isSome: freshness.get() else: service.treeMarker()),"files": collected["files"].len,"corpora": collected["coverage"],
     "semantic": service.index.indexStatus()}
 
 proc codeSearch*(service: CodeService, options: JsonNode): JsonNode =

@@ -1,5 +1,5 @@
 ## Installed-version docs binding and page reads. Index/search wiring is separate.
-import std/[json, os, strtabs]
+import std/[json, os, strtabs, options]
 import ./jsonutil, ./docs_binding, ./docs_snapshots, ./docs_retrieval, ./docs_guidance, ./provenance
 
 type DocsService* = ref object
@@ -27,11 +27,11 @@ proc docsRefresh*(service: DocsService): JsonNode =
   let installation = service.refreshInstallation()
   %*{"bindingRevision": service.revision,"changed": service.revision != before,
     "packages": installation["packages"],"discrepancies": installation["discrepancies"]}
-proc docsStatus*(service: DocsService): JsonNode =
+proc docsStatus*(service: DocsService, gitAvailable: Option[bool] = none(bool)): JsonNode =
   let installation = if service.installation == nil: service.refreshInstallation() else: service.installation
   %*{"identity": {"workspaceRoot": service.root,"packages": installation["packages"],
       "fingerprint": installation["fingerprint"],"discrepancies": installation["discrepancies"]},
-    "bindingRevision": service.revision,"git": (if service.snapshots.gitAvailable(): "available" else: "unavailable"),
+    "bindingRevision": service.revision,"git": (if (if gitAvailable.isSome: gitAvailable.get() else: service.snapshots.gitAvailable()): "available" else: "unavailable"),
     "cacheDir": service.snapshots.cacheDir}
 proc docsGuidance*(service: DocsService): JsonNode =
   let installation = if service.installation == nil: service.refreshInstallation() else: service.installation

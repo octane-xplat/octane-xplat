@@ -4,6 +4,8 @@ import { spawnSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { getToolchain } from 'nim-toolchain'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
+import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
+import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
 import { nativeInputs, artifactFingerprint, httpProbeInputs, processProbeInputs } from './native-inputs.mjs'
 import { routeCommandDescriptor } from './route-templates.mjs'
 const root = resolve(import.meta.dirname, '../..')
@@ -24,16 +26,17 @@ delete catalog.requestId
 // Version denotes this native build; execution coverage must never be inferred
 // from the reference schemas' implemented status.
 catalog.data.cli.version=version
-for(const c of catalog.data.commands) c.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.command)?'implemented':'pending'
+const nativeCommands=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read']
+for(const c of catalog.data.commands) c.status=nativeCommands.includes(c.command)?'implemented':'pending'
 for(const c of catalog.data.orchestration) c.status=['clean','typecheck','routes'].includes(c.name)?'implemented':'pending'
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
  delete schema.requestId
- schema.data.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.name)?'implemented':'pending'
+ schema.data.status=nativeCommands.includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
-writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:"",typecheckHelp:reference(['typecheck','--help']),
+writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,capabilityIds:CAPABILITY_IDS,boundaries:PRODUCT_BOUNDARIES,catalogHuman:"",typecheckHelp:reference(['typecheck','--help']),
  routesHelp:reference(['routes','--help']),routeDescriptor:routeCommandDescriptor(readFileSync(resolve(root,'packages/cli/src/commands/routes.ts'),'utf8'))}))
 mkdirSync(resolve(work,'native'),{recursive:true})
 const binary=resolve(work,process.platform==='win32'?'native/xplat.exe':'native/xplat')

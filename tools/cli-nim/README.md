@@ -289,11 +289,23 @@ It covers literal argv/cwd/environment, version text, absent tools, pnpm selecti
 bounded stdout, simultaneous stderr draining and owned process-tree cleanup on
 deadline, overflow or cancellation. Node is queried explicitly because the native
 CLI does not run inside Node. A tool's presence is not SDK/device readiness;
-Chromium remains unknown without a browser launch. Public status composition is
-separate work.
+Chromium remains unknown without a browser launch.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native prerequisite qualification"}' -- bun run turbo run test:nim-prerequisites --filter=@octane-xplat/cli
+```
+
+`test:nim-status` exercises public status/capability reports against Node for
+empty, sole-app, ambiguous, explicit and preferred selections, installed-version
+changes, scoped permissions, guidance, actual repository app bindings and source
+coverage. It independently asserts current native capability coverage rather than
+copying the reference's runtime claims. PATH-empty reporting remains usable;
+pnpm selection does not require Bun. A marker-observed cancellation test verifies
+the version probe and its uncooperative descendant have exited. Human rendering
+is compared with the canonical renderer using the native report.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native status qualification"}' -- bun run turbo run test:nim-status --filter=@octane-xplat/cli
 ```
 
 Route path primitives have a separate differential gate for the shared route

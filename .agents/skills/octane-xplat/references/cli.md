@@ -7,7 +7,10 @@ See [CLI installation and executable builds](../../../../docs/packages/package-c
 
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only
-discovery. Native `typecheck` is available on macOS using the project-installed
+discovery. Native `status` reports actual installed bindings, tool observations,
+guidance and source coverage; `capabilities` describes the providers wired into
+that build. Tool presence does not qualify an SDK/device or runtime check.
+Native `typecheck` is available on macOS using the project-installed
 TSRX checker and build package; it never executes baked loaders. Native `routes`
 bakes data and watches route/configuration edits on macOS, with owned worker
 cancellation and last-good publication. Keep generated output paths stable while
