@@ -377,7 +377,7 @@ export function tokenize(code: string, language: string): TokenLine[] {
 export async function tokenizeAsync(
 	code: string,
 	language: string,
-	signal?: AbortSignal,
+	signal?: { readonly aborted: boolean },
 ): Promise<TokenLine[]> {
 	const langDef = buildLanguage(language)
 	if (!langDef) {
@@ -417,7 +417,7 @@ export async function tokenizeStreaming(
 	code: string,
 	language: string,
 	onBatch: (lines: TokenLine[], startLine: number) => void,
-	signal?: AbortSignal,
+	signal?: { readonly aborted: boolean },
 ): Promise<void> {
 	const langDef = buildLanguage(language)
 	if (!langDef) {

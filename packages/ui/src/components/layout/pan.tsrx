@@ -2,6 +2,7 @@
 import { useCallback, useRef } from 'octane'
 import { Utils } from '@nativescript/core'
 import type { PanEvent } from '../../props'
+import { hostGlobal } from '../../internal/platform/host-bridge'
 
 /** Shared pan normalization for native leaves — NS pan payloads
  *  ({deltaX,deltaY,state:int}) map to the shared gesture shape. Velocity:
@@ -32,7 +33,7 @@ function panVelocity(
 	// velocity. Feed those events to the platform tracker and convert px/sec to
 	// the dip/sec units used by deltaX/deltaY.
 	const motionEvent = e.android?.current
-	const velocityTrackerClass = globalThis.android?.view?.VelocityTracker
+	const velocityTrackerClass = hostGlobal('android')?.view?.VelocityTracker
 	if (!motionEvent || !velocityTrackerClass) {
 		return { vx: 0, vy: 0 }
 	}
@@ -62,7 +63,7 @@ function nativePanState(e: any): number {
 	}
 
 	const action = motionEvent.getActionMasked?.()
-	const actionCancel = globalThis.android?.view?.MotionEvent?.ACTION_CANCEL ?? 3
+	const actionCancel = hostGlobal('android')?.view?.MotionEvent?.ACTION_CANCEL ?? 3
 	// NativeScript Android reports ACTION_CANCEL as `ended`; the MotionEvent
 	// preserves the distinction needed by the shared pan contract.
 	return action === actionCancel ? 0 : e.state

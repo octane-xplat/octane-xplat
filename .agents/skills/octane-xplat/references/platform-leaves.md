@@ -76,7 +76,10 @@ not a filename suffix; `/web` has a `web` export condition; Linux host presets c
 conditions separately. Check the export map rather than guessing subpaths.
 `@octane-xplat/ui` resolves the `gtk` runtime condition and the common public
 declaration entrypoint. Its runtime barrel, `index.gtk.ts`, exports values only;
-keep type exports in the shared barrel. The [GTK setup](../../../../docs/platform/linux-gtk.md)
+keep type exports in the shared barrel. Keep typechecking extensionless-first:
+putting `.gtk` first in `moduleSuffixes`
+also redirects the common declaration entrypoint to the value-only GTK barrel.
+The [GTK setup](../../../../docs/platform/linux-gtk.md)
 records qualified behaviors and remaining limits. Matching exports does not
 establish full UI behavior or visual parity.
 GTK source components mount through the renderer's `GtkRoot` binding from

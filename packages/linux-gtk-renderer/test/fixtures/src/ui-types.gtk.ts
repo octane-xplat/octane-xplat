@@ -47,6 +47,19 @@ type FieldStatusInfoContract = Assert<Equal<GtkFieldStatusInfo, NativeFieldStatu
 type FieldStatusTypeContract = Assert<Equal<GtkFieldStatusType, NativeFieldStatusType>>
 type FieldStatusVariantContract = Assert<Equal<GtkFieldStatusVariant, NativeFieldStatusVariant>>
 
+// GJS has no standard AbortSignal global. Search sources retain the portable
+// cancellation contract without enabling the DOM library for this fixture.
+const searchRequest: GtkUI.SearchRequest = {
+	signal: {
+		aborted: false,
+		addEventListener() {},
+		removeEventListener() {},
+	},
+}
+void searchRequest
+const noDOMGlobals: Assert<Equal<Extract<'document' | 'window', keyof typeof globalThis>, never>> = true
+void noDOMGlobals
+
 // @ts-expect-error The native direction contract is retained on GTK.
 const invalidDirection: GtkStackProps['direction'] = 'sideways'
 void invalidDirection

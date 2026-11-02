@@ -177,6 +177,10 @@ experience of agents writing Octane-xplat code effectively.
   `scripts/sync-ui-barrels.ts` omits them from generated web twins. GTK uses
   the same public declaration entrypoint as the other targets; keep its runtime
   barrel value-only and compare its actual runtime exports in the GTK fixture.
+  GTK fixture configs inherit the shared extensionless-first suffix order.
+  A GTK-first override also substitutes `index.gtk.d.ts` for the common
+  `index.d.ts` export and loses the public type exports. Runtime leaf selection
+  belongs to the GTK preset.
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
   `turbo.json` at the root). `bun run typegen`, `bun run typecheck`, the
   `typecheck:{web,mobile,macos,linux,windows,docs}` filters,

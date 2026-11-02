@@ -107,10 +107,11 @@ suffix:
 
 - `tsconfig.base.json` `moduleSuffixes` (`.gtk` after `.linux`, before
   `.windows`)
-- `packages/cli/src/tsconfig-envs.mjs`: `gtk` env — `jsxImportSource`
-  `@octane-xplat/linux-gtk`, `moduleSuffixes ['.gtk','']`,
-  `customConditions ['gtk']`, `lib ESNext` (no DOM lib), ambient
-  `host-globals.d.ts`
+- GTK fixture typechecks inherit the shared extensionless-first suffix order;
+  putting `.gtk` first also redirects the common public declaration entrypoint
+  to the value-only GTK barrel. `packages/cli/src/tsconfig-envs.ts` combines
+  environments with the fixed shared order. GTK uses `@octane-xplat/jsx`,
+  `lib ESNext` (no DOM lib), and ambient `host-globals.d.ts`.
 - `packages/cli/src/vite.mjs`: `PLATFORM_TAG` + `boundaryAllowed.gtk =
   {'gtk'}` — `.linux` leaves are foreign in a GTK bundle (tested)
 - `packages/lint/src/xplat-rules.ts`: `.gtk` in the platform suffixes, `isNativeFile`,

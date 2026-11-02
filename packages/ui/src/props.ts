@@ -4908,8 +4908,8 @@ export interface RouteDestinationInput {
 	replace?: boolean
 }
 
-interface RouteCancellationSignalLike {
-	/** Set when the destination was rejected before commit. */
+interface CancellationSignalLike {
+	/** Set when the operation is cancelled. */
 	readonly aborted: boolean
 	/** Registers an abort listener (AbortSignal-compatible). */
 	addEventListener(
@@ -4926,18 +4926,21 @@ interface RouteCancellationSignalLike {
 	removeEventListener(type: 'abort', listener: () => void): void
 }
 
-/** The host's standard AbortSignal when its type exists, including compatibility
- * with fetch. Hosts without that global use the minimal cancellation contract;
- * core never imports a DOM API or fabricates a standard signal. */
-export type RouteCancellationSignal = typeof globalThis extends {
+/** Keeps standard abort types where available without requiring DOM declarations. */
+type HostAbortSignal = typeof globalThis extends {
 	/** Captures the platform AbortSignal interface for typing. */
 	AbortSignal: {
 		/** Prototype slot captured for signal-type inference. */
 		prototype: infer Signal
 	}
 }
-	? Signal & RouteCancellationSignalLike
-	: RouteCancellationSignalLike
+	? Signal
+	: CancellationSignalLike
+
+/** The host's standard AbortSignal when its type exists, including compatibility
+ * with fetch. Hosts without that global use the minimal cancellation contract;
+ * core never imports a DOM API or fabricates a standard signal. */
+export type RouteCancellationSignal = HostAbortSignal & CancellationSignalLike
 
 /** Host-provided cancellation primitive; creation belongs to the platform adapter. */
 export interface RouteCancellationController {
@@ -9349,7 +9352,7 @@ export interface SearchableItem<TAuxData = unknown> {
  *  sharing one source cannot cancel each other's work. */
 export interface SearchRequest {
 	/** Aborts the request when superseded by a newer query. */
-	readonly signal: AbortSignal
+	readonly signal: HostAbortSignal
 }
 
 /** Supplies items to Typeahead/Tokenizer. `search` runs on (debounced) query

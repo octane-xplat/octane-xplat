@@ -6,7 +6,6 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "@octane-xplat/jsx",
 		"customConditions": ["gtk", "native"],
-		"moduleSuffixes": [".gtk", ""],
 		"skipLibCheck": true
 	},
 	"include": [],
