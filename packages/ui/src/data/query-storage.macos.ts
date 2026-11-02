@@ -8,7 +8,7 @@ interface XplatAppKitStorage {
 
 /** The AppKit storage bridge — optional until the macOS host installs it. */
 const host = (): XplatAppKitStorage | undefined => {
-	const owner = Reflect.get(globalThis, '__xplatAppKit')
+	const owner: unknown = '__xplatAppKit' in globalThis ? globalThis.__xplatAppKit : undefined
 	return typeof owner === 'object' && owner !== null ? (owner as XplatAppKitStorage) : undefined
 }
 const memoryStorage = new Map<string, string>()

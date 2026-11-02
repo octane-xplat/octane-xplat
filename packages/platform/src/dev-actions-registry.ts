@@ -370,12 +370,12 @@ type FetchLike = (
 // Capability probes — a callable member satisfies the declared contract at
 // this ambient boundary; nothing more about it is assumed.
 const fetchImpl = (): FetchLike | undefined => {
-	const candidate: unknown = Reflect.get(globalThis, 'fetch')
+	const candidate: unknown = 'fetch' in globalThis ? globalThis.fetch : undefined
 	return typeof candidate === 'function' ? (candidate as FetchLike) : undefined
 }
 
 const uuid = (): string => {
-	const crypto: unknown = Reflect.get(globalThis, 'crypto')
+	const crypto: unknown = 'crypto' in globalThis ? globalThis.crypto : undefined
 	const randomUUID =
 		typeof crypto === 'object' && crypto !== null && 'randomUUID' in crypto
 			? crypto.randomUUID

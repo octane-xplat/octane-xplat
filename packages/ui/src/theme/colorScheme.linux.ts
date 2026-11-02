@@ -16,14 +16,12 @@ const bridged = () => {
 	if (typeof window === 'undefined') {
 		return false
 	}
-	const webkit = Reflect.get(window, 'webkit')
+	const webkit = 'webkit' in window ? window.webkit : undefined
 	const handlers =
-		typeof webkit === 'object' && webkit !== null ? Reflect.get(webkit, 'messageHandlers') : undefined
-	return (
-		typeof handlers === 'object' &&
-		handlers !== null &&
-		Reflect.get(handlers, 'xplat') !== undefined
-	)
+		typeof webkit === 'object' && webkit !== null && 'messageHandlers' in webkit
+			? webkit.messageHandlers
+			: undefined
+	return typeof handlers === 'object' && handlers !== null && 'xplat' in handlers
 }
 
 let lastScheme: ColorScheme =

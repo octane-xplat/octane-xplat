@@ -43,8 +43,8 @@ export class UnavailabilityError extends Error {
 /**
  * Read a global bridge path — `['XplatCryptoEngine']`,
  * `['com', 'octanexplat', 'print', 'PrintEngine']` — through real property
- * reads instead of a claimed `globalThis` shape. `Reflect.get` returns
- * `undefined` for absent segments, so callers narrow honestly and bound any
+ * reads instead of a claimed `globalThis` shape. Absent segments return
+ * `undefined`, so callers narrow honestly and bound any
  * residual contract assertion to a named type at the owning bridge.
  */
 export function lookupGlobal(path: readonly [string, ...string[]]): unknown {
@@ -53,7 +53,8 @@ export function lookupGlobal(path: readonly [string, ...string[]]): unknown {
 		if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
 			return undefined
 		}
-		value = Reflect.get(value, key)
+		const record = value as Record<string, unknown>
+		value = key in record ? record[key] : undefined
 	}
 	return value
 }

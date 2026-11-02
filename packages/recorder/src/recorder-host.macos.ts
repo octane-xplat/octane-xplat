@@ -185,11 +185,19 @@ const delegateClass = () => {
 
 // Globals materialize only on a real bridge; check the runtime first, then
 // load the frameworks this leaf calls so their classes register.
+// The macOS bridge globals have no ambient declaration; this named shape is
+// the bounded contract this leaf depends on.
+interface BridgeGlobals {
+	objc?: { import: (name: string) => void }
+	interop?: object
+	NSObject?: object
+}
 const bridgeReady = (): boolean => {
+	const globals = globalThis as BridgeGlobals
 	if (
-		typeof Reflect.get(globalThis, 'objc') !== 'object' ||
-		typeof Reflect.get(globalThis, 'interop') !== 'object' ||
-		typeof Reflect.get(globalThis, 'NSObject') === 'undefined'
+		typeof globals.objc !== 'object' ||
+		typeof globals.interop !== 'object' ||
+		typeof globals.NSObject !== 'function'
 	) {
 		return false
 	}

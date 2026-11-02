@@ -11,7 +11,12 @@ interface ImageCacheBridge {
 }
 /** Private adapter. Never substitute another host's cache or persist headers
  * under a URL-only key; unsupported options remain explicit AppKit limits. */
-export function createAppKitImageCache(bridge: () => ImageCacheBridge | undefined = () => Reflect.get(globalThis, '__xplatAppKit')?.imageCache) {
+const appKitBridge = (): { imageCache?: ImageCacheBridge } | undefined =>
+	'__xplatAppKit' in globalThis
+		? (globalThis.__xplatAppKit as { imageCache?: ImageCacheBridge })
+		: undefined
+
+export function createAppKitImageCache(bridge: () => ImageCacheBridge | undefined = () => appKitBridge()?.imageCache) {
 	return {
 		initialize(config?: ImageCacheConfig): void {
 			if (config && Object.values(config).some((value) => value !== undefined)) {throw new TypeError('AppKit image cache configuration options are not implemented')}
@@ -52,13 +57,13 @@ export function validateAppKitImageOptions(options: { cachePolicy?: string; head
 
 /** Private typed handoff to CoreImage, preserving its layout/source normalization. */
 export function withAppKitImageRequest<T extends { onLoad?: (event: ImageLoadEvent) => void; onError?: (event: ImageErrorEvent) => void; cachePolicy?: 'memory-disk' | 'none'; headers?: Record<string, string> }>(
-	props: T, core: object, bridge: () => ImageCacheBridge | undefined = () => Reflect.get(globalThis, '__xplatAppKit')?.imageCache,
+	props: T, core: object, bridge: () => ImageCacheBridge | undefined = () => appKitBridge()?.imageCache,
 ): T & { __appKitImageCachePolicy: 'memory-disk' | 'none'; __appKitImageLoad?: (event: ImageLoadEvent) => void; __appKitImageError?: (event: ImageErrorEvent) => void } {
 	validateAppKitImageOptions(props)
-	if (props.cachePolicy === 'none' && (Reflect.get(core, '__xplatAppKitImagePolicy') !== true || bridge()?.supportsCachePolicy !== true)) {
+	if (props.cachePolicy === 'none' && (('__xplatAppKitImagePolicy' in core ? core.__xplatAppKitImagePolicy : undefined) !== true || bridge()?.supportsCachePolicy !== true)) {
 		throw new Error('AppKit Image cache bypass requires matching UI and renderer support')
 	}
-	if ((props.onLoad || props.onError) && (Reflect.get(core, '__xplatAppKitImageEvents') !== true || bridge()?.supportsLoadEvents !== true)) {
+	if ((props.onLoad || props.onError) && (('__xplatAppKitImageEvents' in core ? core.__xplatAppKitImageEvents : undefined) !== true || bridge()?.supportsLoadEvents !== true)) {
 		throw new Error('AppKit Image callbacks require matching UI and renderer support')
 	}
 	return { ...props, __appKitImageCachePolicy: props.cachePolicy ?? 'memory-disk', __appKitImageLoad: props.onLoad, __appKitImageError: props.onError }

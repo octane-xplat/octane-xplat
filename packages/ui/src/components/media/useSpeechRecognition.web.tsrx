@@ -30,7 +30,8 @@ function getSpeechRecognition(): SpeechRecognitionConstructor | null {
 	const ctor =
 		typeof window === 'undefined'
 			? null
-			: (Reflect.get(window, 'SpeechRecognition') ?? Reflect.get(window, 'webkitSpeechRecognition'))
+			: (('SpeechRecognition' in window ? window.SpeechRecognition : undefined) ??
+				('webkitSpeechRecognition' in window ? window.webkitSpeechRecognition : undefined))
 
 	return typeof ctor === 'function' ? (ctor as SpeechRecognitionConstructor) : null
 }

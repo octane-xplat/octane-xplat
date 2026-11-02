@@ -265,7 +265,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
 			</Card>
 		}
 		case 'cards': {
-			const cards: unknown = Reflect.get(p, 'cards')
+			const cards: unknown = 'cards' in p ? p.cards : undefined
 			const cardItems: { title: string; description: string }[] = Array.isArray(cards)
 				? cards
 				: []

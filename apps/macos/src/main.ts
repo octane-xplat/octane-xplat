@@ -27,6 +27,12 @@ root.render(App as any, { parentWindow: mainWindow })
 fitWindowToContent(mainWindow)
 console.log('[macos-bundle] component rendered')
 
+// The host installs `__xplatStopHost` on globalThis; no ambient declaration
+// covers it, so the contract is named here.
+interface HostGlobals {
+	__xplatStopHost?: () => void
+}
+
 void windowClosed.then(unmountMainRoot)
 void applicationClosed.then(() => {
 	unmountMainRoot()
@@ -34,7 +40,7 @@ void applicationClosed.then(() => {
 	mainWindow.close()
 	app.delegate = null as unknown as NSApplicationDelegate
 	appKit.delegate = null
-	const stopHost = Reflect.get(globalThis, '__xplatStopHost')
+	const stopHost = (globalThis as HostGlobals).__xplatStopHost
 	if (typeof stopHost === 'function') {
 		stopHost()
 	}
