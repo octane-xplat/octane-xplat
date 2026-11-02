@@ -180,19 +180,41 @@ test('Windows device identity stays Windows regardless of the core OS label', ()
 })
 
 test('Windows preferences retain string semantics without claiming a blocking durable commit', () => {
+	// Mirrors the projected IPropertySet surface: indexer reads, Insert/Remove,
+	// and an iterator for keys the indexer misses.
 	const data = new Map()
-	const { storage } = load('storage', {
-		'@nativescript/core': {
-			ApplicationSettings: {
-				getString: (key) => data.get(key),
-				setString: (key, value) => data.set(key, value),
-				remove: (key) => data.delete(key),
-				flush: () => {
-					throw new Error('must not present the core no-op as a commit')
-				},
+	const values = new Proxy(
+		{
+			Insert: (key, value) => data.set(key, value),
+			Remove: (key) => data.delete(key),
+			First: () => {
+				const entries = [...data.entries()]
+				let index = 0
+				return {
+					get HasCurrent() {
+						return index < entries.length
+					},
+					get Current() {
+						const [Key, Value] = entries[index]
+						return { Key, Value }
+					},
+					MoveNext: () => ++index < entries.length,
+				}
 			},
 		},
-	})
+		{
+			get: (target, key) => (typeof key === 'string' && data.has(key) ? data.get(key) : target[key]),
+			set: (target, key, value) => {
+				if (typeof key === 'string') data.set(key, value)
+				else target[key] = value
+				return true
+			},
+		},
+	)
+	const { storage } = load(
+		'storage',
+		win({ Storage: { ApplicationData: { Current: { LocalSettings: { Values: values } } } } }),
+	)
 	assert.equal(storage.getString('missing'), null)
 	storage.setString('draft', '')
 	assert.equal(storage.getString('draft'), '')
