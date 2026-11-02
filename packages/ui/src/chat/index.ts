@@ -22,6 +22,7 @@ export { useChatComposerTokens } from './useChatComposerTokens'
 export { useSpeechRecognition } from '../components/media/useSpeechRecognition'
 export { useChatDictation } from './useChatDictation'
 export { useChatLayoutContext, useChatComposerContext } from './chat-context'
+export { defineChatComposerTrigger } from './chat-trigger'
 export {
 	serializeChatComposerToken,
 	deserializeChatComposerToken,

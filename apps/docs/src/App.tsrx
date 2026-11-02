@@ -44,7 +44,11 @@ const HIT_GROUP: Partial<Record<SearchHit['kind'], string>> = {
  *  source call. */
 const paletteHits = new Map<string, SearchHit>()
 
-const paletteItem = (hit: SearchHit, index: number): CommandPaletteItem => {
+interface PaletteItem extends CommandPaletteItem {
+	auxiliaryData?: { group?: string; hit: SearchHit }
+}
+
+const paletteItem = (hit: SearchHit, index: number): PaletteItem => {
 	const id = `${hit.kind}-${hit.slug}-${hit.anchor ?? 'doc'}-${index}`
 	paletteHits.set(id, hit)
 	return {
@@ -55,7 +59,7 @@ const paletteItem = (hit: SearchHit, index: number): CommandPaletteItem => {
 	}
 }
 
-const DOC_SEARCH: SearchSource<CommandPaletteItem> = {
+const DOC_SEARCH: SearchSource<PaletteItem> = {
 	bootstrap() {
 		paletteHits.clear()
 		return DOCS.slice(0, 8).map((d, index) =>
@@ -318,7 +322,7 @@ export function App() @{
 					emptySearchText="No matches"
 					maxHeight={520}
 					renderItem={(item) => {
-						const hit = (item.auxiliaryData as { hit?: SearchHit } | undefined)?.hit
+						const hit = item.auxiliaryData?.hit
 						return (
 							<>
 								<Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>

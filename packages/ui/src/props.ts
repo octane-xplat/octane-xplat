@@ -11723,18 +11723,26 @@ export interface ChatComposerSearchSource<
 	bootstrap?(request?: SearchRequest): Promise<T[]> | T[]
 }
 
-/** One trigger (`@`, `/`, …) activating an autocomplete menu in the input. */
-export interface ChatComposerTrigger {
+/** One trigger (`@`, `/`, …) activating an autocomplete menu in the input.
+ *  `TItem` is the trigger's own item type — `searchSource` produces it and
+ *  `renderItem`/`onSelect` consume it. Method-style callbacks let a
+ *  `ChatComposerTrigger<MentionItem>` live beside a
+ *  `ChatComposerTrigger<CommandItem>` in one `triggers` array while each
+ *  keeps its own metadata. Use `defineChatComposerTrigger` to infer `TItem`
+ *  from the source. */
+export interface ChatComposerTrigger<
+	TItem extends ChatComposerTriggerItem = ChatComposerTriggerItem,
+> {
 	/** Character that activates the menu (e.g. '@', '/'). */
 	character: string
 	/** Provider supplying trigger items for the menu. */
-	searchSource: ChatComposerSearchSource
+	searchSource: ChatComposerSearchSource<TItem>
 	/** Renders one trigger-menu row. */
-	renderItem?: (item: ChatComposerTriggerItem) => Renderable
+	renderItem?(item: TItem): Renderable
 	/** What to insert on selection — plain text or a token chip. */
-	onSelect: (item: ChatComposerTriggerItem) => string | ChatComposerToken
+	onSelect(item: TItem): string | ChatComposerToken
 	/** Parse a serialized token back when loading a draft for editing. */
-	deserialize?: (value: string) => ChatComposerToken | null
+	deserialize?(value: string): ChatComposerToken | null
 	/** Text shown when the trigger query matches nothing. */
 	emptySearchResultsText?: string
 	/** Text shown while trigger items load. */

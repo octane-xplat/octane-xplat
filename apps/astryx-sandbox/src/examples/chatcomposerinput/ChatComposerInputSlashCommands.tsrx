@@ -1,6 +1,6 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
-import { ChatComposer, ChatComposerInput, type ChatComposerTrigger } from '@octane-xplat/ui/chat'
+import { ChatComposer, ChatComposerInput, defineChatComposerTrigger } from '@octane-xplat/ui/chat'
 import { createStaticSource } from '@octane-xplat/ui'
 import { TypeaheadItem } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
@@ -37,21 +37,18 @@ const COMMANDS: SearchableItem<{ description: string }>[] = [
 const commandSource = createStaticSource(COMMANDS)
 
 export function ChatComposerInputSlashCommands() {
-	const commandTrigger: ChatComposerTrigger = {
+	const commandTrigger = defineChatComposerTrigger({
 		character: '/',
 		searchSource: commandSource,
 		renderItem: (item) => (
-			<TypeaheadItem
-				item={item}
-				description={(item.auxiliaryData as { description: string })?.description}
-			/>
+			<TypeaheadItem item={item} description={item.auxiliaryData?.description} />
 		),
 		onSelect: (item) => ({
 			value: `/${item.label}`,
 			label: `/${item.label}`,
 			variant: 'yellow' as const,
 		}),
-	}
+	})
 
 	return (
 		<Stack direction="vertical" width={450} maxWidth="100%">
