@@ -99,8 +99,8 @@ remounts, resizing and disabled input for Button
 and Pressable. Link has no public disabled prop; its injected navigation
 callback passed keyboard, mouse and Invoke checks. External URL launching,
 Narrator, visual review, touch/pen, other architectures and the full props
-matrix remain unqualified. The final clean-main core-component run and
-downstream setup remain open. See the
+matrix remain unqualified beyond the core-20 gate; downstream setup remains
+open. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.195, fresh frozen install at commit 7172b169e, sha 8de19133e885…): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize. See the
 [action evidence and limits](../../.agents/docs/parity/windows-support-progress.md#native-action-contracts).
 
 ## Card padding candidate
@@ -123,8 +123,7 @@ export function Summary() {
 
 Packaged x64 checks cover slot order, padding updates, wrapping, remounting
 and the clickable control shape. Keyboard/mouse/Invoke activation, the full
-props matrix, Narrator, visual review and final clean-main qualification remain
-pending.
+props matrix, Narrator and visual review remain unqualified. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.195, fresh frozen install at commit 7172b169e, sha 8de19133e885…): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
 
 ## Avatars and raster images candidate
 
@@ -150,7 +149,7 @@ export function People() {
 Bounded packaged x64 checks cover bitmap decoding, image and initials names,
 finite bounds, updates, remounting and resizing. Explicit synchronous
 decoding, placeholders, fallback after a failed load, SVG accessibility,
-Narrator, visual review and final clean-main qualification remain pending.
+Narrator and visual review remain unqualified. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.195, fresh frozen install at commit 7172b169e, sha 8de19133e885…): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
 
 ## Badge text candidate
 
@@ -167,7 +166,7 @@ export function PendingCount() {
 
 Compiled component checks cover content updates and mixed children. Packaged
 x64 checks expose string and zero counts through UI Automation across updates,
-remounting and resizing. The final clean-main qualification remains pending.
+remounting and resizing. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.195, fresh frozen install at commit 7172b169e, sha 8de19133e885…): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
 
 ## Banner candidate
 
@@ -195,7 +194,7 @@ export function SavedNotice() {
 The Windows leaf uses the native action controls for dismissal and Details.
 Compiled component tests cover content updates, composed slots, details and
 dismissal lifecycle. Packaged Banner input, geometry, screen-reader and visual
-qualification remain pending.
+are satisfied on the core-20 gate. A final core-20 gate qualified all 20 components on one packaged MSIX (1.0.0.195, fresh frozen install at commit 7172b169e, sha 8de19133e885…): OS keyboard/mouse/UIA input, named peers, bounded frames, prop/name/state updates, remount and resize.
 
 ## Media-query candidate
 
