@@ -668,7 +668,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 }
 
 function openBrowserWindow(session: Session, value: string): boolean {
-	if (!NSThread.isMainThread || (globalThis as { NSApp?: unknown }).NSApp == null) {
+	if (!NSThread.isMainThread || Reflect.get(globalThis, 'NSApp') == null) {
 		return false
 	}
 	const url = addressURL(value)
@@ -770,9 +770,9 @@ export function createInAppBrowserFactory(): AppKitBrowserFactory | undefined {
 	try {
 		if (
 			typeof globalThis.dlopen !== 'function' ||
-			(globalThis as { WKWebView?: unknown }).WKWebView == null ||
-			(globalThis as { NSObject?: { extend?: unknown } }).NSObject == null ||
-			typeof (globalThis as { NSObject?: { extend?: unknown } }).NSObject?.extend !== 'function'
+			Reflect.get(globalThis, 'WKWebView') == null ||
+			Reflect.get(globalThis, 'NSObject') == null ||
+			typeof Reflect.get(Reflect.get(globalThis, 'NSObject') ?? {}, 'extend') !== 'function'
 		) {
 			return undefined
 		}

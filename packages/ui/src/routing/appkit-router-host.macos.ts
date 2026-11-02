@@ -56,7 +56,11 @@ export function createAppKitRouterHost(): {
 		base: createPaneRouterHost(),
 		createSurface(request: RouterModalSurfaceRequest) {
 			const owner = request.owner.host
-			const bridge = (globalThis as { __xplatAppKit?: AppKitPresentation }).__xplatAppKit
+			const installed = Reflect.get(globalThis, '__xplatAppKit')
+			const bridge =
+				typeof installed === 'object' && installed !== null
+					? (installed as AppKitPresentation)
+					: undefined
 			if (!owner?.window || !bridge?.presentSurface) {
 				return undefined
 			}

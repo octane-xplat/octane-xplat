@@ -12,16 +12,23 @@ export function devBridgePlatform(): 'web' {
 }
 
 export function devBridgeEndpoint(): DevBridgeEndpoint | null {
-	const token = (globalThis as any).__XPLAT_DEV_BRIDGE__ as { token?: string } | undefined
+	const bridge = Reflect.get(globalThis, '__XPLAT_DEV_BRIDGE__')
+	const token =
+		typeof bridge === 'object' &&
+		bridge !== null &&
+		'token' in bridge &&
+		typeof bridge.token === 'string'
+			? bridge.token
+			: undefined
 	const origin = (globalThis as any).location?.origin
 
 	if (
 		typeof origin !== 'string' ||
 		!/^https?:\/\//.test(origin) ||
-		typeof token?.token !== 'string'
+		typeof token !== 'string'
 	) {
 		return null
 	}
 
-	return { origin, token: token.token }
+	return { origin, token }
 }

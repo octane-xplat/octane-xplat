@@ -6,7 +6,11 @@ interface XplatAppKitStorage {
 	storageRemove?: (key: string) => void
 }
 
-const host = () => (globalThis as { __xplatAppKit?: XplatAppKitStorage }).__xplatAppKit
+/** The AppKit storage bridge — optional until the macOS host installs it. */
+const host = (): XplatAppKitStorage | undefined => {
+	const owner = Reflect.get(globalThis, '__xplatAppKit')
+	return typeof owner === 'object' && owner !== null ? (owner as XplatAppKitStorage) : undefined
+}
 const memoryStorage = new Map<string, string>()
 const hostMemory = new WeakMap<XplatAppKitStorage, Map<string, string>>()
 let nativeStorageObserved = false

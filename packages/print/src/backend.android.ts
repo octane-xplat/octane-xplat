@@ -1,5 +1,6 @@
 import { Application } from '@nativescript/core'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import type { PrintBackend } from './backend-types'
 import { invoke, fileResult } from './native-reply'
 interface Engine {
@@ -12,9 +13,7 @@ interface Constructor {
 	Completion: { new (implementation: { complete(json: string): void }): object }
 }
 function constructor(): Constructor | undefined {
-	return (
-		globalThis as unknown as { com?: { octanexplat?: { print?: { PrintEngine?: Constructor } } } }
-	).com?.octanexplat?.print?.PrintEngine
+	return lookupGlobal(['com', 'octanexplat', 'print', 'PrintEngine']) as Constructor | undefined
 }
 let instance: Engine | undefined
 function engine(): Engine {

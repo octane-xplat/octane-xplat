@@ -17,12 +17,18 @@ import {
 } from '@octane-xplat/platform/macos'
 import type { NSHTTPURLResponse } from '@octane-xplat/platform/macos'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import type { Frame, ImageBackend, Operation, Size } from './backend-types'
 import { initialSize, outputSize } from './geometry'
 import type { ImageLoadOptions, ImageResult, SaveOptions } from './types'
 
 type ImageFrame = Frame<NSBitmapImageRep | null>
 type Rect = { origin: { x: number; y: number }; size: Size }
+/** Installed by the native WEBP codec bridge when it loads. */
+interface WebPEncoderBridge {
+	encodePNGQuality(data: NSData, quality: number): NSData | null
+}
+
 const rect = (x: number, y: number, width: number, height: number): Rect => ({
 	origin: { x, y },
 	size: { width, height },
@@ -200,13 +206,8 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
 		options.format === 'jpeg' ? 3 : 4,
 		properties,
 	)
-	const codec = (
-		globalThis as unknown as {
-			XplatWebPEncoder?: {
-				encodePNGQuality(data: NSData, quality: number): NSData | null
-			}
-		}
-	).XplatWebPEncoder
+	const codec =
+		lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
 	if (options.format === 'webp' && !codec) {
 		throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
 	}

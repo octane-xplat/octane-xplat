@@ -1,5 +1,6 @@
 import { Application } from '@nativescript/core'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import type { TrackingBackend } from './backend-types'
 interface Engine {
 	Callback: new (implementation: { receive(json: string): void }) => object
@@ -7,9 +8,7 @@ interface Engine {
 	readAdvertisingId(context: android.content.Context, callback: object): void
 }
 function engine(): Engine | undefined {
-	return (
-		globalThis as unknown as { com?: { octanexplat?: { tracking?: { TrackingBridge?: Engine } } } }
-	).com?.octanexplat?.tracking?.TrackingBridge
+	return lookupGlobal(['com', 'octanexplat', 'tracking', 'TrackingBridge']) as Engine | undefined
 }
 function context(): android.content.Context {
 	const context = Application.android.context as android.content.Context | undefined

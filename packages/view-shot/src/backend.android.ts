@@ -1,5 +1,5 @@
 import { Application, View } from '@nativescript/core'
-import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { UnavailabilityError, lookupGlobal } from '@octane-xplat/lib/capability'
 import type { CaptureBackend } from './backend-types'
 import type { NormalizedCaptureOptions } from './types'
 interface Engine {
@@ -8,9 +8,9 @@ interface Engine {
 	remove(uri: string): boolean
 }
 function engine(): Engine | undefined {
-	return (
-		globalThis as unknown as { com?: { octanexplat?: { viewshot?: { ViewShotBridge?: Engine } } } }
-	).com?.octanexplat?.viewshot?.ViewShotBridge
+	return lookupGlobal(['com', 'octanexplat', 'viewshot', 'ViewShotBridge']) as
+		| Engine
+		| undefined
 }
 function required() {
 	const value = engine()

@@ -25,4 +25,11 @@ export type AppKitHost = {
 	consumeInitialUrl?: () => string | null
 }
 
-export const host = (): AppKitHost => (globalThis as any).__xplatAppKit ?? {}
+/** The installed bridge host — undefined until the macOS host installs it.
+ *  The single owning read of the `__xplatAppKit` global. */
+export const installedHost = (): AppKitHost | undefined => {
+	const owner = Reflect.get(globalThis, '__xplatAppKit')
+	return typeof owner === 'object' && owner !== null ? (owner as AppKitHost) : undefined
+}
+
+export const host = (): AppKitHost => installedHost() ?? {}

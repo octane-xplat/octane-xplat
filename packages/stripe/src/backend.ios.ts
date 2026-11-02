@@ -1,6 +1,7 @@
 import { Application } from '@nativescript/core'
 import type { StripeBackend } from './backend-types'
 import type { InitStripeParams } from './types'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 interface NativeSheet {
 	initialize(json: string): boolean
 	prepare(json: string): boolean
@@ -10,8 +11,7 @@ interface NativeSheet {
 }
 type NativeConstructor = { new: () => NativeSheet }
 function constructor(): NativeConstructor | undefined {
-	return (globalThis as unknown as { XplatStripePaymentSheet?: NativeConstructor })
-		.XplatStripePaymentSheet
+	return lookupGlobal(['XplatStripePaymentSheet']) as NativeConstructor | undefined
 }
 let sheet: NativeSheet | undefined
 let configuration: InitStripeParams | undefined

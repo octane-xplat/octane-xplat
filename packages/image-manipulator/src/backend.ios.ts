@@ -1,5 +1,6 @@
 import { File, ImageSource, knownFolders, path } from '@nativescript/core'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import type { Frame, ImageBackend, Operation, Size } from './backend-types'
 import { initialSize, outputSize } from './geometry'
 import { encodedSource, mobileSource, removeOutput } from './source.mobile'
@@ -9,6 +10,11 @@ type ImageFrame = Frame<UIImage | null>
 type GraphicsContext = Parameters<typeof CGContextTranslateCTM>[0]
 // UIKit's C enum has no runtime object under TypeScript type stripping.
 // Left, right, left-mirrored and right-mirrored swap the physical dimensions.
+/** Installed by the native WEBP codec bridge when it loads. */
+interface WebPEncoderBridge {
+	encodePNGQuality(data: NSData, quality: number): NSData | null
+}
+
 const sidewaysOrientations = new Set<number>([2, 3, 6, 7])
 
 function pixels(frame: ImageFrame): UIImage {
@@ -98,13 +104,8 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 
 async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<ImageResult> {
 	const png = options.format === 'jpeg' ? null : UIImagePNGRepresentation(pixels(frame))
-	const codec = (
-		globalThis as unknown as {
-			XplatWebPEncoder?: {
-				encodePNGQuality(data: NSData, quality: number): NSData | null
-			}
-		}
-	).XplatWebPEncoder
+	const codec =
+		lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
 	if (options.format === 'webp' && !codec) {
 		throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
 	}

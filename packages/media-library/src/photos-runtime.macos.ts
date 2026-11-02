@@ -26,10 +26,9 @@ export const appleHost: AppleHost = {
 			throw new UnavailabilityError('MediaLibrary PhotoKit')
 		}
 		if (!subscribe) {
-			const protocols = globalThis as unknown as { PHPhotoLibraryChangeObserver: object }
 			subscribe = observerFactory(
 				NSObject,
-				protocols.PHPhotoLibraryChangeObserver,
+				Reflect.get(globalThis, 'PHPhotoLibraryChangeObserver'),
 				`XplatLibraryObserver${NSUUID.UUID().UUIDString.replace(/-/g, '')}`,
 				(callback) => NSOperationQueue.mainQueue.addOperationWithBlock(callback),
 				(observer) =>
