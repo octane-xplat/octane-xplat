@@ -13,11 +13,7 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import {
-	markdownScenarios,
-	streamSchedules,
-	type MarkdownScenario,
-} from '../scenarios/markdown.ts'
+import { markdownScenarios, streamSchedules, type MarkdownScenario } from '../scenarios/markdown.ts'
 
 const appDir = fileURLToPath(new URL('..', import.meta.url))
 const artifacts = `${appDir}/artifacts/markdown`
@@ -97,76 +93,11 @@ function canonRef(node: any): Canon {
 	}
 }
 
-/** Candidate MdDoc/MdNode/MdInline → the same comparable shape. */
-function canonCandInline(node: any): Canon {
-	switch (node.t) {
-		case 'text':
-			return { type: 'text', value: node.text }
-		case 'code':
-			return { type: 'inlineCode', value: node.text }
-		case 'bold':
-			return { type: 'strong', children: node.children.map(canonCandInline) }
-		case 'em':
-			return { type: 'emphasis', children: node.children.map(canonCandInline) }
-		case 'strike':
-			return { type: 'delete', children: node.children.map(canonCandInline) }
-		case 'link':
-			return {
-				type: 'link',
-				url: node.href,
-				title: null,
-				children: [{ type: 'text', value: node.text }],
-			}
-		default:
-			return { type: `unknown:${node.t}` }
-	}
-}
-
-function canonCand(node: any): Canon {
-	switch (node.t) {
-		case 'h':
-			return { type: 'heading', depth: node.depth, children: node.children.map(canonCandInline) }
-		case 'p':
-			return { type: 'paragraph', children: node.children.map(canonCandInline) }
-		case 'code':
-			return { type: 'code', lang: node.lang ?? null, meta: null, value: node.text }
-		case 'quote':
-			return {
-				type: 'blockquote',
-				children: [{ type: 'paragraph', children: node.children.map(canonCandInline) }],
-			}
-		case 'list':
-			return {
-				type: 'list',
-				ordered: node.ordered,
-				start: null,
-				spread: null,
-				children: node.items.map((item: any, i: number) => ({
-					type: 'listItem',
-					checked: node.checked?.[i] ?? null,
-					children: [{ type: 'paragraph', children: item.map(canonCandInline) }],
-				})),
-			}
-		case 'table': {
-			const cell = (c: any) => ({ type: 'tableCell', children: c.map(canonCandInline) })
-			return {
-				type: 'table',
-				align: node.align,
-				children: [
-					{ type: 'tableRow', children: node.header.map(cell) },
-					...node.rows.map((row: any) => ({ type: 'tableRow', children: row.map(cell) })),
-				],
-			}
-		}
-		case 'hr':
-			return { type: 'thematicBreak' }
-		default:
-			return { type: `unknown:${node.t}` }
-	}
-}
-
+/** Candidate MdDoc → the same comparable shape. The candidate emits the
+ *  canonical Md* vocabulary, so the reference canonicalizer applies after
+ *  wrapping children in a root node. */
 function canonCandDoc(doc: any): Canon {
-	return { type: 'root', children: doc.children.map(canonCand) }
+	return canonRef({ type: 'root', children: doc.children })
 }
 
 // ---------------------------------------------------------------------------
@@ -230,7 +161,7 @@ async function runParserMode() {
 
 		let candRoot: Canon
 		try {
-			candRoot = canonCandDoc(cand.parseMdDoc(scenario.source))
+			candRoot = canonCandDoc(cand.parseMdDoc(scenario.source, opts as any))
 		} catch (e) {
 			results.push({ key: scenario.key, status: 'candidate-error', error: String(e) })
 			continue
@@ -255,25 +186,26 @@ async function runParserMode() {
 					let acc = ''
 					for (const chunk of schedule) {
 						acc += chunk
-						ref.parseMarkdownIncremental(acc, state as any, {
-							...opts,
-							isFinal: acc === scenario.source,
-						} as any)
+						ref.parseMarkdownIncremental(
+							acc,
+							state as any,
+							{
+								...opts,
+								isFinal: acc === scenario.source,
+							} as any,
+						)
 					}
-					const refFinal = canonRef(
-						ref.parseMarkdownAst(scenario.source, opts as any),
-					)
-					const refStream = canonRef(
-						ref.parseMarkdownAst(
-							schedule.join(''),
-							opts as any,
-						),
-					)
+					const refFinal = canonRef(ref.parseMarkdownAst(scenario.source, opts as any))
+					const refStream = canonRef(ref.parseMarkdownAst(schedule.join(''), opts as any))
 					if (JSON.stringify(refFinal) !== JSON.stringify(refStream)) {
-						results.push({ key, status: 'reference-error', error: 'reference stream/full divergence' })
+						results.push({
+							key,
+							status: 'reference-error',
+							error: 'reference stream/full divergence',
+						})
 						continue
 					}
-					const parser = candStream.createMarkdownStreamParser()
+					const parser = candStream.createMarkdownStreamParser(opts as any)
 					let last: any
 					for (const chunk of schedule) last = parser.append(chunk)
 					const candStreamDoc = canonCandDoc(last)
@@ -450,10 +382,12 @@ async function runPerformanceMode() {
 
 	// Incremental tail-append cost: shared settled prefix, growing tail.
 	for (const { bytes, source } of workloads) {
+		const candStreamMod = await import('../../../packages/ui/src/markdown/markdown-stream.ts')
 		const state = ref.createIncrementalState()
-		const parser = cand.parseMdDoc
+		const cstate = candStreamMod.createMarkdownIncrementalState()
 		const half = source.slice(0, source.length / 2)
 		ref.parseMarkdownIncremental(half, state as any, {} as any)
+		candStreamMod.parseMarkdownIncremental(half, cstate)
 		const r = samples(() => {
 			ref.parseMarkdownIncremental(source, state as any, {} as any)
 			// reset to the same precondition
@@ -462,14 +396,16 @@ async function runPerformanceMode() {
 			Object.assign(state, s2)
 		}, 12)
 		const c = samples(() => {
-			parser(source)
+			candStreamMod.parseMarkdownIncremental(source, cstate)
+			// reset to the same precondition
+			const s2 = candStreamMod.createMarkdownIncrementalState()
+			candStreamMod.parseMarkdownIncremental(half, s2)
+			Object.assign(cstate, s2)
 		}, 12)
 		results.push({
 			key: `perf-incremental-${bytes}`,
 			status: 'match',
-			diffs: [
-				{ path: 'p95', kind: 'metric', reference: r, candidate: c },
-			],
+			diffs: [{ path: 'p95', kind: 'metric', reference: r, candidate: c }],
 		})
 	}
 
@@ -506,7 +442,9 @@ async function main() {
 			const errors = out.results.filter(
 				(r) => r.status === 'harness-error' || r.status === 'reference-error',
 			)
-			const diffs = out.results.filter((r) => r.status === 'candidate-diff' || r.status === 'candidate-error')
+			const diffs = out.results.filter(
+				(r) => r.status === 'candidate-diff' || r.status === 'candidate-error',
+			)
 			summary[mode] = {
 				match: out.results.length - errors.length - diffs.length,
 				diff: diffs.length,

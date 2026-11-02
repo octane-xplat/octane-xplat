@@ -13,7 +13,7 @@ describe('Markdown public parser', () => {
 		const first = parser.append('# Hello\n\nBody\n\n')
 		const next = parser.append('more **bold')
 		expect(next.kind).toBe('octane-xplat/md')
-		expect(next.v).toBe(1)
+		expect(next.v).toBe(2)
 		expect(next.children[0]).toBe(first.children[0])
 		expect(outlineFromDoc(next)).toEqual([{ id: 'hello', label: 'Hello', level: 1 }])
 		expect(parser.append('')).toBe(next)

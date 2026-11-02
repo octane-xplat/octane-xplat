@@ -23,6 +23,7 @@ export { useChatComposerTokens } from './useChatComposerTokens.web.tsrx'
 export { useSpeechRecognition } from '../components/media/useSpeechRecognition.web.tsrx'
 export { useChatDictation } from './useChatDictation.web.tsrx'
 export { useChatLayoutContext, useChatComposerContext } from './chat-context.tsrx'
+export { defineChatComposerTrigger } from './chat-trigger'
 export {
 	serializeChatComposerToken,
 	deserializeChatComposerToken,

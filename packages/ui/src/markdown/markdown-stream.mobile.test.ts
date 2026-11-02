@@ -18,9 +18,12 @@ describe('markdown streaming (native renderer)', () => {
 
 	it('withholds incomplete constructs identically under the native toolchain', () => {
 		const state = createMarkdownIncrementalState()
-		expect(parseMarkdownIncremental('intro\n\n- ', state).map((n) => n.t)).toEqual(['p'])
-		expect(parseMarkdownIncremental('intro\n\n- item', state).map((n) => n.t)).toEqual([
-			'p',
+		expect(parseMarkdownIncremental('intro\n\n- ', state).map((n) => n.type)).toEqual([
+			'paragraph',
+			'paragraph',
+		])
+		expect(parseMarkdownIncremental('intro\n\n- item', state).map((n) => n.type)).toEqual([
+			'paragraph',
 			'list',
 		])
 	})

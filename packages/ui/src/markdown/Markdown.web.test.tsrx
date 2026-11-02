@@ -27,8 +27,8 @@ it('renders a baked data doc', () => {
 	render({
 		data: {
 			kind: 'octane-xplat/md',
-			v: 1,
-			children: [{ t: 'h', depth: 1, children: [{ t: 'text', text: 'Hi' }] }],
+			v: 2,
+			children: [{ type: 'heading', depth: 1, children: [{ type: 'text', value: 'Hi' }] }],
 		},
 	})
 

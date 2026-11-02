@@ -1,13 +1,13 @@
 // Outline data helpers — the portable half of Astryx's Outline utilities.
-// slugify/uniqueSlug are byte-identical to upstream (same ids). The markdown
-// scanner is a focused replacement for upstream's full parser pipeline: it
-// understands ATX and Setext headings, fenced/indented code, and strips the
-// inline constructs the local Markdown renderer supports. It has no plugin
-// surface (the local Markdown AST has no extension nodes — see
-// docs/app/components.md).
+// slugify/uniqueSlug are byte-identical to upstream (same ids). Heading
+// extraction derives from the canonical parser/document, so outline labels
+// always agree with what the Markdown component renders — the same contract
+// upstream's headingProjection enforces (top-level headings only).
 import type { OutlineItem } from '../../props'
 export type { OutlineItem } from '../../props'
 import type { MdDoc, MdInline } from '../../markdown/Markdown.tsrx'
+import { mdInlineText } from '../../markdown/markdown-ast'
+import { parseMdInline, parseMdNodes } from '../../markdown/markdown-parse'
 
 /** Slug a heading label the same way upstream's parser does: lowercase,
  *  quotes dropped, non-alphanumerics collapse to '-', edges trimmed. */
@@ -33,35 +33,11 @@ export function uniqueSlug(baseSlug: string, counts: Map<string, number>): strin
 // Markdown heading extraction
 // ---------------------------------------------------------------------------
 
-const FENCE = /^(?:`{3,}|~{3,})/
-const ATX = /^ {0,3}(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$/
-const SETEXT_H1 = /^ {0,3}=+[ \t]*$/
-const SETEXT_H2 = /^ {0,3}-+[ \t]*$/
-const BLANK = /^\s*$/
-
-/** Strip the inline constructs the local Markdown AST supports (code spans,
- *  emphasis, links, images, escapes), leaving the visible text — matching
- *  what `markdownAstText` produces upstream. */
+/** Visible text of an inline-Markdown source fragment — parses it and
+ *  projects to text, so escapes, entities, emphasis, links, and code spans
+ *  resolve exactly as the renderer reads them. */
 export function inlineMarkdownText(source: string): string {
-	let text = source
-	// Images first: ![alt](src) → alt (upstream keeps alt text only)
-	text = text.replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
-	// Links: [text](href) → text
-	text = text.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-	// Inline code: `code` → code
-	text = text.replace(/`([^`]*)`/g, '$1')
-	// Bold/italic markers
-	text = text.replace(/\*\*([^*]+)\*\*/g, '$1')
-	text = text.replace(/__([^_]+)__/g, '$1')
-	text = text.replace(/\*([^*]+)\*/g, '$1')
-	text = text.replace(/\b_([^_]+)_\b/g, '$1')
-	// Strikethrough
-	text = text.replace(/~~([^~]+)~~/g, '$1')
-	// Backslash escapes
-	text = text.replace(/\\([\\`*{}[\]()#+\-.!_>~])/g, '$1')
-	// HTML tags are not rendered by the local Markdown AST — drop them.
-	text = text.replace(/<[^>]+>/g, '')
-	return text.trim()
+	return mdInlineText(parseMdInline(source)).trim()
 }
 
 interface ParsedHeading {
@@ -70,58 +46,18 @@ interface ParsedHeading {
 }
 
 /**
- * Scan markdown source for headings. Not a general parser — it exists to
- * produce outline labels that agree with what the Markdown component renders
- * for the same source. Fenced code blocks (```/~~~) and 4-space-indented
- * lines are never headings; Setext underlines promote the previous
- * non-blank line.
+ * Scan markdown source for top-level headings — the same projection the
+ * canonical parser produces (ATX and Setext headings inside fenced code,
+ * blockquotes, and list items never surface here).
  */
 export function markdownHeadings(markdown: string): ParsedHeading[] {
 	const headings: ParsedHeading[] = []
-	const lines = markdown.split('\n')
-	let fenced = false
-	let fenceMarker = ''
-	let previousTextLine = ''
-
-	for (const line of lines) {
-		const fenceMatch = line.match(FENCE)
-		if (fenceMatch) {
-			if (!fenced) {
-				fenced = true
-				fenceMarker = fenceMatch[0][0]
-			} else if (fenceMatch[0][0] === fenceMarker) {
-				fenced = false
-			}
-
-			previousTextLine = ''
+	for (const node of parseMdNodes(markdown)) {
+		if (node.type !== 'heading') {
 			continue
 		}
 
-		if (fenced) {
-			continue
-		}
-
-		const atx = line.match(ATX)
-		if (atx) {
-			headings.push({ label: inlineMarkdownText(atx[2]), level: atx[1].length })
-			previousTextLine = ''
-			continue
-		}
-
-		if (SETEXT_H1.test(line) || SETEXT_H2.test(line)) {
-			if (!BLANK.test(previousTextLine)) {
-				headings.push({
-					label: inlineMarkdownText(previousTextLine.trim()),
-					level: line.includes('=') ? 1 : 2,
-				})
-
-				previousTextLine = ''
-				continue
-			}
-		}
-
-		// 4-space indented lines are code blocks, never text.
-		previousTextLine = /^ {4}/.test(line) ? '' : line
+		headings.push({ label: mdInlineText(node.children).trim(), level: node.depth })
 	}
 
 	return headings
@@ -144,20 +80,6 @@ export function parseOutlineFromMarkdown(markdown: string): OutlineItem[] {
 		}))
 }
 
-function inlineNodesText(nodes: readonly MdInline[] | undefined): string {
-	let out = ''
-	for (const node of nodes ?? []) {
-		out +=
-			node.t === 'text' || node.t === 'code'
-				? node.text
-				: node.t === 'link'
-					? node.text
-					: inlineNodesText(node.children)
-	}
-
-	return out
-}
-
 /** Outline items from a baked `MdDoc` (the AST `xplat routes` produces and
  *  the `Markdown` component renders) — the portable equivalent of deriving
  *  an outline from rendered markdown content. */
@@ -165,11 +87,11 @@ export function outlineFromDoc(doc: MdDoc): OutlineItem[] {
 	const counts = new Map<string, number>()
 	const items: OutlineItem[] = []
 	for (const node of doc.children ?? []) {
-		if (node.t !== 'h') {
+		if (node.type !== 'heading') {
 			continue
 		}
 
-		const label = inlineNodesText(node.children).trim()
+		const label = mdInlineText(node.children as readonly MdInline[]).trim()
 		if (!label) {
 			continue
 		}

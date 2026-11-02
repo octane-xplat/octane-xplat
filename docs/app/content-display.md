@@ -67,17 +67,18 @@ function ArticleSummary() {
 
 `Outline` accepts explicit `items`, `useOutlineFromMarkdown(markdown)`, or
 `useOutlineFromDoc(doc)` from the same Markdown document used by `Markdown`.
-The Markdown outline parser covers ATX and Setext headings, ignores fenced and
-indented code, and strips the inline constructs rendered by this package's
-Markdown vocabulary. It is not a plug-in Markdown parser.
+The Markdown outline derives from the same document the `Markdown` component
+renders — top-level ATX headings, with fenced/indented code and container
+nesting handled by the real parser. There are no Setext headings (matching
+the Astryx 0.7.4 grammar).
 
 ## Markdown documents
 
 `Markdown` and its document helpers live at `@octane-xplat/ui/markdown` —
 the package root keeps general UI only. `Markdown` renders either a `data`
-prop — the `MdDoc` AST that `xplat routes` bakes from `marked` at codegen
-(no parser in the bundle) — or a `text` prop of raw Markdown parsed at
-runtime. Set exactly one: the sources are mutually exclusive, and
+prop — the `MdDoc` AST that `xplat routes` bakes at codegen with the shared
+parser (no parser needed in the bundle) — or a `text` prop of raw Markdown
+parsed at runtime. Set exactly one: the sources are mutually exclusive, and
 `isStreaming`/`fadeIn` apply to `text` only.
 
 ```tsx
@@ -88,15 +89,16 @@ export function ReleaseNotes() {
 }
 ```
 
-The runtime parser is a deliberately small, dependency-free subset covering
-what the `MdDoc` AST can express: ATX and Setext headings, paragraphs, fenced
-code (` ``` ` and `~~~`; an unclosed fence runs to end of input), flat
-ordered/unordered lists, blockquotes, and horizontal rules; inline code spans,
-`**`/`__` bold, `*`/`_` emphasis, `[text](href)` links, and images reduced to
-their alt text. Tables render through `Table`, code fences through `CodeBlock`,
-and task lists show read-only checked/unchecked markers. Strikethrough uses
-`~~text~~`. HTML blocks, indented code, reference-style links, and nested block
-structure remain outside this subset.
+The runtime parser is a dependency-free port of the Astryx 0.7.4 grammar:
+ATX headings, paragraphs, fenced and indented code (an unclosed fence runs to
+end of input), nested ordered/unordered/task lists, blockquotes, tables with
+alignment, thematic breaks, reference-style links and images, backslash
+escapes, `&entity;` character references, and hard breaks; inline code spans,
+`**`/`__` bold, `*`/`_` emphasis, `~~` strikethrough, and `[text](href)`
+links. `javascript:`/`vbscript:`/`data:text/html` destinations stay literal
+text instead of becoming links or images. Tables render through `Table`,
+fenced code through `CodeBlock`, task lists show read-only checked/unchecked
+markers, and images render as their alt text. HTML blocks are literal text.
 
 ```tsx
 <Markdown text={'| Task | Status |\n| --- | --- |\n| Review | **Ready** |\n\n- [x] Parser\n- [ ] Stories\n\n~~Old plan~~'} />
@@ -147,12 +149,14 @@ chunks — often ending mid-token — set `isStreaming`:
 Streaming mode parses incrementally: blocks before the last safe blank line
 (not inside an open fence) are parsed once and reused by reference, so
 per-chunk work stays proportional to the open tail rather than the document.
-Incomplete trailing constructs are withheld until they close — a bare `- `
-marker, a half-typed `[link](…`, a `>`/`#` opener, a whole-line backtick run —
-and unclosed mid-line `**bold`/`_em_` is auto-closed so it formats while it
-streams instead of flashing raw markers. A loose list split by a chunk
-boundary merges to match the full parse. When the input is replaced rather
-than appended, the cache resets and reparses whole.
+Incomplete trailing inline constructs are withheld until they close — a
+half-typed `[link](…` or an unclosed `` `code `` span — and unclosed
+mid-line `**bold`/`_em_` is auto-closed so it formats while it streams
+instead of flashing raw markers. An open code fence grows as a code block
+rather than flashing backticks, and a bare `- ` marker shows as text until
+item content arrives. A loose list split by a chunk boundary merges to match
+the full parse. When the input is replaced rather than appended, the cache
+resets and reparses whole.
 
 `fadeIn` (default on while streaming) wraps newly arrived text in a
 `vx-md-fade` span that fades in once on web — suppressed under
@@ -175,28 +179,30 @@ const finalDocument = parser.finish()
 parser.reset()
 ```
 
-The result is a readable `MdDoc` v1 object, shared with baked routes. Its block
-and inline nodes use `t` to identify their kind. Treat returned nodes as
-immutable: settled blocks can be shared between snapshots. Each parser owns
-one independent stream; an empty append returns the current snapshot.
+The result is a readable `MdDoc` v2 object, shared with baked routes — a
+recursive, JSON-serializable tree whose nodes use `type` to identify their
+kind. Treat returned nodes as immutable: settled blocks can be shared between
+snapshots. Each parser owns one independent stream; an empty append returns
+the current snapshot.
 
 ```ts
 import { parseMdDoc, type MdDoc } from '@octane-xplat/ui/markdown'
 
 const document: MdDoc = parseMdDoc('# Hello')
-// { kind: 'octane-xplat/md', v: 1,
-//   children: [{ t: 'h', depth: 1, children: [{ t: 'text', text: 'Hello' }] }] }
-const headings = document.children.filter((block) => block.t === 'h')
+// { kind: 'octane-xplat/md', v: 2,
+//   children: [{ type: 'heading', depth: 1,
+//     children: [{ type: 'text', value: 'Hello' }] }] }
+const headings = document.children.filter((block) => block.type === 'heading')
 ```
 
 ### Migrate custom streaming renderers
 
 Replace the root-imported `createMarkdownIncrementalState` /
 `parseMarkdownIncremental` sequence with `createMarkdownStreamParser` at
-`/markdown`. Cache fields, `trimStreamingArtifacts`, `computeBoundaries`,
-`computeSegments`, `markdownTextLength`, `MdTextSegment`, and
-`SYNC_TOKENIZE_THRESHOLD` are private. Cumulative-source integrations should
-append the new suffix, or reset and append the replacement source after an edit.
+`/markdown`. `computeBoundaries`, `computeSegments`, `markdownTextLength`,
+`MdTextSegment`, and `SYNC_TOKENIZE_THRESHOLD` stay private.
+Cumulative-source integrations should append the new suffix, or reset and
+append the replacement source after an edit.
 
 ```ts
 import { createMarkdownStreamParser } from '@octane-xplat/ui/markdown'
