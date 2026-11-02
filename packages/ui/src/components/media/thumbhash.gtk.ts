@@ -2,7 +2,7 @@
 // image stack behind the `image` element), scales to ≤100px, extracts RGBA,
 // and encodes via the vendored reference port (./hash-image — pure JS).
 // GJS modules import gi:// directly; the ambient declarations live in
-// type-support/gi.d.ts so the shared typecheck resolves them.
+// packages/linux-gtk-renderer/src/gi.d.ts so the shared typecheck resolves them.
 import GdkPixbuf from 'gi://GdkPixbuf'
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'

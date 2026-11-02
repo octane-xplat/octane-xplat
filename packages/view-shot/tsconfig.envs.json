@@ -31,7 +31,7 @@
 			"include": ["src/index.windows.ts"]
 		},
 		"gtk": {
-			"include": ["src/index.gtk.ts", "src/**/*.gtk.ts", "src/**/*.gtk.tsx", "src/gi.d.ts"]
+			"include": ["src/index.gtk.ts", "src/**/*.gtk.ts", "src/**/*.gtk.tsx", "../linux-gtk-renderer/src/gi.d.ts"]
 		}
 	}
 }

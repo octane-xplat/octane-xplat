@@ -57,7 +57,8 @@
 		"src/routing/dev.web.ts",
 		"src/routing/dev.macos.ts",
 		"src/routing/dev-shared.ts",
-		"src/routing/web-host.web.ts"
+		"src/routing/web-host.web.ts",
+		"../linux-gtk-renderer/src/gi.d.ts"
 	],
 	"exclude": [
 		"**/*.test.*"

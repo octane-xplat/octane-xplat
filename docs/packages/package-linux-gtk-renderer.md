@@ -30,6 +30,24 @@ export default async (env: { mode: string }) => xplatLinuxGtk(env)
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-linux-gtk-renderer).
 
+## Types for native imports
+
+If your GTK code imports native modules such as `gi://Gtk?version=4.0`, add the
+shared GI declarations to your GTK TypeScript configuration. This loads types
+without importing the renderer at runtime. Preserve any existing `types` entries.
+
+```json
+{
+  "compilerOptions": {
+    "types": ["@octane-xplat/linux-gtk/gi"]
+  }
+}
+```
+
+These declarations are a hand-maintained subset of GObject Introspection APIs,
+not generated SDK types. Some members remain `any`; typechecking does not verify
+that an API is available on your installed GTK version.
+
 ## Optional native layout
 
 No native binary is downloaded or compiled during installation. Without

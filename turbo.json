@@ -1,6 +1,10 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
-	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
+	"globalDependencies": [
+		"tsconfig.base.json",
+		"packages/cli/patches/**",
+		"packages/linux-gtk-renderer/src/gi.d.ts"
+	],
 	"tasks": {
 		"test:docs-search": { "dependsOn": ["build", "^build"], "outputs": [] },
 		"test:model": {

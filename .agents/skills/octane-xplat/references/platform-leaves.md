@@ -346,7 +346,11 @@ element (`src`/`stretch`/`placeholder`), mapping `contentFit` onto stretch
 and `blurhash:`/`thumbhash:` placeholders through `hashToPngBase64`.
 `thumbHashUri` needed `thumbhash.gtk.ts` — GdkPixbuf/Gio/Soup decode,
 scale and RGBA extract feeding the shared pure-JS `rgbaToThumbHashUri`;
-`gi://` imports are ambient-declared in `type-support/gi.d.ts`. Avatar,
+`gi://` imports share the canonical ambient declarations in
+`packages/linux-gtk-renderer/src/gi.d.ts`. Repository typecheck configs include
+that file directly to avoid a renderer/UI dependency cycle; installed apps can
+opt in with `"types": ["@octane-xplat/linux-gtk/gi"]` in their GTK tsconfig.
+Keep new GI declarations there rather than adding package-local copies. Avatar,
 Thumbnail, AvatarGroup(+Overflow), AvatarStatusDot and User need no GTK
 leaf — they resolve through `Image` and the host `image` element.
 

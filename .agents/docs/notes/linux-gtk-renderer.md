@@ -334,7 +334,10 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
   `process.env.NODE_ENV` at build. These are load-bearing workarounds —
   do not remove them if a future GJS adds the globals without re-checking
   flush ordering.
-- No `@girs/*` types — `src/gi.d.ts` is a hand-maintained member subset;
+- No `@girs/*` types — `packages/linux-gtk-renderer/src/gi.d.ts` is the shared
+  hand-maintained member subset for all GTK leaves, published through the
+  type-only `@octane-xplat/linux-gtk/gi` export. Repository typecheck configs
+  include the canonical source directly, avoiding a renderer/UI dependency cycle;
   members beyond it resolve as `any`. Generated GIR types are the upgrade
   path.
 - `accessibilityLabel` uses the non-varargs property-array binding; the

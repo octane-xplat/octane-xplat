@@ -13,5 +13,5 @@
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"types": ["@nativescript/types"]
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx"]
+	"include": ["../linux-gtk-renderer/src/gi.d.ts", "src/**/*.ts", "src/**/*.tsx"]
 }

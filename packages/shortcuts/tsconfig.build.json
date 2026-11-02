@@ -11,5 +11,5 @@
 		"skipLibCheck": true,
 		"noEmitOnError": true
 	},
-	"include": ["src/**/*.ts"]
+	"include": ["../linux-gtk-renderer/src/gi.d.ts", "src/**/*.ts"]
 }

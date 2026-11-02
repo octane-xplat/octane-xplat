@@ -1,7 +1,7 @@
-// Minimal ambient declarations for the GJS `gi://` introspection imports this
-// package uses. These cover the members the driver and host touch — they are
-// a hand-maintained subset, not generated GIR types. Members not declared
-// here resolve through the namespace's index signature as `any`. Replace with
+// Minimal ambient declarations for the GJS `gi://` introspection imports the GTK
+// renderer and platform leaves use. These cover the members the driver, host
+// and platform leaves touch — a hand-maintained subset, not generated GIR types.
+// Members not declared here resolve through namespace index signatures as `any`. Replace with
 // generated typings (e.g. @girs/gtk-4.0) when the renderer grows beyond the
 // starter surface; the inventory note lists this as a tracked limitation.
 declare module 'gi://Gtk?version=4.0' {
@@ -621,4 +621,8 @@ declare module 'gi://GdkPixbuf' {
 		const InterpType: { BILINEAR: number; [key: string]: number }
 	}
 	export default GdkPixbuf
+}
+
+declare module 'gi://Graphene?version=1.0' {
+	export { default } from 'gi://Graphene'
 }

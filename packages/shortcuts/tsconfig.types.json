@@ -30,7 +30,8 @@
 	"include": [
 		"src/**/*.ts",
 		"src/**/*.tsrx",
-		"src/**/*.tsx"
+		"src/**/*.tsx",
+		"../linux-gtk-renderer/src/gi.d.ts"
 	],
 	"exclude": [
 		"src/**/*.test.*",

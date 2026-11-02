@@ -34,6 +34,9 @@
 		"./compat/escape-props": {
 			"types": "./dist/native-escape-props.d.ts",
 			"default": "./dist/native-escape-props.js"
+		},
+		"./gi": {
+			"types": "./dist/gi.d.ts"
 		}
 	},
 	"scripts": {
