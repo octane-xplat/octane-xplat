@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { cpSync, readFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs'
+import { cpSync, readFileSync, readdirSync, existsSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join, resolve, relative, sep } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { generateRoutes } from '../../packages/cli/src/commands/routes.ts'
@@ -144,4 +144,31 @@ test('copied real application trees bake the same data and generated modules as 
  }
  assert.equal(checked,7)
  console.info(`${checked} copied real application trees baked byte-identical route artifacts`)
+})
+
+// A project worker may be old, corrupt or return stale data. Publication stays native.
+test('artifact plans reject unexpected, duplicate and missing destinations before publication', macOnly, async () => {
+ const { planRoutes } = await import('../../packages/cli/src/route-generator.ts')
+ for (const mode of ['outside', 'duplicate', 'incomplete', 'changed']) {
+  const dir = project({ 'app/index.tsx': screen })
+  assert.equal(run(dir).status, 0)
+  const before = generated(dir)
+  const plan = await planRoutes(dir, undefined, undefined, { bake: false })
+  const outputs = [...plan.outputs].map(([file, source]) => ({ file, source }))
+  if (mode === 'outside') outputs[0].file = join(dir, 'user-owned.txt')
+  if (mode === 'duplicate') outputs.push(outputs[0])
+  if (mode === 'incomplete') outputs.pop()
+  const packageRoot = join(dir, 'node_modules/@octane-xplat/build')
+  rmSync(packageRoot) // Remove only this fixture's symlink, never its target.
+  write(dir, 'node_modules/@octane-xplat/build/package.json', { name: '@octane-xplat/build', type: 'module', exports: { './worker': './worker.js' } })
+  write(dir, 'node_modules/@octane-xplat/build/worker.js', `import fs from 'node:fs';
+const request = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+${mode === 'changed' ? "fs.appendFileSync('app/index.tsx', '\\n// changed during planning');" : ''}
+fs.writeFileSync(process.argv[3], JSON.stringify({ protocol: request.protocol, version: request.version, id: request.id, ok: true, data: ${JSON.stringify({ version: 1, count: plan.count, outputs })} }));`)
+  const result = run(dir)
+  assert.equal(result.status, 1, result.stderr)
+  assert.match(result.stderr, mode === 'changed' ? /source changed/ : /destination|Incomplete/)
+  assert.deepEqual(generated(dir), before)
+  assert.equal(existsSync(join(dir, 'user-owned.txt')), false)
+ }
 })

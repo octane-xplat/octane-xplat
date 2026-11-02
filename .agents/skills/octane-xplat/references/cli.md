@@ -14,7 +14,9 @@ Native `typecheck` is available on macOS using the project-installed
 TSRX checker and build package; it never executes baked loaders. Native `routes`
 bakes data and watches route/configuration edits on macOS, with owned worker
 cancellation and last-good publication. Keep generated output paths stable while
-watching. Full build/dev
+watching. Route planning/rendering runs in the selected project's build worker;
+Nim validates the artifact plan and owns publication and the worker's lifecycle.
+Full build/dev
 and app-session workflows remain pending; keep using the TypeScript CLI for those.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the

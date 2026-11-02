@@ -388,11 +388,13 @@ source ownership and process cleanup. The public native
 `typecheck` gate runs real project checker programs, verifies installed ambient
 assets and covers cancellation/process cleanup through `test:nim-typecheck`.
 
-`route-templates.mjs` extracts inert template literals without evaluating command
-expressions. Nim computes every slot. The reviewed expression-shape hashes must
-be reconciled with the native calculations when the reference changes; do not
-refresh hashes only to bypass a mismatch. Static assets are generated/ignored,
-source-fingerprinted and loaded lazily in the native renderer.
+`route-templates.mjs` extracts only the command descriptor. Route rendering is
+shared by the TypeScript reference and the selected-project build worker through
+`src/route-generator.ts`; no template slots or expression fingerprints are
+maintained in Nim. The `route-plan` operation returns a versioned output plan.
+Nim rejects stale inputs and invalid/incomplete destinations before publishing,
+while retaining watch lifecycle, cancellation and process ownership. The public
+route gate includes corrupt-plan and changed-input checks.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native route discovery primitives"}' -- bun run turbo run test:nim-routes --filter=@octane-xplat/cli

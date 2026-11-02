@@ -104,6 +104,8 @@ test('native worker boundary rejects absent tools, malformed responses and faile
   assert.equal(result.ok, false, body)
   assert.ok(result.message.length)
  }
+ fake(dir, 'fs.writeFileSync(process.argv[3], JSON.stringify({ protocol: request.protocol, version: 1, id: request.id, ok: false, error: { message: "Unsupported build operation: " + request.operation } }));')
+ assert.match(call(dir, 'route-plan', { bake: false }).message, /Update @octane-xplat\/build in the selected project/)
 })
 
 test('timeouts and observed cancellation clean up the worker process group', macOnly, () => {

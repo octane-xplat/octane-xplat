@@ -99,11 +99,12 @@ Use `const metadata = staticRead("metadata.json")` for embedded generated data;
 argument expression. Generate metadata from the canonical descriptors instead of
 maintaining another command-contract copy. Keep generated data out of Git.
 
-Code-generation literals can be shared with the reference at build time while
-Nim supplies every dynamic value. Bind an ordered slot list to a reviewed
-expression fingerprint: a slot count alone cannot detect reordered logic.
-Reject changed shapes rather than evaluating reference expressions at runtime.
-Load embedded lookup data lazily when unused features must not slow startup.
+Route planning and rendering share `src/route-generator.ts` between the reference
+CLI and the selected project's build worker. The worker returns an artifact plan;
+Nim validates its schema, complete expected destination set and unchanged inputs
+before publishing. Keep this operation free of output publication and CLI command
+imports. Propagate structured warnings on both success and failure. A matching
+protocol version alone does not establish valid file destinations or completeness.
 
 Nim source module basenames must be valid Nim identifiers. Use underscores,
 not hyphens, in `.nim` filenames; output executable names may contain hyphens.

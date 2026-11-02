@@ -8,7 +8,7 @@ import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild, httpProbeI
 test('benchmark records bind source bytes, host and the exact executable rather than a shared version', t => {
  const root = mkdtempSync(join(tmpdir(), 'xplat-nim-record-'))
  t.after(() => rmSync(root, { recursive: true, force: true }))
- const files = ['packages/cli/nim/main.nim', 'packages/cli/nim/metadata.json', 'packages/cli/nim/route_templates.json',
+ const files = ['packages/cli/nim/main.nim', 'packages/cli/nim/metadata.json',
   'packages/cli/src/commands/routes.ts', 'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json',
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts',
   'tools/cli-nim/build.mjs', 'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs',
@@ -19,7 +19,7 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  const record = { version: '0.19.0-nim.0', platform: process.platform, arch: process.arch,
   nativeInputs: nativeInputs(root), nativeArtifact: artifactFingerprint(bytes) }
  assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
- for (const file of ['packages/cli/nim/route_templates.json', 'packages/cli/src/commands/routes.ts', 'tools/cli-nim/route-templates.mjs',
+ for (const file of ['packages/cli/src/commands/routes.ts', 'tools/cli-nim/route-templates.mjs',
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts']) {
   writeFileSync(join(root, file), 'changed embedded contract or rendering input')
   assert.throws(() => assertCurrentNativeBuild(root, record, bytes), /Sources differ/)

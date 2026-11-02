@@ -113,15 +113,15 @@ navigation settings without executing application modules. Its checks cover
 the repository's actual route configurations and feed the discovery and emitter
 modules below.
 `route_paths.nim` preserves the shared parameter vocabulary, platform/presentation
-suffix ordering and layout rules. `route_generation.nim` plans and publishes the
-`bake: false` output used by typecheck, including local contracts, application
-registration, manifests and all seven target catalogs. Native collection feeds
-actual source to the selected project's `@octane-xplat/build/worker` for compiler
-parsing and analysis; `route_metadata.nim` validates its versioned data boundary.
-Inert template text comes from the reference at build time, with reviewed
-expression fingerprints and native interpolation. Filesystem collection,
-stale-source rejection, warnings, per-file atomic publication, symlinks and
-caller umask are compared against Node on copied repository route trees.
+suffix ordering and layout rules. `route_generation.nim` owns route locations,
+input fingerprints, artifact-plan validation and native publication. The selected
+project's `@octane-xplat/build/worker` shares `src/route-generator.ts` with the
+TypeScript reference for compiler analysis, rendering and baking. It returns a
+versioned plan without publishing generated files. Native checks reject changed
+inputs, unexpected/duplicate destinations and missing required artifacts before
+publication. Warnings, per-file atomic publication, symlinks and caller umask are
+compared against Node on copied repository route trees. Typecheck retains its
+`bake: false` behavior, preserving existing baked data.
 `build_worker.nim` bounds worker requests/results and owns Node process groups,
 timeouts, cancellation and diagnostics. Analysis never executes route modules;
 baking delegates loader execution to project-installed Vite and Markdown parsing

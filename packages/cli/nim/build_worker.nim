@@ -26,7 +26,8 @@ proc projectWorker(project: string): string =
 
 proc runBuildWorker*(project, operation: string, payload: JsonNode,
     timeoutMs = 60000, signal: ProcessCancel = nil, environment: StringTableRef = nil,
-    onDiagnostic: proc(bytes: string) {.closure.} = nil): Future[JsonNode] {.async.} =
+    onDiagnostic: proc(bytes: string) {.closure.} = nil,
+    onWarning: proc(message: string) {.closure.} = nil): Future[JsonNode] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Worker timeout must be positive")
   if signal != nil and signal.cancelled: raise newException(ValueError,"Build operation cancelled")
   let root = absolutePath(project)
@@ -79,9 +80,18 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
     if text(field(response,"protocol")) != workerProtocol or field(response,"version") != %1 or text(field(response,"id")) != id or
         field(response,"ok") == nil or response["ok"].kind != JBool:
       raise newException(ValueError,"Unsupported or mismatched project build worker response")
+    let warnings = field(response,"warnings")
+    if warnings != nil:
+      if warnings.kind != JArray: raise newException(ValueError,"Invalid worker warnings")
+      for warning in warnings:
+        if warning.kind != JString: raise newException(ValueError,"Invalid worker warning")
+        if onWarning != nil: onWarning(warning.getStr())
     if not response["ok"].getBool():
       let message = text(field(field(response,"error"),"message"))
       let file = text(field(field(response,"error"),"file"))
+      if message == "Unsupported build operation: " & operation:
+        raise newException(ValueError,"The project's build worker does not support " & operation &
+          ". Update @octane-xplat/build in the selected project with your package manager and retry.")
       raise newException(ValueError,(if file.len > 0 and file notin message: file & ": " else: "") &
         (if message.len > 0: message else: "Project build operation failed"))
     if status.exitStatus() != 0: raise newException(ValueError,"Project build worker failed after writing its result")

@@ -4,7 +4,7 @@ import ../../packages/cli/nim/[typecheck_envs, strictjson, jsonutil, json_wire, 
 import ../../packages/cli/nim/route_config
 import ../../packages/cli/nim/route_paths
 import ../../packages/cli/nim/[route_generation, digests, js_text]
-import ../../packages/cli/nim/route_templates
+import ../../packages/cli/nim/route_operation
 import ../../packages/cli/nim/build_worker
 import ../../packages/cli/nim/managed_process
 import ../../packages/cli/nim/[prerequisites, command_probe]
@@ -75,18 +75,8 @@ for line in stdin.lines:
       routeRequest = true
       let directory = if field(request,"directory") == nil: none(string) else: some(text(request["directory"]))
       let output = if field(request,"output") == nil: none(string) else: some(text(request["output"]))
-      let sources = collectRouteSources(dir,directory,output)
-      let cache = if field(request,"metadata") != nil: request["metadata"] else: waitFor analyzeRouteSources(dir,sources)
-      let analyzer: RouteAnalyzer = proc(source, file: string): JsonNode =
-        let entry = field(cache,file)
-        if entry == nil or text(field(entry,"sha256")) != sha256Hex(utf8ForWrite(source)):
-          raise newException(ValueError,"Route parser snapshot changed or is missing: " & file)
-        if field(entry,"parserError") != nil: raise newException(ValueError,text(entry["parserError"]))
-        entry["metadata"]
-      let planned = planRoutes(dir,analyzer,
-        (if field(request,"directory") == nil: none(string) else: some(text(request["directory"]))),
-        (if field(request,"output") == nil: none(string) else: some(text(request["output"]))),
-        proc(message: string) = warnings.add(message))
+      let planned = waitFor prepareRoutes(dir,directory,output,bake=false,
+        onWarn=proc(message: string) = warnings.add(message))
       if field(request,"publish") == %true: planned.publishRoutes()
       var outputs = newJObject()
       for file, source in planned.outputs: outputs[relativePath(file,dir)] = %source
@@ -102,10 +92,6 @@ for line in stdin.lines:
         proc(bytes: string) =
           stderr.write(bytes)
           if field(request,"cancelOnDiagnostic") != nil and text(request["cancelOnDiagnostic"]) in bytes: signal.cancel())
-    of "route-template":
-      var values: seq[string]
-      for item in request["values"]: values.add(item.getStr())
-      value = %renderRouteTemplate(text(request["name"]),text(request["shape"]),values)
     of "expand":
       let loaded = loadEnvManifest(dir)
       if loaded == nil: value = newJNull()

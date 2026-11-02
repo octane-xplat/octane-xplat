@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import { test, after } from 'node:test'
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, lstatSync, existsSync, cpSync, rmSync, symlinkSync } from 'node:fs'
 import { dirname, join, resolve, relative, extname, sep } from 'node:path'
-import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
 import { generateRoutes } from '../../packages/cli/src/commands/routes.ts'
@@ -12,7 +11,6 @@ const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/nim-cli')
 const scratch = scratchRun(root, 'route-generation')
 const require = createRequire(new URL('../../packages/cli/package.json', import.meta.url))
-const { routeSourceMetadata } = await import('../../packages/cli/src/route-source.ts')
 const { log } = require('@clack/prompts')
 const binary = join(work, `native/env-probe${process.platform === 'win32' ? '.exe' : ''}`)
 const macOnly = { skip: process.platform !== 'darwin' }
@@ -50,20 +48,7 @@ function snapshot(dir) {
 function modes(dir) {
  return Object.fromEntries(filesUnder(dir).map(file => [relative(dir, file), statSync(file).mode & 0o777]))
 }
-function metadataCache(dir) {
- const result = {}
- for (const file of filesUnder(dir)) {
-  if (!['.tsx', '.tsrx'].includes(extname(file)) || file.includes('routes.gen.')) continue
-  const source = readFileSync(file, 'utf8')
-  // A parser error is reported only if native collection requests that file.
-  // Layouts and ignored files need not parse during route discovery.
-  try {
-   result[relative(dir, file).split(sep).join('/')] = { sha256: createHash('sha256').update(source).digest('hex'),
-    metadata: routeSourceMetadata(source, relative(dir,file).split(sep).join('/')) }
-  } catch (error) { result[relative(dir, file).split(sep).join('/')] = { sha256: createHash('sha256').update(source).digest('hex'), parserError: error.message } }
- }
- return result
-}
+
 async function reference(dir, options) {
  const warnings = []
  const original = log.warn
@@ -79,9 +64,9 @@ function installWorker(dir) {
   symlinkSync(join(root, 'packages/build'), target, 'dir')
  }
 }
-function native(dir, options, cache) {
+function native(dir, options) {
  installWorker(dir)
- const request = { operation: 'route-generate', dir, ...options, publish: true, ...(cache ? { metadata: cache } : {}) }
+ const request = { operation: 'route-generate', dir, ...options, publish: true }
  const run = spawnSync(binary, [], { input: JSON.stringify(request) + '\n', encoding: 'utf8', env: { ...process.env, PATH: dirname(process.execPath) }, timeout: 30_000, maxBuffer: 64 * 1024 * 1024 })
  assert.equal(run.status, 0, run.stderr)
  const result = JSON.parse(run.stdout)
@@ -228,17 +213,6 @@ test('generation failures retain the previous outputs and already emitted warnin
   assert.deepEqual(snapshot(nodeDir), beforeNode)
   assert.deepEqual(snapshot(nimDir), beforeNim)
  })
-})
-
-test('stale parser snapshots fail before publication instead of silently using old exports', macOnly, async () => {
- const dir = project({ 'app/index.tsx': screen })
- const cache = metadataCache(dir)
- write(dir, 'app/index.tsx', 'export const loader = () => 1; ' + screen)
- const before = snapshot(dir)
- const result = native(dir, {}, cache)
- assert.equal(result.ok, false)
- assert.match(result.message, /parser snapshot changed/)
- assert.deepEqual(snapshot(dir), before)
 })
 
 test('atomic publication applies the caller umask without changing the coordinator process', macOnly, () => {

@@ -3,9 +3,7 @@ import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { getToolchain } from 'nim-toolchain'
 import { prepareDependencies } from './dependencies.mjs'
-import { writeRouteTemplates } from './route-templates.mjs'
 const root = resolve(import.meta.dirname, '../..')
-writeRouteTemplates(root)
 const work = resolve(root, 'research/nim-cli')
 const compiler = await getToolchain({ cacheDir: resolve(work, 'toolchain') })
 const paths = prepareDependencies(work, compiler)

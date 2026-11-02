@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
 import { createHash } from 'node:crypto'
 import { Console } from 'node:console'
+import { planRoutes } from './route-generator.ts'
 import { routeSourceMetadata } from './route-source.ts'
 import { assertRouteDataJson } from './route-data.ts'
 
@@ -31,6 +32,7 @@ if (!requestFile || !resultFile) throw new Error('Usage: node build-worker.js RE
 globalThis.console = new Console({ stdout: process.stderr, stderr: process.stderr })
 let id: unknown = null
 let file: string | undefined
+const warnings: string[] = []
 try {
 	if (statSync(requestFile).size > 64 * 1024 * 1024) throw new Error('Worker request exceeds 64 MiB')
 	const request = JSON.parse(readFileSync(requestFile, 'utf8'))
@@ -42,7 +44,18 @@ try {
 		throw new Error('Worker project must match the selected working directory')
 	}
 	let data: unknown
-	if (request.operation === 'route-analyze') {
+	if (request.operation === 'route-plan') {
+		for (const key of ['directory', 'output']) {
+			if (request[key] !== undefined && typeof request[key] !== 'string') throw new Error(`Expected ${key} string`)
+		}
+		if (typeof request.bake !== 'boolean') throw new Error('Expected bake boolean')
+		const plan = await planRoutes(process.cwd(), request.directory, request.output, {
+			bake: request.bake,
+			onWarn: message => warnings.push(message),
+			onSource: source => { file = source },
+		})
+		data = { version: 1, count: plan.count, outputs: [...plan.outputs].map(([file, source]) => ({ file, source })) }
+	} else if (request.operation === 'route-analyze') {
 		if (!Array.isArray(request.files)) throw new Error('route-analyze requires files')
 		data = request.files.map((entry: { file: string; source: string }) => {
 			if (typeof entry.file !== 'string' || typeof entry.source !== 'string') throw new Error('Expected route source strings')
@@ -78,10 +91,10 @@ try {
 		}
 		data = result
 	} else throw new Error(`Unsupported build operation: ${String(request.operation)}`)
-	writeFileSync(resultFile, JSON.stringify({ protocol, version, id, ok: true, data }))
+	writeFileSync(resultFile, JSON.stringify({ protocol, version, id, ok: true, data, warnings }))
 } catch (error) {
 	const message = error instanceof Error ? error.message : String(error)
 	console.error(`${file ? `${file}: ` : ''}${message}`)
-	writeFileSync(resultFile, JSON.stringify({ protocol, version, id, ok: false, error: { code: 'build-operation-failed', message, file } }))
+	writeFileSync(resultFile, JSON.stringify({ protocol, version, id, ok: false, warnings, error: { code: 'build-operation-failed', message, file } }))
 	process.exitCode = 1
 }
