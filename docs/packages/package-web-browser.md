@@ -19,11 +19,12 @@ export async function showHelp(address: string) {
 }
 ```
 
-On AppKit, rebuild the native host after adding the package. Its packaged Swift
-source and AppKit/WebKit framework configuration provide the native bridge.
-Missing bridges report `supported: false` and opening returns `cancel`. The
-macOS leaf now opens in-app; the former external-browser delegation is removed.
-Use the platform opener when another application should own the destination.
+On AppKit the package runs in TypeScript through the platform's
+AppKit/WebKit bindings — no packaged Swift or native host rebuild is required.
+Missing AppKit/WebKit symbols report `supported: false` and opening returns
+`cancel`. The macOS leaf now opens in-app; the former external-browser
+delegation is removed. Use the platform opener when another application should
+own the destination.
 
 ```ts
 import { openUrl } from '@octane-xplat/platform'

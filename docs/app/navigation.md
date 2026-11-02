@@ -2451,12 +2451,14 @@ link appearance remain unqualified.
 
 ## Open a page inside an AppKit browser window
 
-Add `@octane-xplat/web-browser` to the app and rebuild its native host. The
-experimental AppKit service now has a package-owned WebKit window with history,
-reload/stop, address and close controls. Availability is conditional on its
-native bridge. `opened` reports window presentation, while invalid HTTP(S)
-input, missing bridges or presentation failure return `cancel`. It does not
-report whether the page loaded; network errors have native feedback.
+Add `@octane-xplat/web-browser` to the app. The experimental AppKit service
+provides a package-owned WebKit window with history, reload/stop, address and
+close controls, implemented in TypeScript through the platform's AppKit/WebKit
+bindings — no packaged Swift or native host rebuild is required. Availability
+is conditional on those bindings. `opened` reports window presentation, while
+invalid HTTP(S) input, missing bridges or presentation failure return `cancel`.
+It does not report whether the page loaded; network errors have native
+feedback.
 
 ```tsx
 import { Button } from '@octane-xplat/ui'
@@ -2471,9 +2473,14 @@ Opening another page replaces the owned browser; dismissBrowser closes it.
 The previous macOS external-browser fallback has been removed. Use openUrl
 for destinations another application should open. Native compilation, actual
 presentation/navigation, cookies, sandbox/ATS, close cleanup and VoiceOver
-remain unqualified. Mobile-only browser options and Android warmup hints do
-not change the AppKit window; advanced web dialogs/downloads/auth flows remain
-outside this source subset. See the [package contract](../packages/package-web-browser.md#experimental-appkit-subset).
+remain unqualified. The packaged AppKit/JSC host exercises window ownership,
+delegates, navigation policy, KVO chrome, toolbar actions, JavaScript
+alert/confirm/prompt sheets, the file-selection panel, close cleanup and
+replacement — programmatic evidence only; rendered pixels, OS input,
+VoiceOver, cookies and sandbox/ATS stay unverified. Mobile-only browser options
+and Android warmup hints do not change the AppKit window; advanced web
+dialogs/downloads/auth flows remain outside this source subset. See the
+[package contract](../packages/package-web-browser.md#experimental-appkit-subset).
 
 ```ts
 import { webBrowser } from '@octane-xplat/web-browser'

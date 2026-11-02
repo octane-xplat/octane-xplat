@@ -158,3 +158,13 @@ Recorded where they were found rather than repeated here:
   [SQLite notes](sqlite-notes.md).
 - Exceptions need `NSApplication.sharedApplication` materialized before
   `setTimeout` callbacks fire — see the thumbhash memory note.
+- `NSObject.extend` members declared in `protocols` (jsified names, no
+  `exposedMethods`) receive protocol-metadata signatures: WebKit
+  `completionHandler` params arrive as callable `FunctionPointer`s while
+  `id`-typed params arrive as opaque `CallbackObject`s. The FunctionPointer
+  invoke path only works while its underlying `NSBlock` lives — the bridge
+  does not retain incoming blocks, so async WKUIDelegate handlers
+  (alert/confirm/prompt/openPanel) die when the delegate returns and
+  WebKit's `CompletionHandlerCallChecker` aborts "was not called". Hold the
+  handler via `_Block_copy(handler.__ns_native_ptr)` and `_Block_release`
+  after delivery; `web-browser`'s `in-app-browser.macos.ts` verifies it.

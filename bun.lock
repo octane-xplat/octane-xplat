@@ -2702,6 +2702,7 @@
       "dependencies": {
         "@nstudio/nativescript-exoplayer": "6.2.0",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
@@ -2769,6 +2770,7 @@
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
+        "vite": "catalog:",
       },
       "peerDependencies": {
         "@nativescript-community/octane": ">=0.2.1 <1",
