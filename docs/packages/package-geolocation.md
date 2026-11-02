@@ -39,7 +39,8 @@ if ((await geolocation.requestPermissions()).granted) {
 		const position = await geolocation.getCurrentPosition()
 		console.log(position.latitude, position.longitude)
 	} catch (error) {
-		const code = (error as { code?: number }).code
+		const code =
+			typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
 		console.log(code === undefined ? 'Location failed' : `Location failed: ${code}`)
 	}
 }
@@ -93,7 +94,9 @@ if ((await geolocation.requestPermissions()).granted) {
 		})
 		console.log(position.latitude, position.longitude)
 	} catch (error) {
-		console.log('Location failed', (error as { code?: number }).code)
+		const code =
+			typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
+		console.log('Location failed', code)
 	}
 }
 ```

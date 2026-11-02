@@ -13,7 +13,7 @@ export async function run(ctx: ProbeContext) {
 		const marker = await requestStream(`${origin}/state`)
 		ctx.assert(
 			'server still open after first record',
-			((await marker.json()) as { finished: boolean }).finished,
+			Reflect.get(await marker.json(), 'finished') === true,
 			false,
 		)
 
@@ -24,7 +24,7 @@ export async function run(ctx: ProbeContext) {
 		const marker = await requestStream(`${origin}/state`)
 		ctx.assert(
 			'server still open after first bytes',
-			((await marker.json()) as { finished: boolean }).finished,
+			Reflect.get(await marker.json(), 'finished') === true,
 			false,
 		)
 
@@ -40,14 +40,14 @@ export async function run(ctx: ProbeContext) {
 		headers: { 'content-type': 'application/octet-stream', 'x-fixture': 'synthetic' },
 		body: new Uint8Array([0, 255, 1, 127]),
 	})
-	const bytes = (await uploaded.json()) as { bytes: number[]; header: string }
+	const bytes: { bytes?: number[]; header?: string } = await uploaded.json()
 	ctx.assert('exact binary upload', JSON.stringify(bytes.bytes), '[0,255,1,127]')
 	ctx.assert('request header', bytes.header, 'synthetic')
 	const failure = await requestStream(`${origin}/failure`)
 	ctx.assert('non-2xx status preserved', failure.status, 503)
 	ctx.assert(
 		'non-2xx remains readable',
-		((await failure.json()) as { unavailable: boolean }).unavailable,
+		Reflect.get(await failure.json(), 'unavailable') === true,
 		true,
 	)
 	const controller = new AbortController()

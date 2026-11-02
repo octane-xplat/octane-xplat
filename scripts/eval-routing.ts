@@ -413,7 +413,7 @@ writeFileSync(
 )
 
 console.log(`[eval] results: ${join(out, 'results.json')}`)
-const passed = results.filter((result) => (result as { pass: boolean }).pass).length
+const passed = results.filter((result) => Reflect.get(result, 'pass') === true).length
 const expectation =
 	mode === 'baseline' ? passed === 0 : mode === 'reference' ? passed === results.length : true
 

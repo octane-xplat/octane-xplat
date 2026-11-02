@@ -16,7 +16,7 @@ function normalize(event: NormalizedKeyboardEvent): NormalizedKeyboardEvent {
 		shiftKey: Boolean(event.shiftKey),
 		repeat: Boolean(event.repeat),
 		isComposing:
-			Boolean(event.isComposing) || (event as unknown as { keyCode?: number }).keyCode === 229,
+			Boolean(event.isComposing) || Reflect.get(event, 'keyCode') === 229,
 		get defaultPrevented() {
 			return event.defaultPrevented
 		},

@@ -664,7 +664,10 @@ export function Image(props: LightboxImageProps): JSX.Element {
 				return
 			}
 
-			const gs = (e as unknown as { scale: number }).scale ?? 1
+			const gs =
+				typeof e === 'object' && e !== null && 'scale' in e && typeof e.scale === 'number'
+					? e.scale
+					: 1
 			const c = center(live.current.F ?? { x: 0, y: 0, w: 0, h: 0 })
 			send({ kind: 'pinchMove', a: { x: c.x - 50 * gs, y: c.y }, b: { x: c.x + 50 * gs, y: c.y } })
 		}

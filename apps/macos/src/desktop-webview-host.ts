@@ -126,7 +126,9 @@ export function createDesktopWebViewHost<
 		// NSWindow's declared shape omits frame — bound the native read once.
 		const size =
 			typeof window === 'object' && window !== null && 'frame' in window
-				? (window.frame as { size?: { width?: number; height?: number } } | undefined)?.size
+				? Reflect.get(window, 'frame') &&
+						Reflect.get(Reflect.get(window, 'frame'), 'size')
+				: undefined
 				: undefined
 		return windowSizeFor(size ?? primaryWindow?.frame?.size ?? appKit.windowSize)
 	}

@@ -126,7 +126,7 @@ export const handle = createWebHandler({
   buildId: 'store-v1',
   assets: { scripts: ['/client.js'] },
   transfer: (match) => ({
-    data: match.data as { name: string },
+    data: match.contract === 'declared' ? match.data : null,
     context: {},
   }),
 })
@@ -184,7 +184,7 @@ const requestOptions = {
     language: request.headers.get('Accept-Language') ?? 'en',
   }),
   transfer: (match: { data: unknown; context: Record<string, unknown> }) => ({
-    data: match.data as { name: string },
+    data: match.contract === 'declared' ? match.data : null,
     context: { language: String(match.context.language) },
   }),
 }
@@ -334,7 +334,7 @@ export const renderer = createWebRenderer({
   catalog,
   buildId: 'store-v1',
   assets: { scripts: ['/assets/client.abc123.js'] },
-  transfer: match => ({ data: match.data as { name: string }, context: {} }),
+  transfer: match => ({ data: match.contract === 'declared' ? match.data : null, context: {} }),
   response: () => ({ headers: { 'Cache-Control': 'public, max-age=60' } }),
 })
 ```

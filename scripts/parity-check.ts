@@ -25,9 +25,7 @@ const REQUIRED_TARGETS = ['web', 'ios', 'android']
 
 const CHECKS: ParityCheck[] = []
 for (const file of globSync('packages/*/src/**/*.parity.check.ts', { cwd: root }).sort()) {
-	const mod = (await import(pathToFileURL(join(root, file)).href)) as {
-		CHECKS?: ParityCheck[]
-	}
+	const mod: { CHECKS?: ParityCheck[] } = await import(pathToFileURL(join(root, file)).href)
 
 	CHECKS.push(...(mod.CHECKS ?? []))
 }

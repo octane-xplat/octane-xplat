@@ -60,12 +60,15 @@ export function installKeyboardViewportAdapter(adapter: KeyboardViewportAdapter)
 }
 
 /** Follow adapter replacement without transferring ownership to the source. */
+interface LoadedEmitter {
+	isLoaded?: boolean
+	on?(name: string, listener: () => void): void
+	off?(name: string, listener: () => void): void
+}
+
 export function observeKeyboardViewport(host: object): KeyboardViewportLease {
-	const view = host as {
-		isLoaded?: boolean
-		on?(name: string, listener: () => void): void
-		off?(name: string, listener: () => void): void
-	}
+	// The host view's event surface is declared by the platform adapter.
+	const view = host as LoadedEmitter
 	let adapter: KeyboardViewportAdapter | undefined
 	let lease: KeyboardViewportLease | undefined
 	let active = true

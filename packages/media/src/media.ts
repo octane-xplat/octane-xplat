@@ -31,8 +31,12 @@ async function ensurePhotos(): Promise<PermissionResult> {
 	}
 
 	try {
-		const permission = (await picker.authorize()) as { authorized?: boolean } | boolean
-		return permission === true || (typeof permission === 'object' && permission.authorized === true)
+		const granted: unknown = await picker.authorize()
+		return granted === true ||
+			(typeof granted === 'object' &&
+				granted !== null &&
+				'authorized' in granted &&
+				granted.authorized === true)
 			? 'granted'
 			: 'denied'
 	} catch {
@@ -147,9 +151,15 @@ async function persistImage(source: ImageSource, name: string): Promise<PickedIm
 
 async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[]> {
 	const picker = createImagePicker({ mode, mediaType: 1 as ImagePickerMediaType })
-	const permission = (await picker.authorize()) as { authorized?: boolean } | boolean
+	const granted: unknown = await picker.authorize()
 	if (
-		!(permission === true || (typeof permission === 'object' && permission.authorized === true))
+		!(
+			granted === true ||
+			(typeof granted === 'object' &&
+				granted !== null &&
+				'authorized' in granted &&
+				granted.authorized === true)
+		)
 	) {
 		return []
 	}

@@ -176,8 +176,8 @@ function useBackToDismiss(open: boolean, onClose: () => void) {
     window.addEventListener('popstate', onPop);
     return () => {
       window.removeEventListener('popstate', onPop);
-      const st = window.history.state as {__xdsSheet?: boolean} | null;
-      if (st && st.__xdsSheet) {
+      const st: unknown = window.history.state;
+      if (typeof st === 'object' && st !== null && '__xdsSheet' in st && st.__xdsSheet) {
         window.history.back();
       }
     };

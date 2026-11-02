@@ -55,8 +55,10 @@ const sameObject = (a: unknown, b: unknown): boolean =>
 	a === b || (a != null && (a as NSObject).isEqual?.(b) === true)
 
 const setAccessibilityLabel = (view: NSObject, label: string): void => {
-	;(view as unknown as { setAccessibilityLabel?: (value: string) => void })
-		.setAccessibilityLabel?.(label)
+	const setter = Reflect.get(view, 'setAccessibilityLabel')
+	if (typeof setter === 'function') {
+		setter.call(view, label)
+	}
 }
 
 // WebKit's completion-handler blocks arrive as one-shot FunctionPointer
@@ -67,7 +69,7 @@ const setAccessibilityLabel = (view: NSObject, label: string): void => {
 // the block's own parameters through the invocation.
 const blockArg = (type: number, value: unknown): interop.Reference => {
 	const ref = new interop.Reference(type)
-	;(ref as { value: unknown }).value = value
+	Reflect.set(ref, 'value', value)
 	return ref
 }
 
@@ -106,7 +108,9 @@ interface PendingSheet {
 // Captured raw block pointer for a WebKit completion handler — invoked via
 // callBlock once the delegate callback has returned.
 const blockPointer = (handler: unknown): unknown =>
-	(handler as { __ns_native_ptr?: unknown }).__ns_native_ptr ?? handler
+	(typeof handler === 'object' && handler !== null && '__ns_native_ptr' in handler
+		? handler.__ns_native_ptr
+		: handler) ?? handler
 
 function finishSheet(sheet: PendingSheet, response: number, parent: NSWindow | null): void {
 	if (sheet.claimed) {
@@ -382,9 +386,11 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 					return
 				}
 				const scheme = String(url.scheme ?? '').toLowerCase()
-				const frame = action.targetFrame as unknown as {
-					isMainFrame?: boolean | (() => boolean)
-				} | null
+				const targetFrame: unknown = action.targetFrame
+				const frame =
+					typeof targetFrame === 'object' && targetFrame !== null
+						? (targetFrame as TargetFrame)
+						: null
 				const mainFrame =
 					frame == null
 						? false
@@ -663,8 +669,16 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 				'closeAction:': { params: [interop.types.id], returns: interop.types.void },
 			},
 		},
-	) as unknown as { alloc(): { init(): NSObject } }
+	) as unknown as DelegateConstructor
 	return DelegateClass
+}
+
+interface TargetFrame {
+	isMainFrame?: boolean | (() => boolean)
+}
+
+interface DelegateConstructor {
+	alloc(): { init(): NSObject }
 }
 
 function openBrowserWindow(session: Session, value: string): boolean {

@@ -55,6 +55,15 @@ export function shellMode(width: number, height: number): ShellMode {
  * one store the chrome reads with `useStore`; plain property accessors keep
  * hosts and tests working against the same shape.
  */
+/** The session's generated-fixture internals, private to the controller. */
+interface ControllerSession {
+	current?: {
+		fixture: unknown
+		/** Backing store for controller state. */
+		store?: { getSnapshot(): unknown }
+	}
+}
+
 export class NativeWorkshopController {
 	/** The workshop session being controlled. */
 	readonly session: WorkshopSession
@@ -374,15 +383,9 @@ export class NativeWorkshopController {
 		}
 	} {
 		const state = this.session.state
-		const generation = (
-			this.session as unknown as {
-				current?: {
-					fixture: unknown
-					/** Backing store for controller state. */
-					store?: { getSnapshot(): unknown }
-				}
-			}
-		).current
+		// The session's generated-fixture internals are private to the
+		// controller — bound once at this boundary.
+		const generation = (this.session as unknown as ControllerSession).current
 
 		let store
 		try {

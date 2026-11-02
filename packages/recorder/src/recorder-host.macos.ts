@@ -403,7 +403,10 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 		if (disposed || !sameRecorder(value)) {
 			return
 		}
-		const description = (cause as { localizedDescription?: unknown } | null)?.localizedDescription
+		const description =
+			typeof cause === 'object' && cause !== null && 'localizedDescription' in cause
+				? cause.localizedDescription
+				: undefined
 		send({
 			type: 'error',
 			message: description == null ? 'AVAudioRecorder encode error' : String(description),
@@ -505,7 +508,10 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 				return ''
 			} catch (cause) {
 				cancel()
-				const description = (cause as { localizedDescription?: unknown })?.localizedDescription
+				const description =
+					typeof cause === 'object' && cause !== null && 'localizedDescription' in cause
+						? cause.localizedDescription
+						: undefined
 				return description == null ? String(cause) : String(description)
 			}
 		},

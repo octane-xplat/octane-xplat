@@ -46,7 +46,9 @@ export function forceTtfMetrics(
 
 	data.post.format = 3
 	for (const glyph of data.glyf) {
-		delete (glyph as { name?: string }).name
+		if ('name' in glyph) {
+			delete (glyph as Record<'name', unknown>).name
+		}
 	}
 
 	font.set(data)

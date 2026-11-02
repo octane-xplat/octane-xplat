@@ -291,10 +291,7 @@ function ControlsPanel(p: {
 						/>
 					) : null}
 					{controls.map(([key, control]) => {
-						const spec = control as {
-							type: string
-							options?: readonly (string | number | boolean)[]
-						}
+						const spec: ControlSpec = control
 
 						const options = spec.type === 'boolean' ? [true, false] : (spec.options ?? [])
 						return (
@@ -628,3 +625,8 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
 		</masonview>
 	)
 }
+interface ControlSpec {
+	type: string
+	options?: readonly (string | number | boolean)[]
+}
+

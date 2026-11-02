@@ -10,9 +10,9 @@ import {
 
 const activeApplicationState = 0 // UIApplicationStateActive from UIKit.
 const folder = knownFolders.documents().path
-const request = JSON.parse(
+const request: { nonce: string } = JSON.parse(
 	File.fromPath(path.join(folder, 'stripe-request.json')).readTextSync(),
-) as { nonce: string }
+)
 const checks: string[] = []
 function assert(condition: unknown, message: string) {
 	if (!condition) {

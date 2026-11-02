@@ -603,7 +603,8 @@ export const validateSearch: RouteSearchSchema<
 		version: 1,
 		vendor: 'app',
 		validate(raw) {
-			const tab = (raw as { tab?: unknown }).tab ?? 'details'
+			const tab =
+				typeof raw === 'object' && raw !== null && 'tab' in raw ? raw.tab : 'details'
 
 			return tab === 'details' || tab === 'activity'
 				? { value: { tab } }
@@ -628,7 +629,8 @@ const pageSchema: RouteSearchSchema<{ page?: number }, { page: number }> = {
 		version: 1,
 		vendor: 'app',
 		validate(raw) {
-			const page = (raw as { page?: unknown }).page ?? 1
+			const page =
+				typeof raw === 'object' && raw !== null && 'page' in raw ? raw.page : 1
 
 			return typeof page === 'number' && Number.isInteger(page) && page > 0
 				? { value: { page } }

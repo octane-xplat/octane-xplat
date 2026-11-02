@@ -278,7 +278,7 @@ function assertLiteralAuthoring(definition: StoryDefinition<any, any, any>): voi
 				fail(`story "${definition.id}" — control "${key}" must be an object`)
 			}
 
-			const type = (control as { type?: string }).type
+			const type = typeof control === 'object' && control !== null && 'type' in control ? control.type : undefined
 			if (!['boolean', 'string', 'number', 'enum'].includes(type ?? '')) {
 				fail(
 					`story "${definition.id}" — control "${key}" has unknown type "${type}" (expected boolean, string, number or enum)`,

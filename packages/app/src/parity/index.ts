@@ -4,14 +4,15 @@
 import type { ParityFixture } from '@octane-xplat/ui/parity'
 export type { ParityFixture } from '@octane-xplat/ui/parity'
 
-const modules = (
-	import.meta as unknown as {
-		glob: (
-			pattern: string,
-			options: { eager: true },
-		) => Record<string, { PARITY?: ParityFixture[] }>
-	}
-).glob('../../../**/src/**/*.parity*.{tsrx,tsx}', { eager: true })
+type ImportGlob = (
+	pattern: string,
+	options: { eager: true },
+) => Record<string, { PARITY?: ParityFixture[] }>
+const glob: unknown = 'glob' in import.meta ? import.meta.glob : undefined
+const modules =
+	typeof glob === 'function'
+		? (glob as ImportGlob)('../../../**/src/**/*.parity*.{tsrx,tsx}', { eager: true })
+		: {}
 
 const fixtures: ParityFixture[] = []
 for (const [path, mod] of Object.entries(modules).sort(([a], [b]) => a.localeCompare(b))) {

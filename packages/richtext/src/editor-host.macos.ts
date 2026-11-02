@@ -76,7 +76,13 @@ function channelClass(): { alloc(): { init(): Channel } } {
 			protocols: [WKScriptMessageHandler, WKNavigationDelegate],
 		},
 	)
-	return EditorChannel as { alloc(): { init(): Channel } }
+	// NativeChannel.extend() returns a class handle whose declared type does not
+	// expose alloc/init — bound it once to the channel constructor shape.
+	return EditorChannel as unknown as EditorChannelClass
+}
+
+interface EditorChannelClass {
+	alloc(): { init(): Channel }
 }
 
 /** The transport surface the editor session drives. */
