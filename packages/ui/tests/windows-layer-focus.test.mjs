@@ -20,7 +20,7 @@ function fixture(options = {}) {
 		}
 	}
 	const owner = { IsHostVisible: true, ContentIslandEnvironment: { AppWindowId: { Value: 7 } } }
-	const state = { focus: [], captures: [], activationReads: [], primaryReads: 0, active: true }
+	const state = { focus: [], captures: [], activationReads: [], primaryReads: 0, active: true, layerKeySetup: null, layerKeyEvents: [] }
 	const control = (root = owner) => ({
 		XamlRoot: root,
 		IsLoaded: true,
@@ -83,6 +83,16 @@ function fixture(options = {}) {
 		require(id) {
 			if (id === './windows-overlay-exit') {
 				return exits
+			}
+			if (id === './layer-stack') {
+				return {
+					configureLayerKeys(setup) {
+						state.layerKeySetup = setup
+					},
+					dispatchLayerKey(event) {
+						state.layerKeyEvents.push(event)
+					},
+				}
 			}
 			if (id === '@nativescript/core') {
 				return { Application }
