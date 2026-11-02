@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { NSScrollView } from '@octane-xplat/platform/macos'
 import { useCallback, useLayoutEffect, useRef, useState } from 'octane'
+import type { Octane } from 'octane/jsx-runtime'
 import type {
 	HostElement,
 	UseScrollableAreaContentProps,
@@ -9,7 +10,7 @@ import type {
 	UseScrollableAreaViewportProps,
 } from '../../props'
 
-import { refList } from '../../internal/accessibility/ref-list'
+import { refList, type FlatRef } from '../../internal/accessibility/ref-list'
 import { INITIAL_SCROLL_STATE, sameScrollState, scrollableAreaState } from './scrollable-area-state'
 import { useDirection } from '../../internal/platform/internationalization'
 import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
@@ -79,13 +80,19 @@ export function useScrollableArea<TElement extends object = object>(
 		[measure],
 	)
 
-	const viewportRefs = useRef({
-		caller: undefined as { current?: any } | undefined,
+	const viewportRefs = useRef<{
+		caller: Octane.Ref<TElement> | undefined
+		refs: FlatRef<any>[]
+	}>({
+		caller: undefined,
 		refs: refList(bindViewport),
 	})
 
-	const contentRefs = useRef({
-		caller: undefined as { current?: any } | undefined,
+	const contentRefs = useRef<{
+		caller: Octane.Ref<TElement> | undefined
+		refs: FlatRef<any>[]
+	}>({
+		caller: undefined,
 		refs: refList(bindContent),
 	})
 

@@ -27,14 +27,14 @@ import type { JSX } from 'octane/jsx-runtime'
 
 function menuOptions(menu: BreadcrumbMenuOption[]): MenuOptionImplementation[] {
 	return menu.map((opt, i) =>
-		'type' in opt && opt.type === 'divider'
-			? { type: 'separator', key: 'divider-' + i }
-			: {
+		'label' in opt
+			? {
 					type: 'action',
 					key: 'opt-' + i,
-					label: (opt as { label: string }).label,
-					onSelect: (opt as { onClick?: () => void }).onClick,
-				},
+					label: opt.label,
+					onSelect: opt.onClick,
+				}
+			: { type: 'separator', key: 'divider-' + i },
 	)
 }
 

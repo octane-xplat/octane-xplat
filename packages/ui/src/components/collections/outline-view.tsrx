@@ -34,7 +34,7 @@ export function useOutlineFromView(containerRef?: unknown): OutlineItem[] {
 	useEffect(() => {
 		const view =
 			containerRef && typeof containerRef === 'object' && 'current' in containerRef
-				? (containerRef as { current?: any }).current
+				? containerRef.current
 				: containerRef
 
 		if (!view) {

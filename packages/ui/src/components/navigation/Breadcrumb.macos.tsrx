@@ -29,14 +29,14 @@ export function BreadcrumbItem(props: BreadcrumbItemProps): unknown @{
 	const label = typeof props.children === 'string' ? props.children : ''
 	const menu = props.menu
 		? props.menu.map((opt, i) =>
-				'type' in opt && opt.type === 'divider'
-					? { type: 'separator', key: 'divider-' + i }
-					: {
+				'label' in opt
+					? {
 							type: 'action',
 							key: 'opt-' + i,
-							label: (opt as { label: string }).label,
-							onSelect: (opt as { onClick?: () => void }).onClick,
-						},
+							label: opt.label,
+							onSelect: opt.onClick,
+						}
+					: { type: 'separator', key: 'divider-' + i },
 			)
 		: null
 

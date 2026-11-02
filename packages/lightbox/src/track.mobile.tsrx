@@ -43,6 +43,11 @@ export function createInputDispatch(currentIndex: () => number): InputDispatch {
 	return dispatch
 }
 
+/** A stoppable in-flight track animation — settle or crossfade. */
+interface TrackPlayback {
+	stop(): void
+}
+
 export function Track(
 	props: LightboxPartProps & {
 		items: LightboxMedia[]
@@ -57,13 +62,20 @@ export function Track(
 	const fadeProgress = useMotionValue(0)
 	const clipRef = useRef<any>(null)
 	const rowRef = useRef<any>(null)
-	const live = useRef({
+	const live = useRef<{
+		x: number
+		stride: number
+		index: number
+		tracking: boolean
+		fade: TrackPlayback | null
+		anim: TrackPlayback | null
+	}>({
 		x: 0,
 		stride: 1,
 		index: props.currentIndex,
 		tracking: false,
-		fade: null as { stop(): void } | null,
-		anim: null as { stop(): void } | null,
+		fade: null,
+		anim: null,
 	})
 
 	const l = live.current

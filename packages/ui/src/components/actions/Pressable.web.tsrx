@@ -8,12 +8,16 @@ import { layoutChildProps } from '../layout/layout-child.web'
 import { usePan } from '../layout/pan.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
+/** Internal contract shared with Button — `_nativeButton` renders a real
+ *  `<button type="button">` instead of `div[role=button]` so the control gets
+ *  native focus/activation/disabled semantics. Not part of the public props;
+ *  Button is the only producer. */
+export interface PressableInternalProps extends PressableProps {
+	_nativeButton?: boolean
+}
+
 export function Pressable(props: PressableProps): JSX.Element @{
-	// Internal escape hatch (not public API — callers pass `_nativeButton`
-	// through the untyped props bag): render a real <button type="button">
-	// instead of div[role=button]. Button uses it so the control gets native
-	// focus/activation/disabled semantics; other Pressables stay divs.
-	const asButton = (props as { _nativeButton?: boolean })._nativeButton === true
+	const asButton = (props as PressableInternalProps)._nativeButton === true
 	const Tag: any = asButton ? 'button' : 'div'
 	const el = useRef<HTMLElement | null>(null)
 	const spacePressed = useRef(false)

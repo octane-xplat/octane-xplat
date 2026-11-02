@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import type { ButtonProps } from '../../props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
-import { Pressable } from './Pressable.web.tsrx'
+import { Pressable, type PressableInternalProps } from './Pressable.web.tsrx'
 import { VisuallyHidden } from '../content/VisuallyHidden.web.tsrx'
 import { Icon } from '../media/Icon.web.tsrx'
 import { useButtonGroup } from './button-group-context'
@@ -143,8 +143,9 @@ export function Button(props: ButtonProps): JSX.Element @{
 			{content}
 		</a>
 	} @else {
+		const pressableProps: PressableInternalProps = { ...props, _nativeButton: true }
 		<Pressable
-			{...{ ...props, _nativeButton: true }}
+			{...pressableProps}
 			disabled={useAriaDisabled ? false : disabled}
 			onPress={runPress}
 			className={cls}

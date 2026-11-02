@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useLayoutEffect, useRef, useState } from 'octane'
+import type { Octane } from 'octane/jsx-runtime'
 import type {
 	UseScrollableAreaContentProps,
 	UseScrollableAreaOptions,
@@ -7,7 +8,7 @@ import type {
 	UseScrollableAreaViewportProps,
 } from '../../props'
 
-import { refList } from '../../internal/accessibility/ref-list'
+import { refList, type FlatRef } from '../../internal/accessibility/ref-list'
 import { INITIAL_SCROLL_STATE, sameScrollState, scrollableAreaState } from './scrollable-area-state'
 // Mason's Windows view exposes these metrics in layout units, not backing pixels.
 const metric = (value: unknown): number => {
@@ -155,13 +156,19 @@ export function useScrollableArea<TElement extends object = object>(
 		caller.current.onUnloaded?.(event)
 	}, [])
 
-	const viewportRefs = useRef({
-		caller: undefined as { current?: any } | undefined,
+	const viewportRefs = useRef<{
+		caller: Octane.Ref<TElement> | undefined
+		refs: FlatRef<any>[]
+	}>({
+		caller: undefined,
 		refs: refList(bindViewport),
 	})
 
-	const contentRefs = useRef({
-		caller: undefined as { current?: any } | undefined,
+	const contentRefs = useRef<{
+		caller: Octane.Ref<TElement> | undefined
+		refs: FlatRef<any>[]
+	}>({
+		caller: undefined,
 		refs: refList(bindContent),
 	})
 

@@ -60,7 +60,7 @@ export function useOutlineFromDOM(
 	const resolve = () => {
 		const source =
 			containerRef && typeof containerRef === 'object' && 'current' in containerRef
-				? (containerRef as { current?: unknown }).current
+				? containerRef.current
 				: containerRef
 
 		return (source ??

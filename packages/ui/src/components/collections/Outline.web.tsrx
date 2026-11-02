@@ -119,7 +119,7 @@ export function Outline(props: OutlineProps): JSX.Element @{
 					const el = headingEl(c, item.id)
 					return el ? { id: item.id, top: headingTop(c, el) } : null
 				})
-				.filter(Boolean) as { id: string; top: number }[]
+				.filter((t): t is { id: string; top: number } => t != null)
 
 			const edge = scrollTopOf(c) + offset + SPY_EDGE
 			let current = tops[0]?.id

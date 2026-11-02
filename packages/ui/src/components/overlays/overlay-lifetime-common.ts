@@ -11,6 +11,13 @@ type OverlayOwner = {
 	removeChild(host: any): void
 }
 
+/** RootLayout's private popup registry — inspected at runtime (not declared on
+ *  `OverlayOwner`) so an in-flight close never reenters. */
+interface PopupRegistry {
+	hasChild(view: any): boolean
+	getPopupIndex(view: any): number
+}
+
 export function createOverlayLifetime(
 	owner: OverlayOwner,
 	host: OverlayHost,
@@ -20,10 +27,7 @@ export function createOverlayLifetime(
 ) {
 	// RootLayout removes closing hosts from its private popup registry before
 	// their exit animation finishes. Inspect that runtime seam to avoid reentry.
-	const registry = owner as unknown as {
-		hasChild(view: any): boolean
-		getPopupIndex(view: any): number
-	}
+	const registry = owner as unknown as PopupRegistry
 
 	let released = false
 	let closing = false

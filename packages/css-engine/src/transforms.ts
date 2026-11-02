@@ -157,10 +157,13 @@ function mergeTranslateAxis(values: TranslateAxis[]): TranslateAxis {
 		return nonZero[0]
 	}
 	const unit = typeof nonZero[0] === 'object' ? nonZero[0].unit : null
-	if (unit !== null && nonZero.every((v) => typeof v === 'object' && (v as any).unit === unit)) {
+	const objectAxes = nonZero.filter(
+		(v): v is { value: number; unit: '%' } => typeof v === 'object' && v.unit === unit,
+	)
+	if (unit !== null && objectAxes.length === nonZero.length) {
 		return {
 			unit: '%',
-			value: nonZero.reduce((s: number, v) => s + (v as { value: number }).value, 0),
+			value: objectAxes.reduce((s, v) => s + v.value, 0),
 		}
 	}
 	return nonZero.reduce((s: number, v) => s + translateToNumber(v), 0)
