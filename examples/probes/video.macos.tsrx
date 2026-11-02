@@ -2,7 +2,7 @@
 import { useRef, useState } from 'octane'
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
 import { Video, type VideoFit, type VideoHandle } from '@octane-xplat/video'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function VideoProbe() {
 	const player = useRef<VideoHandle | null>(null)

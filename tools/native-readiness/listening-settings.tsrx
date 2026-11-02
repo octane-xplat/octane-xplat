@@ -4,7 +4,7 @@ import { storage } from '@octane-xplat/platform'
 import { createAudioPlayer, type AudioPlayer } from '@octane-xplat/audio'
 import { createHostedAuth, type HostedAuth } from '@octane-xplat/auth'
 import { requestStream } from '@octane-xplat/network'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const origin = 'http://fixture.invalid'
 

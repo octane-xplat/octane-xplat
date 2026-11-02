@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, HStack, Text, TextInput, VStack, useContainerReveal } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 function FileRow(props: { name: string; enabled: boolean; children?: any }) @{
 	const reveal = useContainerReveal({ isEnabled: props.enabled })
 	<HStack {...reveal.getContainerProps()} id={`reveal-${props.name}`} gap={2}>

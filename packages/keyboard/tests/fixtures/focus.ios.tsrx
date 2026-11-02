@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Page, StackLayout, TextField } from '@nativescript/core'
 import { FocusedInputController } from '../../src/index'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 import './focus.css'
 let removeArea = () => {}
 export default function FocusProbe() @{

@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
 import { webBrowser } from '@octane-xplat/web-browser'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 export default function BrowserServiceProbe() {
 	const [address, setAddress] = useState(''), [result, setResult] = useState('No browser requested')
 	return <VStack id="browser-service-controls" gap={2}>

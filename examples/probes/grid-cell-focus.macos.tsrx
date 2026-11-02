@@ -2,7 +2,7 @@
 import './grid-cell-focus.macos.css'
 import { useState } from 'octane'
 import { Button, Text, TextInput, View, useGridFocus } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function GridCellFocusProbe() @{
 	const [disabled, setDisabled] = useState(false), [hidden, setHidden] = useState(false), [removed, setRemoved] = useState(false)

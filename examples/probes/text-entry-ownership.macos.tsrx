@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import { Button, SearchInput, Text, TextArea, TextInput, VStack } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function TextEntryOwnershipProbe() {
 	const [name, setName] = useState('Ada'), [readOnly, setReadOnly] = useState(false), [disabled, setDisabled] = useState(false), [shown, setShown] = useState(true), [move, setMove] = useState(true), [accept, setAccept] = useState(true), [last, setLast] = useState('none')
 	const next = useRef<TextInputHandle | null>(null)

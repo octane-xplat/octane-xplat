@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, Text, TextInput, ToggleButton, Toolbar, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function ToolbarProbe() {
 	const [vertical, setVertical] = useState(false), [named, setNamed] = useState(false)

@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { MultiSelector, Selector, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
-import { axAttr } from '../../scripts/probe/appkit-input'
+import type { ProbeContext } from '../../tools/probe/context'
+import { axAttr } from '../../tools/probe/appkit-input'
 
 const options = [
 	{ value: 'apple', label: 'Apple' },

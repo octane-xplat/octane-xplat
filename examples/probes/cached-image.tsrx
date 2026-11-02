@@ -2,7 +2,7 @@
 import { Image, isImageCached, prefetch } from '@octane-xplat/image'
 import { Text, VStack } from '@octane-xplat/ui'
 import { useState } from 'octane'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const FIRST = 'https://picsum.photos/seed/probe-a/400/240'
 const SECOND = 'https://picsum.photos/seed/probe-b/400/240'

@@ -1,4 +1,4 @@
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 function readText(view: any): string {
 	if (!view) {

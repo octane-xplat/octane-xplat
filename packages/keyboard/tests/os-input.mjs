@@ -49,7 +49,7 @@ const pause = () => new Promise((resolve) => setTimeout(resolve, 500))
 const probe = spawn(
 	process.execPath,
 	[
-		join(root, 'scripts/probe.ts'),
+		join(root, 'tools/probe/cli.ts'),
 		'run',
 		join(root, `packages/keyboard/tests/fixtures/os-input.${target}.tsrx`),
 		'--target',

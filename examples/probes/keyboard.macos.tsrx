@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { FocusScope, Text, useKeyboard } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
-import { KVK, postKey, hasFocus } from '../../scripts/probe/appkit-input'
+import type { ProbeContext } from '../../tools/probe/context'
+import { KVK, postKey, hasFocus } from '../../tools/probe/appkit-input'
 
 export default function KeyboardProbe() {
 	const [last, setLast] = useState('No key received')

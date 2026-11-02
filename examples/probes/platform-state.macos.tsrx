@@ -6,7 +6,7 @@ import { useAppState as usePurposeActivity } from '@octane-xplat/platform/lifecy
 import { useSafeAreaInsets as usePurposeInsets } from '@octane-xplat/platform/safe-area'
 import { useBreakpoints$ as usePurposeBreakpoints$ } from '@octane-xplat/platform/breakpoints'
 import { Button, Text, TextInput, View } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const thresholds = { wide: 900 }
 function Readers() @{

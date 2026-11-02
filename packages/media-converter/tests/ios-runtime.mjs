@@ -29,9 +29,9 @@ const [bigFrames = 300, bigWidth = 2048, bigHeight = 2048] = (
 	.map(Number)
 
 const { prepare, filesUnder } = await import(
-	pathToFileURL(join(repo, 'scripts/probe/project.ts')).href
+	pathToFileURL(join(repo, 'tools/probe/project.ts')).href
 )
-const { command } = await import(pathToFileURL(join(repo, 'scripts/probe/process.ts')).href)
+const { command } = await import(pathToFileURL(join(repo, 'tools/probe/process.ts')).href)
 const sim = (args, allowFailure = false) => {
 	console.error(`[simctl] ${args.join(' ')}`)
 	return command('xcrun', ['simctl', ...args], { allowFailure, timeout: 300000 })

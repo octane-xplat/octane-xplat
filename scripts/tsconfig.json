@@ -8,11 +8,11 @@
 		"useUnknownInCatchVariables": false,
 		"noEmit": true
 	},
-	"include": ["*.ts", "probe/*.ts"],
+	"include": ["*.ts", "../tools/probe/*.ts", "../tools/routing-eval/cli.ts"],
 	"exclude": [
 		"*.test.ts",
-		"probe/macos-shell.macos.ts",
-		"probe/mobile-host.mobile.ts",
-		"probe/mobile.mobile.ts"
+		"../tools/probe/macos-shell.macos.ts",
+		"../tools/probe/mobile-host.mobile.ts",
+		"../tools/probe/mobile.mobile.ts"
 	]
 }

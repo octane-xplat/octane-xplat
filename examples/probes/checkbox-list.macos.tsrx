@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import { Button, CheckboxInput, CheckboxList, CheckboxListItem, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function CheckboxListProbe() {
 	const [value, setValue] = useState<string[]>([])

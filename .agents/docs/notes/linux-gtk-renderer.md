@@ -191,7 +191,7 @@ any output — run with stderr visible.
 widgets — only `emit` directly on the widget), Wayland, x86_64, window
 lifecycle edge cases, and anything visual/layout-correctness that requires
 looking at rendered pixels. The full feasibility evidence pipeline
-(`scripts/probe/linux-gtk-*`) remains the deeper qualification path.
+(`tools/probe/linux-gtk-*`) remains the deeper qualification path.
 
 ## Smoke path (verified 2026-10-18 on OrbStack Debian 13 arm64)
 
@@ -224,7 +224,7 @@ unqualified gaps).
 
 3. `pnpm probe run <case> --target linux` does not yet serve this renderer —
    the probe pipeline targets the WebKitGTK host. A native-GTK probe path
-   is future work (out of scope: `scripts/probe/` is owned by the
+   is future work (out of scope: `tools/probe/` is owned by the
    qualification workstream).
 
 ## Stylesheets (2026-10-26)

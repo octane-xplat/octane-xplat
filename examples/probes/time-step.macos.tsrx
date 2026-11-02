@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, TimeInput, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function TimeStepProbe() {
 	const [time, setTime] = useState<string | null>('14:30:17'), [readonly, setReadonly] = useState(false)
 	return <VStack gap={2}>

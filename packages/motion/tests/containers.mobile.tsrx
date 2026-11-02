@@ -5,7 +5,7 @@ import { View, ScrollableArea } from '@octane-xplat/ui'
 import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 import type { View as NativeView } from '@nativescript/core'
 import { motion, MotionConfig } from '../src/index'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 import { captureDragInput } from './containers-input'
 import { geometry } from './containers-geometry'
 

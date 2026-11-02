@@ -3,7 +3,7 @@ import { VirtualList } from '../src/components/collections/VirtualList.tsrx'
 import { View } from '../src/components/layout/View.tsrx'
 import { Text } from '../src/components/content/Text.tsrx'
 import type { VirtualListHandle } from '../src/props'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 const rows = Array.from({ length: 500 }, (_, index) => ({ id: String(index) }))
 let handle: VirtualListHandle | null = null

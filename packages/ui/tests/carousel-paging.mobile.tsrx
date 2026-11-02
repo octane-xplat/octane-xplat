@@ -3,7 +3,7 @@ import { Carousel } from '../src/components/layout/Carousel.tsrx'
 import { View } from '../src/components/layout/View.tsrx'
 import { Text } from '../src/components/content/Text.tsrx'
 import type { CarouselHandle } from '../src/props'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 let handle: CarouselHandle | null = null
 

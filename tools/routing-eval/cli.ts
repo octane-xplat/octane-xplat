@@ -9,8 +9,8 @@
 //   --mode reference  maintained reference solutions; every task must pass
 //
 // Usage:
-//   node scripts/eval-routing.ts --mode agent --agent 'CMD' [--task ID]... [--trials N]
-//   node scripts/eval-routing.ts --mode reference|baseline [--task ID]...
+//   node tools/routing-eval/cli.ts --mode agent --agent 'CMD' [--task ID]... [--trials N]
+//   node tools/routing-eval/cli.ts --mode reference|baseline [--task ID]...
 // Options: --base DIR (reuse a packed starter work dir), --out DIR, --timeout MS
 // CMD runs through `sh -c` in the task app. Placeholders: {dir}, {prompt_file},
 // {prompt} (shell-quoted). It must not receive repository paths or this harness.
@@ -31,8 +31,8 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 
-const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const harness = join(repo, 'scripts/eval-routing')
+const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const harness = join(repo, 'tools/routing-eval')
 
 interface Task {
 	id: string

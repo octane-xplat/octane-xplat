@@ -2,7 +2,7 @@
 import { VStack } from '@octane-xplat/ui'
 import { createStore, useStore } from '@octane-xplat/ui/data'
 import { createNanoIconSet, NanoIcon } from '@octane-xplat/nano-icons'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 import { glyphMap } from './nano-icons-font/XplatProbe'
 import { probeFontBytes } from './nano-icons-font/bytes'
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import { KeyboardStickyView, KeyboardController } from '../../src/index'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let change = () => {}
 export default function StickyNeutral() @{
 	const [offset, setOffset] = useState(8),

@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Button, Calendar, VStack } from '@octane-xplat/ui'
 import type { DateRange } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function CalendarKeysProbe() {
 	const [day, setDay] = useState<string | null>('2026-03-05'), [range, setRange] = useState<DateRange | null>(null)
 	const [rtl, setRTL] = useState(false)

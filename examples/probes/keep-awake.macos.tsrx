@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import { keepAwake, useKeepAwake } from '@octane-xplat/platform'
 import { Button, Text, View } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 function ReadingRequest(props: { name: string; quiet: boolean }) @{
 	useKeepAwake(undefined, { suppressDeactivateWarnings: props.quiet })

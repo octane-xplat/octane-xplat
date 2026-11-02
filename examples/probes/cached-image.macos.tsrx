@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import { Image, clearImageCaches, evictImage, initializeImageCache, isImageCached, prefetch } from '@octane-xplat/image'
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function AppKitCachedImageProbe() {
 	const active = useRef(true), [source, setSource] = useState('https://example.com/photo.png')
 	const [events, setEvents] = useState<string[]>([])

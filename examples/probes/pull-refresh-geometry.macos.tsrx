@@ -6,7 +6,7 @@ import {
 	NSScrollViewWillStartLiveScrollNotification, NSScrollViewDidLiveScrollNotification,
 	NSScrollViewDidEndLiveScrollNotification,
 } from '@octane-xplat/platform/macos'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 type Controls = { sample: (kind: string) => void; inset: () => void; elasticity: () => void; clear: () => void }
 const finite = (value: unknown): number | null => typeof value === 'number' && Number.isFinite(value) ? value : null

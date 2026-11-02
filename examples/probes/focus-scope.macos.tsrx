@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, FocusScope, Text, TextInput, VStack, getFocusScopeCapabilities } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
-import { KVK, kCGEventFlagMaskShift, postKey, focusedOwner } from '../../scripts/probe/appkit-input'
+import type { ProbeContext } from '../../tools/probe/context'
+import { KVK, kCGEventFlagMaskShift, postKey, focusedOwner } from '../../tools/probe/appkit-input'
 
 export default function FocusScopeProbe() {
 	const [open, setOpen] = useState(false)

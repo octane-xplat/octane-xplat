@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import { useState } from 'octane'
 import { CommandPalette } from '../../src/components/overlays/CommandPalette.tsrx'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 
 let changeOpen: (open: boolean) => void
 let changeLabel: (label: string) => void

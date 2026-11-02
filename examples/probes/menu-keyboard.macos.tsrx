@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, ContextMenu, DropdownMenu, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuSubMenu, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function MenuKeyboardProbe() {
 	const [checked, setChecked] = useState(false), [result, setResult] = useState('none')

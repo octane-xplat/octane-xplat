@@ -2,7 +2,7 @@ import './intl-shim'
 import { useState } from 'octane'
 import { View } from '@octane-xplat/ui'
 import { motion, LayoutGroup, Presence, MotionConfig } from '@octane-xplat/motion'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const views: Record<string, any> = {}
 let select: (value: boolean) => void = () => {}

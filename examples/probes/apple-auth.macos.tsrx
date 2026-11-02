@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import { Text, VStack } from '@octane-xplat/ui'
 import { AppleSignInButton } from '../../packages/auth/src/index.macos'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function AppleAuthProbe() {
 	const [status, setStatus] = useState('No Apple authentication requested')

@@ -828,7 +828,7 @@ export function assessContractRun(proof, orchestrator) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
 	const USAGE =
-		'Usage: node scripts/probe/linux-gtk-evidence.ts [--retained|--contract] PROOF_JSONL ORCHESTRATOR_JSONL'
+		'Usage: node tools/probe/linux-gtk-evidence.ts [--retained|--contract] PROOF_JSONL ORCHESTRATOR_JSONL'
 
 	try {
 		const args = process.argv.slice(2)

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { VStack, Pressable, Text } from '@octane-xplat/ui'
 import { useSignal$ } from 'octane/signals/client'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function Counter() {
 	const count$ = useSignal$(0)

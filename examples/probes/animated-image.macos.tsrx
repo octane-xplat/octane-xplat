@@ -3,7 +3,7 @@ import { useState } from 'octane'
 import { AnimatedImage } from '../../packages/gif/src/index.macos'
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { AnimatedImageProps } from '../../packages/gif/src/props'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function AnimatedImageProbe() {
 	const [address, setAddress] = useState(''), [source, setSource] = useState(''), [shown, setShown] = useState(true)
 	const [fit, setFit] = useState<AnimatedImageProps['stretch']>('aspectFit'), [count, setCount] = useState(0)

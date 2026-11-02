@@ -2,7 +2,7 @@
 import { useCallback, useRef, useState } from 'octane'
 import { Button, Heading, Outline, ScrollableArea, Text, VStack, type HostElement, type ScrollableAreaHandle } from '@octane-xplat/ui'
 import { getOutlineFromViewCapabilities, useOutlineFromView } from '@octane-xplat/ui/macos'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function OutlineSnapshotProbe() {
 	const content = useRef<ScrollableAreaHandle | null>(null), scroll = useRef<HostElement | null>(null), items = useOutlineFromView(content)

@@ -3,7 +3,7 @@ import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { useState } from 'octane'
 import { ImageCrop } from '@octane-xplat/image-crop'
 import type { Crop, PixelCrop } from '../src/props'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 const src =
 	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aH1sAAAAASUVORK5CYII='

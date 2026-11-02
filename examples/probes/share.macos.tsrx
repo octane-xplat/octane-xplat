@@ -4,7 +4,7 @@ import { Button, Text, VStack } from '@octane-xplat/ui'
 import { share } from '../../packages/share/src/index.macos'
 import { files } from '../../packages/files/src/index.macos'
 import type { FileRef } from '../../packages/files/src/types'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function ShareProbe() {
 	const [result, setResult] = useState('No sharing requested')

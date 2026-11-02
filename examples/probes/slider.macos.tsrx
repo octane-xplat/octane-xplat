@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
 import { Button, Field, Slider, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
-import { axAttr } from '../../scripts/probe/appkit-input'
+import type { ProbeContext } from '../../tools/probe/context'
+import { axAttr } from '../../tools/probe/appkit-input'
 
 export default function SliderProbe() {
 	const [range, setRange] = useState<number | [number, number]>([20, 80])

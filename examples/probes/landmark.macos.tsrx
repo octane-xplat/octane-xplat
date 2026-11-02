@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Button, FocusScope, Text, TextInput, VStack, useLandmark } from '@octane-xplat/ui'
 import type { UseLandmarkOptions, Renderable } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 function Region(props: UseLandmarkOptions & { hidden?: boolean; empty?: boolean; children?: Renderable }) @{
 	const { landmarkProps } = useLandmark(props)
 	<VStack {...landmarkProps} style={{ visibility: props.hidden ? 'collapse' : 'visible', padding: 8, borderWidth: 1 }} gap={2}>

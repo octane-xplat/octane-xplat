@@ -20,7 +20,7 @@ Boss deliverable `21b03833-bda7-4b30-b053-65f5d7cfdb93`. The example assumes
 you placed a read-only copy of those files in `research/linux-gtk-proof/evidence/`:
 
 ```sh
-node scripts/probe/linux-gtk-evidence.ts \
+node tools/probe/linux-gtk-evidence.ts \
   research/linux-gtk-proof/evidence/run16-proof-log.jsonl \
   research/linux-gtk-proof/evidence/run16-orchestrator.jsonl
 ```
@@ -46,7 +46,7 @@ criterion. They run on the host without GTK, a VM, screenshots or input
 injection:
 
 ```sh
-node --test scripts/probe/linux-gtk-evidence.test.mjs
+node --test tools/probe/linux-gtk-evidence.test.mjs
 ```
 
 Proof repairs must preserve the original evidence and selection-settle/echo
@@ -64,7 +64,7 @@ shape as the retained logs plus the record set declared by the
 `contract-header` and a terminal `run-status`. Assess it with:
 
 ```sh
-node scripts/probe/linux-gtk-evidence.ts --contract PROOF_JSONL ORCHESTRATOR_JSONL
+node tools/probe/linux-gtk-evidence.ts --contract PROOF_JSONL ORCHESTRATOR_JSONL
 ```
 
 Exit 0 `pass`, exit 1 `fail`, exit 3 `blocked`, exit 2 unreadable input.
@@ -91,7 +91,7 @@ The maintained regression uses ordinary fake child processes and does not
 launch GJS, GTK, a VM or OS input:
 
 ```sh
-node --test scripts/probe/linux-gtk-orchestrate.test.mjs
+node --test tools/probe/linux-gtk-orchestrate.test.mjs
 ```
 
 It checks successful completion, error exit propagation, and timeout cleanup

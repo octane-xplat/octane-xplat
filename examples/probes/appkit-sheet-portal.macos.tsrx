@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { AppKitSheet } from '@octane-xplat/sheet/macos'
 import { createContext, useContext, useEffect, useState } from 'octane'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const SheetContext = createContext('missing')
 const SheetProvider: any = SheetContext

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import { Button, DateTimeInput, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function DateTimeDraftProbe() {
 	const [value, setValue] = useState<string | null>('2026-03-05T14:30'), [readonly, setReadonly] = useState(false), [mounted, setMounted] = useState(true), [seconds, setSeconds] = useState(false)
 	const release = useRef<(() => void) | null>(null), [last, setLast] = useState('none')

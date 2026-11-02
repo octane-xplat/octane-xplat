@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Text, VStack, useMediaQuery } from '@octane-xplat/ui'
 import { useWindowSize } from '@octane-xplat/platform'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function ResponsiveLayoutProbe() {
 	const wide = useMediaQuery('(min-width: 800px)')

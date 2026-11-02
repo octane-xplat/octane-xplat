@@ -6,7 +6,7 @@ import type { CameraSession } from '@octane-xplat/camera'
 import { AVURLAsset, NSURL } from '@octane-xplat/platform/ios'
 import { SharedCameraSession } from '../src/session-core'
 import { createSessionBackend } from '../src/session-backend.ios'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 // Native diagnostics use the same backend as the public factory. The final
 // take also exercises createCameraSession directly. Run via test:ios-device.

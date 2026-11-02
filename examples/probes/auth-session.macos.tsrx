@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import { Button, Text, VStack } from '@octane-xplat/ui'
 import { authSession } from '@octane-xplat/platform'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 // example.com is a cancellation/presenter fixture, not an OAuth provider.
 // For success qualification, substitute an app-owned backend with a registered,

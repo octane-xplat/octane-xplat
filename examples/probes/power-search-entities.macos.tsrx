@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'octane'
 import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
 import type { PartialFilter, PowerSearchConfig, SearchableItem, SearchSource } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const people: SearchableItem[] = [{ id: '1', label: 'Ada' }, { id: '2', label: 'Grace' }, { id: '3', label: 'Lin' }, { id: '4', label: 'Ada' }]
 const initial = (): PartialFilter => ({ field: 'owner', operator: 'is', value: { type: 'entity_list', value: [people[0]] } })

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { NativeSheetDemo } from '../../packages/demos/src/NativeSheetDemo.macos.tsrx'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default NativeSheetDemo
 export async function run(ctx: ProbeContext) {

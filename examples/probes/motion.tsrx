@@ -20,7 +20,7 @@ import {
 } from '@octane-xplat/ui'
 
 import { dragInput } from './motion-drag-input'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 let frameStamps: number[] = []
 let lastStampAt = 0

@@ -2,7 +2,7 @@
 import './border-styles.macos.css'
 import { useState } from 'octane'
 import { Button, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const styles = ['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset', 'none', 'hidden', undefined] as const
 export default function BorderStylesProbe() {

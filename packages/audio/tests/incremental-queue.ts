@@ -1,6 +1,6 @@
 import { audioOrigin } from './fixture-origin'
 import { createAudioPlayer } from '@octane-xplat/audio'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 export async function run(ctx: ProbeContext) {
 	const origin = audioOrigin(ctx.target)

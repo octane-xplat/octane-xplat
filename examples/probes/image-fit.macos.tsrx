@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, Image, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 // Deliberately non-square, asymmetric artwork; no external download required.
 const artwork = '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="80"><rect width="160" height="80" fill="#6482b8"/><rect width="40" height="80" fill="#bd5252"/><circle cx="130" cy="40" r="20" fill="#efd369"/></svg>'

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import { VirtualList } from '../src/components/collections/VirtualList.web.tsrx'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 const items = Array.from({ length: 100 }, (_, i) => ({ id: String(i) }))
 const keyExtractor = (item: { id: string }) => item.id

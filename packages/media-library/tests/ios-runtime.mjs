@@ -58,7 +58,7 @@ for (const key of ['NSPhotoLibraryUsageDescription', 'NSPhotoLibraryAddUsageDesc
 }
 await writeFile(plist, text)
 const caseFile = join(packageRoot, 'tests/runtime.ios.ts')
-const { prepare } = await import(pathToFileURL(join(repo, 'scripts/probe/project.ts')).href)
+const { prepare } = await import(pathToFileURL(join(repo, 'tools/probe/project.ts')).href)
 const project = await prepare('ios', caseFile, ['@octane-xplat/lib'], resources)
 const privacy = (action, service) =>
 	run('xcrun', ['simctl', 'privacy', device, action, service, project.appId])

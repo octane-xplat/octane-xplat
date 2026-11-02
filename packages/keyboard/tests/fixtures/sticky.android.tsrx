@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { KeyboardStickyView, KeyboardController } from '../../src/index'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 import './sticky.css'
 let offset = (_value: number) => {},
 	enable = (_value: boolean) => {},

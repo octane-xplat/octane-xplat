@@ -31,9 +31,9 @@ assert.ok(
 const repo =
 	process.env.XPLAT_NATIVE_TEST_REPO ?? resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const { prepare, filesUnder, dependencies } = await import(
-	pathToFileURL(join(repo, 'scripts/probe/project.ts')).href
+	pathToFileURL(join(repo, 'tools/probe/project.ts')).href
 )
-const { command } = await import(pathToFileURL(join(repo, 'scripts/probe/process.ts')).href)
+const { command } = await import(pathToFileURL(join(repo, 'tools/probe/process.ts')).href)
 const driver = resolve(dirname(fileURLToPath(import.meta.url)), 'fixtures/driver.mobile.ts')
 const events = []
 const manifests = {}

@@ -2,7 +2,7 @@
 import './text-overflow-css.macos.css'
 import { useState } from 'octane'
 import { Button, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const title = 'A complete artificial title that needs several lines in a narrow frame.'
 const alignments = ['start', 'end', 'left', 'right', 'center', 'justify', undefined] as const

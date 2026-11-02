@@ -1,6 +1,6 @@
 import { audioOrigin } from './fixture-origin'
 import { createAudioPlayer } from '@octane-xplat/audio'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 // Foreground silent-WAV budgets, fixed before collecting remote results.
 // These measure observable player state, not app startup or audible output.

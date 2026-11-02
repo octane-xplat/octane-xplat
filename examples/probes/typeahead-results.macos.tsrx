@@ -2,7 +2,7 @@
 import { createContext, useContext, useState } from 'octane'
 import { BaseTypeahead, Button, InternationalizationProvider, Text, TextInput, VStack, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 const Team = createContext('missing provider'), TeamProvider: any = Team
 const source = createStaticSource(Array.from({ length: 40 }, (_, index) => ({ id: String(index), label: `Person ${index + 1}` })))
 const alternate = createStaticSource([{ id: 'current', label: 'Current replacement person' }])

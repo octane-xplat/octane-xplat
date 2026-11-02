@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Chart } from '@octane-xplat/charts'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 let presses = 0
 export default function ChartsProbe() {

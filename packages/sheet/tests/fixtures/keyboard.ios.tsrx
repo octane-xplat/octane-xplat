@@ -3,7 +3,7 @@ import { useState } from 'octane'
 import { View, TextInput } from '@octane-xplat/ui'
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 import { KeyboardController } from '../../../keyboard/src/index'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let background: any,
 	field: any,
 	show = (_open: boolean) => {},

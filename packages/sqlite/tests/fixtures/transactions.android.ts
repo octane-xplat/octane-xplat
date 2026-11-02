@@ -1,5 +1,5 @@
 import { deleteDatabase, openDatabase, type SqliteDb } from '@octane-xplat/sqlite'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 
 type OwnedDatabase = { name: string; db: SqliteDb; pending: number }
 

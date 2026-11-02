@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { dispatchPress } from './probe/press.ts'
+import { dispatchPress } from './press.ts'
 
 test('press dispatch preserves core gesture context and Mason click listeners', () => {
 	const context = {}

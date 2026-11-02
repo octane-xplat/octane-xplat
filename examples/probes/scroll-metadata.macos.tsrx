@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, ScrollableArea, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function ScrollMetadataProbe() {
 	const [described, setDescribed] = useState(true), [hidden, setHidden] = useState(false), [renamed, setRenamed] = useState(false)

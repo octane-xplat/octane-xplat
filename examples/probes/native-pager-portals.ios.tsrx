@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Pager } from '@octane-xplat/pager'
 import { createContext, useContext, useEffect, useState } from 'octane'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 type Surface = 'first' | 'second'
 

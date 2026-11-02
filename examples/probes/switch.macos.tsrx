@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import { Button, Switch, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
-import { axAttr } from '../../scripts/probe/appkit-input'
+import type { ProbeContext } from '../../tools/probe/context'
+import { axAttr } from '../../tools/probe/appkit-input'
 
 export default function SwitchProbe() {
 	const [compact, setCompact] = useState(false)

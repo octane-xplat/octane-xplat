@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import { writeFile, readFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
-import { prepare } from '../../../scripts/probe/project.ts'
+import { prepare } from '../../../tools/probe/project.ts'
 import { listRetainedSessions } from '../dist/dev-logs.js'
 const project = await prepare('macos', fileURLToPath(import.meta.url))
 const root = project.root

@@ -3,7 +3,7 @@ import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { createContext, useContext, useEffect, useState } from 'octane'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 type Surface = 'sheet' | 'trigger' | 'preview' | 'shader'
 

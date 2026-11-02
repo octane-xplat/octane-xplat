@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { NativePickerDemo } from '../../packages/demos/src/NativePickerDemo.macos.tsrx'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default NativePickerDemo
 export async function run(ctx: ProbeContext) {

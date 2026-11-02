@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Text, TextInput, VStack, useFocusRing, useFocusVisible } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
-import { KVK, postKey, postClick } from '../../scripts/probe/appkit-input'
+import type { ProbeContext } from '../../tools/probe/context'
+import { KVK, postKey, postClick } from '../../tools/probe/appkit-input'
 
 export default function FocusModalityProbe() {
 	const modality = useFocusVisible()

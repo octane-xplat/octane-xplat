@@ -2,7 +2,7 @@
 import { useRef, useState } from 'octane'
 import { Button, Carousel, Text, VStack } from '@octane-xplat/ui'
 import type { CarouselHandle } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function CarouselProbe() {
 	const carousel = useRef<CarouselHandle | null>(null), [loop, setLoop] = useState(false), [snap, setSnap] = useState(true)
 	return <VStack gap={2}>

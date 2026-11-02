@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'octane'
 import { Button, Text, VStack } from '@octane-xplat/ui'
 import { notifications } from '../../packages/notifications/src/index.macos'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function NotificationPermissionsProbe() {
 	const [result, setResult] = useState('No status read or notification requested')
 	const alive = useRef(true), generation = useRef(0)

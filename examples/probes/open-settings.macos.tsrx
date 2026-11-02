@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Button, Text, VStack } from '@octane-xplat/ui'
 import { openSettings } from '@octane-xplat/platform'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function OpenSettingsProbe() {
 	const [status, setStatus] = useState('Not requested')

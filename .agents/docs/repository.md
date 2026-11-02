@@ -20,7 +20,10 @@ writing or reviewing the guides.
 
 `apps/` holds runnable UI hosts, sites, sandboxes, and demo/test applications.
 `tools/` holds private verification runners and supporting services, including
-`visual`, `astryx-parity`, `feedback-worker`, and `ota-server`. A tool can embed
+`visual`, `astryx-parity`, `feedback-worker`, and `ota-server`.
+`tools/probe/` owns isolated platform probing; `tools/routing-eval/` owns coding-agent
+routing evaluations and their reference/grading fixtures. Root `scripts/` holds
+workspace checks, release helpers, and synchronization entry points. A tool can embed
 UI fixtures without becoming an app. Reusable libraries and published developer
 tools belong in `packages/`; see [workspace placement](../../AGENTS.md#workspace-placement).
 
@@ -32,6 +35,9 @@ files, indexed through [operational evidence lookup](exploration.md#operational-
 Do not commit operational snapshots or keep a parallel status ledger in Markdown.
 Formatters and linters exclude
 `.agents/`; documentation and recipe checks retain their own coverage.
+
+See the [examples index](../../examples/README.md) for copyable examples and
+maintained diagnostic fixtures.
 
 ## Layout
 

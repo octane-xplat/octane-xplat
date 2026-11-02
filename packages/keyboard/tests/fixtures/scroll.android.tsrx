@@ -6,7 +6,7 @@ import {
 } from '../../src/index'
 
 import type { KeyboardScrollBinding } from '../../src/scroll-types'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 import './scroll.css'
 let binding: KeyboardScrollBinding | null
 const capture = (next: KeyboardScrollBinding | null) => {

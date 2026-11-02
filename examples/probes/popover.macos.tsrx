@@ -2,7 +2,7 @@
 import type { NSView } from '@octane-xplat/platform/macos'
 import { createContext, useContext, useRef, useState } from 'octane'
 import { Button, Popover, Text, TextInput, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const Project = createContext('missing'), ProjectProvider: any = Project
 function ProjectName() { return <Text>{`Current project: ${useContext(Project)}`}</Text> }

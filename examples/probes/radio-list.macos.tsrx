@@ -2,7 +2,7 @@
 import { useRef, useState } from 'octane'
 import { Button, RadioList, RadioListItem, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function RadioListProbe() {
 	const [value, setValue] = useState('free'), [readOnly, setReadOnly] = useState(false), [disabled, setDisabled] = useState(false), [childDisabled, setChildDisabled] = useState(false), [accept, setAccept] = useState(true), [move, setMove] = useState(false), [childValue, setChildValue] = useState('team'), [last, setLast] = useState('none')

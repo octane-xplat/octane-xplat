@@ -2,7 +2,7 @@ import { DataGrid } from '@octane-xplat/table'
 import { View } from '@octane-xplat/ui'
 import { GridHost } from './host.tsrx'
 import { pan } from './gesture'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 const data = [
 	{ id: 'a', name: 'Alice', count: 1 },

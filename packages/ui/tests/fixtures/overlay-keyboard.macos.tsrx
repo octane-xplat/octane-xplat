@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Screen, BottomSheet, BottomSheetSwitcher, TextInput } from '@octane-xplat/ui'
 import { AppKitSheet } from '@octane-xplat/sheet/macos'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let background: any,
 	first: any,
 	second: any,

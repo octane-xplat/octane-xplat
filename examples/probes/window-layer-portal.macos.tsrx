@@ -5,7 +5,7 @@ import type { NSView } from '@octane-xplat/platform/macos'
 import type { WindowLayer } from '../../packages/macos-appkit/src/layer'
 import { appKitHost } from '../../packages/ui/src/internal/platform/host-bridge'
 import { createPortal } from '../../packages/ui/src/internal/platform/native-portal'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 const LabelContext = createContext('missing source provider')
 const LabelProvider: any = LabelContext
 interface Lease { handle: WindowLayer | null; target: NSView | null; live: boolean; committed: boolean; waiters: Array<() => void> }

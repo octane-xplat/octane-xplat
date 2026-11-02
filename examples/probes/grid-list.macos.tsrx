@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { GridList, Text, TextInput } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const items = ['Alpha', 'Beta', 'Gamma', 'Delta'].map((id) => ({ id }))
 export default function GridListProbe() {

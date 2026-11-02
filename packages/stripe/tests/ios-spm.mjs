@@ -92,7 +92,7 @@ await writeFile(
 	join(resources, 'iOS/build.xcconfig'),
 	`IPHONEOS_DEPLOYMENT_TARGET = 15.0\n// Packed Stripe archive: ${archiveHash}\n`,
 )
-const { prepare } = await import(pathToFileURL(join(repo, 'scripts/probe/project.ts')).href)
+const { prepare } = await import(pathToFileURL(join(repo, 'tools/probe/project.ts')).href)
 const project = await prepare('ios', entry, ['@octane-xplat/stripe'], resources)
 await writeFile(
 	join(project.root, 'src/index.ts'),

@@ -29,7 +29,7 @@ await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
 	filter: (path) => !path.endsWith('google-services.json'),
 })
 const caseFile = join(packageRoot, 'tests/runtime.ios.ts')
-const { prepare } = await import(pathToFileURL(join(repo, 'scripts/probe/project.ts')).href)
+const { prepare } = await import(pathToFileURL(join(repo, 'tools/probe/project.ts')).href)
 const project = await prepare('ios', caseFile, ['@octane-xplat/lib'], resources)
 let container
 const installed = spawnSync(

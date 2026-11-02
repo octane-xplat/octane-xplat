@@ -2,7 +2,7 @@
 /** Maintained nonvisual AppKit integration case; key monitors are action-dispatched. */
 import { CommandPalette, Pressable, Text, VStack } from '@octane-xplat/ui'
 import { useSignal$ } from 'octane/signals/client'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 const native = globalThis as any
 const monitors: Array<(event: any) => any> = []

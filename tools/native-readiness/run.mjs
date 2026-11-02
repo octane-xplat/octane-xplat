@@ -207,7 +207,7 @@ const fixture = join(app, 'src/readiness-fixture.tsrx')
 let source = readFileSync(new URL('listening-settings.tsrx', import.meta.url), 'utf8')
 source = source
 	.replace('http://fixture.invalid', origin)
-	.replace('../../scripts/probe/context', join(repo, 'scripts/probe/context'))
+	.replace('../../tools/probe/context', join(repo, 'tools/probe/context'))
 
 writeFileSync(fixture, source)
 try {

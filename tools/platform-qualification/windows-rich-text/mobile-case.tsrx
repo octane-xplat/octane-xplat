@@ -2,7 +2,7 @@
 import {Text} from '../../../packages/ui/src/components/content/Text.tsrx'
 import {isAndroid,isIOS} from '@nativescript/core'
 import {signal$} from 'octane/signals'
-import type {ProbeContext} from '../../../scripts/probe/context'
+import type {ProbeContext} from '../../../tools/probe/context'
 const styled$=signal$(true);
 const word$=signal$('bold');const show$=signal$(true);const reverse$=signal$(false);
 export default function RichTextProbe() @{

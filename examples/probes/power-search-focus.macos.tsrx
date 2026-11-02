@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Button, PowerSearch, Text, TextInput, VStack, createPowerSearchConfig } from '@octane-xplat/ui'
 import type { PowerSearchFilterFor } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 const { config } = createPowerSearchConfig([{ key: 'title', type: 'string', label: 'Title' }] as const)
 export default function PowerSearchFocusProbe() {
 	const [shown, setShown] = useState(true), [requested, setRequested] = useState(true), [disabled, setDisabled] = useState(false), [filters, setFilters] = useState<ReadonlyArray<PowerSearchFilterFor<typeof config>>>([])

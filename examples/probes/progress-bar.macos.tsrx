@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, Meter, ProgressBar, ProgressGroup, Spinner, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default function ProgressBarProbe() {
 	const [unknown, setUnknown] = useState(true), [value, setValue] = useState(25)

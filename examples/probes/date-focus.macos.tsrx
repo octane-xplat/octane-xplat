@@ -2,7 +2,7 @@
 import { useRef, useState } from 'octane'
 import { Button, DateInput, TimeInput, DateTimeInput, DateRangeInput, VStack } from '@octane-xplat/ui'
 import type { DateRange, TextInputHandle } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function DateFocusProbe() {
 	const date = useRef<TextInputHandle | null>(null), time = useRef<TextInputHandle | null>(null)
 	const datetime = useRef<TextInputHandle | null>(null), range = useRef<TextInputHandle | null>(null)

@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { SegmentedControl, SegmentedControlItem, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
-import { axAttr } from '../../scripts/probe/appkit-input'
+import type { ProbeContext } from '../../tools/probe/context'
+import { axAttr } from '../../tools/probe/appkit-input'
 
 export default function SegmentedControlProbe() {
 	const [mode, setMode] = useState('inbox')

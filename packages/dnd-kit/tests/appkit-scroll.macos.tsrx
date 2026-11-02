@@ -10,7 +10,7 @@ function parent(view: any) {
 	return view.superview
 }
 
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 export default Demo
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('dnd-task-1') && ctx.find('dnd-scroll'))

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { TouchGestureEventData } from '@nativescript/core'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const events: [string, number, number][] = []
 

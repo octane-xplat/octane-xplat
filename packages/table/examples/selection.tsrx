@@ -3,7 +3,7 @@ import { DataGrid, type DataGridFeatures, type Row, type TableState } from '@oct
 import { View, Text } from '@octane-xplat/ui'
 import { GridHost } from './host.tsrx'
 import { selectionState, rowPosition, scrollBody } from './selection-host'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 type GridRow = { id: string; name: string }
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
 import { Button, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 type PendingAction = { resolve(): void; reject(error: unknown): void }
 

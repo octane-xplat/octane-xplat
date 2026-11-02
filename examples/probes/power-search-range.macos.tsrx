@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
 import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 const config: PowerSearchConfig = { name: 'range-fixture', fields: [{ key: 'created', label: 'Created', operators: [
 	{ key: 'between', label: 'Between', value: { type: 'date_range', intervalDatePresets: [{ label: 'Last 7 days', value: { start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' } } }] } },
 ] }] }

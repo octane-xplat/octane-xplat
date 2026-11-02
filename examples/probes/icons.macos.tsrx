@@ -2,7 +2,7 @@
 import { Column, Image, Icon as GlyphIcon, registerIcons } from '@octane-xplat/ui'
 import { createStore, useStore } from '@octane-xplat/ui/data'
 import { Icon, addCollection } from '@octane-xplat/icons'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const selection = createStore({ name: 'appkit-svg:wide', color: '#123456', size: 24 })
 registerIcons({ 'appkit-glyph': { svg: 'M0 0h24v24H0z' } })

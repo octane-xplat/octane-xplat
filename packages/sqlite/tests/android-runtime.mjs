@@ -3,12 +3,12 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
-import { command, ownedProcess } from '../../../scripts/probe/process.ts'
-import { directory, filesUnder, importFrom, prepare, repo } from '../../../scripts/probe/project.ts'
-import nativeCaseConfig from '../../../scripts/probe/native-case.config.ts'
-import { argumentsFor } from '../../../scripts/probe.ts'
-import { acquireCaseLock } from '../../../scripts/probe/lock.ts'
-import { runTarget } from '../../../scripts/probe/runner.ts'
+import { command, ownedProcess } from '../../../tools/probe/process.ts'
+import { directory, filesUnder, importFrom, prepare, repo } from '../../../tools/probe/project.ts'
+import nativeCaseConfig from '../../../tools/probe/native-case.config.ts'
+import { argumentsFor } from '../../../tools/probe/cli.ts'
+import { acquireCaseLock } from '../../../tools/probe/lock.ts'
+import { runTarget } from '../../../tools/probe/runner.ts'
 
 const { values } = parseArgs({ options: { 'build-only': { type: 'boolean', default: false } } })
 const fixture = fileURLToPath(new URL('./fixtures/transactions.android.ts', import.meta.url))

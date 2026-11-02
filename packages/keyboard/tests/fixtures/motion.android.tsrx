@@ -3,7 +3,7 @@ import { Application } from '@nativescript/core'
 import { KeyboardAvoiding } from '@octane-xplat/ui'
 import { KeyboardController, bindKeyboardHost } from '../../src/controller'
 import { keyboardHostDisplacement } from '@octane-xplat/ui/nativescript/keyboard'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 
 import './motion.css'
 

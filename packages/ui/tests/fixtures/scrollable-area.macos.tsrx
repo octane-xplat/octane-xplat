@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { ScrollableArea, useScrollableArea, View, Text } from '@octane-xplat/ui'
 import type { ScrollAxis, UseScrollableAreaResult } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 
 let area: UseScrollableAreaResult
 let viewport: any

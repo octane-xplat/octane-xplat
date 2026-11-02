@@ -22,9 +22,9 @@ assert.ok(
 )
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const { prepare, filesUnder } = await import(
-	pathToFileURL(join(repo, 'scripts/probe/project.ts')).href
+	pathToFileURL(join(repo, 'tools/probe/project.ts')).href
 )
-const { command } = await import(pathToFileURL(join(repo, 'scripts/probe/process.ts')).href)
+const { command } = await import(pathToFileURL(join(repo, 'tools/probe/process.ts')).href)
 const resources = join(packageRoot, 'tests/.runtime/App_Resources')
 await cp(join(repo, 'packages/create/template/App_Resources'), resources, { recursive: true })
 const project = await prepare(

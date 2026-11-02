@@ -2,7 +2,7 @@
 import { useRef, useState } from 'octane'
 import { Button, InternationalizationProvider, Table, Text, TextInput, VStack, pixel, proportional, useTableColumnResize, useTableStickyColumns } from '@octane-xplat/ui'
 import type { TableColumn, TablePlugin, UseTableColumnResizeConfig } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 type Person = { name: string; team: string; location: string; status: string }
 const rows: Person[] = [
 	{ name: 'Ada', team: 'Platform', location: 'London', status: 'Active' },

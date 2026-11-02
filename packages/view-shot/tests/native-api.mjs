@@ -25,7 +25,7 @@ if (platform === 'macos') {
 	)
 	const caseFile = join(root, 'tests/runtime.ios.ts')
 	const { prepare } = await import(
-		pathToFileURL(join(repo, 'scripts/probe/project.ts')).href
+		pathToFileURL(join(repo, 'tools/probe/project.ts')).href
 	)
 	await prepare('ios', caseFile, ['@octane-xplat/lib'])
 	const result = spawnSync(

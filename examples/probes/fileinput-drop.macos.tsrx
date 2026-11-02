@@ -3,7 +3,7 @@ import { useState } from 'octane'
 import { Button, VStack } from '@octane-xplat/ui'
 import { FileInput, files } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const filters = ['.txt,.pdf', 'image/*,.pdf', 'text/*', 'video/*', 'application/json', '*/*,.png', '.pdf,application/x-octane-unregistered']
 

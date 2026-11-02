@@ -4,7 +4,7 @@ import { useState } from 'octane'
 import { motion } from '@octane-xplat/motion'
 import { observeBatches } from '@nativescript-community/octane'
 import { Application, Trace } from '@nativescript/core'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 // Native layout projection runtime probe: commit-timing (no flash), a
 // mid-animation nested check, keyed reorder of unchanged children, settle

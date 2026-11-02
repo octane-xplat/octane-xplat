@@ -19,7 +19,7 @@ import {
 	openBottomSheet,
 } from '@octane-xplat/ui'
 
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const media = [{ src: '', alt: 'Replace this source with an image from your app' }]
 function SheetContent(props: { params: { title: string }; close: (result?: string) => void }) {

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { argumentsFor } from './probe.ts'
-import { executeCase } from './probe/runtime.ts'
-import { selectDevice } from './probe/doctor.ts'
-import { validateResult } from './probe/runner.ts'
+import { argumentsFor } from './cli.ts'
+import { executeCase } from './runtime.ts'
+import { selectDevice } from './doctor.ts'
+import { validateResult } from './runner.ts'
 
 const options = { case: '/probe.ts', target: 'web', runId: 'run', timeout: 100 }
 const host = (dispose = () => {}) => ({
@@ -181,7 +181,7 @@ test('completion validation rejects stale, wrong-target, and contradictory resul
 })
 
 test('case ownership refuses a second runner and releases for the next run', async () => {
-	const { acquireCaseLock } = await import('./probe/lock.ts')
+	const { acquireCaseLock } = await import('./lock.ts')
 	const caseFile = `/tmp/xplat-probe-lock-test-${process.pid}.ts`
 	const release = await acquireCaseLock('web', caseFile)
 	try {
@@ -198,7 +198,7 @@ test('resource edits and additions invalidate the build fingerprint', async () =
 	const { mkdtemp, writeFile, rm } = await import('node:fs/promises')
 	const { tmpdir } = await import('node:os')
 	const { join } = await import('node:path')
-	const { fingerprint } = await import('./probe/project.ts')
+	const { fingerprint } = await import('./project.ts')
 	const resources = await mkdtemp(join(tmpdir(), 'xplat-probe-resource-test-'))
 	const deps = { nativeFiles: [], resolved: new Map() }
 	try {
@@ -216,7 +216,7 @@ test('resource edits and additions invalidate the build fingerprint', async () =
 })
 
 test('native probe collects required layout/gesture plugins and their pnpm runtime dependencies', async () => {
-	const { dependencies, repo } = await import('./probe/project.ts')
+	const { dependencies, repo } = await import('./project.ts')
 	const { join } = await import('node:path')
 	const deps = await dependencies('ios', join(repo, 'examples/probes/motion.tsrx'), [
 		'@octane-xplat/motion',
@@ -250,7 +250,7 @@ test('an explicit core probe excludes the default full engine and fingerprints i
 	const { mkdtemp, mkdir, writeFile, rm, realpath } = await import('node:fs/promises')
 	const { tmpdir } = await import('node:os')
 	const { join } = await import('node:path')
-	const { dependencies, fingerprint } = await import('./probe/project.ts')
+	const { dependencies, fingerprint } = await import('./project.ts')
 	const work = await realpath(await mkdtemp(join(tmpdir(), 'xplat-probe-mason-core-')))
 	t.after(() => rm(work, { recursive: true, force: true }))
 	const core = '@octane-xplat/nativescript-mason-core'
@@ -291,8 +291,8 @@ test('native cases reuse host Core for external style property imports', async (
 	const { mkdtemp, writeFile, rm } = await import('node:fs/promises')
 	const { tmpdir } = await import('node:os')
 	const { join } = await import('node:path')
-	const { repo, importFrom } = await import('./probe/project.ts')
-	const { default: nativeCaseConfig } = await import('./probe/native-case.config.ts')
+	const { repo, importFrom } = await import('./project.ts')
+	const { default: nativeCaseConfig } = await import('./native-case.config.ts')
 	const project = join(repo, 'apps/mobile')
 	const { build } = await importFrom(project, 'vite')
 	const work = await mkdtemp(join(tmpdir(), 'xplat-probe-core-test-'))
@@ -383,7 +383,7 @@ test('only allowlisted web host diagnostics can pass with recorded errors', asyn
 })
 
 test('scrub delivers touch actions and local coordinates with observer context', async () => {
-	const { dispatchScrub } = await import('./probe/touch.ts')
+	const { dispatchScrub } = await import('./touch.ts')
 	const received = []
 	const receiver = {}
 	const view = {

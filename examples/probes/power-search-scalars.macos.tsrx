@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
 import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const config: PowerSearchConfig = { name: 'scalar-fixture', fields: [
 	{ key: 'title', label: 'Title', operators: [{ key: 'contains', label: 'Contains', value: { type: 'string' } }] },

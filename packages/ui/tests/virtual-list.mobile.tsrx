@@ -2,7 +2,7 @@
 import { mergeStyle } from '../src/internal/layout/style-merge'
 import { useState } from 'octane'
 import { VirtualList } from '../src/components/collections/VirtualList.tsrx'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
 const keyExtractor = (item: { id: string }) => item.id

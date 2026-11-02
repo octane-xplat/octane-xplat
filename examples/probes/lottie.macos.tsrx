@@ -2,7 +2,7 @@
 import { Lottie } from '@octane-xplat/lottie'
 import { useRef, useState } from 'octane'
 import type { LottieHandle } from '@octane-xplat/lottie'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const animation = {
 	v: '5.7.0',

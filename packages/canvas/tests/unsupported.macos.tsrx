@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Canvas, getGPU } from '@octane-xplat/canvas'
 import type { CanvasContextKind, CanvasReady } from '@octane-xplat/canvas'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 const kinds: CanvasContextKind[] = ['2d', 'webgl', 'webgl2', 'webgpu', 'bitmaprenderer']
 let received: CanvasReady[] = []

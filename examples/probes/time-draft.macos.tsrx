@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import { Button, TimeInput, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function TimeDraftProbe() {
 	const [value, setValue] = useState<string | null>('14:30'), [readonly, setReadonly] = useState(false), [mounted, setMounted] = useState(true)
 	const [seconds, setSeconds] = useState(false), [last, setLast] = useState('none'), release = useRef<(() => void) | null>(null)

@@ -6,7 +6,7 @@ import type { ChatMessageData } from '@octane-xplat/ui/chat'
 import { TextInput } from '@octane-xplat/ui'
 import { KeyboardController } from '../../../keyboard/src/index'
 import { chatHost } from '../../src/chat/chat-scroll-host'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let seenContext: any = null
 function ContextCheck() {
 	seenContext = useChatLayoutContext()

@@ -3,7 +3,7 @@ import { useState } from 'octane'
 import { View, Text } from '@octane-xplat/ui'
 import { pan } from './gesture'
 import { GridHost } from './host.tsrx'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 type GridRow = { id: string; name: string; count: number }
 

@@ -63,7 +63,7 @@ observable state you need. See the maintained [script](../../examples/probes/sig
 and [counter](../../examples/probes/counter.tsrx).
 
 ```ts
-import type { ProbeContext } from '../scripts/probe/context'
+import type { ProbeContext } from '../tools/probe/context'
 
 export async function run(ctx: ProbeContext) {
 	ctx.assert('target selected', typeof ctx.target, 'string')

@@ -10,7 +10,7 @@ import {
 } from '../../src/index'
 
 import { measureKeyboardHost } from '../../../ui/src/internal/keyboard/keyboard-host-bounds'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let show = (_open: boolean) => {}
 export default function OsInputJourney() @{
 	const [open, setOpen] = useState(false)

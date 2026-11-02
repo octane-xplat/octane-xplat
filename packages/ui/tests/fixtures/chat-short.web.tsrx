@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
 import type { ChatMessageData } from '@octane-xplat/ui/chat'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 import './chat.css'
 let fill = () => {},
 	grow = () => {}

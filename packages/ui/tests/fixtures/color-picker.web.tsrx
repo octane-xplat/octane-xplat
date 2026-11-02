@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import { ColorPicker } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let lastChange = ''
 
 export default function ColorProbe() @{

@@ -1,5 +1,5 @@
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 import { NSView } from '@octane-xplat/platform/macos'
 
 /** AppKit handler dispatch only; no OS mouse input or hit-testing. */

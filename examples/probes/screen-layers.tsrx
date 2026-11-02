@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Grid, Pressable, Screen, Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 import './screen-layers.css'
 
 // Maintained by UI contributors for #46: keep the library mounted while

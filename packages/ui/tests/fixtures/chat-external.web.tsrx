@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef, useState } from 'octane'
 import { ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let grow = () => {}
 export default function ExternalChat() @{
 	const scroller = useRef<any>(null)

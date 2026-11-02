@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { KeyboardAvoiding } from '@octane-xplat/ui'
 import { KeyboardController } from '../../src/controller'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 
 import './motion.css'
 

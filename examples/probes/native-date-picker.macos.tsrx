@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { NativeDatePickerDemo } from '../../packages/demos/src/NativeDatePickerDemo.macos.tsrx'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default NativeDatePickerDemo
 export async function run(ctx: ProbeContext) {

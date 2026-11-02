@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, DateTimeInput, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function PresetTimesProbe() {
 	const [value, setValue] = useState<string | null>('2026-03-05T14:30'), [readonly, setReadonly] = useState(false)
 	return <VStack gap={2}>

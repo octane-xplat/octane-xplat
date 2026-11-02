@@ -1,5 +1,5 @@
 import { createScope, runWithSignalOwner, signal$ } from 'octane/signals'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 const value$ = signal$(1, { key: 'probe.signals.value' })
 

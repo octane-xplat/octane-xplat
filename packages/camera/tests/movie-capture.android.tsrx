@@ -2,7 +2,7 @@
 import { Application, ApplicationSettings, File, knownFolders } from '@nativescript/core'
 import { CameraView, createCameraSession } from '@octane-xplat/camera'
 import type { CameraSession, CameraSessionEvent } from '@octane-xplat/camera'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 // Maintained native conformance case. Run through the probe host with this leaf
 // in --deps. Grant CAMERA to this isolated test app; leave RECORD_AUDIO denied.

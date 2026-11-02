@@ -3,7 +3,7 @@ import { Application } from '@nativescript/core'
 import { CameraView } from '@octane-xplat/camera'
 import { SharedCameraSession } from '../src/session-core'
 import { createSessionBackend } from '../src/session-backend.android'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 // Maintained physical-device case: permissions prompt on this isolated app.
 // Metadata and encoded packet timing only; no screenshots or frame analysis.
 const config = { camera: 'back' as const, audio: true }

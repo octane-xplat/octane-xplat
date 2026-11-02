@@ -3,7 +3,7 @@ import { useState } from 'octane'
 import { View, TextInput } from '@octane-xplat/ui'
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { KeyboardController } from '../../../keyboard/src/index'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 let background: any,
 	field: any,
 	show = (_open: boolean) => {},

@@ -1,7 +1,7 @@
 import { fixtureOrigin } from './fixture-origin'
 import { requestStream } from '@octane-xplat/network'
 import { decodeNdjson } from 'rouzer/ndjson'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 export async function run(ctx: ProbeContext) {
 	const origin = fixtureOrigin(ctx.target)

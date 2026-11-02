@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { NativeContextMenuDemo } from '../../packages/demos/src/NativeContextMenuDemo.macos.tsrx'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 export default NativeContextMenuDemo
 export async function run(ctx: ProbeContext) {

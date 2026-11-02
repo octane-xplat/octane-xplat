@@ -9,7 +9,7 @@ produced this round (see "Remaining" at the end).
 
 ## Bugs found and fixed
 
-1. **`scripts/probe/runner.ts` passed the whole `{arm64,x86_64}` metadata map to
+1. **`tools/probe/runner.ts` passed the whole `{arm64,x86_64}` metadata map to
    the JSC host** (universal-metadata regression). Every `--target macos` probe
    exited `metadata.nsmd not found`. Now selects `artifact.metadata[macOSHostArch()]`
    like `dev.ts`/`webview-dev.ts`. Independently fixed on main as `957c00f3d`

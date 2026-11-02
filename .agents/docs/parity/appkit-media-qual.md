@@ -113,7 +113,7 @@ Research probes (gitignored `research/probes-cases/`):
    unit tests already cover the intended contract.
 
 7. **Probe harness bugs found and fixed (this branch)**:
-   - `scripts/probe/runner.ts`: passed the whole `{arm64,x86_64}` metadata
+   - `tools/probe/runner.ts`: passed the whole `{arm64,x86_64}` metadata
      map as one arg → `metadata.nsmd not found`; now selects host arch.
    - `examples/probes/charts.macos.tsrx`: asserted `image` before the
      deferred local decode ran (race); now waits for it.

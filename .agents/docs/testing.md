@@ -64,7 +64,10 @@ cannot launch. CI release evidence covers the `checks` job and native builds;
 it no longer implies that this local-only browser suite passed.
 
 Probes are temporary by default; keep task-specific cases in gitignored
-`research/`. The runner and `examples/probes/` are maintained tooling fixtures.
+`research/`. The runner in `tools/probe/` and `examples/probes/` are maintained tooling fixtures.
+`bun run probe` remains the runner entry point. Its host-side tests are included
+in `test:scripts`, including the Linux orchestration and evidence tests; running
+those tests does not launch a device or qualify a platform.
 Retain another probe only when it has an ongoing diagnostic purpose and a clear
 owner. A retained probe is not automatically regression coverage.
 

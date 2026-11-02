@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { DateInput, TimeInput, DateTimeInput, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function DateSubmitProbe() {
 	const [date, setDate] = useState<string | null>('2026-03-05')
 	const [time, setTime] = useState<string | null>('14:30')

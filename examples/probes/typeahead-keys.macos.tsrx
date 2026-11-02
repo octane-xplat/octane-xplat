@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { BaseTypeahead, Button, Text, TextInput, VStack, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 const source = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }, { id: 'alan', label: 'Alan' }])
 export default function TypeaheadKeysProbe() {
 	const [selected, setSelected] = useState<SearchableItem | null>(null), [key, setKey] = useState('none'), [blocked, setBlocked] = useState(false), [cancel, setCancel] = useState(false)

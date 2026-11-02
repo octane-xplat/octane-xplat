@@ -1,7 +1,7 @@
 import { useState } from 'octane'
 import { ImageCrop } from '../src/index'
 import type { Crop } from '../src/props'
-import type { ProbeContext } from '../../../scripts/probe/context'
+import type { ProbeContext } from '../../../tools/probe/context'
 
 // A bundled PNG avoids network/image-server dependencies in the probe.
 const src =

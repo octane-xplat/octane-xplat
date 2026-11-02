@@ -2,7 +2,7 @@
 import { BottomNavigationView } from '@octane-xplat/ui/android'
 import { Pager } from '@octane-xplat/pager'
 import { createContext, useContext, useEffect, useState } from 'octane'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 type Surface = 'tab-stack' | 'tab-pane' | 'pager-first' | 'pager-second'
 

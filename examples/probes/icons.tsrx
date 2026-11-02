@@ -2,7 +2,7 @@
 import { Column } from '@octane-xplat/ui'
 import { createStore, useStore } from '@octane-xplat/ui/data'
 import { Icon, addCollection } from '@octane-xplat/icons'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 import { iconFixture, otherIconFixture } from './icons-data'
 import { iconSnapshot } from './icons-host'
 

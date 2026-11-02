@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { FocusedInputController } from '../../src/index'
-import type { ProbeContext } from '../../../../scripts/probe/context'
+import type { ProbeContext } from '../../../../tools/probe/context'
 import './focus.css'
 let validate = (_height: number) => {},
 	grow = (_height: number) => {},

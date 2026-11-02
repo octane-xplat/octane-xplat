@@ -3,7 +3,7 @@ import '@octane-xplat/ui/theme/tokens.css'
 import { Grid, SafeArea, Screen, Text, VStack } from '@octane-xplat/ui'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import type { View } from '@nativescript/core'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 // Run in a fresh process: #47 affected the session's first Screen. This also
 // keeps a percentage-height app root, which exposed the Page measurement bug.

@@ -14,7 +14,7 @@ evidence from a real Mac; handler dispatch alone does not qualify it.
 | T3 | `CGEventPostToPid` into the app's event queue | real `sendEvent` routing: local monitors, key equivalents, responder chain, field editor, key-view loop, hit-testing. Events are still flagged synthetic — hardware delivery (T4) is unproven |
 | T4 | hardware keyboard/mouse | human only |
 
-Helper: `scripts/probe/appkit-input.ts` — `postKey`, `postKeys`, `postClick`,
+Helper: `tools/probe/appkit-input.ts` — `postKey`, `postKeys`, `postClick`,
 `postKeyEvent`, `screenPointOfViewCenter`, `focusedOwner`, `hasFocus`,
 `axAttr`. All ambient bridge globals; no framework imports.
 
@@ -27,7 +27,7 @@ Helper: `scripts/probe/appkit-input.ts` — `postKey`, `postKeys`, `postClick`,
 
 ## Bugs fixed
 
-- `scripts/probe/runner.ts` forwarded `artifact.metadata` (the whole
+- `tools/probe/runner.ts` forwarded `artifact.metadata` (the whole
   per-arch map) to the probe host; `spawn` stringifies it to
   `[object Object]` so every AppKit probe exited `metadata.nsmd not found`
   before loading the case. Now passes `artifact.metadata[macOSHostArch()]`,

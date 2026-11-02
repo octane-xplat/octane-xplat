@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, Heading, RichText, RichTextSpan, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function TextStylesProbe() {
 	const [large, setLarge] = useState(false), [css, setCSS] = useState(false), [styled, setStyled] = useState(true)
 	const [level, setLevel] = useState<1 | 2 | 3 | 4 | 5 | 6>(2)

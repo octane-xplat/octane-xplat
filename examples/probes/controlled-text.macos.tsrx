@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
 import { Button, Text, TextArea, TextInput, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 /** Manual IME fixture: arm a replacement, then focus a field and compose
  * before its five-second timer fires. This file does not automate OS input. */

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, TabList, Tab, TabMenu, Text, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function TabMenuProbe() {
 	const [value, setValue] = useState('overview'), [empty, setEmpty] = useState(false)
 	return <VStack gap={2}>

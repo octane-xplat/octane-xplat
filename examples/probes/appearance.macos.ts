@@ -1,4 +1,4 @@
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 // Deep leaf import: the @octane-xplat/ui barrel pulls table modules the
 // macOS universal compiler currently rejects — the theme leaf only needs
 // the bridge, which is what this case exercises.

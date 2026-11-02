@@ -5,9 +5,9 @@ import { parseArgs } from 'node:util'
 import { access } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { doctor } from './probe/doctor.ts'
-import { runTarget } from './probe/runner.ts'
-import { acquireCaseLock } from './probe/lock.ts'
+import { doctor } from './doctor.ts'
+import { runTarget } from './runner.ts'
+import { acquireCaseLock } from './lock.ts'
 
 export function argumentsFor(argv) {
 	const { values, positionals } = parseArgs({

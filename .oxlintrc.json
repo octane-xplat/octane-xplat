@@ -3,7 +3,8 @@
 	"ignorePatterns": [
 		".agents/",
 		"tools/platform-qualification/",
-		"scripts/eval-routing/",
+		"tools/routing-eval/tasks/",
+		"tools/routing-eval/grader/",
 		"**/*.gen.*",
 		"packages/**/types/generated/**",
 		"packages/*/types/types.d.ts",
@@ -73,7 +74,7 @@
 			"error",
 			{
 				"exclude": [
-					"scripts/probe/mobile-host.mobile.ts"
+					"tools/probe/mobile-host.mobile.ts"
 				]
 			}
 		],

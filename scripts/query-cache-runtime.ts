@@ -9,7 +9,7 @@ if (process.argv.length > 2) {
 const result = spawnSync(
 	process.execPath,
 	[
-		fileURLToPath(new URL('./probe.ts', import.meta.url)),
+		fileURLToPath(new URL('../tools/probe/cli.ts', import.meta.url)),
 		'run',
 		'examples/probes/query-cache.tsrx',
 		'--target',

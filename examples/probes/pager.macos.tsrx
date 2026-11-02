@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Pager } from '../../packages/pager/src/index.macos'
 import { Button, InternationalizationProvider, Text, TextInput, VStack } from '@octane-xplat/ui'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 export default function PagerProbe() {
 	const [page, setPage] = useState(1), [rtl, setRTL] = useState(false), [empty, setEmpty] = useState(false), [accept, setAccept] = useState(true), [last, setLast] = useState('none')
 	const items = empty ? [] : ['Pack', 'Travel', 'Arrive']

@@ -13,7 +13,7 @@ import {
 
 import { inspectQueryClient } from '@octane-xplat/ui/data/dev'
 import { environment } from '../../packages/platform/src/environment'
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 function deferred<T>() {
 	let resolve!: (value: T) => void

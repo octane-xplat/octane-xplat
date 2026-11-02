@@ -6,7 +6,7 @@ import {
 	useIntersectionObserver,
 } from '@octane-xplat/intersection-observer'
 
-import type { ProbeContext } from '../../scripts/probe/context'
+import type { ProbeContext } from '../../tools/probe/context'
 
 let boundEl: any = null
 let hookHits = 0
