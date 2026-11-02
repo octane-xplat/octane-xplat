@@ -127,3 +127,34 @@ runner and the Windows guest was parked. Cases: `research/md-seams/*` —
   `useMediaQuery` reduced-motion plumbing per leaf; macOS mechanisms probe
   hang on the AppKit probe host (isolate before re-running);
   iOS/Android device grants; real Linux host; Windows guest.
+
+## Milestone 3 — rendered surface (landed `f3acf5d`)
+
+`Markdown` renders through the 0.7.4 contract: `children` is the source
+spelling (`text` cut over atomically, `data` kept exclusive for baked
+docs), plus `display`, `contentWidth` (680 default), `contentAlign`,
+`citationStyle`, `autolink`, `components` (10 renderer slots),
+`inlinePlugins`, `onLinkClick`, and root `id`/`className`/`style`/
+`testID`/`accessibilityRole` (`document` default). `plugins`,
+`sourceLines`, and transforms stay milestone-5 seams; `isStreaming`
+smoothing internals stay milestone-4.
+
+Rendering: collapsed-seam margins reproduce the upstream spacing table;
+prose blocks get `maxWidth`/center alignment; headings clamp shifted
+levels at 6 and take ids from `projectMdHeadings` — the same projection
+`outlineFromDoc` uses. Lists render `• ◦ ▪` bullets and
+`decimal/lower-alpha/lower-roman` markers by depth; task items are
+`CheckboxList`/`Checkbox` read-only controls. Tables mount children parts
+with `ch` column floors; code maps `diff`/`diff-<lang>` fences; citations
+number by first encounter with `{title: id}` fallback; inline
+`markdown-inline` leaves emit real DOM tags on web and span/tappable
+runs elsewhere (macOS runs render without activation — glyph hit-testing
+is a recorded host gap; iOS/Android run taps still ride on driver #25).
+
+Verification (m3): ui vitest 1321/1321; ui typecheck clean (pre-existing
+workshop failure only); parity behavior 13→2 step diffs — residual is
+the shared `CheckboxList`'s internal `list`/`listitem` DOM, not the
+Markdown surface. Layout: `content-width` matches; other cells differ
+by theme font metrics (16px vs 14px base) and one table cell-width
+nuance (572px scroll vs 480). Evidence: `~/dev/reports/octane-xplat/
+astryx-markdown-m3-evidence.md`.
