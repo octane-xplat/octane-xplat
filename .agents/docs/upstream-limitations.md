@@ -126,3 +126,32 @@ reading:
   fidelity stays an uncovered dimension.
 
 Upstream status: open; revisit all when the Windows core runtime rev changes.
+
+## @nativescript-community/octane driver: text-run parenting gaps (0.2.5)
+
+Verified by source read + Astryx-Markdown seam probes (web/macOS lab runs,
+2026-11-02): `addViewChild` accepts `FormattedString→Span` and
+`TextBase→FormattedString`, but `TextBase→Span` falls through to
+`cannot host a <Span> child` — so nested `<Text>` inside `<Text>` throws on
+iOS/Android, and bare `#text` children under a `Span` are not folded (the
+`RichTextSpan` leaf writes `text` explicitly to dodge this). FormattedString
+runs are also flat — a `Span` cannot host `Span` children, so nested styled
+runs must be flattened by the text-owner layer. Decision #25 recorded this as
+provisional; a full repair candidate exists unpinned at
+`tools/platform-qualification/patches/windows-rich-text/driver-source.patch`
+(~40 lines, TextBase-owned FormattedString projection). Until it lands in the
+canonical package patch or upstream, inline rich text on iOS/Android must use
+explicit `<formattedstring>` + flat `<span>` runs.
+
+## octane universal `useMediaQuery`: prefers-reduced-motion unsupported on native leaves
+
+`evaluateNativeMediaQuery` (packages/ui/src/internal/platform) implements a
+restricted grammar — `prefers-reduced-motion` evaluates `false` on
+iOS/Android and on the macOS hook path (`media-query-source.macos`), even
+though the AppKit renderer's own CSS env honors it via
+`NSWorkspace.accessibilityDisplayShouldReduceMotion` (+ live notification)
+and `readReducedMotion()` exists for JS facades. iOS
+`UIAccessibilityIsReduceMotionEnabled` and Android
+`Settings.Global.ANIMATOR_DURATION_SCALE` are the OS sources — plumbing is a
+local gap, not an upstream miss; record consumers must not assume the hook
+reflects the OS preference today. Pinned in `media-query-native.test.ts`.

@@ -62,3 +62,66 @@ Benchmark contract: 1 KB/10 KB/100 KB corpus, seeded chunk schedules, warmup 3, 
 - Native builds: 1 reservation for iOS/macOS probe builds (`native_builds:1`).
 - Devices: one iOS simulator (`ios:<UDID>` + `resident_devices:1`) for inline/rich-content probes; AppKit desktop needs no device reservation but benefits from `desktop_input:1` only if focus/OS-input probes are added — the planned probes are render-level and need no shared input.
 - Browsers: Playwright is already installed locally; no reservation needed.
+
+## Milestone-1 contract decisions (probed 2026-11-02)
+
+Targets run: **web** (Chromium, all seams pass), **macOS** (AppKit/JSC, 5/6
+probe cases pass; the mechanics case hangs on the host — items below are
+source-level). **iOS/Android** probes staged but device-grant-blocked at
+handoff; **GTK** needs a real Linux host; **WinUI** is outside the probe
+runner and the Windows guest was parked. Cases: `research/md-seams/*` —
+`inline-control`, `inline-nested`, `inline-interactive`, `blocks`,
+`boundaries`, `mechanisms`. Promoted contract tests:
+`packages/ui/src/markdown/inline-contract.mobile.test.tsrx`.
+
+- **Recursive lists/quotes + rich inline children** — proven on web + macOS
+  with shared primitives: marker+hanging-indent `View` rows show increasing x
+  offsets (8→28→48 web; -2→18→38 macOS); wrapped items show real heights;
+  blockquote/list nesting interleaves freely. No new mechanism needed.
+- **Inline Markdown inside text** — nested `<Text>` renders real styled runs
+  on web (DOM span nesting, style inheritance verified) and macOS (nested
+  span → NSAttributedString fold, decision `#144`). NativeScript:
+  `<label><span>` throws on the 0.2.5 patched driver (the `#25` extension is
+  still missing); `<formattedstring>`+`<span>` works but runs are flat —
+  nested styled runs must flatten with merged styles. Per-span `onLinkTap`
+  exists (`RichTextSpan` uses it); GTK folds spans to Pango markup with
+  `octane-span://` link dispatch. **Contract:** inline vocabulary = text runs
+  only; view-bearing inlines (Link/Citation/View/Image inside `<Text>`) throw
+  on AppKit (`masonview cannot contain span children`) and would throw on the
+  NS driver — contract error, not silent drop. Inline images inside text have
+  no native attachment API — block-level only (recorded deviation).
+- **Custom renderers** — hooks (`useSignal$`/`useMemo`/`useEffect`), context
+  (`createContext` provider → `useContext` inside the slot), local state
+  updates, and prop updates without remount (mounts stayed 1) all verified on
+  web + macOS + object driver. Renderer slots are `.tsrx` components.
+- **Thrown/declined/pending/unmounted fallback** — decision `#145`:
+  `universalTry` (`@try`/`@pending`/`@catch`) matches the 0.7.4
+  `MarkdownPluginBoundary`+`Suspense` contract: throw→catch arm+fallback,
+  `use(promise)`→pending arm→commit on settle, unmount-during-pending→clean
+  (no resurrection), decline (null/boolean)→call-site fallback, `reset()`
+  re-mounts. No React semantics needed.
+- **Images** — `Image` already ships in `packages/ui` (`components/media`);
+  block images need no new dependency and no ui→image-package cycle.
+- **Host mechanisms** — external links: `Utils.openUrl` (mobile) /
+  `NSWorkspace.openURL` (macOS) / `window.open` (web) all present.
+  Scroll overflow: `ScrollableArea axis="inline"|"both"` gives real scroll
+  regions (web `scrollWidth` 640 > 200 viewport). Anchors: portable
+  `ScrollableAreaHandle.scrollToOffset` — headings seek by handle, not
+  `id`+`scrollIntoView`. Font metrics: `view.measure`/`getMeasuredWidth`
+  (mobile), `intrinsicContentSize` (AppKit), `getBoundingClientRect` (web).
+  Reduced motion: web `matchMedia` ✓; macOS CSS env reads
+  `accessibilityDisplayShouldReduceMotion` + live notification; the
+  `useMediaQuery` restricted grammar does **not** implement
+  `prefers-reduced-motion` on mobile or the macOS hook path (evaluates
+  false — pinned in `media-query-native.test.ts`); iOS
+  `UIAccessibilityIsReduceMotionEnabled` and Android
+  `animator_duration_scale` are the plumbing targets. Text reveal/fade:
+  `vx-md-fade` is web-CSS-only by design; native `Span` has no `opacity`
+  property — fade needs a JS driver (per-run `color` alpha or whole-block
+  opacity) and remains a recorded presentation gap until then.
+- **Upstream/host dependencies handed onward:** NS driver `#25` span-under-
+  TextBase + `#text`-under-span extensions (candidate patch exists at
+  `tools/platform-qualification/patches/windows-rich-text/` — not canonical);
+  `useMediaQuery` reduced-motion plumbing per leaf; macOS mechanisms probe
+  hang on the AppKit probe host (isolate before re-running);
+  iOS/Android device grants; real Linux host; Windows guest.
