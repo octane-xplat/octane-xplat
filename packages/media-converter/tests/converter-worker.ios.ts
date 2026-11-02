@@ -234,4 +234,4 @@ Reflect.set(globalThis, 'onmessage', (event: { data: unknown }) => {
 	} catch (error) {
 		post({ error: error instanceof Error ? error.message : String(error) })
 	}
-}
+})
