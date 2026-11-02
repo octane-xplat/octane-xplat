@@ -69,8 +69,23 @@ installed resource resolution, route generation and tagged compiler execution
 must be connected before public `typecheck` is implemented.
 `route_config.nim` validates declarative route paths, source references and
 navigation settings without executing application modules. Its checks cover
-the repository's actual route configurations; export analysis and generated
-contract/catalog emission remain separate migration work.
+the repository's actual route configurations and feed the discovery and emitter
+modules below.
+`route_paths.nim` preserves the shared parameter vocabulary, platform/presentation
+suffix ordering and layout rules. `route_generation.nim` plans and publishes the
+`bake: false` output used by typecheck, including local contracts, application
+registration, manifests and all seven target catalogs. Native collection feeds
+actual source to the selected project's `@octane-xplat/build/worker` for compiler
+parsing and analysis; `route_metadata.nim` validates its versioned data boundary.
+Inert template text comes from the reference at build time, with reviewed
+expression fingerprints and native interpolation. Filesystem collection,
+stale-source rejection, warnings, per-file atomic publication, symlinks and
+caller umask are compared against Node on copied repository route trees.
+`build_worker.nim` bounds worker requests/results and owns Node process groups,
+timeouts, cancellation and diagnostics. Analysis never executes route modules;
+baking delegates loader execution to project-installed Vite and Markdown parsing
+to the build package. No runtime is bundled. Public route/typecheck wiring,
+baking publication and route watch lifecycle remain pending.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

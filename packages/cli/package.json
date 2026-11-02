@@ -74,6 +74,7 @@
 		"test:native-runtime": "node --test test/vite-native-runtime.test.mjs",
 		"test:markdown": "node --test test/markdown-rich.test.ts",
 		"test:typecheck-envs": "node --test test/tsconfig-envs.test.mjs",
+		"test:routes": "node --test --test-concurrency=2 test/route-*.test.mjs",
 		"test:css-platform": "node --test test/css-platform.test.mjs",
 		"test:updates": "node --test test/updates.test.mjs",
 		"test:postcss-consumer": "node test/postcss-consumer.mjs",
@@ -90,6 +91,7 @@
 		"test:nim-code": "node --test ../../tools/cli-nim/code.test.mjs ../../tools/cli-nim/code-command.test.mjs ../../tools/cli-nim/build-record.test.mjs",
 		"check:nim": "node ../../tools/cli-nim/check.mjs",
 		"benchmark:nim": "node ../../tools/cli-nim/benchmark.mjs",
+		"benchmark:nim-routes": "node ../../tools/cli-nim/benchmark-routes.mjs",
 		"test:nim-docs": "node --test ../../tools/cli-nim/docs.test.mjs ../../tools/cli-nim/docs-service.test.mjs ../../tools/cli-nim/guidance-command.test.mjs ../../tools/cli-nim/docs-read-command.test.mjs",
 		"test:nim-index": "node --test ../../tools/cli-nim/sqlite.test.mjs ../../tools/cli-nim/docs-index.test.mjs",
 		"prepare:nim-tokenizer": "node ../../tools/cli-nim/model-fixtures.mjs --tokenizer-only",
@@ -104,7 +106,9 @@
 		"test:nim-process": "node --test ../../tools/cli-nim/process.test.mjs",
 		"test:nim-build-tools": "node ../../tools/cli-nim/build-tools-consumer.mjs --with-native-cli",
 		"build:nim-env": "node ../../tools/cli-nim/build-probe.mjs env",
-		"test:nim-env": "node --test ../../tools/cli-nim/env.test.mjs"
+		"test:nim-env": "node --test ../../tools/cli-nim/env.test.mjs",
+		"test:nim-worker": "node --test ../../tools/cli-nim/build-worker.test.mjs",
+		"test:nim-routes": "node --test ../../tools/cli-nim/route-path.test.mjs ../../tools/cli-nim/route-generation.test.mjs ../../tools/cli-nim/route-templates.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

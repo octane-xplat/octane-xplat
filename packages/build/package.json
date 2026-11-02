@@ -11,6 +11,7 @@
 	"type": "module",
 	"files": ["dist", "LICENSE", "README.md"],
 	"exports": {
+		"./worker": "./dist/build-worker.js",
 		"./vite": {
 			"types": "./dist/vite.d.ts",
 			"default": "./dist/vite.js"
@@ -33,6 +34,7 @@
 		"test:packed": "node ../../tools/cli-nim/build-tools-consumer.mjs"
 	},
 	"dependencies": {
+		"marked": "18.1.2",
 		"@babel/core": "8.0.9",
 		"@babel/plugin-transform-unicode-property-regex": "8.0.1",
 		"@babel/plugin-transform-unicode-sets-regex": "8.0.1",

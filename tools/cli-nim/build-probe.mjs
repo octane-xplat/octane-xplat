@@ -4,11 +4,13 @@ import { spawnSync } from 'node:child_process'
 import { getToolchain } from 'nim-toolchain'
 import { prepareDependencies } from './dependencies.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
+import { writeRouteTemplates } from './route-templates.mjs'
 import { httpProbeInputs, processProbeInputs, envProbeInputs, artifactFingerprint } from './native-inputs.mjs'
 const probes = { http: { entry: 'http_probe.nim', inputs: httpProbeInputs }, process: { entry: 'process_probe.nim', inputs: processProbeInputs }, env: { entry: 'env_probe.nim', inputs: envProbeInputs } }
 const selected = process.argv[2]
 if (!Object.hasOwn(probes, selected)) throw Error(`Choose a probe: ${Object.keys(probes).join(', ')}`)
 const root = resolve(import.meta.dirname, '../..')
+writeRouteTemplates(root)
 const work = join(root, 'research/nim-cli')
 const compiler = await getToolchain({ cacheDir: join(work, 'toolchain') })
 const paths = prepareDependencies(work, compiler)

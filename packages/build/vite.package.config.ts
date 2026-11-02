@@ -7,10 +7,10 @@ const root = dirname(fileURLToPath(import.meta.url))
 // This is a packaging config, not a runnable web app. The explicit config
 // filename keeps CLI app discovery from treating this tool package as an app.
 // Keep the TypeScript CLI intact as a reference during the Nim migration.
-// Only this plugin closure is compiled into the project-installed package;
+// Only the plugins and explicit operation workers are compiled into the project-installed package;
 // there is no published dependency on the CLI or a call back into its runtime.
 const source = resolve(root, '../cli/src')
-const entries = ['vite', 'macos/vite', 'linux-gtk/vite']
+const entries = ['vite', 'macos/vite', 'linux-gtk/vite', 'build-worker']
 
 export default defineConfig({
 	build: {
@@ -34,7 +34,7 @@ export default defineConfig({
 		{
 			name: 'build-plugin-declarations',
 			closeBundle() {
-				for (const name of [...entries, 'css-platform.types']) {
+				for (const name of [...entries.filter(name => name !== 'build-worker'), 'css-platform.types']) {
 					const input = name === 'css-platform.types' ? `${name}.ts` : `${name}.d.ts`
 					const output = resolve(root, 'dist', `${name}.d.ts`)
 					mkdirSync(dirname(output), { recursive: true })

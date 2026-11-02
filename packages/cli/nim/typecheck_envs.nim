@@ -1,8 +1,8 @@
 ## Native tsconfig.envs.json expansion. The caller supplies the ambient source
 ## root explicitly; installation/resource resolution belongs to the command.
-import std/[os, json, strutils, tables, sets, algorithm, unicode, math]
+import std/[os, json, strutils, tables, sets, algorithm, unicode]
 import ./jsonc, ./jsonutil, ./json_wire, ./js_text, ./workspace_glob
-from ./args import jsNumber
+import ./js_json
 
 const envManifest* = "tsconfig.envs.json"
 const platformModuleSuffixes* = ["", ".web", ".ios", ".android", ".mobile",
@@ -16,13 +16,6 @@ proc exists(path: string): bool =
   if '\0' in path: return false
   let bytes = utf8ForWrite(path)
   fileExists(bytes) or dirExists(bytes)
-
-proc jsCompare(left, right: string): int =
-  let a = utf16Units(left)
-  let b = utf16Units(right)
-  for i in 0..<min(a.len,b.len):
-    if a[i] != b[i]: return cmp(a[i],b[i])
-  cmp(a.len,b.len)
 
 proc property(node: JsonNode, key: string): JsonNode =
   if node.kind == JObject: return node[key]
@@ -93,7 +86,7 @@ proc resolveEnvFiles(dir: string, entry: JsonNode, label: string): seq[string] =
     if not ignored: result.add(file)
   if result.len == 0:
     raise newException(ValueError,label & ": resolved no files — an empty program would pass vacuously")
-  result.sort(jsCompare)
+  result.sort(jsStringCompare)
 
 proc barrelEnv(rel: string): string =
   if rel == "src/index.ts": return "any"
@@ -101,28 +94,6 @@ proc barrelEnv(rel: string): string =
   let suffix = rel[10..^4]
   if suffix in ["ios", "android", "mobile", "native"]: return "native"
   if suffix in environments: return suffix
-
-proc tabJsonValue(node: JsonNode, depth: int): string =
-  case node.kind
-  of JObject:
-    if node.len == 0: return "{}"
-    var entries: seq[string]
-    for key in jsObjectKeys(node):
-      entries.add(repeat('\t',depth+1) & wireJson(%key) & ": " & tabJsonValue(node[key],depth+1))
-    "{\n" & entries.join(",\n") & "\n" & repeat('\t',depth) & "}"
-  of JArray:
-    if node.len == 0: return "[]"
-    var entries: seq[string]
-    for value in node: entries.add(repeat('\t',depth+1) & tabJsonValue(value,depth+1))
-    "[\n" & entries.join(",\n") & "\n" & repeat('\t',depth) & "]"
-  of JInt, JFloat:
-    let value = node.getFloat()
-    if classify(value) in [fcNan,fcInf,fcNegInf]: "null"
-    else: jsNumber(value)
-  else: wireJson(node)
-
-proc tabJson(node: JsonNode): string =
-  tabJsonValue(node,0) & "\n"
 
 proc expandEnvPrograms*(dir: string, loaded: JsonNode, ambientRoot: string): JsonNode =
   let manifest = loaded["manifest"]
@@ -194,12 +165,12 @@ proc expandEnvPrograms*(dir: string, loaded: JsonNode, ambientRoot: string): Jso
   for file in ambient: allFiles.add(file)
   var sorted: seq[string]
   for file in files: sorted.add(file)
-  sorted.sort(jsCompare)
+  sorted.sort(jsStringCompare)
   allFiles.add(sorted)
   let config = %*{"extends": loaded["path"],"compilerOptions": options,
     "files": allFiles,"include": [],"exclude": []}
   let outDir = dir / "node_modules" / ".cache" / "xplat-typecheck"
   createDir(utf8ForWrite(outDir))
   let configPath = outDir / "all.json"
-  writeFile(utf8ForWrite(configPath),tabJson(config))
+  writeFile(utf8ForWrite(configPath),jsStringify(config,pretty=true) & "\n")
   %*[{"env": "all","configPath": configPath,"files": allFiles}]

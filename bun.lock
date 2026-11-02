@@ -539,6 +539,7 @@
         "@babel/plugin-transform-unicode-sets-regex": "8.0.1",
         "@octane-xplat/lib": "workspace:*",
         "@tsrx/core": "0.5.5",
+        "marked": "18.1.2",
         "postcss": "8.5.32",
         "postcss-load-config": "6.0.1",
       },

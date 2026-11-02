@@ -35,7 +35,7 @@ try {
  const plugins = pack('packages/build'), lib = pack('packages/lib')
  const inventory = run('tar',['-tzf',plugins]).stdout.trim().split('\n')
  for (const file of ['dist/vite.js','dist/vite.d.ts','dist/macos/vite.js','dist/macos/vite.d.ts',
-  'dist/linux-gtk/vite.js','dist/linux-gtk/vite.d.ts','dist/css-platform.types.d.ts','LICENSE'])
+  'dist/linux-gtk/vite.js','dist/linux-gtk/vite.d.ts','dist/css-platform.types.d.ts','dist/build-worker.js','LICENSE'])
   assert.ok(inventory.includes(`package/${file}`), `Missing packed ${file}`)
  assert.ok(inventory.every(file => !/\/(node_modules|src|nim|bin|standalone)\//.test(file)), inventory.join('\n'))
  const root = JSON.parse(readFileSync(join(repo,'package.json')))
@@ -60,6 +60,25 @@ try {
  assert.equal(installed.dependencies['@octane-xplat/cli'],undefined)
  assert.equal(installed.peerDependencies['@octane-xplat/cli'],undefined)
  assert.equal(installed.optionalDependencies?.['@octane-xplat/cli'],undefined)
+ // Execute the packed worker outside the repository's dependency topology.
+ // The source is inspected, never imported as an application module.
+ const request = { protocol: 'octane-build-worker', version: 1, id: 'packed-analysis', project: consumer,
+  operation: 'route-analyze', files: [{ file: 'src/page.tsrx', source: 'throw new Error("must not execute"); export const loader = () => 42; export default function Page() @{ return <label>Page</label> }' }] }
+ writeFileSync(join(consumer, 'worker-request.json'), JSON.stringify(request))
+ const worker = join(consumer, 'node_modules/@octane-xplat/build/dist/build-worker.js')
+ run(process.execPath, [worker, 'worker-request.json', 'worker-result.json'], consumer)
+ const analyzed = JSON.parse(readFileSync(join(consumer, 'worker-result.json')))
+ assert.equal(analyzed.id, request.id)
+ assert.equal(analyzed.ok, true)
+ assert.deepEqual(analyzed.data[0].metadata, { loader: true })
+ writeFileSync(join(consumer, 'worker-loader.ts'), 'export const loader = () => ({ packed: true })')
+ writeFileSync(join(consumer, 'worker-request.json'), JSON.stringify({ ...request, operation: 'route-bake',
+  loaders: [{ name: 'index', file: 'worker-loader.ts' }], markdown: [{ name: 'readme', file: 'readme.md', source: '# Packed worker' }] }))
+ run(process.execPath, [worker, 'worker-request.json', 'worker-result.json'], consumer)
+ const baked = JSON.parse(readFileSync(join(consumer, 'worker-result.json')))
+ assert.equal(baked.ok, true)
+ assert.deepEqual(baked.data.index, { packed: true })
+ assert.equal(baked.data.readme.kind, 'octane-xplat/md')
  if (withNative) {
   const path = join(consumer,'node_modules/@octane-xplat/cli')
   const cli = JSON.parse(readFileSync(join(path,'package.json')))

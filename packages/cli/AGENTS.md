@@ -12,12 +12,25 @@ code has no CLI runtime dependency. Preserve this boundary when wiring native
 commands: invoke the app's installed compiler/build tools with explicit argv,
 cwd and environment, and keep command/session orchestration in Nim.
 
+Project operations that already need JavaScript use small, versioned workers
+from the selected project's `@octane-xplat/build/worker`. Keep parser/compiler
+AST details and JS execution there; pass stable validated metadata to Nim.
+Nim owns explicit argv/cwd/environment, response bounds, timeout, cancellation
+and process-group cleanup. Sidecar JSON separates results from library diagnostics
+on stderr. Do not resolve a missing project dependency from global module paths.
+Keep catalog, discovery, permissions, source/document reads, HTTP control and
+process ownership native. Inference stays in Nim; useful retrieval quality takes
+precedence over incidental equality with WASM search ranking.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node
   (`JNull`). Optional JS property access and nullish fallback do not translate
   to a nil check alone. Check the node kind before reading an object, array,
   string, or number, and preserve the reference contract's missing/null policy.
+- Use `Option[T]` when a valid empty value must remain distinct from absence.
+  For example, a parsed parameter can have `some("")`, while a static segment
+  has `none(string)`. An empty-string sentinel would merge those results.
 - `for key, value in jsonNode` is object iteration: the key is a string.
   For an array with numeric positions, use `for i in 0..<node.len` and
   `let value = node[i]`. Do not assume a two-variable loop means array indices.
@@ -68,6 +81,12 @@ Use `const metadata = staticRead("metadata.json")` for embedded generated data;
 `staticRead` requires compile-time evaluation, rather than an ordinary runtime
 argument expression. Generate metadata from the canonical descriptors instead of
 maintaining another command-contract copy. Keep generated data out of Git.
+
+Code-generation literals can be shared with the reference at build time while
+Nim supplies every dynamic value. Bind an ordered slot list to a reviewed
+expression fingerprint: a slot count alone cannot detect reordered logic.
+Reject changed shapes rather than evaluating reference expressions at runtime.
+Load embedded lookup data lazily when unused features must not slow startup.
 
 Nim source module basenames must be valid Nim identifiers. Use underscores,
 not hyphens, in `.nim` filenames; output executable names may contain hyphens.
@@ -200,6 +219,13 @@ character. Apply `utf8ForWrite` at the filesystem boundary and retain the
 original semantic path in generated JSON. Reject embedded NUL before passing a
 path to a C string API; truncation must not make an invalid path resolve to an
 existing file.
+
+Temporary-file permissions survive an atomic rename. Nim's `createTempFile`
+uses private permissions; that is suitable for caches, but can change ordinary
+generated files to `0600`. When matching Node's `open(..., 'wx')`, create the
+temporary file exclusively with mode `0666` so the OS applies the caller's umask.
+Do not chmod to `0666` afterward or query umask by briefly changing process state.
+Handle partial writes, close the descriptor, and clean up only a file you created.
 
 Hash explicit UTF-8 bytes with a pinned implementation and compare lowercase
 hex digests against independent vectors. Do not add a runtime crypto-library

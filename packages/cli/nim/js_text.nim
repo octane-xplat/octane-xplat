@@ -51,6 +51,13 @@ proc utf16Units*(value: string): seq[uint16] =
 proc utf16Length*(value: string): int =
   for rune in value.runes: result += (if int(rune) > 0xffff: 2 else: 1)
 
+proc jsStringCompare*(left, right: string): int =
+  let a = utf16Units(left)
+  let b = utf16Units(right)
+  for i in 0..<min(a.len,b.len):
+    if a[i] != b[i]: return cmp(a[i],b[i])
+  cmp(a.len,b.len)
+
 proc utf16Text*(units: openArray[uint16]): string =
   var at = 0
   while at < units.len:

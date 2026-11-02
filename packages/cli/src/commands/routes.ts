@@ -1,6 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { command, flag, option, optional, string } from '@alloc/cmd-ts'
-import { parseModule } from '@tsrx/core'
 import {
 	existsSync,
 	openSync,
@@ -22,19 +21,15 @@ import * as p from '@clack/prompts'
 import { mdToDoc } from '../markdown.ts'
 import { assertRouteDataJson } from '../route-data.ts'
 import { loadRoutingConfig } from '../route-config.ts'
+import { routeSourceMetadata } from '../route-source.ts'
+import { EXT, SUFFIX, PRESENT, routeFor } from '../route-path.ts'
+import { routeParamName as segmentParam } from '@octane-xplat/lib/route-pattern'
 import { createRouteWatcher } from '../route-watch.ts'
-import {
-	normalizeRouteSegment as normSegment,
-	routeParamName as segmentParam,
-} from '@octane-xplat/lib/route-pattern'
 
 // Mirror of packages/ui/src/routing/route-table.ts conventions — the CLI walks the
 // route dir off disk (no vite glob), so the derivation is re-implemented
 // here. Keep the two in sync: same suffix strip order, same index/_layout
 // rules. All platform variants count — the union is cross-platform.
-const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
-const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
-const PRESENT = /\+(modal|fade|push)$/
 // Build-time loader modules — `<route>.loader.ts` pairs with a
 // `dataMode: 'baked'` route; runs under vite ssrLoadModule during codegen
 // and is never part of the runtime bundle.
@@ -62,126 +57,6 @@ function writeGeneratedFile(file, source) {
 	} finally {
 		rmSync(temporary, { force: true })
 	}
-}
-
-/** Inspect source, never imports/effects. Type-only exports and comments do not
- * advertise runtime capabilities. Static build mode must be locally knowable. */
-function routeSourceMetadata(source, file) {
-	const ast = parseModule(source, file)
-	const bindings = new Map()
-	const exported = new Map()
-	const declare = (node, isExported) => {
-		if (!node || node.declare) {
-			return
-		}
-		if (node.type === 'VariableDeclaration') {
-			const names = (pattern) => {
-				if (pattern.type === 'Identifier') {
-					return [pattern.name]
-				}
-				if (pattern.type === 'ObjectPattern') {
-					return pattern.properties.flatMap((property) =>
-						names(property.value ?? property.argument),
-					)
-				}
-				if (pattern.type === 'ArrayPattern') {
-					return pattern.elements.filter(Boolean).flatMap(names)
-				}
-				if (pattern.type === 'AssignmentPattern') {
-					return names(pattern.left)
-				}
-				if (pattern.type === 'RestElement') {
-					return names(pattern.argument)
-				}
-				return []
-			}
-
-			for (const entry of node.declarations) {
-				for (const name of names(entry.id)) {
-					bindings.set(name, {
-						value: entry.id.type === 'Identifier' && node.kind === 'const' ? entry.init : undefined,
-					})
-
-					if (isExported) {
-						exported.set(name, name)
-					}
-				}
-			}
-		} else if (node.type === 'FunctionDeclaration' || node.type === 'ClassDeclaration') {
-			if (isExported && node.id) {
-				exported.set(node.id.name, node.id.name)
-			}
-		}
-	}
-	for (const node of ast.body) {
-		if (node.type === 'ExportAllDeclaration' && node.exportKind !== 'type') {
-			throw new Error(
-				`route/source-exports: ${file}: use explicit named exports instead of export * so route capabilities can be discovered without executing modules`,
-			)
-		}
-
-		if (node.type !== 'ExportNamedDeclaration') {
-			declare(node, false)
-			continue
-		}
-
-		if (node.exportKind === 'type') {
-			continue
-		}
-
-		declare(node.declaration, true)
-		for (const specifier of node.specifiers ?? []) {
-			if (specifier.exportKind !== 'type') {
-				exported.set(
-					specifier.exported.name ?? specifier.exported.value,
-					node.source ? undefined : specifier.local.name,
-				)
-			}
-		}
-	}
-	const result = {}
-	for (const [name, flag] of [
-		['loader', 'loader'],
-		['beforeLoad', 'guard'],
-		['group', 'group'],
-		['validateSearch', 'validateSearch'],
-		['head', 'head'],
-		['ErrorBoundary', 'errorBoundary'],
-	]) {
-		if (exported.has(name)) {
-			result[flag] = true
-		}
-	}
-	if (exported.has('dataMode')) {
-		let value = bindings.get(exported.get('dataMode'))?.value
-		const visited = new Set()
-		while (value) {
-			if (
-				[
-					'TSAsExpression',
-					'TSSatisfiesExpression',
-					'TSTypeAssertion',
-					'ParenthesizedExpression',
-				].includes(value.type)
-			) {
-				value = value.expression
-			} else if (value.type === 'Identifier' && !visited.has(value.name)) {
-				visited.add(value.name)
-				value = bindings.get(value.name)?.value
-			} else {
-				break
-			}
-		}
-
-		if (value?.type !== 'Literal' || !['baked', 'live'].includes(value.value)) {
-			throw new Error(
-				`route/invalid-data-mode: ${file}: dataMode must resolve to a local const literal 'baked' or 'live'; declare it in the route module instead of computing or importing it`,
-			)
-		}
-
-		result.dataMode = value.value
-	}
-	return result
 }
 
 function walk(dir, out = []) {
@@ -236,42 +111,6 @@ async function bakeRouteData(cwd, loaders) {
 		return data
 	} finally {
 		await server.close()
-	}
-}
-
-function routeFor(rel, extRe = EXT) {
-	rel = rel.split(sep).join('/').replace(extRe, '')
-	const parts = rel.split('/')
-	let base = parts[parts.length - 1]
-	const sm = SUFFIX.exec(base)
-	if (sm) {
-		base = base.slice(0, base.length - sm[0].length)
-	}
-
-	const pm = PRESENT.exec(base)
-	const presentation = pm ? (pm[1] === 'fade' ? 'push' : pm[1]) : undefined
-	const transition = pm?.[1] === 'fade' ? 'fade' : undefined
-	if (pm) {
-		base = base.slice(0, base.length - pm[0].length)
-	}
-
-	if (base === '_layout') {
-		return null
-	}
-
-	const segs = parts.slice(0, -1).concat(base)
-	if (segs[segs.length - 1] === 'index') {
-		segs.pop()
-	}
-
-	const segments = segs.map(normSegment)
-
-	return {
-		name: segments.join('/') || 'index',
-		segments,
-		params: segments.flatMap((s) => segmentParam(s) ?? []),
-		presentation,
-		transition,
 	}
 }
 

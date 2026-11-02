@@ -8,7 +8,8 @@ import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild, httpProbeI
 test('benchmark records bind source bytes, host and the exact executable rather than a shared version', t => {
  const root = mkdtempSync(join(tmpdir(), 'xplat-nim-record-'))
  t.after(() => rmSync(root, { recursive: true, force: true }))
- const files = ['packages/cli/nim/main.nim', 'packages/cli/nim/metadata.json', 'tools/cli-nim/nim-dependencies.json',
+ const files = ['packages/cli/nim/main.nim', 'packages/cli/nim/metadata.json', 'packages/cli/nim/route_templates.json',
+  'packages/cli/src/commands/routes.ts', 'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json',
   'tools/cli-nim/build.mjs', 'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs',
   'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/ort-runtime.json',
   'tools/cli-nim/build-model.mjs', 'tools/cli-nim/model_probe.nim', 'tools/cli-nim/package.json']
@@ -17,6 +18,12 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  const record = { version: '0.19.0-nim.0', platform: process.platform, arch: process.arch,
   nativeInputs: nativeInputs(root), nativeArtifact: artifactFingerprint(bytes) }
  assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
+ for (const file of ['packages/cli/nim/route_templates.json', 'packages/cli/src/commands/routes.ts', 'tools/cli-nim/route-templates.mjs']) {
+  writeFileSync(join(root, file), 'changed route rendering input')
+  assert.throws(() => assertCurrentNativeBuild(root, record, bytes), /Sources differ/)
+  writeFileSync(join(root, file), file)
+  assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
+ }
  for (const file of ['tools/cli-nim/build-probe.mjs','tools/cli-nim/process_probe.nim','tools/cli-nim/core.nim','tools/cli-nim/catalog.json','tools/cli-nim/prepare.mjs']) writeFileSync(join(root,file),file)
  const processRecord = { ...record, nativeInputs: processProbeInputs(root) }
  const coreRecord = { ...record, nativeInputs: coreInputs(root) }

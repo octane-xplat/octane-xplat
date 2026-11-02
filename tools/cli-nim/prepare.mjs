@@ -6,9 +6,11 @@ import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/cata
 import { prepareDependencies } from './dependencies.mjs'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
 import { coreInputs, artifactFingerprint } from './native-inputs.mjs'
+import { writeRouteTemplates } from './route-templates.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const cache = resolve(root, 'research/nim-cli')
 mkdirSync(cache, { recursive: true })
+writeRouteTemplates(root)
 if (nimVersion !== '2.2.12') throw Error('Compiler pin mismatch')
 const toolchain = await getToolchain({ cacheDir: resolve(cache, 'toolchain') })
 writeFileSync(resolve(cache, 'compiler.json'), JSON.stringify({ nim: toolchain.nim, version: nimVersion }))
