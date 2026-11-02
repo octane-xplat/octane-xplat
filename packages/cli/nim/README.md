@@ -69,6 +69,10 @@ there. `capabilities.nim` reports only the providers wired into the native build
 runtime/session/evidence operations remain unavailable and semantic retrieval
 remains partial. Contract IDs and product boundaries are embedded from the
 canonical reference at build time.
+`target_discovery.nim` adds bounded read-only simctl/adb inventory and host
+eligibility helpers. Its simulator parser validates availability and identities
+before offering targets. Public `targets` remains pending until session ownership
+and busy-state composition land; inventory does not establish launch readiness.
 These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside

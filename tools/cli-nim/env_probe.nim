@@ -8,6 +8,7 @@ import ../../packages/cli/nim/route_templates
 import ../../packages/cli/nim/build_worker
 import ../../packages/cli/nim/managed_process
 import ../../packages/cli/nim/[prerequisites, command_probe]
+import ../../packages/cli/nim/target_discovery
 
 proc commandQuery(request: JsonNode): Future[JsonNode] {.async.} =
   let signal = newProcessCancel()
@@ -34,6 +35,20 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "host-block":
+      let blocked = hostBlock(text(request["platform"]),text(request["host"]))
+      value = if blocked.isSome: %blocked.get() else: newJNull()
+    of "target-parse":
+      let raw = field(request,"output")
+      let output = if raw == nil or raw.kind == JNull: none(string) else: some(raw.getStr())
+      value = if text(request["platform"]) == "ios": iosTargets(output) else: androidTargets(output)
+    of "target-query":
+      let env = newStringTable(modeCaseSensitive)
+      if field(request,"env") != nil:
+        for key,item in request["env"]: env[key] = item.getStr()
+      let signal = newProcessCancel()
+      if field(request,"preabort") == %true: signal.cancel()
+      value = waitFor discoverHostMobileTargets(text(request["platform"]),dir,env,signal)
     of "command-probe": value = waitFor commandQuery(request)
     of "prerequisites":
       var platforms: seq[string]

@@ -114,6 +114,12 @@ Assert that positive fixtures actually reach the intended successful result.
 Two implementations returning the same unavailable/default value do not qualify
 the successful path that a fixture was meant to exercise.
 
+External-tool JSON needs domain validation after parsing. Check object/array
+kinds, availability booleans and nonempty string identities before reporting a
+usable target. A JS template can silently turn a missing name into `undefined`;
+reproducing that coercion would manufacture readiness. Keep valid real snapshots
+in the differential corpus and explicitly test intentional stricter rejection.
+
 For failure-path checks, catch only the operation being tested. Assert rejection
 outside that catch so a successful operation cannot catch the test's own failure
 and accidentally pass. Keep protocol/exit assertions independent of diagnostics.
