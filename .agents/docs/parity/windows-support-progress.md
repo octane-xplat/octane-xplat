@@ -97,6 +97,48 @@ fake-sync (they schedule a WinRT async operation and return before it
 completes). The fixture verifies file content through the real async
 `File.readText`/`writeText` path and retains the sync behavior as evidence.
 
+## Input, scroll, and extended-service result (1.0.0.201–1.0.0.202)
+
+The maintained `input` and `scroll` qualification scenes plus the extended
+service specs passed bounded packaged qualification on
+`org.octanexplat.windows61` 1.0.0.201 (sha256
+`3ce1ce01b9bc26fc6e091776edafebb3ebb4e1ae59e480bf57e36ef41ebc042e`, source
+`79e5ff170`) and 1.0.0.202 (sha256
+`bdbbe98a3548bdf7aec6189fb3c5a1617295dd7ca1e4a983cedc14cfbb4a04c9`, source
+`550b4ec68`), built on Windy from literal `main` with a fresh frozen install.
+
+- `windows-controlled-text-write`: 48/48 assertions (launch `mvznsuxc`) —
+  physical `SendInput` typing reaches a controlled `TextInput`, `onChange`
+  emits per temporally-distinct edit, changed/same-length/shrinking/unchanged
+  controlled writes, OS-selected range preservation and shrink clamp through
+  UIA `TextPattern`, no synthetic echo on unchanged writes, secure
+  `PasswordBox` peer (`IsPassword`, no plaintext in raw key events),
+  readonly/disabled rejection, `Form user` → `Form pass` Tab order,
+  focus/blur events, consumed vs submitting Return, unmount and remount.
+- `windows-scroll-observation`: 16/16 assertions (launch `mvznv4ny`) — initial
+  overflow edge state, physical wheel moves off start/reaches end/returns,
+  content shrink clears and growth restores overflow, viewport readout
+  bounds before and after window resize, unmount and remount observer.
+- `windows-service-adapters`: 50/50 assertions (launch `mvzoktpm`) — the
+  earlier ten families plus `files-chunk` (maxBytes bound + aborted-signal
+  `AbortError` via duck-typed signal; the runtime has no global
+  `AbortController`), `auth` (session + WebAuthn bounded-unavailable),
+  `window-metrics`, `clipboard-nontext` (file-drop preset reads null text),
+  `secure-storage`/`secure-persist` (PasswordVault roundtrip), `storage-persist`.
+  A fresh boot `mvzoq7ns` ran `secure-verify` + `storage-verify` and read
+  back both persisted values.
+
+Bounded evidence is recorded on the `windows_checks` rows for controlled
+text write, key-event bridge, scroll observation, secure storage, file IO,
+service adapters and media query — all remain pending. Uncovered dimensions
+include IME composition, secure swaps and reentrant ordering, OS auto-repeat
+projection (a held key emits one `keyDown`; repeats are not routed),
+unload/window transitions, clipboard formats beyond null-text, roaming and
+production imports for secure storage, partial write/flush failures and
+picker initialization, suspend/resume, physical sleep, pointer-variant
+predicates, reduced motion, hotplug, secondary windows and the
+architecture matrix.
+
 ## Continue qualification
 
 Start from the current pinned dependencies and the maintained host runbook.

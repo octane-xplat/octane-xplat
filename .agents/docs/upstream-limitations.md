@@ -112,4 +112,17 @@ reading:
   service fixture records `syncText` as limitation evidence and qualifies
   content IO through the async APIs.
 
-Upstream status: open; revisit both when the Windows core runtime rev changes.
+- `AbortController`/`AbortSignal` are not projected in the packaged runtime —
+  `new AbortController()` throws `ReferenceError` inside the app process
+  (observed on 1.0.0.201, files-chunk spec). Cancellation contracts that take
+  an `AbortSignal` still work against a duck-typed object (`aborted`,
+  `addEventListener`/`removeEventListener`, `throwIfAborted`) because the
+  `files.readBytes` leaf only uses those members; the fixture records
+  `abortControllerPresent` as limitation evidence.
+- OS key auto-repeat is not routed to the WinUI `keyDown`/`keyUp` delegates:
+  a physically held key produces one projected `keyDown` and one `keyUp`
+  (observed on 1.0.0.201, `windows-key-event-bridge`), while the character
+  repeat itself still enters the focused control. Held/repeat payload
+  fidelity stays an uncovered dimension.
+
+Upstream status: open; revisit all when the Windows core runtime rev changes.
