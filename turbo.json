@@ -2,6 +2,7 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"test:typecheck-envs": { "dependsOn": ["build", "^build"], "cache": false },
 		"build:nim": { "dependsOn": ["build", "^build"], "cache": false, "passThroughEnv": ["XPLAT_NIM_VERSION"] },
 		"test:nim-packages": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-identity": { "dependsOn": ["build:nim"], "cache": false },

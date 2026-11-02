@@ -73,6 +73,7 @@
 		"test:docs-search": "node --test test/mcp-docs.test.mjs",
 		"test:native-runtime": "node --test test/vite-native-runtime.test.mjs",
 		"test:markdown": "node --test test/markdown-rich.test.ts",
+		"test:typecheck-envs": "node --test test/tsconfig-envs.test.mjs",
 		"test:css-platform": "node --test test/css-platform.test.mjs",
 		"test:updates": "node --test test/updates.test.mjs",
 		"test:postcss-consumer": "node test/postcss-consumer.mjs",

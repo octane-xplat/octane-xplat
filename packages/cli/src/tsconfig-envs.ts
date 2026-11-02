@@ -18,6 +18,7 @@
 import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parse, printParseErrorCode } from 'jsonc-parser'
 import { srcUrl } from './env.ts'
 
 const MODULE_DIR = fileURLToPath(srcUrl(import.meta.url, ''))
@@ -134,58 +135,14 @@ const SUFFIX_ENV = {
 
 /** Strip // and block comments plus trailing commas so authored tsconfig-style files parse. */
 function parseJsonc(text, path) {
-	let out = ''
-	let i = 0
-	let inString = false
-	while (i < text.length) {
-		const ch = text[i]
-		if (inString) {
-			out += ch
-			if (ch === '\\') {
-				out += text[++i] ?? ''
-			} else if (ch === '"') {
-				inString = false
-			}
-
-			i++
-			continue
-		}
-
-		if (ch === '"') {
-			inString = true
-			out += ch
-			i++
-			continue
-		}
-
-		if (ch === '/' && text[i + 1] === '/') {
-			while (i < text.length && text[i] !== '\n') {
-				i++
-			}
-
-			continue
-		}
-
-		if (ch === '/' && text[i + 1] === '*') {
-			const end = text.indexOf('*/', i + 2)
-			if (end === -1) {
-				throw new Error(`${path}: unterminated block comment`)
-			}
-
-			i = end + 2
-			continue
-		}
-
-		out += ch
-		i++
+	const errors = []
+	const value = parse(text, errors, { allowTrailingComma: true })
+	if (errors.length) {
+		const error = errors[0]
+		throw new Error(`${path}: invalid JSON — ${printParseErrorCode(error.error)} at offset ${error.offset}`)
 	}
 
-	out = out.replace(/,(\s*[}\]])/g, '$1')
-	try {
-		return JSON.parse(out)
-	} catch (e) {
-		throw new Error(`${path}: invalid JSON — ${e.message}`)
-	}
+	return value
 }
 
 export function loadEnvManifest(dir) {
