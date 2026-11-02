@@ -53,7 +53,7 @@ entries). Groups:
 `candidate-error`, `reference-error`, `harness-error` — exit 1 findings, 4
 errors, 0 clean. Artifacts in `artifacts/markdown/`.
 
-Baseline run (2026-11-02, macOS, bun): **parser 138 results — 75 match, 63 candidate findings, 0 reference/harness errors**; performance 6 workloads recorded (candidate subset parser currently faster; budgets recorded as contract: p95 ≤1.2×, throughput ≥0.8×). Behavior/layout modes implemented; candidate web bundle currently blocked by `packages/ui` nativescript/keyboard-overlay resolution gaps in the rolldown build — recorded as a harness gap, not a parity result.
+Baseline run (2026-11-02, macOS, bun): **parser 138 results — 75 match, 63 candidate findings, 0 reference/harness errors**; behavior 13 candidate diffs; layout 4 candidate diffs; performance 6 workloads recorded (candidate subset parser currently faster; budgets recorded as contract: p95 ≤1.2×, throughput ≥0.8×). The candidate web build resolves platform leaves through `xplatBoundary('web')` from `@octane-xplat/cli/vite` — explicit `.tsrx` specifiers must map to `.web.tsrx` leaves or the bundle pulls native base files; native-only modules (`@nativescript/core`, `internal/keyboard/keyboard-overlay-host`) then never enter the web graph and need no stubs.
 
 Benchmark contract: 1 KB/10 KB/100 KB corpus, seeded chunk schedules, warmup 3, n=15–30, p50/p95/mean; incremental tail-append variant; budgets `p95Ratio ≤1.2`, `throughputRatio ≥0.8` (plan thresholds, calibration before optimization).
 

@@ -1,28 +1,17 @@
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
+import { xplatBoundary } from '@octane-xplat/cli/vite'
 
 export default defineConfig({
 	root: fileURLToPath(new URL('.', import.meta.url)),
-	plugins: [...octane()],
+	// xplatBoundary supplies .tsrx leaf resolution plus the foreign-suffix
+	// boundary guard — the same plugins apps/web uses, so native leaves stay
+	// out of this graph instead of being stubbed over.
+	plugins: [...octane(), xplatBoundary('web')],
 	resolve: {
 		conditions: ['web'],
 		dedupe: ['octane'],
-		alias: [
-			// Shared UI imports these names for native leaves; the web bundle
-			// never executes them. Exact specifier only — deep nativescript
-			// imports from other packages keep resolving normally.
-			{
-				find: /^@nativescript\/core$/,
-				replacement: fileURLToPath(new URL('./nativescript-stub.ts', import.meta.url)),
-			},
-			// packages/ui lacks a web/default leaf for the keyboard overlay
-			// host (real upstream gap); stub so the barrel resolves.
-			{
-				find: /.*internal\/keyboard\/keyboard-overlay-host$/,
-				replacement: fileURLToPath(new URL('./keyboard-overlay-stub.ts', import.meta.url)),
-			},
-		],
 		extensions: [
 			'.web.tsrx',
 			'.tsrx',

@@ -5,12 +5,12 @@
 		// Launches Chromium and previews both sides — observable side effects,
 		// never cached.
 		"parity": {
-			"dependsOn": ["^typegen"],
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build"],
 			"cache": false
 		},
 		// Nonvisual Markdown comparison — DOM/parse metrics only, no capture.
 		"parity:markdown": {
-			"dependsOn": ["^typegen"],
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build"],
 			"cache": false
 		}
 	}
