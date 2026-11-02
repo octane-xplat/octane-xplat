@@ -112,15 +112,47 @@ and fixed 2026-11-02:
 
 Still **not** delivered (distinct upstream questions, not loop starvation):
 
-- Foreign-thread *method*/function IMPs (`JSMethodCallback`/
-  `JSFunctionCallback`) invoke napi directly on the calling thread — upstream
-  defect runtimes#108; a loop pump does not help.
 - `Worker` remains `undefined` — embedder capability boundary
   (`RuntimeModules::Init` never runs in this host), unaffected by the pump.
 - runtimes#111 (unretained incoming blocks) still needs its local workaround.
 
 The gif retention reason (starved `NSURLSession` completions) is removed;
 requalify the TS port's remote HTTP(S) path separately.
+
+## Foreign-thread method/function IMPs (upstream, patched)
+
+`JSMethodCallback` and `JSFunctionCallback` in `ffi/napi/Closure.mm` invoked
+napi directly on whatever thread ran the ffi closure — upstream defect
+[NativeScript/runtimes#108](https://github.com/NativeScript/runtimes/issues/108).
+Any JS-implemented ObjC method or C-function-pointer callback Apple delivers
+off-main (`NSThread` selector invocations, spawned-thread delegate methods like
+`NSPrintOperation.didRun`, background-queue protocol callbacks) dereferenced
+the single-threaded env and crashed in `ObjCBridgeState::getObject`.
+`JSBlockCallback` in the same file already marshalled foreign calls (and the
+jsi backend marshals all of them); the method/function napi paths did not.
+
+- **Workaround**: `patches/nativescript-runtimes.patch` routes both entries
+  through `marshalCallbackToJSThread`: inline when the caller is `jsThreadId`
+  (or a Hermes native-caller-thread case), otherwise
+  `CFRunLoopPerformBlock(jsRunLoop, kCFRunLoopCommonModes)` +
+  `dispatch_semaphore_wait` — the same mechanism the `ENABLE_JS_RUNTIME` block
+  branch uses, so generic-napi embedders need no `env->loop` servicing and
+  delivery fires inside nested modal run loops. The invoking ObjC frame parks
+  until `ret` is filled, so IMP return semantics (including the NSError
+  out-param special case) are unchanged; a dead bridge state returns a zeroed
+  `ret` instead of parking on a run loop that will never run. Runtime-verified
+  2026-11-02 on the rebuilt prebuilt: `macos-foreign-imp.test.mjs` — detached
+  `NSThread` IMPs deliver, an `NSInvocationOperation` synchronous `id` return
+  crosses the boundary, a marshal posted mid-delivery queues, and the process
+  survives where it previously segfaulted. The `JSFunctionCallback` branch
+  shares the same code path but had no runtime reproducer.
+- **Remaining exposure (matches upstream)**: a foreign invocation that needs
+  the JS thread while the JS thread hard-blocks on that same thread deadlocks
+  (`performSelectorOnThread…waitUntilDone:YES` parks without spinning the run
+  loop) — identical to the jsi backend's `dispatch_sync` and the TSFN block
+  path's parked `ctx.cv`.
+- **Removal condition**: upstream marshalling for `JSMethodCallback`/
+  `JSFunctionCallback` in the napi backend; recheck after a runtimes pin bump.
 
 Scope boundary (runtime-verified 2026-11-01, `packages/video` migration,
 unchanged by the pump): `AVPlayer`/`AVPlayerItem` remote HTTP(S) loading runs

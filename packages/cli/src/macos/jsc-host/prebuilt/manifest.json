@@ -12,7 +12,7 @@
   "sha256": {
     "macos/host": "447647958ae22f7475961621950ecc9827b1ec71944c03d3a75f770b5f114787",
     "macos/metadata.macos.arm64.nsmd": "6d5641156e38c2768a50b08180aa4f005d5be1eb4f24998b106d720fe78b7ef7",
-    "macos/NativeScript.framework/Versions/A/NativeScript": "5cc3fe05a1f6a60decfeb32a1da238797bcbda389366ad78b4b8a7e0c77d3b3a",
+    "macos/NativeScript.framework/Versions/A/NativeScript": "b5b5194e3ea42fd2cadb1f6eb723278bdb32185001b2f0cb6d2711cc37fb1901",
     "macos/objc-metadata-generator": "5bd4cb2468b82eded8cafd699511757908caaec2b13b3a7756a585d037698bc4",
     "macos/metadata.macos.x86_64.nsmd": "50d22c261cd4f318fd8397a76c43784a474fc08a5d3554271b6a2e3b793a66e8"
   },

@@ -320,3 +320,103 @@ index 77290127..e6e153e4 100644
    @try {
      if (!supercall) {
        if (cif != nullptr && cif->signatureHash != 0) {
+diff --git a/NativeScript/ffi/napi/Closure.mm b/NativeScript/ffi/napi/Closure.mm
+index ab90659..d51232f 100644
+--- a/NativeScript/ffi/napi/Closure.mm
++++ b/NativeScript/ffi/napi/Closure.mm
+@@ -147,7 +147,8 @@ inline void JSCallbackInner(Closure* closure, napi_value func, napi_value thisAr
+ // Bridge calls from Objective-C to JavaScript.
+ // Opposite of what native_call.cc does - but a lot of type conversion logic
+ // is reused, just in reverse.
+-void JSMethodCallback(ffi_cif* cif, void* ret, void* args[], void* data) {
++// Runs on the JS thread; JSMethodCallback marshals foreign-thread calls here.
++void JSMethodCallbackImpl(ffi_cif* cif, void* ret, void* args[], void* data) {
+   Closure* closure = (Closure*)data;
+   napi_env env = closure->env;
+
+@@ -258,7 +259,8 @@ void JSMethodCallback(ffi_cif* cif, void* ret, void* args[], void* data) {
+   closure->returnType->toNative(env, result, ret, &shouldFree, &shouldFree);
+ }
+
+-void JSFunctionCallback(ffi_cif* cif, void* ret, void* args[], void* data) {
++// Runs on the JS thread; JSFunctionCallback marshals foreign-thread calls here.
++void JSFunctionCallbackImpl(ffi_cif* cif, void* ret, void* args[], void* data) {
+   Closure* closure = (Closure*)data;
+   napi_env env = closure->env;
+
+@@ -286,6 +288,75 @@ void JSFunctionCallback(ffi_cif* cif, void* ret, void* args[], void* data) {
+   JSCallbackInner(closure, func, thisArg, argv, cif->nargs, nullptr, ret);
+ }
+
++// Marshals a JS-backed ffi callback onto the thread that owns the napi env.
++// Method and function IMPs invoked on a foreign thread must run their whole
++// body — argument conversion, the napi call, and the return conversion — on
++// the JS thread, so the invoking ObjC frame parks on a semaphore while the
++// JS runloop performs impl. This mirrors the ENABLE_JS_RUNTIME delivery path
++// JSBlockCallback uses, and works for generic-napi embedders too: jsRunLoop
++// is captured unconditionally at Closure construction. Unlike the TSFN block
++// path, delivery needs no env->loop servicing from the embedder and fires in
++// common modes, including nested modal runloops.
++void marshalCallbackToJSThread(ffi_cif* cif, void* ret, void* args[], void* data,
++                               void (*impl)(ffi_cif* cif, void* ret, void* args[], void* data)) {
++  Closure* closure = (Closure*)data;
++
++  closure->retain();
++  struct ClosureRetainGuard {
++    Closure* closure;
++    ~ClosureRetainGuard() {
++      if (closure != nullptr) {
++        closure->release();
++      }
++    }
++  } retainGuard{closure};
++
++  // A dead bridge state means the env is gone; no thread can legally run JS.
++  // Hand the ObjC caller a defined return instead of parking on a runloop
++  // that will never service the block, or dereferencing torn-down state.
++  if (closure->bridgeState != nullptr &&
++      !IsBridgeStateLive(closure->bridgeState, closure->bridgeStateToken)) {
++    if (ret != nullptr && cif->rtype != nullptr && cif->rtype->size > 0) {
++      memset(ret, 0, cif->rtype->size);
++    }
++    return;
++  }
++
++  if (std::this_thread::get_id() == closure->jsThreadId ||
++      shouldInvokeCallbackOnNativeCallerThread()) {
++    impl(cif, ret, args, data);
++    return;
++  }
++
++  CFRunLoopRef runloop = closure->jsRunLoop;
++  if (runloop == nullptr) {
++    runloop = CFRunLoopGetMain();
++  }
++
++  if (runloop == nullptr) {
++    impl(cif, ret, args, data);
++    return;
++  }
++
++  CFRetain(runloop);
++  dispatch_semaphore_t done = dispatch_semaphore_create(0);
++  CFRunLoopPerformBlock(runloop, kCFRunLoopCommonModes, ^{
++    impl(cif, ret, args, data);
++    dispatch_semaphore_signal(done);
++    CFRelease(runloop);
++  });
++  CFRunLoopWakeUp(runloop);
++  dispatch_semaphore_wait(done, DISPATCH_TIME_FOREVER);
++}
++
++void JSMethodCallback(ffi_cif* cif, void* ret, void* args[], void* data) {
++  marshalCallbackToJSThread(cif, ret, args, data, JSMethodCallbackImpl);
++}
++
++void JSFunctionCallback(ffi_cif* cif, void* ret, void* args[], void* data) {
++  marshalCallbackToJSThread(cif, ret, args, data, JSFunctionCallbackImpl);
++}
++
+ struct JSBlockCallContext {
+   ffi_cif* cif;
+   void* ret;
