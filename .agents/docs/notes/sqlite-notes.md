@@ -160,7 +160,14 @@ interop.Pointer` isn't re-entrant as a destructor arg (share the
   metadata generated from the retained headers. Local patch
   `packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch`
   deletes the three modulemaps; drop it if upstream renames/drops the maps or
-  ships a framework-style xcframework.
+  ships a framework-style xcframework. Verified on Xcode 27.0
+  (Debug-iphonesimulator): an app target linking the unpatched
+  NSSqliteBridge.xcframework plus a second modulemap-carrying library
+  xcframework fails with exactly that `Multiple commands produce` error;
+  with the patch applied the same project builds and links, and slice
+  headers still reach `include/`. `tests/ios-packaging.test.mjs` asserts the
+  installed plugin family carries no bare maps and the patch covers every
+  published slice.
 - `threading: true` on-device behavior (workers survive HMR? cost per call?)
   on the mobile harness.
 
