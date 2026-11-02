@@ -1,21 +1,11 @@
 ## Native typecheck orchestration; compiler execution stays in the project toolchain.
 import std/[os, json, asyncdispatch]
-import ./route_generation, ./build_worker, ./typecheck_envs, ./managed_process
+import ./route_operation, ./build_worker, ./typecheck_envs, ./managed_process
 import ./package_manager, ./jsonutil, ./js_text
-import ./digests
 
 proc generateTypecheckRoutes*(project: string, signal: ProcessCancel = nil): Future[void] {.async.} =
-  let sources = collectRouteSources(project)
-  let metadata = await analyzeRouteSources(project,sources,signal=signal)
-  let analyzer: RouteAnalyzer = proc(source, file: string): JsonNode =
-    let entry = field(metadata,file)
-    if entry == nil or text(field(entry,"sha256")) != sha256Hex(utf8ForWrite(source)):
-      raise newException(ValueError,"Route source changed during analysis; retry typecheck: " & file)
-    entry["metadata"]
-  let planned = planRoutesForTypecheck(project,analyzer,onWarn=proc(message: string) = stderr.writeLine(utf8ForWrite(message)))
-  if interruptedSignal() != 0 or (signal != nil and signal.cancelled):
-    raise newException(ValueError,"Typecheck cancelled")
-  planned.publishRoutes()
+  discard await generateNativeRoutes(project,bake=false,signal=signal,
+    onWarn=proc(message: string) = stderr.writeLine(utf8ForWrite(message)))
 
 proc ambientRoot(project: string, loaded: JsonNode): string =
   # Native/macOS globals are the same inert declaration assets shipped by the

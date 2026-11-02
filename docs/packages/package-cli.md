@@ -123,12 +123,31 @@ TSRX checker. The project must already contain compatible `@octane-xplat/build`,
 `@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,
 invoke your built executable by its absolute path. A successful check prints
 `Typecheck clean`; compiler errors exit with status 1. Route types are regenerated
-without executing baked loaders. Build/dev and app-session orchestration remain
-migration work:
+without executing baked loaders:
 
 ```sh
 # Replace /path/to/octane-xplat with your repository's absolute path.
 /path/to/octane-xplat/research/nim-cli/native/xplat typecheck
+```
+
+Native `routes` generates route contracts and platform catalogs, and bakes loader
+or Markdown data using the project's build package. Loader execution also needs
+its installed Vite and Node. Run it once, or watch source/configuration edits.
+A failed or obsolete bake leaves the previous generated files in place. Keep the
+output path stable while watching; stop before moving generated files and update
+client imports afterward. `--dir` and `--out` require a value; missing values fail
+before generating files:
+
+```sh
+/path/to/octane-xplat/research/nim-cli/native/xplat routes
+/path/to/octane-xplat/research/nim-cli/native/xplat routes --watch
+```
+
+Build/dev and app-session orchestration remain migration work. Inspect the native
+catalog before using another workflow:
+
+```sh
+/path/to/octane-xplat/research/nim-cli/native/xplat catalog --json
 ```
 
 ## App testing

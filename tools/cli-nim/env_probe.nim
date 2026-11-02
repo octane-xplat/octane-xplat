@@ -34,7 +34,7 @@ for line in stdin.lines:
           raise newException(ValueError,"Route parser snapshot changed or is missing: " & file)
         if field(entry,"parserError") != nil: raise newException(ValueError,text(entry["parserError"]))
         entry["metadata"]
-      let planned = planRoutesForTypecheck(dir,analyzer,
+      let planned = planRoutes(dir,analyzer,
         (if field(request,"directory") == nil: none(string) else: some(text(request["directory"]))),
         (if field(request,"output") == nil: none(string) else: some(text(request["output"]))),
         proc(message: string) = warnings.add(message))

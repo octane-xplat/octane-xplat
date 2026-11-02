@@ -1,7 +1,8 @@
-## Native route planning and typecheck-only emission. The parser callback consumes
-## source snapshots; it must not execute application modules or the old CLI.
-import std/[os, json, strutils, tables, sets, options, algorithm, tempfiles]
+## Native route planning/emission. The project operation supplies source analysis
+## and JS baking; this module never executes application modules or the old CLI.
+import std/[os, json, strutils, tables, sets, options, algorithm]
 when defined(posix): import std/posix
+else: import std/tempfiles
 import ./route_config, ./route_metadata, ./route_paths, ./route_templates
 import ./jsonutil, ./js_json, ./js_text, ./locale_sort
 
@@ -12,6 +13,8 @@ type
     count*: Option[int] # none is the reference's false; some(0) is an empty program.
     outputs*: OrderedTable[string,string]
     warnings*: seq[string]
+    bakeRequest*: JsonNode
+    dataFile*: string
 
 const targets = ["web", "ios", "android", "mobile", "macos", "windows", "linux"]
 const suffixOrder = ["web", "mobile", "ios", "android", "macos", "windows", "linux"]
@@ -69,15 +72,19 @@ proc routeFiles(path: string): seq[string] =
     if info.kind == pcDir: result.add(routeFiles(file))
     elif splitFile(name).ext in [".tsx", ".tsrx", ".md"]: result.add(file)
 
-proc routeLocation(cwd: string, directory, output: Option[string]): tuple[root,dir,base,outputDirectory: string,config: JsonNode] =
+proc routeLocation*(cwd: string, directory, output: Option[string], allowMissingSources = false,
+    previousDirectory = ""): tuple[root,dir,base,outputDirectory: string,config: JsonNode] =
   let root = absolutePath(cwd)
-  let config = loadRoutingConfig(root)
+  let config = loadRoutingConfig(root,allowMissingSources)
   var dir: string
   if directory.isSome: dir = directory.get()
   elif field(config,"directory") != nil: dir = config["directory"].getStr()
   else:
     for candidate in ["app", "src/app"]:
       if exists(nodeJoin(root,candidate)): dir = candidate; break
+    if dir.len == 0 and previousDirectory.len > 0:
+      for candidate in ["app", "src/app"]:
+        if nodeJoin(root,candidate) == previousDirectory: dir = candidate; break
     if dir.len == 0 and config != nil: dir = "src/app"
   if dir.len == 0: return (root,dir,"","",config)
   let chosenOut = if output.isSome: output.get()
@@ -98,8 +105,9 @@ proc collectRouteSources*(cwd: string, directory = none(string), output = none(s
     if file.startsWith(nodeJoin(root,base) & ".") or relative.endsWith(".md") or lastPathPart(stemFor(relative)) == "_layout": continue
     result.add(%*{"file": slashes(relativePath(file,root)),"source": readText(file)})
 
-proc planRoutesForTypecheck*(cwd: string, analyzer: RouteAnalyzer,
-    directory = none(string), output = none(string), onWarn: RouteWarningSink = nil): RouteGeneration =
+proc planRoutes*(cwd: string, analyzer: RouteAnalyzer,
+    directory = none(string), output = none(string), onWarn: RouteWarningSink = nil,
+    bake = false): RouteGeneration =
   result.count = none(int)
   result.outputs = initOrderedTable[string,string]()
   var warnings: seq[string]
@@ -269,7 +277,16 @@ proc planRoutesForTypecheck*(cwd: string, analyzer: RouteAnalyzer,
     (if transitions != nil: "import type { TransitionNames } from '@octane-xplat/ui/routing/core'\ntype CustomTransitions = { [Key in TransitionNames<" & exportType(transitions) & ">]: unknown }\n" else: ""),
     stackFields.join("\n"),(if transitions != nil: "\tinterface AppRouteTransitions extends CustomTransitions {}\n" else: "")])
   let dataFile = nodeJoin(root,base & ".data.ts")
-  if (loaders.len == 0 and markdown.len == 0) or not exists(dataFile):
+  result.dataFile = dataFile
+  result.bakeRequest = %*{"loaders": [],"markdown": []}
+  for name, file in loaders:
+    result.bakeRequest["loaders"].add(%*{"name": name,"file": slashes(relativePath(file,root))})
+  for route in markdown:
+    let file = nodeJoin(root,dir,text(route["file"]))
+    let entry = %*{"name": route["name"],"file": dir & "/" & text(route["file"])}
+    if bake: entry["source"] = %readText(file)
+    result.bakeRequest["markdown"].add(entry)
+  if bake or (loaders.len == 0 and markdown.len == 0) or not exists(dataFile):
     result.outputs[dataFile] = renderRouteTemplate("data","c882a552e754ed512bb19c48a7755e9423cf2a2e35ab700349eeca4111ef77e7",[quote("{}")])
   var sortedLayouts, screens: seq[string]
   for layout in layouts: sortedLayouts.add(layout)
@@ -362,6 +379,17 @@ proc planRoutesForTypecheck*(cwd: string, analyzer: RouteAnalyzer,
       (if field(config,"stacks") != nil and config["stacks"].len > 0: "\tstacks: " & jsStringify(config["stacks"]) & ",\n" else: ""), settings])
   result.count = some(list.len)
   result.warnings = warnings
+
+proc applyBakedData*(generation: var RouteGeneration, data: JsonNode) =
+  var expected = initHashSet[string]()
+  for category in ["loaders", "markdown"]:
+    for entry in generation.bakeRequest[category]: expected.incl(entry["name"].getStr())
+  if data == nil or data.kind != JObject or data.len != expected.len:
+    raise newException(ValueError,"Project worker returned incomplete baked route data")
+  for name in expected:
+    if field(data,name) == nil: raise newException(ValueError,"Project worker omitted baked route: " & name)
+  generation.outputs[generation.dataFile] = renderRouteTemplate("data",
+    "c882a552e754ed512bb19c48a7755e9423cf2a2e35ab700349eeca4111ef77e7",[quote(jsStringify(data))])
 
 proc publishRoutes*(generation: RouteGeneration) =
   ## Publish complete files individually, preserving existing output symlinks.

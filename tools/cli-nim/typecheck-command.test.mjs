@@ -8,7 +8,7 @@ import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
-const binary = join(root, 'research/nim-cli/native/xplat')
+const binary = join(root, `research/nim-cli/native/xplat${process.platform === 'win32' ? '.exe' : ''}`)
 assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(root, 'research/nim-cli/native/build.json'))), readFileSync(binary))
 const scratch = scratchRun(root, 'native-typecheck')
 const macOnly = { skip: process.platform !== 'darwin' }
@@ -49,7 +49,10 @@ test('public typecheck help and empty-project success need no toolchain', macOnl
  const empty = run(dir, { environment: { PATH: '' } })
  assert.equal(empty.status, 0, empty.stderr)
  assert.equal(empty.stdout, 'Typecheck clean\n')
- assert.equal(run(dir, { args: ['--invalid'] }).status, 2)
+ assert.equal(run(dir, { args: ['--invalid'] }).status, run(dir, { native: false, args: ['--invalid'] }).status)
+ const noJson = run(dir, { args: ['--json'] })
+ assert.equal(noJson.status, 1)
+ assert.equal(noJson.stdout, '')
  const catalog = spawnSync(binary, ['catalog', '--json'], { encoding: 'utf8' })
  assert.equal(JSON.parse(catalog.stdout).data.orchestration.find(item => item.name === 'typecheck').status, 'implemented')
 })

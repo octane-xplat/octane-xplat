@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { getToolchain } from 'nim-toolchain'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
 import { nativeInputs, artifactFingerprint, httpProbeInputs, processProbeInputs } from './native-inputs.mjs'
+import { routeCommandDescriptor } from './route-templates.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const work = resolve(root, 'research/nim-cli')
 const version = process.env.XPLAT_NIM_VERSION ?? JSON.parse(readFileSync(resolve(root, 'packages/cli/package.json'))).version + '-nim.0'
@@ -24,7 +25,7 @@ delete catalog.requestId
 // from the reference schemas' implemented status.
 catalog.data.cli.version=version
 for(const c of catalog.data.commands) c.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.command)?'implemented':'pending'
-for(const c of catalog.data.orchestration) c.status=['clean','typecheck'].includes(c.name)?'implemented':'pending'
+for(const c of catalog.data.orchestration) c.status=['clean','typecheck','routes'].includes(c.name)?'implemented':'pending'
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
@@ -32,7 +33,8 @@ for(const c of AGENT_COMMANDS) {
  schema.data.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
-writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:"",typecheckHelp:reference(['typecheck','--help'])}))
+writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:"",typecheckHelp:reference(['typecheck','--help']),
+ routesHelp:reference(['routes','--help']),routeDescriptor:routeCommandDescriptor(readFileSync(resolve(root,'packages/cli/src/commands/routes.ts'),'utf8'))}))
 mkdirSync(resolve(work,'native'),{recursive:true})
 const binary=resolve(work,process.platform==='win32'?'native/xplat.exe':'native/xplat')
 const flags=['c','-d:release','--opt:size','--mm:orc',...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/native-cache`,`-o:${binary}`,resolve(root,'packages/cli/nim/main.nim')]

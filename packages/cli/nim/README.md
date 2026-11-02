@@ -2,7 +2,7 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-clean, typecheck, app selection, permissions, code search, code read, guidance
+clean, typecheck, routes, app selection, permissions, code search, code read, guidance
 and docs read; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
@@ -86,8 +86,13 @@ caller umask are compared against Node on copied repository route trees.
 `build_worker.nim` bounds worker requests/results and owns Node process groups,
 timeouts, cancellation and diagnostics. Analysis never executes route modules;
 baking delegates loader execution to project-installed Vite and Markdown parsing
-to the build package. No runtime is bundled. Public routes, baked publication
-and route watch lifecycle remain pending.
+to the build package. `route_operation.nim` shares preparation/publication between
+public `routes` and bake-skipped `typecheck`. `route_watch.nim` owns readiness,
+serial generation, invalidation, error recovery and close. Its macOS FSEvents
+adapter queues C-owned bytes; the Nim event loop drains them. Input fingerprints
+before publication and a periodic backstop reject stale work even when an OS
+event arrives late. Publication is atomic per file. Other watcher hosts remain
+unimplemented; no runtime is bundled.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace
@@ -109,6 +114,17 @@ SIGINT/SIGTERM propagate after owned child cleanup.
 research/nim-cli/native/xplat typecheck --help
 # Run the executable from the selected app directory:
 xplat typecheck
+```
+
+On macOS, `routes` generates the contracts/catalogs and bakes loader or Markdown
+data through the project's build worker. Loader execution requires its installed
+Vite. Watch mode keeps the last successful artifacts when a build fails or becomes
+obsolete, cancels the owned worker, and recovers on later edits. Keep output paths
+stable while watching; moving them requires stopping and updating client imports.
+
+```sh
+xplat routes --dir app --out routes.gen
+xplat routes --watch
 ```
 
 Code retrieval searches selected app and installed framework sources, respects

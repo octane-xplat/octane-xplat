@@ -60,8 +60,10 @@ to render on every target with no runtime fetch.
 - AC3: [constraints list](../../../docs/app/navigation.md#bake-route-data-at-build-time)
   — serializability, param-less bake, sibling requirement, typecheck
   behavior. The [experimental native command](../../../docs/packages/package-cli.md#experimental-nim-executable)
-  also skips loader execution while typechecking; its public route baking and
-  watch workflows remain separate migration work.
+  also skips loader execution while typechecking. Native route baking/watch checks
+  cover strict JSON output, last-good artifact preservation, obsolete generation
+  cancellation and worker cleanup; these command checks do not establish rendered
+  data on a device.
 - AC4: [Hand the route list to a host](../../../docs/app/navigation.md#hand-the-route-list-to-a-host).
 - AC5: [Bake route data at build time](../../../docs/app/navigation.md#bake-route-data-at-build-time),
   the typed changelog example, generated-contract negative fixtures and the

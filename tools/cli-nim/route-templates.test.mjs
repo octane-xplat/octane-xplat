@@ -3,12 +3,21 @@ import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { routeTemplateData } from './route-templates.mjs'
+import { routeTemplateData, routeCommandDescriptor } from './route-templates.mjs'
 import { assertCurrentNativeBuild, envProbeInputs } from './native-inputs.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const binary = join(root, `research/nim-cli/native/env-probe${process.platform === 'win32' ? '.exe' : ''}`)
 assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(root, 'research/nim-cli/native/env-build.json'))), readFileSync(binary), envProbeInputs)
 const source = readFileSync(join(root, 'packages/cli/src/commands/routes.ts'), 'utf8')
+
+test('native route flags are extracted from the canonical command and reject unsupported type drift', () => {
+ const descriptor = routeCommandDescriptor(source)
+ assert.deepEqual(descriptor.flags.map(({flag,short,type}) => ({flag,short,type})),[
+  {flag:'watch',short:'w',type:'boolean'}, {flag:'dir',short:'d',type:'string'}, {flag:'out',short:'o',type:'string'},
+ ])
+ assert.equal(descriptor.flags[0].default,false)
+ assert.throws(() => routeCommandDescriptor(source.replaceAll('type: optional(string)','type: optional(number)')),/Unsupported routes option type/)
+})
 
 test('dynamic template expression drift changes its reviewed fingerprint even at the same arity', () => {
  const original = routeTemplateData(source)

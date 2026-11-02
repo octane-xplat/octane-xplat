@@ -338,6 +338,18 @@ user sinks after returning from the C operation and draining its messages. User
 code can close every handle; detach queued chunks before invoking it and check
 whether the owner is still live before using a retained handle.
 
+For OS callbacks on foreign threads, a bounded C-owned queue keeps those threads
+out of Nim's managed runtime. Drain and allocate Nim values on the event loop.
+Stop/invalidate the foreign event source and drain its callback queue before
+freeing the context. If later Nim initialization raises after opening a foreign
+handle, close that handle explicitly; an unreachable Nim wrapper does not free it.
+
+File events may be coalesced, dropped or delayed. Tie a generation to observed
+input state and recheck that state before publishing; an event alone does not
+prove freshness. Exclude generated files from both notifications and input
+fingerprints so publication does not create a rebuild loop. Keep an active build
+owned until cancellation and cleanup finish before launching its replacement.
+
 Closing a library's handles does not prove its background threads have exited.
 For system libcurl, global cleanup can leave resolver threads running. Keep its
 single lazy library mapping for the process lifetime while closing per-client

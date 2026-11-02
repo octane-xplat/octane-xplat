@@ -290,8 +290,11 @@ and caller umask. Real repository trees are copied with their source-reference
 topology into owned scratch. Compiler analysis runs through an actual selected-
 project worker; stale metadata injection is restricted to the rejection test.
 `test:nim-worker` exercises real analysis/baking, protocol failures, selected-
-project resolution, diagnostics, timeout and process-group cancellation. Public
-routes, baked publication and watch lifecycle remain pending. The public native
+project resolution, diagnostics, timeout and process-group cancellation.
+`test:nim-route-command` compares public baking and watch workflows against Node
+on real copied trees and controlled fixtures. It exercises failure/obsolete-bake
+publication guards, macOS file events, config repair, generated-file exclusions,
+source ownership and process cleanup. The public native
 `typecheck` gate runs real project checker programs, verifies installed ambient
 assets and covers cancellation/process cleanup through `test:nim-typecheck`.
 

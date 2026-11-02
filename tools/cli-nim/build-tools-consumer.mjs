@@ -104,6 +104,13 @@ try {
   assert.equal(rejected.status,1,rejected.stderr)
   assert.match(rejected.stdout+rejected.stderr,/TS2322/)
   rmSync(join(consumer,'tsconfig.envs.json')); rmSync(join(consumer,'native-check.ts'))
+  mkdirSync(join(consumer,'pages'))
+  writeFileSync(join(consumer,'pages/index.tsx'),'throw new Error("screen source must not execute"); export const dataMode = "baked"; export default () => null')
+  writeFileSync(join(consumer,'pages/index.loader.ts'),'export const loader = () => ({ packedNativeRoute: true })')
+  const routed = run(join(path,'bin/xplat.exe'),['routes','--dir','pages'],consumer)
+  assert.match(routed.stdout,/1 route/)
+  assert.match(readFileSync(join(consumer,'routes.gen.data.ts'),'utf8'),/packedNativeRoute/)
+  assert.equal(JSON.parse(readFileSync(join(consumer,'routes.gen.manifest.json'))).routes.length,1)
  }
  cpSync(join(repo,'packages/build/test/typecheck.ts'),join(consumer,'typecheck.ts'))
  writeFileSync(join(consumer,'tsconfig.json'),JSON.stringify({ compilerOptions: {
