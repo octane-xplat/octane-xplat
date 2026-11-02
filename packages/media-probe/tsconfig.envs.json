@@ -1,0 +1,16 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": {
+			"files": [
+				"src/index.ts",
+				"src/haptics.web.ts",
+				"src/player.web.ts",
+				"src/sounds.web.ts"
+			]
+		},
+		"native": {
+			"files": ["src/index.ts", "src/haptics.ts", "src/player.ts", "src/sounds.ts"]
+		}
+	}
+}

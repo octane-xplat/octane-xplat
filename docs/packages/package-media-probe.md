@@ -21,7 +21,9 @@ import {
 } from '@xplat/media-probe'
 ```
 
-The package is plugin-shaped: `platforms/{ios,android}` carries the native
-sources (including the iOS `XplatPulsarBridge` Swift side) that the
-published leaves later absorbed. Keep it for targeted plugin probing —
-anything it proves belongs in the leaf packages before it reaches an app.
+The package is plugin-shaped: `platforms/{ios,android}` carries the plugin
+wiring. iOS keeps the `XplatPulsarBridge` Swift sources; Android needs no
+helper — `include.gradle` puts `com.swmansion.pulsar` on the app classpath
+and `src/haptics.ts` calls the Java-visible SDK directly. Keep it for
+targeted plugin probing — anything it proves belongs in the leaf packages
+before it reaches an app.
