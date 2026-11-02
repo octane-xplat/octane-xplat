@@ -1,3 +1,4 @@
+import { XplatPhotoCaptureSheet } from '@octane-xplat/camera/photo-sheet.macos'
 import type { CapturePhotoOptions, PermissionResult, PickedImage } from './types'
 
 interface PhotoSheet {
@@ -57,17 +58,15 @@ function saveToPhotosLibrary(path: string): void {
 	}
 }
 
-declare const XplatPhotoCaptureSheet: { alloc(): { init(): PhotoSheet } }
-
 let active: PhotoSheet | undefined
 
 /** Query only. Still-photo authorization belongs to the sheet's Capture action. */
 export async function ensureCamera(): Promise<PermissionResult> {
-	if (typeof XplatPhotoCaptureSheet === 'undefined') {
+	if (typeof (globalThis as Record<string, unknown>).NSObject === 'undefined') {
 		return 'unsupported'
 	}
 
-	const sheet = XplatPhotoCaptureSheet.alloc().init()
+	const sheet = new XplatPhotoCaptureSheet()
 	try {
 		const status = String(sheet.permissionStatus())
 		return status === 'granted'
@@ -82,11 +81,11 @@ export async function ensureCamera(): Promise<PermissionResult> {
 
 /** Call from a user action. The sheet owns its preview until it settles. */
 export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<PickedImage | null> {
-	if (active || typeof XplatPhotoCaptureSheet === 'undefined') {
+	if (active || typeof (globalThis as Record<string, unknown>).NSObject === 'undefined') {
 		return null
 	}
 
-	const sheet = XplatPhotoCaptureSheet.alloc().init()
+	const sheet = new XplatPhotoCaptureSheet()
 	active = sheet
 	return new Promise((resolve) => {
 		let settled = false

@@ -89,21 +89,32 @@ independently. Repository-wide lint now passes; keep typechecking explicit
 because NativeScript bundling can continue despite type errors. Bundle emission
 alone cannot qualify the complete app.
 
-AppKit still-photo capture has a separate app-owned sheet. Deterministic checks
-passed 66 lifecycle/ownership assertions and 24 sheet assertions with an injected
-camera backend, including cancel during authorization/capture, denial, busy
-failure, timeout, close, disposal, and JPEG persistence. A nonvisual
-AppKit/JavaScriptCore probe passed ten assertions for native bridge registration,
-query-only permission checks, removal of the direct authorization helper, and
-gallery-save rejection without changing permission. That host enumerated
-zero cameras; no camera access was requested. OS camera input, real authorization
-dialogs, busy-device recovery, and physical JPEG capture remain unqualified.
-Silo experiment `e09bd290-dccc-4e73-8f68-4c5e1e96bd7c` is queued after movie-capture
-qualification and requires exclusive camera access on a camera-equipped Mac.
+AppKit still-photo capture has a separate app-owned sheet, now a TypeScript
+`XplatPhotoCaptureSheet` (`@octane-xplat/camera/photo-sheet.macos`) over the
+ObjC bridge — the Swift leaf is removed. Deterministic lifecycle checks cover
+cancel during authorization/capture, denial, busy failure, timeout, close,
+disposal, and JPEG persistence. The media macos-runtime fixture drives ensure,
+saveToGallery's add-only Photos write, null settles, overlap, ownership
+registry and late-reply discard through the real bridge with an injected
+sheet. `test:macos-runtime` packs the camera package and runs it inside the
+real AppKit/JSC host with declared and undeclared sibling `Info.plist`
+fixtures: device enumeration, permission contract, configure, preview-ready
+through detached session start, movie recording start/finish, and — with a
+granted camera and a real device — a windowed sheet drive
+(`presentOnWindow` → programmatic Capture/Cancel clicks → JPEG → discard →
+teardown). A wrapped `.app` around the same host binary launched through the
+packaged (argc==1) path proves bundle identity — `NSBundle.mainBundle`
+resolves `Contents/Info.plist` usage strings and the linker-signed TCC grant
+carries to the bundle — but neither exec'd nor `open`-launched instances
+become active here (every activation route reachable through the bridge is a
+no-op in this launch context), so no window can become key. The
+`keyWindow ?? mainWindow` routing line and a real bundled `.app` presentation
+remain unqualified, as do OS camera input, real authorization dialogs,
+busy-device recovery and visual display.
 
 ```sh
 pnpm --filter @octane-xplat/media test
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit photo lifecycle"}' -- pnpm --filter @octane-xplat/camera test:macos-photo
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit photo lifecycle"}' -- pnpm --filter @octane-xplat/camera test:macos-runtime
 ```
 
 ## macOS UI sounds

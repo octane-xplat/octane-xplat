@@ -2,11 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nativescript/macos-node-api', () => ({}))
 
+const mocks = vi.hoisted(() => ({ hostInner: undefined as unknown }))
+vi.mock('../src/camera-host.macos.ts', () => ({ createCameraHost: () => mocks.hostInner }))
+
 import { createSessionBackend } from '../src/session-backend.macos'
 import type { BackendCaptureRequest } from '../src/session-core'
 import { CameraCaptureError } from '../src/types'
 
-// AppKit host doubles: XplatCameraHost is the bridged capture-session leaf;
+// AppKit host doubles: createCameraHost is the bridged capture-session leaf;
 // NSFileManager answers the destination admission checks.
 const host = {
 	inner: null as any,
@@ -87,11 +90,8 @@ beforeEach(() => {
 		dispose: () => {},
 	}
 
-	vi.stubGlobal('XplatCameraHost', {
-		alloc: () => ({ init: () => inner }),
-	})
-
 	vi.stubGlobal('NSFileManager', { defaultManager: fs })
+	mocks.hostInner = inner
 	host.inner = inner
 	backend = createSessionBackend({})
 })

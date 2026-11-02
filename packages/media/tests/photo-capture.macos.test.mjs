@@ -10,6 +10,9 @@ const requireShim = (id, context) => {
 	if (id === '@octane-xplat/lib/capability') {
 		return { UnavailabilityError }
 	}
+	if (id === '@octane-xplat/camera/photo-sheet.macos') {
+		return { XplatPhotoCaptureSheet: context.__sheetClass }
+	}
 	const leaf = /^\.(\/file-pick-filter\.macos|\/file-types\.macos|\/file-bytes)$/.exec(id)
 	if (leaf) {
 		const parentExports = context.exports
@@ -37,15 +40,15 @@ async function load(overrides = {}) {
 		exports,
 		setTimeout,
 		clearTimeout,
+		NSObject: class {},
 		NSFileManager: {
 			defaultManager: {
 				temporaryDirectory: { path: '/temp' },
 			},
 		},
-		XplatPhotoCaptureSheet: {
-			alloc: () => ({
-				init() {
-					const host = {
+		__sheetClass: class {
+			constructor() {
+				const host = {
 						permissionStatus() {
 							return 'notDetermined'
 						},
@@ -65,12 +68,11 @@ async function load(overrides = {}) {
 						},
 						...overrides,
 					}
-
 					hosts.push(host)
 					return host
-				},
-			}),
+			}
 		},
+		require: (id) => requireShim(id, context),
 	}
 
 	vm.runInNewContext(ts.transpile(source, { module: ts.ModuleKind.CommonJS }), context)

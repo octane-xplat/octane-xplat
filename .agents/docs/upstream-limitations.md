@@ -58,3 +58,32 @@ the first useMemo inside a shared .ts hook throws at render
 slotting (`useMemo(fn, deps, sym)`). Long-term, upstream could treat
 non-component helper files as renderer-agnostic or honor the app-level
 universal runtime instead of the dom default.
+
+## macos-node-api bridge: member enumeration and selector gaps (camera TS port)
+
+Verified during the AppKit camera TS migration (worktree sleek-heather,
+host bundle shipped by packages/cli/src/macos/jsc-host/prebuilt/macos):
+
+- `NSObject.extend`/class registration only sees *enumerable* methods — the
+  host's ObjC member enumeration ignores non-enumerable class keys, so a
+  TypeScript `class X extends NSObject` must re-mark `ObjCExposedMethods`
+  members enumerable before `NativeClass(this)` or AppKit target/action and
+  delegate dispatch never reach JS (photo-sheet.macos.ts does this in a
+  static block).
+- `captureOutput:didStartRecordingToOutputFileAtURL:fromConnections:` kills
+  the host when delivered to a JS delegate — it fires re-entrantly while
+  `startRecording` is still returning. The camera host omits it from
+  `exposedMethods` and synthesizes `recordingStarted` from `isRecording`
+  polling instead.
+- The long `NSBitmapImageRep` designated initializer
+  (`initWithBitmapDataPlanes:...`) is absent from the bridge metadata; the
+  sheet resizes through `NSImage` + `TIFFRepresentation` and re-encodes via
+  `representationUsingTypeProperties`.
+- `NSObject` fields are not initialized by `alloc().init()` — ObjC
+  construction bypasses JS field initializers, so class state must be lazy
+  (getters/`??=`), never bare field reads on the hot path.
+- `[NSApp activate]`/`activateIgnoringOtherApps:`/`activateWithOptions:`
+  dispatch through the bridge but cannot make a fixture app frontmost in a
+  plain exec/`open` launch context (observed on macOS 27): no `keyWindow` is
+  reachable for bundled-sheet qualification; `open`-launched copies of the
+  linker-signed host do carry the TCC camera grant (same cdhash).

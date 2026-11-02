@@ -239,6 +239,11 @@ try {
 		}
 	}
 
+	if (process.argv.includes('--macos-native')) {
+		const { checkMacOSNative } = await import('./macos-native.mjs')
+		await checkMacOSNative(packedRoot)
+	}
+
 	console.log('camera packed consumer: exports typecheck in Bundler and NodeNext modes')
 } finally {
 	rmSync(temporary, { recursive: true, force: true })

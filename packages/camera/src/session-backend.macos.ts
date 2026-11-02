@@ -1,4 +1,5 @@
 import '@nativescript/macos-node-api'
+import { createCameraHost } from './camera-host.macos.ts'
 
 import { CameraCaptureError } from './types'
 import { canonicalizePath } from './session-core'
@@ -43,9 +44,6 @@ interface CameraHost {
 	dispose(): void
 }
 
-declare const XplatCameraHost: {
-	alloc(): { init(): CameraHost }
-}
 
 type HostEvent =
 	| { type: 'recordingStarted'; fileUrl: string; audio: boolean }
@@ -98,10 +96,10 @@ const usageKey = (kind: CameraPermissionKind) =>
 
 /** AppKit adapter: one XplatCameraHost (AVCaptureSession) shared between the
  *  attached preview and a single AVCaptureMovieFileOutput capture attempt.
- *  The Swift leaf owns the session, inputs, preview layer, and recording
+ *  The TS host owns the session, inputs, preview layer, and recording
  *  delegate; this adapter owns admission, semantics, and contract mapping. */
 export function createSessionBackend(config: CameraSessionConfig): CameraSessionBackend {
-	const host = XplatCameraHost.alloc().init()
+	const host = createCameraHost()
 	let currentConfig = { ...config }
 	let previewReadyFlag = false
 	let observer: BackendObserver | undefined

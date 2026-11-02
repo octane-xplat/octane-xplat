@@ -1,4 +1,5 @@
 import '@nativescript/macos-node-api'
+import { createCameraHost } from './camera-host.macos.ts'
 
 interface CameraHost {
 	attachPreview(view: object): string | null
@@ -12,12 +13,8 @@ interface CameraHost {
 	dispose(): void
 }
 
-declare const XplatCameraHost: {
-	alloc(): { init(): CameraHost }
-}
-
 let helper: CameraHost | undefined
-const helperHost = () => (helper ??= XplatCameraHost.alloc().init())
+const helperHost = () => (helper ??= createCameraHost())
 
 export function cameraHardwarePresent(): boolean {
 	try {
@@ -53,7 +50,7 @@ export function startCameraPreview(
 	_facing: 'front' | 'back',
 	onReady?: () => void,
 ): () => void {
-	const host = XplatCameraHost.alloc().init()
+	const host = createCameraHost()
 	host.installObserver(() => {})
 	const configured = host.configure({ audio: false })
 	if (configured) {

@@ -987,11 +987,13 @@ a missing or busy camera, or closing the window returns `null`, so keep the
 previous image. Preparation and shutter work time out after 15 seconds. The
 [maintained action](../../examples/media/capture-photo.macos.ts) also ignores
 late results after its screen owner ends. Deterministic sheet checks inject the
-camera backend, while the [real-host checks](../../packages/camera/tests/photo-hardware.macos.mjs)
-run the production sheet and AVFoundation against the attached hardware: on a
-camera-equipped Mac they validate the returned JPEG, and on a Mac with no
-camera they qualify the no-device settle. User-granted permission prompts,
-physical unplug and OS input still need a human on a camera-equipped Mac.
+camera backend, while the [real-host checks](../../packages/camera/tests/macos-native.mjs)
+(`bun run --filter @octane-xplat/camera test:macos-runtime`) run the packed
+TypeScript host and sheet inside the real AppKit/JSC host against the attached
+hardware: on a camera-equipped, permission-granted Mac they validate session
+start, movie start/finish, and a windowed Capture→JPEG→discard cycle.
+User-granted permission prompts, bundled-app key-window presentation, physical
+unplug and OS input still need a human on a camera-equipped Mac.
 
 ```ts
 import { media } from '@octane-xplat/media'
@@ -1006,10 +1008,13 @@ export async function takePhoto(current: PickedImage | null) {
 ```
 
 Set `NSCameraUsageDescription` in the AppKit package configuration. Still
-capture requests no microphone access. `saveToGallery: true` rejects before
-permission or UI; macOS library saving is unavailable. Width and height resize
-the returned JPEG; aspect ratio is preserved by default. Mac cameras use the
-default available device; front/rear hints have no AppKit lens mapping.
+capture requests no microphone access. `saveToGallery: true` presents the
+same sheet and, after a successful shot, requests an add-only Photos write —
+add `NSPhotoLibraryAddUsageDescription` to `infoPlist` when you use it; a
+denied or failed write warns and still resolves the shot. Width and height
+resize the returned JPEG; aspect ratio is preserved by default. Mac cameras
+use the default available device; front/rear hints have no AppKit lens
+mapping.
 Movies use the separate [camera session workflow](../../.agents/docs/recipes/camera-movie.md).
 
 ```json
