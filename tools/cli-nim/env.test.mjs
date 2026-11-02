@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync, readFileSync, symlinkSync, rmSync, globSync }
 import { resolve, join, dirname, relative } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { loadEnvManifest, expandEnvPrograms } from '../../packages/cli/src/tsconfig-envs.ts'
+import { loadRoutingConfig } from '../../packages/cli/src/route-config.ts'
 import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild, envProbeInputs } from './native-inputs.mjs'
 
@@ -29,6 +30,7 @@ function expected(request) {
  try {
   let value
   if (request.operation === 'load') value = loadEnvManifest(request.dir)
+  else if (request.operation === 'routing') value = loadRoutingConfig(request.dir, { allowMissingSources: request.allowMissingSources }) ?? null
   else if (request.operation === 'glob') value = globSync(request.pattern, { cwd: request.dir }).map(file => resolve(request.dir, file)).sort()
   else {
    const loaded = loadEnvManifest(request.dir)
@@ -41,7 +43,7 @@ function expected(request) {
   return { ok: true, value }
  } catch (error) { return { ok: false, message: error.message } }
 }
-function compare(requests, { exactErrors = true } = {}) {
+function compare(requests, { exactErrors = true, errorPattern = /(?:invalid JSON|iterable|string|pattern)/ } = {}) {
  const wanted = requests.map(expected)
  const run = spawnSync(binary, [], { input: requests.map(request => JSON.stringify({ ambientRoot, ...request })).join('\n') + '\n', encoding: 'utf8',
   env: { ...process.env, PATH: '' }, timeout: 30_000, maxBuffer: 32 * 1024 * 1024 })
@@ -55,7 +57,7 @@ function compare(requests, { exactErrors = true } = {}) {
    assert.equal(actual[i].ok, wanted[i].ok)
    if (wanted[i].ok) assert.deepEqual(actual[i].value, wanted[i].value)
    else if (exactErrors) assert.equal(actual[i].message, wanted[i].message)
-   else assert.match(actual[i].message, /(?:invalid JSON|iterable|string|pattern)/)
+   else assert.match(actual[i].message, errorPattern)
   } catch { mismatches.push({ request: requests[i], expected: wanted[i], actual: actual[i] }) }
  }
  checked += requests.length
@@ -162,11 +164,94 @@ test('relative roots resolve against cwd and a failed expansion preserves the pr
  assert.equal(readFileSync(configPath, 'utf8'), written)
 })
 
+test('route configuration checks source references without executing application code', () => {
+ const requests = []
+ const missing = fixture(undefined)
+ requests.push({ operation: 'routing', dir: missing })
+ for (const ext of ['', '.ts', '.tsx', '.tsrx', '.mts', '.js', '.mjs']) {
+  const dir = fixture(undefined, [])
+  writeFileSync(join(dir, 'source' + ext), 'throw new Error("route configuration must not execute source")')
+  const config = { directory: 'src/routes', out: 'generated/routes', manifests: [{ module: './source', export: '$routes_2' }],
+   context: { module: './source', export: 'Context' }, transitions: { module: './source', export: 'transitions' },
+   stacks: ['account-flow', '_root', '123'], base: '/app/', allowedOrigins: ['https://example.com'], allowedSchemes: ['octane:'] }
+  writeFileSync(join(dir, 'xplat.routes.json'), JSON.stringify(config))
+  requests.push({ operation: 'routing', dir })
+ }
+ for (const config of [{}, { directory: ' ', out: '.', stacks: [], allowedOrigins: [], allowedSchemes: [] },
+  { context: { module: './absent', export: 'Context' } }]) {
+  const dir = fixture(undefined)
+  writeFileSync(join(dir, 'xplat.routes.json'), JSON.stringify(config))
+  requests.push({ operation: 'routing', dir, allowMissingSources: true })
+ }
+ const wanted = compare(requests)
+ assert.equal(wanted[0].value, null)
+ assert.ok(wanted.every(value => value.ok))
+})
+
+test('invalid route options preserve validation order and repair diagnostics', () => {
+ const configs = [null, [], 0, false, 'string', { unknown: true }, { z: 1, 2: 1, 1: 1 },
+  ...['directory', 'out'].flatMap(key => [null, '', 0, false, []].map(value => ({ [key]: value }))),
+  ...['manifests', 'context', 'transitions'].flatMap(key => [null, 1, 'source', [], { module: './source', export: 'routes', extra: true }].map(value => ({ [key]: value }))),
+  ...['src/source', '/source', '', null].map(module => ({ context: { module, export: 'routes' } })),
+  ...['', '9bad', 'é', 'route-name', 'route\n', null].map(name => ({ context: { module: './source', export: name } })),
+  { context: { module: './absent', export: 'Context' } },
+  ...[null, '', 'flow', [0], [''], ['flow/name'], ['é'], ['flow\n']].map(stacks => ({ stacks })),
+  ...[null, '', '//example.com', 'app', '/app?query', '/app#hash', '/app\\route'].map(base => ({ base })),
+  ...['allowedOrigins', 'allowedSchemes'].flatMap(key => [null, 'value', [null], ['']].map(value => ({ [key]: value }))),
+ ]
+ const requests = configs.map(config => {
+  const dir = fixture(undefined, ['source.ts'])
+  writeFileSync(join(dir, 'xplat.routes.json'), JSON.stringify(config))
+  return { operation: 'routing', dir }
+ })
+ const wanted = compare(requests)
+ // Empty manifests is permitted; references themselves may not be arrays.
+ for (let i = 0; i < wanted.length; i++) {
+  const valid = configs[i]?.manifests?.length === 0
+  assert.equal(wanted[i].ok, valid)
+ }
+})
+
+test('route config remains strict JSON and preserves source existence semantics', () => {
+ for (const source of ['{} // comment', '{"base":"/",}', '{"stacks":[,]}']) {
+  const dir = fixture(undefined)
+  writeFileSync(join(dir, 'xplat.routes.json'), source)
+  const [wanted] = compare([{ operation: 'routing', dir }], { exactErrors: false, errorPattern: /JSON/i })
+  assert.equal(wanted.ok, false)
+ }
+ const dir = fixture(undefined, ['source.cts'])
+ writeFileSync(join(dir, 'xplat.routes.json'), JSON.stringify({ context: { module: './source', export: 'Context' } }))
+ assert.equal(compare([{ operation: 'routing', dir }])[0].ok, false, '.cts is not an inferred config-reference suffix')
+ mkdirSync(join(dir, 'source'))
+ assert.equal(compare([{ operation: 'routing', dir }])[0].ok, true, 'existsSync permits a directory at the literal module path')
+})
+
+test('tracked route configurations validate against their real referenced sources', () => {
+ const tracked = spawnSync('git', ['ls-files', '-z', '**/xplat.routes.json'], { cwd: root, encoding: 'utf8' })
+ assert.equal(tracked.status, 0, tracked.stderr)
+ const paths = tracked.stdout.split('\0').filter(Boolean)
+ assert.ok(paths.length >= 7, 'must inspect the maintained route configuration surface')
+ const wanted = compare(paths.map(path => ({ operation: 'routing', dir: dirname(join(root, path)) })))
+ assert.ok(wanted.filter(value => value.ok).length >= 3, 'must exercise real successful config loading')
+ console.log(`${paths.length} real route configurations, ${wanted.filter(value => value.ok).length} valid with referenced sources present`)
+})
+
+test('config paths preserve semantic UTF-16 while filesystem calls replace lone units and reject NUL', () => {
+ const unit = String.fromCharCode(0xd800)
+ const dir = fixture(web({ files: [`src/${unit}.ts`] }), ['src/\ufffd.ts', 'source\ufffd.ts', 'source'])
+ writeFileSync(join(dir, 'xplat.routes.json'), JSON.stringify({ context: { module: './source' + unit, export: 'Context' } }))
+ assert.ok(compare([{ operation: 'expand', dir }, { operation: 'routing', dir }]).every(value => value.ok))
+ writeFileSync(join(dir, 'xplat.routes.json'), JSON.stringify({ context: { module: './source\0ignored', export: 'Context' } }))
+ assert.equal(compare([{ operation: 'routing', dir }])[0].ok, false)
+ writeFileSync(join(dir, 'tsconfig.envs.json'), JSON.stringify(web({ files: ['src/\0ignored.ts'] })))
+ assert.equal(compare([{ operation: 'expand', dir }])[0].ok, false)
+})
+
 test('repository manifests expand against their real source files', () => {
  const paths = globSync('{packages,apps,tools}/*/tsconfig.envs.json', { cwd: root })
  assert.ok(paths.length >= 25, 'must check the real repository surface')
  const requests = paths.map(path => ({ operation: 'expand', dir: dirname(join(root, path)) }))
  const wanted = compare(requests)
  assert.ok(wanted.filter(result => result.ok).length >= 25, 'must produce successful real programs')
- console.log(`${checked} total environment differential cases, ${paths.length} repository manifests (${wanted.filter(value => value.ok).length} successful programs)`)
+ console.log(`${checked} total native configuration differential cases, ${paths.length} repository manifests (${wanted.filter(value => value.ok).length} successful programs)`)
 })

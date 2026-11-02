@@ -1,6 +1,7 @@
 ## Test-only environment expansion driver, excluded from the native tarball.
 import std/[json, os]
 import ../../packages/cli/nim/[typecheck_envs, strictjson, jsonutil, json_wire, workspace_glob]
+import ../../packages/cli/nim/route_config
 for line in stdin.lines:
   try:
     let request = parseStrictJson(line)
@@ -8,6 +9,7 @@ for line in stdin.lines:
     var value: JsonNode
     case text(request["operation"])
     of "load": value = loadEnvManifest(dir)
+    of "routing": value = loadRoutingConfig(dir,field(request,"allowMissingSources") == %true)
     of "expand":
       let loaded = loadEnvManifest(dir)
       if loaded == nil: value = newJNull()

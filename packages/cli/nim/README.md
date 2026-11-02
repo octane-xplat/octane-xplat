@@ -64,6 +64,10 @@ bytes. Its differential gate exercises real repository manifests and filesystem
 glob semantics. The caller still supplies an ambient source root explicitly;
 installed resource resolution, route generation and tagged compiler execution
 must be connected before public `typecheck` is implemented.
+`route_config.nim` validates declarative route paths, source references and
+navigation settings without executing application modules. Its checks cover
+the repository's actual route configurations; export analysis and generated
+contract/catalog emission remain separate migration work.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

@@ -194,6 +194,13 @@ and the canonical target: an allowed alias can point at a private file or outsid
 the corpus, while an alias to the corpus root must support ordinary safe reads.
 Keep lexical keys for references and canonical paths for containment checks.
 
+Keep semantic paths separate from OS byte paths. JSON can preserve an unpaired
+UTF-16 unit, while Node filesystem calls encode that unit as a replacement
+character. Apply `utf8ForWrite` at the filesystem boundary and retain the
+original semantic path in generated JSON. Reject embedded NUL before passing a
+path to a C string API; truncation must not make an invalid path resolve to an
+existing file.
+
 Hash explicit UTF-8 bytes with a pinned implementation and compare lowercase
 hex digests against independent vectors. Do not add a runtime crypto-library
 dependency just to calculate local content fingerprints. For filesystem time

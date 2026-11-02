@@ -12,7 +12,10 @@ const libOrder = ["ESNext", "DOM", "DOM.Iterable"]
 
 proc nullish(node: JsonNode): bool = node == nil or node.kind == JNull
 proc absolute(dir, path: string): string = normalizedPath(absolutePath(path,absolutePath(dir)))
-proc exists(path: string): bool = fileExists(path) or dirExists(path)
+proc exists(path: string): bool =
+  if '\0' in path: return false
+  let bytes = utf8ForWrite(path)
+  fileExists(bytes) or dirExists(bytes)
 
 proc jsCompare(left, right: string): int =
   let a = utf16Units(left)
@@ -20,28 +23,6 @@ proc jsCompare(left, right: string): int =
   for i in 0..<min(a.len,b.len):
     if a[i] != b[i]: return cmp(a[i],b[i])
   cmp(a.len,b.len)
-
-proc jsObjectKeys(node: JsonNode): seq[string] =
-  if nullish(node): return
-  case node.kind
-  of JObject:
-    var indices: seq[tuple[index: uint64, key: string]]
-    for key, value in node:
-      try:
-        let number = parseBiggestUInt(key)
-        if number < 4294967295'u64 and $number == key:
-          indices.add((number,key)); continue
-      except ValueError: discard
-      result.add(key)
-    indices.sort(proc(a,b: tuple[index: uint64, key: string]): int = cmp(a.index,b.index))
-    var ordered: seq[string]
-    for item in indices: ordered.add(item.key)
-    result = ordered & result
-  of JArray:
-    for i in 0..<node.len: result.add($i)
-  of JString:
-    for i in 0..<utf16Length(node.getStr()): result.add($i)
-  else: discard
 
 proc property(node: JsonNode, key: string): JsonNode =
   if node.kind == JObject: return node[key]
@@ -67,7 +48,7 @@ proc loadEnvManifest*(dir: string): JsonNode =
   let path = dir / envManifest
   if not exists(path): return nil
   var manifest: JsonNode
-  try: manifest = parseJsonc(decodeUtf8(readFile(path)))
+  try: manifest = parseJsonc(decodeUtf8(readFile(utf8ForWrite(path))))
   except ValueError as error:
     raise newException(ValueError,path & ": invalid JSON — " & error.msg)
   if manifest.kind != JObject:
@@ -218,7 +199,7 @@ proc expandEnvPrograms*(dir: string, loaded: JsonNode, ambientRoot: string): Jso
   let config = %*{"extends": loaded["path"],"compilerOptions": options,
     "files": allFiles,"include": [],"exclude": []}
   let outDir = dir / "node_modules" / ".cache" / "xplat-typecheck"
-  createDir(outDir)
+  createDir(utf8ForWrite(outDir))
   let configPath = outDir / "all.json"
-  writeFile(configPath,tabJson(config))
+  writeFile(utf8ForWrite(configPath),tabJson(config))
   %*[{"env": "all","configPath": configPath,"files": allFiles}]

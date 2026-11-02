@@ -1,4 +1,4 @@
-import std/[json, math, strutils]
+import std/[json, math, strutils, algorithm]
 import ./strictjson, ./js_text
 from ./args import jsNumber
 
@@ -46,3 +46,25 @@ proc deps*(n: JsonNode): JsonNode =
     let d = field(n, section)
     if d != nil and d.kind == JObject:
       for k, v in d: result[k] = v
+
+proc jsObjectKeys*(node: JsonNode): seq[string] =
+  if node == nil or node.kind == JNull: return
+  case node.kind
+  of JObject:
+    var indices: seq[tuple[index: uint64, key: string]]
+    for key, value in node:
+      try:
+        let number = parseBiggestUInt(key)
+        if number < 4294967295'u64 and $number == key:
+          indices.add((number,key)); continue
+      except ValueError: discard
+      result.add(key)
+    indices.sort(proc(a,b: tuple[index: uint64, key: string]): int = cmp(a.index,b.index))
+    var ordered: seq[string]
+    for item in indices: ordered.add(item.key)
+    result = ordered & result
+  of JArray:
+    for i in 0..<node.len: result.add($i)
+  of JString:
+    for i in 0..<utf16Length(node.getStr()): result.add($i)
+  else: discard
