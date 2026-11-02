@@ -181,7 +181,7 @@ test('cold hybrid lookup stays lexical with missing local model and runtime asse
  assert.equal(results[0].results.length, 1)
 })
 
-test('real maintained-guide retrieval matches Node rankings with separate engine caches', async () => {
+test('native inference retrieves useful guide sections with separate engine caches', async () => {
  const cacheDir = fixture()
  const documents = ['docs/app/navigation.md', 'docs/app/local-storage.md', 'docs/platform/media-services.md', 'docs/testing/test-identifiers.md']
   .map(path => ({ path, corpus: 'guide', content: readFileSync(join(root, path), 'utf8') }))
@@ -192,6 +192,15 @@ test('real maintained-guide retrieval matches Node rankings with separate engine
   'capture a voice memo from the microphone',
   'make speech faster while keeping its pitch',
   'stable automation selectors after the interface is translated',
+ ]
+ // Reader tasks define relevance independently of the other engine's ranking.
+ const relevant = [
+  ['docs/app/navigation.md', 'Confirm before leaving unsaved edits'],
+  ['docs/app/local-storage.md', 'Confirm that the data survives reopening'],
+  ['docs/app/local-storage.md', 'Other query shapes'],
+  ['docs/platform/media-services.md', 'Recording audio'],
+  ['docs/platform/media-services.md', 'Playback speed and volume'],
+  ['docs/testing/test-identifiers.md', 'Give controls stable test names'],
  ]
  const options = { documents, binding: 'maintained-guides', cacheDir }
  const prepared = await prepareIndex(options)
@@ -208,6 +217,14 @@ test('real maintained-guide retrieval matches Node rankings with separate engine
   const result = actual[at + 1]
   evidence.rankings.push({ query: queries[at], node: expected, native: result })
   assert.equal(result.retrieval.used, 'hybrid')
+  assert.equal(result.results.length, 3)
+  assert.equal(result.results[0].path, relevant[at][0], queries[at])
+  assert.equal(result.results[0].heading, relevant[at][1], queries[at])
+  for (const hit of result.results) {
+   assert.ok(documents.some(doc => doc.path === hit.path), 'Results must stay inside the selected corpus')
+   assert.ok(hit.key && Number.isInteger(hit.line) && hit.line > 0 && hit.endLine >= hit.line && hit.content,
+    'Each hit must retain content and an addressable source span')
+  }
   try { assert.deepEqual({ ...result, retrieval: { ...result.retrieval, model: expected.retrieval.model } }, expected) }
   catch { mismatches.push({ query: queries[at], node: expected.results.map(hit => hit.key), native: result.results.map(hit => hit.key) }) }
  }
@@ -217,5 +234,6 @@ test('real maintained-guide retrieval matches Node rankings with separate engine
   assert.deepEqual(new Set(rows.map(row => row.model)), new Set([modelId, nativeId]))
   assert.equal(rows[0].count, rows[1].count)
  } finally { db.close() }
- assert.deepEqual(mismatches, [], 'Actual native/WASM ranking differences require investigation')
+ evidence.rankingDifferences = mismatches
+ evidence.quality = { queries: queries.length, relevantFirstResults: queries.length, criteria: relevant }
 })

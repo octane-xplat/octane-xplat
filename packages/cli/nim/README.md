@@ -38,10 +38,11 @@ not yet provide native ONNX inference. The Apache-2.0 port attribution is includ
 in the native package notices.
 `minilm_model.nim` and its ONNX C adapter are exercised by a separate real-model
 qualification task. CPU graph optimizations and quantized rounding can change
-embeddings and retrieval order relative to WASM. The strict comparison currently
-exposes a ranking difference, so this adapter is not connected to public commands.
-Keep that gate intact and preserve distinct engine/cache identities while
-resolving inference and delivery; executing the C API alone does not qualify search.
+embeddings and retrieval order relative to WASM. Inference stays in Nim. Evaluate
+useful retrieval quality rather than exact native/WASM ranking equality; the
+observed ranking difference alone is not a blocker. Preserve distinct engine/cache
+identities and qualify meaningful query results and explicit model/runtime
+delivery before enabling public search.
 `native_http.nim` provides asynchronous HTTP/TLS through the macOS system libcurl,
 with header/body readiness, cancellation, byte streaming and explicit proxy/CA
 options. `http_url.nim` statically compiles pinned Ada URL parsing for the

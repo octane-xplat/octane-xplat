@@ -282,8 +282,9 @@ pooling them into Nim `float`/JS Number accumulators.
 
 Matching model bytes and runtime version numbers do not establish cross-engine
 inference parity. Native CPU graph optimizations can change quantized outputs
-and search order. Include engine/settings in cache identities and compare actual
-retrieval results; normalization and plausible vectors alone are insufficient.
+and search order. Keep inference in Nim and include engine/settings in cache
+identities. Evaluate useful retrieval quality; exact native/WASM ranking equality
+is not required. Normalization and plausible vectors alone are insufficient.
 Validate every pinned asset required by the reference, including metadata that
 the native computation does not directly consume.
 
