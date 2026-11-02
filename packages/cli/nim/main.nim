@@ -2,6 +2,7 @@
 import ./core, ./args, ./workspace, ./strictjson, ./json_wire, ./js_text, ./process_exit
 import ./typecheck_command, ./managed_process
 import ./routes_command
+import ./agent_host
 import std/[sysrand, terminal, json, os, strutils, asyncdispatch]
 
 const metadata = staticRead("metadata.json")
@@ -10,6 +11,17 @@ let argv = block:
   var decoded: seq[string]
   for arg in commandLineParams(): decoded.add(decodeUtf8(arg))
   decoded
+if argv.len > 0 and argv[0] == "--internal-agent-host":
+  if argv.len != 2: exitProcess(2)
+  var idleMs = 120000
+  try: idleMs = max(250,parseInt(getEnv("XPLAT_AGENT_HOST_IDLE_MS","120000")))
+  except ValueError: discard
+  try:
+    waitFor runNativeHost(argv[1],%*{"name": "@octane-xplat/cli","version": data["version"]},idleMs=idleMs)
+    exitProcess(0)
+  except CatchableError as error:
+    stderr.writeLine(utf8ForWrite("Native host startup/shutdown failed: " & error.msg))
+    exitProcess(1)
 proc requestId(): string =
   var bytes = urandom(16)
   bytes[6] = (bytes[6] and 15) or 64
@@ -44,7 +56,7 @@ proc errorExit(code: string): int =
 
 if argv.len == 0 or argv == @["--help"] or argv == @["-h"]:
   echo "xplat — experimental Nim CLI"
-  echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, permissions, app select, code search, code read, guidance, docs read; all agent commands expose --help and --schema."
+  echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, permissions, app select, code search, code read, guidance, docs read, session list/status/end, job status/cancel; all agent commands expose --help and --schema."
   echo "Other command execution is pending. Install @octane-xplat/cli@latest for the TypeScript CLI."
   quit(0)
 if argv == @["--version"]:
@@ -86,12 +98,14 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, permissions, app select, code search, code read, guidance, docs read. Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, permissions, app select, code search, code read, guidance, docs read, session list/status/end, job status/cancel. Other command execution is pending; use --json for contracts and coverage."
     quit(0)
   var reply: JsonNode
   if name in ["status","capabilities"]:
     installProcessSignalHandlers()
     reply = waitFor workspaceStatusCommand(name,parsed["values"],data)
+  elif name in ["session list","session status","session end","job status","job cancel"]:
+    reply = waitFor workspaceHostCommand(name,parsed["values"])
   else: reply = workspaceCommand(name, parsed["values"])
   if reply != nil:
     if truthy(field(parsed["values"],"json")): emit(reply)

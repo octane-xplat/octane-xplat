@@ -16,8 +16,9 @@ bakes data and watches route/configuration edits on macOS, with owned worker
 cancellation and last-good publication. Keep generated output paths stable while
 watching. Route planning/rendering runs in the selected project's build worker;
 Nim validates the artifact plan and owns publication and the worker's lifecycle.
-Full build/dev
-and app-session workflows remain pending; keep using the TypeScript CLI for those.
+Session list/status/end and job status/cancel use the authenticated native host
+on macOS. Reads never start it. Its private per-workspace cache survives project
+cache cleanup. Full build/dev and app-session creation workflows remain pending; keep using the TypeScript CLI for those.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the
 [native migration boundaries](../../../../packages/cli/nim/README.md).

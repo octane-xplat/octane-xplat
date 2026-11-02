@@ -26,6 +26,9 @@ proc closeSocket(socket: AsyncSocket) =
     try: socket.close()
     except CatchableError: discard
 
+proc peerCount*(server: RpcServer): int =
+  if server == nil: 0 else: server.peers.len
+
 proc frame(socket: AsyncSocket, maximum: int): Future[JsonNode] {.async.} =
   var bytes: string
   while true:

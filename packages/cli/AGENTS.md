@@ -218,6 +218,19 @@ child, never a PID merely read from a stale descriptor. Export read-only PID
 accessors and track acquired ownership explicitly: a default-initialized Nim
 resource object contains zeroes, which must not mean owned FD 0 or process group 0.
 
+Keep host discovery and lifetime locks outside caches removed by dependency
+installs or `clean`. A descriptor check followed by a signal is not an atomic
+ownership decision: hold the publication lock across failed-startup checks and
+termination, and preserve a child when publication ownership is ambiguous.
+Remove only descriptor/socket paths whose device/inode still match the owned
+object; replacing a path does not transfer ownership of its replacement.
+
+Open candidate private files with `O_NONBLOCK` before checking `fstat` for a
+regular file. Otherwise opening a FIFO can block before validation ever runs.
+When importing both `posix` and `nativesockets`, qualify socket domain/type/protocol
+constants so overload resolution receives the intended enum types, not ambiguous
+POSIX constants.
+
 Represent a successful empty command response separately from failure until the
 caller applies its policy. A tool-presence check may reject empty output, while
 another query accepts it. Cancellation is a separate error: never turn an aborted

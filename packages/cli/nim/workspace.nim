@@ -4,6 +4,7 @@
 import std/[times, json, os, strutils, asyncdispatch]
 import ./core, ./args, ./code_service, ./json_wire, ./docs_service
 import ./project_status, ./command_probe
+import ./host_client, ./contract_failure
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -182,7 +183,58 @@ proc workspaceStatusCommand*(name: string, values, metadata: JsonNode): Future[J
     result["ok"] = %false
     result["error"] = %*{"code": (if error of ProbeCancelledError: "cancelled" else: "execution_failure"),"message": error.msg}
 
+proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.async.} =
+  var context: WorkspaceContext
+  try: context = makeContext(values)
+  except CatchableError as error:
+    return %*{"contractVersion": 1,"ok": false,"context": {"command": name,"projectId": newJNull()},"error": failureData(error)}
+  result = %*{"contractVersion": 1,"ok": true,"context": envelopeContext(context,name,values)}
+  try:
+    let host = await connectNativeHost(context.root)
+    if host == nil:
+      if name == "session list": result["data"] = %*{"sessions": []}; return
+      raise contractFailure("not_found","No agent runtime host is running — no sessions or jobs exist for this workspace.")
+    var methodName: string
+    var params = newJObject()
+    case name
+    of "session list": methodName = "sessions.list"
+    of "session status", "session end":
+      methodName = if name == "session status": "sessions.get" else: "session.end"
+      params["sessionId"] = values["sessionId"]
+    of "job status", "job cancel":
+      methodName = if name == "job status": "jobs.status" else: "jobs.cancel"
+      params["jobId"] = values["jobId"]
+    else: raise contractFailure("invalid_selection","Unknown native host command")
+    var grants = newJArray()
+    for grant in grantList():
+      if text(grant["state"]) == "granted": grants.add(grant["scope"])
+    let appId = if context.boundApp == nil: newJNull() else: context.boundApp["id"]
+    let reply = await host.callNativeHost(methodName,params,appId,grants)
+    if field(reply,"ok") != %true:
+      result["ok"] = %false
+      result["error"] = reply["error"]
+    else: result["data"] = reply["result"]
+  except CatchableError as error:
+    result["ok"] = %false
+    result["error"] = failureData(error)
+
 proc workspaceHuman*(name: string, payload: JsonNode): string =
+  if name == "session list":
+    var lines: seq[string]
+    for session in payload["sessions"]:
+      lines.add(text(session["sessionId"]) & " — " & text(session["platform"]) & " on " & text(session["targetId"]) &
+        " (" & text(session["ownership"]) & ", " & text(session["state"]) & ")")
+    return if lines.len == 0: "No retained sessions." else: lines.join("\n")
+  if name == "session status": return wireJson(payload["session"],pretty=true)
+  if name in ["job status","job cancel"]: return wireJson(payload["job"],pretty=true)
+  if name == "session end":
+    let ended = payload["result"]
+    var lines = @[text(ended["sessionId"]) & ": " & (if ended["ended"].getBool(): "ended" else: "not found")]
+    for key in ["released","preserved"]:
+      let items = field(ended,key)
+      if items != nil:
+        for item in items: lines.add("  " & key & ": " & text(item))
+    return lines.join("\n")
   if name == "status":
     var lines = @["Workspace: " & text(payload["identity"]["workspace"]["root"]) & " (" & text(payload["identity"]["workspace"]["kind"]) & ")",
       "Server: " & text(payload["server"]["name"]) & "@" & text(payload["server"]["version"])]

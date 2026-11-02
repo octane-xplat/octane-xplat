@@ -154,8 +154,16 @@ before generating files:
 /path/to/octane-xplat/research/nim-cli/native/xplat routes --watch
 ```
 
-Build/dev and app-session orchestration remain migration work. Inspect the native
-catalog before using another workflow:
+Native session and job commands read retained state from a background owner for
+the workspace. A read does not start that process; with no owner, the session list
+is empty. Each CLI implementation owns its runtime state. Native build/dev and
+app-session creation remain migration work:
+
+```sh
+/path/to/octane-xplat/research/nim-cli/native/xplat session list --json
+```
+
+Inspect the native catalog before using another workflow:
 
 ```sh
 /path/to/octane-xplat/research/nim-cli/native/xplat catalog --json

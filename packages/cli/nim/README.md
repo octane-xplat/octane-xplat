@@ -3,7 +3,7 @@
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
 status, capabilities, clean, typecheck, routes, app selection, permissions, code search, code read, guidance
-and docs read; other agent commands provide help and schemas with execution marked
+and docs read, session list/status/end and job status/cancel; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -66,7 +66,7 @@ without launching a browser. These helpers do not qualify SDKs/devices.
 docs/code status, permissions and native capabilities. It supplies owned async
 observations to synchronous read services instead of starting another Git process
 there. `capabilities.nim` reports only the providers wired into the native build;
-runtime/session/evidence operations remain unavailable and semantic retrieval
+runtime/session creation and evidence providers remain unavailable and semantic retrieval
 remains partial. Contract IDs and product boundaries are embedded from the
 canonical reference at build time.
 `target_discovery.nim` adds bounded read-only simctl/adb inventory and host
@@ -77,27 +77,34 @@ and busy-state composition land; inventory does not establish launch readiness.
 owned cleanup. Concurrent ends share completion; attached bindings preserve their
 external process. Snapshot mutation and observer exceptions cannot change private
 ownership or bypass cleanup. Its process fixture verifies cleanup before the outer
-test owner closes. Runtime/IPC composition and public session commands remain
-pending; an in-memory registry does not establish a persistent app session.
+test owner closes. The native host now retains these records across CLI invocations. Real app
+launch/attach composition remains pending.
 `jobs.nim` adds request deduplication, progress, bounded terminal history and
 cooperative cancellation. It retains runner ownership until completion and drains
 runners on close. Immediate completed futures can produce a terminal start result;
 no JS microtask schedule is assumed. `contract_failure.nim` carries structured
 errors across async boundaries with a fallback for ordinary/uninitialized errors.
-Public jobs/runtime commands remain pending until the native host is connected.
+Public job status/cancel now use the native host; creation of application jobs
+and runtime commands still needs the project-engine adapters.
 `unix_rpc.nim` supplies bounded one-request NDJSON over macOS Unix sockets, with
 Node interoperability, input/output byte limits, I/O deadlines and draining close.
 It preserves existing/replacement socket paths and never owns an application's
-process merely because its client disconnects. Authentication, descriptor/startup
-coordination and persistent host composition remain separate work.
-`host_bootstrap.nim` provides a private lifetime lock and explicit detached launch
-on macOS. It resets signal dispositions, creates a separate session, redirects
-stdin/logs and closes unrelated descriptors. Unpublished startup can be terminated
-and reaped; default handles cannot close stdin or signal a process group. The
-native host's authentication, publication/handoff and runtime dispatcher remain
-unimplemented.
-These boundaries are exercised by the combined core and focused process gate;
-they do not establish build-tool, app-session or IPC orchestration. Descendants
+process merely because its client disconnects. `host_bootstrap.nim` provides the
+private lifetime lock and detached same-executable launch; `host_storage.nim`
+provides a native-only per-workspace namespace under `~/.cache/octane-xplat/`.
+Host discovery stays outside project dependency caches so `clean` or reinstalling
+dependencies cannot erase a live owner's credentials or publication lock.
+`host_client.nim` discovers authenticated hosts without spawning on reads.
+`agent_host.nim` composes RPC authentication, private descriptor publication,
+retained jobs/sessions, idle/signal shutdown and ownership-safe cleanup.
+Unpublished startup termination is guarded by the publication lock; descriptor
+PIDs never authorize signalling. Default handles cannot close stdin or signal a
+process group. Public session list/status/end and job status/cancel connect to
+this native owner. Application build/launch/attach engines and their public
+creation commands remain pending; fixture-owned processes qualify lifecycle
+composition without claiming real app readiness.
+These boundaries are exercised through independent CLI invocations and actual
+native child/descendant processes on macOS. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
 the process-group cleanup guarantee. Other process host adapters are unimplemented.
 `typecheck_envs.nim` expands the combined environment program natively, preserving

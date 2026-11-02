@@ -33,8 +33,8 @@ when defined(macosx):
   proc osBytes(value: string): string =
     if '\0' in value: raise newException(ValueError,"Host bootstrap path or argument contains NUL")
     utf8ForWrite(value)
-  proc privateFile(path: string, flags: cint): cint =
-    result = posix.open(cstring(osBytes(path)),flags or openNoFollow or openCloseExec,Mode(0o600))
+  proc openPrivateHostFile*(path: string, flags: cint): cint =
+    result = posix.open(cstring(osBytes(path)),flags or O_NONBLOCK or openNoFollow or openCloseExec,Mode(0o600))
     if result < 0: raiseOSError(osLastError())
     var info: Stat
     if fstat(result,info) != 0:
@@ -46,7 +46,7 @@ when defined(macosx):
       raise newException(OSError,"Native host files must be private regular files owned by the current user")
 
   proc tryHostLock*(path: string): HostLock =
-    let fd = privateFile(path,O_RDWR or O_CREAT)
+    let fd = openPrivateHostFile(path,O_RDWR or O_CREAT)
     if fileLock(fd,lockExclusive or lockNonblocking) == 0: return HostLock(fd: fd,owned: true)
     let error = osLastError()
     discard posix.close(fd)
@@ -71,7 +71,7 @@ when defined(macosx):
       if '=' in key: raise newException(ValueError,"Environment names cannot contain equals")
       env.add(osBytes(key) & "=" & osBytes(value))
     let childCwd = osBytes(cwd)
-    var log = privateFile(logPath,O_WRONLY or O_CREAT or O_APPEND)
+    var log = openPrivateHostFile(logPath,O_WRONLY or O_CREAT or O_APPEND)
     if log <= 2:
       let moved = fcntl(log,duplicateCloseExec,cint(3))
       let error = osLastError()
