@@ -202,10 +202,14 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 			setSourceReady(true)
 			if restoringPreview { restoringPreview = false; removeOverlay() }
 		}
+		consume(sampleBuffer, isVideo: output === video)
+	}
+
+	private func consume(_ sampleBuffer: CMSampleBuffer, isVideo: Bool) {
 		guard writer != nil, !stopping else { return }
 		if writer?.status == .failed || writer?.status == .cancelled { warning = writer?.error?.localizedDescription ?? "Movie writer became unavailable"; finish(); return }
 		let time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-		if output === video {
+		if isVideo {
 			guard let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 			let portrait = orientation == .portrait || orientation == .portraitUpsideDown
 			if portrait && CVPixelBufferGetWidth(buffer) > CVPixelBufferGetHeight(buffer) { return }

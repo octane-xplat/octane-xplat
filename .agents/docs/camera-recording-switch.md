@@ -87,3 +87,19 @@ signed physical-device testing is available; it does not establish public suppor
 Standalone source findings, platform evidence and the private consumer migration
 belong in `~/dev/reports/octane-xplat/camera-recording-switch.md`. Qualification
 must distinguish encoded timing and native source events from visual results.
+
+The native writer has a [generated-media simulator test](../../packages/camera/tests/ios-writer-simulator.mjs).
+It appends a test-only Swift extension to a temporary copy of the maintained
+writer, feeds generated video and PCM audio, and reads compressed packet
+metadata without decoding images. The inspector expands batched samples and
+counts zero-sample reader markers separately from encoded media packets.
+Run from the agent environment with SSH access to the remote Mac:
+
+```sh
+XPLAT_IOS_WRITER_HOST=skymac.local bun run turbo run test:ios-writer --filter=@octane-xplat/camera
+```
+
+Omit the environment variable for local execution. The runner reserves
+compilation and device phases separately and removes its owned simulator.
+This does not exercise real camera input replacement, microphone hardware,
+preview overlays or orientation visuals; keep the physical-device gate.
