@@ -114,10 +114,13 @@ export function resolveTsrxLeaf(
 	// Redirecting that import back to the importer would create a module cycle.
 	// Returning null here still lets ambient moduleSuffixes resolution prefer the
 	// platform leaf — return the literal base so the delegation lands on it.
-	const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
+	const importerFile = importer
+		.split(/[?#]/, 1)[0]
+		.replace(/^\/@fs\//, '/')
+		.replaceAll('\\', '/')
 	const delegatesToBase =
 		importerFile.replace(/\.(web|ios|android|mobile|macos|windows|linux|gtk)\.tsrx$/, '.tsrx') ===
-		fallback
+		fallback.replaceAll('\\', '/')
 	if (delegatesToBase) {
 		return existsSync(fallback) ? fallback.replaceAll('\\', '/') + query : null
 	}
