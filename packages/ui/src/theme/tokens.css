@@ -3446,7 +3446,7 @@
 
 	.vx-codeblock-pre {
 		margin: 0;
-		padding: 8px 12px;
+		padding: var(--spacing-3, 12px) var(--spacing-4, 16px);
 	}
 
 	.vx-codeblock-code {

@@ -14,6 +14,7 @@ import type { JSX } from 'octane/jsx-runtime'
 export function MdRowList(props: {
 	ordered?: boolean
 	start?: number
+	style?: Record<string, unknown>
 	children?: unknown
 }): JSX.Element @{
 	return (
@@ -21,6 +22,7 @@ export function MdRowList(props: {
 			listStyle={props.ordered ? 'decimal' : 'disc'}
 			density="compact"
 			start={props.ordered ? props.start : undefined}
+			style={props.style as never}
 		>
 			{props.children}
 		</List>

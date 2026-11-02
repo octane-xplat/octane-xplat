@@ -567,7 +567,9 @@ function ListItems(props: {
 	}
 
 	return (
-		<MdRowList ordered={node.ordered} start={node.start}>
+		// Rows reach one spacing-2 inset past the container line on each side,
+		// like the reference's `blockIndent` on the list itself.
+		<MdRowList ordered={node.ordered} start={node.start} style={{ marginLeft: -8, marginRight: -8 }}>
 			{node.children.map((item, j) => {
 				// A task item beside plain items keeps its own checked state: it
 				// shows a read-only checkbox where its marker would be, named by
@@ -650,8 +652,18 @@ function Blocks(props: {
 					Comp ? (
 						<Comp code={node.value} language={legacyLanguage} />
 					) : (
-						<View style={{ ...margin, ...blockAlignStyle(), maxWidth: '100%' } as never}>
-							<CodeBlock code={node.value} language={language} isDiff={fence.isDiff} isCollapsible isWrapped />
+						<View
+							className="vx-md-codeblock"
+							style={{ ...margin, ...blockAlignStyle(), maxWidth: '100%' } as never}
+						>
+							<CodeBlock
+								code={node.value}
+								language={language}
+								isDiff={fence.isDiff}
+								isCollapsible
+								isWrapped
+								width="100%"
+							/>
 						</View>
 					),
 				)
@@ -677,7 +689,7 @@ function Blocks(props: {
 				break
 			case 'list':
 				blocks.push(
-					<View style={{ ...margin, ...proseStyle(), marginLeft: -8 } as never}>
+					<View style={{ ...margin, ...proseStyle() } as never}>
 						<ListItems node={node} segKey={segKey} ctx={props.ctx} contentWidth={props.contentWidth} contentAlign={props.contentAlign} compact={props.compact} />
 					</View>,
 				)
@@ -880,6 +892,14 @@ export function Markdown(props: MarkdownProps): unknown @{
 			maxWidth: '100%',
 			minWidth: 0,
 			overflowWrap: 'break-word',
+			...(contentWidthValue != null
+				? {
+						'--vx-md-content-width':
+							typeof contentWidthValue === 'number'
+								? `${contentWidthValue}px`
+								: contentWidthValue,
+					}
+				: {}),
 			fontFamily: 'var(--font-family-body, inherit)',
 			color: 'var(--color-text-primary, inherit)',
 			lineHeight: 'var(--text-body-leading, 1.4286)',

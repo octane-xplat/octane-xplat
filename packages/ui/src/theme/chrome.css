@@ -2389,14 +2389,13 @@
 
 	.vx-codeblock-pre {
 		font-family: var(--font-mono);
-		font-size: 13px;
-		line-height: 18px;
+		font-size: var(--text-code-size, 14px);
+		line-height: var(--text-code-leading, 1.4286);
 		color: var(--color-text);
 	}
 
 	.vx-codeblock--sm .vx-codeblock-pre {
-		font-size: 12px;
-		line-height: 16px;
+		font-size: var(--text-supporting-size, 12px);
 	}
 
 	.vx-codeblock-gutter {
@@ -3650,11 +3649,28 @@
 	list-style: none;
 	margin: 0;
 	padding: 0;
+	/* xplat-web-only:start — flex column + inter-row gap (Astryx List
+	   `gap: spacing-0-5`, 0 with dividers); clip keeps outset/bleed rows
+	   from painting past the inline edge. */
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-0-5, 2px);
+	overflow-x: clip;
+	/* xplat-web-only:end */
 }
+/* xplat-web-only:start */
+.vx-list--dividers { gap: 0; }
+/* xplat-web-only:end */
 .vx-listitem {
 	display: flex;
 	align-items: center;
 	counter-increment: vx-list;
+	/* xplat-web-only:start — Astryx Item: gap + the published inline inset
+	   (`--vx-item-inset-inline`) that edge compensation reads. */
+	column-gap: var(--spacing-2, 8px);
+	padding-inline: var(--vx-item-inset-inline, var(--spacing-2, 8px));
+	border-radius: var(--radius-element, 4px);
+	/* xplat-web-only:end */
 }
 .vx-listitem-start,
 .vx-listitem-end {
@@ -3754,10 +3770,10 @@
 }
 
 /* ListItem density padding — matches Astryx Item (compact 4px, balanced
-   8px, spacious 12px block; spacious adds 12px inline). */
-.vx-listitem--density-compact { padding-block: var(--spacing-1, 4px); }
-.vx-listitem--density-balanced { padding-block: var(--spacing-2, 8px); }
-.vx-listitem--density-spacious { padding: var(--spacing-3, 12px); }
+   8px, spacious 12px block; inline inset is 8px, 12px spacious). */
+.vx-listitem--density-compact { padding-block: var(--spacing-1, 4px); --vx-item-inset-inline: var(--spacing-2, 8px); }
+.vx-listitem--density-balanced { padding-block: var(--spacing-2, 8px); --vx-item-inset-inline: var(--spacing-2, 8px); }
+.vx-listitem--density-spacious { padding-block: var(--spacing-3, 12px); --vx-item-inset-inline: var(--spacing-3, 12px); }
 
 /* Markdown table cells — the honest min-content/wrap rules the reference
    layers over Table's wrap defaults (a serializer-independent channel for
@@ -3771,3 +3787,32 @@
 	word-break: normal;
 	padding: var(--spacing-2, 8px);
 }
+.vx-md-table td { min-width: 0; }
+
+/* xplat-web-only:start — inside Markdown the shared Table parts render as
+   the table elements they are, so columns size through the browser's auto
+   table layout (the same algorithm the reference uses) instead of the
+   cross-platform flex semantics other Table consumers need. */
+.vx-md-table .vx-table { display: table; }
+.vx-md-table .vx-table-header { display: table-header-group; }
+.vx-md-table .vx-table-body { display: table-row-group; }
+.vx-md-table .vx-table-footer { display: table-footer-group; }
+.vx-md-table .vx-table-row { display: table-row; }
+.vx-md-table .vx-table-cell { display: table-cell; }
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — wide blocks keep the reference's
+   `min-width: min(contentWidth, 100%)` floor under the prose column. */
+.vx-md-table,
+.vx-md-codeblock { min-width: min(var(--vx-md-content-width, 680px), 100%); }
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — headerless code blocks take the reference's
+   corner copy control instead of a header row. */
+.vx-codeblock { position: relative; }
+.vx-codeblock-copy--absolute {
+	position: absolute;
+	top: var(--spacing-2, 8px);
+	right: var(--spacing-2, 8px);
+}
+/* xplat-web-only:end */

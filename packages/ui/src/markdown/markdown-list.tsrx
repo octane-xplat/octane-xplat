@@ -48,6 +48,7 @@ export function MdRowList(props: {
 	ordered?: boolean
 	start?: number
 	density?: ListDensity
+	style?: Record<string, unknown>
 	children?: unknown
 }): unknown @{
 	return (
@@ -59,7 +60,15 @@ export function MdRowList(props: {
 				start: props.start ?? 1,
 			}}
 		>
-			<masonview style={{ display: 'flex', flexDirection: 'column' }}>{props.children}</masonview>
+			<masonview
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					...(props.style as object),
+				}}
+			>
+				{props.children}
+			</masonview>
 		</ListProvider>
 	)
 }

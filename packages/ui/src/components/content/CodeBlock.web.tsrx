@@ -97,7 +97,23 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 	const { copy, copied } = useCodeCopy(props.code, props.onCopy)
 	const highlighted = useMemo(() => new Set(props.highlightLines ?? []), [props.highlightLines])
 
-	const canCollapse = isCollapsible && lines.length > collapsibleThreshold
+	// With the diff layer on, the label and viewport name say so: `diff` over
+	// plaintext, `tsx diff` over a language — so a diff keeps its header,
+	// collapse control, and a name that still matches a `diff` fence. Plain
+	// text carries no label: the header exists for a title or a language.
+	const languageLabel = !hasLanguageLabel
+		? null
+		: isDiff
+			? language === 'plaintext'
+				? 'diff'
+				: `${language} diff`
+			: language !== 'plaintext'
+				? language
+				: null
+
+	const hasHeader = props.title != null || languageLabel != null
+	// A collapsed body must never outlive the visible header that controls it.
+	const canCollapse = hasHeader && isCollapsible && lines.length >= collapsibleThreshold
 	const [isExpanded, setIsExpanded] = useState(false)
 	const collapsed = canCollapse && !isExpanded
 
@@ -126,15 +142,17 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 		return applyHighlightRangesChunked(el, tokenLines)
 	}, [useRanges, collapsed, tokenLines])
 
-	// With the diff layer on, the label and viewport name say so: `diff` over
-	// plaintext, `tsx diff` over a language.
-	const languageLabel = isDiff
-		? language === 'plaintext'
-			? 'diff'
-			: `${language} diff`
-		: language
-
-	const hasHeader = props.title != null || hasLanguageLabel || hasCopyButton || canCollapse
+	const copyButton = hasCopyButton ? (
+		<button
+			type="button"
+			className={['vx-codeblock-copy', !hasHeader && 'vx-codeblock-copy--absolute']}
+			aria-label={copied ? 'Copied' : 'Copy code'}
+			title={copied ? 'Copied' : 'Copy'}
+			onClick={copy}
+		>
+			<Icon name={copied ? 'xplat-check' : 'xplat-copy'} size={14} />
+		</button>
+	) : null
 
 	const rootStyle = {
 		width: width === 'fit-content' ? 'fit-content' : width,
@@ -165,20 +183,10 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 			<div className="vx-codeblock-header">
 				<div className="vx-codeblock-header-text">
 					{props.title != null ? <span className="vx-codeblock-title">{props.title}</span> : null}
-					{hasLanguageLabel ? <span className="vx-codeblock-lang">{languageLabel}</span> : null}
+					{languageLabel != null ? <span className="vx-codeblock-lang">{languageLabel}</span> : null}
 				</div>
 				<div className="vx-codeblock-header-actions">
-					{hasCopyButton ? (
-						<button
-							type="button"
-							className="vx-codeblock-copy"
-							aria-label={copied ? 'Copied' : 'Copy code'}
-							title={copied ? 'Copied' : 'Copy'}
-							onClick={copy}
-						>
-							<Icon name={copied ? 'xplat-check' : 'xplat-copy'} size={14} />
-						</button>
-					) : null}
+					{copyButton}
 					{canCollapse ? (
 						<button
 							type="button"
@@ -260,5 +268,6 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 				</code>
 			</pre>
 		</div>
+		{!hasHeader ? copyButton : null}
 	</div>
 }

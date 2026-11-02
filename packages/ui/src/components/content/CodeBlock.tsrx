@@ -82,7 +82,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 	const collapsibleThreshold = props.collapsibleThreshold ?? 10
 	const size = props.size ?? 'md'
 	const container = props.container ?? 'card'
-	const fontSize = size === 'sm' ? 12 : 13
+	const fontSize = size === 'sm' ? 12 : 14
 
 	const isDiff = props.isDiff ?? false
 	const lines = useMemo(() => {
@@ -101,11 +101,22 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 	const { copy, copied } = useCodeCopy(props.code, props.onCopy)
 	const highlighted = useMemo(() => new Set(props.highlightLines ?? []), [props.highlightLines])
 
-	const canCollapse = isCollapsible && lines.length > collapsibleThreshold
+	// Plain text carries no label: the header exists for a title or a
+	// language (a diff always names its layer). Matches the 0.7.4 reference.
+	const languageLabel = !hasLanguageLabel
+		? null
+		: isDiff
+			? language === 'plaintext'
+				? 'diff'
+				: `${language} diff`
+			: language !== 'plaintext'
+				? language
+				: null
+	const hasHeader = props.title != null || languageLabel != null
+	// A collapsed body must never outlive the visible header that controls it.
+	const canCollapse = hasHeader && isCollapsible && lines.length >= collapsibleThreshold
 	const [isExpanded, setIsExpanded] = useState(false)
 	const collapsed = canCollapse && !isExpanded
-
-	const hasHeader = props.title != null || hasLanguageLabel || hasCopyButton || canCollapse
 
 	const body = (
 		<masonview
@@ -114,7 +125,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 				{ flexDirection: 'column' },
 				mergeStyle(
 					{ display: 'flex' },
-					{ paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 },
+					{ paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16 },
 				),
 			)}
 		>
@@ -246,13 +257,13 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 							{props.title}
 						</label>
 					) : null}
-					{hasLanguageLabel ? (
+					{languageLabel != null ? (
 						<label
 							className="vx-codeblock-lang"
 							whiteSpace="nowrap"
 							style={{ fontSize: fontSize - 1, color: nativeColor(mutedColor(scheme)) }}
 						>
-							{isDiff ? (language === 'plaintext' ? 'diff' : `${language} diff`) : language}
+							{languageLabel}
 						</label>
 					) : null}
 				</masonview>
@@ -293,5 +304,16 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 		) : (
 			body
 		)}
+		{!hasHeader && hasCopyButton ? (
+			<Pressable
+				className="vx-codeblock-copy"
+				accessibilityRole="button"
+				accessibilityLabel={copied ? 'Copied' : 'Copy code'}
+				onPress={copy}
+				style={{ padding: 4, alignSelf: 'flex-end' }}
+			>
+				<Icon name={copied ? 'xplat-check' : 'xplat-copy'} size={14} />
+			</Pressable>
+		) : null}
 	</masonview>
 }
