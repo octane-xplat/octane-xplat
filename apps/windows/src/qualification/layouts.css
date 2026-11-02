@@ -5,3 +5,13 @@
 .core20-legacy-host {
 	width: 240px;
 }
+
+.qualification-scroll-viewport {
+	height: 160px;
+	width: 240px;
+}
+
+.qualification-scroll-content {
+	flex-direction: column;
+	gap: 12px;
+}

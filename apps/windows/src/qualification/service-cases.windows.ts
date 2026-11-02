@@ -1,15 +1,19 @@
 import { File, Folder, knownFolders, path as nsPath } from '@nativescript/core'
 import {
 	appInfo,
+	authSession,
 	clipboard,
 	connectivity,
 	device,
 	keepAwake,
 	random,
 	storage,
+	webAuthn,
 } from '@octane-xplat/platform'
 import { files } from '@octane-xplat/files'
+import { secureStorage } from '@octane-xplat/secure-storage'
 import { Windows } from '@octane-xplat/platform/windows'
+import { Screen } from '@nativescript/core'
 
 type Emit = (event: string, data?: Record<string, unknown>) => void
 
@@ -231,6 +235,138 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
 	}
 }
 
+const SECURE_KEY = 'core20-secure-rt'
+const SECURE_PERSIST_KEY = 'core20-secure-persist'
+
+/** Credential Locker backed secure storage: missing/read/write/remove,
+ *  empty/control/Unicode values, packaged identity and cross-launch
+ *  persistence. Access policy and roaming stay bounded — the leaf does not
+ *  expose them. */
+async function secureStorageSpec(persistValue?: string): Promise<Record<string, unknown>> {
+	const supported = secureStorage.supported
+	const available = supported ? await secureStorage.isAvailable() : false
+	const result: Record<string, unknown> = { supported, available }
+	if (!available) {
+		return result
+	}
+	const missing = await secureStorage.get(SECURE_KEY)
+	const wrote = await secureStorage.set(SECURE_KEY, 'vault-roundtrip')
+	const read = wrote ? await secureStorage.get(SECURE_KEY) : null
+	const wroteEmpty = await secureStorage.set(SECURE_KEY, '')
+	const readEmpty = wroteEmpty ? await secureStorage.get(SECURE_KEY) : null
+	const wroteCtrl = await secureStorage.set(SECURE_KEY, 'ctrl')
+	const readCtrl = wroteCtrl ? await secureStorage.get(SECURE_KEY) : null
+	const wroteOther = await secureStorage.set('core20-secure-other', 'other-value')
+	const readOther = wroteOther ? await secureStorage.get('core20-secure-other') : null
+	const removed = await secureStorage.remove(SECURE_KEY)
+	const removedRead = await secureStorage.get(SECURE_KEY)
+	const removedOther = await secureStorage.remove('core20-secure-other')
+	const removedMissing = await secureStorage.remove(SECURE_KEY)
+	let persistRead: string | null = null
+	if (persistValue === undefined) {
+		persistRead = await secureStorage.get(SECURE_PERSIST_KEY)
+	} else {
+		await secureStorage.set(SECURE_PERSIST_KEY, persistValue)
+	}
+	return {
+		...result,
+		missing,
+		wrote,
+		read,
+		wroteEmpty,
+		readEmpty,
+		wroteCtrl,
+		readCtrl,
+		otherRead: readOther,
+		removed,
+		removedRead,
+		removedOther,
+		removedMissing,
+		persistRead,
+		persistWrote: persistValue ?? null,
+	}
+}
+
+/** readBytes bounds: maxBytes rejects oversized reads without loading, and a
+ *  pre-aborted signal rejects with AbortError. */
+async function filesChunkSpec(): Promise<Record<string, unknown>> {
+	const ref = await files.writeBytes('core20-chunk.dat', new Uint8Array([9, 8, 7, 6, 5, 4]))
+	let maxError = ''
+	try {
+		await files.readBytes(ref, { maxBytes: 3 })
+	} catch (error) {
+		maxError = String(error)
+	}
+	const abort = new AbortController()
+	abort.abort()
+	let abortError = ''
+	try {
+		await files.readBytes(ref, { signal: abort.signal })
+	} catch (error) {
+		abortError = error instanceof Error ? error.name : String(error)
+	}
+	const full = await files.readBytes(ref, { maxBytes: 64 })
+	try {
+		files.release(ref)
+	} catch {}
+	return {
+		uri: ref.uri,
+		maxError,
+		abortError,
+		fullLength: full.length,
+	}
+}
+
+/** The driver presets a non-text clipboard payload; the app must read null. */
+async function clipboardNontextSpec(): Promise<Record<string, unknown>> {
+	const read = clipboard.canCopy ? await clipboard.readText() : null
+	return { canCopy: clipboard.canCopy, read }
+}
+
+/** Auth surfaces report bounded unavailability on Windows. */
+async function authSpec(): Promise<Record<string, unknown>> {
+	const sessionSupported = authSession.supported
+	const sessionAvailable = await authSession.isAvailable()
+	let sessionError = ''
+	try {
+		await authSession.open('https://example.invalid/', { callbackScheme: 'core20' })
+	} catch (error) {
+		sessionError = error instanceof Error ? error.name : String(error)
+	}
+	const passkeySupported = webAuthn.supported
+	const passkeyAvailable = await webAuthn.isAvailable()
+	let passkeyError = ''
+	try {
+		await webAuthn.get({} as never)
+	} catch (error) {
+		passkeyError = error instanceof Error ? error.name : String(error)
+	}
+	return {
+		sessionSupported,
+		sessionAvailable,
+		sessionError,
+		passkeySupported,
+		passkeyAvailable,
+		passkeyError,
+	}
+}
+
+/** Primary-window DIPs and orientation from the shared Screen projection. */
+async function windowMetricsSpec(): Promise<Record<string, unknown>> {
+	try {
+		const main = Screen.mainScreen
+		return {
+			widthDIPs: main.widthDIPs,
+			heightDIPs: main.heightDIPs,
+			widthPixels: main.widthPixels,
+			heightPixels: main.heightPixels,
+			orientation: main.widthDIPs >= main.heightDIPs ? 'landscape' : 'portrait',
+		}
+	} catch (error) {
+		return { error: String(error) }
+	}
+}
+
 export async function runServiceSpec(spec: string, record: Emit): Promise<void> {
 	try {
 		let result: Record<string, unknown>
@@ -246,6 +382,13 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
 			case 'appinfo': result = await appInfoSpec(); break
 			case 'files': result = await filesSpec(); break
 			case 'corefs': result = await coreFsSpec(); break
+			case 'secure-storage': result = await secureStorageSpec(); break
+			case 'secure-persist': result = await secureStorageSpec('persisted-secure-across-launches'); break
+			case 'secure-verify': result = await secureStorageSpec(); break
+			case 'files-chunk': result = await filesChunkSpec(); break
+			case 'clipboard-nontext': result = await clipboardNontextSpec(); break
+			case 'auth': result = await authSpec(); break
+			case 'window-metrics': result = await windowMetricsSpec(); break
 			default:
 				record('service-error', { spec, message: 'Unknown service spec' })
 				return

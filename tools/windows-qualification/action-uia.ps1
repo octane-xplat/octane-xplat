@@ -16,7 +16,7 @@ function Unique-Elements($Elements){
 try {
  if($result.apartment -ne 'MTA'){throw 'UIA action requires its dedicated MTA process'}
  $request=Get-Content $RequestPath -Raw|ConvertFrom-Json
- if($request.operation -notin @('focus','invoke','focused','select','point')){throw 'Unknown UIA action'}
+ if($request.operation -notin @('focus','invoke','focused','select','point','field')){throw 'Unknown UIA action'}
  Stage 'window-owner'
  Add-Type @'
 using System;
@@ -64,7 +64,10 @@ public static class Core20ActionWindow {
   }
   $result.focused=$focused
  }else{
-  if($request.controlType -notin @('ControlType.Button','ControlType.Hyperlink','ControlType.TabItem','ControlType.ListItem','ControlType.ComboBox','ControlType.MenuItem')){throw 'Unexpected action control type'}
+  $fieldType=$request.operation -eq 'field'
+  $allowed=@('ControlType.Button','ControlType.Hyperlink','ControlType.TabItem','ControlType.ListItem','ControlType.ComboBox','ControlType.MenuItem')
+  if($request.operation -in @('field','focus')){$allowed+=@('ControlType.Edit','ControlType.Document')}
+  if($request.controlType -notin $allowed){throw 'Unexpected action control type'}
   $condition=[System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,[string]$request.name)
   $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,$condition)
   $matching=@($elements|Where-Object {$_.Current.ControlType.ProgrammaticName -ceq $request.controlType})
@@ -77,7 +80,29 @@ public static class Core20ActionWindow {
   $result.target=@{name=$element.Current.Name;type=$element.Current.ControlType.ProgrammaticName;enabled=$element.Current.IsEnabled;focusable=$element.Current.IsKeyboardFocusable}
   Stage $request.operation
   try{
-   if($request.operation -eq 'focus'){
+   if($request.operation -eq 'field'){
+    $result.target.isPassword=$element.Current.IsPassword
+    $result.target.className=$element.Current.ClassName
+    try{
+     $vp=[System.Windows.Automation.ValuePattern]$element.GetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern)
+     $result.value=$vp.Current.Value
+     $result.isReadOnly=$vp.Current.IsReadOnly
+    }catch{$result.value=$null}
+    try{
+     $tp=[System.Windows.Automation.TextPattern]$element.GetCurrentPattern([System.Windows.Automation.TextPattern]::Pattern)
+     $doc=$tp.DocumentRange
+     $sel=$tp.GetSelection()
+     $ranges=@()
+     foreach($r in $sel){
+      $head=$doc.Clone()
+      $head.MoveEndpointByRange([System.Windows.Automation.Text.TextPatternRangeEndpoint]::End,$r,[System.Windows.Automation.Text.TextPatternRangeEndpoint]::Start)
+      $start=$head.GetText(-1).Length
+      $length=$r.GetText(-1).Length
+      $ranges+=@{start=$start;length=$length}
+     }
+     $result.selection=$ranges
+    }catch{$result.selection=$null}
+   }elseif($request.operation -eq 'focus'){
     $element.SetFocus()
    }elseif($request.operation -eq 'select'){
     $pattern=[System.Windows.Automation.SelectionItemPattern]$element.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)

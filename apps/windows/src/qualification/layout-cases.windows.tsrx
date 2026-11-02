@@ -8,6 +8,7 @@ import { ListCases } from './collections-cases.windows.tsrx'
 import { TableCases } from './table-cases.windows.tsrx'
 import { TabCases } from './tabs-cases.windows.tsrx'
 import { LayerCases, layerCases } from './layer-cases.windows.tsrx'
+import { InputCases, ScrollCases } from './input-cases.windows.tsrx'
 import { runServiceSpec } from './service-cases.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity.tsrx'
 import {
@@ -100,6 +101,9 @@ export function Qualification() @{
 	const [avatarImage, setAvatarImage] = useState(false)
 	const [bannerDetails, setBannerDetails] = useState(false)
 	const [actionCase, setActionCase] = useState('all')
+	const [controlledValue, setControlledValue] = useState('typed!')
+	const [scrollRows, setScrollRows] = useState(12)
+	const [scrollAxis, setScrollAxis] = useState<'block' | 'inline'>('block')
 	const [implicitNames, setImplicitNames] = useState(false)
 	const [routedLink, setRoutedLink] = useState(false)
 	const [destination, setDestination] = useState('/')
@@ -188,6 +192,23 @@ export function Qualification() @{
 					case 'service-run':
 						void runServiceSpec(String(command.value), record)
 						break
+					case 'input-write':
+						setControlledValue(String(command.value))
+						break
+					case 'scroll-rows':
+						if (!Number.isInteger(command.value) || command.value < 0 || command.value > 64) {
+							throw new Error('scroll-rows needs an integer 0..64')
+						}
+
+						setScrollRows(command.value)
+						break
+					case 'scroll-axis':
+						if (command.value !== 'block' && command.value !== 'inline') {
+							throw new Error('scroll-axis needs block or inline')
+						}
+
+						setScrollAxis(command.value)
+						break
 					case 'scene':
 						if (
 							[
@@ -199,6 +220,8 @@ export function Qualification() @{
 								'table',
 								'tabs',
 								'service',
+								'input',
+								'scroll',
 								...layerCases,
 							].includes(command.value)
 						) {
@@ -270,6 +293,25 @@ export function Qualification() @{
 				} @catch (error) {
 					record('render-error', { message: String(error) })
 					<Text>{`Display render error: ${String(error)}`}</Text>
+				}
+			} @else if (scene === 'input') {
+				@try {
+					<InputCases
+						emit={record}
+						mounted={mounted}
+						controlledValue={controlledValue}
+						onControlledWrite={setControlledValue}
+					/>
+				} @catch (error) {
+					record('render-error', { message: String(error) })
+					<Text>{`Input render error: ${String(error)}`}</Text>
+				}
+			} @else if (scene === 'scroll') {
+				@try {
+					<ScrollCases emit={record} rows={scrollRows} axis={scrollAxis} />
+				} @catch (error) {
+					record('render-error', { message: String(error) })
+					<Text>{`Scroll render error: ${String(error)}`}</Text>
 				}
 			} @else if (scene === 'layout') {
 				<View className="core20-viewport">

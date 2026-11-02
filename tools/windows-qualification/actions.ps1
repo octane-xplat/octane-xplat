@@ -16,10 +16,12 @@ param(
  [switch]$LayerFocusActions,
  [switch]$Core20Structure,
  [switch]$ServiceActions,
- [string[]]$ServiceSpecs=''
+ [string[]]$ServiceSpecs='',
+ [switch]$TextInputActions,
+ [switch]$ScrollActions
 )
 $ErrorActionPreference='Stop'
-if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions + [int][bool]$Core20Structure + [int][bool]$ServiceActions) -gt 1){throw 'Choose one action mode per run'}
+if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions + [int][bool]$Core20Structure + [int][bool]$ServiceActions + [int][bool]$TextInputActions + [int][bool]$ScrollActions) -gt 1){throw 'Choose one action mode per run'}
 if(@($ServiceSpecs|Where-Object {$_}).Count -gt 0 -and -not $ServiceActions){throw 'ServiceSpecs requires ServiceActions'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
@@ -293,6 +295,26 @@ public static class Core20ActionInput {
   var shiftUp=shiftDown;shiftUp.Data.Key.Flags=2;
   Send(shift?new[]{shiftDown,down,up,shiftUp}:new[]{down,up});
  }
+ public static void Down(ushort code) {
+  Send(new[]{new Input {Type=1,Data=new Union {Key=new Key {Code=code}}}});
+ }
+ public static void Up(ushort code) {
+  Send(new[]{new Input {Type=1,Data=new Union {Key=new Key {Code=code,Flags=2}}}});
+ }
+ public static void Type(string text) {
+  var inputs=new System.Collections.Generic.List<Input>();
+  foreach(char c in text){
+   inputs.Add(new Input {Type=1,Data=new Union {Key=new Key {Code=0,Scan=(ushort)c,Flags=4}}});
+   inputs.Add(new Input {Type=1,Data=new Union {Key=new Key {Code=0,Scan=(ushort)c,Flags=6}}});
+  }
+  Send(inputs.ToArray());
+ }
+ public static void Wheel(int delta) {
+  Send(new[]{new Input {Type=0,Data=new Union {Mouse=new Mouse {Flags=0x800,Data=(uint)delta}}}});
+ }
+ public static void Move(int x,int y) {
+  if(!SetCursorPos(x,y)) throw new Exception("SetCursorPos failed");
+ }
  public static void Click(int x,int y) {
   if(!SetCursorPos(x,y)) throw new Exception("SetCursorPos failed");
   Send(new[]{new Input {Type=0,Data=new Union {Mouse=new Mouse {Flags=2}}},new Input {Type=0,Data=new Union {Mouse=new Mouse {Flags=4}}}});
@@ -352,6 +374,11 @@ function Input-Owner {
  if($owner -ne $script:AppProcessId){throw 'Owned process is not foreground; refusing input'}
 }
 function Key([int]$Code,[bool]$Shift=$false){Input-Owner;[Core20ActionInput]::Press($Code,$Shift)}
+function Key-Down([int]$Code){Input-Owner;[Core20ActionInput]::Down([uint16]$Code)}
+function Key-Up([int]$Code){Input-Owner;[Core20ActionInput]::Up([uint16]$Code)}
+function Type-Text([string]$Text){Input-Owner;[Core20ActionInput]::Type($Text)}
+function Mouse-Wheel([int]$Delta){Input-Owner;[Core20ActionInput]::Wheel($Delta)}
+function Mouse-Move([int]$X,[int]$Y){Input-Owner;[Core20ActionInput]::Move($X,$Y)}
 function Click-Control($Control){
  Input-Owner
  [Core20ActionInput]::Click([int]($Control.x+$Control.width/2),[int]($Control.y+$Control.height/2))
@@ -1419,17 +1446,204 @@ function Service-Result([string]$Spec,[int]$Seconds=20){
  $result|ConvertTo-Json -Depth 6|Set-Content (Join-Path $OutputDirectory ("service-"+$Spec+".json")) -Encoding UTF8
  return $result
 }
+function Try-Field([string]$Name,[string]$Type='ControlType.Edit'){
+ try{$r=Uia-Action 'field' $Name $Type; if($r.status -eq 'completed' -and $r.target){return $r}}catch{}
+ return $null
+}
+function Field-State([string]$Name,[string]$Type='ControlType.Edit'){
+ $r=Uia-Action 'field' $Name $Type
+ Assert ($r.status -eq 'completed') "UIA field read accepted for $Name" $r
+ return $r
+}
+function Focus-Field([string]$Name){Focus-Action $Name 'ControlType.Edit'}
+function Input-Events([string]$Source,[string]$Kind){
+ return @(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -ceq 'input-event' -and $_.source -ceq $Source -and $_.kind -ceq $Kind})
+}
+function Key-Events([string]$Source,[string]$Kind){
+ return @(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -ceq 'key-event' -and $_.source -ceq $Source -and $_.kind -ceq $Kind})
+}
+function Scroll-States([string]$Axis='block'){
+ return @(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -ceq 'scroll-state' -and $_.axis -ceq $Axis})
+}
+function Check-TextInputActions{
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='windows-controlled-text-write';status='running';checks=$null;error=$null}
+ try{
+ Command 'scene' 'input'|Out-Null
+ Status-Contains 'Core20 input mounted=true'
+ Wait-For {$null -ne (Try-Field 'Controlled field')} 'Controlled field never appeared'
+
+ $field=Field-State 'Controlled field'
+ Assert ($field.target.enabled -eq $true -and $field.target.focusable -eq $true) 'Controlled field is enabled and focusable' $field
+ Assert ($field.value -eq 'typed!') 'Controlled field opens with its controlled value' $field.value
+
+ Focus-Field 'Controlled field'
+ Wait-For {@(Input-Events 'controlled' 'focus').Count -ge 1} 'Controlled focus did not emit an input-event'
+ Assert ($true) 'Focusing the controlled field emits its focus event'
+
+ Key 35|Out-Null
+ Key 88|Out-Null
+ Key 89|Out-Null
+ Wait-For {(Field-State 'Controlled field').value -eq 'typed!xy'} 'Typed characters did not reach the controlled field'
+ Assert ($true) 'Physical typing reaches the controlled field value'
+ $changes=Input-Events 'controlled' 'change'
+ Assert ($changes[-1].value -eq 'typed!xy' -and $changes.Count -ge 2) 'onChange reports each typed edit' @($changes|Select-Object -Last 2).value
+ $downs=@(Key-Events 'controlled' 'down'|Where-Object {$_.key -eq 88 -or $_.key -eq 89})
+ $ups=@(Key-Events 'controlled' 'up'|Where-Object {$_.key -eq 88 -or $_.key -eq 89})
+ Assert ($downs.Count -ge 2 -and $ups.Count -ge 2) 'Raw keyDown/keyUp payloads project for typed keys' @{downs=$downs.Count;ups=$ups.Count}
+
+ Command 'input-write' 'typed!xy'|Out-Null
+ Wait-For {(Field-State 'Controlled field').value -eq 'typed!xy'} 'Controlled write did not apply'
+ Key 35|Out-Null
+ Key 37 $true|Out-Null
+ Key 37 $true|Out-Null
+ Command 'input-write' 'typed!xyW'|Out-Null
+ Wait-For {(Field-State 'Controlled field').value -eq 'typed!xyW'} 'Same-length controlled write did not apply'
+ $sel=Field-State 'Controlled field'
+ Assert (@($sel.selection).Count -ge 1 -and $sel.selection[0].start -eq 5 -and $sel.selection[0].length -eq 2) 'Controlled write preserves the OS-selected range' $sel.selection
+ Command 'input-write' 'x'|Out-Null
+ Wait-For {(Field-State 'Controlled field').value -eq 'x'} 'Shrinking write did not apply'
+ $sel=Field-State 'Controlled field'
+ Assert (@($sel.selection).Count -ge 1 -and $sel.selection[0].start -eq 1 -and $sel.selection[0].length -eq 0) 'Shrinking write clamps the selection to the new length' $sel.selection
+ $changesBefore=@(Input-Events 'controlled' 'change').Count
+ Command 'input-write' 'x'|Out-Null
+ Start-Sleep -Milliseconds 400
+ Assert (@(Input-Events 'controlled' 'change').Count -eq $changesBefore) 'Unchanged controlled writes emit no synthetic change event'
+
+ $beforeHold=@(Key-Events 'controlled' 'down').Count
+ Key-Down 65
+ Start-Sleep -Milliseconds 900
+ Key-Up 65
+ $held=@(Key-Events 'controlled' 'down').Count-$beforeHold
+ Assert ($held -gt 1) 'A held key repeats raw keyDown events' $held
+ Assert ((Field-State 'Controlled field').value -like 'xa*') 'Repeated keys enter repeated characters'
+
+ Focus-Field 'Second field'
+ Key 67|Out-Null
+ Wait-For {@(Input-Events 'second' 'change').Count -ge 1} 'Second field did not emit a change'
+ Assert (@(Key-Events 'second' 'down'|Where-Object {$_.key -eq 67}).Count -ge 1 -and @(Key-Events 'controlled' 'down'|Where-Object {$_.key -eq 67}).Count -eq 0) 'Key owners stay independent across fields'
+
+ Focus-Field 'Consumed field'
+ Key 13|Out-Null
+ Start-Sleep -Milliseconds 300
+ Assert (@(Key-Events 'consumed' 'down'|Where-Object {$_.key -eq 13}).Count -ge 1) 'Consumed field still sees the raw Return payload'
+ Assert (@(Input-Events 'consumed' 'submit').Count -eq 0) 'Consumed Return suppresses the submit event'
+
+ Focus-Field 'Controlled field'
+ Key 13|Out-Null
+ Wait-For {@(Input-Events 'controlled' 'submit').Count -ge 1} 'Return did not submit the controlled field'
+ Assert ($true) 'Unconsumed Return submits through returnPress'
+
+ $secure=Field-State 'Secure field'
+ Assert ($secure.target.isPassword -eq $true) 'Secure field masks through a real PasswordBox peer' $secure.target
+ Focus-Field 'Secure field'
+ Key 68|Out-Null
+ Wait-For {@(Input-Events 'secure' 'change').Count -ge 1} 'Secure field did not emit a change'
+ Assert (@(Key-Events 'secure' 'down'|Where-Object {$_.key -eq 68}).Count -ge 1) 'Secure edits emit raw key payloads without plaintext'
+
+ $readonly=Field-State 'Readonly field'
+ Assert ($readonly.isReadOnly -eq $true -or $readonly.target.focusable -eq $true) 'Readonly field exposes its non-editable state' $readonly
+ $roBefore=@(Input-Events 'readonly' 'change').Count
+ try{Uia-Action 'focus' 'Readonly field' 'ControlType.Edit'|Out-Null}catch{}
+ Key 82|Out-Null
+ Start-Sleep -Milliseconds 300
+ Assert (@(Input-Events 'readonly' 'change').Count -eq $roBefore -and (Field-State 'Readonly field').value -eq 'frozen') 'Physical edits cannot change a readonly field'
+
+ $disabled=Field-State 'Disabled field'
+ Assert ($disabled.target.enabled -eq $false) 'Disabled field reports disabled through UIA' $disabled.target
+ $disFocus=$null
+ try{$disFocus=Uia-Action 'focus' 'Disabled field' 'ControlType.Edit'}catch{}
+ Assert ($null -eq $disFocus -or $disFocus.status -eq 'rejected' -or $disFocus.targetFocused -eq $false) 'Disabled field rejects focus'
+ Assert (@(Input-Events 'disabled' 'change').Count -eq 0) 'Disabled field emits no edits'
+
+ Focus-Field 'Form user'
+ Key 9|Out-Null
+ Wait-For {Focused 'Form pass'} 'Tab did not move focus to the next form field'
+ Assert (@(Input-Events 'form-user' 'blur').Count -ge 1 -and @(Input-Events 'form-pass' 'focus').Count -ge 1) 'Focus transitions emit blur and focus events'
+ Key 70|Out-Null
+ Wait-For {@(Input-Events 'form-pass' 'change').Count -ge 1} 'Form pass edit did not emit a change'
+ Assert ($true) 'Sequential form fields accept edits in focus order'
+
+ Command 'mounted' 'false'|Out-Null
+ Wait-For {$null -eq (Try-Field 'Controlled field')} 'Controlled field still exists after unmount'
+ Assert ($true) 'Unmount disposes the native input views'
+ Command 'mounted' 'true'|Out-Null
+ Wait-For {$null -ne (Try-Field 'Controlled field')} 'Controlled field did not remount'
+ Assert ((Field-State 'Controlled field').value -like 'x*') 'Remounted field restores the controlled value' (Field-State 'Controlled field').value
+ $keysBefore=@(Key-Events 'controlled' 'down').Count
+ Focus-Field 'Controlled field'
+ Key 66|Out-Null
+ Wait-For {@(Key-Events 'controlled' 'down').Count -gt $keysBefore} 'Key listeners did not reattach after remount'
+ Assert ($true) 'Remounted fields reattach raw key listeners'
+
+  $entry.status=if(@($script:Checks|Where-Object {-not $_.passed}).Count){'failed'}else{'assertions-passed'}
+ }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+}
+function Check-ScrollActions{
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='windows-scroll-observation';status='running';checks=$null;error=$null}
+ try{
+ Command 'scene' 'scroll'|Out-Null
+ Wait-For {@(Scroll-States 'block').Count -ge 1} 'Scroll fixture never reported its initial state'
+ $initial=@(Scroll-States 'block')[-1]
+ Assert ($initial.isScrollable -eq $true -and $initial.atStart -eq $true -and $initial.atEnd -eq $false) 'Overflowing content reports scrollable at the start edge' $initial
+
+ $nodes=Snapshot 'scroll-initial'
+ $vp=Native-Id $nodes 'scroll-viewport'
+ Assert ($null -ne $vp -and $vp.width -gt 0 -and $vp.height -gt 0) 'Scroll viewport has finite UIA bounds' $vp
+ Mouse-Move ([int]($vp.x+$vp.width/2)) ([int]($vp.y+$vp.height/2))
+ Mouse-Wheel -120
+ Wait-For {@(Scroll-States 'block'|Where-Object {$_.atStart -eq $false}).Count -ge 1} 'Wheel scroll did not move the viewport'
+ Assert ($true) 'Physical wheel input scrolls the viewport off the start edge'
+ for($i=0;$i -lt 8;$i++){Mouse-Wheel -120;Start-Sleep -Milliseconds 120}
+ Wait-For {@(Scroll-States 'block'|Where-Object {$_.atEnd -eq $true}).Count -ge 1} 'Viewport never reached the end edge'
+ Assert ($true) 'Wheel input reaches the end edge'
+ for($i=0;$i -lt 8;$i++){Mouse-Wheel 120;Start-Sleep -Milliseconds 120}
+ Wait-For {@(Scroll-States 'block'|Where-Object {$_.atStart -eq $true}).Count -ge 1} 'Viewport never returned to the start edge'
+ Assert ($true) 'Wheel input returns to the start edge'
+
+ $statesBefore=@(Scroll-States 'block').Count
+ Command 'scroll-rows' '3'|Out-Null
+ Wait-For {@(Scroll-States 'block').Count -gt $statesBefore} 'Content shrink did not publish new scroll state'
+ Assert (@(Scroll-States 'block')[-1].isScrollable -eq $false) 'Shrinking content below the viewport clears overflow' @(Scroll-States 'block')[-1]
+ $statesBefore=@(Scroll-States 'block').Count
+ Command 'scroll-rows' '48'|Out-Null
+ Wait-For {@(Scroll-States 'block').Count -gt $statesBefore} 'Content growth did not publish new scroll state'
+ Assert (@(Scroll-States 'block')[-1].isScrollable -eq $true -and @(Scroll-States 'block')[-1].atStart -eq $true) 'Growing content restores overflow at the start edge' @(Scroll-States 'block')[-1]
+
+ try{
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned window'}
+  $resized=Snapshot 'scroll-narrowed'
+  $vpNarrow=Native-Id $resized 'scroll-viewport'
+  Assert ($vpNarrow -and $vpNarrow.width -gt 0 -and $vpNarrow.x -ge 0) 'Viewport retains finite bounds after a window resize' $vpNarrow
+ }finally{
+  [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$wideWidth,$height,$true)|Out-Null
+ }
+
+ Command 'mounted' 'false'|Out-Null
+ $gone=Snapshot 'scroll-unmounted'
+ Assert ($null -eq (Native-Id $gone 'scroll-viewport')) 'Unmount disposes the scroll viewport'
+ Command 'mounted' 'true'|Out-Null
+ Wait-For {$null -ne (Native-Id (Snapshot 'scroll-remounted') 'scroll-viewport')} 'Scroll viewport did not remount'
+ Assert ($true) 'Remount restores the scroll viewport and its observer'
+
+  $entry.status=if(@($script:Checks|Where-Object {-not $_.passed}).Count){'failed'}else{'assertions-passed'}
+ }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+}
 function Check-ServiceActions{
  $script:Checks.Clear()
  $entry=[ordered]@{case='windows-service-adapters';status='running';checks=$null;error=$null}
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','auth','window-metrics','secure-storage','secure-persist','corefs','storage-persist')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
- if($serviceFilter.Count){$specs=@($specs+'storage-verify'|Where-Object {$_ -cin $serviceFilter})}
+ if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify','clipboard-nontext'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
   try{
+  if($spec -eq 'clipboard-nontext'){Set-Clipboard -LiteralPath $PSCommandPath}
   Command 'service-run' $spec|Out-Null
   $result=Service-Result $spec
   switch($spec){
@@ -1478,12 +1692,42 @@ function Check-ServiceActions{
    'corefs' {
     Assert ($result.documentsPresent -eq $true) 'Documents folder resolves on the packaged host' $result
     Assert ($result.existsAfter -eq $true) 'File.exists detects the created file' $result
-    Assert ($result.matchedText -eq $true) 'File readTextSync round-trips text' $result
+    Assert ($result.matchedText -eq $true) 'File readText round-trips text' $result
     Assert ($result.nestedExists -eq $true) 'Folder.fromPath creates nested folders' $result
     Assert ($result.tempExists -eq $true) 'Temporary folder accepts new files' $result
    }
    'storage-persist' {
     Assert ($result.persistWrote -eq 'persisted-across-launches') 'Storage persist spec wrote the cross-launch value' $result
+   }
+   'secure-storage' {
+    Assert ($result.supported -eq $true -and $result.available -eq $true) 'Credential Locker resolves on the packaged host' $result
+    Assert ($null -eq $result.missing) 'Secure storage reads missing keys as null' $result
+    Assert ($result.read -eq 'vault-roundtrip') 'Secure storage round-trips values' $result
+    Assert ($result.wroteEmpty -eq $true -and $result.readEmpty -eq '') 'Secure storage keeps empty values' $result
+    Assert ($result.readCtrl -like 'ctrl*') 'Secure storage keeps control characters' $result
+    Assert ($result.otherRead -eq 'other-value') 'Distinct secure keys stay separate in the shared namespace' $result
+    Assert ($result.removed -eq $true -and $null -eq $result.removedRead) 'Secure storage remove clears the key' $result
+    Assert ($result.removedOther -eq $true -and $result.removedMissing -eq $true) 'Secure storage remove is idempotent' $result
+   }
+   'secure-persist' {
+    Assert ($result.persistWrote -eq 'persisted-secure-across-launches') 'Secure persist spec wrote the cross-launch value' $result
+   }
+   'files-chunk' {
+    Assert ($result.maxError -like '*byte limit*') 'readBytes enforces its maxBytes bound' $result
+    Assert ($result.abortError -eq 'AbortError') 'readBytes honours aborted signals' $result
+    Assert ($result.fullLength -eq 6) 'readBytes returns full content inside bounds' $result
+   }
+   'clipboard-nontext' {
+    Assert ($null -eq $result.read) 'Clipboard reads null for a non-text OS payload' $result
+   }
+   'auth' {
+    Assert ($result.sessionSupported -eq $false -and $result.sessionAvailable -eq $false) 'Auth session reports bounded unavailability' $result
+    Assert ($result.sessionError -ne '' -and $null -ne $result.sessionError) 'Auth session open reports explicit unavailability' $result
+    Assert ($result.passkeySupported -eq $false -and $result.passkeyAvailable -eq $false) 'WebAuthn reports bounded unavailability' $result
+   }
+   'window-metrics' {
+    Assert ($result.widthDIPs -gt 0 -and $result.heightDIPs -gt 0) 'Primary window reports real DIP geometry' $result
+    Assert ($result.orientation -eq 'landscape' -or $result.orientation -eq 'portrait') 'Orientation derives from DIP geometry' $result
    }
   }
   }catch{
@@ -1494,6 +1738,10 @@ function Check-ServiceActions{
  $verify=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'service-result' -and $_.spec -ceq 'storage-verify'})
  if($verify.Count){
   Assert ($verify[-1].persistRead -eq 'persisted-across-launches') 'Storage value persists across app relaunch' $verify[-1]
+ }
+ $secureVerify=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'service-result' -and $_.spec -ceq 'secure-verify'})
+ if($secureVerify.Count){
+  Assert ($secureVerify[-1].persistRead -eq 'persisted-secure-across-launches') 'Secure value persists across app relaunch' $secureVerify[-1]
  }
   $entry.status=if(@($script:Checks|Where-Object {-not $_.passed}).Count){'failed'}else{'assertions-passed'}
  }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
@@ -1506,7 +1754,7 @@ $report=[ordered]@{
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
- scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerFocusActions){'Nested useLayer focus/close: outer and inner anchored layers, child close and Escape restore focus into the parent, parent close restores the outer trigger; secondary windows and modal focus remain separate.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($Core20Structure){'Core20 structure gates: layout cases (text/vstack/hstack/stack/view/center/section/shrink) named peers, finite bounds, ordered children, padding/gap/alignment, narrow reflow, revision/remount; display cases (card/badge/avatar/banner) named peers and content. One packaged MSIX.'}elseif($ServiceActions){'Windows service adapters on the packaged runtime: clipboard Unicode/empty roundtrip, CSPRNG bounds/uniqueness/error paths, storage set/get/remove/control-chars + cross-launch persistence, keep-awake grant/release/tag cleanup, connectivity state+subscription, device/app-info identity, file service text/binary roundtrip/pick/export/release, and core File/Folder exists/fromPath/nested/temp/cleanup. Narrator, ARM64, roaming, suspend/resume and downstream consumers remain separate.'}elseif($ServiceActions){'Windows service adapters on the packaged runtime: clipboard Unicode/empty roundtrip, CSPRNG bounds/uniqueness/error paths, storage set/get/remove/control-chars + cross-launch persistence, keep-awake grant/release/tag cleanup, connectivity state+subscription, device/app-info identity, file service text/binary roundtrip/pick/export/release, and core File/Folder exists/fromPath/nested/temp/cleanup. Narrator, ARM64, roaming, suspend/resume and downstream consumers remain separate.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerFocusActions){'Nested useLayer focus/close: outer and inner anchored layers, child close and Escape restore focus into the parent, parent close restores the outer trigger; secondary windows and modal focus remain separate.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($Core20Structure){'Core20 structure gates: layout cases (text/vstack/hstack/stack/view/center/section/shrink) named peers, finite bounds, ordered children, padding/gap/alignment, narrow reflow, revision/remount; display cases (card/badge/avatar/banner) named peers and content. One packaged MSIX.'}elseif($ServiceActions){'Windows service adapters on the packaged runtime: clipboard Unicode/empty/nontext roundtrip, CSPRNG bounds/uniqueness/error paths, storage set/get/remove/control-chars + cross-launch persistence, keep-awake grant/release/tag cleanup, connectivity state+subscription, device/app-info identity, file service text/binary/chunk/abort/pick/export/release, secure-storage Credential Locker read/write/remove + cross-launch persistence, bounded auth unavailability, primary-window DIP metrics, and core File/Folder exists/fromPath/nested/temp/cleanup. Narrator, ARM64, roaming, suspend/resume, access policy and downstream consumers remain separate.'}elseif($TextInputActions){'Public TextInput/TextArea on real WinUI fields: physical typing, onChange sequence, changed/unchanged controlled writes, OS selection preservation + shrink clamp, secure PasswordBox peer, readonly/disabled rejection, focus transitions and blur/focus events, form editing order, consumed vs submitting Return, raw keyDown/keyUp payloads, held-key repeat, independent owners, unmount disposal and remount listener reattach. IME composition, secondary windows and architectures remain separate.'}elseif($ScrollActions){'useScrollableArea custom viewport on real Mason WinUI: initial overflow edge state, physical wheel scroll to/away from edges, content shrink and growth republishing state, viewport bounds after window resize, unmount disposal and remount observer restore. Touch/pen, keyboard-scroll access, RTL, both-axis and callback-order specifics remain separate.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
