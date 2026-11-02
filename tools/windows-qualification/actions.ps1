@@ -12,10 +12,11 @@ param(
  [switch]$SelectorActions,
  [switch]$MenuActions,
  [switch]$TableActions,
- [switch]$LayerActions
+ [switch]$LayerActions,
+ [switch]$LayerFocusActions
 )
 $ErrorActionPreference='Stop'
-if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions) -gt 1){throw 'Choose one action mode per run'}
+if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions) -gt 1){throw 'Choose one action mode per run'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
@@ -1006,6 +1007,60 @@ function Check-LayerActions {
   $entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)
  }
 }
+function Nested-State([bool]$Outer,[bool]$Inner){
+ Wait-For { @(Read-Tree|Where-Object {$_.name -ceq ('Nested outer='+$Outer.ToString().ToLowerInvariant()+' inner='+$Inner.ToString().ToLowerInvariant())}).Count -eq 1 } "UIA nested state never reached outer=$Outer inner=$Inner"
+}
+function Check-LayerFocusActions {
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='public-layer-nested-focus';status='running';checks=$null;error=$null}
+ try{
+  Command 'mounted' $false|Out-Null
+  Command 'revision' 0|Out-Null
+  Command 'disabled' $false|Out-Null
+  Command 'scene' 'nested-layer'|Out-Null
+  Command 'mounted' $true|Out-Null
+  Status-Contains 'Core20 nested-layer '
+  Status-Contains 'revision=0 mounted=true'
+  Nested-State $false $false
+  $outer=Named @((Capture 'nested-initial')|Where-Object {$_.type -eq 'ControlType.Button'}) 'Outer layer 0'
+  Focus-Action 'Outer layer 0' 'ControlType.Button';Key 13
+  Nested-State $true $false
+  $tree=Capture 'nested-outer-open'
+  Named @($tree|Where-Object {$_.name -eq 'Outer layer content 0'}) 'Outer layer content 0'|Out-Null
+  $innerTrigger=Named @($tree|Where-Object {$_.type -eq 'ControlType.Button'}) 'Inner layer 0'
+  Focus-Action 'Inner layer 0' 'ControlType.Button';Key 13
+  Nested-State $true $true
+  $innerTree=Capture 'nested-inner-open'
+  Named @($innerTree|Where-Object {$_.name -eq 'Inner layer content 0'}) 'Inner layer content 0'|Out-Null
+  Focus-Action 'Close inner' 'ControlType.Button';Key 13
+  Nested-State $true $false
+  Assert (@((Capture 'nested-inner-closed')|Where-Object {$_.name -eq 'Inner layer content 0'}).Count -eq 0) 'Closing the child removes the inner surface'
+  Wait-For {Focused 'Inner layer 0'} 'Closing the child did not return focus inside the parent layer'
+  Focus-Action 'Close outer' 'ControlType.Button';Key 13
+  Nested-State $false $false
+  Assert (@((Capture 'nested-outer-closed')|Where-Object {$_.name -like '*layer content*'}).Count -eq 0) 'Closing the parent removes both surfaces'
+  Wait-For {Focused 'Outer layer 0'} 'Closing the parent did not return focus to the outer trigger'
+  $outer2=Named @((Capture 'nested-reopen')|Where-Object {$_.type -eq 'ControlType.Button'}) 'Outer layer 0'
+  Focus-Action 'Outer layer 0' 'ControlType.Button';Key 13
+  Nested-State $true $false
+  Focus-Action 'Inner layer 0' 'ControlType.Button';Key 13
+  Nested-State $true $true
+  Key 27
+  Nested-State $true $false
+  Assert (@((Capture 'nested-inner-escape')|Where-Object {$_.name -eq 'Inner layer content 0'}).Count -eq 0) 'Escape closes only the topmost layer'
+  Wait-For {Focused 'Inner layer 0'} 'Escape did not return focus inside the parent layer'
+  Key 27
+  Nested-State $false $false
+  Assert (@((Capture 'nested-outer-escape')|Where-Object {$_.name -like '*layer content*'}).Count -eq 0) 'Second Escape closes the parent'
+  Wait-For {Focused 'Outer layer 0'} 'Second Escape did not return focus to the outer trigger'
+  $entry.status='assertions-passed'
+ }catch{
+  $entry.status='failed'
+  $entry.error=$_.Exception.Message
+ }finally{
+  $entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)
+ }
+}
 function Check-SelectorActions {
  $script:Checks.Clear()
  $entry=[ordered]@{case='public-selector-single';status='running';checks=$null;error=$null}
@@ -1245,7 +1300,7 @@ $report=[ordered]@{
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
- scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerFocusActions){'Nested useLayer focus/close: outer and inner anchored layers, child close and Escape restore focus into the parent, parent close restores the outer trigger; secondary windows and modal focus remain separate.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
@@ -1309,6 +1364,8 @@ try {
   Check-TableSortActions
  }elseif($LayerActions){
   Check-LayerActions
+ }elseif($LayerFocusActions){
+  Check-LayerFocusActions
  }elseif($SelectorActions){
   Check-SelectorActions
  }elseif($TabActions){

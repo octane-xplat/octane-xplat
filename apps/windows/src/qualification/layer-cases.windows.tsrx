@@ -2,7 +2,7 @@
 import { useLinkedState, useState } from 'octane'
 import { Button, DropdownMenu, Selector, Text, View, useLayer } from '@octane-xplat/ui'
 
-export const layerCases = ['selector', 'dropdown-menu', 'layer'] as const
+export const layerCases = ['selector', 'dropdown-menu', 'layer', 'nested-layer'] as const
 
 type SceneProps = {
 	revision: number
@@ -183,6 +183,107 @@ function AnchoredLayerCase(props: SceneProps): unknown @{
 	</View>
 }
 
+/** A parent layer whose surface holds a nested child layer. Closing the
+ * child should restore focus inside the parent; closing the parent restores
+ * focus to the outer trigger. */
+function NestedLayerCase(props: SceneProps): unknown @{
+	const [outerOpen, setOuterOpen] = useState(false)
+	const [innerOpen, setInnerOpen] = useState(false)
+	const outer = useLayer({
+		mode: 'context',
+		isOpen: outerOpen,
+		lightDismiss: true,
+		dismissOnEscape: true,
+		onShow: () => {
+			props.onEvent('layer-open-change', {
+				source: 'nested-outer',
+				open: true,
+				fixtureRevision: props.revision,
+			})
+			setOuterOpen(true)
+		},
+		onHide: () => {
+			props.onEvent('layer-open-change', {
+				source: 'nested-outer',
+				open: false,
+				fixtureRevision: props.revision,
+			})
+			setOuterOpen(false)
+		},
+	})
+	const inner = useLayer({
+		mode: 'context',
+		isOpen: innerOpen,
+		lightDismiss: true,
+		dismissOnEscape: true,
+		onShow: () => {
+			props.onEvent('layer-open-change', {
+				source: 'nested-inner',
+				open: true,
+				fixtureRevision: props.revision,
+			})
+			setInnerOpen(true)
+		},
+		onHide: () => {
+			props.onEvent('layer-open-change', {
+				source: 'nested-inner',
+				open: false,
+				fixtureRevision: props.revision,
+			})
+			setInnerOpen(false)
+		},
+	})
+
+	<View className="core20-viewport">
+		<Button
+			id="core20-nested-outside"
+			label="Before nested"
+			clickAction={() => props.onActivate('nested-before')}
+		/>
+		<Text id="core20-nested-state">{`Nested outer=${outerOpen} inner=${innerOpen}`}</Text>
+		<Button
+			id="core20-nested-outer-trigger"
+			ref={outer.ref}
+			label={`Outer layer ${props.revision}`}
+			clickAction={outer.show}
+		/>
+		{outer.render(
+			<View
+				id="core20-nested-outer-content"
+				accessible
+				accessibilityLabel={`Outer layer content ${props.revision}`}
+			>
+				<Button
+					label={`Inner layer ${props.revision}`}
+					ref={inner.ref}
+					clickAction={inner.show}
+				/>
+				<Button label="Close outer" clickAction={outer.hide} />
+			</View>,
+			{ placement: 'below' },
+		)}
+		{inner.render(
+			<View
+				id="core20-nested-inner-content"
+				accessible
+				accessibilityLabel={`Inner layer content ${props.revision}`}
+			>
+				<Button
+					label={`Inner action ${props.revision}`}
+					clickAction={() => props.onActivate('nested-inner', props.revision)}
+				/>
+				<Button label="Close inner" clickAction={inner.hide} />
+			</View>,
+			{ placement: 'below' },
+		)}
+		<Button
+			id="core20-nested-after"
+			label="After nested"
+			clickAction={() => props.onActivate('nested-after')}
+		/>
+	</View>
+}
+
 /** Public menu and direct useLayer paths, without replacement keyboard or
  * native peers. The parent supplies their declaring Screen/RootLayout. */
 export function LayerCases(
@@ -192,6 +293,8 @@ export function LayerCases(
 		<SelectorCase {...props} />
 	} @else if (props.caseName === 'dropdown-menu') {
 		<DropdownCase {...props} />
+	} @else if (props.caseName === 'nested-layer') {
+		<NestedLayerCase {...props} />
 	} @else {
 		<AnchoredLayerCase {...props} />
 	}
