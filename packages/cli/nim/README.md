@@ -2,8 +2,8 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-status, capabilities, clean, typecheck, routes, app selection, permissions, code search, code read, guidance
-and docs read, session list/status/end and job status/cancel; other agent commands provide help and schemas with execution marked
+status, capabilities, clean, typecheck, routes, web builds, app selection, permissions, code search, code read, guidance
+and docs read, session list/status/end, job status/cancel and build-job diagnostics; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -66,7 +66,7 @@ without launching a browser. These helpers do not qualify SDKs/devices.
 docs/code status, permissions and native capabilities. It supplies owned async
 observations to synchronous read services instead of starting another Git process
 there. `capabilities.nim` reports only the providers wired into the native build;
-runtime/session creation and evidence providers remain unavailable and semantic retrieval
+web build/log/job providers report partial support; other runtime/session creation and evidence providers remain unavailable and semantic retrieval
 remains partial. Contract IDs and product boundaries are embedded from the
 canonical reference at build time.
 `target_discovery.nim` adds bounded read-only simctl/adb inventory and host
@@ -84,8 +84,8 @@ cooperative cancellation. It retains runner ownership until completion and drain
 runners on close. Immediate completed futures can produce a terminal start result;
 no JS microtask schedule is assumed. `contract_failure.nim` carries structured
 errors across async boundaries with a fallback for ordinary/uninitialized errors.
-Public job status/cancel now use the native host; creation of application jobs
-and runtime commands still needs the project-engine adapters.
+Public job status/cancel and web build creation use the native host. Other application
+job creators still need their project-engine adapters.
 `unix_rpc.nim` supplies bounded one-request NDJSON over macOS Unix sockets, with
 Node interoperability, input/output byte limits, I/O deadlines and draining close.
 It preserves existing/replacement socket paths and never owns an application's
@@ -100,7 +100,7 @@ retained jobs/sessions, idle/signal shutdown and ownership-safe cleanup.
 Unpublished startup termination is guarded by the publication lock; descriptor
 PIDs never authorize signalling. Default handles cannot close stdin or signal a
 process group. Public session list/status/end and job status/cancel connect to
-this native owner. Application build/launch/attach engines and their public
+this native owner. Web builds use the project-installed engine. Other build/launch/attach engines and their public
 creation commands remain pending; fixture-owned processes qualify lifecycle
 composition without claiming real app readiness.
 These boundaries are exercised through independent CLI invocations and actual
@@ -133,7 +133,7 @@ compared against Node on copied repository route trees. Typecheck retains its
 timeouts, cancellation and diagnostics. Analysis never executes route modules;
 baking delegates loader execution to project-installed Vite and Markdown parsing
 to the build package. `route_operation.nim` shares preparation/publication between
-public `routes` and bake-skipped `typecheck`. `route_watch.nim` owns readiness,
+public `routes`, builds and bake-skipped `typecheck`. `route_watch.nim` owns readiness,
 serial generation, invalidation, error recovery and close. Its macOS FSEvents
 adapter queues C-owned bytes; the Nim event loop drains them. Input fingerprints
 before publication and a periodic backstop reject stale work even when an OS
@@ -151,6 +151,32 @@ research/nim-cli/native/xplat status --project "$PWD" --app apps/macos --json
 research/nim-cli/native/xplat capabilities --project "$PWD" --app apps/macos --platform macos --json
 research/nim-cli/native/xplat clean --help
 ```
+
+On macOS, `build --targets web` runs in the foreground, while `runtime build`
+starts an owned web build job. Both regenerate routes when configured and invoke
+the selected project's installed Vite through its package manager. Configuration
+and plugins execute in that toolchain. No global Vite or old CLI fallback is used.
+Install project dependencies first. Builds have a 15-minute engine deadline and
+release owned process groups before reporting cancellation or timeout. Other
+build platforms and development-session creation remain pending.
+
+```sh
+# From the app directory, with the built xplat executable on PATH:
+xplat build --targets web
+xplat runtime build --platform web --json
+# Substitute the returned job id:
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --cursor 0 --json
+```
+
+`runtime_logs.nim` retains ordered stdout/stderr/lifecycle records with sequence
+cursors and explicit retention gaps. Captures are bounded to 2,000 records and
+2 MiB of encoded JSON, with 40 build captures retained by the current host.
+Records disappear when that host exits; this is not durable session history.
+`runtime_service.nim` applies request permissions and app selection. Live request
+keys deduplicate within an app/platform; public request keys remain unchanged.
+`runtime_build.nim` owns route generation, managed engine execution, output and
+Git build identity. `build_command.nim` shares it for foreground orchestration.
 
 On macOS, `typecheck` uses the project's installed package manager and
 `tsrx-tsc`. It generates route types without executing baked loaders, then runs
@@ -243,8 +269,9 @@ JavaScript exports, or runtime dependency tree. TypeScript remains in the
 repository as the migration reference; stable/nightly packaging is unchanged.
 Existing `@octane-xplat/cli/vite` and MCP imports are not provided by this
 experimental tarball. Project build plugins are separately packaged as
-[`@octane-xplat/build`](../../build/README.md); native build/dev commands and
-complete app workflows still require migration and qualification.
+[`@octane-xplat/build`](../../build/README.md); web builds invoke the selected project
+toolchain; other build/dev commands and complete app workflows still require
+migration and qualification.
 
 ```sh
 # After a Nim prerelease is published:

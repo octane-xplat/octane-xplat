@@ -106,6 +106,12 @@ before publishing. Keep this operation free of output publication and CLI comman
 imports. Propagate structured warnings on both success and failure. A matching
 protocol version alone does not establish valid file destinations or completeness.
 
+Inspect a macOS executable's `LC_BUILD_VERSION` as well as its linked libraries.
+The compiler can default the deployment minimum to the current SDK/host even
+when every linked library is part of macOS. A successful host build does not
+establish support for older systems; pin deployment flags deliberately and
+qualify the actual supported OS separately.
+
 Nim source module basenames must be valid Nim identifiers. Use underscores,
 not hyphens, in `.nim` filenames; output executable names may contain hyphens.
 Use focused modules for parsing, discovery, process/HTTP boundaries and command
@@ -121,6 +127,24 @@ with `.utc` before formatting a trailing `Z`: formatting a zone marker alone doe
 not change the instant's timezone.
 
 ## Verify behavior across language boundaries
+
+Compare results at their actual interface boundary. An internal JavaScript object
+may contain an `undefined` property that JSON intentionally omits; comparing that
+object directly with a transmitted native result produces a false mismatch.
+Compare serialized wire results for protocol contracts, and compare artifacts or
+raw bytes separately when those are the observable output.
+
+Bound retained logs by encoded bytes as well as record count. Line limits alone
+still permit large memory retention across many job captures. Use a deque for
+front eviction, keep sequence numbers monotonic, disclose cursor gaps, and copy
+records before returning them or invoking observers. Snapshot the callback list
+before notification so reentrant registration cannot invalidate iteration.
+
+A foreground output sink has lifecycle responsibility even if the log store
+contains observer exceptions. Catch a sink's write/flush error explicitly and
+cancel the owned operation. Silently swallowing a broken pipe can leave a build
+running after its consumer disappears; qualify cleanup before fixture teardown.
+
 
 Keep a Node/TypeScript differential oracle until each migrated behavior is
 qualified. Compare structured results, errors, exit codes and stream ownership;

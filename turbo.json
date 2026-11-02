@@ -25,6 +25,8 @@
 		"test:nim-status": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-targets": { "dependsOn": ["build:nim-env"], "cache": false },
 		"test:nim-sessions": { "dependsOn": ["build:nim-env"], "cache": false },
+		"test:nim-runtime-build": { "dependsOn": ["build:nim", "build:nim-env", "@octane-xplat/build#build"], "cache": false },
+		"test:nim-runtime-logs": { "dependsOn": ["build:nim-env"], "cache": false },
 		"test:nim-jobs": { "dependsOn": ["build:nim-env"], "cache": false },
 		"build:nim-rpc": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-rpc": { "dependsOn": ["build:nim-rpc"], "cache": false },

@@ -22,6 +22,13 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode): JsonNode 
         of "code_search":
           entry = %*{"capability": id,"status": "partial",
             "detail": "Exact search reads current app and installed framework source; public native semantic inference integration is pending."}
+        of "build", "logs", "job_control":
+          when defined(macosx):
+            if platform == %"web":
+              entry = %*{"capability": id,"status": "partial","detail":
+                (if capability == "build": "Web builds invoke project-installed Vite; other build engines are pending. Install the app's dependencies first."
+                elif capability == "logs": "Build-job stdout/stderr and lifecycle logs are captured; development-session diagnostics are pending."
+                else: "Web build jobs support status and cancellation; other application job creators are pending.")}
         else: discard
       elif capability in ["guidance","docs","code_search"]:
         entry["detail"] = %"Select an app before retrieving its guidance, installed-version documents or source."

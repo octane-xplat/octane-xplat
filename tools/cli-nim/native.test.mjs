@@ -13,7 +13,7 @@ const normalized=(str)=>{const value=JSON.parse(str);delete value.requestId;retu
 test('every agent schema and help follows TypeScript contracts',()=>{
  for(const cmd of AGENT_COMMANDS){
   const expected=normalized(reference([...cmd.path,'--schema']).stdout)
-  expected.data.status=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','job status','job cancel'].includes(cmd.name)?'implemented':'pending'
+  expected.data.status=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','job status','job cancel','runtime build'].includes(cmd.name)?'implemented':'pending'
   const actual=run([...cmd.path,'--schema']);assert.equal(actual.status,0,actual.stderr)
   assert.deepEqual(normalized(actual.stdout),expected)
   assert.equal(run([...cmd.path,'--help']).stdout,reference([...cmd.path,'--help']).stdout)
@@ -24,14 +24,14 @@ test('catalog reports native coverage and unique request identities',()=>{
  const b=run(['catalog','--json']);assert.notEqual(JSON.parse(a.stdout).requestId,JSON.parse(b.stdout).requestId)
  const data=JSON.parse(a.stdout).data
  assert.ok(data.cli.version.includes('-nim.'))
- assert.ok(data.commands.every(c=>c.status===(['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','job status','job cancel'].includes(c.command)?'implemented':'pending')))
+ assert.ok(data.commands.every(c=>c.status===(['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','job status','job cancel','runtime build'].includes(c.command)?'implemented':'pending')))
  assert.equal(run(['targets','--json']).status,3)
  assert.equal(run(['catalog','--bogus']).status,2)
 })
 test('clean preserves authored macOS and plugin platforms and unlinks symlinks',()=>{
  const dir=mkdtempSync(join(tmpdir(),'xplat-nim-clean-'))
  writeFileSync(join(dir,'package.json'),'{}')
- for(const name of ['dist','platforms/ios','platforms/macos'])mkdirSync(join(dir,name),{recursive:true})
+ for(const name of ['dist','platforms/ios','platforms/macos']){mkdirSync(join(dir,name),{recursive:true})}
  const result=run(['clean'],dir);assert.equal(result.status,0,result.stderr)
  assert.equal(existsSync(join(dir,'dist')),false);assert.equal(existsSync(join(dir,'platforms/ios')),false);assert.equal(existsSync(join(dir,'platforms/macos')),true)
  writeFileSync(join(dir,'package.json'),JSON.stringify({nativescript:{platforms:{ios:'1'}}}))
@@ -51,10 +51,10 @@ test('agent groups preserve help, schema and JSON selection failures',()=>{
    assert.equal(actual.status,expected.status,actual.stderr)
    if(suffix.includes('--schema')) {
     const value=normalized(expected.stdout)
-    for(const schema of value.data.commands)schema.status=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','job status','job cancel'].includes(schema.command)?'implemented':'pending'
+    for(const schema of value.data.commands){schema.status=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','job status','job cancel','runtime build'].includes(schema.command)?'implemented':'pending'}
     assert.deepEqual(normalized(actual.stdout),value)
-   } else if(suffix.includes('--json')) assert.deepEqual(normalized(actual.stdout),normalized(expected.stdout))
-   else assert.equal(actual.stdout,expected.stdout)
+   } else if(suffix.includes('--json')) {assert.deepEqual(normalized(actual.stdout),normalized(expected.stdout))}
+   else {assert.equal(actual.stdout,expected.stdout)}
   }
  }
 })
@@ -77,7 +77,7 @@ test('agent argument failures preserve human stderr and JSON envelopes',()=>{
    const argv=[...args,...(json?['--json']:[])]
    const expected=reference(argv), actual=run(argv)
    assert.equal(actual.status,expected.status,argv.join(' '))
-   if(json)assert.deepEqual(normalized(actual.stdout),normalized(expected.stdout))
+   if(json){assert.deepEqual(normalized(actual.stdout),normalized(expected.stdout))}
    else {assert.equal(actual.stdout,expected.stdout);assert.equal(actual.stderr,expected.stderr)}
   }
  }

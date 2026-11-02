@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
-import { routeCommandDescriptor } from './route-templates.mjs'
+import { routeCommandDescriptor, buildCommandDescriptor } from './route-templates.mjs'
 const source = readFileSync(new URL('../../packages/cli/src/commands/routes.ts', import.meta.url), 'utf8')
 
 test('native route flags are extracted from the canonical command and reject unsupported type drift', () => {
@@ -11,4 +11,13 @@ test('native route flags are extracted from the canonical command and reject uns
  ])
  assert.equal(descriptor.flags[0].default,false)
  assert.throws(() => routeCommandDescriptor(source.replaceAll('type: optional(string)','type: optional(number)')),/Unsupported routes option type/)
+})
+test('build flags come from the canonical command, including flags without a short alias', () => {
+ const source = readFileSync(new URL('../../packages/cli/src/commands/build.ts', import.meta.url), 'utf8')
+ const descriptor = buildCommandDescriptor(source)
+ assert.deepEqual(descriptor.flags.map(({flag,short,type}) => ({flag,short,type})),[
+  {flag:'release',short:undefined,type:'boolean'}, {flag:'targets',short:'t',type:'string'},
+ ])
+ assert.equal(descriptor.flags[0].default,false)
+ assert.throws(() => buildCommandDescriptor(source.replace('type: optional(string)','type: optional(number)')),/Unsupported build option type/)
 })

@@ -2,7 +2,9 @@
 import ./core, ./args, ./workspace, ./strictjson, ./json_wire, ./js_text, ./process_exit
 import ./typecheck_command, ./managed_process
 import ./routes_command
+import ./build_command
 import ./agent_host
+import ./runtime_service
 import std/[sysrand, terminal, json, os, strutils, asyncdispatch]
 
 const metadata = staticRead("metadata.json")
@@ -17,7 +19,7 @@ if argv.len > 0 and argv[0] == "--internal-agent-host":
   try: idleMs = max(250,parseInt(getEnv("XPLAT_AGENT_HOST_IDLE_MS","120000")))
   except ValueError: discard
   try:
-    waitFor runNativeHost(argv[1],%*{"name": "@octane-xplat/cli","version": data["version"]},idleMs=idleMs)
+    waitFor runNativeHost(argv[1],%*{"name": "@octane-xplat/cli","version": data["version"]},runtimeDispatcher(argv[1]),idleMs=idleMs)
     exitProcess(0)
   except CatchableError as error:
     stderr.writeLine(utf8ForWrite("Native host startup/shutdown failed: " & error.msg))
@@ -56,7 +58,7 @@ proc errorExit(code: string): int =
 
 if argv.len == 0 or argv == @["--help"] or argv == @["-h"]:
   echo "xplat — experimental Nim CLI"
-  echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, permissions, app select, code search, code read, guidance, docs read, session list/status/end, job status/cancel; all agent commands expose --help and --schema."
+  echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, build (web), permissions, app select, code search, code read, guidance, docs read, session list/status/end, job status/cancel, runtime build (web); all agent commands expose --help and --schema."
   echo "Other command execution is pending. Install @octane-xplat/cli@latest for the TypeScript CLI."
   quit(0)
 if argv == @["--version"]:
@@ -98,13 +100,14 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, permissions, app select, code search, code read, guidance, docs read, session list/status/end, job status/cancel. Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, build (web), permissions, app select, code search, code read, guidance, docs read, session list/status/end, job status/cancel, runtime build (web). Other command execution is pending; use --json for contracts and coverage."
     quit(0)
   var reply: JsonNode
   if name in ["status","capabilities"]:
     installProcessSignalHandlers()
     reply = waitFor workspaceStatusCommand(name,parsed["values"],data)
-  elif name in ["session list","session status","session end","job status","job cancel"]:
+  elif name in ["session list","session status","session end","job status","job cancel","runtime build"] or
+      (name == "diagnostics" and truthy(field(parsed["values"],"jobId"))):
     reply = waitFor workspaceHostCommand(name,parsed["values"])
   else: reply = workspaceCommand(name, parsed["values"])
   if reply != nil:
@@ -115,15 +118,19 @@ if data["commands"].hasKey(name):
     let code = text(reply["error"]["code"])
     quit(errorExit(code))
   failure(name, "unavailable", "Command execution is not yet ported to Nim: " & name, 3)
-if name == "routes":
-  let parsed = parseRouteArguments(data["routeDescriptor"],argv[1..^1])
+if name in ["routes","build"]:
+  let descriptor = if name == "routes": "routeDescriptor" else: "buildDescriptor"
+  let parsed = parseOrchestrationArguments(data[descriptor],argv[1..^1])
   if parsed.hasKey("errors"):
     humanError(name,parsed["errors"][0])
     exitProcess(1)
   if parsed["help"].getBool():
-    stdout.write(text(data["routesHelp"]))
+    stdout.write(text(data[name & "Help"]))
     exitProcess(0)
-  try: exitProcess(waitFor runRoutes(getCurrentDir(),parsed["values"]))
+  try:
+    let status = if name == "routes": waitFor runRoutes(getCurrentDir(),parsed["values"])
+      else: waitFor runBuild(getCurrentDir(),parsed["values"])
+    exitProcess(status)
   except CatchableError as error:
     if interruptedSignal() != 0: exitProcess(128+interruptedSignal())
     stderr.writeLine(utf8ForWrite(error.msg))

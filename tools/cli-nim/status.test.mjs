@@ -42,7 +42,7 @@ function app(project, id, name = id, platforms = ['web']) {
  const dir = join(project.dir, id)
  file(join(dir, 'package.json'), JSON.stringify({ name, dependencies: { '@octane-xplat/ui': '1.2.3' },
   xplat: { targets: platforms.includes('macos') ? { macos: { runtime: 'appkit-node-api' } } : {} } }))
- if (platforms.includes('web')) file(join(dir, 'vite.config.ts'), 'throw new Error("status must never execute project config")\n')
+ if (platforms.includes('web')) {file(join(dir, 'vite.config.ts'), 'throw new Error("status must never execute project config")\n')}
  if (platforms.includes('ios')) {
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json')))
   manifest.dependencies['@nativescript/ios'] = '9.0.0'
@@ -67,14 +67,14 @@ function json(native, project, command = 'status', args = [], extra = {}) {
  return value
 }
 function normalize(value) {
- if (Array.isArray(value)) return value.map(normalize)
- if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'requestId').map(([key, val]) => {
+ if (Array.isArray(value)) {return value.map(normalize)}
+ if (value && typeof value === 'object') {return Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'requestId').map(([key, val]) => {
   if (key === 'grantedAt') {
    assert.ok(Math.abs(Date.parse(val) - Date.now()) < 60000)
    return [key, '<current-utc>']
   }
   return [key, normalize(val)]
- }))
+ }))}
  return value
 }
 function compareReport(project, args = [], extra = {}) {
@@ -87,7 +87,7 @@ function compareReport(project, args = [], extra = {}) {
  assert.deepEqual(code, expected.data.codeIndex, 'Keep actual corpora, freshness, file counts and index state')
  assert.equal(actual.data.server.name, expected.data.server.name)
  assert.match(actual.data.server.version, /^\d+\.\d+\.\d+-nim\.\d+$/)
- if (actual.data.identity.selection.state !== 'bound') assert.deepEqual(actual.data.nextSteps, expected.data.nextSteps)
+ if (actual.data.identity.selection.state !== 'bound') {assert.deepEqual(actual.data.nextSteps, expected.data.nextSteps)}
  assert.deepEqual(actual.data.boundaries, PRODUCT_BOUNDARIES)
  return actual
 }
@@ -97,16 +97,16 @@ function verifyCapabilities(matrices, bound) {
   assert.deepEqual(matrix.capabilities.map(row => row.capability), CAPABILITY_IDS)
   for (const row of matrix.capabilities) {
    const wanted = row.capability === 'project_status' || (bound && row.capability === 'guidance') ? 'supported'
-    : bound && ['docs', 'code_search'].includes(row.capability) ? 'partial' : 'unavailable'
+    : bound && (['docs', 'code_search'].includes(row.capability) || (process.platform==='darwin' && matrix.platform==='web' && ['build','logs','job_control'].includes(row.capability))) ? 'partial' : 'unavailable'
    assert.equal(row.status, wanted, row.capability)
-   if (row.capability === 'screenshot') assert.equal(row.requiresPermission, 'visual-capture')
+   if (row.capability === 'screenshot') {assert.equal(row.requiresPermission, 'visual-capture')}
   }
  }
 }
 
 test('status preserves empty, sole-app, ambiguous and explicit selection contracts', macOnly, () => {
  const fixture = project()
- for (const source of ['AGENTS.md', 'CLAUDE.md', '.devin', 'docs']) file(join(fixture.dir, source), '# guidance\n')
+ for (const source of ['AGENTS.md', 'CLAUDE.md', '.devin', 'docs']) {file(join(fixture.dir, source), '# guidance\n')}
  const empty = compareReport(fixture)
  assert.equal(empty.data.identity.selection.state, 'none')
  assert.equal(empty.data.docs.state, 'unavailable')
@@ -123,7 +123,7 @@ test('status preserves empty, sole-app, ambiguous and explicit selection contrac
  const ambiguous = compareReport(fixture)
  assert.equal(ambiguous.data.identity.selection.state, 'ambiguous')
  verifyCapabilities(ambiguous.data.capabilities, false)
- for (const selector of ['alpha', 'apps/beta', 'missing']) compareReport(fixture, ['--app', selector])
+ for (const selector of ['alpha', 'apps/beta', 'missing']) {compareReport(fixture, ['--app', selector])}
 })
 
 test('preferences, client scopes and fresh installation changes affect the next report', macOnly, () => {
@@ -151,7 +151,7 @@ test('status works without a runtime and checks the selected package manager onl
  assert.ok(calls.every(call => call.command !== 'bun' && call.command !== 'chromium'))
  assert.equal(calls.filter(call => call.command === 'git' && call.args[0] === '--version').length, 1)
  const standalone = json(true, fixture, 'status', [], { PATH: '' })
- for (const id of ['node', 'pnpm', 'git']) assert.equal(standalone.data.prerequisites.find(row => row.id === id).status, 'missing')
+ for (const id of ['node', 'pnpm', 'git']) {assert.equal(standalone.data.prerequisites.find(row => row.id === id).status, 'missing')}
  assert.equal(standalone.data.docs.binding.git, 'unavailable')
  assert.equal(standalone.data.prerequisites.find(row => row.id === 'chromium').status, 'unknown')
  verifyCapabilities(standalone.data.capabilities, true)
@@ -201,14 +201,14 @@ process.on('SIGTERM',()=>{}); child.stdout.once('data',()=>fs.writeFileSync(${JS
  const closed = new Promise((resolve, reject) => { child.once('error', reject); child.once('close', (code, signal) => resolve({ code, signal })) })
  const deadline = Date.now() + 10000
  try {
-  while (!existsSync(marker) && Date.now() < deadline && child.exitCode === null) await delay(10)
+  while (!existsSync(marker) && Date.now() < deadline && child.exitCode === null) {await delay(10)}
   assert.ok(existsSync(marker), 'Observe the version probe running before cancellation')
   child.kill('SIGTERM')
   const result = await Promise.race([closed, delay(5000).then(() => { throw Error('Cancelled status did not exit') })])
   assert.deepEqual(result, { code: 8, signal: null })
   assert.equal(stderr, '')
   assert.equal(JSON.parse(stdout).error.code, 'cancelled')
-  for (const pid of JSON.parse(readFileSync(marker))) assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })
+  for (const pid of JSON.parse(readFileSync(marker))) {assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })}
  } finally {
   if (child.exitCode === null && child.signalCode === null) { child.kill('SIGKILL'); await closed }
  }

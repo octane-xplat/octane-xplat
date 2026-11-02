@@ -112,6 +112,8 @@
 		"test:nim-status": "node --test ../../tools/cli-nim/status.test.mjs",
 		"test:nim-targets": "node --test ../../tools/cli-nim/targets.test.mjs",
 		"test:nim-sessions": "node --test ../../tools/cli-nim/sessions.test.mjs",
+		"test:nim-runtime-build": "node --test ../../tools/cli-nim/runtime-build.test.mjs",
+		"test:nim-runtime-logs": "node --test ../../tools/cli-nim/runtime-logs.test.mjs",
 		"test:nim-jobs": "node --test ../../tools/cli-nim/jobs.test.mjs",
 		"build:nim-rpc": "node ../../tools/cli-nim/build-probe.mjs rpc",
 		"test:nim-rpc": "node --test ../../tools/cli-nim/rpc.test.mjs",

@@ -11,6 +11,39 @@ import ../../packages/cli/nim/[prerequisites, command_probe]
 import ../../packages/cli/nim/target_discovery
 import ./sessions_scenario
 import ./jobs_scenario
+import ../../packages/cli/nim/[runtime_logs, runtime_build]
+import ../../packages/cli/nim/contract_failure
+
+proc logsScenario(request: JsonNode): JsonNode =
+  let logs = newRuntimeLogs((if field(request,"limit") == nil: 2000 else: request["limit"].getInt()),
+    (if field(request,"byteLimit") == nil: 2*1024*1024 else: request["byteLimit"].getInt()))
+  var observed = newJArray()
+  let watcher = logs.watchLogs(proc(record: JsonNode) = observed.add(record.copy()))
+  if field(request,"badObserver") == %true:
+    discard logs.watchLogs(proc(record: JsonNode) =
+      record["line"] = %"observer mutation"
+      raise newException(ValueError,"observer failure"))
+  result = newJArray()
+  for step in request["steps"]:
+    var value: JsonNode
+    case text(step["op"])
+    of "append": value = logs.appendLog(text(step["line"]),
+      stream=(if field(step,"stream") == nil: "stdout" else: text(step["stream"])),
+      source=text(field(step,"source")),level=text(field(step,"level")),lineTruncated=field(step,"lineTruncated") == %true)
+    of "note": value = logs.noteLog(text(step["line"]))
+    of "reset": logs.resetLogs(text(step["reason"])); value = newJNull()
+    of "unwatch": logs.unwatchLogs(watcher); value = newJNull()
+    of "observed": value = observed.copy()
+    of "errors": value = %logs.logObserverFailures()
+    of "read":
+      value = logs.readLogs((if field(step,"cursor") == nil or step["cursor"].kind == JNull: none(int) else: some(step["cursor"].getInt())),
+        (if field(step,"limit") == nil: 500 else: step["limit"].getInt()),text(field(step,"stream")))
+    of "mutate":
+      let snapshot = logs.readLogs()
+      if snapshot["records"].len > 0: snapshot["records"][0]["line"] = %"caller mutation"
+      value = newJNull()
+    else: raise newException(ValueError,"Unknown log scenario")
+    result.add(if value == nil: newJNull() else: value.copy())
 
 proc commandQuery(request: JsonNode): Future[JsonNode] {.async.} =
   let signal = newProcessCancel()
@@ -37,6 +70,14 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "runtime-logs": value = logsScenario(request)
+    of "native-build":
+      let logs = newRuntimeLogs()
+      let signal = newProcessCancel()
+      try:
+        value = waitFor runProjectBuild(%*{"id": ".","root": dir},"web",logs,signal,
+          timeoutMs=(if field(request,"timeoutMs") == nil: 900000 else: request["timeoutMs"].getInt()))
+      except CatchableError as error: value = %*{"error": failureData(error),"logs": logs.readLogs()}
     of "jobs": value = waitFor jobScenario(request)
     of "job-process": value = waitFor jobProcessScenario(request)
     of "session-process": value = waitFor sessionProcessScenario(request)

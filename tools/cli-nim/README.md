@@ -329,7 +329,8 @@ shutdown, isolate nested snapshot mutation, contain observer exceptions, seriali
 reentrant notifications and wait for a single cleanup on concurrent end calls.
 The macOS process case arms both a child and descendant against SIGTERM, verifies
 attached end preserves them, then verifies owned end releases both before the
-outer test process manager closes. Public session/IPC composition remains pending.
+outer test process manager closes. The native host composes public session state;
+real app launch/attach remains pending.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native session ownership qualification"}' -- bun run turbo run test:nim-sessions --filter=@octane-xplat/cli
@@ -342,8 +343,8 @@ completion, queued cancellation history, snapshot isolation, invalid futures and
 structured-exception fallback. An active owned runner cannot be manually marked
 terminal; close waits for cancellation cleanup. Its macOS process case checks
 an armed child and descendant are absent before the outer test owner closes.
-These are registry/ownership gates; persistent host IPC and public job/runtime
-commands still require composition and app-workflow qualification.
+These are registry/ownership gates. The native host composes public job control;
+real web build qualification is separate below.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native job lifecycle qualification"}' -- bun run turbo run test:nim-jobs --filter=@octane-xplat/cli
@@ -419,3 +420,23 @@ Retain the differential harness as a migration gate during the full rewrite:
 compile success and low size do not prove Node semantics. Qualify remaining host
 adapters and complete app ownership before production workflows. Operational measurements belong
 in local reports and Silo rather than this guide.
+
+
+## Real web build jobs and logs
+
+`test:nim-runtime-build` invokes the actual installed Vite and build-package CSS
+plugin from disposable apps without installing a CLI JS payload. It compares the
+wire result and exact generated artifacts with the TypeScript web adapter, then
+checks compiler errors, selected-app deduplication, cancellation of engine and
+descendant processes, engine deadlines, foreground build selection and rejection
+before writes. This qualifies web builds on the executed macOS host; it does not
+qualify a development server, browser UI or native app package.
+
+`test:nim-runtime-logs` compares cursor/filter/reset behavior against the real
+TypeScript log store. Native checks additionally enforce a byte bound, private
+snapshots and containment of throwing observers. Public job logs are retained
+only for the host lifetime; persisted session history remains migration work.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native web build qualification"}' -- bun run turbo run test:nim-runtime-build test:nim-runtime-logs --filter=@octane-xplat/cli
+```

@@ -3,7 +3,7 @@ import std/[json, asyncdispatch, options, strutils]
 import ./route_operation, ./route_watch, ./managed_process, ./jsonutil, ./js_text
 import ./args
 
-proc parseRouteArguments*(descriptor: JsonNode, argv: seq[string]): JsonNode =
+proc parseOrchestrationArguments*(descriptor: JsonNode, argv: seq[string]): JsonNode =
   var normalized: seq[string]
   for token in argv:
     var expanded = token
@@ -18,7 +18,7 @@ proc parseRouteArguments*(descriptor: JsonNode, argv: seq[string]): JsonNode =
   if result.hasKey("errors"):
     for error in result["errors"]:
       if error.hasKey("recovery"):
-        error["recovery"]["action"] = %"Run `xplat routes --help` for usage."
+        error["recovery"]["action"] = %("Run `xplat " & text(descriptor["name"]) & " --help` for usage.")
 
 proc generated(count: int) =
   stdout.writeLine("Generated route contracts and platform catalogs — " & $count & " route" & (if count == 1: "" else: "s"))

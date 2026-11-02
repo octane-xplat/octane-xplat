@@ -7,7 +7,8 @@ proc checkRouteCancellation*(signal: ProcessCancel = nil) =
     raise newException(ValueError,"Route generation cancelled")
 
 proc prepareRoutes*(project: string, directory = none(string), output = none(string),
-    bake = true, signal: ProcessCancel = nil, onWarn: RouteWarningSink = nil): Future[RouteGeneration] {.async.} =
+    bake = true, signal: ProcessCancel = nil, onWarn: RouteWarningSink = nil,
+    onDiagnostic: proc(bytes: string) {.closure.} = nil): Future[RouteGeneration] {.async.} =
   checkRouteCancellation(signal)
   if routeLocation(project,directory,output).dir.len == 0:
     return validateRoutePlan(%*{"version": 1,"count": false,"outputs": []},project,directory,output)
@@ -17,7 +18,9 @@ proc prepareRoutes*(project: string, directory = none(string), output = none(str
   if output.isSome: request["output"] = %output.get()
   var warnings: seq[string]
   let data = await runBuildWorker(project,"route-plan",request,signal=signal,
-    onDiagnostic=proc(bytes: string) = stderr.write(bytes),
+    onDiagnostic=proc(bytes: string) =
+      if onDiagnostic != nil: onDiagnostic(bytes)
+      else: stderr.write(bytes),
     onWarning=proc(message: string) =
       warnings.add(message)
       if onWarn != nil: onWarn(message))
@@ -29,8 +32,9 @@ proc prepareRoutes*(project: string, directory = none(string), output = none(str
   checkRouteCancellation(signal)
 
 proc generateNativeRoutes*(project: string, directory = none(string), output = none(string),
-    bake = true, signal: ProcessCancel = nil, onWarn: RouteWarningSink = nil): Future[Option[int]] {.async.} =
-  let planned = await prepareRoutes(project,directory,output,bake,signal,onWarn)
+    bake = true, signal: ProcessCancel = nil, onWarn: RouteWarningSink = nil,
+    onDiagnostic: proc(bytes: string) {.closure.} = nil): Future[Option[int]] {.async.} =
+  let planned = await prepareRoutes(project,directory,output,bake,signal,onWarn,onDiagnostic)
   checkRouteCancellation(signal)
   planned.publishRoutes()
   return planned.count

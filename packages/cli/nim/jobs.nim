@@ -8,6 +8,7 @@ type
   JobRunner* = proc(signal: ProcessCancel, progress: JobProgress): Future[JsonNode] {.closure.}
   JobEntry = ref object
     value: JsonNode
+    scope: string
     signal: ProcessCancel
     completion: Future[void]
     order: int
@@ -68,7 +69,7 @@ proc finishRunner(registry: JobRegistry, entry: JobEntry, run: JobRunner): Futur
     entry.completion.complete()
     registry.trim()
 
-proc startJob*(registry: JobRegistry, input: JsonNode, run: JobRunner = nil): JsonNode =
+proc startJob*(registry: JobRegistry, input: JsonNode, run: JobRunner = nil, scope = ""): JsonNode =
   if registry.closing: raise newException(ValueError,"Job registry is shutting down")
   if input == nil or input.kind != JObject or field(input,"kind") == nil or
       input["kind"].kind != JString or input["kind"].getStr().len == 0:
@@ -78,7 +79,7 @@ proc startJob*(registry: JobRegistry, input: JsonNode, run: JobRunner = nil): Js
     if value != nil and value.kind notin [JNull,JString]: raise newException(ValueError,"Job " & key & " must be a string")
   if truthy(field(input,"requestKey")):
     for entry in registry.entries.values:
-      if entry.isLive() and jsStrictEqual(field(entry.value,"requestKey"),field(input,"requestKey")) and
+      if entry.scope == scope and entry.isLive() and jsStrictEqual(field(entry.value,"requestKey"),field(input,"requestKey")) and
           jsStrictEqual(entry.value["kind"],input["kind"]) and jsStrictEqual(field(entry.value,"sessionId"),field(input,"sessionId")):
         return %*{"job": entry.value.copy(),"deduplicated": true}
   let id = freshId("job_")
@@ -86,7 +87,7 @@ proc startJob*(registry: JobRegistry, input: JsonNode, run: JobRunner = nil): Js
   let value = %*{"jobId": id,"kind": input["kind"],"state": "queued","createdAt": utcTimestamp()}
   for key in ["sessionId","requestKey"]:
     if field(input,key) != nil: value[key] = input[key].copy()
-  let entry = JobEntry(value: value.copy(),order: registry.order)
+  let entry = JobEntry(value: value.copy(),scope: scope,order: registry.order)
   registry.entries[id] = entry
   if run != nil:
     entry.signal = newProcessCancel()

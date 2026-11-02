@@ -156,11 +156,24 @@ before generating files:
 
 Native session and job commands read retained state from a background owner for
 the workspace. A read does not start that process; with no owner, the session list
-is empty. Each CLI implementation owns its runtime state. Native build/dev and
-app-session creation remain migration work:
+is empty. Each CLI implementation owns its runtime state. Development sessions
+and builds for other platforms remain migration work:
 
 ```sh
 /path/to/octane-xplat/research/nim-cli/native/xplat session list --json
+```
+
+Native web builds use your project's installed Vite and package manager. Run
+`build` from the app directory for foreground output, or use `runtime build` for
+a background job. Poll its returned job id and read captured output. Job logs
+are bounded and disappear when the background owner exits:
+
+```sh
+/path/to/octane-xplat/research/nim-cli/native/xplat build --targets web
+/path/to/octane-xplat/research/nim-cli/native/xplat runtime build --platform web --json
+# Replace JOB_ID with the returned id:
+/path/to/octane-xplat/research/nim-cli/native/xplat job status JOB_ID --json
+/path/to/octane-xplat/research/nim-cli/native/xplat diagnostics --job JOB_ID --json
 ```
 
 Inspect the native catalog before using another workflow:

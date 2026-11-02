@@ -18,7 +18,11 @@ watching. Route planning/rendering runs in the selected project's build worker;
 Nim validates the artifact plan and owns publication and the worker's lifecycle.
 Session list/status/end and job status/cancel use the authenticated native host
 on macOS. Reads never start it. Its private per-workspace cache survives project
-cache cleanup. Full build/dev and app-session creation workflows remain pending; keep using the TypeScript CLI for those.
+cache cleanup. Web `build --targets web` and `runtime build --platform web` invoke the selected
+project's installed Vite. Build-job diagnostics retain bounded output while the
+host lives; inspect with `diagnostics --job JOB_ID`. Other build/dev and
+app-session creation workflows remain pending; keep using the TypeScript CLI
+for those.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the
 [native migration boundaries](../../../../packages/cli/nim/README.md).
