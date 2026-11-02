@@ -142,6 +142,24 @@ state by a created-and-held native argument instead (e.g. `message.webView`),
 whose wrapper identity is stable — same shape as the embedded webview's
 `states` WeakMap.
 
+Scope boundary (runtime-probed 2026-11-02, media-converter feasibility,
+`research/media-converter-runtime/`): the marshalling surface needed for a
+TypeScript GIF→MP4 engine is complete on the main queue — `CGImageSource*`
+decode and property dictionaries (`objectForKey` + `kCGImageProperty*` keys),
+`AVAssetWriter`/`AVAssetWriterInput`/`AVAssetWriterInputPixelBufferAdaptor`,
+`interop.Reference` out-params for `CVPixelBufferPoolCreatePixelBuffer`,
+`CVPixelBufferGetBaseAddress` → `CGBitmapContextCreate` raw-pointer
+round-trip, `CMTimeMake`/`appendPixelBufferWithPresentationTime`, and
+dict-literal output settings all marshal. The engine still cannot move to
+TypeScript on this host: `Worker` is undefined,
+`dispatch_async(dispatch_get_global_queue(…), block)` silently never invokes
+the JS block, a custom `NSOperationQueue.addOperationWithBlock` never fires,
+and `AVAssetWriter.finishWritingWithCompletionHandler` never delivered
+within 90 s — there is no background JS execution channel, so the frame loop
+and H.264 backpressure would have to run on the main queue, which cannot
+preserve nonblocking UI. `dispatch_get_main_queue` and
+`dispatch_semaphore_create` are also absent from metadata.
+
 ## Other verified host quirks
 
 Recorded where they were found rather than repeated here:

@@ -2122,6 +2122,7 @@
       "version": "0.19.0",
       "dependencies": {
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
