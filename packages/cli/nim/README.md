@@ -73,6 +73,12 @@ canonical reference at build time.
 eligibility helpers. Its simulator parser validates availability and identities
 before offering targets. Public `targets` remains pending until session ownership
 and busy-state composition land; inventory does not establish launch readiness.
+`sessions.nim` owns session identities, progress, usable/historical states and
+owned cleanup. Concurrent ends share completion; attached bindings preserve their
+external process. Snapshot mutation and observer exceptions cannot change private
+ownership or bypass cleanup. Its process fixture verifies cleanup before the outer
+test owner closes. Job/runtime/IPC composition and public session commands remain
+pending; an in-memory registry does not establish a persistent app session.
 These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside

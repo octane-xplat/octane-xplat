@@ -31,6 +31,9 @@ precedence over incidental equality with WASM search ranking.
 - Use `Option[T]` when a valid empty value must remain distinct from absence.
   For example, a parsed parameter can have `some("")`, while a static segment
   has `none(string)`. An empty-string sentinel would merge those results.
+- `JsonNode` is a reference type: assignment shares mutable data. Return deep
+  copies at snapshot boundaries, including nested build identities and cached
+  async results, so caller mutation cannot alter private ownership/state records.
 - `for key, value in jsonNode` is object iteration: the key is a string.
   For an array with numeric positions, use `for i in 0..<node.len` and
   `let value = node[i]`. Do not assume a two-variable loop means array indices.
@@ -174,6 +177,12 @@ can therefore be ready before its returned future's cleanup callback runs;
 track result state and pending ownership separately. Initialize the async
 dispatcher before registering callbacks on already-completed futures, and test
 both immediate completion and a build that yields to the event loop.
+
+Publish a shared cleanup future before notifying observers or invoking cleanup.
+Concurrent/reentrant end calls must await that completion; a terminal state alone
+does not prove resources were released. Serialize reentrant notifications and
+isolate observer exceptions from ownership cleanup. Dispose subscriptions when
+their registry shuts down, and reject new resource bindings during shutdown.
 
 Drain stdout and stderr concurrently when capturing a child. Reading one pipe
 to EOF first can block forever when the other pipe fills. Bound retained output,
