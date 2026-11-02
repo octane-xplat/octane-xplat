@@ -27,7 +27,9 @@ const supported = () =>
 	typeof AudioContext !== 'undefined'
 
 const mapMediaError = (cause: unknown): RecorderPermissionState => {
-	const name = (cause as { name?: string })?.name
+	// Rejections are not guaranteed Error instances; read `name` structurally.
+	const name =
+		typeof cause === 'object' && cause !== null && 'name' in cause ? cause.name : undefined
 	if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
 		return 'denied'
 	}

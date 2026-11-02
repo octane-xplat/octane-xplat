@@ -81,8 +81,13 @@ async function toImageSource(image: unknown): Promise<any> {
 	if (typeof image === 'string') {
 		return ImageSource.fromFile(image)
 	}
-	if (image && typeof (image as { uri?: string }).uri === 'string') {
-		return ImageSource.fromFile((image as { uri: string }).uri)
+	if (
+		typeof image === 'object' &&
+		image !== null &&
+		'uri' in image &&
+		typeof image.uri === 'string'
+	) {
+		return ImageSource.fromFile(image.uri)
 	}
 	throw new Error('barcodeScanner.scanImage: expected an ImageSource, file path, or {uri} ref')
 }

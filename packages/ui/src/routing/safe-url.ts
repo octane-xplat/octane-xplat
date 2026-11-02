@@ -42,13 +42,11 @@ export function isSafeDestination(destination: unknown): boolean {
 		return false
 	}
 
-	const { pathname, href, protocol, host, hostname } = destination as {
-		pathname?: unknown
-		href?: unknown
-		protocol?: unknown
-		host?: unknown
-		hostname?: unknown
-	}
+	const pathname = 'pathname' in destination ? destination.pathname : undefined
+	const href = 'href' in destination ? destination.href : undefined
+	const protocol = 'protocol' in destination ? destination.protocol : undefined
+	const host = 'host' in destination ? destination.host : undefined
+	const hostname = 'hostname' in destination ? destination.hostname : undefined
 	for (const field of [pathname, href, protocol, host, hostname]) {
 		if (field != null && typeof field !== 'string') {
 			return false

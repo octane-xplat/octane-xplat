@@ -35,9 +35,9 @@ export function throwIfAborted(signal: AbortSignal | undefined): void {
 		return
 	}
 
-	const thrower = (signal as { throwIfAborted?: () => void }).throwIfAborted
-	if (typeof thrower === 'function') {
-		thrower.call(signal)
+	// Optional capability — some supported runtimes lack AbortSignal.throwIfAborted.
+	if ('throwIfAborted' in signal && typeof signal.throwIfAborted === 'function') {
+		signal.throwIfAborted()
 	}
 
 	const error = new Error('The operation was aborted')

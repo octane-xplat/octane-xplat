@@ -1,4 +1,5 @@
 import { createAnimatedValue } from '../internal/platform/animated-value'
+import { isThenable } from './thenable'
 import { readReducedMotion, writeAnimatedProperty } from '../internal/platform/animation-host.macos'
 import type { PaneRouteTransitions } from './pane-route-transition-types'
 import type {
@@ -22,8 +23,9 @@ function checkedValues(values: AppKitTransitionValues): AppKitTransitionValues {
 	if (!values || typeof values !== 'object' || Array.isArray(values)) {
 		throw new TypeError('Expected AppKit transition starting values')
 	}
-	if (typeof (values as { then?: unknown }).then === 'function') {
-		void Promise.resolve(values as unknown as PromiseLike<unknown>).catch(() => {})
+	if (isThenable(values)) {
+		// Drain so an unhandled rejection does not surface after the throw.
+		void Promise.resolve(values).catch(() => {})
 		throw new TypeError('AppKit transition starting values must be synchronous')
 	}
 	const captured: AppKitTransitionValues = {}

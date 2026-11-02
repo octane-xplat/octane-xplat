@@ -37,11 +37,37 @@ export function percent(
 }
 
 export function isPixelSize(v: unknown): v is ResizablePixelSize {
-	return typeof v === 'object' && v !== null && (v as { type?: unknown }).type === 'pixel'
+	return (
+		typeof v === 'object' &&
+		v !== null &&
+		'type' in v &&
+		v.type === 'pixel' &&
+		'value' in v &&
+		typeof v.value === 'number'
+	)
 }
 
 export function isPercentSize(v: unknown): v is ResizablePercentSize {
-	return typeof v === 'object' && v !== null && (v as { type?: unknown }).type === 'percent'
+	if (
+		typeof v !== 'object' ||
+		v === null ||
+		!('type' in v) ||
+		v.type !== 'percent' ||
+		!('value' in v) ||
+		typeof v.value !== 'number'
+	) {
+		return false
+	}
+
+	// The percent shape requires exactly one pixel bound; a nullish field
+	// counts as absent so `min?: never`/`max?: never` variants still hold.
+	const min = 'min' in v ? v.min : undefined
+	const max = 'max' in v ? v.max : undefined
+	if (min != null === (max != null)) {
+		return false
+	}
+
+	return isPixelSize(min ?? max)
 }
 
 /**

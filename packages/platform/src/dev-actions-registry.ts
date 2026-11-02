@@ -367,11 +367,23 @@ type FetchLike = (
 	init?: { method?: string; headers?: Record<string, string>; body?: string; signal?: unknown },
 ) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
 
-const fetchImpl = () => (globalThis as { fetch?: FetchLike }).fetch
+// Capability probes — a callable member satisfies the declared contract at
+// this ambient boundary; nothing more about it is assumed.
+const fetchImpl = (): FetchLike | undefined => {
+	const candidate: unknown = Reflect.get(globalThis, 'fetch')
+	return typeof candidate === 'function' ? (candidate as FetchLike) : undefined
+}
 
-const uuid = () =>
-	(globalThis as { crypto?: { randomUUID?: () => string } }).crypto?.randomUUID?.() ??
-	`${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+const uuid = (): string => {
+	const crypto: unknown = Reflect.get(globalThis, 'crypto')
+	const randomUUID =
+		typeof crypto === 'object' && crypto !== null && 'randomUUID' in crypto
+			? crypto.randomUUID
+			: undefined
+	return typeof randomUUID === 'function'
+		? String(randomUUID.call(crypto))
+		: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+}
 
 function registry(): RegistryState {
 	const g = globalThis as unknown as Record<string, RegistryState | undefined>
@@ -909,17 +921,22 @@ async function pollLoop(rt: BridgeRuntime) {
 
 			rt.state = 'live'
 			rt.lastError = undefined
-			const work = (await res.json()) as {
-				invocations?: InvocationRequest[]
-				cancel?: string[]
+			const payload: unknown = await res.json()
+			const work = isRecord(payload) ? payload : {}
+
+			const invocations = Array.isArray(work.invocations) ? work.invocations : []
+			for (const request of invocations) {
+				const invocation = parseInvocation(request)
+				if (invocation) {
+					void dispatchInvocation(rt, invocation)
+				}
 			}
 
-			for (const request of work.invocations ?? []) {
-				void dispatchInvocation(rt, request)
-			}
-
-			for (const requestId of work.cancel ?? []) {
-				requestCancel(requestId)
+			const cancel = Array.isArray(work.cancel) ? work.cancel : []
+			for (const requestId of cancel) {
+				if (typeof requestId === 'string') {
+					requestCancel(requestId)
+				}
 			}
 		} catch (error) {
 			rt.state = 'degraded'
@@ -972,6 +989,35 @@ const FAILURE_SUMMARY_SHOWN = 3
 
 const capText = (text: string, max: number) => (text.length > max ? `${text.slice(0, max)}…` : text)
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === 'object' && value !== null && !Array.isArray(value)
+
+// An invocation arriving over the dev transport is untrusted input: check
+// the fields dispatchInvocation actually consumes before running it.
+function parseInvocation(request: unknown): InvocationRequest | undefined {
+	if (!isRecord(request)) {
+		return undefined
+	}
+	if (typeof request.requestId !== 'string' || typeof request.actionId !== 'string') {
+		return undefined
+	}
+	if (
+		request.registryRevision !== undefined &&
+		typeof request.registryRevision !== 'number'
+	) {
+		return undefined
+	}
+	return {
+		requestId: request.requestId,
+		appInstanceId: typeof request.appInstanceId === 'string' ? request.appInstanceId : '',
+		actionId: request.actionId,
+		...(request.registryRevision !== undefined
+			? { registryRevision: request.registryRevision }
+			: {}),
+		input: isRecord(request.input) ? request.input : {},
+	}
+}
+
 // Cross-realm safe: duck-typed, never instanceof Error.
 const toFailureRecord = (
 	index: number,
@@ -982,16 +1028,17 @@ const toFailureRecord = (
 	if (
 		typeof thrown === 'object' &&
 		thrown !== null &&
-		typeof (thrown as { message?: unknown }).message === 'string'
+		'message' in thrown &&
+		typeof thrown.message === 'string'
 	) {
-		const error = thrown as { name?: unknown; message: string; stack?: unknown }
+		const name = 'name' in thrown && typeof thrown.name === 'string' ? thrown.name : 'Error'
+		const stack =
+			'stack' in thrown && typeof thrown.stack === 'string' ? thrown.stack : undefined
 		return {
 			...base,
-			name: typeof error.name === 'string' ? error.name : 'Error',
-			message: capText(error.message, FAILURE_MESSAGE_MAX),
-			...(typeof error.stack === 'string'
-				? { stack: capText(error.stack, FAILURE_STACK_MAX) }
-				: {}),
+			name,
+			message: capText(thrown.message, FAILURE_MESSAGE_MAX),
+			...(stack !== undefined ? { stack: capText(stack, FAILURE_STACK_MAX) } : {}),
 		}
 	}
 
