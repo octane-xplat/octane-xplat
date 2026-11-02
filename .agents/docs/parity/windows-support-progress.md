@@ -48,16 +48,17 @@ a reproduction. The foreign-text measurement investigation examined beta.126;
 check the adopted MasonKit source and current bounds before retaining a fix or
 claiming it is no longer needed.
 
-## Core-20 qualification result (1.0.0.195)
+## Core-20 qualification result (1.0.0.196)
 
 All 20 core components passed OS/UIA qualification on one packaged x64 MSIX —
-`org.octanexplat.windows61` 1.0.0.195 (sha256 `8de19133e8850a1cc2b2f3f5947ed425819e0aee9b3eb183d5e0bc5b8c20e977`),
-built on Windy from a fresh `bun install --frozen-lockfile` at source commit
-`7172b169e` (the git-am'd equivalent of `main` commits through `f2b4c5ee1`;
-later commits touch only drivers/tests). Ten external driver modes on the one
+`org.octanexplat.windows61` 1.0.0.196 (sha256 `42ae47f264d99c83b1c5376381323e562a0a91bffea7f69c8f751406a17d44fe`),
+built on Windy from literal `main` `2a5f1219e` — a fresh `bun install --frozen-lockfile`
+and `build:windows` on the checked-out `main` tree itself. Ten external driver modes on the one
 installed package: actions 258, list-item 97, display 352, tabs 139, selector
 289, menu 370, table 86, layer 108, layer-focus 25, structure 194 assertions —
-all passed. Per-component rows: `windows_checks` `scenario:windows-os-*` —
+all passed (menu needed one retry — a driver-side snapshot raced the native
+relayout after a window resize; identical driver passed 370/370 on retry, recorded
+in `feedback_observations`). Per-component rows: `windows_checks` `scenario:windows-os-*` —
 see [windows-setup.md](../../../docs/platform/windows-setup.md) for the public
 summary. Bounds still open: Narrator, visual parity, touch/pen, ARM64,
 downstream consumers, full props matrices, other Windows versions.

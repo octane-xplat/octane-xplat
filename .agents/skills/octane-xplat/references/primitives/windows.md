@@ -80,7 +80,7 @@ export function Rows() {
 }
 ```
 
-The core-20 gate qualified ListItem input and List structure on 1.0.0.195 —
+The core-20 gate qualified ListItem input and List structure on 1.0.0.196 —
 Button peer, Tab/Shift+Tab, Enter/Space/mouse/Invoke exactly-once, disabled
 rejection, name update, remount, resize (97 assertions); Rows N group peer,
 ordered rows and leading/trailing slots (structure case). Keep delegation,
@@ -108,7 +108,7 @@ Keep current sort state in header props; ref mutation alone does not rerender
 an unchanged-prop child. Compiled contracts are source evidence only. This input
 prerequisite does not provide Table/header/row/cell structure or qualify native
 input, scrolling, geometry or the wider sorting/plugin matrix. The core-20 gate
-qualified the sortable header on 1.0.0.195 — Button/Invoke peer, Tab/Enter/
+qualified the sortable header on 1.0.0.196 — Button/Invoke peer, Tab/Enter/
 Space/mouse/Invoke sort cycle, controlled accept/reject and the ICU-absent
 natural-compare fallback (86 assertions). Probe the rest separately using the
 [Table qualification boundary](../../../../docs/windows-ui.md#table-header-input-prerequisite).
@@ -141,7 +141,7 @@ disabled rejection, controlled updates and remount. Bounded packaged x64
 checks passed those inputs with the fill layout on a reused native payload.
 The core-20 gate qualified TabItem/SelectionItem peers, one Tab stop, OS
 arrows/mouse selection, disabled behavior, updates, controlled rejection and
-remount on 1.0.0.195 (139 assertions); source and mock results alone still do
+remount on 1.0.0.196 (139 assertions); source and mock results alone still do
 not establish OS behavior beyond the bounded gate.
 Keep rich-slot geometry, structural updates, overflow and native panel
 relations separate. See the [public boundary](../../../../../docs/platform/windows-setup.md#panel-tabs-candidate)
@@ -382,7 +382,7 @@ export function HelpLink(props: { routerLink: LinkProps['as'] }) @{
 The
 [Windows action guide](../../../../../docs/platform/windows-setup.md#buttons-and-links)
 shows the injection contract. The core-20 gate qualified Button/Pressable/Link
-on the packaged 1.0.0.195 MSIX — native peers, OS keyboard/mouse/Invoke,
+on the packaged 1.0.0.196 MSIX — native peers, OS keyboard/mouse/Invoke,
 exactly-once callbacks, disabled rejection, updates, remount, resize (258
 assertions). Full props, Narrator and visual gates remain open.
 
@@ -403,7 +403,7 @@ export function SavedNotice() {
 The [Windows Banner guide](../../../../../docs/platform/windows-setup.md#banner-candidate)
 separates compiled content/lifecycle coverage from pending packaged input,
 geometry, Narrator and visual qualification. The core-20 gate qualified the
-Banner dismiss and action controls plus structure on 1.0.0.195 (display 352 +
+Banner dismiss and action controls plus structure on 1.0.0.196 (display 352 +
 structure 194).
 
 ## Single Selector candidate
@@ -412,7 +412,7 @@ Use the shared controlled API for the experimental Windows single-choice path.
 It keeps framework drawing and uses a native ComboBox peer for finite selection.
 Search, multiple selection, clear, empty lists and groups retain the shared view;
 those paths do not gain native keyboard or automation qualification from this
-candidate. The core-20 gate qualified the finite single Selector on 1.0.0.195 —
+candidate. The core-20 gate qualified the finite single Selector on 1.0.0.196 —
 ComboBox/SelectionItem peers, OS open/arrows/commit/Escape, outside dismissal,
 disabled, updates, remount, resize (289 assertions).
 
@@ -454,5 +454,5 @@ the static attached API has bounded private proof. Public input, trigger
 geometry, controlled state and lifecycle need their own
 [maintained menu mode](../../../../../tools/windows-qualification/README.md#run-action-menu-checks).
 The core-20 gate qualified Menu/MenuItem peers, Invoke, OS keyboard/mouse,
-anchored geometry and outside+Escape dismissal on 1.0.0.195 (370 assertions);
+anchored geometry and outside+Escape dismissal on 1.0.0.196 (370 assertions);
 advanced menu kinds remain on the shared implementation.
