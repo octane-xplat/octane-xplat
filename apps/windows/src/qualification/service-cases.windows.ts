@@ -143,8 +143,16 @@ async function filesSpec(): Promise<Record<string, unknown>> {
 		pickError = String(error)
 	}
 	const exported = await files.export('core20-export.txt', new Uint8Array([1,2,3]))
-	const released = files.release(draft)
-	const releasedAgain = files.release(draft)
+	let released = false
+	try {
+		files.release(draft)
+		released = true
+	} catch {}
+	let releasedAgain = false
+	try {
+		files.release(draft)
+		releasedAgain = true
+	} catch {}
 	return {
 		draftUri: draft.uri,
 		matchedText: text === 'Passport ✓',
@@ -164,9 +172,11 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
 	const filePath = nsPath.join(dir, 'core20-fs.txt')
 	const target = File.fromPath(filePath)
 	const existsBefore = File.exists(filePath)
-	target.writeTextSync('chunk αβγ')
+	await target.writeText('chunk αβγ')
 	const existsAfter = File.exists(filePath)
-	const text = target.readTextSync()
+	const text = await target.readText()
+	// Evidence for the upstream fake-sync gap: PathIO ops return before completing.
+	const syncText = target.readTextSync()
 	const nestedPath = nsPath.join(dir, 'nested', 'inner')
 	const nested = Folder.fromPath(nestedPath)
 	const nestedExists = nested !== null && Folder.exists(nestedPath)
@@ -185,6 +195,7 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
 		existsBefore,
 		existsAfter,
 		matchedText: text === 'chunk αβγ',
+		syncText,
 		nestedExists,
 		tempPath,
 		tempExists,
