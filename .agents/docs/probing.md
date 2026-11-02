@@ -48,6 +48,13 @@ the probe; signing needs a development team — set
 `XPLAT_IOS_DEVELOPMENT_TEAM` unless the probe project's
 `App_Resources/iOS/build.xcconfig` already sets `DEVELOPMENT_TEAM`.
 
+Physical launches request CoreDevice JSON output and track the returned PID
+for cleanup. The verbose `[xplat-probe-ios-app]` marker identifies the exact
+launched bundle for nonvisual lifecycle controllers; use a per-run token when
+reading phase files from a retained app container. Internal runners can invoke
+`mobile-launch.ts` with device kind `physical-build` to warm the signed artifact
+without device access, then release build capacity before reserving the device.
+
 ## Write a case
 
 A `.ts` case exports `run(ctx)`. A `.tsrx` component case also exports a default

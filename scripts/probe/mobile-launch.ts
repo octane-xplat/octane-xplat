@@ -5,7 +5,10 @@ import { join } from 'node:path'
 import { command } from './process.ts'
 
 const [target, device, project, appId, url, startupTimeout, deviceKind] = process.argv.slice(2)
-const physical = deviceKind === 'physical'
+// Qualification runners can warm the signed artifact under a build reservation,
+// then install/run it under a separate device reservation.
+const buildOnly = deviceKind === 'physical-build'
+const physical = deviceKind === 'physical' || buildOnly
 let ownsApp = false
 let ownsReverse = false
 let devicePid
@@ -152,6 +155,10 @@ try {
 		await writeFile(artifactFile, JSON.stringify(artifact))
 	}
 
+	if (buildOnly) {
+		process.exit(0)
+	}
+
 	if (stopping) {
 		process.exit(0)
 	}
@@ -180,6 +187,8 @@ try {
 			[
 				'process',
 				'launch',
+				'--json-output',
+				'-',
 				'--environment-variables',
 				JSON.stringify({ XPLAT_PROBE_SESSION: JSON.stringify({ url }) }),
 				appId,
@@ -187,7 +196,11 @@ try {
 			{ timeout: 60000 },
 		)
 
-		devicePid = Number(launched.stdout.match(/processIdentifier\D*(\d+)/)?.[1])
+		devicePid = JSON.parse(launched.stdout).result.process.processIdentifier
+		if (!Number.isSafeInteger(devicePid) || devicePid <= 0) {
+			throw new Error('Physical iOS launch returned no valid process identifier')
+		}
+		console.log('[xplat-probe-ios-app] ' + appId)
 	} else {
 		const installed = await sim(['get_app_container', device, appId, 'data'], {
 			allowFailure: true,
@@ -209,5 +222,8 @@ try {
 	setInterval(() => {}, 1000)
 } catch (error) {
 	console.error(error.message)
+	if (buildOnly) {
+		process.exit(1)
+	}
 	await stop()
 }
