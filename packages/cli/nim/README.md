@@ -85,6 +85,11 @@ runners on close. Immediate completed futures can produce a terminal start resul
 no JS microtask schedule is assumed. `contract_failure.nim` carries structured
 errors across async boundaries with a fallback for ordinary/uninitialized errors.
 Public jobs/runtime commands remain pending until the native host is connected.
+`unix_rpc.nim` supplies bounded one-request NDJSON over macOS Unix sockets, with
+Node interoperability, input/output byte limits, I/O deadlines and draining close.
+It preserves existing/replacement socket paths and never owns an application's
+process merely because its client disconnects. Authentication, descriptor/startup
+coordination and persistent host composition remain separate work.
 These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside

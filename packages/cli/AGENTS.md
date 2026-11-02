@@ -216,6 +216,12 @@ decoding each chunk can replace part of a valid character. Keep bounded decoded
 log records separate from the full terminal stream so truncating logs does not
 silently discard compiler diagnostics.
 
+Socket chunks also split UTF-8 sequences. For bounded RPC, use unbuffered reads,
+assemble one byte-bounded frame, then decode/parse it. Do not require EOF to finish
+a request/response exchange. Close and drain pending I/O during shutdown. Preserve
+OS `DeviceId`/`FileId` types for path ownership checks; remove an owned socket path
+only if its identity still matches, since another listener can replace its name.
+
 Keep process exit and pipe closure separate. Descendants can retain a pipe after
 the group leader exits, or close their pipes and keep running. Retain ownership
 of the isolated process group until cleanup completes; checking only the

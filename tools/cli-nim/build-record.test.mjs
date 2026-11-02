@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
-import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild, httpProbeInputs, processProbeInputs, envProbeInputs, coreInputs } from './native-inputs.mjs'
+import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild, httpProbeInputs, processProbeInputs, envProbeInputs, rpcProbeInputs, coreInputs } from './native-inputs.mjs'
 
 test('benchmark records bind source bytes, host and the exact executable rather than a shared version', t => {
  const root = mkdtempSync(join(tmpdir(), 'xplat-nim-record-'))
@@ -26,13 +26,19 @@ test('benchmark records bind source bytes, host and the exact executable rather 
   writeFileSync(join(root, file), file)
   assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
  }
- for (const file of ['tools/cli-nim/build-probe.mjs','tools/cli-nim/process_probe.nim','tools/cli-nim/env_probe.nim','tools/cli-nim/sessions_scenario.nim','tools/cli-nim/jobs_scenario.nim','tools/cli-nim/core.nim','tools/cli-nim/catalog.json','tools/cli-nim/prepare.mjs']) writeFileSync(join(root,file),file)
+ for (const file of ['tools/cli-nim/build-probe.mjs','tools/cli-nim/process_probe.nim','tools/cli-nim/env_probe.nim','tools/cli-nim/sessions_scenario.nim','tools/cli-nim/jobs_scenario.nim','tools/cli-nim/rpc_probe.nim','tools/cli-nim/core.nim','tools/cli-nim/catalog.json','tools/cli-nim/prepare.mjs']) writeFileSync(join(root,file),file)
  const processRecord = { ...record, nativeInputs: processProbeInputs(root) }
  const coreRecord = { ...record, nativeInputs: coreInputs(root) }
  const envRecord = { ...record, nativeInputs: envProbeInputs(root) }
+ const rpcRecord = { ...record, nativeInputs: rpcProbeInputs(root) }
  assert.doesNotThrow(() => assertCurrentNativeBuild(root,processRecord,bytes,processProbeInputs))
  assert.doesNotThrow(() => assertCurrentNativeBuild(root,coreRecord,bytes,coreInputs))
  assert.doesNotThrow(() => assertCurrentNativeBuild(root,envRecord,bytes,envProbeInputs))
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root,rpcRecord,bytes,rpcProbeInputs))
+ writeFileSync(join(root,'tools/cli-nim/rpc_probe.nim'),'changed RPC adapter')
+ assert.throws(() => assertCurrentNativeBuild(root,rpcRecord,bytes,rpcProbeInputs),/Sources differ/)
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root,envRecord,bytes,envProbeInputs))
+ writeFileSync(join(root,'tools/cli-nim/rpc_probe.nim'),'tools/cli-nim/rpc_probe.nim')
  for (const file of ['tools/cli-nim/sessions_scenario.nim','tools/cli-nim/jobs_scenario.nim']) {
   writeFileSync(join(root,file),'changed registry scenario')
   assert.throws(() => assertCurrentNativeBuild(root,envRecord,bytes,envProbeInputs),/Sources differ/)
