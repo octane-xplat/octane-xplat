@@ -78,6 +78,19 @@ script bug.
   (never run the map mutation inline), and `getCachedPointer` treats a null
   cached `napi_ref` as a stale entry (purge + miss). `patches/libjsc.patch`
   additionally no-ops `js_delete_reference` on a null ref at the leaf.
+- **Deferred-erase hardening**: deferral opened a second window — the dead
+  wrapper's erase could run after a same-key lookup already purged the stale
+  entry and cached a live replacement, erasing the replacement's entry and
+  dropping its weak ref (wrapper identity lost for that key).
+  `finalizePointerNow` now erases only an entry that is still dead: it
+  resolves the cached `napi_ref` under a temporary handle scope — required
+  because the deferred call arrives outside any napi callback, where
+  `get_ref_value` attaches the resolved value to the env-lifetime
+  `globalScope_` and would pin a live wrapper for the app's lifetime — and
+  deletes the dead ref before erasing (upstream dropped it). A live
+  replacement's entry survives. Regression:
+  `macos-pointer-cache.test.mjs` — 30 seeded keys exercise the window; the
+  pre-hardening binary loses every live entry, the shipped build loses none.
 - **Removal condition**: upstream pointer-cache lifecycle that never mutates
   the map during a bridged call, or moves all erase operations off the
   finalizer path.

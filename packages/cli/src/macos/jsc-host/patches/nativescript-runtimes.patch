@@ -68,10 +68,50 @@ index 4a9002e4..9d4bbbf4 100644
  }
 
 diff --git a/NativeScript/ffi/napi/Interop.mm b/NativeScript/ffi/napi/Interop.mm
-index ba9d7a8..96c08ec 100644
+index ba9d7a8..e565656 100644
 --- a/NativeScript/ffi/napi/Interop.mm
 +++ b/NativeScript/ffi/napi/Interop.mm
-@@ -318,6 +318,14 @@ inline bool getCachedPointer(napi_env env, void* data, napi_value* value) {
+@@ -299,7 +299,6 @@ void finalizeFunctionReferenceNow(napi_env env, void* data, void* hint) {
+ }
+
+ void finalizePointerNow(napi_env env, void* data, void* hint) {
+-  (void)env;
+   (void)hint;
+   Pointer* ptr = (Pointer*)data;
+   if (ptr == nullptr) {
+@@ -307,7 +306,30 @@ void finalizePointerNow(napi_env env, void* data, void* hint) {
+   }
+   auto it = g_pointerCache.find(pointerKey(ptr->data));
+   if (it != g_pointerCache.end()) {
+-    g_pointerCache.erase(it);
++    // xplat: this erase can run deferred (Pointer::finalize posts it to the
++    // JS runloop), after a same-key lookup already purged the dead entry and
++    // cached a replacement wrapper. Only erase an entry that is still dead —
++    // erasing a live cached value would drop the replacement's weak ref and
++    // break pointer-wrapper identity for the surviving wrapper. A dead ref
++    // is released here so the purged entry carries no leak. The aliveness
++    // probe runs under a temporary handle scope because the deferred call
++    // arrives outside any napi callback: get_ref_value attaches a resolved
++    // value to env->scope, which is the env-lifetime global scope here and
++    // would pin a live wrapper for the app's lifetime.
++    napi_value cached = nullptr;
++    napi_handle_scope scope;
++    if (napi_open_handle_scope(env, &scope) == napi_ok) {
++      if (it->second != nullptr) {
++        cached = get_ref_value(env, it->second);
++      }
++      napi_close_handle_scope(env, scope);
++    }
++    if (cached == nullptr) {
++      if (it->second != nullptr) {
++        napi_delete_reference(env, it->second);
++      }
++      g_pointerCache.erase(it);
++    }
+   }
+   delete ptr;
+ }
+@@ -318,6 +340,14 @@ inline bool getCachedPointer(napi_env env, void* data, napi_value* value) {
      return false;
    }
 
@@ -86,11 +126,7 @@ index ba9d7a8..96c08ec 100644
    *value = get_ref_value(env, it->second);
    if (*value == nullptr) {
      napi_delete_reference(env, it->second);
-diff --git a/NativeScript/ffi/napi/Interop.mm b/NativeScript/ffi/napi/Interop.mm
-index ba9d7a8..3298f63 100644
---- a/NativeScript/ffi/napi/Interop.mm
-+++ b/NativeScript/ffi/napi/Interop.mm
-@@ -1569,11 +1569,25 @@ napi_value Pointer::customInspect(napi_env env, napi_callback_info info) {
+@@ -1569,11 +1599,25 @@ napi_value Pointer::customInspect(napi_env env, napi_callback_info info) {
  }
 
  void Pointer::finalize(napi_env env, void* data, void* hint) {
