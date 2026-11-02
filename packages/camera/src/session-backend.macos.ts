@@ -118,15 +118,19 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	const error = (kind: CaptureIssue['kind'], operation: string, message: string, cause?: unknown) =>
 		new CameraCaptureError({ kind, operation, message, cause })
 
+	/** Entries in the bridge's devices() JSON list. */
+	interface DeviceEntry {
+		id: string
+		name: string
+		facing?: 'front' | 'back' | null
+		focusPointOfInterest?: boolean
+		exposurePointOfInterest?: boolean
+	}
+
 	const devices = (): CameraDeviceInfo[] => {
 		try {
-			return (
-				JSON.parse(host.devices()) as {
-					id: string
-					name: string
-					facing?: 'front' | 'back' | null
-				}[]
-			).map((entry) => ({
+			const parsed: unknown = JSON.parse(host.devices())
+			return (Array.isArray(parsed) ? (parsed as DeviceEntry[]) : []).map((entry) => ({
 				id: entry.id,
 				label: entry.name,
 				facing: entry.facing ?? undefined,
@@ -149,11 +153,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	 *  from the same device list `devices()` reports. */
 	const pointOfInterestSupport = (): { focus: boolean; exposure: boolean } => {
 		try {
-			const list = JSON.parse(host.devices()) as {
-				id: string
-				focusPointOfInterest?: boolean
-				exposurePointOfInterest?: boolean
-			}[]
+			const parsed: unknown = JSON.parse(host.devices())
+			const list = Array.isArray(parsed) ? (parsed as DeviceEntry[]) : []
 
 			const selected = selectedCameraId()
 			const device = list.find((entry) => entry.id === selected) ?? list[0]

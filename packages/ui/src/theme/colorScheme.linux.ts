@@ -12,10 +12,19 @@ import { useSyncExternalStore } from 'octane'
 export type { ColorScheme } from '../props'
 import type { ColorScheme } from '../props'
 
-const bridged = () =>
-	typeof window !== 'undefined' &&
-	(window as unknown as { webkit?: { messageHandlers?: { xplat?: unknown } } }).webkit
-		?.messageHandlers?.xplat !== undefined
+const bridged = () => {
+	if (typeof window === 'undefined') {
+		return false
+	}
+	const webkit = Reflect.get(window, 'webkit')
+	const handlers =
+		typeof webkit === 'object' && webkit !== null ? Reflect.get(webkit, 'messageHandlers') : undefined
+	return (
+		typeof handlers === 'object' &&
+		handlers !== null &&
+		Reflect.get(handlers, 'xplat') !== undefined
+	)
+}
 
 let lastScheme: ColorScheme =
 	((window as Record<string, any>).__xplatColorScheme as ColorScheme | undefined) ?? 'light'

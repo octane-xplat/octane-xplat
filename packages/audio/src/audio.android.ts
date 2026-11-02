@@ -46,15 +46,20 @@ export const createAudioPlayer = (): AudioPlayer => {
 	let queueComplete = true
 	let poll: ReturnType<typeof setInterval> | undefined
 
+	/** The Android bridge's snapshot payload. */
+	interface SnapshotReply {
+		state: AudioSnapshot['state']
+		index?: number
+		id?: string
+		currentTime?: number
+		duration?: number
+		error?: string
+	}
+
 	const snapshot = (): AudioSnapshot => {
-		const value = JSON.parse(actions.snapshot()) as {
-			state: AudioSnapshot['state']
-			index?: number
-			id?: string
-			currentTime?: number
-			duration?: number
-			error?: string
-		}
+		const parsed: unknown = JSON.parse(actions.snapshot())
+		// Bridge-supplied envelope; validated fields below, bounded once here.
+		const value = (typeof parsed === 'object' && parsed !== null ? parsed : {}) as SnapshotReply
 
 		if (Number.isInteger(value.index) && value.index! >= 0) {
 			index = value.index!

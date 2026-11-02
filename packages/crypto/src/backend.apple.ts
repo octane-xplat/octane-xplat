@@ -1,20 +1,25 @@
-import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { UnavailabilityError, lookupGlobal } from '@octane-xplat/lib/capability'
 import type { CryptoBackend } from './backend-types'
 import { base64, decodeBase64 } from './bytes'
 interface Engine {
 	perform(request: string): string
 }
-const engine = () => (globalThis as unknown as { XplatCryptoEngine?: Engine }).XplatCryptoEngine
+const engine = () => lookupGlobal(['XplatCryptoEngine']) as Engine | undefined
 function invoke(value: Record<string, string>): Uint8Array<ArrayBuffer> {
 	const host = engine()
 	if (!host) {
 		throw new UnavailabilityError('Crypto native Apple bridge; rebuild after installing')
 	}
-	const result = JSON.parse(host.perform(JSON.stringify(value))) as { ok?: boolean; data?: string }
-	if (result.ok !== true || typeof result.data !== 'string') {
+	// The bridge replies with a JSON envelope; bound it at this ingress.
+	const reply: unknown = JSON.parse(host.perform(JSON.stringify(value)))
+	const result = typeof reply === 'object' && reply !== null ? reply : undefined
+	const ok = result !== undefined && 'ok' in result && result.ok === true
+	const data =
+		ok && 'data' in result && typeof result.data === 'string' ? result.data : undefined
+	if (data === undefined) {
 		throw new Error('Native cryptographic operation failed')
 	}
-	return decodeBase64(result.data)
+	return decodeBase64(data)
 }
 export const backend: CryptoBackend = {
 	capabilities: () =>

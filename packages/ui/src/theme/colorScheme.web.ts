@@ -45,9 +45,17 @@ export function subscribeSystemScheme(cb: () => void): () => void {
 
 	const onTransportMessage = (message: string) => {
 		try {
-			const packet = JSON.parse(message) as { type?: string; name?: string; payload?: unknown }
-			if (packet.type === 'event' && packet.name === 'appearance.change') {
-				hostedScheme = packet.payload === 'dark' ? 'dark' : 'light'
+			const parsed: unknown = JSON.parse(message)
+			if (
+				typeof parsed === 'object' &&
+				parsed !== null &&
+				'type' in parsed &&
+				parsed.type === 'event' &&
+				'name' in parsed &&
+				parsed.name === 'appearance.change'
+			) {
+				hostedScheme =
+					'payload' in parsed && parsed.payload === 'dark' ? 'dark' : 'light'
 				cb()
 			}
 		} catch {

@@ -56,13 +56,18 @@ export function listenEmbedThemeSync(
 		if (event.origin !== window.location.origin) {
 			return
 		}
-		const data = event.data as { type?: string; theme?: unknown; mode?: unknown } | undefined
-		if (data?.type !== 'astryx-theme-sync') {
+		const data: unknown = event.data
+		if (
+			typeof data !== 'object' ||
+			data === null ||
+			!('type' in data) ||
+			data.type !== 'astryx-theme-sync'
+		) {
 			return
 		}
 		apply(
-			typeof data.theme === 'string' ? data.theme : undefined,
-			data.mode === 'light' || data.mode === 'dark' ? data.mode : undefined,
+			'theme' in data && typeof data.theme === 'string' ? data.theme : undefined,
+			'mode' in data && (data.mode === 'light' || data.mode === 'dark') ? data.mode : undefined,
 		)
 	})
 }

@@ -3,6 +3,14 @@ import { lookupGlobal } from '@octane-xplat/lib/capability'
 import { aborted } from './backend-types'
 import type { ConversionBackend } from './backend-types'
 import type { ConvertedVideo } from './types'
+/** The bridge's progress/result event envelope. */
+interface ConverterEvent {
+	progress?: number
+	result?: ConvertedVideo
+	error?: string
+	cancelled?: boolean
+}
+
 interface Engine {
 	startCallback(json: string, callback: (event: string) => void): void
 	cancel(id: string): void
@@ -29,12 +37,9 @@ export const backend: ConversionBackend = {
 		return new Promise<ConvertedVideo>((resolve, reject) => {
 			value.startCallback(JSON.stringify({ ...request, source, id }), (json) => {
 				try {
-					const event = JSON.parse(json) as {
-						progress?: number
-						result?: ConvertedVideo
-						error?: string
-						cancelled?: boolean
-					}
+					const parsed: unknown = JSON.parse(json)
+					const event =
+						(typeof parsed === 'object' && parsed !== null ? parsed : {}) as ConverterEvent
 					if (event.error) {
 						reject(event.cancelled ? aborted() : new Error(event.error))
 					} else if (event.result) {

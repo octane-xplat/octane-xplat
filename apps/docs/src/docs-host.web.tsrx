@@ -149,11 +149,16 @@ export function useDemoPreview(demo: string) {
 	}, [state, attempt])
 
 	const ready = (event: WebViewMessageEvent) => {
-		const data = event.data as { demo?: string; token?: string; type?: string } | null
+		const data: unknown = event.data
 		if (
 			(event.origin === undefined || event.origin === location.origin) &&
-			data?.token === token.current &&
-			data?.type === 'xplat-demo-ready' &&
+			typeof data === 'object' &&
+			data !== null &&
+			'token' in data &&
+			data.token === token.current &&
+			'type' in data &&
+			data.type === 'xplat-demo-ready' &&
+			'demo' in data &&
 			data.demo === demo
 		) {
 			setState('ready')
