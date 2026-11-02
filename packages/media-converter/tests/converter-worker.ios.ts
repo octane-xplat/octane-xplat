@@ -229,10 +229,11 @@ interface WorkerRequest {
 
 if ('onmessage' in globalThis) {
 	globalThis.onmessage = (event: { data: unknown }) => {
-	const request = event.data as WorkerRequest
-	try {
-		post({ result: convert(request) })
-	} catch (error) {
-		post({ error: error instanceof Error ? error.message : String(error) })
+		const request = event.data as WorkerRequest
+		try {
+			post({ result: convert(request) })
+		} catch (error) {
+			post({ error: error instanceof Error ? error.message : String(error) })
+		}
 	}
-	}
+}
