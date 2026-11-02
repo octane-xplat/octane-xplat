@@ -11,8 +11,14 @@ configureRouter({
 	allowedSchemes: ["xplat"],
 })
 // import.meta.env.DEV is statically false in production builds — the
-// router dev-actions chunk is never emitted. The cast keeps this file
-// typechecking without vite/client ambient types.
-if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) {
+// router dev-actions chunk is never emitted. The capability check keeps
+// this file typechecking without vite/client ambient types.
+const devBuild =
+	'env' in import.meta &&
+	typeof import.meta.env === 'object' &&
+	import.meta.env !== null &&
+	'DEV' in import.meta.env &&
+	import.meta.env.DEV === true
+if (devBuild) {
 	void import('@octane-xplat/ui/routing/dev').then(({ registerRouterDevActions }) => registerRouterDevActions())
 }
