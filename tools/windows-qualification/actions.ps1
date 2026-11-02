@@ -10,10 +10,11 @@ param(
  [switch]$ListItemActions,
  [switch]$TabActions,
  [switch]$SelectorActions,
- [switch]$MenuActions
+ [switch]$MenuActions,
+ [switch]$TableActions
 )
 $ErrorActionPreference='Stop'
-if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions) -gt 1){throw 'Choose one action mode per run'}
+if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions) -gt 1){throw 'Choose one action mode per run'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
@@ -143,7 +144,7 @@ function Command([string]$Action,$Value){
 function Status-Contains([string]$Text){
  $renderErrors=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'render-error'})
  if($renderErrors.Count){throw ('Action render error: '+$renderErrors[-1].message)}
- Wait-For { @(Read-Tree|Where-Object {$_.name.StartsWith('Core20 ') -and $_.name.Contains($Text)}).Count -eq 1 } "UIA status never reached $Text"
+ Wait-For { @(Read-Tree|Where-Object {$_.name -and $_.name.StartsWith('Core20 ') -and $_.name.Contains($Text)}).Count -eq 1 } "UIA status never reached $Text"
 }
 function Snapshot([string]$Stage){
  $sequence=Command 'snapshot' $null
@@ -803,6 +804,84 @@ function Selector-State([string]$Value,[bool]$Open,[string]$Stage){
  $tree=Capture $Stage
  Named $tree ("Selector value=$Value open="+$Open.ToString().ToLowerInvariant())|Out-Null
 }
+function Reset-Table([int]$Revision=0){
+ Command 'mounted' $false|Out-Null
+ Command 'revision' $Revision|Out-Null
+ Command 'disabled' $false|Out-Null
+ Command 'scene' 'table'|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains 'Core20 table '
+ Status-Contains ("revision=$Revision mounted=true")
+}
+function Table-Header([int]$Revision,[string]$Stage,[string]$Direction='unsorted'){
+ $tree=Capture $Stage
+ $label=if($Direction -eq 'unsorted'){"Sort by Name $Revision"}else{"Sorted by Name $Revision $Direction"}
+ $peer=Named @($tree|Where-Object {$_.type -eq 'ControlType.Button'}) $label
+ Assert (Finite $peer) 'Sortable header Button has finite visible bounds' $peer
+ Assert ($peer.patterns -contains 'InvokePatternIdentifiers.Pattern') 'Sortable header exposes Invoke' $peer.patterns
+ Assert $peer.enabled 'Sortable header reports IsEnabled=true' $peer.enabled
+ $nodes=Snapshot ($Stage+'-content')
+ $drawn=Native-Class $nodes 'vx-table-sort-button'
+ Assert ((Near ($peer.x/$script:Scale) $drawn.box.x) -and (Near ($peer.y/$script:Scale) $drawn.box.y) -and (Near $peer.width $drawn.box.width) -and (Near $peer.height $drawn.box.height)) 'Sortable header peer covers its drawn frame' @{peer=$peer;drawn=$drawn.box}
+ return $peer
+}
+function Table-State([string]$Direction){
+ $needle=if($Direction -eq 'unsorted'){'Table sort []'}else{'direction":"'+$Direction}
+ Wait-For { @(Read-Tree|Where-Object {$_.name -and $_.name.StartsWith('Table sort ') -and $_.name.Contains($needle)}).Count -eq 1 } "UIA table state never reached $Direction"
+}
+function Check-TableSortActions {
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='public-table-sortable-header';status='running';checks=$null;error=$null}
+ try{
+  Reset-Table
+  $peer=Table-Header 0 'table-initial' 'unsorted'
+  Focus-Action 'Before table' 'ControlType.Button';Key 9
+  Wait-For {Focused 'Sort by Name 0'} 'Tab did not focus the sortable header'
+  Key 9;Wait-For {Focused 'After table'} 'Tab did not leave the sortable header after one stop'
+  Assert $true 'Sortable header contributes one forward Tab stop'
+  Key 9 $true;Wait-For {Focused 'Sort by Name 0'} 'Shift+Tab did not return to the sortable header'
+  Exactly-Once 'table-sort:[{"sortKey":"name","direction":"ascending"}]' 'header Enter' {Key 13}
+  Table-State 'ascending';Table-Header 0 'table-enter-asc' 'ascending'|Out-Null
+  Exactly-Once 'table-sort:[{"sortKey":"name","direction":"descending"}]' 'header Enter desc' {Key 13}
+  Table-State 'descending';Table-Header 0 'table-enter-desc' 'descending'|Out-Null
+  Exactly-Once 'table-sort:[]' 'header Enter unsorted' {Key 13}
+  Table-State 'unsorted';Table-Header 0 'table-enter-none' 'unsorted'|Out-Null
+  Exactly-Once 'table-sort:[{"sortKey":"name","direction":"ascending"}]' 'header Space' {Key 32}
+  Table-State 'ascending'
+  Exactly-Once 'table-sort:[{"sortKey":"name","direction":"descending"}]' 'header mouse' {Click-Control $peer}
+  Table-State 'descending'
+  $result=Uia-Action 'invoke' 'Sorted by Name 0 descending' 'ControlType.Button'
+  Assert ($result.status -eq 'completed') 'UIA Invoke on the sortable header completed' $result
+  Table-State 'unsorted';Table-Header 0 'table-invoke-none' 'unsorted'|Out-Null
+  $events=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -like 'table-sort:*'})
+  Assert ($events[-1].fixtureRevision -eq 0) 'Sort callback reports the current fixture revision' $events[-1]
+  Command 'revision' 1|Out-Null
+  Table-Header 1 'table-updated' 'unsorted'|Out-Null
+  Focus-Action 'Sort by Name 1' 'ControlType.Button';Exactly-Once 'table-sort:[{"sortKey":"name","direction":"ascending"}]' 'updated Enter' {Key 13}
+  Table-State 'ascending'
+  Command 'revision' 2|Out-Null
+  Wait-For { @(Read-Tree|Where-Object {$_.name -ceq 'Sort by Name 2'}).Count -eq 1 } 'Revision 2 header never appeared'
+  Focus-Action 'Sort by Name 2' 'ControlType.Button'
+  $before=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -like 'table-sort:*'}).Count
+  Exactly-Once 'table-sort:[{"sortKey":"name","direction":"ascending"}]' 'controlled rejection Enter' {Key 13}
+  Table-State 'unsorted';Table-Header 2 'table-rejected' 'unsorted'|Out-Null
+  Command 'mounted' $false|Out-Null
+  $absent=Capture 'table-unmounted'
+  Assert (@($absent|Where-Object {$_.name -like 'Sort*by Name*'}).Count -eq 0) 'Unmount removes the sortable header peer'
+  Reset-Table
+  Table-Header 0 'table-remounted' 'unsorted'|Out-Null
+  Focus-Action 'Sort by Name 0' 'ControlType.Button';Exactly-Once 'table-sort:[{"sortKey":"name","direction":"ascending"}]' 'remounted Enter' {Key 13}
+  Table-State 'ascending'
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned Table window'}
+  Table-Header 0 'table-narrow' 'ascending'|Out-Null
+  $entry.status='assertions-passed'
+ }catch{
+  $entry.status='failed'
+  $entry.error=$_.Exception.Message
+ }finally{
+  $entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)
+ }
+}
 function Check-SelectorActions {
  $script:Checks.Clear()
  $entry=[ordered]@{case='public-selector-single';status='running';checks=$null;error=$null}
@@ -1042,7 +1121,7 @@ $report=[ordered]@{
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
- scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
@@ -1102,6 +1181,8 @@ try {
  if(-not [Core20Desktop]::MoveWindow($windowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot set the wide window size'}
  if($MenuActions){
   Check-MenuActions
+ }elseif($TableActions){
+  Check-TableSortActions
  }elseif($SelectorActions){
   Check-SelectorActions
  }elseif($TabActions){
