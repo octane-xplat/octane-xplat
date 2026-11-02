@@ -667,3 +667,26 @@ presentation and custom surface styling, width, alignment or non-bottom
 placement use the shared view and retain its input limits. The full props
 matrix, Narrator, visual parity and final fresh-install qualification remain
 pending.
+
+## Platform services
+
+The shared platform services run on the packaged Windows harness:
+
+```ts
+import { clipboard, connectivity, device, keepAwake, random, storage } from '@octane-xplat/platform'
+import { files } from '@octane-xplat/files'
+```
+
+Text clipboard writes and reads, including empty values, behave as documented —
+an empty or non-text read returns `null`. Random bytes, keep-awake requests,
+connectivity state, device metadata and packaged app identity are qualified on
+the installed package. `files` reads and writes text and binary content in the
+app's private directories; its file picker and export entry points report
+bounded unavailability on Windows. Preferences and key-value `storage` persist
+across app relaunches through a JSON document in the app's local state; NativeScript's
+upstream `ApplicationSettings` path is unusable on Windows, so persistence is
+asynchronous and `flush()` reports `false`.
+
+Qualification is bounded: nontext clipboard formats, auth prompts, suspend and
+resume, physical sleep behavior, chunked file reads, cancellation and other
+CPU architectures are not yet exercised on Windows.

@@ -68,6 +68,35 @@ interactive session (plain SSH fails `0x80070005` "Failed to initialize PLM") �
 use `normal-task-helper.ps1`; and each driver run needs a fresh evidence
 directory.
 
+## Service-adapter qualification result (1.0.0.200)
+
+The platform service adapters passed bounded packaged qualification on
+`org.octanexplat.windows61` 1.0.0.200 (sha256
+`98376f3196ef927b7b0d0ae1a73725adbd9ab72958f6b3d88e61afde931afd26`), built on
+Windy from literal `main` `de325cba9` — a fresh `bun install --frozen-lockfile`
+and `build:windows`. The `windows-qualification` fixture runs one
+`-ServiceActions` driver mode with `-ServiceSpecs` selection over ten spec
+families — clipboard, random bytes, storage, keep-awake, connectivity, device,
+app info, files, core filesystem, storage persistence — 39 assertions passed on
+the first launch (`mvziceda`). A second fresh launch ran `storage-verify` and
+read back the persisted value (`mvziigrl`), qualifying cross-launch preference
+persistence. Bounded evidence is recorded on the `windows_checks`
+`scenario:windows-service-adapters`, `windows-app-info`, `windows-keep-awake`,
+`windows-native-connectivity`, `windows-core-filesystem` and `windows-file-io`
+rows, which remain pending — nontext clipboard formats, auth-unavailable,
+suspend/resume, physical sleep, architecture matrix, chunk bounds and
+cancellation are not yet exercised.
+
+Two upstream gaps surfaced by the gate are recorded in
+[upstream-limitations.md](../upstream-limitations.md): NativeScript's Windows
+`ApplicationSettings` path is unusable because
+`ApplicationData.LocalSettings.Values` projects as an opaque handle (no
+`IMap` member is callable — the platform leaf therefore persists preferences as
+a JSON document in local state), and the upstream `File` `*Sync` text APIs are
+fake-sync (they schedule a WinRT async operation and return before it
+completes). The fixture verifies file content through the real async
+`File.readText`/`writeText` path and retains the sync behavior as evidence.
+
 ## Continue qualification
 
 Start from the current pinned dependencies and the maintained host runbook.
