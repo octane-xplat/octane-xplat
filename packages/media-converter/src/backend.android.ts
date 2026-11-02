@@ -1,5 +1,6 @@
 import { Utils } from '@nativescript/core'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import { aborted } from './backend-types'
 import type { ConversionBackend } from './backend-types'
 import type { ConvertedVideo } from './types'
@@ -14,9 +15,7 @@ interface EngineClass {
 	Callback: new (methods: { onEvent(json: string): void }) => object
 }
 function engineClass(): EngineClass | undefined {
-	return (
-		globalThis as unknown as { com?: { octanexplat?: { converter?: { Converter?: EngineClass } } } }
-	).com?.octanexplat?.converter?.Converter
+	return lookupGlobal(['com', 'octanexplat', 'converter', 'Converter']) as EngineClass | undefined
 }
 let instance: NativeEngine | undefined
 let serial = 0

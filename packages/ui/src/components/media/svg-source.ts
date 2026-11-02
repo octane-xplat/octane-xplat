@@ -16,7 +16,7 @@ export function svgSource(src: string): string | Promise<string> {
 		const comma = src.indexOf(',')
 		const body = src.slice(comma + 1)
 		if (src.slice(0, comma).endsWith(';base64')) {
-			const atob = (globalThis as { atob?: (data: string) => string }).atob
+			const atob = Reflect.get(globalThis, 'atob') as ((data: string) => string) | undefined
 			if (!atob) {
 				return EMPTY_SVG
 			}

@@ -1,15 +1,14 @@
 import { backend as noGate } from './no-gate'
 import type { TrackingBackend } from './backend-types'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 interface AdvertisingManager {
 	readonly AdvertisingId: string
 }
 function manager(): AdvertisingManager | undefined {
 	try {
-		return (
-			globalThis as unknown as {
-				Windows?: { System?: { UserProfile?: { AdvertisingManager?: AdvertisingManager } } }
-			}
-		).Windows?.System?.UserProfile?.AdvertisingManager
+		return lookupGlobal(['Windows', 'System', 'UserProfile', 'AdvertisingManager']) as
+			| AdvertisingManager
+			| undefined
 	} catch {
 		return undefined
 	}

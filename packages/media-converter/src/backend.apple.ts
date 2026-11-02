@@ -1,4 +1,5 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import { aborted } from './backend-types'
 import type { ConversionBackend } from './backend-types'
 import type { ConvertedVideo } from './types'
@@ -9,9 +10,10 @@ interface Engine {
 }
 let engine: Engine | undefined
 let serial = 0
+/** The installed bridge object — `new()` is a method, not a construct signature. */
+type NativeEngineFactory = { new: () => Engine }
 function host(): Engine | undefined {
-	const type = (globalThis as unknown as { XplatMediaConverter?: { new: () => Engine } })
-		.XplatMediaConverter
+	const type = lookupGlobal(['XplatMediaConverter']) as NativeEngineFactory | undefined
 	return (engine ??= type?.new())
 }
 export const backend: ConversionBackend = {

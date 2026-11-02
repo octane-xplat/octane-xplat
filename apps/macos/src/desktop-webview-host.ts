@@ -112,18 +112,24 @@ export function createDesktopWebViewHost<
 		}
 	}
 
+	const isEqual = (value: unknown, other: unknown) =>
+		typeof value === 'object' &&
+		value !== null &&
+		'isEqual' in value &&
+		typeof value.isEqual === 'function' &&
+		Boolean(value.isEqual(other))
 	const sameNativeWindow = (left: unknown, right: unknown) =>
-		left === right ||
-		Boolean((left as { isEqual?(value: unknown): boolean } | null)?.isEqual?.(right)) ||
-		Boolean((right as { isEqual?(value: unknown): boolean } | null)?.isEqual?.(left))
+		left === right || isEqual(left, right) || isEqual(right, left)
 
-	const senderWindowSize = (sender: MacOSWebView) =>
-		windowSizeFor(
-			(sender.owningWindow() as { frame?: { size?: { width?: number; height?: number } } } | null)
-				?.frame?.size ??
-				primaryWindow?.frame?.size ??
-				appKit.windowSize,
-		)
+	const senderWindowSize = (sender: MacOSWebView) => {
+		const window = sender.owningWindow()
+		// NSWindow's declared shape omits frame — bound the native read once.
+		const size =
+			typeof window === 'object' && window !== null && 'frame' in window
+				? (window.frame as { size?: { width?: number; height?: number } } | undefined)?.size
+				: undefined
+		return windowSizeFor(size ?? primaryWindow?.frame?.size ?? appKit.windowSize)
+	}
 
 	const hostWindowSize = () => windowSizeFor(primaryWindow?.frame?.size ?? appKit.windowSize)
 

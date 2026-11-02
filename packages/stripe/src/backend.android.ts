@@ -1,17 +1,14 @@
 import { Application } from '@nativescript/core'
 import type { StripeBackend } from './backend-types'
 import type { PaymentSheetSetupParams } from './types'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 interface Bridge {
 	initialize(context: android.content.Context, json: string): void
 	present(activity: android.app.Activity, json: string, listener: object): void
 	Listener: { new (implementation: { complete(code: string): void }): object }
 }
 function bridge(): Bridge | undefined {
-	return (
-		globalThis as unknown as {
-			com?: { octanexplat?: { stripe?: { PaymentSheetBridge?: Bridge } } }
-		}
-	).com?.octanexplat?.stripe?.PaymentSheetBridge
+	return lookupGlobal(['com', 'octanexplat', 'stripe', 'PaymentSheetBridge']) as Bridge | undefined
 }
 let prepared: PaymentSheetSetupParams | undefined
 export const backend: StripeBackend = {

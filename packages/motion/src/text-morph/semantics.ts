@@ -75,13 +75,13 @@ class Budget {
 /** Lazy platform capability lookup; missing Intl never prevents module loading. */
 export function textMorphSegmenters(): TextMorphSegmenters | null {
 	try {
-		const ctor = (
-			globalThis as unknown as {
-				Intl?: {
-					Segmenter?: new (locale: string, options: { granularity: string }) => TextMorphSegmenter
-				}
-			}
-		).Intl?.Segmenter
+		const intl = Reflect.get(globalThis, 'Intl')
+		const ctor =
+			(typeof intl === 'object' || typeof intl === 'function') && intl !== null
+				? (Reflect.get(intl, 'Segmenter') as
+						| (new (locale: string, options: { granularity: string }) => TextMorphSegmenter)
+						| undefined)
+				: undefined
 
 		return ctor
 			? {

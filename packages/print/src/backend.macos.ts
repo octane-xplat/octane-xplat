@@ -1,4 +1,5 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import type { PrintBackend } from './backend-types'
 import { invoke, fileResult } from './native-reply'
 interface Engine {
@@ -8,9 +9,11 @@ interface Engine {
 	remove(uri: string): boolean
 }
 let instance: Engine | undefined
+/** The installed bridge object — `new()` is a method, not a construct signature. */
+type NativeEngineFactory = { new: () => Engine }
 function engine(): Engine | undefined {
-	const Type = (globalThis as unknown as { XplatPrintEngine?: { new: () => Engine } })
-		.XplatPrintEngine
+	// Installed by the AppKit print host when its bridge loads.
+	const Type = lookupGlobal(['XplatPrintEngine']) as NativeEngineFactory | undefined
 	return (instance ??= Type?.new())
 }
 function required(): Engine {

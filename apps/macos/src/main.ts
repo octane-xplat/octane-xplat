@@ -34,8 +34,10 @@ void applicationClosed.then(() => {
 	mainWindow.close()
 	app.delegate = null as unknown as NSApplicationDelegate
 	appKit.delegate = null
-	const stopHost = (globalThis as { __xplatStopHost?: () => void }).__xplatStopHost
-	stopHost?.()
+	const stopHost = Reflect.get(globalThis, '__xplatStopHost')
+	if (typeof stopHost === 'function') {
+		stopHost()
+	}
 })
 
 const externalRunLoop =

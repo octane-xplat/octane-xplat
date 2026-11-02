@@ -187,9 +187,9 @@ const delegateClass = () => {
 // load the frameworks this leaf calls so their classes register.
 const bridgeReady = (): boolean => {
 	if (
-		typeof (globalThis as { objc?: unknown }).objc !== 'object' ||
-		typeof (globalThis as { interop?: unknown }).interop !== 'object' ||
-		typeof (globalThis as { NSObject?: unknown }).NSObject === 'undefined'
+		typeof Reflect.get(globalThis, 'objc') !== 'object' ||
+		typeof Reflect.get(globalThis, 'interop') !== 'object' ||
+		typeof Reflect.get(globalThis, 'NSObject') === 'undefined'
 	) {
 		return false
 	}

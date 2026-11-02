@@ -1,12 +1,17 @@
 import { File, View } from '@nativescript/core'
-import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { UnavailabilityError, lookupGlobal } from '@octane-xplat/lib/capability'
 import { checkDimensions } from './options'
 import type { CaptureBackend } from './backend-types'
 import type { NormalizedCaptureOptions } from './types'
 
 // The experimental Windows host supplies dynamic WinRT projections. Keep the
 // whole buffer native: its preview bridge cannot marshal JS arrays to byte[].
-const projection = () => globalThis as unknown as { Windows?: any; Microsoft?: any; NSWinRT?: any }
+/** Dynamic WinRT projections supplied by the experimental Windows host. */
+const projection = (): { Windows?: any; Microsoft?: any; NSWinRT?: any } => ({
+	Windows: lookupGlobal(['Windows']),
+	Microsoft: lookupGlobal(['Microsoft']),
+	NSWinRT: lookupGlobal(['NSWinRT']),
+})
 const owned = new Map<string, string>()
 function available(): boolean {
 	try {

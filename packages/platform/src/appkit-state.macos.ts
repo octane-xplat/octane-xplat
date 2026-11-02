@@ -1,10 +1,11 @@
 import type { AppKitHost } from './appkit-host'
+import { installedHost } from './appkit-host'
 import type { AppState, WindowSize } from './types'
 
 type Source<T> = { getSnapshot(): T; subscribe(listener: () => void): () => void }
 type Event = 'onWindowResize' | 'onAppStateChange'
 type SourceRecord<T> = { method: AppKitHost[Event]; source: Source<T>; failed: boolean }
-const currentHost = () => (globalThis as { __xplatAppKit?: AppKitHost }).__xplatAppKit
+const currentHost = installedHost
 const emptyWindow: WindowSize = Object.freeze({ width: 0, height: 0, orientation: 'landscape' })
 
 /** Stable stores per installed host and event hook, without polling globals. */

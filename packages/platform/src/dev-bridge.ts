@@ -22,19 +22,26 @@ export function devBridgePlatform(): 'ios' | 'android' | 'windows' {
 }
 
 export function devBridgeEndpoint(): DevBridgeEndpoint | null {
-	const token =
+	const bridge =
 		typeof __XPLAT_DEV_BRIDGE__ !== 'undefined'
 			? __XPLAT_DEV_BRIDGE__
-			: ((globalThis as any).__XPLAT_DEV_BRIDGE__ as { token?: string } | undefined)
+			: Reflect.get(globalThis, '__XPLAT_DEV_BRIDGE__')
+	const token =
+		typeof bridge === 'object' &&
+		bridge !== null &&
+		'token' in bridge &&
+		typeof bridge.token === 'string'
+			? bridge.token
+			: undefined
 	const origin = (globalThis as any).__NS_HTTP_ORIGIN__ ?? (globalThis as any).__XPLAT_DEV_ORIGIN__
 
 	if (
 		typeof origin !== 'string' ||
 		!/^https?:\/\//.test(origin) ||
-		typeof token?.token !== 'string'
+		typeof token !== 'string'
 	) {
 		return null
 	}
 
-	return { origin, token: token.token }
+	return { origin, token }
 }

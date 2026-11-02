@@ -93,6 +93,21 @@ export interface MacOSWebView {
 
 type TrustedOrigin = { scheme: string; host: string; port: number | null }
 
+/** Optional fields read off an untrusted navigation origin value. */
+type TrustedOriginParts = { protocol?: unknown; host?: unknown; port?: unknown }
+
+/** The NSObject.extend(...) product — a native class the bridge instantiates. */
+interface NativeConstructible {
+	alloc(): { init(): NSObject }
+}
+
+/** NSView members the declared bridge types omit. */
+interface NativeViewHandle {
+	frame: unknown
+	bounds: unknown
+	addSubview(view: unknown): void
+}
+
 interface ChannelState {
 	dispatch?: (body: string) => void
 	trustedOrigin?: TrustedOrigin
@@ -122,12 +137,16 @@ declare const XplatWebViewNative: {
 const states = new WeakMap<object, ChannelState>()
 
 const isMainFrame = (frame: unknown): boolean => {
-	const member = (frame as { isMainFrame?: unknown } | null | undefined)?.isMainFrame
-	return typeof member === 'function' ? Boolean((member as () => boolean).call(frame)) : Boolean(member)
+	const member =
+		typeof frame === 'object' && frame !== null && 'isMainFrame' in frame
+			? frame.isMainFrame
+			: undefined
+	return typeof member === 'function' ? Boolean(member.call(frame)) : Boolean(member)
 }
 
 const originParts = (origin: unknown): TrustedOrigin | null => {
-	const value = origin as { protocol?: unknown; host?: unknown; port?: unknown } | null | undefined
+	const value =
+		typeof origin === 'object' && origin !== null ? (origin as TrustedOriginParts) : null
 	if (value == null || value.protocol == null || value.host == null) {
 		return null
 	}
@@ -206,7 +225,7 @@ function channelClass(): { alloc(): { init(): NSObject } } {
 			protocols: [WKScriptMessageHandler, WKNavigationDelegate],
 		},
 	)
-	return ChannelClass as { alloc(): { init(): NSObject } }
+	return ChannelClass as unknown as NativeConstructible
 }
 
 const mediaUsageKey = (mediaType: string): string =>
@@ -309,7 +328,7 @@ function schemeHandlerClass(): { alloc(): { init(): NSObject } } {
 		},
 		{ name: 'XplatBundleSchemeHandler', protocols: [WKURLSchemeHandler] },
 	)
-	return SchemeHandlerClass as { alloc(): { init(): NSObject } }
+	return SchemeHandlerClass as unknown as NativeConstructible
 }
 
 function serveSchemeTask(task: WKURLSchemeTask): void {
@@ -448,10 +467,8 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 	webView.UIDelegate = uiDelegate as unknown as WKUIDelegate
 	webView.autoresizingMask =
 		NSAutoresizingMaskOptions.WidthSizable | NSAutoresizingMaskOptions.HeightSizable
-	;(webView as unknown as { frame: unknown }).frame = (
-		parent as { bounds: unknown }
-	).bounds
-	;(parent as { addSubview(view: unknown): void }).addSubview(webView)
+	;(webView as NativeViewHandle).frame = (parent as NativeViewHandle).bounds
+	;(parent as NativeViewHandle).addSubview(webView)
 
 	const state: ChannelState = { disposed: false, stagedMovies: new Map() }
 	states.set(webView, state)

@@ -1,5 +1,6 @@
 import { Application } from '@nativescript/core'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import { lookupGlobal } from '@octane-xplat/lib/capability'
 import type { LibraryBackend, QuerySpec } from './backend-types'
 import type {
 	AlbumMetadata,
@@ -15,10 +16,9 @@ type ObserverBridge = {
 	Listener: new (methods: { changed(): void }) => unknown
 }
 function observerBridge(): ObserverBridge | undefined {
-	const scope = globalThis as unknown as {
-		com?: { octanexplat?: { medialibrary?: { LibraryObserver?: ObserverBridge } } }
-	}
-	return scope.com?.octanexplat?.medialibrary?.LibraryObserver
+	return lookupGlobal(['com', 'octanexplat', 'medialibrary', 'LibraryObserver']) as
+		| ObserverBridge
+		| undefined
 }
 const available = () =>
 	typeof android !== 'undefined' &&

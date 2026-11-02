@@ -1,3 +1,4 @@
+import { installedHost } from './appkit-host'
 import type { AppKitHost } from './appkit-host'
 
 type Mutation = { value: string | null }
@@ -18,8 +19,7 @@ const createStore = (): Store => ({ values: new Map(), pending: new Map(), busy:
 const memory = createStore()
 const stores = new WeakMap<AppKitHost, Store>()
 let lifecycle: Lifecycle | undefined
-const installedHost = () =>
-	(globalThis as { __xplatAppKit?: AppKitHost }).__xplatAppKit
+
 
 function retire(subscription: Lifecycle): void {
 	subscription.active = false

@@ -40,9 +40,11 @@ let autoHide: Scheduled | null = null
 interface RootObserverClass {
 	new: () => NSObject
 }
-const SplashScreenRootObserver = (NSObject as unknown as {
-	extend(members: Record<string, unknown>): RootObserverClass
-}).extend({
+/** `extend` is supplied by the runtime bridge, not the declared NSObject type. */
+interface NativeExtendable<Class> {
+	extend(members: Record<string, unknown>): Class
+}
+const SplashScreenRootObserver = (NSObject as unknown as NativeExtendable<RootObserverClass>).extend({
 	// UIKit removes existing window subviews when NativeScript assigns the
 	// scene root. Reattach synchronously after that assignment, before the
 	// first frame, and keep the continuation above replacement roots.
