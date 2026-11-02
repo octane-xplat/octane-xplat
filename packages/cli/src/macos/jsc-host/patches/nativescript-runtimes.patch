@@ -1,8 +1,44 @@
 diff --git a/NativeScript/ffi/napi/Object.mm b/NativeScript/ffi/napi/Object.mm
-index 5283280..49f39dd 100644
+index 5283280..47cce03 100644
 --- a/NativeScript/ffi/napi/Object.mm
 +++ b/NativeScript/ffi/napi/Object.mm
-@@ -508,7 +508,6 @@ napi_value ObjCBridgeState::getObject(napi_env env, id obj, napi_value construct
+@@ -469,14 +469,33 @@ napi_value ObjCBridgeState::getObject(napi_env env, id obj, napi_value construct
+   }
+
+   napi_value resolvedConstructor = constructor;
++  Class hintedClass = nil;
+   if (resolvedConstructor != nullptr) {
+-    Class hintedClass = nil;
+     tryResolveBridgedClassConstructor(env, resolvedConstructor, &hintedClass);
+   }
+
+   napi_value actualConstructor = findConstructorForObject(env, this, obj, cls);
+   if (actualConstructor != nullptr) {
+-    resolvedConstructor = actualConstructor;
++    // xplat: the isa walk returns the first registered ancestor, which can be
++    // *less* derived than the declared type. Class clusters whose private
++    // concrete class skips the public front — e.g. __NSURLSessionWebSocketTask
++    // -> __NSCFLocalSessionTask -> NSURLSessionTask, which never reaches
++    // NSURLSessionWebSocketTask — would lose the front's API surface entirely.
++    // Prefer the isa result only when it resolves at or below the declared
++    // class (a genuinely more-derived registered class); when the declared
++    // constructor carries no resolvable class, keep the previous behavior.
++    if (hintedClass == nil) {
++      resolvedConstructor = actualConstructor;
++    } else {
++      Class actualClass = nil;
++      tryResolveBridgedClassConstructor(env, actualConstructor, &actualClass);
++      for (Class walk = actualClass; walk != nil; walk = class_getSuperclass(walk)) {
++        if (walk == hintedClass) {
++          resolvedConstructor = actualConstructor;
++          break;
++        }
++      }
++    }
+   }
+
+   if (napi_value cached = findCachedObjectWrapper(env, obj); cached != nullptr) {
+@@ -508,7 +527,6 @@ napi_value ObjCBridgeState::getObject(napi_env env, id obj, napi_value construct
      return nullptr;
    }
 
@@ -626,3 +662,30 @@ index d32250b..22cc0eb 100644
      if (member.tsIgnore && !tsIgnore) {
        tsIgnore = true;
      }
+
+diff --git a/NativeScript/ffi/napi/Class.mm b/NativeScript/ffi/napi/Class.mm
+index 12aea82..90b376c 100644
+--- a/NativeScript/ffi/napi/Class.mm
++++ b/NativeScript/ffi/napi/Class.mm
+@@ -333,14 +333,13 @@ NAPI_FUNCTION(classHasInstance) {
+       }
+
+       if (instance != nil) {
+-        Class currentClass = object_getClass(instance);
+-        while (currentClass != nil) {
+-          if (currentClass == expectedClass) {
+-            isInstance = true;
+-            break;
+-          }
+-          currentClass = class_getSuperclass(currentClass);
+-        }
++        // xplat: evaluate membership with isKindOfClass:, not a raw isa walk.
++        // Class clusters whose private concrete class skips the public front
++        // (e.g. __NSURLSessionWebSocketTask) override isKindOfClass: so front
++        // membership reports correctly, while the isa chain never contains
++        // the front class — instanceof would stay false even when the object
++        // contractually is one.
++        isInstance = [instance isKindOfClass:expectedClass];
+       }
+     }
+   }

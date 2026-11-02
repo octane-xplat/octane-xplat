@@ -19,33 +19,46 @@ Silicon only; spawns a real RFC 6455 server and the prebuilt host).
 `wss://` is implemented (same `NSURLSessionWebSocketTask` path) but only
 `ws://` loopback is runtime-verified.
 
-### Class-cluster wrapper gap (upstream)
+### Class-cluster wrapper gap (upstream, patched)
 
 - **Owner**: NativeScript node-api bridge (`@nativescript/macos-node-api`,
-  runtimes pin `5b697b39` in `jsc-host/prebuilt/manifest.json`).
-- **Observed**: `NSURLSession.sharedSession.webSocketTaskWithURL` returns a
-  task whose JS wrapper exposes `NSURLSessionTask` members only —
-  `sendMessageCompletionHandler`/`receiveMessageWithCompletionHandler` are
-  `undefined` on the wrapper, so calls throw `TypeError … is not a
-function`. `NSURLSessionWebSocketTask` itself is fully bridged (its
-  prototype has every ws member) and `isKindOfClass:` reports `true`.
-- **Cause (runtime evidence)**: the concrete object is
-  `__NSURLSessionWebSocketTask` (`object_getClass` chain
-  `__NSURLSessionWebSocketTask → __NSCFLocalSessionTask → NSURLSessionTask →
-NSObject`) — a private class-cluster implementation that does not inherit
-  the public `NSURLSessionWebSocketTask`. The bridge resolves the wrapper by
-  walking the real isa chain to the first metadata-registered class, which
-  is `NSURLSessionTask`. Private `__NSURLSessionWebSocketTask` cannot enter
-  public-header metadata, so the ws level is never reached.
-- **Workaround**: `shim.js` re-points the wrapper
-  (`Object.setPrototypeOf(task, NSURLSessionWebSocketTask.prototype)`) when
-  `receiveMessageWithCompletionHandler` is missing; every member then
-  dispatches correctly (`closeCode`/`closeReason` included). Scoped to the
-  ws task instance; no other wrapper is touched.
-- **Removal condition**: upstream wrapper resolution that honors declared
-  return types or metadata on cluster fronts. Recheck after a runtimes pin
-  bump — if the task arrives with ws members present, the guard becomes a
-  no-op.
+  runtimes pin `5b697b39` in `jsc-host/prebuilt/manifest.json`) —
+  [NativeScript/runtimes#110](https://github.com/NativeScript/runtimes/issues/110).
+- **Observed**: `NSURLSession.sharedSession.webSocketTaskWithURL` returned a
+  task whose JS wrapper exposed `NSURLSessionTask` members only —
+  `sendMessageCompletionHandler`/`receiveMessageWithCompletionHandler` were
+  `undefined`, and `task instanceof NSURLSessionWebSocketTask` was `false`
+  even though `isKindOfClass:` reported `true`. Every `NSURLSession` task
+  factory lost its concrete front (`download`/`stream`/`upload`/`data`
+  verified); Foundation collection clusters were unaffected because their
+  private concrete classes keep the public front inside the isa chain.
+- **Cause (source, pin `5b697b39`)**: the 4-arg
+  `ObjCBridgeState::getObject` (`ffi/napi/Object.mm`) resolved the
+  declared-type constructor (`hintedClass`), discarded it, and
+  unconditionally overrode it with `findConstructorForObject`'s isa-walk
+  result — the first *registered* class on the concrete chain. For
+  `__NSURLSessionWebSocketTask → __NSCFLocalSessionTask → NSURLSessionTask`
+  that lands on `NSURLSessionTask`, below the declared front. A second raw
+  isa walk in `classHasInstance` (`ffi/napi/Class.mm`) broke `instanceof`
+  for cluster fronts independently.
+- **Workaround**: `patches/nativescript-runtimes.patch` keeps the declared
+  constructor whenever the isa-walk result resolves to a class that is not
+  the declared class or one of its subclasses (more-derived registered
+  classes still win), and `classHasInstance` now evaluates
+  `[instance isKindOfClass:expectedClass]` so `instanceof` honors
+  cluster-front overrides. Runtime-verified 2026-11-02 on the rebuilt
+  prebuilt: ws/download/stream/upload tasks expose their concrete members,
+  `instanceof` reports the front and its ancestors, and
+  `macos-class-cluster.test.mjs` is the regression. The `shim.js`
+  `setPrototypeOf` repoint is now a no-op (members resolve at wrap time)
+  and stays as a harmless guard.
+- **jsi parity**: the same defect exists in the shared jsi backend
+  (`findClassForRuntimeClass` isa walk; `mdTypeClassObject`'s class offset
+  parsed but dropped in `parseMetadataJsiType`) — not shipped here
+  (`NS_FFI_BACKEND=napi`), unpatched.
+- **Removal condition**: upstream declared-type-aware wrapper resolution
+  plus `isKindOfClass:`-based `instanceof` in both backends; recheck after
+  a runtimes pin bump.
 
 ### Close reporting
 
