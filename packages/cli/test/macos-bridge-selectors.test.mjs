@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -135,5 +135,112 @@ test(
 		assert.ok(swept > 100, `getter sweep only read ${swept} members`)
 		// Block-closure callback dispatch back into JS still works.
 		assert.equal(outcomes.callback, 'notified:xplatGuardProbe')
+	},
+)
+
+// Bridged member calls on a JS-extended class dispatch through
+// objc_msgSendSuper — the runtime skips the derived class so the native
+// base implementation runs instead of recursing into the JS override. A
+// receiver-side respondsToSelector: probe is wrong here: the extended
+// class answers its exposed selectors itself, so the check passes while
+// no ancestor method exists and msgSendSuper still ends in
+// doesNotRecognizeSelector: -> abort. The guard probes the dispatch
+// superclass (class_getInstanceMethod), matching the upstream jsi
+// backend's lookupClass check.
+const supercallFixture = `
+var out = []
+var rec = (k, v) => out.push(k + '=' + v)
+var Probe = NSObject.extend(
+	{
+		'candidates:': function (v) {
+			return v
+		},
+	},
+	{
+		exposedMethods: {
+			'candidates:': { returns: interop.types.id, params: [interop.types.id] },
+		},
+	},
+)
+var inst = Probe.new()
+// NSObject implements isProxy — the supercall must still dispatch.
+rec('isProxy', inst.isProxy())
+rec('responds', inst.respondsToSelector('candidates:'))
+try {
+	inst.candidates(null)
+	rec('candidatesCall', 'no-throw')
+} catch (error) {
+	rec('candidatesCall', 'caught:' + (error && error.message ? error.message : error))
+}
+setTimeout(function () {
+	console.log('PROBE_RESULT ' + out.join(' | '))
+	__xplatStopHost()
+}, 50)
+`
+
+test(
+	'AppKit bridge guards supercall dispatch on JS-extended classes',
+	{ skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
+	async (t) => {
+		const dir = mkdtempSync(join(tmpdir(), 'xplat-supercall-guard-'))
+		t.after(() => rmSync(dir, { recursive: true, force: true }))
+		const script = join(dir, 'fixture.js')
+		writeFileSync(script, supercallFixture)
+
+		const metadata = join(
+			existsSync(join(hostBundle, `metadata.macos.arm64.nsmd`))
+				? hostBundle
+				: resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos'),
+			`metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`,
+		)
+
+		// extend() requires the shipped bootstrap as fourth argument.
+		const shim = resolve(
+			dirname(fileURLToPath(import.meta.url)),
+			'../src/macos/jsc-host/shim.js',
+		)
+		const child = spawn(
+			join(hostBundle, 'host'),
+			[
+				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+				script,
+				metadata,
+				shim,
+			],
+			{ stdio: ['ignore', 'ignore', 'pipe'] },
+		)
+		let output = ''
+		child.stderr.on('data', (chunk) => {
+			output += chunk
+		})
+		const status = await new Promise((resolveStatus) => {
+			const timeout = setTimeout(() => {
+				child.kill('SIGKILL')
+				resolveStatus('timeout')
+			}, 30_000)
+			child.on('close', (code) => {
+				clearTimeout(timeout)
+				resolveStatus(code)
+			})
+		})
+
+		if (status === 'SIGABRT' || output.includes('Terminating app due to uncaught exception')) {
+			assert.fail(`supercall guard missing: host aborted\n${output}`)
+		}
+		assert.equal(status, 0, `host exited ${status}\n${output}`)
+
+		const marker = /PROBE_RESULT (.*)/.exec(output)?.[1]
+		assert.ok(marker, `missing probe marker:\n${output}`)
+		const outcomes = Object.fromEntries(marker.split(' | ').map((entry) => entry.split(/=(.*)/)))
+
+		// Implemented selectors still dispatch through the supercall path.
+		assert.equal(outcomes.isProxy, 'false')
+		assert.equal(outcomes.responds, 'true')
+		// The selector exists on the extended class only; the dispatch
+		// superclass lacks it, so the guard throws a JS error.
+		assert.match(
+			outcomes.candidatesCall,
+			/^caught:-\[\w+ candidates:\]: unrecognized selector sent to instance$/,
+		)
 	},
 )

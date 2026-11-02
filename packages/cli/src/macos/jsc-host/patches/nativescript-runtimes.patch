@@ -265,7 +265,7 @@ diff --git a/NativeScript/ffi/napi/ClassMember.mm b/NativeScript/ffi/napi/ClassM
 index 77290127..e6e153e4 100644
 --- a/NativeScript/ffi/napi/ClassMember.mm
 +++ b/NativeScript/ffi/napi/ClassMember.mm
-@@ -317,6 +317,32 @@ void ObjCClassMember::addOverload(SEL selector, MDSectionOffset offset, uint8_t
+@@ -317,6 +317,50 @@ void ObjCClassMember::addOverload(SEL selector, MDSectionOffset offset, uint8_t
    overloads.emplace_back(selector, offset, dispatchFlags);
  }
 
@@ -276,12 +276,30 @@ index 77290127..e6e153e4 100644
 +// doesNotRecognizeSelector: -> objc_exception_throw, and the NSException
 +// cannot unwind through ffi_call's frames — the process aborts in
 +// __cxxabiv1::failed_throw before the @catch below can run. Verify the
-+// receiver implements the selector before native dispatch and surface the
-+// same failure as a JS-thrown error; the jsi backend guards the same way
-+// (NativeApiJsiInvocation.h callObjCSelector).
++// dispatch target implements the selector before native dispatch and
++// surface the same failure as a JS-thrown error; the jsi backend guards
++// the same way (NativeApiJsiInvocation.h callObjCSelector).
++//
++// For a supercall the probe must run on the dispatch class — the
++// superclass objc_msgSendSuper starts from — not the receiver. A
++// JS-extended class implements its exposed selectors itself, so
++// [self respondsToSelector:] can pass while no ancestor method exists,
++// and msgSendSuper still ends in doesNotRecognizeSelector:. This mirrors
++// callObjCSelector probing lookupClass with class_getInstanceMethod; for
++// class calls dispatchClass is already the superclass's metaclass.
 +inline bool throwIfUnsupportedSelector(napi_env env, id self, SEL selector,
-+                                       bool classMethod) {
-+  if (self == nil || selector == nullptr || [self respondsToSelector:selector]) {
++                                       bool classMethod, Class dispatchClass) {
++  if (self == nil || selector == nullptr) {
++    return false;
++  }
++
++  bool unsupported;
++  if (dispatchClass != nil) {
++    unsupported = class_getInstanceMethod(dispatchClass, selector) == nullptr;
++  } else {
++    unsupported = ![self respondsToSelector:selector];
++  }
++  if (!unsupported) {
 +    return false;
 +  }
 +
@@ -298,28 +316,42 @@ index 77290127..e6e153e4 100644
  inline bool tryObjCNapiDispatch(napi_env env, Cif* cif, id self, bool classMethod, SEL selector,
                                  MethodDescriptor* descriptor, uint8_t dispatchFlags,
                                  const napi_value* argv, void* rvalue, bool* didInvoke) {
-@@ -363,6 +389,10 @@ inline bool tryObjCNapiDispatch(napi_env env, Cif* cif, id self, bool classMetho
+@@ -363,6 +407,10 @@ inline bool tryObjCNapiDispatch(napi_env env, Cif* cif, id self, bool classMetho
      return true;
    }
 
-+  if (throwIfUnsupportedSelector(env, self, selector, classMethod)) {
++  if (throwIfUnsupportedSelector(env, self, selector, classMethod, nil)) {
 +    return false;
 +  }
 +
    @try {
      NativeCallRuntimeUnlockScope unlockRuntime(env);
      bool invoked = invoker(env, cif, (void*)objc_msgSend, self, selector, argv, rvalue);
-@@ -410,6 +440,10 @@ inline bool objcNativeCall(napi_env env, Cif* cif, id self, bool classMethod,
+@@ -410,6 +458,15 @@ inline bool objcNativeCall(napi_env env, Cif* cif, id self, bool classMethod,
    bool isStret = cif->returnType->type->size > 16 && cif->returnType->type->type == FFI_TYPE_STRUCT;
  #endif
 
-+  if (throwIfUnsupportedSelector(env, self, selector, classMethod)) {
++  Class superClass = nil;
++  if (supercall) {
++    superClass = classMethod ? class_getSuperclass(object_getClass((id)receiverClass))
++                             : class_getSuperclass(receiverClass);
++  }
++  if (throwIfUnsupportedSelector(env, self, selector, classMethod, superClass)) {
 +    return false;
 +  }
 +
    @try {
      if (!supercall) {
        if (cif != nullptr && cif->signatureHash != 0) {
+@@ -452,8 +509,6 @@ inline bool objcNativeCall(napi_env env, Cif* cif, id self, bool classMethod,
+       ffi_call(&cif->cif, FFI_FN(objc_msgSend), rvalue, avalues);
+ #endif
+     } else {
+-      Class superClass = classMethod ? class_getSuperclass(object_getClass((id)receiverClass))
+-                                     : class_getSuperclass(receiverClass);
+       struct objc_super superobj = {self, superClass};
+       auto superobjPtr = &superobj;
+       avalues[0] = (void*)&superobjPtr;
 diff --git a/NativeScript/ffi/napi/Closure.mm b/NativeScript/ffi/napi/Closure.mm
 index ab90659..d51232f 100644
 --- a/NativeScript/ffi/napi/Closure.mm

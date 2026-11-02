@@ -267,21 +267,27 @@ legitimately unimplemented on class-cluster declaring classes.
   declared methods; `macos-metagen-derived-members.test.mjs` is the
   direction-of-synthesis regression.
 - **Dispatch guard stays**: `patches/nativescript-runtimes.patch` also
-  checks `respondsToSelector:` before every `self`-targeted selector
-  dispatch in `ClassMember.mm` (`tryObjCNapiDispatch` generated invokers
-  and `objcNativeCall` ffi/super paths — exactly one check per call) and
-  rethrows `-[Class sel]: unrecognized selector sent to instance` as a JS
-  error. The upstream jsi backend already guards identically
-  (`NativeApiJsiInvocation.h` `callObjCSelector`). The metagen fix cannot
-  remove the ~300 header-declared accessors unimplemented on their
-  declaring class (e.g. `NSObject.candidates:`, class-cluster bases), so
-  the guard remains required —
-  `macos-bridge-selectors.test.mjs` exercises it with
-  `NSObject.candidates(null)`. Receivers that implement a message only
-  through `forwardInvocation:` while returning `NO` from
-  `respondsToSelector:` get a JS error instead of the forward — the jsi
-  backend made the same tradeoff; `resolveInstanceMethod:` receivers
-  still work because the check triggers resolution.
+  guards every selector dispatch in `ClassMember.mm`
+  (`tryObjCNapiDispatch` generated invokers and `objcNativeCall`
+  ffi/super paths — exactly one check per call) and rethrows
+  `-[Class sel]: unrecognized selector sent to instance` as a JS error.
+  Ordinary calls probe `[self respondsToSelector:]`; supercalls — every
+  bridged member call on a JS-extended (`NSObject.extend`) class, which
+  dispatches `objc_msgSendSuper` from the superclass — probe the dispatch
+  superclass with `class_getInstanceMethod`, because the derived class
+  answers its own exposed selectors while no ancestor method exists.
+  The upstream jsi backend guards identically
+  (`NativeApiJsiInvocation.h` `callObjCSelector` probes `lookupClass`).
+  The metagen fix cannot remove the ~300 header-declared accessors
+  unimplemented on their declaring class (e.g. `NSObject.candidates:`,
+  class-cluster bases), so the guard remains required —
+  `macos-bridge-selectors.test.mjs` exercises both paths with
+  `NSObject.candidates(null)` and an `NSObject.extend` subclass exposing
+  `candidates:`. Receivers that implement a message only through
+  `forwardInvocation:` while returning `NO` from `respondsToSelector:`
+  get a JS error instead of the forward — the jsi backend made the same
+  tradeoff; `resolveInstanceMethod:` receivers still work because the
+  check triggers resolution.
 - **Removal condition**: an upstream napi-backend dispatch guard or an
   upstream fix for the reversed property synthesis; recheck after a
   runtimes pin bump.
