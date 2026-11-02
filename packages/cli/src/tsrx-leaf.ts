@@ -112,16 +112,19 @@ export function resolveTsrxLeaf(
 	const fallback = `${base}.tsrx`
 	// A platform implementation may delegate to its own unsuffixed base.
 	// Redirecting that import back to the importer would create a module cycle.
+	// Returning null here still lets ambient moduleSuffixes resolution prefer the
+	// platform leaf — return the literal base so the delegation lands on it.
 	const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
 	const delegatesToBase =
 		importerFile.replace(/\.(web|ios|android|mobile|macos|windows|linux|gtk)\.tsrx$/, '.tsrx') ===
 		fallback
-	if (!delegatesToBase) {
-		for (const suffix of suffixes[platform] ?? []) {
-			const candidate = `${base}.${suffix}.tsrx`
-			if (existsSync(candidate)) {
-				return candidate.replaceAll('\\', '/') + query
-			}
+	if (delegatesToBase) {
+		return existsSync(fallback) ? fallback.replaceAll('\\', '/') + query : null
+	}
+	for (const suffix of suffixes[platform] ?? []) {
+		const candidate = `${base}.${suffix}.tsrx`
+		if (existsSync(candidate)) {
+			return candidate.replaceAll('\\', '/') + query
 		}
 	}
 	if (existsSync(fallback) && isTsrxContract(readFileSync(fallback, 'utf8'), fallback)) {

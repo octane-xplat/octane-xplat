@@ -88,7 +88,13 @@ test('unmarked declaration-only defaults also fail before bundling', () => {
 })
 
 test('a platform leaf can delegate to its own default without importing itself', () => {
-	assert.equal(resolveTsrxLeaf('./Card.tsrx', join(dir, 'Card.web.tsrx'), 'web'), null)
+	// Returning null would let ambient moduleSuffixes resolution prefer the
+	// platform leaf again — the delegation must land on the literal base.
+	assert.equal(
+		resolveTsrxLeaf('./Card.tsrx', join(dir, 'Card.web.tsrx'), 'web'),
+		vitePath(join(dir, 'Card.tsrx')),
+	)
+	assert.equal(resolveTsrxLeaf('./Missing.tsrx', join(dir, 'Missing.web.tsrx'), 'web'), null)
 })
 
 test('side-effect entry families also reject empty declaration contracts', () => {
