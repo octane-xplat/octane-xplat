@@ -12,12 +12,67 @@ import {
 
 type BlockType = 'hero' | 'text' | 'image' | 'button' | 'cards' | 'features' | 'cta'
 
-interface Block {
+interface BlockBase {
 	id: string
-	type: BlockType
 	label: string
-	props: Record<string, unknown>
 }
+
+interface CardItem {
+	title: string
+	description: string
+}
+
+interface HeroBlock extends BlockBase {
+	type: 'hero'
+	props: {
+		heading?: string
+		subheading?: string
+		buttonLabel?: string
+		alignment?: 'left' | 'center' | 'right'
+	}
+}
+interface TextBlock extends BlockBase {
+	type: 'text'
+	props: { heading?: string; description?: string; buttonLabel?: string; content?: string }
+}
+interface ImageBlock extends BlockBase {
+	type: 'image'
+	props: Record<string, never>
+}
+interface ButtonBlock extends BlockBase {
+	type: 'button'
+	props: {
+		label?: string
+		variant?: 'primary' | 'secondary' | 'ghost'
+		size?: 'sm' | 'md' | 'lg'
+	}
+}
+interface CardsBlock extends BlockBase {
+	type: 'cards'
+	props: { cards?: CardItem[] }
+}
+interface FeaturesBlock extends BlockBase {
+	type: 'features'
+	props: {
+		heading?: string
+		description?: string
+		buttonLabel?: string
+		items?: Transaction[]
+	}
+}
+interface CtaBlock extends BlockBase {
+	type: 'cta'
+	props: { heading?: string; description?: string; buttonLabel?: string }
+}
+
+type Block =
+	| HeroBlock
+	| TextBlock
+	| ImageBlock
+	| ButtonBlock
+	| CardsBlock
+	| FeaturesBlock
+	| CtaBlock
 
 type ViewportSize = 'desktop' | 'tablet' | 'phone'
 type SidebarTab = 'blocks' | 'properties'
@@ -73,30 +128,43 @@ const DEFAULT_BLOCKS: Block[] = [
 	},
 ]
 
-function defaultProps(type: BlockType): Record<string, unknown> {
+function makeBlock(type: BlockType, id: string): Block {
+	const label = `${BLOCK_META[type].label} ${id}`
 	switch (type) {
 		case 'hero':
-			return { heading: 'New Hero', subheading: 'Subtitle goes here', buttonLabel: 'Click Me', alignment: 'center' }
+			return {
+				id, type, label,
+				props: { heading: 'New Hero', subheading: 'Subtitle goes here', buttonLabel: 'Click Me', alignment: 'center' },
+			}
 		case 'text':
-			return { content: 'Enter your text here.' }
+			return { id, type, label, props: { content: 'Enter your text here.' } }
 		case 'image':
-			return {}
+			return { id, type, label, props: {} }
 		case 'button':
-			return { label: 'Button', variant: 'primary', size: 'md' }
+			return { id, type, label, props: { label: 'Button', variant: 'primary', size: 'md' } }
 		case 'cards':
 			return {
-				cards: [
-					{ title: 'Pricing', description: 'Flexible plans for every team size.' },
-					{ title: 'Support', description: 'Get help whenever you need it.' },
-				],
+				id, type, label,
+				props: {
+					cards: [
+						{ title: 'Pricing', description: 'Flexible plans for every team size.' },
+						{ title: 'Support', description: 'Get help whenever you need it.' },
+					],
+				},
 			}
 		case 'features':
 			return {
-				heading: 'Activity', description: '',
-				items: [{ id: 't1', name: 'New Item', category: 'General', date: 'Today', amount: '$0.00' }],
+				id, type, label,
+				props: {
+					heading: 'Activity', description: '',
+					items: [{ id: 't1', name: 'New Item', category: 'General', date: 'Today', amount: '$0.00' }],
+				},
 			}
 		case 'cta':
-			return { heading: 'New CTA', description: 'Supporting copy goes here.', buttonLabel: 'Learn more' }
+			return {
+				id, type, label,
+				props: { heading: 'New CTA', description: 'Supporting copy goes here.', buttonLabel: 'Learn more' },
+			}
 	}
 }
 
@@ -118,15 +186,15 @@ const canvasStyle = (maxWidth: number) => ({
 })
 
 function BlockProperties(props: { block: Block; onUpdate: (key: string, value: unknown) => void }) {
-	const { type, props: p } = props.block
 	const set = (key: string) => (v: string) => props.onUpdate(key, v)
 
-	switch (type) {
-		case 'hero':
+	switch (props.block.type) {
+		case 'hero': {
+			const p = props.block.props
    return <VStack gap={3}>
-				<TextInput label="Heading" value={(p.heading as string) ?? ''} onChange={set('heading')} />
-				<TextInput label="Subheading" value={(p.subheading as string) ?? ''} onChange={set('subheading')} />
-				<TextInput label="Button label" value={(p.buttonLabel as string) ?? ''} onChange={set('buttonLabel')} />
+				<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
+				<TextInput label="Subheading" value={p.subheading ?? ''} onChange={set('subheading')} />
+				<TextInput label="Button label" value={p.buttonLabel ?? ''} onChange={set('buttonLabel')} />
 				<Selector
 					label="Alignment"
 					options={[
@@ -134,20 +202,24 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
 						{ value: 'center', label: 'Center' },
 						{ value: 'right', label: 'Right' },
 					]}
-					value={(p.alignment as string) ?? 'center'}
+					value={p.alignment ?? 'center'}
 					onValueChange={(v) => props.onUpdate('alignment', v)}
 				/>
 			</VStack>
-		case 'text':
+		}
+		case 'text': {
+			const p = props.block.props
    return <VStack gap={3}>
-				<TextInput label="Heading" value={(p.heading as string) ?? ''} onChange={set('heading')} />
-				<TextInput label="Description" value={(p.description as string) ?? ''} onChange={set('description')} />
-				<TextInput label="Button label" value={(p.buttonLabel as string) ?? ''} onChange={set('buttonLabel')} />
-				<TextInput label="Body text" value={(p.content as string) ?? ''} onChange={set('content')} />
+				<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
+				<TextInput label="Description" value={p.description ?? ''} onChange={set('description')} />
+				<TextInput label="Button label" value={p.buttonLabel ?? ''} onChange={set('buttonLabel')} />
+				<TextInput label="Body text" value={p.content ?? ''} onChange={set('content')} />
 			</VStack>
-		case 'button':
+		}
+		case 'button': {
+			const p = props.block.props
    return <VStack gap={3}>
-				<TextInput label="Label" value={(p.label as string) ?? ''} onChange={set('label')} />
+				<TextInput label="Label" value={p.label ?? ''} onChange={set('label')} />
 				<Selector
 					label="Variant"
 					options={[
@@ -155,7 +227,7 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
 						{ value: 'secondary', label: 'Secondary' },
 						{ value: 'ghost', label: 'Ghost' },
 					]}
-					value={(p.variant as string) ?? 'primary'}
+					value={p.variant ?? 'primary'}
 					onValueChange={(v) => props.onUpdate('variant', v)}
 				/>
 				<Selector
@@ -165,49 +237,54 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
 						{ value: 'md', label: 'Medium' },
 						{ value: 'lg', label: 'Large' },
 					]}
-					value={(p.size as string) ?? 'md'}
+					value={p.size ?? 'md'}
 					onValueChange={(v) => props.onUpdate('size', v)}
 				/>
 			</VStack>
+		}
 		case 'features':
-		case 'cta':
+		case 'cta': {
+			const p = props.block.props
    return <VStack gap={3}>
-				<TextInput label="Heading" value={(p.heading as string) ?? ''} onChange={set('heading')} />
-				<TextInput label="Description" value={(p.description as string) ?? ''} onChange={set('description')} />
-				<TextInput label="Button label" value={(p.buttonLabel as string) ?? ''} onChange={set('buttonLabel')} />
+				<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
+				<TextInput label="Description" value={p.description ?? ''} onChange={set('description')} />
+				<TextInput label="Button label" value={p.buttonLabel ?? ''} onChange={set('buttonLabel')} />
 			</VStack>
+		}
 		default:
    return <EmptyState title="No configurable properties" isCompact />
 	}
 }
 
 function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () => void }) {
-	const { type, props: p } = props.block
 	const cardStyle = { ...clickable, ...(props.isSelected ? selectedCard : {}) }
 
-	switch (type) {
-		case 'hero':
+	switch (props.block.type) {
+		case 'hero': {
+			const p = props.block.props
    return <Card padding={6} style={cardStyle}>
 				<div onClick={props.onSelect} style={clickable}>
-					<VStack gap={4} hAlign={((p.alignment as 'left' | 'center' | 'right') ?? 'center') === 'left' ? 'start' : ((p.alignment as 'left' | 'center' | 'right') ?? 'center') === 'right' ? 'end' : 'center'}>
-						<Heading level={2}>{(p.heading as string) || 'Hero Heading'}</Heading>
+					<VStack gap={4} hAlign={(p.alignment ?? 'center') === 'left' ? 'start' : (p.alignment ?? 'center') === 'right' ? 'end' : 'center'}>
+						<Heading level={2}>{p.heading || 'Hero Heading'}</Heading>
 						<Text type="supporting" color="secondary">
-							{(p.subheading as string) || 'Subtitle text goes here'}
+							{p.subheading || 'Subtitle text goes here'}
 						</Text>
-						{p.buttonLabel ? <Button label={p.buttonLabel as string} clickAction={() => {}} /> : null}
+						{p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : null}
 					</VStack>
 				</div>
 			</Card>
-		case 'text':
+		}
+		case 'text': {
+			const p = props.block.props
 			if (p.heading) {
 				return (
 				<Card padding={6} style={cardStyle}>
 					<div onClick={props.onSelect} style={clickable}>
 						<EmptyState
-							title={p.heading as string}
-							description={p.description as string}
+							title={p.heading}
+							description={p.description}
 							icon={<Spinner />}
-							actions={p.buttonLabel ? <Button label={p.buttonLabel as string} variant="secondary" clickAction={() => {}} /> : undefined}
+							actions={p.buttonLabel ? <Button label={p.buttonLabel} variant="secondary" clickAction={() => {}} /> : undefined}
 						/>
 					</div>
 				</Card>
@@ -215,34 +292,38 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
 			}
 			return <Card style={cardStyle}>
 				<div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
-					<Text type="body">{(p.content as string) || 'Text content'}</Text>
+					<Text type="body">{p.content || 'Text content'}</Text>
 				</div>
 			</Card>
+		}
 		case 'image':
    return <Card padding={0} style={cardStyle}>
 				<div onClick={props.onSelect} style={{ ...clickable, height: 180, backgroundColor: 'var(--color-background-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 					<Icon name="sandbox-photo" size={32} color="secondary" />
 				</div>
 			</Card>
-		case 'button':
+		case 'button': {
+			const p = props.block.props
    return <Card padding={6} style={cardStyle}>
 				<div onClick={props.onSelect} style={clickable}>
 					<Button
-						label={(p.label as string) || 'Button'}
-						variant={(p.variant as 'primary' | 'secondary' | 'ghost') ?? 'primary'}
-						size={(p.size as 'sm' | 'md' | 'lg') ?? 'md'}
+						label={p.label || 'Button'}
+						variant={p.variant ?? 'primary'}
+						size={p.size ?? 'md'}
 						clickAction={() => {}}
 					/>
 				</div>
 			</Card>
+		}
 		case 'features': {
-			const items = (p.items as Transaction[]) || []
+			const p = props.block.props
+			const items = p.items ?? []
 			return <Card padding={6} style={cardStyle}>
 				<div onClick={props.onSelect} style={clickable}>
 					<VStack gap={3}>
-						<Heading level={3}>{(p.heading as string) || 'Features'}</Heading>
+						<Heading level={3}>{p.heading || 'Features'}</Heading>
 						{p.description ? (
-							<Text type="supporting" color="secondary">{p.description as string}</Text>
+							<Text type="supporting" color="secondary">{p.description}</Text>
 						) : null}
 						<VStack gap={2}>
 							{items.map((item) => (
@@ -265,10 +346,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
 			</Card>
 		}
 		case 'cards': {
-			const cards: unknown = 'cards' in p ? p.cards : undefined
-			const cardItems: { title: string; description: string }[] = Array.isArray(cards)
-				? cards
-				: []
+			const cardItems = props.block.props.cards ?? []
 			return <Card style={cardStyle}>
 				<div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
 					<Heading level={3}>Cards</Heading>
@@ -280,17 +358,19 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
 				</div>
 			</Card>
 		}
-		case 'cta':
+		case 'cta': {
+			const p = props.block.props
    return <Card padding={6} style={cardStyle}>
 				<div onClick={props.onSelect} style={clickable}>
 					<EmptyState
-						title={(p.heading as string) || 'CTA'}
-						description={p.description as string}
+						title={p.heading || 'CTA'}
+						description={p.description}
 						icon={<Icon name="sandbox-megaphone" size={24} />}
-						actions={p.buttonLabel ? <Button label={p.buttonLabel as string} clickAction={() => {}} /> : undefined}
+						actions={p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : undefined}
 					/>
 				</div>
 			</Card>
+		}
 	}
 }
 
@@ -307,7 +387,12 @@ export function EditorTemplate() @{
 	const selectedBlock = blocks.find((b) => b.id === selectedId) ?? null
 
 	const updateBlockProp = useCallback((id: string, key: string, value: unknown) => {
-		setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, props: { ...b.props, [key]: value } } : b)))
+		// `key`/`value` arrive as runtime strings from the inspector, so the
+		// merge is a conversion TS cannot verify — the spread preserves each
+		// block's own props shape and the single assertion bounds it.
+		setBlocks((prev) =>
+			prev.map((b) => (b.id === id ? ({ ...b, props: { ...b.props, [key]: value } } as Block) : b)),
+		)
 	}, [])
 
 	const moveBlock = useCallback((id: string, dir: -1 | 1) => {
@@ -330,7 +415,7 @@ export function EditorTemplate() @{
 
 	const addBlock = useCallback((type: BlockType) => {
 		const id = uid()
-		const block: Block = { id, type, label: `${BLOCK_META[type].label} ${id}`, props: defaultProps(type) }
+		const block = makeBlock(type, id)
 		setBlocks((prev) => [...prev, block])
 		setSelectedId(id)
 		setSidebarTab('properties')
