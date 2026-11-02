@@ -19,6 +19,11 @@ Project-installed Vite presets are separately packaged as
 plugin closure from the TypeScript reference sources; it has no published CLI
 runtime dependency. Keep JS compilation and development middleware in the app's
 toolchain, and command/process/session orchestration in the native executable.
+macOS packaging uses the separate [`@octane-xplat/macos-build`](../../packages/macos-build/README.md)
+worker and host assets in the selected project. Keep that platform cost out of
+the CLI tarball and web-only build installations. Nim owns staging and final
+publication after the worker finishes.
+
 The existing TypeScript CLI exports remain available during the parallel
 migration; the Nim tarball has none of those JS exports. See the
 [build-plugin guide](../../docs/packages/package-build.md) for import migration.

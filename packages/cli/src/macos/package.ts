@@ -5,6 +5,8 @@ import {
 	cp,
 	mkdir,
 	mkdtemp,
+	lstat,
+	readdir,
 	readFile,
 	realpath,
 	rename,
@@ -15,7 +17,7 @@ import {
 
 import { existsSync, readFileSync } from 'node:fs'
 import { arch, platform } from 'node:os'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { writeInfoPlist } from './info-plist.ts'
 import { installedPackageRoot } from '../package-root.ts'
@@ -178,16 +180,18 @@ function notarize(notaryProfile, dmgPath) {
 }
 
 /** Build the app bundle and disk image for an opted-in macOS target. */
-export async function packageMacOS(appRoot) {
+export async function packageMacOS(appRoot: string,
+	{ stagingRoot: suppliedStagingRoot, publish = true }: { stagingRoot?: string; publish?: boolean } = {}) {
 	if (platform() !== 'darwin' || (arch() !== 'arm64' && arch() !== 'x64')) {
 		throw new Error('The macOS package target requires a Mac running macOS arm64 or x86_64.')
 	}
 
-	const { settings, renderer, iconPath, entitlementsPath } = readPackageConfig(appRoot)
-	const viteConfig = renderer === 'webview' ? settings.hostViteConfig : settings.viteConfig
-	const bundleFile = renderer === 'webview' ? settings.hostBundleFile : settings.bundleFile
-	const webViteConfig = renderer === 'webview' ? settings.webViteConfig : null
-	const webOutDir = renderer === 'webview' ? settings.webOutDir : null
+	const config = readPackageConfig(appRoot)
+	const { settings, renderer, iconPath, entitlementsPath } = config
+	const viteConfig = renderer === 'webview' ? config.hostViteConfig : config.viteConfig
+	const bundleFile = renderer === 'webview' ? config.hostBundleFile : config.bundleFile
+	const webViteConfig = renderer === 'webview' ? config.webViteConfig : null
+	const webOutDir = renderer === 'webview' ? config.webOutDir : null
 
 	const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
 	const notaryProfile = process.env.MACOS_NOTARY_PROFILE
@@ -293,7 +297,16 @@ export async function packageMacOS(appRoot) {
 
 	const releaseRoot = join(appRoot, 'artifacts', 'macos-universal')
 	await mkdir(releaseRoot, { recursive: true })
-	const stagingRoot = await mkdtemp(join(releaseRoot, '.xplat-macos-'))
+	const stagingRoot = suppliedStagingRoot ?? (await mkdtemp(join(releaseRoot, '.xplat-macos-')))
+	if (suppliedStagingRoot) {
+		const release = await realpath(releaseRoot)
+		const supplied = await realpath(suppliedStagingRoot)
+		// The caller owns this empty staging directory, never an existing release.
+		if (dirname(supplied) !== release || !basename(supplied).startsWith('.xplat-macos-') ||
+			!(await lstat(suppliedStagingRoot)).isDirectory() || (await readdir(supplied)).length) {
+			throw new Error('macOS package staging must be an empty .xplat-macos-* directory directly inside artifacts/macos-universal')
+		}
+	}
 	const appPath = join(stagingRoot, `${settings.executableName}.app`)
 	const contentsPath = join(appPath, 'Contents')
 	const resourcesPath = join(contentsPath, 'Resources')
@@ -408,6 +421,11 @@ export async function packageMacOS(appRoot) {
 		signDiskImage(signingIdentity, settings.bundleIdentifier, dmgPath)
 		notarize(notaryProfile, dmgPath)
 
+		if (!publish) {
+			preserveStagingRoot = true
+			return { version: 1, executableName: settings.executableName, appPath, dmgPath }
+		}
+
 		const finalAppPath = join(releaseRoot, `${settings.executableName}.app`)
 		const finalDmgPath = join(releaseRoot, `${settings.executableName}-macos-universal.dmg`)
 		const previousAppPath = join(stagingRoot, `${settings.executableName}.previous.app`)
@@ -463,9 +481,9 @@ export async function packageMacOS(appRoot) {
 		console.log(`[macos-package] app: ${finalAppPath}`)
 		console.log(`[macos-package] dmg: ${finalDmgPath}`)
 	} finally {
-		if (preserveStagingRoot) {
+		if (preserveStagingRoot && publish) {
 			console.error(`[macos-package] staging directory retained for recovery: ${stagingRoot}`)
-		} else {
+		} else if (!preserveStagingRoot) {
 			await rm(stagingRoot, { recursive: true, force: true })
 		}
 	}

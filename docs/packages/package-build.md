@@ -74,3 +74,11 @@ bun run xplat catalog --json
 ```
 
 See the [API reference](https://octane-xplat.goddardai.org/api-build) for options.
+
+For native macOS packaging with the Nim CLI, install the separate
+[macOS build worker](package-macos-build.md). Its host assets are not part of
+this package.
+
+```sh
+bun add --dev @octane-xplat/macos-build
+```

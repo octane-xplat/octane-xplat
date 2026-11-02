@@ -13,6 +13,7 @@ import ./sessions_scenario
 import ./jobs_scenario
 import ../../packages/cli/nim/[runtime_logs, runtime_build]
 import ../../packages/cli/nim/contract_failure
+import ../../packages/cli/nim/macos_build
 
 proc logsScenario(request: JsonNode): JsonNode =
   let logs = newRuntimeLogs((if field(request,"limit") == nil: 2000 else: request["limit"].getInt()),
@@ -75,9 +76,14 @@ for line in stdin.lines:
       let logs = newRuntimeLogs()
       let signal = newProcessCancel()
       try:
-        value = waitFor runProjectBuild(%*{"id": ".","root": dir},"web",logs,signal,
+        value = waitFor runProjectBuild(%*{"id": ".","root": dir},
+          (if field(request,"platform") == nil: "web" else: text(request["platform"])),logs,signal,
           timeoutMs=(if field(request,"timeoutMs") == nil: 900000 else: request["timeoutMs"].getInt()))
       except CatchableError as error: value = %*{"error": failureData(error),"logs": logs.readLogs()}
+    of "publish-macos":
+      var preserve = false
+      try: value = publishMacOSArtifacts(dir,text(request["stage"]),request["plan"],preserve)
+      except CatchableError as error: value = %*{"error": failureData(error),"preserveStage": preserve}
     of "jobs": value = waitFor jobScenario(request)
     of "job-process": value = waitFor jobProcessScenario(request)
     of "session-process": value = waitFor sessionProcessScenario(request)

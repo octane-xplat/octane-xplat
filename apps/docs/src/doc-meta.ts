@@ -142,6 +142,7 @@ export const GROUPS = [
 			'package-linux-gtk-renderer',
 			'package-lottie',
 			'package-macos-appkit',
+			'package-macos-build',
 			'package-maps',
 			'package-mcp',
 			'package-media',

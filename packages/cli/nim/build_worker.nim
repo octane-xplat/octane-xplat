@@ -2,36 +2,41 @@
 import std/[os, json, strutils, strtabs, asyncdispatch, monotimes, times, tempfiles]
 import ./managed_process, ./jsonutil, ./strictjson, ./js_json, ./js_text, ./pathutil
 import ./digests, ./route_metadata
+import ./contract_failure
 
 const workerProtocol = "octane-build-worker"
-proc projectBuildRoot*(project: string): string =
+proc projectBuildRoot*(project: string, packageName = "@octane-xplat/build"): string =
+  if packageName notin ["@octane-xplat/build","@octane-xplat/macos-build"]:
+    raise newException(ValueError,"Unsupported project worker package")
   var current = absolutePath(project)
   while true:
-    let package = current / "node_modules" / "@octane-xplat" / "build"
+    let package = current / "node_modules" / packageName
     let manifest = readJson(package / "package.json")
-    if text(field(manifest,"name")) == "@octane-xplat/build":
+    if text(field(manifest,"name")) == packageName:
       return expandFilename(package)
     let parent = parentOrSelf(current)
     if parent == current: break
     current = parent
-  raise newException(ValueError,"Install @octane-xplat/build in the selected project (for example: bun add --dev @octane-xplat/build).")
+  raise contractFailure("prerequisite_missing","Install " & packageName & " in the selected project (for example: bun add --dev " & packageName & ").")
 
-proc projectWorker(project: string): string =
-  let root = projectBuildRoot(project)
+proc projectWorker*(project: string, packageName = "@octane-xplat/build"): string =
+  let root = projectBuildRoot(project,packageName)
   let entry = text(field(field(readJson(root / "package.json"),"exports"),"./worker"))
   if entry.startsWith("./"):
     let file = normalizedPath(root / entry)
     if file.startsWith(root & $DirSep) and fileExists(file): return file
-  raise newException(ValueError,"The project's @octane-xplat/build does not provide build worker v1. Update it with your project package manager.")
+  raise contractFailure("prerequisite_missing","The project's " & packageName & " does not provide build worker v1. Update it with your project package manager.")
 
 proc runBuildWorker*(project, operation: string, payload: JsonNode,
     timeoutMs = 60000, signal: ProcessCancel = nil, environment: StringTableRef = nil,
     onDiagnostic: proc(bytes: string) {.closure.} = nil,
-    onWarning: proc(message: string) {.closure.} = nil): Future[JsonNode] {.async.} =
+    onWarning: proc(message: string) {.closure.} = nil,
+    packageName = "@octane-xplat/build",
+    onOutput: proc(stream, bytes: string) {.closure.} = nil): Future[JsonNode] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Worker timeout must be positive")
-  if signal != nil and signal.cancelled: raise newException(ValueError,"Build operation cancelled")
+  if signal != nil and signal.cancelled: raise contractFailure("cancelled","Build operation cancelled")
   let root = absolutePath(project)
-  let worker = projectWorker(root)
+  let worker = projectWorker(root,packageName)
   let temporary = createTempDir("xplat-worker-","")
   let manager = newProcessManager()
   let cancellation = newProcessCancel()
@@ -60,6 +65,7 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
     workerEnvironment["NODE_OPTIONS"] = ""
     let child = manager.spawnManaged("node",@[worker,input,output],cwd=root,env=workerEnvironment,signal=cancellation,graceMs=500,
       onData=proc(stream, bytes: string) =
+        if onOutput != nil: onOutput(stream,bytes)
         if onDiagnostic != nil: onDiagnostic(bytes)
         if diagnostics.len < 65536: diagnostics.add(bytes[0..<min(bytes.len,65536-diagnostics.len)]))
     var timedOut = false
@@ -70,9 +76,9 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
         cancellation.cancel()
       await sleepAsync(5)
     let status = await child.exit
-    if timedOut: raise newException(ValueError,"Project build worker timed out")
-    if cancellation.cancelled: raise newException(ValueError,"Build operation cancelled")
-    if status.errorCode == "ENOENT": raise newException(ValueError,"Node >=22.22.2 is required for project build operations; install Node and retry.")
+    if timedOut: raise contractFailure("timeout","Project build worker timed out")
+    if cancellation.cancelled: raise contractFailure("cancelled","Build operation cancelled")
+    if status.errorCode == "ENOENT": raise contractFailure("prerequisite_missing","Node >=22.22.2 is required for project build operations; install Node and retry.")
     if not fileExists(output):
       raise newException(ValueError,"Project build worker exited " & $status.exitStatus() & " without a result" & (if diagnostics.len > 0: ": " & decodeUtf8(diagnostics).strip() else: ""))
     if getFileSize(output) > 64*1024*1024: raise newException(ValueError,"Build worker result exceeds 64 MiB")
@@ -90,9 +96,11 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
       let message = text(field(field(response,"error"),"message"))
       let file = text(field(field(response,"error"),"file"))
       if message == "Unsupported build operation: " & operation:
-        raise newException(ValueError,"The project's build worker does not support " & operation &
-          ". Update @octane-xplat/build in the selected project with your package manager and retry.")
-      raise newException(ValueError,(if file.len > 0 and file notin message: file & ": " else: "") &
+        raise contractFailure("prerequisite_missing","The project's build worker does not support " & operation &
+          ". Update " & packageName & " in the selected project with your package manager and retry.")
+      let code = text(field(field(response,"error"),"code"))
+      raise contractFailure((if code in ["prerequisite_missing","unavailable"]: code else: "execution_failure"),
+        (if file.len > 0 and file notin message: file & ": " else: "") &
         (if message.len > 0: message else: "Project build operation failed"))
     if status.exitStatus() != 0: raise newException(ValueError,"Project build worker failed after writing its result")
     if field(response,"data") == nil: raise newException(ValueError,"Project build worker omitted result data")

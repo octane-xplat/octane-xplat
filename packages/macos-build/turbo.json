@@ -1,0 +1,21 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"build": {
+			"dependsOn": [
+				"@octane-xplat/cli#build"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"../cli/src/macos/**",
+				"../cli/src/env.ts",
+				"../cli/src/package-root.ts"
+			],
+			"outputs": [
+				"dist/**"
+			]
+		}
+	}
+}

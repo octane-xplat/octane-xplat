@@ -2,6 +2,7 @@
 import std/[os, json, asyncdispatch, options, strutils, strtabs, monotimes, times]
 import ./core, ./package_manager, ./managed_process, ./runtime_logs
 import ./route_operation, ./command_probe, ./contract_failure
+import ./macos_build, ./build_worker
 
 proc requireProjectVite(root: string) =
   for modules in nodeModulesDirs(root):
@@ -20,11 +21,12 @@ proc sourceRevision*(root: string, signal: ProcessCancel = nil): Future[JsonNode
 proc runProjectBuild*(app: JsonNode, platform: string, logs: RuntimeLogs, signal: ProcessCancel,
     report: proc(progress: JsonNode) {.closure.} = nil, timeoutMs = 900000): Future[JsonNode] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Build deadline must be positive")
-  if platform != "web": raise contractFailure("unavailable","Native " & platform & " build engine integration is pending.")
+  if platform notin ["web","macos"]: raise contractFailure("unavailable","Native " & platform & " build engine integration is pending.")
   when not defined(macosx): raise contractFailure("unavailable","Native process ownership is not implemented on this host.")
   let root = text(app["root"])
   if report != nil: report(%*{"phase": "starting","platform": platform})
   requireProjectVite(root)
+  if platform == "macos": discard projectWorker(root,"@octane-xplat/macos-build")
   var routeLines: ProcessLines
   proc captureRoutes(bytes: string, eof = false) =
     for line in routeLines.feed(bytes,"stderr",eof):
@@ -35,6 +37,13 @@ proc runProjectBuild*(app: JsonNode, platform: string, logs: RuntimeLogs, signal
       onDiagnostic=proc(bytes: string) = captureRoutes(bytes))
   finally: captureRoutes("",eof=true)
   if signal != nil and signal.cancelled: raise contractFailure("cancelled","Build cancelled.")
+  if platform == "macos":
+    if report != nil: report(%*{"phase": "building","platform": platform})
+    let built = await runMacOSBuild(root,logs,signal,timeoutMs)
+    built["platform"] = %platform
+    built["appId"] = app["id"]
+    built["buildIdentity"] = await sourceRevision(root,signal)
+    return built
   let command = packageManagerExec(root,@["vite","build"])
   var args: seq[string]
   for value in command["args"]: args.add(value.getStr())

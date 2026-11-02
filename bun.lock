@@ -1642,6 +1642,19 @@
         "octane": ">=0.6.3 <1",
       },
     },
+    "packages/macos-build": {
+      "name": "@octane-xplat/macos-build",
+      "version": "0.19.0",
+      "devDependencies": {
+        "@octane-xplat/cli": "workspace:*",
+        "@types/node": "24.10.1",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+      "peerDependencies": {
+        "vite": "^8.3.0",
+      },
+    },
     "packages/maps": {
       "name": "@octane-xplat/maps",
       "version": "0.19.0",
@@ -3887,6 +3900,8 @@
     "@octane-xplat/lottie": ["@octane-xplat/lottie@workspace:packages/lottie"],
 
     "@octane-xplat/macos-appkit": ["@octane-xplat/macos-appkit@workspace:packages/macos-appkit"],
+
+    "@octane-xplat/macos-build": ["@octane-xplat/macos-build@workspace:packages/macos-build"],
 
     "@octane-xplat/maps": ["@octane-xplat/maps@workspace:packages/maps"],
 

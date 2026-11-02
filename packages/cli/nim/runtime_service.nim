@@ -47,7 +47,7 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
       for value in app["platforms"]:
         if value == platform: declared = true
       if not declared: raise contractFailure("invalid_selection","The selected app does not declare the requested platform.")
-      if platform != %"web": raise contractFailure("unavailable","Native " & platform.getStr() & " build engine integration is pending.")
+      if platform notin [%"web",%"macos"]: raise contractFailure("unavailable","Native " & platform.getStr() & " build engine integration is pending.")
       let key = field(params,"requestKey")
       if key != nil and key.kind notin [JNull,JString]: raise contractFailure("invalid_selection","requestKey must be a string.")
       let logs = newRuntimeLogs()

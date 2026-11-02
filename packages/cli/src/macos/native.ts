@@ -548,7 +548,7 @@ export async function inspectMacOSNative(appRoot) {
 		hash(readFileSync(generator)) !== manifest.sha256[manifest.metadataGenerator.path]
 	) {
 		throw new Error(
-			'[macos-native] Metadata generator missing or checksum differs; reinstall @octane-xplat/cli',
+			'[macos-native] Metadata generator missing or checksum differs; reinstall the project macOS build tooling',
 		)
 	}
 

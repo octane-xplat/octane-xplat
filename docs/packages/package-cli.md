@@ -157,7 +157,7 @@ before generating files:
 Native session and job commands read retained state from a background owner for
 the workspace. A read does not start that process; with no owner, the session list
 is empty. Each CLI implementation owns its runtime state. Development sessions
-and builds for other platforms remain migration work:
+and builds beyond web/macOS remain migration work:
 
 ```sh
 /path/to/octane-xplat/research/nim-cli/native/xplat session list --json
@@ -174,6 +174,16 @@ are bounded and disappear when the background owner exits:
 # Replace JOB_ID with the returned id:
 /path/to/octane-xplat/research/nim-cli/native/xplat job status JOB_ID --json
 /path/to/octane-xplat/research/nim-cli/native/xplat diagnostics --job JOB_ID --json
+```
+
+Native macOS builds use a separate [macOS build worker](package-macos-build.md).
+Install it in an already configured macOS app, then build in the foreground or
+start a job. Its host assets stay in the project toolchain:
+
+```sh
+bun add --dev @octane-xplat/macos-build @octane-xplat/build
+xplat build --targets macos
+xplat runtime build --platform macos --json
 ```
 
 Inspect the native catalog before using another workflow:

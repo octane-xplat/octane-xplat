@@ -13,7 +13,8 @@ commands: invoke the app's installed compiler/build tools with explicit argv,
 cwd and environment, and keep command/session orchestration in Nim.
 
 Project operations that already need JavaScript use small, versioned workers
-from the selected project's `@octane-xplat/build/worker`. Keep parser/compiler
+from the selected project's `@octane-xplat/build/worker` or platform-specific
+`@octane-xplat/macos-build/worker`. Keep parser/compiler
 AST details and JS execution there; pass stable validated metadata to Nim.
 Nim owns explicit argv/cwd/environment, response bounds, timeout, cancellation
 and process-group cleanup. Sidecar JSON separates results from library diagnostics
@@ -140,11 +141,16 @@ front eviction, keep sequence numbers monotonic, disclose cursor gaps, and copy
 records before returning them or invoking observers. Snapshot the callback list
 before notification so reentrant registration cannot invalidate iteration.
 
+Use a native rename primitive for publication that requires atomic moves.
+Nim's high-level move helpers can fall back to copy-and-delete across filesystems;
+the operation name alone does not promise an atomic rename. Keep same-filesystem
+staging, explicit rollback and retained recovery files; qualify a real filesystem
+failure, not only a mocked return.
+
 A foreground output sink has lifecycle responsibility even if the log store
 contains observer exceptions. Catch a sink's write/flush error explicitly and
 cancel the owned operation. Silently swallowing a broken pipe can leave a build
 running after its consumer disappears; qualify cleanup before fixture teardown.
-
 
 Keep a Node/TypeScript differential oracle until each migrated behavior is
 qualified. Compare structured results, errors, exit codes and stream ownership;

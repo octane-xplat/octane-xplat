@@ -97,7 +97,7 @@ function verifyCapabilities(matrices, bound) {
   assert.deepEqual(matrix.capabilities.map(row => row.capability), CAPABILITY_IDS)
   for (const row of matrix.capabilities) {
    const wanted = row.capability === 'project_status' || (bound && row.capability === 'guidance') ? 'supported'
-    : bound && (['docs', 'code_search'].includes(row.capability) || (process.platform==='darwin' && matrix.platform==='web' && ['build','logs','job_control'].includes(row.capability))) ? 'partial' : 'unavailable'
+    : bound && (['docs', 'code_search'].includes(row.capability) || (process.platform==='darwin' && ['web','macos'].includes(matrix.platform) && ['build','logs','job_control'].includes(row.capability))) ? 'partial' : 'unavailable'
    assert.equal(row.status, wanted, row.capability)
    if (row.capability === 'screenshot') {assert.equal(row.requiresPermission, 'visual-capture')}
   }

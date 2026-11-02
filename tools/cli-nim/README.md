@@ -440,3 +440,30 @@ only for the host lifetime; persisted session history remains migration work.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native web build qualification"}' -- bun run turbo run test:nim-runtime-build test:nim-runtime-logs --filter=@octane-xplat/cli
 ```
+
+## macOS package worker and publication
+
+`@octane-xplat/macos-build` compiles the canonical TypeScript packager/compiler
+and carries the verified JSC host assets separately from the native CLI and
+web build package. Its packed-worker path uses project-only package resolution
+and colocated dist assets. It returns a staged app/DMG plan without publishing;
+Nim validates that plan, holds a per-app advisory lock, publishes with native
+renames and restores both previous artifacts on reported publication failures.
+
+`test:nim-macos-build` installs packed workers and the native CLI in a disposable
+consumer. It checks real C leaf compilation, ad-hoc signing, DMG verification,
+headless host-architecture execution, complete app-payload comparison with the
+TypeScript operation, public jobs/diagnostics/foreground builds, absent workers,
+build contention and cancellation before publication. App execution is headless;
+it does not qualify GUI input, development sessions, Intel execution on an arm64
+host or notarization. Its signing/notarization environment is explicitly local.
+
+`test:nim-macos-publication` tests malformed plans and an actual immutable-file
+rename failure after app publication, requiring rollback of the previous app and
+DMG. Abrupt owner death during publication can leave recovery files; automatic
+crash recovery is still migration work. The native build lock coordinates native
+invocations; do not run the reference CLI against the same output concurrently.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-publication --filter=@octane-xplat/cli
+```

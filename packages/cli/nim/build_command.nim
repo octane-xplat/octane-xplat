@@ -50,7 +50,7 @@ proc runBuild*(project: string, values: JsonNode): Future[int] {.async.} =
   else: chosen = available
   # Validate every engine before route generation or compiler output publication.
   for platform in chosen:
-    if platform != "web":
+    if platform notin ["web","macos"]:
       stderr.writeLine("Native " & platform & " build engine integration is pending.")
       return 1
   let logs = newRuntimeLogs()

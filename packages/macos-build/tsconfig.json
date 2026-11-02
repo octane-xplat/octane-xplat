@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": [
+			"node"
+		]
+	},
+	"include": [
+		"vite.package.config.ts",
+		"runtime-paths.ts",
+		"project-package-root.ts"
+	]
+}

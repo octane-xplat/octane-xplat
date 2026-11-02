@@ -20,7 +20,11 @@ Session list/status/end and job status/cancel use the authenticated native host
 on macOS. Reads never start it. Its private per-workspace cache survives project
 cache cleanup. Web `build --targets web` and `runtime build --platform web` invoke the selected
 project's installed Vite. Build-job diagnostics retain bounded output while the
-host lives; inspect with `diagnostics --job JOB_ID`. Other build/dev and
+host lives; inspect with `diagnostics --job JOB_ID`. Native macOS builds use
+the separate `@octane-xplat/macos-build/worker` and its host assets. Nim validates
+and publishes staged app/DMG artifacts after the worker exits; cancellation
+before publication preserves the previous artifacts. Overlapping native builds
+for one app report target busy. Other build/dev and
 app-session creation workflows remain pending; keep using the TypeScript CLI
 for those.
 Project-installed plugins are available separately as
