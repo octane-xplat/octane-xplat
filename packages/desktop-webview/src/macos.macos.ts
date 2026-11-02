@@ -115,10 +115,11 @@ interface ChannelState {
 	stagedMovies: Map<string, NSURL>
 }
 
-// The bridge only invokes JS closures on the main run loop: UserNotifications
-// completions run on an internal XPC queue and WebKit delivers the
-// media-capture delegate call off the JS thread, so both stay in the retained
-// Swift leaf — see platforms/macos.
+// UserNotifications completions run on an internal XPC queue and WebKit
+// delivers the media-capture delegate call off the JS thread. The host's
+// 2026-11-02 env loop pump delivers such foreign-queue JS blocks on the main
+// thread, but these paths were qualified under the retained Swift leaf and
+// stay there pending requalification — see platforms/macos.
 declare const XplatWebViewNative: {
 	alloc(): {
 		init(): {
@@ -258,9 +259,10 @@ const runLoopSpin = (seconds: number): void => {
 	)
 }
 
-// requestAccess's completion block lands on an arbitrary queue, where the
-// bridge cannot deliver a JS callback — a nil handler is accepted, so the
-// request is polled through the run loop the way the Swift spin did.
+// requestAccess's completion block lands on an arbitrary queue. The host's
+// env loop pump delivers foreign-queue JS blocks on the main thread now, but
+// a nil handler is also accepted, so the request is polled through the run
+// loop the way the Swift spin did.
 const requestMediaTypeAccess = (mediaType: string, deadlineSeconds: number | null): void => {
 	AVCaptureDevice.requestAccessForMediaTypeCompletionHandler(mediaType, null)
 	const deadline = deadlineSeconds == null ? null : Date.now() + deadlineSeconds * 1000

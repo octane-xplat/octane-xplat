@@ -82,46 +82,54 @@ script bug.
   the map during a bridged call, or moves all erase operations off the
   finalizer path.
 
-## JS callback delivery is main-queue-only and starves under in-flight transfers (upstream)
+## Foreign-queue JS callbacks starved until the env loop pump (first-party, fixed)
 
-Runtime-verified on the prebuilt arm64 host 2026-11-01 (gif probes under
-`research/gif-runtime/`):
+The starvation observed 2026-11-01 (gif probes under `research/gif-runtime/`)
+was **not an upstream limitation** — it was a first-party host gap, confirmed
+and fixed 2026-11-02:
 
-- JS blocks are only invoked on the main queue. `dispatch_async` on global
-  queues, custom `NSOperationQueue`s, and `NSURLSession` completion handlers
-  on default/delegate queues never deliver; several crash the host.
-- `NSURLSession` task **completion blocks never deliver at all** — the task
-  resumes and the request reaches the server, but no JS callback arrives.
-  `NSURLConnection`'s block API fails the same way. A JS
-  `NSURLSessionDataDelegate` on `NSOperationQueue.mainQueue` does dispatch.
-- Even main-queue delivery is unreliable while a remote transfer is in
-  flight: JS callbacks registered from outside a callback context can be
-  dropped. A `mainQueue.addOperationWithBlock` op that re-arms itself from
-  inside its own op keeps being delivered.
-- Only enumerable prototype members register as ObjC methods on a JS
-  `NativeClass` delegate, so the prototype must be re-defined enumerable
-  before `NativeClass(this)` — same constraint as "Other verified host
-  quirks" below.
+- `host.m` created `env->loop` (`uv_loop_init` → `js_create_platform` →
+  `js_create_env`) but entered `[NSApp run]` without ever calling `uv_run`,
+  and **every** handle on the loop is unref'd (the napi backend unrefs each
+  block TSFN, libjs unrefs the env's prepare/check/teardown handles, libuv
+  unrefs `wq_async`), so even a naive `uv_run(NOWAIT)` was a no-op
+  (`uv_loop_alive` == 0).
+- The fix in `host.m` keeps one ref'd `uv_async_t` sentinel so the loop is
+  alive, and pumps `uv_run(UV_RUN_NOWAIT)` from the main run loop: a CFSocket
+  on `uv_backend_fd` wakes it when foreign threads post TSFN work, a run loop
+  timer armed to `uv_backend_timeout` covers pending uv timers (delayed libjs
+  tasks), and a before-waiting observer covers loop state mutated by run
+  loop-side JS. A `pumping` flag skips reentrant `uv_run` from callbacks that
+  spin nested run loops; teardown invalidates the sources, destroys
+  env/platform, closes the sentinel, and drains before `uv_loop_close`.
+- Runtime-verified (probe `research/jsc-loop-probe/` + maintained test
+  `packages/cli/test/macos-event-loop.test.mjs`): serial `NSOperationQueue`
+  ops deliver and unwedge, `dispatch_async` global-queue blocks deliver, and
+  `NSURLSession.dataTaskWithURL` completion blocks deliver real responses
+  (HTTP 200). Delivery runs JS on the main thread and fires in
+  `kCFRunLoopCommonModes`, matching the upstream `CFRunLoopPerformBlock`
+  delivery path used by the `ENABLE_JS_RUNTIME` sibling.
 
-Consequence: a TypeScript port of `XplatAnimatedImageView` could drive its
-view/layout/animation surface but could not reliably complete remote
-HTTP(S) image loads — the only JS-reachable delivery channel starves
-in-flight. The package keeps the Swift `URLSession` data-task pipeline
-(native completion handlers don't cross the bridge). Revisit if upstream
-delivers non-main-queue or block-based callbacks reliably; recheck after a
-runtimes pin bump.
+Still **not** delivered (distinct upstream questions, not loop starvation):
 
-Scope boundary (runtime-verified 2026-11-01, `packages/video` migration):
-the starvation applies to transfers the JS side is involved in delivering
-(bridged `NSURLSession`). `AVPlayer`/`AVPlayerItem` remote HTTP(S) loading
-runs entirely inside AVFoundation — no JS-involved session exists — so
-`setTimeout` keeps firing (observed ~70% rate, never stalled), main-queue
-`NSNotificationCenter` blocks deliver, and
-`seekToTimeToleranceBeforeToleranceAfterCompletionHandler` completes, all
-while a drip-fed remote transfer is still in flight
-(`tests/verify-macos.mjs` under `test:macos-runtime`). A native pipeline
-whose callbacks only ever fire on the main runloop remains a safe TypeScript
-port; do not generalize the gif finding to it.
+- Foreign-thread *method*/function IMPs (`JSMethodCallback`/
+  `JSFunctionCallback`) invoke napi directly on the calling thread — upstream
+  defect runtimes#108; a loop pump does not help.
+- `Worker` remains `undefined` — embedder capability boundary
+  (`RuntimeModules::Init` never runs in this host), unaffected by the pump.
+- runtimes#111 (unretained incoming blocks) still needs its local workaround.
+
+The gif retention reason (starved `NSURLSession` completions) is removed;
+requalify the TS port's remote HTTP(S) path separately.
+
+Scope boundary (runtime-verified 2026-11-01, `packages/video` migration,
+unchanged by the pump): `AVPlayer`/`AVPlayerItem` remote HTTP(S) loading runs
+entirely inside AVFoundation — no JS-involved session exists — so
+`setTimeout`, main-queue `NSNotificationCenter` blocks, and
+`seekToTimeToleranceBeforeToleranceAfterCompletionHandler` all completed even
+while the loop starved (`tests/verify-macos.mjs` under
+`test:macos-runtime`). A native pipeline whose callbacks only ever fire on
+the main runloop remains a safe TypeScript port.
 
 ## Callable ObjC blocks in JS delegates need protocol-metadata signatures
 
@@ -150,15 +158,16 @@ decode and property dictionaries (`objectForKey` + `kCGImageProperty*` keys),
 `interop.Reference` out-params for `CVPixelBufferPoolCreatePixelBuffer`,
 `CVPixelBufferGetBaseAddress` → `CGBitmapContextCreate` raw-pointer
 round-trip, `CMTimeMake`/`appendPixelBufferWithPresentationTime`, and
-dict-literal output settings all marshal. The engine still cannot move to
-TypeScript on this host: `Worker` is undefined,
-`dispatch_async(dispatch_get_global_queue(…), block)` silently never invokes
-the JS block, a custom `NSOperationQueue.addOperationWithBlock` never fires,
-and `AVAssetWriter.finishWritingWithCompletionHandler` never delivered
-within 90 s — there is no background JS execution channel, so the frame loop
-and H.264 backpressure would have to run on the main queue, which cannot
-preserve nonblocking UI. `dispatch_get_main_queue` and
-`dispatch_semaphore_create` are also absent from metadata.
+dict-literal output settings all marshal. The 2026-11-02 env loop pump now
+delivers `dispatch_async(dispatch_get_global_queue(…), block)` and custom
+`NSOperationQueue.addOperationWithBlock` JS blocks on the main thread
+(runtime-verified); `AVAssetWriter.finishWritingWithCompletionHandler` was
+not re-probed but rides the same TSFN lane. The engine still cannot move to
+TypeScript on this host: `Worker` is undefined, so there is no background
+JS execution channel — the frame loop and H.264 backpressure would have to
+run on the main queue, which cannot preserve nonblocking UI.
+`dispatch_get_main_queue` and `dispatch_semaphore_create` are also absent
+from metadata.
 ## Phantom metadata members and selector dispatch (upstream, patched)
 
 Upstream metagen can borrow a derived class's accessors for a superclass

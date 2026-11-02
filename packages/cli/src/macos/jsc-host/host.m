@@ -55,6 +55,53 @@ static void xplat_send_event(NSApplication *app, SEL selector, NSEvent *event) {
 }
 @end
 
+// The napi backend delivers foreign-queue JS callbacks — NSURLSession
+// completion handlers, NSOperationQueue and dispatch_async blocks — through
+// threadsafe functions that post uv_async work on env->loop, and the libjs
+// task runner settles its own queue there too. [NSApp run] never iterates
+// that loop and every handle on it is unref'd, so posted callbacks starved:
+// the foreign thread parks on a condition variable until a delivery that
+// never comes, wedging serial queues and dropping session completions. One
+// ref'd async handle keeps the loop alive; the main run loop then drives
+// uv_run(UV_RUN_NOWAIT). A CFSocket on the loop's backend fd wakes it when a
+// foreign thread posts work, a run loop timer armed to uv_backend_timeout
+// covers pending uv timers (delayed libjs tasks), and a before-waiting
+// observer covers loop state that run loop-side JS mutates without posting a
+// wake. The pumping flag rejects reentrant uv_run when a delivered callback
+// spins a nested run loop.
+static const CFTimeInterval xplat_no_fire = 1.0e10;
+static uv_loop_t *xplat_env_loop;
+static uv_async_t xplat_env_keepalive;
+static CFSocketRef xplat_env_socket;
+static CFRunLoopTimerRef xplat_env_timer;
+static CFRunLoopObserverRef xplat_env_observer;
+static bool xplat_env_pumping;
+
+static void xplat_pump_env_loop(void) {
+  if (!xplat_env_loop || xplat_env_pumping) return;
+  xplat_env_pumping = true;
+  uv_run(xplat_env_loop, UV_RUN_NOWAIT);
+  xplat_env_pumping = false;
+  if (!xplat_env_timer) return;
+  int timeout = uv_backend_timeout(xplat_env_loop);
+  CFRunLoopTimerSetNextFireDate(
+      xplat_env_timer,
+      timeout < 0 ? xplat_no_fire : CFAbsoluteTimeGetCurrent() + timeout / 1000.0);
+}
+
+static void xplat_env_socket_ready(CFSocketRef socket, CFSocketCallBackType type,
+                                   CFDataRef address, const void *data, void *info) {
+  xplat_pump_env_loop();
+}
+
+static void xplat_env_timer_fired(CFRunLoopTimerRef timer, void *info) {
+  xplat_pump_env_loop();
+}
+
+static void xplat_env_idle(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) {
+  xplat_pump_env_loop();
+}
+
 // [NSApp run] never loads a nib, so nothing installs an NSApplication
 // mainMenu — without one, AppKit has no menu key equivalents and Cmd-Q,
 // Cmd-W, and the Edit menu selectors (copy:, paste:, undo:…) do not reach
@@ -477,6 +524,9 @@ int main(int argc, char **argv) {
     return 2;
   }
 
+  xplat_env_loop = &loop;
+  uv_async_init(&loop, &xplat_env_keepalive, NULL);
+
   void *library = dlopen(framework, RTLD_NOW | RTLD_GLOBAL);
   if (!library) {
     fprintf(stderr, "dlopen: %s\n", dlerror());
@@ -554,17 +604,44 @@ int main(int argc, char **argv) {
     if (!input_timer) return 1;
     CFRunLoopAddTimer(CFRunLoopGetMain(), input_timer, kCFRunLoopCommonModes);
   }
+  CFSocketContext socket_context = {0, NULL, NULL, NULL, NULL};
+  xplat_env_socket = CFSocketCreateWithNative(NULL, uv_backend_fd(&loop), kCFSocketReadCallBack,
+                                              xplat_env_socket_ready, &socket_context);
+  if (xplat_env_socket) {
+    CFSocketSetSocketFlags(xplat_env_socket, kCFSocketAutomaticallyReenableReadCallBack);
+    CFRunLoopSourceRef socket_source = CFSocketCreateRunLoopSource(NULL, xplat_env_socket, 0);
+    if (socket_source) {
+      CFRunLoopAddSource(CFRunLoopGetMain(), socket_source, kCFRunLoopCommonModes);
+      CFRelease(socket_source);
+    }
+  }
+  CFRunLoopTimerContext pump_timer_context = {0, NULL, NULL, NULL, NULL};
+  xplat_env_timer = CFRunLoopTimerCreate(NULL, xplat_no_fire, 1e9, 0, 0,
+                                         xplat_env_timer_fired, &pump_timer_context);
+  if (xplat_env_timer)
+    CFRunLoopAddTimer(CFRunLoopGetMain(), xplat_env_timer, kCFRunLoopCommonModes);
+  CFRunLoopObserverContext observer_context = {0, NULL, NULL, NULL, NULL};
+  xplat_env_observer = CFRunLoopObserverCreate(NULL, kCFRunLoopBeforeWaiting, true, 0,
+                                               xplat_env_idle, &observer_context);
+  if (xplat_env_observer)
+    CFRunLoopAddObserver(CFRunLoopGetMain(), xplat_env_observer, kCFRunLoopCommonModes);
   if (argc == 5 || packaged) {
     install_default_main_menu();
     [NSApp run];
   }
   else CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
   fprintf(stderr, "host run loop returned\n");
+  if (xplat_env_observer) {CFRunLoopObserverInvalidate(xplat_env_observer); CFRelease(xplat_env_observer);}
+  if (xplat_env_timer) {CFRunLoopTimerInvalidate(xplat_env_timer); CFRelease(xplat_env_timer);}
+  if (xplat_env_socket) {CFSocketInvalidate(xplat_env_socket); CFRelease(xplat_env_socket);}
+  xplat_env_loop = NULL;
   if (input_timer) {CFRunLoopTimerInvalidate(input_timer); CFRelease(input_timer);}
   while (host_timers) release_timer(host_timers);
   js_close_handle_scope(env, scope);
   js_destroy_env(env);
   js_destroy_platform(platform);
+  uv_close((uv_handle_t *)&xplat_env_keepalive, NULL);
+  for (int drain = 8; drain > 0 && uv_run(&loop, UV_RUN_NOWAIT); drain--);
   uv_loop_close(&loop);
   return 0;
 }
