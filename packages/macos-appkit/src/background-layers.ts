@@ -417,16 +417,26 @@ export function collectBackground(style: Record<string, any>, warnings: string[]
 		if (image) {images.push(image)}
 	}
 	const perLayer = (value: any): string[] => (value == null ? [] : splitTopLevelCommas(String(value)))
-	const repeatList = perLayer(slots.repeat).map(repeatMode).filter(Boolean) as { x: RepeatMode; y: RepeatMode }[]
+	const repeatList = perLayer(slots.repeat)
+		.map(repeatMode)
+		.filter((m): m is { x: RepeatMode; y: RepeatMode } => m != null)
 	const positionList = perLayer(slots.position)
-	const sizeList = perLayer(slots.size).map(bgSize).filter(Boolean) as BgSize[]
-	const originList = perLayer(slots.origin).map(boxValue).filter(Boolean) as BgBox[]
-	const clipList = perLayer(slots.clip).map(boxValue).filter(Boolean) as BgBox[]
+	const sizeList = perLayer(slots.size)
+		.map(bgSize)
+		.filter((s): s is BgSize => s != null)
+	const originList = perLayer(slots.origin)
+		.map(boxValue)
+		.filter((b): b is BgBox => b != null)
+	const clipList = perLayer(slots.clip)
+		.map(boxValue)
+		.filter((b): b is BgBox => b != null)
 	if (slots.clip != null && String(slots.clip).includes('text')) {warnings.push('unsupported background-clip: text')}
 	const layers = buildLayers(
 		images,
 		repeatList,
-		positionList.map((p) => parseImagePosition(p)).filter(Boolean) as ImagePosition[],
+		positionList
+			.map((p) => parseImagePosition(p))
+			.filter((p): p is ImagePosition => p != null),
 		sizeList,
 		originList,
 		clipList,

@@ -70,6 +70,12 @@ function isTableRowSemanticStatus(value: unknown): value is TableSemanticRowStat
 	return value === 'success' || value === 'warning' || value === 'error'
 }
 
+/** A custom marker's `status` is `never`; a set value identifies the semantic
+ *  branch of the row-status union. */
+function isSemanticRowStatus(value: TableRowStatusResult): value is TableSemanticRowStatus {
+	return isTableRowSemanticStatus(value.status)
+}
+
 function resolveStatusIcon(icon: string): IconName {
 	return (STATUS_ICONS[icon] ?? icon) as IconName
 }
@@ -85,25 +91,21 @@ function StatusHeader() @{
 }
 
 function StatusMarker(props: { status: TableRowStatusResult }) @{
-	const untyped = props.status as { status?: unknown; color?: unknown; icon?: unknown }
+	const status = props.status
 
-	if (isTableRowSemanticStatus(untyped.status)) {
+	if (isSemanticRowStatus(status)) {
 		return (
 			<Icon
-				name={resolveStatusIcon(untyped.status)}
+				name={resolveStatusIcon(status.status)}
 				size={12}
-				color={SEMANTIC_COLORS[untyped.status]}
+				color={SEMANTIC_COLORS[status.status]}
 			/>
 		)
 	}
 
-	if (typeof untyped.color !== 'string') {
-		return null as any
-	}
-
-	if (typeof untyped.icon === 'string') {
+	if (typeof status.icon === 'string') {
 		return (
-			<Icon name={resolveStatusIcon(untyped.icon)} size={12} color={resolveColor(untyped.color)} />
+			<Icon name={resolveStatusIcon(status.icon)} size={12} color={resolveColor(status.color)} />
 		)
 	}
 
@@ -113,7 +115,7 @@ function StatusMarker(props: { status: TableRowStatusResult }) @{
 			width: 8,
 			height: 8,
 			borderRadius: '50%',
-			backgroundColor: resolveColor(untyped.color),
+			backgroundColor: resolveColor(status.color),
 			flexShrink: 0,
 		}}
 	/>
@@ -128,11 +130,10 @@ function StatusCell<T extends Record<string, unknown>>(props: {
 		return null as any
 	}
 
-	// No marker without a semantic status or a color — render nothing.
-	if (
-		!isTableRowSemanticStatus((status as { status?: unknown }).status) &&
-		typeof (status as { color?: unknown }).color !== 'string'
-	) {
+	// No marker without a semantic status or a color — render nothing. The
+	// color read stays a runtime check: untrusted callers can still return a
+	// malformed custom status.
+	if (!isSemanticRowStatus(status) && typeof status.color !== 'string') {
 		return null as any
 	}
 
