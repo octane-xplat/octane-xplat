@@ -15,6 +15,8 @@
 		"test:nim-http": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-http-live": { "dependsOn": ["build:nim"], "cache": false },
 		"build:nim-http": { "dependsOn": ["build:nim"], "cache": false },
+		"build:nim-process": { "dependsOn": ["build:nim"], "cache": false },
+		"test:nim-process": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-tokenizer": { "dependsOn": ["build:nim", "prepare:nim-tokenizer"], "cache": false },
 		"check:nim": { "cache": false },
 		"benchmark:nim": { "dependsOn": ["build:nim"], "cache": false, "passThroughEnv": ["XPLAT_NIM_VERSION"] },

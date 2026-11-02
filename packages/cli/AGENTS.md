@@ -120,6 +120,11 @@ macOS POSIX errno values cannot be used as Nim compile-time `case` labels.
 Use runtime comparisons when the binding is not a Nim `const`; do not replace
 platform error constants with hardcoded numeric values.
 
+Preserve synchronous and asynchronous spawn failure boundaries separately. The
+Node reference returns a failed child for ENOENT/EACCES and several resource
+errors, but throws immediately for errors such as ENOEXEC. Catching every OS
+launch error into a successful handle changes the caller's error path.
+
 An async procedure runs synchronously until an unfinished await. A small build
 can therefore be ready before its returned future's cleanup callback runs;
 track result state and pending ownership separately. Initialize the async
@@ -130,6 +135,25 @@ Drain stdout and stderr concurrently when capturing a child. Reading one pipe
 to EOF first can block forever when the other pipe fills. Bound retained output,
 close unused stdin, and kill/reap the owned child on timeout or capture failure.
 Direct-child cleanup does not establish process-tree cancellation.
+
+Keep process exit and pipe closure separate. Descendants can retain a pipe after
+the group leader exits, or close their pipes and keep running. Retain ownership
+of the isolated process group until cleanup completes; checking only the
+leader's exit status can skip required signal escalation. A POSIX wait status
+also distinguishes an ordinary exit code of 143 from termination by SIGTERM.
+Keep the leader's PID reserved while inherited pipes remain open so delayed
+group cleanup cannot target a subsequently reused PID.
+
+Nim 2.2.12 `quit(int)` clamps to -128..127 before calling C `exit`. Use the
+`process_exit.exitProcess` helper when forwarding native exit statuses, including
+128+signal values. Calling C `exit` still runs registered `atexit` cleanup;
+`_exit` skips it. Verify actual parent exit status, not just a returned integer.
+
+For concurrent launches, prefer child-only spawn actions for cwd and explicit
+descriptor inheritance. A standard-library helper can briefly change the
+parent's cwd internally. Audit pinned POSIX bindings as well: similarly named
+constants may alias a fallback with weaker behavior. Keep signal handlers to a
+volatile flag update; perform async cancellation and logging on the event loop.
 
 Do not assume `startProcess(env=..., options={poUsePath})` searches the child's
 PATH. On macOS the launcher can search the parent's PATH while passing the

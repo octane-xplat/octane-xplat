@@ -98,7 +98,9 @@
 		"test:nim-model": "node --test ../../tools/cli-nim/model.test.mjs",
 		"test:nim-http": "node --test ../../tools/cli-nim/http.test.mjs",
 		"build:nim-http": "node ../../tools/cli-nim/build-probe.mjs http",
-		"test:nim-http-live": "node ../../tools/cli-nim/http-live.mjs"
+		"test:nim-http-live": "node ../../tools/cli-nim/http-live.mjs",
+		"build:nim-process": "node ../../tools/cli-nim/build-probe.mjs process",
+		"test:nim-process": "node --test ../../tools/cli-nim/process.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

@@ -1,14 +1,8 @@
 import ../../packages/cli/nim/core
 import ../../packages/cli/nim/[docs_binding, code_scope]
 import ../../packages/cli/nim/json_wire
-import ../../packages/cli/nim/native_http
-import std/[json, os, strutils, asyncdispatch, osproc]
-when defined(posix): import std/posix
-
-when defined(posix):
-  var childPid: Pid
-  proc forward(sig: cint) {.noconv.} =
-    if childPid > 0: discard kill(childPid, sig)
+import ../../packages/cli/nim/[native_http, process_exit, managed_process]
+import std/[json, os, strutils, asyncdispatch]
 
 const catalogText = staticRead("catalog.json")
 let args = commandLineParams()
@@ -41,14 +35,15 @@ try:
       stderr.writeLine("HTTP request failed"); quit(5)
   of "child":
     try:
-      let p = startProcess(args[1], args = args[2..^1], options = {poParentStreams})
-      when defined(posix):
-        childPid = Pid(p.processID)
-        signal(SIGTERM, forward)
-        signal(SIGINT, forward)
-      let code = p.waitForExit()
-      p.close()
-      quit(code)
+      let manager = newProcessManager()
+      installProcessSignalHandlers()
+      let child = manager.spawnManaged(args[1],args[2..^1],onData=proc(stream, bytes: string) =
+        if stream == "stdout": stdout.write(bytes); stdout.flushFile()
+        else: stderr.write(bytes); stderr.flushFile())
+      let status = waitFor child.exit
+      waitFor manager.close()
+      if status.errorCode != "": raise newException(IOError,status.error)
+      exitProcess(status.exitStatus())
     except CatchableError:
       stderr.writeLine("Child launch failed"); quit(5)
   else: stderr.writeLine("Unknown prototype command"); quit(2)

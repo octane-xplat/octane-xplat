@@ -317,6 +317,12 @@ if (binaries.io) {
 		assert.equal(result.stderr, 'err')
 		assert.equal(result.status, 7)
 	})
+	await check('child exit codes above signed-char range', () => {
+		for (const status of [127,128,130,143,200,255]) {
+			const result = execute(binaries.io, ['child',process.execPath,'-e',`process.exit(${status})`])
+			assert.equal(result.status,status,result.stderr)
+		}
+	})
 	await check('child spawn failure', () => {
 		const result = execute(binaries.io, ['child', join(runRoot, 'not-a-program')])
 		assert.equal(result.status, 5)

@@ -45,7 +45,7 @@ research/nim-cli/core binding "$PWD" "$PWD/apps/web"
 ```
 
 The probe exercises shared workspace/package-manager code as well as discovery,
-plain HTTP and child processes. Workspace membership uses a pinned pure Nim glob
+native HTTP/TLS and managed child processes. Workspace membership uses a pinned pure Nim glob
 engine, with filesystem traversal and compatibility rules qualified against Node.
 The focused package-manager corpus also checks strict/JSONC distinctions, importer
 ownership, installed-package shadowing and pnpm conflict behavior.
@@ -113,8 +113,9 @@ immutable MiniLM revision in task-local storage. It downloads no ONNX weights.
 It compares the native BERT/WordPiece path with the pinned JS dependency over
 the real vocabulary, special tokens, explicit 512-token truncation, repository
 Markdown and all Unicode scalars. Lazy macOS ICU provides NFD normalization;
-other host adapters and actual native inference remain migration work. The
-modified port's Apache-2.0 attribution ships in `NOTICE.txt`.
+other tokenizer host adapters remain migration work. Native inference is
+qualified separately below. The modified port's Apache-2.0 attribution ships
+in `NOTICE.txt`.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim tokenizer qualification"}' -- bun run turbo run test:nim-tokenizer --filter=@octane-xplat/cli
@@ -192,13 +193,38 @@ and envelope checks do not qualify app ownership or full runtime workflows.
 For focused transport iteration after the initial build, use `build:nim-http`
 through Turbo with `--only` under a build reservation, followed by the test task
 with `--only`. Rebuild the complete native artifacts before final size/package
-qualification. The probe's process cancellation check still forwards SIGTERM to
-one direct child; it does not establish process-tree cleanup or Windows control.
+qualification. The combined core uses the managed process boundary for child
+launch, byte passthrough and isolated-group cancellation.
 
 ```sh
 research/nim-cli/core http http://127.0.0.1:8080/status
 research/nim-cli/core child /absolute/path/to/project/tool --version
 ```
+
+The managed-process gate compares the real TypeScript boundary for argv, cwd,
+environment/PATH resolution, raw bytes, streaming UTF-8, UTF-16 line limits,
+exit codes, signal termination and cooperative/forced stop. Its native-only
+ownership cases cover simultaneous children, callback failure, explicit manager
+close, normal owner exit and handled SIGINT/SIGTERM. The launcher uses child-only
+cwd actions and explicit descriptor inheritance; it does not run an implicit CLI
+runtime. Raw pipe bytes and decoded log lines remain separate interfaces.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native process qualification"}' -- bun run turbo run test:nim-process --filter=@octane-xplat/cli
+```
+
+Group ownership continues after the direct child exits. The reference's early
+return can skip descendant escalation and leave inherited pipes open, tracked in
+[issue #100](https://github.com/octane-xplat/octane-xplat/issues/100). The gate
+records that reference observation with bounded cleanup while requiring native
+shutdown to pass. A descendant that deliberately starts another session can
+escape the owned group; owner SIGKILL cannot run cleanup. Windows/Linux control,
+full session shutdown/IPC and real app workflows still need qualification.
+
+For focused process iteration use `build:nim-process --filter=@octane-xplat/cli
+--only` through Turbo under a build reservation, then `test:nim-process` with
+`--only`. Probe records bind source bytes and host/executable identity. Keep
+final benchmark runs separate from concurrent tests.
 
 Build flags now select macOS dead stripping, Linux section collection, or the
 Windows compiler defaults; only macOS has been executed locally. Native Linux and Windows
@@ -210,6 +236,6 @@ glibc Linux arm64/x64, and Windows x64; its support matrix is not this probe's
 runtime qualification. It is a build dependency, never part of the download.
 
 Retain the differential harness as a migration gate during the full rewrite:
-compile success and low size do not prove Node semantics. Resolve TLS delivery
-and platform process behavior before qualifying production workflows. Operational measurements belong
+compile success and low size do not prove Node semantics. Qualify remaining host
+adapters and complete app ownership before production workflows. Operational measurements belong
 in local reports and Silo rather than this guide.

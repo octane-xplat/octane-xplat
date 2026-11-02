@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
-import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild, httpProbeInputs } from './native-inputs.mjs'
+import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild, httpProbeInputs, processProbeInputs, coreInputs } from './native-inputs.mjs'
 
 test('benchmark records bind source bytes, host and the exact executable rather than a shared version', t => {
  const root = mkdtempSync(join(tmpdir(), 'xplat-nim-record-'))
@@ -17,6 +17,17 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  const record = { version: '0.19.0-nim.0', platform: process.platform, arch: process.arch,
   nativeInputs: nativeInputs(root), nativeArtifact: artifactFingerprint(bytes) }
  assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
+ for (const file of ['tools/cli-nim/build-probe.mjs','tools/cli-nim/process_probe.nim','tools/cli-nim/core.nim','tools/cli-nim/catalog.json','tools/cli-nim/prepare.mjs']) writeFileSync(join(root,file),file)
+ const processRecord = { ...record, nativeInputs: processProbeInputs(root) }
+ const coreRecord = { ...record, nativeInputs: coreInputs(root) }
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root,processRecord,bytes,processProbeInputs))
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root,coreRecord,bytes,coreInputs))
+ writeFileSync(join(root,'tools/cli-nim/process_probe.nim'),'changed process driver')
+ assert.throws(() => assertCurrentNativeBuild(root,processRecord,bytes,processProbeInputs),/Sources differ/)
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root,record,bytes))
+ writeFileSync(join(root,'tools/cli-nim/core.nim'),'changed combined entry')
+ assert.throws(() => assertCurrentNativeBuild(root,coreRecord,bytes,coreInputs),/Sources differ/)
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root,record,bytes))
  // A same-sized replacement could still report the same --version.
  const replacement = Buffer.from(bytes); replacement[0] ^= 1
  assert.throws(() => assertCurrentNativeBuild(root, record, replacement), /Executable differs/)

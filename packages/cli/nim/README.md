@@ -49,6 +49,15 @@ reference's WHATWG behavior. `actions_bridge.nim` ports authenticated registry,
 submit, wait and cooperative-cancel envelopes; it does not establish runtime
 ownership, action execution or a qualified app session. Other HTTP host adapters
 remain unimplemented. The current public command coverage is unchanged.
+`managed_process.nim` owns macOS child sessions and process groups, with explicit
+argv/cwd/environment, independent pipe draining, byte passthrough, bounded UTF-16
+log lines and cooperative/forced stop. Its manager exposes explicit close and
+opt-in SIGINT/SIGTERM handling; normal owner exit also releases its groups.
+`process_exit.nim` preserves native exit status bytes beyond Nim's `quit` range.
+These boundaries are exercised by the combined core and focused process gate;
+they do not establish build-tool, app-session or IPC orchestration. Descendants
+that deliberately create a new session and abrupt owner SIGKILL remain outside
+the process-group cleanup guarantee. Other process host adapters are unimplemented.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

@@ -1,5 +1,5 @@
 ## Parallel native entry. Never falls back to the TypeScript CLI.
-import ./core, ./args, ./workspace, ./strictjson, ./json_wire, ./js_text
+import ./core, ./args, ./workspace, ./strictjson, ./json_wire, ./js_text, ./process_exit
 import std/[sysrand, terminal, json, os, strutils]
 
 const metadata = staticRead("metadata.json")
@@ -29,7 +29,7 @@ proc failure(command, code, message: string, status: int) =
   if "--json" in argv:
     emit(%*{"contractVersion": 1, "ok": false, "context": {"command": command, "projectId": newJNull()}, "error": {"code": code, "message": message}})
   else: stderr.writeLine(message)
-  quit(status)
+  exitProcess(status)
 proc errorExit(code: string): int =
   case code
   of "invalid_selection", "ambiguous_selection", "not_found": 2
