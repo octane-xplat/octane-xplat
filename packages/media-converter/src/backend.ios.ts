@@ -11,8 +11,7 @@ interface WorkerMessage {
 }
 interface ConversionWorker {
 	postMessage(message: unknown): void
-	addEventListener(type: string, listener: (event: { data: WorkerMessage }) => void): void
-	removeEventListener(type: string, listener: (event: { data: WorkerMessage }) => void): void
+	onmessage: ((event: { data: WorkerMessage }) => void) | null
 	terminate(): void
 }
 const WorkerClass = (
@@ -46,15 +45,21 @@ function remove(uri: string): boolean {
 // One NativeScript worker isolate per conversion keeps the ImageIO decode and
 // H.264 frame loop off the main queue. The runtime emits the worker chunk from
 // the new URL(...) specifier; the isolate is terminated on settle or cancel.
-// Host delivery must use addEventListener('message') — assigning
-// worker.onmessage does not receive messages in this runtime.
+// Host delivery uses worker.onmessage — the iOS Worker object exposes no
+// addEventListener in this runtime.
 export const backend: ConversionBackend = {
 	isAvailable: async (format) => format === 'mp4' && typeof WorkerClass === 'function',
 	async convert(source, request, control) {
 		if (!WorkerClass) {
 			throw new UnavailabilityError('MediaConverter worker; rebuild the app after installation')
 		}
-		const worker = new WorkerClass(new URL('./converter-worker.ios.ts', import.meta.url))
+		// The literal `new Worker(new URL(...))` form is required: rolldown-vite
+		// only compiles the worker chunk and rewrites the specifier when it can
+		// statically see the Worker constructor — an aliased constructor emits a
+		// raw .ts asset and hands the runtime a URL object it cannot spawn.
+		const worker = new Worker(
+			new URL('./converter-worker.ios.ts', import.meta.url),
+		) as unknown as ConversionWorker
 		return new Promise<ConvertedVideo>((resolve, reject) => {
 			let output: string | undefined
 			let settled = false
@@ -78,14 +83,14 @@ export const backend: ConversionBackend = {
 					return
 				}
 				settled = true
-				worker.removeEventListener('message', onMessage)
+				worker.onmessage = null
 				worker.terminate()
 				action()
 				if (output) {
 					remove(output)
 				}
 			}
-			worker.addEventListener('message', onMessage)
+			worker.onmessage = onMessage
 			control.onCancel(() => settle(() => reject(aborted())))
 			worker.postMessage({ ...request, source })
 		})

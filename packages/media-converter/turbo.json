@@ -11,9 +11,15 @@
 			"cache": false,
 			"passThroughEnv": ["ANDROID_HOME", "JAVA_HOME"]
 		},
-		"test:ios-engine": {
+		"test:ios-runtime": {
+			"dependsOn": ["^typegen"],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*"]
+			"passThroughEnv": [
+				"XPLAT_NATIVE_TEST_REPO",
+				"XPLAT_IOS_DEVICE",
+				"XPLAT_MC_BIG",
+				"GODDARD_*"
+			]
 		},
 		"test:macos-consumer": {
 			"cache": false,

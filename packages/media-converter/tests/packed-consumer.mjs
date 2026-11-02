@@ -62,7 +62,10 @@ convertGif('input.gif', { format: 'avi' })
 	)
 	await readFile(join(unpacked, 'platforms/android/java/com/octanexplat/converter/Converter.java'))
 	await readFile(join(unpacked, 'platforms/android/include.gradle'))
-	await readFile(join(unpacked, 'platforms/ios/src/XplatMediaConverter.swift'))
+	// iOS ships no Swift leaf — the packed worker source is the engine asset a
+	// consumer bundle emits through new URL(..., import.meta.url).
+	const worker = await readFile(join(unpacked, 'src/converter-worker.ios.ts'), 'utf8')
+	assert.ok(worker.includes('readyForMoreMediaData'), 'packed iOS worker is the real engine')
 	await readFile(join(unpacked, 'platforms/macos/src/XplatMediaConverter.swift'))
 	for (const [name, conditions, lib] of [
 		['web', ['web'], ['ESNext', 'DOM']],
@@ -131,12 +134,12 @@ convertGif('input.gif', { format: 'avi' })
 		chunks(native).some(
 			(chunk) =>
 				chunk.type === 'chunk' &&
-				chunk.code.includes('XplatMediaConverter') &&
-				chunk.code.includes('startCallback'),
+				chunk.code.includes('converter-worker.ios.ts') &&
+				chunk.code.includes('xplat-video-'),
 		),
 	)
 	console.log(
-		'Packed converter: ambient-free web/native types, browser production build, iOS bridge resolution, and packaged Apple/Android sources passed.',
+		'Packed converter: ambient-free web/native types, browser production build, iOS worker resolution, and packaged Apple/Android sources passed.',
 	)
 } finally {
 	await rm(temporary, { recursive: true, force: true })

@@ -41,12 +41,12 @@ for (const framework of ['AVFoundation', 'ImageIO', 'CoreVideo', 'CoreMedia']) {
 	}
 }
 
-const LIMIT_BYTES = 64 * 1024 * 1024
-const MAX_FRAMES = 1000
-const MAX_PIXELS = 4_194_304
-const MAX_DURATION_MS = 60_000
-const READY_DEADLINE_MS = 30_000
-const FINISH_TIMEOUT_MS = 60_000
+const LIMIT_BYTES: number = 64 * 1024 * 1024
+const MAX_FRAMES: number = 1000
+const MAX_PIXELS: number = 4_194_304
+const MAX_DURATION_MS: number = 60_000
+const READY_DEADLINE_MS: number = 30_000
+const FINISH_TIMEOUT_MS: number = 60_000
 
 function post(event: Record<string, unknown>): void {
 	;(globalThis as { postMessage?: (message: unknown) => void }).postMessage?.(event)
