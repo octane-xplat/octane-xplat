@@ -1,6 +1,7 @@
 import { createRoot } from 'octane'
 import { useState } from 'octane'
 import { Button, TextInput, TextArea, CheckboxInput, Switch, CheckboxList } from '@octane-xplat/ui'
+import { Markdown } from '@octane-xplat/ui/markdown'
 import {
 	buttonScenarios,
 	textInputScenarios,
@@ -8,6 +9,8 @@ import {
 	switchScenarios,
 	textAreaScenarios,
 	checkboxListScenarios,
+	markdownScenarios,
+	CITATION_SOURCES,
 } from '../scenarios/index.ts'
 
 import '@octane-xplat/ui/theme/tokens.css'
@@ -252,7 +255,70 @@ function SwitchBehavior() {
 	)
 }
 
+function MarkdownGrid() {
+	return (
+		<div className="parity-grid">
+			{markdownScenarios.map((s) => (
+				<div key={s.key} className="parity-cell" data-sameframe-key={`markdown/${s.key}`}>
+					<Markdown text={s.source} sources={s.options?.sourceIds ? CITATION_SOURCES : undefined} />
+				</div>
+			))}
+		</div>
+	)
+}
+
+function MarkdownBehavior() {
+	const doc = '[internal](/docs/page) and [external](https://example.com)'
+	return (
+		<>
+			<span data-parity-key="links">
+				<Markdown text={doc} />
+			</span>
+			<span data-parity-key="unsafe-link">
+				<Markdown text={'[bad](javascript:alert(1)) ![i](data:text/html,x)'} />
+			</span>
+			<span data-parity-key="citation">
+				<Markdown text={'Claim [docs] and 【api】.'} sources={CITATION_SOURCES} />
+			</span>
+			<span data-parity-key="heading-id">
+				<Markdown text={'# Alpha\n\n# Alpha'} />
+			</span>
+			<span data-parity-key="inline-display">
+				Text <Markdown text={'**bold** [x](/y)'} /> tail
+			</span>
+			<span data-parity-key="task-list">
+				<Markdown text={'- [x] done\n- [ ] todo'} />
+			</span>
+			<span data-parity-key="link-cancel">
+				<Markdown text={'[cancel](/stop)'} />
+			</span>
+			<span data-parity-key="link-allow">
+				<Markdown text={'[allow](/go)'} />
+			</span>
+		</>
+	)
+}
+
+function MarkdownLayout() {
+	const keys = ['prose-basic', 'table-layout', 'content-width', 'density-compact'] as const
+	return (
+		<>
+			{keys.map((key) => {
+				const s = markdownScenarios.find((x) => x.key === key)!
+				return (
+					<div key={key} data-parity-key={key} style={{ width: 480, marginBottom: 24 }}>
+						<Markdown text={s.source} density={key === 'density-compact' ? 'compact' : 'default'} />
+					</div>
+				)
+			})}
+		</>
+	)
+}
+
 const pages: Record<string, { title: string; el: any }> = {
+	'/markdown': { title: 'Markdown parity', el: <MarkdownGrid /> },
+	'/markdown/behavior': { title: 'Markdown parity', el: <MarkdownBehavior /> },
+	'/markdown/layout': { title: 'Markdown parity', el: <MarkdownLayout /> },
 	'/button': { title: 'Button parity', el: <Grid /> },
 	'/button/behavior': { title: 'Button parity', el: <Behavior /> },
 	'/text-input': { title: 'TextInput parity', el: <TextInputGrid /> },

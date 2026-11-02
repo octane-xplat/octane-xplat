@@ -6,6 +6,7 @@ import { CheckboxList, CheckboxListItem } from '@astryxdesign/core/CheckboxList'
 import { Switch } from '@astryxdesign/core/Switch'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Markdown } from '@astryxdesign/core/Markdown'
 import {
 	buttonScenarios,
 	textInputScenarios,
@@ -13,6 +14,8 @@ import {
 	switchScenarios,
 	textAreaScenarios,
 	checkboxListScenarios,
+	markdownScenarios,
+	CITATION_SOURCES,
 } from '../scenarios/index.ts'
 
 import '@astryxdesign/core/reset.css'
@@ -272,7 +275,90 @@ function SwitchBehavior() {
 	)
 }
 
+function MarkdownGrid() {
+	return (
+		<div className="parity-grid">
+			{markdownScenarios.map((s) => (
+				<div key={s.key} className="parity-cell" data-sameframe-key={`markdown/${s.key}`}>
+					<Markdown
+						autolink={s.options?.autolink}
+						sources={s.options?.sourceIds ? CITATION_SOURCES : undefined}
+					>
+						{s.source}
+					</Markdown>
+				</div>
+			))}
+		</div>
+	)
+}
+
+function MarkdownBehavior() {
+	const doc = '[internal](/docs/page) and [external](https://example.com)'
+	return (
+		<>
+			<span data-parity-key="links">
+				<Markdown>{doc}</Markdown>
+			</span>
+			<span data-parity-key="unsafe-link">
+				<Markdown>{'[bad](javascript:alert(1)) ![i](data:text/html,x)'}</Markdown>
+			</span>
+			<span data-parity-key="citation">
+				<Markdown sources={CITATION_SOURCES}>{'Claim [docs] and 【api】.'}</Markdown>
+			</span>
+			<span data-parity-key="heading-id">
+				<Markdown>{'# Alpha\n\n# Alpha'}</Markdown>
+			</span>
+			<span data-parity-key="inline-display">
+				Text <Markdown display="inline">{'**bold** [x](/y)'}</Markdown> tail
+			</span>
+			<span data-parity-key="task-list">
+				<Markdown>{'- [x] done\n- [ ] todo'}</Markdown>
+			</span>
+			<span data-parity-key="link-cancel">
+				<Markdown
+					onLinkClick={(href) => {
+						window.__parity.events.push(`cancel:${href}`)
+						return false
+					}}
+				>
+					{'[cancel](/stop)'}
+				</Markdown>
+			</span>
+			<span data-parity-key="link-allow">
+				<Markdown
+					onLinkClick={(href) => {
+						window.__parity.events.push(`allow:${href}`)
+					}}
+				>
+					{'[allow](/go)'}
+				</Markdown>
+			</span>
+		</>
+	)
+}
+
+function MarkdownLayout() {
+	const keys = ['prose-basic', 'table-layout', 'content-width', 'density-compact'] as const
+	return (
+		<>
+			{keys.map((key) => {
+				const s = markdownScenarios.find((x) => x.key === key)!
+				return (
+					<div key={key} data-parity-key={key} style={{ width: 480, marginBottom: 24 }}>
+						<Markdown density={key === 'density-compact' ? 'compact' : 'default'}>
+							{s.source}
+						</Markdown>
+					</div>
+				)
+			})}
+		</>
+	)
+}
+
 const pages: Record<string, { title: string; el: React.ReactNode }> = {
+	'/markdown': { title: 'Markdown parity', el: <MarkdownGrid /> },
+	'/markdown/behavior': { title: 'Markdown parity', el: <MarkdownBehavior /> },
+	'/markdown/layout': { title: 'Markdown parity', el: <MarkdownLayout /> },
 	'/button': { title: 'Button parity', el: <Grid /> },
 	'/button/behavior': { title: 'Button parity', el: <Behavior /> },
 	'/text-input': { title: 'TextInput parity', el: <TextInputGrid /> },

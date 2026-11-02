@@ -9,6 +9,7 @@ They are kept outside the published documentation corpus in `docs/`.
 - [Date-input parity audit](astryx-parity-date-inputs.md)
 - [Select parity audit](astryx-parity-select.md)
 - [Table parity audit](astryx-parity-table.md)
+- [Astryx Markdown 0.7.4 parity baseline](astryx-markdown.md)
 - [Nested-tree editor device evidence](nested-tree-editor.md)
 - [Mobile runtime qualification report](mobile-runtime.md)
 

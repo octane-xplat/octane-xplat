@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"parity": "node scripts/compare.ts",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p candidate/tsconfig.json && tsrx-tsc --noEmit -p reference/tsconfig.json"
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p candidate/tsconfig.json && tsrx-tsc --noEmit -p reference/tsconfig.json",
+		"parity:markdown": "bun scripts/markdown.ts"
 	},
 	"dependencies": {
 		"@astryxdesign/core": "0.7.4",
