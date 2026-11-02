@@ -30,10 +30,10 @@ await auth.signOut()
 
 ## AppKit in-app browser
 
-webBrowser from @octane-xplat/web-browser now has an owned WebKit/NSWindow source
-path. Add the package to the app and rebuild for packaged Swift class discovery;
-supported checks the accepts/create bridge methods, and missing/invalid/failed
-opens cancel without an external fallback. Foundation validates HTTP(S)/host,
+webBrowser from @octane-xplat/web-browser now has an owned WebKit/NSWindow
+TypeScript path on the host's Objective-C bridge — no packaged Swift or native
+rebuild is required; supported checks the accepts/create methods, and
+missing/invalid/failed opens cancel without an external fallback. Foundation validates HTTP(S)/host,
 so packaged JavaScriptCore does not need a JS URL global. The macOS external
 opener behavior is a hard cutover; use platform.openUrl explicitly for that flow.
 Opened means presented, not loaded. Current native chrome owns history, reload/
@@ -60,10 +60,12 @@ cancellation on owner teardown/navigation/process termination. Public WebKit
 parameters expose no accepted types; do not promise native HTML accept filtering.
 File delivery, directory enumeration, sandbox grants and actual uploads require separate verification.
 Five JS ownership cases and a manual harness fixture are authored.
-Swift/class discovery, native UI/navigation/error/redirect/popup/cookie behavior,
-ATS/sandbox, threading/KVO/cleanup/AX and clean packaging require separate target qualification.
-AppKit harness dependency/lock link and scoped package task are source changes;
-no dependency install or native qualification ran. See the package README and
+The packed engine is runtime-verified on the AppKit host (`test:macos-runtime`):
+window ownership, delegates, navigation policy, KVO chrome, toolbar actions,
+website-labeled dialog sheets, file-panel attach/cancel and
+replacement/dismiss/user-close teardown. Cookie behavior, real-network TLS/ATS,
+user-driven pickers, prompt focus/IME, VoiceOver and packaged installs remain
+unqualified. See the package README and
 [AppKit navigation guide](../../../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window).
 
 ## AppKit authentication presenter lifetime

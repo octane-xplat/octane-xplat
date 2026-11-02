@@ -18,10 +18,10 @@ pages, including dialogs and file controls, with clean replacement and teardown.
 
 ## Acceptance criteria
 
-- AC1: Declare the package and rebuild its native Swift/AppKit/WebKit bridge. Report capability conditionally, validate HTTP(S)/host through Foundation without requiring JS URL globals, and cancel missing/invalid/failed opens without external delegation. Document the external-opener hard cutover and explicit platform opener.
+- AC1: Declare the package; its AppKit/WebKit backend is TypeScript over the host Objective-C bridge and needs no native rebuild. Report capability conditionally, validate HTTP(S)/host through Foundation without requiring JS URL globals, and cancel missing/invalid/failed opens without external delegation. Document the external-opener hard cutover and explicit platform opener.
 - AC2: Open resolves on presentation, not page load. Own one current browser; replacement/reentry/dismissal retire older attempts. Native close releases WebKit loads, KVO, delegates and content without acting on a newer owner.
 - AC3: Native history/reload/stop/address/close, generic failure feedback and allowed HTTP(S) redirect/new-window behavior have source paths. Mobile options/hints, app website data store, main-thread policy and advanced web/auth/download/permission limits are explicit.
-- AC4: Maintain ownership cases, a manual source fixture, packaged Swift configuration and AppKit harness dependency/task wiring. Separate source/syntax/manifest evidence from install/task graph/typecheck/Swift/native behavior/AX/packed-consumer proof.
+- AC4: Maintain ownership cases, a manual source fixture and AppKit harness dependency/task wiring. Separate source/syntax/manifest evidence from install/task graph/typecheck/native behavior/AX/packed-consumer proof.
 - AC5: Page alert/confirm/prompt requests use owned website-labeled native sheets with one-shot completion, empty-versus-cancelled text results and cancellation on close/replacement/navigation/process termination. Maintain an idle manual dialog page; native dialogs, sequential requests, focus/IME/VoiceOver and teardown require separate runtime evidence.
 
 - AC6: Page file controls use a website-labeled, owned NSOpenPanel respecting multiple/directory parameters. Cancellation and stale/overlap/close/replacement/navigation/process termination complete once with no selection; document missing public accept-type parameters. Maintain an idle manual page and keep actual file delivery, directory enumeration, upload, sandbox, focus/AX and teardown proof separate.

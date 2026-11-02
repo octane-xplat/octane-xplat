@@ -124,13 +124,9 @@ All Apple execution used this host (minion) and skymac.local:
   exports and file release through CLI-built dylib/metadata and the public API.
   This consumer imports the source package; packed contents are checked
   separately. It is not evidence of an npm-installed macOS application.
-- Swift API checks cover iOS UIKit/WebKit/PDFKit in language modes 4 and 5.
-
-The iOS fixture copies its Swift facade into task-owned AppResources. Separately,
-the pinned NativeScript CLI 9.1.1 source confirms normal plugin discovery:
-`ios-project-service.ts`'s `preparePluginNativeCode` passes `platforms/ios/src`
-to `prepareNativeSourceCode`, which adds source files to the application target.
-No consumer-managed Swift-source registration is required by the public setup.
+The iOS backend ships no `platforms/ios` sources, so plugin discovery and
+consumer-managed Swift registration no longer apply on iOS. macOS keeps the
+`XplatPrintEngine` leaf and its normal plugin discovery.
 
 iOS dismissal uses the maintained helper's text-only accessibility hierarchy and
 raw touch endpoint. The pinned Maestro implementation was reviewed to avoid its

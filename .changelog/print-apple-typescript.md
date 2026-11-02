@@ -1,3 +1,5 @@
+### iOS printing needs no native rebuild
+
 The iOS print backend is now TypeScript over the NativeScript ObjC bridge, so
 iOS consumers no longer compile the package's Swift leaf on install. The macOS
 AppKit backend keeps its Swift leaf: the TypeScript port could not reliably

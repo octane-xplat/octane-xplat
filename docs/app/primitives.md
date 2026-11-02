@@ -1450,15 +1450,17 @@ export function Clip() {
 }
 ```
 
-Experimental AppKit now replaces its placeholder with a package-owned
-AVPlayerLayer surface and shared transport. Rebuild after adding the package so
-its Swift view is included. Use HTTP(S), absolute/file URLs or ~/ bundle paths;
+Experimental AppKit now replaces its placeholder with a TypeScript
+AVPlayerLayer surface and shared transport — adding the package needs no
+native rebuild. Use HTTP(S), absolute/file URLs or ~/ bundle paths;
 all times stay in milliseconds. Play can retry a failed source; current-source
 callbacks retire on replacement/removal. Nine source-owner cases and an
-[AppKit fixture](../../examples/probes/video.macos.tsrx) are authored but unrun.
+[AppKit fixture](../../examples/probes/video.macos.tsrx) back the contract, and
+the packed engine is runtime-verified on the AppKit host for mount, playback,
+seek, loop, remote loading and teardown.
 See the [AppKit subset](../packages/package-video.md#experimental-appkit-playback)
-for polling, errors and remaining limits. Swift, actual playback/audio/input/AX,
-fit, sandbox and packaged behavior remain unqualified; metadata/intent callbacks
+for polling, errors and remaining limits. Rendered pixels, audio, OS input,
+VoiceOver and packaged installs remain unqualified; metadata/intent callbacks
 are not frame or OS-input proof. Lightbox video is a separate gap.
 
 ```tsx

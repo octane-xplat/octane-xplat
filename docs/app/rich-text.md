@@ -151,7 +151,7 @@ export function Notes() {
 | `isActive(format)`                                | `editor.isActive`               | `getAppliedStyles` at the selection                                                                                 | latest received snapshot              |
 | `undo()` / `redo()`                               | history commands                | Aztec history batches keyboard input only — format toggles and programmatic edits (setHTML, insert) do not register | engine history                        |
 | `focus()` / `blur()` / `isFocused()`              | editor focus                    | focus + soft keyboard                                                                                               | asynchronous focus command / snapshot |
-| `native`                                          | the tiptap `Editor`             | the `AztecText` view                                                                                                | `XplatEditorHost` transport           |
+| `native`                                          | the tiptap `Editor`             | the `AztecText` view                                                                                                | the WKWebView host transport          |
 
 The shared `TiptapFormat` vocabulary is the union the facades expose. StarterKit
 lacks `taskList`, `highlight`, `subscript`/`superscript`, and the `align*`
@@ -345,9 +345,8 @@ The AppKit target supports all three editor components. Each mounts a local
 the same StarterKit facade as web; Lexical uses its built-in node and plugin
 defaults. `RichTextEditor` uses StarterKit for HTML editing. The editor
 documents are bundled with the packages: no CDN, server, or network connection
-is needed. The `richtext` leaf owns the small Swift host independently of the
-general WebView component. The CLI compiles it through the normal
-[macOS native leaf workflow](../platform/macos-native.md).
+is needed. The `richtext` package owns the small WKWebView host in TypeScript
+independently of the general WebView component — no native leaf is compiled.
 
 Use the same imports and give the editor a bounded height, for example:
 
@@ -375,7 +374,7 @@ Commands cross WebKit asynchronously. `getHTML`, `getJSON`, `isActive`, and
 `isFocused` read the latest received snapshot. An immediate read after
 `setHTML`, `apply`, or `focus` can still show the old state. Read changed
 content in `onChange`; read toolbar state in `onSelectionChange`. `native` is
-the `XplatEditorHost` transport, not a tiptap or Lexical engine object. It
+the WKWebView host transport, not a tiptap or Lexical engine object. It
 disposes the WebKit view and message handler when the component unmounts.
 
 The frame accepts the usual layout props, `className`, and `style`; styles

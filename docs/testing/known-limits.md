@@ -214,11 +214,12 @@ export function PackingList(props: { items: { id: string; label: string }[] }) {
 | `Lottie` `duration`/`progress` units                   | ms and 0..1 everywhere                                                                                                                                  | plugin reports `duration` in seconds — leaf ×1000; progress already 0..1                                                                                                                                                                                                                                                                          | plugin reports ms; progress 0..1                                                                                                          | `different`                                                                                                                                                                                                           | post-0.6.0              |
 | `Lottie` vendored plugin                               | —                                                                                                                                                       | fixes unreleased upstream ship in the leaf — dead sync-src, missing `compositionLoaded`/`loadFailed` on iOS, URL src, `.lottie` zip, async autoPlay, completion dedupe, `declare` fields (modern-bundler compat); staged as PR branches on `octane-xplat/ui-lottie` (fixes on `xplat-fixes`; `xplat-vendored` adds only vendoring-compat markers) | same as iOS                                                                                                                               | `different`                                                                                                                                                                                                           | post-0.6.0              |
 
-Experimental AppKit Video now has an AVPlayerLayer/Swift source path, shared
-transport, millisecond commands and generic onError callbacks. The package must
-be rebuilt into the AppKit host. This is not a runtime pass: native compilation,
-bridge discovery, actual playback/audio/seek/loop, fit/input/AX, resource lifetime
-and packaged consumers remain unqualified. The separate renderer-owned Lightbox video path and advanced engine
+Experimental AppKit Video now has a TypeScript AVPlayerLayer source path,
+shared transport, millisecond commands and generic onError callbacks — no
+per-package native rebuild is required. Programmatic host checks verify mount,
+local and remote playback, seek, loop and teardown; rendered pixels, audio,
+OS input, VoiceOver, resource lifetime and packaged consumers remain
+unqualified. The separate renderer-owned Lightbox video path and advanced engine
 features remain separate. See the [source subset](../packages/package-video.md#experimental-appkit-playback).
 
 ```tsx

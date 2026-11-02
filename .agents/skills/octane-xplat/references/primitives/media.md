@@ -105,9 +105,9 @@ export function FreshPhoto({ src }: { src: string }) {
 
 ## AppKit video source subset
 
-Video now selects a package-owned Swift NSView/AVPlayerLayer surface with shared
-VideoChrome. Rebuild the AppKit app after adding the package; missing bridge
-setup fails before mounting. Sources are HTTP(S), absolute/file URLs or ~/ bundle
+Video now selects a TypeScript NSView/AVPlayerLayer surface on the AppKit
+host's Objective-C bridge — no per-package native leaf is compiled; missing
+bridged classes fail explicitly before mounting. Sources are HTTP(S), absolute/file URLs or ~/ bundle
 paths. Commands/events use milliseconds; unknown duration is zero. Source/seek
 ownership retires old work; explicit play retries failure, same-prop renders do
 not. Pre-ready seeks retain the last finite target. Loop suppresses onEnded and
@@ -125,9 +125,10 @@ export function Clip({ source }: { source: string }) {
 Owner callbacks use latest props and source generations; ready is metadata and
 playing-change is intent, not rendered frames. Polling is 250 ms for active work,
 1 s for paused ready playback only when onError is installed. No ios/android/web
-escape bag applies to AppKit. Nine owner cases and target fixture require separate verification;
-Swift/discovery, playback/audio, callbacks/threads, fit/resize, input/AX, resource
-lifetime and packaging require separate target qualification. Do not infer Lightbox integration,
+escape bag applies to AppKit. Nine owner cases and a target fixture back the contract;
+`test:macos-runtime` verifies programmatic mount, local/remote playback, seek,
+loop and teardown on the packed engine. Rendered pixels, audio, OS input,
+VoiceOver, resource lifetime and packaged installs remain unqualified. Do not infer Lightbox integration,
 DRM, subtitles, background or full streaming support. Read the
 [package subset](../../../../../docs/packages/package-video.md#experimental-appkit-playback).
 
@@ -229,7 +230,7 @@ or disposal. It requires native monitor support. Seven policy/mounted cases and
 a manual fixture require separate verification; actual input/gesture arbitration,
 hit/zoom coordinates, cleanup, VoiceOver and packaging require separate target qualification.
 Lightbox retains the renderer's native AVPlayerView video path, including
-`hasAutoPlay`. It is separate from the optional Video package's owned Swift
+`hasAutoPlay`. It is separate from the optional Video package's owned TypeScript
 surface; decoding, playback, transport input and cleanup require separate target qualification.
 
 ```tsx

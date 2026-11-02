@@ -100,11 +100,14 @@ await webBrowser.openBrowser('https://docs.example.com', {
 })
 ```
 
-Five owner cases and the manual AppKit fixture are authored but unrun. Swift
-compilation/class discovery, actual presentation, network/TLS/ATS behavior,
-history/reload/error UI, redirects/popups, JavaScript dialogs and prompt focus/IME,
-file selection/directory delivery, cookie behavior, main-thread/KVO ownership, user close/replacement, VoiceOver, resource lifetime and clean packed
-consumers remain unqualified. No build, test, typecheck, native execution or
-packaging pass is claimed by this source implementation.
+Five owner cases and the manual AppKit fixture back the contract. The packed
+TypeScript engine is runtime-verified on the real AppKit host
+(`bun run test:macos-runtime`): capability and URL gates, window presentation,
+navigation policy, KVO title chrome, toolbar history/reload, website-labeled
+alert/confirm/prompt sheets, an owned NSOpenPanel attach and cancel, and
+replacement/dismiss/user-close teardown all execute programmatically.
+TLS/ATS on real networks, cookie behavior, prompt focus/IME, user-driven
+file delivery and directory enumeration, rendered pixels, OS input, VoiceOver
+and packaged `.app` installs remain unqualified.
 
 Continue with [Device feature availability](https://octane-xplat.goddardai.org/platform-services).
