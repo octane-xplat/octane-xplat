@@ -7,11 +7,10 @@ import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import { cpSync, mkdtempSync, mkdirSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildMacOSNative } from '../../cli/src/macos/native.ts'
-import { hostBundle, macOSHostArch, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
-import { readFileSync } from 'node:fs'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 if (process.platform !== 'darwin') {
 	throw new Error('Movie storage checks require macOS')
@@ -47,9 +46,23 @@ try {
 		fileURLToPath(new URL('../../platform', import.meta.url)),
 		join(app, 'node_modules/@octane-xplat/platform'),
 	)
+	// Native-leaf discovery resolves each dependency through node_modules.
+	mkdirSync(join(app, 'node_modules/@nativescript'), { recursive: true })
+	symlinkSync(
+		dirname(fileURLToPath(import.meta.resolve('@nativescript/macos-node-api/package.json'))),
+		join(app, 'node_modules/@nativescript/macos-node-api'),
+	)
 	writeFileSync(
 		join(app, 'package.json'),
-		JSON.stringify({ name: 'movie-storage-fixture', type: 'module' }),
+		JSON.stringify({
+			name: 'movie-storage-fixture',
+			type: 'module',
+			dependencies: {
+				'@octane-xplat/desktop-webview': '0.19.0',
+				'@octane-xplat/platform': '0.0.0',
+				'@nativescript/macos-node-api': '0.0.0',
+			},
+		}),
 	)
 	writeFileSync(
 		join(app, 'fixture.mjs'),
@@ -156,7 +169,9 @@ try { NSApplication.sharedApplication.terminate(null) } catch {}
 
 	const artifact = await buildMacOSNative(app)
 	const bootstrap = join(app, 'bootstrap.js')
-	writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
+	// The bootstrap must dlopen the leaf dylibs — raw shim.js alone leaves the
+	// metadata-declared leaf classes without their native methods.
+	await writeNativeBootstrap(artifact, bootstrap)
 
 	const output = await new Promise((resolveOutput, reject) => {
 		const child = spawn(

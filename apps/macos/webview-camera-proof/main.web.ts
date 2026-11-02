@@ -19,12 +19,15 @@ function assert(condition: unknown, message: string): asserts condition {
 
 interface CameraServiceClient {
 	call(service: 'camera', method: string, options?: object): Promise<any>
+	call(service: 'application', method: 'progress', message: string): Promise<boolean>
 	call(service: 'application', method: 'report', result: CameraProofResult): Promise<boolean>
 }
 
 async function runProof(client: HostClient<CameraProofServices, CameraProofEvents>) {
 	const host = client as unknown as CameraServiceClient
+	await host.call('application', 'progress', 'proof start')
 	const capabilities = await client.capabilities()
+	await host.call('application', 'progress', 'capabilities listed')
 	const required = [
 		'permissionStatus',
 		'requestPermission',
@@ -45,6 +48,12 @@ async function runProof(client: HostClient<CameraProofServices, CameraProofEvent
 	const microphonePermission = (
 		await host.call('camera', 'permissionStatus', { kind: 'microphone' })
 	).status
+
+	await host.call(
+		'application',
+		'progress',
+		`camera=${mediaPermission} mic=${microphonePermission}`,
+	)
 
 	assert(mediaPermission !== 'undeclared', 'camera usage description missing from bundle')
 	assert(

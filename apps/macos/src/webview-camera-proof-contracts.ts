@@ -5,6 +5,7 @@ import type {
 
 export interface CameraProofServices extends FrameworkHostServices {
 	application: {
+		progress(message: string): boolean
 		report(result: CameraProofResult): boolean
 	}
 }

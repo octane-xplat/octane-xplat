@@ -9,6 +9,7 @@
 		"directory": "packages/desktop-webview"
 	},
 	"files": [
+		"platforms",
 		"src",
 		"types"
 	],
@@ -25,5 +26,14 @@
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",
 		"@octane-xplat/platform": "workspace:*"
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"AVFoundation",
+				"UserNotifications",
+				"WebKit"
+			]
+		}
 	}
 }

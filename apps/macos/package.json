@@ -25,7 +25,8 @@
 		"test:layout-placement": "node test/verify-layout-placement.mjs",
 		"test:camera-webview": "node ./scripts/camera-webview-proof.ts --verify",
 		"test:routing": "node test/verify-routing.mjs",
-		"test:shortcuts-runtime": "node test/verify-shortcuts.mjs"
+		"test:shortcuts-runtime": "node test/verify-shortcuts.mjs",
+		"test:webview-packaged": "node ./scripts/webview-packaged-proof.ts --verify"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",

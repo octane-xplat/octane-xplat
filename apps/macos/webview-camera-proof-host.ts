@@ -26,6 +26,10 @@ const desktopHost = createDesktopWebViewHost<CameraProofServices, CameraProofEve
 	address ?? null,
 	(_sender, _emit) => ({
 		application: {
+			progress(message: string) {
+				console.log(`[camera-proof-page] ${message}`)
+				return true
+			},
 			report(result: CameraProofResult) {
 				console.log(
 					`${result.ok ? 'XPLAT_CAMERA_WEBVIEW_PROOF_OK' : 'XPLAT_CAMERA_WEBVIEW_PROOF_FAILED'} ${JSON.stringify(result)}`,

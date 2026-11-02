@@ -6,7 +6,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.ts'
 import { createMacOSDevBundle } from '../../../packages/cli/src/macos/dev-bundle.ts'
-import { hostBundle } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import { hostBundle, macOSHostArch } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = fileURLToPath(new URL('..', import.meta.url))
 const verifying = process.argv.includes('--verify')
@@ -111,7 +111,7 @@ try {
 		[
 			resolve(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			resolve(appRoot, 'dist/webview-camera-host/host.cjs'),
-			native.metadata,
+			native.metadata[macOSHostArch()],
 			bootstrap,
 		],
 		{
