@@ -22,6 +22,20 @@ Keep catalog, discovery, permissions, source/document reads, HTTP control and
 process ownership native. Inference stays in Nim; useful retrieval quality takes
 precedence over incidental equality with WASM search ranking.
 
+Choose language boundaries by the operation's existing requirements and semantic
+ownership. When compiler work already starts Node, keeping its renderer in the
+same project-installed worker can remove duplicated language-specific logic.
+Fast native help startup does not establish an end-to-end speed benefit for that
+renderer. Prefer one canonical implementation; keep validated artifact plans,
+stale-input rejection, publication and lifecycle ownership explicit at the boundary.
+Preserve user-visible contracts and data/process safety without expanding a
+general JavaScript compatibility layer to reproduce incidental coercion behavior.
+
+An `async` caller does not make synchronous CPU work nonblocking. Native model
+inference and index preparation need an execution boundary with cancellation and
+bounded work before joining a responsive persistent host; qualifying model outputs
+in a standalone probe does not establish that host behavior.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node
