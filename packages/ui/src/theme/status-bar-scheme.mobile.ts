@@ -29,9 +29,10 @@ function applyStatusBarScheme(): void {
 	if (Application.ios) {
 		// Pushed pages own separate view controllers the root's property
 		// doesn't reach — app-level setter as fallback.
-		const setter = Reflect.get(Application.ios.nativeApp, 'setStatusBarStyle')
+		const nativeApp = Application.ios.nativeApp
+		const setter = 'setStatusBarStyle' in nativeApp ? nativeApp.setStatusBarStyle : undefined
 		if (typeof setter === 'function') {
-			setter.call(Application.ios.nativeApp, style === 'light' ? 1 : 0)
+			setter.call(nativeApp, style === 'light' ? 1 : 0)
 		}
 	}
 }

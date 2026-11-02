@@ -13,7 +13,7 @@ export async function run(ctx: ProbeContext) {
 		const marker = await requestStream(`${origin}/state`)
 		ctx.assert(
 			'server still open after first record',
-			Reflect.get(await marker.json(), 'finished') === true,
+			((await marker.json()) as Record<string, unknown>).finished === true,
 			false,
 		)
 
@@ -24,7 +24,7 @@ export async function run(ctx: ProbeContext) {
 		const marker = await requestStream(`${origin}/state`)
 		ctx.assert(
 			'server still open after first bytes',
-			Reflect.get(await marker.json(), 'finished') === true,
+			((await marker.json()) as Record<string, unknown>).finished === true,
 			false,
 		)
 
@@ -47,7 +47,7 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('non-2xx status preserved', failure.status, 503)
 	ctx.assert(
 		'non-2xx remains readable',
-		Reflect.get(await failure.json(), 'unavailable') === true,
+		((await failure.json()) as Record<string, unknown>).unavailable === true,
 		true,
 	)
 	const controller = new AbortController()

@@ -3,12 +3,13 @@ import { Application, File, Label, Page, knownFolders, path } from '@nativescrip
 import * as Tracking from '../src/index'
 const nativeStatus = () => {
 	NSBundle.bundleWithPath('/System/Library/Frameworks/AppTrackingTransparency.framework')?.load()
-	return Number(
-		(typeof Reflect.get(globalThis, 'ATTrackingManager') === 'object' &&
-		Reflect.get(globalThis, 'ATTrackingManager') !== null
-			? Reflect.get(Reflect.get(globalThis, 'ATTrackingManager'), 'trackingAuthorizationStatus')
-			: undefined) ?? -1,
-	)
+	// The AppTrackingTransparency surface is a native runtime global with no
+	// ambient declaration; this named shape is the bounded contract.
+	interface TrackingGlobals {
+		ATTrackingManager?: { trackingAuthorizationStatus?: unknown }
+	}
+	const manager = (globalThis as TrackingGlobals).ATTrackingManager
+	return Number(manager?.trackingAuthorizationStatus ?? -1)
 }
 const folder = knownFolders.documents().path
 const request: { mode: 'missing-purpose' | 'configured'; nonce: string } = JSON.parse(

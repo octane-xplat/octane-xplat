@@ -75,10 +75,13 @@ class Budget {
 /** Lazy platform capability lookup; missing Intl never prevents module loading. */
 export function textMorphSegmenters(): TextMorphSegmenters | null {
 	try {
-		const intl = Reflect.get(globalThis, 'Intl')
+		// Intl.Segmenter is a runtime capability, not a declared global type.
 		const ctor =
-			(typeof intl === 'object' || typeof intl === 'function') && intl !== null
-				? (Reflect.get(intl, 'Segmenter') as
+			'Intl' in globalThis &&
+			typeof globalThis.Intl === 'object' &&
+			globalThis.Intl !== null &&
+			'Segmenter' in globalThis.Intl
+				? (globalThis.Intl.Segmenter as
 						| (new (locale: string, options: { granularity: string }) => TextMorphSegmenter)
 						| undefined)
 				: undefined

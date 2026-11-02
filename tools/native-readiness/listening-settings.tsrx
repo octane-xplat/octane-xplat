@@ -161,7 +161,7 @@ export async function run(ctx: ProbeContext) {
 	const marker = await requestStream(`${origin}/state`)
 	ctx.assert(
 		'packed first record before server completion',
-		Reflect.get(await marker.json(), 'finished') === true,
+		((await marker.json()) as Record<string, unknown>).finished === true,
 		false,
 	)
 

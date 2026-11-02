@@ -12,7 +12,7 @@ export function devBridgePlatform(): 'web' {
 }
 
 export function devBridgeEndpoint(): DevBridgeEndpoint | null {
-	const bridge = Reflect.get(globalThis, '__XPLAT_DEV_BRIDGE__')
+	const bridge = ('__XPLAT_DEV_BRIDGE__' in globalThis ? globalThis.__XPLAT_DEV_BRIDGE__ : undefined)
 	const token =
 		typeof bridge === 'object' &&
 		bridge !== null &&

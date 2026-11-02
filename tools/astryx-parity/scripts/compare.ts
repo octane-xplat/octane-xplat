@@ -89,7 +89,12 @@ async function main() {
 			JSON.stringify({ sameframe, behavior: { diffCount: behavior.diffs.length } }, null, '\t'),
 		)
 
-		const status = typeof sameframe.result === 'object' && sameframe.result !== null ? Reflect.get(sameframe.result, 'status') : undefined
+		const status =
+			typeof sameframe.result === 'object' &&
+			sameframe.result !== null &&
+			'status' in sameframe.result
+				? sameframe.result.status
+				: undefined
 		if (status !== 'pass' || behavior.diffs.length > 0) {
 			console.error(
 				`parity findings: sameframe status=${status ?? 'unknown'}, ` +

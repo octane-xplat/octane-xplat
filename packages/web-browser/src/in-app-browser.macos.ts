@@ -55,7 +55,7 @@ const sameObject = (a: unknown, b: unknown): boolean =>
 	a === b || (a != null && (a as NSObject).isEqual?.(b) === true)
 
 const setAccessibilityLabel = (view: NSObject, label: string): void => {
-	const setter = Reflect.get(view, 'setAccessibilityLabel')
+	const setter = 'setAccessibilityLabel' in view ? view.setAccessibilityLabel : undefined
 	if (typeof setter === 'function') {
 		setter.call(view, label)
 	}
@@ -69,7 +69,7 @@ const setAccessibilityLabel = (view: NSObject, label: string): void => {
 // the block's own parameters through the invocation.
 const blockArg = (type: number, value: unknown): interop.Reference => {
 	const ref = new interop.Reference(type)
-	Reflect.set(ref, 'value', value)
+	;(ref as { value?: unknown }).value = value
 	return ref
 }
 
@@ -677,12 +677,21 @@ interface TargetFrame {
 	isMainFrame?: boolean | (() => boolean)
 }
 
+// Bridge globals materialize only on a real AppKit host; this named shape is
+// the bounded contract this leaf probes before presenting.
+interface BrowserGlobals {
+	dlopen?: unknown
+	NSApp?: unknown
+	WKWebView?: unknown
+	NSObject?: unknown
+}
+
 interface DelegateConstructor {
 	alloc(): { init(): NSObject }
 }
 
 function openBrowserWindow(session: Session, value: string): boolean {
-	if (!NSThread.isMainThread || Reflect.get(globalThis, 'NSApp') == null) {
+	if (!NSThread.isMainThread || (globalThis as BrowserGlobals).NSApp == null) {
 		return false
 	}
 	const url = addressURL(value)
@@ -782,11 +791,13 @@ function openBrowserWindow(session: Session, value: string): boolean {
  *  than presenting or delegating to another application. */
 export function createInAppBrowserFactory(): AppKitBrowserFactory | undefined {
 	try {
+		const globals = globalThis as BrowserGlobals
+		const nsObject = globals.NSObject
 		if (
-			typeof globalThis.dlopen !== 'function' ||
-			Reflect.get(globalThis, 'WKWebView') == null ||
-			Reflect.get(globalThis, 'NSObject') == null ||
-			typeof Reflect.get(Reflect.get(globalThis, 'NSObject') ?? {}, 'extend') !== 'function'
+			typeof globals.dlopen !== 'function' ||
+			typeof globals.WKWebView !== 'function' ||
+			typeof nsObject !== 'function' ||
+			typeof (nsObject as { extend?: unknown }).extend !== 'function'
 		) {
 			return undefined
 		}

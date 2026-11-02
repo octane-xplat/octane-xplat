@@ -40,7 +40,8 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 	const transport: HostedAuthFetch =
 		config.fetch ??
 		((url, init) => {
-			const impl = Reflect.get(globalThis, 'fetch') as HostedAuthFetch | undefined
+			const impl =
+				'fetch' in globalThis ? (globalThis.fetch as HostedAuthFetch | undefined) : undefined
 			if (!impl) {
 				return Promise.reject(new Error('hostedAuth: fetch is unavailable on this target'))
 			}

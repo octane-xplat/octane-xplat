@@ -36,7 +36,7 @@ export const backend: CaptureBackend = createAppleBackend({
 	renderInContext: false,
 	// The generated barrel binds lazy proxies in ambient-free processes; read the
 	// global directly so capability reflects a real ObjC bridge only.
-	available: () => typeof Reflect.get(globalThis, 'NSBitmapImageRep') !== 'undefined',
+	available: () => 'NSBitmapImageRep' in globalThis,
 	protectedView: ['WKWebView', 'NSOpenGLView', 'MTKView', 'AVPlayerView'],
 	protectedLayer: ['AVPlayerLayer', 'CAMetalLayer', 'CAOpenGLLayer'],
 	scale: (view) => {

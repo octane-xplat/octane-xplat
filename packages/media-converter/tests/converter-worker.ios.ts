@@ -49,7 +49,7 @@ const READY_DEADLINE_MS: number = 30_000
 const FINISH_TIMEOUT_MS: number = 60_000
 
 function post(event: Record<string, unknown>): void {
-	const postMessage = Reflect.get(globalThis, 'postMessage')
+	const postMessage = 'postMessage' in globalThis ? globalThis.postMessage : undefined
 	if (typeof postMessage === 'function') {
 		postMessage(event)
 	}
@@ -227,11 +227,12 @@ interface WorkerRequest {
 	bitrate: number
 }
 
-Reflect.set(globalThis, 'onmessage', (event: { data: unknown }) => {
+if ('onmessage' in globalThis) {
+	globalThis.onmessage = (event: { data: unknown }) => {
 	const request = event.data as WorkerRequest
 	try {
 		post({ result: convert(request) })
 	} catch (error) {
 		post({ error: error instanceof Error ? error.message : String(error) })
 	}
-})
+	}
