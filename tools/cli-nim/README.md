@@ -367,7 +367,12 @@ session/group, explicit cwd/environment, `/dev/null` stdin and private combined
 logs. The launcher lock is not inherited, including when stdin was closed before
 launch. Other cases cover lock contention/reuse, symlink/unsafe-file preservation,
 unpublished startup termination/reaping and harmless default ownership handles.
-Fixtures self-terminate; authenticated daemon composition remains pending.
+Fixtures self-terminate. `test:nim-host` additionally qualifies the authenticated
+persistent host through separate native invocations: concurrent startup, private
+credentials, idle exit, cross-invocation session/job control, crash recovery,
+child/descendant cleanup, foreign/replacement path preservation, FIFO refusal,
+and discovery surviving project cache cleanup. These are lifecycle checks on
+macOS, not application build/launch qualification.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native host bootstrap qualification"}' -- bun run turbo run test:nim-host-bootstrap --filter=@octane-xplat/cli
