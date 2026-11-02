@@ -297,11 +297,35 @@ async function filesChunkSpec(): Promise<Record<string, unknown>> {
 	} catch (error) {
 		maxError = String(error)
 	}
-	const abort = new AbortController()
-	abort.abort()
+	// The packaged runtime has no global AbortController — the signal contract
+	// is duck-typed (aborted flag, listeners, throwIfAborted).
+	const listeners = new Set<() => void>()
+	const signal: {
+		aborted: boolean
+		addEventListener(type: string, listener: () => void): void
+		removeEventListener(type: string, listener: () => void): void
+		throwIfAborted(): void
+	} = {
+		aborted: false,
+		addEventListener(_type, listener) {
+			listeners.add(listener)
+		},
+		removeEventListener(_type, listener) {
+			listeners.delete(listener)
+		},
+		throwIfAborted() {
+			if (signal.aborted) {
+				const error = new Error('The operation was aborted')
+				error.name = 'AbortError'
+				throw error
+			}
+		},
+	}
+	signal.aborted = true
+	for (const listener of listeners) listener()
 	let abortError = ''
 	try {
-		await files.readBytes(ref, { signal: abort.signal })
+		await files.readBytes(ref, { signal: signal as unknown as AbortSignal })
 	} catch (error) {
 		abortError = error instanceof Error ? error.name : String(error)
 	}
@@ -314,6 +338,7 @@ async function filesChunkSpec(): Promise<Record<string, unknown>> {
 		maxError,
 		abortError,
 		fullLength: full.length,
+		abortControllerPresent: typeof AbortController !== 'undefined',
 	}
 }
 
