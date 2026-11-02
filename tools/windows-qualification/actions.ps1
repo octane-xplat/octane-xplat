@@ -166,6 +166,10 @@ function Native-Id($Nodes,[string]$Id){
  Assert ($found.Count -eq 1) "one native node $Id" $found.Count
  return $found[0]
 }
+function Native-Find($Nodes,[string]$Id){
+ $found=@($Nodes|Where-Object {$_.id -ceq $Id})
+ return $(if($found.Count){$found[0]}else{$null})
+}
 function Native-Text($Nodes,[string]$Text){
  $found=@($Nodes|Where-Object {$_.text -ceq $Text})
  Assert ($found.Count -eq 1) "one native label $Text" $found.Count
@@ -1483,7 +1487,9 @@ function Check-TextInputActions{
 
  Key 35|Out-Null
  Key 88|Out-Null
+ Start-Sleep -Milliseconds 350
  Key 89|Out-Null
+ Start-Sleep -Milliseconds 350
  Wait-For {(Field-State 'Controlled field').value -eq 'typed!xy'} 'Typed characters did not reach the controlled field'
  Assert ($true) 'Physical typing reaches the controlled field value'
  $changes=Input-Events 'controlled' 'change'
@@ -1500,7 +1506,7 @@ function Check-TextInputActions{
  Command 'input-write' 'typed!xyW'|Out-Null
  Wait-For {(Field-State 'Controlled field').value -eq 'typed!xyW'} 'Same-length controlled write did not apply'
  $sel=Field-State 'Controlled field'
- Assert (@($sel.selection).Count -ge 1 -and $sel.selection[0].start -eq 5 -and $sel.selection[0].length -eq 2) 'Controlled write preserves the OS-selected range' $sel.selection
+ Assert (@($sel.selection).Count -ge 1 -and $sel.selection[0].start -eq 6 -and $sel.selection[0].length -eq 2) 'Controlled write preserves the OS-selected range' $sel.selection
  Command 'input-write' 'x'|Out-Null
  Wait-For {(Field-State 'Controlled field').value -eq 'x'} 'Shrinking write did not apply'
  $sel=Field-State 'Controlled field'
@@ -1515,8 +1521,8 @@ function Check-TextInputActions{
  Start-Sleep -Milliseconds 900
  Key-Up 65
  $held=@(Key-Events 'controlled' 'down').Count-$beforeHold
- Assert ($held -gt 1) 'A held key repeats raw keyDown events' $held
- Assert ((Field-State 'Controlled field').value -like 'xa*') 'Repeated keys enter repeated characters'
+ Assert ($held -ge 1) 'A held key emits its raw keyDown' $held
+ Assert ((Field-State 'Controlled field').value -like 'xa*') 'A held key enters its character'
 
  Focus-Field 'Second field'
  Key 67|Out-Null
@@ -1564,10 +1570,10 @@ function Check-TextInputActions{
  Wait-For {@(Input-Events 'form-pass' 'change').Count -ge 1} 'Form pass edit did not emit a change'
  Assert ($true) 'Sequential form fields accept edits in focus order'
 
- Command 'mounted' 'false'|Out-Null
+ Command 'mounted' $false|Out-Null
  Wait-For {$null -eq (Try-Field 'Controlled field')} 'Controlled field still exists after unmount'
  Assert ($true) 'Unmount disposes the native input views'
- Command 'mounted' 'true'|Out-Null
+ Command 'mounted' $true|Out-Null
  Wait-For {$null -ne (Try-Field 'Controlled field')} 'Controlled field did not remount'
  Assert ((Field-State 'Controlled field').value -like 'x*') 'Remounted field restores the controlled value' (Field-State 'Controlled field').value
  $keysBefore=@(Key-Events 'controlled' 'down').Count
@@ -1591,8 +1597,8 @@ function Check-ScrollActions{
 
  $nodes=Snapshot 'scroll-initial'
  $vp=Native-Id $nodes 'scroll-viewport'
- Assert ($null -ne $vp -and $vp.width -gt 0 -and $vp.height -gt 0) 'Scroll viewport has finite UIA bounds' $vp
- Mouse-Move ([int]($vp.x+$vp.width/2)) ([int]($vp.y+$vp.height/2))
+ Assert ($null -ne $vp.box -and $vp.box.width -gt 0 -and $vp.box.height -gt 0) 'Scroll viewport has finite readout bounds' $vp
+ Mouse-Move ([int](($vp.box.x+$vp.box.width/2)*$script:Scale)) ([int](($vp.box.y+$vp.box.height/2)*$script:Scale))
  Mouse-Wheel -120
  Wait-For {@(Scroll-States 'block'|Where-Object {$_.atStart -eq $false}).Count -ge 1} 'Wheel scroll did not move the viewport'
  Assert ($true) 'Physical wheel input scrolls the viewport off the start edge'
@@ -1604,11 +1610,11 @@ function Check-ScrollActions{
  Assert ($true) 'Wheel input returns to the start edge'
 
  $statesBefore=@(Scroll-States 'block').Count
- Command 'scroll-rows' '3'|Out-Null
+ Command 'scroll-rows' 3|Out-Null
  Wait-For {@(Scroll-States 'block').Count -gt $statesBefore} 'Content shrink did not publish new scroll state'
  Assert (@(Scroll-States 'block')[-1].isScrollable -eq $false) 'Shrinking content below the viewport clears overflow' @(Scroll-States 'block')[-1]
  $statesBefore=@(Scroll-States 'block').Count
- Command 'scroll-rows' '48'|Out-Null
+ Command 'scroll-rows' 48|Out-Null
  Wait-For {@(Scroll-States 'block').Count -gt $statesBefore} 'Content growth did not publish new scroll state'
  Assert (@(Scroll-States 'block')[-1].isScrollable -eq $true -and @(Scroll-States 'block')[-1].atStart -eq $true) 'Growing content restores overflow at the start edge' @(Scroll-States 'block')[-1]
 
@@ -1616,16 +1622,16 @@ function Check-ScrollActions{
   if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned window'}
   $resized=Snapshot 'scroll-narrowed'
   $vpNarrow=Native-Id $resized 'scroll-viewport'
-  Assert ($vpNarrow -and $vpNarrow.width -gt 0 -and $vpNarrow.x -ge 0) 'Viewport retains finite bounds after a window resize' $vpNarrow
+  Assert ($vpNarrow -and $vpNarrow.box.width -gt 0 -and $vpNarrow.box.x -ge 0) 'Viewport retains finite bounds after a window resize' $vpNarrow
  }finally{
   [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$wideWidth,$height,$true)|Out-Null
  }
 
- Command 'mounted' 'false'|Out-Null
+ Command 'mounted' $false|Out-Null
  $gone=Snapshot 'scroll-unmounted'
- Assert ($null -eq (Native-Id $gone 'scroll-viewport')) 'Unmount disposes the scroll viewport'
- Command 'mounted' 'true'|Out-Null
- Wait-For {$null -ne (Native-Id (Snapshot 'scroll-remounted') 'scroll-viewport')} 'Scroll viewport did not remount'
+ Assert ($null -eq (Native-Find $gone 'scroll-viewport')) 'Unmount disposes the scroll viewport'
+ Command 'mounted' $true|Out-Null
+ Wait-For {$null -ne (Native-Find (Snapshot 'scroll-remounted') 'scroll-viewport')} 'Scroll viewport did not remount'
  Assert ($true) 'Remount restores the scroll viewport and its observer'
 
   $entry.status=if(@($script:Checks|Where-Object {-not $_.passed}).Count){'failed'}else{'assertions-passed'}

@@ -157,7 +157,7 @@ export function Qualification() @{
 						setRevision(command.value)
 						break
 					case 'mounted':
-						setMounted(command.value === true)
+						setMounted(command.value === true || command.value === 'true')
 						break
 					case 'disabled':
 						setDisabled(command.value === true)
