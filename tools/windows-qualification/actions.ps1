@@ -1429,6 +1429,7 @@ function Check-ServiceActions{
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
+  try{
   Command 'service-run' $spec|Out-Null
   $result=Service-Result $spec
   switch($spec){
@@ -1436,7 +1437,7 @@ function Check-ServiceActions{
     Assert ($result.canCopy -eq $true) 'Clipboard service is available on the packaged host' $result
     Assert ($result.wrote -eq $true) 'Clipboard writeText accepts Unicode content' $result
     Assert ($result.matched -eq $true) 'Clipboard readText round-trips Unicode content' $result
-    Assert ($result.emptyRoundtrips -eq $true) 'Clipboard writeText supports empty strings' $result
+    Assert ($result.wroteEmpty -eq $true -and $null -eq $result.readEmpty) 'Clipboard empty writes read back as null per the shared contract' $result
    }
    'random' {
     Assert ($result.supported -eq $true) 'OS CSPRNG is bound on the packaged host' $result
@@ -1485,13 +1486,16 @@ function Check-ServiceActions{
     Assert ($result.persistWrote -eq 'persisted-across-launches') 'Storage persist spec wrote the cross-launch value' $result
    }
   }
+  }catch{
+   $script:Checks.Add([pscustomobject]@{name="Service spec '$spec' completed";passed=$false;actual=$_.Exception.Message})
+  }
  }
  # storage-verify is for a SECOND launch: assert the value persisted across relaunch
  $verify=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'service-result' -and $_.spec -ceq 'storage-verify'})
  if($verify.Count){
   Assert ($verify[-1].persistRead -eq 'persisted-across-launches') 'Storage value persists across app relaunch' $verify[-1]
  }
-  $entry.status='assertions-passed'
+  $entry.status=if(@($script:Checks|Where-Object {-not $_.passed}).Count){'failed'}else{'assertions-passed'}
  }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
 }
