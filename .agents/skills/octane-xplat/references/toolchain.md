@@ -125,8 +125,8 @@ formats; see the [checker boundary](../../../../docs/packages/package-tsrx-typeg
 
 In this repository, UI's common declaration entrypoints own their public type
 exports. Keep platform runtime barrels focused on values instead of repeating
-those type lists. Check the package export map first: GTK's root uses a separate
-curated declaration entrypoint while its runtime remains a subset. See the
+those type lists. GTK uses the common public declarations too; its runtime
+export equality is checked separately against the generated GTK barrel. See the
 [repository toolchain contract](../../../docs/toolchain.md).
 
 ## Build a reusable library

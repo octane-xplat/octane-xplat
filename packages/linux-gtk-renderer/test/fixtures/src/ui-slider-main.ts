@@ -384,9 +384,10 @@ async function run() {
 		await input({ key: 'shift+Tab' })
 		await pause(220)
 		check('keyboard focus opens the value tooltip', nodes('vx-tooltip').length === 1)
+		const keyboardPopup = high.get_first_child()
 		await input({ key: 'Right' })
 		check('open tooltip updates with the value', props.value === 35 && hintText().includes('35%'))
-		check('value updates retain the tooltip surface', high.get_first_child() === popup)
+		check('value updates retain the tooltip surface', high.get_first_child() === keyboardPopup)
 		await input({ key: 'Escape' })
 		check('Escape closes the tooltip', nodes('vx-tooltip').length === 0)
 		check(

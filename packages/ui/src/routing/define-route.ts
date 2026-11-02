@@ -1,6 +1,7 @@
 import { rememberRouteDefinition } from './route-contract-scope'
 import type {
 	RouteContext,
+	RouteSpecParams,
 	RouteGroup,
 	RoutePreparationGroup,
 	MergedRouteContext,
@@ -18,7 +19,6 @@ import type {
 } from '../props'
 
 import type { RouteCancellationSignal } from './core'
-import type { RouteSpecParams } from '..'
 
 /** Factory for route-group builders — defines shared guard/loader scopes. */
 export type RouteGroupDefiner = {

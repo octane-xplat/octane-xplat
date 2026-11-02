@@ -174,10 +174,9 @@ experience of agents writing Octane-xplat code effectively.
 - **UI type exports follow the package's declaration entrypoint.** The shared
   root and subpath barrels own the public type lists for the common declaration
   entrypoints. Platform runtime barrels need no duplicate type re-exports;
-  `scripts/sync-ui-barrels.ts` omits them from generated web twins. GTK's root
-  currently has a separate curated declaration entrypoint because its runtime
-  exports remain a subset; preserve that boundary until the runtime matches
-  the common contract.
+  `scripts/sync-ui-barrels.ts` omits them from generated web twins. GTK uses
+  the same public declaration entrypoint as the other targets; keep its runtime
+  barrel value-only and compare its actual runtime exports in the GTK fixture.
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
   `turbo.json` at the root). `bun run typegen`, `bun run typecheck`, the
   `typecheck:{web,mobile,macos,linux,windows,docs}` filters,

@@ -418,3 +418,11 @@ qualified (slice D) via `menu-sheet.gtk`/`MoreMenu.gtk` leaves.
 - Requires the WebKitGTK 6.0 typelib (`gir1.2-webkit-6.0`) and a session D-Bus for the WebKit sandbox — headless runs need `dbus-run-session`.
 - `load_html` documents create no history entries (goBack cannot return to an `html` document); `scrollEnabled={false}` injects `overflow:hidden`; `matchContents` sizes via `set_size_request`. Connection-refused loads commit an empty document without `load-failed` — DNS failures are the reliable `onError` probe.
 
+GTK `useTooltip` supports separate position/interaction refs, controlled and
+default-open state, render placement/alignment/offset overrides, and focus/touch
+trigger options. Touch-only gesture dispatch is checked separately from real
+X11 hover/focus/Escape; a physical touch seat remains unqualified.
+
+GTK WebView `onMessage` uses the same bounded outbox drain as native: ~200 ms,
+ordered, at-least-once, no replies or native origin metadata. It drops stale
+evaluation completions on navigation, callback removal and disposal.

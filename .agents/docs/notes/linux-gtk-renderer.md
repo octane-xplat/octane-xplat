@@ -670,19 +670,21 @@ GTK cannot show popovers on older releases. Controller dispatch, native metadata
 and actual X11 pointer/keyboard evidence are reported separately from AT-client,
 Wayland and pixel behavior.
 
-The final combined real-Linux renderer suite passes all 36 tests without skips
-(guest /tmp/gtk-tooltip-tests-final.log), including 50 Tooltip assertions with
-actual X11 pointer hover/leave, Tab and Escape. Runtime: Ubuntu 24.04 amd64,
-GJS 1.80.2, GTK 4.14.5, XplatMason and private Xvfb. The retained prior fixtures
-also pass their separate actual press/drag, pull, wheel and text-entry checks.
-The expanded UI/renderer/dependent typecheck passes 58 tasks
-(andromeda /tmp/gtk-tooltip-types-complete.log); packed exports/declarations pass
-six tasks (/tmp/gtk-tooltip-pack.log). Recipe structure/local links, all 14 release
-notes and UI barrel synchronization validate. GTK source/generated barrels both
-contain 37 values and 57 types; native and GTK Tooltip declarations both take
-TooltipProps and return unknown. No mobile OS, AT-client, IME, Wayland or pixel
-qualification is added. The existing broad native batch-observer and docs-site
-parser failures remain outside this slice's passing evidence.
+The maintained `ui-tooltip` fixture checks provider updates, native description
+relations, dismissal and actual X11 pointer/keyboard behavior. The public
+`useTooltip` hook has a separate `ui-tooltip-hook` fixture for its shared options,
+render overrides and split refs; Slider's fixture covers its value-hint integration.
+Use `gtk_ui_checks` and local evidence reports for current qualification results.
+
+GTK 4.14.5/X11 can deliver an allocation for empty, hidden content after the
+portal has remounted its children. GTK's
+[`gtk_popover_native_layout`](https://raw.githubusercontent.com/GNOME/gtk/4.14.5/gtk/gtkpopover.c#L695-L712)
+closes the popup if that allocation is smaller than the new minimum. Native
+signal tracing confirmed this path on Linux. Each reopening therefore creates a
+new GtkPopover; the Gtk.Box portal target and input controllers stay owned by the
+session. Content updates while open retain the current popup. Reassess this
+workaround against the reopen fixture when upgrading GTK; native popup identity
+across separate openings is not part of the shared UI contract.
 
 ## Independent GTK accessibility state and field flags
 
@@ -2464,9 +2466,9 @@ andromeda /tmp/gtk-slider-{input,contracts}-types.log.
 Value hints use the existing native portal/popover machinery with separate
 interaction and position views. Hover/focus belong to the slider, geometry
 belongs to the upper thumb, and description relations belong to the interaction
-owner. A private GTK use-tooltip leaf enables this internal path; the public
-useTooltip root export remains absent until its remaining options have their
-own proof. The direct-source slider case passes 126 actual X11 checks for
+owner. The GTK use-tooltip leaf also backs the public `useTooltip` export.
+Its dedicated hook fixture owns the broader options contract; Slider remains
+a regression for retained split refs and value-hint lifetime. The direct-source slider case passes 126 actual X11 checks for
 hover, focus, formatted live content, dismissal and retained thumb anchoring.
 Its initial hover assertion moved within an already-hovered control; the
 fixture now leaves and re-enters to generate actual native pointer entry.

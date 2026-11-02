@@ -258,6 +258,7 @@ const EVENT_PROP = /^on([A-Z])(.*)$/
  *  as universal event commands, so the unclassified-on* warning would be a
  *  false positive for exactly these names. */
 const WEBVIEW_EVENT_PROPS = new Set([
+	'onMessage',
 	'onLoad',
 	'onError',
 	'onLayoutContent',

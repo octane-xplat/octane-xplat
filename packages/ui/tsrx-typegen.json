@@ -8,6 +8,7 @@
 				".": {
 					"source": "src/index.mobile.ts",
 					"runtime": [
+						"./src/index.gtk.ts",
 						"./src/index.windows.ts",
 						"./src/index.macos.ts",
 						"./src/index.linux.ts",

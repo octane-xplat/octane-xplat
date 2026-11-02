@@ -7,7 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 355 runtime values and 636 types in index.gtk.ts, including
+The GTK runtime barrel exports the same 357 values as the shared root. Public
+types come from the common declaration entrypoint (764 types), without a second
+GTK type list. The runtime surface includes
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption, and the remaining input
 families (RichText, SelectableCard, typeahead/tokenizer, ComplexSelector,
@@ -1781,19 +1783,24 @@ the reliable error probe). `scrollEnabled={false}` injects
 `overflow:hidden` — WebKitGTK 6.0 exposes no GtkScrollable surface.
 `load_html` documents create no history entries, so `goBack` cannot
 return to an `html` document. `matchContents` sizes through
-`set_size_request`. No JS bridge, matching the shared contract.
+`set_size_request`. Page-to-host messaging now follows the shared `onMessage`/
+`postToHost` contract: drain the bounded page outbox after load and every 200 ms,
+keep current callbacks, and discard stale completions after navigation,
+subscription removal or disposal. It exposes no request/reply or arbitrary
+script execution API.
 
-Slice K exported the remaining declaration-parity type aliases (~118
-`works-as-is` shared types — props, event, route-manifest, styled,
-toast, layer, stack and column config shapes) for a final availability
-of 356 values and ~758 types. `WebView` was the last pending value;
-no GTK-qualified value remains pending.
+Slice K originally copied shared type aliases into the GTK barrel. GTK now
+uses the common public declaration entrypoint. The GTK source barrel contains
+runtime values only; its generated declaration file is an internal fixture
+input for comparing actual GTK runtime names and signatures with the common
+contract. Shared public types do not need per-platform export lists.
 
 ## State of parity
 
-All planned UI values are exported and runtime-qualified on GTK:
-356 values and ~758 types, every value proven by maintained GJS/GTK
-fixtures on real X11 input or real host machinery, and every public type
-present in the GTK root. Remaining limits are documented per-slice and
-in known-limits (no visual/AT qualification, WebView environment
-requirements above, and the per-value gaps each section lists).
+Runtime export names match the shared root. `useTooltip` is public alongside
+the shared `postToHost` page helper; the dedicated tooltip-hook fixture covers
+its options independently of Slider's internal use. WebView messages are tested
+inside the real WebKit web process. Runtime qualification remains specific to
+the behavior in each fixture: matching exports does not establish complete prop,
+IME, Wayland, assistive-technology or visual parity. Remaining limits are
+documented per-slice and in known-limits.

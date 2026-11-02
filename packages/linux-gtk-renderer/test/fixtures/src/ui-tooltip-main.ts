@@ -97,7 +97,7 @@ async function run() {
 		peer = node('tip-peer').view!
 	peer.focus()
 	await pause()
-	const native = popup(anchor)
+	let native = popup(anchor)
 	check('native tooltip starts hidden', !native.get_visible())
 	const initialMounts = lifetime.mounts,
 		initialUnmounts = lifetime.unmounts
@@ -113,6 +113,7 @@ async function run() {
 	)
 	emit(anchor, 'enter')
 	await pause(140)
+	native = popup(anchor)
 	check(
 		'hover intent opens mapped native popup',
 		native.get_mapped() && native.get_width() > 0 && native.get_height() > 0,
@@ -222,6 +223,7 @@ async function run() {
 	await pause()
 	field.focus()
 	await pause()
+	native = popup(anchor)
 	check('focus opens immediately despite hover delay', native.get_visible() && native.get_mapped())
 	check('focus stays in trigger entry', window.get_focus() === field.get_delegate())
 	props = { ...props, disabled: true }
@@ -237,6 +239,7 @@ async function run() {
 	await pause()
 	field.focus()
 	await pause()
+	native = popup(anchor)
 	check('reenabled tooltip responds to fresh focus', native.get_visible())
 	peer.focus()
 	await pause()
@@ -288,12 +291,14 @@ async function run() {
 	await pause()
 	if (GLib.getenv('GTK_TOOLTIP_OS') === '1') {
 		await phase('hover')
+		native = popup(anchor)
 		check('actual OS pointer opens tooltip', native.get_mapped())
 		await phase('leave')
 		check('actual OS pointer leave closes tooltip', !native.get_visible())
 		peer.focus()
 		await pause()
 		await phase('focus')
+		native = popup(anchor)
 		check(
 			'actual Tab focuses trigger and opens tooltip',
 			window.get_focus() === field.get_delegate() && native.get_mapped(),
@@ -309,6 +314,7 @@ async function run() {
 	await pause()
 	field.focus()
 	await pause()
+	native = popup(anchor)
 	check('tooltip can reopen after dismissal', native.get_visible())
 	scroll.vadjustment.set_value(120)
 	await pause()

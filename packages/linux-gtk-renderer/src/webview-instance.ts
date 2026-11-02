@@ -38,8 +38,12 @@ interface WebViewState {
 	 *  FIRST load's failure still reports. */
 	expectCancel: boolean
 	signalIds: number[]
+	messageTimer: number | null
+	messageEpoch: number
+	draining: boolean
 	emit(name: string, payload: any): void
 	measure(): void
+	drainMessages(): void
 }
 
 const states = new WeakMap<object, WebViewState>()
@@ -58,6 +62,7 @@ function webKit(): any {
 		if (gi?.versions) {
 			gi.versions.WebKit = '6.0'
 		}
+
 		webkit = gi?.WebKit ?? null
 	} catch {
 		webkit = null
@@ -87,6 +92,15 @@ const measureScript = `(() => {
 	if (!body || !root) return null;
 	return JSON.stringify({width: Math.max(body.scrollWidth, root.scrollWidth), height: Math.max(body.scrollHeight, root.scrollHeight)});
 })()`
+
+// Same bounded page outbox as UI's webview-post helper and the native drivers.
+// Keep the transport inside the renderer so raw <webview> shares the contract.
+const drainScript = `(() => {
+	const outbox = globalThis.__xplatWebViewOutbox;
+	return outbox && outbox.length ? JSON.stringify(outbox.splice(0, outbox.length)) : null;
+})()`
+
+const MESSAGE_POLL_MS = 200
 
 export function makeWebView(): any {
 	const WebKit = webKit()
@@ -119,6 +133,9 @@ export function updateWebView(
 			failed: false,
 			expectCancel: false,
 			signalIds: [],
+			messageTimer: null,
+			messageEpoch: 0,
+			draining: false,
 			emit(name: string, payload: any) {
 				const handler = created.props[name]
 				if (typeof handler !== 'function') {
@@ -134,6 +151,52 @@ export function updateWebView(
 					}
 				} catch (error) {
 					console.error('[linux-gtk] WebView handler failed', error)
+				}
+			},
+			drainMessages() {
+				if (!created.loaded || created.draining || typeof created.props.onMessage !== 'function') {
+					return
+				}
+				created.draining = true
+				const generation = created.generation
+				const epoch = created.messageEpoch
+				const url = created.inline ? undefined : view.get_uri()
+				try {
+					view.evaluate_javascript(drainScript, -1, null, null, null, (wv: any, result: any) => {
+						try {
+							const value = wv.evaluate_javascript_finish(result)
+							if (
+								states.get(view) !== created ||
+								generation !== created.generation ||
+								epoch !== created.messageEpoch
+							) {
+								return
+							}
+
+							const batch = JSON.parse(String(value?.to_string?.() ?? 'null'))
+							if (!Array.isArray(batch)) {
+								return
+							}
+
+							for (const data of batch) {
+								if (
+									states.get(view) !== created ||
+									generation !== created.generation ||
+									epoch !== created.messageEpoch
+								) {
+									break
+								}
+
+								created.emit('onMessage', { data, url })
+							}
+						} catch {
+							// The document may have navigated or terminated during evaluation.
+						} finally {
+							created.draining = false
+						}
+					})
+				} catch {
+					created.draining = false
 				}
 			},
 			measure() {
@@ -153,38 +216,34 @@ export function updateWebView(
 					return
 				}
 
-				view.evaluate_javascript(
-					measureScript,
-					-1,
-					null,
-					null,
-					null,
-					(wv: any, res: any) => {
-						try {
-							if (states.get(view) !== created || generation !== created.generation) {
-								return GLib.SOURCE_REMOVE
-							}
-							const value = wv.evaluate_javascript_finish(res)
-							const size = JSON.parse(String(value?.to_string?.() ?? ''))
-							if (
-								!size ||
-								!Number.isFinite(size.width) ||
-								!Number.isFinite(size.height) ||
-								size.width <= 0 ||
-								size.height <= 0
-							) {
-								return GLib.SOURCE_REMOVE
-							}
-							if (created.props.matchContents) {
-								resize(size.height)
-							}
-							created.emit('onLayoutContent', { width: size.width, height: size.height })
-						} catch {
-							// Navigation raced the eval — the next measure reports.
+				view.evaluate_javascript(measureScript, -1, null, null, null, (wv: any, res: any) => {
+					try {
+						if (states.get(view) !== created || generation !== created.generation) {
+							return GLib.SOURCE_REMOVE
 						}
-						return GLib.SOURCE_REMOVE
-					},
-				)
+
+						const value = wv.evaluate_javascript_finish(res)
+						const size = JSON.parse(String(value?.to_string?.() ?? ''))
+						if (
+							!size ||
+							!Number.isFinite(size.width) ||
+							!Number.isFinite(size.height) ||
+							size.width <= 0 ||
+							size.height <= 0
+						) {
+							return GLib.SOURCE_REMOVE
+						}
+
+						if (created.props.matchContents) {
+							resize(size.height)
+						}
+
+						created.emit('onLayoutContent', { width: size.width, height: size.height })
+					} catch {
+						// Navigation raced the eval — the next measure reports.
+					}
+					return GLib.SOURCE_REMOVE
+				})
 			},
 		}
 
@@ -195,6 +254,7 @@ export function updateWebView(
 		created.signalIds.push(
 			view.connect('load-changed', (wv: any, event: number) => {
 				if (event === WebKit.LoadEvent.STARTED) {
+					created.generation++
 					created.loaded = false
 					created.failed = false
 					created.emit('onLoadStarted', { url: created.inline ? undefined : wv.get_uri() })
@@ -207,8 +267,10 @@ export function updateWebView(
 						created.failed = false
 						return
 					}
+
 					created.loaded = true
 					created.measure()
+					created.drainMessages()
 					const url = created.inline ? undefined : wv.get_uri()
 					created.emit('onLoadFinished', { url })
 					created.emit('onLoad', { url })
@@ -222,8 +284,7 @@ export function updateWebView(
 				// document failure (matches NS, which reports nothing).
 				const cancelled =
 					created.expectCancel ||
-					error?.matches?.(WebKit.network_error_quark?.(), WebKit.NetworkError?.CANCELLED) ===
-						true
+					error?.matches?.(WebKit.network_error_quark?.(), WebKit.NetworkError?.CANCELLED) === true
 				if (cancelled) {
 					created.expectCancel = false
 					// The error page's own load cycle still reaches FINISHED —
@@ -262,10 +323,23 @@ export function updateWebView(
 				})
 			}),
 		)
+
 		state = created
 	}
 
 	state.props = node.props
+	if (typeof state.props.onMessage === 'function' && state.messageTimer === null) {
+		const current = state
+		state.messageTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, MESSAGE_POLL_MS, () => {
+			current.drainMessages()
+			return GLib.SOURCE_CONTINUE
+		})
+	} else if (typeof state.props.onMessage !== 'function' && state.messageTimer !== null) {
+		GLib.source_remove(state.messageTimer)
+		state.messageTimer = null
+		// An eval started for an old subscription must not reach a later one.
+		state.messageEpoch++
+	}
 	const inline = state.props.html !== undefined
 	const source = inline ? state.props.html : state.props.src
 	if (state.inline !== inline || state.source !== source) {
@@ -278,6 +352,7 @@ export function updateWebView(
 			state.loading = false
 			view.stop_loading()
 		}
+
 		state.loading = true
 		if (inline || !source) {
 			// `html` and an empty source both take the inline-document path —
@@ -308,6 +383,10 @@ export function updateWebView(
 export function disposeWebView(view: any) {
 	const state = states.get(view)
 	if (state) {
+		if (state.messageTimer !== null) {
+			GLib.source_remove(state.messageTimer)
+		}
+
 		for (const id of state.signalIds) {
 			try {
 				view.disconnect(id)

@@ -74,10 +74,11 @@ cross-platform native API only when that import loads safely on both iOS and
 Android. The package's `/nativescript` subpath is NativeScript integration plumbing,
 not a filename suffix; `/web` has a `web` export condition; Linux host presets choose their
 conditions separately. Check the export map rather than guessing subpaths.
-`@octane-xplat/ui` itself resolves a curated `gtk` condition. The current
-primitive/layout subset and runnable example are listed in
-[GTK setup](../../../../docs/platform/linux-gtk.md); check `index.gtk.ts`
-before choosing another root export. Full UI parity is still in progress.
+`@octane-xplat/ui` resolves the `gtk` runtime condition and the common public
+declaration entrypoint. Its runtime barrel, `index.gtk.ts`, exports values only;
+keep type exports in the shared barrel. The [GTK setup](../../../../docs/platform/linux-gtk.md)
+records qualified behaviors and remaining limits. Matching exports does not
+establish full UI behavior or visual parity.
 GTK source components mount through the renderer's `GtkRoot` binding from
 `createGtkRoot` or `runGtkApp`; it checks component props while the preset
 supplies runtime metadata. Do not cast app components to Octane's

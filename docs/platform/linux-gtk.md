@@ -1229,6 +1229,33 @@ export function SaveHelp(props: { saving: boolean }) {
 }
 ```
 
+### Bind a tooltip to an existing control
+
+Use `useTooltip` when you already own the trigger. Attach `ref` to that control
+and render the returned tooltip beside it in your component. Hover and keyboard
+focus show the hint; leaving, Escape, or disabling it hides the hint. Separate
+`positionRef` and `interactionRef` bindings let a hint follow a small marker
+while the larger control receives input.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Pressable, Text, useTooltip } from '@octane-xplat/ui'
+
+export function DeliveryHelp() {
+	const hint = useTooltip({ delay: 200, focusTrigger: 'auto' })
+	return (
+		<>
+			<Pressable ref={hint.ref} accessibilityRole="button">
+				<Text>Delivery details</Text>
+			</Pressable>
+			{hint.renderTooltip('Orders ship on the next business day.', {
+				placement: 'below', alignment: 'start', offset: 8,
+			})}
+		</>
+	)
+}
+```
+
 ## Popovers
 
 On GTK 4.14 or newer, Popover shows interactive content in a native popup
@@ -1711,9 +1738,21 @@ export function HelpPane() {
 			src="https://example.com/docs"
 			onLoad={(e) => console.log('loaded', e.url)}
 			onError={(e) => console.log('failed', e.error)}
+			onMessage={(e) => console.log('message', e.data)}
 		/>
 	)
 }
+```
+
+Add `postToHost` to the embedded page's own JavaScript bundle to send JSON
+values to `onMessage`. The page queues at most the newest 100 values. GTK drains
+that outbox after load and about every 200 ms. Messages stay ordered, use at-least-once delivery, and have no
+reply channel. Keep this for trusted embedded content and validate received data.
+
+```ts
+// In the embedded page's bundle:
+import { postToHost } from '@octane-xplat/ui'
+postToHost({ type: 'ready', section: 'help' })
 ```
 
 Limits: the WebKit web process is sandboxed and needs a session D-Bus —
@@ -1722,4 +1761,8 @@ and the host needs the WebKitGTK 6.0 typelib (`gir1.2-webkit-6.0` on
 Debian/Ubuntu). A cancelled load — a superseded navigation or
 `stopLoading` — reports neither `onLoad` nor `onError`. `html` documents
 create no session-history entries, so `goBack` cannot return to one.
-There is no shared JS bridge, matching the contract on other platforms.
+`onMessage` reports the URL for `src` documents and no URL for `html`; native
+transports do not report a sender origin. Callback replacement keeps the current
+view. Removing the callback stops polling; navigation and disposal discard old
+evaluation results. This is a page-to-host message channel, with no shared
+arbitrary script execution or request/reply API.

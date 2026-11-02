@@ -10,7 +10,7 @@ import { gtkRuntimeReady, gtkOsInputReady } from './gjs-availability.mjs'
 
 /** Build one maintained UI fixture and drive its optional F12 input protocol.
  * Results name the real runtime and distinguish OS input from property checks. */
-export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input = true }) {
+export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input = true, define }) {
 	// Availability first — building the bundle is pointless when nothing can
 	// run it, and CI without the GTK toolchain must hit the skip path directly.
 	if (!gtkRuntimeReady()) {
@@ -19,13 +19,15 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 	}
 	const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 	const outDir = join(fixture, 'dist-' + stem)
+	const preset = await xplatLinuxGtk('production', {
+		root: fixture,
+		entry: 'src/' + stem + '-main.ts',
+		outDir,
+	})
 	await build({
 		logLevel: 'error',
-		...(await xplatLinuxGtk('production', {
-			root: fixture,
-			entry: 'src/' + stem + '-main.ts',
-			outDir,
-		})),
+		...preset,
+		define: { ...preset.define, ...define },
 	})
 	const bundle = join(outDir, 'app.js')
 	assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
@@ -59,6 +61,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 			})
 				.trim()
 				.split('\n')[0]
+
 			const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 			send('windowfocus', id)
 			if (phase.type != null) {
@@ -74,10 +77,13 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 				// Real scroll-wheel input: button 4 = up, 5 = down.
 				send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
 				const button = phase.scroll < 0 ? '4' : '5'
-				for (let i = 0; i < Math.abs(phase.scroll); i++) { send('click', button) }
+				for (let i = 0; i < Math.abs(phase.scroll); i++) {
+					send('click', button)
+				}
 			} else if (phase.drag) {
 				const x = Math.round(phase.x),
 					y = Math.round(phase.y)
+
 				// One xdotool invocation runs the whole sequence — per-process
 				// spawn overhead would drop the release velocity below
 				// GtkGestureSwipe's threshold.
@@ -93,6 +99,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 						'0.01',
 					)
 				}
+
 				args.push('mouseup', '1')
 				send(...args)
 			} else {
@@ -105,6 +112,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 					send('click', '1')
 				}
 			}
+
 			send('key', 'F12')
 		} catch (error) {
 			inputError = error
@@ -134,9 +142,9 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 	)
 	const minimum =
 		typeof minChecks === 'number' ? minChecks : osInput ? minChecks.os : minChecks.properties
-	assert.ok(result.checks >= minimum, JSON.stringify(result))
+	assert.ok(result.checks >= minimum, stdout + '\n' + stderr + '\n' + JSON.stringify(result))
 	assert.equal(result.osInput, osInput)
-	assert.deepEqual(result.failures, [])
+	assert.deepEqual(result.failures, [], stdout + '\n' + stderr)
 	t.diagnostic(
 		process.platform +
 			'; GTK ' +

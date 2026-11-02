@@ -34,7 +34,7 @@
 			]
 		},
 		"test:runtime": {
-			"dependsOn": ["^typegen", "^build"],
+			"dependsOn": ["build", "^typegen", "^build"],
 			"cache": false
 		}
 	}

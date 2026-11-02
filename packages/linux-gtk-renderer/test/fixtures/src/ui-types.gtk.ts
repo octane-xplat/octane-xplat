@@ -1,3 +1,4 @@
+import type * as GtkRuntime from '../../../../ui/types/generated/index.gtk'
 import type * as GtkUI from '@octane-xplat/ui'
 import type * as NativeUI from '../../../../ui/types/generated/index.mobile'
 import type {
@@ -26,11 +27,11 @@ import type {
 type Assert<T extends true> = T
 type Equal<A, B> =
 	(<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
-type CommonKeys = keyof typeof GtkUI & keyof typeof NativeUI
-type Names = Assert<Exclude<keyof typeof GtkUI, keyof typeof NativeUI> extends never ? true : false>
+type CommonKeys = keyof typeof GtkRuntime & keyof typeof NativeUI
+type Names = Assert<Equal<keyof typeof GtkRuntime, keyof typeof NativeUI>>
 type PublicValues = Assert<
 	Exclude<
-		{ [K in CommonKeys]: Equal<(typeof GtkUI)[K], (typeof NativeUI)[K]> }[CommonKeys],
+		{ [K in CommonKeys]: Equal<(typeof GtkRuntime)[K], (typeof NativeUI)[K]> }[CommonKeys],
 		true
 	> extends never
 		? true

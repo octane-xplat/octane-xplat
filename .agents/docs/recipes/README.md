@@ -97,6 +97,7 @@ Workflows:
 - [Build a structured search field](power-search.md)
 - [Compose action controls and interactive cards](interactive-actions.md)
 - [Size a WebView to its document](webview-content-sizing.md)
+- [Receive messages from a GTK WebView](gtk-webview-messaging.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
 - [Package a Linux WebKitGTK app](linux-package.md)
 - [Package a Linux GTK4/GJS app](linux-gtk-package.md)
