@@ -123,6 +123,12 @@ The generic declaration gate pairs runtime and type exports. Keep separate
 packed-consumer checks for pure type facades or Node tooling with mixed export
 formats; see the [checker boundary](../../../../docs/packages/package-tsrx-typegen.md#publish-checks).
 
+In this repository, UI's common declaration entrypoints own their public type
+exports. Keep platform runtime barrels focused on values instead of repeating
+those type lists. Check the package export map first: GTK's root uses a separate
+curated declaration entrypoint while its runtime remains a subset. See the
+[repository toolchain contract](../../../docs/toolchain.md).
+
 ## Build a reusable library
 
 Use the [component-library guide](../../../../docs/app/component-libraries.md)

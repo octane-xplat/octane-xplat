@@ -138,6 +138,13 @@ Drive-by improvements to `packages/lint/` are allowed when they improve the
 experience of agents writing Octane-xplat code effectively.
 
 - **Typegen emits declarations per file and does not type-check.** `tsrx-typegen` transpiles each source's declarations with `isolatedDeclarations` and no TypeScript program, so every exported function, method and variable needs an explicit type. In this repository, native tsrx components use `): unknown @{` and DOM components use `): JSX.Element @{` with `import type { JSX } from 'octane/jsx-runtime'`. Type errors surface only in `typecheck` tasks. `ui` and `lottie` keep `isolatedDeclarations` off their tsconfigs because their vendored submodule sources cannot carry annotations. Those files' declarations come from `types/overrides/` through `tsrx-typegen.json` overrides; update them by hand when the vendored submodule changes. Leaf packages generate their declarations with `tsrx-typegen` into `types/generated/` and must not commit hand-written declaration facades under `types/`; signatures the emitter cannot express go in `types/overrides/`.
+- **UI type exports follow the package's declaration entrypoint.** The shared
+  root and subpath barrels own the public type lists for the common declaration
+  entrypoints. Platform runtime barrels need no duplicate type re-exports;
+  `scripts/sync-ui-barrels.ts` omits them from generated web twins. GTK's root
+  currently has a separate curated declaration entrypoint because its runtime
+  exports remain a subset; preserve that boundary until the runtime matches
+  the common contract.
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
   `turbo.json` at the root). `bun run typegen`, `bun run typecheck`, the
   `typecheck:{web,mobile,macos,linux,windows,docs}` filters,

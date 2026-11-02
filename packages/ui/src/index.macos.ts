@@ -16,17 +16,6 @@ export { VisuallyHidden } from './components/content/VisuallyHidden.macos.tsrx'
 /** Native per-window focus ownership. Check getFocusScopeCapabilities() for
  * bridge availability; actual OS input/accessibility remains unqualified. */
 export { FocusScope, getFocusScopeCapabilities } from './components/overlays/FocusScope.macos.tsrx'
-export type {
-	ColorAreaProps,
-	ColorBaseProps,
-	ColorFieldProps,
-	ColorPickerProps,
-	ColorSliderProps,
-	ColorSwatchProps,
-	ColorValueProps,
-} from './props'
-
-export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './internal/layout/translate.macos'
 export { Text, RichText, RichTextSpan } from './components/content/Text.macos.tsrx'
 export { Pressable } from './components/actions/Pressable.macos.tsrx'
@@ -71,7 +60,6 @@ export { ListItem } from './components/collections/ListItem.macos.tsrx'
 /** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
 export { GridList } from './components/collections/GridList.macos.tsrx'
 export { useGridList } from './components/collections/use-grid-list'
-export type { UseGridListOptions, UseGridListResult } from './components/collections/use-grid-list'
 export { FormLayout } from './components/forms/FormLayout.macos.tsrx'
 export { InputGroup, InputGroupText } from './components/forms/InputGroup.macos.tsrx'
 export { CheckboxIndicator } from './components/forms/CheckboxIndicator.macos.tsrx'
@@ -86,68 +74,6 @@ export {
 } from './components/feedback/indicators'
 
 export { useIndicator } from './components/feedback/use-indicator'
-
-export type {
-	ElementSize,
-	FieldControlProps,
-	FieldControlSize,
-	FieldStatus as FieldStatusInfo,
-	FieldStatusType,
-	AbsoluteProps,
-	AspectRatioFit,
-	AspectRatioProps,
-	AspectRatioShape,
-	CenterAxis,
-	CenterProps,
-	FormLayoutDirection,
-	FormLayoutProps,
-	FormOptionality,
-	HStackProps,
-	InputGroupProps,
-	InputGroupSize,
-	InputGroupTextProps,
-	IndicatorComponent,
-	IndicatorFamily,
-	IndicatorFamilyMap,
-	IndicatorMap,
-	IndicatorName,
-	IndicatorNameOfFamily,
-	IndicatorPosition,
-	IndicatorProps,
-	IndicatorRegistry,
-	IndicatorSize,
-	IndicatorState,
-	ListDensity,
-	ListItemProps,
-	ListMarkerStyle,
-	ListProps,
-	GridListProps,
-	ListStyle,
-	LayoutContentProps,
-	LayoutHeaderProps,
-	LayoutHeight,
-	LayoutProps,
-	LayoutRole,
-	SectionDividerSide,
-	SectionProps,
-	SectionVariant,
-	StackAlignment,
-	StackCrossAlignment,
-	StackDirection,
-	StackItemCrossAlignSelf,
-	StackItemProps,
-	StackItemSize,
-	StackMainAlignment,
-	StackPaddingProps,
-	StackProps,
-	StackSizeProps,
-	StackWrap,
-	SpacingStep,
-	VStackProps,
-	VisuallyHiddenProps,
-	FocusScopeProps,
-	FocusScopeCapabilities,
-} from './props'
 
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './components/forms/InputNumber.macos.tsrx'
@@ -169,15 +95,6 @@ export { DateTimeInput } from './components/forms/DateTimeInput.macos.tsrx'
 export { DateRangeInput } from './components/forms/DateRangeInput.macos.tsrx'
 export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks'
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
-export type { CalendarDay, CalendarMonthGrid } from './components/forms/calendar-core'
-export type {
-	UseCalendarDaysOptions,
-	UseCalendarDaysReturn,
-	UseCalendarConstraintsOptions,
-	UseCalendarConstraintsReturn,
-	UseCalendarNavigationOptions,
-	UseCalendarNavigationReturn,
-} from './components/forms/calendar-hooks'
 
 export { InputRating } from './components/forms/InputRating.macos.tsrx'
 /** Multi-choice checkbox list, exported under Astryx's component name. */
@@ -267,21 +184,6 @@ export { useTableTreeState } from './table/use-table-tree-state'
 export { useTableTreeData } from './table/use-table-tree-data'
 export { toSearchFilters } from './table/to-search-filters'
 export { TableContext } from './table/table-context'
-export type {
-	UseTableStickyColumnsConfig,
-	UseTableGroupedRowsConfig,
-	UseTableGroupedRowsResult,
-	UseTableRowExpansionConfig,
-	UseTableTreeDataConfig,
-	TableTreeRowMeta,
-	TableRowStatus,
-	TableRowStatusColor,
-	TableSemanticRowStatus,
-} from './table/types'
-
-export type { UseTableRowIndexConfig } from './table/use-table-row-index'
-export type { UseTableRowStatusConfig } from './table/use-table-row-status'
-export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state'
 export { Timeline } from './components/forms/Timeline.macos.tsrx'
 /** Expandable hierarchy, exported under Astryx's component name. */
 export { Tree as TreeList } from './components/collections/Tree.macos.tsrx'
@@ -353,62 +255,40 @@ export {
 	getThemePreference,
 	onThemeSchemeChange,
 } from './theme/theme-scheme'
-
-export type { ThemePreference, ThemeScheme } from './theme/theme-scheme'
 export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
-export type { ThemeClassHost } from './theme/theme-host'
 
 export { useColorScheme, getColorScheme } from './theme/colorScheme.macos'
-export type { ColorScheme } from './props'
 export { styled } from './internal/layout/styled.macos.tsrx'
-export type { StyledClass, StyledDef, StyledVariant, StyledVariantSelection } from './props'
 export { openWindow } from './internal/platform/windows.macos'
 export { Screen } from './components/layout/Screen.macos.tsrx'
 export { Tabs } from './components/collections/Tabs.macos.tsrx'
-export type { TabSpec } from './props'
 export { SafeArea } from './components/layout/layout-shells.macos.tsrx'
 export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding.macos.tsrx'
-export type { KeyboardAvoidingProps } from './props'
 export { useSafeAreaInsets } from './components/layout/safeAreaInsets.macos.tsrx'
-export type { SafeAreaInsets } from './components/layout/safeAreaInsets.macos.tsrx'
 export { useMeasure } from './components/layout/useMeasure.macos.tsrx'
 export { Meter } from './components/feedback/Meter.macos.tsrx'
 export { Heading } from './components/content/Heading.macos.tsrx'
 export { Icon } from './components/media/Icon.macos.tsrx'
 export { IconRegistryProvider } from './components/media/IconRegistryProvider.macos.tsrx'
 export { createIconRegistry, registerIcon, registerIcons } from './components/media/icons'
-export type { IconGlyph, IconRegistry } from './components/media/icons'
-export type {
-	BuiltinIconName,
-	IconName,
-	IconNameRegistry,
-	IconRegistryProviderProps,
-} from './props'
 
 export const isNative = true as const
 
 // Focus hooks — shared/native leaves; focus modality and landmark cycling
 // are web-only, so these keep API shape with constant results.
 export { useFocus, useFocusRing } from './internal/accessibility/use-focus'
-export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './internal/accessibility/use-focus'
 export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible'
-export type { FocusInputModality, UseFocusVisibleResult } from './internal/accessibility/use-focus-visible'
 export { useFocusWithin } from './internal/accessibility/use-focus-within.macos'
-export type { UseFocusWithinOptions, UseFocusWithinResult } from './internal/accessibility/use-focus-within.macos'
 export { useLandmark } from './internal/accessibility/use-landmark.macos.tsrx'
-export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
 export { mergeProps } from './internal/layout/merge-props'
 export { useKeyboardInset } from './internal/keyboard/use-keyboard-inset.macos.tsrx'
 export { useKeyboard } from './internal/keyboard/use-keyboard'
-export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './internal/keyboard/use-keyboard'
 export { useObjectRef } from './internal/accessibility/use-object-ref'
 export { useClipboard } from './internal/platform/use-clipboard'
-export type { UseClipboardOptions, UseClipboardResult } from './internal/platform/use-clipboard'
 export { copyText } from './internal/platform/clipboard-write'
 export { refList, mergedRef } from './internal/accessibility/ref-list'
-export type { FlatRef } from './internal/accessibility/ref-list'
 
 export { openBottomSheet, closeBottomSheet } from './components/overlays/bottom-sheet-service.macos'
 
@@ -424,11 +304,6 @@ export { Timestamp } from './components/forms/Timestamp.macos.tsrx'
 export { Timer } from './components/forms/Timer.macos.tsrx'
 export { Citation } from './components/content/Citation.macos.tsrx'
 export { Outline } from './components/collections/Outline.macos.tsrx'
-
-// Type parity with the shared barrel — every type `@octane-xplat/ui` exposes
-// on the shared targets resolves here too, and no platform-internal props.ts
-// names leak into the conditioned root surface.
-export type * from './index.shared'
 
 export {
 	DropdownMenuItem,
@@ -467,79 +342,13 @@ export {
 } from './components/overlays/MenuParts.macos.tsrx'
 
 export { DropdownMenuContext, useDropdownMenuContext } from './components/overlays/menu-context'
-export type {
-	MenuOption,
-	MenuItemData,
-	MenuActionData,
-	MenuLinkData,
-	MenuSectionData,
-	MenuSeparatorData,
-	MenuSubMenuData,
-	MenuDividerData,
-	MenuCheckboxData,
-	MenuRadioOptionData,
-	MenuRadioGroupData,
-	MenuItemProps,
-	MenuLinkProps,
-	MenuSectionProps,
-	MenuCheckboxItemProps,
-	MenuRadioGroupProps,
-	MenuRadioItemProps,
-	MenuDividerProps,
-	MenuSeparatorProps,
-	MenuSubMenuProps,
-	MenuContextValue,
-} from './props'
-
-export type {
-	MenuItemProps as DropdownMenuItemProps,
-	MenuLinkProps as DropdownMenuLinkProps,
-	MenuSectionProps as DropdownMenuSectionProps,
-	MenuSeparatorProps as DropdownMenuSeparatorProps,
-	MenuDividerProps as DropdownMenuDividerProps,
-	MenuCheckboxItemProps as DropdownMenuCheckboxItemProps,
-	MenuRadioGroupProps as DropdownMenuRadioGroupProps,
-	MenuRadioItemProps as DropdownMenuRadioItemProps,
-	MenuSubMenuProps as DropdownMenuSubMenuProps,
-} from './props'
-
-export type {
-	MenuItemProps as ContextMenuItemProps,
-	MenuLinkProps as ContextMenuLinkProps,
-	MenuSectionProps as ContextMenuSectionProps,
-	MenuSeparatorProps as ContextMenuSeparatorProps,
-	MenuDividerProps as ContextMenuDividerProps,
-	MenuCheckboxItemProps as ContextMenuCheckboxItemProps,
-	MenuRadioGroupProps as ContextMenuRadioGroupProps,
-	MenuRadioItemProps as ContextMenuRadioItemProps,
-	MenuSubMenuProps as ContextMenuSubMenuProps,
-} from './props'
-
-export type {
-	MenuItemProps as BreadcrumbMenuItemProps,
-	MenuLinkProps as BreadcrumbMenuLinkProps,
-	MenuSectionProps as BreadcrumbMenuSectionProps,
-	MenuSeparatorProps as BreadcrumbMenuSeparatorProps,
-	MenuDividerProps as BreadcrumbMenuDividerProps,
-	MenuCheckboxItemProps as BreadcrumbMenuCheckboxItemProps,
-	MenuRadioGroupProps as BreadcrumbMenuRadioGroupProps,
-	MenuRadioItemProps as BreadcrumbMenuRadioItemProps,
-	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
-} from './props'
 
 export { useImperativeBottomSheet } from './components/overlays/use-imperative-bottom-sheet.macos.tsrx'
 
 export { RouteOutlet } from './routing/RouteOutlet.macos.tsrx'
 
-export type { ImperativeBottomSheetReturn, RouteOutletProps, RouteHeadArgs } from './props'
-
-// Registry interfaces must share the props symbol for generated augmentation.
-export type { AppRouteContracts, AppRouteStacks, AppRouteTransitions } from './props'
-
 export { useContainerReveal } from './components/layout/use-container-reveal.macos.tsrx'
-export type { UseContainerRevealOptions, UseContainerRevealReturn } from './props'
 export { useImageMode } from './components/media/use-image-mode.tsrx'
-export type { UseImageModeOptions, ImageSampleRegion } from './props'
 
 export { InternationalizationProvider } from './components/forms/InternationalizationProvider.macos.tsrx'
 export {
@@ -549,10 +358,7 @@ export {
 	getLocaleDirection,
 	frFR,
 } from './internal/platform/internationalization'
-
-export type { InternationalizationProviderProps, InternationalizationMessages } from './props'
 export { useAnnounce } from './components/content/use-announce'
-export type { AnnouncePoliteness } from './components/content/use-announce'
 
 // Complete the shared value surface; `export type *` above supplies types only.
 export { AvatarGroupOverflow } from './components/media/AvatarGroup.macos.tsrx'

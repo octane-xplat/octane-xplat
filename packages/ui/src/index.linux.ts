@@ -6,4 +6,3 @@
 export * from './index.web'
 export { openWindow } from './internal/platform/windows.linux'
 export { useColorScheme, getColorScheme } from './theme/colorScheme.linux'
-export type { ColorScheme } from './theme/colorScheme.linux'

@@ -16,35 +16,6 @@ export {
 	RouteManifestError,
 } from './route-table'
 
-export type {
-	RouteBoundaryProps,
-	RouteContext,
-	RouteDiagnostic,
-	RouteDiagnosticCode,
-	RouteErrorBoundaryProps,
-	RouteHead,
-	RouteHeadExport,
-	RouteHeadArgs,
-	RouteHeadFn,
-	RouteMeta,
-	RouteManifest,
-	RouteManifestJson,
-	RouteJson,
-	RouteDataMode,
-	RouteNameOfPath,
-	RouteParamsFromSpecs,
-	RoutePathParams,
-	RoutePresentationsFromSpecs,
-	RouteSpec,
-	RouteSpecParams,
-	RouteSpecSet,
-	ManifestRouteNames,
-	ManifestRouteParams,
-	ManifestRoutePresentations,
-	SpecRouteInfo,
-	ScreenTable,
-} from '../props'
-
 export {
 	defineRoute,
 	defineRouteGroup,
@@ -55,80 +26,6 @@ export {
 export { defineTransitions } from './route-transitions'
 export { createPaneRouterHost } from './pane-router-client'
 export { RouterPane } from './RouterPane.tsrx'
-export type { PaneRouterHost, RouterPaneProps } from '../props'
-export type {
-	AbsoluteRoutePath,
-	AppRouteContracts,
-	AppRouteStacks,
-	AppRouteTransitions,
-	ContractsOf,
-	MergeRouteContracts,
-	RouteCatalog,
-	ContractRouteManifest,
-	RuntimeRouteCatalog,
-	RouterMatch,
-	RouteMatchFor,
-	NavigationResult,
-	NavigationFailure,
-	RouterNavigationState,
-	NavigationBlockerOptions,
-	NavigationBlockerState,
-	NavigationDestinationSnapshot,
-	NavigationDestination,
-	ValidatedDestination,
-	DestinationValidationResult,
-	RoutePreloadResult,
-	RouteTransitionResult,
-	RouteTransitionContext,
-	TransitionDefinition,
-	TransitionRegistry,
-	TransitionNames,
-	WebTransitionOptions,
-	RouterInstance,
-	RouteRegistration,
-	RouteRegistrationOptions,
-	RouterNavigator,
-	RouterHost,
-	RouterHostContent,
-	RouterHostChange,
-	RouterHostCommand,
-	RouterHostPreparation,
-	RouterHostResult,
-	RouterHostSnapshot,
-	RouterOptions,
-	RouterConfiguration,
-	RouterRootContext,
-	RouterState,
-	FileRouteContract,
-	RouteBakedLoaderData,
-	FileRouteGuardArgs,
-	FileRouteLoaderArgs,
-	RouteRootContext,
-	DefinedRoute,
-	Destination,
-	DestinationFor,
-	RegisteredRouteContracts,
-	RouteContract,
-	RouteContractsFromSpecs,
-	RouteDefinitionArgs,
-	RouteDefinitionInput,
-	RouteDefinitionBuilder,
-	RouteGroup,
-	RouteGuardResult,
-	RouteProps,
-	RouteScreenProps,
-	RouteSearchInputOf,
-	RouteSearchOutput,
-	RouteSearchSchema,
-	DecodedRouteSearchSchema,
-	RawRouteSearch,
-	RouteSearchValidationCheck,
-	RouteSearchValidator,
-	RouteSearchRecord,
-	RouteTransitionName,
-	BuiltinRouteTransitionName,
-	NativeTransitionDefinition,
-} from '../props'
 
 export { createRouter } from './router-instance'
 
@@ -145,8 +42,6 @@ export {
 	getRouteApi,
 } from './router-hooks.tsrx'
 
-export type { RouterProviderProps, RouteApi, RouteSearchUpdater } from '../props'
-
 export { router, configureRouter } from './default-router.macos'
 
 export {
@@ -155,5 +50,3 @@ export {
 	RouteForbidden,
 	RouteResourceNotFound,
 } from './routing-core'
-
-export type { RouteGroupBuilder } from './define-route'
