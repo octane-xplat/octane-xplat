@@ -36,6 +36,7 @@
 	"include": ["src/**/*", "../../packages/**/*"],
 	"files": [
 		"../../packages/macos-appkit/src/host-globals.d.ts",
+		"../../packages/linux-gtk-renderer/src/gi.d.ts",
 		"./references.d.ts",
 		"./types/globals.d.ts"
 	],
