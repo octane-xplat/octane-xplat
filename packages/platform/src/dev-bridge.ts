@@ -25,7 +25,7 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 	const bridge =
 		typeof __XPLAT_DEV_BRIDGE__ !== 'undefined'
 			? __XPLAT_DEV_BRIDGE__
-			: ('__XPLAT_DEV_BRIDGE__' in globalThis ? globalThis.__XPLAT_DEV_BRIDGE__ : undefined)
+			: ('__XPLAT_DEV_BRIDGE__' in globalThis ? (globalThis as Record<string, any>).__XPLAT_DEV_BRIDGE__ : undefined)
 	const token =
 		typeof bridge === 'object' &&
 		bridge !== null &&
