@@ -47,6 +47,7 @@
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:android-engine": "node tests/android-engine.mjs",
+		"test:ios-engine": "node tests/ios-engine.mjs",
 		"test:ios-runtime": "node tests/ios-runtime.mjs",
 		"test:macos-consumer": "node tests/macos-consumer.mjs"
 	},

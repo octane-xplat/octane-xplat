@@ -23,6 +23,13 @@ in the [package guide](../../../docs/packages/package-media-converter.md).
   AVAssetWriter, preserving presentation timestamps and explicitly ending the
   session after the last frame delay. A background queue owns native work;
   callbacks return to the main thread. Keep both Swift copies synchronized.
+  A TypeScript worker-isolate iOS engine was attempted and remains as
+  unshipped research in `packages/media-converter/tests/converter-worker.ios.ts`
+  (driver `tests/ios-runtime.mjs`): bundling and messaging were repaired, but
+  post-fix device equivalence was never established — the iOS 27 simulator's
+  `com.apple.datamigrator` deadlocks during boot data migration on this host,
+  which silently gates every UIKit app activation (stock apps included) until
+  the run is killed mid-migration. Retained, not shipped.
 - Android: Glide gifdecoder 4.16.0 decodes/composites; MediaCodec byte-buffer
   H.264 encoders and MediaMuxer write MP4. Only advertised planar/semiplanar YUV
   encoders qualify. Glide's GifHeaderParser intentionally replaces delays below

@@ -1,7 +1,9 @@
-// Release-build iOS regression for the TypeScript conversion worker: builds a
-// real NativeScript app on an owned simulator, verifies the emitted worker
-// asset, drives tests/runtime.ios.ts, and records host-side memory/CPU so the
-// worker's bounded-memory and teardown claims carry runtime evidence.
+// Release-build iOS regression for the packaged conversion engine: builds a
+// real NativeScript app on an owned simulator, verifies the shipped engine
+// reached the bundle (the native leaf, or the retained TypeScript worker
+// research asset when that backend ships), drives tests/runtime.ios.ts, and
+// records host-side memory/CPU so bounded-memory and teardown claims carry
+// runtime evidence.
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
@@ -114,13 +116,19 @@ try {
 	assert.ok(artifact, 'expected an unsigned simulator release app')
 	const app = dirname(artifact)
 
-	// The built bundle must emit the compiled worker chunk the backend spawns
-	// through new URL('./converter-worker.ios.ts', import.meta.url) — the real
-	// engine source, not a stub or a missing asset.
-	const workerChunk = spawnSync('grep', ['-rl', 'readyForMoreMediaData', app], {
+	// The built bundle must contain the real conversion engine: the compiled
+	// worker chunk (TypeScript backend) or the packaged Swift leaf linked into
+	// the app binary — not a stub or a missing engine.
+	const engineChunk = spawnSync('grep', ['-rl', 'readyForMoreMediaData', app], {
 		encoding: 'utf8',
 	})
-	assert.equal(workerChunk.status, 0, 'release app emits the compiled conversion worker')
+	const nativeLeaf = spawnSync('grep', ['-rl', 'XplatMediaConverter', app], {
+		encoding: 'utf8',
+	})
+	assert.ok(
+		engineChunk.status === 0 || nativeLeaf.status === 0,
+		'release app contains a conversion engine',
+	)
 
 	// simctl terminate can hang indefinitely when the target is not running —
 	// only terminate a live process (a numeric PID column, not '-'), on a

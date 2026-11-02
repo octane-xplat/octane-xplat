@@ -15,6 +15,12 @@ function run(command, args) {
 try {
 	await copyFile(join(root, 'tests/apple-main.swift'), join(directory, 'main.swift'))
 	const engine = join(root, 'platforms/macos/src/XplatMediaConverter.swift')
+	assert.equal(
+		await import('node:fs/promises').then(({ readFile }) => readFile(engine, 'utf8')),
+		await import('node:fs/promises').then(({ readFile }) =>
+			readFile(join(root, 'platforms/ios/src/XplatMediaConverter.swift'), 'utf8'),
+		),
+	)
 	// NativeScript app targets compile package Swift sources at SWIFT_VERSION 4.2,
 	// where try? does not flatten nested optionals — keep the source compiling there.
 	run('xcrun', ['swiftc', '-swift-version', '4.2', '-typecheck', engine])
@@ -31,6 +37,19 @@ try {
 	const result = run(join(directory, 'case'), [join(directory, 'source.gif')])
 	assert.match(result, /APPLE_CONVERTER_OK/)
 	console.log(result.trim())
+	const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path']).trim()
+	run('xcrun', [
+		'swiftc',
+		'-swift-version',
+		'5',
+		'-typecheck',
+		'-sdk',
+		sdk,
+		'-target',
+		'arm64-apple-ios15.0-simulator',
+		engine,
+	])
+	console.log('iOS simulator SDK: native engine typecheck passed (not a device runtime check).')
 } finally {
 	await rm(directory, { recursive: true, force: true })
 }

@@ -11,6 +11,10 @@
 			"cache": false,
 			"passThroughEnv": ["ANDROID_HOME", "JAVA_HOME"]
 		},
+		"test:ios-engine": {
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*"]
+		},
 		"test:ios-runtime": {
 			"dependsOn": ["^typegen"],
 			"cache": false,

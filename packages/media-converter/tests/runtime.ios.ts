@@ -1,9 +1,11 @@
-// Real-runtime regression case for the iOS TypeScript conversion worker.
+// Real-runtime regression case for the packaged iOS conversion engine.
 // Runs inside a release-built NativeScript app on an owned simulator (driven
 // by tests/ios-runtime.mjs): exercises the public convertGif/releaseVideo
 // contract, encoded-container verification, bounded worst-case frame work,
 // cancellation while encoding, temporary-file ownership, and main-isolate
-// responsiveness — the coverage the deleted Swift ios-engine fixture carried.
+// responsiveness — written to qualify the retained TypeScript worker research
+// engine (tests/converter-worker.ios.ts) and equally valid for the shipped
+// Swift leaf.
 import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
 import { convertGif, isAvailable, releaseVideo } from '@octane-xplat/media-converter'
 
