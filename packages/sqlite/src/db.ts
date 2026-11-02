@@ -26,12 +26,9 @@ class NativeSqliteDb implements SqliteDb {
 	select = <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T[]> =>
 		this.db.select(sql, params) as Promise<T[]>
 	selectArray = (sql: string, params?: SqliteParams) => this.db.selectArray(sql, params)
-	// The plugin's getRaw reads resultDictionary before s.next() — get/getArray
-	// crash on iOS. select(selectN)[0] is the same contract, working code.
 	get = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T | null> =>
-		((await this.db.select(sql, params)) as T[])[0] ?? null
-	getArray = async (sql: string, params?: SqliteParams) =>
-		(await this.db.selectArray(sql, params))[0] ?? null
+		(await this.db.get(sql, params)) as T | null
+	getArray = async (sql: string, params?: SqliteParams) => this.db.getArray(sql, params)
 	transaction = <T>(action: (db: SqliteDb) => Promise<T>): Promise<T> =>
 		this.db.transaction(() => action(this))
 	each = (

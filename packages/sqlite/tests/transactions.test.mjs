@@ -77,6 +77,8 @@ function nativeBackend() {
 				.prepare(sql)
 				.all(...params(p))
 				.map(Object.values),
+		get: async (sql, p) => (await api.select(sql, p))[0] ?? null,
+		getArray: async (sql, p) => (await api.selectArray(sql, p))[0] ?? null,
 		transaction: async (action) => {
 			db.exec('BEGIN')
 			try {

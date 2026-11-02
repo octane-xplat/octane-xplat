@@ -143,9 +143,17 @@ interop.Pointer` isn't re-entrant as a destructor arg (share the
   worked.
 - ✅ iOS runtime — full probe readout on sim
   (`rows=alpha,beta count=2 rb=true v=0→7 persistent=true`).
-- Upstream bug found: the plugin's `get`/`getArray` crash on iOS (`getRaw`
-  reads `resultDictionary` before `s.next()`). The leaf routes them over
-  `select`/`selectArray` — same contract, working code.
+- Upstream bug (nativescript-community/sqlite#50): in the plugin's 3.x line,
+  iOS `get`/`getArray` crashed — `getRaw` read `resultDictionary` before
+  `s.next()` stepped the cursor. **The defect is absent from the consumed
+  4.1.1**: the v4 rewrite dropped FMDB entirely and `get`/`getArray` decode
+  the same `exec` result as `select` — verified on an iOS 27.0 simulator
+  (empty → `null`, single → row, multi-row → first row, invalid SQL and
+  closed-db reject with `SqliteError`, `getSync`/`getArraySync` work on the
+  napi backend). An earlier "confirmed on 4.1.1" note upstream was
+  inaccurate. The leaf delegates `get`/`getArray` to the plugin directly;
+  `tests/get-contract.test.mjs` guards the shared-path contract against
+  version bumps.
 - Upstream packaging bug (`@nativescript-community/sqlite-bridge@4.1.1`):
   every `NSSqliteBridge.xcframework` slice carries a bare
   `Headers/module.modulemap` (`module NSSqlite`). Xcode's
