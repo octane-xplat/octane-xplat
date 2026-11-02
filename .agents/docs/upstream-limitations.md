@@ -94,12 +94,16 @@ Verified on a packaged x64 MSIX (org.octanexplat.windows61 1.0.0.197, literal
 main 733f683737) via the service-adapter fixture — runtime evidence, not source
 reading:
 
-- `ApplicationDataContainer.Values.HasKey` is not projected: every
-  `ApplicationSettings.getString`/`getBoolean`/`getNumber` call throws
-  `TypeError: Windows.Storage.ApplicationData.Current.LocalSettings.Values.HasKey
-  is not a function`. `storage.windows.ts` therefore bypasses
-  ApplicationSettings and drives the `IPropertySet` surface itself (indexer,
-  `Insert`, `Remove`, `First()`-iterator fallback).
+- `ApplicationDataContainer.Values` is an opaque handle: the projection
+  exposes none of the `IMap` surface (`HasKey`, `Lookup`, `Insert`, `Remove`,
+  `First`, `Size`); own property names are just `handle`, and indexer writes
+  land on the JS wrapper rather than the OS map. Upstream
+  `ApplicationSettings.getString` throws `TypeError: ... Values.HasKey is not
+  a function` and direct member calls are silent no-ops (probe evidence from
+  the service fixture on 1.0.0.199). `storage.windows.ts` therefore persists
+  preferences to a JSON document in the container's local state through the
+  working async `File` APIs, keeping the synchronous string contract
+  in-memory with best-effort asynchronous durability.
 - `FileSystemAccess` "sync" text/buffer APIs are fake-sync:
   `readTextSync`/`writeTextSync`/`readBufferSync`/`writeBufferSync` call the
   WinRT `PathIO.*Async` op with `.done()` and return before completion, so a

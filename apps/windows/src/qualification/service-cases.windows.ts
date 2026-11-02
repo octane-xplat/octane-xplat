@@ -109,6 +109,11 @@ async function storageSpec(persistValue?: string): Promise<Record<string, unknow
 	const ctrlRead = storage.getString(key)
 	storage.remove(key)
 	const removedRead = storage.getString(key)
+	// Preferences load asynchronously at leaf init; give the snapshot a
+	// bounded moment before reading the cross-launch value.
+	if (persistValue === undefined) {
+		await new Promise((resolve) => setTimeout(resolve, 400))
+	}
 	const persistRead = persistValue === undefined ? storage.getString(PERSIST_KEY) : null
 	if (persistValue !== undefined) {
 		storage.setString(PERSIST_KEY, persistValue)

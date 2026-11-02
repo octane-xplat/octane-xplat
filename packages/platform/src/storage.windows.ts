@@ -1,90 +1,58 @@
-import { Windows } from '@octane-xplat/platform/windows'
+import { File, knownFolders, path as nsPath } from '@nativescript/core'
 
 /**
- * Windows preferences use ApplicationData.LocalSettings directly.
- * ApplicationSettings from the pinned core calls Values.HasKey, which the
- * NSWinRT projection does not expose on this host, so the leaf talks to the
- * IPropertySet surface itself. Writes are handed to the OS; no blocking
- * durability confirmation is exposed.
+ * Windows preferences persist to a JSON document in the app container's
+ * local state. The upstream ApplicationSettings path is unusable on this
+ * host: the NSWinRT projection surfaces ApplicationData.LocalSettings.Values
+ * as an opaque handle — none of IMap's members (HasKey, Lookup, Insert,
+ * Remove, First) are callable, so every read/write through it is a no-op.
+ *
+ * Reads are synchronous from an in-memory snapshot; writes update the
+ * snapshot and persist asynchronously after the initial load, matching the
+ * "no blocking commit confirmation" contract (`flush` is always false).
  *
  * @example
  * import { storage } from '@octane-xplat/platform'
  * storage.setString('draft', 'Passport')
  * const draft = storage.getString('draft')
  */
-const values = (): any => {
-	try {
-		return Windows?.Storage?.ApplicationData?.Current?.LocalSettings?.Values
-	} catch {
-		return undefined
-	}
-}
+const entries = new Map<string, string>()
+let writeTail: Promise<unknown> = Promise.resolve()
 
-const readEntry = (key: string): unknown => {
-	const container = values()
-	if (!container) return undefined
-	// IMap.Lookup is the canonical projection read; the indexer can miss keys.
-	if (typeof container.Lookup === 'function') {
-		try {
-			const value = container.Lookup(key)
-			if (value !== undefined) return value
-		} catch {}
-	}
+const storePath = (): string =>
+	nsPath.join(knownFolders.documents().path, 'octane-preferences.json')
+
+const load: Promise<unknown> = (async () => {
 	try {
-		const direct = container[key]
-		if (direct !== undefined) return direct
-	} catch {}
-	// The projected indexer can miss keys the underlying map still holds.
-	try {
-		const iterator = container.First?.()
-		while (iterator?.HasCurrent) {
-			const current = iterator.Current
-			if (current?.Key === key) return current?.Value
-			if (!iterator.MoveNext?.()) break
+		const path = storePath()
+		if (File.exists(path)) {
+			const text = await File.fromPath(path).readText()
+			for (const pair of JSON.parse(text) as [string, string][]) {
+				entries.set(pair[0], String(pair[1]))
+			}
 		}
 	} catch {}
-	return undefined
-}
+})()
 
-const writeEntry = (key: string, value: string): void => {
-	const container = values()
-	if (!container) return
-	if (typeof container.Insert === 'function') {
-		try {
-			container.Insert(key, value)
-			return
-		} catch {}
-	}
-	try {
-		container[key] = value
-	} catch {}
-}
-
-const removeEntry = (key: string): void => {
-	const container = values()
-	if (!container) return
-	if (typeof container.Remove === 'function') {
-		try {
-			container.Remove(key)
-			return
-		} catch {}
-	}
-	try {
-		delete container[key]
-	} catch {}
+const persist = (): void => {
+	const snapshot = JSON.stringify([...entries])
+	writeTail = load
+		.then(() => File.fromPath(storePath()).writeText(snapshot))
+		.catch(() => {})
 }
 
 export const storage = {
 	getString: (key: string): string | null => {
-		const value = readEntry(key)
-		return value === undefined || value === null ? null : String(value)
+		const value = entries.get(key)
+		return value === undefined ? null : value
 	},
 	setString: (key: string, value: string): void => {
-		writeEntry(key, value)
+		entries.set(key, value)
+		persist()
 	},
 	remove: (key: string): void => {
-		removeEntry(key)
+		if (entries.delete(key)) persist()
 	},
-	/** False: Windows exposes no blocking commit confirmation through this host. */
+	/** False: persistence is asynchronous; no blocking commit is exposed. */
 	flush: (): boolean => false,
 }

@@ -179,48 +179,34 @@ test('Windows device identity stays Windows regardless of the core OS label', ()
 	assert.equal(device.region, 'US')
 })
 
-test('Windows preferences retain string semantics without claiming a blocking durable commit', () => {
-	// Mirrors the projected IPropertySet surface: indexer reads, Insert/Remove,
-	// and an iterator for keys the indexer misses.
-	const data = new Map()
-	const values = new Proxy(
-		{
-			Insert: (key, value) => data.set(key, value),
-			Remove: (key) => data.delete(key),
-			First: () => {
-				const entries = [...data.entries()]
-				let index = 0
-				return {
-					get HasCurrent() {
-						return index < entries.length
-					},
-					get Current() {
-						const [Key, Value] = entries[index]
-						return { Key, Value }
-					},
-					MoveNext: () => ++index < entries.length,
-				}
-			},
+test('Windows preferences retain string semantics without claiming a blocking durable commit', async () => {
+	const files = new Map()
+	const textFile = (path) => ({
+		readText: async () => files.get(path) ?? '',
+		writeText: async (text) => {
+			files.set(path, String(text))
 		},
-		{
-			get: (target, key) => (typeof key === 'string' && data.has(key) ? data.get(key) : target[key]),
-			set: (target, key, value) => {
-				if (typeof key === 'string') data.set(key, value)
-				else target[key] = value
-				return true
+	})
+	const { storage } = load('storage', {
+		'@nativescript/core': {
+			File: {
+				exists: (path) => files.has(path),
+				fromPath: (path) => textFile(path),
 			},
+			knownFolders: { documents: () => ({ path: '/local-state' }) },
+			path: { join: (...parts) => parts.join('/') },
 		},
-	)
-	const { storage } = load(
-		'storage',
-		win({ Storage: { ApplicationData: { Current: { LocalSettings: { Values: values } } } } }),
-	)
+	})
+	await new Promise((resolve) => setImmediate(resolve))
 	assert.equal(storage.getString('missing'), null)
 	storage.setString('draft', '')
+	await new Promise((resolve) => setImmediate(resolve))
 	assert.equal(storage.getString('draft'), '')
 	storage.setString('draft', 'Passport')
 	assert.equal(storage.getString('draft'), 'Passport')
 	assert.equal(storage.flush(), false)
 	storage.remove('draft')
 	assert.equal(storage.getString('draft'), null)
+	await new Promise((resolve) => setImmediate(resolve))
+	assert.ok(files.size > 0, 'writes persist through the local-state document')
 })
