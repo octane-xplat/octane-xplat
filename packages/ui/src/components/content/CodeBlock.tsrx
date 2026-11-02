@@ -12,6 +12,7 @@ import { mutedColor } from '../../theme/scheme-colors'
 import { nativeColor } from '../../theme/native-color'
 import { syntaxColor } from '../../markdown/code-tokenizer'
 import { useCodeCopy, useTokenLines } from './codeblock-shared.tsrx'
+import { splitDiffLines, type DiffLineKind } from './code-diff'
 
 /** Native token color — FormattedString spans take concrete colors, so the
  *  active scheme + per-block `syntaxTheme` resolve to hex strings here. */
@@ -83,8 +84,20 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 	const container = props.container ?? 'card'
 	const fontSize = size === 'sm' ? 12 : 13
 
-	const lines = useMemo(() => props.code.split('\n'), [props.code])
-	const tokenLines = useTokenLines(props.code, language, props.tokenizer)
+	const isDiff = props.isDiff ?? false
+	const lines = useMemo(() => {
+		const l = props.code.split('\n')
+		if (l.length > 1 && l[l.length - 1] === '') {
+			l.pop()
+		}
+		return l
+	}, [props.code])
+	const diff = useMemo(() => (isDiff ? splitDiffLines(lines) : null), [isDiff, lines])
+	const tokenLines = useTokenLines(
+		diff ? diff.content.join('\n') : props.code,
+		language,
+		props.tokenizer,
+	)
 	const { copy, copied } = useCodeCopy(props.code, props.onCopy)
 	const highlighted = useMemo(() => new Set(props.highlightLines ?? []), [props.highlightLines])
 
@@ -108,17 +121,48 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 			{lines.map((line, i) => {
 				const lineNo = i + 1
 				const isHl = highlighted.has(lineNo)
+				const diffKind: DiffLineKind | undefined = diff?.kinds[i]
+				const tint =
+					diffKind === 'added'
+						? scheme === 'dark'
+							? '#0B991F3F'
+							: '#0B991F33'
+						: diffKind === 'removed'
+							? scheme === 'dark'
+								? '#F5394F3F'
+								: '#E3193B33'
+							: diffKind === 'header'
+								? scheme === 'dark'
+									? '#1111127F'
+									: '#0536590C'
+								: undefined
+				const markerColor =
+					diffKind === 'added'
+						? scheme === 'dark'
+							? '#A5F690'
+							: '#09441F'
+						: diffKind === 'removed'
+							? scheme === 'dark'
+								? '#FFB2B8'
+								: '#7B0210'
+							: mutedColor(scheme)
 				return (
 					<masonview
 						key={lineNo}
-						className={cx('vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted')}
+						className={cx(
+							'vx-codeblock-line',
+							isHl && 'vx-codeblock-line--highlighted',
+							diffKind != null && diffKind !== 'context' && `vx-codeblock-line--diff-${diffKind}`,
+						)}
 						style={mergeStyle(
 							{ flexDirection: 'row' },
 							mergeStyle(
 								{ display: 'flex' },
 								isHl
 									? { backgroundColor: nativeColor(scheme === 'dark' ? '#2e2e2e' : '#f0f0f0') }
-									: undefined,
+									: tint != null
+										? { backgroundColor: nativeColor(tint) }
+										: undefined,
 							),
 						)}
 					>
@@ -137,9 +181,22 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 								}}
 							/>
 						) : null}
+						{diff != null ? (
+							<label
+								className="vx-codeblock-diff-marker"
+								text={diff.glyphs[i] || ' '}
+								whiteSpace="nowrap"
+								style={{
+									fontFamily: 'monospace',
+									fontSize,
+									color: nativeColor(markerColor),
+									paddingRight: 8,
+								}}
+							/>
+						) : null}
 						<NativeCodeLine
-							line={line}
-							tokens={tokenLines[i]}
+							line={diff != null ? (diffKind === 'header' ? line : diff.content[i]) : line}
+							tokens={diffKind === 'header' ? [] : tokenLines[i]}
 							scheme={scheme}
 							theme={props.syntaxTheme}
 							fontSize={fontSize}
@@ -195,7 +252,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 							whiteSpace="nowrap"
 							style={{ fontSize: fontSize - 1, color: nativeColor(mutedColor(scheme)) }}
 						>
-							{language}
+							{isDiff ? (language === 'plaintext' ? 'diff' : `${language} diff`) : language}
 						</label>
 					) : null}
 				</masonview>

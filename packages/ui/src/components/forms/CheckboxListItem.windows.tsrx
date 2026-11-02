@@ -68,7 +68,13 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 			className="vx-checkbox-label-col"
 			style={{ display: 'flex', flexDirection: 'column' }}
 		>
-			{props.label != null ? <label className="vx-checkbox-label" text={props.label} /> : null}
+			{props.label != null ? (
+				typeof props.label === 'string' ? (
+					<label className="vx-checkbox-label" text={props.label} />
+				) : (
+					(props.label as any)
+				)
+			) : null}
 			{props.description != null ? (
 				<label className="vx-checkbox-description" text={props.description} />
 			) : null}
@@ -88,7 +94,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 			checked={checked}
 			readOnly={readOnly}
 			isEnabled={!disabled}
-			accessibilityLabel={props.label ?? props.value}
+			accessibilityLabel={props.accessibilityLabel ?? (typeof props.label === 'string' ? props.label : props.value)}
 			accessibilityHint={props.description}
 			requestChange={requestChange}
 		/>

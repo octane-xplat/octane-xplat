@@ -9,9 +9,9 @@ import { Blockquote } from '../components/content/Blockquote.tsrx'
 import { Image } from '../components/media/Image.tsrx'
 import { Code } from '../components/content/Code.tsrx'
 import { CodeBlock } from '../components/content/CodeBlock.tsrx'
-import { CheckboxGroup } from '../components/forms/CheckboxGroup.tsrx'
-import { CheckboxListItem } from '../components/forms/CheckboxListItem.tsrx'
-import { Checkbox } from '../components/forms/Checkbox.tsrx'
+import { ListMarkerScope } from '../components/collections/ListMarkerScope.tsrx'
+import { MdRowList, MdRowItem, MdCheckList, MdCheckItem } from './markdown-list.tsrx'
+import { useTranslator } from '../internal/platform/internationalization'
 import {
 	Table,
 	TableBody,
@@ -108,42 +108,8 @@ function seamStyle(nodes: readonly MdNode[], i: number, compact: boolean) {
 
 /** Bullet markers cycle disc/circle/square; ordered markers cycle
  *  decimal/lower-alpha/lower-roman (spec AST-061 DEC-6). */
-const BULLET_MARKERS = ['\u2022', '\u25e6', '\u25aa'] // • ◦ ▪
-
-function toAlpha(n: number): string {
-	let s = ''
-	while (n > 0) {
-		n--
-		s = String.fromCharCode(97 + (n % 26)) + s
-		n = Math.floor(n / 26)
-	}
-	return s
-}
-function toRoman(n: number): string {
-	const table: readonly [number, string][] = [
-		[1000, 'm'],
-		[900, 'cm'],
-		[500, 'd'],
-		[400, 'cd'],
-		[100, 'c'],
-		[90, 'xc'],
-		[50, 'l'],
-		[40, 'xl'],
-		[10, 'x'],
-		[9, 'ix'],
-		[5, 'v'],
-		[4, 'iv'],
-		[1, 'i'],
-	]
-	let s = ''
-	for (const [v, r] of table) {
-		while (n >= v) {
-			s += r
-			n -= v
-		}
-	}
-	return s || 'i'
-}
+const BULLET_MARKERS = ['disc', 'circle', 'square'] as const
+const NUMBER_MARKERS = ['decimal', 'lower-alpha', 'lower-roman'] as const
 
 /** Read a Markdown fence info string the way the reference renders it:
  *  `diff` layers over plaintext, `diff-<lang>` over `<lang>`. */
@@ -495,7 +461,7 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
 				? ('end' as const)
 				: undefined
 
-	<View style={{ maxWidth: '100%' }}>
+	<View style={{ maxWidth: '100%' }} className="vx-md-table">
 		<Table dividers="grid" textOverflow="wrap" style={{ borderWidth: 1, borderColor: 'var(--color-border)', borderStyle: 'solid' }}>
 			<TableHeader>
 				<TableRow>
@@ -505,6 +471,10 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
 								minWidth: `${colMinWidths[i]}ch`,
 								boxSizing: 'content-box',
 								maxWidth: 'none',
+								overflow: 'visible',
+								overflowWrap: 'break-word',
+								wordBreak: 'normal',
+								textOverflow: 'clip',
 								whiteSpace: 'normal',
 								padding: 8,
 								...(cellAlign(i) != null ? { textAlign: cellAlign(i) } : {}),
@@ -523,6 +493,9 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
 								style={{
 									boxSizing: 'content-box',
 									maxWidth: 'none',
+									overflow: 'visible',
+									overflowWrap: 'break-word',
+									wordBreak: 'normal',
 									padding: 8,
 									...(cellAlign(j) != null ? { textAlign: cellAlign(j) } : {}),
 								}}
@@ -549,6 +522,7 @@ function ListItems(props: {
 	const isTaskList =
 		node.children.length > 0 && node.children.every((item) => item.checked != null)
 
+	const t = useTranslator()
 	const itemContent = (item: MdList['children'][number], j: number) => {
 		const first = item.children[0]
 		const isInline = item.children.length === 1 && first?.type === 'paragraph'
@@ -565,6 +539,14 @@ function ListItems(props: {
 			/>
 		)
 	}
+	const itemText = (item: MdList['children'][number]): string => {
+		const firstParagraph = item.children.find((b) => b.type === 'paragraph') as
+			| { children: readonly MdInline[] }
+			| undefined
+		return firstParagraph != null
+			? mdInlineText(firstParagraph.children)
+			: t('@astryx.markdown.taskList')
+	}
 
 	if (isTaskList) {
 		const checkedValues = node.children
@@ -572,58 +554,39 @@ function ListItems(props: {
 			.filter(({ item }) => item.checked)
 			.map(({ key }) => key)
 		return (
-			<CheckboxGroup
-				accessibilityLabel="Task list"
-				value={checkedValues}
-				isReadOnly
-				density="compact"
-			>
+			<MdCheckList value={checkedValues} label={t('@astryx.markdown.taskList')}>
 				{node.children.map((item, i) => (
-					<CheckboxListItem
+					<MdCheckItem
 						value={`task-${i}`}
-						label={item.children[0]?.type === 'paragraph' ? mdInlineText(item.children[0].children) : 'Task list'}
+						label={itemContent(item, i)}
+						textLabel={itemText(item)}
 					/>
 				))}
-			</CheckboxGroup>
+			</MdCheckList>
 		)
 	}
 
-	const items = []
-	for (const [j, item] of node.children.entries()) {
-		items.push(
-			<View style={{ flexDirection: 'row', gap: 4 }}>
-				{item.checked != null ? (
-					<Checkbox
-						value={item.checked}
-						isReadOnly
-						accessibilityLabel={
-							item.children.find((b) => b.type === 'paragraph')?.type === 'paragraph'
-								? mdInlineText(
-										(item.children.find((b) => b.type === 'paragraph') as { children: readonly MdInline[] }).children,
-									)
-								: 'Task list'
-						}
-					/>
-				) : (
-					<Text>
-						{node.ordered
-							? `${orderedMarker(node, j, props.ctx.listDepth)} `
-							: `${BULLET_MARKERS[props.ctx.listDepth % 3]} `}
-					</Text>
-				)}
-				<View style={{ flex: 1, flexShrink: 1, paddingLeft: props.ctx.listDepth > 0 ? 12 : 0 }}>
-					{itemContent(item, j)}
-				</View>
-			</View>,
-		)
-	}
-	return items
-}
-
-function orderedMarker(node: MdList, j: number, depth: number): string {
-	const n = (node.start ?? 1) + j
-	const kind = depth % 3
-	return kind === 0 ? `${n}.` : kind === 1 ? `${toAlpha(n)}.` : `${toRoman(n)}.`
+	return (
+		<MdRowList ordered={node.ordered} start={node.start}>
+			{node.children.map((item, j) => {
+				// A task item beside plain items keeps its own checked state: it
+				// shows a read-only checkbox where its marker would be, named by
+				// its text (FR23).
+				const task =
+					item.checked == null
+						? undefined
+						: { isChecked: item.checked, label: itemText(item) }
+				return (
+					<ListMarkerScope
+						marker={(node.ordered ? NUMBER_MARKERS : BULLET_MARKERS)[props.ctx.listDepth % 3]}
+						task={task}
+					>
+						<MdRowItem index={j} label={itemContent(item, j)} />
+					</ListMarkerScope>
+				)
+			})}
+		</MdRowList>
+	)
 }
 
 function Blocks(props: {
@@ -688,7 +651,7 @@ function Blocks(props: {
 						<Comp code={node.value} language={legacyLanguage} />
 					) : (
 						<View style={{ ...margin, ...blockAlignStyle(), maxWidth: '100%' } as never}>
-							<CodeBlock code={node.value} language={language} isCollapsible isWrapped />
+							<CodeBlock code={node.value} language={language} isDiff={fence.isDiff} isCollapsible isWrapped />
 						</View>
 					),
 				)
@@ -912,7 +875,17 @@ export function Markdown(props: MarkdownProps): unknown @{
 		testID={props.testID}
 		accessibilityRole={props.accessibilityRole ?? 'document'}
 		className={props.className}
-		style={{ width: '100%', maxWidth: '100%', minWidth: 0, overflowWrap: 'break-word', ...(props.style as object) }}
+		style={{
+			width: '100%',
+			maxWidth: '100%',
+			minWidth: 0,
+			overflowWrap: 'break-word',
+			fontFamily: 'var(--font-family-body, inherit)',
+			color: 'var(--color-text-primary, inherit)',
+			lineHeight: 'var(--text-body-leading, 1.4286)',
+			fontSize: 'var(--text-body-size, 14px)',
+			...(props.style as object),
+		}}
 	>
 		{view.nodes.map((node, i) => (
 			<Blocks

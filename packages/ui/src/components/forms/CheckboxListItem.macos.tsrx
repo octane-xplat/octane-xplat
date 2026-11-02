@@ -46,7 +46,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 		)}
 		style={props.style}
 		accessibilityRole="checkbox"
-		accessibilityLabel={props.label ?? props.value ?? 'Checkbox'}
+		accessibilityLabel={props.accessibilityLabel ?? (typeof props.label === 'string' ? props.label : props.value) ?? 'Checkbox'}
 		accessibilityHint={props.description}
 		accessibilityState={{
 			checked: state === 'indeterminate' ? 'mixed' : state === 'checked',
@@ -57,7 +57,13 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 	>
 		<Ind state={state} size={group?.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 		<masonview className="vx-checkboxlist-label--appkit">
-			{props.label != null ? <label className="vx-checkbox-label" text={props.label} /> : null}
+			{props.label != null ? (
+				typeof props.label === 'string' ? (
+					<label className="vx-checkbox-label" text={props.label} />
+				) : (
+					(props.label as any)
+				)
+			) : null}
 			{props.description != null ? (
 				<label className="vx-checkbox-description" text={props.description} />
 			) : null}

@@ -144,7 +144,7 @@ export function Checkbox(inputProps: CheckboxProps): JSX.Element @{
 					aria-invalid={props.status?.type === 'error' || undefined}
 					aria-busy={loading || undefined}
 					aria-label={ownChrome ? props.accessibilityLabel : props.ariaLabel}
-					aria-labelledby={ownChrome ? undefined : props.ariaLabelledBy}
+					aria-labelledby={props.ariaLabelledBy}
 					aria-describedby={describedBy}
 					aria-description={
 						props.ariaDescription ?? (ownChrome ? props.accessibilityHint : undefined)

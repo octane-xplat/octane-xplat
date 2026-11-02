@@ -1,15 +1,21 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { useContext } from 'octane'
+import { useContext, useId } from 'octane'
 import type { CheckboxListItemProps } from '../../props'
-import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { CheckboxListContext } from './option-list-contexts'
-import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
-import { useIndicator } from '../feedback/use-indicator.tsrx'
+import { FieldProvider } from './field-context'
+import { ListItem } from '../collections/ListItem.web.tsrx'
+import { Checkbox } from './Checkbox.web.tsrx'
+import { useTranslator } from '../../internal/platform/internationalization'
 import type { JSX } from 'octane/jsx-runtime'
 
 /** `CheckboxListItem` — one row inside a `CheckboxList` (Astryx child
  *  part). With `value` it joins the group's checked set; without it,
- *  `isChecked`/`onCheck` drive a standalone item (select-all pattern). */
+ *  `isChecked`/`onCheck` drive a standalone item (select-all pattern).
+ *  A string `label` names the checkbox through its hidden `<label>`; rich
+ *  content names it from the visible label element via `aria-labelledby`,
+ *  the hidden label then carries the generic word "Checkbox". The row is
+ *  a `ListItem` whose surface clicks delegate to the checkbox — the sole
+ *  focusable control. */
 export function CheckboxListItem(props: CheckboxListItemProps): JSX.Element @{
 	const ctx = useContext(CheckboxListContext)
 	const groupMode = props.value != null && ctx != null
@@ -20,8 +26,18 @@ export function CheckboxListItem(props: CheckboxListItemProps): JSX.Element @{
 	const state = checked === 'indeterminate' ? 'indeterminate' : checked ? 'checked' : 'unchecked'
 	const disabled = Boolean(ctx?.isDisabled || props.isDisabled)
 	const blocked = disabled || ctx?.isReadOnly
-	const Ind = useIndicator('checkbox') ?? CheckboxIndicator
+	const t = useTranslator()
+	const labelID = useId()
+	const inputId = useId()
+
+	const isRichLabel = props.label != null && typeof props.label !== 'string'
+	const namesFromVisibleLabel = isRichLabel && props.accessibilityLabel == null
+	const checkboxLabel =
+		props.accessibilityLabel ??
+		(isRichLabel ? t('@astryx.checkboxList.item.checkbox') : (props.label as string))
+
 	const toggle = () => {
+		if (blocked) return
 		if (groupMode) {
 			ctx!.select?.(props.value!, state !== 'checked')
 		} else {
@@ -29,43 +45,48 @@ export function CheckboxListItem(props: CheckboxListItemProps): JSX.Element @{
 		}
 	}
 
-	<div
-		ref={(e: any) => applyWebProps(e, props.web)}
+	<ListItem
 		id={props.id}
-		role="checkbox"
-		aria-checked={state === 'indeterminate' ? 'mixed' : state === 'checked'}
-		aria-disabled={disabled || undefined}
-		aria-readonly={ctx?.isReadOnly || undefined}
-		tabIndex={disabled ? undefined : 0}
-		className={[
-			'vx-checkbox-row',
-			'vx-checkboxlist-item',
-			indicatorScope,
-			state === 'checked' && 'vx-checkbox--on',
-			disabled && 'vx-checkbox--disabled',
-			ctx?.isReadOnly && 'vx-checkbox--readonly',
-			props.className,
-		]}
+		className={['vx-checkboxlist-item', props.className]}
 		style={props.style}
-		onClick={blocked ? undefined : toggle}
-		onKeyDown={(e: any) => {
-			if (blocked) {
-				return
-			}
-
-			if (e.key === ' ' || e.key === 'Enter') {
-				e.preventDefault()
-				toggle()
-			}
-		}}
-	>
-		<Ind state={state as any} size={ctx?.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
-		<span className="vx-checkbox-label-col">
-			{props.label != null ? <span className="vx-checkbox-label">{props.label}</span> : null}
-			{props.description != null ? (
-				<span className="vx-checkbox-description">{props.description}</span>
-			) : null}
-		</span>
-		{props.endContent != null ? <span className="vx-checkbox-end">{props.endContent}</span> : null}
-	</div>
+		web={props.web}
+		label={
+			namesFromVisibleLabel ? (
+				<span id={labelID}>{props.label as any}</span>
+			) : (
+				(props.label as any)
+			)
+		}
+		description={props.description}
+		endContent={props.endContent}
+		isDisabled={disabled}
+		delegateRef={
+			blocked
+				? undefined
+				: {
+						current: {
+							click: () => (document.getElementById(inputId) as any)?.click(),
+							focus: () => (document.getElementById(inputId) as any)?.focus(),
+						},
+					}
+		}
+		startContent={
+			// Detach the group's Field context: the item checkbox owns its own
+			// hidden label (Astryx CheckboxInput renders `label`+`isLabelHidden`
+			// even inside CheckboxList's Field).
+			<FieldProvider value={null}>
+				<Checkbox
+					id={inputId}
+					value={state === 'indeterminate' ? 'indeterminate' : state === 'checked'}
+					label={checkboxLabel}
+					isLabelHidden
+					isDisabled={disabled}
+					isReadOnly={ctx?.isReadOnly}
+					size={ctx?.size === 'sm' ? 'sm' : 'md'}
+					web={namesFromVisibleLabel ? { 'aria-labelledby': labelID } : undefined}
+					onChange={() => toggle()}
+				/>
+			</FieldProvider>
+		}
+	/>
 }

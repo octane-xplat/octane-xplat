@@ -46,7 +46,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 		style={mergeStyle({ display: 'flex' }, props.style)}
 		isEnabled={!disabled}
 		accessibilityRole={nativeAccessibilityRole('checkbox')}
-		accessibilityLabel={props.label ?? props.value}
+		accessibilityLabel={props.accessibilityLabel ?? (typeof props.label === 'string' ? props.label : props.value)}
 		accessibilityHint={props.description}
 		accessibilityValue={state === 'indeterminate' ? 'Partially selected' : undefined}
 		accessibilityState={nativeAccessibilityState({ checked: state === 'indeterminate' ? 'mixed' : state === 'checked', disabled, readOnly: ctx?.isReadOnly })}
@@ -57,7 +57,13 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 			className="vx-checkbox-label-col"
 			style={{ display: 'flex' }}
 		>
-			{props.label != null ? <label className="vx-checkbox-label" text={props.label} textWrap /> : null}
+			{props.label != null ? (
+				typeof props.label === 'string' ? (
+					<label className="vx-checkbox-label" text={props.label} textWrap />
+				) : (
+					(props.label as any)
+				)
+			) : null}
 			{props.description != null ? (
 				<label className="vx-checkbox-description" text={props.description} textWrap />
 			) : null}

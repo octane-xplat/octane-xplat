@@ -5,6 +5,7 @@ import { refList } from '../../internal/accessibility/ref-list'
 import type { ListItemProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
+import { Checkbox } from '../forms/Checkbox.web.tsrx'
 import { useListContext } from './list-context'
 import type { JSX } from 'octane/jsx-runtime'
 
@@ -58,17 +59,28 @@ export function ListItem(props: ListItemProps): JSX.Element @{
 		}
 	}
 
+	// ListMarkerScope may name another marker for this item, or a task
+	// checkbox in the marker's place (Astryx ctx.marker/ctx.task).
+	const markerKind = ctx.listStyle === 'none' ? null : (ctx.marker ?? ctx.listStyle)
+	const task = markerKind == null ? undefined : ctx.task
+
 	const marker =
-		ctx.listStyle === 'disc' ? (
-			<span className="vx-listmarker">
-				<span className="vx-listmarker-dot" />
+		task != null ? (
+			<span className="vx-listmarker vx-listmarker--task">
+				<Checkbox
+					size="sm"
+					value={task.isChecked}
+					label={task.label}
+					isLabelHidden
+					isReadOnly
+				/>
 			</span>
-		) : ctx.listStyle === 'circle' ? (
+		) : markerKind === 'disc' || markerKind === 'circle' || markerKind === 'square' ? (
 			<span className="vx-listmarker">
-				<span className="vx-listmarker-circle" />
+				<span className={`vx-listmarker-${markerKind === 'disc' ? 'dot' : markerKind}`} />
 			</span>
-		) : ctx.listStyle === 'decimal' ? (
-			<span className="vx-listmarker vx-listmarker--num" />
+		) : markerKind != null ? (
+			<span className={`vx-listmarker vx-listmarker--num vx-listmarker--${markerKind}`} />
 		) : null
 
 	const labelNode =

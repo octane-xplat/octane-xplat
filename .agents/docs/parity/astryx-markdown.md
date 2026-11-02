@@ -158,3 +158,45 @@ Markdown surface. Layout: `content-width` matches; other cells differ
 by theme font metrics (16px vs 14px base) and one table cell-width
 nuance (572px scroll vs 480). Evidence: `~/dev/reports/octane-xplat/
 astryx-markdown-m3-evidence.md`.
+
+## Milestone-3 renderer corrections (55a0cfe4)
+
+Second-pass fixes closing the residual renderer gaps from f3acf5d2:
+
+- **Task lists** now render the reference `CheckboxList` anatomy on web:
+  `group "Task list"` (hidden label via `label`+`isLabelHidden`) → `list` →
+  `listitem` → hidden-label `Checkbox` + visible label (rich inline content;
+  checkbox named via `aria-labelledby`). Shared `CheckboxGroup` children are
+  wrapped in `List`; `CheckboxListItem` is a `ListItem`+`Checkbox` composite
+  with `FieldProvider value={null}` so the group Field doesn't suppress the
+  hidden label; `Checkbox` forwards `aria-labelledby` outside a Field;
+  `.vx-field-label--hidden` CSS added. Rich `label: Renderable` +
+  `accessibilityLabel` widen the public item props.
+- **Plain/mixed lists** render through shared `List`/`ListItem` + new
+  `ListMarkerScope` (internal context marker/task override, Astryx parity):
+  marker cycles disc→circle→square and decimal→lower-alpha→lower-roman by
+  depth; mixed task items draw a read-only checkbox marker named by item
+  text. Adds the previously missing `.vx-listitem`/`.vx-listmarker*` CSS
+  (counter `vx-list`, density block padding). New `markdown-list` leaf trio
+  (`MdRowList`/`MdRowItem`/`MdCheckList`/`MdCheckItem`) keeps native rows.
+- **Root font baseline**: Markdown root sets `font-family/size/leading/color`
+  from the same `--font-family-body`/`--text-body-*` tokens the reference
+  uses — removes the 16px-vs-14px metric divergence.
+- **`CodeBlock isDiff`**: `diff`/`diff-…` fences render the unified-diff
+  layer — glyph column (`user-select:none`), added/removed/header row tints
+  (`--color-syntax-added/-removed/-diff-header/-*-marker`), `lang diff`
+  label, copy still returns exact source. `splitDiffLines` ported to
+  `components/content/code-diff.ts` with attribution; native leaf mirrors
+  with scheme-aware concrete colors.
+- **i18n**: `english` catalog gains `@astryx.checkboxList.item.checkbox`
+  ("Checkbox") and `@astryx.markdown.taskList` ("Task list").
+
+Verification (2026-11-02, macOS, bun 1.4.4): `parity:markdown behavior`
+**clean — 1 result, 1 match, 0 findings** (was 2 task-list diffs);
+`ui` vitest **1325/1325** incl. new override-lifecycle/link-cancel cases;
+`parity:markdown layout` 4 residual diffs remain: table scrollWidth
+515 vs 478 (≈36px cell-overflow gap), and ≤25px block-height deltas
+(list/quote/code row metrics inside shared primitives — not normalized
+away, still open). Typecheck: ui tree clean for changed files; the
+pre-existing workshop `chrome.tsrx` and content-mapper failures are
+unchanged on main.

@@ -10118,8 +10118,13 @@ export interface CheckboxListItemProps {
 	id?: string
 	/** Group membership key — join the parent `CheckboxList` value set. */
 	value?: string
-	/** Primary text for the row. */
-	label?: string
+	/** Primary content for the row — a string or rich content (Astryx
+	 *  `label: ReactNode`). Rich content names the checkbox from its visible
+	 *  text; pass `accessibilityLabel` when that content carries no text. */
+	label?: Renderable
+	/** Accessible name override (Astryx `'aria-label'`) — required when a
+	 *  rich `label` has no text content to name the checkbox. */
+	accessibilityLabel?: string
 	/** Secondary text under the label. */
 	description?: string
 	/** Content at the row's trailing edge. */
@@ -15439,6 +15444,14 @@ export interface CodeBlockProps {
 	hasLineNumbers?: boolean
 	/** 1-based line numbers to highlight. */
 	highlightLines?: number[]
+	/** Render the code as a unified diff over `language`: lines starting with
+	 *  `+` are added, `-` removed, `@@` is a hunk header (a `--- `/`+++ ` pair
+	 *  directly before one is a file header), anything else is context; the
+	 *  label reads `diff` or `<language> diff`. The glyph sits in its own
+	 *  column and the rest of every line keeps the language's syntax
+	 *  highlighting. Copy still returns the exact source, glyphs included.
+	 *  @default false */
+	isDiff?: boolean
 	/** Show the copy button. @default true */
 	hasCopyButton?: boolean
 	/** Fires after a successful clipboard write. */

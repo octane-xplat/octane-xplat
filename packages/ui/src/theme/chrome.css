@@ -3629,3 +3629,145 @@
 .vx-table-tree-leaf-spacer { display: inline-block; width: 24px; height: 24px; flex-shrink: 0; }
 .vx-table-tree-header { display: inline-flex; align-items: center; gap: var(--spacing-1, 4px); min-width: 0; }
 .vx-table-row--clickable { cursor: pointer; }
+
+/* Visually-hidden field label — kept for assistive tech (Astryx VisuallyHidden). */
+.vx-field-label--hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+/* List / ListItem row layout and custom markers (Astryx ListItem marker
+   styles — 6px glyphs, counter-driven numbers, task checkbox in the
+   marker's place). */
+.vx-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.vx-listitem {
+	display: flex;
+	align-items: center;
+	counter-increment: vx-list;
+}
+.vx-listitem-start,
+.vx-listitem-end {
+	display: flex;
+	flex-shrink: 0;
+}
+.vx-listitem-body {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	flex-shrink: 1;
+	min-width: 0;
+}
+.vx-listmarker {
+	align-self: baseline;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: var(--spacing-4, 16px);
+	margin-top: calc((1em * var(--text-body-leading, 1.4286) - 6px) / 2);
+}
+.vx-listmarker-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background-color: var(--color-text-primary, CanvasText);
+}
+.vx-listmarker-circle {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	border-width: 1px;
+	border-style: solid;
+	border-color: var(--color-text-primary, CanvasText);
+	background-color: transparent;
+}
+.vx-listmarker-square {
+	width: 6px;
+	height: 6px;
+	background-color: var(--color-text-primary, CanvasText);
+}
+.vx-listmarker--num {
+	align-self: baseline;
+	flex-shrink: 0;
+	justify-content: flex-end;
+	color: var(--color-text-primary, CanvasText);
+	font-size: var(--text-body-size, 14px);
+	line-height: var(--text-body-leading, 1.4286);
+	width: var(--spacing-4, 16px);
+	margin-top: 0;
+}
+.vx-listmarker--decimal::before {
+	content: counter(vx-list) ".";
+}
+.vx-listmarker--lower-alpha::before {
+	content: counter(vx-list, lower-alpha) ".";
+}
+.vx-listmarker--lower-roman::before {
+	content: counter(vx-list, lower-roman) ".";
+}
+.vx-listmarker--task {
+	align-self: flex-start;
+	margin-top: calc((1em * var(--text-body-leading, 1.4286) - 20px) / 2);
+}
+
+/* CodeBlock diff layer (Astryx isDiff): glyph column + whole-row tints. */
+.vx-codeblock-line--diff {
+	display: grid;
+	grid-template-columns: 1ch 1fr;
+	column-gap: var(--spacing-2, 8px);
+}
+.vx-codeblock-diff-marker {
+	color: var(--color-text-secondary, #666);
+	user-select: none;
+	white-space: pre;
+}
+.vx-codeblock-line--diff-added {
+	background-color: var(--color-syntax-added, rgba(9, 153, 31, 0.16));
+}
+.vx-codeblock-line--diff-added .vx-codeblock-diff-marker {
+	color: var(--color-syntax-added-marker, var(--color-text-green, #0b991f));
+}
+.vx-codeblock-line--diff-removed {
+	background-color: var(--color-syntax-removed, rgba(245, 57, 79, 0.16));
+}
+.vx-codeblock-line--diff-removed .vx-codeblock-diff-marker {
+	color: var(--color-syntax-removed-marker, var(--color-text-red, #f5394f));
+}
+.vx-codeblock-line--diff-header {
+	background-color: var(--color-syntax-diff-header, var(--color-background-muted, #f5f5f5));
+	color: var(--color-syntax-punctuation, var(--color-text-secondary, #666));
+}
+.vx-codeblock-line--highlighted {
+	background-color: var(--color-accent-muted, rgba(1, 113, 227, 0.16));
+}
+
+/* ListItem density padding — matches Astryx Item (compact 4px, balanced
+   8px, spacious 12px block; spacious adds 12px inline). */
+.vx-listitem--density-compact { padding-block: var(--spacing-1, 4px); }
+.vx-listitem--density-balanced { padding-block: var(--spacing-2, 8px); }
+.vx-listitem--density-spacious { padding: var(--spacing-3, 12px); }
+
+/* Markdown table cells — the honest min-content/wrap rules the reference
+   layers over Table's wrap defaults (a serializer-independent channel for
+   overflow-wrap/word-break, which inline style props may not carry). */
+.vx-md-table th,
+.vx-md-table td {
+	box-sizing: content-box;
+	max-width: none;
+	overflow: visible;
+	overflow-wrap: break-word;
+	word-break: normal;
+	padding: var(--spacing-2, 8px);
+}

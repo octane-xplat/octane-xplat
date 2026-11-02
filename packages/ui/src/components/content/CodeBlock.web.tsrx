@@ -7,6 +7,7 @@ import { Icon } from '../media/Icon.web.tsrx'
 import { applyHighlightRangesChunked, hasHighlightAPI, isWebKitOnly } from './code-highlight.web'
 
 import { useCodeCopy, useTokenLines } from './codeblock-shared.tsrx'
+import { splitDiffLines } from './code-diff'
 import type { JSX } from 'octane/jsx-runtime'
 
 function cssLength(v: number | string): string | number {
@@ -80,8 +81,19 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 	const width = props.width ?? 'fit-content'
 	const highlightMode = props.highlightMode ?? 'auto'
 
-	const lines = useMemo(() => props.code.split('\n'), [props.code])
-	const tokenLines = useTokenLines(props.code, language, props.tokenizer)
+	const isDiff = props.isDiff ?? false
+	const lines = useMemo(() => {
+		const l = props.code.split('\n')
+		if (l.length > 1 && l[l.length - 1] === '') {
+			l.pop()
+		}
+		return l
+	}, [props.code])
+	// In diff mode the base language sees the code with the glyph column set
+	// aside, so a `tsx` diff still highlights as `tsx` on every line; headers
+	// contribute an empty line and are rendered as their raw text.
+	const diff = useMemo(() => (isDiff ? splitDiffLines(lines) : null), [isDiff, lines])
+	const tokenLines = useTokenLines(diff ? diff.content.join('\n') : props.code, language, props.tokenizer)
 	const { copy, copied } = useCodeCopy(props.code, props.onCopy)
 	const highlighted = useMemo(() => new Set(props.highlightLines ?? []), [props.highlightLines])
 
@@ -93,8 +105,10 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 	const rootRef = useRef<HTMLElement | null>(null)
 
 	// 'ranges' needs the CSS Custom Highlight API; WebKit exposes the objects
-	// but paints ::highlight() unreliably in code blocks — it takes spans.
+	// but paints ::highlight() unreliably in code blocks — it takes spans. The
+	// diff layer always takes spans (its token runs split around the glyph).
 	const useRanges =
+		!isDiff &&
 		(highlightMode === 'ranges' || (highlightMode === 'auto' && !isWebKitOnly())) &&
 		hasHighlightAPI() &&
 		!isWebKitOnly()
@@ -111,6 +125,14 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 
 		return applyHighlightRangesChunked(el, tokenLines)
 	}, [useRanges, collapsed, tokenLines])
+
+	// With the diff layer on, the label and viewport name say so: `diff` over
+	// plaintext, `tsx diff` over a language.
+	const languageLabel = isDiff
+		? language === 'plaintext'
+			? 'diff'
+			: `${language} diff`
+		: language
 
 	const hasHeader = props.title != null || hasLanguageLabel || hasCopyButton || canCollapse
 
@@ -143,7 +165,7 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 			<div className="vx-codeblock-header">
 				<div className="vx-codeblock-header-text">
 					{props.title != null ? <span className="vx-codeblock-title">{props.title}</span> : null}
-					{hasLanguageLabel ? <span className="vx-codeblock-lang">{language}</span> : null}
+					{hasLanguageLabel ? <span className="vx-codeblock-lang">{languageLabel}</span> : null}
 				</div>
 				<div className="vx-codeblock-header-actions">
 					{hasCopyButton ? (
@@ -186,7 +208,28 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 					{lines.map((line, i) => {
 						const lineNo = i + 1
 						const isHl = highlighted.has(lineNo)
-						const lineEl = (
+						const diffKind = diff?.kinds[i]
+						const lineEl = diff != null ? (
+							<div
+								data-line={lineNo}
+								data-diff={diffKind === 'context' ? undefined : diffKind}
+								className={[
+									'vx-codeblock-line',
+									'vx-codeblock-line--diff',
+									diffKind !== 'context' && `vx-codeblock-line--diff-${diffKind}`,
+									isHl && 'vx-codeblock-line--highlighted',
+								]}
+							>
+								<span className="vx-codeblock-diff-marker">{diff.glyphs[i] || ' '}</span>
+								<span className="vx-codeblock-line-content">
+									{diffKind === 'header' ? (
+										line === '' ? '​' : line
+									) : (
+										<CodeLine line={diff.content[i]} tokens={tokenLines[i]} />
+									)}
+								</span>
+							</div>
+						) : (
 							<div
 								data-line={lineNo}
 								className={['vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted']}
