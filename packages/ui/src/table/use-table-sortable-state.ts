@@ -85,8 +85,14 @@ function compareStrings(a: string, b: string): number {
 	}
 	// A later opt-in may install or replace this capability. Do not cache absence.
 	if (constructor !== collatorConstructor) {
-		collator = new constructor(undefined, { numeric: true })
-		collatorConstructor = constructor
+		// Collator exists on runtimes whose ICU backing is absent; its
+		// constructor throws there rather than reporting unsupported.
+		try {
+			collator = new constructor(undefined, { numeric: true })
+			collatorConstructor = constructor
+		} catch {
+			return naturalCompare(a, b)
+		}
 	}
 	return collator!.compare(a, b)
 }
