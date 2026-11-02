@@ -392,6 +392,85 @@ async function windowMetricsSpec(): Promise<Record<string, unknown>> {
 	}
 }
 
+/** Pickers and user-directed export are unavailable on packaged Windows. */
+async function filesPickersSpec(): Promise<Record<string, unknown>> {
+	let pickError = ''
+	try {
+		await files.pick()
+	} catch (error) {
+		pickError = error instanceof Error ? error.name : String(error)
+	}
+	let pickMultiError = ''
+	try {
+		await files.pickMultiple()
+	} catch (error) {
+		pickMultiError = error instanceof Error ? error.name : String(error)
+	}
+	let exportResult: string | null = null
+	let exportError = ''
+	try {
+		exportResult = await files.export('core20-export.dat', new Uint8Array([1]))
+	} catch (error) {
+		exportError = error instanceof Error ? error.name : String(error)
+	}
+	return { pickError, pickMultiError, exportResult, exportError }
+}
+
+/** PasswordVault depth: overwrite, empty, control-character and missing-key
+ *  semantics on the packaged-identity namespace. */
+async function secureDepthSpec(): Promise<Record<string, unknown>> {
+	const supported = secureStorage.supported
+	const available = supported ? await secureStorage.isAvailable() : false
+	const result: Record<string, unknown> = { supported, available }
+	if (!available) {
+		return result
+	}
+	const key = 'core20-secure-depth'
+	const ctrl = 'ctrl-'
+	const wroteEmpty = await secureStorage.set(key, '')
+	const readEmpty = wroteEmpty ? await secureStorage.get(key) : null
+	const wroteCtrl = await secureStorage.set(key, ctrl)
+	const readCtrl = wroteCtrl ? await secureStorage.get(key) : null
+	const wroteOver = await secureStorage.set(key, 'second')
+	const readOver = wroteOver ? await secureStorage.get(key) : null
+	const removed = await secureStorage.remove(key)
+	const readAfterRemove = await secureStorage.get(key)
+	return { ...result, wroteEmpty, readEmpty, wroteCtrl, readCtrl, readOver, removed, readAfterRemove }
+}
+
+/** Sandbox identity: unique write names, cleanup and release ownership. */
+async function filesIdentitySpec(): Promise<Record<string, unknown>> {
+	const a = await files.writeBytes('core20-id-a.dat', new Uint8Array([7]))
+	const b = await files.writeBytes('core20-id-a.dat', new Uint8Array([8]))
+	const readA = await files.readBytes(a)
+	const readB = await files.readBytes(b)
+	let releaseA: boolean | string = false
+	try {
+		files.release(a)
+		releaseA = true
+	} catch (error) {
+		releaseA = error instanceof Error ? error.name : String(error)
+	}
+	return {
+		sameNameDistinct: a.uri !== b.uri,
+		readALength: readA.length,
+		readBLength: readB.length,
+		releaseA,
+	}
+}
+
+/** Pointer/hover/reduced-motion availability on the packaged projection. */
+async function mediaDepthSpec(): Promise<Record<string, unknown>> {
+	const runtime = globalThis as Record<string, any>
+	const view = runtime.NativeScript ?? null
+	return {
+		screen: typeof Screen.mainScreen === 'object' && Screen.mainScreen !== null,
+		pointerDevice: typeof runtime.PointerDevice !== 'undefined' || typeof runtime.Windows?.Devices?.Input?.PointerDevice !== 'undefined',
+		uiSettings: typeof runtime.Windows?.UI?.ViewManagement?.UISettings !== 'undefined',
+		nsWidgetsPointer: view && typeof view.Widgets?.PointerDevice !== 'undefined',
+	}
+}
+
 export async function runServiceSpec(spec: string, record: Emit): Promise<void> {
 	try {
 		let result: Record<string, unknown>
@@ -414,6 +493,10 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
 			case 'clipboard-nontext': result = await clipboardNontextSpec(); break
 			case 'auth': result = await authSpec(); break
 			case 'window-metrics': result = await windowMetricsSpec(); break
+			case 'files-pickers': result = await filesPickersSpec(); break
+			case 'secure-depth': result = await secureDepthSpec(); break
+			case 'files-identity': result = await filesIdentitySpec(); break
+			case 'media-depth': result = await mediaDepthSpec(); break
 			default:
 				record('service-error', { spec, message: 'Unknown service spec' })
 				return

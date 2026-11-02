@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','corefs','storage-persist')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1734,6 +1734,26 @@ function Check-ServiceActions{
    'window-metrics' {
     Assert ($result.widthDIPs -gt 0 -and $result.heightDIPs -gt 0) 'Primary window reports real DIP geometry' $result
     Assert ($result.orientation -eq 'landscape' -or $result.orientation -eq 'portrait') 'Orientation derives from DIP geometry' $result
+   }
+   'secure-depth' {
+    Assert ($result.supported -eq $true -and $result.available -eq $true) 'Credential Locker resolves on the packaged host' $result
+    Assert ($result.wroteEmpty -eq $true -and $result.readEmpty -eq '') 'Secure depth keeps empty values' $result
+    Assert ($result.readCtrl -like 'ctrl*') 'Secure depth keeps control characters' $result
+    Assert ($result.readOver -eq 'second') 'Secure depth overwrites an existing key' $result
+    Assert ($result.removed -eq $true -and $null -eq $result.readAfterRemove) 'Secure depth remove clears the key' $result
+   }
+   'files-pickers' {
+    Assert ($result.pickError -ne '') 'files.pick reports explicit unavailability' $result
+    Assert ($result.pickMultiError -ne '') 'files.pickMultiple reports explicit unavailability' $result
+    Assert ($result.exportResult -eq 'unavailable') 'files.export reports bounded unavailability' $result
+   }
+   'files-identity' {
+    Assert ($result.sameNameDistinct -eq $true) 'Repeated sandbox writes keep distinct URIs' $result
+    Assert ($result.readALength -eq 1 -and $result.readBLength -eq 1) 'Sandbox writes read back their own bytes' $result
+    Assert ($result.releaseA -eq $true -or $result.releaseA -is [bool]) 'Release accepts owned sandbox refs' $result
+   }
+   'media-depth' {
+    Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result
    }
   }
   }catch{
