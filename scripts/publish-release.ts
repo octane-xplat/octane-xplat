@@ -23,11 +23,9 @@ export function publishRelease({
 	if (!/^[a-z][a-z0-9._-]*$/.test(tag)) {
 		throw new Error(`Invalid release tag: ${tag}`)
 	}
-	const selected = (packageName ? publishablePackages(root) : lockstepPackages(root)) as {
-		name: string
-		version: string
-		dir: string
-	}[]
+	const selected: { name: string; version: string; dir: string }[] = packageName
+		? publishablePackages(root)
+		: lockstepPackages(root)
 	const packages = packageName ? selected.filter((pkg) => pkg.name === packageName) : selected
 	if (!packages.length) {
 		throw new Error(`No publishable package matches ${packageName}`)

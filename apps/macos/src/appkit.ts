@@ -161,8 +161,20 @@ function controllerFor(nativeWindow: NSWindow): WindowControllerBase | null {
 function sameNativeWindow(left: unknown, right: unknown): boolean {
 	return (
 		left === right ||
-		Boolean((left as { isEqual?(value: unknown): boolean } | null)?.isEqual?.(right)) ||
-		Boolean((right as { isEqual?(value: unknown): boolean } | null)?.isEqual?.(left))
+		Boolean(
+			typeof left === 'object' &&
+				left !== null &&
+				'isEqual' in left &&
+				typeof left.isEqual === 'function' &&
+				left.isEqual(right),
+		) ||
+		Boolean(
+			typeof right === 'object' &&
+				right !== null &&
+				'isEqual' in right &&
+				typeof right.isEqual === 'function' &&
+				right.isEqual(left),
+		)
 	)
 }
 
@@ -451,9 +463,8 @@ function installPlatformServices() {
 					size: { width: 0, height: 0 },
 				}
 
-				const edges = (typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}) as {
-					[key: string]: number
-				}
+				const edges: Record<string, number> =
+					typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
 
 				picker.showRelativeToRectOfViewPreferredEdge(rect, anchor, edges.MinYEdge ?? 1)
 				return 'shared'

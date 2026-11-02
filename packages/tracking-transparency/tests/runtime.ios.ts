@@ -4,17 +4,16 @@ import * as Tracking from '../src/index'
 const nativeStatus = () => {
 	NSBundle.bundleWithPath('/System/Library/Frameworks/AppTrackingTransparency.framework')?.load()
 	return Number(
-		(
-			globalThis as {
-				ATTrackingManager?: { trackingAuthorizationStatus: number }
-			}
-		).ATTrackingManager?.trackingAuthorizationStatus ?? -1,
+		(typeof Reflect.get(globalThis, 'ATTrackingManager') === 'object' &&
+		Reflect.get(globalThis, 'ATTrackingManager') !== null
+			? Reflect.get(Reflect.get(globalThis, 'ATTrackingManager'), 'trackingAuthorizationStatus')
+			: undefined) ?? -1,
 	)
 }
 const folder = knownFolders.documents().path
-const request = JSON.parse(
+const request: { mode: 'missing-purpose' | 'configured'; nonce: string } = JSON.parse(
 	File.fromPath(path.join(folder, 'tracking-request.json')).readTextSync(),
-) as { mode: 'missing-purpose' | 'configured'; nonce: string }
+)
 const checks: string[] = []
 const assert = (condition: unknown, message: string) => {
 	if (!condition) {

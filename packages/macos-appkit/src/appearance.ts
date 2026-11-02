@@ -10,12 +10,15 @@ export function installAppearanceBridge(bridge: Record<string, any>): void {
 	// a host-installed producer can still inherit this setter.
 	bridge.setAppearanceOverride ??= (scheme: 'light' | 'dark' | null) => {
 		const application = NSApplication.sharedApplication
-		;(application as { appearance: unknown }).appearance =
+		Reflect.set(
+			application,
+			'appearance',
 			scheme == null
 				? null
 				: NSAppearance.appearanceNamed(
 						scheme === 'dark' ? 'NSAppearanceNameDarkAqua' : 'NSAppearanceNameAqua',
-					)
+					),
+		)
 	}
 
 	// Preserve an installed producer across module reloads and host customization.

@@ -5,7 +5,11 @@ import { NSView } from '@octane-xplat/platform/macos'
 /** AppKit handler dispatch only; no OS mouse input or hit-testing. */
 export function pan(ctx: ProbeContext, id: string, dx: number, cancelled = false) {
 	const view = ctx.find(id)
-	const root = createMacOSRoot((ctx.host as { contentView: NSView }).contentView)
+	const contentView =
+		typeof ctx.host === 'object' && ctx.host !== null && 'contentView' in ctx.host
+			? (ctx.host.contentView as NSView)
+			: undefined
+	const root = createMacOSRoot(contentView)
 	try {
 		for (const [state, deltaX] of [
 			[1, 0],

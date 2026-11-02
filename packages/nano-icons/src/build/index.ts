@@ -88,9 +88,9 @@ function generatorVersion(): string {
 	try {
 		const req = createRequire(import.meta.url)
 		const packageJsonPath = req.resolve('@octane-xplat/nano-icons/package.json')
-		const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as {
-			version?: string
-		}
+		const parsed: unknown = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+		const pkg: { version?: string } =
+			typeof parsed === 'object' && parsed !== null ? parsed : {}
 
 		return `@octane-xplat/nano-icons@${pkg.version ?? 'unknown'}`
 	} catch {

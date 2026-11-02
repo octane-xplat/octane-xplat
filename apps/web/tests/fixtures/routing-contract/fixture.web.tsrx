@@ -545,7 +545,10 @@ let lastMotion: Promise<unknown> | undefined
 		feedbackGate = undefined
 		releaseFeedback = undefined
 		release?.()
-		return ((await failedFeedbackRequest) as { status: string }).status
+		const failed: unknown = await failedFeedbackRequest
+		return typeof failed === 'object' && failed !== null && 'status' in failed
+			? failed.status
+			: undefined
 	},
 	allowFeedback() {
 		feedbackAllowed = true

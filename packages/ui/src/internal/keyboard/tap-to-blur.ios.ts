@@ -113,9 +113,15 @@ function appWindow() {
 	// connectedScenes is an NSSet — `allObjects` marshals to a JS array.
 	for (const scene of scenes.allObjects ?? []) {
 		if (scene instanceof UIWindowScene) {
-			for (const w of (scene.windows as unknown as { allObjects?: UIWindow[] })?.allObjects ??
-				scene.windows ??
-				[]) {
+			const windows: unknown = scene.windows
+			for (const w of (typeof windows === 'object' &&
+			windows !== null &&
+			'allObjects' in windows &&
+			Array.isArray(windows.allObjects)
+				? windows.allObjects
+				: Array.isArray(windows)
+					? windows
+					: [])) {
 				if (w.isKeyWindow) {
 					return w
 				}

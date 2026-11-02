@@ -25,12 +25,14 @@ function getSpeechRecognition(): SpeechRecognitionConstructor | null {
 		return null
 	}
 
-	const w = window as unknown as {
-		SpeechRecognition?: SpeechRecognitionConstructor
-		webkitSpeechRecognition?: SpeechRecognitionConstructor
-	}
+	// Vendor-prefixed/unprefixed constructors are ambient host capabilities —
+	// read them through a capability check, not a shape assertion.
+	const ctor =
+		typeof window === 'undefined'
+			? null
+			: (Reflect.get(window, 'SpeechRecognition') ?? Reflect.get(window, 'webkitSpeechRecognition'))
 
-	return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
+	return typeof ctor === 'function' ? (ctor as SpeechRecognitionConstructor) : null
 }
 
 interface VolumeAnalyser {

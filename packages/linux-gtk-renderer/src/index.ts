@@ -4458,7 +4458,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			// may still arrive in teardown batches.
 			return
 		default:
-			warn(`unhandled host command ${(command as { op: string }).op}`)
+			warn(`unhandled host command ${'op' in command ? command.op : '?'}`)
 	}
 }
 
@@ -4519,7 +4519,7 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 						} catch (error) {
 							console.error(
 								`[linux-gtk] command ${command.op} failed for <${
-									(command as { type?: string }).type ?? '?'
+									'type' in command ? command.type : '?'
 								}> id=${'id' in command ? command.id : '?'}`,
 								error,
 							)

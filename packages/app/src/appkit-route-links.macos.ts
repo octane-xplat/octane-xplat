@@ -71,5 +71,12 @@ export function bindAppKitRouteLinks(): () => void {
 	return stop
 }
 
-const hot = (import.meta as { hot?: { dispose(callback: () => void): void } }).hot
-hot?.dispose(() => current?.())
+const hot = 'hot' in import.meta ? import.meta.hot : undefined
+if (
+	typeof hot === 'object' &&
+	hot !== null &&
+	'dispose' in hot &&
+	typeof hot.dispose === 'function'
+) {
+	hot.dispose(() => current?.())
+}

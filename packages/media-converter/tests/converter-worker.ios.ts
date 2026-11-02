@@ -49,7 +49,10 @@ const READY_DEADLINE_MS: number = 30_000
 const FINISH_TIMEOUT_MS: number = 60_000
 
 function post(event: Record<string, unknown>): void {
-	;(globalThis as { postMessage?: (message: unknown) => void }).postMessage?.(event)
+	const postMessage = Reflect.get(globalThis, 'postMessage')
+	if (typeof postMessage === 'function') {
+		postMessage(event)
+	}
 }
 
 function convert(request: {
@@ -218,8 +221,14 @@ function convert(request: {
 	}
 }
 
-;(globalThis as unknown as { onmessage?: (event: { data: unknown }) => void }).onmessage = (event) => {
-	const request = event.data as { source: string; backgroundColor: string; bitrate: number }
+interface WorkerRequest {
+	source: string
+	backgroundColor: string
+	bitrate: number
+}
+
+Reflect.set(globalThis, 'onmessage', (event: { data: unknown }) => {
+	const request = event.data as WorkerRequest
 	try {
 		post({ result: convert(request) })
 	} catch (error) {

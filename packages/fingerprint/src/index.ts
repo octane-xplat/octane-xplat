@@ -480,20 +480,36 @@ export async function createFingerprintAsync(
 							if (key === identity || key.startsWith(identity + '(')) {
 								return true
 							}
-							const entry = raw as { resolution?: { type?: string; directory?: string } }
+							const resolution =
+								typeof raw === 'object' && raw !== null && 'resolution' in raw
+									? raw.resolution
+									: undefined
 							return (
 								key.startsWith(pkg.name + '@file:') &&
-								entry.resolution?.type === 'directory' &&
-								typeof entry.resolution.directory === 'string' &&
-								existsSync(resolve(lockRoot, entry.resolution.directory)) &&
-								realpathSync(resolve(lockRoot, entry.resolution.directory)) === packageRoot
+								typeof resolution === 'object' &&
+								resolution !== null &&
+								'type' in resolution &&
+								resolution.type === 'directory' &&
+								'directory' in resolution &&
+								typeof resolution.directory === 'string' &&
+								existsSync(resolve(lockRoot, resolution.directory)) &&
+								realpathSync(resolve(lockRoot, resolution.directory)) === packageRoot
 							)
 						})
 						.map(([key, raw]) => {
-							const entry = raw as { resolution?: { type?: string } }
-							return entry.resolution?.type === 'directory'
-								? [identity + ':directory', { ...entry, resolution: { type: 'directory' } }]
-								: [key, entry]
+							const resolution =
+								typeof raw === 'object' && raw !== null && 'resolution' in raw
+									? raw.resolution
+									: undefined
+							return typeof resolution === 'object' &&
+								resolution !== null &&
+								'type' in resolution &&
+								resolution.type === 'directory'
+								? [
+										identity + ':directory',
+										{ ...(raw as object), resolution: { type: 'directory' } },
+									]
+								: [key, raw]
 						})
 			if (bunEntry) {
 				const source = String(bunEntry[0])

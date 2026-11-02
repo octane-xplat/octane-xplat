@@ -157,7 +157,7 @@ export function eachDescendant(root: ViewBase, visit: (view: ViewBase) => void):
 export function viewText(root: ViewBase): string[] {
 	const out: string[] = []
 	eachDescendant(root, (view) => {
-		const text = (view as { text?: unknown }).text
+		const text = typeof view === 'object' && view !== null && 'text' in view ? view.text : undefined
 		if (typeof text === 'string') {
 			out.push(text)
 		}

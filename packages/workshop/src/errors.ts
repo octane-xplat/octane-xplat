@@ -25,7 +25,7 @@ export class WorkshopError extends Error {
 		this.storyId = options?.storyId
 		this.sourceLocation = options?.sourceLocation
 		if (options?.cause !== undefined) {
-			;(this as { cause?: unknown }).cause = options.cause
+			Reflect.set(this, 'cause', options.cause)
 		}
 	}
 }

@@ -125,12 +125,20 @@ function paperLayout(width: number, height: number, margins: Payload): PaperLayo
 // protocols on this runtime; `class X extends NSObject` delegates never fire
 // (probe evidence). Task state is handed through the per-instance owner field
 // rather than receiver identity.
+/** The per-instance `owner` field the delegate methods read from `this`. */
+function navigationOwner(self: object): HtmlTask {
+	if (!('owner' in self)) {
+		throw new Error('navigation delegate missing owner')
+	}
+	return self.owner as HtmlTask
+}
+
 function navigationDelegate(task: HtmlTask): WKNavigationDelegate & NSObject {
 	return (NSObject as unknown as Extendable<WKNavigationDelegate & NSObject>).extend(
 		{
 			owner: task,
 			webViewDidFinishNavigation(webView: WKWebView, _navigation: WKNavigation) {
-				const owner = (this as { owner: HtmlTask }).owner
+				const owner = navigationOwner(this)
 				// A native DOM read flushes WebKit's pending layout before its print formatter is used.
 				webView.evaluateJavaScriptCompletionHandler(
 					'document.body ? document.body.scrollHeight : 0',
@@ -138,13 +146,13 @@ function navigationDelegate(task: HtmlTask): WKNavigationDelegate & NSObject {
 				)
 			},
 			webViewDidFailNavigationWithError() {
-				;(this as { owner: HtmlTask }).owner.finish(false)
+				navigationOwner(this).finish(false)
 			},
 			webViewDidFailProvisionalNavigationWithError() {
-				;(this as { owner: HtmlTask }).owner.finish(false)
+				navigationOwner(this).finish(false)
 			},
 			webViewWebContentProcessDidTerminate() {
-				;(this as { owner: HtmlTask }).owner.finish(false)
+				navigationOwner(this).finish(false)
 			},
 		},
 		{ name: 'XplatPrintNavigationDelegate', protocols: [WKNavigationDelegate] },

@@ -33,7 +33,9 @@ interface TemporaryFile {
 	delete(cancellable: null): boolean
 	query_exists(cancellable: null): boolean
 }
-const Gtk = GtkRuntime as unknown as {
+// The GI runtime globals arrive untyped — bound once to the shapes this
+// backend declares rather than asserting per call site.
+interface GtkRuntimeShape {
 	Widget: abstract new (...args: never[]) => Widget
 	Video: abstract new (...args: never[]) => object
 	GLArea: abstract new (...args: never[]) => object
@@ -42,14 +44,14 @@ const Gtk = GtkRuntime as unknown as {
 		snapshot(snapshot: Snapshot, width: number, height: number): void
 	}
 }
-const GLib = GLibRuntime as unknown as {
+interface GLibRuntimeShape {
 	base64_encode(bytes: Uint8Array): string
 	get_monotonic_time(): number
 	timeout_add(priority: number, milliseconds: number, callback: () => boolean): number
 	PRIORITY_DEFAULT: number
 	SOURCE_REMOVE: false
 }
-const Gio = GioRuntime as unknown as {
+interface GioRuntimeShape {
 	File: {
 		new_tmp(template: string): [
 			TemporaryFile,
@@ -60,9 +62,13 @@ const Gio = GioRuntime as unknown as {
 		]
 	}
 }
-const Graphene = GrapheneRuntime as unknown as {
+interface GrapheneRuntimeShape {
 	Rect: new () => { init(x: number, y: number, width: number, height: number): unknown }
 }
+const Gtk = GtkRuntime as unknown as GtkRuntimeShape
+const GLib = GLibRuntime as unknown as GLibRuntimeShape
+const Gio = GioRuntime as unknown as GioRuntimeShape
+const Graphene = GrapheneRuntime as unknown as GrapheneRuntimeShape
 const owned = new Map<
 	string,
 	{ delete(cancellable: null): boolean; query_exists(cancellable: null): boolean }

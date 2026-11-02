@@ -18,9 +18,9 @@ class OrientationDelegate extends UIResponder implements UIApplicationDelegate {
 import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
 import * as Screen from '../src/index'
 const folder = knownFolders.documents().path
-const request = JSON.parse(
+const request: { mode: string; nonce: string } = JSON.parse(
 	File.fromPath(path.join(folder, 'orientation-request.json')).readTextSync(),
-) as { mode: string; nonce: string }
+)
 const diagnostics: unknown[] = []
 let conflict = false
 if (request.mode !== 'missing-delegate') {

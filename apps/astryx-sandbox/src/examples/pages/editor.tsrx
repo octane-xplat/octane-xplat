@@ -265,7 +265,10 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
 			</Card>
 		}
 		case 'cards': {
-			const cardItems = (p.cards as { title: string; description: string }[]) || []
+			const cards: unknown = Reflect.get(p, 'cards')
+			const cardItems: { title: string; description: string }[] = Array.isArray(cards)
+				? cards
+				: []
 			return <Card style={cardStyle}>
 				<div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
 					<Heading level={3}>Cards</Heading>

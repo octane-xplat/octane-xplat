@@ -13,7 +13,7 @@ export interface FieldError {
 }
 
 export function isUnsettable(definition: StoryDefinition<any, any, any>, key: string): boolean {
-	const control = definition.controls?.[key] as { allowUnset?: boolean } | undefined
+	const control: { allowUnset?: boolean } | undefined = definition.controls?.[key]
 	if (!control) {
 		return false
 	}

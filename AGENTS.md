@@ -114,6 +114,13 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 
 ## Critical rules
 
+- Prefer narrowing, annotations, and owning declarations over inline
+  `as { ... }` object assertions. Branch on a union's distinguishing property;
+  preserve a producer's generic instead of re-asserting it; annotate the
+  owning state/ref; validate genuinely untrusted input once at ingress and
+  bound it to a named type. A runtime conversion TypeScript cannot express
+  keeps one explicit documented assertion — never hide it behind `as any`,
+  a helper alias, or a broad generic.
 - Before merging, run `turbo run typecheck --filter=...@octane-xplat/<package>`
   for every package you touched. The filter includes that package and its
   dependents; do not typecheck unrelated packages.

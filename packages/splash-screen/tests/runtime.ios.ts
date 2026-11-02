@@ -4,7 +4,7 @@ import { diagnostics } from '../src/backend.ios'
 
 const folder = knownFolders.documents().path
 const requestFile = File.fromPath(path.join(folder, 'splash-request.json'))
-const request = JSON.parse(requestFile.readTextSync()) as { mode: string; nonce: string }
+const request: { mode: string; nonce: string } = JSON.parse(requestFile.readTextSync())
 const results: string[] = []
 const windows: unknown[] = []
 Application.ios.addNotificationObserver(UIWindowDidBecomeVisibleNotification, (notification) => {

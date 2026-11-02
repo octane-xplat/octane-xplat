@@ -21,9 +21,10 @@ type NativePDF = {
 	): { boundsForBox(box: number): { size: { width: number; height: number } } } | null
 }
 // The installed SDK types omit PDFKit; the native metadata loads it with the Swift facade.
-const pdfKit = globalThis as unknown as {
+interface PDFKitRuntime {
 	PDFDocument: { alloc(): { initWithURL(url: NSURL): NativePDF | null } }
 }
+const pdfKit = globalThis as unknown as PDFKitRuntime
 export async function run(ctx: Context) {
 	const step = File.fromPath(path.join(knownFolders.documents().path, 'print-test-step.json'))
 	const mark = (stage: string) =>
