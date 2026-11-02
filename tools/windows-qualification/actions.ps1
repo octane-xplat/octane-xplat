@@ -14,10 +14,13 @@ param(
  [switch]$TableActions,
  [switch]$LayerActions,
  [switch]$LayerFocusActions,
- [switch]$Core20Structure
+ [switch]$Core20Structure,
+ [switch]$ServiceActions,
+ [string[]]$ServiceSpecs=''
 )
 $ErrorActionPreference='Stop'
-if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions + [int][bool]$Core20Structure) -gt 1){throw 'Choose one action mode per run'}
+if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions + [int][bool]$Core20Structure + [int][bool]$ServiceActions) -gt 1){throw 'Choose one action mode per run'}
+if($ServiceSpecs.Count -gt 0 -and -not $ServiceActions){throw 'ServiceSpecs requires ServiceActions'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
@@ -1410,13 +1413,89 @@ function Check-MenuActions {
  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
 }
 
+function Service-Result([string]$Spec,[int]$Seconds=20){
+ Wait-For { @(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'service-result' -and $_.spec -ceq $Spec}).Count -ge 1 } "No service-result for $Spec" $Seconds
+ $result=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'service-result' -and $_.spec -ceq $Spec})[-1]
+ $result|ConvertTo-Json -Depth 6|Set-Content (Join-Path $OutputDirectory ("service-"+$Spec+".json")) -Encoding UTF8
+ return $result
+}
+function Check-ServiceActions{
+ Command 'scene' 'service'|Out-Null
+ Status-Contains 'Core20 service '
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','corefs','storage-persist')
+ if($ServiceSpecs.Count){$specs=@($specs|Where-Object {$_ -cin $ServiceSpecs -or $_ -ceq 'storage-verify'})}
+ foreach($spec in $specs){
+  Command 'service-run' $spec|Out-Null
+  $result=Service-Result $spec
+  switch($spec){
+   'clipboard' {
+    Assert ($result.canCopy -eq $true) 'Clipboard service is available on the packaged host' $result
+    Assert ($result.wrote -eq $true) 'Clipboard writeText accepts Unicode content' $result
+    Assert ($result.matched -eq $true) 'Clipboard readText round-trips Unicode content' $result
+    Assert ($result.emptyRoundtrips -eq $true) 'Clipboard writeText supports empty strings' $result
+   }
+   'random' {
+    Assert ($result.supported -eq $true) 'OS CSPRNG is bound on the packaged host' $result
+    Assert ($result.smallLength -eq 32 -and $result.zeroLength -eq 0) 'CSPRNG honours requested byte lengths' $result
+    Assert ($result.smallDistinct -eq $true -and $result.consecutiveDistinct -eq $true) 'CSPRNG produces distinct byte sequences' $result
+    Assert ($result.filledDistinct -gt 50) 'CSPRNG fills large buffers with varied bytes' $result
+    Assert ($result.nonViewError -eq 'TypeError' -and $result.negativeError -eq 'RangeError') 'CSPRNG rejects invalid inputs' $result
+   }
+   'storage' {
+    Assert ($result.read -eq 'roundtrip') 'Storage setString/getString round-trips' $result
+    Assert ($result.emptyRead -eq '') 'Storage keeps empty-string values' $result
+    Assert ($result.ctrlRead -like 'ctrl*') 'Storage keeps control characters' $result
+    Assert ($null -eq $result.removedRead -or $result.removedRead -eq '') 'Storage remove clears the key' $result
+   }
+   'keepawake' {
+    Assert ($result.activated -eq $true) 'Keep-awake grants an OS display request' $result
+    Assert ($result.deactivated -eq $true) 'Keep-awake releases the grant cleanly' $result
+    Assert (@($result.activatedTwo) -notcontains $false -and $result.releaseA -eq $true -and $result.releaseB -eq $true) 'Independent keep-awake tags clean up independently' $result
+   }
+   'connectivity' {
+    Assert ($null -ne $result.current) 'Connectivity reports a real current state' $result
+    Assert ($null -ne $result.resample) 'Connectivity resamples on demand' $result
+   }
+   'device' {
+    Assert ($result.os -eq 'windows') 'Device reports the windows platform' $result
+   }
+   'appinfo' {
+    Assert ($null -ne $result.id -or $null -ne $result.name -or $null -ne $result.version) 'Packaged app-info exposes identity fields' $result
+   }
+   'files' {
+    Assert ($result.matchedText -eq $true) 'File service writeText/readText round-trips text' $result
+    Assert ($result.matchedBytes -eq $true) 'File service writeBytes/readBytes round-trips binary' $result
+    Assert ($result.differentUris -eq $true) 'Owned file copies get unique URIs' $result
+    Assert ($result.pickError -ne '' -and $result.pickError -ne $null) 'File pickers report unavailability explicitly' $result
+    Assert ($result.exported -eq 'unavailable') 'File export reports unavailable on the current surface' $result
+    Assert ($result.released -eq $true) 'Owned file release schedules cleanup' $result
+   }
+   'corefs' {
+    Assert ($result.documentsPresent -eq $true) 'Documents folder resolves on the packaged host' $result
+    Assert ($result.existsAfter -eq $true) 'File.exists detects the created file' $result
+    Assert ($result.matchedText -eq $true) 'File readTextSync round-trips text' $result
+    Assert ($result.nestedExists -eq $true) 'Folder.fromPath creates nested folders' $result
+    Assert ($result.tempExists -eq $true) 'Temporary folder accepts new files' $result
+   }
+   'storage-persist' {
+    Assert ($result.persistWrote -eq 'persisted-across-launches') 'Storage persist spec wrote the cross-launch value' $result
+   }
+  }
+ }
+ # storage-verify is for a SECOND launch: assert the value persisted across relaunch
+ $verify=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'service-result' -and $_.spec -ceq 'storage-verify'})
+ if($verify.Count){
+  Assert ($verify[-1].persistRead -eq 'persisted-across-launches') 'Storage value persists across app relaunch' $verify[-1]
+ }
+}
+
 $report=[ordered]@{
  schemaVersion=1;packageVersion=$pkg.Version.ToString();packageFamilyName=$pkg.PackageFamilyName
  driverSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
- scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerFocusActions){'Nested useLayer focus/close: outer and inner anchored layers, child close and Escape restore focus into the parent, parent close restores the outer trigger; secondary windows and modal focus remain separate.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($Core20Structure){'Core20 structure gates: layout cases (text/vstack/hstack/stack/view/center/section/shrink) named peers, finite bounds, ordered children, padding/gap/alignment, narrow reflow, revision/remount; display cases (card/badge/avatar/banner) named peers and content. One packaged MSIX.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerFocusActions){'Nested useLayer focus/close: outer and inner anchored layers, child close and Escape restore focus into the parent, parent close restores the outer trigger; secondary windows and modal focus remain separate.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($Core20Structure){'Core20 structure gates: layout cases (text/vstack/hstack/stack/view/center/section/shrink) named peers, finite bounds, ordered children, padding/gap/alignment, narrow reflow, revision/remount; display cases (card/badge/avatar/banner) named peers and content. One packaged MSIX.'}elseif($ServiceActions){'Windows service adapters on the packaged runtime: clipboard Unicode/empty roundtrip, CSPRNG bounds/uniqueness/error paths, storage set/get/remove/control-chars + cross-launch persistence, keep-awake grant/release/tag cleanup, connectivity state+subscription, device/app-info identity, file service text/binary roundtrip/pick/export/release, and core File/Folder exists/fromPath/nested/temp/cleanup. Narrator, ARM64, roaming, suspend/resume and downstream consumers remain separate.'}elseif($ServiceActions){'Windows service adapters on the packaged runtime: clipboard Unicode/empty roundtrip, CSPRNG bounds/uniqueness/error paths, storage set/get/remove/control-chars + cross-launch persistence, keep-awake grant/release/tag cleanup, connectivity state+subscription, device/app-info identity, file service text/binary roundtrip/pick/export/release, and core File/Folder exists/fromPath/nested/temp/cleanup. Narrator, ARM64, roaming, suspend/resume and downstream consumers remain separate.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
@@ -1492,6 +1571,8 @@ try {
   Check-ListItemActions
  }elseif($Core20Structure){
   Check-Core20Structure
+ }elseif($ServiceActions){
+  Check-ServiceActions
  }else{
  Command 'action-case' 'all'|Out-Null
  Command 'implicit-names' $false|Out-Null

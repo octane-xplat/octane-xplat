@@ -8,6 +8,7 @@ import { ListCases } from './collections-cases.windows'
 import { TableCases } from './table-cases.windows'
 import { TabCases } from './tabs-cases.windows'
 import { LayerCases, layerCases } from './layer-cases.windows'
+import { runServiceSpec } from './service-cases.windows'
 import { PARITY as viewFixtures } from '../../../../packages/ui/src/components/layout/View.parity'
 import {
 	Text,
@@ -184,6 +185,9 @@ export function Qualification() @{
 						setRoutedLink(command.value === true)
 						setDestination('/')
 						break
+					case 'service-run':
+						void runServiceSpec(String(command.value), record)
+						break
 					case 'scene':
 						if (
 							[
@@ -194,6 +198,7 @@ export function Qualification() @{
 								'collections',
 								'table',
 								'tabs',
+								'service',
 								...layerCases,
 							].includes(command.value)
 						) {
