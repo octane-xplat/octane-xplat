@@ -1420,6 +1420,9 @@ function Service-Result([string]$Spec,[int]$Seconds=20){
  return $result
 }
 function Check-ServiceActions{
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='windows-service-adapters';status='running';checks=$null;error=$null}
+ try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
  $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','corefs','storage-persist')
@@ -1487,6 +1490,9 @@ function Check-ServiceActions{
  if($verify.Count){
   Assert ($verify[-1].persistRead -eq 'persisted-across-launches') 'Storage value persists across app relaunch' $verify[-1]
  }
+  $entry.status='assertions-passed'
+ }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
 }
 
 $report=[ordered]@{
