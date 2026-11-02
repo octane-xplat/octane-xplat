@@ -36,12 +36,18 @@ export const backend: CaptureBackend = createAppleBackend({
 	renderInContext: false,
 	// The generated barrel binds lazy proxies in ambient-free processes; read the
 	// global directly so capability reflects a real ObjC bridge only.
-	available: () =>
-		typeof (globalThis as { NSBitmapImageRep?: unknown }).NSBitmapImageRep !== 'undefined',
+	available: () => typeof Reflect.get(globalThis, 'NSBitmapImageRep') !== 'undefined',
 	protectedView: ['WKWebView', 'NSOpenGLView', 'MTKView', 'AVPlayerView'],
 	protectedLayer: ['AVPlayerLayer', 'CAMetalLayer', 'CAOpenGLLayer'],
-	scale: (view) =>
-		(view.window as { backingScaleFactor?: number } | null)?.backingScaleFactor ?? 1,
+	scale: (view) => {
+		const window = view.window
+		return window !== null &&
+			window !== undefined &&
+			'backingScaleFactor' in window &&
+			typeof window.backingScaleFactor === 'number'
+			? window.backingScaleFactor
+			: 1
+	},
 	checkSourceDimensions: true,
 	render(value, width, height, options): NativeData {
 		const view = value as unknown as NSView

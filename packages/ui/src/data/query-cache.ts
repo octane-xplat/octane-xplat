@@ -462,6 +462,30 @@ interface Entry<T = unknown> {
 	persist?: PersistenceTarget
 }
 
+/** Structural abort check — rejections are not guaranteed `Error` instances
+ *  and may cross realms, so read the consumed `name` field directly. */
+function isAbortError(error: unknown): boolean {
+	return (
+		typeof error === 'object' &&
+		error !== null &&
+		'name' in error &&
+		error.name === 'AbortError'
+	)
+}
+
+/** Server timers expose `unref()`; browser numeric timers do not. Capability
+ *  check only — no Node ambient types in shared code. */
+function unrefTimer(timer: ReturnType<typeof setTimeout> | undefined): void {
+	if (
+		typeof timer === 'object' &&
+		timer !== null &&
+		'unref' in timer &&
+		typeof timer.unref === 'function'
+	) {
+		timer.unref()
+	}
+}
+
 let clientSequence = 0
 let entrySequence = 0
 const storageTails = new WeakMap<QueryStorageAdapter, Map<string, Promise<void>>>()
@@ -720,7 +744,7 @@ async function attempt<T>(
 
 			return { value, version: generation }
 		} catch (error) {
-			if (signal.aborted || (error as { name?: unknown } | null)?.name === 'AbortError') {
+			if (signal.aborted || isAbortError(error)) {
 				throw error
 			}
 
@@ -800,7 +824,7 @@ function armPolling<T>(entry: Entry<T>): void {
 			},
 			Math.min(Math.max(0, deadline - Date.now()), 2_147_483_647),
 		)
-		;(entry.pollTimer as unknown as { unref?: () => void }).unref?.()
+		unrefTimer(entry.pollTimer)
 	}
 	arm()
 }
@@ -913,7 +937,7 @@ function load<T>(
 		})
 		entry.trace(
 			failed
-				? (error as { name?: string })?.name === 'AbortError'
+				? isAbortError(error)
 					? 'cancel'
 					: 'error'
 				: 'success',
@@ -1352,7 +1376,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				},
 				Math.min(Math.max(0, deadline - Date.now()), 2_147_483_647),
 			)
-			;(entry.gcTimer as unknown as { unref?: () => void }).unref?.()
+			unrefTimer(entry.gcTimer)
 		}
 		arm()
 		detachWhenIdle()
@@ -1432,7 +1456,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				await ensureData(definition, selection, operation)
 				return { status: 'success' as const }
 			} catch (error) {
-				return (error as { name?: unknown } | null)?.name === 'AbortError'
+				return isAbortError(error)
 					? { status: 'cancelled' as const }
 					: { status: 'error' as const, error }
 			}

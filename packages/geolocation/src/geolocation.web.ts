@@ -41,7 +41,8 @@ async function requestProbe(): Promise<PermissionResponse> {
 		await readPosition({ timeout: 15000 })
 		return respond('granted')
 	} catch (error) {
-		const code = (error as { code?: number }).code
+		const code =
+			typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
 		if (code === 1) {
 			return respond('denied')
 		}

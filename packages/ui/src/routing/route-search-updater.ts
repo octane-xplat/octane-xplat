@@ -1,4 +1,5 @@
 import { readRouterMatch } from './router-instance'
+import { isThenable } from './thenable'
 import type {
 	NavigationResult,
 	PreparedRouteMatch,
@@ -52,7 +53,7 @@ export function createSearchUpdater(
 				next === null ||
 				typeof next !== 'object' ||
 				Array.isArray(next) ||
-				typeof (next as { then?: unknown }).then === 'function'
+				isThenable(next)
 			) {
 				throw new TypeError('Search updates must return a search input object synchronously')
 			}

@@ -85,12 +85,15 @@ export interface ListData<T> extends ReadableStore<ListSnapshot<T>> {
  *  `getKey` default; an item without either field fails loudly instead of
  *  falling back to a positional key. */
 export function defaultItemKey<T>(item: T): Key {
-	const key = (item as { id?: Key }).id ?? (item as { key?: Key }).key
-	if (key == null) {
+	const fields = typeof item === 'object' && item !== null ? item : null
+	const id = fields !== null && 'id' in fields ? fields.id : undefined
+	const key = fields !== null && 'key' in fields ? fields.key : undefined
+	const resolved = id ?? key
+	if (typeof resolved !== 'string' && typeof resolved !== 'number') {
 		throw new Error('item has no `id` or `key` property — pass getKey or keyExtractor')
 	}
 
-	return key
+	return resolved
 }
 
 /** Coerces 'all' | iterable | undefined into a Selection — undefined becomes an empty Set. */

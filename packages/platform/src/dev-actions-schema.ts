@@ -62,33 +62,37 @@ const ACTION_ID = /^[a-z0-9][a-z0-9._-]{1,127}$/i
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value)
 
-function validateField(field: DevActionField, path: string, problems: string[]) {
-	if (!isRecord(field) || !FIELD_TYPES.has(field.type)) {
+function validateField(field: unknown, path: string, problems: string[]) {
+	if (!isRecord(field) || typeof field.type !== 'string' || !FIELD_TYPES.has(field.type)) {
 		problems.push(`${path}: missing or unknown field type`)
 		return
 	}
 
 	if (field.pattern !== undefined) {
-		try {
-			new RegExp(field.pattern)
-		} catch {
-			problems.push(`${path}.pattern: does not compile`)
+		if (typeof field.pattern !== 'string') {
+			problems.push(`${path}.pattern: must be a string`)
+		} else {
+			try {
+				new RegExp(field.pattern)
+			} catch {
+				problems.push(`${path}.pattern: does not compile`)
+			}
 		}
 	}
 
-	if (field.fields) {
+	if (isRecord(field.fields)) {
 		for (const [name, nested] of Object.entries(field.fields)) {
-			validateField(nested as DevActionField, `${path}.fields.${name}`, problems)
+			validateField(nested, `${path}.fields.${name}`, problems)
 		}
 	}
 
-	if (field.items) {
-		validateField(field.items as DevActionField, `${path}.items`, problems)
+	if (field.items !== undefined) {
+		validateField(field.items, `${path}.items`, problems)
 	}
 }
 
 const validateFields = (
-	contract: DevActionFields | undefined,
+	contract: Record<string, unknown> | undefined,
 	path: string,
 	problems: string[],
 ) => {
@@ -101,8 +105,7 @@ const validateFields = (
 		return
 	}
 
-	const fields = (contract.fields ?? {}) as Record<string, DevActionField>
-	for (const [name, field] of Object.entries(fields)) {
+	for (const [name, field] of Object.entries(contract.fields ?? {})) {
 		validateField(field, `${path}.fields.${name}`, problems)
 	}
 }
@@ -126,12 +129,12 @@ export function validateActionDeclaration(action: unknown): string[] {
 		problems.push('description: required')
 	}
 
-	const effects = action.effects as Record<string, unknown> | undefined
+	const effects = action.effects
 	if (!isRecord(effects) || typeof effects.summary !== 'string') {
 		problems.push('effects.summary: required')
 	}
 
-	const route = (action as { route?: unknown }).route
+	const route = action.route
 	if (
 		route !== undefined &&
 		typeof route !== 'function' &&
@@ -140,8 +143,8 @@ export function validateActionDeclaration(action: unknown): string[] {
 		problems.push('route: must be a non-empty URL string or an input-derived function')
 	}
 
-	validateFields(action.input as DevActionFields | undefined, 'input', problems)
-	validateFields(action.result as DevActionFields | undefined, 'result', problems)
+	validateFields(isRecord(action.input) ? action.input : undefined, 'input', problems)
+	validateFields(isRecord(action.result) ? action.result : undefined, 'result', problems)
 	return problems
 }
 

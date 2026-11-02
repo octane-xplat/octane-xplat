@@ -13,6 +13,7 @@ import type {
 export type { NativeViewTransitionValues } from '../props'
 
 import { readNativeReducedMotion } from './native-route-motion-policy'
+import { isThenable } from './thenable'
 
 /** Inputs available when opening a native page. NativeScript owns reverse
  * animation on Back using the selected transition's native direction methods. */
@@ -139,8 +140,9 @@ export function resolveNativePageTransition(
 				throw new TypeError('A native transition factory must return NavigationTransition')
 			}
 
-			if (typeof (transition as { then?: unknown }).then === 'function') {
-				void Promise.resolve(transition as unknown as PromiseLike<unknown>).catch(() => {})
+			if (isThenable(transition)) {
+				// Drain so an unhandled rejection does not surface after the throw.
+				void Promise.resolve(transition).catch(() => {})
 				throw new TypeError('A native transition factory must be synchronous')
 			}
 
@@ -168,8 +170,9 @@ export function checkedNativeViewValues(
 	if (!values || typeof values !== 'object' || Array.isArray(values)) {
 		throw new TypeError('Expected native view starting values')
 	}
-	if (typeof (values as { then?: unknown }).then === 'function') {
-		void Promise.resolve(values as unknown as PromiseLike<unknown>).catch(() => {})
+	if (isThenable(values)) {
+		// Drain so an unhandled rejection does not surface after the throw.
+		void Promise.resolve(values).catch(() => {})
 		throw new TypeError('Native view starting values must be synchronous')
 	}
 	const captured: NativeViewTransitionValues = {}

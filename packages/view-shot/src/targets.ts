@@ -7,8 +7,7 @@ export function resolveTarget(target: CaptureTarget): object {
 	if (!target || typeof target !== 'object') {
 		throw new TypeError('Capture requires an attached host or a populated Octane host ref')
 	}
-	let host: unknown =
-		'current' in target ? (target as { readonly current: unknown }).current : target
+	let host: unknown = 'current' in target ? target.current : target
 	if (host && typeof host === 'object') {
 		const component = components.get(host)
 		if (component) {

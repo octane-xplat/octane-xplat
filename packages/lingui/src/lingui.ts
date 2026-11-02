@@ -131,9 +131,15 @@ export async function setLocale(locale: string): Promise<void> {
 	// `?lingui`-style modules wrap the catalog as `{ messages }`; compiled ES
 	// catalogs are the messages object itself. A catalog whose own id is
 	// literally `messages` only collides when its value is a plain object.
-	const wrapped = (loaded as { messages?: unknown }).messages
-	const messages = (
+	const wrapped =
+		typeof loaded === 'object' && loaded !== null && 'messages' in loaded
+			? loaded.messages
+			: undefined
+	const catalog =
 		wrapped !== null && typeof wrapped === 'object' && !Array.isArray(wrapped) ? wrapped : loaded
+	// A catalog is a plain record of message entries; anything else is empty.
+	const messages = (
+		typeof catalog === 'object' && catalog !== null && !Array.isArray(catalog) ? catalog : {}
 	) as Messages
 
 	i18n.loadAndActivate({ locale, messages })

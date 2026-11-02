@@ -85,7 +85,14 @@ export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
 }
 
 function defaultGetChildren<T>(item: T): Iterable<T> {
-	return ((item as { children?: Iterable<T> }).children ?? []) as Iterable<T>
+	const children: unknown =
+		typeof item === 'object' && item !== null && 'children' in item ? item.children : undefined
+	// Documented boundary: nothing in `T` proves the children element type —
+	// the default extractor assumes `children` yields `T`; items whose
+	// children differ must supply `getChildren`.
+	return typeof children === 'object' && children !== null && Symbol.iterator in children
+		? (children as Iterable<T>)
+		: []
 }
 
 /** Creates an immutable `TreeData` store — mutators commit fresh snapshots and notify subscribers. */
