@@ -261,3 +261,62 @@ index 6e7eb19a0928a764d2ee2dc21212da8b272ac535..9ed741a7c30f6f89bba3d4aba5933d6e
    std::unordered_map<id, RoundTripCacheEntry> recentRoundTripCache;
 +  std::unordered_multimap<uintptr_t, id> normalizedObjectRefs;
    std::atomic<uint64_t> objectRefsGeneration{1};
+diff --git a/NativeScript/ffi/napi/ClassMember.mm b/NativeScript/ffi/napi/ClassMember.mm
+index 77290127..e6e153e4 100644
+--- a/NativeScript/ffi/napi/ClassMember.mm
++++ b/NativeScript/ffi/napi/ClassMember.mm
+@@ -317,6 +317,32 @@ void ObjCClassMember::addOverload(SEL selector, MDSectionOffset offset, uint8_t
+   overloads.emplace_back(selector, offset, dispatchFlags);
+ }
+
++// xplat: metadata can declare members a concrete receiver does not
++// implement (metagen derived-class property synthesis that copies a
++// subclass's accessors onto a superclass, optional protocol members, SDK
++// drift). Messaging such a receiver enters ___forwarding___ ->
++// doesNotRecognizeSelector: -> objc_exception_throw, and the NSException
++// cannot unwind through ffi_call's frames — the process aborts in
++// __cxxabiv1::failed_throw before the @catch below can run. Verify the
++// receiver implements the selector before native dispatch and surface the
++// same failure as a JS-thrown error; the jsi backend guards the same way
++// (NativeApiJsiInvocation.h callObjCSelector).
++inline bool throwIfUnsupportedSelector(napi_env env, id self, SEL selector,
++                                       bool classMethod) {
++  if (self == nil || selector == nullptr || [self respondsToSelector:selector]) {
++    return false;
++  }
++
++  std::string message =
++      std::string(classMethod ? "+[" : "-[") + object_getClassName(self) + " " +
++      sel_getName(selector) +
++      (classMethod ? "]: unrecognized selector sent to class"
++                   : "]: unrecognized selector sent to instance");
++  nativescript::NativeScriptException nativeScriptException(message);
++  nativeScriptException.ReThrowToJS(env);
++  return true;
++}
++
+ inline bool tryObjCNapiDispatch(napi_env env, Cif* cif, id self, bool classMethod, SEL selector,
+                                 MethodDescriptor* descriptor, uint8_t dispatchFlags,
+                                 const napi_value* argv, void* rvalue, bool* didInvoke) {
+@@ -363,6 +389,10 @@ inline bool tryObjCNapiDispatch(napi_env env, Cif* cif, id self, bool classMetho
+     return true;
+   }
+
++  if (throwIfUnsupportedSelector(env, self, selector, classMethod)) {
++    return false;
++  }
++
+   @try {
+     NativeCallRuntimeUnlockScope unlockRuntime(env);
+     bool invoked = invoker(env, cif, (void*)objc_msgSend, self, selector, argv, rvalue);
+@@ -410,6 +440,10 @@ inline bool objcNativeCall(napi_env env, Cif* cif, id self, bool classMethod,
+   bool isStret = cif->returnType->type->size > 16 && cif->returnType->type->type == FFI_TYPE_STRUCT;
+ #endif
+
++  if (throwIfUnsupportedSelector(env, self, selector, classMethod)) {
++    return false;
++  }
++
+   @try {
+     if (!supercall) {
+       if (cif != nullptr && cif->signatureHash != 0) {

@@ -159,6 +159,41 @@ within 90 s — there is no background JS execution channel, so the frame loop
 and H.264 backpressure would have to run on the main queue, which cannot
 preserve nonblocking UI. `dispatch_get_main_queue` and
 `dispatch_semaphore_create` are also absent from metadata.
+## Phantom metadata members and selector dispatch (upstream, patched)
+
+Upstream metagen can borrow a derived class's accessors for a superclass
+member: `processDerivedClassRefs` runs `convertMethodToPropertyIfNeeded`
+backwards, rewriting an ancestor's method record into a property that uses
+the subclass's getter/setter selectors. In `metadata.macos.arm64.nsmd` (pin
+`5b697b39`) this produced `NSView.autoscroll`/`NSClipView.autoscroll` with
+`NSMatrix`'s `isAutoscroll`/`setAutoscroll:` — part of a census of 213
+phantom getters and 212 phantom setters (V8-feasibility audit, Zora).
+
+- **Observed**: `NSView.alloc().init().autoscroll` on the stock prebuilt
+  host aborts the process — `___forwarding___` →
+  `doesNotRecognizeSelector:` → `objc_exception_throw`, and the NSException
+  cannot unwind through `ffi_call`'s frames (`failed_throw` → SIGABRT), so
+  the `@try/@catch` in `objcNativeCall` and any JS `try/catch` never run.
+  Reproduced on `main` via `packages/cli/test/macos-bridge-selectors.test.mjs`
+  (the test skips while the committed prebuilt predates the rebuilt binary).
+- **Workaround**: `patches/nativescript-runtimes.patch` checks
+  `respondsToSelector:` before every `self`-targeted selector dispatch in
+  `ClassMember.mm` (`tryObjCNapiDispatch` generated invokers and
+  `objcNativeCall` ffi/super paths — exactly one check per call) and
+  rethrows `-[Class sel]: unrecognized selector sent to instance` as a JS
+  error. The upstream jsi backend already guards identically
+  (`NativeApiJsiInvocation.h` `callObjCSelector`). Receivers that implement
+  a message only through `forwardInvocation:` while returning `NO` from
+  `respondsToSelector:` now get a JS error instead of the forward — the
+  jsi backend made the same tradeoff; `resolveInstanceMethod:` receivers
+  still work because the check triggers resolution.
+- **Alternative not taken**: regenerating metadata would drop the phantom
+  members, but 425 synthesized entries plus optional-protocol/SDK drift
+  make the dispatch guard the robust fix regardless; the metagen reversal
+  itself is unpatched upstream.
+- **Removal condition**: an upstream napi-backend dispatch guard or a
+  metagen fix for the reversed property synthesis; recheck after a runtimes
+  pin bump.
 
 ## Other verified host quirks
 
