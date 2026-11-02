@@ -16,7 +16,7 @@ function Unique-Elements($Elements){
 try {
  if($result.apartment -ne 'MTA'){throw 'UIA action requires its dedicated MTA process'}
  $request=Get-Content $RequestPath -Raw|ConvertFrom-Json
- if($request.operation -notin @('focus','invoke','focused','select')){throw 'Unknown UIA action'}
+ if($request.operation -notin @('focus','invoke','focused','select','point')){throw 'Unknown UIA action'}
  Stage 'window-owner'
  Add-Type @'
 using System;
@@ -37,7 +37,21 @@ public static class Core20ActionWindow {
  $result.operation=$request.operation
  $result.rootProcessId=$root.Current.ProcessId
  Stage 'find-elements'
- if($request.operation -eq 'focused'){
+ if($request.operation -eq 'point'){
+  $point=[System.Windows.Point]::new([double]$request.x,[double]$request.y)
+  $hit=[System.Windows.Automation.AutomationElement]::FromPoint($point)
+  if($null -eq $hit){throw 'UIA reported no element at the requested point'}
+  $chain=@()
+  $walker=[System.Windows.Automation.TreeWalker]::ControlViewWalker
+  $node=$hit
+  while($null -ne $node -and $chain.Count -lt 12){
+   $bounds=$node.Current.BoundingRectangle
+   $chain+=@{name=$node.Current.Name;type=$node.Current.ControlType.ProgrammaticName;className=$node.Current.ClassName;processId=$node.Current.ProcessId;x=$bounds.X;y=$bounds.Y;width=$bounds.Width;height=$bounds.Height}
+   try{$node=$walker.GetParent($node)}catch{$node=$null}
+  }
+  $result.hitProcessId=$hit.Current.ProcessId
+  $result.chain=$chain
+ }elseif($request.operation -eq 'focused'){
   $condition=[System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::HasKeyboardFocusProperty,$true)
   $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,$condition)
   Stage 'unique-focused-elements'
@@ -50,7 +64,7 @@ public static class Core20ActionWindow {
   }
   $result.focused=$focused
  }else{
-  if($request.controlType -notin @('ControlType.Button','ControlType.Hyperlink','ControlType.TabItem','ControlType.ListItem','ControlType.ComboBox')){throw 'Unexpected action control type'}
+  if($request.controlType -notin @('ControlType.Button','ControlType.Hyperlink','ControlType.TabItem','ControlType.ListItem','ControlType.ComboBox','ControlType.MenuItem')){throw 'Unexpected action control type'}
   $condition=[System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,[string]$request.name)
   $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,$condition)
   $matching=@($elements|Where-Object {$_.Current.ControlType.ProgrammaticName -ceq $request.controlType})

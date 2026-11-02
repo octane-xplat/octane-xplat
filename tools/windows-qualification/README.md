@@ -4,7 +4,8 @@ These private drivers collect UI Automation (UIA) and numeric host-frame evidenc
 for the seven layout/text components and the maintained fixed-width shrink
 regression, plus native Button, Pressable and Link input in the Windows
 core-component plan.
-The action driver also has opt-in Card/Banner, ListItem and panel-tab modes.
+The action driver also has opt-in Card/Banner, ListItem, panel-tab,
+single-Selector and flat action-menu modes.
 [Qualification host constraints](../../.agents/docs/parity/windows-support-progress.md#qualification-host-constraints)
 explain root sizing, measurement, and evidence boundaries. Current runtime
 qualification lives in Silo; a diagnostic result is not component qualification.
@@ -435,3 +436,24 @@ measured trigger resizing.
 It preserves failures and helper hashes. Search, multiple selection, clear,
 groups, long-list scrolling, Narrator, visual parity and the final fresh
 current-main package remain separate gates. Do not qualify those from a pass.
+
+## Run action-menu checks
+
+Run the public `DropdownMenu` action-row fixture through its own mode:
+
+```powershell
+.\actions.ps1 -MenuActions -ExpectedCommit $commit `
+  -ExpectedPackageVersion $version -OutputDirectory $newEvidenceDirectory
+```
+
+Choose one action mode per invocation. This mode requires a single shared Button
+trigger and named Menu/MenuItem/Invoke peers, bottom anchoring, trigger minimum
+width and nonempty framework row frames. It checks forward/backward Tab order,
+keyboard/mouse opening, disabled-row rejection, arrows, Enter/mouse/Invoke
+exactly once, Escape/focus, outside dismissal, retained names/current callbacks,
+controlled rejection, disabled trigger input, remount and narrow/wide frames.
+
+Fixture commands only change props and mounts; they never invoke an action.
+Keep failure journals and helper hashes. Other row kinds, compound/sheet menus,
+custom surface styling/placement, the wider props matrix, Narrator, visual
+parity and final fresh-install core20 qualification remain separate.

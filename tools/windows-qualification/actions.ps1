@@ -9,10 +9,11 @@ param(
  [ValidateSet('all','clickable-card','banner-action','banner-dismiss')][string]$DisplayActionCase='all',
  [switch]$ListItemActions,
  [switch]$TabActions,
- [switch]$SelectorActions
+ [switch]$SelectorActions,
+ [switch]$MenuActions
 )
 $ErrorActionPreference='Stop'
-if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions) -gt 1){throw 'Choose one action mode per run'}
+if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions) -gt 1){throw 'Choose one action mode per run'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
@@ -292,13 +293,15 @@ public static class Core20ActionInput {
 }
 '@
 $script:ActionCount=0
-function Uia-Action([string]$Operation,[string]$Name='',[string]$Type=''){
+function Uia-Action([string]$Operation,[string]$Name='',[string]$Type='',$Extra=$null){
  $script:ActionCount++
  $directory=Join-Path $OutputDirectory ('uia-actions/'+$script:ActionCount.ToString('D4'))
  New-Item -ItemType Directory -Path $directory -Force|Out-Null
  $prefix=Join-Path $directory 'action'
  $requestPath=Join-Path $directory 'request.json'
- @{windowHandle=$script:WindowHandle.ToInt64();expectedProcessId=$script:AppProcessId;operation=$Operation;name=$Name;controlType=$Type}|ConvertTo-Json|Set-Content $requestPath -Encoding UTF8
+ $request=[ordered]@{windowHandle=$script:WindowHandle.ToInt64();expectedProcessId=$script:AppProcessId;operation=$Operation;name=$Name;controlType=$Type}
+ if($null -ne $Extra){foreach($key in $Extra.Keys){$request[$key]=$Extra[$key]}}
+ $request|ConvertTo-Json|Set-Content $requestPath -Encoding UTF8
  $arguments=@('-NoProfile','-NonInteractive','-MTA','-ExecutionPolicy','Bypass','-File',('"'+$PSScriptRoot+'/action-uia.ps1"'),'-RequestPath',('"'+$requestPath+'"'),'-OutputPrefix',('"'+$prefix+'"'))
  $client=Start-Process powershell.exe -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput ($prefix+'-stdout.log') -RedirectStandardError ($prefix+'-stderr.log')
  try{
@@ -326,10 +329,20 @@ function Focus-Action([string]$Name,[string]$Type){
  Wait-For {Focused $Name} "Keyboard focus missing on $Name"
 }
 function Input-Owner {
- if([Core20ActionInput]::GetForegroundWindow() -ne $script:WindowHandle){
+ $foreground=[Core20ActionInput]::GetForegroundWindow()
+ [uint32]$owner=0
+ [Core20Desktop]::GetWindowThreadProcessId($foreground,[ref]$owner)|Out-Null
+ $before=[ordered]@{window=$foreground.ToInt64();processId=$owner}
+ # Native popups can own foreground without using the main window's HWND.
+ # Focusing the main HWND in that state can dismiss the popup before input.
+ if($owner -ne $script:AppProcessId){
   [Core20Desktop]::SetForegroundWindow($script:WindowHandle)|Out-Null
+  $foreground=[Core20ActionInput]::GetForegroundWindow()
+  [Core20Desktop]::GetWindowThreadProcessId($foreground,[ref]$owner)|Out-Null
  }
- if([Core20ActionInput]::GetForegroundWindow() -ne $script:WindowHandle){throw 'Owned window is not foreground; refusing input'}
+ $record=@{before=$before;foregroundWindow=$foreground.ToInt64();foregroundProcessId=$owner;expectedProcessId=$script:AppProcessId;mainWindow=$script:WindowHandle.ToInt64()}
+ [IO.File]::AppendAllText((Join-Path $OutputDirectory 'input-owners.jsonl'),(($record|ConvertTo-Json -Compress)+[Environment]::NewLine))
+ if($owner -ne $script:AppProcessId){throw 'Owned process is not foreground; refusing input'}
 }
 function Key([int]$Code,[bool]$Shift=$false){Input-Owner;[Core20ActionInput]::Press($Code,$Shift)}
 function Click-Control($Control){
@@ -878,13 +891,158 @@ function Check-SelectorActions {
  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
 }
 
+
+function Reset-Menu([int]$Revision=0){
+ Command 'mounted' $false|Out-Null
+ Command 'revision' $Revision|Out-Null
+ Command 'disabled' $false|Out-Null
+ Command 'scene' 'dropdown-menu'|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains ("revision=$Revision mounted=true")
+}
+function Menu-Requests([bool]$Open){
+ return @(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'layer-open-change' -and $_.source -eq 'dropdown-menu' -and $_.open -eq $Open}).Count
+}
+function Menu-State([bool]$Open,[string]$Stage){
+ Named (Capture $Stage) ('Menu open='+$Open.ToString().ToLowerInvariant())|Out-Null
+}
+function Menu-Shape([int]$Revision,[string]$Stage,[bool]$Enabled=$true){
+ $nodes=Snapshot $Stage
+ $tree=Capture $Stage
+ $peer=Named @($tree|Where-Object {$_.type -eq 'ControlType.Button'}) ("Actions $Revision")
+ Assert (Finite $peer) 'Menu trigger has finite visible bounds' $peer
+ Assert ($peer.patterns -contains 'InvokePatternIdentifiers.Pattern') 'Menu trigger exposes Invoke' $peer.patterns
+ Assert ($peer.enabled -eq $Enabled) 'Menu trigger has expected enabled state' $peer.enabled
+ $drawing=Native-Id $nodes 'core20-dropdown-menu'
+ $anchor=Native-Id $nodes 'core20-dropdown-menu-native-menu'
+ foreach($frame in @($drawing.box,$anchor.box)){
+  Assert ((Near ($peer.x/$script:Scale) $frame.x) -and (Near ($peer.y/$script:Scale) $frame.y) -and (Near $peer.width $frame.width) -and (Near $peer.height $frame.height)) 'Menu native anchor and trigger drawing agree' @{peer=$peer;frame=$frame}
+ }
+ return $peer
+}
+function Menu-Open([int]$Revision,$Trigger,[string]$Stage){
+ $tree=Capture $Stage
+ $menu=Named @($tree|Where-Object {$_.type -eq 'ControlType.Menu'}) ("Action menu $Revision")
+ Assert (Finite $menu) 'Menu surface exposes its requested name and finite bounds' $menu
+ Assert ($menu.width -ge $Trigger.width-2) 'Menu respects the trigger minimum width' @{menu=$menu.width;trigger=$Trigger.width}
+ $bottom=$Trigger.y+$Trigger.height*$script:Scale
+ Assert ($menu.y -ge $bottom-2*$script:Scale -and $menu.y-$bottom -le 20*$script:Scale) 'Bottom menu is anchored below its trigger' @{menu=$menu;trigger=$Trigger}
+ Assert ($menu.x -le $Trigger.x+$Trigger.width*$script:Scale -and $menu.x+$menu.width*$script:Scale -ge $Trigger.x) 'Menu and trigger overlap along the alignment axis' @{menu=$menu;trigger=$Trigger}
+ $items=@($tree|Where-Object {$_.type -eq 'ControlType.MenuItem'})
+ Assert ($items.Count -eq 3) 'Menu exposes exactly three genuine MenuItem peers' $items.Count
+ foreach($name in @("First action $Revision",'Unavailable action',"Third action $Revision")){
+  $item=Named $items $name
+  Assert (Finite $item) "Menu item $name has finite visible bounds" $item
+  Assert ($item.patterns -contains 'InvokePatternIdentifiers.Pattern') "Menu item $name exposes Invoke" $item.patterns
+ }
+ $first=Named $items ("First action $Revision");$disabled=Named $items 'Unavailable action';$third=Named $items ("Third action $Revision")
+ Assert (-not $disabled.enabled -and -not $disabled.focusable) 'Disabled menu item rejects focus' $disabled
+ Assert ($first.y+$first.height*$script:Scale -le $disabled.y+2*$script:Scale -and $disabled.y+$disabled.height*$script:Scale -le $third.y+2*$script:Scale) 'Menu rows are ordered without overlap' $items
+ $nodes=Snapshot ($Stage+'-content')
+ foreach($id in @('core20-menu-first','core20-menu-disabled','core20-menu-third')){
+  $content=Native-Id $nodes $id
+  Assert ($content.box.width -gt 0 -and $content.box.height -gt 0) "Shared row $id has nonempty bounds" $content.box
+ }
+ return ,$items
+}
+function Check-MenuActions {
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='public-dropdown-menu-actions';status='running';checks=$null;error=$null}
+ try{
+  Reset-Menu
+  $trigger=Menu-Shape 0 'menu-initial'
+  Focus-Action 'Before menu' 'ControlType.Button';Key 9
+  Wait-For {Focused 'Actions 0'} 'Tab did not focus menu trigger'
+  Key 9;Wait-For {Focused 'After menu'} 'Tab did not leave menu trigger after one stop'
+  Key 9 $true;Wait-For {Focused 'Actions 0'} 'Shift+Tab did not return to menu trigger'
+  Assert $true 'Closed menu contributes one forward/backward Tab stop'
+  $opened=Menu-Requests $true;Key 13
+  $items=Menu-Open 0 $trigger 'menu-keyboard-open'
+  Assert ((Menu-Requests $true) -eq $opened+1) 'Keyboard opening reports one request'
+  Menu-State $true 'menu-open-model'
+  Wait-For {Focused 'First action 0'} 'Keyboard opening did not focus the first menu item'
+  $disabled=Uia-Action 'invoke' 'Unavailable action' 'ControlType.MenuItem'
+  Assert ($disabled.status -eq 'rejected') 'Disabled menu item rejects Invoke' $disabled
+  $before=Activations 'menu-disabled';Click-Control (Named $items 'Unavailable action')
+  Assert ((Activations 'menu-disabled') -eq $before) 'Disabled menu item rejects pointer activation'
+  Menu-State $true 'menu-disabled-stays-open'
+  Key 40;Wait-For {Focused 'Third action 0'} 'Down did not skip the disabled menu item'
+  Exactly-Once 'menu-third' 'menu Down then Enter' {Key 13}
+  Menu-State $false 'menu-enter-commit'
+  Wait-For {Focused 'Actions 0'} 'Menu action did not return trigger focus'
+  Click-Control $trigger;Menu-Open 0 $trigger 'menu-pointer-open'|Out-Null
+  Exactly-Once 'menu-first' 'menu UIA Invoke' {$result=Uia-Action 'invoke' 'First action 0' 'ControlType.MenuItem';Assert ($result.status -eq 'completed') 'Native menu Invoke completed' $result}
+  Menu-State $false 'menu-invoke-commit'
+  Click-Control $trigger;$items=Menu-Open 0 $trigger 'menu-before-mouse-action'
+  $pointerTarget=Named $items 'Third action 0'
+  $menuSurface=Named @((Capture 'menu-probe-surface')|Where-Object {$_.type -eq 'ControlType.Menu'}) ('Action menu 0')
+  $sweep=@()
+  for($py=$menuSurface.y+8;$py -lt $menuSurface.y+$menuSurface.height*$script:Scale;$py+=16){
+   $probe=Uia-Action 'point' '' '' ([ordered]@{x=($menuSurface.x+$menuSurface.width*$script:Scale/2);y=$py;probe=('sweep-'+[int]$py)})
+   Assert ($probe.status -eq 'completed') ('Point probe y='+$py) $probe.chain[0]
+   $sweep+=@{y=[int]$py;hit=$probe.chain[0].className;hitName=$probe.chain[0].name;hitType=$probe.chain[0].type}
+  }
+  [IO.File]::WriteAllText((Join-Path $OutputDirectory 'menu-point-sweep.json'),($sweep|ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($false))
+  Exactly-Once 'menu-third' 'menu pointer item' {[Core20ActionInput]::Click([int]($pointerTarget.x+$pointerTarget.width*$script:Scale/2),[int]($pointerTarget.y+8))}
+  Menu-State $false 'menu-pointer-commit'
+  Focus-Action 'Actions 0' 'ControlType.Button';Key 32
+  Menu-Open 0 $trigger 'menu-space-open'|Out-Null
+  $closed=Menu-Requests $false;$before=Activations 'menu-third';Key 27
+  Menu-State $false 'menu-escape'
+  Assert ((Menu-Requests $false) -eq $closed+1) 'Escape reports one menu close request'
+  Assert ((Activations 'menu-third') -eq $before) 'Escape closes without another action'
+  Wait-For {Focused 'Actions 0'} 'Escape did not restore menu trigger focus'
+  Click-Control $trigger;Menu-Open 0 $trigger 'menu-before-outside'|Out-Null
+  $outside=Named @((Capture 'menu-outside-target')|Where-Object {$_.type -eq 'ControlType.Button'}) 'Before menu'
+  $closed=Menu-Requests $false;Click-Control $outside;Menu-State $false 'menu-outside-dismiss'
+  Assert ((Menu-Requests $false) -eq $closed+1) 'Outside pointer reports one close request'
+  Click-Control $trigger;Menu-Open 0 $trigger 'menu-before-update'|Out-Null
+  Command 'revision' 1|Out-Null
+  $updated=Menu-Shape 1 'menu-updated-trigger'
+  Menu-Open 1 $updated 'menu-updated-items'|Out-Null
+  Exactly-Once 'menu-first' 'updated menu Invoke' {$result=Uia-Action 'invoke' 'First action 1' 'ControlType.MenuItem';Assert ($result.status -eq 'completed') 'Updated menu Invoke completed' $result}
+  Menu-State $false 'menu-updated-commit'
+  $events=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -eq 'menu-first'})
+  Assert ($events[-1].fixtureRevision -eq 1) 'Menu action reads the current callback revision' $events[-1]
+  Reset-Menu 2;$reject=Menu-Shape 2 'menu-rejected-trigger'
+  Focus-Action 'Actions 2' 'ControlType.Button';$opened=Menu-Requests $true;Key 13
+  Menu-State $false 'menu-controlled-rejection'
+  Assert ((Menu-Requests $true) -eq $opened+1) 'Controlled rejection preserves exactly one open request'
+  Assert (@((Capture 'menu-rejected-items')|Where-Object {$_.type -eq 'ControlType.MenuItem'}).Count -eq 0) 'Rejected controlled opening leaves no native menu items'
+  Reset-Menu;Command 'disabled' $true|Out-Null
+  $disabled=Menu-Shape 0 'menu-disabled-trigger' $false
+  $result=Uia-Action 'focus' 'Actions 0' 'ControlType.Button';Assert ($result.status -eq 'rejected') 'Disabled menu trigger rejects focus' $result
+  $result=Uia-Action 'invoke' 'Actions 0' 'ControlType.Button';Assert ($result.status -eq 'rejected') 'Disabled menu trigger rejects Invoke' $result
+  Click-Control $disabled;Menu-State $false 'menu-disabled-pointer'
+  Focus-Action 'Before menu' 'ControlType.Button';Key 9
+  Wait-For {Focused 'After menu'} 'Tab did not skip disabled menu trigger'
+  Key 13;Key 32;Menu-State $false 'menu-disabled-keys'
+  Command 'mounted' $false|Out-Null
+  Assert (@((Capture 'menu-unmounted')|Where-Object {$_.type -eq 'ControlType.Menu' -or $_.type -eq 'ControlType.MenuItem' -or $_.name -eq 'Actions 0'}).Count -eq 0) 'Unmount removes menu trigger and item peers'
+  Reset-Menu;$trigger=Menu-Shape 0 'menu-remounted';Menu-State $false 'menu-remounted-default'
+  Focus-Action 'Actions 0' 'ControlType.Button';Key 13
+  Menu-Open 0 $trigger 'menu-remounted-open'|Out-Null
+  Exactly-Once 'menu-first' 'remounted menu action' {Key 13}
+  Menu-State $false 'menu-remounted-commit'
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned menu window'}
+  $narrow=Menu-Shape 0 'menu-narrow'
+  Assert ($narrow.width -lt $trigger.width) 'Menu trigger and native anchor shrink together' @{wide=$trigger.width;narrow=$narrow.width}
+  Click-Control $narrow;Menu-Open 0 $narrow 'menu-narrow-open'|Out-Null;Key 27
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot restore the owned menu window'}
+  $wide=Menu-Shape 0 'menu-wide-restored'
+  Assert (Near $wide.width $trigger.width) 'Menu trigger and anchor restore after widening' @{before=$trigger.width;after=$wide.width}
+  $entry.status='assertions-passed'
+ }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+}
+
 $report=[ordered]@{
  schemaVersion=1;packageVersion=$pkg.Version.ToString();packageFamilyName=$pkg.PackageFamilyName
  driverSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
- scope=$(if($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
@@ -942,7 +1100,9 @@ try {
  $report.masonSha256=(Get-FileHash $mason[0].FileName -Algorithm SHA256).Hash
  $report.preflightChecks=@($script:Checks.ToArray())
  if(-not [Core20Desktop]::MoveWindow($windowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot set the wide window size'}
- if($SelectorActions){
+ if($MenuActions){
+  Check-MenuActions
+ }elseif($SelectorActions){
   Check-SelectorActions
  }elseif($TabActions){
   Check-TabActions
