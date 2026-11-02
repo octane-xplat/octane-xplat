@@ -6,13 +6,16 @@ local cache; they still require the app's Node/Bun/platform toolchains.
 See [CLI installation and executable builds](../../../../docs/packages/package-cli.md#single-file-executable).
 
 The parallel Nim implementation is experimental and intended for the npm `nim`
-tag. It currently executes catalog, clean, app selection and permission reporting; other command execution is
-pending, even when help/schema discovery is available. Keep using the TypeScript
-CLI for app workflows. See the [native migration boundaries](../../../../packages/cli/nim/README.md).
+tag. Its installed catalog distinguishes implemented commands from schema-only
+discovery. Full app workflows remain pending; keep using the TypeScript CLI for
+those workflows. Project-installed plugins are available separately as
+`@octane-xplat/build`. See the
+[native migration boundaries](../../../../packages/cli/nim/README.md).
 
 ```sh
 bun --version
 bun run xplat --help
+bun run xplat catalog --json
 ```
 
 Use the app's installed CLI for discovery and supported operations. It

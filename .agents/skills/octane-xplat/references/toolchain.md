@@ -40,6 +40,18 @@ and development/build commands select either Bun or pnpm from the project.
 Other Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
 consumer bundlers still compile framework runtime source.
 
+Apps can install Vite presets separately as `@octane-xplat/build`; its plugin
+paths mirror the TypeScript CLI's existing ones. Use this separate package with
+the experimental Nim CLI, whose tarball has no JS exports. Keep the app's
+existing preset/options and compiler dependencies; native command coverage is
+still reported by its installed catalog. See
+[project build plugins](../../../../docs/packages/package-build.md).
+
+```ts
+import { xplatNative } from '@octane-xplat/build/vite'
+// Desktop alternatives: @octane-xplat/build/macos/vite or /linux-gtk/vite.
+```
+
 ```sh
 bun run xplat doctor
 bunx @octane-xplat/cli@latest upgrade --check

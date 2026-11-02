@@ -14,6 +14,15 @@ scope and qualification limits, [tools/cli-nim](../../tools/cli-nim/README.md) f
 task-local compiler/dependency pins and differential checks, and
 [CLI agent guidance](../../packages/cli/AGENTS.md) for verified Nim pitfalls.
 
+Project-installed Vite presets are separately packaged as
+[`@octane-xplat/build`](../../packages/build/README.md). Its build compiles the
+plugin closure from the TypeScript reference sources; it has no published CLI
+runtime dependency. Keep JS compilation and development middleware in the app's
+toolchain, and command/process/session orchestration in the native executable.
+The existing TypeScript CLI exports remain available during the parallel
+migration; the Nim tarball has none of those JS exports. See the
+[build-plugin guide](../../docs/packages/package-build.md) for import migration.
+
 For the isolated native-TypeScript alternative, use the
 [Perry CLI evaluation tool](../../tools/cli-perry/README.md). Its native-host
 checks compare real catalog/discovery code with Node and measure the combined

@@ -1,15 +1,17 @@
 // Stage the Nim-only npm package; leave the TypeScript reference in the repository.
-import { cpSync, mkdirSync, readFileSync, writeFileSync, mkdtempSync } from 'node:fs'
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
-import { tmpdir } from 'node:os'
 import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
+import { scratchRun } from './scratch.mjs'
 const root=resolve(import.meta.dirname,'../..')
 const hostOnly=process.argv.includes('--host-only') // local qualification, never publication
+const destination=process.argv.indexOf('--destination')
+if(destination>=0&&(!process.argv[destination+1]||process.argv[destination+1].startsWith('--')))throw Error('--destination needs a directory')
 const build=JSON.parse(readFileSync(resolve(root,'research/nim-cli/native/build.json')))
 const version=process.env.XPLAT_NIM_VERSION ?? build.version
 if (!/^\d+\.\d+\.\d+-nim\.[0-9]+$/.test(version)) throw Error('Require x.y.z-nim.N')
-const stage=mkdtempSync(join(tmpdir(),'xplat-nim-package-'))
+const stage=scratchRun(root,'npm-stage')
 const source=resolve(root,'packages/cli')
 const pkg=JSON.parse(readFileSync(join(source,'package.json')))
 // Avoid a runtime wrapper: npm links directly to the binary copied at install.
@@ -33,7 +35,7 @@ for(const target of selected) {
 if(hostOnly){pkg.private=true;pkg.os=[process.platform];pkg.cpu=[process.arch]}
 writeFileSync(join(stage,'native/manifest.json'),JSON.stringify(manifest,null,2))
 writeFileSync(join(stage,'package.json'),JSON.stringify(pkg,null,2)+'\n')
-const out=resolve(root,'research/nim-cli/package');mkdirSync(out,{recursive:true})
+const out=destination<0?resolve(root,'research/nim-cli/package'):resolve(process.argv[destination+1]);mkdirSync(out,{recursive:true})
 const packed=spawnSync('bun',['pm','pack','--destination',out],{cwd:stage,stdio:'inherit'})
 if(packed.status!==0)throw Error('Pack failed')
 writeFileSync(join(out,'stage.json'),JSON.stringify({stage,version,hostOnly}))

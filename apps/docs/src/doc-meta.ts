@@ -101,6 +101,7 @@ export const GROUPS = [
 			'package-barcode-scanner',
 			'package-billing',
 			'package-biometrics',
+			'package-build',
 			'package-calendar',
 			'package-camera',
 			'package-canvas',

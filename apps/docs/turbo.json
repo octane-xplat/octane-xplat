@@ -23,6 +23,7 @@
 				"@octane-xplat/barcode-scanner#typegen",
 				"@octane-xplat/billing#typegen",
 				"@octane-xplat/biometrics#typegen",
+				"@octane-xplat/build#build",
 				"@octane-xplat/calendar#typegen",
 				"@octane-xplat/camera#typegen",
 				"@octane-xplat/canvas#typegen",

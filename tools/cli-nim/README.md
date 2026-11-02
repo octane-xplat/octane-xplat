@@ -1,10 +1,11 @@
-# Evaluate Nim for the CLI
+# Native CLI migration tooling
 
-This bounded contributor prototype evaluates a standalone control layer.
-The [parallel implementation](../../packages/cli/nim/README.md) now owns the
-shared core and public native entry; this tool retains the independent probe. It does
-not replace `xplat`. Node runs the build and comparison harness; the resulting
-executable runs with an empty PATH and contains no JavaScript engine.
+These contributor tools support the full parallel CLI rewrite and retain an
+independent bounded evaluation core. The
+[parallel implementation](../../packages/cli/nim/README.md) owns the shared core
+and public native entry. Node runs the build and comparison harness; the native
+executable runs with an empty PATH and contains no JavaScript engine. Keep
+command and real app-workflow coverage separate from successful primitive probes.
 
 ## Run on macOS
 
@@ -17,8 +18,8 @@ license paths are declared in
 keeps sources in task-local storage. Package staging includes their notices.
 
 ```sh
-bun install --ignore-scripts
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim CLI prototype"}' -- node tools/cli-nim/prepare.mjs
+bun install --frozen-lockfile --ignore-scripts
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim CLI build"}' -- bun run turbo run build:nim --filter=@octane-xplat/cli
 bun run turbo run test --filter=@xplat/cli-nim-probe
 ```
 
@@ -27,17 +28,50 @@ compiles it into the executable. The harness stages the TypeScript reference
 from `packages/cli`, reuses the Perry probe adapters, and compares JSON, streams,
 and exit status. It preserves `results.json` under a host/timestamp directory.
 Tests are deliberately uncached because the binary lives outside Turbo outputs.
-No public workflow or recipe changes are made.
+Probe success does not establish complete command or app-workflow coverage.
 
 ## Boundaries
 
 Keep help, catalog/schema discovery, manifest/filesystem inspection, version
 binding, diagnostics, and eventual HTTP control protocols in native code.
-Build/dev/typecheck, Vite plugins, NativeScript hosts, formatting/linting engines,
-and project JavaScript configuration execution should invoke project-installed
+Build/dev/typecheck engine work, Vite plugins, NativeScript hosts, formatting/linting
+engines, and project JavaScript configuration execution should invoke project-installed
 tools using explicit argv, cwd, and environment. Shipping a runtime wrapper would
 not deliver the intended download reduction. Generating static command metadata
 at build time preserves one authoring source without executing JS at startup.
+
+## Project-installed build plugins
+
+`@octane-xplat/build` compiles the three Vite preset entry points from the
+TypeScript reference plugin sources. Its published dependency graph has no CLI
+runtime edge; the CLI is a build-only workspace dependency tracking that source.
+The ordinary packed check installs the plugin tarball outside the workspace
+without a CLI installation. It checks typed exports, real Vite production/dev
+CSS handling, application PostCSS configuration, platform-file selection,
+foreign-module rejection and development session-file cleanup.
+
+```sh
+bun run turbo run build typecheck test:packed --filter=@octane-xplat/build
+```
+
+The native variant also installs a host-only native CLI tarball, checks its
+empty-PATH catalog, and verifies that the old CLI JS plugin import is absent.
+On macOS, the native HTTP probe calls the real packed Vite bridge: registry,
+submit, poll and outcome waiting use simulated app messages. This does not
+establish a browser, mobile renderer or live macOS app session. Desktop preset
+exports are imported/typechecked; their host builds are separate qualification.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native CLI and project tool boundary"}' -- bun run turbo run test:nim-build-tools --filter=@octane-xplat/cli
+```
+
+New qualification/staging runs use disposable folders under
+`~/agent-scratch/octane-xplat/nim-cli-<workspace-hash>/`. Retained JSON evidence
+stays in `research/nim-cli`; reports stay outside scratch. Native packaging
+accepts `--destination DIR` so concurrent consumers do not share tarball/stage
+state. Import migration lives in the
+[public guide](../../docs/packages/package-build.md). Existing TypeScript CLI
+exports remain available during the parallel migration.
 
 ```sh
 research/nim-cli/core catalog

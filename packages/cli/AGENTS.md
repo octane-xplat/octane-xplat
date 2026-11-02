@@ -6,6 +6,12 @@ executing the old CLI. Project-installed JavaScript build engines remain a
 separate boundary. The Nim npm package contains no JS implementation payload,
 JS exports, or runtime dependency tree; the small installer runs only at install.
 
+Project-installed plugins live in `@octane-xplat/build`. That package compiles
+the Vite plugin closure from the TypeScript reference at build time; its published
+code has no CLI runtime dependency. Preserve this boundary when wiring native
+commands: invoke the app's installed compiler/build tools with explicit argv,
+cwd and environment, and keep command/session orchestration in Nim.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node
@@ -84,6 +90,10 @@ in one process. Do not ship test-only entry points in the production binary.
 Assert that positive fixtures actually reach the intended successful result.
 Two implementations returning the same unavailable/default value do not qualify
 the successful path that a fixture was meant to exercise.
+
+For failure-path checks, catch only the operation being tested. Assert rejection
+outside that catch so a successful operation cannot catch the test's own failure
+and accidentally pass. Keep protocol/exit assertions independent of diagnostics.
 
 Treat dependency semantics as independent of successful compilation. In particular,
 NimYAML's JSON construction can overwrite duplicate keys that the reference YAML

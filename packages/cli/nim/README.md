@@ -136,8 +136,9 @@ small install-time selector. It has no JavaScript implementation payload,
 JavaScript exports, or runtime dependency tree. TypeScript remains in the
 repository as the migration reference; stable/nightly packaging is unchanged.
 Existing `@octane-xplat/cli/vite` and MCP imports are not provided by this
-experimental tarball. Project build plugins need their own installed package
-before the Nim CLI can replace those workflows.
+experimental tarball. Project build plugins are separately packaged as
+[`@octane-xplat/build`](../../build/README.md); the native build/dev/typecheck
+commands and complete app workflows still require migration and qualification.
 
 ```sh
 # After a Nim prerelease is published:
@@ -160,7 +161,7 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 ```
 
 Linux/Windows build flags and native jobs are supplied but remain unqualified
-until those jobs execute. TLS, full argument/error parity, runtime sessions,
+until those jobs execute. Other host TLS adapters, full argument/error parity, runtime sessions,
 project tool dispatch, updates, and most commands remain migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,
 real project journeys and native OS behavior have equivalent coverage.
