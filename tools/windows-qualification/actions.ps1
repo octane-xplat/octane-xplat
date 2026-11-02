@@ -1638,9 +1638,9 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','auth','window-metrics','secure-storage','secure-persist','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','corefs','storage-persist')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
- if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify','clipboard-nontext'|Where-Object {$_ -cin $serviceFilter})}
+ if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
   try{
   if($spec -eq 'clipboard-nontext'){Set-Clipboard -LiteralPath $PSCommandPath}
@@ -1832,6 +1832,10 @@ try {
   Check-Core20Structure
  }elseif($ServiceActions){
   Check-ServiceActions
+ }elseif($TextInputActions){
+  Check-TextInputActions
+ }elseif($ScrollActions){
+  Check-ScrollActions
  }else{
  Command 'action-case' 'all'|Out-Null
  Command 'implicit-names' $false|Out-Null
