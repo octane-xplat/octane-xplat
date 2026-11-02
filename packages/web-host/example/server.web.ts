@@ -8,7 +8,10 @@ export const handle = createWebHandler({
 	buildId: 'example-v1',
 	Document,
 	assets: { scripts: ['/client.js'] },
-	transfer: (match) => ({ data: match.data as { name: string }, context: {} }),
+	transfer: (match) => ({
+		data: match.contract === 'declared' ? match.data : null,
+		context: {},
+	}),
 	mode: (request) => (new URL(request.url).searchParams.has('client') ? 'client' : 'server'),
 })
 
@@ -19,6 +22,9 @@ export const staticRenderer = createWebRenderer({
 	buildId: 'example-v1',
 	Document,
 	assets: { scripts: ['/client.js'] },
-	transfer: (match) => ({ data: match.data as { name: string }, context: {} }),
+	transfer: (match) => ({
+		data: match.contract === 'declared' ? match.data : null,
+		context: {},
+	}),
 	response: () => ({ headers: { 'Cache-Control': 'public, max-age=60' } }),
 })

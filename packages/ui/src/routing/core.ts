@@ -120,6 +120,6 @@ export { createRouter } from './router-instance'
 export { RouteRegistrationError } from './route-registry'
 
 /** @internal Generated contract boundary; application routes use defineRoute. */
-export { sealGeneratedRouteCatalog } from './route-contract-scope'
+export { sealGeneratedRouteCatalog, hasRouteContract } from './route-contract-scope'
 
 export type { RouteGroupBuilder } from './define-route'

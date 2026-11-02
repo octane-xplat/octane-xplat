@@ -8,6 +8,8 @@ import {
 	type ContractsOf,
 	type DestinationFor,
 	type RouteDestinationInput,
+	type RouterMatch,
+	hasRouteContract,
 } from '@octane-xplat/ui/routing/core'
 
 import {
@@ -76,6 +78,17 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 	if (options.template && options.Document) {
 		throw new TypeError('Choose template or Document')
 	}
+	const declaredPaths = new Set(
+		options.catalog.routes.filter(hasRouteContract).map((route) => '/' + route.segments.join('/')),
+	)
+	/** Prepared matches gain the declared/runtime stamp the callbacks' union
+	 * narrows on — the same ownership rule as router-instance's `project`. */
+	const declaredMatch = (match: PreparedRouteMatch): RouterMatch<ContractsOf<Catalog>> =>
+		({
+			...match,
+			contract: declaredPaths.has(match.to) ? 'declared' : 'runtime',
+		}) as RouterMatch<ContractsOf<Catalog>>
+
 	const render = async (request: Request): Promise<WebRenderedPage | Response> => {
 		if (request.method !== 'GET' && request.method !== 'HEAD') {
 			return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'GET, HEAD' } })
@@ -136,9 +149,10 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 					throw new Error('Route preparation was cancelled')
 				}
 
-				init = options.response?.(result.match, request) ?? {}
+				const routedMatch = declaredMatch(result.match)
+				init = options.response?.(routedMatch, request) ?? {}
 				const projection = await untilAborted(
-					Promise.resolve(options.transfer(result.match, request)),
+					Promise.resolve(options.transfer(routedMatch, request)),
 					request.signal,
 				)
 

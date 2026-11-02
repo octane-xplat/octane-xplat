@@ -3,6 +3,7 @@ import type {
 	ContractRouteManifest,
 	RoutePreparationOptions,
 	RouterInstance,
+	RouterMatch,
 	ContractsOf,
 	RouterOptions,
 	RouterRootContext,
@@ -95,15 +96,17 @@ export type WebHandlerOptions<Catalog extends ContractRouteManifest = ContractRo
 			 * and <!--xplat:scripts--> slot instead of a Document component. */
 			template?: string
 			/** Required public projection. Both the server screen and first browser
-			 * render receive this value; private preparation context never crosses. */
+			 * render receive this value; private preparation context never crosses.
+			 * Declared-route matches carry their inferred params, search, and loader
+			 * data — narrow on `contract`/`to` to read them without assertions. */
 			transfer: (
-				match: PreparedRouteMatch,
+				match: RouterMatch<ContractsOf<Catalog>>,
 				request: Request,
 			) => PublicRouteData | Promise<PublicRouteData>
 			/** Per-request render mode; static or a request resolver. Defaults to 'server'. */
 			mode?: WebRenderMode | ((request: Request) => WebRenderMode)
 			/** Extra ResponseInit for the rendered page — status and headers merge over the host defaults. */
-			response?: (match: PreparedRouteMatch, request: Request) => ResponseInit
+			response?: (match: RouterMatch<ContractsOf<Catalog>>, request: Request) => ResponseInit
 			/** Called when rendering throws; the response still falls back to a 500. */
 			onError?: (error: unknown, request: Request) => void
 		}
