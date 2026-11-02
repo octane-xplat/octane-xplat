@@ -13,10 +13,11 @@ param(
  [switch]$MenuActions,
  [switch]$TableActions,
  [switch]$LayerActions,
- [switch]$LayerFocusActions
+ [switch]$LayerFocusActions,
+ [switch]$Core20Structure
 )
 $ErrorActionPreference='Stop'
-if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions) -gt 1){throw 'Choose one action mode per run'}
+if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions + [int][bool]$Core20Structure) -gt 1){throw 'Choose one action mode per run'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
@@ -1065,6 +1066,86 @@ function Check-LayerFocusActions {
   $entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)
  }
 }
+function Check-DisplayStructure([string]$Case,[string]$Prefix,$Tree,$Nodes){
+ $labels=@{card='Card';badge='Badge';avatar='Avatar';banner='Banner'}
+ $id="core20-$Case"
+ $root=Native-Id $Nodes $id
+ Assert ($null -ne $root) "$Case renders its native drawing node" $id
+ if($Case -eq 'card'){
+  Named $Tree ('Card header 0')|Out-Null
+  Named $Tree ('Card body 0: a longer sentence that wraps when the window becomes narrow.')|Out-Null
+  Named $Tree ('Card footer 0')|Out-Null
+  Named @($Tree|Where-Object {$_.type -eq 'ControlType.Button'}) 'Open card 0'|Out-Null
+ }elseif($Case -eq 'badge'){
+  Named $Tree 'Ready badge'|Out-Null
+ }elseif($Case -eq 'avatar'){
+  Named @($Tree|Where-Object {$_.type -eq 'ControlType.Image'}) 'Ada Lovelace'|Out-Null
+  Named $Tree 'AL'|Out-Null
+ }elseif($Case -eq 'banner'){
+  Named @($Tree|Where-Object {$_.type -eq 'ControlType.Button'}) 'Banner action 0'|Out-Null
+  Named $Tree ('Banner body 0')|Out-Null
+ }
+}
+function Check-Core20Structure {
+ $layoutCases=@('text','vstack','hstack','stack','view','center','section','shrink')
+ $displayCases=@('card','badge','avatar','banner')
+ foreach($Case in $layoutCases){
+  $script:Checks.Clear()
+  $entry=[ordered]@{case='layout-'+$Case;status='running';checks=$null;error=$null}
+  try{
+   Command 'mounted' $false|Out-Null
+   Command 'revision' 0|Out-Null
+   Command 'disabled' $false|Out-Null
+   Command 'scene' 'layout'|Out-Null
+   Command 'case' $Case|Out-Null
+   Command 'mounted' $true|Out-Null
+   Status-Contains 'Core20 layout '
+   Status-Contains ('case='+$Case)
+   $tree=Capture ('layout-'+$Case+'-wide')
+   $nodes=Snapshot ('layout-'+$Case+'-native')
+   Check-Layout $Case $tree $nodes
+   if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned layout window'}
+   $tree2=Capture ('layout-'+$Case+'-narrow')
+   $nodes2=Snapshot ('layout-'+$Case+'-narrow-native')
+   if($Case -ne 'shrink'){Check-Reflow $Case $tree2 $nodes2}
+   if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot restore the owned layout window'}
+   Command 'revision' 1|Out-Null
+   $tree3=Capture ('layout-'+$Case+'-rev1')
+   Assert (@($tree3).Count -gt 0) 'Layout revision update re-renders'
+   Command 'mounted' $false|Out-Null
+   Command 'mounted' $true|Out-Null
+   $tree4=Capture ('layout-'+$Case+'-remount')
+   Assert (@($tree4).Count -gt 0) 'Layout remount re-renders'
+   $entry.status='assertions-passed'
+  }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry);Save-CaseProgress}
+ }
+ foreach($Case in $displayCases){
+  $script:Checks.Clear()
+  $entry=[ordered]@{case='display-'+$Case;status='running';checks=$null;error=$null}
+  try{
+   Command 'mounted' $false|Out-Null
+   Command 'revision' 0|Out-Null
+   Command 'disabled' $false|Out-Null
+   Command 'scene' 'display'|Out-Null
+   Command 'display-case' $Case|Out-Null
+   Command 'mounted' $true|Out-Null
+   Status-Contains 'Core20 display '
+   $tree=Capture ('display-'+$Case+'-wide')
+   $nodes=Snapshot ('display-'+$Case+'-native')
+   Check-DisplayStructure $Case ('display-'+$Case) $tree $nodes
+   Command 'revision' 1|Out-Null
+   $tree3=Capture ('display-'+$Case+'-rev1')
+   Assert (@($tree3).Count -gt 0) 'Display revision update re-renders'
+   Command 'mounted' $false|Out-Null
+   Command 'mounted' $true|Out-Null
+   $tree4=Capture ('display-'+$Case+'-remount')
+   Assert (@($tree4).Count -gt 0) 'Display remount re-renders'
+   $entry.status='assertions-passed'
+  }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+  finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry);Save-CaseProgress}
+ }
+}
 function Check-SelectorActions {
  $script:Checks.Clear()
  $entry=[ordered]@{case='public-selector-single';status='running';checks=$null;error=$null}
@@ -1304,7 +1385,7 @@ $report=[ordered]@{
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
- scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerFocusActions){'Nested useLayer focus/close: outer and inner anchored layers, child close and Escape restore focus into the parent, parent close restores the outer trigger; secondary windows and modal focus remain separate.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($MenuActions){'Public finite action DropdownMenu: shared Button and row drawing, genuine Menu/MenuItem/Invoke, names and anchored bounds, OS input, controlled rejection, disabled, updates, remount and resize. Complex/sheet/custom-styled menus and final fresh-install20 remain separate.'}elseif($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($LayerFocusActions){'Nested useLayer focus/close: outer and inner anchored layers, child close and Escape restore focus into the parent, parent close restores the outer trigger; secondary windows and modal focus remain separate.'}elseif($LayerActions){'Direct useLayer anchored context layer: declared Screen/RootLayout host, trigger geometry and anchored-below surface peer, Layer action Invoke/activation, exactly-once open/dismissal via button/outside/Escape, controlled isOpen rejection, disabled trigger, remount and narrow resize. Fixed/custom placements, RTL and focus-return specifics remain separate.'}elseif($TableActions){'Public Table sortable-header input prerequisite: one Button/Invoke peer named Sort by Name, Tab/Enter/Space/mouse/Invoke exactly-once sort cycle, controlled acceptance/rejection, current callback, prop/remount/resize and peer/drawing geometry. Table structure, scrolling and the full sort/plugin matrix remain separate.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($Core20Structure){'Core20 structure gates: layout cases (text/vstack/hstack/stack/view/center/section/shrink) named peers, finite bounds, ordered children, padding/gap/alignment, narrow reflow, revision/remount; display cases (card/badge/avatar/banner) named peers and content. One packaged MSIX.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
@@ -1378,6 +1459,8 @@ try {
   Check-DisplayActions
  }elseif($ListItemActions){
   Check-ListItemActions
+ }elseif($Core20Structure){
+  Check-Core20Structure
  }else{
  Command 'action-case' 'all'|Out-Null
  Command 'implicit-names' $false|Out-Null
