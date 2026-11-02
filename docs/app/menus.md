@@ -8,6 +8,9 @@ same menu parts on web, iOS, Android, and macOS.
 
 ## Start with actions
 
+Windows has an [experimental flat-action candidate](../platform/windows-setup.md#action-menu-candidate).
+Its other menu configurations retain the shared view and its input limits.
+
 A menu item calls `onSelect` when chosen and closes the menu. Data-driven rows
 now include an explicit kind; mark command rows as `action`:
 

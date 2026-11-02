@@ -379,13 +379,24 @@ Windows application events identified an access violation in `nativescript.DLL`.
 The static attached-flyout API passed the same keyboard, action, focus and
 dismissal checks. The instance-call failure's underlying cause remains unresolved.
 
+Construct the anchor with `new Microsoft.UI.Xaml.Controls.Grid()`. The pinned
+bridge's `XamlReader.Load` result lacks typed framework accessors such as
+`MinWidth`; using it as the accessor source aborted public menu initialization.
+Keep that loaded object for named item slots, and attach its flyout to the typed
+Grid. Borrow presenter geometry accessors from the typed Grid as with Selector.
+
 ```ts
 import { Microsoft } from '@octane-xplat/platform/windows'
 
-function showNativeMenu(attachedHost: any, menu: any): void {
+function createNativeMenuAnchor(menu: any): any {
+  const attachedHost = new Microsoft.UI.Xaml.Controls.Grid()
   const flyouts = Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase
   flyouts.SetAttachedFlyout(attachedHost, menu)
-  flyouts.ShowAttachedFlyout(attachedHost)
+  return attachedHost
+}
+
+function showNativeMenu(attachedHost: any): void {
+  Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase.ShowAttachedFlyout(attachedHost)
 }
 ```
 
@@ -395,7 +406,9 @@ framework content in the native checks; plain-text items do not establish its
 layout or automation behavior.
 
 ```xml
-<MenuFlyoutItem x:Name="ActionSlot" MinHeight="32" Padding="0"
+<MenuFlyoutItem xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ x:Name="ActionSlot" MinHeight="32" Padding="0"
  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
  <MenuFlyoutItem.Template>
   <ControlTemplate TargetType="MenuFlyoutItem">

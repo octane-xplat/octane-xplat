@@ -643,3 +643,28 @@ empty lists and groups still use the shared native view and retain its input
 limits. The bounded native input checks do not establish the full props matrix,
 long-list scrolling, Narrator, visual parity or the final fresh-install
 core-component qualification.
+
+## Action menu candidate
+
+For a small menu of commands, use flat action rows. The Windows candidate keeps
+the shared Button and row content, with native menu-item input and automation:
+
+```tsx
+import { DropdownMenu } from '@octane-xplat/ui'
+
+export function Actions() {
+  return <DropdownMenu button={{ label: 'Actions' }} label="Document actions"
+    items={[
+      { type: 'action', key: 'rename', label: 'Rename', onSelect: () => console.log('Rename') },
+      { type: 'action', key: 'remove', label: 'Remove', isDisabled: true },
+    ]} />
+}
+```
+
+This candidate still needs its packaged public-component input checks. The
+private native-engine checks do not qualify the public component. Links,
+sections, choices, submenus, compound content, keep-open rows, sheet/adaptive
+presentation and custom surface styling, width, alignment or non-bottom
+placement use the shared view and retain its input limits. The full props
+matrix, Narrator, visual parity and final fresh-install qualification remain
+pending.

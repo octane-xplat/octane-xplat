@@ -419,3 +419,27 @@ export function Choice() {
 For controller work, read the [Windows selection constraints](../../../../docs/windows-ui.md#single-selection-controller-candidate)
 before reusing tab-strip focus or native event handling. Source/object-driver
 checks do not establish popup placement, OS input, Narrator or visual parity.
+
+## Action DropdownMenu candidate
+
+The experimental Windows leaf uses native MenuItem/Invoke peers for finite,
+flat action rows with default surface settings. It keeps the shared Button and
+framework row content. Advanced row kinds, compound/keep-open/sheet menus and
+custom surface styling, width or placement retain the shared implementation.
+
+```tsx
+import { DropdownMenu } from '@octane-xplat/ui'
+
+export function Actions() {
+  return <DropdownMenu button={{ label: 'Actions' }} items={[
+    { type: 'action', key: 'open', label: 'Open', onSelect: () => console.log('Open') },
+  ]} />
+}
+```
+
+Read the [native engine constraints](../../../../docs/windows-ui.md#native-menu-engine-constraints)
+before opening a flyout: the pinned instance `ShowAt` path lost the process;
+the static attached API has bounded private proof. Public input, trigger
+geometry, controlled state and lifecycle need their own
+[maintained menu mode](../../../../../tools/windows-qualification/README.md#run-action-menu-checks).
+Neither engine nor object-driver tests establish final Windows qualification.

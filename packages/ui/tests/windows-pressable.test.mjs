@@ -394,6 +394,63 @@ const selectContainer = compiled('select-container', read('forms/Select.windows.
 
 const { Select: WindowsSelect } = await import(selectContainer)
 
+const menuSupport = moduleFile(
+	'menu-support',
+	`
+export const useButtonGroup=()=>undefined;
+export const useSize=(size)=>size??'md';
+export const reportActionError=error=>{throw error};
+`,
+)
+
+const menuSpinner = compiled(
+	'menu-spinner',
+	'export function ActivityIndicator() @{ <label text="Loading" /> }',
+)
+
+const menuButton = compiled('menu-button', read('actions/Button.tsrx'), {
+	'@nativescript/core': support,
+	'@octane-xplat/lib': support,
+	'../forms/text-slot': slot,
+	'./Pressable': pressable,
+	'../feedback/ActivityIndicator.tsrx': menuSpinner,
+	'../media/Icon': icon,
+	'./button-group-context': menuSupport,
+	'../layout/size-context': menuSupport,
+	'../../routing/safe-url': safeUrl,
+	'../../internal/layout/style-merge': support,
+	'../../internal/rendering/action-error': menuSupport,
+})
+
+const menuView = compiled(
+	'menu-view',
+	'export function View(props) @{ <masonview ref={props.ref}>{props.children}</masonview> }',
+)
+
+const menuFallback = compiled(
+	'menu-fallback',
+	`export function DropdownMenu(props) @{
+ <masonview id="shared-menu-fallback" accessibilityValue={props.isOpen?'open':'closed'} settings={{toggle:()=>props.onOpenChange(!props.isOpen)}} />
+}`,
+)
+
+const windowsMenu = compiled(
+	'windows-menu',
+	read('overlays/DropdownMenu.windows.tsrx').replace(/^import ['"].*['"]\s*;?$/gm, ''),
+	{
+		'@octane-xplat/lib': support,
+		'../actions/Button': menuButton,
+		'../actions/button-group-context': menuSupport,
+		'../content/Text': tabText,
+		'../layout/View': menuView,
+		'../layout/useMeasure': support,
+		'../media/Icon': icon,
+		'./DropdownMenu.tsrx': menuFallback,
+	},
+)
+
+const { DropdownMenu: WindowsDropdownMenu } = await import(windowsMenu)
+
 function mount(component, props) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -1032,6 +1089,101 @@ test('Windows Selector compiled uncontrolled choice closes once and async failur
 		f.render({ ...props, multiple: undefined, selectionMode: 'multiple' })
 		assert.equal(peer(), undefined)
 		assert.ok(f.nodes().some((n) => n.props.text === 'shared-fallback'))
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows DropdownMenu compiled leaf keeps controlled ownership and current row callbacks', async () => {
+	const calls = []
+	const props = {
+		id: 'actions',
+		isOpen: false,
+		label: 'Actions',
+		button: { label: 'Open menu' },
+		items: [{ type: 'action', key: 'first', label: 'First', onSelect: () => calls.push('old') }],
+		onOpenChange: (open) => calls.push(open),
+	}
+	const f = mount(WindowsDropdownMenu, props)
+	const peer = () => f.nodes().find((n) => n.type === 'xplatwindowsmenu')
+	try {
+		buttons(f)[0].props.settings.onPress()
+		assert.deepEqual(calls, [true])
+		assert.equal(peer().props.settings.open, false)
+		assert.equal(buttons(f).length, 1)
+		f.render({
+			...props,
+			isOpen: true,
+			label: 'Current menu',
+			items: [{ ...props.items[0], onSelect: () => calls.push('current') }],
+			onOpenChange: (open) => calls.push('current:' + open),
+		})
+
+		assert.equal(peer().props.settings.open, true)
+		assert.equal(peer().props.settings.label, 'Current menu')
+		assert.deepEqual(peer().props.style, {
+			position: 'absolute',
+			left: 0,
+			top: 0,
+			width: 120,
+			height: 32,
+		})
+
+		f.nodes()
+			.find((n) => n.type === 'xplatwindowsmenuitem')
+			.props.settings.onSelect()
+
+		peer().props.settings.onOpenChange(false)
+		assert.deepEqual(calls, [true, 'current', 'current:false'])
+		assert.equal(peer().props.settings.open, true)
+		f.render({ ...props, isDisabled: true })
+		assert.equal(peer().props.settings.blocked, true)
+		const count = calls.length
+		buttons(f)[0].props.settings.onPress()
+		assert.equal(calls.length, count)
+	} finally {
+		f.root.unmount()
+	}
+})
+
+test('Windows DropdownMenu compiled leaf shares uncontrolled state across supported/fallback presentations', async () => {
+	const opens = []
+	const props = {
+		defaultOpen: true,
+		button: { label: 'Menu' },
+		items: [{ type: 'action', key: 'first', label: 'First' }],
+		onOpenChange: (open) => opens.push(open),
+	}
+	const f = mount(WindowsDropdownMenu, props)
+	const peer = () => f.nodes().find((n) => n.type === 'xplatwindowsmenu')
+	const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
+	try {
+		assert.equal(peer().props.settings.open, true)
+		peer().props.settings.onOpenChange(false)
+		await tick()
+		assert.equal(peer().props.settings.open, false)
+		peer().props.settings.onOpenChange(false)
+		assert.deepEqual(opens, [false])
+		buttons(f)[0].props.settings.onPress()
+		await tick()
+		assert.equal(peer().props.settings.open, true)
+		f.render({ ...props, menuWidth: 200 })
+		assert.equal(peer(), undefined)
+		let fallback = f.nodes().find((n) => n.props.id === 'shared-menu-fallback')
+		assert.equal(fallback.props.accessibilityValue, 'open')
+		fallback.props.settings.toggle()
+		await tick()
+		fallback = f.nodes().find((n) => n.props.id === 'shared-menu-fallback')
+		assert.equal(fallback.props.accessibilityValue, 'closed')
+		f.render(props)
+		assert.equal(peer().props.settings.open, false)
+		assert.deepEqual(opens, [false, true, false])
+		f.render({
+			...props,
+			items: [{ type: 'action', key: 'keep', label: 'Keep open', hasCloseOnSelect: false }],
+		})
+
+		assert.equal(peer(), undefined)
 	} finally {
 		f.root.unmount()
 	}
