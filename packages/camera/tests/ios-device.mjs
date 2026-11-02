@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync, mkdirSync } from 'nod
 import { homedir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { prepare } from '../../../scripts/probe/project.ts'
+import { prepare } from '../../../tools/probe/project.ts'
 
 const self = fileURLToPath(import.meta.url)
 const repo = resolve(dirname(self), '../../..')
@@ -52,7 +52,7 @@ if (process.argv[2] !== '--device') {
 		resolve(repo, 'scripts/with-native-target-lock.py'),
 		'ios',
 		process.execPath,
-		resolve(repo, 'scripts/probe/mobile-launch.ts'),
+		resolve(repo, 'tools/probe/mobile-launch.ts'),
 		'ios',
 		device,
 		project.root,

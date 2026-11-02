@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import test from 'node:test'
 
-const launcher = new URL('../../../scripts/probe/mobile-launch.ts', import.meta.url)
+const launcher = new URL('../../../tools/probe/mobile-launch.ts', import.meta.url)
 async function fixture(run) {
 	const work = await mkdtemp(resolve(tmpdir(), 'camera-probe-launch-'))
 	try {
