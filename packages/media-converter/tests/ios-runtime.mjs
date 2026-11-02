@@ -90,12 +90,15 @@ try {
 		}
 		await new Promise((resolve) => setTimeout(resolve, 1000))
 	}
-	// bootstatus -b can wait indefinitely on iOS 27 first-boot migration even
-	// though install/launch already work — proceed once the device is Booted.
-	await command('xcrun', ['simctl', 'bootstatus', device, '-b'], {
-		allowFailure: true,
-		timeout: 90000,
-	})
+	// bootstatus -b can wait far beyond install/launch readiness on iOS 27
+	// first-boot migration — try it, but proceed once the device is Booted.
+	try {
+		await command('xcrun', ['simctl', 'bootstatus', device, '-b'], {
+			timeout: 90000,
+		})
+	} catch {
+		// Not fully ready yet; install/launch still work on a Booted device.
+	}
 	if (!values['reuse-build']) {
 		const build = await command(
 			'ns',
@@ -120,9 +123,13 @@ try {
 	assert.equal(workerChunk.status, 0, 'release app emits the compiled conversion worker')
 
 	// simctl terminate can hang indefinitely when the target is not running —
-	// only terminate a live process, on a short leash.
+	// only terminate a live process (a numeric PID column, not '-'), on a
+	// short leash.
 	const running = await sim(['spawn', device, 'launchctl', 'list'], true)
-	if (running.stdout.includes(project.appId)) {
+	const alive = running.stdout
+		.split('\n')
+		.some((line) => line.includes(project.appId) && /^\s*\d/.test(line))
+	if (alive) {
 		await command('xcrun', ['simctl', 'terminate', device, project.appId], {
 			allowFailure: true,
 			timeout: 20000,
