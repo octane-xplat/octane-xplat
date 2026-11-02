@@ -77,8 +77,14 @@ and busy-state composition land; inventory does not establish launch readiness.
 owned cleanup. Concurrent ends share completion; attached bindings preserve their
 external process. Snapshot mutation and observer exceptions cannot change private
 ownership or bypass cleanup. Its process fixture verifies cleanup before the outer
-test owner closes. Job/runtime/IPC composition and public session commands remain
+test owner closes. Runtime/IPC composition and public session commands remain
 pending; an in-memory registry does not establish a persistent app session.
+`jobs.nim` adds request deduplication, progress, bounded terminal history and
+cooperative cancellation. It retains runner ownership until completion and drains
+runners on close. Immediate completed futures can produce a terminal start result;
+no JS microtask schedule is assumed. `contract_failure.nim` carries structured
+errors across async boundaries with a fallback for ordinary/uninitialized errors.
+Public jobs/runtime commands remain pending until the native host is connected.
 These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside

@@ -184,6 +184,13 @@ does not prove resources were released. Serialize reentrant notifications and
 isolate observer exceptions from ownership cleanup. Dispose subscriptions when
 their registry shuts down, and reject new resource bindings during shutdown.
 
+Keep a job runner's completion and cancellation ownership until it settles.
+Manual provider completion must not retire an active runner. Bound terminal
+history separately from live work, including queued jobs cancelled before launch.
+Use typed exceptions to carry structured errors across async boundaries;
+`newException` does not initialize custom payload fields, so validate those fields
+before accessing them and provide an ordinary execution-failure fallback.
+
 Drain stdout and stderr concurrently when capturing a child. Reading one pipe
 to EOF first can block forever when the other pipe fills. Bound retained output,
 close unused stdin, and kill/reap the owned child on timeout or capture failure.

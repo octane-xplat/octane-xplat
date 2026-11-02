@@ -10,6 +10,7 @@ import ../../packages/cli/nim/managed_process
 import ../../packages/cli/nim/[prerequisites, command_probe]
 import ../../packages/cli/nim/target_discovery
 import ./sessions_scenario
+import ./jobs_scenario
 
 proc commandQuery(request: JsonNode): Future[JsonNode] {.async.} =
   let signal = newProcessCancel()
@@ -36,6 +37,8 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "jobs": value = waitFor jobScenario(request)
+    of "job-process": value = waitFor jobProcessScenario(request)
     of "session-process": value = waitFor sessionProcessScenario(request)
     of "sessions": value = waitFor sessionScenario(request)
     of "host-block":
