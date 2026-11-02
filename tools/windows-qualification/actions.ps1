@@ -20,7 +20,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions + [int][bool]$MenuActions + [int][bool]$TableActions + [int][bool]$LayerActions + [int][bool]$LayerFocusActions + [int][bool]$Core20Structure + [int][bool]$ServiceActions) -gt 1){throw 'Choose one action mode per run'}
-if($ServiceSpecs.Count -gt 0 -and -not $ServiceActions){throw 'ServiceSpecs requires ServiceActions'}
+if(@($ServiceSpecs|Where-Object {$_}).Count -gt 0 -and -not $ServiceActions){throw 'ServiceSpecs requires ServiceActions'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
@@ -1426,7 +1426,8 @@ function Check-ServiceActions{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
  $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','corefs','storage-persist')
- if($ServiceSpecs.Count){$specs=@($specs|Where-Object {$_ -cin $ServiceSpecs -or $_ -ceq 'storage-verify'})}
+ $serviceFilter=@($ServiceSpecs|Where-Object {$_})
+ if($serviceFilter.Count){$specs=@($specs+'storage-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
   Command 'service-run' $spec|Out-Null
   $result=Service-Result $spec
