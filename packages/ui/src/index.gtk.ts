@@ -320,6 +320,7 @@ export {
 export { TabList, Tab, TabMenu, useTabListContext } from './components/collections/TabList.tsrx'
 export { NavigationMenu } from './components/navigation/NavigationMenu.tsrx'
 export { NavLink } from './components/navigation/NavLink.tsrx'
+export { Collapsible, CollapsibleGroup } from './components/collections/Collapsible.tsrx'
 export { Accordion } from './components/collections/Accordion.tsrx'
 export { GridList } from './components/collections/GridList.tsrx'
 export { useGridList } from './components/collections/use-grid-list.tsrx'
