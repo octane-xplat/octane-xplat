@@ -2,8 +2,8 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-clean, app selection, permissions, code search, code read, guidance and docs read;
-other agent commands provide help and schemas with execution marked
+clean, typecheck, app selection, permissions, code search, code read, guidance
+and docs read; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -65,8 +65,10 @@ the process-group cleanup guarantee. Other process host adapters are unimplement
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem
 glob semantics. The caller still supplies an ambient source root explicitly;
-installed resource resolution, route generation and tagged compiler execution
-must be connected before public `typecheck` is implemented.
+`typecheck_command.nim` connects installed declaration assets from the selected
+project's build package, route generation and tagged project checker execution.
+It runs the default and combined environment programs (or the legacy native
+program), preserves compiler diagnostic bytes/streams and owns cancellation.
 `route_config.nim` validates declarative route paths, source references and
 navigation settings without executing application modules. Its checks cover
 the repository's actual route configurations and feed the discovery and emitter
@@ -84,8 +86,8 @@ caller umask are compared against Node on copied repository route trees.
 `build_worker.nim` bounds worker requests/results and owns Node process groups,
 timeouts, cancellation and diagnostics. Analysis never executes route modules;
 baking delegates loader execution to project-installed Vite and Markdown parsing
-to the build package. No runtime is bundled. Public route/typecheck wiring,
-baking publication and route watch lifecycle remain pending.
+to the build package. No runtime is bundled. Public routes, baked publication
+and route watch lifecycle remain pending.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace
@@ -95,6 +97,18 @@ filesystem discovery without making installed-version or runtime-readiness claim
 ```sh
 research/nim-cli/native/xplat status --schema
 research/nim-cli/native/xplat clean --help
+```
+
+On macOS, `typecheck` uses the project's installed package manager and
+`tsrx-tsc`. It generates route types without executing baked loaders, then runs
+the ordinary and combined environment programs. Install the compatible build
+package and checker in that project before running it. Compiler errors exit 1;
+SIGINT/SIGTERM propagate after owned child cleanup.
+
+```sh
+research/nim-cli/native/xplat typecheck --help
+# Run the executable from the selected app directory:
+xplat typecheck
 ```
 
 Code retrieval searches selected app and installed framework sources, respects

@@ -1,6 +1,7 @@
 ## Parallel native entry. Never falls back to the TypeScript CLI.
 import ./core, ./args, ./workspace, ./strictjson, ./json_wire, ./js_text, ./process_exit
-import std/[sysrand, terminal, json, os, strutils]
+import ./typecheck_command, ./managed_process
+import std/[sysrand, terminal, json, os, strutils, asyncdispatch]
 
 const metadata = staticRead("metadata.json")
 let data = parseJson(metadata)
@@ -42,7 +43,7 @@ proc errorExit(code: string): int =
 
 if argv.len == 0 or argv == @["--help"] or argv == @["-h"]:
   echo "xplat — experimental Nim CLI"
-  echo "Native commands: catalog, clean, permissions, app select, code search, code read, guidance, docs read; all agent commands expose --help and --schema."
+  echo "Native commands: catalog, clean, typecheck, permissions, app select, code search, code read, guidance, docs read; all agent commands expose --help and --schema."
   echo "Other command execution is pending. Install @octane-xplat/cli@latest for the TypeScript CLI."
   quit(0)
 if argv == @["--version"]:
@@ -84,7 +85,7 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, clean, permissions, app select, code search, code read, guidance, docs read. Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, clean, typecheck, permissions, app select, code search, code read, guidance, docs read. Other command execution is pending; use --json for contracts and coverage."
     quit(0)
   let reply = workspaceCommand(name, parsed["values"])
   if reply != nil:
@@ -95,6 +96,17 @@ if data["commands"].hasKey(name):
     let code = text(reply["error"]["code"])
     quit(errorExit(code))
   failure(name, "unavailable", "Command execution is not yet ported to Nim: " & name, 3)
+if name == "typecheck":
+  if argv.len > 1:
+    if argv in [@["typecheck", "--help"], @["typecheck", "-h"]]:
+      stdout.write(text(field(data,"typecheckHelp")))
+      exitProcess(0)
+    failure(name,"invalid_selection","typecheck takes no arguments; run it from the app directory",2)
+  try: exitProcess(waitFor runTypecheck(getCurrentDir()))
+  except CatchableError as error:
+    if interruptedSignal() != 0: exitProcess(128+interruptedSignal())
+    stderr.writeLine(utf8ForWrite(error.msg))
+    exitProcess(1)
 if name == "clean":
   if argv.len > 1:
     if argv == @["clean", "--help"]:

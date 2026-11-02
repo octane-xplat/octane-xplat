@@ -7,8 +7,10 @@ See [CLI installation and executable builds](../../../../docs/packages/package-c
 
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only
-discovery. Full app workflows remain pending; keep using the TypeScript CLI for
-those workflows. Project-installed plugins are available separately as
+discovery. Native `typecheck` is available on macOS using the project-installed
+TSRX checker and build package; it never executes baked loaders. Full build/dev
+and app-session workflows remain pending; keep using the TypeScript CLI for those.
+Project-installed plugins are available separately as
 `@octane-xplat/build`. See the
 [native migration boundaries](../../../../packages/cli/nim/README.md).
 

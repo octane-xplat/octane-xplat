@@ -174,6 +174,12 @@ to EOF first can block forever when the other pipe fills. Bound retained output,
 close unused stdin, and kill/reap the owned child on timeout or capture failure.
 Direct-child cleanup does not establish process-tree cancellation.
 
+Pipe chunks may split a UTF-8 sequence. When decorating a passthrough stream,
+preserve raw bytes and track line starts separately for stdout and stderr;
+decoding each chunk can replace part of a valid character. Keep bounded decoded
+log records separate from the full terminal stream so truncating logs does not
+silently discard compiler diagnostics.
+
 Keep process exit and pipe closure separate. Descendants can retain a pipe after
 the group leader exits, or close their pipes and keep running. Retain ownership
 of the isolated process group until cleanup completes; checking only the

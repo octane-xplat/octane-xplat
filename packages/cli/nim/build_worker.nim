@@ -4,22 +4,25 @@ import ./managed_process, ./jsonutil, ./strictjson, ./js_json, ./js_text, ./path
 import ./digests, ./route_metadata
 
 const workerProtocol = "octane-build-worker"
-proc projectWorker(project: string): string =
+proc projectBuildRoot*(project: string): string =
   var current = absolutePath(project)
   while true:
     let package = current / "node_modules" / "@octane-xplat" / "build"
     let manifest = readJson(package / "package.json")
     if text(field(manifest,"name")) == "@octane-xplat/build":
-      let entry = text(field(field(manifest,"exports"),"./worker"))
-      if entry.startsWith("./"):
-        let root = expandFilename(package)
-        let file = normalizedPath(root / entry)
-        if file.startsWith(root & $DirSep) and fileExists(file): return file
-      raise newException(ValueError,"The project's @octane-xplat/build does not provide build worker v1. Update it with your project package manager.")
+      return expandFilename(package)
     let parent = parentOrSelf(current)
     if parent == current: break
     current = parent
   raise newException(ValueError,"Install @octane-xplat/build in the selected project (for example: bun add --dev @octane-xplat/build).")
+
+proc projectWorker(project: string): string =
+  let root = projectBuildRoot(project)
+  let entry = text(field(field(readJson(root / "package.json"),"exports"),"./worker"))
+  if entry.startsWith("./"):
+    let file = normalizedPath(root / entry)
+    if file.startsWith(root & $DirSep) and fileExists(file): return file
+  raise newException(ValueError,"The project's @octane-xplat/build does not provide build worker v1. Update it with your project package manager.")
 
 proc runBuildWorker*(project, operation: string, payload: JsonNode,
     timeoutMs = 60000, signal: ProcessCancel = nil, environment: StringTableRef = nil,

@@ -20,6 +20,7 @@
 		"build:nim-process": { "dependsOn": ["build:nim"], "cache": false },
 		"build:nim-env": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-env": { "dependsOn": ["build:nim-env"], "cache": false },
+		"test:nim-typecheck": { "dependsOn": ["build:nim", "@octane-xplat/build#build"], "cache": false },
 		"test:nim-worker": { "dependsOn": ["build:nim-env", "@octane-xplat/build#build"], "cache": false },
 		"test:nim-routes": { "dependsOn": ["build:nim-env", "@octane-xplat/build#build"], "cache": false },
 		"test:nim-process": { "dependsOn": ["build:nim"], "cache": false },

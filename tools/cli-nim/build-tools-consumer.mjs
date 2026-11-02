@@ -35,7 +35,8 @@ try {
  const plugins = pack('packages/build'), lib = pack('packages/lib')
  const inventory = run('tar',['-tzf',plugins]).stdout.trim().split('\n')
  for (const file of ['dist/vite.js','dist/vite.d.ts','dist/macos/vite.js','dist/macos/vite.d.ts',
-  'dist/linux-gtk/vite.js','dist/linux-gtk/vite.d.ts','dist/css-platform.types.d.ts','dist/build-worker.js','LICENSE'])
+  'dist/linux-gtk/vite.js','dist/linux-gtk/vite.d.ts','dist/css-platform.types.d.ts','dist/build-worker.js',
+  'dist/typecheck-globals/native.d.ts','dist/typecheck-globals/macos.d.ts','LICENSE'])
   assert.ok(inventory.includes(`package/${file}`), `Missing packed ${file}`)
  assert.ok(inventory.every(file => !/\/(node_modules|src|nim|bin|standalone)\//.test(file)), inventory.join('\n'))
  const root = JSON.parse(readFileSync(join(repo,'package.json')))
@@ -43,6 +44,8 @@ try {
   vite: root.workspaces.catalog.vite, typescript: root.workspaces.catalog.typescript, '@types/node': '24.10.1' }
  let nativeVersion
  if (withNative) {
+  deps['@tsrx/typescript-plugin'] = root.workspaces.catalog['@tsrx/typescript-plugin']
+  deps['@tsrx/core'] = JSON.parse(readFileSync(join(repo,'packages/build/package.json'))).dependencies['@tsrx/core']
   assertCurrentNativeBuild(repo, JSON.parse(readFileSync(join(repo,'research/nim-cli/native/build.json'))),
    readFileSync(join(repo,`research/nim-cli/native/xplat${process.platform === 'win32' ? '.exe' : ''}`)))
   if (process.platform === 'darwin') assertCurrentNativeBuild(repo,
@@ -88,6 +91,19 @@ try {
   const catalog = JSON.parse(run(join(path,'bin/xplat.exe'),['catalog','--json'],consumer,
    { env: { ...environment, PATH: '' } }).stdout)
   assert.equal(catalog.data.cli.version,nativeVersion)
+  writeFileSync(join(consumer,'tsconfig.envs.json'), JSON.stringify({ compilerOptions: { noEmit: true, strict: true,
+   types: [], target: 'ESNext', module: 'ESNext', moduleResolution: 'Bundler' },
+   environments: { native: { files: ['native-check.ts'] } } }))
+  writeFileSync(join(consumer,'native-check.ts'), 'console.log(process.env.NODE_ENV); queueMicrotask(() => {});\n')
+  const checked = run(join(path,'bin/xplat.exe'),['typecheck'],consumer)
+  assert.match(checked.stdout,/Typecheck clean/)
+  const generated = JSON.parse(readFileSync(join(consumer,'node_modules/.cache/xplat-typecheck/all.json')))
+  assert.ok(generated.files[0].endsWith('/dist/typecheck-globals/native.d.ts'))
+  writeFileSync(join(consumer,'native-check.ts'),'const value: number = "wrong";\n')
+  const rejected = spawnSync(join(path,'bin/xplat.exe'),['typecheck'], { cwd: consumer, env: environment, encoding: 'utf8', timeout: 30000 })
+  assert.equal(rejected.status,1,rejected.stderr)
+  assert.match(rejected.stdout+rejected.stderr,/TS2322/)
+  rmSync(join(consumer,'tsconfig.envs.json')); rmSync(join(consumer,'native-check.ts'))
  }
  cpSync(join(repo,'packages/build/test/typecheck.ts'),join(consumer,'typecheck.ts'))
  writeFileSync(join(consumer,'tsconfig.json'),JSON.stringify({ compilerOptions: {

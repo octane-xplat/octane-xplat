@@ -291,7 +291,9 @@ topology into owned scratch. Compiler analysis runs through an actual selected-
 project worker; stale metadata injection is restricted to the rejection test.
 `test:nim-worker` exercises real analysis/baking, protocol failures, selected-
 project resolution, diagnostics, timeout and process-group cancellation. Public
-route/typecheck support, baked publication and watch lifecycle remain pending.
+routes, baked publication and watch lifecycle remain pending. The public native
+`typecheck` gate runs real project checker programs, verifies installed ambient
+assets and covers cancellation/process cleanup through `test:nim-typecheck`.
 
 `route-templates.mjs` extracts inert template literals without evaluating command
 expressions. Nim computes every slot. The reviewed expression-shape hashes must

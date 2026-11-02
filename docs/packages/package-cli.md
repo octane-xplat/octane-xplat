@@ -106,6 +106,31 @@ formatter dependencies match that host; changing only Bun's compile target
 would leave incompatible native modules. The CLI executables workflow does
 this for macOS and Linux arm64/x64 and Windows x64.
 
+## Experimental Nim executable
+
+The parallel Nim rewrite is being prepared for the `nim` prerelease channel.
+Contributors with this repository installed can build it locally. Only macOS
+Apple Silicon has been exercised; check its catalog for implemented commands
+before using it for a workflow:
+
+```sh
+bun run turbo run build:nim --filter=@octane-xplat/cli
+research/nim-cli/native/xplat catalog --json
+```
+
+Native `typecheck` uses the selected project's installed package manager and
+TSRX checker. The project must already contain compatible `@octane-xplat/build`,
+`@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,
+invoke your built executable by its absolute path. A successful check prints
+`Typecheck clean`; compiler errors exit with status 1. Route types are regenerated
+without executing baked loaders. Build/dev and app-session orchestration remain
+migration work:
+
+```sh
+# Replace /path/to/octane-xplat with your repository's absolute path.
+/path/to/octane-xplat/research/nim-cli/native/xplat typecheck
+```
+
 ## App testing
 
 Read output from an earlier `xplat dev` run, even after its process exits:

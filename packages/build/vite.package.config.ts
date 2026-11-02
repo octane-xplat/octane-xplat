@@ -34,6 +34,11 @@ export default defineConfig({
 		{
 			name: 'build-plugin-declarations',
 			closeBundle() {
+				for (const name of ['native', 'macos']) {
+					const output = resolve(root, 'dist/typecheck-globals', `${name}.d.ts`)
+					mkdirSync(dirname(output), { recursive: true })
+					writeFileSync(output, readFileSync(resolve(source, 'typecheck-globals', `${name}.d.ts`)))
+				}
 				for (const name of [...entries.filter(name => name !== 'build-worker'), 'css-platform.types']) {
 					const input = name === 'css-platform.types' ? `${name}.ts` : `${name}.d.ts`
 					const output = resolve(root, 'dist', `${name}.d.ts`)

@@ -24,7 +24,7 @@ delete catalog.requestId
 // from the reference schemas' implemented status.
 catalog.data.cli.version=version
 for(const c of catalog.data.commands) c.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.command)?'implemented':'pending'
-for(const c of catalog.data.orchestration) c.status=c.name==='clean'?'implemented':'pending'
+for(const c of catalog.data.orchestration) c.status=['clean','typecheck'].includes(c.name)?'implemented':'pending'
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
@@ -32,7 +32,7 @@ for(const c of AGENT_COMMANDS) {
  schema.data.status=['catalog','permissions','app select','code search','code read','guidance','docs read'].includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
-writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:""}))
+writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,catalogHuman:"",typecheckHelp:reference(['typecheck','--help'])}))
 mkdirSync(resolve(work,'native'),{recursive:true})
 const binary=resolve(work,process.platform==='win32'?'native/xplat.exe':'native/xplat')
 const flags=['c','-d:release','--opt:size','--mm:orc',...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/native-cache`,`-o:${binary}`,resolve(root,'packages/cli/nim/main.nim')]
