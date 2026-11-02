@@ -115,6 +115,8 @@
 		"test:nim-jobs": "node --test ../../tools/cli-nim/jobs.test.mjs",
 		"build:nim-rpc": "node ../../tools/cli-nim/build-probe.mjs rpc",
 		"test:nim-rpc": "node --test ../../tools/cli-nim/rpc.test.mjs",
+		"build:nim-host": "node ../../tools/cli-nim/build-probe.mjs host",
+		"test:nim-host-bootstrap": "node --test ../../tools/cli-nim/host-bootstrap.test.mjs",
 		"test:nim-typecheck": "node --test ../../tools/cli-nim/typecheck-command.test.mjs",
 		"test:nim-worker": "node --test ../../tools/cli-nim/build-worker.test.mjs",
 		"test:nim-routes": "node --test ../../tools/cli-nim/route-path.test.mjs ../../tools/cli-nim/route-generation.test.mjs ../../tools/cli-nim/route-templates.test.mjs"

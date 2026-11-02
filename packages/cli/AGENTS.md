@@ -196,6 +196,13 @@ to EOF first can block forever when the other pipe fills. Bound retained output,
 close unused stdin, and kill/reap the owned child on timeout or capture failure.
 Direct-child cleanup does not establish process-tree cancellation.
 
+Treat detached daemon handoff separately from disposable tool children. An
+invocation's ordinary process manager must not kill a successfully published
+daemon on exit. Failed startup may terminate only the still-owned unpublished
+child, never a PID merely read from a stale descriptor. Export read-only PID
+accessors and track acquired ownership explicitly: a default-initialized Nim
+resource object contains zeroes, which must not mean owned FD 0 or process group 0.
+
 Represent a successful empty command response separately from failure until the
 caller applies its policy. A tool-presence check may reject empty output, while
 another query accepts it. Cancellation is a separate error: never turn an aborted

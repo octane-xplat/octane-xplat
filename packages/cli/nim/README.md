@@ -90,6 +90,12 @@ Node interoperability, input/output byte limits, I/O deadlines and draining clos
 It preserves existing/replacement socket paths and never owns an application's
 process merely because its client disconnects. Authentication, descriptor/startup
 coordination and persistent host composition remain separate work.
+`host_bootstrap.nim` provides a private lifetime lock and explicit detached launch
+on macOS. It resets signal dispositions, creates a separate session, redirects
+stdin/logs and closes unrelated descriptors. Unpublished startup can be terminated
+and reaped; default handles cannot close stdin or signal a process group. The
+native host's authentication, publication/handoff and runtime dispatcher remain
+unimplemented.
 These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
