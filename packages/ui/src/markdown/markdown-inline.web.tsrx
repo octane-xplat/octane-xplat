@@ -138,3 +138,10 @@ export function MdInlineRoot(props: { children?: unknown }): JSX.Element @{
 		</span>
 	)
 }
+
+/** Newly arrived streaming run — the stylesheet animates `vx-md-fade`
+ *  (`--duration-medium`, `--ease-standard`, collapsed under reduced motion),
+ *  the reference's reveal. `runColor` is a native-only input. */
+export function MdFadeRun(props: { runColor?: string; children?: unknown }): JSX.Element @{
+	return <span className="vx-md-fade">{props.children}</span>
+}

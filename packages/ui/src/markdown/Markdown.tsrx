@@ -38,12 +38,18 @@ import {
 	MdCitation,
 	MdDelete,
 	MdEmphasis,
+	MdFadeRun,
 	MdInlineImage,
 	MdInlineRoot,
 	MdLinkRun,
 	MdParagraph,
 	MdStrong,
 } from './markdown-inline.tsrx'
+import {
+	parseCssDuration,
+	useStreamingText,
+} from '../components/content/use-streaming-text.tsrx'
+import { useTheme } from '../theme/use-theme.tsrx'
 
 import type {
 	MarkdownInlinePlugin,
@@ -151,17 +157,31 @@ function computeTableColumnMinWidths(node: MdTable): number[] {
 // Streaming fade
 // ---------------------------------------------------------------------------
 
-const MAX_FADE_SPANS = 8
-
 interface StreamCursor {
 	boundaries: number[]
 	start: number
+	/** Ambient color token for fade runs on native (opacity channel absent). */
+	runColor?: string
 }
 
+/** Split one text run at stream boundaries into keyed settled/fade segments
+ *  (Astryx `wrapTextWithFade` + `computeSegments` key contract). */
 function SegmentedText(props: { text: string; pos: number; stream: StreamCursor; segKey: string }) {
 	const segs = computeSegments(props.text, props.pos, props.stream.boundaries, props.segKey)
 	if (!segs) return props.text
-	return segs.map((seg) => (seg.fading ? <Text className="vx-md-fade">{seg.text}</Text> : seg.text))
+	return (
+		<span key={`wrap-${props.segKey}`}>
+			{segs.map((seg) =>
+				seg.fading ? (
+					<MdFadeRun key={seg.key} runColor={props.stream.runColor}>
+						{seg.text}
+					</MdFadeRun>
+				) : (
+					<span key={seg.key}>{seg.text}</span>
+				),
+			)}
+		</span>
+	)
 }
 
 // ---------------------------------------------------------------------------
@@ -262,8 +282,12 @@ function Inlines(props: {
 	const out = []
 	let pos = props.ctx.stream?.start ?? 0
 	let seq = 0
-	const streamOf = (at: number): StreamCursor | undefined =>
-		props.ctx.stream && { boundaries: props.ctx.stream.boundaries, start: at }
+	const streamOf = (at: number, runColor?: string): StreamCursor | undefined =>
+		props.ctx.stream && {
+			boundaries: props.ctx.stream.boundaries,
+			start: at,
+			runColor: runColor ?? props.ctx.stream.runColor,
+		}
 	for (const n of props.nodes ?? []) {
 		const at = pos
 		const key = `${props.segKey}.${seq}`
@@ -321,7 +345,7 @@ function Inlines(props: {
 			case 'delete':
 				out.push(
 					<MdDelete>
-						<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
+						<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at, '--color-text-secondary') }} segKey={key} />
 					</MdDelete>,
 				)
 				pos += mdInlineLen(n.children)
@@ -351,7 +375,7 @@ function Inlines(props: {
 			case 'link': {
 				const safe = sanitizeUrl(n.url)
 				const kids = (
-					<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
+					<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at, '--color-text-accent') }} segKey={key} />
 				)
 				if (safe == null) {
 					out.push(kids)
@@ -782,25 +806,33 @@ export function Markdown(props: MarkdownProps): unknown @{
 	const prevLenRef = useRef(0)
 	const boundariesRef = useRef<number[]>([])
 	const prevTextRef = useRef('')
-	const prevStreaming = useRef<boolean | undefined>(undefined)
 
 	const compact = props.density === 'compact'
 	const align = props.contentAlign === 'center' ? 'center' : 'start'
 	const contentWidth = props.contentWidth === undefined ? DEFAULT_CONTENT_WIDTH : props.contentWidth
 	const contentWidthValue = contentWidth ? contentWidth : null
 	const hasMathRenderer = props.components?.math != null
+	const streaming = props.isStreaming === true && props.data == null
 	const sourceText = props.data ? '' : typeof props.children === 'string' ? props.children : ''
 
+	// Bursty chunks drain through a steady character reveal before parsing
+	// (the reference's internal useStreamingText call): raw markup never
+	// reaches the renderer mid-token and the reveal pace matches the theme.
+	const smoothedText = useStreamingText(sourceText, streaming)
+
+	// Fade-span budget: spans needed = ceil(fade duration / reveal tick), the
+	// reference's boundary-ring formula over the same motion tokens.
+	const { token } = useTheme()
+	const maxSpans = useMemo(() => {
+		const duration = parseCssDuration(token('--duration-fast-max')) ?? 230
+		const base = parseCssDuration(token('--duration-fast-min'))
+		const tickMs = base != null ? Math.max(4, Math.round(base / 10)) : 50
+		return Math.min(Math.ceil(duration / tickMs), 12)
+	}, [token])
+
 	const view = useMemo(() => {
-		const streaming = props.isStreaming === true && props.data == null
-		const fade = streaming && props.fadeIn !== false
 		const sourceIds = props.sources == null ? undefined : new Set(Object.keys(props.sources))
 		const options = { sourceIds, autolink: props.autolink, math: hasMathRenderer }
-
-		if (prevStreaming.current !== streaming) {
-			incRef.current = undefined
-			prevStreaming.current = streaming
-		}
 
 		let nodes: MdNode[]
 		let inlineNodes: MdInline[]
@@ -808,32 +840,37 @@ export function Markdown(props: MarkdownProps): unknown @{
 		if (props.data) {
 			nodes = [...props.data.children]
 			inlineNodes = []
+		} else if (streaming && smoothedText === '') {
+			// A cleared stream resets the incremental cache like the reference.
+			incRef.current = undefined
+			nodes = []
+			inlineNodes = []
 		} else if (inline) {
-			const input = streaming ? trimStreamingArtifacts(sourceText, options) : sourceText
+			const input = streaming ? trimStreamingArtifacts(smoothedText, options) : smoothedText
 			incRef.current = undefined
 			inlineNodes = parseMdInline(input, options)
 			nodes = []
 		} else if (streaming) {
 			incRef.current ??= createMarkdownIncrementalState()
 			nodes = parseMarkdownIncremental(
-				trimStreamingArtifacts(sourceText, options),
+				trimStreamingArtifacts(smoothedText, options),
 				incRef.current,
 				options,
 			)
 			inlineNodes = []
 		} else {
 			incRef.current = undefined
-			nodes = parseMdNodes(sourceText, options)
+			nodes = parseMdNodes(smoothedText, options)
 			inlineNodes = []
 		}
 
-		if (!sourceText.startsWith(prevTextRef.current)) {
+		if (!smoothedText.startsWith(prevTextRef.current)) {
 			boundariesRef.current = []
 			prevLenRef.current = 0
 		}
-		prevTextRef.current = sourceText
-		const boundaries = fade
-			? computeBoundaries(boundariesRef.current, prevLenRef.current, MAX_FADE_SPANS)
+		prevTextRef.current = smoothedText
+		const boundaries = streaming
+			? computeBoundaries(boundariesRef.current, prevLenRef.current, maxSpans)
 			: []
 		boundariesRef.current = boundaries
 
@@ -846,8 +883,8 @@ export function Markdown(props: MarkdownProps): unknown @{
 		prevLenRef.current = inline ? mdInlineLen(inlineNodes) : acc
 
 		const headingIds = inline ? undefined : projectMdHeadings(nodes).ids
-		return { nodes, inlineNodes, boundaries, offsets, fade, headingIds }
-	}, [props.data, props.children, props.isStreaming, props.fadeIn, props.sources, props.display, props.autolink, hasMathRenderer])
+		return { nodes, inlineNodes, boundaries, offsets, fade: streaming, headingIds }
+	}, [props.data, smoothedText, streaming, props.sources, props.display, props.autolink, hasMathRenderer, maxSpans])
 
 	const ctxBase: RenderCtx = {
 		onLinkClick: props.onLinkClick,

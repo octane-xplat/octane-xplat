@@ -16152,7 +16152,7 @@ export interface MarkdownInlinePlugin {
 
 /** `Markdown` with a pre-parsed document — the `MdDoc` AST baked by route
  *  codegen (`routes.gen.data` for a `.md` route). No parser ships in the
- *  bundle for this source, so `isStreaming`/`fadeIn` do not apply.
+ *  bundle for this source, so `isStreaming` does not apply.
  *
  * @see MarkdownProps — the union this feeds; canonical import '@octane-xplat/ui/markdown'.
  */
@@ -16163,8 +16163,6 @@ export interface MarkdownDataProps {
 	children?: never
 	/** Unused with `data` — the two sources are exclusive. */
 	isStreaming?: never
-	/** Unused with `data` — the two sources are exclusive. */
-	fadeIn?: never
 }
 
 /** `Markdown` with raw source parsed at runtime (see
@@ -16184,10 +16182,6 @@ export interface MarkdownSourceProps {
 	 *  a half-typed `[link](`, a bare `- ` marker) are withheld until they
 	 *  close rather than flashing raw markup. @default false */
 	isStreaming?: boolean
-	/** Fade in newly arrived text while streaming. The fade animates on web
-	 *  (suppressed under `prefers-reduced-motion`); native renders new text
-	 *  settled. @default true */
-	fadeIn?: boolean
 }
 
 /** `Markdown` — renders a Markdown doc with the shared vocabulary. Exactly

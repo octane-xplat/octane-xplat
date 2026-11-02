@@ -79,7 +79,7 @@ the package root keeps general UI only. `Markdown` renders either a `data`
 prop — the `MdDoc` AST that `xplat routes` bakes at codegen with the shared
 parser (no parser needed in the bundle) — or a `text` prop of raw Markdown
 parsed at runtime. Set exactly one: the sources are mutually exclusive, and
-`isStreaming`/`fadeIn` apply to `text` only.
+`isStreaming` applies to `text` only.
 
 ```tsx
 import { Markdown } from '@octane-xplat/ui/markdown'
@@ -122,28 +122,31 @@ settled rather than using the streaming fade.
 
 ### Streaming text
 
-To smooth bursts of incoming text before displaying them, use
-`useStreamingText`. Pass the whole accumulated string each time. `natural`
-reveals 10 UTF-16 units per 50 ms, `fast` reveals 4 per 8 ms, and `instant`
-returns all text. Finished streams settle immediately. Emoji clusters stay
-whole where `Intl.Segmenter` is available; other runtimes protect surrogate
-pairs. Browser reduced-motion preferences skip the reveal; native media-query
-support does not currently expose that preference.
-
-```tsx
-import { Markdown, useStreamingText } from '@octane-xplat/ui/markdown'
-
-export function AssistantResponse({ text, streaming }: { text: string; streaming: boolean }) {
-	const displayed = useStreamingText(text, streaming, { speed: 'fast' })
-	return <Markdown children={displayed} isStreaming={streaming} />
-}
-```
-
 For chat/AI-style output where `text` is a cumulative snapshot that grows in
-chunks — often ending mid-token — set `isStreaming`:
+chunks — often ending mid-token — set `isStreaming`. `Markdown` smooths
+bursty chunks internally through the same `useStreamingText` reveal the
+reference uses, so pass the raw accumulated string — never text you already
+smoothed yourself (that would reveal twice).
 
 ```tsx
 <Markdown children={message.text} isStreaming={message.status === 'streaming'} />
+```
+
+To smooth bursts of incoming text outside `Markdown` — a plain `Text`
+label, a typewriter caption — use `useStreamingText`. Pass the whole
+accumulated string each time. `natural` reveals 10 UTF-16 units per tick,
+`fast` reveals 4 per tick, and `instant` returns all text; the tick interval
+derives from the theme's `--duration-fast-min` motion token (50 ms/8 ms
+with no theme). Finished streams settle immediately. Emoji clusters stay
+whole where `Intl.Segmenter` is available; other runtimes protect surrogate
+pairs. Reduced-motion preferences skip the reveal on web and native.
+
+```tsx
+import { Text, useStreamingText } from '@octane-xplat/ui'
+
+export function TypingCaption({ text, streaming }: { text: string; streaming: boolean }) {
+	return <Text>{useStreamingText(text, streaming, { speed: 'fast' })}</Text>
+}
 ```
 
 Streaming mode parses incrementally: blocks before the last safe blank line
@@ -158,9 +161,10 @@ item content arrives. A loose list split by a chunk boundary merges to match
 the full parse. When the input is replaced rather than appended, the cache
 resets and reparses whole.
 
-`fadeIn` (default on while streaming) wraps newly arrived text in a
-`vx-md-fade` span that fades in once on web — suppressed under
-`prefers-reduced-motion` — and renders settled on native.
+While streaming, newly arrived text wraps in a `vx-md-fade` span that fades
+in once over `--duration-medium` — suppressed under
+`prefers-reduced-motion` — on web, and through the same duration on a
+per-run color-alpha driver on native.
 
 For a custom renderer, use the parser at `@octane-xplat/ui/markdown`.
 Pass only each new chunk to `append`, and render the returned document with

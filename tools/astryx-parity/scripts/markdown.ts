@@ -141,6 +141,12 @@ async function runParserMode() {
 	const ref = await import('@astryxdesign/core/Markdown/parser')
 	const cand = await import('../../../packages/ui/src/markdown/markdown-parse.ts')
 	const candStream = await import('../../../packages/ui/src/markdown/markdown-stream.ts')
+	// The streaming internals (trim + canonical incremental parse) are not in
+	// the published export map, so they come from the shipped source tree —
+	// byte-identical to tag v0.7.4 (milestone-0 provenance).
+	const refSrc: any = await import(
+		'../node_modules/@astryxdesign/core/src/Markdown/parser.ts' as string
+	)
 
 	const results: ScenarioResult[] = []
 
@@ -175,46 +181,49 @@ async function runParserMode() {
 			diffs: diffs.slice(0, 60),
 		})
 
-		// Incremental/stream equivalence for chunked scenarios.
+		// Incremental/stream equivalence for chunked scenarios: compare every
+		// intermediate canonical snapshot, not just final convergence — the
+		// milestone-4 intermediate-output contract.
 		if (scenario.chunks) {
 			const schedules = streamSchedules(scenario.source)
 			for (let s = 0; s < schedules.length; s++) {
 				const schedule = schedules[s]
 				const key = `${scenario.key}/stream-${s}`
 				try {
-					const state = ref.createIncrementalState<boolean>()
+					const refState = refSrc.createIncrementalState()
+					const candState = candStream.createMarkdownIncrementalState()
 					let acc = ''
+					const stepDiffs: Diff[] = []
+					let step = 0
 					for (const chunk of schedule) {
 						acc += chunk
-						ref.parseMarkdownIncremental(
-							acc,
-							state as any,
-							{
-								...opts,
-								isFinal: acc === scenario.source,
-							} as any,
-						)
-					}
-					const refFinal = canonRef(ref.parseMarkdownAst(scenario.source, opts as any))
-					const refStream = canonRef(ref.parseMarkdownAst(schedule.join(''), opts as any))
-					if (JSON.stringify(refFinal) !== JSON.stringify(refStream)) {
-						results.push({
-							key,
-							status: 'reference-error',
-							error: 'reference stream/full divergence',
+						// Both sides parse the production-trimmed snapshot: the
+						// component trims before the incremental parse in each stack.
+						const refTrim = refSrc.trimStreamingArtifacts(acc, { math: opts.math === true })
+						const candTrim = candStream.trimStreamingArtifacts(acc, {
+							math: opts.math === true,
 						})
-						continue
+						const refStep = canonRef(
+							refSrc.parseMarkdownAstIncremental(refTrim, refState, opts as any),
+						)
+						const candStep = canonCandDoc({
+							children: candStream.parseMarkdownIncremental(candTrim, candState, opts as any),
+						})
+						diffCanon(refStep, candStep, `step${step}`, stepDiffs)
+						step++
 					}
-					const parser = candStream.createMarkdownStreamParser(opts as any)
-					let last: any
-					for (const chunk of schedule) last = parser.append(chunk)
-					const candStreamDoc = canonCandDoc(last)
-					const diffs2: Diff[] = []
-					diffCanon(refStream, candStreamDoc, 'root', diffs2)
+					// Final documents converge to the same full parse.
+					const refFinal = canonRef(ref.parseMarkdownAst(scenario.source, opts as any))
+					const candParser = candStream.createMarkdownStreamParser(opts as any)
+					for (const chunk of schedule) candParser.append(chunk)
+					const candFinish = canonCandDoc(candParser.finish())
+					const finishDiffs: Diff[] = []
+					diffCanon(refFinal, candFinish, 'finish', finishDiffs)
+					const all = [...stepDiffs, ...finishDiffs]
 					results.push({
 						key,
-						status: diffs2.length === 0 ? 'match' : 'candidate-diff',
-						diffs: diffs2.slice(0, 20),
+						status: all.length === 0 ? 'match' : 'candidate-diff',
+						diffs: all.slice(0, 20),
 					})
 				} catch (e) {
 					results.push({ key, status: 'harness-error', error: String(e) })

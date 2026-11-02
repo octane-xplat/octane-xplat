@@ -1,10 +1,39 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // @vitest-environment jsdom
-import { afterEach, expect, it } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot, useState } from 'octane'
 import { Markdown } from './Markdown.tsrx'
 
 const roots: any[] = []
+let rafCallbacks: Array<(time: number) => void>
+
+/** Deterministic reveal: reduced-motion stubs make isStreaming render the
+ *  full smoothed prefix synchronously (the reference's own test approach). */
+function reduceMotion() {
+	vi.stubGlobal('matchMedia', (query: string) => ({
+		matches: query.includes('prefers-reduced-motion'),
+		media: query,
+		addEventListener() {},
+		removeEventListener() {},
+	}))
+}
+
+function driveFrames() {
+	rafCallbacks = []
+	vi.stubGlobal('requestAnimationFrame', (cb: (t: number) => void) => {
+		rafCallbacks.push(cb)
+		return rafCallbacks.length
+	})
+	vi.stubGlobal('cancelAnimationFrame', () => {})
+}
+
+function frame(now: number) {
+	const cbs = rafCallbacks.splice(0)
+	act(() => {
+		for (const cb of cbs) cb(now)
+	})
+}
+
 function mount() {
 	const el = document.createElement('div')
 	document.body.append(el)
@@ -19,6 +48,7 @@ afterEach(() => {
 		act(() => root.unmount())
 	}
 
+	vi.unstubAllGlobals()
 	document.body.innerHTML = ''
 })
 
@@ -44,6 +74,7 @@ it('parses and renders a text prop', () => {
 })
 
 it('streams growing text without remounting settled blocks', () => {
+	reduceMotion()
 	const { el, render } = mount()
 	render({ children: '# Title\n\nfirst para', isStreaming: true })
 	const heading = el.querySelector('h1')
@@ -55,6 +86,7 @@ it('streams growing text without remounting settled blocks', () => {
 })
 
 it('withholds a half-typed link while streaming', () => {
+	reduceMotion()
 	const { el, render } = mount()
 	render({ children: 'see [the doc', isStreaming: true })
 	expect(el.textContent).not.toContain('[')
@@ -62,20 +94,25 @@ it('withholds a half-typed link while streaming', () => {
 	expect(el.textContent).toContain('the doc')
 })
 
+it('smooths isStreaming internally — bursts drain through the reveal, not the parser', () => {
+	driveFrames()
+	const { el, render } = mount()
+	// The whole chunk arrives at once but renders one reveal tick at a time.
+	render({ children: 'Hello, streamed world.', isStreaming: true })
+	expect(el.textContent).toBe('')
+	frame(50)
+	expect(el.textContent).toBe('Hello, str')
+	render({ children: 'Hello, streamed world.', isStreaming: false })
+	expect(el.textContent).toContain('Hello, streamed world.')
+})
+
 it('wraps newly arrived text in vx-md-fade spans', () => {
+	reduceMotion()
 	const { el, render } = mount()
 	render({ children: 'alpha', isStreaming: true })
 	render({ children: 'alpha beta', isStreaming: true })
 	const fades = [...el.querySelectorAll('.vx-md-fade')].map((n) => n.textContent)
 	expect(fades.at(-1)).toBe(' beta')
-})
-
-it('skips fade spans when fadeIn is false', () => {
-	const { el, render } = mount()
-	render({ children: 'alpha', isStreaming: true, fadeIn: false })
-	render({ children: 'alpha beta', isStreaming: true, fadeIn: false })
-	expect(el.textContent).toContain('alpha beta')
-	expect(el.querySelector('.vx-md-fade')).toBeNull()
 })
 
 it('renders rich content through shared table, code, task and strike primitives', () => {

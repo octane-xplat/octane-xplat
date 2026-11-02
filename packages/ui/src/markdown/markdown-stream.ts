@@ -21,6 +21,8 @@ import type { MdDoc, MdNode, MdParseOptions } from './markdown-ast.ts'
 
 export { createMarkdownIncrementalState, parseMarkdownIncremental, trimStreamingArtifacts }
 export type { MarkdownIncrementalState }
+export { getIncrementalParseWork } from './markdown-parse.ts'
+export type { IncrementalWork } from './markdown-parse.ts'
 
 // ---------------------------------------------------------------------------
 // Fade-in segmentation — boundary tracking over rendered text length

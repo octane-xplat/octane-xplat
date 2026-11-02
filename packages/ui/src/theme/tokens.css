@@ -3149,10 +3149,12 @@
 	.vx-md-fade {
 	}
 
-	/* xplat-web-only:start — DOM fades each new span; the native leaf renders
-	   the class inert (no opacity animation driver for text spans). */
+	/* xplat-web-only:start — DOM fades each new span over --duration-medium
+	   on --ease-standard, the reference's reveal; the native leaves drive
+	   the same timing through a per-run alpha driver (markdown-fade). */
 	.vx-md-fade {
-		animation: vx-md-fade-in 0.2s ease-out;
+		animation: vx-md-fade-in var(--duration-medium, 410ms)
+			var(--ease-standard, cubic-bezier(0.24, 1, 0.4, 1));
 	}
 
 	@keyframes vx-md-fade-in {

@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '../components/content/Text.macos.tsrx'
 import { sanitizeUrl } from '../routing/safe-url'
+import { useFadeRunColor } from './markdown-fade.tsrx'
 import type { NavigationActivationEvent } from '../props'
 
 /**
@@ -70,4 +71,11 @@ export function MdParagraph(props: {
 
 export function MdInlineRoot(props: { children?: unknown }): unknown @{
 	return <Text>{props.children}</Text>
+}
+
+/** Newly arrived streaming run — alpha fades the run color over
+ *  `--duration-medium` under the workspace reduce-motion setting. */
+export function MdFadeRun(props: { runColor?: string; children?: unknown }): unknown @{
+	const color = useFadeRunColor(props.runColor)
+	return <span style={color == null ? undefined : { color }}>{props.children}</span>
 }

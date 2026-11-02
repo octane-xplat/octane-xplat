@@ -4,6 +4,8 @@ export interface NativeMediaTraits {
 	height: number
 	coarse: boolean
 	hover: boolean
+	/** OS-level reduce-motion preference; `null` when the host cannot read it. */
+	reducedMotion?: boolean | null
 }
 
 /** Evaluate one `(feature: value)` term against explicit host traits. */
@@ -31,6 +33,13 @@ function evalTerm(
 			result = value === '' ? true : value === 'coarse' ? traits.coarse : value === 'fine' ? !traits.coarse : false
 		} else if (name === 'hover' || name === 'any-hover') {
 			result = value === '' || value === 'hover' ? traits.hover : value === 'none' ? !traits.hover : false
+		} else if (name === 'prefers-reduced-motion') {
+			result =
+				value === 'reduce' || value === ''
+					? traits.reducedMotion === true
+					: value === 'no-preference'
+						? traits.reducedMotion === false
+						: false
 		} else if (name === 'orientation') {
 			result = value === 'landscape' ? traits.width > traits.height : value === 'portrait' && traits.height >= traits.width
 		} else if (name === 'width') {

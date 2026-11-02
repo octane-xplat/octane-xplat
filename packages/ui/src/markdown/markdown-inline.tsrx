@@ -2,6 +2,7 @@
 import { Utils } from '@nativescript/core'
 import { Text } from '../components/content/Text.tsrx'
 import { sanitizeUrl } from '../routing/safe-url'
+import { useFadeRunColor } from './markdown-fade.tsrx'
 import type { NavigationActivationEvent } from '../props'
 
 /**
@@ -112,4 +113,13 @@ export function MdParagraph(props: {
 /** `display="inline"` root — a plain text host on native. */
 export function MdInlineRoot(props: { children?: unknown }): unknown @{
 	return <Text>{props.children}</Text>
+}
+
+/** Newly arrived streaming run — fades its foreground alpha in over
+ *  `--duration-medium` (spans have no opacity channel on native). `runColor`
+ *  names the ambient color token; unset → body text color. Unresolvable
+ *  colors render settled instead of skipping the reveal silently. */
+export function MdFadeRun(props: { runColor?: string; children?: unknown }): unknown @{
+	const color = useFadeRunColor(props.runColor)
+	return <span style={color == null ? undefined : { color }}>{props.children}</span>
 }

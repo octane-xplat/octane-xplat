@@ -52,12 +52,18 @@ type CommonParseOptions = MdParseOptions
 type RuntimeParseOptions = CommonParseOptions & {
 	math?: boolean
 	isFinal?: boolean
+	/** Ordered syntax-plugin identity — internal plumbing populated by the
+	 *  extension protocol's resolve step (milestone 5). */
+	pluginSyntaxIdentity?: string
 }
 
 type ResolvedOptions = {
 	readonly sourceIds: ReadonlySet<string> | undefined
 	readonly autolink: 'gfm' | undefined
 	readonly math?: boolean
+	/** Ordered syntax-plugin identity — internal plumbing for the extension
+	 *  protocol; invalidates the settled cache on change. */
+	readonly pluginSyntaxIdentity?: string
 	/** Whether the caller asked for the released `range` projection. */
 	/**
 	 * Whether this parse authors canonical `position` offsets on its blocks.
@@ -129,6 +135,7 @@ function makeResolvedOptions(
 		sourceIds: fields.sourceIds,
 		autolink: fields.autolink,
 		math: fields.math,
+		pluginSyntaxIdentity: fields.pluginSyntaxIdentity,
 		astPositions: fields.astPositions ?? true,
 		isFinal: fields.isFinal,
 		baseOffset: fields.baseOffset,
@@ -155,6 +162,7 @@ function resolveOptions(
 		sourceIds: arg.sourceIds,
 		autolink: arg.autolink,
 		math: arg.math === true ? true : undefined,
+		pluginSyntaxIdentity: arg.pluginSyntaxIdentity,
 		isFinal: incremental ? arg.isFinal === true : true,
 	})
 }
@@ -2911,6 +2919,9 @@ export interface MarkdownIncrementalState {
 	math?: boolean
 	/** Identity of citation sources used by settled nodes. */
 	sourceIdsKey?: string
+	/** Ordered syntax-plugin identity used by settled nodes — populated by
+	 *  the extension protocol (milestone 5); unset options never flip it. */
+	pluginSyntaxIdentity?: string
 	/**
 	 * Signature of the link reference definitions the cached `settledBlocks`
 	 * were parsed with. Definitions are document-global and typically arrive
@@ -2931,6 +2942,28 @@ type IncrementalCache = {
 	/** The effective document-global definitions used by slice parses. */
 	linkDefs: ReadonlyMap<string, string>
 	linkDefsKey: string
+	/** Work counters for the most recent incremental parse. */
+	work: IncrementalWork
+}
+
+/** Deterministic work counters for the most recent incremental parse —
+ *  perf evidence, not a behavioral contract. */
+export interface IncrementalWork {
+	/** Characters copied into the tail line array. */
+	readonly splitCharacters: number
+	/** Tail lines visited by fence and blank-boundary detection. */
+	readonly boundaryLines: number
+	/** Characters visited while collecting document-global definitions. */
+	readonly definitionCharacters: number
+	/** Block nodes parsed anew this call (settled delta + unsettled tail). */
+	readonly renderedBlocks: number
+}
+
+const EMPTY_INCREMENTAL_WORK: IncrementalWork = {
+	splitCharacters: 0,
+	boundaryLines: 0,
+	definitionCharacters: 0,
+	renderedBlocks: 0,
 }
 
 const incrementalCaches = new WeakMap<MarkdownIncrementalState, IncrementalCache>()
@@ -2943,9 +2976,16 @@ function makeIncrementalCache(state: MarkdownIncrementalState): IncrementalCache
 		tailLinkDefs: new Map(),
 		linkDefs: defs,
 		linkDefsKey: linkDefsSignature(defs),
+		work: { ...EMPTY_INCREMENTAL_WORK },
 	}
 	incrementalCaches.set(state, cache)
 	return cache
+}
+
+/** Deterministic work counters for the most recent incremental parse.
+ * @internal Exported for performance regression tests only. */
+export function getIncrementalParseWork(state: MarkdownIncrementalState): IncrementalWork {
+	return incrementalCaches.get(state)?.work ?? EMPTY_INCREMENTAL_WORK
 }
 
 /** Create an incremental parser cache — one per logical stream. */
@@ -3517,12 +3557,14 @@ function resetIncrementalCache(state: MarkdownIncrementalState, cache: Increment
 	state.settledUpTo = 0
 	state.linkDefsKey = undefined
 	state.sourceIdsKey = undefined
+	state.pluginSyntaxIdentity = undefined
 	state.math = undefined
 	cache.settledEnd = 0
 	cache.settledLinkDefs.clear()
 	cache.tailLinkDefs = new Map()
 	cache.linkDefs = new Map()
 	cache.linkDefsKey = ''
+	cache.work = { ...EMPTY_INCREMENTAL_WORK }
 }
 
 /**
@@ -3546,15 +3588,18 @@ export function parseMarkdownIncremental(
 	let reparseSettled = false
 
 	const nextSourceIdsKey = sourceIdsSignature(opts.sourceIds)
+	const nextPluginSyntaxIdentity = opts.pluginSyntaxIdentity ?? ''
 	if (
 		state.autolink !== opts.autolink ||
 		state.math !== opts.math ||
-		state.sourceIdsKey !== nextSourceIdsKey
+		state.sourceIdsKey !== nextSourceIdsKey ||
+		state.pluginSyntaxIdentity !== nextPluginSyntaxIdentity
 	) {
 		reparseSettled = true
 		state.autolink = opts.autolink
 		state.math = opts.math
 		state.sourceIdsKey = nextSourceIdsKey
+		state.pluginSyntaxIdentity = nextPluginSyntaxIdentity
 	}
 	if (input === '') {
 		resetIncrementalCache(state, cache)
@@ -3570,6 +3615,7 @@ export function parseMarkdownIncremental(
 		state.autolink = opts.autolink
 		state.math = opts.math
 		state.sourceIdsKey = nextSourceIdsKey
+		state.pluginSyntaxIdentity = nextPluginSyntaxIdentity
 	}
 
 	const oldSettledEnd = cache.settledEnd
@@ -3640,11 +3686,14 @@ export function parseMarkdownIncremental(
 			? trimOpenDisplayMath(unsettledRaw)
 			: trimUnsettledStructural(unsettledRaw)
 
+	let parsedSettledBlocks = 0
 	if (reparseSettled) {
 		state.settledBlocks = state.settledText ? parseMarkdownImpl(state.settledText, parseOpts) : []
+		parsedSettledBlocks = state.settledBlocks.length
 	} else if (settledDelta !== '') {
 		const deltaBlocks = parseMarkdownImpl(settledDelta, atOffset(parseOpts, oldSettledEnd))
 		appendSettledBlocks(state.settledBlocks, deltaBlocks)
+		parsedSettledBlocks = deltaBlocks.length
 	}
 
 	// The unsettled tail is trimmed before parsing, so its offset in the
@@ -3663,5 +3712,11 @@ export function parseMarkdownIncremental(
 		: []
 
 	state.prevInput = input
+	cache.work = {
+		splitCharacters: tailRaw.length,
+		boundaryLines: tailLines.length,
+		definitionCharacters: settledDelta.length + unsettledInput.length,
+		renderedBlocks: parsedSettledBlocks + unsettledBlocks.length,
+	}
 	return mergeSettledBlocks(state.settledBlocks, unsettledBlocks)
 }
