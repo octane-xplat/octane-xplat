@@ -2,9 +2,10 @@ import { CameraCaptureError } from './types'
 import type { BackendCameraSwitch } from './session-core'
 import type { CameraDeviceInfo } from './types'
 
-/** Native candidate protocol. Kept internal until physical qualification. */
+/** Internal bridge to the native sample writer. */
 export interface IOSMovieWriter {
 	install(session: unknown): string | null
+	configureAudio(enabled: boolean): string | null
 	observeSource(callback: (ready: boolean) => void): void
 	setPreviewLayer(layer: unknown): void
 	expectCamera(id: string): void

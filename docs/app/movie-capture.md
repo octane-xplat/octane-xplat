@@ -275,7 +275,7 @@ if (capabilities.cameraSwitchDuringRecording) {
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Web                   | Available when canvas recording and manual frame submission are supported. Preview and recording share the held video source. Chromium timing is qualified with generated video and a mock microphone; other browser engines, physical browser cameras, and timing under severe host load remain unqualified.           |
 | Android               | Uses one persistent CameraX recorder while rebinding video. Audio stays active; the preview retains its last frame until the new source is ready. Physical front/back recording and packet timing have been exercised; image orientation and mirroring have not been visually verified. |
-| iOS                   | Unavailable with the current movie-file recorder. Tracked in [#86](https://github.com/octane-xplat/octane-xplat/issues/86).                                                                                                                                                             |
+| iOS                   | One sample writer keeps an independent microphone session active during video-input replacement. Physical iPhone front/back swaps, incoming audio, encoded timing, stop/limit races and background recovery have been exercised. Connection metadata verifies mirroring/orientation settings; their appearance has not been visually verified. |
 | macOS, Windows, Linux | Unavailable in their current native/host adapters. Web support does not imply support in a separate desktop camera adapter.                                                                                                                                                             |
 
 The session remains `recording` while `switchingCamera` is true. Disable repeated
@@ -293,13 +293,26 @@ const unsubscribe = session.subscribe((event) => {
 // Call unsubscribe when this screen's subscription is no longer needed.
 ```
 
-The output keeps its starting dimensions and rotation. Web crops replacement
+The output keeps its starting dimensions and rotation. Web and iOS crop replacement
 video around its center to fill those dimensions; Android keeps its recording
 profile. Front-camera preview may be mirrored; recorded video is unmirrored.
 Use the attempt's configuration to inspect the starting format.
 
 ```ts
 console.log(session.snapshot().attempt?.configuration)
+```
+
+On iOS, upgrading the package requires a native app rebuild. A microphone
+interruption or timestamp gap ends the take with a diagnostic and preserves a
+verified partial clip when possible. It does not silently shorten the missing
+audio interval or start a replacement take. Keep the original completion handler
+responsible for saving and reporting partial results.
+
+```ts
+const result = await take.completion
+if (result.kind === 'clip' && result.partial) {
+	console.warn('Saved the captured portion', result.endReason, result.warning)
+}
 ```
 
 A switch resolves when the replacement camera is producing frames and is
@@ -369,6 +382,18 @@ if (camera) await session.configure({ camera: { deviceId: camera.id } })
 console.log((await session.capabilities()).profiles)
 ```
 
+iOS starts in portrait unless you request another supported orientation. It
+keeps that orientation for the whole take, including camera switches. Request
+the orientation before recording begins.
+
+```ts
+const capabilities = await session.capabilities()
+if (capabilities.orientations.includes('landscapeRight')) {
+	const landscapeTake = session.startRecording({ orientation: 'landscapeRight' })
+	console.log(landscapeTake.id)
+}
+```
+
 Android, Web, and Linux currently advertise no fixed cardinal orientations.
 Omit
 `orientation`; clips report `unspecified` alongside actual presentation width
@@ -382,7 +407,7 @@ orientation request fails `unsupportedConfiguration`. macOS clips report the
 actual orientation read from the finalized MOV track transform. Recorded output
 is unmirrored;
 front-camera preview may be mirrored. No shared file suffix or codec is assumed:
-Android and Windows write MP4, macOS writes MOV (`video/quicktime`), while Web
+Android and Windows write MP4, iOS and macOS write MOV (`video/quicktime`), while Web
 and Linux select an explicitly supported WebM or MP4 codec and report the
 finalized file's actual MIME type, including codecs — on Ubuntu 24.04's
 WebKitGTK that resolves to MP4 (H.264/AAC) because WebM recording needs

@@ -116,7 +116,7 @@ do {
 	try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 	let writer = XplatSwitchingMovieWriter()
 	writer.syntheticReady()
-	for scenario in ["switch", "cancel", "limit"] {
+	for scenario in ["switch", "cancel", "limit", "audio-gap"] {
 		let url = directory.appendingPathComponent("\(scenario).mov")
 		var events: [(String, String)] = []
 		var replies: [String?] = []
@@ -130,11 +130,13 @@ do {
 			if tick < 24 || (tick >= 48 && scenario == "switch") || scenario == "limit" {
 				writer.syntheticSample(try videoSample(tick, alternate: tick >= 48), video: true)
 			}
-			writer.syntheticSample(try audioSample(tick), video: false)
-			submittedAudio += 1
+			if scenario != "audio-gap" || tick < 26 || tick >= 29 {
+				writer.syntheticSample(try audioSample(tick), video: false)
+				submittedAudio += 1
+			}
 			pump(1024.0 / 48000)
 			if scenario == "switch", replies.count == 1 { writer.confirmSwitch("generated") }
-			if events.contains(where: { $0.0 == "finished" || $0.0 == "failed" }) { break }
+			if events.contains(where: { $0.0 == "finishing" || $0.0 == "finished" || $0.0 == "failed" }) { break }
 		}
 		let elapsed = writer.elapsedMs()
 		writer.stop(); writer.stop()
@@ -144,11 +146,17 @@ do {
 		try require(events.filter { $0.0 == "started" }.count == 1, "Exactly one start")
 		guard let finished = events.first(where: { $0.0 == "finished" }) else { throw NSError(domain: "WriterFailure", code: 1, userInfo: [NSLocalizedDescriptionKey: "\(events)"]) }
 		let summary = try JSONSerialization.jsonObject(with: Data(finished.1.utf8)) as! [String: Any]
-		try require((summary["warning"] as? String) == "", "No writer warnings")
-		try require((summary["audioBuffers"] as! Int) == submittedAudio, "Every generated audio buffer was accepted")
-		try require(abs(elapsed - Double(submittedAudio) * 1024 / 48) < 1, "Elapsed time includes audio during source gap")
+		if scenario == "audio-gap" {
+			try require((summary["warning"] as? String)?.contains("Microphone timestamp gap") == true, "Audio loss is explicit")
+			try require(events.filter { $0.0 == "sourceLost" }.count == 1, "One audio-loss event")
+			try require((summary["audioBuffers"] as! Int) == submittedAudio - 1, "Do not concatenate a late audio buffer across a gap")
+		} else {
+			try require((summary["warning"] as? String) == "", "No writer warnings")
+			try require((summary["audioBuffers"] as! Int) == submittedAudio, "Every generated audio buffer was accepted (\(scenario): \(summary), submitted \(submittedAudio))")
+			try require(abs(elapsed - Double(submittedAudio) * 1024 / 48) < 1, "Elapsed time includes audio during source gap")
+		}
 		if scenario != "limit" {
-			try require((summary["heldFrames"] as! Int) > 4, "Writer submits retained frames during source gap")
+			if scenario != "audio-gap" { try require((summary["heldFrames"] as! Int) > 4, "Writer submits retained frames during source gap") }
 			try require(replies.count == 1, "Exactly one switch reply")
 			try require((replies[0] == nil) == (scenario == "switch"), "Switch/cancellation reply")
 		} else { try require(events.filter { $0.0 == "limit" }.count == 1, "Exactly one duration limit event") }

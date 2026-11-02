@@ -2,7 +2,6 @@ import AVFoundation
 import CoreImage
 import QuartzCore
 
-/// Qualification candidate: the public iOS factory does not select this writer.
 /// One writer and microphone timeline survive video-input replacement. All sample,
 /// writer and switching state is confined to queue; replies cross to main.
 @objc(XplatSwitchingMovieWriter)
@@ -11,6 +10,8 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 	private let queue = DispatchQueue(label: "com.octanexplat.camera.movie")
 	private let video = AVCaptureVideoDataOutput()
 	private let audio = AVCaptureAudioDataOutput()
+	private let audioSession = AVCaptureSession()
+	private var audioObservers: [NSObjectProtocol] = []
 	private let context = CIContext(options: [.cacheIntermediates: false])
 	private weak var session: AVCaptureSession?
 	private var writer: AVAssetWriter?
@@ -53,6 +54,9 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 	private var outputFrames = 0
 	private var heldFrames = 0
 	private var audioBuffers = 0
+	private var audioFirstTime = CMTime.invalid
+	private var audioInputDuration: Double = 0
+	private var maxAudioInputGap: Double = 0
 	private var switching = false
 	private var switchEpoch = 0
 	private var elapsed: Double = 0
@@ -61,21 +65,56 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 
 	@objc(install:)
 	public func install(_ session: AVCaptureSession) -> String? {
-		guard session.canAddOutput(video), session.canAddOutput(audio) else { return "Sample outputs are unavailable" }
+		guard session.canAddOutput(video), audioSession.canAddOutput(audio) else { return "Sample outputs are unavailable" }
 		video.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
 		video.alwaysDiscardsLateVideoFrames = true
 		video.setSampleBufferDelegate(self, queue: queue)
 		audio.setSampleBufferDelegate(self, queue: queue)
 		session.addOutput(video)
-		session.addOutput(audio)
+		audioSession.addOutput(audio)
+		// Video input changes must not reconfigure the application's microphone.
+		session.usesApplicationAudioSession = false
+		for name in [NSNotification.Name.AVCaptureSessionWasInterrupted, .AVCaptureSessionRuntimeError] {
+			audioObservers.append(NotificationCenter.default.addObserver(forName: name, object: audioSession, queue: nil) { [weak self] notification in
+				self?.queue.async { [weak self] in
+					guard let self, self.writer != nil, !self.stopping, !self.released else { return }
+					self.warning = (notification.userInfo?[AVCaptureSessionErrorKey] as? NSError)?.localizedDescription ?? "Microphone capture interrupted"
+					self.emit("sourceLost", self.warning!); self.finish()
+				}
+			})
+		}
 		self.session = session
 		return nil
+	}
+
+	/// Called on main, like the owning video session's configuration transactions.
+	@objc(configureAudio:)
+	public func configureAudio(_ enabled: Bool) -> String? {
+		guard queue.sync(execute: { writer == nil && !released }) else { return "Audio configuration requires an idle writer" }
+		if !enabled {
+			audioSession.stopRunning()
+			for input in audioSession.inputs { audioSession.removeInput(input) }
+			return nil
+		}
+		do {
+			if audioSession.inputs.isEmpty {
+				guard let microphone = AVCaptureDevice.default(for: .audio) else { return "Microphone is unavailable" }
+				let input = try AVCaptureDeviceInput(device: microphone)
+				guard audioSession.canAddInput(input) else { return "Microphone input is incompatible" }
+				audioSession.addInput(input)
+			}
+			if !audioSession.isRunning { audioSession.startRunning() }
+			return audioSession.isRunning && !audioSession.isInterrupted ? nil : "Microphone capture is unavailable"
+		} catch { return error.localizedDescription }
 	}
 
 	@objc(start:audio:orientation:maximumDurationMs:reply:)
 	public func start(_ path: String, audio: Bool, orientation: Int, maximumDurationMs: Double, reply: @escaping (String, String) -> Void) {
 		queue.async {
 			guard self.writer == nil, !self.released, self.sourceReady else { DispatchQueue.main.async { reply("failed", "Recorder is busy or its source is unavailable") }; return }
+			if audio && self.session != nil && (!self.audioSession.isRunning || self.audioSession.isInterrupted) {
+				DispatchQueue.main.async { reply("failed", "Microphone capture is unavailable") }; return
+			}
 			self.path = path
 			self.requestedAudio = audio
 			self.notify = reply
@@ -92,6 +131,7 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 			self.outputFrames = 0
 			self.heldFrames = 0
 			self.audioBuffers = 0
+			self.audioFirstTime = .invalid; self.audioInputDuration = 0; self.maxAudioInputGap = 0
 			self.limit = maximumDurationMs / 1000
 			self.orientation = AVCaptureVideoOrientation(rawValue: orientation) ?? .portrait
 			self.expectedCameraID = self.session?.inputs.compactMap { $0 as? AVCaptureDeviceInput }.first { $0.device.hasMediaType(.video) }?.device.uniqueID
@@ -202,7 +242,19 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 			setSourceReady(true)
 			if restoringPreview { restoringPreview = false; removeOverlay() }
 		}
-		consume(sampleBuffer, isVideo: output === video)
+		if output === audio, let session {
+			do {
+				var timing = CMSampleTimingInfo()
+				guard CMSampleBufferGetSampleTimingInfo(sampleBuffer, at: 0, timingInfoOut: &timing) == noErr else { throw failure("Cannot read microphone timing") }
+				let from = audioSession.synchronizationClock ?? CMClockGetHostTimeClock()
+				let to = session.synchronizationClock ?? CMClockGetHostTimeClock()
+				timing.presentationTimeStamp = CMSyncConvertTime(timing.presentationTimeStamp, from: from, to: to)
+				if timing.decodeTimeStamp.isValid { timing.decodeTimeStamp = CMSyncConvertTime(timing.decodeTimeStamp, from: from, to: to) }
+				var synchronized: CMSampleBuffer?
+				guard CMSampleBufferCreateCopyWithNewTiming(allocator: nil, sampleBuffer: sampleBuffer, sampleTimingEntryCount: 1, sampleTimingArray: &timing, sampleBufferOut: &synchronized) == noErr, let synchronized else { throw failure("Cannot synchronize microphone timing") }
+				consume(synchronized, isVideo: false)
+			} catch { if writer != nil { warning = error.localizedDescription; emit("sourceLost", warning!); finish() } }
+		} else { consume(sampleBuffer, isVideo: output === video) }
 	}
 
 	private func consume(_ sampleBuffer: CMSampleBuffer, isVideo: Bool) {
@@ -227,12 +279,24 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 				}
 			} catch { warning = error.localizedDescription; finish() }
 		} else if requestedAudio, let origin, time >= origin, let input = audioWriter {
+			// A missing microphone interval cannot be repaired by the encoder:
+			// it may concatenate packets and hide the gap. Preserve a partial
+			// take with a diagnostic rather than silently compress its audio time.
+			if lastAudio.isValid && CMTimeGetSeconds(time - lastAudio) > 0.005 {
+				maxAudioInputGap = max(maxAudioInputGap, CMTimeGetSeconds(time - lastAudio))
+				warning = "Microphone timestamp gap; captured content was finalized"
+				emit("sourceLost", warning!); finish(); return
+			}
 			guard input.isReadyForMoreMediaData, input.append(sampleBuffer) else {
 				warning = writer?.error?.localizedDescription ?? "Audio encoder backpressure"; finish(); return
 			}
+			if !audioFirstTime.isValid { audioFirstTime = time }
+			if lastAudio.isValid { maxAudioInputGap = max(maxAudioInputGap, CMTimeGetSeconds(time - lastAudio)) }
 			audioBuffers += 1
 			let duration = CMSampleBufferGetDuration(sampleBuffer)
-			lastAudio = time + (duration.isValid ? duration : CMTime(value: 1024, timescale: 48000))
+			let sampleDuration = duration.isValid ? duration : CMTime(value: 1024, timescale: 48000)
+			audioInputDuration += CMTimeGetSeconds(sampleDuration)
+			lastAudio = time + sampleDuration
 			elapsed = max(elapsed, CMTimeGetSeconds(lastAudio - origin))
 			publishElapsed()
 			holdFrame()
@@ -440,7 +504,12 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 		audio.setSampleBufferDelegate(nil, queue: nil)
 		sourceObserver = nil; previewLayer = nil; removeOverlay()
 		let replies = releaseReplies; releaseReplies = []
-		DispatchQueue.main.async { for reply in replies { reply() } }
+		DispatchQueue.main.async {
+			self.audioSession.stopRunning()
+			for observer in self.audioObservers { NotificationCenter.default.removeObserver(observer) }
+			self.audioObservers = []
+			for reply in replies { reply() }
+		}
 	}
 
 	private func finish() {
@@ -461,7 +530,7 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 				self.terminal("failed", "Movie finalization timed out; output bytes may be incomplete")
 			}
 		}
-		let summary: [String: Any] = ["path": path, "frames": outputFrames, "heldFrames": heldFrames, "audioBuffers": audioBuffers, "elapsedMs": elapsed * 1000, "warning": warning ?? ""]
+		let summary: [String: Any] = ["path": path, "frames": outputFrames, "heldFrames": heldFrames, "audioBuffers": audioBuffers, "audioInputDurationMs": audioInputDuration * 1000, "maxAudioInputGapMs": maxAudioInputGap * 1000, "audioFirstOffsetMs": audioFirstTime.isValid ? CMTimeGetSeconds(audioFirstTime - origin!) * 1000 : 0, "audioLastOffsetMs": lastAudio.isValid ? CMTimeGetSeconds(lastAudio - origin!) * 1000 : 0, "elapsedMs": elapsed * 1000, "warning": warning ?? ""]
 		writer.finishWriting { [weak self, weak writer] in
 			guard let self, let writer else { return }
 			self.queue.async {

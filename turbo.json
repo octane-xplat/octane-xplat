@@ -18,6 +18,11 @@
 			"cache": false,
 			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_WRITER_HOST"]
 		},
+		"@octane-xplat/camera#test:ios-device": {
+			"dependsOn": ["^typegen"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVICE", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
 		"@octane-xplat/camera#test:web": {
 			"dependsOn": ["^typegen"],
 			"cache": false

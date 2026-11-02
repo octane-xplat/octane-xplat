@@ -121,9 +121,10 @@ for control-state guidance.
 await session.configure({ camera: 'front' }) // Before starting a take.
 ```
 
-During a take, Web and Android can advertise live camera switching: audio
+During a take, Web, iOS and Android can advertise live camera switching: audio
 continues while video holds its last frame, with the original take and output.
-iOS and the separate desktop adapters currently report it unavailable. See
+The separate desktop adapters currently report it unavailable. Rebuild an iOS
+app after upgrading to include the native writer. See
 [live switching](https://octane-xplat.goddardai.org/movie-capture#switch-cameras-during-a-take)
 for state, failure handling and qualification limits.
 

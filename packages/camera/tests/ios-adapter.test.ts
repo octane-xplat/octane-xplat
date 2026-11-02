@@ -63,6 +63,7 @@ const model = vi.hoisted(() => {
 			this.ready = callback
 		},
 		setPreviewLayer: vi.fn(),
+		configureAudio: vi.fn(() => null),
 		expectCamera: vi.fn(),
 		startAudioOrientationMaximumDurationMsReply(
 			_path: string,
@@ -121,9 +122,6 @@ vi.mock('@octane-xplat/platform/ios', () => ({
 		}),
 	},
 	AVCaptureDeviceInput: model.Input,
-	AVCaptureMovieFileOutput: {
-		new: () => ({ maxRecordedDuration: {}, connectionWithMediaType: () => ({}) }),
-	},
 	AVCaptureSession: model.Session,
 	AVCaptureVideoPreviewLayer: {
 		layerWithSession: () => ({
@@ -149,7 +147,6 @@ vi.mock('@octane-xplat/platform/ios', () => ({
 	},
 	CGPointMake: () => ({}),
 	NSBundle: { mainBundle: { objectForInfoDictionaryKey: () => 'Declared' } },
-	NSError: class {},
 	NSNotification: class {},
 	NSNumber: class {},
 	NSFileManager: {
@@ -158,10 +155,8 @@ vi.mock('@octane-xplat/platform/ios', () => ({
 	NSNotificationCenter: {
 		defaultCenter: { addObserverForNameObjectQueueUsingBlock: () => ({}), removeObserver() {} },
 	},
-	NSObject: { extend: () => ({ new: () => ({}) }) },
 	NSOperationQueue: { mainQueue: {} },
 	NSURL: { fileURLWithPath: (path: string) => ({ path }) },
-	AVCaptureFileOutputRecordingDelegate: {},
 }))
 
 import { createSessionBackend } from '../src/session-backend.ios'
@@ -199,7 +194,7 @@ afterEach(() => vi.unstubAllGlobals())
 function setup() {
 	const native = model.bridge()
 	vi.stubGlobal('XplatSwitchingMovieWriter', { new: () => native })
-	const backend = createSessionBackend({ audio: true }, true)
+	const backend = createSessionBackend({ audio: true })
 	const session = new SharedCameraSession(backend, { audio: true })
 	const onReady = vi.fn()
 	const detach = session.attach({ ios: { layer: { addSublayer() {} }, bounds: {} } }, { onReady })
@@ -213,12 +208,60 @@ function setup() {
 	return { native, backend, session, onReady, start, finish, detach }
 }
 
-describe('iOS writer qualification entry', () => {
-	it('keeps production switching disabled even when the candidate native class is linked', async () => {
+describe('iOS sample writer adapter', () => {
+	it('retains the native duration limit cause through finishing', async () => {
+		const h = setup()
+		h.native.ready!(true)
+		const take = h.start()
+		h.native.events.at(-1)!('limit', '')
+		h.native.events.at(-1)!('finishing', '')
+		h.finish()
+		await expect(take.completion).resolves.toMatchObject({
+			kind: 'clip',
+			endReason: 'maximumDuration',
+		})
+		await h.session.dispose()
+	})
+
+	it('keeps microphone ownership outside the video session and reports effective audio', async () => {
+		const h = setup()
+		expect(h.native.configureAudio).toHaveBeenCalledWith(true)
+		expect(h.native.target!.entries).toHaveLength(1)
+		expect(h.native.target!.entries[0].device.hasMediaType('video')).toBe(true)
+		h.native.ready!(true)
+		const take = h.start()
+		expect(h.session.snapshot().attempt?.configuration?.audio).toBe(true)
+		h.finish()
+		await take.completion
+		await h.session.configure({ audio: false })
+		expect(h.native.configureAudio).toHaveBeenCalledWith(false)
+		await h.session.dispose()
+	})
+
+	it('fails preparation when independent microphone capture is unavailable', async () => {
+		const h = setup()
+		h.native.configureAudio.mockReturnValue('Microphone capture interrupted')
+		h.native.ready!(true)
+		const take = h.session.startRecording()
+		await expect(take.completion).resolves.toMatchObject({ kind: 'failed', stage: 'preparation' })
+		expect(h.native.events).toHaveLength(0)
+		await h.session.dispose()
+	})
+
+	it('advertises switching when the native writer is linked', async () => {
 		vi.stubGlobal('XplatSwitchingMovieWriter', { new: model.bridge })
 		expect((await createSessionBackend({}).getCapabilities()).cameraSwitchDuringRecording).toBe(
-			false,
+			true,
 		)
+	})
+
+	it('reports a missing native writer with rebuild guidance', async () => {
+		const backend = createSessionBackend({})
+		expect(await backend.getCapabilities()).toMatchObject({
+			supported: false,
+			cameraSwitchDuringRecording: false,
+			reason: 'Movie writer is not linked; rebuild the iOS app',
+		})
 	})
 
 	it('waits for native frames and does not rearm onReady when a switch becomes ready', async () => {
@@ -281,7 +324,7 @@ describe('iOS writer qualification entry', () => {
 	})
 })
 
-describe('candidate completion recovery', () => {
+describe('writer completion recovery', () => {
 	it('verifies the file when native completion metadata is malformed', async () => {
 		const h = setup()
 		h.native.ready!(true)

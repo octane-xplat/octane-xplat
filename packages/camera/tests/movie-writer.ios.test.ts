@@ -9,6 +9,7 @@ function setup() {
 	let released: (() => void) | undefined
 	const native: IOSMovieWriter = {
 		install: () => null,
+		configureAudio: () => null,
 		observeSource: () => {},
 		setPreviewLayer: () => {},
 		expectCamera: () => {},

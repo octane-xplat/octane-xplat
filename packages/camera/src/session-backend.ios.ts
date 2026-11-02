@@ -27,23 +27,19 @@ import {
 	AVCaptureDevice,
 	AVCaptureDeviceDiscoverySession,
 	AVCaptureDeviceInput,
-	AVCaptureMovieFileOutput,
 	AVCaptureSession,
 	AVCaptureVideoPreviewLayer,
 	AVURLAsset,
 	CGPointMake,
 	NSBundle,
-	NSError,
 	NSFileManager,
 	NSNotification,
 	NSNotificationCenter,
 	NSNumber,
-	NSObject,
 	NSOperationQueue,
 	NSURL,
 } from '@octane-xplat/platform/ios'
 
-import { AVCaptureFileOutputRecordingDelegate } from '@octane-xplat/platform/ios'
 import type { CGAffineTransform, NSObjectProtocol } from '@octane-xplat/platform/ios'
 
 // AVAuthorizationStatus numeric values — the ambient const enum cannot be
@@ -57,7 +53,6 @@ const authorizationAuthorized = 3
 // the handful of C functions this adapter needs instead of referencing the
 // full typings.
 declare function CMTimeGetSeconds(time: any): number
-declare function CMTimeMakeWithSeconds(seconds: number, preferredTimescale: number): any
 declare function CMVideoFormatDescriptionGetDimensions(videoDesc: any): {
 	width: number
 	height: number
@@ -77,7 +72,6 @@ const interruptionAudioDeviceInUseByAnotherClient = 2
 const interruptionVideoDeviceInUseByAnotherClient = 3
 const interruptionVideoDeviceNotAvailableWithMultipleForegroundApps = 4
 const interruptionVideoDeviceNotAvailableDueToSystemPressure = 5
-const avErrorMaximumDurationReached = -11810
 const videoStabilizationModeAuto = -1
 
 // AVCaptureFocusMode/AVCaptureExposureMode numeric values — tap-to-focus
@@ -198,17 +192,6 @@ const selectDevice = (
 
 	return devices.find((device) => device.position === captureDevicePositionBack) ?? devices[0]
 }
-
-const orientationToRotationAngle = (orientation: CameraOrientation): number | undefined =>
-	orientation === 'portrait'
-		? 90
-		: orientation === 'portraitUpsideDown'
-			? 270
-			: orientation === 'landscapeLeft'
-				? 180
-				: orientation === 'landscapeRight'
-					? 0
-					: undefined
 
 const orientationToLegacyConstant = (orientation: CameraOrientation): number | undefined =>
 	orientation === 'portrait'
@@ -336,21 +319,17 @@ const freeDiskBytes = (): number => {
 	}
 }
 
-/** iOS adapter: one AVCaptureSession shared between the attached preview
- *  and a single AVCaptureMovieFileOutput capture attempt. */
-// The second argument is a package-internal qualification seam, never passed by
-// createCameraSession. Keep the established recorder until device evidence allows
-// the writer cutover; ordinary iOS captures must not become an unqualified path.
+/** iOS adapter: one video session and an independent microphone session feed
+ *  a single sample writer shared with the attached preview. */
 declare const XplatSwitchingMovieWriter: { new: () => IOSMovieWriter }
 export function createSessionBackend(
 	config: CameraSessionConfig,
-	candidateWriter = false,
+	writerDiagnostics?: (type: string, payload: string) => void,
 ): CameraSessionBackend {
 	let currentConfig = { ...config }
 	let session: AVCaptureSession | undefined
 	let videoInput: AVCaptureDeviceInput | undefined
-	let audioInput: AVCaptureDeviceInput | undefined
-	let movieOutput: AVCaptureMovieFileOutput | undefined
+	let writerHasAudio = false
 	let previewLayer: AVCaptureVideoPreviewLayer | undefined
 	let previewHost: any
 	let detachFrame: (() => void) | undefined
@@ -360,8 +339,7 @@ export function createSessionBackend(
 	let observers: NSObjectProtocol[] = []
 	let captureSink: BackendCaptureSink | undefined
 	let captureRequest: BackendCaptureRequest | undefined
-	let limitRequested = false
-	let noDurationLimit: any
+	let nativeLimitReached = false
 	let interrupted = false
 	let nativeWriter: IOSMovieWriter | undefined
 	let writerDriver: IOSMovieWriterDriver | undefined
@@ -381,29 +359,6 @@ export function createSessionBackend(
 		}
 	}
 
-	const RecordingDelegate = (NSObject as any).extend(
-		{
-			captureOutputDidStartRecordingToOutputFileAtURLFromConnections(
-				_output: unknown,
-				_url: unknown,
-				_connections: unknown,
-			) {
-				onCaptureStarted()
-			},
-			captureOutputDidFinishRecordingToOutputFileAtURLFromConnectionsError(
-				_output: unknown,
-				url: NSURL,
-				_connections: unknown,
-				error: NSError | null,
-			) {
-				onCaptureFinished(url, error)
-			},
-		},
-		{ protocols: [AVCaptureFileOutputRecordingDelegate] },
-	)
-
-	const recordingDelegate = RecordingDelegate.new()
-
 	const emitIssue = (
 		kind: CaptureIssue['kind'],
 		operation: string,
@@ -419,9 +374,7 @@ export function createSessionBackend(
 	const notify = (phase: 'began' | 'ended', reason?: CameraInterruptionReason) => {
 		interrupted = phase === 'began'
 		observer?.interruption(phase, reason)
-		observer?.previewReady(
-			previewReadyFlag && !interrupted && (!candidateWriter || writerSourceReady),
-		)
+		observer?.previewReady(previewReadyFlag && !interrupted && writerSourceReady)
 	}
 
 	const observeSession = (target: AVCaptureSession) => {
@@ -516,24 +469,9 @@ export function createSessionBackend(
 		}
 	}
 
-	const ensureAudioInput = (target: AVCaptureSession): boolean => {
-		if (audioInput) {
-			return true
-		}
-
-		const mic = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
-		if (!mic) {
-			return false
-		}
-
-		const input = AVCaptureDeviceInput.deviceInputWithDeviceError(mic, undefined)
-		if (!input || !target.canAddInput(input)) {
-			return false
-		}
-
-		target.addInput(input)
-		audioInput = input
-		return true
+	const ensureAudioInput = (): boolean => {
+		writerHasAudio = !!nativeWriter && !nativeWriter.configureAudio(true)
+		return writerHasAudio
 	}
 
 	const ensureSession = (): AVCaptureSession => {
@@ -569,59 +507,44 @@ export function createSessionBackend(
 
 		target.addInput(input)
 		videoInput = input
-		if (candidateWriter) {
-			if (typeof XplatSwitchingMovieWriter === 'undefined') {
-				target.commitConfiguration()
-				throw new CameraCaptureError({
-					kind: 'unsupportedPlatform',
-					operation: 'startPreview',
-					message: 'Candidate movie writer is not linked',
-				})
-			}
 
-			nativeWriter = XplatSwitchingMovieWriter.new()
-			const problem = nativeWriter.install(target)
-			if (problem) {
-				target.commitConfiguration()
-				throw new CameraCaptureError({
-					kind: 'unavailable',
-					operation: 'startPreview',
-					message: problem,
-				})
-			}
-
-			writerDriver = new IOSMovieWriterDriver(nativeWriter)
-			const sourceOwner = nativeWriter
-			nativeWriter.observeSource((ready) => {
-				if (nativeWriter !== sourceOwner) {
-					return
-				}
-				writerSourceReady = ready
-				observer?.previewReady(previewReadyFlag && ready && !interrupted)
-				if (ready && initialWriterReady && !captureSink) {
-					const callback = initialWriterReady
-					initialWriterReady = undefined
-					callback()
-				}
+		if (typeof XplatSwitchingMovieWriter === 'undefined') {
+			target.commitConfiguration()
+			throw new CameraCaptureError({
+				kind: 'unsupportedPlatform',
+				operation: 'startPreview',
+				message: 'Movie writer is not linked; rebuild the iOS app',
 			})
-		} else {
-			const output = AVCaptureMovieFileOutput.new()
-			if (target.canAddOutput(output)) {
-				target.addOutput(output)
-				movieOutput = output
-				noDurationLimit = output.maxRecordedDuration
-			} else {
-				target.commitConfiguration()
-				throw new CameraCaptureError({
-					kind: 'unsupportedPlatform',
-					operation: 'startPreview',
-					message: 'Movie file output is unavailable on this device',
-				})
-			}
 		}
 
+		nativeWriter = XplatSwitchingMovieWriter.new()
+		const problem = nativeWriter.install(target)
+		if (problem) {
+			target.commitConfiguration()
+			throw new CameraCaptureError({
+				kind: 'unavailable',
+				operation: 'startPreview',
+				message: problem,
+			})
+		}
+
+		writerDriver = new IOSMovieWriterDriver(nativeWriter)
+		const sourceOwner = nativeWriter
+		nativeWriter.observeSource((ready) => {
+			if (nativeWriter !== sourceOwner) {
+				return
+			}
+			writerSourceReady = ready
+			observer?.previewReady(previewReadyFlag && ready && !interrupted)
+			if (ready && initialWriterReady && !captureSink) {
+				const callback = initialWriterReady
+				initialWriterReady = undefined
+				callback()
+			}
+		})
+
 		if (currentConfig.audio && readPermission('microphone') === 'granted') {
-			ensureAudioInput(target)
+			ensureAudioInput()
 		}
 
 		target.commitConfiguration()
@@ -657,8 +580,7 @@ export function createSessionBackend(
 
 		session = undefined
 		videoInput = undefined
-		audioInput = undefined
-		movieOutput = undefined
+		writerHasAudio = false
 		previewLayer = undefined
 		device = undefined
 	}
@@ -674,7 +596,7 @@ export function createSessionBackend(
 		const configuration: EffectiveCaptureConfig = {
 			cameraId: device.uniqueID,
 			facing: facingForPosition(device.position),
-			audio: request.audio && audioInput !== undefined,
+			audio: request.audio && writerHasAudio,
 			width: dimensions?.width ?? profile.width,
 			height: dimensions?.height ?? profile.height,
 			frameRate: profile.frameRate,
@@ -686,7 +608,7 @@ export function createSessionBackend(
 		sink.started(configuration)
 	}
 
-	const onCaptureFinished = (url: NSURL, error: NSError | null) => {
+	const onCaptureFinished = (url: NSURL) => {
 		const request = captureRequest
 		const sink = captureSink
 		captureRequest = undefined
@@ -696,37 +618,7 @@ export function createSessionBackend(
 		}
 
 		const filePath = url?.path ? String(url.path) : ''
-		const succeeded =
-			!error ||
-			numericValue(error.userInfo?.objectForKey(AVErrorRecordingSuccessfullyFinishedKey)) === 1
-
-		if (!succeeded) {
-			// Clean up only the file this attempt created — never a
-			// pre-existing app file (admission rejects existing paths).
-			try {
-				if (!candidateWriter && filePath && File.exists(filePath)) {
-					NSFileManager.defaultManager.removeItemAtPathError(filePath, undefined)
-				}
-			} catch {
-				// Temporary leftovers are reclaimed by the OS.
-			}
-
-			sink.settled({
-				kind: 'failed',
-				stage: 'capture',
-				issue: emitIssue(
-					'captureFailed',
-					'finalize',
-					error?.localizedDescription ?? 'Movie recording did not complete',
-					error,
-				),
-			})
-
-			stopSessionIfIdle()
-			return
-		}
-
-		const limitReached = limitRequested && error?.code === avErrorMaximumDurationReached
+		const limitReached = nativeLimitReached
 		try {
 			const asset = AVURLAsset.assetWithURL(url)
 			const durationSeconds = asset ? CMTimeGetSeconds(asset.duration) : 0
@@ -734,14 +626,6 @@ export function createSessionBackend(
 			const audioTracks = asset?.tracksWithMediaType(AVMediaTypeAudio)
 			const track = videoTracks && videoTracks.count > 0 ? videoTracks.objectAtIndex(0) : null
 			if (!track || !(durationSeconds > 0)) {
-				try {
-					if (!candidateWriter && filePath && File.exists(filePath)) {
-						NSFileManager.defaultManager.removeItemAtPathError(filePath, undefined)
-					}
-				} catch {
-					// Temporary leftovers are reclaimed by the OS.
-				}
-
 				sink.settled({
 					kind: 'failed',
 					stage: 'capture',
@@ -765,13 +649,6 @@ export function createSessionBackend(
 			if (request.audio && !(audioTracks && audioTracks.count > 0)) {
 				// Requested audio missing must not masquerade as silent
 				// capture — classify as failure, not a successful clip.
-				try {
-					if (!candidateWriter && filePath && File.exists(filePath)) {
-						NSFileManager.defaultManager.removeItemAtPathError(filePath, undefined)
-					}
-				} catch {
-					// Temporary leftovers are reclaimed by the OS.
-				}
 
 				sink.settled({
 					kind: 'failed',
@@ -838,7 +715,7 @@ export function createSessionBackend(
 
 	return {
 		platform: 'ios',
-		supported: typeof AVCaptureMovieFileOutput !== 'undefined',
+		supported: typeof XplatSwitchingMovieWriter !== 'undefined',
 		checkPermission: async (kind) => {
 			if (!hasUsageDeclaration(kind)) {
 				// Missing declarations are a setup error, not a permission
@@ -872,23 +749,22 @@ export function createSessionBackend(
 				: { width: 1280, height: 720, frameRate: 30 }
 
 			const available = cameras.length > 0
-			const supported = typeof AVCaptureMovieFileOutput !== 'undefined' && available
+			const supported = typeof XplatSwitchingMovieWriter !== 'undefined' && available
 			return {
 				supported,
 				reason: !available
 					? 'No camera device is available on this host'
-					: typeof AVCaptureMovieFileOutput === 'undefined'
-						? 'Movie file output is unsupported by this runtime'
+					: typeof XplatSwitchingMovieWriter === 'undefined'
+						? 'Movie writer is not linked; rebuild the iOS app'
 						: undefined,
-				available: available && (!candidateWriter || writerSourceReady),
+				available: available && writerSourceReady,
 				cameras,
 				profiles: [{ profile: 'standard', ...profile }],
 				audio: typeof AVCaptureDevice.defaultDeviceWithMediaType === 'function',
 				focusPointOfInterest: selected?.focusPointOfInterestSupported === true,
 				exposurePointOfInterest: selected?.exposurePointOfInterestSupported === true,
 				orientations: ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight'],
-				cameraSwitchDuringRecording:
-					candidateWriter && typeof XplatSwitchingMovieWriter !== 'undefined',
+				cameraSwitchDuringRecording: typeof XplatSwitchingMovieWriter !== 'undefined',
 				durationLimit: 'native',
 				elapsedTime: 'nativeMedia',
 				output: {
@@ -899,7 +775,7 @@ export function createSessionBackend(
 				},
 			}
 		},
-		previewReady: () => previewReadyFlag && !interrupted && (!candidateWriter || writerSourceReady),
+		previewReady: () => previewReadyFlag && !interrupted && writerSourceReady,
 		attachPreview: (host, listener?: BackendPreviewListener) => {
 			let target: AVCaptureSession
 			try {
@@ -951,17 +827,14 @@ export function createSessionBackend(
 			updateFrame()
 			target.startRunning()
 			previewReadyFlag = true
-			if (candidateWriter) {
-				initialWriterReady = () => listener?.onReady?.()
-				observer?.previewReady(writerSourceReady)
-				if (writerSourceReady) {
-					initialWriterReady()
-					initialWriterReady = undefined
-				}
-			} else {
-				observer?.previewReady(true)
-				listener?.onReady?.()
+
+			initialWriterReady = () => listener?.onReady?.()
+			observer?.previewReady(writerSourceReady)
+			if (writerSourceReady) {
+				initialWriterReady()
+				initialWriterReady = undefined
 			}
+
 			return () => {
 				previewReadyFlag = false
 				initialWriterReady = undefined
@@ -993,58 +866,52 @@ export function createSessionBackend(
 					(input) =>
 						input instanceof AVCaptureDeviceInput && input.device.uniqueID === wanted.uniqueID,
 				)
-			if (wanted && videoInput && (wanted !== device || (candidateWriter && !hasSelectedInput))) {
+			if (wanted && videoInput && (wanted !== device || !hasSelectedInput)) {
 				const input = AVCaptureDeviceInput.deviceInputWithDeviceError(wanted, undefined)
-				if (candidateWriter) {
-					const previousInput = videoInput
-					writerSourceReady = false
-					observer?.previewReady(false)
-					for (const entry of Array.from({ length: target.inputs.count }, (_, index) =>
-						target.inputs.objectAtIndex(index),
-					)) {
-						if (
-							entry instanceof AVCaptureDeviceInput &&
-							entry.device.hasMediaType(AVMediaTypeVideo)
-						) {
-							target.removeInput(entry)
-						}
+
+				const previousInput = videoInput
+				writerSourceReady = false
+				observer?.previewReady(false)
+				for (const entry of Array.from({ length: target.inputs.count }, (_, index) =>
+					target.inputs.objectAtIndex(index),
+				)) {
+					if (
+						entry instanceof AVCaptureDeviceInput &&
+						entry.device.hasMediaType(AVMediaTypeVideo)
+					) {
+						target.removeInput(entry)
 					}
-
-					if (!input || !target.canAddInput(input)) {
-						if (target.canAddInput(previousInput)) {
-							target.addInput(previousInput)
-						}
-
-						target.commitConfiguration()
-						currentConfig = previous
-						nativeWriter?.expectCamera(device.uniqueID)
-						throw new CameraCaptureError({
-							kind: 'unsupportedConfiguration',
-							operation: 'configure',
-							message: 'Camera input is incompatible',
-						})
-					}
-
-					target.addInput(input)
-					videoInput = input
-					device = wanted
-				} else if (input && target.canAddInput(input)) {
-					target.removeInput(videoInput)
-					target.addInput(input)
-					videoInput = input
-					device = wanted
 				}
+
+				if (!input || !target.canAddInput(input)) {
+					if (target.canAddInput(previousInput)) {
+						target.addInput(previousInput)
+					}
+
+					target.commitConfiguration()
+					currentConfig = previous
+					nativeWriter?.expectCamera(device.uniqueID)
+					throw new CameraCaptureError({
+						kind: 'unsupportedConfiguration',
+						operation: 'configure',
+						message: 'Camera input is incompatible',
+					})
+				}
+
+				target.addInput(input)
+				videoInput = input
+				device = wanted
 			}
 
 			if (next.audio === true && readPermission('microphone') === 'granted') {
-				ensureAudioInput(target)
-			} else if (next.audio === false && audioInput) {
-				target.removeInput(audioInput)
-				audioInput = undefined
+				ensureAudioInput()
+			} else if (next.audio === false) {
+				nativeWriter?.configureAudio(false)
+				writerHasAudio = false
 			}
 
 			target.commitConfiguration()
-			if (candidateWriter && device) {
+			if (device) {
 				writerSourceReady = false
 				observer?.previewReady(false)
 				nativeWriter?.expectCamera(device.uniqueID)
@@ -1111,11 +978,11 @@ export function createSessionBackend(
 			}
 		},
 		switchCamera: (selection) => {
-			if (!candidateWriter || !writerDriver || !captureSink || !writerSourceReady) {
+			if (!writerDriver || !captureSink || !writerSourceReady) {
 				throw new CameraCaptureError({
 					kind: 'invalidState',
 					operation: 'switchCamera',
-					message: 'Candidate writer is not active',
+					message: 'Movie writer is not active',
 				})
 			}
 			const wanted = selectDevice(selection, listCameras())
@@ -1166,6 +1033,28 @@ export function createSessionBackend(
 					} catch {
 						/* The source commit must survive a preview preference failure. */
 					}
+					if (writerDiagnostics) {
+						try {
+							const outputs = session?.outputs
+							const connection =
+								outputs &&
+								Array.from({ length: outputs.count }, (_, index) =>
+									outputs.objectAtIndex(index).connectionWithMediaType(AVMediaTypeVideo),
+								).find(Boolean)
+							writerDiagnostics(
+								'cameraCommitted',
+								JSON.stringify({
+									id: wanted.uniqueID,
+									videoMirrored: !!connection?.videoMirrored,
+									orientation: connection?.videoOrientation,
+									previewMirrored: !!previewLayer?.connection?.videoMirrored,
+									previewMirrorSupported: !!previewLayer?.connection?.supportsVideoMirroring,
+								}),
+							)
+						} catch {
+							/* Diagnostics cannot own capture completion. */
+						}
+					}
 				},
 				cancel: () => {
 					cancelled = true
@@ -1175,7 +1064,7 @@ export function createSessionBackend(
 		},
 		startCapture: (request, sink) => {
 			const target = session
-			if (!target || (!movieOutput && !writerDriver) || !device) {
+			if (!target || !writerDriver || !device) {
 				sink.settled({
 					kind: 'failed',
 					stage: 'preparation',
@@ -1230,68 +1119,14 @@ export function createSessionBackend(
 					return
 				}
 
-				if (!audioInput) {
-					target.beginConfiguration()
-					const added = ensureAudioInput(target)
-					target.commitConfiguration()
-					if (!added) {
-						sink.settled({
-							kind: 'failed',
-							stage: 'preparation',
-							issue: emitIssue(
-								'unavailable',
-								'startRecording',
-								'No audio input device is available',
-							),
-						})
-
-						return
-					}
-				}
-			}
-
-			const connection = movieOutput?.connectionWithMediaType(AVMediaTypeVideo)
-			if (request.orientation && !candidateWriter) {
-				const angle = orientationToRotationAngle(request.orientation)
-				const legacy = orientationToLegacyConstant(request.orientation)
-				let applied = false
-				if (
-					connection &&
-					angle !== undefined &&
-					typeof connection.isVideoRotationAngleSupported === 'function' &&
-					connection.isVideoRotationAngleSupported(angle)
-				) {
-					connection.videoRotationAngle = angle
-					applied = true
-				} else if (connection && legacy !== undefined && connection.supportsVideoOrientation) {
-					connection.videoOrientation = legacy
-					applied = true
-				}
-
-				if (!applied) {
+				if (!ensureAudioInput()) {
 					sink.settled({
 						kind: 'failed',
 						stage: 'preparation',
-						issue: emitIssue(
-							'unsupportedConfiguration',
-							'startRecording',
-							`Orientation '${request.orientation}' is not supported by this connection`,
-						),
+						issue: emitIssue('unavailable', 'startRecording', 'No audio input device is available'),
 					})
-
 					return
 				}
-			}
-
-			if (connection) {
-				// Recorded output is unmirrored, including the front camera —
-				// the preview may stay mirrored under its existing behavior.
-				connection.automaticallyAdjustsVideoMirroring = false
-				if (connection.supportsVideoMirroring) {
-					connection.videoMirrored = false
-				}
-
-				preferAutoStabilization(connection)
 			}
 
 			let filePath: string
@@ -1358,162 +1193,118 @@ export function createSessionBackend(
 				return
 			}
 
-			if (writerDriver) {
-				captureRequest = {
-					...request,
-					orientation:
-						request.orientation && request.orientation !== 'unspecified'
-							? request.orientation
-							: 'portrait',
-				}
-
-				captureSink = sink
-				writerWarning = undefined
-				try {
-					writerDriver.start(
-						filePath,
-						request.audio,
-						orientationToLegacyConstant(request.orientation ?? 'portrait') ?? 1,
-						request.maximumDurationMs ?? 0,
-						(type, payload) => {
-							if (type === 'started') {
-								try {
-									onCaptureStarted(JSON.parse(payload))
-								} catch (error) {
-									writerWarning = emitIssue(
-										'captureFailed',
-										'capture',
-										'Writer start metadata was malformed; recording was stopped for verification',
-										error,
-									)
-
-									sink.finishing('captureError')
-									writerDriver?.stop()
-								}
-							} else if (type === 'limit') {
-								sink.finishing('maximumDuration')
-							} else if (type === 'sourceLost') {
-								sink.finishing('cameraUnavailable')
-							} else if (type === 'finishing') {
-								sink.finishing(payload === 'captureError' ? 'captureError' : 'stopped')
-							} else if (type === 'finished') {
-								try {
-									const result = JSON.parse(payload)
-									if (result?.warning) {
-										writerWarning = emitIssue('captureFailed', 'capture', result.warning)
-									}
-								} catch (error) {
-									writerWarning = emitIssue(
-										'captureFailed',
-										'finalize',
-										'Writer completion metadata was malformed; the movie was verified separately',
-										error,
-									)
-								}
-
-								onCaptureFinished(NSURL.fileURLWithPath(filePath), null)
-							} else if (type === 'failed') {
-								let result:
-									| {
-											ownsOutput?: boolean
-											hasVideo?: boolean
-											canInspectOutput?: boolean
-											message?: string
-									  }
-									| undefined
-
-								try {
-									result = JSON.parse(payload)
-								} catch {
-									/* Preserve the original native error below. */
-								}
-
-								if (
-									result?.ownsOutput === true &&
-									result.hasVideo === true &&
-									result.canInspectOutput === true
-								) {
-									writerWarning = emitIssue(
-										'captureFailed',
-										'capture',
-										result.message ?? 'Native writer failed',
-									)
-
-									sink.finishing('captureError')
-									onCaptureFinished(NSURL.fileURLWithPath(filePath), null)
-								} else {
-									failWriter(result?.message ?? payload, {
-										native: result,
-										candidateFileUrl: `file://${filePath}`,
-									})
-								}
-							}
-						},
-					)
-				} catch (error) {
-					failWriter(error)
-				}
-
-				return
+			captureRequest = {
+				...request,
+				orientation:
+					request.orientation && request.orientation !== 'unspecified'
+						? request.orientation
+						: 'portrait',
 			}
 
-			limitRequested = request.maximumDurationMs !== undefined
-			const output = movieOutput!
-			output.maxRecordedDuration =
-				request.maximumDurationMs !== undefined
-					? CMTimeMakeWithSeconds(request.maximumDurationMs / 1000, 600)
-					: (noDurationLimit ?? output.maxRecordedDuration)
-
-			captureRequest = request
 			captureSink = sink
+			nativeLimitReached = false
+			writerWarning = undefined
 			try {
-				output.startRecordingToOutputFileURLRecordingDelegate(
-					NSURL.fileURLWithPath(filePath),
-					recordingDelegate,
-				)
-			} catch (cause) {
-				captureRequest = undefined
-				captureSink = undefined
-				sink.settled({
-					kind: 'failed',
-					stage: 'preparation',
-					issue: emitIssue(
-						'captureFailed',
-						'startRecording',
-						cause instanceof Error ? cause.message : String(cause),
-						cause,
-					),
-				})
-			}
-		},
-		stopCapture: () => {
-			if (writerDriver) {
-				writerDriver.stop()
-				return
-			}
-			try {
-				if (movieOutput?.recording) {
-					movieOutput.stopRecording()
-				}
-			} catch {
-				// Settlement still arrives through the delegate callback.
-			}
-		},
-		elapsedMs: () => {
-			if (nativeWriter) {
-				return nativeWriter.elapsedMs()
-			}
-			try {
-				const duration = movieOutput?.recordedDuration
-				if (!duration) {
-					return 0
-				}
+				writerDriver.start(
+					filePath,
+					request.audio,
+					orientationToLegacyConstant(request.orientation ?? 'portrait') ?? 1,
+					request.maximumDurationMs ?? 0,
+					(type, payload) => {
+						try {
+							writerDiagnostics?.(type, payload)
+						} catch {
+							/* Diagnostics cannot own capture completion. */
+						}
+						if (type === 'started') {
+							try {
+								onCaptureStarted(JSON.parse(payload))
+							} catch (error) {
+								writerWarning = emitIssue(
+									'captureFailed',
+									'capture',
+									'Writer start metadata was malformed; recording was stopped for verification',
+									error,
+								)
 
-				return Math.max(0, Math.round(CMTimeGetSeconds(duration) * 1000))
-			} catch {
-				return 0
+								sink.finishing('captureError')
+								writerDriver?.stop()
+							}
+						} else if (type === 'limit') {
+							nativeLimitReached = true
+							sink.finishing('maximumDuration')
+						} else if (type === 'sourceLost') {
+							sink.finishing('cameraUnavailable')
+						} else if (type === 'finishing') {
+							sink.finishing(
+								nativeLimitReached
+									? 'maximumDuration'
+									: payload === 'captureError'
+										? 'captureError'
+										: 'stopped',
+							)
+						} else if (type === 'finished') {
+							try {
+								const result = JSON.parse(payload)
+								if (result?.warning) {
+									writerWarning = emitIssue('captureFailed', 'capture', result.warning)
+								}
+							} catch (error) {
+								writerWarning = emitIssue(
+									'captureFailed',
+									'finalize',
+									'Writer completion metadata was malformed; the movie was verified separately',
+									error,
+								)
+							}
+
+							onCaptureFinished(NSURL.fileURLWithPath(filePath))
+						} else if (type === 'failed') {
+							let result:
+								| {
+										ownsOutput?: boolean
+										hasVideo?: boolean
+										canInspectOutput?: boolean
+										message?: string
+								  }
+								| undefined
+
+							try {
+								result = JSON.parse(payload)
+							} catch {
+								/* Preserve the original native error below. */
+							}
+
+							if (
+								result?.ownsOutput === true &&
+								result.hasVideo === true &&
+								result.canInspectOutput === true
+							) {
+								writerWarning = emitIssue(
+									'captureFailed',
+									'capture',
+									result.message ?? 'Native writer failed',
+								)
+
+								sink.finishing('captureError')
+								onCaptureFinished(NSURL.fileURLWithPath(filePath))
+							} else {
+								failWriter(result?.message ?? payload, {
+									native: result,
+									candidateFileUrl: `file://${filePath}`,
+								})
+							}
+						}
+					},
+				)
+			} catch (error) {
+				failWriter(error)
 			}
+
+			return
 		},
+		stopCapture: () => writerDriver?.stop(),
+		elapsedMs: () => nativeWriter?.elapsedMs() ?? 0,
 		openOutput: async (output) => {
 			if (output.kind !== 'nativeFile') {
 				throw new CameraCaptureError({
@@ -1568,8 +1359,7 @@ export function createSessionBackend(
 
 			session = undefined
 			videoInput = undefined
-			audioInput = undefined
-			movieOutput = undefined
+			writerHasAudio = false
 			device = undefined
 		},
 		onPreviewDetached: () => {

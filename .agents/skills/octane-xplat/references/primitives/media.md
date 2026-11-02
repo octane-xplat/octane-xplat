@@ -24,8 +24,9 @@ export function Person() {
 
 Use idle `configure` before arming automatic recording. During a take, use
 `switchCamera` only when `cameraSwitchDuringRecording` is advertised. Web uses
-a stable canvas video track; Android retains one persistent recorder. iOS and
-the separate desktop adapters currently report false. Keep one session/take and
+a stable canvas video track; Android retains one persistent recorder; iOS keeps
+one sample writer and an independent microphone session. Rebuild iOS apps after
+upgrading the native writer. The separate desktop adapters report false. Keep one session/take and
 one completion handler; never imitate a flip by stopping/restarting capture.
 Use `switchingCamera` for overlapping-control suppression while Stop stays
 available. See the [consumer guide](../../../../../docs/app/movie-capture.md#switch-cameras-during-a-take)
