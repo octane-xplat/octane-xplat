@@ -87,3 +87,25 @@ host bundle shipped by packages/cli/src/macos/jsc-host/prebuilt/macos):
   plain exec/`open` launch context (observed on macOS 27): no `keyWindow` is
   reachable for bundled-sheet qualification; `open`-launched copies of the
   linker-signed host do carry the TCC camera grant (same cdhash).
+
+## @nativescript/core windows: ApplicationData map and file text IO gaps (pkg.pr.new runtime abae298+cbec98bb)
+
+Verified on a packaged x64 MSIX (org.octanexplat.windows61 1.0.0.197, literal
+main 733f683737) via the service-adapter fixture — runtime evidence, not source
+reading:
+
+- `ApplicationDataContainer.Values.HasKey` is not projected: every
+  `ApplicationSettings.getString`/`getBoolean`/`getNumber` call throws
+  `TypeError: Windows.Storage.ApplicationData.Current.LocalSettings.Values.HasKey
+  is not a function`. `storage.windows.ts` therefore bypasses
+  ApplicationSettings and drives the `IPropertySet` surface itself (indexer,
+  `Insert`, `Remove`, `First()`-iterator fallback).
+- `FileSystemAccess` "sync" text/buffer APIs are fake-sync:
+  `readTextSync`/`writeTextSync`/`readBufferSync`/`writeBufferSync` call the
+  WinRT `PathIO.*Async` op with `.done()` and return before completion, so a
+  sync read always yields `''`/`undefined`. The real async path works
+  (`File.readText`/`writeText` resolve through `NSWinRT.toPromise`) — the
+  service fixture records `syncText` as limitation evidence and qualifies
+  content IO through the async APIs.
+
+Upstream status: open; revisit both when the Windows core runtime rev changes.
