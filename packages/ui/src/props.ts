@@ -808,6 +808,8 @@ export type Role =
 	| 'search'
 	| 'image'
 	| 'heading'
+	| 'document'
+	| 'paragraph'
 	| 'adjustable'
 	| 'summary'
 	| 'text'
@@ -16077,6 +16079,64 @@ export type {
 } from './markdown/markdown-ast'
 import type { MdDoc } from './markdown/markdown-ast'
 
+/** A block's 1-based, inclusive source lines, given to `components` block
+ *  renderers while a source-lines extension is installed. The extension
+ *  system lands separately; renderers declare the input now so the payload
+ *  contract is stable. */
+export interface MarkdownSourceLines {
+	readonly start: number
+	readonly end: number
+}
+
+/** A citation source referenced inline in the markdown via `[id]` or `【id】`. */
+export type MarkdownSource = CitationSource
+
+/** Renderer overrides for `Markdown` (`components` prop), following
+ *  Astryx `MarkdownComponents`. Each entry replaces the default part for
+ *  that node kind; inputs are the same data the default renderer reads.
+ *  `sourceLines` arrives only while a source-lines extension is installed. */
+export interface MarkdownComponents {
+	/** Every fenced code block — `{code, language?, sourceLines?}`. `language`
+	 *  is the fence's leading word (`diff` for `diff-tsx`). */
+	code?: ElementType
+	/** Inline code spans — `{children: string}`. */
+	inlineCode?: ElementType
+	/** `$…$`/`$$…$$` expressions — `{value, display, sourceLines?}`. Supplying
+	 *  this renderer enables math parsing; the raw expression is passed
+	 *  through unevaluated. */
+	math?: ElementType
+	/** Citation chips — `{source, number, variant}`. */
+	citation?: ElementType
+	/** Links — `{href, children}`; receives the sanitized href. `onLinkClick`
+	 *  does not wrap custom links. */
+	link?: ElementType
+	/** Headings — `{level, children, id?, sourceLines?}`; the caller owns
+	 *  applying the shared allocated `id`. */
+	heading?: ElementType
+	/** Paragraph blocks — `{children, sourceLines?}`. */
+	paragraph?: ElementType
+	/** Images — `{src, alt, sourceLines?}`; receives only safe URLs. */
+	image?: ElementType
+	/** Quote chrome — `{children, sourceLines?}`. */
+	blockquote?: ElementType
+	/** Thematic breaks — `{sourceLines?}`. */
+	hr?: ElementType
+}
+
+/** A plugin that transforms text patterns into custom elements inside
+ *  `Markdown` (Astryx `MarkdownInlinePlugin`). Applied to parsed text nodes
+ *  only — code blocks, inline code, math, and other non-prose contexts are
+ *  unaffected. Patterns match in order; first match wins for overlaps. */
+export interface MarkdownInlinePlugin {
+	/** Regex with global flag. Matched against text nodes only. */
+	pattern: RegExp
+	/** Refine the match boundary after the regex hits — return the end index,
+	 *  or `false` to reject. Default: `match.index + match[0].length`. */
+	getEndIndex?: (text: string, match: RegExpMatchArray) => number | false
+	/** Render the match. Pure construction; hooks belong in the rendered component. */
+	render: (match: RegExpMatchArray, key: string) => Renderable
+}
+
 /** `Markdown` with a pre-parsed document — the `MdDoc` AST baked by route
  *  codegen (`routes.gen.data` for a `.md` route). No parser ships in the
  *  bundle for this source, so `isStreaming`/`fadeIn` do not apply.
@@ -16087,24 +16147,25 @@ export interface MarkdownDataProps {
 	/** Pre-parsed document — skips the tokenizer. */
 	data: MdDoc
 	/** Unused with `data` — the two sources are exclusive. */
-	text?: never
+	children?: never
 	/** Unused with `data` — the two sources are exclusive. */
 	isStreaming?: never
 	/** Unused with `data` — the two sources are exclusive. */
 	fadeIn?: never
 }
 
-/** `Markdown` with raw source parsed at runtime by the package's built-in
- *  subset parser (see docs/content-display.md for the grammar).
+/** `Markdown` with raw source parsed at runtime (see
+ *  docs/content-display.md for the grammar).
  *
  * @see MarkdownProps — the union this feeds; canonical import '@octane-xplat/ui/markdown'.
  */
-export interface MarkdownTextProps {
-	/** Markdown source parsed and rendered. */
-	text: string
-	/** Unused with `text` — the two sources are exclusive. */
+export interface MarkdownSourceProps {
+	/** Markdown source parsed and rendered — the Astryx `children` source
+	 *  convention (`<Markdown>{source}</Markdown>`). */
+	children: string
+	/** Unused with `children` — the two sources are exclusive. */
 	data?: never
-	/** `text` is a cumulative streaming snapshot that grows in chunks — often
+	/** `children` is a cumulative streaming snapshot that grows in chunks — often
 	 *  mid-token with unclosed constructs. Completed blocks parse once and
 	 *  are kept mounted; incomplete trailing constructs (an unclosed fence,
 	 *  a half-typed `[link](`, a bare `- ` marker) are withheld until they
@@ -16117,30 +16178,65 @@ export interface MarkdownTextProps {
 }
 
 /** `Markdown` — renders a Markdown doc with the shared vocabulary. Exactly
- *  one source: `data` (a baked `MdDoc` AST) or `text` (raw source parsed at
- *  runtime).
+ *  one source: `data` (a baked `MdDoc` AST) or `children` (raw source parsed
+ *  at runtime).
  *
  * @example
  * ```tsx
  * import { Markdown } from '@octane-xplat/ui/markdown'
  *
- * const streamingText = <Markdown text={source} isStreaming />
+ * const streamingText = <Markdown isStreaming>{source}</Markdown>
  * // or a pre-parsed doc (e.g. a baked .md route):
  * const parsedDocument = <Markdown data={doc} />
  * ```
- * @see MarkdownDataProps, MarkdownTextProps, createMarkdownStreamParser.
+ * @see MarkdownDataProps, MarkdownSourceProps, createMarkdownStreamParser.
  */
 export interface MarkdownPresentationProps {
-	/** Compact paragraph/block spacing for assistant responses. */
+	/** CSS classes applied to the root element. */
+	className?: ClassValue
+	/** Inline style applied to the root element after `className`. */
+	style?: StyleProp
+	/** Stable id forwarded to the root host element (the DOM `id` on web). */
+	id?: string
+	/** `data-testid` on web. */
+	testID?: string
+	/** Root role override; `'document'` by default (block display only). */
+	accessibilityRole?: Role
+	/** 'block' (default) renders the document; 'inline' renders a single
+	 *  markdown run for spans embedded inside surrounding text. */
+	display?: 'block' | 'inline'
+	/** Compact paragraph/block spacing for assistant responses. @default 'default' */
 	density?: 'default' | 'compact'
-	/** Minimum heading level (1..6). Markdown heading depths are shifted accordingly. */
+	/** The rendered level markdown `#` maps to — shifts all heading levels
+	 *  down to fit the surrounding hierarchy, clamping at 6. @default 1 */
 	headingLevelStart?: 1 | 2 | 3 | 4 | 5 | 6
-	/** Citation ids referenced as [id] in text. Unknown ids remain literal. */
+	/** Intercepts link activation on the default link renderer — return
+	 *  `false` (or call `event.preventDefault()`) to cancel navigation. */
+	onLinkClick?: (href: string, event: NavigationActivationEvent) => void | false
+	/** Citation ids referenced as `[id]`/`【id】` in text — matching markers
+	 *  render as citation chips; other ids stay literal. */
 	sources?: Record<string, CitationSource>
+	/** 'label' (icon + title chip, default) or 'number' (compact badge). */
+	citationStyle?: 'label' | 'number'
+	/** Max width for prose content — paragraphs, headings, lists, quotes.
+	 *  Tables and code blocks are unconstrained to the container width.
+	 *  A number is dips/px; a string is a CSS length. @default 680 */
+	contentWidth?: number | string
+	/** Alignment of prose inside the container when `contentWidth` is
+	 *  narrower than the available space. @default 'start' */
+	contentAlign?: 'start' | 'center'
+	/** Renderer overrides per node kind. */
+	components?: Partial<MarkdownComponents>
+	/** Text-match renderers applied to parsed text nodes, in order. */
+	inlinePlugins?: MarkdownInlinePlugin[]
+	/** Opt-in autolinking of bare URLs and emails inside text — `'gfm'` rules:
+	 *  `https?://…`, `www.…`, `<scheme:url>`, `<email>`, and bare `user@host`
+	 *  all link. Unset means bare URLs render as literal text. */
+	autolink?: 'gfm'
 }
 
 /** Markdown rendering props — a parsed document or raw text plus presentation options. */
-export type MarkdownProps = (MarkdownDataProps | MarkdownTextProps) & MarkdownPresentationProps
+export type MarkdownProps = (MarkdownDataProps | MarkdownSourceProps) & MarkdownPresentationProps
 
 /** `MarkdownScreen` — the route screen codegen mounts for `.md` route
  *  files; `data` is the route's baked doc (like any route loader result)

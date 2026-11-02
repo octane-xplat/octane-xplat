@@ -260,7 +260,12 @@ function MarkdownGrid() {
 		<div className="parity-grid">
 			{markdownScenarios.map((s) => (
 				<div key={s.key} className="parity-cell" data-sameframe-key={`markdown/${s.key}`}>
-					<Markdown text={s.source} sources={s.options?.sourceIds ? CITATION_SOURCES : undefined} />
+					<Markdown
+						autolink={s.options?.autolink}
+						sources={s.options?.sourceIds ? CITATION_SOURCES : undefined}
+					>
+						{s.source}
+					</Markdown>
 				</div>
 			))}
 		</div>
@@ -272,28 +277,41 @@ function MarkdownBehavior() {
 	return (
 		<>
 			<span data-parity-key="links">
-				<Markdown text={doc} />
+				<Markdown>{doc}</Markdown>
 			</span>
 			<span data-parity-key="unsafe-link">
-				<Markdown text={'[bad](javascript:alert(1)) ![i](data:text/html,x)'} />
+				<Markdown>{'[bad](javascript:alert(1)) ![i](data:text/html,x)'}</Markdown>
 			</span>
 			<span data-parity-key="citation">
-				<Markdown text={'Claim [docs] and 【api】.'} sources={CITATION_SOURCES} />
+				<Markdown sources={CITATION_SOURCES}>{'Claim [docs] and 【api】.'}</Markdown>
 			</span>
 			<span data-parity-key="heading-id">
-				<Markdown text={'# Alpha\n\n# Alpha'} />
+				<Markdown>{'# Alpha\n\n# Alpha'}</Markdown>
 			</span>
 			<span data-parity-key="inline-display">
-				Text <Markdown text={'**bold** [x](/y)'} /> tail
+				Text <Markdown display="inline">{'**bold** [x](/y)'}</Markdown> tail
 			</span>
 			<span data-parity-key="task-list">
-				<Markdown text={'- [x] done\n- [ ] todo'} />
+				<Markdown>{'- [x] done\n- [ ] todo'}</Markdown>
 			</span>
 			<span data-parity-key="link-cancel">
-				<Markdown text={'[cancel](/stop)'} />
+				<Markdown
+					onLinkClick={(href) => {
+						window.__parity.events.push(`cancel:${href}`)
+						return false
+					}}
+				>
+					{'[cancel](/stop)'}
+				</Markdown>
 			</span>
 			<span data-parity-key="link-allow">
-				<Markdown text={'[allow](/go)'} />
+				<Markdown
+					onLinkClick={(href) => {
+						window.__parity.events.push(`allow:${href}`)
+					}}
+				>
+					{'[allow](/go)'}
+				</Markdown>
 			</span>
 		</>
 	)
@@ -307,7 +325,7 @@ function MarkdownLayout() {
 				const s = markdownScenarios.find((x) => x.key === key)!
 				return (
 					<div key={key} data-parity-key={key} style={{ width: 480, marginBottom: 24 }}>
-						<Markdown text={s.source} density={key === 'density-compact' ? 'compact' : 'default'} />
+						<Markdown density={key === 'density-compact' ? 'compact' : 'default'}>{s.source}</Markdown>
 					</div>
 				)
 			})}

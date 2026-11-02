@@ -24,7 +24,7 @@ const content = [
 export function MarkdownRichContent() {
 	return (
 		<Center width="100%" style={{ maxWidth: 450 }}>
-			<Markdown text={content} />
+			<Markdown>{content}</Markdown>
 		</Center>
 	)
 }

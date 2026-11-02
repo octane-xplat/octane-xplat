@@ -24,7 +24,7 @@ const content = [
 export function MarkdownCompactAIResponse() {
 	return (
 		<Center style={{ maxWidth: 450 }}>
-			<Markdown density="compact" headingLevelStart={3} text={content} />
+			<Markdown density="compact" headingLevelStart={3}>{content}</Markdown>
 		</Center>
 	)
 }

@@ -77,6 +77,10 @@ const NATIVE_ACCESSIBILITY_ROLES: Record<Role, string> = {
 	meter: 'progressBar',
 	// No live-region role on native — keep the region inert there.
 	status: 'none',
+	// ARIA document/paragraph roles have no native counterpart; native text
+	// hosts already read as text.
+	document: 'none',
+	paragraph: 'text',
 }
 
 /** Translate the shared/ARIA spelling to NativeScript's narrower role enum. */

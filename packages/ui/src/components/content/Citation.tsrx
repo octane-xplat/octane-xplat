@@ -69,12 +69,7 @@ export function Citation(props: CitationProps): unknown @{
 						{source.title}
 					</label>
 				) : null}
-				<label
-					className="vx-citation-count"
-					style={{ fontSize: 11, color: nativeColor(mutedColor(scheme)) }}
-				>
-					{props.number}
-				</label>
+
 			</>
 		)
 
@@ -95,7 +90,7 @@ export function Citation(props: CitationProps): unknown @{
 			accessibilityLabel={
 				variant === 'number'
 					? `Citation ${props.number}`
-					: `${source.title ?? 'Citation'} ${props.number}`
+					: `Citation ${props.number}${source.title ? `: ${source.title}` : ''}`
 			}
 			onPress={() => {
 				if (safeHref != null) {
@@ -114,7 +109,7 @@ export function Citation(props: CitationProps): unknown @{
 			accessibilityLabel={
 				variant === 'number'
 					? `Citation ${props.number}`
-					: `${source.title ?? 'Citation'} ${props.number}`
+					: `Citation ${props.number}${source.title ? `: ${source.title}` : ''}`
 			}
 		>
 			{body}

@@ -42,7 +42,6 @@ export function Citation(props: CitationProps): JSX.Element @{
 			<>
 				{iconNode != null ? <span className="vx-citation-icon">{iconNode}</span> : null}
 				{source.title != null ? <span className="vx-citation-title">{source.title}</span> : null}
-				<span className="vx-citation-count">{props.number}</span>
 			</>
 		)
 
@@ -62,7 +61,11 @@ export function Citation(props: CitationProps): JSX.Element @{
 			href={safeHref}
 			target="_blank"
 			rel="noopener noreferrer"
-			aria-label={variant === 'number' ? `Citation ${props.number}` : undefined}
+			aria-label={
+				variant === 'number'
+					? `Citation ${props.number}`
+					: `Citation ${props.number}${source.title ? `: ${source.title}` : ''}`
+			}
 		>
 			{body}
 		</a>
@@ -72,7 +75,11 @@ export function Citation(props: CitationProps): JSX.Element @{
 			id={props.id}
 			className={cls}
 			style={props.style}
-			aria-label={variant === 'number' ? `Citation ${props.number}` : undefined}
+			aria-label={
+				variant === 'number'
+					? `Citation ${props.number}`
+					: `Citation ${props.number}${source.title ? `: ${source.title}` : ''}`
+			}
 		>
 			{body}
 		</span>

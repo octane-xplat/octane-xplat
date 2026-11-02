@@ -43,14 +43,12 @@ export function ChatMessageListFullFeatured() {
 					<ChatMessageBubble group="first">
 						<Markdown
 							density="compact"
-							text={`Sure! Here's the key pattern from **useReducer.ts**:`}
-						/>
+						>{`Sure! Here's the key pattern from **useReducer.ts**:`}</Markdown>
 					</ChatMessageBubble>
 					<ChatMessageBubble group="last">
 						<Markdown
 							density="compact"
-							text={`The reducer is **pure and easy to test** — pass in state and action, assert on the output.`}
-						/>
+						>{`The reducer is **pure and easy to test** — pass in state and action, assert on the output.`}</Markdown>
 					</ChatMessageBubble>
 					<ChatMessageBubble
 						variant="ghost"

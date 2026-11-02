@@ -20,7 +20,7 @@ const content = [
 export function MarkdownShowcase() {
 	return (
 		<Center width={400}>
-			<Markdown text={content} />
+			<Markdown>{content}</Markdown>
 		</Center>
 	)
 }

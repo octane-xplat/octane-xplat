@@ -105,7 +105,7 @@ function ArtifactBody() @{
 		<Text type="supporting" color="secondary">
 			{ARTIFACT_SUBTITLE}
 		</Text>
-		<Markdown text={ARTIFACT_CONTENT} />
+		<Markdown>{ARTIFACT_CONTENT}</Markdown>
 	</VStack>
 }
 
@@ -214,19 +214,19 @@ export function AIChatTemplate() @{
 										]}
 									/>
 									<ChatMessageBubble variant="ghost">
-										<Markdown density="compact" text={`Found the issue. In \`middleware.ts\`, the token validation runs **before** the refresh check. When a token expires, the middleware rejects the request immediately instead of attempting a refresh.\n\nHere's the problematic sequence:\n\n1. Request arrives with an expired access token\n2. \`validateToken()\` throws \`TokenExpiredError\`\n3. The catch block returns \`401\` — never reaching \`refreshToken()\`\n\nThe fix is to catch \`TokenExpiredError\` specifically and attempt a refresh before rejecting:`} />
+										<Markdown density="compact">{`Found the issue. In \`middleware.ts\`, the token validation runs **before** the refresh check. When a token expires, the middleware rejects the request immediately instead of attempting a refresh.\n\nHere's the problematic sequence:\n\n1. Request arrives with an expired access token\n2. \`validateToken()\` throws \`TokenExpiredError\`\n3. The catch block returns \`401\` — never reaching \`refreshToken()\`\n\nThe fix is to catch \`TokenExpiredError\` specifically and attempt a refresh before rejecting:`}</Markdown>
 									</ChatMessageBubble>
 									<ChatMessageBubble variant="ghost">
 										<CodeBlock title="middleware.ts" language="typescript" code={FIX_CODE} />
 									</ChatMessageBubble>
 									<ChatMessageBubble variant="ghost">
-										<Markdown density="compact" text={`Now when an access token expires mid-session, the refresh runs transparently and the request continues — no interruption for the user.\n\nWant me to write this up as a design doc for the team?`} />
+										<Markdown density="compact">{`Now when an access token expires mid-session, the refresh runs transparently and the request continues — no interruption for the user.\n\nWant me to write this up as a design doc for the team?`}</Markdown>
 									</ChatMessageBubble>
 								</ChatMessage>
 
 								<ChatMessage sender="assistant" avatar={<Avatar name="Agent" size="md" />}>
 									<ChatMessageBubble variant="ghost">
-										<Markdown density="compact" text={`I've drafted a design doc covering the problem, the fix, and the test matrix — pulling straight from the changes we just made.\n\nOpen the document below to review it. Want me to expand any section?`} />
+										<Markdown density="compact">{`I've drafted a design doc covering the problem, the fix, and the test matrix — pulling straight from the changes we just made.\n\nOpen the document below to review it. Want me to expand any section?`}</Markdown>
 									</ChatMessageBubble>
 									<ChatMessageBubble
 										variant="ghost"
@@ -257,7 +257,7 @@ export function AIChatTemplate() @{
 
 								<ChatMessage sender="assistant" avatar={<Avatar name="Agent" size="md" />}>
 									<ChatMessageBubble variant="ghost">
-										<Markdown density="compact" text={`On it — adding a **Rollout & Monitoring** section with a staged flag ramp and the alert thresholds. Updating the document now.`} />
+										<Markdown density="compact">{`On it — adding a **Rollout & Monitoring** section with a staged flag ramp and the alert thresholds. Updating the document now.`}</Markdown>
 									</ChatMessageBubble>
 									<ChatToolCalls
 										calls={[

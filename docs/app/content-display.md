@@ -85,7 +85,7 @@ parsed at runtime. Set exactly one: the sources are mutually exclusive, and
 import { Markdown } from '@octane-xplat/ui/markdown'
 
 export function ReleaseNotes() {
-	return <Markdown text={'# Release notes\n\n- Faster lists'} />
+	return <Markdown>{'# Release notes\n\n- Faster lists'}</Markdown>
 }
 ```
 
@@ -101,7 +101,7 @@ fenced code through `CodeBlock`, task lists show read-only checked/unchecked
 markers, and images render as their alt text. HTML blocks are literal text.
 
 ```tsx
-<Markdown text={'| Task | Status |\n| --- | --- |\n| Review | **Ready** |\n\n- [x] Parser\n- [ ] Stories\n\n~~Old plan~~'} />
+<Markdown>{'| Task | Status |\n| --- | --- |\n| Review | **Ready** |\n\n- [x] Parser\n- [ ] Stories\n\n~~Old plan~~'}</Markdown>
 ```
 
 Use `density="compact"` for shorter gaps and `headingLevelStart={3}` to shift
@@ -135,7 +135,7 @@ import { Markdown, useStreamingText } from '@octane-xplat/ui/markdown'
 
 export function AssistantResponse({ text, streaming }: { text: string; streaming: boolean }) {
 	const displayed = useStreamingText(text, streaming, { speed: 'fast' })
-	return <Markdown text={displayed} isStreaming={streaming} />
+	return <Markdown children={displayed} isStreaming={streaming} />
 }
 ```
 
@@ -143,7 +143,7 @@ For chat/AI-style output where `text` is a cumulative snapshot that grows in
 chunks — often ending mid-token — set `isStreaming`:
 
 ```tsx
-<Markdown text={message.text} isStreaming={message.status === 'streaming'} />
+<Markdown children={message.text} isStreaming={message.status === 'streaming'} />
 ```
 
 Streaming mode parses incrementally: blocks before the last safe blank line

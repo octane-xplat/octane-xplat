@@ -107,7 +107,7 @@ import { Markdown, useStreamingText } from '@octane-xplat/ui/markdown'
 
 function Response(props: { text: string; streaming: boolean }) {
 	const displayed = useStreamingText(props.text, props.streaming, { speed: 'fast' })
-	return <Markdown text={displayed} isStreaming={props.streaming} density="compact" headingLevelStart={3} />
+	return <Markdown isStreaming={props.streaming} children={displayed} density="compact" headingLevelStart={3} />
 }
 ```
 

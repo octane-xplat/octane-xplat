@@ -533,6 +533,12 @@ export function mdInlineLen(nodes: readonly MdInline[] | undefined): number {
 			case 'image':
 				n += node.alt.length
 				break
+			case 'citation':
+			case 'break':
+				// Rendered as one position (chip / line break) — matches the
+				// reference's inline length accounting for stream boundaries.
+				n += 1
+				break
 			case 'extension':
 				n += (node.source ?? '').length
 				break

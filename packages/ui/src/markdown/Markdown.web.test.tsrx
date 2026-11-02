@@ -37,43 +37,43 @@ it('renders a baked data doc', () => {
 
 it('parses and renders a text prop', () => {
 	const { el, render } = mount()
-	render({ text: 'body **bold** and `code`' })
+	render({ children: 'body **bold** and `code`' })
 	expect(el.textContent).toContain('body bold and code')
-	const bolds = [...el.querySelectorAll('.font-bold')].map((n) => n.textContent)
-	expect(bolds).toContain('bold')
+	expect(el.querySelector('strong')?.textContent).toBe('bold')
+	expect(el.querySelector('code')?.textContent).toBe('code')
 })
 
 it('streams growing text without remounting settled blocks', () => {
 	const { el, render } = mount()
-	render({ text: '# Title\n\nfirst para', isStreaming: true })
-	const heading = el.querySelector('.text-2xl')
+	render({ children: '# Title\n\nfirst para', isStreaming: true })
+	const heading = el.querySelector('h1')
 	const para = el.querySelectorAll('label, span, p')
-	render({ text: '# Title\n\nfirst para\n\nsecond para', isStreaming: true })
+	render({ children: '# Title\n\nfirst para\n\nsecond para', isStreaming: true })
 	expect(el.textContent).toContain('second para')
 	// Settled blocks keep their DOM nodes across chunk renders.
-	expect(el.querySelector('.text-2xl')).toBe(heading)
+	expect(el.querySelector('h1')).toBe(heading)
 })
 
 it('withholds a half-typed link while streaming', () => {
 	const { el, render } = mount()
-	render({ text: 'see [the doc', isStreaming: true })
+	render({ children: 'see [the doc', isStreaming: true })
 	expect(el.textContent).not.toContain('[')
-	render({ text: 'see [the doc](https://x.dev)', isStreaming: true })
+	render({ children: 'see [the doc](https://x.dev)', isStreaming: true })
 	expect(el.textContent).toContain('the doc')
 })
 
 it('wraps newly arrived text in vx-md-fade spans', () => {
 	const { el, render } = mount()
-	render({ text: 'alpha', isStreaming: true })
-	render({ text: 'alpha beta', isStreaming: true })
+	render({ children: 'alpha', isStreaming: true })
+	render({ children: 'alpha beta', isStreaming: true })
 	const fades = [...el.querySelectorAll('.vx-md-fade')].map((n) => n.textContent)
 	expect(fades.at(-1)).toBe(' beta')
 })
 
 it('skips fade spans when fadeIn is false', () => {
 	const { el, render } = mount()
-	render({ text: 'alpha', isStreaming: true, fadeIn: false })
-	render({ text: 'alpha beta', isStreaming: true, fadeIn: false })
+	render({ children: 'alpha', isStreaming: true, fadeIn: false })
+	render({ children: 'alpha beta', isStreaming: true, fadeIn: false })
 	expect(el.textContent).toContain('alpha beta')
 	expect(el.querySelector('.vx-md-fade')).toBeNull()
 })
@@ -81,24 +81,26 @@ it('skips fade spans when fadeIn is false', () => {
 it('renders rich content through shared table, code, task and strike primitives', () => {
 	const { el, render } = mount()
 	render({
-		text: '# Title\n\n~~old~~ **new**\n\n- [x] Done\n- [ ] Next\n\n| Name | Count |\n| :--- | ---: |\n| **Ready** | 3 |\n\n```ts\nconst ready = true\n```',
+		children: '# Title\n\n~~old~~ **new**\n\n- [x] Done\n- [ ] Next\n\n| Name | Count |\n| :--- | ---: |\n| **Ready** | 3 |\n\n```ts\nconst ready = true\n```',
 		density: 'compact',
 		headingLevelStart: 3,
 	})
 
-	expect(el.textContent).toContain('☑ Done')
-	expect(el.textContent).toContain('☐ Next')
+	const boxes = [...el.querySelectorAll('input[type=checkbox],[role=checkbox]')]
+	expect(boxes.length).toBe(2)
+	expect(boxes[0].getAttribute('aria-checked')).toBe('true')
+	expect(boxes[1].getAttribute('aria-checked')).toBe('false')
 	expect(el.querySelector('table')?.textContent).toContain('NameCountReady3')
 	expect(el.querySelector('td:last-child')?.style.textAlign).toBe('end')
 	expect(el.querySelector('.vx-codeblock')?.textContent).toContain('const ready = true')
-	expect(el.querySelector('[style*="line-through"]')?.textContent).toBe('old')
-	expect(el.querySelector('.text-lg')?.textContent).toBe('Title')
+	expect(el.querySelector('del')?.textContent).toBe('old')
+	expect(el.querySelector('h3')?.textContent).toBe('Title')
 })
 
 it('resolves known citations, preserves unknown ids and blocks unsafe links', () => {
 	const { el, render } = mount()
 	render({
-		text: 'Tokyo[abc1] [unknown] [bad](javascript:alert)',
+		children: 'Tokyo[abc1] [unknown] [bad](javascript:alert)',
 		sources: { abc1: { title: 'Tokyo facts', url: 'https://example.com/tokyo' } },
 	})
 

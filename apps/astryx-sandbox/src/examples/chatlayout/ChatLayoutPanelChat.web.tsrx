@@ -37,10 +37,9 @@ export function ChatLayoutPanelChat() {
 					<ChatMessage sender="assistant">
 						<Markdown
 							density="compact"
-							text={`I'll check the Button component now.
+						>{`I'll check the Button component now.
 
-Found the issue — the border radius was hardcoded. Replaced with the theme token.`}
-						/>
+Found the issue — the border radius was hardcoded. Replaced with the theme token.`}</Markdown>
 					</ChatMessage>
 
 					<ChatMessage sender="user">
@@ -50,10 +49,9 @@ Found the issue — the border radius was hardcoded. Replaced with the theme tok
 					<ChatMessage sender="assistant">
 						<Markdown
 							density="compact"
-							text={`Checking the component now.
+						>{`Checking the component now.
 
-Found the issue — the border radius was hardcoded. Replaced with the theme token.`}
-						/>
+Found the issue — the border radius was hardcoded. Replaced with the theme token.`}</Markdown>
 					</ChatMessage>
 				</ChatMessageList>
 			</ChatLayout>

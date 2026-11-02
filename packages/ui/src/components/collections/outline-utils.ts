@@ -5,7 +5,7 @@
 // upstream's headingProjection enforces (top-level headings only).
 import type { OutlineItem } from '../../props'
 export type { OutlineItem } from '../../props'
-import type { MdDoc, MdInline } from '../../markdown/Markdown.tsrx'
+import type { MdDoc, MdInline, MdNode } from '../../markdown/Markdown.tsrx'
 import { mdInlineText } from '../../markdown/markdown-ast'
 import { parseMdInline, parseMdNodes } from '../../markdown/markdown-parse'
 
@@ -63,41 +63,47 @@ export function markdownHeadings(markdown: string): ParsedHeading[] {
 	return headings
 }
 
+/** One document-wide heading projection — the same root-level heading set,
+ *  labels, and ids the `Markdown` component renders (upstream
+ *  `projectMarkdownHeadings`: top-level headings only, empty labels kept as
+ *  `section`/`section-N` via the shared slug allocator). */
+export function projectMdHeadings(nodes: readonly MdNode[]): {
+	ids: Map<MdNode, string>
+	labels: Map<MdNode, string>
+	outline: OutlineItem[]
+} {
+	const counts = new Map<string, number>()
+	const ids = new Map<MdNode, string>()
+	const labels = new Map<MdNode, string>()
+	const outline: OutlineItem[] = []
+	for (const node of nodes) {
+		if (node.type !== 'heading') {
+			continue
+		}
+
+		const label = mdInlineText(node.children as readonly MdInline[]).trim()
+		const id = uniqueSlug(slugify(label), counts)
+		ids.set(node, id)
+		labels.set(node, label)
+		outline.push({ id, label, level: node.depth })
+	}
+
+	return { ids, labels, outline }
+}
+
 /**
  * Extract outline items from a Markdown string: heading text becomes the
- * label, its slug (with per-document dedup) becomes the id. For
- * `useOutlineFromMarkdown` parity on MdDoc-shaped data see
- * {@link outlineFromDoc}.
+ * label, its slug (with per-document dedup) becomes the id — the same
+ * projection `Markdown` renders. For `useOutlineFromMarkdown` parity on
+ * MdDoc-shaped data see {@link outlineFromDoc}.
  */
 export function parseOutlineFromMarkdown(markdown: string): OutlineItem[] {
-	const counts = new Map<string, number>()
-	return markdownHeadings(markdown)
-		.filter((heading) => heading.label !== '')
-		.map((heading) => ({
-			id: uniqueSlug(slugify(heading.label), counts),
-			label: heading.label,
-			level: heading.level,
-		}))
+	return projectMdHeadings(parseMdNodes(markdown)).outline
 }
 
 /** Outline items from a baked `MdDoc` (the AST `xplat routes` produces and
  *  the `Markdown` component renders) — the portable equivalent of deriving
  *  an outline from rendered markdown content. */
 export function outlineFromDoc(doc: MdDoc): OutlineItem[] {
-	const counts = new Map<string, number>()
-	const items: OutlineItem[] = []
-	for (const node of doc.children ?? []) {
-		if (node.type !== 'heading') {
-			continue
-		}
-
-		const label = mdInlineText(node.children as readonly MdInline[]).trim()
-		if (!label) {
-			continue
-		}
-
-		items.push({ id: uniqueSlug(slugify(label), counts), label, level: node.depth })
-	}
-
-	return items
+	return projectMdHeadings(doc.children ?? []).outline
 }

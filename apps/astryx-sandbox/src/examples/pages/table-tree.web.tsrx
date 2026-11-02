@@ -168,6 +168,6 @@ export function TableTreeTemplate() @{
 			plugins={{ navigation, sort, tree, resize }}
 			hasHover
 		/>
-		{readme && <Markdown text={readme} />}
+		{readme && <Markdown>{readme}</Markdown>}
 	</VStack>
 }
