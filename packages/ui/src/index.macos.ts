@@ -2,6 +2,7 @@
 // equivalent use the host renderer. The barrel exposes the same names as the
 // shared surface (`index.shared.ts`); AppKit-only contracts live under the
 // explicit `@octane-xplat/ui/macos` subpath instead.
+export type * from './index.shared'
 export { View } from './components/layout/View.macos.tsrx'
 /** Vertical flow stack (Astryx `Stack` direction="vertical"). */
 export { VStack } from './components/layout/VStack.macos.tsrx'

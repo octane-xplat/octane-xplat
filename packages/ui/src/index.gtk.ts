@@ -1,5 +1,7 @@
 // GTK/GJS runtime values. Add shared leaves only with maintained GTK runtime checks.
-// Public types come from the common package declaration entrypoint.
+// moduleSuffixes resolves this twin for package types, so re-export the
+// shared type surface explicitly.
+export type * from './index.shared'
 export { Text } from './components/content/Text.tsrx'
 export { Pressable } from './components/actions/Pressable.tsrx'
 export { View } from './components/layout/View.tsrx'

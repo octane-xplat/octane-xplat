@@ -42,6 +42,22 @@ export { VisuallyHidden } from './components/content/VisuallyHidden.web.tsrx'
  *  `getFocusScopeCapabilities()` before relying on the behavior flags. */
 export { FocusScope, getFocusScopeCapabilities } from './components/overlays/FocusScope.web.tsrx'
 export { Absolute } from './components/layout/Absolute.web.tsrx'
+export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
+export type {
+	ClassValue,
+	StyleProp,
+	Renderable,
+	HostElement,
+	PlatformProps,
+	ElementType,
+	ElementComponent,
+	HostedComponent,
+	HostedComponentProps,
+	ScreenComponent,
+	LayoutComponent,
+	TypeaheadKeyEvent,
+	CustomOperatorEditorProps,
+} from './props'
 
 export { setTranslate } from './internal/layout/translate.web'
 export { Spacer } from './components/layout/Spacer.web.tsrx'
@@ -76,6 +92,106 @@ export { Separator as Divider } from './components/feedback/Separator.web.tsrx'
 export { Skeleton } from './components/feedback/Skeleton.web.tsrx'
 export { Avatar, AvatarStatusDot } from './components/media/Avatar.web.tsrx'
 export { AvatarGroup, AvatarGroupOverflow } from './components/media/AvatarGroup.web.tsrx'
+export type {
+	AccordionItemSpec,
+	AccordionProps,
+	AvatarGroupProps,
+	AvatarProps,
+	BadgeProps,
+	ButtonProps,
+	IconButtonProps,
+	ButtonGroupProps,
+	ButtonGroupContextValue,
+	ButtonGroupOrientation,
+	ToggleButtonProps,
+	ToggleButtonGroupProps,
+	ToggleButtonGroupSingleProps,
+	ToggleButtonGroupMultipleProps,
+	ClickableCardProps,
+	SelectableCardProps,
+	MoreMenuProps,
+	MoreMenuPlacement,
+	MoreMenuAlignment,
+	MoreMenuPresentation,
+	PowerSearchProps,
+	PowerSearchSize,
+	PowerSearchTokenProps,
+	PowerSearchEditorProps,
+	PowerSearchFilterEditorProps,
+	PowerSearchComponentOverride,
+	PowerSearchComponents,
+	PowerSearchHandle,
+	PowerSearchChangeType,
+	PowerSearchConfig,
+	PowerSearchField,
+	PowerSearchOperator,
+	PowerSearchOperatorBase,
+	PowerSearchOperatorWithLabel,
+	PowerSearchOperatorWithI18nKey,
+	OperatorValue,
+	EmptyOperatorValue,
+	StringOperatorValue,
+	StringListOperatorValue,
+	IntegerOperatorValue,
+	FloatOperatorValue,
+	TimeOperatorValue,
+	DateAbsoluteOperatorValue,
+	DateRelativeOperatorValue,
+	DateRangeOperatorValue,
+	EnumOperatorValue,
+	EnumListOperatorValue,
+	EntityListOperatorValue,
+	CustomOperatorValue,
+	NestedOperatorValue,
+	FilterValue,
+	FilterValueEmpty,
+	FilterValueString,
+	FilterValueStringList,
+	FilterValueInteger,
+	FilterValueFloat,
+	FilterValueTime,
+	FilterValueDateAbsolute,
+	FilterValueDateRelative,
+	FilterValueDateRange,
+	FilterValueEnum,
+	FilterValueEnumList,
+	FilterValueEntityList,
+	FilterValueCustom,
+	FilterValueNested,
+	PowerSearchFilter,
+	PartialFilter,
+	PowerSearchEntity,
+	DateTimeRange,
+	DateTimeRangePart,
+	DateRangeFilterPreset,
+	RelativeDateFilterPreset,
+	FieldDefinition,
+	PowerSearchFieldType,
+	PowerSearchFieldTypeToJS,
+	InferData,
+	PowerSearchDefInfo,
+	PowerSearchFilterFor,
+	PowerSearchItem,
+	PowerSearchAuxData,
+	EnumItem,
+	OperatorTokenizationConfig,
+	CheckboxProps,
+	CollapsibleProps,
+	ContextMenuProps,
+	ElementSize,
+	FieldControlProps,
+	FieldControlSize,
+	FieldStatus as FieldStatusInfo,
+	FieldStatusType,
+	DropdownMenuButtonProps,
+	DropdownMenuProps,
+	MenuItem,
+	RadioGroupProps,
+	RadioOption,
+	SegmentedControlProps,
+	SeparatorProps,
+	SkeletonProps,
+} from './props'
 
 // Forms and data entry
 /** Labeled control wrapper, exported under Astryx's component name. */
@@ -95,6 +211,7 @@ export { ListItem } from './components/collections/ListItem.web.tsrx'
 /** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
 export { GridList } from './components/collections/GridList.web.tsrx'
 export { useGridList } from './components/collections/use-grid-list.web.tsrx'
+export type { UseGridListOptions, UseGridListResult } from './components/collections/use-grid-list.web.tsrx'
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './components/forms/InputNumber.web.tsrx'
 export { PinInput } from './components/forms/PinInput.web.tsrx'
@@ -119,6 +236,101 @@ export { DateTimeInput } from './components/forms/DateTimeInput.web.tsrx'
 export { DateRangeInput } from './components/forms/DateRangeInput.web.tsrx'
 export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks.tsrx'
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
+export type { CalendarDay, CalendarMonthGrid } from './components/forms/calendar-core'
+export type {
+	UseCalendarDaysOptions,
+	UseCalendarDaysReturn,
+	UseCalendarConstraintsOptions,
+	UseCalendarConstraintsReturn,
+	UseCalendarNavigationOptions,
+	UseCalendarNavigationReturn,
+} from './components/forms/calendar-hooks.tsrx'
+
+export type {
+	CheckboxGroupProps,
+	FieldGroupProps,
+	FormLayoutProps,
+	InputGroupProps,
+	InputGroupTextProps,
+	ItemComponent,
+	ItemSlotProps,
+	ListItemProps,
+	ListProps,
+	GridListProps,
+	FormFieldProps,
+	InputNumberProps,
+	InputRatingProps,
+	BaseTypeaheadProps,
+	ComplexSelectorHandle,
+	ComplexSelectorProps,
+	ComplexSelectorRenderProps,
+	ComplexSelectorRenderState,
+	ComplexSelectorSize,
+	ComplexSelectorVariant,
+	PinInputProps,
+	SearchableItem,
+	SearchRequest,
+	SearchSource,
+	CreateStaticSourceOptions,
+	SelectOption,
+	SelectProps,
+	SelectBaseProps,
+	SelectSingleProps,
+	SelectMultipleProps,
+	TokenColor,
+	TokenProps,
+	TokenSize,
+	TokenizerChange,
+	TokenizerHandle,
+	TokenizerOverflowBehavior,
+	TokenizerProps,
+	TokenizerSize,
+	TypeaheadInputHandle,
+	TypeaheadItemProps,
+	TypeaheadKeyDownHandler,
+	TypeaheadProps,
+	CalendarProps,
+	DateLocaleProps,
+	DateInputMessages,
+	CalendarSingleProps,
+	CalendarRangeProps,
+	CalendarHandle,
+	DateInputProps,
+	DateInputSize,
+	DateInputFormat,
+	DateInputPresentation,
+	DateInputStatus,
+	DateInputStatusType,
+	DateRangeInputProps,
+	DateRangeInputSize,
+	DateRangeInputStatus,
+	DateRangeInputStatusType,
+	DateTimeInputProps,
+	DateTimeInputSize,
+	DateTimeInputHourFormat,
+	DateTimeInputPresentation,
+	DateTimeInputTimeIncrement,
+	DateTimeInputTimeOptionInterval,
+	DateTimeInputStatus,
+	DateTimeInputStatusType,
+	DayOfWeek,
+	DayOfWeekName,
+	DateRange,
+	FieldStatusVariant,
+	InputPresentation,
+	ISODateString,
+	ISODateTimeString,
+	ISOInstantString,
+	ISOTimeString,
+	PickerPresentation,
+	DateRangePreset,
+	TimeInputProps,
+	TimeInputSize,
+	TimeInputHourFormat,
+	TimeInputPresentation,
+	TimeInputStatus,
+	TimeInputStatusType,
+} from './props'
 
 // Navigation and command surfaces
 /** Ancestor path trail, exported under Astryx's component name. */
@@ -161,12 +373,104 @@ export { Toolbar } from './components/layout/Toolbar.web.tsrx'
 export { OverflowList } from './components/collections/OverflowList.web.tsrx'
 export { useResizable, ResizeHandle } from './components/layout/Resizable'
 export { pixel, percent } from './components/layout/resize-math'
+export type {
+	AppShellProps,
+	AppShellMobileContextValue,
+	AppShellVariant,
+	AppShellBreakpoint,
+	MobileNavConfig,
+	MobileNavProps,
+	MobileNavToggleProps,
+	NavElementSize,
+	NavHeadingMenuSize,
+	NavHeadingCloseContextValue,
+	NavHeadingMenuContextValue,
+	NavHeadingMenuItemProps,
+	NavHeadingMenuProps,
+	NavIconProps,
+	NavItemSize,
+	OverflowItem,
+	OverflowListProps,
+	ResizableConfig,
+	ResizableDirection,
+	ResizablePercentSize,
+	ResizablePixelSize,
+	ResizableMinConfig,
+	ResizableMaxConfig,
+	ResizableRegionSizing,
+	ResizableProps,
+	ResizableRegion,
+	ResizableRegionConfig,
+	ResizableSize,
+	ResizeHandleProps,
+	SideNavCollapseButtonProps,
+	SideNavCollapseState,
+	SideNavCollapsibleConfig,
+	SideNavControlledCollapsible,
+	SideNavImperativeCollapseHandle,
+	SideNavRenderMode,
+	SideNavHeadingProps,
+	SideNavItemProps,
+	SideNavProps,
+	SideNavSectionProps,
+	SpacingStep,
+	TabListContextValue,
+	TabListLayout,
+	TabListOverflow,
+	TabListPattern,
+	TabListSize,
+	TabListProps,
+	TabMenuOption,
+	TabMenuProps,
+	TabProps,
+	ToolbarProps,
+	ToolbarSize,
+	ToolbarVariant,
+	TopNavHeadingProps,
+	TopNavItemProps,
+	TopNavMenuItemData,
+	TopNavMenuProps,
+	TopNavMegaMenuFeaturedCardProps,
+	TopNavMegaMenuItemProps,
+	TopNavMegaMenuProps,
+	TopNavProps,
+	TopNavRenderMode,
+	TopNavSlot,
+	UseResizableMultiConfig,
+	UseResizableSingleOptions,
+	UseResizableSingleConfig,
+} from './props'
 
 export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './components/navigation/Breadcrumb.web.tsrx'
 export { Pagination } from './components/collections/Pagination.web.tsrx'
 export { Stepper } from './components/collections/Stepper.web.tsrx'
 export { NavigationMenu } from './components/navigation/NavigationMenu.web.tsrx'
 export { CommandPalette } from './components/overlays/CommandPalette.web.tsrx'
+export type {
+	BreadcrumbEntry,
+	BreadcrumbItemProps,
+	BreadcrumbMenuOption,
+	BreadcrumbsVariant,
+	BreadcrumbProps,
+	CommandPaletteProps,
+	CommandPaletteItem,
+	CommandPaletteMenuItem,
+	NavigationMenuItem,
+	NavigationMenuProps,
+	PaginationProps,
+	StepperProps,
+	StepperStep,
+	StepProps,
+	RadioListItemProps,
+	CheckboxListItemProps,
+	SegmentedControlItemProps,
+	SelectorOptionProps,
+	SelectPresentation,
+	SelectVariant,
+	SliderMark,
+	FieldLabelProps,
+	FieldStatusComponentProps,
+} from './props'
 
 // Content and display
 export { Table } from './table/Table.web.tsrx'
@@ -220,6 +524,109 @@ export { Empty as EmptyState } from './components/feedback/Empty.web.tsrx'
 export { Banner } from './components/feedback/Banner.web.tsrx'
 export { User } from './components/content/User.web.tsrx'
 export { ProgressGroup } from './components/feedback/ProgressGroup.web.tsrx'
+export type {
+	AlertProps,
+	BannerProps,
+	BannerStatus,
+	BadgeVariant,
+	AvatarSize,
+	AvatarStatusDotProps,
+	AvatarStatusDotVariant,
+	AvatarGroupOverflowProps,
+	LayoutFooterProps,
+	LayoutPanelProps,
+	GridSpanProps,
+	GridResponsiveColumns,
+	CollapsibleGroupProps,
+	CardProps,
+	ChipProps,
+	EmptyProps,
+	KbdProps,
+	ProgressGroupProps,
+	TableColumn,
+	TableColumnAlign,
+	TableVerticalAlign,
+	TableDensity,
+	TableDividers,
+	TableTextOverflow,
+	TableSortableColumnConfig,
+	TableFilterFieldRef,
+	ColumnWidth,
+	ProportionalWidth,
+	PixelWidth,
+	TableProps,
+	TableHeaderProps,
+	TableBodyProps,
+	TableFooterProps,
+	TableRowProps,
+	TableCellProps,
+	TableHeaderCellProps,
+	TableSelectionToolbarProps,
+	TimelineItem,
+	TimelineProps,
+	TreeListNode,
+	TreeProps,
+	UserProps,
+} from './props'
+
+export type {
+	TablePlugin,
+	TableRenderProps,
+	TableHostProps,
+	HeaderRowRenderProps,
+	HeaderCellRenderProps,
+	BodyRowRenderProps,
+	BodyCellRenderProps,
+	ScrollWrapperRenderProps,
+	TableContextAction,
+	TableContextActions,
+	TableContextValue,
+	TableSelectionState,
+	TableSortState,
+	TableSortEntry,
+	TableSortDirection,
+	TableSortComparator,
+	TableFilterState,
+	TableFilterValue,
+	TableFilterVariant,
+	UseTableStickyColumnsConfig,
+	UseTableGroupedRowsConfig,
+	UseTableGroupedRowsResult,
+	UseTableRowExpansionConfig,
+	UseTableTreeDataConfig,
+	TableTreeRowMeta,
+	TableRowStatus,
+	TableRowStatusColor,
+	TableSemanticRowStatus,
+} from './table/types'
+
+export type {
+	UseTableSelectionConfig,
+	UseTableSelectionStateConfig,
+	UseTableSelectionStateResult,
+} from './table/use-table-selection.tsrx'
+
+export type { UseTableSortableConfig } from './table/use-table-sortable.web.tsrx'
+export type {
+	UseTableSortableStateConfig,
+	UseTableSortableStateResult,
+} from './table/use-table-sortable-state'
+
+export type { UseTablePaginationConfig } from './table/use-table-pagination.tsrx'
+export type {
+	ColumnSettingsOption,
+	UseTableColumnSettingsConfig,
+	UseTableColumnSettingsStateConfig,
+	UseTableColumnSettingsStateReturn,
+} from './table/use-table-column-settings'
+
+export type { UseTableColumnResizeConfig } from './table/use-table-column-resize.web.tsrx'
+export type { UseTableFilteringConfig } from './table/use-table-filtering.tsrx'
+export type { UseTableRowIndexConfig } from './table/use-table-row-index.tsrx'
+export type { UseTableRowStatusConfig } from './table/use-table-row-status.tsrx'
+export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state.tsrx'
+export type { UseTableFilterStateResult } from './table/use-table-filter-state'
+export type { ResolvedColumnWidth, ResolvedColumnWidths } from './table/column-utils'
 
 // Links, input, scrolling, media, and overlays
 export { Link } from './components/navigation/Link.web.tsrx'
@@ -238,6 +645,7 @@ export { SegmentedControl } from './components/forms/SegmentedControl.web.tsrx'
 export { ScrollableArea } from './components/layout/ScrollableArea.web.tsrx'
 export { useScrollableArea } from './components/layout/use-scrollable-area.web.tsrx'
 export { VirtualList } from './components/collections/VirtualList.web.tsrx'
+export type { VirtualListProps, VirtualListHandle, VirtualListScrollOptions } from './props'
 export { Image } from './components/media/Image.web.tsrx'
 /** RGBA pixels → ThumbHash bytes (Evan Wallace reference port; inputs
  *  ≤100px). Compute a placeholder client-side at upload time and store it
@@ -255,6 +663,13 @@ export {
 export { thumbHashUri } from './components/media/thumbhash.web'
 export { WebView } from './components/media/WebView.web.tsrx'
 export { postToHost } from './components/media/webview-post'
+export type {
+	WebViewContentSize,
+	WebViewHandle,
+	WebViewLoadEvent,
+	WebViewMessageEvent,
+	WebViewProps,
+} from './props'
 export { Overlay } from './components/overlays/Overlay.web.tsrx'
 export { Popover } from './components/overlays/Popover.web.tsrx'
 /** Anchored-layer primitive — anchor-relative (context) or fixed x/y
@@ -277,9 +692,86 @@ export { useLightbox } from './components/overlays/use-lightbox.web.tsrx'
 export { Toast } from './components/overlays/Toast.web.tsrx'
 export { ToastViewport } from './components/overlays/toast-viewport.web.tsrx'
 export { showToast, useToast } from './components/overlays/toast-service.web.tsrx'
+export type {
+	AlertDialogProps,
+	DialogHeaderProps,
+	DialogOptions,
+	DialogPosition,
+	DialogProps,
+	DialogPurpose,
+	DialogVariant,
+	ImperativeAlertDialogReturn,
+	ImperativeDialogReturn,
+	HoverCardAlignment,
+	HoverCardFocusTrigger,
+	HoverCardOptions,
+	HoverCardPlacement,
+	HoverCardProps,
+	HoverCardReturn,
+	HoverCardTouchTrigger,
+	CarouselHandle,
+	CarouselProps,
+	LightboxMedia,
+	LightboxMediaType,
+	LightboxProps,
+	LightboxTriggerProps,
+	UseLightboxOptions,
+	UseLightboxReturn,
+	OverlayProps,
+	PopoverAnchorRef,
+	PopoverProps,
+	PopoverPlacement,
+	PopoverAlignment,
+	ContextLayerOptions,
+	ContextLayerReturn,
+	ContextRenderProps,
+	FixedLayerOptions,
+	FixedLayerReturn,
+	FixedRenderProps,
+	LayerAlignment,
+	LayerOptions,
+	LayerPlacement,
+	LayerReturn,
+	ScrollAxis,
+	ScrollAxisState,
+	ScrollKeyboardAccess,
+	ScrollOverscroll,
+	ScrollStickyContainment,
+	ScrollableAreaHandle,
+	ScrollableAreaProps,
+	ScrollableAreaState,
+	UseScrollableAreaContentProps,
+	UseScrollableAreaOptions,
+	UseScrollableAreaResult,
+	UseScrollableAreaViewportProps,
+	ShowToastFn,
+	ToastCollisionBehavior,
+	ToastContentRenderFn,
+	ToastContentRenderProps,
+	ToastDismissFn,
+	ToastDismissReason,
+	ToastHandle,
+	ToastEntry,
+	ToastOptions,
+	ToastPosition,
+	ToastProps,
+	ToastType,
+	ToastViewportProps,
+	LayerContextValue,
+	LayerProviderProps,
+	LayerToastConfig,
+	TooltipFocusTrigger,
+	TooltipTouchTrigger,
+	TooltipOptions,
+	TooltipReturn,
+	UsePopoverOptions,
+	UsePopoverReturn,
+	TooltipProps,
+} from './props'
 
 // Animation, theme, styling, and host services
 export { useAnimation } from './internal/platform/anim.web.tsrx'
+export type { AnimatedValue, AnimationResult } from './props'
 export {
 	useThemeScheme,
 	getThemeScheme,
@@ -288,12 +780,16 @@ export {
 	getThemePreference,
 	onThemeSchemeChange,
 } from './theme/theme-scheme'
+
+export type { ThemePreference, ThemeScheme } from './theme/theme-scheme'
 export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
+export type { ThemeClassHost } from './theme/theme-host'
 
 /** Astryx-style named themes: `defineTheme` builds a flat token map, `Theme`
  *  stamps it on a subtree (nestable, mode-aware), `useTheme` reads resolved
  *  token values for non-CSS consumers. */
 export { Theme } from './theme/Theme.web.tsrx'
+export type { ThemeProps } from './theme/Theme.web.tsrx'
 export {
 	defineTheme,
 	isDefinedTheme,
@@ -306,16 +802,26 @@ export {
 } from './theme/defined-theme'
 
 export { generateThemeCss } from './theme/theme-css'
+export type {
+	DefineThemeInput,
+	DefinedTheme,
+	TokenValue,
+	ThemeMode,
+	ResolveThemeTokensOptions,
+} from './theme/defined-theme'
 
 export { useTheme, useThemeName } from './theme/use-theme.tsrx'
+export type { UseThemeReturn } from './theme/use-theme.tsrx'
 
 export { useColorScheme, getColorScheme } from './theme/colorScheme.web'
+export type { ColorScheme } from './theme/colorScheme.web'
 export { styled } from './internal/layout/styled.web.tsrx'
 export { openWindow } from './internal/platform/windows.web'
 
 // Screens, visual controls, and icons
 export { Screen } from './components/layout/Screen.web.tsrx'
 export { Tabs } from './components/collections/Tabs.web.tsrx'
+export type { TabSpec } from './components/collections/Tabs.web.tsrx'
 export { Switch } from './components/forms/Switch.web.tsrx'
 export { RadioListItem } from './components/forms/RadioListItem.web.tsrx'
 export { CheckboxListItem } from './components/forms/CheckboxListItem.web.tsrx'
@@ -325,10 +831,18 @@ export { Step } from './components/collections/Step.web.tsrx'
 export { FieldLabel } from './components/forms/FieldLabel.web.tsrx'
 export { FieldStatus } from './components/forms/FieldStatus.web.tsrx'
 export { useGridFocus } from './components/collections/use-grid-focus.web'
+export type { GridFocusOptions, GridFocusResult } from './components/collections/use-grid-focus.web'
 export { SafeArea } from './components/layout/SafeArea.web.tsrx'
 export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding.web.tsrx'
 export { useSafeAreaInsets } from './components/layout/safeAreaInsets.web.tsrx'
+export type { SafeAreaInsets } from './components/layout/safeAreaInsets.web.tsrx'
 export { useMeasure } from './components/layout/useMeasure.web.tsrx'
+export type {
+	MeasureBounds,
+	MeasureResult,
+	UseKeyboardInsetOptions,
+	UseMeasureOptions,
+} from './props'
 
 /** Loading indicator, exported under Astryx's component name. */
 export { ActivityIndicator as Spinner } from './components/feedback/ActivityIndicator.web.tsrx'
@@ -344,29 +858,112 @@ export { Icon } from './components/media/Icon.web.tsrx'
 export { IconRegistryProvider } from './components/media/IconRegistryProvider.web.tsrx'
 export { Heading } from './components/content/Heading.web.tsrx'
 export { createIconRegistry, registerIcon, registerIcons } from './components/media/icons'
+export type { IconGlyph, IconRegistry } from './components/media/icons'
+export type {
+	BuiltinIconName,
+	IconName,
+	IconNameRegistry,
+	IconRegistryProviderProps,
+} from './props'
+
+export type {
+	ActivityIndicatorProps,
+	HeadingProps,
+	IconProps,
+	MeterProps,
+	RefreshProps,
+	SearchInputProps,
+	SliderProps,
+	ColorAreaProps,
+	ColorBaseProps,
+	ColorFieldProps,
+	ColorPickerProps,
+	ColorSliderProps,
+	ColorSwatchProps,
+	ColorValueProps,
+	StyledClass,
+	StyledDef,
+	StyledVariant,
+	StyledVariantSelection,
+} from './props'
 
 // Platform state
 export { isNative } from './internal/platform/platform.web'
+
+export type {
+	LinkComponentType,
+	LinkProps,
+	LinkProviderProps,
+	NavLinkComponentType,
+	NavLinkProps,
+	NavigationActivationEvent,
+	NavigationTargetProps,
+	NavigationLinkTargetProps,
+	RouteBoundaryProps,
+	RouteContext,
+	RouteDiagnostic,
+	RouteDiagnosticCode,
+	RouteErrorBoundaryProps,
+	RouteHead,
+	RouteHeadExport,
+	RouteHeadArgs,
+	RouteHeadFn,
+	RouteMeta,
+	RouteManifest,
+	RouteManifestJson,
+	RouteJson,
+	RouteDataMode,
+	RouteNameOfPath,
+	RouteParamsFromSpecs,
+	RoutePathParams,
+	RoutePresentationsFromSpecs,
+	RouteSpec,
+	RouteSpecParams,
+	RouteSpecSet,
+	ManifestRouteNames,
+	ManifestRouteParams,
+	ManifestRoutePresentations,
+	SpecRouteInfo,
+	ScreenTable,
+	ModalOpenResult,
+	OpenWindowOptions,
+	WindowHandle,
+} from './props'
 
 // Focus hooks — React Aria useFocus/useFocusRing/useFocusVisible/
 // useFocusWithin/useLandmark counterparts. Modality tracking and landmark
 // cycling are web leaves; native leaves keep the same API shape.
 export { useFocus, useFocusRing } from './internal/accessibility/use-focus.tsrx'
+export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './internal/accessibility/use-focus.tsrx'
 export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible.web.tsrx'
+export type { FocusInputModality, UseFocusVisibleResult } from './internal/accessibility/use-focus-visible.web.tsrx'
 export { useFocusWithin } from './internal/accessibility/use-focus-within.web.tsrx'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './internal/accessibility/use-focus-within.web.tsrx'
 export { useLandmark } from './internal/accessibility/use-landmark.web.tsrx'
+export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark.web.tsrx'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
 export { mergeProps } from './internal/layout/merge-props'
 export { useKeyboardInset } from './internal/keyboard/use-keyboard-inset.web.tsrx'
 export { useKeyboard } from './internal/keyboard/use-keyboard.web'
+export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './internal/keyboard/use-keyboard.web'
 export { useObjectRef } from './internal/accessibility/use-object-ref'
 export { useClipboard } from './internal/platform/use-clipboard.tsrx'
+export type { UseClipboardOptions, UseClipboardResult } from './internal/platform/use-clipboard.tsrx'
 export { copyText } from './internal/platform/clipboard-write.web'
 export { refList, mergedRef } from './internal/accessibility/ref-list'
+export type { FlatRef } from './internal/accessibility/ref-list'
 
 export { BottomSheet, BottomSheetSwitcher } from './components/overlays/BottomSheet.web.tsrx'
 export { openBottomSheet, closeBottomSheet } from './components/overlays/bottom-sheet-service.web'
+export type {
+	BottomSheetHandle,
+	BottomSheetOpenOptions,
+	BottomSheetProps,
+	BottomSheetSnapPoint,
+	BottomSheetSwitcherProps,
+	OpenBottomSheet,
+} from './props'
 
 // Indicators — decorative state visuals (checkbox box, radio circle,
 // selection mark) and the registry that replaces them by name.
@@ -381,6 +978,112 @@ export {
 
 export { useIndicator } from './components/feedback/use-indicator.tsrx'
 
+export type {
+	IndicatorComponent,
+	IndicatorFamily,
+	IndicatorFamilyMap,
+	IndicatorMap,
+	IndicatorName,
+	IndicatorNameOfFamily,
+	IndicatorPosition,
+	IndicatorRegistry,
+	IndicatorSize,
+	IndicatorState,
+} from './props'
+
+export type {
+	AccessibilityProps,
+	AbsoluteProps,
+	AspectRatioFit,
+	AspectRatioProps,
+	AspectRatioShape,
+	ButtonVariant,
+	CenterAxis,
+	CenterProps,
+	DividerProps,
+	Elevation,
+	FlexContainerProps,
+	FormLayoutDirection,
+	FormOptionality,
+	HStackProps,
+	VStackProps,
+	IndicatorProps,
+	InputGroupSize,
+	ItemProps,
+	ListDensity,
+	ListMarkerStyle,
+	ListStyle,
+	LayoutContentProps,
+	LayoutHeaderProps,
+	LayoutHeight,
+	LayoutProps,
+	LayoutRole,
+	SectionDividerSide,
+	SectionProps,
+	SectionVariant,
+	SizeValue,
+	StackAlignment,
+	StackCrossAlignment,
+	StackDirection,
+	StackItemCrossAlignSelf,
+	StackItemProps,
+	StackItemSize,
+	StackMainAlignment,
+	StackPaddingProps,
+	StackSizeProps,
+	StackWrap,
+	VisuallyHiddenProps,
+	FocusScopeProps,
+	FocusScopeCapabilities,
+	CheckboxInputProps,
+	CheckboxListProps,
+	RadioListProps,
+	FieldProps,
+	NumberInputProps,
+	SelectorProps,
+	MultiSelectorProps,
+	AccordionBaseProps,
+	AccordionSingleProps,
+	AccordionMultipleProps,
+	BreadcrumbsProps,
+	TreeListProps,
+	EmptyStateProps,
+	SpinnerProps,
+	GridProps,
+	GridTrack,
+	GridTrackList,
+	ImageProps,
+	ImageContentFit,
+	ImageContentPosition,
+	ImageContentPositionObject,
+	ImageContentPositionString,
+	ImageContentPositionValue,
+	ImageDecoding,
+	ImageSourceLike,
+	KeyboardAvoidingProps,
+	LayoutChildProps,
+	PlainDate,
+	PressableProps,
+	RichTextProps,
+	RichTextSpanProps,
+	Role,
+	RowProps,
+	ScreenProps,
+	SafeAreaEdge,
+	SafeAreaProps,
+	SharedDateFormat,
+	SpacerProps,
+	StackProps,
+	SwitchProps,
+	TabsProps,
+	TextAreaProps,
+	TextInputHandle,
+	TextInputProps,
+	TextProps,
+	TestIDProps,
+	ViewProps,
+} from './props'
+
 // ---------- content display (Astryx parity) ----------
 export { Blockquote } from './components/content/Blockquote.web.tsrx'
 export { Code } from './components/content/Code.web.tsrx'
@@ -394,6 +1097,41 @@ export { Timestamp } from './components/forms/Timestamp.web.tsrx'
 export { Timer } from './components/forms/Timer.web.tsrx'
 export { Citation } from './components/content/Citation.web.tsrx'
 export { Outline } from './components/collections/Outline.web.tsrx'
+export type {
+	BlockquoteProps,
+	CodeProps,
+	CodeColor,
+	CodeSize,
+	CodeBlockProps,
+	MetadataListProps,
+	MetadataListItemProps,
+	MetadataListColumns,
+	MetadataListLabelConfig,
+	ThumbnailProps,
+	ProgressBarProps,
+	ProgressBarMark,
+	ProgressBarVariant,
+	ProgressBarVariantMap,
+	StatusDotProps,
+	StatusDotVariant,
+	StatusDotVariantMap,
+	TimestampProps,
+	TimestampValueUnit,
+	TimestampFormat,
+	TimestampTooltipEntry,
+	TimestampTooltipFormat,
+	TimerProps,
+	TimerFormat,
+	CitationProps,
+	CitationSource,
+	OutlineProps,
+	OutlineItem,
+	OutlineFromViewCapabilities,
+	TextType,
+	TextSize,
+	TextColor,
+	TextWeight,
+} from './props'
 
 export {
 	DropdownMenuItem,
@@ -432,13 +1170,79 @@ export {
 } from './components/overlays/MenuParts.web.tsrx'
 
 export { DropdownMenuContext, useDropdownMenuContext } from './components/overlays/menu-context'
+export type {
+	MenuOption,
+	MenuItemData,
+	MenuActionData,
+	MenuLinkData,
+	MenuSectionData,
+	MenuSeparatorData,
+	MenuSubMenuData,
+	MenuDividerData,
+	MenuCheckboxData,
+	MenuRadioOptionData,
+	MenuRadioGroupData,
+	MenuItemProps,
+	MenuLinkProps,
+	MenuSectionProps,
+	MenuCheckboxItemProps,
+	MenuRadioGroupProps,
+	MenuRadioItemProps,
+	MenuDividerProps,
+	MenuSeparatorProps,
+	MenuSubMenuProps,
+	MenuContextValue,
+} from './props'
+
+export type {
+	MenuItemProps as DropdownMenuItemProps,
+	MenuLinkProps as DropdownMenuLinkProps,
+	MenuSectionProps as DropdownMenuSectionProps,
+	MenuSeparatorProps as DropdownMenuSeparatorProps,
+	MenuDividerProps as DropdownMenuDividerProps,
+	MenuCheckboxItemProps as DropdownMenuCheckboxItemProps,
+	MenuRadioGroupProps as DropdownMenuRadioGroupProps,
+	MenuRadioItemProps as DropdownMenuRadioItemProps,
+	MenuSubMenuProps as DropdownMenuSubMenuProps,
+} from './props'
+
+export type {
+	MenuItemProps as ContextMenuItemProps,
+	MenuLinkProps as ContextMenuLinkProps,
+	MenuSectionProps as ContextMenuSectionProps,
+	MenuSeparatorProps as ContextMenuSeparatorProps,
+	MenuDividerProps as ContextMenuDividerProps,
+	MenuCheckboxItemProps as ContextMenuCheckboxItemProps,
+	MenuRadioGroupProps as ContextMenuRadioGroupProps,
+	MenuRadioItemProps as ContextMenuRadioItemProps,
+	MenuSubMenuProps as ContextMenuSubMenuProps,
+} from './props'
+
+export type {
+	MenuItemProps as BreadcrumbMenuItemProps,
+	MenuLinkProps as BreadcrumbMenuLinkProps,
+	MenuSectionProps as BreadcrumbMenuSectionProps,
+	MenuSeparatorProps as BreadcrumbMenuSeparatorProps,
+	MenuDividerProps as BreadcrumbMenuDividerProps,
+	MenuCheckboxItemProps as BreadcrumbMenuCheckboxItemProps,
+	MenuRadioGroupProps as BreadcrumbMenuRadioGroupProps,
+	MenuRadioItemProps as BreadcrumbMenuRadioItemProps,
+	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
+} from './props'
 
 export { useImperativeBottomSheet } from './components/overlays/use-imperative-bottom-sheet.web.tsrx'
 
 export { RouteOutlet } from './routing/RouteOutlet.web.tsrx'
 
+export type { ImperativeBottomSheetReturn, RouteOutletProps } from './props'
+
+// Registry interfaces must share the props symbol for generated augmentation.
+export type { AppRouteContracts, AppRouteStacks, AppRouteTransitions } from './props'
+
 export { useContainerReveal } from './components/layout/use-container-reveal.web.tsrx'
+export type { UseContainerRevealOptions, UseContainerRevealReturn } from './props'
 export { useImageMode } from './components/media/use-image-mode.web.tsrx'
+export type { UseImageModeOptions, ImageSampleRegion } from './props'
 
 export { InternationalizationProvider } from './components/forms/InternationalizationProvider.web.tsrx'
 export {
@@ -448,4 +1252,7 @@ export {
 	getLocaleDirection,
 	frFR,
 } from './internal/platform/internationalization'
+
+export type { InternationalizationProviderProps, InternationalizationMessages } from './props'
 export { useAnnounce } from './components/content/use-announce.web'
+export type { AnnouncePoliteness } from './components/content/use-announce.web'
