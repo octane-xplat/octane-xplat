@@ -1,9 +1,57 @@
 import { Application } from '@nativescript/core'
-import { Microsoft } from '@octane-xplat/platform/windows'
+import { Microsoft, NSWinRT } from '@octane-xplat/platform/windows'
+import { configureLayerKeys, dispatchLayerKey } from './layer-stack'
 import { afterWindowsOverlayExit } from './windows-overlay-exit'
 
 const model = (value: any) => value?.native ?? value
 const element = (value: any) => model(value)?.nativeViewProtected ?? model(value)
+
+/** Windows has no shared hardware Escape API; preview keys on the declaring
+ *  page root reach the layer stack without activating another window. */
+configureLayerKeys(() => {
+	try {
+		const rootView = Application.getRootView?.() as any
+		const host = element(rootView)
+		const preview = Microsoft?.UI?.Xaml?.UIElement?.PreviewKeyDownEvent
+		if (!host || !preview) {
+			return () => {}
+		}
+
+		const handler = NSWinRT.asDelegate(
+			'Microsoft.UI.Xaml.Input.KeyEventHandler',
+			(_sender: any, args: any) => {
+				try {
+					if (Number(args?.Key?.value ?? args?.Key) !== 27) {
+						return
+					}
+
+					let prevented = false
+					dispatchLayerKey({
+						key: 'Escape',
+						preventDefault: () => {
+							prevented = true
+						},
+					})
+					if (prevented) {
+						args.Handled = true
+					}
+				} catch {
+					// Key dispatch failures must not break the routed event.
+				}
+			},
+		)
+		host.PreviewKeyDown = handler
+		return () => {
+			try {
+				host.PreviewKeyDown = null
+			} catch {
+				// Removal on teardown is best effort.
+			}
+		}
+	} catch {
+		return () => {}
+	}
+})
 
 function active(root: any): boolean {
 	if (root?.IsHostVisible !== true) {
