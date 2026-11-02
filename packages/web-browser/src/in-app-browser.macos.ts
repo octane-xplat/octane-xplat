@@ -84,9 +84,11 @@ const callBlock = (block: unknown, argEncoding: string, ...args: interop.Referen
 }
 
 // _Block_copy retains a heap block (and promotes a stack block) so the
-// FunctionPointer's invoke path stays valid past the delegate callback —
-// the bridged wrapper never retains the block itself. Released after the
-// completion is delivered.
+// FunctionPointer's invoke path stays valid past the delegate callback.
+// The bridged wrapper now owns a copy of the incoming block itself
+// (runtimes#111, patched in the shipped framework), so __ns_native_ptr
+// resolves to that owned copy and this extra retain is a balanced guard
+// rather than load-bearing. Released after the completion is delivered.
 // Returns a retainable copy for real WebKit block handlers; JS functions (in
 // tests) have no block pointer and stay callable as-is.
 const copyBlock = (handler: unknown): interop.Pointer | null => {

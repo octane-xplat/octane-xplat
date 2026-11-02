@@ -114,7 +114,6 @@ Still **not** delivered (distinct upstream questions, not loop starvation):
 
 - `Worker` remains `undefined` — embedder capability boundary
   (`RuntimeModules::Init` never runs in this host), unaffected by the pump.
-- runtimes#111 (unretained incoming blocks) still needs its local workaround.
 
 The gif retention reason (starved `NSURLSession` completions) is removed;
 requalify the TS port's remote HTTP(S) path separately.
@@ -153,6 +152,44 @@ jsi backend marshals all of them); the method/function napi paths did not.
   path's parked `ctx.cv`.
 - **Removal condition**: upstream marshalling for `JSMethodCallback`/
   `JSFunctionCallback` in the napi backend; recheck after a runtimes pin bump.
+
+## Incoming ObjC blocks bridged without ownership (upstream, patched)
+
+`FunctionPointer::wrap` and `wrapWithEncoding` in `ffi/napi/Block.mm` stored
+the raw `NSBlock*` of an incoming ObjC block and never copied it — upstream
+defect
+[NativeScript/runtimes#111](https://github.com/NativeScript/runtimes/issues/111).
+The ObjC caller owns the block only for the delegate call: a heap block dies
+with the caller's last release, a stack block dies with the callee frame, so
+a JS-held wrapper looks callable indefinitely but its async invoke
+dereferences a dead `block->invoke` — nondeterministic silent non-firing or
+SIGBUS/SIGSEGV in `ffi_call`. Both incoming paths shared the gap:
+metadata-declared `@?` params (`BlockTypeConv::toJS`, e.g.
+`WKNavigationDelegate` via `protocols:`) and untyped `id` params whose value
+is a block (`isObjCBlockObject` → `wrapWithEncoding`, the `exposedMethods`
+shape). The jsi backend has the identical gap but is not the shipped backend
+(`NS_FFI_BACKEND=napi`).
+
+- **Workaround**: `patches/nativescript-runtimes.patch` `_Block_copy`s the
+  incoming block inside both wrap sites when `isBlock` is set — a stack
+  block promotes to a new heap pointer, so the wrapper stores and exposes
+  the copy (`ref->function`, `napi_wrap`, `__ns_native_ptr`), never the
+  incoming pointer — flags it `ownsBlock`, and `_Block_release`s exactly
+  once in `finalizeFunctionPointerNow`. The `getCachedBlockJsFunction`
+  identity lookup still runs on the original pointer first, so a
+  JS-registered block round-tripping back into JS resolves to the original
+  JS function without copying. The `isBlock=false` C-function-pointer
+  branches are untouched. Runtime-verified 2026-11-02 on the rebuilt
+  prebuilt: `macos-block-lifetime.test.mjs` — freed heap and clobbered
+  stack blocks on both paths fire on async invoke where the stock
+  framework died (SIGBUS exit 138 / SIGSEGV exit 139). Probe harness:
+  `research/block-lifetime-probe/`.
+- **App-side retains**: `web-browser`'s `copyBlock`/`_Block_release` pairs
+  stay correct — `__ns_native_ptr` now resolves to the wrapper's owned copy,
+  so its extra retain is a balanced no-op guard rather than load-bearing.
+- **Removal condition**: upstream ownership for incoming blocks in
+  `wrap`/`wrapWithEncoding` (and the jsi backend if it ever ships); recheck
+  after a runtimes pin bump.
 
 Scope boundary (runtime-verified 2026-11-01, `packages/video` migration,
 unchanged by the pump): `AVPlayer`/`AVPlayerItem` remote HTTP(S) loading runs

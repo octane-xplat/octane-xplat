@@ -135,7 +135,7 @@ index b9386f4..69c33c2 100644
 +  endif()
    set(TARGET_PLATFORM_SPEC "macos-arm64_x86_64")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTARGET_PLATFORM_MACOS")
- 
+
 diff --git a/NativeScript/ffi/napi/ObjCBridge.h b/NativeScript/ffi/napi/ObjCBridge.h
 index 6e7eb19a0928a764d2ee2dc21212da8b272ac535..9ed741a7c30f6f89bba3d4aba5933d6efe6ae368 100644
 --- a/NativeScript/ffi/napi/ObjCBridge.h
@@ -420,3 +420,86 @@ index ab90659..d51232f 100644
  struct JSBlockCallContext {
    ffi_cif* cif;
    void* ret;
+diff --git a/NativeScript/ffi/napi/Block.h b/NativeScript/ffi/napi/Block.h
+index 4cd8196..5a87cb8 100644
+--- a/NativeScript/ffi/napi/Block.h
++++ b/NativeScript/ffi/napi/Block.h
+@@ -16,6 +16,7 @@ class FunctionPointer {
+   metagen::MDSectionOffset offset;
+   Cif* cif;
+   bool ownsCif = false;
++  bool ownsBlock = false;
+   bool dispatchLookupCached = false;
+   uint64_t dispatchLookupSignatureHash = 0;
+   uint64_t dispatchId = 0;
+diff --git a/NativeScript/ffi/napi/Block.mm b/NativeScript/ffi/napi/Block.mm
+index 3b8697a..9aefb6d 100644
+--- a/NativeScript/ffi/napi/Block.mm
++++ b/NativeScript/ffi/napi/Block.mm
+@@ -38,6 +38,9 @@ struct Block_literal_1 {
+   nativescript::Closure* closure;
+ };
+
++extern "C" void* _Block_copy(const void* aBlock);
++extern "C" void _Block_release(const void* aBlock);
++
+ namespace {
+
+ constexpr int kBlockNeedsFree = (1 << 24);
+@@ -388,6 +391,10 @@ void finalizeFunctionPointerNow(napi_env env, void* finalize_data, void* finaliz
+   if (ref == nullptr) {
+     return;
+   }
++  if (ref->ownsBlock && ref->function != nullptr) {
++    _Block_release(ref->function);
++    ref->function = nullptr;
++  }
+   if (ref->ownsCif && ref->cif != nullptr) {
+     delete ref->cif;
+     ref->cif = nullptr;
+@@ -536,8 +543,24 @@ napi_value FunctionPointer::wrap(napi_env env, void* function, metagen::MDSectio
+     }
+   }
+
++  // Blocks passed into bridged calls are caller-owned: a stack block dies
++  // with the callee frame and a heap block dies with the caller's last
++  // release, while the JS wrapper stays callable indefinitely. Copy the
++  // block so the wrapper holds its own reference. A stack block promotes
++  // to the heap and returns a different pointer, so the wrapper must store
++  // and expose the copied pointer rather than the incoming one.
++  bool ownsBlock = false;
++  if (isBlock) {
++    void* copy = _Block_copy(function);
++    if (copy != nullptr) {
++      function = copy;
++      ownsBlock = true;
++    }
++  }
++
+   FunctionPointer* ref = new FunctionPointer();
+   ref->function = function;
++  ref->ownsBlock = ownsBlock;
+   ref->offset = offset;
+
+   ObjCBridgeState* bridgeState = ObjCBridgeState::InstanceData(env);
+@@ -593,8 +616,20 @@ napi_value FunctionPointer::wrapWithEncoding(napi_env env, void* function, const
+     }
+   }
+
++  // Same incoming-block ownership as wrap(): copy caller-owned blocks so a
++  // stack block is promoted and a heap block is retained for this wrapper.
++  bool ownsBlock = false;
++  if (isBlock) {
++    void* copy = _Block_copy(function);
++    if (copy != nullptr) {
++      function = copy;
++      ownsBlock = true;
++    }
++  }
++
+   FunctionPointer* ref = new FunctionPointer();
+   ref->function = function;
++  ref->ownsBlock = ownsBlock;
+   ref->offset = 0;
+   ref->ownsCif = true;
+   ref->cif = new Cif(env, encoding, isBlock ? 1 : 0);
