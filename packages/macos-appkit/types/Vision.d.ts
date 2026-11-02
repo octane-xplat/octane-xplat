@@ -978,7 +978,7 @@ declare class VNDetectFaceLandmarksRequest
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -996,7 +996,7 @@ declare class VNDetectFaceLandmarksRequest
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1143,7 +1143,7 @@ declare class VNDetectFaceCaptureQualityRequest
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1161,7 +1161,7 @@ declare class VNDetectFaceCaptureQualityRequest
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1616,7 +1616,7 @@ declare class VNRecognizeTextRequest
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1634,7 +1634,7 @@ declare class VNRecognizeTextRequest
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

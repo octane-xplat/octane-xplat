@@ -658,7 +658,6 @@ declare class GLKEffectPropertyLight extends GLKEffectProperty {
 	transform: GLKEffectPropertyTransform
 }
 
-// @ts-ignore ClassDecl.tsIgnore
 declare class GLKMeshBuffer extends NSObject implements MDLMeshBuffer {
 	readonly length: number
 
@@ -668,7 +667,6 @@ declare class GLKMeshBuffer extends NSObject implements MDLMeshBuffer {
 
 	readonly offset: number
 
-	// @ts-ignore MemberDecl.tsIgnore
 	readonly zone: MDLMeshBufferZone
 
 	readonly type: interop.Enum<typeof MDLMeshBufferType>
@@ -697,7 +695,7 @@ declare class GLKMeshBuffer extends NSObject implements MDLMeshBuffer {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -784,7 +782,7 @@ declare class GLKMeshBufferAllocator extends NSObject implements MDLMeshBufferAl
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -802,7 +800,7 @@ declare class GLKMeshBufferAllocator extends NSObject implements MDLMeshBufferAl
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

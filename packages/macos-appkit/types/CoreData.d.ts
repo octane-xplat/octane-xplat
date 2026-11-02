@@ -819,7 +819,7 @@ declare class NSManagedObject extends NSObject implements NSFetchRequestResult {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -837,7 +837,7 @@ declare class NSManagedObject extends NSObject implements NSFetchRequestResult {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2130,7 +2130,7 @@ declare class NSManagedObjectID extends NSObject implements NSCopying, NSFetchRe
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2148,7 +2148,7 @@ declare class NSManagedObjectID extends NSObject implements NSCopying, NSFetchRe
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2373,7 +2373,7 @@ declare class NSManagedObjectContext
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2391,7 +2391,7 @@ declare class NSManagedObjectContext
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

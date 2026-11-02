@@ -89,13 +89,23 @@ mkdir -p "$out_dir" "$types_dir" "$json_dir"
 # native leaf packages (camera/notifications/biometrics). Every other emitted
 # file remains referenceable on demand.
 for arch in arm64 x86_64; do
+  # The types/json surface is arch-sensitive (OBJC_BOOL_IS_BOOL makes BOOL
+  # 'bool' on arm64 but 'signed char' on x86_64), so emit it only on the
+  # arm64 pass — letting both passes write would silently ship the x86_64
+  # view (BOOL -> number instead of boolean).
+  types_args=()
+  if [[ "$arch" == arm64 ]]; then
+    types_args=(
+      "types=$types_dir" "json=$json_dir"
+      ts-index-mode=frameworks-list
+      ts-index-frameworks=Foundation,AppKit,QuartzCore,WebKit,CoreText,UniformTypeIdentifiers,AVFoundation,UserNotifications,LocalAuthentication
+    )
+  fi
   "$gen_dir/build/bin/objc-metadata-generator" \
-    "types=$types_dir" "json=$json_dir" \
-    ts-index-mode=frameworks-list \
-    ts-index-frameworks=Foundation,AppKit,QuartzCore,WebKit,CoreText,UniformTypeIdentifiers,AVFoundation,UserNotifications,LocalAuthentication \
+    "${types_args[@]}" \
     -output-bin "$out_dir/metadata.macos.$arch.nsmd" \
     -output-umbrella "$out_dir/umbrella.macos.$arch.h" \
-    -output-signature-bindings-cpp "$out_dir/GeneratedSignatureDispatch.inc" \
+    -output-signature-bindings-cpp "$out_dir/GeneratedSignatureDispatch.$arch.inc" \
     Xclang -isysroot "$sdk_path" -std=gnu99 -target "$arch-apple-macos11.0"
 
   echo "Generated $out_dir/metadata.macos.$arch.nsmd"

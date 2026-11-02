@@ -1156,7 +1156,7 @@ declare class CKRecord
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1174,7 +1174,7 @@ declare class CKRecord
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1348,7 +1348,7 @@ declare class CKReference extends NSObject implements NSSecureCoding, NSCopying,
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1366,7 +1366,7 @@ declare class CKReference extends NSObject implements NSSecureCoding, NSCopying,
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1533,7 +1533,7 @@ declare class CKAsset extends NSObject implements CKRecordValue {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1551,7 +1551,7 @@ declare class CKAsset extends NSObject implements CKRecordValue {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

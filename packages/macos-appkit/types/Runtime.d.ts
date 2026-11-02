@@ -50448,7 +50448,7 @@ declare interface NSObjectProtocol {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -50466,7 +50466,7 @@ declare interface NSObjectProtocol {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -51550,7 +51550,7 @@ declare class NSObject extends NativeObject implements NSObjectProtocol {
 
 	commitComposition(sender: interop.Object): void
 
-	readonly candidates: NSArray
+	candidates(sender: interop.Object): NSArray
 
 	isEqual(object: interop.Object): boolean
 
@@ -51572,7 +51572,7 @@ declare class NSObject extends NativeObject implements NSObjectProtocol {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -51590,7 +51590,7 @@ declare class NSObject extends NativeObject implements NSObjectProtocol {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

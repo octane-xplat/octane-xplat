@@ -883,7 +883,7 @@ declare class GCMouse extends NSObject implements GCDevice {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -901,7 +901,7 @@ declare class GCMouse extends NSObject implements GCDevice {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1270,7 +1270,7 @@ declare class GCKeyboard extends NSObject implements GCDevice {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1288,7 +1288,7 @@ declare class GCKeyboard extends NSObject implements GCDevice {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1368,7 +1368,7 @@ declare class GCController extends NSObject implements GCDevice {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1386,7 +1386,7 @@ declare class GCController extends NSObject implements GCDevice {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

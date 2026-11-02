@@ -260,7 +260,7 @@ declare class GKMonteCarloStrategist extends NSObject implements GKStrategist {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -278,7 +278,7 @@ declare class GKMonteCarloStrategist extends NSObject implements GKStrategist {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -339,7 +339,7 @@ declare class GKSCNNodeComponent extends GKComponent implements GKAgentDelegate 
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -357,7 +357,7 @@ declare class GKSCNNodeComponent extends GKComponent implements GKAgentDelegate 
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -729,7 +729,7 @@ declare class GKMinmaxStrategist extends NSObject implements GKStrategist {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -747,7 +747,7 @@ declare class GKMinmaxStrategist extends NSObject implements GKStrategist {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1062,7 +1062,7 @@ declare class GKSKNodeComponent extends GKComponent implements GKAgentDelegate {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1080,7 +1080,7 @@ declare class GKSKNodeComponent extends GKComponent implements GKAgentDelegate {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

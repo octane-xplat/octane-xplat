@@ -1311,7 +1311,7 @@ declare class CAAnimation
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1329,7 +1329,7 @@ declare class CAAnimation
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1367,7 +1367,7 @@ declare class CAConstraintLayoutManager extends NSObject implements CALayoutMana
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1385,7 +1385,7 @@ declare class CAConstraintLayoutManager extends NSObject implements CALayoutMana
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

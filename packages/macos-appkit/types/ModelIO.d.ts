@@ -363,7 +363,6 @@ declare class MDLObjectContainerComponent
 	extends NativeObject
 	implements MDLObjectContainerComponent {}
 
-// @ts-ignore ProtocolDecl.tsIgnore
 declare interface MDLMeshBuffer extends NSObjectProtocol, NSCopying {
 	fillDataOffset(data: NSData, offset: number): void
 
@@ -373,13 +372,11 @@ declare interface MDLMeshBuffer extends NSObjectProtocol, NSCopying {
 
 	readonly allocator: MDLMeshBufferAllocator
 
-	// @ts-ignore MemberDecl.tsIgnore
 	readonly zone: MDLMeshBufferZone
 
 	readonly type: interop.Enum<typeof MDLMeshBufferType>
 }
 
-// @ts-ignore ProtocolDecl.tsIgnore
 declare class MDLMeshBuffer extends NativeObject implements MDLMeshBuffer {}
 
 declare interface MDLMeshBufferAllocator extends NSObjectProtocol {
@@ -438,7 +435,7 @@ declare class MDLBundleAssetResolver extends NSObject implements MDLAssetResolve
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -456,7 +453,7 @@ declare class MDLBundleAssetResolver extends NSObject implements MDLAssetResolve
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -518,7 +515,7 @@ declare class MDLPathAssetResolver extends NSObject implements MDLAssetResolver 
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -536,7 +533,7 @@ declare class MDLPathAssetResolver extends NSObject implements MDLAssetResolver 
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -616,7 +613,7 @@ declare class MDLTransformStack extends NSObject implements NSCopying, MDLTransf
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -634,7 +631,7 @@ declare class MDLTransformStack extends NSObject implements NSCopying, MDLTransf
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1582,7 +1579,7 @@ declare class MDLAnimationBindComponent extends NSObject implements NSCopying, M
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1600,7 +1597,7 @@ declare class MDLAnimationBindComponent extends NSObject implements NSCopying, M
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2023,7 +2020,7 @@ declare class MDLMeshBufferZoneDefault extends NSObject implements MDLMeshBuffer
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2041,7 +2038,7 @@ declare class MDLMeshBufferZoneDefault extends NSObject implements MDLMeshBuffer
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2092,7 +2089,7 @@ declare class MDLMeshBufferDataAllocator extends NSObject implements MDLMeshBuff
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2110,14 +2107,13 @@ declare class MDLMeshBufferDataAllocator extends NSObject implements MDLMeshBuff
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
 	readonly debugDescription: string
 }
 
-// @ts-ignore ClassDecl.tsIgnore
 declare class MDLMeshBufferData extends NSObject implements MDLMeshBuffer {
 	initWithTypeLength(type: interop.Enum<typeof MDLMeshBufferType>, length: number): this
 
@@ -2133,7 +2129,6 @@ declare class MDLMeshBufferData extends NSObject implements MDLMeshBuffer {
 
 	readonly allocator: MDLMeshBufferAllocator
 
-	// @ts-ignore MemberDecl.tsIgnore
 	readonly zone: MDLMeshBufferZone
 
 	readonly type: interop.Enum<typeof MDLMeshBufferType>
@@ -2158,7 +2153,7 @@ declare class MDLMeshBufferData extends NSObject implements MDLMeshBuffer {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2275,7 +2270,7 @@ declare class MDLTransform extends NSObject implements NSCopying, MDLTransformCo
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2293,7 +2288,7 @@ declare class MDLTransform extends NSObject implements NSCopying, MDLTransformCo
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2580,7 +2575,7 @@ declare class MDLRelativeAssetResolver extends NSObject implements MDLAssetResol
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2598,7 +2593,7 @@ declare class MDLRelativeAssetResolver extends NSObject implements MDLAssetResol
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2754,7 +2749,7 @@ declare class MDLObjectContainer extends NSObject implements MDLObjectContainerC
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2772,7 +2767,7 @@ declare class MDLObjectContainer extends NSObject implements MDLObjectContainerC
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

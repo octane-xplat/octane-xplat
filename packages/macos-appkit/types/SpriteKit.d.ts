@@ -358,7 +358,7 @@ declare class SKSpriteNode extends SKNode implements SKWarpable {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -376,7 +376,7 @@ declare class SKSpriteNode extends SKNode implements SKWarpable {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1499,7 +1499,7 @@ declare class SKScene extends SKEffectNode implements GKSceneRootNodeType {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1517,7 +1517,7 @@ declare class SKScene extends SKEffectNode implements GKSceneRootNodeType {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2363,7 +2363,7 @@ declare class SKEffectNode extends SKNode implements SKWarpable {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2381,7 +2381,7 @@ declare class SKEffectNode extends SKNode implements SKWarpable {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

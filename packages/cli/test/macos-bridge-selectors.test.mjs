@@ -12,33 +12,42 @@ const hostBundle =
 	process.env.XPLAT_JSC_HOST_BUNDLE ??
 	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
 
-// The prebuilt AppKit metadata declares members a concrete receiver does not
-// implement — upstream metagen derives a superclass's property records from a
-// subclass's accessors (NSView.autoscroll borrowed NSMatrix's
-// isAutoscroll/setAutoscroll: selectors; hundreds of phantom accessors ship in
-// metadata.macos.*.nsmd). Messaging such a receiver used to end in
-// doesNotRecognizeSelector: -> objc_exception_throw, which cannot unwind
+// The metadata declares selectors a concrete receiver does not implement —
+// upstream metagen used to synthesize them itself by deriving a superclass's
+// property records from a subclass's accessors (NSView.autoscroll borrowed
+// NSMatrix's isAutoscroll/setAutoscroll:), and the maintained metagen patch
+// now removes that reversed synthesis (NativeScript/runtimes#106), so the
+// shipped metadata exposes autoscroll/candidates as their real declared
+// methods. Header-declared selectors that a class never implements remain
+// (NSObject.candidates: among them). Messaging such a receiver used to end
+// in doesNotRecognizeSelector: -> objc_exception_throw, which cannot unwind
 // through ffi_call frames — the host aborted even under a JS try/catch. The
 // runtimes patch guards both native dispatch paths with respondsToSelector:
 // and rethrows as a JS error. This boots the real host binary and exercises
 // that dispatch boundary plus the neighbors that must keep working.
 const fixture = `
 const view = NSView.alloc().init()
+const obj = NSObject.alloc().init()
 const out = []
 const rec = (k, v) => out.push(k + '=' + v)
 rec('isFlipped', view.isFlipped())
 view.addSubview(NSView.alloc().init())
 rec('subviews', view.subviews.count)
-try {
-	rec('autoscrollGet', view.autoscroll)
-} catch (error) {
-	rec('autoscrollGet', 'caught:' + (error && error.message ? error.message : error))
-}
+// runtimes#106 fixed: autoscroll is NSView's real -autoscroll: method again.
+rec('autoscrollGet', typeof view.autoscroll)
 try {
 	view.autoscroll = true
-	rec('autoscrollSet', 'no-throw')
+	rec('autoscrollSet', 'no-throw:' + typeof view.autoscroll)
 } catch (error) {
 	rec('autoscrollSet', 'caught:' + (error && error.message ? error.message : error))
+}
+// The declared -candidates: selector is unimplemented on bare NSObject; the
+// dispatch guard must surface it as a catchable JS error, not an abort.
+try {
+	obj.candidates(null)
+	rec('candidatesCall', 'no-throw')
+} catch (error) {
+	rec('candidatesCall', 'caught:' + (error && error.message ? error.message : error))
 }
 let swept = 0
 let caught = 0
@@ -109,20 +118,21 @@ test(
 		// Supported selectors, property reads and container access still dispatch.
 		assert.equal(outcomes.isFlipped, 'false')
 		assert.equal(outcomes.subviews, '1')
-		// The phantom accessor pair now surfaces a JS error, not a process abort.
+		// The phantom accessor pair is gone: autoscroll is the real method
+		// member again, and assigning to it shadows with an own property —
+		// neither read nor write aborts or throws a selector error.
+		assert.equal(outcomes.autoscrollGet, 'function')
+		assert.match(outcomes.autoscrollSet, /^no-throw:/)
+		// A declared selector the receiver never implements surfaces as a JS
+		// error, not a process abort.
 		assert.match(
-			outcomes.autoscrollGet,
-			/^caught:-\[NSView isAutoscroll\]: unrecognized selector sent to instance$/,
-		)
-		assert.match(
-			outcomes.autoscrollSet,
-			/^caught:-\[NSView setAutoscroll:\]: unrecognized selector sent to instance$/,
+			outcomes.candidatesCall,
+			/^caught:-\[NSObject candidates:\]: unrecognized selector sent to instance$/,
 		)
 		// Enumerating every declared member — the inspector getProperties path
 		// that surfaced this defect — completes instead of aborting.
-		const [swept, caught] = (outcomes.getterSweep ?? '0+0').split('+').map(Number)
+		const [swept] = (outcomes.getterSweep ?? '0+0').split('+').map(Number)
 		assert.ok(swept > 100, `getter sweep only read ${swept} members`)
-		assert.ok(caught >= 1, 'getter sweep never hit a phantom accessor')
 		// Block-closure callback dispatch back into JS still works.
 		assert.equal(outcomes.callback, 'notified:xplatGuardProbe')
 	},

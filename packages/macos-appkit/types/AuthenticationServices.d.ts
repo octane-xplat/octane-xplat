@@ -250,7 +250,7 @@ declare class ASAuthorizationAppleIDButton extends NSControl implements NSAccess
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -268,7 +268,7 @@ declare class ASAuthorizationAppleIDButton extends NSControl implements NSAccess
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -354,7 +354,7 @@ declare class ASAuthorizationAppleIDCredential
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -372,7 +372,7 @@ declare class ASAuthorizationAppleIDCredential
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -442,7 +442,7 @@ declare class ASPasswordCredentialIdentity
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -460,7 +460,7 @@ declare class ASPasswordCredentialIdentity
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -500,7 +500,7 @@ declare class ASPasswordCredential extends NSObject implements ASAuthorizationCr
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -518,7 +518,7 @@ declare class ASPasswordCredential extends NSObject implements ASAuthorizationCr
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -613,7 +613,7 @@ declare class ASAuthorizationSingleSignOnCredential
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -631,7 +631,7 @@ declare class ASAuthorizationSingleSignOnCredential
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -669,7 +669,7 @@ declare class ASAuthorizationPasswordProvider extends NSObject implements ASAuth
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -687,7 +687,7 @@ declare class ASAuthorizationPasswordProvider extends NSObject implements ASAuth
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -742,7 +742,7 @@ declare class ASAuthorizationAppleIDProvider extends NSObject implements ASAutho
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -760,7 +760,7 @@ declare class ASAuthorizationAppleIDProvider extends NSObject implements ASAutho
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -829,7 +829,7 @@ declare class ASAuthorizationSingleSignOnProvider
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -847,7 +847,7 @@ declare class ASAuthorizationSingleSignOnProvider
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

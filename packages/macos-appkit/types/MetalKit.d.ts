@@ -159,7 +159,7 @@ declare class MTKView extends NSView implements NSCoding, CALayerDelegate {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -177,7 +177,7 @@ declare class MTKView extends NSView implements NSCoding, CALayerDelegate {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -219,13 +219,11 @@ declare class MTKSubmesh extends NSObject {
 	name: string
 }
 
-// @ts-ignore ClassDecl.tsIgnore
 declare class MTKMeshBuffer extends NSObject implements MDLMeshBuffer, MDLNamed {
 	readonly length: number
 
 	readonly allocator: MTKMeshBufferAllocator
 
-	// @ts-ignore MemberDecl.tsIgnore
 	readonly zone: MDLMeshBufferZone
 
 	readonly buffer: MTLBuffer
@@ -258,7 +256,7 @@ declare class MTKMeshBuffer extends NSObject implements MDLMeshBuffer, MDLNamed 
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -498,7 +496,7 @@ declare class MTKMeshBufferAllocator extends NSObject implements MDLMeshBufferAl
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -516,7 +514,7 @@ declare class MTKMeshBufferAllocator extends NSObject implements MDLMeshBufferAl
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

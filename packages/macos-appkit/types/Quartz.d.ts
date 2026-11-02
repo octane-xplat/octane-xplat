@@ -1513,7 +1513,7 @@ declare class IKImageBrowserView extends NSView implements NSDraggingSource {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1531,7 +1531,7 @@ declare class IKImageBrowserView extends NSView implements NSDraggingSource {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

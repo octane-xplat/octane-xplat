@@ -503,3 +503,58 @@ index 3b8697a..9aefb6d 100644
    ref->offset = 0;
    ref->ownsCif = true;
    ref->cif = new Cif(env, encoding, isBlock ? 1 : 0);
+diff --git a/metadata-generator/src/IR/Class.cpp b/metadata-generator/src/IR/Class.cpp
+index 4b1ad58..325c848 100644
+--- a/metadata-generator/src/IR/Class.cpp
++++ b/metadata-generator/src/IR/Class.cpp
+@@ -247,15 +247,6 @@ void convertMethodToPropertyIfNeeded(MemberDecl& member,
+   }
+ }
+
+-void processDerivedClassRefs(MemberDecl& member,
+-                             std::vector<ClassDecl*>& derived) {
+-  for (ClassDecl* cls : derived) {
+-    convertMethodToPropertyIfNeeded(member, cls->getMemberNamed(member.name),
+-                                    false);
+-    processDerivedClassRefs(member, cls->derivedClassRefs);
+-  }
+-}
+-
+ void ClassDecl::postProcessMembers() {
+   for (MemberDecl& member : members) {
+     ClassDecl* currentSuperClass = superClassRef;
+@@ -266,8 +257,6 @@ void ClassDecl::postProcessMembers() {
+       currentSuperClass = currentSuperClass->superClassRef;
+     }
+
+-    processDerivedClassRefs(member, derivedClassRefs);
+-
+     for (ProtocolDecl* protocol : protocolRefs) {
+       convertMethodToPropertyIfNeeded(
+           member, protocol->getMemberNamed(member.name), false);
+diff --git a/metadata-generator/src/IR/Protocol.cpp b/metadata-generator/src/IR/Protocol.cpp
+index d32250b..22cc0eb 100644
+--- a/metadata-generator/src/IR/Protocol.cpp
++++ b/metadata-generator/src/IR/Protocol.cpp
+@@ -82,21 +82,11 @@ void MetadataFactory::processProtocolRefs() {
+
+ void ProtocolDecl::postProcessMembers() {
+   for (MemberDecl& member : members) {
+-    for (ClassDecl* cls : implementerRefs) {
+-      convertMethodToPropertyIfNeeded(member, cls->getMemberNamed(member.name),
+-                                      false);
+-    }
+-
+     for (ProtocolDecl* protocol : protocolRefs) {
+       convertMethodToPropertyIfNeeded(
+           member, protocol->getMemberNamed(member.name), true);
+     }
+
+-    for (ProtocolDecl* protocol : derivedProtocolRefs) {
+-      convertMethodToPropertyIfNeeded(
+-          member, protocol->getMemberNamed(member.name), false);
+-    }
+-
+     if (member.tsIgnore && !tsIgnore) {
+       tsIgnore = true;
+     }

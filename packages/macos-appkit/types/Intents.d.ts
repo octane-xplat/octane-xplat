@@ -577,7 +577,7 @@ declare class INPerson extends NSObject implements NSCopying, NSSecureCoding, IN
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -595,7 +595,7 @@ declare class INPerson extends NSObject implements NSCopying, NSSecureCoding, IN
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -663,7 +663,7 @@ declare class INObject extends NSObject implements INSpeakable, NSCopying, NSSec
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -681,7 +681,7 @@ declare class INObject extends NSObject implements INSpeakable, NSCopying, NSSec
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1463,7 +1463,7 @@ declare class INSpeakableString extends NSObject implements INSpeakable, NSCopyi
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1481,7 +1481,7 @@ declare class INSpeakableString extends NSObject implements INSpeakable, NSCopyi
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1790,7 +1790,7 @@ declare class INExtension extends NSObject implements INIntentHandlerProviding {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1808,7 +1808,7 @@ declare class INExtension extends NSObject implements INIntentHandlerProviding {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

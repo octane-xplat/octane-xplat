@@ -1025,7 +1025,7 @@ declare class SCNMaterial
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1043,7 +1043,7 @@ declare class SCNMaterial
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1681,7 +1681,7 @@ declare class SCNParticleSystem
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1699,7 +1699,7 @@ declare class SCNParticleSystem
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1822,7 +1822,7 @@ declare class SCNConstraint extends NSObject implements NSCopying, NSSecureCodin
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1840,7 +1840,7 @@ declare class SCNConstraint extends NSObject implements NSCopying, NSSecureCodin
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2509,7 +2509,7 @@ declare class SCNNode
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2527,7 +2527,7 @@ declare class SCNNode
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2778,7 +2778,7 @@ declare class SCNScene extends NSObject implements NSSecureCoding, GKSceneRootNo
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2796,7 +2796,7 @@ declare class SCNScene extends NSObject implements NSSecureCoding, GKSceneRootNo
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2950,7 +2950,7 @@ declare class SCNView extends NSView implements SCNSceneRenderer, SCNTechniqueSu
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2968,7 +2968,7 @@ declare class SCNView extends NSView implements SCNSceneRenderer, SCNTechniqueSu
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -3043,7 +3043,7 @@ declare class SCNAnimationPlayer
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -3061,7 +3061,7 @@ declare class SCNAnimationPlayer
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -3153,7 +3153,7 @@ declare class SCNAnimation
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -3171,7 +3171,7 @@ declare class SCNAnimation
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -3394,7 +3394,7 @@ declare class SCNTechnique extends NSObject implements SCNAnimatable, NSCopying,
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -3412,7 +3412,7 @@ declare class SCNTechnique extends NSObject implements SCNAnimatable, NSCopying,
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -3596,7 +3596,7 @@ declare class SCNCamera
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -3614,7 +3614,7 @@ declare class SCNCamera
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -3742,7 +3742,7 @@ declare class SCNMaterialProperty extends NSObject implements SCNAnimatable, NSS
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -3760,7 +3760,7 @@ declare class SCNMaterialProperty extends NSObject implements SCNAnimatable, NSS
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -3874,7 +3874,7 @@ declare class SCNGeometry
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -3892,7 +3892,7 @@ declare class SCNGeometry
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -4146,7 +4146,7 @@ declare class SCNLight
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -4164,7 +4164,7 @@ declare class SCNLight
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -4342,7 +4342,7 @@ declare class SCNRenderer extends NSObject implements SCNSceneRenderer, SCNTechn
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -4360,7 +4360,7 @@ declare class SCNRenderer extends NSObject implements SCNSceneRenderer, SCNTechn
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -4730,7 +4730,7 @@ declare class SCNLayer extends CAOpenGLLayer implements SCNSceneRenderer, SCNTec
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -4748,7 +4748,7 @@ declare class SCNLayer extends CAOpenGLLayer implements SCNSceneRenderer, SCNTec
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -4930,7 +4930,7 @@ declare class SCNMorpher extends NSObject implements SCNAnimatable, NSSecureCodi
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -4948,7 +4948,7 @@ declare class SCNMorpher extends NSObject implements SCNAnimatable, NSSecureCodi
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

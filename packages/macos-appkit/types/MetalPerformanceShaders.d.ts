@@ -1236,7 +1236,7 @@ declare class MPSSVGFDefaultTextureAllocator extends NSObject implements MPSSVGF
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1254,7 +1254,7 @@ declare class MPSSVGFDefaultTextureAllocator extends NSObject implements MPSSVGF
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2057,7 +2057,7 @@ declare class MPSCNNGroupNormalizationGradientNode
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2075,7 +2075,7 @@ declare class MPSCNNGroupNormalizationGradientNode
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2141,7 +2141,7 @@ declare class MPSCNNGroupNormalizationNode extends MPSNNFilterNode implements MP
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2159,7 +2159,7 @@ declare class MPSCNNGroupNormalizationNode extends MPSNNFilterNode implements MP
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2207,7 +2207,7 @@ declare class MPSCNNInstanceNormalizationGradientNode
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2225,7 +2225,7 @@ declare class MPSCNNInstanceNormalizationGradientNode
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2269,7 +2269,7 @@ declare class MPSCNNInstanceNormalizationNode
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2287,7 +2287,7 @@ declare class MPSCNNInstanceNormalizationNode
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2716,7 +2716,7 @@ declare class MPSCNNConvolutionGradientNode
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2734,7 +2734,7 @@ declare class MPSCNNConvolutionGradientNode
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2881,7 +2881,7 @@ declare class MPSCNNConvolutionNode extends MPSNNFilterNode implements MPSNNTrai
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2899,7 +2899,7 @@ declare class MPSCNNConvolutionNode extends MPSNNFilterNode implements MPSNNTrai
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -4764,7 +4764,7 @@ declare class MPSCNNConvolutionGradientState
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -4782,7 +4782,7 @@ declare class MPSCNNConvolutionGradientState
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -5491,7 +5491,7 @@ declare class MPSNNDefaultPadding extends NSObject implements MPSNNPadding {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -5509,7 +5509,7 @@ declare class MPSNNDefaultPadding extends NSObject implements MPSNNPadding {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -7636,7 +7636,7 @@ declare class MPSCommandBuffer extends NSObject implements MTLCommandBuffer {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -7654,7 +7654,7 @@ declare class MPSCommandBuffer extends NSObject implements MTLCommandBuffer {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -7871,7 +7871,7 @@ declare class MPSCNNBatchNormalizationGradientNode
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -7889,7 +7889,7 @@ declare class MPSCNNBatchNormalizationGradientNode
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -8502,7 +8502,7 @@ declare class MPSCNNBatchNormalizationNode extends MPSNNFilterNode implements MP
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -8520,7 +8520,7 @@ declare class MPSCNNBatchNormalizationNode extends MPSNNFilterNode implements MP
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

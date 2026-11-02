@@ -54,7 +54,7 @@ declare class SNClassificationResult extends NSObject implements SNResult {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -72,7 +72,7 @@ declare class SNClassificationResult extends NSObject implements SNResult {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -110,7 +110,7 @@ declare class SNClassifySoundRequest extends NSObject implements SNRequest {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -128,7 +128,7 @@ declare class SNClassifySoundRequest extends NSObject implements SNRequest {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

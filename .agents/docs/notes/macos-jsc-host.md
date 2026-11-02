@@ -239,39 +239,52 @@ run on the main queue, which cannot preserve nonblocking UI.
 from metadata.
 ## Phantom metadata members and selector dispatch (upstream, patched)
 
-Upstream metagen can borrow a derived class's accessors for a superclass
-member: `processDerivedClassRefs` runs `convertMethodToPropertyIfNeeded`
-backwards, rewriting an ancestor's method record into a property that uses
-the subclass's getter/setter selectors. In `metadata.macos.arm64.nsmd` (pin
-`5b697b39`) this produced `NSView.autoscroll`/`NSClipView.autoscroll` with
-`NSMatrix`'s `isAutoscroll`/`setAutoscroll:` — part of a census of 213
-phantom getters and 212 phantom setters (V8-feasibility audit, Zora).
+Upstream metagen borrowed a derived class's accessors for a superclass
+member (NativeScript/runtimes#106): three reversed call sites ran
+`convertMethodToPropertyIfNeeded` backwards —
+`processDerivedClassRefs` (Class.cpp) plus `implementerRefs` and
+`derivedProtocolRefs` (Protocol.cpp) — rewriting an ancestor's method
+record into a property that uses the descendant's getter/setter selectors.
+The shipped `metadata.macos.*.nsmd` (pin `5b697b39`) emitted 6 class-member
+phantoms (`NSView.autoscroll`/`NSClipView.autoscroll` borrowing NSMatrix's
+`isAutoscroll`/`setAutoscroll:`, `NSObject.candidates`, and three benign
+records) and 37 protocol-member phantoms (NSAccessibility*, NSTextInput*,
+etc.) — NOT the "213 getters / 212 setters" an earlier census reported;
+that count conflated these phantoms with ~300 header-declared accessors
+legitimately unimplemented on class-cluster declaring classes.
 
-- **Observed**: `NSView.alloc().init().autoscroll` on the stock prebuilt
-  host aborts the process — `___forwarding___` →
-  `doesNotRecognizeSelector:` → `objc_exception_throw`, and the NSException
-  cannot unwind through `ffi_call`'s frames (`failed_throw` → SIGABRT), so
-  the `@try/@catch` in `objcNativeCall` and any JS `try/catch` never run.
-  Reproduced on `main` via `packages/cli/test/macos-bridge-selectors.test.mjs`
-  (the test skips while the committed prebuilt predates the rebuilt binary).
-- **Workaround**: `patches/nativescript-runtimes.patch` checks
-  `respondsToSelector:` before every `self`-targeted selector dispatch in
-  `ClassMember.mm` (`tryObjCNapiDispatch` generated invokers and
-  `objcNativeCall` ffi/super paths — exactly one check per call) and
+- **Observed**: reading `NSView.alloc().init().autoscroll` or
+  `NSObject.alloc().init().candidates` on the stock prebuilt host aborts
+  the process — `___forwarding___` → `doesNotRecognizeSelector:` →
+  `objc_exception_throw`, and the NSException cannot unwind through
+  `ffi_call`'s frames (`failed_throw` → SIGABRT), so the `@try/@catch` in
+  `objcNativeCall` and any JS `try/catch` never run.
+- **Fix shipped in the maintained patch**:
+  `patches/nativescript-runtimes.patch` drops all three reversed call
+  sites, so property synthesis only flows ancestor → descendant
+  (superclass and refined-protocol walks). The regenerated nsmd +
+  `packages/macos-appkit/types` revert the ~43 phantom records to their
+  declared methods; `macos-metagen-derived-members.test.mjs` is the
+  direction-of-synthesis regression.
+- **Dispatch guard stays**: `patches/nativescript-runtimes.patch` also
+  checks `respondsToSelector:` before every `self`-targeted selector
+  dispatch in `ClassMember.mm` (`tryObjCNapiDispatch` generated invokers
+  and `objcNativeCall` ffi/super paths — exactly one check per call) and
   rethrows `-[Class sel]: unrecognized selector sent to instance` as a JS
   error. The upstream jsi backend already guards identically
-  (`NativeApiJsiInvocation.h` `callObjCSelector`). Receivers that implement
-  a message only through `forwardInvocation:` while returning `NO` from
-  `respondsToSelector:` now get a JS error instead of the forward — the
-  jsi backend made the same tradeoff; `resolveInstanceMethod:` receivers
+  (`NativeApiJsiInvocation.h` `callObjCSelector`). The metagen fix cannot
+  remove the ~300 header-declared accessors unimplemented on their
+  declaring class (e.g. `NSObject.candidates:`, class-cluster bases), so
+  the guard remains required —
+  `macos-bridge-selectors.test.mjs` exercises it with
+  `NSObject.candidates(null)`. Receivers that implement a message only
+  through `forwardInvocation:` while returning `NO` from
+  `respondsToSelector:` get a JS error instead of the forward — the jsi
+  backend made the same tradeoff; `resolveInstanceMethod:` receivers
   still work because the check triggers resolution.
-- **Alternative not taken**: regenerating metadata would drop the phantom
-  members, but 425 synthesized entries plus optional-protocol/SDK drift
-  make the dispatch guard the robust fix regardless; the metagen reversal
-  itself is unpatched upstream.
-- **Removal condition**: an upstream napi-backend dispatch guard or a
-  metagen fix for the reversed property synthesis; recheck after a runtimes
-  pin bump.
+- **Removal condition**: an upstream napi-backend dispatch guard or an
+  upstream fix for the reversed property synthesis; recheck after a
+  runtimes pin bump.
 
 ## Other verified host quirks
 

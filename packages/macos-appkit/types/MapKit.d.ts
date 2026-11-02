@@ -361,7 +361,7 @@ declare interface MKOverlay extends MKAnnotation {
 
 	intersectsMapRect?(mapRect: MKMapRect): boolean
 
-	canReplaceMapContent?: boolean
+	canReplaceMapContent?(): boolean
 }
 
 declare class MKOverlay extends NativeObject implements MKOverlay {}
@@ -516,7 +516,7 @@ declare class MKTileOverlay extends NSObject implements MKOverlay {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -534,7 +534,7 @@ declare class MKTileOverlay extends NSObject implements MKOverlay {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -631,7 +631,7 @@ declare class MKClusterAnnotation extends NSObject implements MKAnnotation {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -649,7 +649,7 @@ declare class MKClusterAnnotation extends NSObject implements MKAnnotation {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -691,7 +691,7 @@ declare class MKUserLocation extends NSObject implements MKAnnotation {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -709,7 +709,7 @@ declare class MKUserLocation extends NSObject implements MKAnnotation {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1070,7 +1070,7 @@ declare class MKGeoJSONFeature extends NSObject implements MKGeoJSONObject {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1088,7 +1088,7 @@ declare class MKGeoJSONFeature extends NSObject implements MKGeoJSONObject {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1107,7 +1107,7 @@ declare class MKMultiPolygon extends MKShape implements MKOverlay, MKGeoJSONObje
 
 	intersectsMapRect(mapRect: MKMapRect): boolean
 
-	canReplaceMapContent: boolean
+	canReplaceMapContent(): boolean
 
 	// @ts-ignore MemberDecl.tsIgnore
 	readonly title: string
@@ -1135,7 +1135,7 @@ declare class MKMultiPolygon extends MKShape implements MKOverlay, MKGeoJSONObje
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1153,7 +1153,7 @@ declare class MKMultiPolygon extends MKShape implements MKOverlay, MKGeoJSONObje
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1198,7 +1198,7 @@ declare class MKPolygon extends MKMultiPoint implements MKOverlay, MKGeoJSONObje
 
 	intersectsMapRect(mapRect: MKMapRect): boolean
 
-	canReplaceMapContent: boolean
+	canReplaceMapContent(): boolean
 
 	// @ts-ignore MemberDecl.tsIgnore
 	readonly title: string
@@ -1226,7 +1226,7 @@ declare class MKPolygon extends MKMultiPoint implements MKOverlay, MKGeoJSONObje
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1244,7 +1244,7 @@ declare class MKPolygon extends MKMultiPoint implements MKOverlay, MKGeoJSONObje
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1263,7 +1263,7 @@ declare class MKMultiPolyline extends MKShape implements MKOverlay, MKGeoJSONObj
 
 	intersectsMapRect(mapRect: MKMapRect): boolean
 
-	canReplaceMapContent: boolean
+	canReplaceMapContent(): boolean
 
 	// @ts-ignore MemberDecl.tsIgnore
 	readonly title: string
@@ -1291,7 +1291,7 @@ declare class MKMultiPolyline extends MKShape implements MKOverlay, MKGeoJSONObj
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1309,7 +1309,7 @@ declare class MKMultiPolyline extends MKShape implements MKOverlay, MKGeoJSONObj
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1336,7 +1336,7 @@ declare class MKPolyline extends MKMultiPoint implements MKOverlay, MKGeoJSONObj
 
 	intersectsMapRect(mapRect: MKMapRect): boolean
 
-	canReplaceMapContent: boolean
+	canReplaceMapContent(): boolean
 
 	// @ts-ignore MemberDecl.tsIgnore
 	readonly title: string
@@ -1364,7 +1364,7 @@ declare class MKPolyline extends MKMultiPoint implements MKOverlay, MKGeoJSONObj
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1382,7 +1382,7 @@ declare class MKPolyline extends MKMultiPoint implements MKOverlay, MKGeoJSONObj
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1424,7 +1424,7 @@ declare class MKPointAnnotation extends MKShape implements MKGeoJSONObject {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1442,7 +1442,7 @@ declare class MKPointAnnotation extends MKShape implements MKGeoJSONObject {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1608,7 +1608,7 @@ declare class MKPlacemark extends CLPlacemark implements MKAnnotation {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1626,7 +1626,7 @@ declare class MKPlacemark extends CLPlacemark implements MKAnnotation {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1660,7 +1660,7 @@ declare class MKShape extends NSObject implements MKAnnotation {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1678,7 +1678,7 @@ declare class MKShape extends NSObject implements MKAnnotation {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1975,7 +1975,7 @@ declare class MKMultiPoint extends MKShape implements MKGeoJSONObject {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1993,7 +1993,7 @@ declare class MKMultiPoint extends MKShape implements MKGeoJSONObject {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2057,7 +2057,7 @@ declare class MKCircle extends MKShape implements MKOverlay {
 
 	intersectsMapRect(mapRect: MKMapRect): boolean
 
-	canReplaceMapContent: boolean
+	canReplaceMapContent(): boolean
 
 	// @ts-ignore MemberDecl.tsIgnore
 	readonly title: string
@@ -2085,7 +2085,7 @@ declare class MKCircle extends MKShape implements MKOverlay {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2103,7 +2103,7 @@ declare class MKCircle extends MKShape implements MKOverlay {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

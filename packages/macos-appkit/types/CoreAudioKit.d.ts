@@ -96,7 +96,7 @@ declare class AUViewController extends NSViewController implements NSExtensionRe
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -114,7 +114,7 @@ declare class AUViewController extends NSViewController implements NSExtensionRe
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

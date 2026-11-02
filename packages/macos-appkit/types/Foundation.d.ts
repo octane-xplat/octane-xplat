@@ -3747,7 +3747,7 @@ declare class NSURLConnectionDataDelegate
 	implements NSURLConnectionDataDelegate {}
 
 declare interface NSXPCProxyCreating {
-	readonly remoteObjectProxy: interop.Object
+	remoteObjectProxy(): interop.Object
 
 	remoteObjectProxyWithErrorHandler(handler: (p1: NSError) => void): interop.Object
 
@@ -5894,7 +5894,7 @@ declare class NSDictionary<KeyType = interop.Object, ObjectType = interop.Object
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -5912,7 +5912,7 @@ declare class NSDictionary<KeyType = interop.Object, ObjectType = interop.Object
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly debugDescription: string
 
@@ -9530,7 +9530,7 @@ declare class NSAttributedString
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -9548,7 +9548,7 @@ declare class NSAttributedString
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -10672,7 +10672,7 @@ declare class NSGarbageCollector extends NSObject {
 
 	enableCollectorForPointer(ptr: interop.PointerConvertible): void
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 }
 
 declare class NSAppleEventDescriptor extends NSObject implements NSCopying, NSSecureCoding {
@@ -11229,7 +11229,7 @@ declare class NSOperationQueue extends NSObject implements NSProgressReporting {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -11247,7 +11247,7 @@ declare class NSOperationQueue extends NSObject implements NSProgressReporting {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -11831,7 +11831,7 @@ declare class NSURL
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -11849,7 +11849,7 @@ declare class NSURL
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -11941,7 +11941,7 @@ declare class NSProxy extends NativeObject implements NSObjectProtocol {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -11959,7 +11959,7 @@ declare class NSProxy extends NativeObject implements NSObjectProtocol {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 }
 
 declare class NSUserActivity extends NSObject {
@@ -12978,7 +12978,7 @@ declare class NSURLSessionTask extends NSObject implements NSCopying, NSProgress
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -12996,7 +12996,7 @@ declare class NSURLSessionTask extends NSObject implements NSCopying, NSProgress
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -14105,7 +14105,7 @@ declare class NSData
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -14123,7 +14123,7 @@ declare class NSData
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly debugDescription: string
 }
@@ -15507,7 +15507,7 @@ declare class NSDate extends NSObject implements NSCopying, NSSecureCoding, CKRe
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -15525,7 +15525,7 @@ declare class NSDate extends NSObject implements NSCopying, NSSecureCoding, CKRe
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly debugDescription: string
 }
@@ -15816,7 +15816,7 @@ declare class NSNumber extends NSValue implements NSFetchRequestResult, CKRecord
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -15834,7 +15834,7 @@ declare class NSNumber extends NSValue implements NSFetchRequestResult, CKRecord
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -17560,7 +17560,7 @@ declare class NSString
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -17578,7 +17578,7 @@ declare class NSString
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly debugDescription: string
 
@@ -18076,7 +18076,7 @@ declare class NSArray<ObjectType = interop.Object>
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -18094,7 +18094,7 @@ declare class NSArray<ObjectType = interop.Object>
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly debugDescription: string
 

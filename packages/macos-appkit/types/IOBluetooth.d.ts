@@ -5079,7 +5079,7 @@ declare class IOBluetoothL2CAPChannel extends IOBluetoothObject implements NSPor
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -5097,7 +5097,7 @@ declare class IOBluetoothL2CAPChannel extends IOBluetoothObject implements NSPor
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -5200,7 +5200,7 @@ declare class IOBluetoothDevicePair extends NSObject implements CBCentralManager
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -5218,7 +5218,7 @@ declare class IOBluetoothDevicePair extends NSObject implements CBCentralManager
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -5422,7 +5422,7 @@ declare class IOBluetoothRFCOMMChannel
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -5440,7 +5440,7 @@ declare class IOBluetoothRFCOMMChannel
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

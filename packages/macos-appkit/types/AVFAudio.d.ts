@@ -640,7 +640,7 @@ declare class AVAudioUnitMIDIInstrument extends AVAudioUnit implements AVAudioMi
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -658,7 +658,7 @@ declare class AVAudioUnitMIDIInstrument extends AVAudioUnit implements AVAudioMi
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -712,7 +712,7 @@ declare class AVAudioUnitGenerator extends AVAudioUnit implements AVAudioMixing 
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -730,7 +730,7 @@ declare class AVAudioUnitGenerator extends AVAudioUnit implements AVAudioMixing 
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -818,7 +818,7 @@ declare class AVAudioMixerNode extends AVAudioNode implements AVAudioMixing {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -836,7 +836,7 @@ declare class AVAudioMixerNode extends AVAudioNode implements AVAudioMixing {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -937,7 +937,7 @@ declare class AVAudioMixingDestination extends NSObject implements AVAudioMixing
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -955,7 +955,7 @@ declare class AVAudioMixingDestination extends NSObject implements AVAudioMixing
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1225,7 +1225,7 @@ declare class AVAudioEnvironmentNode extends AVAudioNode implements AVAudioMixin
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1243,7 +1243,7 @@ declare class AVAudioEnvironmentNode extends AVAudioNode implements AVAudioMixin
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1592,7 +1592,7 @@ declare class AVAudioInputNode extends AVAudioIONode implements AVAudioMixing {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1610,7 +1610,7 @@ declare class AVAudioInputNode extends AVAudioIONode implements AVAudioMixing {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -1863,7 +1863,7 @@ declare class AVAudioPlayerNode extends AVAudioNode implements AVAudioMixing {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -1881,7 +1881,7 @@ declare class AVAudioPlayerNode extends AVAudioNode implements AVAudioMixing {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -2106,7 +2106,7 @@ declare class AVAudioSourceNode extends AVAudioNode implements AVAudioMixing {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -2124,7 +2124,7 @@ declare class AVAudioSourceNode extends AVAudioNode implements AVAudioMixing {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

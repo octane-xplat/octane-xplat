@@ -6480,7 +6480,7 @@ declare interface NSTextAttachmentCellProtocol extends NSObjectProtocol {
 		flag: boolean,
 	): boolean
 
-	readonly cellSize: CGSize
+	cellSize(): CGSize
 
 	cellBaselineOffset(): CGPoint
 
@@ -6527,13 +6527,13 @@ declare class NSTextAttachmentCellProtocol
 	implements NSTextAttachmentCellProtocol {}
 
 declare interface NSAccessibilityElementProtocol extends NSObjectProtocol {
-	accessibilityFrame: CGRect
+	accessibilityFrame(): CGRect
 
-	accessibilityParent: interop.Object
+	accessibilityParent(): interop.Object
 
 	isAccessibilityFocused?(): boolean
 
-	accessibilityIdentifier?: string
+	accessibilityIdentifier?(): string
 }
 
 declare class NSAccessibilityElementProtocol
@@ -6598,7 +6598,7 @@ declare interface NSTextAttachmentContainer extends NSObjectProtocol {
 declare class NSTextAttachmentContainer extends NativeObject implements NSTextAttachmentContainer {}
 
 declare interface NSAccessibilitySwitch extends NSAccessibilityButton {
-	accessibilityValue: string
+	accessibilityValue(): string
 
 	accessibilityPerformIncrement?(): boolean
 
@@ -6991,49 +6991,31 @@ declare interface NSTextViewDelegate extends NSTextDelegate {
 declare class NSTextViewDelegate extends NativeObject implements NSTextViewDelegate {}
 
 declare interface NSAccessibilityTable extends NSAccessibilityGroup {
-	accessibilityLabel: string
+	accessibilityLabel(): string
 
-	get accessibilityRows(): NSArray
-	set accessibilityRows(value: NSArray<interop.Object> | Array<interop.Object>)
+	accessibilityRows(): NSArray
 
-	get accessibilitySelectedRows(): NSArray | undefined
-	set accessibilitySelectedRows(value: NSArray<interop.Object> | Array<interop.Object> | undefined)
+	accessibilitySelectedRows?(): NSArray
 
 	setAccessibilitySelectedRows?(selectedRows: NSArray<interop.Object> | Array<interop.Object>): void
 
-	get accessibilityVisibleRows(): NSArray | undefined
-	set accessibilityVisibleRows(value: NSArray<interop.Object> | Array<interop.Object> | undefined)
+	accessibilityVisibleRows?(): NSArray
 
-	get accessibilityColumns(): NSArray | undefined
-	set accessibilityColumns(value: NSArray<interop.Object> | Array<interop.Object> | undefined)
+	accessibilityColumns?(): NSArray
 
-	get accessibilityVisibleColumns(): NSArray | undefined
-	set accessibilityVisibleColumns(
-		value: NSArray<interop.Object> | Array<interop.Object> | undefined,
-	)
+	accessibilityVisibleColumns?(): NSArray
 
-	get accessibilitySelectedColumns(): NSArray | undefined
-	set accessibilitySelectedColumns(
-		value: NSArray<interop.Object> | Array<interop.Object> | undefined,
-	)
+	accessibilitySelectedColumns?(): NSArray
 
 	accessibilityHeaderGroup?(): string
 
-	get accessibilitySelectedCells(): NSArray | undefined
-	set accessibilitySelectedCells(value: NSArray<interop.Object> | Array<interop.Object> | undefined)
+	accessibilitySelectedCells?(): NSArray
 
-	get accessibilityVisibleCells(): NSArray | undefined
-	set accessibilityVisibleCells(value: NSArray<interop.Object> | Array<interop.Object> | undefined)
+	accessibilityVisibleCells?(): NSArray
 
-	get accessibilityRowHeaderUIElements(): NSArray | undefined
-	set accessibilityRowHeaderUIElements(
-		value: NSArray<interop.Object> | Array<interop.Object> | undefined,
-	)
+	accessibilityRowHeaderUIElements?(): NSArray
 
-	get accessibilityColumnHeaderUIElements(): NSArray | undefined
-	set accessibilityColumnHeaderUIElements(
-		value: NSArray<interop.Object> | Array<interop.Object> | undefined,
-	)
+	accessibilityColumnHeaderUIElements?(): NSArray
 }
 
 declare class NSAccessibilityTable extends NativeObject implements NSAccessibilityTable {}
@@ -7663,7 +7645,7 @@ declare class NSCollectionViewDelegateFlowLayout
 	implements NSCollectionViewDelegateFlowLayout {}
 
 declare interface NSAccessibilityProgressIndicator extends NSAccessibilityGroup {
-	accessibilityValue: NSNumber
+	accessibilityValue(): NSNumber
 }
 
 declare class NSAccessibilityProgressIndicator
@@ -8080,11 +8062,11 @@ declare class NSCollectionViewPrefetching
 	implements NSCollectionViewPrefetching {}
 
 declare interface NSAccessibilityStaticText extends NSAccessibilityElementProtocol {
-	accessibilityValue: string
+	accessibilityValue(): string
 
 	accessibilityAttributedStringForRange?(range: _NSRange): NSAttributedString
 
-	accessibilityVisibleCharacterRange?: _NSRange
+	accessibilityVisibleCharacterRange?(): _NSRange
 }
 
 declare class NSAccessibilityStaticText extends NativeObject implements NSAccessibilityStaticText {}
@@ -8104,7 +8086,7 @@ declare interface NSTextDelegate extends NSObjectProtocol {
 declare class NSTextDelegate extends NativeObject implements NSTextDelegate {}
 
 declare interface NSAccessibilityImage extends NSAccessibilityElementProtocol {
-	accessibilityLabel: string
+	accessibilityLabel(): string
 }
 
 declare class NSAccessibilityImage extends NativeObject implements NSAccessibilityImage {}
@@ -8673,7 +8655,7 @@ declare interface NSTextInput {
 
 	markedRange(): _NSRange
 
-	selectedRange: _NSRange
+	selectedRange(): _NSRange
 
 	firstRectForCharacterRange(range: _NSRange): CGRect
 
@@ -8752,7 +8734,7 @@ declare interface NSTextInputClient extends NSObjectProtocol {
 
 	unmarkText(): void
 
-	selectedRange: _NSRange
+	selectedRange(): _NSRange
 
 	markedRange(): _NSRange
 
@@ -8844,7 +8826,7 @@ declare interface NSTextFinderBarContainer extends NSObjectProtocol {
 
 	findBarViewDidChangeHeight(): void
 
-	contentView?: NSView
+	contentView?(): NSView
 
 	isFindBarVisible(): boolean
 }
@@ -8963,7 +8945,7 @@ declare class NSScrubberFlowLayoutDelegate
 declare interface NSColorPickingDefault {
 	initWithPickerMaskColorPanel(mask: number, owningColorPanel: NSColorPanel): this
 
-	readonly provideNewButtonImage: NSImage
+	provideNewButtonImage(): NSImage
 
 	insertNewButtonImageIn(newButtonImage: NSImage, buttonCell: NSButtonCell): void
 
@@ -8977,9 +8959,9 @@ declare interface NSColorPickingDefault {
 
 	setMode(mode: interop.Enum<typeof NSColorPanelMode>): void
 
-	readonly buttonToolTip: string
+	buttonToolTip(): string
 
-	readonly minContentSize: CGSize
+	minContentSize(): CGSize
 }
 
 declare class NSColorPickingDefault extends NativeObject implements NSColorPickingDefault {}
@@ -9700,9 +9682,9 @@ declare interface NSAccessibilityLayoutItem extends NSAccessibilityGroup {
 declare class NSAccessibilityLayoutItem extends NativeObject implements NSAccessibilityLayoutItem {}
 
 declare interface NSAccessibilityRow extends NSAccessibilityGroup {
-	accessibilityIndex: number
+	accessibilityIndex(): number
 
-	accessibilityDisclosureLevel?: number
+	accessibilityDisclosureLevel?(): number
 }
 
 declare class NSAccessibilityRow extends NativeObject implements NSAccessibilityRow {}
@@ -10128,9 +10110,9 @@ declare interface NSAppearanceCustomization extends NSObjectProtocol {
 declare class NSAppearanceCustomization extends NativeObject implements NSAppearanceCustomization {}
 
 declare interface NSAccessibilitySlider extends NSAccessibilityElementProtocol {
-	accessibilityLabel: string
+	accessibilityLabel(): string
 
-	accessibilityValue: interop.Object
+	accessibilityValue(): interop.Object
 
 	accessibilityPerformIncrement(): boolean
 
@@ -10203,7 +10185,7 @@ declare class NSAccessibilityRadioButton
 	implements NSAccessibilityRadioButton {}
 
 declare interface NSAccessibilityButton extends NSAccessibilityElementProtocol {
-	accessibilityLabel: string
+	accessibilityLabel(): string
 
 	accessibilityPerformPress(): boolean
 }
@@ -10330,13 +10312,13 @@ declare class NSSharingServicePickerDelegate
 	implements NSSharingServicePickerDelegate {}
 
 declare interface NSAccessibilityStepper extends NSAccessibilityElementProtocol {
-	accessibilityLabel: string
+	accessibilityLabel(): string
 
 	accessibilityPerformIncrement(): boolean
 
 	accessibilityPerformDecrement(): boolean
 
-	accessibilityValue?: interop.Object
+	accessibilityValue?(): interop.Object
 }
 
 declare class NSAccessibilityStepper extends NativeObject implements NSAccessibilityStepper {}
@@ -10523,7 +10505,7 @@ declare class NSFontAssetRequest extends NSObject implements NSProgressReporting
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -10541,7 +10523,7 @@ declare class NSFontAssetRequest extends NSObject implements NSProgressReporting
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -10669,7 +10651,7 @@ declare class NSTableRowView extends NSView implements NSAccessibilityRow {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -10687,7 +10669,7 @@ declare class NSTableRowView extends NSView implements NSAccessibilityRow {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -11281,7 +11263,7 @@ declare class NSSliderAccessory
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -11299,7 +11281,7 @@ declare class NSSliderAccessory
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -11357,7 +11339,7 @@ declare class NSClipView extends NSView {
 
 	viewBoundsChanged(notification: NSNotification): void
 
-	autoscroll: boolean
+	autoscroll(event: NSEvent): boolean
 
 	scrollToPoint(newOrigin: CGPoint): void
 
@@ -11496,7 +11478,7 @@ declare class NSSound
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -11514,7 +11496,7 @@ declare class NSSound
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -11960,7 +11942,7 @@ declare class NSFontManager extends NSObject implements NSMenuItemValidation {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -11978,7 +11960,7 @@ declare class NSFontManager extends NSObject implements NSMenuItemValidation {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -12196,7 +12178,7 @@ declare class NSStepper extends NSControl implements NSAccessibilityStepper {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -12214,7 +12196,7 @@ declare class NSStepper extends NSControl implements NSAccessibilityStepper {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -12351,7 +12333,7 @@ declare class NSMenuItem
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -12369,7 +12351,7 @@ declare class NSMenuItem
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -12907,7 +12889,7 @@ declare class NSFilePromiseProvider extends NSObject implements NSPasteboardWrit
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -12925,7 +12907,7 @@ declare class NSFilePromiseProvider extends NSObject implements NSPasteboardWrit
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -13161,7 +13143,7 @@ declare class NSButton
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -13179,7 +13161,7 @@ declare class NSButton
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -13233,7 +13215,7 @@ declare class NSController extends NSObject implements NSCoding, NSEditor, NSEdi
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -13251,7 +13233,7 @@ declare class NSController extends NSObject implements NSCoding, NSEditor, NSEdi
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -13411,7 +13393,7 @@ declare class NSSplitViewController
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -13429,7 +13411,7 @@ declare class NSSplitViewController
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -13515,7 +13497,7 @@ declare class NSPasteboardItem
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -13533,7 +13515,7 @@ declare class NSPasteboardItem
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -14197,7 +14179,7 @@ declare class NSDocumentController
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -14215,7 +14197,7 @@ declare class NSDocumentController
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -15005,7 +14987,7 @@ declare class NSTabViewController
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -15023,7 +15005,7 @@ declare class NSTabViewController
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -15098,7 +15080,7 @@ declare class NSTitlebarAccessoryViewController
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -15116,7 +15098,7 @@ declare class NSTitlebarAccessoryViewController
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -15303,7 +15285,7 @@ declare class NSPathCell
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -15321,7 +15303,7 @@ declare class NSPathCell
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -15555,7 +15537,7 @@ declare class NSCollectionView extends NSView implements NSDraggingSource, NSDra
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -15573,7 +15555,7 @@ declare class NSCollectionView extends NSView implements NSDraggingSource, NSDra
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -15876,7 +15858,7 @@ declare class NSPopover
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -15894,7 +15876,7 @@ declare class NSPopover
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -17270,7 +17252,7 @@ declare class NSTableViewDiffableDataSource<
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -17288,7 +17270,7 @@ declare class NSTableViewDiffableDataSource<
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -17515,7 +17497,7 @@ declare class NSDrawer
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -17533,7 +17515,7 @@ declare class NSDrawer
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -18071,7 +18053,7 @@ declare class NSScrollView extends NSView implements NSTextFinderBarContainer {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -18089,7 +18071,7 @@ declare class NSScrollView extends NSView implements NSTextFinderBarContainer {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -18399,7 +18381,7 @@ declare class NSCell
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -18417,7 +18399,7 @@ declare class NSCell
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -19060,7 +19042,7 @@ declare class NSProgressIndicator extends NSView implements NSAccessibilityProgr
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -19078,7 +19060,7 @@ declare class NSProgressIndicator extends NSView implements NSAccessibilityProgr
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -19295,7 +19277,7 @@ declare class NSOutlineView extends NSTableView implements NSAccessibilityOutlin
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -19313,7 +19295,7 @@ declare class NSOutlineView extends NSTableView implements NSAccessibilityOutlin
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -19379,7 +19361,7 @@ declare class NSTableHeaderView extends NSView implements NSViewToolTipOwner {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -19397,7 +19379,7 @@ declare class NSTableHeaderView extends NSView implements NSViewToolTipOwner {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -19924,7 +19906,7 @@ declare class NSTextView
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -19942,7 +19924,7 @@ declare class NSTextView
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -20297,7 +20279,7 @@ declare class NSTextAttachment
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -20315,7 +20297,7 @@ declare class NSTextAttachment
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -20386,7 +20368,7 @@ declare class NSInputManager extends NSObject implements NSTextInput {
 
 	markedRange(): _NSRange
 
-	selectedRange: _NSRange
+	selectedRange(): _NSRange
 
 	firstRectForCharacterRange(range: _NSRange): CGRect
 
@@ -20665,7 +20647,7 @@ declare class NSImage
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -20683,7 +20665,7 @@ declare class NSImage
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -20783,7 +20765,7 @@ declare class NSSwitch extends NSControl implements NSAccessibilitySwitch {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -20801,7 +20783,7 @@ declare class NSSwitch extends NSControl implements NSAccessibilitySwitch {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -20887,7 +20869,7 @@ declare class NSWindowController extends NSResponder implements NSSeguePerformin
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -20905,7 +20887,7 @@ declare class NSWindowController extends NSResponder implements NSSeguePerformin
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -21005,7 +20987,7 @@ declare class NSToolbarItem
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -21023,7 +21005,7 @@ declare class NSToolbarItem
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -21334,7 +21316,7 @@ declare class NSSlider extends NSControl implements NSAccessibilitySlider {
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -21352,7 +21334,7 @@ declare class NSSlider extends NSControl implements NSAccessibilitySlider {
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -21417,7 +21399,7 @@ declare class NSCollectionViewItem
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -21435,7 +21417,7 @@ declare class NSCollectionViewItem
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -22158,7 +22140,7 @@ declare class NSImageView extends NSControl implements NSAccessibilityImage, NSM
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -22176,7 +22158,7 @@ declare class NSImageView extends NSControl implements NSAccessibilityImage, NSM
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -22634,7 +22616,7 @@ declare class NSFilePromiseReceiver extends NSObject implements NSPasteboardRead
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -22652,7 +22634,7 @@ declare class NSFilePromiseReceiver extends NSObject implements NSPasteboardRead
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -23776,7 +23758,7 @@ declare class NSWindow
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -23794,7 +23776,7 @@ declare class NSWindow
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -24572,7 +24554,7 @@ declare class NSMatrix extends NSControl implements NSUserInterfaceValidations, 
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -24590,7 +24572,7 @@ declare class NSMatrix extends NSControl implements NSUserInterfaceValidations, 
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -24883,7 +24865,7 @@ declare class NSViewController
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -24901,7 +24883,7 @@ declare class NSViewController
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -25094,9 +25076,9 @@ declare class NSControl extends NSView {
 
 	cell: NSCell
 
-	readonly selectedCell: NSCell
+	selectedCell(): NSCell
 
-	readonly selectedTag: number
+	selectedTag(): number
 
 	setNeedsDisplay(needsDisplay: boolean): void
 	setNeedsDisplay(): void
@@ -25606,7 +25588,7 @@ declare class NSColor
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -25624,7 +25606,7 @@ declare class NSColor
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -25944,7 +25926,7 @@ declare class NSApplication
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -25962,7 +25944,7 @@ declare class NSApplication
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -26861,7 +26843,7 @@ declare class NSAccessibilityElement extends NSObject implements NSAccessibility
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -26879,7 +26861,7 @@ declare class NSAccessibilityElement extends NSObject implements NSAccessibility
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -27119,7 +27101,7 @@ declare class NSView
 
 	scrollRectToVisible(rect: CGRect): boolean
 
-	autoscroll: boolean
+	autoscroll(event: NSEvent): boolean
 
 	adjustScroll(newVisible: CGRect): CGRect
 
@@ -27676,7 +27658,7 @@ declare class NSView
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -27694,7 +27676,7 @@ declare class NSView
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -29219,7 +29201,7 @@ declare class NSPopUpButtonCell extends NSMenuItemCell implements NSMenuItemVali
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -29237,7 +29219,7 @@ declare class NSPopUpButtonCell extends NSMenuItemCell implements NSMenuItemVali
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -29341,7 +29323,7 @@ declare class NSTextAttachmentCell extends NSCell implements NSTextAttachmentCel
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -29359,7 +29341,7 @@ declare class NSTextAttachmentCell extends NSCell implements NSTextAttachmentCel
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -29899,7 +29881,7 @@ declare class NSDocument
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -29917,7 +29899,7 @@ declare class NSDocument
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -30437,7 +30419,7 @@ declare class NSTableView
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -30455,7 +30437,7 @@ declare class NSTableView
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -30747,7 +30729,7 @@ declare class NSMenu
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -30765,7 +30747,7 @@ declare class NSMenu
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -31348,7 +31330,7 @@ declare class NSTextField
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -31366,7 +31348,7 @@ declare class NSTextField
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -31445,7 +31427,7 @@ declare class NSCollectionViewDiffableDataSource<
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -31463,7 +31445,7 @@ declare class NSCollectionViewDiffableDataSource<
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 
@@ -31634,7 +31616,6 @@ declare class NSBrowser extends NSControl {
 
 	readonly selectedColumn: number
 
-	// @ts-ignore MemberDecl.tsIgnore
 	readonly selectedCell: interop.Object
 
 	selectedCellInColumn(column: number): interop.Object
@@ -33095,7 +33076,7 @@ declare class NSResponder
 		object2: interop.Object,
 	): interop.Object
 
-	readonly isProxy: boolean
+	isProxy(): boolean
 
 	isKindOfClass(aClass: interop.PointerConvertible): boolean
 
@@ -33113,7 +33094,7 @@ declare class NSResponder
 
 	retainCount(): number
 
-	readonly zone: interop.Pointer
+	zone(): interop.Pointer
 
 	readonly description: string
 

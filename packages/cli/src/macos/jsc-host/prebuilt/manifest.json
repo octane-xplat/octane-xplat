@@ -11,10 +11,10 @@
   },
   "sha256": {
     "macos/host": "447647958ae22f7475961621950ecc9827b1ec71944c03d3a75f770b5f114787",
-    "macos/metadata.macos.arm64.nsmd": "6d5641156e38c2768a50b08180aa4f005d5be1eb4f24998b106d720fe78b7ef7",
+    "macos/metadata.macos.arm64.nsmd": "fce9d682149ca2cdb277f4e85c9a17acd798f778e88baf50aad1e8c9a7d1f391",
     "macos/NativeScript.framework/Versions/A/NativeScript": "896206a84d024f05141fde61647f7d546da4a03b7560f8b596516982e8cbb827",
-    "macos/objc-metadata-generator": "5bd4cb2468b82eded8cafd699511757908caaec2b13b3a7756a585d037698bc4",
-    "macos/metadata.macos.x86_64.nsmd": "50d22c261cd4f318fd8397a76c43784a474fc08a5d3554271b6a2e3b793a66e8"
+    "macos/objc-metadata-generator": "81fc6bfb958ccf2a99938e5d38a27e18a66945a97abd2158f8da0a842d847a5c",
+    "macos/metadata.macos.x86_64.nsmd": "de249b4333bd8f9b3d5361c402d8716fd27ecea448b33d40e8029b15fb8245dd"
   },
   "metadataGenerator": {
     "path": "macos/objc-metadata-generator",
@@ -23,11 +23,7 @@
       "patches/nativescript-runtimes.patch",
       "patches/metadata-leaves.patch"
     ],
-    "libclang": "Command Line Tools libclang (checked by --xplat-check)",
-    "architectures": [
-      "arm64",
-      "x86_64"
-    ]
+    "libclang": "Command Line Tools libclang (checked by --xplat-check)"
   },
   "architectures": [
     "arm64",
