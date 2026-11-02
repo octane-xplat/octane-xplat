@@ -475,7 +475,7 @@ function isAbortError(error: unknown): boolean {
 
 /** Server timers expose `unref()`; browser numeric timers do not. Capability
  *  check only — no Node ambient types in shared code. */
-function unrefTimer(timer: ReturnType<typeof setTimeout> | undefined): void {
+function unrefTimer(timer: unknown): void {
 	if (
 		typeof timer === 'object' &&
 		timer !== null &&
