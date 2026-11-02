@@ -44,6 +44,10 @@ proc newProcessManager*(): ProcessManager =
 
 when defined(macosx):
   import std/posix
+  {.compile: "process_group.c".}
+  const groupHeader = currentSourcePath().parentDir / "process_group.h"
+  proc exitObserved(pid: cint): cint {.importc: "xplat_exit_observed", header: groupHeader.}
+  proc groupDescendants(pid: cint): cint {.importc: "xplat_group_descendants", header: groupHeader.}
   var spawnCloseDefault {.importc: "POSIX_SPAWN_CLOEXEC_DEFAULT", header: "<spawn.h>".}: cint
   var spawnSession {.importc: "POSIX_SPAWN_SETSID", header: "<spawn.h>".}: cint
   proc addChdir(actions: var Tposix_spawn_file_actions, path: cstring): cint {.
@@ -214,6 +218,18 @@ when defined(macosx):
           # reserved PID protects group identity during delayed escalation,
           # including when an escaped descendant still holds a pipe.
           if not child.exited and child.stdoutFd < 0 and child.stderrFd < 0:
+            let observed = exitObserved(cint(child.pid))
+            if observed == 0: continue
+            if observed > 0:
+              # Reserve the terminal leader's PID while releasing descendants.
+              # kill(2) returning does not establish their exit or OS reaping.
+              child.signalGroup(SIGKILL)
+              let remaining = groupDescendants(cint(child.pid))
+              if remaining != 0:
+                if remaining < 0:
+                  child.status.error = "Unable to observe owned process group: " & osErrorMsg(osLastError())
+                  child.status.errorCode = "process_group"
+                continue
             var status: cint
             let waited = waitpid(Pid(child.pid),status,WNOHANG)
             if waited > 0:
@@ -227,9 +243,6 @@ when defined(macosx):
               child.status.error = "Unable to reap owned child"
               child.status.errorCode = "waitpid"
           if child.exited and child.stdoutFd < 0 and child.stderrFd < 0:
-            # A descendant may have closed its inherited pipes while remaining
-            # alive. Release the owned group before completing, not just PID.
-            child.signalGroup(SIGKILL)
             manager.children.del(child.pid)
             live.del(child.pid)
             try:

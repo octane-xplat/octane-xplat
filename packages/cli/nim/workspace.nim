@@ -4,7 +4,7 @@
 import std/[times, json, os, strutils, asyncdispatch]
 import ./core, ./args, ./code_service, ./json_wire, ./docs_service
 import ./project_status, ./command_probe
-import ./host_client, ./contract_failure
+import ./host_client, ./contract_failure, ./target_discovery, ./diagnostic_selection
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -190,32 +190,38 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
     return %*{"contractVersion": 1,"ok": false,"context": {"command": name,"projectId": newJNull()},"error": failureData(error)}
   result = %*{"contractVersion": 1,"ok": true,"context": envelopeContext(context,name,values)}
   try:
+    if name == "diagnostics": validateDiagnosticSelection(values)
     var requestedApp: JsonNode
-    if name == "runtime build":
-      if not truthy(field(values,"platform")): raise contractFailure("invalid_selection","--platform is required for a build.")
+    if name in ["runtime build","session start","targets"] or (name == "diagnostics" and not truthy(field(values,"jobId"))):
+      if name == "runtime build" and not truthy(field(values,"platform")): raise contractFailure("invalid_selection","--platform is required for a build.")
       let selected = context.selection()
       if selected["state"] != %"bound":
         raise contractFailure((if context.selector.len == 0 and context.discovery["apps"].len > 1: "ambiguous_selection" else: "invalid_selection"),
-          "Select an app before building. Pass --app or run from the app directory.")
+          "Select an app. Pass --app or run from the app directory.")
       requestedApp = selected["app"]["id"]
-    if name == "diagnostics":
-      if truthy(field(values,"sessionId")): raise contractFailure("invalid_selection","Pass only one of --session or --job.")
-      if truthy(field(values,"platform")): raise contractFailure("invalid_selection","--platform filters sessions; a job id already selects its capture.")
-      if truthy(field(values,"reportId")): raise contractFailure("invalid_selection","--report requires --session and cannot be combined with log pagination or stream filters.")
-    let host = if name == "runtime build": await ensureNativeHost(context.root) else: await connectNativeHost(context.root)
+    let host = if name in ["runtime build","session start"]: await ensureNativeHost(context.root) else: await connectNativeHost(context.root)
     if host == nil:
       if name == "session list": result["data"] = %*{"sessions": []}; return
+      if name == "targets":
+        result["data"] = nativeTargetReport(context.selection()["app"],newJArray(),field(values,"platform")); return
+      if name == "diagnostics" and not truthy(field(values,"sessionId")) and not truthy(field(values,"jobId")):
+        result["data"] = %*{"sessions": [],"note": "No native workspace host is running. Native captures currently last only while that host lives."}; return
       raise contractFailure("not_found","No agent runtime host is running — no sessions or jobs exist for this workspace.")
     var methodName: string
     var params = newJObject()
     case name
+    of "targets": methodName = "sessions.list"
+    of "session start":
+      methodName = "runtime.launch"
+      for key in ["target","requestKey","browserMode"]:
+        if field(values,key) != nil: params[key] = values[key]
     of "runtime build":
       methodName = "runtime.build"
       params["platform"] = values["platform"]
       if field(values,"requestKey") != nil: params["requestKey"] = values["requestKey"]
     of "diagnostics":
       methodName = "runtime.readDiagnostics"
-      for key in ["jobId","cursor","limit","stream"]:
+      for key in ["jobId","sessionId","cursor","limit","stream","platform"]:
         if field(values,key) != nil: params[key] = values[key]
     of "session list": methodName = "sessions.list"
     of "session status", "session end":
@@ -233,16 +239,29 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
     if field(reply,"ok") != %true:
       result["ok"] = %false
       result["error"] = reply["error"]
+    elif name == "targets": result["data"] = nativeTargetReport(context.selection()["app"],reply["result"]["sessions"],field(values,"platform"))
     else: result["data"] = reply["result"]
   except CatchableError as error:
     result["ok"] = %false
     result["error"] = failureData(error)
 
 proc workspaceHuman*(name: string, payload: JsonNode): string =
+  if name == "targets":
+    var lines: seq[string]
+    for platform in payload["platforms"]:
+      lines.add(text(platform["platform"]) & (if truthy(field(platform,"reason")): ": " & text(platform["reason"]) else: ""))
+      for target in platform["targets"]: lines.add("  " & text(target["targetId"]) & " — " & text(target["name"]) & (if target["busy"] == %true: " (busy)" else: ""))
+    return lines.join("\n")
+  if name == "session start": return "Session " & text(payload["session"]["sessionId"]) & " (" & text(payload["session"]["state"]) & ")\nPoll: xplat session status " & text(payload["session"]["sessionId"])
   if name == "runtime build":
     return "Build job " & text(payload["job"]["jobId"]) & " (" & text(payload["job"]["state"]) & ")\nPoll: xplat job status " & text(payload["job"]["jobId"])
   if name == "diagnostics":
-    var lines = @["Native reports: unavailable. Build jobs have output captures but no development session or native report lookup."]
+    if field(payload,"sessions") != nil:
+      var lines = @[text(payload["note"])]
+      for session in payload["sessions"]: lines.add(text(session["sessionId"]) & " — " & text(session["platform"]) & " (" & text(session["state"]) & ")")
+      if payload["sessions"].len == 0: lines.add("No retained sessions.")
+      return lines.join("\n")
+    var lines = @["Native reports: unavailable. " & text(payload["coverage"]["nativeReports"]["detail"])]
     for record in payload["logs"]["records"]: lines.add("[" & text(record["stream"]) & "] " & text(record["line"]))
     if payload["logs"]["records"].len == 0: lines.add("No records.")
     return lines.join("\n")

@@ -19,13 +19,14 @@ proc projectBuildRoot*(project: string, packageName = "@octane-xplat/build"): st
     current = parent
   raise contractFailure("prerequisite_missing","Install " & packageName & " in the selected project (for example: bun add --dev " & packageName & ").")
 
-proc projectWorker*(project: string, packageName = "@octane-xplat/build"): string =
+proc projectWorker*(project: string, packageName = "@octane-xplat/build", entryKey = "./worker"): string =
   let root = projectBuildRoot(project,packageName)
-  let entry = text(field(field(readJson(root / "package.json"),"exports"),"./worker"))
+  let entry = text(field(field(readJson(root / "package.json"),"exports"),entryKey))
   if entry.startsWith("./"):
     let file = normalizedPath(root / entry)
     if file.startsWith(root & $DirSep) and fileExists(file): return file
-  raise contractFailure("prerequisite_missing","The project's " & packageName & " does not provide build worker v1. Update it with your project package manager.")
+  raise contractFailure("prerequisite_missing","The project's " & packageName & " does not provide " &
+    (if entryKey == "./worker": "build worker v1" else: "development worker v1") & ". Update it with your project package manager.")
 
 proc runBuildWorker*(project, operation: string, payload: JsonNode,
     timeoutMs = 60000, signal: ProcessCancel = nil, environment: StringTableRef = nil,

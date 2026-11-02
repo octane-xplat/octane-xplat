@@ -30,6 +30,31 @@ proc hostBlock*(platform: string, host = currentHost): Option[string] =
 
 proc missing(reason: string): JsonNode = %*{"targets": [],"reason": reason}
 
+proc nativeTargetReport*(app, sessions, selected: JsonNode): JsonNode =
+  let wanted = if truthy(selected): %*[selected] else: app["platforms"]
+  var platforms = newJArray()
+  for platform in wanted:
+    var declared = false
+    for candidate in app["platforms"]:
+      if candidate == platform: declared = true
+    var row = %*{"platform": platform,"declared": declared,"targets": []}
+    let blocked = hostBlock(text(platform))
+    if not declared:
+      row["reason"] = %("App \"" & text(app["id"]) & "\" does not declare this platform.")
+    elif blocked.isSome: row["reason"] = %blocked.get()
+    elif platform == %"macos":
+      var target = %*{"targetId": "macos","name": "macOS AppKit/WKWebView dev host","kind": "host","availability": "available","busy": false}
+      for session in sessions:
+        if session["appId"] == app["id"] and session["platform"] == platform and
+            session["targetId"] == %"macos" and text(session["state"]) notin ["stopped","failed"]:
+          target["busy"] = %true
+          target["session"] = %*{"sessionId": session["sessionId"],"ownership": session["ownership"],"state": session["state"]}
+          break
+      row["targets"].add(target)
+    else: row["reason"] = %"Native launch/target composition for this platform is pending."
+    platforms.add(row)
+  %*{"app": app["id"],"platforms": platforms}
+
 proc iosTargets*(output: Option[string]): JsonNode =
   if output.isNone or output.get().len == 0:
     return missing("xcrun simctl unavailable — install Xcode and the iOS simulator runtime")

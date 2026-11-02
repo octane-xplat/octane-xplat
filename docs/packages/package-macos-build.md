@@ -5,7 +5,7 @@
 
 This project-installed tool builds macOS app packages for the experimental
 [Nim CLI](package-cli.md#experimental-nim-executable). It contains the packaging
-worker and the verified JavaScriptCore host assets. Those assets stay out of the
+and development workers and the verified JavaScriptCore host assets. Those assets stay out of the
 standalone CLI download and out of web-only build installations.
 
 ## Build an existing macOS app
@@ -55,10 +55,35 @@ The worker constructs and signs new artifacts in a separate staging directory.
 Nim validates the result and publishes it after the worker finishes. Cancellation
 before publication leaves the previous app and DMG in place. Builds for one app
 are serialized; an overlapping native build reports that the target is busy.
-These commands build packages; native development sessions remain in migration:
+Check the installed native build's platform support before running it:
 
 ```sh
 xplat capabilities --platform macos --json
+```
+
+## Start a development session
+
+For an app with `xplat.targets.macos.dev` configured, the native CLI can start
+the installed development engine. Choose the macOS target, then poll the returned
+session id. The engine watches JavaScript and native-leaf source and restarts the
+app after a successful rebuild. A ready session confirms host startup; inspect
+the app's output separately to verify its behavior:
+
+```sh
+xplat targets --platform macos --json
+xplat session start macos --json
+# Replace SESSION_ID with the returned session id:
+xplat session status SESSION_ID --json
+xplat diagnostics --session SESSION_ID --limit 100 --json
+```
+
+End the session to stop its engine and owned app processes. Captured logs remain
+readable while the native workspace host lives. Durable history, attaching to an
+existing app, native crash reports and other launch platforms remain in migration:
+
+```sh
+xplat session end SESSION_ID --json
+xplat diagnostics --session SESSION_ID --json
 ```
 
 ## Contributor boundary
@@ -66,7 +91,7 @@ xplat capabilities --platform macos --json
 The package compiles the existing TypeScript macOS packager and native-leaf
 compiler without calling the old CLI. The worker resolves tools from the selected
 project, uses a versioned JSON request/result and sends diagnostics separately.
-Nim owns permissions, jobs, deadlines, process groups, staging and publication.
+Nim owns permissions, jobs/sessions, deadlines, process groups, staging and publication.
 The package has no CLI runtime dependency; its CLI workspace dependency is used
 only to build the shared source and host assets.
 
@@ -74,5 +99,5 @@ The worker subpath is an internal CLI/toolchain protocol. Application code shoul
 not import it. Maintainers qualify the actual packed package through Turbo:
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS build worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-publication --filter=@octane-xplat/cli
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-dev test:nim-macos-publication --filter=@octane-xplat/cli
 ```

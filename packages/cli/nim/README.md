@@ -3,7 +3,7 @@
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
 status, capabilities, clean, typecheck, routes, web/macOS builds, app selection, permissions, code search, code read, guidance
-and docs read, session list/status/end, job status/cancel and build-job diagnostics; other agent commands provide help and schemas with execution marked
+and docs read, macOS targets/session start, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -66,19 +66,20 @@ without launching a browser. These helpers do not qualify SDKs/devices.
 docs/code status, permissions and native capabilities. It supplies owned async
 observations to synchronous read services instead of starting another Git process
 there. `capabilities.nim` reports only the providers wired into the native build;
-web/macOS build/log/job providers report partial support; other runtime/session creation and evidence providers remain unavailable and semantic retrieval
+web/macOS build/log/job providers report partial support; macOS target/launch/session-end providers report partial support; other runtime/session creation and evidence providers remain unavailable and semantic retrieval
 remains partial. Contract IDs and product boundaries are embedded from the
 canonical reference at build time.
 `target_discovery.nim` adds bounded read-only simctl/adb inventory and host
 eligibility helpers. Its simulator parser validates availability and identities
-before offering targets. Public `targets` remains pending until session ownership
-and busy-state composition land; inventory does not establish launch readiness.
+before offering targets. Public `targets` composes macOS host eligibility with native session ownership
+and busy state. Other platforms report explicit pending composition; device
+inventory alone does not establish launch readiness.
 `sessions.nim` owns session identities, progress, usable/historical states and
 owned cleanup. Concurrent ends share completion; attached bindings preserve their
 external process. Snapshot mutation and observer exceptions cannot change private
 ownership or bypass cleanup. Its process fixture verifies cleanup before the outer
-test owner closes. The native host now retains these records across CLI invocations. Real app
-launch/attach composition remains pending.
+test owner closes. The native host now retains these records across CLI invocations. macOS development launch composes the installed engine with this registry;
+attach and other launch engines remain pending.
 `jobs.nim` adds request deduplication, progress, bounded terminal history and
 cooperative cancellation. It retains runner ownership until completion and drains
 runners on close. Immediate completed futures can produce a terminal start result;
@@ -100,9 +101,9 @@ retained jobs/sessions, idle/signal shutdown and ownership-safe cleanup.
 Unpublished startup termination is guarded by the publication lock; descriptor
 PIDs never authorize signalling. Default handles cannot close stdin or signal a
 process group. Public session list/status/end and job status/cancel connect to
-this native owner. Web/macOS builds use project-installed engines. Other build/launch/attach engines and their public
-creation commands remain pending; fixture-owned processes qualify lifecycle
-composition without claiming real app readiness.
+this native owner. Web/macOS builds use project-installed engines. macOS development sessions use a project-installed compiler/HMR worker with
+versioned readiness metadata. Other build/launch/attach engines remain pending.
+Spawn readiness does not establish application rendering or input behavior.
 These boundaries are exercised through independent CLI invocations and actual
 native child/descendant processes on macOS. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
@@ -159,7 +160,8 @@ and plugins execute in that toolchain. No global Vite or old CLI fallback is use
 Install project dependencies first. Builds have a 15-minute engine deadline and
 release owned process groups before reporting cancellation or timeout. macOS builds use the separate project-installed
 [`@octane-xplat/macos-build`](../../macos-build/README.md) worker and native host
-assets. Other build platforms and development-session creation remain pending.
+assets. macOS development uses that package's `./dev-worker` through native
+`session start macos`; other build/launch platforms remain pending.
 
 ```sh
 # From the app directory, with the built xplat executable on PATH:
@@ -170,9 +172,27 @@ xplat job status JOB_ID --json
 xplat diagnostics --job JOB_ID --cursor 0 --json
 ```
 
+`macos_session.nim` owns a development worker and its isolated process group.
+The worker reuses the canonical Vite/compiler/HMR engine, with atomic versioned
+readiness metadata instead of parsing diagnostic text. Native resources live
+under the private host cache, outside dependency caches removed by `clean`.
+Ending a session awaits process cleanup and removes only its owned directory.
+Logs remain readable while the host lives. Attach, native reports, durable
+history and abrupt owner-death recovery remain migration work.
+
+```sh
+xplat targets --platform macos --json
+xplat session start macos --json
+xplat session status SESSION_ID --json
+xplat diagnostics --session SESSION_ID --json
+xplat session end SESSION_ID --json
+```
+
 `runtime_logs.nim` retains ordered stdout/stderr/lifecycle records with sequence
 cursors and explicit retention gaps. Captures are bounded to 2,000 records and
-2 MiB of encoded JSON, with 40 build captures retained by the current host.
+2 MiB of encoded JSON per capture. The host retains 40 build captures and prunes
+finished session captures when creating sessions beyond 40; live session captures
+remain until their work ends.
 Records disappear when that host exits; this is not durable session history.
 `runtime_service.nim` applies request permissions and app selection. Live request
 keys deduplicate within an app/platform; public request keys remain unchanged.
@@ -301,7 +321,8 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 ```
 
 Linux/Windows build flags and native jobs are supplied but remain unqualified
-until those jobs execute. Other host TLS adapters, full argument/error parity, runtime sessions,
-project tool dispatch, updates, and most commands remain migration work. Do not
+until those jobs execute. Other host TLS adapters, remaining command contracts,
+launch/attach engines, durable history, inference delivery and updates remain
+migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,
 real project journeys and native OS behavior have equivalent coverage.

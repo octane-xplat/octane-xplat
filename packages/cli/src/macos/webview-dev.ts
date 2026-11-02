@@ -16,7 +16,7 @@ import {
 import { createMacOSDevBundle } from './dev-bundle.ts'
 
 /** Run the configured DOM frontend in WKWebView with a CLI-managed JSC host. */
-export async function runMacOSWebViewDev(appRoot = process.cwd()) {
+export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) {
 	appRoot = resolve(appRoot)
 	const readManifest = () => JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
 	const target = readManifest().xplat?.targets?.macos
@@ -45,9 +45,11 @@ export async function runMacOSWebViewDev(appRoot = process.cwd()) {
 		})
 
 	let artifact = await prepare()
-	const devBundle = await createMacOSDevBundle(appRoot, readManifest())
+	const devBundle = await createMacOSDevBundle(appRoot, readManifest(), {
+		directory: options.resourceRoot ? join(options.resourceRoot, 'bundle') : undefined,
+	})
 	const hostExecutable = devBundle.executable
-	const devRoot = join(appRoot, 'node_modules/.cache/xplat/macos-dev')
+	const devRoot = options.resourceRoot ?? join(appRoot, 'node_modules/.cache/xplat/macos-dev')
 	await mkdir(devRoot, { recursive: true })
 	const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
 	let webServer
@@ -132,6 +134,11 @@ export async function runMacOSWebViewDev(appRoot = process.cwd()) {
 				resolveDone()
 			}
 		})
+		await new Promise((resolve, reject) => {
+			host.once('spawn', resolve)
+			host.once('error', reject)
+		})
+		options.onReady?.({ pid: host.pid, renderer: 'webview', executable: hostExecutable, url: webAddress })
 
 		console.log(`[macos-webview] host started pid=${host.pid}`)
 	}

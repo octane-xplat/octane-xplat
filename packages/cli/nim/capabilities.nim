@@ -27,8 +27,15 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode): JsonNode 
             if platform in [%"web",%"macos"]:
               entry = %*{"capability": id,"status": "partial","detail":
                 (if capability == "build": "Web and macOS builds invoke project-installed tools; other build engines are pending. Install the app's dependencies first."
-                elif capability == "logs": "Build-job stdout/stderr and lifecycle logs are captured; development-session diagnostics are pending."
+                elif capability == "logs": "Build-job and macOS development-session output is captured while the native host lives. Durable history and native reports are pending."
                 else: "Web and macOS build jobs support status and cancellation; other application job creators are pending.")}
+        of "target_discovery", "launch", "session_end":
+          when defined(macosx):
+            if platform == %"macos":
+              entry = %*{"capability": id,"status": "partial","detail":
+                (if capability == "target_discovery": "The macOS host target includes native session ownership and busy state; other target composition is pending."
+                elif capability == "launch": "macOS development invokes the project's installed engine with native readiness, logs and cleanup. Other launch engines and attach are pending."
+                else: "Owned macOS development sessions release their engine, app processes and private resources. Attach and durable history remain pending.")}
         else: discard
       elif capability in ["guidance","docs","code_search"]:
         entry["detail"] = %"Select an app before retrieving its guidance, installed-version documents or source."

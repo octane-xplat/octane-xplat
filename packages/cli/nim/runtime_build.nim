@@ -4,7 +4,7 @@ import ./core, ./package_manager, ./managed_process, ./runtime_logs
 import ./route_operation, ./command_probe, ./contract_failure
 import ./macos_build, ./build_worker
 
-proc requireProjectVite(root: string) =
+proc requireProjectVite*(root: string) =
   for modules in nodeModulesDirs(root):
     let manifest = readJson(modules / "vite/package.json")
     if field(manifest,"name") == %"vite" and fileExists(modules / ".bin/vite"): return

@@ -15,7 +15,8 @@
 		"README.md"
 	],
 	"exports": {
-		"./worker": "./dist/macos/package-worker.js"
+		"./worker": "./dist/macos/package-worker.js",
+		"./dev-worker": "./dist/macos/dev-worker.js"
 	},
 	"engines": {
 		"node": ">=22.22.2"

@@ -156,8 +156,8 @@ before generating files:
 
 Native session and job commands read retained state from a background owner for
 the workspace. A read does not start that process; with no owner, the session list
-is empty. Each CLI implementation owns its runtime state. Development sessions
-and builds beyond web/macOS remain migration work:
+is empty. Each CLI implementation owns its runtime state. macOS development
+sessions and web/macOS builds are available; other engines remain migration work:
 
 ```sh
 /path/to/octane-xplat/research/nim-cli/native/xplat session list --json
@@ -184,6 +184,20 @@ start a job. Its host assets stay in the project toolchain:
 bun add --dev @octane-xplat/macos-build @octane-xplat/build
 xplat build --targets macos
 xplat runtime build --platform macos --json
+```
+
+For an app with macOS development configuration, start its installed development
+engine and inspect the returned session. Nim owns the session and process cleanup;
+Vite and the native compiler handle rebuilds in the project toolchain. See the
+[development workflow](package-macos-build.md#start-a-development-session) for
+prerequisites and current limits. Logs last only while the native owner lives:
+
+```sh
+xplat targets --platform macos --json
+xplat session start macos --json
+xplat session status SESSION_ID --json
+xplat diagnostics --session SESSION_ID --json
+xplat session end SESSION_ID --json
 ```
 
 Inspect the native catalog before using another workflow:

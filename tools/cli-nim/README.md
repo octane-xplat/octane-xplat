@@ -464,6 +464,18 @@ DMG. Abrupt owner death during publication can leave recovery files; automatic
 crash recovery is still migration work. The native build lock coordinates native
 invocations; do not run the reference CLI against the same output concurrently.
 
+`test:nim-macos-dev` installs packed project tooling and the native CLI, runs a
+headless native C app, edits JavaScript and owned local C sources, and verifies
+rebuild failure/recovery, target busy state, pending deduplication, cancellation,
+unexpected exit, retained logs and resource/process cleanup. It never changes a
+shared dependency-store source. The development worker reuses the canonical
+Vite/compiler/HMR engine with structured readiness metadata; Nim owns the outer
+process group and session. Spawn readiness does not prove UI rendering or input.
+The session directory is outside project dependency caches and is removed after
+owned process cleanup. Logs are bounded and currently live only with the host;
+durable history, native reports, attach and abrupt owner-death recovery remain
+unqualified. The worker's optional WKWebView path is not exercised by this test.
+
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-publication --filter=@octane-xplat/cli
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-dev test:nim-macos-publication --filter=@octane-xplat/cli
 ```

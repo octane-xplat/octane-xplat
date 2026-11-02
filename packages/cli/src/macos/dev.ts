@@ -39,7 +39,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 	const target = readManifest().xplat?.targets?.macos
 	if (target?.renderer === 'webview') {
 		const { runMacOSWebViewDev } = await import('./webview-dev.ts')
-		return runMacOSWebViewDev(appRoot)
+		return runMacOSWebViewDev(appRoot, options)
 	}
 
 	if (target?.runtime !== 'appkit-node-api') {
@@ -66,9 +66,11 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 		})
 
 	let artifact = await prepare()
-	const devBundle = await createMacOSDevBundle(appRoot, readManifest())
+	const devBundle = await createMacOSDevBundle(appRoot, readManifest(), {
+		directory: options.resourceRoot ? join(options.resourceRoot, 'bundle') : undefined,
+	})
 	const hostExecutable = devBundle.executable
-	const devRoot = join(appRoot, 'node_modules/.cache/xplat/macos-dev')
+	const devRoot = options.resourceRoot ?? join(appRoot, 'node_modules/.cache/xplat/macos-dev')
 	await mkdir(devRoot, { recursive: true })
 	const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
 	let watcher
@@ -134,6 +136,11 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 				}
 			}
 		})
+		await new Promise((resolve, reject) => {
+			host.once('spawn', resolve)
+			host.once('error', reject)
+		})
+		options.onReady?.({ pid: host.pid, renderer: 'appkit', executable: hostExecutable })
 
 		console.log(
 			`[macos-native] host started pid=${host.pid}; ${artifact.libraries.length} leaf libraries`,

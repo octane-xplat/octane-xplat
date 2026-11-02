@@ -100,14 +100,13 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, build (web/macos), permissions, app select, code search, code read, guidance, docs read, session list/status/end, job status/cancel, runtime build (web/macos). Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, build (web/macos), permissions, app select, code search, code read, guidance, docs read, targets (macos), session start (macos)/list/status/end, diagnostics, job status/cancel, runtime build (web/macos). Other command execution is pending; use --json for contracts and coverage."
     quit(0)
   var reply: JsonNode
   if name in ["status","capabilities"]:
     installProcessSignalHandlers()
     reply = waitFor workspaceStatusCommand(name,parsed["values"],data)
-  elif name in ["session list","session status","session end","job status","job cancel","runtime build"] or
-      (name == "diagnostics" and truthy(field(parsed["values"],"jobId"))):
+  elif name in ["session list","session status","session end","session start","job status","job cancel","runtime build","diagnostics","targets"]:
     reply = waitFor workspaceHostCommand(name,parsed["values"])
   else: reply = workspaceCommand(name, parsed["values"])
   if reply != nil:

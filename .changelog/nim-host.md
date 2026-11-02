@@ -3,8 +3,8 @@
 The experimental Nim CLI now retains session and job state in an authenticated
 workspace owner on macOS. Session list/status/end and job status/cancel connect
 to that owner; reads leave no background process behind when none exists.
-Other native build platforms, development and application session creation remain
-in progress.
+Other native build platforms and attaching to running applications remain in
+progress.
 
 ```sh
 xplat session list --json

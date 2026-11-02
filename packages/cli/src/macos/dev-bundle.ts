@@ -87,7 +87,7 @@ async function signDevBundle(appPath) {
 }
 
 /** Keep dev arguments/stdio while giving AppKit a real main bundle identity. */
-export async function createMacOSDevBundle(appRoot, manifest) {
+export async function createMacOSDevBundle(appRoot, manifest, { directory: suppliedDirectory }: { directory?: string } = {}) {
 	const target = manifest.xplat?.targets?.macos ?? {}
 	const packageSettings = target.package ?? {}
 	const dev = target.dev ?? {}
@@ -115,8 +115,14 @@ export async function createMacOSDevBundle(appRoot, manifest) {
 
 	const source = await macOSExecutable(appRoot, 'macos/host')
 	const cache = join(appRoot, 'node_modules/.cache/xplat/macos-dev')
-	await mkdir(cache, { recursive: true })
-	const directory = await mkdtemp(join(cache, 'session-'))
+	if (!suppliedDirectory) {
+		await mkdir(cache, { recursive: true })
+	}
+	const directory = suppliedDirectory ?? (await mkdtemp(join(cache, 'session-')))
+	if (suppliedDirectory) {
+		// Claim a fresh directory before cleanup gains permission to remove it.
+		await mkdir(directory)
+	}
 	const cleanup = () => rm(directory, { recursive: true, force: true })
 	try {
 		const contents = join(directory, `${executableName}.app`, 'Contents')

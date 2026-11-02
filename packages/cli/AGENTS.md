@@ -12,6 +12,13 @@ code has no CLI runtime dependency. Preserve this boundary when wiring native
 commands: invoke the app's installed compiler/build tools with explicit argv,
 cwd and environment, and keep command/session orchestration in Nim.
 
+The macOS development worker is `@octane-xplat/macos-build/dev-worker`.
+It runs the canonical Vite/compiler/HMR engine and publishes versioned readiness
+metadata; Nim owns target claims, session identities, captured logs and the outer
+process group. Keep readiness separate from printed diagnostics. Put owned session
+resources in the host's private cache, outside dependency caches removed by clean,
+so cancellation before worker readiness can still release them.
+
 Project operations that already need JavaScript use small, versioned workers
 from the selected project's `@octane-xplat/build/worker` or platform-specific
 `@octane-xplat/macos-build/worker`. Keep parser/compiler
@@ -158,6 +165,13 @@ compilation or a successful happy path does not prove semantic parity. For pure
 logic, a test-only native program reading NDJSON can exercise a large case corpus
 in one process. Do not ship test-only entry points in the production binary.
 
+Publish an ownership future before starting async work that can notify observers.
+Nim async procedures can execute synchronously until their first pending await;
+assigning `owner.pending = startWork()` can allow a reentrant cleanup observer to
+see no pending work. Install a placeholder future first, then complete/fail it
+when the runner finishes. Cleanup must await that ownership future before reporting
+released resources. A completed state snapshot alone does not prove cleanup.
+
 Assert that positive fixtures actually reach the intended successful result.
 Two implementations returning the same unavailable/default value do not qualify
 the successful path that a fixture was meant to exercise.
@@ -294,6 +308,14 @@ leader's exit status can skip required signal escalation. A POSIX wait status
 also distinguishes an ordinary exit code of 143 from termination by SIGTERM.
 Keep the leader's PID reserved while inherited pipes remain open so delayed
 group cleanup cannot target a subsequently reused PID.
+
+Sending SIGKILL is not confirmation that every group member has exited or been
+reaped. On macOS, observe leader exit with `waitid(..., WNOWAIT)` and keep its PID
+reserved while checking the group's remaining members through the SDK API. Only
+reap the leader and complete cleanup after the group has no other members. Avoid
+another group signal after releasing that identity. A small C shim keeps SDK
+struct layouts out of Nim; resolve its header from `currentSourcePath().parentDir`
+so probes with another main-module directory can compile it too.
 
 Nim 2.2.12 `quit(int)` clamps to -128..127 before calling C `exit`. Use the
 `process_exit.exitProcess` helper when forwarding native exit statuses, including

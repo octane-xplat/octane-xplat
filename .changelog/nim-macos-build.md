@@ -4,7 +4,7 @@ The experimental Nim CLI can build configured macOS apps using a separate
 project-installed packaging worker. The standalone CLI stays small. Native jobs
 capture compiler output, serialize builds for one app, and release owned
 processes on cancellation. Cancellation before publication preserves the previous
-app and DMG. Development sessions remain in progress.
+app and DMG.
 
 ```sh
 bun add --dev @octane-xplat/macos-build @octane-xplat/build

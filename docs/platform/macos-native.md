@@ -260,6 +260,9 @@ with the NativeScript C/ObjC metadata bridge.
 
 ## Rebuild, package, and diagnose
 
+Using the experimental Nim executable? Follow the
+[macOS development-session workflow](../packages/package-macos-build.md#start-a-development-session).
+
 `bun run xplat dev macos` compiles native dependencies before launching.
 Native source, header, and package configuration edits rebuild metadata and
 libraries, then restart the host. Uncached metadata generation can take a few

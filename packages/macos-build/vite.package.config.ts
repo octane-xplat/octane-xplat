@@ -9,7 +9,7 @@ const replacements = new Map([
 	[normalizePath(resolve(source, 'env.ts')), resolve(root, 'runtime-paths.ts')],
 	[normalizePath(resolve(source, 'package-root.ts')), resolve(root, 'project-package-root.ts')],
 ])
-const entries = ['macos/package-worker', 'macos/jsc-host/check-vite']
+const entries = ['macos/package-worker', 'macos/dev-worker', 'macos/jsc-host/check-vite']
 
 export default defineConfig({
 	build: {

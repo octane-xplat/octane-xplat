@@ -12,11 +12,11 @@ const scratch = scratchRun(root, 'jobs')
 after(() => rmSync(scratch, { recursive: true, force: true }))
 const input = (extra = {}) => ({ kind: 'build', sessionId: 'session-one', ...extra })
 function normalize(value, ids = new Map()) {
- if (Array.isArray(value)) return value.map(item => normalize(item, ids))
- if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => {
+ if (Array.isArray(value)) {return value.map(item => normalize(item, ids))}
+ if (value && typeof value === 'object') {return Object.fromEntries(Object.entries(value).map(([key, item]) => {
   if (key === 'jobId') {
    assert.match(item, /^job_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
-   if (!ids.has(item)) ids.set(item, `job-${ids.size + 1}`)
+   if (!ids.has(item)) {ids.set(item, `job-${ids.size + 1}`)}
    return [key, ids.get(item)]
   }
   if (key === 'createdAt' || key === 'finishedAt') {
@@ -25,7 +25,7 @@ function normalize(value, ids = new Map()) {
    return [key, '<current-utc>']
   }
   return [key, normalize(item, ids)]
- }))
+ }))}
  return value
 }
 function query(steps, native = true, extra = {}) {
@@ -163,15 +163,18 @@ test('job cancellation drains an armed child and descendant before close returns
  const source = `const {spawn}=require('node:child_process');const fs=require('node:fs');
 const child=spawn(process.execPath,['-e','process.on("SIGTERM",()=>{});process.stdout.write("ready");setInterval(()=>{},1000)'],{stdio:['ignore','pipe','ignore']});
 process.on('SIGTERM',()=>{});child.stdout.once('data',()=>{fs.writeFileSync(${JSON.stringify(marker)},JSON.stringify([process.pid,child.pid]));process.stdout.write('armed')});setInterval(()=>{},1000);`
- const value = query([], true, { operation: 'job-process', command: process.execPath, args: ['-e', source], marker })
- assert.equal(value.cancelling.state, 'cancelling')
- assert.equal(value.prematureRejected, true)
- assert.equal(value.closeWaited, true)
- assert.equal(value.job.state, 'cancelled')
- assert.deepEqual(value.job.result, { stopped: true })
- assert.equal(value.exitFinishedBeforeManagerClose, true)
- assert.deepEqual(value.aliveBeforeManagerClose, [false, false])
- for (const pid of JSON.parse(readFileSync(marker))) assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })
+ // Exercise exit/reaping interleavings without sleeping after cleanup returns.
+ for (let attempt=0;attempt<8;attempt++) {
+  const value = query([], true, { operation: 'job-process', command: process.execPath, args: ['-e', source], marker })
+  assert.equal(value.cancelling.state, 'cancelling')
+  assert.equal(value.prematureRejected, true)
+  assert.equal(value.closeWaited, true)
+  assert.equal(value.job.state, 'cancelled')
+  assert.deepEqual(value.job.result, { stopped: true })
+  assert.equal(value.exitFinishedBeforeManagerClose, true)
+  assert.deepEqual(value.aliveBeforeManagerClose, [false, false])
+  for (const pid of JSON.parse(readFileSync(marker))) {assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })}
+ }
 })
 
 test('invalid runner futures and uninitialized structured exceptions become explicit failures', () => {
