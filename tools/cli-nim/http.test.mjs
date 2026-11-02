@@ -233,9 +233,11 @@ test('headers resolve before delayed bodies, with phase-specific abort and timeo
  const start = performance.now()
  await compare([{ url: `${origin}/slow-body`, consume: 'none' }])
  assert.ok(performance.now() - start < 450)
- await compare([{ url: `${origin}/slow-headers`, abortMs: 50 }, { url: `${origin}/slow-body`, abortMs: 50 },
+ const values = await compare([{ url: `${origin}/slow-headers`, abortMs: 50 }, { url: `${origin}/slow-body`, abortAfterHeadersMs: 50 },
   { url: `${origin}/slow-headers`, timeoutMs: 50 }, { url: `${origin}/slow-body`, timeoutMs: 50 },
   { url: `${origin}/echo`, preabort: true }, { url: `${origin}/truncated` }])
+ assert.equal(values[1].phase, 'body')
+ assert.equal(values[1].name, 'AbortError')
 })
 test('TLS rejects untrusted and wrong-host certificates and accepts an explicit task-local CA', macOnly, async () => {
  await compare([{ url: `${secure}/json-bom`, consume: 'json' }])
@@ -257,9 +259,11 @@ test('streamed data, byte caps and sink failures leave subsequent requests usabl
  assert.equal(closed[0].kind, 'hfClosed'); assert.equal(closed[1].kind, 'hfClosed')
 })
 test('concurrent slow transfers do not block a fast request or each other\'s cancellation', macOnly, async () => {
- const requests = [{ url: `${origin}/slow-body`, abortMs: 60 }, { url: `${origin}/json-bom`, consume: 'json' }, { url: `${origin}/slow-headers`, timeoutMs: 80 }]
+ const requests = [{ url: `${origin}/slow-body`, abortAfterHeadersMs: 60 }, { url: `${origin}/json-bom`, consume: 'json' }, { url: `${origin}/slow-headers`, timeoutMs: 80 }]
  const [expected, actual] = await Promise.all([run(false, [{ operation: 'parallel', requests }]), run(true, [{ operation: 'parallel', requests }])])
  assert.deepEqual(actual[0].map(comparable), expected[0])
+ assert.equal(actual[0][0].phase, 'body')
+ assert.equal(actual[0][0].name, 'AbortError')
 })
 
 test('authenticated bridge registry, submit, cancel and wait calls match real TypeScript envelopes', macOnly, async () => {

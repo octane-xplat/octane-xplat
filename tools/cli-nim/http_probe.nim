@@ -61,6 +61,8 @@ proc execute(client: HttpClient, request: JsonNode): Future[JsonNode] {.async.} 
     var value = %*{"status": response.status,"statusText": response.statusText,"url": response.url,
       "redirected": response.redirected,"ok": response.ok(),"headers": canonical(response.headers)}
     phase = "body"
+    if field(request,"abortAfterHeadersMs") != nil:
+      cancellation = later(settings.signal,request["abortAfterHeadersMs"].getInt(),stopTimer)
     if field(request,"stream") == %true:
       await response.finishStream()
       value["bodyBase64"] = %encode(streamed)

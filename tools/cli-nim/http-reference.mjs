@@ -23,6 +23,7 @@ async function execute(request) {
   const value = { status: response.status, statusText: response.statusText, url: response.url,
    redirected: response.redirected, ok: response.ok, headers: [...response.headers] }
   phase = 'body'
+  if (request.abortAfterHeadersMs !== undefined) timers.push(setTimeout(() => signal.abort(), request.abortAfterHeadersMs))
   if (request.stream) {
    const chunks = []
    for await (const bytes of response.body ?? []) chunks.push(bytes)
