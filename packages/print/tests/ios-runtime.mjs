@@ -28,11 +28,6 @@ await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
 	recursive: true,
 	filter: (path) => !path.endsWith('google-services.json'),
 })
-await mkdir(join(resources, 'iOS/src'), { recursive: true })
-await cp(
-	join(packageRoot, 'platforms/ios/src/XplatPrintEngine.swift'),
-	join(resources, 'iOS/src/XplatPrintEngine.swift'),
-)
 const caseFile = join(packageRoot, 'tests/runtime.ios.ts')
 const { prepare } = await import(pathToFileURL(join(repo, 'scripts/probe/project.ts')).href)
 const project = await prepare('ios', caseFile, ['@octane-xplat/lib'], resources)
@@ -115,7 +110,13 @@ try {
 			)
 			if (
 				step.appId !== project.appId ||
-				!['print-dialog', 'pdf-print-dialog', 'printer-picker'].includes(step.stage)
+				![
+					'print-dialog',
+					'pdf-print-dialog',
+					'data-uri-print-dialog',
+					'https-print-dialog',
+					'printer-picker',
+				].includes(step.stage)
 			) {
 				continue
 			}

@@ -31,12 +31,35 @@ and timeout cleanup; it does not establish real browser print UI behavior.
 
 iOS uses WKWebView, UIPrintPageRenderer, PDFKit and
 UIPrintInteractionController; UIPrinterPickerController owns printer selection.
-The renderer subclasses the documented paper/printable rectangle properties
-rather than setting undocumented KVC keys. macOS uses WKWebView in an owned
-hidden NSWindow, NSPrintOperation and PDFKit. It saves PDFs with the operation's
-save disposition and dispatches normal printing with the spool disposition.
-Its Boolean print completion cannot distinguish cancellation from failure;
-both reject as `ERR_PRINT_FAILED`.
+The renderer's read-only paper/printable rectangles are written through KVC
+(`setValueForKey` on `paperRect`/`printableRect`) — probe evidence showed a
+`UIPrintPageRenderer` subclass whose JS getter overrides never reach native
+dispatch on this runtime (`valueForKey` returns `CGRectZero`, the JS body
+never runs), and `Class.extend` members only override ObjC methods in the
+macOS node-api bridge, not iOS. WKNavigationDelegate works on iOS via
+`NSObject.extend` + `protocols` metadata (`class X extends NSObject` delegate
+instances were set but their methods never fired); delegate task state rides
+in the extend members because wrapper identity is unstable. macOS uses
+WKWebView in an owned hidden NSWindow, NSPrintOperation and PDFKit. It saves
+PDFs with the operation's save disposition and dispatches normal printing
+with the spool disposition. Its Boolean print completion cannot distinguish
+cancellation from failure; both reject as `ERR_PRINT_FAILED`.
+
+The iOS backend is TypeScript over the NativeScript ObjC bridge (no Swift
+leaf); PDFKit/WebKit load through NSBundle. The macOS backend retains the
+Swift `XplatPrintEngine` leaf. A TypeScript port was built and probe-verified
+(worktree evidence in the `print-macos-bridge-findings` memory notes), but
+qualification found its completion detection is not equivalent to the native
+`didRun` selector: `runOperationModal` with a nil delegate returns before the
+spawned print thread finishes the save, so polling `fileExistsAtPath` raced a
+truncated PDF and ~25–50% of same-condition host launches failed a real
+export the Swift leaf completed 16/16. Gating readiness on a parseable PDF
+converged the race locally (20/20), but a launch-correlated starvation where
+the spawned thread never completes was documented earlier and is not
+disproved — retries cannot recover a launch whose spawned thread starves,
+and no JS `didRun` can run on that thread (probe crash log). The Swift leaf
+is retained; the port source is in commit `003546215` history if the host's
+spawned-thread behavior is ever qualified.
 
 Android uses WebView's PrintDocumentAdapter and PrintManager, waits for layout
 before writing, and validates generated files with PdfRenderer. The small
@@ -84,13 +107,17 @@ source environments, the catalog owner and a packed consumer. The packed check
 verifies ambient-free declarations, web/iOS import graphs, shipped native source,
 Android callback helpers and license, and the macOS framework declaration.
 
-All Apple execution used skymac.local:
+All Apple execution used this host (minion) and skymac.local:
 
-- iOS 26.2: 27 assertions in an actual NativeScript app. These cover real PDF
-  signatures, parsed text/page count and geometry, base64 equality, disabled
-  document scripts, repeated and blank exports, ownership/release, invalid PDF
-  rejection, HTML/PDF print-dialog cancellation, printer-picker cancellation,
-  presenter cleanup, and preservation of the input PDF.
+- iOS 27 sim (`xplat-print-dorothea`): 31 assertions in an actual NativeScript
+  app. These cover real PDF signatures, parsed text/page count and geometry,
+  base64 equality, disabled document scripts, repeated and blank exports,
+  ownership/release, invalid PDF rejection, HTML/PDF print-dialog
+  cancellation, live HTTPS (`w3.org` dummy.pdf) and data-URI fetch through
+  `printAsync({uri})` to a presented panel with AX cancellation,
+  printer-picker cancellation, presenter cleanup, and preservation of the
+  input PDF. No completed print job or successful printer selection was
+  exercised.
 - AppKit: 19 engine assertions cover parsed two-page output, geometry, base64,
   disabled scripts, repeated exports, busy rejection, cleanup, blank output and
   invalid native input. A JavaScript consumer also passes repeated real PDF
@@ -112,11 +139,12 @@ Only task-owned app/simulator state is changed and the simulator is shut down
 after qualification. Builds/devices are reserved through the resource broker.
 
 No physical print job, successful printer selection/direct printer URL, AppKit
-print panel, live browser print dialog, iOS markup formatter, Android text zoom,
-or successful HTTPS/data-URI PDF workflow has been qualified. They must not be
-reported as runtime-tested. Android runtime remains deferred. Native GTK and
-Windows backends remain unavailable. Package publication and trusted-publisher
-setup are separate release prerequisites.
+print panel, live browser print dialog, iOS markup formatter, Android text
+zoom, or macOS HTTPS/data-URI PDF workflow has been qualified. iOS fetch paths
+are qualified only through presentation + cancellation. These must not be
+reported as runtime-tested beyond that. Android runtime remains deferred.
+Native GTK and Windows backends remain unavailable. Package publication and
+trusted-publisher setup are separate release prerequisites.
 
 ## References
 

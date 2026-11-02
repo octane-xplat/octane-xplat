@@ -147,6 +147,54 @@ export async function run(ctx: Context) {
 		)
 		ctx.assert('printing preserves input PDF', File.exists(NSURL.URLWithString(second.uri)!.path!))
 	}
+	if (Print.capabilities.print) {
+		mark('data-uri-print-dialog')
+		const exportBytes = NSData.dataWithContentsOfURL(NSURL.URLWithString(second.uri)!)!
+		const dataUri = `data:application/pdf;base64,${exportBytes.base64EncodedStringWithOptions(0 as NSDataBase64EncodingOptions)}`
+		let canceled = false
+		try {
+			await printAsync({ uri: dataUri })
+		} catch (error) {
+			canceled = Boolean(
+				error &&
+				typeof error === 'object' &&
+				'code' in error &&
+				error.code === 'ERR_PRINT_CANCELLED',
+			)
+		}
+		ctx.assert('data-URI PDF print cancellation rejects', canceled)
+		await ctx.waitFor(() => !Application.ios.rootController?.presentedViewController, {
+			timeout: 10000,
+		})
+		ctx.assert(
+			'data-URI presenter released',
+			!Application.ios.rootController?.presentedViewController,
+		)
+	}
+	if (Print.capabilities.print) {
+		mark('https-print-dialog')
+		let canceled = false
+		try {
+			await printAsync({
+				uri: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+			})
+		} catch (error) {
+			canceled = Boolean(
+				error &&
+				typeof error === 'object' &&
+				'code' in error &&
+				error.code === 'ERR_PRINT_CANCELLED',
+			)
+		}
+		ctx.assert('HTTPS PDF print cancellation rejects', canceled)
+		await ctx.waitFor(() => !Application.ios.rootController?.presentedViewController, {
+			timeout: 10000,
+		})
+		ctx.assert(
+			'HTTPS print presenter released',
+			!Application.ios.rootController?.presentedViewController,
+		)
+	}
 	if (Print.capabilities.selectPrinter) {
 		mark('printer-picker')
 		let canceled = false

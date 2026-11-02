@@ -13,9 +13,11 @@ bun add @octane-xplat/print
 ```
 
 Start in an existing Xplat app. Rebuild your native app after installing: a
-JavaScript refresh cannot add its Swift/Java bridge. AppKit apps use the existing
-[CLI native-leaf workflow](../platform/macos-native.md). Android runtime
-qualification remains unverified.
+JavaScript refresh cannot add the Android Java bridge or the AppKit Swift
+leaf, which uses the existing
+[CLI native-leaf workflow](../platform/macos-native.md). The iOS backend is
+TypeScript over the NativeScript ObjC bridge and needs no Swift build.
+Android runtime qualification remains unverified.
 
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-print).

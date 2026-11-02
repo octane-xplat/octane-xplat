@@ -20,6 +20,11 @@ function required(): Engine {
 	}
 	return value
 }
+// The Swift engine replies with a JSON string; the shared reply channel takes
+// decoded payloads. Parse inside the engine callback.
+function reply(callback: (payload: unknown) => void): (json: string) => void {
+	return (json) => callback(JSON.parse(json))
+}
 export const backend: PrintBackend = {
 	capabilities() {
 		const host = engine()
@@ -31,7 +36,7 @@ export const backend: PrintBackend = {
 		}
 		const host = required()
 		await invoke(
-			(callback) => host.presentCompletion(JSON.stringify(options), callback),
+			(callback) => host.presentCompletion(JSON.stringify(options), reply(callback)),
 			() => undefined,
 		)
 	},
@@ -41,7 +46,7 @@ export const backend: PrintBackend = {
 		}
 		const host = required()
 		return invoke(
-			(callback) => host.renderCompletion(JSON.stringify(options), callback),
+			(callback) => host.renderCompletion(JSON.stringify(options), reply(callback)),
 			fileResult,
 		)
 	},

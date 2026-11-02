@@ -71,8 +71,8 @@ printAsync({ html: 'Document', orientation: 'sideways' })
 	await readFile(
 		join(unpacked, 'platforms/android/java/android/print/XplatPrintLayoutCallback.java'),
 	)
+	await readFile(join(unpacked, 'platforms/macos/src/XplatPrintEngine.swift'))
 	await readFile(join(unpacked, 'platforms/android/UPSTREAM.md'))
-	await readFile(join(unpacked, 'platforms/ios/src/XplatPrintEngine.swift'))
 	for (const [name, conditions, lib] of [
 		['web', ['web'], ['ESNext', 'DOM']],
 		['native', ['native'], ['ESNext']],
@@ -140,8 +140,8 @@ printAsync({ html: 'Document', orientation: 'sideways' })
 		chunks(native).some(
 			(chunk) =>
 				chunk.type === 'chunk' &&
-				chunk.code.includes('XplatPrintEngine') &&
-				chunk.code.includes('renderCompletion'),
+				chunk.code.includes('UIPrintInteractionController') &&
+				chunk.code.includes('printToPrinterCompletionHandler'),
 		),
 	)
 	console.log(

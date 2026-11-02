@@ -3,13 +3,14 @@ import { spawn, spawnSync } from 'node:child_process'
 import { createServer } from 'node:net'
 import { createInterface } from 'node:readline'
 
-// Maestro 2.11's normal tap/flow path captures screenshots for settling.
+// Maestro's normal tap/flow path captures screenshots for settling.
 // Use only inspect_screen to start its driver, then the driver's AX and touch
-// endpoints. Those endpoints were reviewed at the cli-2.11.0 source tag.
+// endpoints. Those endpoints were reviewed at the cli-2.11.0 source tag and
+// re-verified behaviorally on 2.12.0 (initialize/inspect/viewHierarchy/touch).
 export async function createDialogDriver(device) {
 	assert.equal(
 		spawnSync('maestro', ['--version'], { encoding: 'utf8' }).stdout.trim(),
-		'2.11.0',
+		'2.12.0',
 		'Review a different Maestro version before using this nonvisual fixture',
 	)
 	const port = 22087
@@ -64,7 +65,7 @@ export async function createDialogDriver(device) {
 			const timer = setTimeout(() => {
 				pending.delete(id)
 				reject(new Error(`Maestro ${method} timed out: ${diagnostics}`))
-			}, 60000)
+			}, 300000)
 			pending.set(id, { resolve, reject, timer })
 			child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n')
 		})

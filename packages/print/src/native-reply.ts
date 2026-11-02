@@ -1,14 +1,14 @@
 import type { FilePrintResult, Printer } from './types'
 /** Native payloads stay at this boundary; raw native objects never enter public declarations. */
 export function invoke<T>(
-	start: (callback: (json: string) => void) => void,
+	start: (callback: (payload: unknown) => void) => void,
 	read: (result: Record<string, unknown>) => T,
 ): Promise<T> {
 	return new Promise((resolve, reject) => {
 		try {
-			start((json) => {
+			start((payload) => {
 				try {
-					const result: unknown = JSON.parse(json)
+					const result: unknown = payload
 					if (!result || typeof result !== 'object' || Array.isArray(result)) {
 						throw new Error('Invalid native print response')
 					}
