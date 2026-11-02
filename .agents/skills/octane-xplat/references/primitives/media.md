@@ -17,6 +17,27 @@ import { Avatar } from '@octane-xplat/ui'
 export function Person() {
 	return <Avatar name="Ada Lovelace" size="lg" />
 }
+
+```
+
+## Camera selection and recording
+
+Use idle `configure` before arming automatic recording. During a take, use
+`switchCamera` only when `cameraSwitchDuringRecording` is advertised. Web uses
+a stable canvas video track; Android retains one persistent recorder. iOS and
+the separate desktop adapters currently report false. Keep one session/take and
+one completion handler; never imitate a flip by stopping/restarting capture.
+Use `switchingCamera` for overlapping-control suppression while Stop stays
+available. See the [consumer guide](../../../../../docs/app/movie-capture.md#switch-cameras-during-a-take)
+and [recorder constraints](../../../../docs/camera-recording-switch.md).
+
+```ts
+import type { CameraSession } from '@octane-xplat/camera'
+async function faceFront(session: CameraSession): Promise<void> {
+	if ((await session.capabilities()).cameraSwitchDuringRecording) {
+		await session.switchCamera('front') // Requires recording state.
+	}
+}
 ```
 
 ## Native macOS images
@@ -39,7 +60,7 @@ transform queries return none. Load/error callbacks now have the matched
 UI/renderer handoff; other engine props remain gaps. The
 private imageMemoryCache bridge controls decoded memory only; do not substitute
 it for public disk eviction or an account-data purge. Read the
-[cache subset](../../../../../packages/image/README.md#appkit-subset) before relying on it.
+[cache subset](../../../../../docs/packages/package-image.md#appkit-subset) before relying on it.
 See [AppKit image loading](../../../../../docs/app/components.md#image-loading-on-appkit).
 
 ```tsx
@@ -108,7 +129,7 @@ escape bag applies to AppKit. Nine owner cases and target fixture require separa
 Swift/discovery, playback/audio, callbacks/threads, fit/resize, input/AX, resource
 lifetime and packaging require separate target qualification. Do not infer Lightbox integration,
 DRM, subtitles, background or full streaming support. Read the
-[package subset](../../../../../packages/video/README.md#experimental-appkit-playback).
+[package subset](../../../../../docs/packages/package-video.md#experimental-appkit-playback).
 
 ## AppKit Carousel native geometry controls
 
@@ -187,7 +208,7 @@ export function TravelPages() {
 }
 ```
 
-Read the [package guide](../../../../../packages/pager/README.md#platform-support)
+Read the [package guide](../../../../../docs/packages/package-pager.md#platform-support)
 and [AppKit recipe](../../../../docs/recipes/appkit-paging.md) before promising native
 paging support. The mobile plugin is not imported by the macOS leaf; its existing
 package dependency remains. Do not add macOS to qualified parity targets from
@@ -231,7 +252,7 @@ size. Source replacement drops stale work, hidden/detached views and reduced
 motion stop progression, and unmount releases the request/image/observer.
 There is no shared GIF prefetch cache (`prefetch` remains false), custom header
 or mobile escape-bag support. Do not infer animated-image support from the core
-static Image cache. See the [package subset](../../../../../packages/gif/README.md#experimental-appkit-subset).
+static Image cache. See the [package subset](../../../../../docs/packages/package-gif.md#experimental-appkit-subset).
 
 ```tsx
 import { AnimatedImage } from '@octane-xplat/gif'
@@ -272,4 +293,4 @@ fileinput-drop fixture remain UNRUN. No dependency/public type/React Aria presen
 change. Native loading/type arrays/conformance, sandbox/ref lifecycle, OS picking/
 dragging, focus/VoiceOver and installed/visual qualification remain pending. See
 [file filter workflow](../../../../../docs/platform/date-picker.md#choose-file-types-on-appkit)
-and [metadata](../../../../../packages/files/README.md#appkit-file-metadata).
+and [metadata](../../../../../docs/packages/package-files.md#appkit-file-metadata).

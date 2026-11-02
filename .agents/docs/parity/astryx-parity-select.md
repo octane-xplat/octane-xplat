@@ -310,10 +310,10 @@ contracts actually match. One large Select with booleans for multiple, remote,
 creatable, custom-dialog, and structured-filter modes would make valid values,
 callbacks, keyboard ownership, and error handling harder to express and test.
 
-[packages/picker](../../../packages/picker/README.md) remains the intentional
+[packages/picker](../../../docs/packages/package-picker.md) remains the intentional
 platform-authentic escape: SwiftUIPicker on iOS, MaterialDropdown on Android,
 and HTML Select on web, via platform subpaths with distinct contracts.
-[packages/date-picker](../../../packages/date-picker/README.md) provides SwiftUI,
+[packages/date-picker](../../../docs/packages/package-date-picker.md) provides SwiftUI,
 Material, and AppKit date/time widgets; it is not an entity-search or multi-select
 solution. Neither leaf removes the need for shared searchable/multi-selection
 UX, and plugin-backed functionality must stay outside dependency-free UI additions.

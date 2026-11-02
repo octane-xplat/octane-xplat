@@ -114,8 +114,8 @@ multi-sort, header context menus and the wider plugin matrix are not added by
 this prerequisite. Keep the final Table gate pending.
 
 The maintained `tabs` scene similarly exposes the actual TabList/Tab composition,
-controlled acceptance/rejection, disabled stops and matching panel content. It
-does not implement or qualify TabItem/SelectionItem, a single Tab stop or arrow
+controlled acceptance/rejection, disabled stops and matching panel content. The
+fixture alone does not establish TabItem/SelectionItem, a single Tab stop or arrow
 navigation. Use the [driver guide](../../tools/windows-qualification/README.md#inspect-table-and-tab-source-fixtures)
 to select these scenes and retain their native/UIA failures.
 
@@ -137,6 +137,81 @@ point outside the measured surface; a named outside target can be covered after
 flip or resize. Keep direct useLayer anchoring/dismissal separate from Selector
 and DropdownMenu qualification. These are unexecuted source fixtures, with no
 new keyboard or native-role implementation and no runtime pass.
+
+## Native tab semantics
+
+The pinned Core preview's
+[`TabView` implementation](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/core/ui/tab-view/index.windows.ts)
+constructs a Grid, StackPanel and Buttons. It does not instantiate WinUI
+`TabView` or `TabViewItem`. Replacing the shared strip with that NativeScript
+component therefore does not supply a stock tab-selection peer. Probe actual
+WinUI tab ownership, SelectionItem and keyboard behavior before choosing a
+Windows tab adapter. Source inspection alone does not qualify that adapter.
+
+With `@nativescript/windows` 0.1.0-alpha.144, direct construction of
+`Microsoft.UI.Xaml.Controls.TabView` throws `ActivateInstance failed` with
+`Not implemented` in the packaged x64 host, before `initNativeView`. Do not
+treat the projected class's presence as usable activation. The working
+stock-engine probe returns a native Grid as the NativeScript view root,
+appends an `XamlReader.Load` TabView to it, and connects selection events after
+mounting:
+
+```ts
+import { Microsoft } from '@octane-xplat/platform/windows'
+
+const root = new Microsoft.UI.Xaml.Controls.Grid()
+const tabs = Microsoft.UI.Xaml.Markup.XamlReader.Load(`
+<TabView xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  IsAddTabButtonVisible="False">
+  <TabViewItem Header="First" IsClosable="False" />
+  <TabViewItem Header="Second" IsClosable="False" />
+</TabView>`)
+root.Children.Append(tabs)
+// Return root from createNativeView; retain tabs for the controller.
+```
+
+That hosting path exposes native TabItem/SelectionItem peers and delivers
+selection callbacks through UIA Select and mouse input. Stock Right Arrow
+moves focus past disabled tabs without changing selection; the public adapter
+must supply automatic selection and preserve its controlled-value contract.
+The tested host lacks `__nsConstructWinRTSubclass` and `__nsWrapWinRTPointer`,
+so current upstream subclass source is not proof of that binary's capability.
+Look up `scenario:windows-core20-tabs-stock-peer` in Silo for the exact source,
+runtime evidence and failed alternatives. This engine result does not qualify
+public TabList/Tab. Recheck activation after changing the Windows runtime.
+
+During NativeScript native setup on that binary, the tested JavaScript
+`TabItems.InsertAt` and `Append` paths fail with HRESULT `0x80004005`, including
+stock/minimal item templates, string/framework headers and an explicitly typed
+index. Named items declared inside the loaded XAML support framework headers
+without those collection calls:
+
+```ts
+const tabs = Microsoft.UI.Xaml.Markup.XamlReader.Load(`
+<TabView xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  IsAddTabButtonVisible="False">
+  <TabViewItem x:Name="FirstItem" IsClosable="False" />
+</TabView>`)
+const first = tabs.FindName('FirstItem')
+first.Header = new Microsoft.UI.Xaml.Controls.Grid()
+```
+
+The bounded named-item probe establishes genuine peers and nonempty framework
+header frames with the stock item template. It does not establish a custom
+template, keyboard selection, controlled rejection or structural-update
+lifecycle. Keep those checks with `scenario:windows-core20-tabs-public-adapter`
+in Silo. Reprobe the failed calls after a runtime change before removing a local
+construction workaround; this result does not establish a general collection
+defect in other call contexts.
+
+Defer controlled rollback until the native selection event returns. In the
+pinned host, a render update can occur inside a rollback write and leave the
+container index and item selection flags inconsistent. Reassigning the same
+index in a later task did not repair that state. Retire queued reconciliation
+on unload or native-tree replacement, and check selected peers against both
+the controlled value and displayed panel. The public-adapter Silo record keeps
+the reproduction and runtime boundary.
 
 ## Raster images and avatar names
 
@@ -241,3 +316,100 @@ The former UI register, lab report, and later qualification report are indexed
 in `local_artifacts`. Use [operational evidence lookup](exploration.md#operational-evidence)
 to retrieve their file paths and provenance. Historical parked/implemented
 counts do not describe current source or close current qualification gates.
+
+## Single-selection controller candidate
+
+Keep finite selection state in `useSelect`; the Windows container selects its
+Windows view explicitly because the native default imports `SelectView.tsrx`
+with an extension. The candidate hosts shared option drawing in named WinUI
+ComboBoxItem slots and measures a transparent collapsed peer over the shared
+trigger. Search, multiple selection, clear, empty lists and grouped options
+retain the shared view and its existing input limits.
+
+```tsx
+import { useState } from 'octane'
+import { Selector } from '@octane-xplat/ui'
+
+export function Choice() {
+  const [value, setValue] = useState<string | null>('first')
+  return <Selector selectionMode="single" value={value} onValueChange={setValue}
+    options={[{ value: 'first', label: 'First' }, { value: 'third', label: 'Third' }]} />
+}
+```
+
+Keep template geometry in the qualification scope. Preserve WinUI's stock outer
+template; a simplified outer template can leave popup options offscreen. Give
+each custom ComboBoxItem template a named `LayoutRoot` Grid with a transparent
+background and `Control.IsTemplateFocusTarget="True"`, with the shared drawing
+inside its stretched ContentPresenter. A presenter-only template left unselected
+framework-content peers without UIA bounds; adding the Grid restored all three
+option frames in the bounded public-component run. Plain string content did not
+exhibit that failure, so a string-only engine probe cannot qualify hosted views.
+
+The pinned host also limits template traversal: `VisualTreeHelper.GetChild`
+returns wrappers whose derived `Name`/`Margin`/`Opacity` members are undefined.
+Reading dependency properties returns boxed references, whose `Value` member was
+also undefined in the tested payload. Borrow typed framework accessors from a
+known native Grid and call them with the base child as `this`. Packaged bounds
+checks verified zeroing the stock negative highlight margin and hiding collapsed
+chrome through these setters. Keep all parts measured, skip the popup subtree,
+and reset only while closed; do not infer the contract from TypeScript casts or
+current upstream source alone.
+
+Stock ComboBox engine probes establish that enabled items must remain keyboard
+focusable and hosted ContentViews need stretched vertical content alignment.
+Do not copy the tab strip's selected-only Tab-stop policy into option items.
+Keep committed selection timing, ignore writes as user intents, defer controlled
+reconciliation until native events unwind, and retire handlers/timers on unload
+and rebuild. Qualify the collapsed chrome reset and option template through the
+public component; a stock-engine pass alone does not qualify them. Keep the
+bounded diagnostic result separate from a fresh source build and final
+current-main qualification.
+
+The maintained [Selector input mode](../../tools/windows-qualification/README.md#run-selector-input-checks)
+keeps its final gate pending independently of these implementation prerequisites.
+
+## Native menu engine constraints
+
+Use a native attached flyout on a loaded, laid-out Microsoft XAML host for
+controller-driven opening. In the pinned runtime, detaching `Button.Flyout`
+and invoking the instance `ShowAt` method lost the process with both Mason and
+Microsoft Grid anchors; retaining native ownership did not repair that path.
+Windows application events identified an access violation in `nativescript.DLL`.
+The static attached-flyout API passed the same keyboard, action, focus and
+dismissal checks. The instance-call failure's underlying cause remains unresolved.
+
+```ts
+import { Microsoft } from '@octane-xplat/platform/windows'
+
+function showNativeMenu(attachedHost: any, menu: any): void {
+  const flyouts = Microsoft.UI.Xaml.Controls.Primitives.FlyoutBase
+  flyouts.SetAttachedFlyout(attachedHost, menu)
+  flyouts.ShowAttachedFlyout(attachedHost)
+}
+```
+
+Named XAML MenuFlyoutItem slots can host framework views through `Tag` and a
+stretched ContentPresenter inside a transparent focus-target Grid. Keep the
+framework content in the native checks; plain-text items do not establish its
+layout or automation behavior.
+
+```xml
+<MenuFlyoutItem x:Name="ActionSlot" MinHeight="32" Padding="0"
+ HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+ <MenuFlyoutItem.Template>
+  <ControlTemplate TargetType="MenuFlyoutItem">
+   <Grid x:Name="LayoutRoot" Background="Transparent" Control.IsTemplateFocusTarget="True">
+    <ContentPresenter Content="{TemplateBinding Tag}"
+     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+   </Grid>
+  </ControlTemplate>
+ </MenuFlyoutItem.Template>
+</MenuFlyoutItem>
+```
+
+This is an engine prerequisite, not public DropdownMenu qualification. A stock
+popup's Menu peer can have an empty name and a width below the trigger's width;
+verify the public label, minimum width, shared trigger, controlled rejection,
+updates and lifecycle separately. Look up `scenario:windows-core20-menu-engine`
+in Silo for the exact private source mappings and retained results.

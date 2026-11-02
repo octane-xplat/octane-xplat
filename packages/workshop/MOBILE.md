@@ -80,7 +80,7 @@ args: { step: 2 },
 
 The shared authoring contract is still version 1. Use the same story IDs,
 controls, fixture cancellation and cleanup as described in the
-[package guide](README.md). Global providers are configured in the consumer's
+[package guide](../../docs/packages/package-workshop.md). Global providers are configured in the consumer's
 workshop configuration and wrap story-specific providers in declaration order:
 
 ```ts

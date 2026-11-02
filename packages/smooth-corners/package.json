@@ -52,7 +52,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
-		"@octane-xplat/macos-renderer": "workspace:*",
+		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",

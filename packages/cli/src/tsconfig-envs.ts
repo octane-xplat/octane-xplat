@@ -86,7 +86,7 @@ export const TYPECHECK_ENVIRONMENTS = {
 		// The renderer's host ambient covers the injected bridge globals
 		// (dlopen, __xplatAppKit, Node-ish process/console). The AppKit class
 		// surface itself is module-scoped now — @octane-xplat/platform/macos.
-		ambient: ['typecheck-globals/macos.d.ts', '../../macos-renderer/src/host-globals.d.ts'],
+		ambient: ['typecheck-globals/macos.d.ts', '../../macos-appkit/src/host-globals.d.ts'],
 	},
 	linux: {
 		compilerOptions: {

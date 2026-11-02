@@ -97,3 +97,22 @@ The site still runs in a browser. Browser integration stays in
 by itself make the docs a native app. See the
 [remaining integration gaps](../../.agents/docs/docs-site.md) before adding a
 platform host or a new browser escape hatch.
+
+## Package documentation
+
+Package guides live in `docs/packages/`; package READMEs link to those pages.
+The `api` Turbo task runs package declaration generation and tooling builds,
+then uses `exports-md` to produce one page per public package in `docs/api/`.
+The reference covers package roots and explicitly named subpaths; wildcard
+implementation paths remain in the installed package declarations.
+These generated pages join the sidebar, search, and agent-readable exports.
+Update TSDoc beside declarations rather than editing the ignored Markdown.
+
+```sh
+bun run turbo run api --filter=@xplat/docs
+bun run build:docs
+```
+
+The docs build depends on this task. Missing declaration targets fail the build;
+packages with no typed exports get a page linking to their usage guide. Development
+preview also generates the reference before starting Vite.

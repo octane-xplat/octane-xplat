@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { createMacOSRoot, type UniversalComponent } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot, type UniversalComponent } from '@octane-xplat/macos-appkit'
 import { NSWindow } from '@octane-xplat/platform/macos'
 
 function Panel() {

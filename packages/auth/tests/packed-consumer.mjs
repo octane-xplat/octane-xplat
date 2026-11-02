@@ -57,8 +57,8 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 		})
 
 		symlinkSync(
-			join(repoRoot, 'packages/macos-renderer'),
-			join(modules, '@octane-xplat/macos-renderer'),
+			join(repoRoot, 'packages/macos-appkit'),
+			join(modules, '@octane-xplat/macos-appkit'),
 			'dir',
 		)
 

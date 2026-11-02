@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { createAppKitGridCellFocus } from './grid-cell-focus.macos'
-import { readGridCells } from '../../../../macos-renderer/src/grid-cells.ts'
+import { readGridCells } from '../../../../macos-appkit/src/grid-cells.ts'
 
 // Combined controller/renderer metadata model, not compiled hooks or native input.
 function fixture() {

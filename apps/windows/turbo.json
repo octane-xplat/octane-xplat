@@ -30,8 +30,8 @@
 			],
 			"cache": false
 		},
-		// Same whole-repo `include` as the mobile program — hash all package
-		// sources, not just declared dependencies.
+		// Imported package sources can resolve through paths outside the app's
+		// dependency edges. Hash them even though only app sources are roots.
 		"typecheck": {
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
 			"passThroughEnv": ["NODE_OPTIONS"],

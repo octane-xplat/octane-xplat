@@ -52,4 +52,4 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 
 - AC6: [Safe-area insets](../../../docs/app/styling.md#safe-area-insets) and the maintained [native CSS warning regression](../../../packages/cli/test/vite-safe-area-css.test.mjs).
 
-- AC7: [Custom builders with unused environments](../../../packages/bamboo/README.md#custom-builders-with-unused-environments) and the maintained [build participation regression](../../../packages/bamboo/tests/build-environments.test.mjs).
+- AC7: [Custom builders with unused environments](../../../docs/packages/package-bamboo.md#custom-builders-with-unused-environments) and the maintained [build participation regression](../../../packages/bamboo/tests/build-environments.test.mjs).

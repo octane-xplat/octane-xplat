@@ -97,13 +97,13 @@ its available width. An explicit height fixes the frame even when the text
 needs more lines; use `maxLines={1}` or `whiteSpace="nowrap"` for one line.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/macos-appkit */
 export function Caption() {
 	return <label text="A caption that can wrap onto another line" style={{ width: 160 }} />
 }
 ```
 
-See the [AppKit renderer](../../../../../packages/macos-renderer/README.md)
+See the [AppKit renderer](../../../../../docs/packages/package-macos-appkit.md)
 for overflow and line-limit behavior.
 
 ## AppKit target and delegate selectors

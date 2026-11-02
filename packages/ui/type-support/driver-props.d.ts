@@ -10,10 +10,10 @@ import type { HostHandler, NativeEvent } from '@octane-xplat/jsx/intrinsics'
  * ListView members; `iosIgnoreSafeArea` on masonview is consumed by the NS
  * masonry view; `onLinkTap` is the NS FormattedString span event.
  *
- * AppKit + GTK (consumed by macos-renderer and linux-gtk-renderer, not by the
+ * AppKit + GTK (consumed by macos-appkit and linux-gtk-renderer, not by the
  * NativeScript drivers): scrollview `horizontal` (AppKit index.ts ~4882/5164 —
  * NS uses `orientation`); webview `scrollEnabled`/`matchContents`/
- * `onLayoutContent`/`html`/`onLoad`/`onError` (macos-renderer/src/webview.ts
+ * `onLayoutContent`/`onMessage`/`html`/`onLoad`/`onError` (macos-appkit/src/webview.ts
  * ~179/214/271; linux-gtk-renderer/src/webview-instance.ts); textfield/textview
  * `value` and `placeholder` (index.ts ~4925–5039 — NS uses `text`/`hint`).
  */

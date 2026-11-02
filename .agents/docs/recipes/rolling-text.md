@@ -24,8 +24,8 @@ property checks from actual OS preference and visual qualification.
 
 ## Documentation
 
-- AC1: [Basic example and options](../../../packages/rolling-text/README.md#options), [maintained counter](../../../packages/rolling-text/examples/RollingTextDemo.tsrx).
-- AC2: [Accessible name](../../../packages/rolling-text/README.md#what-screen-readers-hear), [options](../../../packages/rolling-text/README.md#options), [macOS qualification](../../../packages/rolling-text/UPSTREAM.md#macos-qualification).
-- AC3: [Limits](../../../packages/rolling-text/README.md#limits), [macOS text styles](../../../packages/rolling-text/README.md#macos-text-styles), [macOS qualification](../../../packages/rolling-text/UPSTREAM.md#macos-qualification).
+- AC1: [Basic example and options](../../../docs/packages/package-rolling-text.md#options), [maintained counter](../../../packages/rolling-text/examples/RollingTextDemo.tsrx).
+- AC2: [Accessible name](../../../docs/packages/package-rolling-text.md#what-screen-readers-hear), [options](../../../docs/packages/package-rolling-text.md#options), [macOS qualification](../../../packages/rolling-text/UPSTREAM.md#macos-qualification).
+- AC3: [Limits](../../../docs/packages/package-rolling-text.md#limits), [macOS text styles](../../../docs/packages/package-rolling-text.md#macos-text-styles), [macOS qualification](../../../packages/rolling-text/UPSTREAM.md#macos-qualification).
 
-- AC4: [Native segmentation](../../../packages/rolling-text/README.md#native-text-segmentation), [isolated bundle check](../../../packages/rolling-text/tests/intl.mjs).
+- AC4: [Native segmentation](../../../docs/packages/package-rolling-text.md#native-text-segmentation), [isolated bundle check](../../../packages/rolling-text/tests/intl.mjs).

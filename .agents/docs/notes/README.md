@@ -31,6 +31,7 @@ source before relying on them.
 - [Crypto](crypto.md) — engines, byte/key ownership and qualification
 - [Print/PDF](print.md) — native engines, output ownership and qualification
 - [Stripe checkout](stripe.md) — official SDK bridges, ownership and qualification
+- [Media conversion](media-conversion.md) — still-image versus timed-media ownership, codec packaging, and qualification boundaries
 - [Media library](media-library.md) — PhotoKit/MediaStore implementation and qualification limits
 - [Image engine](image-engine-notes.md)
 - [Input readiness](input-readiness-notes.md)

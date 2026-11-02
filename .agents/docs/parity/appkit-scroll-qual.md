@@ -29,7 +29,7 @@ produced this round (see "Remaining" at the end).
      lifecycle + `controller.closed`), `applicationOpenURLs` (deep links),
      `applicationDidBecomeActive/ResignActive` (appState), `applicationWillTerminate`,
      `applicationDidFinishLaunching` (event pump start).
-   - `HoverTrackingTarget` (`macos-renderer`): `respondsToSelector` false for
+   - `HoverTrackingTarget` (`macos-appkit`): `respondsToSelector` false for
      `mouseEntered:`/`mouseExited:`/`mouseMoved:` → `:hover`, `observeHover`
      (Tooltip/Hoverable) and `observePointerMotion` (Chart) dispatch dead.
    - `ObjCExposedMethods` alone does **not** register a method; its keys need
@@ -144,5 +144,5 @@ needs each rich-text package's `build:assets` (`turbo run build:assets
 - Sticky-column physical offset, resize-handle gestures/AX splitter, Outline
   scroll-spy behavior, Tokenizer clipping count, box-shadow/outlines,
   reduced-motion live preference, per-window `@media`.
-- `macos-renderer` authored suites have 17 pre-existing vm-realm failures
+- `macos-appkit` authored suites have 17 pre-existing vm-realm failures
   owned elsewhere; `check:docs`/`doc-examples`/`recipes` not re-run here.

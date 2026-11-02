@@ -7,6 +7,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { basename, join, relative, sep } from 'node:path'
+import { chunkMarkdown } from '@octane-xplat/docs-search/chunks'
 
 // Repo-relative doc corpus → corpus label. Current internal records live in
 // .agents/; the final two roots keep historical release snapshots readable.
@@ -71,11 +72,27 @@ export function listDocs(rootDir) {
 			docs.push({ path: rel, corpus, root: dir, file })
 		}
 	}
+	for (const path of ['CHANGELOG.md', 'FIXLOG.md', 'packages/tsrx-typegen/CHANGELOG.md']) {
+		const file = join(rootDir, path)
+		if (existsSync(file)) {
+			docs.push({ path, corpus: 'changelog', root: rootDir, file })
+		}
+	}
+	const packages = join(rootDir, 'packages')
+	if (existsSync(packages)) {
+		for (const name of readdirSync(packages)) {
+			const path = `packages/${name}/README.md`
+			const file = join(rootDir, path)
+			if (existsSync(file)) {
+				docs.push({ path, corpus: 'readme', root: rootDir, file })
+			}
+		}
+	}
 
-	return docs
+	return docs.sort((a, b) => a.path.localeCompare(b.path))
 }
 
-function platformsOf(path, content) {
+export function platformsOf(path, content) {
 	const hay = `${path}\n${content.slice(0, 2000)}`.toLowerCase()
 	return PLATFORMS.filter((p) => new RegExp(`\\b${p}\\b`).test(hay))
 }
@@ -93,16 +110,48 @@ function excerpt(content, needle) {
  * Exact/token search over a snapshot's doc corpus. Phrase hits rank above
  * all-token hits; design notes and recipes keep their corpus label.
  */
-export function searchDocs(rootDir, { query, corpus, platform, limit = 10 }) {
+export function searchDocs(rootDir, { query, corpus, platform, limit = 10, packageDir }) {
 	const needle = query.trim().toLowerCase()
 	const tokens = needle.split(/\s+/).filter(Boolean)
 	const scored = []
 	for (const doc of listDocs(rootDir)) {
+		if (doc.corpus === 'changelog' && packageDir) {
+			const separateTrack = packageDir === 'packages/tsrx-typegen'
+			if (separateTrack !== (doc.path === 'packages/tsrx-typegen/CHANGELOG.md')) {
+				continue
+			}
+		}
+
+		if (packageDir && doc.corpus === 'readme' && doc.path !== `${packageDir}/README.md`) {
+			continue
+		}
+
 		if (corpus && doc.corpus !== corpus) {
 			continue
 		}
 
 		const content = readFileSync(doc.file, 'utf8')
+		if (doc.corpus === 'changelog') {
+			for (const chunk of chunkMarkdown({ path: doc.path, corpus: doc.corpus, content })) {
+				if (platform && !platformsOf(doc.path, chunk.content).includes(platform)) {
+					continue
+				}
+
+				const hay = `${chunk.heading}\n${chunk.content}`.toLowerCase()
+				const hits = tokens.filter((token) => hay.includes(token)).length
+				if (hits) {
+					scored.push({
+						doc,
+						content: chunk.content,
+						chunk,
+						score: hits + (hay.includes(needle) ? 100 : 0),
+					})
+				}
+			}
+
+			continue
+		}
+
 		const hay = `${doc.path}\n${titleOf(content, doc.path)}\n${content}`.toLowerCase()
 		if (platform && !platformsOf(doc.path, content).includes(platform)) {
 			continue
@@ -127,12 +176,21 @@ export function searchDocs(rootDir, { query, corpus, platform, limit = 10 }) {
 	}
 
 	scored.sort((a, b) => b.score - a.score)
-	return scored.slice(0, limit).map(({ doc, content }) => ({
+	return scored.slice(0, limit).map(({ doc, content, chunk }) => ({
 		path: doc.path,
 		corpus: doc.corpus,
 		title: titleOf(content, doc.path),
 		platforms: platformsOf(doc.path, content),
 		...excerpt(content, needle),
+		...(chunk
+			? {
+					line: chunk.line,
+					endLine: chunk.endLine,
+					heading: chunk.heading,
+					releaseVersion: chunk.releaseVersion,
+					releaseDate: chunk.releaseDate,
+				}
+			: {}),
 	}))
 }
 

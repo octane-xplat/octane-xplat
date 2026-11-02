@@ -7,10 +7,12 @@ param(
  [switch]$AllowDirtyProbe,
  [switch]$DisplayActions,
  [ValidateSet('all','clickable-card','banner-action','banner-dismiss')][string]$DisplayActionCase='all',
- [switch]$ListItemActions
+ [switch]$ListItemActions,
+ [switch]$TabActions,
+ [switch]$SelectorActions
 )
 $ErrorActionPreference='Stop'
-if($DisplayActions -and $ListItemActions){throw 'Choose one action mode per run'}
+if(([int][bool]$DisplayActions + [int][bool]$ListItemActions + [int][bool]$TabActions + [int][bool]$SelectorActions) -gt 1){throw 'Choose one action mode per run'}
 if($DisplayActionCase -ne 'all' -and -not $DisplayActions){throw 'DisplayActionCase requires DisplayActions'}
 Add-Type @'
 using System;
@@ -619,13 +621,270 @@ function Check-DisplayActions {
   finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry);Save-CaseProgress}
  }
 }
+function Reset-Tabs([int]$Revision=0){
+ Command 'mounted' $false|Out-Null
+ Command 'revision' $Revision|Out-Null
+ Command 'disabled' $false|Out-Null
+ Command 'scene' 'tabs'|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains ("revision=$Revision mounted=true")
+}
+function Tab-Shape($Tree,[string]$Name,[bool]$Enabled=$true){
+ $tabs=@($Tree|Where-Object {$_.type -eq 'ControlType.TabItem'})
+ $tab=Named $tabs $Name
+ Assert (Finite $tab) "TabItem $Name has visible finite bounds" $tab
+ Assert ($tab.patterns -contains 'SelectionItemPatternIdentifiers.Pattern') "TabItem $Name exposes SelectionItem" $tab.patterns
+ Assert ($tab.enabled -eq $Enabled) "TabItem $Name has expected enabled state" $tab.enabled
+ return $tab
+}
+function Tab-State([string]$Value,[int]$Revision,[string]$Stage){
+ $tree=Capture $Stage
+ $tabs=@($tree|Where-Object {$_.type -eq 'ControlType.TabItem'})
+ Assert ($tabs.Count -eq 3) 'The public TabList exposes exactly three TabItem peers' $tabs.Count
+ $name=if($Value -eq 'first'){"First $Revision"}else{"Third $Revision"}
+ $selected=@($tabs|Where-Object {$_.selected})
+ Assert ($selected.Count -eq 1 -and $selected[0].name -ceq $name) "Controlled UIA selection is $name" $selected
+ Named $tree ("Tabs selected $Value")|Out-Null
+ Named $tree ("Panel $Value revision $Revision")|Out-Null
+ return ,$tree
+}
+function Tab-Stop([string]$Selected){
+ Focus-Action 'Before tabs' 'ControlType.Button'
+ Key 9
+ Wait-For {Focused $Selected} "Tab did not enter selected $Selected"
+ Assert $true 'A physical Tab enters the selected tab'
+ Key 9
+ Wait-For {Focused 'After tabs'} 'Tab did not leave the composite after one stop'
+ Assert $true 'The tab composite has one forward Tab stop'
+ Key 9 $true
+ Wait-For {Focused $Selected} 'Shift+Tab did not return to selected tab'
+ Assert $true 'A physical Shift+Tab enters the selected tab'
+ Key 9 $true
+ Wait-For {Focused 'Before tabs'} 'Shift+Tab did not leave the composite after one stop'
+ Assert $true 'The tab composite has one backward Tab stop'
+}
+function No-TabRequest([string]$InputKind,[scriptblock]$Action){
+ $before=@(Read-Events|Where-Object {$_.event -eq 'activation' -and $_.source -like 'tab-selection:*'}).Count
+ & $Action
+ Start-Sleep -Milliseconds 500
+ $after=@(Read-Events|Where-Object {$_.event -eq 'activation' -and $_.source -like 'tab-selection:*'}).Count
+ Assert ($after -eq $before) "Disabled tab rejects $InputKind without any selection callback" @{before=$before;after=$after}
+}
+function Check-TabActions {
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='public-tabs';status='running';checks=$null;error=$null}
+ try{
+  Reset-Tabs
+  Snapshot 'public-tabs-native'|Out-Null
+  $tree=Tab-State 'first' 0 'public-tabs-default'
+  $first=Tab-Shape $tree 'First 0'
+  $disabled=Tab-Shape $tree 'Unavailable' $false
+  $third=Tab-Shape $tree 'Third 0'
+  Assert ($first.x+$first.width*$script:Scale -le $disabled.x+2*$script:Scale -and $disabled.x+$disabled.width*$script:Scale -le $third.x+2*$script:Scale) 'Tab headers are ordered without overlap' @($first,$disabled,$third)
+  Assert (-not $disabled.focusable) 'Disabled tab is not keyboard focusable' $disabled
+  Tab-Stop 'First 0'
+  Exactly-Once 'tab-selection:third' 'mouse' {Click-Control $third}
+  Tab-State 'third' 0 'public-tabs-mouse-third'|Out-Null
+  Tab-Stop 'Third 0'
+  Exactly-Once 'tab-selection:first' 'mouse' {Click-Control $first}
+  Focus-Action 'First 0' 'ControlType.TabItem'
+  Exactly-Once 'tab-selection:third' 'Right Arrow' {Key 39}
+  Tab-State 'third' 0 'public-tabs-right'|Out-Null
+  Wait-For {Focused 'Third 0'} 'Right Arrow did not focus third after skipping disabled'
+  Assert $true 'Arrow selection focuses its enabled destination'
+  Exactly-Once 'tab-selection:first' 'Left Arrow' {Key 37}
+  Tab-State 'first' 0 'public-tabs-left'|Out-Null
+  Exactly-Once 'tab-selection:third' 'End' {Key 35}
+  Tab-State 'third' 0 'public-tabs-end'|Out-Null
+  Exactly-Once 'tab-selection:first' 'Home' {Key 36}
+  Tab-State 'first' 0 'public-tabs-home'|Out-Null
+  Exactly-Once 'tab-selection:third' 'UIA Select' {$r=Uia-Action 'select' 'Third 0' 'ControlType.TabItem';Assert ($r.status -eq 'completed') 'SelectionItem.Select completes' $r}
+  Tab-State 'third' 0 'public-tabs-selected-third'|Out-Null
+  No-TabRequest 'mouse' {Click-Control $disabled}
+  No-TabRequest 'UIA Select' {$r=Uia-Action 'select' 'Unavailable' 'ControlType.TabItem';$entry.disabledSelectStatus=$r.status}
+  $r=Uia-Action 'focus' 'Unavailable' 'ControlType.TabItem'
+  Assert (-not $r.targetFocused) 'Disabled tab rejects UIA focus' $r
+  Tab-State 'third' 0 'public-tabs-disabled-selection-unchanged'|Out-Null
+  Command 'revision' 1|Out-Null
+  $updated=Tab-State 'third' 1 'public-tabs-updated'
+  Tab-Shape $updated 'First 1'|Out-Null
+  Assert (@($updated|Where-Object {$_.type -eq 'ControlType.TabItem' -and $_.name -in @('First 0','Third 0')}).Count -eq 0) 'Prop update replaces old accessible names'
+  Exactly-Once 'tab-selection:first' 'updated Select' {Uia-Action 'select' 'First 1' 'ControlType.TabItem'|Out-Null}
+  Assert-DisplayRevision 'tab-selection:first' 1
+  Tab-State 'first' 1 'public-tabs-updated-selection'|Out-Null
+  Command 'revision' 2|Out-Null
+  Tab-State 'first' 2 'public-tabs-rejecting-default'|Out-Null
+  Exactly-Once 'tab-selection:third' 'controlled rejection' {Uia-Action 'select' 'Third 2' 'ControlType.TabItem'|Out-Null}
+  Assert-DisplayRevision 'tab-selection:third' 2
+  Tab-State 'first' 2 'public-tabs-controlled-rejection'|Out-Null
+  Focus-Action 'First 2' 'ControlType.TabItem'
+  Exactly-Once 'tab-selection:third' 'rejected Right Arrow' {Key 39}
+  Tab-State 'first' 2 'public-tabs-controlled-arrow-rejection'|Out-Null
+  Command 'disabled' $true|Out-Null
+  $allDisabled=Capture 'public-tabs-disabled-third'
+  $disabledThird=Tab-Shape $allDisabled 'Third 2' $false
+  No-TabRequest 'disabled mouse' {Click-Control $disabledThird}
+  No-TabRequest 'disabled Select' {$r=Uia-Action 'select' 'Third 2' 'ControlType.TabItem';$entry.updatedDisabledSelectStatus=$r.status}
+  Tab-State 'first' 2 'public-tabs-updated-disabled-selection-unchanged'|Out-Null
+  Tab-Stop 'First 2'
+  Command 'mounted' $false|Out-Null
+  Status-Contains 'mounted=false'
+  $absent=Capture 'public-tabs-unmounted'
+  Assert (@($absent|Where-Object {$_.type -eq 'ControlType.TabItem'}).Count -eq 0) 'Unmount releases all tab peers'
+  Reset-Tabs
+  Tab-State 'first' 0 'public-tabs-remounted'|Out-Null
+  Exactly-Once 'tab-selection:third' 'remounted Select' {Uia-Action 'select' 'Third 0' 'ControlType.TabItem'|Out-Null}
+  Assert-DisplayRevision 'tab-selection:third' 0
+  Tab-State 'third' 0 'public-tabs-remounted-third'|Out-Null
+  Tab-Stop 'Third 0'
+  $entry.status='assertions-passed'
+ }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+}
+
+function Reset-Selector([int]$Revision=0){
+ Command 'mounted' $false|Out-Null
+ Command 'revision' $Revision|Out-Null
+ Command 'disabled' $false|Out-Null
+ Command 'scene' 'selector'|Out-Null
+ Command 'mounted' $true|Out-Null
+ Status-Contains ("revision=$Revision mounted=true")
+}
+function Selector-Shape([int]$Revision,[string]$Stage,[bool]$Enabled=$true){
+ $tree=Capture $Stage
+ $peer=Named @($tree|Where-Object {$_.type -eq 'ControlType.ComboBox'}) ("Choice $Revision")
+ Assert (Finite $peer) 'Selector ComboBox has finite visible bounds' $peer
+ Assert ($peer.patterns -contains 'ExpandCollapsePatternIdentifiers.Pattern') 'Selector exposes ExpandCollapse' $peer.patterns
+ Assert ($peer.enabled -eq $Enabled) 'Selector has expected enabled state' $peer.enabled
+ $nodes=Snapshot $Stage
+ $root=Native-Id $nodes 'core20-selector'
+ Assert ((Near ($peer.x/$script:Scale) $root.box.x) -and (Near ($peer.y/$script:Scale) $root.box.y) -and (Near $peer.width $root.box.width) -and (Near $peer.height $root.box.height)) 'ComboBox covers the shared trigger drawing' @{peer=$peer;drawn=$root.box}
+ return $peer
+}
+function Selector-Open([int]$Revision,[string]$Stage){
+ $tree=Capture $Stage
+ $items=@($tree|Where-Object {$_.type -eq 'ControlType.ListItem'})
+ Assert ($items.Count -eq 3) 'Selector exposes three genuine ListItem option peers' $items.Count
+ foreach($name in @("First $Revision",'Unavailable',"Third $Revision")){
+  $item=Named $items $name
+  Assert (Finite $item) "Option $name has visible finite bounds" $item
+  Assert ($item.patterns -contains 'SelectionItemPatternIdentifiers.Pattern') "Option $name exposes SelectionItem" $item.patterns
+ }
+ $first=Named $items ("First $Revision");$third=Named $items ("Third $Revision");$disabled=Named $items 'Unavailable'
+ Assert (-not $disabled.enabled -and -not $disabled.focusable) 'Disabled option rejects native focus' $disabled
+ Assert ($first.y+$first.height*$script:Scale -le $disabled.y+2*$script:Scale -and $disabled.y+$disabled.height*$script:Scale -le $third.y+2*$script:Scale) 'Option rows are ordered without overlap' $items
+ $nodes=Snapshot ($Stage+'-content')
+ foreach($value in @('first','disabled','third')){
+  $content=Native-Id $nodes ('core20-selector-option-'+$value)
+  Assert ($content.box.width -gt 0 -and $content.box.height -gt 0) "Shared option content $value has nonempty bounds" $content.box
+ }
+ return ,$items
+}
+function Selector-ClosedRequests {
+ return @(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'layer-open-change' -and $_.source -eq 'selector' -and $_.open -eq $false}).Count
+}
+function Selector-Values {
+ return @(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -like 'selector-value:*'}).Count
+}
+function Selector-State([string]$Value,[bool]$Open,[string]$Stage){
+ $tree=Capture $Stage
+ Named $tree ("Selector value=$Value open="+$Open.ToString().ToLowerInvariant())|Out-Null
+}
+function Check-SelectorActions {
+ $script:Checks.Clear()
+ $entry=[ordered]@{case='public-selector-single';status='running';checks=$null;error=$null}
+ try{
+  Reset-Selector
+  $trigger=Selector-Shape 0 'selector-initial'
+  Focus-Action 'Before selector' 'ControlType.Button';Key 9
+  Wait-For {Focused 'Choice 0'} 'Tab did not focus Selector'
+  Key 9;Wait-For {Focused 'After selector'} 'Tab did not leave Selector after one stop'
+  Assert $true 'Selector contributes one closed Tab stop'
+  Focus-Action 'Choice 0' 'ControlType.ComboBox';Key 115
+  $items=Selector-Open 0 'selector-keyboard-open'
+  $before=Selector-Values
+  $reject=Uia-Action 'select' 'Unavailable' 'ControlType.ListItem'
+  Assert ($reject.status -eq 'rejected') 'Disabled option rejects SelectionItem.Select' $reject
+  Click-Control (Named $items 'Unavailable')
+  Assert ((Selector-Values) -eq $before) 'Disabled option mouse and selection requests do not commit'
+  Selector-State 'first' $true 'selector-open-model'
+  $before=Selector-Values;Key 40;Start-Sleep -Milliseconds 400
+  Assert ((Selector-Values) -eq $before) 'Arrow navigation previews without committing' (Selector-Values)
+  Exactly-Once 'selector-value:third' 'Down then Enter' {Key 13}
+  Selector-State 'third' $false 'selector-enter-commit'
+  Wait-For {Focused 'Choice 0'} 'Commit did not return focus to ComboBox'
+  Click-Control $trigger
+  $items=Selector-Open 0 'selector-mouse-open'
+  Exactly-Once 'selector-value:first' 'mouse option' {Click-Control (Named $items 'First 0')}
+  Selector-State 'first' $false 'selector-mouse-commit'
+  Focus-Action 'Choice 0' 'ControlType.ComboBox';Key 115
+  Selector-Open 0 'selector-before-escape'|Out-Null
+  $before=Selector-Values;$closedBefore=Selector-ClosedRequests;Key 40;Key 27
+  Selector-State 'first' $false 'selector-escape'
+  Assert ((Selector-Values) -eq $before) 'Escape cancels preview without committing'
+  Assert ((Selector-ClosedRequests) -eq $closedBefore+1) 'Escape reports one close request'
+  Wait-For {Focused 'Choice 0'} 'Escape did not return focus to ComboBox'
+  Click-Control $trigger;Selector-Open 0 'selector-before-outside'|Out-Null
+  $outside=Named @((Capture 'selector-outside-target')|Where-Object {$_.type -eq 'ControlType.Button'}) 'Before selector'
+  $closedBefore=Selector-ClosedRequests;Click-Control $outside;Selector-State 'first' $false 'selector-outside-dismiss'
+  Assert ((Selector-ClosedRequests) -eq $closedBefore+1) 'Outside dismissal reports one close request'
+  Focus-Action 'Choice 0' 'ControlType.ComboBox';Key 115
+  Selector-Open 0 'selector-before-update'|Out-Null
+  Command 'revision' 1|Out-Null
+  Selector-Shape 1 'selector-updated-trigger'|Out-Null
+  Selector-Open 1 'selector-updated-open-options'|Out-Null
+  Exactly-Once 'selector-value:first' 'updated SelectionItem.Select' {$r=Uia-Action 'select' 'First 1' 'ControlType.ListItem';Assert ($r.status -eq 'completed') 'Updated native selection completed' $r}
+  Selector-State 'first' $false 'selector-updated-commit'
+  $events=@(Read-Events|Where-Object {$_.bootId -eq $script:Boot.bootId -and $_.event -eq 'activation' -and $_.source -eq 'selector-value:first'})
+  Assert ($events[-1].fixtureRevision -eq 1) 'Retained selection reads the current callback revision' $events[-1]
+  Reset-Selector 2
+  Focus-Action 'Choice 2' 'ControlType.ComboBox';Key 115
+  Selector-Open 2 'selector-rejected-open'|Out-Null
+  Exactly-Once 'selector-value:third' 'controlled rejection' {Key 40;Key 13}
+  Selector-State 'first' $false 'selector-rejected-value'
+  Command 'disabled' $true|Out-Null
+  $disabled=Selector-Shape 2 'selector-disabled' $false
+  $before=Selector-Values
+  $focus=Uia-Action 'focus' 'Choice 2' 'ControlType.ComboBox'
+  Assert ($focus.status -eq 'rejected') 'Disabled Selector rejects UIA focus' $focus
+  Click-Control $disabled;Selector-State 'first' $false 'selector-disabled-mouse'
+  Assert ((Selector-Values) -eq $before) 'Disabled Selector rejects pointer selection'
+  Focus-Action 'Before selector' 'ControlType.Button';Key 9
+  Wait-For {Focused 'After selector'} 'Tab did not skip disabled Selector'
+  Key 115;Selector-State 'first' $false 'selector-disabled-keys'
+  Assert ((Selector-Values) -eq $before) 'Disabled Selector is skipped by Tab and stays closed on keys'
+  Command 'mounted' $false|Out-Null
+  $absent=Capture 'selector-unmounted'
+  Assert (@($absent|Where-Object {$_.type -in @('ControlType.ComboBox','ControlType.ListItem')}).Count -eq 0) 'Unmount removes ComboBox and option peers'
+  Reset-Selector
+  Selector-Shape 0 'selector-remounted'|Out-Null
+  Selector-State 'first' $false 'selector-remounted-default'
+  Focus-Action 'Choice 0' 'ControlType.ComboBox';Key 115
+  Selector-Open 0 'selector-remounted-open'|Out-Null
+  Exactly-Once 'selector-value:third' 'remounted Enter' {Key 40;Key 13}
+  Selector-State 'third' $false 'selector-remounted-commit'
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$narrowWidth,$height,$true)){throw 'Cannot narrow the owned Selector window'}
+  $narrow=Selector-Shape 0 'selector-narrow'
+  Assert ($narrow.width -lt $trigger.width) 'Selector trigger and native input peer shrink together' @{wide=$trigger.width;narrow=$narrow.width}
+  Focus-Action 'Choice 0' 'ControlType.ComboBox';Key 115
+  Selector-Open 0 'selector-narrow-open'|Out-Null
+  Key 27
+  if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot restore the owned Selector window'}
+  $wide=Selector-Shape 0 'selector-wide-restored'
+  Assert (Near $wide.width $trigger.width) 'Selector restores its measured peer after widening' @{before=$trigger.width;after=$wide.width}
+
+  $entry.status='assertions-passed'
+ }catch{$entry.status='failed';$entry.error=$_.Exception.Message}
+ finally{$entry.checks=@($script:Checks.ToArray());$script:Cases.Add([pscustomobject]$entry)}
+}
+
 $report=[ordered]@{
  schemaVersion=1;packageVersion=$pkg.Version.ToString();packageFamilyName=$pkg.PackageFamilyName
  driverSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
  actionHelperSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'action-uia.ps1') -Algorithm SHA256).Hash
  readerSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'capture-uia.ps1') -Algorithm SHA256).Hash
  expectedCommit=$ExpectedCommit;allowDirtyProbe=[bool]$AllowDirtyProbe;displayActionCase=$DisplayActionCase
- scope=$(if($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
+ scope=$(if($SelectorActions){'Public single Selector: ComboBox/SelectionItem peers, shared drawing bounds, keyboard/mouse commit, Escape/focus, outside dismissal, updates, controlled rejection, disabled, remount and trigger resize. Search/multiple/clear and full props, long lists and final fresh-main core20 qualification remain separate.'}elseif($TabActions){'Public panel TabList/Tab: genuine TabItem/SelectionItem, one Tab stop, OS arrows/mouse, disabled behavior, updates, controlled rejection, and unmount/remount. Does not establish structural insertion/reordering, rich-slot geometry, overflow resizing, or final fresh-install core20 qualification.'}elseif($DisplayActions){'ClickableCard, Banner end action and dismissal: real Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, frame alignment, resize and applicable disabled rejection. Does not replace display content/geometry qualification.'}elseif($ListItemActions){'ListItem input prerequisite: real Tab/Shift+Tab/Enter/Space/mouse/Invoke, exactly-once callbacks, current revision, unmount/remount, peer/drawing frames, resize and disabled rejection. Does not qualify List/ListItem structural roles, slot geometry, navigation or the wider props matrix; final core20 gates remain pending.'}else{'Action shape, sibling gap/order, native-peer frame alignment, resize, real Tab/Enter/Space/mouse/Invoke, prop updates, implicit names, unmount/remount, disabled focus/keys/Tab/mouse/Invoke, Link injected navigation callback. Diagnostic source build; final clean-main core20 qualification remains pending.'})
  qualification='pending';source=$null;launchId=$null;architecture=$pkg.Architecture.ToString();masonSha256=$null;preflightChecks=$null;cases=$script:Cases;error=$null
 }
 if($DisplayActions -and $DisplayActionCase -ne 'all'){$report.scope=('Selected '+$DisplayActionCase+' only. '+$report.scope)}
@@ -683,7 +942,11 @@ try {
  $report.masonSha256=(Get-FileHash $mason[0].FileName -Algorithm SHA256).Hash
  $report.preflightChecks=@($script:Checks.ToArray())
  if(-not [Core20Desktop]::MoveWindow($windowHandle,$left,$top,$wideWidth,$height,$true)){throw 'Cannot set the wide window size'}
- if($DisplayActions){
+ if($SelectorActions){
+  Check-SelectorActions
+ }elseif($TabActions){
+  Check-TabActions
+ }elseif($DisplayActions){
   Check-DisplayActions
  }elseif($ListItemActions){
   Check-ListItemActions

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// Transform the generated macOS SDK ambient decls (packages/macos-renderer/types)
+// Transform the generated macOS SDK ambient decls (packages/macos-appkit/types)
 // into module-scoped decls under platform/src/types/macos/. Each ambient file
 // becomes a same-named module file: every top-level `declare` gains `export`,
 // and identifiers the file uses that another SDK file declares become
@@ -20,7 +20,7 @@ import ts from 'typescript'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const pkgDir = join(__dirname, '..')
-const sdkSrc = join(pkgDir, '../macos-renderer/types')
+const sdkSrc = join(pkgDir, '../macos-appkit/types')
 const outDir = join(pkgDir, 'src/types/macos')
 const require = createRequire(import.meta.url)
 
@@ -328,7 +328,7 @@ function collectUsage(sf) {
 // ---------------------------------------------------------------------------
 
 const objcApi = require.resolve('@nativescript/objc-node-api/index.d.ts', {
-	paths: [join(pkgDir, '../macos-renderer')],
+	paths: [join(pkgDir, '../macos-appkit')],
 })
 
 const apiText = readFileSync(objcApi, 'utf8')

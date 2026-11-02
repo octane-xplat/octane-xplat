@@ -14,7 +14,7 @@
 		"**/vendor/**",
 		"packages/lingui/types/**",
 		"packages/platform/src/types/macos*/**",
-		"packages/macos-renderer/types/**"
+		"packages/macos-appkit/types/**"
 	],
 	"jsPlugins": ["./packages/lint/src/oxlint-plugin.ts"],
 	"rules": {

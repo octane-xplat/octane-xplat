@@ -100,3 +100,42 @@ Link has no public disabled prop; injected navigation and external URL launching
 need separate evidence. The Windows-only no-callback Tab-stop guard also needs
 inclusion in the next source build. Source/controller tests do not establish a
 packaged path that has not been run.
+
+## Native panel-tab contracts
+
+Use the [Windows panel-tab example](../../../docs/platform/windows-setup.md#panel-tabs-candidate)
+for controlled local panels and the maintained
+[tab action mode](../../../tools/windows-qualification/README.md#run-panel-tab-checks)
+for native selection, OS input and lifecycle checks. Keep the
+[WinUI construction constraints](../windows-ui.md#native-tab-semantics)
+beside the adapter; projected class presence and mocked events do not establish
+usable native peers.
+
+Read the bounded public-adapter record independently of the final component gate:
+
+```sh
+silo row get windows_checks scenario:windows-core20-tabs-public-adapter
+silo row get windows_checks scenario:windows-os-tab-list
+```
+
+Retain failed UIA/model selection mismatches. Header drawing, native selection,
+panel content and Tab order need separate assertions; a callback alone does not
+prove they agree. Structural updates, rich-slot geometry, overflow, panel
+relations and the full fresh-main run remain separate qualification work.
+
+## Native single-selection contracts
+
+Use the [Windows Selector example](../../../docs/platform/windows-setup.md#single-selection-candidate)
+and [Selector input mode](../../../tools/windows-qualification/README.md#run-selector-input-checks)
+for the finite single-choice path. Keep framework option content in the packaged
+checks: a plain-string ComboBox can expose valid popup bounds while a custom
+hosted-content template fails. Preserve the focus-target Grid and typed chrome
+accessors described in the [selection constraints](../windows-ui.md#single-selection-controller-candidate).
+
+```sh
+silo row get windows_checks scenario:windows-core20-selector-input
+silo row get windows_checks scenario:windows-os-selector
+```
+
+A bounded diagnostic pass does not qualify search, multiple selection, grouped
+or long lists, the full props matrix, Narrator or the final fresh-main package.

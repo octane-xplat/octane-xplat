@@ -20,7 +20,7 @@ const nonce = random.bytes(16)
 
 ## Tracking consent and advertising identifiers
 
-Use the [tracking authorization guide](../../../../../packages/tracking-transparency/README.md)
+Use the [tracking authorization guide](../../../../../docs/packages/package-tracking-transparency.md)
 for Expo-shaped permission methods and an Octane hook. Request only from an
 explicit foreground app action after configuring the iOS purpose string; never
 request in startup effects. Read status without prompting, preserve denied and

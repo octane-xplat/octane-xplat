@@ -33,7 +33,7 @@ test('owned-content adapter handles nested tabs and lists and excludes its own i
 		null,
 	)
 
-	assert.equal(transform(source, '/packages/macos-renderer/src/portal-components.macos.tsx'), null)
+	assert.equal(transform(source, '/packages/macos-appkit/src/portal-components.macos.tsx'), null)
 	assert.equal(transform('const label = "tabviewitem"', '/src/App.tsx'), null)
 	assert.equal(transform(source, '/src/notes.md'), null)
 	assert.ok(transform('const empty = <tabviewitem title="Empty" />', '/src/App.tsx'))

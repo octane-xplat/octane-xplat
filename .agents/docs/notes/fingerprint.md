@@ -4,7 +4,7 @@
 hash and diff APIs. It uses a NativeScript collector because Expo Fingerprint's
 automatic sources describe React Native/Expo projects; extra sources augment
 that collector rather than replacing its assumptions. The public workflow is
-in the [package guide](../../../packages/fingerprint/README.md) and
+in the [package guide](../../../docs/packages/package-fingerprint.md) and
 [phone updates](../../../docs/app/updates.md).
 
 ## Input contract

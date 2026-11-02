@@ -14,6 +14,7 @@ import type {
 	CameraSession,
 	CameraSessionCapabilities,
 	CameraSessionConfig,
+	CameraSelection,
 	MovieOutput,
 } from './types'
 
@@ -107,6 +108,7 @@ const capabilities: CameraSessionCapabilities = {
 	focusPointOfInterest: true,
 	exposurePointOfInterest: true,
 	orientations: ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight'],
+	cameraSwitchDuringRecording: true,
 	durationLimit: 'native',
 	elapsedTime: 'nativeMedia',
 	output: {
@@ -126,13 +128,19 @@ export function createSyntheticCameraSession(
 	storage: SyntheticCameraStorage = createMemoryCameraStorage(),
 ): CameraSession {
 	const controls: SyntheticCameraScript = { ...defaultScript(), ...script }
-	return new SharedCameraSession(createSyntheticBackend(controls, storage), config)
+	return new SharedCameraSession(createSyntheticBackend(controls, storage, config), config)
 }
 
 function createSyntheticBackend(
 	script: SyntheticCameraScript,
 	storage: SyntheticCameraStorage,
+	config: CameraSessionConfig,
 ): CameraSessionBackend {
+	const selection = (camera: CameraSelection | undefined) =>
+		capabilities.cameras.find((entry) =>
+			typeof camera === 'object' ? entry.id === camera.deviceId : entry.facing === camera,
+		) ?? capabilities.cameras[0]!
+	let selected = selection(config.camera)
 	let observer: BackendObserver | undefined
 	let attached = false
 	let sink: BackendCaptureSink | undefined
@@ -252,6 +260,30 @@ function createSyntheticBackend(
 			reason: script.available ? undefined : 'Synthetic camera is unavailable',
 		}),
 		previewReady: () => attached && script.available,
+		configure: (next) => {
+			selected = selection(next.camera)
+		},
+		switchCamera: (camera) => {
+			let cancelled = false
+			const next = selection(camera)
+			return {
+				completion: Promise.resolve().then(() => {
+					if (cancelled) {
+						throw new Error('Synthetic camera switch cancelled')
+					}
+					return { ...next }
+				}),
+				commit: () => {
+					if (cancelled) {
+						throw new Error('Synthetic camera switch cancelled')
+					}
+					selected = next
+				},
+				cancel: () => {
+					cancelled = true
+				},
+			}
+		},
 		focusAtPoint: (point) => {
 			script.focusRequests?.push(point)
 		},
@@ -303,8 +335,8 @@ function createSyntheticBackend(
 			later(script.startDelayMs, () => {
 				startedAt = Date.now()
 				attemptSink.started({
-					cameraId: 'synthetic-back',
-					facing: 'back',
+					cameraId: selected.id,
+					facing: selected.facing,
 					audio: request.audio,
 					width: 1280,
 					height: 720,

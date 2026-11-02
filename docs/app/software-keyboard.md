@@ -55,7 +55,7 @@ export function PausedForm() {
 ```
 
 Keep numeric keyboard space separate from screen padding: an Android window
-may already have resized. The existing [keyboard-space guide](./text-entry.md#read-software-keyboard-space)
+may already have resized. The existing [keyboard-space guide](text-entry.md#read-software-keyboard-space)
 explains that compatibility API. The maintained
 [motion example](../../packages/keyboard/examples/KeyboardMotionDemo.tsrx)
 shows the Provider around a shared form.

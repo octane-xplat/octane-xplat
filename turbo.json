@@ -2,6 +2,16 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"test:docs-search": { "dependsOn": ["build", "^build"], "outputs": [] },
+		"test:model": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"passThroughEnv": ["XPLAT_DOCS_MODEL_CACHE"]
+		},
+		"@octane-xplat/camera#test:web": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		},
 		"//#check:native-readiness": {
 			"cache": false,
 			"passThroughEnv": [

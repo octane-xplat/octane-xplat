@@ -32,7 +32,7 @@ Helper: `scripts/probe/appkit-input.ts` — `postKey`, `postKeys`, `postClick`,
   `[object Object]` so every AppKit probe exited `metadata.nsmd not found`
   before loading the case. Now passes `artifact.metadata[macOSHostArch()]`,
   matching `dev.ts` (`df2d9c7f3`).
-- `packages/macos-renderer`: `setTextFieldPlaceholder` rewrote
+- `packages/macos-appkit`: `setTextFieldPlaceholder` rewrote
   `placeholderAttributedString` on every commit, which ends a focused
   field's AppKit editing session — `controlTextDidEndEditing` → value
   commit → spurious `onBlur` — and the resulting nested render hit
@@ -113,7 +113,7 @@ AppKit host; assertions within remain action-dispatch tier.
 
 ## Not yet run / open
 
-- macos-renderer `test:portals`, `test:overflow`, `test:gestures`;
+- macos-appkit `test:portals`, `test:overflow`, `test:gestures`;
   `@xplat/macos` smoke sweep.
 - IME: marked-text paths proven only through direct `setMarkedText`/
   `unmarkText` calls (T2); a real input-method composition (T3/T4) is

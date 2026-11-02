@@ -97,19 +97,29 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 }
 
 async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<ImageResult> {
-	if (options.format === 'webp') {
-		throw new UnavailabilityError('ImageManipulator WEBP encoding on iOS')
+	const png = options.format === 'jpeg' ? null : UIImagePNGRepresentation(pixels(frame))
+	const codec = (
+		globalThis as unknown as {
+			XplatWebPEncoder?: {
+				encodePNGQuality(data: NSData, quality: number): NSData | null
+			}
+		}
+	).XplatWebPEncoder
+	if (options.format === 'webp' && !codec) {
+		throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
 	}
 	const data =
-		options.format === 'png'
-			? UIImagePNGRepresentation(pixels(frame))
-			: UIImageJPEGRepresentation(pixels(frame), options.compress)
+		options.format === 'webp'
+			? png && codec!.encodePNGQuality(png, options.compress)
+			: options.format === 'png'
+				? png
+				: UIImageJPEGRepresentation(pixels(frame), options.compress)
 	if (!data) {
 		throw new Error('Image encoding failed')
 	}
 	const local = path.join(
 		knownFolders.temp().path,
-		`xplat-image-${NSUUID.UUID().UUIDString}.${options.format === 'jpeg' ? 'jpg' : 'png'}`,
+		`xplat-image-${NSUUID.UUID().UUIDString}.${options.format === 'jpeg' ? 'jpg' : options.format}`,
 	)
 	try {
 		if (!data.writeToFileAtomically(local, true)) {

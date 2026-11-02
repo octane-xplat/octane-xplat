@@ -10,6 +10,8 @@ import {
 
 import { commitMovie, openStoredMovie, removeReservation, reserveMovie } from './movie-storage.web'
 import { inspectMovie } from './movie-metadata.web'
+import { createRecordingVideoSource, supportsRecordingVideoSource } from './recording-source.web'
+import type { RecordingVideoSource } from './recording-source.web'
 import type {
 	BackendCaptureSink,
 	BackendObserver,
@@ -21,6 +23,7 @@ import type {
 	CameraPermissionKind,
 	CameraPermissionStatus,
 	CameraSessionConfig,
+	CameraSelection,
 	CaptureIssue,
 	EffectiveCaptureConfig,
 	MovieClip,
@@ -67,6 +70,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 	let stopTimer: ReturnType<typeof setTimeout> | undefined
 	let watchdog: ReturnType<typeof setTimeout> | undefined
 	let recordingAudio = false
+	let recordingVideo: RecordingVideoSource | undefined
+	let switchWarning: CaptureIssue | undefined
+	let pendingSwitch: { cancel: () => void } | undefined
 	let captureFailure: ((cause: unknown) => Promise<void>) | undefined
 	// Desktop native webview probe: 'unknown' until the capability request
 	// settles; 'available' means app-private file storage and honest host
@@ -179,8 +185,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		}
 	}
 
-	const constraints = (): MediaTrackConstraints => {
-		const camera = currentConfig.camera
+	const constraints = (camera = currentConfig.camera): MediaTrackConstraints => {
 		return {
 			width: { ideal: 1280 },
 			height: { ideal: 720 },
@@ -250,7 +255,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		return acquisition
 	}
 
-	const showPreview = async () => {
+	const showPreview = async (notify = true) => {
 		if (!host || released) {
 			return
 		}
@@ -284,7 +289,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		}
 
 		markReady(document.visibilityState !== 'hidden')
-		listener?.onReady?.()
+		if (notify) {
+			listener?.onReady?.()
+		}
 	}
 
 	const hostMediaKind = (kind: CameraPermissionKind) =>
@@ -353,6 +360,15 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		sink = undefined
 		recorder = undefined
 		captureFailure = undefined
+		if (recordingVideo) {
+			if (host) {
+				host.srcObject = stream ?? null
+				void host.play().catch(() => {})
+			}
+
+			recordingVideo.release()
+			recordingVideo = undefined
+		}
 		clearTimeout(stopTimer)
 		clearTimeout(watchdog)
 		if (!host) {
@@ -360,9 +376,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 		}
 
 		target.settled(value)
+		if (host && !released && stream?.getVideoTracks()[0]?.readyState !== 'live') {
+			void showPreview(false).catch(() => observer?.availability(false))
+		}
 	}
 
 	const stop = () => {
+		pendingSwitch?.cancel()
 		if (!recorder || !sink) {
 			return
 		}
@@ -488,7 +508,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			const storageReady = persistent || !!desktop
 			return {
 				supported: supported(),
-				available: ready && storageReady,
+				available: ready && storageReady && stream?.getVideoTracks()[0]?.readyState === 'live',
 				reason: !supported()
 					? 'Secure media capture, a supported WebM/MP4 codec, and durable storage are required'
 					: !storageReady
@@ -516,6 +536,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				focusPointOfInterest: false,
 				exposurePointOfInterest: false,
 				orientations: [],
+				cameraSwitchDuringRecording: supportsRecordingVideoSource(),
 				durationLimit: 'bestEffort',
 				elapsedTime: 'estimated',
 				output: {
@@ -526,7 +547,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				},
 			}
 		},
-		previewReady: () => ready && !!host && !released,
+		previewReady: () =>
+			ready && !!host && !released && stream?.getVideoTracks()[0]?.readyState === 'live',
 		validateStart: (options) => {
 			// Once the desktop-host probe settles absent, browser storage rules
 			// apply synchronously. A pending probe defers both checks to the
@@ -606,9 +628,181 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				}
 			}
 		},
+		switchCamera: (camera: CameraSelection) => {
+			if (!sink || !recordingVideo || pendingSwitch) {
+				throw error('invalidState', 'switchCamera', 'The recording source cannot switch now')
+			}
+			if (
+				(camera === 'front' || camera === 'back') &&
+				!navigator.mediaDevices.getSupportedConstraints().facingMode
+			) {
+				throw error(
+					'unsupportedConfiguration',
+					'switchCamera',
+					'This browser cannot select by facing; choose a listed camera device ID',
+				)
+			}
+			const videoSource = recordingVideo
+			const previous = currentConfig.camera
+			const microphones = stream?.getAudioTracks() ?? []
+			let cancelled = false
+			let acquired = false
+			let rejectCancellation: (error: Error) => void = () => {}
+			const cancellation = new Promise<never>((_resolve, reject) => {
+				rejectCancellation = reject
+			})
+			const operation = {
+				cancel: () => {
+					if (cancelled || pendingSwitch !== operation) {
+						return
+					}
+					cancelled = true
+					videoSource.hold()
+					stream?.getVideoTracks().forEach((track) => track.stop())
+					markReady(false)
+					pendingSwitch = undefined
+					rejectCancellation(
+						error('invalidState', 'switchCamera', 'Camera switching was cancelled'),
+					)
+				},
+			}
+			pendingSwitch = operation
+			const check = () => {
+				if (cancelled || released || recordingVideo !== videoSource || !sink) {
+					throw error('invalidState', 'switchCamera', 'The recording is no longer active')
+				}
+			}
+			const obtain = async (selection: CameraSelection | undefined) => {
+				let expired = false
+				let timeout: ReturnType<typeof setTimeout> | undefined
+				const acquisition = navigator.mediaDevices
+					.getUserMedia({ video: constraints(selection), audio: false })
+					.then((value) => {
+						if (expired || cancelled || released) {
+							value.getTracks().forEach((track) => track.stop())
+							throw error('invalidState', 'switchCamera', 'Camera acquisition was retired')
+						}
+						return value
+					})
+				try {
+					return await Promise.race([
+						acquisition,
+						cancellation,
+						new Promise<never>((_resolve, reject) => {
+							timeout = setTimeout(
+								() => reject(error('unavailable', 'switchCamera', 'Camera acquisition timed out')),
+								5000,
+							)
+						}),
+					])
+				} finally {
+					expired = true
+					clearTimeout(timeout)
+				}
+			}
+			const install = async (selection: CameraSelection | undefined) => {
+				check()
+				const acquired = await obtain(selection)
+				try {
+					check()
+					const settings = acquired.getVideoTracks()[0]!.getSettings()
+					const expectedFacing =
+						selection === 'front' ? 'user' : selection === 'back' ? 'environment' : undefined
+
+					if (expectedFacing && settings.facingMode !== expectedFacing) {
+						throw error(
+							'unsupportedConfiguration',
+							'switchCamera',
+							'The requested camera facing could not be confirmed; choose a device ID',
+						)
+					}
+
+					for (const microphone of microphones) {
+						acquired.addTrack(microphone)
+					}
+
+					stream = acquired
+					observeTracks(acquired)
+					await videoSource.setSource(acquired)
+					check()
+					if (host) {
+						host.style.transform = settings.facingMode === 'user' ? 'scaleX(-1)' : ''
+					}
+
+					markReady(true)
+					check()
+					return {
+						id: settings.deviceId ?? '',
+						label: acquired.getVideoTracks()[0]!.label,
+						facing:
+							settings.facingMode === 'user'
+								? ('front' as const)
+								: settings.facingMode === 'environment'
+									? ('back' as const)
+									: undefined,
+					}
+				} catch (cause) {
+					acquired.getVideoTracks().forEach((track) => track.stop())
+					throw cause
+				}
+			}
+			const completion = (async () => {
+				videoSource.hold()
+				stream?.getVideoTracks().forEach((track) => track.stop())
+				stream = new MediaStream(microphones)
+				observeTracks(stream)
+				markReady(false)
+				try {
+					const selected = await install(camera)
+					acquired = true
+					return selected
+				} catch (cause) {
+					if (!cancelled && !released) {
+						try {
+							await install(previous)
+						} catch (rollback) {
+							switchWarning = error(
+								'captureFailed',
+								'switchCamera',
+								'Camera switching and rollback failed; the captured take was finalized',
+								rollback,
+							)
+
+							sink?.finishing('cameraUnavailable')
+							stop()
+						}
+					}
+
+					throw cause instanceof CameraCaptureError
+						? cause
+						: error('unavailable', 'switchCamera', 'Could not acquire the requested camera', cause)
+				} finally {
+					if (!acquired && pendingSwitch === operation) {
+						pendingSwitch = undefined
+					}
+				}
+			})()
+			return {
+				completion,
+				commit: () => {
+					check()
+					if (!acquired || pendingSwitch !== operation) {
+						throw error(
+							'invalidState',
+							'switchCamera',
+							'Camera switching was cancelled before commit',
+						)
+					}
+					currentConfig = { ...currentConfig, camera }
+					pendingSwitch = undefined
+				},
+				cancel: operation.cancel,
+			}
+		},
 		startCapture: (request, target) => {
 			sink = target
 			recordingAudio = request.audio
+			switchWarning = undefined
 			startedAt = 0
 			stoppedAt = 0
 			const source = stream
@@ -630,7 +824,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				return
 			}
 
-			const recordingStream = new MediaStream([video, ...(request.audio ? audio : [])])
+			let recordingStream = new MediaStream([video, ...(request.audio ? audio : [])])
 			let desktop: CameraHost | null = null
 			let reservation: string | undefined
 			let stage: 'preparation' | 'capture' | 'finalization' | 'storage' = 'preparation'
@@ -680,6 +874,26 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 						)
 					}
 
+					if (supportsRecordingVideoSource()) {
+						const settings = video.getSettings()
+						recordingVideo = createRecordingVideoSource(
+							settings.width ?? 1280,
+							settings.height ?? 720,
+							settings.frameRate ?? 30,
+						)
+
+						await recordingVideo.setSource(source)
+						recordingStream = new MediaStream([
+							...recordingVideo.stream.getVideoTracks(),
+							...(request.audio ? audio : []),
+						])
+
+						if (host) {
+							host.srcObject = recordingVideo.stream
+							await host.play()
+						}
+					}
+
 					const activeRecorder = new MediaRecorder(recordingStream, { mimeType: mimeType() })
 					recorder = activeRecorder
 					activeRecorder.ondataavailable = (event) => {
@@ -717,6 +931,12 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 						const settings = video.getSettings()
 						const effective: EffectiveCaptureConfig = {
 							cameraId: settings.deviceId ?? '',
+							facing:
+								settings.facingMode === 'user'
+									? 'front'
+									: settings.facingMode === 'environment'
+										? 'back'
+										: undefined,
 							audio: request.audio,
 							width: settings.width ?? 0,
 							height: settings.height ?? 0,
@@ -793,14 +1013,16 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 										kind: 'clip',
 										...clip,
 										limitReached,
-										warning: captureError
-											? error(
-													'captureFailed',
-													'capture',
-													'Recorder reported an error; finalized media was verified',
-													captureError,
-												)
-											: undefined,
+										warning:
+											switchWarning ??
+											(captureError
+												? error(
+														'captureFailed',
+														'capture',
+														'Recorder reported an error; finalized media was verified',
+														captureError,
+													)
+												: undefined),
 									},
 									target,
 								)

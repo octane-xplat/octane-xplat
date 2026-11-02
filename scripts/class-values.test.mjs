@@ -30,7 +30,7 @@ const normalizers = {
 		'normalizeClass',
 	),
 	macOS: normalizer(
-		new URL('../packages/macos-renderer/src/index.ts', import.meta.url),
+		new URL('../packages/macos-appkit/src/index.ts', import.meta.url),
 		'normalizeClass',
 	),
 	GTK: normalizer(

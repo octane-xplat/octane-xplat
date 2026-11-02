@@ -4,7 +4,7 @@
 `printAsync`, `printToFileAsync`, `selectPrinterAsync`, `Orientation`, printer
 data and PDF results. Its additional `Print.capabilities` distinguishes dispatch,
 file export and printer selection; `releasePrintFile` owns only this package's
-exports. See the [public contract](../../../packages/print/README.md) and
+exports. See the [public contract](../../../docs/packages/package-print.md) and
 [recipe](../recipes/print-pdf.md) for use and platform-specific promise semantics.
 
 ```ts

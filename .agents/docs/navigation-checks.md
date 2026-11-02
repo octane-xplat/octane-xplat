@@ -96,7 +96,7 @@ notifications does not veto engine Back. The iOS case also checks the native
 edge recognizer after disabling `enableSwipeBackNavigation`. These are SDK
 lifecycle/property checks, not OS gesture or asynchronous guard qualification.
 The remaining native retained-history integration is explicit in the
-[routing contract note](../../.agents/docs/notes/routing-contracts.md#nativescript-back-notification-limitation).
+[routing contract note](notes/routing-contracts.md#nativescript-back-notification-limitation).
 No fresh AppKit/Linux runtime was run for this refinement; Windows has no VM.
 
 ```sh
@@ -424,7 +424,7 @@ Activity Back → interceptors → top modal → visible Frame/pane → OS fallb
 The renderer ships the Mason engine prebuilt
 (`platforms/macos/prebuilt/libxplatmason.dylib`); the fixture's bootstrap
 loads it automatically. Rebuild it with
-`packages/macos-renderer/native/xplatmason/build.sh` — it consumes the pinned
+`packages/macos-appkit/native/xplatmason/build.sh` — it consumes the pinned
 mason-c desktop archive recorded in `native/xplatmason/mason-core.pin.json` —
 only when the engine changes. The fixture checks its consumer types, builds
 production JS and runs the
@@ -464,7 +464,7 @@ bun run --filter @xplat/macos test:routing
 The helper uses the existing numeric controller and AppKit writer. These are
 actual native property checks; they do not establish OS input, frame pacing,
 outgoing snapshots, modal-surface motion or native GTK effects. See the
-[engine note](../../.agents/docs/notes/routing-transitions.md#appkit-retained-pane-executor)
+[engine note](notes/routing-transitions.md#appkit-retained-pane-executor)
 for the observed animation-proxy limitation and the local executor boundary.
 
 ## Linux WebKitGTK
@@ -876,7 +876,7 @@ Other platform adapters did not change in this increment. Their earlier runtime
 evidence remains separate, and Windows still has no runtime VM.
 
 ```sh
-node --test packages/macos-renderer/test/*.test.ts
+node --test packages/macos-appkit/test/*.test.ts
 ```
 
 The existing standalone overlay runner stopped before its assertions because
@@ -947,7 +947,7 @@ The TSX fixture also produced a nonfatal dependency-scan warning in Vite 8.3.0:
 the scanner tried to resolve the types-only JSX facade as a runtime entry. Vite
 skipped dependency pre-bundling and all seven routing assertions passed. This is
 an outstanding toolchain warning, not a warning-free dev-server qualification.
-The [toolchain note](../../.agents/docs/toolchain.md#tsx-dependency-scan-warning)
+The [toolchain note](toolchain.md#tsx-dependency-scan-warning)
 records the narrow reproduction and evidence limits.
 
 ## Check platform route contracts

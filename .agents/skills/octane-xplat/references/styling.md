@@ -52,6 +52,21 @@ const style = mergeStyle({ opacity: disabled ? 0.38 : 1 }, props.style)
 <label style={style} text="Status" />
 ```
 
+## Bamboo source scans
+
+For the standalone Bamboo CLI, keep `css()` calls in `.ts`/`.tsx` modules and
+import their class strings into TSRX templates. Bamboo 1.60.1's scanner rejects
+raw `@{}` templates; do not add `.tsrx` to this scan based only on the file's
+TypeScript content. This does not qualify Vite's transformed-module path. See
+[the scoped limitation](../../../docs/toolchain.md#bamboo-standalone-scanning-of-tsrx-templates)
+and the [Bamboo setup example](../../../../docs/packages/package-bamboo.md).
+
+```ts
+// src/styles.ts — import warningText into the screen.
+import { css } from './styled-system/css'
+export const warningText = css({ color: 'warning' })
+```
+
 ## Native layout styles
 
 Raw native layout uses `masonview`. Put CSS layout keys in its style bag or
@@ -161,8 +176,8 @@ import '@octane-xplat/ui/theme/tokens.css'
   largest window for every window, and has not runtime-qualified state
   delivery. GTK plays `@keyframes`; AppKit keyframes are a source path only.
   Both ignore some properties. Check each renderer's
-  [Apply stylesheets](../../../../packages/macos-renderer/README.md#apply-stylesheets)
-  ([GTK](../../../../packages/linux-gtk-renderer/README.md#apply-stylesheets))
+  [Apply stylesheets](../../../../docs/packages/package-macos-appkit.md#apply-stylesheets)
+  ([GTK](../../../../docs/packages/package-linux-gtk-renderer.md#apply-stylesheets))
   limits before promising a property or pseudo-class. Note `className` is
   never forwarded to GTK widget classes — it only feeds the cascade.
 
@@ -170,7 +185,7 @@ AppKit formatted runs accept finite numeric `style.letterSpacing` in points,
 inherit host/ancestor spacing and reset to default with `0` or `normal`.
 Rich hosts also pass computed line height to paragraph composition.
 Do not promise arbitrary CSS units, native text measurement or pixel parity
-from the source cases; see the [renderer contract](../../../../packages/macos-renderer/README.md#apply-stylesheets).
+from the source cases; see the [renderer contract](../../../../docs/packages/package-macos-appkit.md#apply-stylesheets).
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
@@ -252,7 +267,7 @@ export function Remove() {
 
 For custom Vite builders (including Cloudflare SPA + Worker builds) that leave
 configured environments unused, declare every actual build target with `buildEnvironments`. Never remove real SSR targets merely because
-they emit no CSS. See the [participation example](../../../../packages/bamboo/README.md#custom-builders-with-unused-environments)
+they emit no CSS. See the [participation example](../../../../docs/packages/package-bamboo.md#custom-builders-with-unused-environments)
 and [upstream limitation](../../../docs/bamboo-build-environments.md).
 
 ```ts
@@ -371,7 +386,7 @@ unsupported property; use scroll view APIs for scrolling. Six source-slice cases
 and the manual fixture are authored, unrun. Native drawing/hit-testing/AX/shadows
 and packaging remain unqualified. This renderer prerequisite does not itself fix
 Tokenizer's legacy geometry, duplicate layer row refs or counter layout.
-See [the renderer subset](../../../../packages/macos-renderer/README.md#clip-appkit-container-overflow).
+See [the renderer subset](../../../../docs/packages/package-macos-appkit.md#clip-appkit-container-overflow).
 
 ## Windows media-query boundary
 

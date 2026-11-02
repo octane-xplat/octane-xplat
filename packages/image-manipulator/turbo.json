@@ -1,4 +1,12 @@
 {
 	"extends": ["//"],
-	"tasks": { "test:browser": { "dependsOn": ["^typegen"], "cache": false } }
+	"tasks": {
+		"test:browser": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		},
+		"test:webp-engine": {
+			"cache": false
+		}
+	}
 }

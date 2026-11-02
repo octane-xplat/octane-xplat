@@ -33,7 +33,7 @@ platform-specific component from the matching target entry:
 
 Each entry exports its own component and prop types. The package has no shared
 runtime entry or shared `types` subpath. See the maintained target-specific
-examples in [`packages/demos/src/`](../../packages/demos/src/).
+examples in [`packages/demos/src/`](../../packages/demos/src).
 
 The platform imports install their framework adapters automatically. Use the
 matching entry in each platform file:

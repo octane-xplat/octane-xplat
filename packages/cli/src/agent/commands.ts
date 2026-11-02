@@ -172,6 +172,28 @@ export const AGENT_COMMANDS = [
 		examples: ['xplat targets --project /work/catalog-app --json'],
 	},
 	{
+		name: 'docs index',
+		path: ['docs', 'index'],
+		mcpTool: 'xplat_docs_index',
+		summary:
+			'Prepare local embeddings for installed-version docs and release notes; may download the pinned embedding model',
+		effect: 'write',
+		permissions: ['workspace'],
+		context: 'app',
+		positionals: [],
+		flags: [
+			{ flag: 'package', type: 'string', desc: 'Limit to one package' },
+			{ flag: 'version', type: 'string', desc: 'Explicit comparison version' },
+			...contextFlags,
+		],
+		output: {
+			kind: 'json',
+			description: 'Per-package preparation status, model identity, chunk count, and provenance',
+		},
+		errors: [{ code: 'permission_denied', exit: 4, when: 'Workspace scope is not granted' }],
+		examples: ['xplat docs index --project /work/catalog-app --json'],
+	},
+	{
 		name: 'docs search',
 		path: ['docs', 'search'],
 		mcpTool: 'xplat_docs_search',
@@ -184,6 +206,13 @@ export const AGENT_COMMANDS = [
 			{ name: 'query', type: 'string', required: true, min: 1, max: 500, desc: 'Search text' },
 		],
 		flags: [
+			{
+				flag: 'mode',
+				type: 'enum',
+				values: ['hybrid', 'lexical', 'exact'],
+				default: 'hybrid',
+				desc: 'Hybrid uses prepared local embeddings; fallback is reported',
+			},
 			{ flag: 'package', type: 'string', desc: 'Limit to one @octane-xplat package' },
 			{
 				flag: 'version',
@@ -194,7 +223,7 @@ export const AGENT_COMMANDS = [
 			{
 				flag: 'corpus',
 				type: 'enum',
-				values: ['guide', 'recipe', 'design-note', 'implementation-note'],
+				values: ['guide', 'readme', 'changelog', 'recipe', 'design-note', 'implementation-note'],
 				default: 'guide',
 				desc: 'Documentation corpus (default: guide)',
 			},

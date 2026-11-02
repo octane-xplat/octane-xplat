@@ -1304,6 +1304,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 					capture && typeof capture.SetRecordRotationAsync === 'function'
 						? ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight']
 						: [],
+				cameraSwitchDuringRecording: false,
 				durationLimit: 'bestEffort',
 				elapsedTime: 'estimated',
 				output: {

@@ -95,7 +95,7 @@ bun run xplat lint --fix
 ```
 
 When you are ready to customize rules, follow the
-[project configuration example](../../packages/lint/README.md#project-configuration).
+[project configuration example](../packages/package-lint.md#project-configuration).
 
 ## Test components on a device
 

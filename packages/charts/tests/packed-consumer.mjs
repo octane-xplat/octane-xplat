@@ -52,7 +52,7 @@ const dependencies = [
 	'@nativescript/types',
 	'@octane-xplat/ui',
 	'@octane-xplat/jsx',
-	'@octane-xplat/macos-renderer',
+	'@octane-xplat/macos-appkit',
 	'd3-scale',
 	'd3-shape',
 	'd3-array',

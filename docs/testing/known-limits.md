@@ -35,7 +35,7 @@ AppKit content modes, but pixel parity has not been visually reviewed. The
 harness motion-package route remains unsupported because its gesture and
 reduced-motion hosts are mobile-only; the separate AppKit UI ref-animation
 fixture does not establish motion-package support. AppKit applies app and
-Bamboo stylesheets, with the [limits listed for the renderer](../../packages/macos-renderer/README.md#apply-stylesheets):
+Bamboo stylesheets, with the [limits listed for the renderer](../packages/package-macos-appkit.md#apply-stylesheets):
 state selectors and window-resize media queries have source support that has
 not been checked on a running Mac, media queries use one viewport for every
 window, and keyframe playback is limited to a source path. See the
@@ -219,7 +219,7 @@ transport, millisecond commands and generic onError callbacks. The package must
 be rebuilt into the AppKit host. This is not a runtime pass: native compilation,
 bridge discovery, actual playback/audio/seek/loop, fit/input/AX, resource lifetime
 and packaged consumers remain unqualified. The separate renderer-owned Lightbox video path and advanced engine
-features remain separate. See the [source subset](../../packages/video/README.md#experimental-appkit-playback).
+features remain separate. See the [source subset](../packages/package-video.md#experimental-appkit-playback).
 
 ```tsx
 import { Video } from '@octane-xplat/video'
@@ -305,7 +305,7 @@ if (result.status === 'committed') await result.finished
 | Linux | The actual WebKitGTK host passed 16 handler-driven checks under Xvfb with a production bundle, including unsaved-edit confirmation, refusal and approval. OS input and the separate native GTK renderer remain unqualified. |
 
 macOS AppKit secure storage uses Keychain through the
-[`@octane-xplat/secure-storage` native leaf](../../packages/secure-storage/README.md#macos-appkit).
+[`@octane-xplat/secure-storage` native leaf](../packages/package-secure-storage.md#macos-appkit).
 Availability does not guarantee access to a locked or policy-restricted Keychain;
 reads can reject and writes/removal can return `false`.
 

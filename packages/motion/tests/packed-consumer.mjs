@@ -52,7 +52,7 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript-community/gesturehandler',
 	'@nativescript/types',
-	'@octane-xplat/macos-renderer',
+	'@octane-xplat/macos-appkit',
 	'@octane-xplat/jsx',
 	'@octane-xplat/ui',
 	'motion-dom',
@@ -158,7 +158,7 @@ for (const [file, names] of [
 		],
 	],
 	['.agents/skills/octane-xplat/references/services/motion.md', ['SharedCard']],
-	['packages/motion/README.md', ['LayoutCard']],
+	['docs/packages/package-motion.md', ['LayoutCard']],
 	['docs/testing/known-limits.md', ['LayoutSelection']],
 	['packages/motion/UPSTREAM.md', ['GroupNamespace', 'SharedPresence']],
 ]) {

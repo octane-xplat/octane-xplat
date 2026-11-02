@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useState, useLayoutEffect, useSyncExternalStore } from 'octane'
 import type { UniversalComponent } from 'octane/universal'
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { NSApplication, NSView, NSWindow } from '@octane-xplat/platform/macos'
 import { qualifyAppKitRouteTransitions } from './route-transition-fixture.macos'
 import { qualifyNativeAuthentication } from '../../../packages/ui/tests/authentication-native-example.tsrx'

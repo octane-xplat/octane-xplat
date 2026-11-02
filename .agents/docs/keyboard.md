@@ -431,7 +431,7 @@ integration retains a fractional position so rounded scrollTop cannot stall it
 several pixels before the end.
 
 The AppKit renderer's grid overlay measures non-stretched children using
-intrinsicContentSize (`packages/macos-renderer/src/index.ts`, layoutGridChildren).
+intrinsicContentSize (`packages/macos-appkit/src/index.ts`, layoutGridChildren).
 The chat dock measured zero while its editing field measured96 points in the
 runtime probe. ChatLayout's macOS leaf therefore uses a flexing viewport and an
 in-flow dock. This local composition avoids depending on an intrinsic grid

@@ -81,7 +81,7 @@ test('native presets reject .server imports and erase named re-exports', async (
 		)
 
 		makePackage(
-			'@octane-xplat/macos-renderer',
+			'@octane-xplat/macos-appkit',
 			{
 				exports: {
 					'.': './index.js',

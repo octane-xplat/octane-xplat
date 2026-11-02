@@ -4,7 +4,7 @@ These private drivers collect UI Automation (UIA) and numeric host-frame evidenc
 for the seven layout/text components and the maintained fixed-width shrink
 regression, plus native Button, Pressable and Link input in the Windows
 core-component plan.
-The action driver also has an opt-in Card/Banner mode.
+The action driver also has opt-in Card/Banner, ListItem and panel-tab modes.
 [Qualification host constraints](../../.agents/docs/parity/windows-support-progress.md#qualification-host-constraints)
 explain root sizing, measurement, and evidence boundaries. Current runtime
 qualification lives in Silo; a diagnostic result is not component qualification.
@@ -105,8 +105,8 @@ recorded in the preflight checks.
 
 Exit 0 means the driver's current assertions passed. `qualification` remains
 `pending-completion-audit`: review the plan's full acceptance criteria before
-updating a component row in Silo. Display, collections, menus and tabs require
-their own OS-input checks.
+updating a component row in Silo. Display, collections and menus require
+their own OS-input checks; panel-tab input uses the opt-in mode below.
 
 ## Run action checks
 
@@ -130,7 +130,41 @@ Link's disabled check is not applicable because its public props have no
 disabled flag. Its injected router component must receive the exact `href`
 once and publish the destination after each input method.
 
-`action-uia.ps1` performs focus and Invoke operations in a bounded MTA process.
+`action-uia.ps1` performs focus, Invoke and SelectionItem.Select operations in a
+bounded MTA process. Selection requests can target genuine TabItem/ListItem
+peers; ComboBox focus is also supported. Replace
+the example handle and process ID with the owned app's current values:
+
+```json
+{
+  "windowHandle": 123456,
+  "expectedProcessId": 4321,
+  "operation": "select",
+  "controlType": "ControlType.TabItem",
+  "name": "Third 0"
+}
+```
+
+For peers that support SelectionItem, `capture-uia.ps1` adds selection state and
+the selection container's name to the ordinary bounds/pattern capture:
+
+```json
+{ "selected": true, "selectionContainerName": "Stock WinUI tabs" }
+```
+
+Popup queries can return the same UIA element more than once. Both helpers
+deduplicate nonempty runtime IDs within each query, retaining distinct controls
+that share a name. Captures include `runtimeId` and `className`; reader metadata
+keeps raw `elementCount`, unique `rowsCaptured` and `duplicateElementsSkipped`.
+Action results retain raw and unique matching/focused counts. Treat
+[runtime IDs](https://learn.microsoft.com/en-us/dotnet/api/system.windows.automation.automationelement.getruntimeid?view=windowsdesktop-10.0)
+as opaque comparison values; do not persist them as identities across captures.
+
+```json
+{ "elementCount": 6, "rowsCaptured": 3, "duplicateElementsSkipped": 3 }
+```
+
+These helper capabilities do not establish public TabList/Tab qualification.
 Both helpers verify the owned window/process. Keyboard and mouse use Win32
 input only while that window is foreground. Input is never dispatched through
 fixture commands. Cleanup restores the pointer and window position and stops
@@ -142,10 +176,31 @@ in Silo. When monitoring live files, use
 [read/write sharing](../../.agents/docs/windows-test-host.md#read-live-diagnostic-files-without-locking-their-writers)
 so observation does not block the writer.
 
+## Run panel-tab checks
+
+Select `-TabActions` to exercise the public `TabList`/`Tab` scene. Use one action
+mode per run and a new output folder:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File .\tools\windows-qualification\actions.ps1 `
+  -ExpectedCommit $sourceCommit `
+  -ExpectedPackageVersion 1.0.0.107 `
+  -OutputDirectory "$runRoot\tabs" `
+  -TabActions
+```
+
+The mode checks genuine TabItem/SelectionItem peers, one forward/backward Tab
+stop, mouse and arrow/Home/End selection, matching panel content, disabled
+rejection, updated names/current callbacks, controlled rejection and remount.
+It retains failed requests as well as passing captures. Structural
+insertion/reordering, rich-slot geometry and overflow resizing need separate
+checks. Passing this mode alone does not qualify the final fresh-install
+core-component run.
+
 Controller and compiled-leaf regressions run without a Windows desktop:
 
 ```sh
-pnpm exec turbo run test:windows --filter=@octane-xplat/ui
+bun run turbo run test:windows --filter=@octane-xplat/ui
 ```
 
 Those tests do not establish OS input, layout or UIA behavior.
@@ -359,3 +414,24 @@ axis change, moving a child to StackLayout, updates outside Flexbox, reparenting
 native frames. Fixture commands select states0–7 and never set preferred native
 sizes or activate input handlers. This is a layout/lifecycle regression; it does
 not qualify the 20 public components or their OS input behavior.
+
+## Run Selector input checks
+
+Run `actions.ps1 -SelectorActions` in the signed-in desktop session with the
+same required source/package/output arguments as the other action modes. It
+uses the maintained `selector` scene and real OS input; fixture commands only
+change props and mount state.
+
+```powershell
+.\actions.ps1 -SelectorActions -ExpectedCommit $commit `
+  -ExpectedPackageVersion $version -OutputDirectory $newEvidenceDirectory
+```
+
+The run checks the single-select ComboBox and SelectionItem peers, finite and
+ordered option/shared-content frames, one closed Tab stop, F4 opening, arrow
+preview, Enter/mouse commits, Escape/focus return, one outside close request,
+retained names/callbacks, controlled rejection, disabled input, remount and
+measured trigger resizing.
+It preserves failures and helper hashes. Search, multiple selection, clear,
+groups, long-list scrolling, Narrator, visual parity and the final fresh
+current-main package remain separate gates. Do not qualify those from a pass.

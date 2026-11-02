@@ -1,4 +1,4 @@
-import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import type { ProbeContext } from '../../../scripts/probe/context'
 import { NSView } from '@octane-xplat/platform/macos'
 

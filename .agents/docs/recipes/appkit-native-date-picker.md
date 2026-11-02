@@ -28,7 +28,7 @@ by the current attachment across controlled and uncontrolled changes.
 
 ## Documentation
 
-- AC1: [Public native date workflow](../../../docs/platform/date-picker.md#native-macos-selection-lifecycle), [package README](../../../packages/date-picker/README.md), Octane primitives reference, feature note, [target progress](../exploration.md#operational-evidence) and [owner model cases](../../../packages/date-picker/tests/date-picker-owner.macos.test.mjs).
-- AC2: The same [public workflow](../../../docs/platform/date-picker.md#native-macos-selection-lifecycle), [package README](../../../packages/date-picker/README.md), [owner model cases](../../../packages/date-picker/tests/date-picker-owner.macos.test.mjs) and [target progress](../exploration.md#operational-evidence).
-- AC3: [Renderer branch cases](../../../packages/macos-renderer/test/date-picker.test.ts), six new cases plus three prior cases. Mocked native objects do not prove actual NSDatePicker input/constraint behavior.
+- AC1: [Public native date workflow](../../../docs/platform/date-picker.md#native-macos-selection-lifecycle), [package README](../../../docs/packages/package-date-picker.md), Octane primitives reference, feature note, [target progress](../exploration.md#operational-evidence) and [owner model cases](../../../packages/date-picker/tests/date-picker-owner.macos.test.mjs).
+- AC2: The same [public workflow](../../../docs/platform/date-picker.md#native-macos-selection-lifecycle), [package README](../../../docs/packages/package-date-picker.md), [owner model cases](../../../packages/date-picker/tests/date-picker-owner.macos.test.mjs) and [target progress](../exploration.md#operational-evidence).
+- AC3: [Renderer branch cases](../../../packages/macos-appkit/test/date-picker.test.ts), six new cases plus three prior cases. Mocked native objects do not prove actual NSDatePicker input/constraint behavior.
 - AC4: [Maintained demo](../../../packages/demos/src/NativeDatePickerDemo.macos.tsrx) and [idle manual probe](../../../examples/probes/native-date-picker.macos.tsrx); mounting is not input or layout qualification.

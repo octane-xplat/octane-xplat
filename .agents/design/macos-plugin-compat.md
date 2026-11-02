@@ -7,7 +7,7 @@ Status: decided (2026-10-18) — build to it.
 End users can share/consume NativeScript plugins on macOS. Not by adopting
 `@nativescript/macos` (one stale release — 9.0.0, Feb 2026 — and plugin
 `platforms/macos` bits don't exist anyway), but by giving
-`packages/macos-renderer` two things it lacks today:
+`packages/macos-appkit` two things it lacks today:
 
 1. an **extension seam** — new element types currently require edits inside
    `index.ts` (factory switch, `applyProps` switch, layout dispatch,

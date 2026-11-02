@@ -12,6 +12,7 @@ import type {
 	CameraPermissionKind,
 	CameraPermissionStatus,
 	CameraSessionConfig,
+	CameraDeviceInfo,
 	CaptureIssue,
 } from './types'
 
@@ -102,13 +103,20 @@ function requestPermission(kind: CameraPermissionKind): Promise<CameraPermission
 }
 
 export function createSessionBackend(config: CameraSessionConfig): CameraSessionBackend {
+	type PendingCameraSwitch = {
+		resolve: (camera: CameraDeviceInfo) => void
+		reject: (issue: Error) => void
+		acquired?: CameraDeviceInfo
+	}
 	let currentConfig = { ...config }
 	let observer: BackendObserver | undefined
 	let bridge: any
 	let host: any
 	let listener: BackendPreviewListener | undefined
 	let sink: BackendCaptureSink | undefined
+	let switchWarning: CaptureIssue | undefined
 	let released = false
+	let cameraSwitch: PendingCameraSwitch | undefined
 	const lease = {}
 	const selected = () =>
 		typeof currentConfig.camera === 'object'
@@ -141,7 +149,26 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 			context(),
 			new Bridge.Listener({
 				event(type: string, payload: string) {
-					if (type === 'ready') {
+					if (type === 'switchFinished' || type === 'switchFailed') {
+						const pending = cameraSwitch
+						if (type === 'switchFinished') {
+							try {
+								if (pending && !pending.acquired) {
+									pending.acquired = JSON.parse(payload)
+									pending.resolve(pending.acquired!)
+								}
+							} catch (cause) {
+								cameraSwitch = undefined
+								bridge?.cancelCameraSwitch?.()
+								pending?.reject(
+									error('captureFailed', 'switchCamera', 'Invalid native camera selection', cause),
+								)
+							}
+						} else {
+							cameraSwitch = undefined
+							pending?.reject(error('unavailable', 'switchCamera', payload))
+						}
+					} else if (type === 'ready') {
 						observer?.previewReady(payload === 'true')
 						if (payload === 'true') {
 							listener?.onReady?.()
@@ -172,7 +199,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 						const result = JSON.parse(payload)
 						target?.settled(
 							type === 'finished'
-								? result
+								? { ...result, warning: result.warning ?? switchWarning }
 								: {
 										kind: 'failed',
 										stage: result.stage,
@@ -242,6 +269,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				focusPointOfInterest: value.focusPointOfInterest === true,
 				exposurePointOfInterest: value.exposurePointOfInterest === true,
 				orientations: [],
+				cameraSwitchDuringRecording:
+					typeof bridge?.switchCamera === 'function' &&
+					typeof bridge?.confirmCameraSwitch === 'function',
 				durationLimit: 'native',
 				elapsedTime: 'nativeMedia',
 				output: {
@@ -352,8 +382,72 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				// A missed metering pass must not fault the session.
 			}
 		},
+		switchCamera: (camera) => {
+			if (!sink || cameraSwitch || typeof bridge?.confirmCameraSwitch !== 'function') {
+				throw error('invalidState', 'switchCamera', 'The native recording cannot switch now')
+			}
+			let cancelled = false
+			let acquired: CameraDeviceInfo | undefined
+			let pending!: PendingCameraSwitch
+			const completion = new Promise<CameraDeviceInfo>((resolve, reject) => {
+				pending = { resolve, reject }
+				cameraSwitch = pending
+				try {
+					bridge.switchCamera(typeof camera === 'object' ? `id:${camera.deviceId}` : camera)
+				} catch (cause) {
+					cameraSwitch = undefined
+					reject(error('unavailable', 'switchCamera', 'CameraX could not change camera', cause))
+				}
+			}).then((selected) => {
+				if (cancelled) {
+					throw error('invalidState', 'switchCamera', 'Camera switching was cancelled')
+				}
+				acquired = selected
+				return selected
+			})
+			return {
+				completion,
+				commit: () => {
+					if (cancelled || cameraSwitch !== pending || !acquired || !sink) {
+						throw error(
+							'invalidState',
+							'switchCamera',
+							'Camera switching was cancelled before commit',
+						)
+					}
+					try {
+						bridge.confirmCameraSwitch(acquired.id)
+					} catch (cause) {
+						switchWarning = error(
+							'unavailable',
+							'switchCamera',
+							'Camera acquisition could not be committed; the take was finalized',
+							cause,
+						)
+
+						// This cancellation can occur without a user stop. Restore the
+						// prior selection and finalize rather than keep an uncommitted lens.
+						sink.finishing('cameraUnavailable')
+						bridge.stop()
+						throw switchWarning
+					}
+					currentConfig = { ...currentConfig, camera }
+					cameraSwitch = undefined
+				},
+				cancel: () => {
+					if (cameraSwitch !== pending) {
+						return
+					}
+					cancelled = true
+					cameraSwitch = undefined
+					pending.reject(error('invalidState', 'switchCamera', 'Camera switching was cancelled'))
+					bridge?.cancelCameraSwitch?.()
+				},
+			}
+		},
 		startCapture: (request, target) => {
 			sink = target
+			switchWarning = undefined
 			if (request.destinationPath) {
 				// Durable output stays app-private like every other leaf —
 				// canonicalize so '..' cannot escape the files root.

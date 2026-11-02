@@ -300,7 +300,7 @@ bun run test                 # if your app has a test script
 bun run build:ios            # if iOS is configured and its tools are installed
 ```
 
-See the [CLI version-management reference](../../packages/cli/README.md#compatible-versions)
+See the [CLI version-management reference](../packages/package-cli.md#compatible-versions)
 for deferred installs, library peer ranges, Windows preview pins, and
 install-failure recovery. Framework maintainers keep the shared set in the
 [compatibility manifest](../../packages/create/compatibility.json).
@@ -496,11 +496,11 @@ command after changing these settings. This applies to AppKit and WKWebView.
 The development bundle is removed when the command exits and is not installed
 for Spotlight. Use the packaged `.app` for a lasting installation.
 
-For AppKit rendering, install `@octane-xplat/macos-renderer` and use
+For AppKit rendering, install `@octane-xplat/macos-appkit` and use
 `xplatMacOS` from `@octane-xplat/cli/macos/vite` to register the compiler,
 platform resolution, and compatibility aliases. The app owns its windows,
 startup, and custom fonts; the renderer defaults to Apple's system font.
-See the [renderer setup](../../packages/macos-renderer/README.md) for dependencies,
+See the [renderer setup](../packages/package-macos-appkit.md) for dependencies,
 Vite and TypeScript configuration, and the root lifecycle.
 
 ```js

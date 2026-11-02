@@ -392,6 +392,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 				orientations: host.supportsRotationAngles()
 					? ['landscapeLeft', 'landscapeRight', 'portrait', 'portraitUpsideDown']
 					: [],
+				cameraSwitchDuringRecording: false,
 				durationLimit: 'native',
 				elapsedTime: 'nativeMedia',
 				output: {

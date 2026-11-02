@@ -8,7 +8,7 @@ import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
-import * as renderer from '@octane-xplat/macos-renderer'
+import * as renderer from '@octane-xplat/macos-appkit'
 import { createAppKitWindow, fitWindowToContent } from '../../apps/macos/src/appkit.ts'
 
 globalThis.__xplatDevModules = {
@@ -16,7 +16,7 @@ globalThis.__xplatDevModules = {
 	'octane/signals': signals,
 	'octane/signals/client': signalsClient,
 	'octane/internal/client': internal,
-	'@octane-xplat/macos-renderer': renderer,
+	'@octane-xplat/macos-appkit': renderer,
 }
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })

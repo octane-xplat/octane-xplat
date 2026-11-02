@@ -138,9 +138,11 @@ experience of agents writing Octane-xplat code effectively.
   Common build, typecheck, and test tasks depend on `^typegen`, which both
   orders dependency declaration emit first and folds each dep's file hash into
   the dependent — the edge covers even script-less deps because turbo still
-  hashes their files through the no-op task node. `apps/mobile` and
-  `apps/windows` typecheck `../../packages/**/*` literally, so their
-  `turbo.json` hashes all package sources directly (explicit input globs are
+  hashes their files through the no-op task node. `apps/mobile` includes
+  `../../packages/**/*` as roots; `apps/windows` checks app roots and their
+  imported Windows/native package graph. Both apps' `turbo.json` files hash
+  all package sources directly so path-mapped imports outside the workspace
+  dependency edges still invalidate the check (explicit input globs are
   filesystem walks, not git-aware — `node_modules` and `.turbo` logs are
   negated there). App packages order `@xplat/app#gen` (routes.gen +
   styled-system) ahead of `typecheck`/`build`/`test`. `test:packed`,
@@ -482,7 +484,7 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
 - Canonical framework patch files live in `packages/cli/patches/` and ship
   with the CLI. Root Bun registration and consumer pnpm configuration are
   synchronized from that manifest; see the package-manager contract above and
-  [the patch workflow](../../packages/cli/README.md#framework-patches).
+  [the patch workflow](../../docs/packages/package-cli.md#framework-patches).
   The patch package's prepack uses `sync-patches.ts --package-only`, refreshing
   only its generated files. Root configuration and starter changes belong to
   the explicit `bun run sync:patches` command. Remove a patch when upstream
@@ -561,7 +563,7 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   Git/eslint ignores, JSON extends, rule options and file overrides. Config
   selection is rooted at cwd; nested configs and JS/TS/JSONC configs are
   unsupported. TSRX checks only `xplat/*` and has no lint autofixes. See the
-  [consumer contract](../../packages/lint/README.md).
+  [consumer contract](../../docs/packages/package-lint.md).
 - Format: `bun run format` delegates to `xplat fmt`
   (`packages/cli/src/commands/fmt.ts`, engine `@octane-xplat/fmt` — in-process
   safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc
@@ -689,16 +691,24 @@ Constraints this creates:
   `globalThis`-only read stayed undefined on NativeScript (device shims are
   module-scope consts, not globals).
 
-## TSRX fragment initializers in the formatter
+## TSRX JSX initializers in the formatter
 
 `@octane-xplat/fmt` 0.1.1 fixes ambient declaration parsing (`.d.ts`, `.d.mts`,
-`.d.cts`), but rejects an unparenthesized multiline fragment initializer inside
-an `@{}` function followed by `@if`, reporting `TSRX_LIFT: formatted TSRX
-structure differs from the input`. Parenthesizing the initializer lets the same
-source format successfully. `packages/ui/src/components/overlays/modal-focus.web.test.tsrx` uses
-this workaround; keep it until the formatter accepts the unparenthesized form.
-This was verified through the formatter's Node API and `bun run format`, not a
-renderer runtime test.
+`.d.cts`), but rejects an unparenthesized JSX initializer inside an `@{}`
+function when the initializer stays multiline after formatting and a TSRX
+control statement (`@if`, `@for`, `@switch`, `@try`) follows it — reporting
+`TSRX_LIFT: formatted TSRX structure differs from the input`. Elements and
+fragments both trigger it; comments and blank lines between the statements do
+not prevent it, but an intervening non-TSRX statement does. Parenthesizing the
+initializer lets the same source format successfully — verified against
+elements and fragments through the formatter's Node API and `bun run format`,
+not a renderer runtime test. One residual edge: if the parenthesized
+initializer collapses to a single line when formatted, `TSRX_LIFT` still
+fires.
+`packages/ui/src/components/overlays/modal-focus.web.test.tsrx` and the five
+`.macos.tsrx` components `ActivityIndicator`, `CheckboxGroup`, `PinInput`,
+`RadioGroup`, and `Select` use this workaround; keep it until the formatter
+accepts the unparenthesized form.
 
 ```tsrx
 function Example(props: { visible: boolean }) @{
@@ -788,3 +798,29 @@ Raw remote failure evidence: `/tmp/lightbox-audit-webkit-debug.log` on the
 isolated andromeda.local test checkout. Local feedback observation:
 `c1ba3022-51ad-4f95-bd9e-d1bd470f3fc4`. No upstream issue or root cause beyond
 the failing compiler stage was established during this repair.
+
+## Bamboo standalone scanning of TSRX templates
+
+With `@bamboocss/dev` 1.60.1, `bamboo cssgen` rejects a `.tsrx` file containing
+`export function Example() @{ ... }` with `ERR_BAMBOO_EXTRACT_FAILED` and
+`Expected a semicolon or an implicit semicolon after a statement, but found none`.
+The failing source was:
+
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+// src/Example.web.tsrx
+import { css } from './styled-system/css'
+export function Example() @{
+	<div className={css({ padding: '8' })}>TSRX</div>
+}
+```
+
+The probe ran `bamboo cssgen` with the package README config and `.tsrx` added
+to `include`; plain `.ts` and `.tsx` fixtures extracted successfully. This is standalone
+CLI extraction evidence, not a qualification of Vite's transformed-module path.
+
+The [Bamboo README](../../docs/packages/package-bamboo.md) therefore scans `.ts`/`.tsx`
+and keeps shared `css()` calls in a `.ts` module that TSRX components can import.
+No dependency patch was added. Recheck raw template extraction when upgrading
+Bamboo before adding `.tsrx` to this scan. Retained reproduction, versions and
+logs: `~/dev/reports/octane-xplat/package-readme-api-audit-20261031.md`.

@@ -53,6 +53,7 @@ export interface RuntimeService {
 export interface DocsProvider {
 	status(app: AppRef | null): unknown
 	serviceFor(app: AppRef): {
+		index(args: any): Promise<any>
 		search(args: any): Promise<any>
 		read(args: any): Promise<any>
 		guidance(args: any): Promise<any>

@@ -1,0 +1,46 @@
+{
+	"name": "@octane-xplat/docs-search",
+	"version": "0.19.0",
+	"description": "Local documentation retrieval engine used by the Xplat CLI and MCP server.",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/docs-search"
+	},
+	"files": [
+		"dist",
+		"src",
+		"README.md"
+	],
+	"type": "module",
+	"exports": {
+		"./chunks": {
+			"types": "./dist/chunks.d.ts",
+			"default": "./dist/chunks.js"
+		},
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"typegen": "tsc -p tsconfig.build.json",
+		"typecheck": "tsc -p tsconfig.json",
+		"test": "node --test tests/*.test.mjs",
+		"test:model": "node tests/model-smoke.mjs && bun tests/model-smoke.mjs",
+		"prepack": "bun run build"
+	},
+	"dependencies": {
+		"@huggingface/tokenizers": "0.2.0",
+		"onnxruntime-web": "1.31.1"
+	},
+	"devDependencies": {
+		"@types/node": "24.10.1",
+		"typescript": "catalog:"
+	}
+}

@@ -1,4 +1,4 @@
-import { createMacOSRoot } from '../../macos-renderer/src/index'
+import { createMacOSRoot } from '../../macos-appkit/src/index'
 import { RollingText } from '@octane-xplat/rolling-text'
 import { clipRow, viewHeight, writeCell } from '../src/host.macos'
 import { observeReducedMotion, readReducedMotion } from '../src/reduced-motion.macos'

@@ -2,7 +2,7 @@
 
 These files document **other people's systems** — what they are, how they work, and
 what we can take from them. Nothing in here is our plan. Our plan lives in
-[`../docs/`](../../../docs/).
+[`../docs/`](../../../docs).
 
 The distinction matters: when a design decision is in doubt, check whether it traces
 to a file in `docs/` (our commitment) or here (context that informed it).

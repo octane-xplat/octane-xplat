@@ -12,7 +12,7 @@ setup or distribution work.
 If a generic arrow reports JSX parse errors, use a named generic function.
 For an optional generic callback, use a callable type alias. The installed
 TSRX checker and CLI lint parser reject some otherwise valid TSX forms;
-[the toolchain note](../../../../.agents/docs/toolchain.md) records the exact
+[the toolchain note](../../../docs/toolchain.md) records the exact
 observed forms and version. This does not change the callback's public type.
 
 ```ts
@@ -93,7 +93,7 @@ installed-package behavior that workspace source checks cannot.
 For repository Android plugins, keep Java sources and checked-in AARs aligned.
 Inspect an AAR changed by a native build before discarding it; the audio
 package's packed-consumer check catches known stale bridge methods. See the
-[artifact maintenance note](../../../../.agents/docs/toolchain.md).
+[artifact maintenance note](../../../docs/toolchain.md).
 
 ```sh
 # Repository root: prepare declared package outputs and check exports.
@@ -121,7 +121,7 @@ different costs and prerequisites; consult
 
 The generic declaration gate pairs runtime and type exports. Keep separate
 packed-consumer checks for pure type facades or Node tooling with mixed export
-formats; see the [checker boundary](../../../../packages/tsrx-typegen/README.md#publish-checks).
+formats; see the [checker boundary](../../../../docs/packages/package-tsrx-typegen.md#publish-checks).
 
 ## Build a reusable library
 
@@ -158,7 +158,7 @@ The vendor collector must
 classify the requested entry under the native bundler's conditions; a compiled
 sibling export does not make the source root vendorable. Keep those roots in
 the framework transform pipeline. See the
-[mixed-export limitation](../../../../.agents/docs/toolchain.md) and its
+[mixed-export limitation](../../../docs/toolchain.md) and its
 maintained collector/bundler regression before removing the patch or adding
 vendor exclusions.
 

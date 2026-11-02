@@ -1,0 +1,126 @@
+# `@octane-xplat/picker`
+
+> Platform selection controls for web, SwiftUI, Material and native AppKit
+
+Platform-native selection controls: a SwiftUI `Picker` on iOS, a Material 3
+dropdown built with Jetpack Compose on Android, an HTML `<select>` on web,
+and an experimental native `NSPopUpButton` on macOS.
+Use it when you want the OS-authentic control rather than a shared look.
+
+```sh
+bun add @octane-xplat/picker
+```
+
+There is no shared picker API at the package root. Each platform entry exports
+its own component and types; import it from the platform subpath in a matching
+platform-suffixed file:
+
+| File suffix     | Import                         | Component          |
+| --------------- | ------------------------------ | ------------------ |
+| `*.ios.tsx`     | `@octane-xplat/picker/ios`     | `SwiftUIPicker`    |
+| `*.android.tsx` | `@octane-xplat/picker/android` | `MaterialDropdown` |
+| `*.web.tsx`     | `@octane-xplat/picker/web`     | `Select`           |
+| `*.macos.tsx`   | `@octane-xplat/picker/macos`   | `AppKitPicker`, `Select` |
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// BagPicker.ios.tsx
+import { useState } from 'octane'
+import { SwiftUIPicker } from '@octane-xplat/picker/ios'
+
+export function BagPicker() {
+	const [selection, setSelection] = useState('carry')
+	return (
+		<SwiftUIPicker
+			label="Bag"
+			selection={selection}
+			onSelectionChange={setSelection}
+			options={[{ id: 'carry', title: 'Carry-on' }]}
+		/>
+	)
+}
+```
+
+Each entry's props follow its own platform's selection vocabulary and option
+shapes: iOS uses SwiftUI selection IDs, Android uses Material dropdown keys and
+enabled states, web follows browser select values, and AppKit uses stable
+string selection IDs.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// MaterialDropdownExample.android.tsx
+import { MaterialDropdown } from '@octane-xplat/picker/android'
+
+export function Picker() {
+	return (
+		<MaterialDropdown
+			label="Bag"
+			items={[{ key: 'carry', text: 'Carry-on' }]}
+			defaultSelectedKey="carry"
+			onSelectedKeyChange={console.log}
+		/>
+	)
+}
+```
+
+```tsx
+// SelectExample.web.tsx
+import { Select } from '@octane-xplat/picker/web'
+
+export function Picker() {
+	return (
+		<Select
+			label="Bag"
+			options={[{ value: 'carry', label: 'Carry-on' }]}
+			defaultValue="carry"
+			onChange={console.log}
+		/>
+	)
+}
+```
+
+See the framework guide for details and maintained examples:
+[`docs/platform/native-picker.md`](https://octane-xplat.goddardai.org/native-picker).
+
+
+[Generated API reference](https://octane-xplat.goddardai.org/api-picker).
+
+## Native macOS picker
+
+In a configured native AppKit app, put this field in a `.macos.tsx` file. The
+source implementation embeds a noneditable native pop-up button with a visible
+label. Accept a choice by updating `selection`; leaving it unchanged restores
+the current controlled value. No additional plugin is required on macOS.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// BagPicker.macos.tsx
+import { useState } from 'octane'
+import { AppKitPicker } from '@octane-xplat/picker/macos'
+export function BagPicker() {
+	const [selection, setSelection] = useState('carry')
+	return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
+		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+}
+```
+
+Native pointer/keyboard, menu tracking, focus, layout, VoiceOver and packaged
+consumer qualification remain pending. Invalid choices or a missing controlled
+ID show a generic message; repair those props to retry. See the
+[AppKit lifecycle and selection contract](../platform/native-picker.md#native-macos-selection)
+for asynchronous options, record ownership and the maintained manual demo.
+
+The macOS entry also exports the existing `Select` component, with the web
+entry's `value`/`defaultValue`/`onChange` and `value`/`label` option shape. It
+renders through the renderer's native list-picker host. `AppKitPicker` owns a
+separate native pop-up lifetime and uses `selection` and `id`/`title` options;
+choose one contract consistently for a field. Neither path is runtime-qualified
+by this integration.
+
+```tsx
+import { Select } from '@octane-xplat/picker/macos'
+export function Region() {
+	return <Select label="Region" defaultValue="sfo"
+		options={[{ value: 'sfo', label: 'San Francisco' }]} />
+}
+```

@@ -158,7 +158,7 @@ increment/decrement callbacks in a discrete event scope. Value/selection prop
 updates post change notifications. This closes source wiring gaps, not native
 VoiceOver or selector-registration qualification. Existing UI handler cases
 alone did not prove that renderer bridge. See
-[renderer contract](../../../../../packages/macos-renderer/README.md#self-drawn-control-accessibility).
+[renderer contract](../../../../../docs/packages/package-macos-appkit.md#self-drawn-control-accessibility).
 
 ```tsx
 import { Slider, Switch } from '@octane-xplat/ui'
@@ -192,7 +192,7 @@ Native click recognizers now have ownership separate from accessibility IDs.
 Controls mounted disabled/read-only can install a callback later; updates reuse
 one recognizer, removal disables it and teardown removes it. This repairs source
 wiring, not actual native re-enable/hit-testing or lifecycle qualification. See
-[click ownership](../../../../../packages/macos-renderer/README.md#update-self-drawn-click-actions).
+[click ownership](../../../../../docs/packages/package-macos-appkit.md#update-self-drawn-click-actions).
 
 ```tsx
 import { Checkbox } from '@octane-xplat/ui'

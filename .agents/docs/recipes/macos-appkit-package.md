@@ -2,7 +2,7 @@
 
 ID: macos-appkit-package
 Targets: macos
-Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package, @nativescript/macos-node-api, @octane-xplat/macos-renderer, xplatMacOS
+Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package, @nativescript/macos-node-api, @octane-xplat/macos-appkit, xplatMacOS
 
 ## Starting point
 
@@ -105,8 +105,8 @@ production Vite config that emits one CommonJS host bundle.
 - AC10: [AppKit fonts](../../../docs/app/styling.md#appkit-fonts) and the
   [maintained harness font setup](../../../apps/macos/src/fonts.ts).
 
-- AC11: [Renderer setup](../../../packages/macos-renderer/README.md) and the
-  [packed renderer consumer](../../../packages/macos-renderer/test/packed-consumer.ts).
+- AC11: [Renderer setup](../../../docs/packages/package-macos-appkit.md) and the
+  [packed renderer consumer](../../../packages/macos-appkit/test/packed-consumer.ts).
 
 ## Verification gaps
 
@@ -150,9 +150,9 @@ changes and app-theme preference transitions.
   remain laid out in assigned frames after real-window resizing. Unsupported
   child-flex semantics and attached-placement boundaries are explicit.
 
-Documentation: [Container layout channels](../../../packages/macos-renderer/README.md#container-layout-channels).
+Documentation: [Container layout channels](../../../docs/packages/package-macos-appkit.md#container-layout-channels).
 Maintained coverage: [Native geometry fixture](../../../apps/macos/test/layout-channels-fixture.macos.tsx)
-and [renderer reconciliation tests](../../../packages/macos-renderer/test/style-reconcile.test.ts).
+and [renderer reconciliation tests](../../../packages/macos-appkit/test/style-reconcile.test.ts).
 The [panel placement fixture](../../../apps/macos/test/layout-placement-fixture.macos.tsx)
 also checks nested absolute/grid geometry, growing scroll height, repeated
 solver passes, and host size/position after resizing; `bun run smoke:macos` includes it.

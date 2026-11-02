@@ -494,7 +494,7 @@ package does not start. Real-device permission prompts, interruption recovery,
 route coexistence, and mic audio quality still need on-device qualification.
 
 On macOS, configure the app's microphone explanation and signing entitlement
-before recording; follow [macOS recorder setup](../../packages/recorder/README.md#macos-setup-and-lifecycle).
+before recording; follow [macOS recorder setup](../packages/package-recorder.md#macos-setup-and-lifecycle).
 The `macos` export loads independently of mobile APIs. Permission prompts leave
 the snapshot `idle`. A foreground loss or disconnected input interrupts capture;
 recovery requires an explicit app action. Stop waits for a valid finished WAV;

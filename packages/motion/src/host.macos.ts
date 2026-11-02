@@ -1,5 +1,5 @@
 import { captureViewportOffset } from './projection/viewport-offset'
-import { setLayoutProjectionScale } from '@octane-xplat/macos-renderer'
+import { setLayoutProjectionScale } from '@octane-xplat/macos-appkit'
 import { paintScale } from './projection/paint'
 import type { HostAdapter } from './host-types'
 import type { Target } from './types'

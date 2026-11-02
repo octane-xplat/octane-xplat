@@ -19,11 +19,11 @@ Unit/build lanes on `2a5ec81ad` + this branch's fixes:
 - `turbo run test` — charts, image, video, gif, lightbox, sheet, picker: all
   green. media: 32/33 → fixed (below), now 33/33.
 - `test:packed` — image, charts, video, lightbox, media, picker, sheet: green.
-  gif and macos-renderer fail; see Findings.
+  gif and macos-appkit fail; see Findings.
 - `ui test:macos` — green after the packed-consumer fix (macos-value-exports,
   query-storage, table-universal, thumbhash, macos-barrel, packed consumer
   Bundler + NodeNext).
-- `macos-renderer` authored suite: **647 pass / 17 fail** — identical to the
+- `macos-appkit` authored suite: **647 pass / 17 fail** — identical to the
   documented main state (vm-slice realm + unrelated feature tests). Owned by
   the renderer test-debt task; not regressed by this work.
 - `media tests/macos-runtime.mjs`: **APPKIT_MEDIA_RUNTIME_OK, 48 assertions**
@@ -126,8 +126,8 @@ Research probes (gitignored `research/probes-cases/`):
    canonical types entry); gif's consumer is the only one asserting a
    per-target return type. Belongs to the tsrx-typegen/leaf-plumbing lane.
 
-9. **`macos-renderer` packed consumer fails on main**: the consumer's
-   `src/types.ts` imports `@octane-xplat/macos-renderer/{intrinsics,
+9. **`macos-appkit` packed consumer fails on main**: the consumer's
+   `src/types.ts` imports `@octane-xplat/macos-appkit/{intrinsics,
    jsx-runtime,jsx-dev-runtime}` — subpaths removed in `308c14c58`. Needs
    the same retarget the ui consumer got (`4eceb4f18` → `@octane-xplat/jsx`).
    Owned by the renderer test-debt task.

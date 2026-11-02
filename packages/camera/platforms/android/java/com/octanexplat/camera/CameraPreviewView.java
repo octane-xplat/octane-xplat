@@ -3,6 +3,8 @@ package com.octanexplat.camera;
 import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.graphics.Bitmap;
 
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
@@ -14,6 +16,7 @@ import androidx.lifecycle.LifecycleRegistry;
 public final class CameraPreviewView extends FrameLayout implements LifecycleOwner {
 	private final LifecycleRegistry lifecycle;
 	private final PreviewView previewView;
+	private final ImageView heldPreview;
 	private boolean cameraActive = true;
 	private boolean attached;
 
@@ -22,6 +25,9 @@ public final class CameraPreviewView extends FrameLayout implements LifecycleOwn
 		lifecycle = new LifecycleRegistry(this);
 		lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
 		previewView = new PreviewView(context);
+		// TextureView permits retaining the last preview frame during a
+		// live input swap. The recording itself stays in CameraX.
+		previewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
 		previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
 		addView(
 			previewView,
@@ -30,6 +36,24 @@ public final class CameraPreviewView extends FrameLayout implements LifecycleOwn
 				ViewGroup.LayoutParams.MATCH_PARENT
 			)
 		);
+		heldPreview = new ImageView(context);
+		heldPreview.setScaleType(ImageView.ScaleType.FIT_XY);
+		heldPreview.setVisibility(GONE);
+		addView(heldPreview, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+	}
+
+	/** Retain this camera's already transformed preview pixels in memory;
+	 *  never persist them or use a separate camera acquisition. */
+	public boolean holdPreview() {
+		Bitmap frame = previewView.getBitmap();
+		if (frame == null) return false;
+		heldPreview.setImageBitmap(frame);
+		heldPreview.setVisibility(VISIBLE);
+		return true;
+	}
+	public void releaseHeldPreview() {
+		heldPreview.setVisibility(GONE);
+		heldPreview.setImageDrawable(null);
 	}
 
 	@Override

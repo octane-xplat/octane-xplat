@@ -682,7 +682,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		return []
 	}
 
-	const isMacOSRuntimeFile = /(^|\/)(apps\/macos|packages\/macos-renderer)\//.test(norm(filename))
+	const isMacOSRuntimeFile = /(^|\/)(apps\/macos|packages\/macos-appkit)\//.test(norm(filename))
 	const out: any[] = []
 	for (const [node] of walk(program)) {
 		if (
@@ -1433,7 +1433,12 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
 export const DOM_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx/dom */'
-const RETIRED_PRAGMAS = ['@nativescript-community/octane', '@octane-xplat/macos-renderer', 'octane']
+const RETIRED_PRAGMAS = [
+	'@nativescript-community/octane',
+	'@octane-xplat/macos-appkit',
+	'@octane-xplat/macos-renderer',
+	'octane',
+]
 
 // The pragma selects the JSX vocabulary — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by design. Native

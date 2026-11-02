@@ -121,7 +121,7 @@ Additional implementation evidence: [editor props](../../packages/tiptap/src/typ
 [query storage](../../packages/ui/src/data/query-storage.ts),
 [known limits](../../docs/testing/known-limits.md),
 [optional-service qualification](notes/optional-service-qualification.md),
-[DnD evidence](../../packages/dnd-kit/README.md#limits-and-verification).
+[DnD evidence](../../docs/packages/package-dnd-kit.md#limits-and-verification).
 
 Coverage: analysis only; no public behavior, recipes, or maintained examples
 changed. Verification for this deliverable is source/dependency coverage,

@@ -43,9 +43,19 @@ public static class Core20UiaWindow {
  Stage 'before-find-all'
  $elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,[System.Windows.Automation.Condition]::TrueCondition)
  $result.elementCount=$elements.Count
+ $seen=[System.Collections.Generic.HashSet[string]]::new()
+ $result.duplicateElementsSkipped=0
  for($index=0;$index -lt $elements.Count;$index++){
   $element=$elements[$index]
-  $row=[ordered]@{}
+  Stage "element-$index-runtime-id"
+  $runtimeId=@($element.GetRuntimeId())
+  if($runtimeId.Count -gt 0 -and -not $seen.Add(($runtimeId -join ','))){
+   $result.duplicateElementsSkipped++
+   continue
+  }
+  $row=[ordered]@{runtimeId=$runtimeId}
+  Stage "element-$index-class"
+  $row.className=$element.Current.ClassName
   Stage "element-$index-name"
   $row.name=$element.Current.Name
   Stage "element-$index-type"
@@ -66,6 +76,12 @@ public static class Core20UiaWindow {
   $row.offscreen=$element.Current.IsOffscreen
   Stage "element-$index-patterns"
   $row.patterns=@($element.GetSupportedPatterns()|ForEach-Object {$_.ProgrammaticName})
+  if($row.patterns -contains 'SelectionItemPatternIdentifiers.Pattern'){
+   Stage "element-$index-selection"
+   $pattern=[System.Windows.Automation.SelectionItemPattern]$element.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)
+   $row.selected=$pattern.Current.IsSelected
+   $row.selectionContainerName=$pattern.Current.SelectionContainer.Current.Name
+  }
   $rows.Add([pscustomobject]$row)
  }
  ConvertTo-Json -InputObject $rows.ToArray() -Depth 5|Set-Content ($OutputPrefix+'-rows.json') -Encoding UTF8

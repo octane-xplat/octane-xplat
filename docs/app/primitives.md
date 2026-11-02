@@ -1456,7 +1456,7 @@ its Swift view is included. Use HTTP(S), absolute/file URLs or ~/ bundle paths;
 all times stay in milliseconds. Play can retry a failed source; current-source
 callbacks retire on replacement/removal. Nine source-owner cases and an
 [AppKit fixture](../../examples/probes/video.macos.tsrx) are authored but unrun.
-See the [AppKit subset](../../packages/video/README.md#experimental-appkit-playback)
+See the [AppKit subset](../packages/package-video.md#experimental-appkit-playback)
 for polling, errors and remaining limits. Swift, actual playback/audio/input/AX,
 fit, sandbox and packaged behavior remain unqualified; metadata/intent callbacks
 are not frame or OS-input proof. Lightbox video is a separate gap.
@@ -1623,7 +1623,7 @@ if (caps.supported) {
 Output is a durable file in app-private storage (`nativeFile` output —
 `fileUrl`/`path`), reopenable via `session.openOutput(output)` for playback
 or sharing; the package never uploads, persists, or deletes clips. See the
-[camera package README](../../packages/camera/README.md#movie-recording) for
+[camera package README](../packages/package-camera.md#movie-recording) for
 the full contract: errors, interruption causes, and ownership rules. Android
 and web session adapters are still pending — they reject with `unsupported`
 until they land; see [known limits](../testing/known-limits.md#primitives).
@@ -2617,7 +2617,7 @@ This image host does not load SVG file paths or remote URLs. The native SVG
 path has runtime evidence on macOS 27.0.1; decoding on macOS 13.5 remains
 unverified. An unsupported decoder produces an empty image. See the
 [AppKit SVG notes](../../.agents/docs/notes/icon-svg-notes.md) for evidence and limits, and the
-[icons leaf](../../packages/icons/README.md) for set-agnostic Iconify rendering.
+[icons leaf](../packages/package-icons.md) for set-agnostic Iconify rendering.
 
 For a side drawer with mobile edge gestures, use the optional
 [Drawer package](drawer.md).

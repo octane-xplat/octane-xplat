@@ -62,7 +62,7 @@ const online = environment.getSnapshot().online
 NativeScript's default fetch buffers the response. Use the network leaf for
 incremental bytes; it does not replace global fetch or provide a complete
 Fetch-compatible client adapter. Handle cancellation and the documented
-request/target subset in the [network guide](../../../../../packages/network/README.md).
+request/target subset in the [network guide](../../../../../docs/packages/package-network.md).
 
 ```ts
 import { requestStream } from '@octane-xplat/network'

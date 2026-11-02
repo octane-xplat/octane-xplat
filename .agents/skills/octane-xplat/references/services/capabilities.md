@@ -38,7 +38,7 @@ from a handled JavaScript report. Keep upload tokens out of runtime config.
 ## Choose a capability and handle availability
 
 For phone startup, use the
-[launch-screen guide](../../../../../packages/splash-screen/README.md). Arm the
+[launch-screen guide](../../../../../docs/packages/package-splash-screen.md). Arm the
 process-scoped hold in a module imported before Application.run(); a component
 effect is too late. Reveal after the root Page loads and required data is ready.
 Repeated prevention shares one native deadline, and a dismissed startup cannot
@@ -58,7 +58,7 @@ export function revealReadyPage() {
 }
 ```
 
-For interface orientation, use the [screen-orientation guide](../../../../../packages/screen-orientation/README.md).
+For interface orientation, use the [screen-orientation guide](../../../../../docs/packages/package-screen-orientation.md).
 Phone requests own the primary window, run in order, and reject OS refusals.
 Forward the iOS delegate callback before Application.run(); retain an existing
 delegate's other methods. Keep the maintained example's native class before its
@@ -79,7 +79,7 @@ export async function requestLandscape() {
 ```
 
 For OTA compatibility, use the Node-only
-[fingerprint tool](../../../../../packages/fingerprint/README.md) as an app development
+[fingerprint tool](../../../../../docs/packages/package-fingerprint.md) as an app development
 dependency, alongside the Updates runtime. Never import it into app code.
 Regenerate an older prepare hook and rebuild binaries when adopting the exact
 fingerprint protocol. Preserve the private `.xplat/fingerprints/<platform>.json`
@@ -97,7 +97,7 @@ bun run xplat-fingerprint --dir . \
   --diff .xplat/fingerprints/ios.json
 ```
 
-For image pixels, use the [image-manipulator guide](../../../../../packages/image-manipulator/README.md).
+For image pixels, use the [image-manipulator guide](../../../../../docs/packages/package-image-manipulator.md).
 `image-crop` provides geometry; `ImageManipulator` creates a file from it. Keep
 the original normalized dimensions for selection, and pass whole-pixel natural
 coordinates to crop. Contexts, rendered refs, and encoded results have separate
@@ -123,7 +123,7 @@ export async function resizePhoto(sourceUri: string) {
 ```
 
 For a custom device gallery or album editor, use the modern `Asset`, `Album`,
-and `Query` API in the [media-library guide](../../../../../packages/media-library/README.md).
+and `Query` API in the [media-library guide](../../../../../docs/packages/package-media-library.md).
 Use `media` for attachment picking alone. Read permissions without prompting;
 request from an app action and preserve limited access. IDs are library records,
 not files: Apple `getUri` exports a separately owned temporary file, while Android
@@ -145,7 +145,7 @@ export function photoPage(offset: number) {
 }
 ```
 
-For payments, use the [Stripe checkout guide](../../../../../packages/stripe/README.md).
+For payments, use the [Stripe checkout guide](../../../../../docs/packages/package-stripe.md).
 Initialize the app-scoped SDK once with a publishable key; the backend owns
 amounts, Intents and webhook fulfilment. Client completion is not payment
 settlement. The current subset is guest PaymentIntents; web requires a card-only
@@ -166,7 +166,7 @@ export async function checkout(paymentIntentClientSecret: string, returnURL: str
 // Verify the order on the app server after a successful client result.
 ```
 
-For printing and PDF reports, use the [print guide](../../../../../packages/print/README.md).
+For printing and PDF reports, use the [print guide](../../../../../docs/packages/package-print.md).
 Check `Print.capabilities` per operation. Browser print UI does not return a PDF
 file, and Android dispatch does not prove a job printed or even finished its
 chooser. Keep outputs until all readers finish; external share dispatch alone
@@ -185,7 +185,7 @@ export async function withPdf(html: string, consume: (uri: string) => Promise<vo
 }
 ```
 
-For local document workflows, use the [files package guide](../../../../../packages/files/README.md).
+For local document workflows, use the [files package guide](../../../../../docs/packages/package-files.md).
 Its experimental AppKit leaf implements local reads, Documents writes and
 save-panel export; do not infer sandbox, OS picker or packaged-app qualification
 from its source or bridge tests. Picked grants are session-scoped.

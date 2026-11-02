@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest'
-import { createAppKitKeyboardDispatcher } from '../../../../macos-renderer/src/keyboard'
+import { createAppKitKeyboardDispatcher } from '../../../../macos-appkit/src/keyboard'
 const layer = vi.hoisted(() => ({ setup: null as any, dispatch: vi.fn() }))
 vi.mock('./layer-stack', () => ({ configureLayerKeys: (setup: any) => { layer.setup = setup }, dispatchLayerKey: layer.dispatch }))
 vi.mock('./layer-focus.macos', () => ({ captureAppKitLayerFocus: vi.fn() }))

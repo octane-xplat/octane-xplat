@@ -17,14 +17,15 @@ paths or outputs reopened in another process.
 
 Size bounds currently reduce the working image after decoding; they do not
 guarantee reduced decoder peak memory. Native transformations/encoding execute
-on the calling JS thread. JPEG/PNG are the portable outputs. Native iOS/AppKit
-reject WebP; extent follows Expo's web-only scope. Native GTK/Windows adapters
+on the calling JS thread. JPEG/PNG are the portable outputs. Apple WebP encoding uses libwebp; browser canvas falls back to a bundled WASM
+encoder when it cannot produce WebP. See [codec packaging](media-conversion.md#webp-engine-packaging).
+Extent follows Expo's web-only scope. Native GTK/Windows adapters
 have not been implemented. Their safe unsupported imports are not evidence that
 the OS cannot perform bitmap operations; future adapters can use host engines.
 
 Reference contracts: [Expo ImageManipulator](https://docs.expo.dev/versions/latest/sdk/imagemanipulator/),
 [NativeScript ImageSource](https://docs.nativescript.org/core/image-source),
-and the [public package guide](../../../packages/image-manipulator/README.md).
+and the [public package guide](../../../docs/packages/package-image-manipulator.md).
 
 ## Verification
 

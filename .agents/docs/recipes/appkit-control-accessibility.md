@@ -25,10 +25,10 @@ native accessibility semantics without claiming VoiceOver or OS-input proof.
 
 ## Documentation
 
-- AC1: [Renderer contract](../../../packages/macos-renderer/src/index.ts) and [authored source regressions](../../../packages/macos-renderer/test/common-control-accessibility.test.ts).
+- AC1: [Renderer contract](../../../packages/macos-appkit/src/index.ts) and [authored source regressions](../../../packages/macos-appkit/test/common-control-accessibility.test.ts).
 - AC2: The same contract and source cases cover action dispatch/guards; [target note](../exploration.md#operational-evidence) records exact deferred commands.
-- AC3: The [renderer contract](../../../packages/macos-renderer/src/index.ts) and [source regressions](../../../packages/macos-renderer/test/common-control-accessibility.test.ts) document notification scope and remaining native qualification gates. No runtime or assistive-technology evidence is claimed.
+- AC3: The [renderer contract](../../../packages/macos-appkit/src/index.ts) and [source regressions](../../../packages/macos-appkit/test/common-control-accessibility.test.ts) document notification scope and remaining native qualification gates. No runtime or assistive-technology evidence is claimed.
 
-- AC4: [Native activation contract](../../../packages/macos-renderer/src/index.ts) and [authored shortcut/guard cases](../../../packages/macos-renderer/test/common-control-accessibility.test.ts). No actual OS key or shortcut run is claimed.
+- AC4: [Native activation contract](../../../packages/macos-appkit/src/index.ts) and [authored shortcut/guard cases](../../../packages/macos-appkit/test/common-control-accessibility.test.ts). No actual OS key or shortcut run is claimed.
 
-- AC5: [Renderer selector contract](../../../packages/macos-renderer/src/index.ts), added retained-state/selector regression, corrected existing focus/action fixtures and [target note](../exploration.md#operational-evidence). Native bridge/AX/focus qualification is deferred.
+- AC5: [Renderer selector contract](../../../packages/macos-appkit/src/index.ts), added retained-state/selector regression, corrected existing focus/action fixtures and [target note](../exploration.md#operational-evidence). Native bridge/AX/focus qualification is deferred.

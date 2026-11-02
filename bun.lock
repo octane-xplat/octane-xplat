@@ -53,6 +53,7 @@
         "@octane-xplat/jsx": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
+        "exports-md": "0.2.20",
         "jsdom": "catalog:",
         "playwright": "1.63.0",
         "typescript": "catalog:",
@@ -86,7 +87,7 @@
         "@octane-xplat/bamboo": "workspace:*",
         "@octane-xplat/camera": "workspace:*",
         "@octane-xplat/desktop-webview": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octane-xplat/web-browser": "workspace:*",
@@ -180,7 +181,7 @@
         "@octane-xplat/bamboo": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "nativescript": "9.1.1",
@@ -250,7 +251,7 @@
         "@nativescript/windows": "0.1.0-alpha.144",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "nativescript": "9.1.2-dev.2026-09-24-36031892256",
         "typescript": "catalog:",
@@ -273,7 +274,7 @@
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
         "@octane-xplat/linux-gtk": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/workshop": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -338,7 +339,7 @@
         "@octane-xplat/bamboo": "workspace:*",
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "octane": "catalog:",
         "vite": "catalog:",
       },
@@ -388,7 +389,7 @@
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -566,7 +567,7 @@
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/macos-node-api": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -598,7 +599,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -609,13 +610,13 @@
       "peerDependencies": {
         "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
         "@nativescript-community/octane",
         "@nativescript/core",
-        "@octane-xplat/macos-renderer",
+        "@octane-xplat/macos-appkit",
       ],
     },
     "packages/charts": {
@@ -632,7 +633,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -670,6 +671,7 @@
         "@babel/plugin-transform-unicode-property-regex": "8.0.1",
         "@babel/plugin-transform-unicode-sets-regex": "8.0.1",
         "@clack/prompts": "1.8.1",
+        "@octane-xplat/docs-search": "workspace:*",
         "@octane-xplat/fmt": "0.1.1",
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/lint": "workspace:*",
@@ -731,7 +733,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -809,7 +811,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -873,7 +875,7 @@
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/nativescript-mason-core": "1.0.0-beta.5",
         "octane": "catalog:",
       },
@@ -904,7 +906,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -924,6 +926,18 @@
         "octane",
       ],
     },
+    "packages/docs-search": {
+      "name": "@octane-xplat/docs-search",
+      "version": "0.19.0",
+      "dependencies": {
+        "@huggingface/tokenizers": "0.2.0",
+        "onnxruntime-web": "1.31.1",
+      },
+      "devDependencies": {
+        "@types/node": "24.10.1",
+        "typescript": "catalog:",
+      },
+    },
     "packages/drawer": {
       "name": "@octane-xplat/drawer",
       "version": "0.19.0",
@@ -937,7 +951,7 @@
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -999,7 +1013,7 @@
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -1151,7 +1165,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -1209,7 +1223,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -1240,7 +1254,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -1270,7 +1284,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -1282,13 +1296,13 @@
       "peerDependencies": {
         "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
-        "@octane-xplat/macos-renderer": ">=0.8.0 <1",
+        "@octane-xplat/macos-appkit": ">=0.8.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
         "@nativescript-community/octane",
         "@nativescript/core",
-        "@octane-xplat/macos-renderer",
+        "@octane-xplat/macos-appkit",
         "octane",
       ],
     },
@@ -1296,6 +1310,7 @@
       "name": "@octane-xplat/image-manipulator",
       "version": "0.19.0",
       "dependencies": {
+        "@jsquash/webp": "1.5.0",
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",
       },
@@ -1330,7 +1345,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -1417,7 +1432,7 @@
         "@lexical/history": "0.51.0",
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -1457,7 +1472,7 @@
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
         "@octane-xplat/jsx": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "jsdom": "catalog:",
@@ -1568,7 +1583,7 @@
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -1586,8 +1601,8 @@
         "@nativescript/core",
       ],
     },
-    "packages/macos-renderer": {
-      "name": "@octane-xplat/macos-renderer",
+    "packages/macos-appkit": {
+      "name": "@octane-xplat/macos-appkit",
       "version": "0.19.0",
       "dependencies": {
         "@nativescript/macos-node-api": "catalog:",
@@ -1680,6 +1695,31 @@
         "@nativescript/core",
       ],
     },
+    "packages/media-converter": {
+      "name": "@octane-xplat/media-converter",
+      "version": "0.19.0",
+      "dependencies": {
+        "@octane-xplat/lib": "workspace:*",
+        "gifuct-js": "2.1.2",
+        "mediabunny": "1.42.0",
+      },
+      "devDependencies": {
+        "@nativescript/core": "catalog:",
+        "@nativescript/types": "catalog:",
+        "jsdom": "catalog:",
+        "playwright": "1.63.0",
+        "tsrx-typegen": "workspace:*",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:",
+      },
+      "peerDependencies": {
+        "@nativescript/core": ">=9.1.0 <10",
+      },
+      "optionalPeers": [
+        "@nativescript/core",
+      ],
+    },
     "packages/media-library": {
       "name": "@octane-xplat/media-library",
       "version": "0.19.0",
@@ -1741,7 +1781,7 @@
         "@nativescript-community/gesturehandler": "2.0.45",
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "jsdom": "catalog:",
@@ -1755,14 +1795,14 @@
         "@nativescript-community/gesturehandler": "2.0.45",
         "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "octane": ">=0.1.51 <1",
       },
       "optionalPeers": [
         "@nativescript-community/gesturehandler",
         "@nativescript-community/octane",
         "@nativescript/core",
-        "@octane-xplat/macos-renderer",
+        "@octane-xplat/macos-appkit",
       ],
     },
     "packages/nano-icons": {
@@ -1797,13 +1837,13 @@
       "peerDependencies": {
         "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
         "@nativescript-community/octane",
         "@nativescript/core",
-        "@octane-xplat/macos-renderer",
+        "@octane-xplat/macos-appkit",
         "octane",
       ],
     },
@@ -1876,7 +1916,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -1911,7 +1951,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -1922,13 +1962,13 @@
       "peerDependencies": {
         "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
-        "@octane-xplat/macos-renderer": ">=0.8.0 <1",
+        "@octane-xplat/macos-appkit": ">=0.8.0 <1",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
         "@nativescript-community/octane",
         "@nativescript/core",
-        "@octane-xplat/macos-renderer",
+        "@octane-xplat/macos-appkit",
         "octane",
       ],
     },
@@ -2086,7 +2126,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@tiptap/core": "3.28.0",
         "@tiptap/starter-kit": "3.28.0",
         "@tsrx/typescript-plugin": "catalog:",
@@ -2121,7 +2161,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -2135,13 +2175,13 @@
       "peerDependencies": {
         "@nativescript-community/octane": ">=0.2.1 <1",
         "@nativescript/core": ">=9.1.0 <10",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "octane": ">=0.6.3 <1",
       },
       "optionalPeers": [
         "@nativescript-community/octane",
         "@nativescript/core",
-        "@octane-xplat/macos-renderer",
+        "@octane-xplat/macos-appkit",
       ],
     },
     "packages/screen-orientation": {
@@ -2288,7 +2328,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -2340,7 +2380,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
@@ -2489,7 +2529,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -2526,7 +2566,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -2613,7 +2653,7 @@
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "jsdom": "catalog:",
@@ -2666,7 +2706,7 @@
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
         "@nativescript/core": "catalog:",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
@@ -2784,7 +2824,7 @@
         "@nativescript/types": "catalog:",
         "@octane-xplat/css-engine": "workspace:*",
         "@octane-xplat/linux-gtk": "workspace:*",
-        "@octane-xplat/macos-renderer": "workspace:*",
+        "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "octane": "catalog:",
         "tsrx-typegen": "workspace:*",
@@ -2796,7 +2836,7 @@
         "@nativescript/core": ">=9.1.3 <10",
         "@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
         "@octane-xplat/linux-gtk": ">=0.18.0 <1",
-        "@octane-xplat/macos-renderer": ">=0.14.0 <1",
+        "@octane-xplat/macos-appkit": ">=0.14.0 <1",
         "@octanejs/vite-plugin": ">=0.1.61",
         "octane": ">=0.6.3 <1",
         "vite": ">=8",
@@ -2806,7 +2846,7 @@
         "@nativescript/core",
         "@nativescript/macos-node-api",
         "@octane-xplat/linux-gtk",
-        "@octane-xplat/macos-renderer",
+        "@octane-xplat/macos-appkit",
         "vite",
       ],
     },
@@ -3334,6 +3374,8 @@
 
     "@hono/node-server": ["@hono/node-server@2.1.4", "", { "peerDependencies": { "hono": "^4 || ^5.0.0-0" } }, "sha512-2g1qeHl4BduwDn6L8nkAvDrPUWPMlkQ//a5NhP/zIyaXKMjZNRV+cG9Csu+BiJFf6+68pqzjf4Hi5sJGKHuS1g=="],
 
+    "@huggingface/tokenizers": ["@huggingface/tokenizers@0.2.0", "", {}, "sha512-LidMHe1FpcSYH4vcSjXooda34pC0M8m1gmDOv7SQi6Iv+ib1zX7J3sHBCC9/3FPCkn2k1b55FneVqMRxrr99pg=="],
+
     "@iconify/types": ["@iconify/types@2.0.0", "", {}, "sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg=="],
 
     "@iconify/utils": ["@iconify/utils@3.1.7", "", { "dependencies": { "@antfu/install-pkg": "2.1.0", "@iconify/types": "2.0.0", "import-meta-resolve": "4.2.0" } }, "sha512-JZHlwdID+dy+lTgbYC8NEC4zeugqeYsc6jewvzb4c58kHauJn+X7rNwQjxz5p2qSjqaEeQoLkCIQ9v/H4PK0/w=="],
@@ -3473,6 +3515,8 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.6.0", "", {}, "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "3.1.2", "@jridgewell/sourcemap-codec": "1.6.0" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
+
+    "@jsquash/webp": ["@jsquash/webp@1.5.0", "", { "dependencies": { "wasm-feature-detect": "^1.2.11" } }, "sha512-KggLoj2MnRSfIqTeKe1EmbljTX2vuV7mh79k89PCL1pyqiDULcPM1L47twxXt0hkb68F70bXiL31MxsuoZtKFw=="],
 
     "@kayahr/text-encoding": ["@kayahr/text-encoding@2.2.0", "", {}, "sha512-9jjWumQ9+fI1SfiRo1oSqMm4Wz95A/XtRDXB1C4pyNLo8HhtiyZMAzVPGplhMreymaroGyPqRyOy3h+3khPJVg=="],
 
@@ -3744,6 +3788,8 @@
 
     "@octane-xplat/dnd-kit": ["@octane-xplat/dnd-kit@workspace:packages/dnd-kit"],
 
+    "@octane-xplat/docs-search": ["@octane-xplat/docs-search@workspace:packages/docs-search"],
+
     "@octane-xplat/drawer": ["@octane-xplat/drawer@workspace:packages/drawer"],
 
     "@octane-xplat/effects": ["@octane-xplat/effects@workspace:packages/effects"],
@@ -3810,13 +3856,15 @@
 
     "@octane-xplat/lottie": ["@octane-xplat/lottie@workspace:packages/lottie"],
 
-    "@octane-xplat/macos-renderer": ["@octane-xplat/macos-renderer@workspace:packages/macos-renderer"],
+    "@octane-xplat/macos-appkit": ["@octane-xplat/macos-appkit@workspace:packages/macos-appkit"],
 
     "@octane-xplat/maps": ["@octane-xplat/maps@workspace:packages/maps"],
 
     "@octane-xplat/mcp": ["@octane-xplat/mcp@workspace:packages/mcp"],
 
     "@octane-xplat/media": ["@octane-xplat/media@workspace:packages/media"],
+
+    "@octane-xplat/media-converter": ["@octane-xplat/media-converter@workspace:packages/media-converter"],
 
     "@octane-xplat/media-library": ["@octane-xplat/media-library@workspace:packages/media-library"],
 
@@ -4468,6 +4516,8 @@
 
     "@valor/nativescript-websockets": ["@valor/nativescript-websockets@2.0.3", "", {}, "sha512-gNmdgvRttQjOxnIMqdu4xmAU19IQkqMYbYUX/OGlicGkF67Yej4ShvRFPgVCzDa2zXCctlJVVqkgsj9ZHLl+zg=="],
 
+    "@vercel/detect-agent": ["@vercel/detect-agent@1.2.7", "", {}, "sha512-5tWaC9V+u4SHcSMKBz9FQb3Dhl/1A2lQ6QqHovu8uQeb8dTyjEevpJMANm/uQEn/usYB63fpdjWYjkJ8/bGtjA=="],
+
     "@vitest/browser": ["@vitest/browser@4.1.11", "", { "dependencies": { "@blazediff/core": "1.9.1", "@vitest/mocker": "4.1.11", "@vitest/utils": "4.1.11", "magic-string": "0.30.21", "pngjs": "7.0.0", "sirv": "3.0.2", "tinyrainbow": "3.2.0", "ws": "8.21.3" }, "peerDependencies": { "vitest": "4.1.11" } }, "sha512-bwMovvAeuTFOK5kIFevw4VEf+1gVEICv4SYK4k3knJOxl6b1zEWud8mYKD73e1B0odAn174h1MofURy2TPWf3w=="],
 
     "@vitest/browser-playwright": ["@vitest/browser-playwright@4.1.11", "", { "dependencies": { "@vitest/browser": "4.1.11", "@vitest/mocker": "4.1.11", "tinyrainbow": "3.2.0" }, "peerDependencies": { "playwright": "*", "vitest": "4.1.11" } }, "sha512-riLBxPqwnJ0lWs2DN2WeUfYeKLoAjbP2Xx8cLQdSddzMi20sksIa6K2mPz79DyMZKKVKH2ksOC2yJvtNcZg8cg=="],
@@ -4944,6 +4994,8 @@
 
     "exponential-backoff": ["exponential-backoff@3.1.3", "", {}, "sha512-ZgEeZXj30q+I0EN+CbSSpIyPaJ5HVQD18Z1m+u1FXbAeT94mr1zw50q4q6jiiC447Nl/YTcIYSAftiGqetwXCA=="],
 
+    "exports-md": ["exports-md@0.2.20", "", { "dependencies": { "@alloc/cmd-ts": "^0.17.1", "@vercel/detect-agent": "^1.2.3", "tar": "^7.5.22" }, "bin": { "exports-md": "dist/cli.mjs" } }, "sha512-iW7xOTKDvogpTLYgIR8wbVxKmcBTwApj4NFP/H36h+3qUdQTcdxyZ7HLXvtEPUvkVYaBW1nispf/9jmK59siXw=="],
+
     "express": ["express@5.3.0", "", { "dependencies": { "accepts": "2.0.0", "body-parser": "2.3.0", "content-disposition": "2.0.1", "content-type": "2.1.0", "cookie": "0.7.2", "cookie-signature": "1.2.2", "debug": "4.4.3", "depd": "2.0.0", "encodeurl": "2.0.0", "escape-html": "1.0.3", "etag": "1.8.1", "finalhandler": "2.1.1", "fresh": "2.0.0", "http-errors": "2.0.1", "merge-descriptors": "2.0.0", "mime-types": "3.0.2", "on-finished": "2.4.1", "once": "1.4.0", "parseurl": "1.3.3", "proxy-addr": "2.0.8", "qs": "6.16.0", "range-parser": "1.3.0", "router": "2.2.0", "send": "1.2.1", "serve-static": "2.2.1", "statuses": "2.0.2", "type-is": "2.1.0", "vary": "1.1.2" } }, "sha512-qCqy1xSoaugxOD4IVHb1ZWdkvCF2W3aE2okKouWj8VwJ+ztskSiXoBnCSJqfKT+cVPJhuJqe9YLbY425+Zh00g=="],
 
     "express-rate-limit": ["express-rate-limit@8.7.1", "", { "dependencies": { "debug": "4.4.3", "ip-address": "10.7.2" }, "peerDependencies": { "express": ">= 4.11" } }, "sha512-2FXbqkygil3mZiXzEtM0IjE/UBmBNot0J1GEVrJT4JbrvwOSoEtqtO+wHbiMQELWe1eNvHoYRg2dkjOid+6JkA=="],
@@ -4985,6 +5037,8 @@
     "find-up": ["find-up@4.1.0", "", { "dependencies": { "locate-path": "5.0.0", "path-exists": "4.0.0" } }, "sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw=="],
 
     "firebase": ["firebase@13.1.0", "", { "dependencies": { "@firebase/ai": "3.0.0", "@firebase/analytics": "0.10.25", "@firebase/analytics-compat": "0.2.31", "@firebase/app": "0.16.4", "@firebase/app-check": "0.13.1", "@firebase/app-check-compat": "0.4.7", "@firebase/app-compat": "0.5.20", "@firebase/app-types": "0.9.6", "@firebase/auth": "1.13.8", "@firebase/auth-compat": "0.6.13", "@firebase/data-connect": "0.7.4", "@firebase/database": "1.1.5", "@firebase/database-compat": "2.1.7", "@firebase/firestore": "4.19.0", "@firebase/firestore-compat": "0.4.16", "@firebase/functions": "0.14.0", "@firebase/functions-compat": "0.5.0", "@firebase/installations": "0.6.24", "@firebase/installations-compat": "0.2.24", "@firebase/messaging": "0.13.3", "@firebase/messaging-compat": "0.2.30", "@firebase/performance": "0.7.14", "@firebase/performance-compat": "0.2.27", "@firebase/remote-config": "0.9.3", "@firebase/remote-config-compat": "0.2.30", "@firebase/storage": "0.14.6", "@firebase/storage-compat": "0.4.6", "@firebase/util": "1.15.3" } }, "sha512-II/6P63vYzWdS6gTM9+OaMZD6XaCHJdI/9OVa8Z+bEs18t3CR2JlSwCI12KYMramNqTkywJocjSpGePaVPng+A=="],
+
+    "flatbuffers": ["flatbuffers@25.9.23", "", {}, "sha512-MI1qs7Lo4Syw0EOzUl0xjs2lsoeqFku44KpngfIduHBYvzm8h2+7K8YMQh1JtVVVrUvhLpNwqVi4DERegUJhPQ=="],
 
     "flatted": ["flatted@3.4.4", "", {}, "sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q=="],
 
@@ -5034,6 +5088,8 @@
 
     "get-tsconfig": ["get-tsconfig@5.0.0-beta.6", "", { "dependencies": { "resolve-pkg-maps": "1.0.0" } }, "sha512-X6fBC0pmImC70gvX2zm56go9hx0MyoGVdG0tUCkg/D+Xnh5TJsOZ7iDbOdI3PvmtrDxnu1YdDufpK2QJX1Meqw=="],
 
+    "gifuct-js": ["gifuct-js@2.1.2", "", { "dependencies": { "js-binary-schema-parser": "^2.0.3" } }, "sha512-rI2asw77u0mGgwhV3qA+OEgYqaDn5UNqgs+Bx0FGwSpuqfYn+Ir6RQY5ENNQ8SbIiG/m5gVa7CD5RriO4f4Lsg=="],
+
     "gifwrap": ["gifwrap@0.10.1", "", { "dependencies": { "image-q": "4.0.0", "omggif": "1.0.10" } }, "sha512-2760b1vpJHNmLzZ/ubTtNnEx5WApN/PYWJvXvgS+tL1egTTthayFYIQQNi136FLEDcN/IyEY2EcGpIITD6eYUw=="],
 
     "glob": ["glob@13.0.6", "", { "dependencies": { "minimatch": "10.2.6", "minipass": "7.1.3", "path-scurry": "2.0.2" } }, "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw=="],
@@ -5043,6 +5099,8 @@
     "gopd": ["gopd@1.2.0", "", {}, "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg=="],
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
+
+    "guid-typescript": ["guid-typescript@1.0.9", "", {}, "sha512-Y8T4vYhEfwJOTbouREvG+3XDsjr8E3kIr7uf+JZ0BYloFsttiHU0WfvANVsR7TxNUJa/WpCnw/Ino/p+DeBhBQ=="],
 
     "has-flag": ["has-flag@4.0.0", "", {}, "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ=="],
 
@@ -5191,6 +5249,8 @@
     "jose": ["jose@6.2.12", "", {}, "sha512-9NiFmJEex0sy2Dk58j2UGBSHgUs2ypF9eZSu4L6vjOX3Dp96Sw1F3uL+H+D1sx02jZZdzUT0HgvCy59CuvXcWw=="],
 
     "jpeg-js": ["jpeg-js@0.4.4", "", {}, "sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg=="],
+
+    "js-binary-schema-parser": ["js-binary-schema-parser@2.0.3", "", {}, "sha512-xezGJmOb4lk/M1ZZLTR/jaBHQ4gG/lqQnJqdIv4721DMggsa1bDVlHXNeHYogaIEHD9vCRv0fcL4hMA+Coarkg=="],
 
     "js-sha256": ["js-sha256@0.10.1", "", {}, "sha512-5obBtsz9301ULlsgggLg542s/jqtddfOpV5KJc4hajc9JV8GeY2gZHSVpYBn4nWqAUTJ9v+xwtbJ1mIBgIH5Vw=="],
 
@@ -5444,6 +5504,10 @@
 
     "oniguruma-to-es": ["oniguruma-to-es@4.3.6", "", { "dependencies": { "oniguruma-parser": "0.12.2", "regex": "6.1.0", "regex-recursion": "6.0.2" } }, "sha512-csuQ9x3Yr0cEIs/Zgx/OEt9iBw9vqIunAPQkx19R/fiMq2oGVTgcMqO/V3Ybqefr1TBvosI6jU539ksaBULJyA=="],
 
+    "onnxruntime-common": ["onnxruntime-common@1.31.1", "", {}, "sha512-F+nnYNiQtmNJ95V6R/isBJqiVpdANCrsMEg1OaF+Bkbl3GAtzWLR7Ng17Ld0QtYtYJyotOHPJzOQn1Y6PLZjpg=="],
+
+    "onnxruntime-web": ["onnxruntime-web@1.31.1", "", { "dependencies": { "flatbuffers": "^25.1.24", "guid-typescript": "^1.0.9", "long": "^5.2.3", "onnxruntime-common": "1.31.1", "platform": "^1.3.6", "protobufjs": "^7.2.4" } }, "sha512-5GeH+bWQ+HxM10z7erGlsWqryrwMbSvm/1tkIsKTT48g0fI19VXVVC435t4t7VsPdSQeS7NmuZPXrQ73k82URw=="],
+
     "open": ["open@10.2.0", "", { "dependencies": { "default-browser": "5.5.1", "define-lazy-prop": "3.0.0", "is-inside-container": "1.0.0", "wsl-utils": "0.1.0" } }, "sha512-YgBpdJHPyQ2UE5x+hlSXcnejzAvD0b22U2OuAP+8OnlJT+PjWPxtgmGqKKc+RgTM63U9gN0YzrYc71R2WT/hTA=="],
 
     "ora": ["ora@9.4.1", "", { "dependencies": { "chalk": "5.6.2", "cli-cursor": "5.0.0", "cli-spinners": "3.4.0", "is-interactive": "2.0.0", "is-unicode-supported": "2.1.0", "log-symbols": "7.0.1", "stdin-discarder": "0.3.2", "string-width": "8.3.0" } }, "sha512-6VlU9MLXbjVQD04AZCMX28hVtA5bUoadvUqO76MUCVA0ilwJbMiHsITRPfyVm6p/BC0Av/BXMujx39WCe1LEqw=="],
@@ -5537,6 +5601,8 @@
     "pkg-dir": ["pkg-dir@7.0.0", "", { "dependencies": { "find-up": "6.3.0" } }, "sha512-Ie9z/WINcxxLp27BKOCHGde4ITq9UklYKDzVo1nhk5sqGEXU3FpkwP5GM2voTGJkGd9B3Otl+Q4uwSOeSUtOBA=="],
 
     "pkg-types": ["pkg-types@2.3.0", "", { "dependencies": { "confbox": "0.2.4", "exsolve": "1.1.1", "pathe": "2.0.3" } }, "sha512-SIqCzDRg0s9npO5XQ3tNZioRY1uK06lA41ynBC1YmFTmnY6FjUjVt6s4LoADmwoig1qqD0oK8h1p/8mlMx8Oig=="],
+
+    "platform": ["platform@1.3.6", "", {}, "sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg=="],
 
     "playwright": ["playwright@1.63.0", "", { "dependencies": { "playwright-core": "1.63.0" }, "bin": { "playwright": "cli.js" } }, "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg=="],
 
@@ -6050,6 +6116,8 @@
 
     "walk-up-path": ["walk-up-path@4.0.0", "", {}, "sha512-3hu+tD8YzSLGuFYtPRb48vdhKMi0KQV5sn+uWr8+7dMEq/2G/dtLrdDinkLjqq5TIbIBjYJ4Ax/n3YiaW7QM8A=="],
 
+    "wasm-feature-detect": ["wasm-feature-detect@1.9.0", "", {}, "sha512-zonE+xlIIYtxPy++L24ow0hAD8CICb4+FgPyROd3buyXIqsJvUEDkBgfCCoXOd1Hu3DUr0GOfnPIdcGV+YpNaA=="],
+
     "watchpack": ["watchpack@2.5.2", "", { "dependencies": { "graceful-fs": "4.2.11" } }, "sha512-6i/00NBjP4yGPs+caKSyRfpTF/8Torsu0MOW3mMzIbhgISFder8i7xbqgHlLMwJrdiN8ndBV3UA1/AfzPSr+jg=="],
 
     "wawoff2": ["wawoff2@2.0.1", "", { "dependencies": { "argparse": "2.0.1" }, "bin": { "woff2_compress.js": "bin/woff2_compress.js", "woff2_decompress.js": "bin/woff2_decompress.js" } }, "sha512-r0CEmvpH63r4T15ebFqeOjGqU4+EgTx4I510NtK35EMciSdcTxCw3Byy3JnBonz7iyIFZ0AbVo0bbFpEVuhCYA=="],
@@ -6313,6 +6381,8 @@
     "@octane-xplat/lint/@tsrx/core": ["@tsrx/core@0.5.5", "", { "dependencies": { "@jridgewell/sourcemap-codec": "1.6.0", "@noble/hashes": "2.4.0", "@sveltejs/acorn-typescript": "1.0.13", "@tsrx/runtime": "0.2.4", "@types/estree": "1.0.9", "@types/estree-jsx": "1.0.5", "acorn": "8.18.0", "esrap": "2.3.7", "get-tsconfig": "5.0.0-beta.6", "magic-string": "0.30.21", "zimmerframe": "1.1.5" } }, "sha512-22Eym4Dtxm1d4INJHT560WQC9cxKT/YWXKztM7utjzHLtVB8egSycFmFt3D9g01Tb6G4g7GiF5YpgCOexx15uA=="],
 
     "@octane-xplat/lint/oxlint": ["oxlint@1.90.0", "", { "optionalDependencies": { "@oxlint/binding-android-arm-eabi": "1.90.0", "@oxlint/binding-android-arm64": "1.90.0", "@oxlint/binding-darwin-arm64": "1.90.0", "@oxlint/binding-darwin-x64": "1.90.0", "@oxlint/binding-freebsd-x64": "1.90.0", "@oxlint/binding-linux-arm-gnueabihf": "1.90.0", "@oxlint/binding-linux-arm-musleabihf": "1.90.0", "@oxlint/binding-linux-arm64-gnu": "1.90.0", "@oxlint/binding-linux-arm64-musl": "1.90.0", "@oxlint/binding-linux-ppc64-gnu": "1.90.0", "@oxlint/binding-linux-riscv64-gnu": "1.90.0", "@oxlint/binding-linux-riscv64-musl": "1.90.0", "@oxlint/binding-linux-s390x-gnu": "1.90.0", "@oxlint/binding-linux-x64-gnu": "1.90.0", "@oxlint/binding-linux-x64-musl": "1.90.0", "@oxlint/binding-openharmony-arm64": "1.90.0", "@oxlint/binding-win32-arm64-msvc": "1.90.0", "@oxlint/binding-win32-ia32-msvc": "1.90.0", "@oxlint/binding-win32-x64-msvc": "1.90.0" }, "peerDependencies": { "oxlint-tsgolint": "7.0.2005", "vite-plus": "*" }, "optionalPeers": ["oxlint-tsgolint", "vite-plus"], "bin": { "oxlint": "bin/oxlint" } }, "sha512-RkTN9EmgIUpLuhNoLhO3OliMGJlvb3Dk7XVjBZnfoMCHrVpuz5ESd97klfiyYeV7XfA2lNLnDCPMkUI+Qw5How=="],
+
+    "@octane-xplat/media-converter/mediabunny": ["mediabunny@1.42.0", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-s9ypTqLi6kbh95gC+YaJlG0PkLvMxu37Q/wO/pFZx0fUCA5Ym5mp+2dWoa83mKQ3Uo18aNlgev5iJ5ESZqWwgQ=="],
 
     "@octane-xplat/motion/@nativescript-community/gesturehandler": ["@nativescript-community/gesturehandler@2.0.45", "", { "dependencies": { "@nativescript-community/observable": "2.0.11" } }, "sha512-4GcYCxJByXVUIdOch5BY/HP32bO8lrOhaBpzlb/rQZwV3lmqmEZ4d5Jp33vxuekIcbxKhlWO72ky7H/0gMfQDQ=="],
 
