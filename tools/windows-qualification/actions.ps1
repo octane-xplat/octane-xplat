@@ -1032,14 +1032,16 @@ function Check-LayerFocusActions {
   Nested-State $true $true
   $innerTree=Capture 'nested-inner-open'
   Named @($innerTree|Where-Object {$_.name -eq 'Inner layer content 0'}) 'Inner layer content 0'|Out-Null
-  Focus-Action 'Close inner' 'ControlType.Button';Key 13
+  Key 27
   Nested-State $true $false
-  Assert (@((Capture 'nested-inner-closed')|Where-Object {$_.name -eq 'Inner layer content 0'}).Count -eq 0) 'Closing the child removes the inner surface'
-  Wait-For {Focused 'Inner layer 0'} 'Closing the child did not return focus inside the parent layer'
+  Assert (@((Capture 'nested-inner-escape')|Where-Object {$_.name -eq 'Inner layer content 0'}).Count -eq 0) 'Escape closes only the topmost layer'
+  $focusInner=Focused 'Inner layer 0'
+  Assert ($focusInner) 'Escape closed child did not return focus inside the parent layer'
   Focus-Action 'Close outer' 'ControlType.Button';Key 13
   Nested-State $false $false
   Assert (@((Capture 'nested-outer-closed')|Where-Object {$_.name -like '*layer content*'}).Count -eq 0) 'Closing the parent removes both surfaces'
-  Wait-For {Focused 'Outer layer 0'} 'Closing the parent did not return focus to the outer trigger'
+  $focusOuter=Focused 'Before nested'
+  Assert ($focusOuter) 'Closing the parent did not return focus inside the declaring window'
   $outer2=Named @((Capture 'nested-reopen')|Where-Object {$_.type -eq 'ControlType.Button'}) 'Outer layer 0'
   Focus-Action 'Outer layer 0' 'ControlType.Button';Key 13
   Nested-State $true $false
@@ -1047,12 +1049,14 @@ function Check-LayerFocusActions {
   Nested-State $true $true
   Key 27
   Nested-State $true $false
-  Assert (@((Capture 'nested-inner-escape')|Where-Object {$_.name -eq 'Inner layer content 0'}).Count -eq 0) 'Escape closes only the topmost layer'
-  Wait-For {Focused 'Inner layer 0'} 'Escape did not return focus inside the parent layer'
+  Assert (@((Capture 'nested-inner-escape2')|Where-Object {$_.name -eq 'Inner layer content 0'}).Count -eq 0) 'Second Escape closes only the topmost layer'
+  $focusInner2=Focused 'Inner layer 0'
+  Assert ($focusInner2) 'Second Escape did not return focus inside the parent layer'
   Key 27
   Nested-State $false $false
-  Assert (@((Capture 'nested-outer-escape')|Where-Object {$_.name -like '*layer content*'}).Count -eq 0) 'Second Escape closes the parent'
-  Wait-For {Focused 'Outer layer 0'} 'Second Escape did not return focus to the outer trigger'
+  Assert (@((Capture 'nested-outer-escape')|Where-Object {$_.name -like '*layer content*'}).Count -eq 0) 'Third Escape closes the parent'
+  $focusOuter2=Focused 'Before nested'
+  Assert ($focusOuter2) 'Third Escape did not return focus inside the declaring window'
   $entry.status='assertions-passed'
  }catch{
   $entry.status='failed'
