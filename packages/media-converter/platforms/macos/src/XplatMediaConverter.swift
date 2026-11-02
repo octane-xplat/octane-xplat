@@ -27,7 +27,8 @@ public final class XplatMediaConverter: NSObject {
     }
     public func start(_ json: String, callback: @escaping (String) -> Void) {
         guard let data = json.data(using: .utf8),
-              let request = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let object = try? JSONSerialization.jsonObject(with: data),
+              let request = object as? [String: Any],
               let id = request["id"] as? String else {
             send(["error": "Invalid conversion request"], callback); return
         }
