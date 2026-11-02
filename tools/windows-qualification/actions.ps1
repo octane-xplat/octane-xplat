@@ -1132,9 +1132,9 @@ function Check-Core20Structure {
   $tree=Capture 'list-structure-wide'
   $list=Named $Tree 'Rows 0'
   Assert (($list.type -in @('ControlType.Group','ControlType.List')) -and (Finite $list)) 'List exposes a named accessible peer with visible bounds' $list.type
-  $first=Named $Tree 'First row 0'
-  $open=Named $Tree 'Open row 0'
-  Assert ((Finite $first) -and (Finite $open)) 'List rows have visible UIA bounds'
+  $first=Named @($Tree|Where-Object {$_.type -eq 'ControlType.Group'}) 'First row 0'
+  $open=Named @($Tree|Where-Object {$_.type -eq 'ControlType.Button'}) 'Open row 0'
+  Assert ((Finite $first) -and (Finite $open)) 'List rows have visible UIA peers and bounds'
   Assert ($open.y -gt $first.y) 'List rows are vertically ordered without overlap' @{first=$first.y;open=$open.y}
   $leading=Named $Tree 'Leading'
   $trailing=Named $Tree 'Trailing'
@@ -1142,7 +1142,7 @@ function Check-Core20Structure {
   Command 'revision' 1|Out-Null
   $tree2=Capture 'list-structure-rev1'
   Named $tree2 'Rows 1'|Out-Null
-  Named $tree2 'First row 1'|Out-Null
+  Named @($tree2|Where-Object {$_.type -eq 'ControlType.Group'}) 'First row 1'|Out-Null
   Assert (@($tree2|Where-Object {$_.name -ceq 'Rows 0'}).Count -eq 0) 'List prop update replaces its accessible name'
   Command 'mounted' $false|Out-Null
   Command 'mounted' $true|Out-Null
