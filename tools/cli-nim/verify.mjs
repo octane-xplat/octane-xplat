@@ -8,16 +8,14 @@ import { dirname, join, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
 import { gzipSync } from 'node:zlib'
+import { coreInputs, assertCurrentNativeBuild } from './native-inputs.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '../..')
 const compiler = resolve(repo, `research/nim-cli/core${process.platform === 'win32' ? '.exe' : ''}`)
 const runRoot = join(repo, 'research/nim-cli', `${process.platform}-${process.arch}-${Date.now()}`)
 mkdirSync(runRoot, { recursive: true })
-const nativeInputs = [
- ...readdirSync(join(repo,'packages/cli/nim')).filter(file=>file.endsWith('.nim')).sort().map(file=>`packages/cli/nim/${file}`),
- 'tools/cli-nim/core.nim', 'tools/cli-nim/catalog.json', 'tools/cli-nim/nim-dependencies.json',
-]
+const nativeInputs = coreInputs(repo).files
 const nativeInputHash = createHash('sha256')
 for(const file of nativeInputs)nativeInputHash.update(file).update('\0').update(readFileSync(join(repo,file))).update('\0')
 const results = { nativeInputs, nimSourceSha256: nativeInputHash.digest('hex'), revision: spawnSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8'}).stdout.trim(), platform: process.platform, arch: process.arch, referenceRuntime: process.version, compiler: 'Nim 2.2.12', checks: [], artifacts: [] }
@@ -100,6 +98,7 @@ const value = operation === 'identity' ? resolveInstallations(root)
 console.log(JSON.stringify(value))
 `)
 const bytes = readFileSync(compiler)
+assertCurrentNativeBuild(repo, JSON.parse(readFileSync(join(repo, 'research/nim-cli/core-build.json'))), bytes, coreInputs)
 results.artifacts.push({name:'core',bytes:bytes.length,gzipBytes:gzipSync(bytes).length,sha256:createHash('sha256').update(bytes).digest('hex')})
 if (binaries.core) {
 	// Exercise the integrated binary through the same assertions as each slice.

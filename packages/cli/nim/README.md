@@ -42,6 +42,13 @@ embeddings and retrieval order relative to WASM. The strict comparison currently
 exposes a ranking difference, so this adapter is not connected to public commands.
 Keep that gate intact and preserve distinct engine/cache identities while
 resolving inference and delivery; executing the C API alone does not qualify search.
+`native_http.nim` provides asynchronous HTTP/TLS through the macOS system libcurl,
+with header/body readiness, cancellation, byte streaming and explicit proxy/CA
+options. `http_url.nim` statically compiles pinned Ada URL parsing for the
+reference's WHATWG behavior. `actions_bridge.nim` ports authenticated registry,
+submit, wait and cooperative-cancel envelopes; it does not establish runtime
+ownership, action execution or a qualified app session. Other HTTP host adapters
+remain unimplemented. The current public command coverage is unchanged.
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

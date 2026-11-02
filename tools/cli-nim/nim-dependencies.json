@@ -42,5 +42,13 @@
     "sourceDir": ".",
     "license": "MIT",
     "licenseFile": "LICENSE"
+  },
+  "ada": {
+    "url": "https://github.com/ada-url/ada.git",
+    "revision": "b12a893a45809da8103bb4f1e2f6f5ee13f9100b",
+    "version": "4.0.0",
+    "sourceDir": "include",
+    "license": "MIT",
+    "licenseFile": "LICENSE-MIT"
   }
 }

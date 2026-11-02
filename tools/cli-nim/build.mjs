@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { getToolchain } from 'nim-toolchain'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
-import { nativeInputs, artifactFingerprint } from './native-inputs.mjs'
+import { nativeInputs, artifactFingerprint, httpProbeInputs } from './native-inputs.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const work = resolve(root, 'research/nim-cli')
 const version = process.env.XPLAT_NIM_VERSION ?? JSON.parse(readFileSync(resolve(root, 'packages/cli/package.json'))).version + '-nim.0'
@@ -76,3 +76,10 @@ if(indexBuild.status!==0)throw Error('Documentation index probe build failed')
 const tokenizerProbe=resolve(work,process.platform==='win32'?'native/tokenizer-probe.exe':'native/tokenizer-probe')
 const tokenizerBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/tokenizer-cache`,`-o:${tokenizerProbe}`,resolve(import.meta.dirname,'tokenizer_probe.nim')],{stdio:'inherit'})
 if(tokenizerBuild.status!==0)throw Error('Tokenizer probe build failed')
+
+const httpProbe=resolve(work,process.platform==='win32'?'native/http-probe.exe':'native/http-probe')
+const httpInputs=httpProbeInputs(root)
+const httpBuild=spawnSync(compiler.nim,['c','-d:release','--opt:size','--mm:orc',...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/http-cache`,`-o:${httpProbe}`,resolve(import.meta.dirname,'http_probe.nim')],{stdio:'inherit'})
+if(httpBuild.status!==0)throw Error('HTTP probe build failed')
+if(httpProbeInputs(root).sha256!==httpInputs.sha256)throw Error('HTTP probe sources changed during compilation')
+writeFileSync(resolve(work,'native/http-build.json'),JSON.stringify({platform:process.platform,arch:process.arch,nativeInputs:httpInputs,nativeArtifact:artifactFingerprint(readFileSync(httpProbe))}))

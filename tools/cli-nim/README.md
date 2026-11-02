@@ -160,10 +160,40 @@ Node is absent from PATH. Those are open compatibility requirements for the full
 rewrite. They are not implied by the passing common-pattern corpus. Project
 metadata is read as data; JavaScript configuration is not evaluated.
 
-HTTP uses Nim's standard client without TLS enabled. HTTPS, certificate trust,
-redirect/proxy behavior, streaming, and cancellation during a network request are
-unqualified. The executed cancellation check forwards SIGTERM to one direct
-child; it does not qualify process-tree cleanup, SIGINT, or Windows console control.
+The HTTP gate uses native asynchronous macOS libcurl with SecureTransport and
+the pinned Ada 4.0.0 WHATWG parser. Ada is compiled as C++20 with URLPattern
+disabled; its exact source revision and MIT notice follow the same task-local
+dependency conventions as the Nim libraries. No JS runtime is embedded. The
+gate checks real loopback TLS, explicit CA files, hostname rejection, proxies
+and CONNECT, redirects, Latin-1 headers, UTF-8 bodies, gzip/deflate, cancellation,
+streaming and authenticated bridge envelopes against TypeScript/Node. Its URL
+corpus also covers IDNs, escaped dot segments and UTF-16 edge cases.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native HTTP qualification"}' -- bun run turbo run test:nim-http --filter=@octane-xplat/cli
+bun run turbo run test:nim-http-live --filter=@octane-xplat/cli --only
+```
+
+The separate live task fetches only pinned public JSON and checks its exact
+bytes against Node and the model's SHA-256. It is excluded from offline gates.
+HTTP uses the OS certificate store; explicit per-request CA files do not change
+the user's keychain. Ambient proxy variables are disabled by default, matching
+the reference without Node's environment-proxy opt-in; explicit proxy settings
+are qualified. Compression negotiation advertises gzip/deflate; Brotli/zstd and
+other platform backends remain unqualified. This is a CLI transport boundary,
+not a replacement for every browser Fetch API or Node runtime option.
+
+The bridge port preserves the reference's successful null payload when body or
+JSON parsing fails after headers. Pre-aborted waits keep the same response but
+avoid the reference's timer retention tracked in
+[issue #99](https://github.com/octane-xplat/octane-xplat/issues/99). These transport
+and envelope checks do not qualify app ownership or full runtime workflows.
+
+For focused transport iteration after the initial build, use `build:nim-http`
+through Turbo with `--only` under a build reservation, followed by the test task
+with `--only`. Rebuild the complete native artifacts before final size/package
+qualification. The probe's process cancellation check still forwards SIGTERM to
+one direct child; it does not establish process-tree cleanup or Windows control.
 
 ```sh
 research/nim-cli/core http http://127.0.0.1:8080/status

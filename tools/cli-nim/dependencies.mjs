@@ -19,7 +19,7 @@ export function prepareDependencies(cache, toolchain) {
   if(git(['-C',directory,'rev-parse','HEAD'])!==dependency.revision)throw Error(`Dependency revision mismatch: ${name}`)
   if(git(['-C',directory,'status','--porcelain'])!=='')throw Error(`Dependency source has local changes: ${name}`)
   paths.push(resolve(directory,dependency.sourceDir ?? '.'))
-  notices.push(`${name} ${dependency.version ?? dependency.revision}\n${dependency.url}\n\n${readFileSync(resolve(directory,dependency.licenseFile),'utf8')}`)
+  notices.push(`${name} ${dependency.version ? `${dependency.version} (${dependency.revision})` : dependency.revision}\n${dependency.url}\n\n${readFileSync(resolve(directory,dependency.licenseFile),'utf8')}`)
  }
  writeFileSync(resolve(cache,'NOTICE.txt'),notices.join('\n\n----------------------------------------\n\n')+'\n')
  return paths

@@ -33,6 +33,7 @@ test('packed npm consumer installs a native CLI with no JS payload or runtime de
  assert.match(notices, /Hugging Face tokenizers\.js 0\.2\.0 \(Apache-2\.0\)/)
  assert.match(notices, /c64658585ee6b65da8788f434b8ac53e93a4e32c/)
  assert.match(notices, /Apache License\s+Version 2\.0/)
+ assert.match(notices, /ada 4\.0\.0 \(b12a893a45809da8103bb4f1e2f6f5ee13f9100b\)/)
  run(process.execPath, [join(packageRoot, 'install-native.mjs')])
  const binary = join(packageRoot, 'bin/xplat.exe')
  const result = run(binary, ['catalog', '--json'], { env: { ...process.env, PATH: '' } })

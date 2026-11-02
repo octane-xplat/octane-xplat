@@ -228,3 +228,39 @@ and search order. Include engine/settings in cache identities and compare actual
 retrieval results; normalization and plausible vectors alone are insufficient.
 Validate every pinned asset required by the reference, including metadata that
 the native computation does not directly consume.
+
+## Native HTTP and C interop
+
+Call C variadic functions with their real ABI. Casting a variadic function to a
+fixed-argument proc pointer is unsafe on macOS arm64. A small typed C shim using
+the SDK header can marshal `long`, size types and callbacks correctly. C callback
+pointer types must match too: Nim `cstring` becomes `char*`, which is a distinct
+callback parameter type from `const char*` for the C compiler.
+
+For per-source C/C++ flags, use `.compile("source.cpp", "-std=c++20 ...")`.
+The tuple form of `compile` uses its second value as an output-name formatter,
+not compiler flags. Nim recognizes C++ sources; inspect its link command before
+adding a duplicate C++ runtime library flag.
+
+Foreign callbacks should copy data and record state. Complete futures and call
+user sinks after returning from the C operation and draining its messages. User
+code can close every handle; detach queued chunks before invoking it and check
+whether the owner is still live before using a retained handle.
+
+Closing a library's handles does not prove its background threads have exited.
+For system libcurl, global cleanup can leave resolver threads running. Keep its
+single lazy library mapping for the process lifetime while closing per-client
+resources normally; do not unload code still reachable by foreign threads.
+
+HTTP headers and text bodies have different encodings. Fetch headers use
+ByteString/Latin-1 semantics; UTF-8 encoding a header value changes its bytes.
+Response text uses replacement-mode UTF-8 decoding and removes an initial BOM.
+Keep header readiness separate from body completion so a status probe can finish
+without waiting for a slow body. Preserve the reference's catch boundaries:
+catching only body/JSON failures differs from catching the entire fetch.
+
+RFC 3986 and WHATWG URL normalization differ. Use the pinned native Ada engine
+for Node-compatible URL behavior, rather than patching the transport parser.
+Ada getter slices have explicit lengths and may not end at NUL; mutation can
+invalidate them. Copy borrowed slices after the final mutation, and release
+separately owned getter results with their matching function.

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
-import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild } from './native-inputs.mjs'
+import { nativeInputs, artifactFingerprint, assertCurrentNativeBuild, httpProbeInputs } from './native-inputs.mjs'
 
 test('benchmark records bind source bytes, host and the exact executable rather than a shared version', t => {
  const root = mkdtempSync(join(tmpdir(), 'xplat-nim-record-'))
@@ -36,4 +36,11 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  writeFileSync(join(root, 'tools/cli-nim/licenses/tokenizers-js.txt'), 'tools/cli-nim/licenses/tokenizers-js.txt')
  writeFileSync(join(root, 'packages/cli/nim/ffi.c'), 'new C bridge')
  assert.throws(() => assertCurrentNativeBuild(root, record, bytes), /Sources differ/)
+ rmSync(join(root, 'packages/cli/nim/ffi.c'))
+ for (const file of ['tools/cli-nim/http_probe.nim', 'tools/cli-nim/build-probe.mjs']) writeFileSync(join(root, file), file)
+ const httpRecord = { ...record, nativeInputs: httpProbeInputs(root) }
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root, httpRecord, bytes, httpProbeInputs))
+ writeFileSync(join(root, 'tools/cli-nim/http_probe.nim'), 'changed probe entry')
+ assert.throws(() => assertCurrentNativeBuild(root, httpRecord, bytes, httpProbeInputs), /Sources differ/)
+ assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
 })

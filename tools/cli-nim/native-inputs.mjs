@@ -14,14 +14,31 @@ export function nativeInputs(root) {
  return { files, sha256: hash.digest('hex') }
 }
 
+export function httpProbeInputs(root) {
+ const files = [...nativeInputs(root).files, 'tools/cli-nim/http_probe.nim', 'tools/cli-nim/build-probe.mjs'].sort()
+ const hash = createHash('sha256')
+ for (const file of files) hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0')
+ return { files, sha256: hash.digest('hex') }
+}
+
+export function coreInputs(root) {
+ const files = [...readdirSync(join(root, 'packages/cli/nim')).filter(file => /\.(nim|c|h)$/.test(file)).map(file => `packages/cli/nim/${file}`),
+  'tools/cli-nim/core.nim', 'tools/cli-nim/catalog.json', 'tools/cli-nim/nim-dependencies.json',
+  'tools/cli-nim/prepare.mjs', 'tools/cli-nim/dependencies.mjs', 'tools/cli-nim/native-inputs.mjs',
+  'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/package.json'].sort()
+ const hash = createHash('sha256')
+ for (const file of files) hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0')
+ return { files, sha256: hash.digest('hex') }
+}
+
 export function artifactFingerprint(bytes) {
  return { bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }
 }
 
-export function assertCurrentNativeBuild(root, build, bytes) {
+export function assertCurrentNativeBuild(root, build, bytes, inputs = nativeInputs) {
  assert.equal(build.platform, process.platform, 'Benchmark needs an executable built for this host')
  assert.equal(build.arch, process.arch, 'Benchmark needs an executable built for this host architecture')
- assert.equal(build.nativeInputs?.sha256, nativeInputs(root).sha256, 'Sources differ from the build record; rebuild before measuring')
+ assert.equal(build.nativeInputs?.sha256, inputs(root).sha256, 'Sources differ from the build record; rebuild before measuring')
  const artifact = artifactFingerprint(bytes)
  assert.equal(build.nativeArtifact?.sha256, artifact.sha256, 'Executable differs from the build record; rebuild before measuring')
  assert.equal(build.nativeArtifact?.bytes, artifact.bytes, 'Executable length differs from the build record; rebuild before measuring')

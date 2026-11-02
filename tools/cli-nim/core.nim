@@ -1,7 +1,8 @@
 import ../../packages/cli/nim/core
 import ../../packages/cli/nim/[docs_binding, code_scope]
 import ../../packages/cli/nim/json_wire
-import std/[json, os, strutils, httpclient, osproc]
+import ../../packages/cli/nim/native_http
+import std/[json, os, strutils, asyncdispatch, osproc]
 when defined(posix): import std/posix
 
 when defined(posix):
@@ -30,10 +31,12 @@ try:
   of "repo-roots": echo wireJson(frameworkRepoRoots(absolutePath(args[1])))
   of "http":
     try:
-      let client = newHttpClient(timeout = 10000)
+      let client = newHttpClient()
       defer: client.close()
-      let response = client.request(args[1])
-      echo wireJson(%*{"status": int(response.code), "body": response.body})
+      let settings = newHttpOptions()
+      settings.timeoutMs = 10000
+      let response = waitFor client.fetch(args[1],settings)
+      echo wireJson(%*{"status": response.status, "body": waitFor response.readText()})
     except CatchableError:
       stderr.writeLine("HTTP request failed"); quit(5)
   of "child":
