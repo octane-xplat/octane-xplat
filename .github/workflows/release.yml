@@ -745,7 +745,7 @@ jobs:
           node-version: 24
           package-manager-cache: false
       - run: bun install --frozen-lockfile
-      - run: bun run turbo run test:nim test:nim-packages test:nim-identity test:nim-code test:nim-docs test:nim-index test:nim-tokenizer test:nim-http test:nim-process test:nim-env test:nim-routes test:nim-worker test:nim-typecheck test:nim-route-command test:nim-build-tools --filter=@octane-xplat/cli
+      - run: bun run turbo run test:nim test:nim-packages test:nim-identity test:nim-code test:nim-docs test:nim-index test:nim-tokenizer test:nim-http test:nim-process test:nim-env test:nim-prerequisites test:nim-routes test:nim-worker test:nim-typecheck test:nim-route-command test:nim-build-tools --filter=@octane-xplat/cli
       - name: Stage executable
         shell: bash
         run: |

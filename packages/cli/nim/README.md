@@ -57,6 +57,12 @@ argv/cwd/environment, independent pipe draining, byte passthrough, bounded UTF-1
 log lines and cooperative/forced stop. Its manager exposes explicit close and
 opt-in SIGINT/SIGTERM handling; normal owner exit also releases its groups.
 `process_exit.nim` preserves native exit status bytes beyond Nim's `quit` range.
+`command_probe.nim` supplies bounded, read-only version queries using that process
+owner. Missing tools, nonzero exits, output overflow and deadlines produce absent
+observations; cancellation propagates after cleanup. `prerequisites.nim` checks
+the actual selected PATH and package manager. Browser readiness remains unknown
+without launching a browser. These helpers do not qualify SDKs/devices or enable
+the still-pending public status command.
 These boundaries are exercised by the combined core and focused process gate;
 they do not establish build-tool, app-session or IPC orchestration. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside

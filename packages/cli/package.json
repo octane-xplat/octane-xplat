@@ -108,6 +108,7 @@
 		"build:nim-env": "node ../../tools/cli-nim/build-probe.mjs env",
 		"test:nim-env": "node --test ../../tools/cli-nim/env.test.mjs",
 		"test:nim-route-command": "node --test --test-concurrency=2 ../../tools/cli-nim/routes-command.test.mjs ../../tools/cli-nim/routes-watch.test.mjs",
+		"test:nim-prerequisites": "node --test ../../tools/cli-nim/prerequisites.test.mjs",
 		"test:nim-typecheck": "node --test ../../tools/cli-nim/typecheck-command.test.mjs",
 		"test:nim-worker": "node --test ../../tools/cli-nim/build-worker.test.mjs",
 		"test:nim-routes": "node --test ../../tools/cli-nim/route-path.test.mjs ../../tools/cli-nim/route-generation.test.mjs ../../tools/cli-nim/route-templates.test.mjs"

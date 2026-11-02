@@ -174,6 +174,14 @@ to EOF first can block forever when the other pipe fills. Bound retained output,
 close unused stdin, and kill/reap the owned child on timeout or capture failure.
 Direct-child cleanup does not establish process-tree cancellation.
 
+Represent a successful empty command response separately from failure until the
+caller applies its policy. A tool-presence check may reject empty output, while
+another query accepts it. Cancellation is a separate error: never turn an aborted
+query into a missing-tool diagnosis. Query the executable on the selected PATH
+for its actual version; a version embedded by the reference runtime cannot prove
+that a standalone executable can launch that tool. Probe the project's selected
+package manager rather than requiring an unused one.
+
 Pipe chunks may split a UTF-8 sequence. When decorating a passthrough stream,
 preserve raw bytes and track line starts separately for stdout and stderr;
 decoding each chunk can replace part of a valid character. Keep bounded decoded

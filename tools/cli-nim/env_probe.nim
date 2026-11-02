@@ -7,6 +7,25 @@ import ../../packages/cli/nim/[route_generation, digests, js_text]
 import ../../packages/cli/nim/route_templates
 import ../../packages/cli/nim/build_worker
 import ../../packages/cli/nim/managed_process
+import ../../packages/cli/nim/[prerequisites, command_probe]
+
+proc commandQuery(request: JsonNode): Future[JsonNode] {.async.} =
+  let signal = newProcessCancel()
+  if field(request,"preabort") == %true: signal.cancel()
+  let env = newStringTable(modeCaseSensitive)
+  if field(request,"env") != nil:
+    for key,item in request["env"]: env[key] = item.getStr()
+  var args: seq[string]
+  for value in request["args"]: args.add(value.getStr())
+  let pending = probeCommand(text(request["cmd"]),args,cwd=text(request["dir"]),environment=env,
+    timeoutMs=(if field(request,"timeoutMs") == nil: 15000 else: request["timeoutMs"].getInt()),
+    maxStdoutBytes=(if field(request,"limit") == nil: 1024*1024 else: request["limit"].getInt()),signal=signal)
+  while not pending.finished:
+    if field(request,"cancelFile") != nil and fileExists(text(request["cancelFile"])): signal.cancel()
+    await sleepAsync(5)
+  let value = await pending
+  return if value.isSome: %value.get() else: newJNull()
+
 for line in stdin.lines:
   var routeRequest = false
   var warnings: seq[string]
@@ -15,6 +34,15 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "command-probe": value = waitFor commandQuery(request)
+    of "prerequisites":
+      var platforms: seq[string]
+      for item in request["platforms"]: platforms.add(item.getStr())
+      let env = newStringTable(modeCaseSensitive)
+      if field(request,"env") != nil:
+        for key,item in request["env"]: env[key] = item.getStr()
+      value = waitFor checkHostPrerequisites(platforms,dir,
+        manager=(if field(request,"manager") == nil: "bun" else: text(request["manager"])),environment=env)
     of "load": value = loadEnvManifest(dir)
     of "routing": value = loadRoutingConfig(dir,field(request,"allowMissingSources") == %true)
     of "route-path": value = routeFor(text(request["path"]),field(request,"markdown") == %true)
