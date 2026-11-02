@@ -201,8 +201,13 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 	})
 
 	options.hot?.on?.('vite:error', (payload) => {
-		const err = payload as { err?: { message?: string } } | undefined
-		session.markCompileError(err?.err?.message ?? 'source update failed')
+		const err =
+			typeof payload === 'object' && payload !== null && 'err' in payload ? payload.err : undefined
+		const message =
+			typeof err === 'object' && err !== null && 'message' in err && typeof err.message === 'string'
+				? err.message
+				: 'source update failed'
+		session.markCompileError(message)
 	})
 
 	options.hot?.on?.('vite:ws:disconnect', () => session.markDisconnected())

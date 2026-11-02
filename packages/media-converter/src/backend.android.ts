@@ -10,6 +10,14 @@ interface NativeEngine {
 	cancel(id: string): void
 	remove(uri: string): boolean
 }
+/** The bridge's progress/result event envelope. */
+interface ConverterEvent {
+	progress?: number
+	result?: ConvertedVideo
+	error?: string
+	cancelled?: boolean
+}
+
 interface EngineClass {
 	new (): NativeEngine
 	Callback: new (methods: { onEvent(json: string): void }) => object
@@ -37,12 +45,9 @@ export const backend: ConversionBackend = {
 			const callback = new Type.Callback({
 				onEvent(json) {
 					try {
-						const event = JSON.parse(json) as {
-							progress?: number
-							result?: ConvertedVideo
-							error?: string
-							cancelled?: boolean
-						}
+						const parsed: unknown = JSON.parse(json)
+						const event =
+							(typeof parsed === 'object' && parsed !== null ? parsed : {}) as ConverterEvent
 						if (event.error) {
 							reject(event.cancelled ? aborted() : new Error(event.error))
 						} else if (event.result) {

@@ -65,11 +65,14 @@ const probeHost = async (): Promise<CameraHost | null> => {
 		}
 
 		const client = createHostClient<CameraHostServices>(transport)
-		const capabilities = (await client.capabilities().catch(() => null)) as {
-			camera?: string[]
-		} | null
-
-		const methods = capabilities?.camera
+		const capabilities: unknown = await client.capabilities().catch(() => null)
+		const methods =
+			typeof capabilities === 'object' &&
+			capabilities !== null &&
+			'camera' in capabilities &&
+			Array.isArray(capabilities.camera)
+				? capabilities.camera
+				: undefined
 		if (Array.isArray(methods) && requiredMethods.every((name) => methods.includes(name))) {
 			return client
 		}
@@ -173,8 +176,14 @@ const supportsChunkedMovies = (host: CameraHost): Promise<boolean> => {
 	if (!probe) {
 		probe = host
 			.capabilities()
-			.then((capabilities) => {
-				const methods = (capabilities as { camera?: string[] }).camera ?? []
+			.then((capabilities: unknown) => {
+				const methods =
+					typeof capabilities === 'object' &&
+					capabilities !== null &&
+					'camera' in capabilities &&
+					Array.isArray(capabilities.camera)
+						? capabilities.camera
+						: []
 				return methods.includes('writeMovieFileChunk') && methods.includes('readMovieFileChunk')
 			})
 			.catch(() => false)

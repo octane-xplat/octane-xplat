@@ -19,8 +19,13 @@ const createPortal = (children: unknown, target: unknown) =>
 // Reading through the namespace keeps one ui module instance in the bundle,
 // so the root Theme's scope class and the resolved scheme reach the
 // detached panel host the same way they do for ui's own overlay leaves.
-const themeSchemeClasses =
-	(gtkUi as { themeSchemeClasses?: () => string }).themeSchemeClasses ?? (() => '')
+const themeSchemeClasses: () => string =
+	typeof gtkUi === 'object' &&
+	gtkUi !== null &&
+	'themeSchemeClasses' in gtkUi &&
+	typeof gtkUi.themeSchemeClasses === 'function'
+		? gtkUi.themeSchemeClasses
+		: () => ''
 
 /** Open drawer registrations, in overlay creation order — the Gtk.Overlay
  *  stacks layer children in add order, so the last entry is the topmost

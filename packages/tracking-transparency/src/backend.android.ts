@@ -7,6 +7,12 @@ interface Engine {
 	available(context: android.content.Context): boolean
 	readAdvertisingId(context: android.content.Context, callback: object): void
 }
+/** The bridge's advertising-identifier reply envelope. */
+interface IdentifierReply {
+	identifier?: unknown
+	error?: unknown
+}
+
 function engine(): Engine | undefined {
 	return lookupGlobal(['com', 'octanexplat', 'tracking', 'TrackingBridge']) as Engine | undefined
 }
@@ -56,7 +62,7 @@ export const backend: TrackingBackend = {
 							if (!value || typeof value !== 'object') {
 								throw new Error('Malformed advertising identifier reply')
 							}
-							const reply = value as { identifier?: unknown; error?: unknown }
+							const reply = value as IdentifierReply
 							if (typeof reply.error === 'string') {
 								throw new Error(reply.error)
 							}
