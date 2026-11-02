@@ -7,8 +7,17 @@ async function execute(request) {
  if (request.abortMs !== undefined) timers.push(setTimeout(() => signal.abort(), request.abortMs))
  const timed = request.timeoutMs !== undefined ? AbortSignal.timeout(request.timeoutMs) : undefined
  let phase = 'headers'
+ const originalFetch = globalThis.fetch
  try {
   if (request.operation === 'bridge') {
+   if (request.abortAfterHeadersMs !== undefined) {
+    // Bridge reference cases execute sequentially in this isolated worker.
+    globalThis.fetch = async (...args) => {
+     const response = await originalFetch(...args)
+     timers.push(setTimeout(() => signal.abort(), request.abortAfterHeadersMs))
+     return response
+    }
+   }
    const endpoint = { url: request.url, token: request.token }
    if (request.call === 'registry') return await fetchBridgeRegistry(endpoint)
    if (request.call === 'submit') return await submitInvocation(endpoint, request.invocation)
@@ -39,7 +48,7 @@ async function execute(request) {
   value.bodyUsed = response.bodyUsed
   return { success: true, value }
  } catch (error) { return { success: false, phase, name: error.name, message: error.message } }
- finally { for (const timer of timers) clearTimeout(timer) }
+ finally { globalThis.fetch = originalFetch; for (const timer of timers) clearTimeout(timer) }
 }
 for await (const line of createInterface({ input: process.stdin })) {
  const request = JSON.parse(line)
@@ -50,6 +59,11 @@ for await (const line of createInterface({ input: process.stdin })) {
    if (!['http:','https:'].includes(url.protocol) || url.username || url.password) throw Error('not fetchable')
    url.hash = ''; result = { valid: true, url: url.href, origin: url.origin }
   } catch { result = { valid: false } }
- } else result = request.operation === 'parallel' ? await Promise.all(request.requests.map(execute)) : await execute(request)
+ } else {
+  if (request.operation === 'parallel' && request.requests.some(item => item.operation === 'bridge' && item.abortAfterHeadersMs !== undefined)) {
+   throw Error('The reference bridge header gate requires a sequential case')
+  }
+  result = request.operation === 'parallel' ? await Promise.all(request.requests.map(execute)) : await execute(request)
+ }
  console.log(JSON.stringify(result))
 }

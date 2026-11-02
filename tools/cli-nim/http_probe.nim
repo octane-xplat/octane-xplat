@@ -47,6 +47,11 @@ proc execute(client: HttpClient, request: JsonNode): Future[JsonNode] {.async.} 
       if field(request,"sinkError") == %true: raise newException(IOError,"fixture sink failure")
       if field(request,"sinkClose") == %true: client.close()
   var phase = "headers"
+  proc bridgeFetch(url: string, options: HttpOptions): Future[HttpResponse] {.async.} =
+    let response = await client.fetch(url,options)
+    if field(request,"abortAfterHeadersMs") != nil:
+      cancellation = later(settings.signal,request["abortAfterHeadersMs"].getInt(),stopTimer)
+    return response
   try:
     if text(field(request,"operation")) == "bridge":
       let endpoint = BridgeEndpoint(url: text(request["url"]),token: text(field(request,"token")))
@@ -54,8 +59,11 @@ proc execute(client: HttpClient, request: JsonNode): Future[JsonNode] {.async.} 
       of "registry": return await client.fetchBridgeRegistry(endpoint)
       of "submit": return await client.submitInvocation(endpoint,field(request,"invocation"))
       of "cancel": return await client.cancelInvocation(endpoint,text(request["requestId"]))
-      of "await": return await client.awaitInvocation(endpoint,text(request["requestId"]),
-        (if field(request,"waitMs") == nil or request["waitMs"].kind == JNull: 25000.0 else: request["waitMs"].getFloat()),settings.signal)
+      of "await":
+        let wait = if field(request,"waitMs") == nil or request["waitMs"].kind == JNull: 25000.0 else: request["waitMs"].getFloat()
+        if field(request,"abortAfterHeadersMs") != nil:
+          return await awaitInvocation(BridgeFetch(bridgeFetch),endpoint,text(request["requestId"]),wait,settings.signal)
+        return await client.awaitInvocation(endpoint,text(request["requestId"]),wait,settings.signal)
       else: raise newException(ValueError,"Unknown bridge operation")
     let response = await client.fetch(text(request["url"]),settings)
     var value = %*{"status": response.status,"statusText": response.statusText,"url": response.url,

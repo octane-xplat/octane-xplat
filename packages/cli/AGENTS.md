@@ -316,6 +316,10 @@ Response text uses replacement-mode UTF-8 decoding and removes an initial BOM.
 Keep header readiness separate from body completion so a status probe can finish
 without waiting for a slow body. Preserve the reference's catch boundaries:
 catching only body/JSON failures differs from catching the entire fetch.
+Schedule phase-specific test cancellation from an observed headers-ready event.
+A short timer started before the request can hit different phases in Node and
+Nim under host load, producing different valid envelopes rather than proving a
+transport mismatch.
 
 RFC 3986 and WHATWG URL normalization differ. Use the pinned native Ada engine
 for Node-compatible URL behavior, rather than patching the transport parser.

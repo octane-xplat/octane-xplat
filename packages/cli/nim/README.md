@@ -49,6 +49,8 @@ reference's WHATWG behavior. `actions_bridge.nim` ports authenticated registry,
 submit, wait and cooperative-cancel envelopes; it does not establish runtime
 ownership, action execution or a qualified app session. Other HTTP host adapters
 remain unimplemented. The current public command coverage is unchanged.
+The bridge accepts an explicit fetch procedure; the ordinary client adapter and
+header-controlled test transport share the same envelope/cancellation logic.
 `managed_process.nim` owns macOS child sessions and process groups, with explicit
 argv/cwd/environment, independent pipe draining, byte passthrough, bounded UTF-16
 log lines and cooperative/forced stop. Its manager exposes explicit close and

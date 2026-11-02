@@ -35,6 +35,10 @@ function handler(request, response) {
   }
   if (mode === 'invalid') { response.end('invalid JSON'); return }
   if (mode === 'empty') { response.end(); return }
+  if (mode === 'wait-body') { response.flushHeaders(); return }
+  if (mode === 'slow-headers') {
+   const timer = setTimeout(() => { pending.delete(timer); response.end('{"late":true}') }, 4400); pending.add(timer); return
+  }
   if (mode === 'slow') {
    response.flushHeaders()
    const timer = setTimeout(() => { pending.delete(timer); response.end('{"late":true}') }, 4400); pending.add(timer); return
@@ -282,14 +286,18 @@ test('bridge nullish error fallbacks and invalid JSON preserve reference behavio
  await compare(cases)
 })
 test('bridge wait cancellation leaves the action alive until explicit cooperative cancellation', macOnly, async () => {
- const endpoint = { operation: 'bridge', url: `${origin}/bridge/slow`, token: 'fixture-token' }
+ const endpoint = { operation: 'bridge', url: `${origin}/bridge/wait-body`, token: 'fixture-token' }
  const first = requests.length
- await compare([{ ...endpoint, call: 'await', requestId: 'request-one', abortMs: 50 },
+ const result = await compare([{ ...endpoint, call: 'await', requestId: 'request-one', abortAfterHeadersMs: 50 },
+  { ...endpoint, url: `${origin}/bridge/slow-headers`, call: 'await', requestId: 'request-one', abortMs: 50 },
   { ...endpoint, call: 'await', requestId: 'request-one', waitMs: 1000, preabort: true },
   { ...endpoint, url: `${origin}/bridge/ok`, call: 'cancel', requestId: 'request-one' }])
  const sent = requests.slice(first).filter(request => request.url.startsWith('/bridge/'))
  assert.equal(sent.filter(request => request.url.endsWith('/invoke/cancel')).length, 2)
- assert.equal(sent.filter(request => request.url.includes('/invoke/request-one')).length, 2)
+ assert.equal(sent.filter(request => request.url.includes('/invoke/request-one')).length, 4)
+ assert.deepEqual(result[0], { ok: true, data: null })
+ assert.equal(result[1].ok, false)
+ assert.equal(result[1].error.code, 'unreachable')
 })
 test('bridge body timeout retains the reference\'s successful null payload fallback', macOnly, async () => {
  const result = await compare([{ operation: 'bridge', url: `${origin}/bridge/slow`, token: 'fixture-token', call: 'registry' }])
