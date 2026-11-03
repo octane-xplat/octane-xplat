@@ -66,7 +66,14 @@ function frameHost(): FrameHost {
 	const request = hostGlobal<(cb: (time: number) => void) => number>('requestAnimationFrame')
 	const cancel = hostGlobal<(id: number) => void>('cancelAnimationFrame')
 	if (typeof request === 'function' && typeof cancel === 'function') {
-		return { request, cancel }
+		// Web rAF/cancel must run with the window receiver — calling the
+		// detached globals as FrameHost methods throws "Illegal invocation"
+		// and unmounts the whole tree on web. A bound call keeps the native
+		// global (a plain function) working too.
+		return {
+			request: (callback) => request.call(globalThis, callback),
+			cancel: (id) => cancel.call(globalThis, id),
+		}
 	}
 	return {
 		request: (callback) => setTimeout(() => callback(Date.now()), 16) as unknown as number,

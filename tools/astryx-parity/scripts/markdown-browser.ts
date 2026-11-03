@@ -39,6 +39,19 @@ async function waitStable(page: Page, sel: string, idleMs = 300, timeoutMs = 800
 	}
 }
 
+/** The clickable control inside a `[data-parity-action]` fixture: the inner
+ *  button/link/input when present (the inline action span's box can span the
+ *  full line width, so clicking its center lands on unrelated content —
+ *  observed on WebKit), else the action element itself. */
+async function actionLocator(page: Page, key: string) {
+	const inner = page.locator(
+		`[data-parity-action="${key}"] :is(button, a, [role="button"], input)`,
+	)
+	return (await inner.count()) > 0
+		? inner.first()
+		: page.locator(`[data-parity-action="${key}"]`).first()
+}
+
 /** DOM/event parity probes on /markdown/behavior. */
 export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) {
 	const context = await browser.newContext(CONTEXT_OPTIONS)
@@ -87,6 +100,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		}
 
 		// Link interception: click the cancel fixture, then the allow fixture.
+		// The allow target is a fragment so allowed navigation stays on-page.
 		for (const key of ['link-cancel', 'link-allow']) {
 			const sel = `[data-parity-key="${key}"] a, [data-parity-key="${key}"] [role="link"]`
 			const count = (await page.evaluate(() => window.__parity.events.length)) as number
@@ -95,6 +109,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 				await settle(page)
 			}
 			record(`${key}/events`, await page.evaluate(() => [...window.__parity.events]))
+			record(`${key}/hash`, await page.evaluate(() => window.location.hash))
 			void count
 		}
 
@@ -108,6 +123,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 			'custom-renderers',
 			'plugin-error',
 			'plugin-decline',
+			'plugin-pending',
 		]) {
 			const sel = `[data-parity-key="${key}"]`
 			if ((await page.locator(sel).count()) === 0) {
@@ -147,13 +163,13 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		}
 
 		// Source/document changes through component state.
-		await page.locator('[data-parity-action="source-swap"] button, [data-parity-action="source-swap"]').first().click()
+		await (await actionLocator(page, 'source-swap')).click()
 		await settle(page)
 		record(
 			'source-swap/text',
 			await page.locator('[data-parity-key="source-swap"]').textContent(),
 		)
-		await page.locator('[data-parity-action="source-id-change"] button, [data-parity-action="source-id-change"]').first().click()
+		await (await actionLocator(page, 'source-id-change')).click()
 		await settle(page)
 		record(
 			'source-id-change/dom',
@@ -167,25 +183,42 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		// record final text + fade spans + their computed transition duration
 		// (reduced motion is set on the context → duration collapses to 0s).
 		for (let i = 0; i < 4; i++) {
-			await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
+			await (await actionLocator(page, 'stream-pump/next')).click()
 		}
 		await waitStable(page, '[data-parity-key="stream-pump"]')
 		record(
 			'stream-pump/drained',
 			await page.locator('[data-parity-key="stream-pump"]').evaluate((el) => {
-				const fade = el.querySelector('[class*="fade"]')
+				// The reveal marker differs per framework: the reference animates
+				// `transition: opacity` on hashed stylex classes, the candidate a
+				// `vx-md-fade` keyframe animation. Identify the fade span
+				// structurally — an animated element or an opacity transition —
+				// rather than by class name.
+				const fades = [...el.querySelectorAll('span')].filter((s) => {
+					const cs = getComputedStyle(s)
+					return (
+						s.className.includes('fade') ||
+						cs.animationName !== 'none' ||
+						cs.transitionProperty.split(',').map((v) => v.trim()).includes('opacity')
+					)
+				})
+				const cs = fades[0] ? getComputedStyle(fades[0]) : null
 				return {
 					text: el.textContent,
-					fadeSpans: el.querySelectorAll('[class*="fade"]').length,
-					fadeDuration: fade ? getComputedStyle(fade).transitionDuration : null,
+					fadeSpans: fades.length,
+					fadeDuration: cs
+						? cs.animationName !== 'none'
+							? cs.animationDuration
+							: cs.transitionDuration
+						: null,
 				}
 			}),
 		)
 
 		// Reset mid-stream, then a different document parses clean.
-		await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
-		await page.locator('[data-parity-action="stream-pump/reset"] button, [data-parity-action="stream-pump/reset"]').first().click()
-		await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
+		await (await actionLocator(page, 'stream-pump/next')).click()
+		await (await actionLocator(page, 'stream-pump/reset')).click()
+		await (await actionLocator(page, 'stream-pump/next')).click()
 		await waitStable(page, '[data-parity-key="stream-pump"]')
 		record(
 			'stream-pump/after-reset',
@@ -193,15 +226,15 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		)
 
 		// Unmount mid-stream (navigation away), remount, re-pump to the end.
-		await page.locator('[data-parity-action="stream-pump/mount"] button, [data-parity-action="stream-pump/mount"]').first().click()
+		await (await actionLocator(page, 'stream-pump/mount')).click()
 		await settle(page)
 		record(
 			'stream-pump/unmounted',
 			await page.locator('[data-parity-key="stream-pump"]').textContent(),
 		)
-		await page.locator('[data-parity-action="stream-pump/mount"] button, [data-parity-action="stream-pump/mount"]').first().click()
+		await (await actionLocator(page, 'stream-pump/mount')).click()
 		for (let i = 0; i < 4; i++) {
-			await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
+			await (await actionLocator(page, 'stream-pump/next')).click()
 		}
 		await waitStable(page, '[data-parity-key="stream-pump"]')
 		record(
@@ -212,9 +245,9 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		// Two simultaneous streams: pump A fully, B once — outputs stay
 		// independent.
 		for (let i = 0; i < 4; i++) {
-			await page.locator('[data-parity-action="stream-a/next"] button, [data-parity-action="stream-a/next"]').first().click()
+			await (await actionLocator(page, 'stream-a/next')).click()
 		}
-		await page.locator('[data-parity-action="stream-b/next"] button, [data-parity-action="stream-b/next"]').first().click()
+		await (await actionLocator(page, 'stream-b/next')).click()
 		await waitStable(page, '[data-parity-key="stream-a"]')
 		await waitStable(page, '[data-parity-key="stream-b"]')
 		record(

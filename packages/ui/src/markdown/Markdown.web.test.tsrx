@@ -27,6 +27,33 @@ function driveFrames() {
 	vi.stubGlobal('cancelAnimationFrame', () => {})
 }
 
+/** Browser-faithful frame stubs: the real rAF/cancel require the window
+ *  receiver, so a detached call (e.g. `host.request(cb)`) throws
+ *  "Illegal invocation" — the failure this suite guards against. Bare
+ *  identifier calls arrive with `undefined`/`globalThis` here. */
+function driveBrowserFrames() {
+	rafCallbacks = []
+	const ok = (r: unknown) => r === undefined || r === globalThis || r === window
+	vi.stubGlobal(
+		'requestAnimationFrame',
+		function (this: unknown, cb: (t: number) => void) {
+			if (!ok(this)) throw new TypeError('Illegal invocation')
+			rafCallbacks.push(cb)
+			return rafCallbacks.length
+		},
+	)
+	vi.stubGlobal('cancelAnimationFrame', function (this: unknown, id: number) {
+		if (!ok(this)) throw new TypeError('Illegal invocation')
+		rafCallbacks[id - 1] = () => {}
+	})
+	vi.stubGlobal('matchMedia', (query: string) => ({
+		matches: false,
+		media: query,
+		addEventListener() {},
+		removeEventListener() {},
+	}))
+}
+
 function frame(now: number) {
 	const cbs = rafCallbacks.splice(0)
 	act(() => {
@@ -92,6 +119,36 @@ it('withholds a half-typed link while streaming', () => {
 	expect(el.textContent).not.toContain('[')
 	render({ children: 'see [the doc](https://x.dev)', isStreaming: true })
 	expect(el.textContent).toContain('the doc')
+})
+
+it('mounts an empty stream, reveals appended chunks, finishes, and resets', () => {
+	driveBrowserFrames()
+	const { el, render } = mount()
+	render({ children: '', isStreaming: true })
+	expect(el.textContent).toBe('')
+	render({ children: '# Title\n\npara text', isStreaming: true })
+	frame(50)
+	expect(el.textContent).not.toBe('')
+	render({ children: '# Title\n\npara text plus more', isStreaming: true })
+	frame(100)
+	render({ children: '# Title\n\npara text plus more', isStreaming: false })
+	expect(el.textContent).toContain('para text plus more')
+	render({ children: '', isStreaming: true })
+	expect(el.textContent).toBe('')
+})
+
+it('unmounts mid-reveal without leaking frame callbacks', () => {
+	driveBrowserFrames()
+	const { el, render } = mount()
+	render({ children: 'partial reveal text', isStreaming: true })
+	frame(50)
+	const roots0 = roots.splice(0)
+	expect(roots0.length).toBe(1)
+	act(() => roots0[0].unmount())
+	expect(el.textContent).toBe('')
+	// Frames scheduled before unmount were cancelled; draining is a no-op.
+	frame(200)
+	frame(400)
 })
 
 it('smooths isStreaming internally — bursts drain through the reveal, not the parser', () => {

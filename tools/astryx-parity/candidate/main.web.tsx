@@ -1,5 +1,5 @@
 import { createRoot } from 'octane'
-import { useState } from 'octane'
+import { use, useState } from 'octane'
 import { Button, TextInput, TextArea, CheckboxInput, Switch, CheckboxList } from '@octane-xplat/ui'
 import { Markdown } from '@octane-xplat/ui/markdown'
 import {
@@ -311,7 +311,7 @@ function MarkdownGrid() {
 
 // --- Boundary fixture: plugin renderers that throw / decline ---
 const boomNode =
-	(plugin: string) =>
+	<P extends string>(plugin: P) =>
 	(ctx: { code: string }) => ({
 		type: 'extension' as const,
 		plugin,
@@ -339,7 +339,21 @@ const boundaryPlugins = {
 		transform: createMarkdownFenceTransform({ languages: ['boom'], createNode: boomNode('x-decline') }),
 		renderers: { boom: { render: () => null, toText: () => 'decline' } },
 	}),
-	},
+	pending: createMarkdownPlugin({
+		name: 'x-pending',
+		apiVersion: 1,
+		transform: createMarkdownFenceTransform({ languages: ['boom'], createNode: boomNode('x-pending') }),
+		renderers: { boom: { render: () => <PendingNode />, toText: () => 'pending' } },
+	}),
+}
+
+// A renderer that suspends forever — the pending boundary holds the
+// readable fallback until the promise resolves (never, in this fixture).
+const pendingPromise = new Promise<unknown>(() => {})
+function PendingNode() {
+	use(pendingPromise)
+	return null
+}
 
 // Interactive stream fixtures — identical controls both sides.
 function StreamPump({ id }: { id: string }) {
@@ -375,7 +389,7 @@ function StreamPump({ id }: { id: string }) {
 					}}
 				/>
 			</span>
-			{mounted && text !== '' ? <Markdown isStreaming>{text}</Markdown> : <i>gone</i>}
+			{mounted ? <Markdown isStreaming>{text}</Markdown> : <i>gone</i>}
 		</span>
 	)
 }
@@ -456,7 +470,7 @@ function MarkdownBehavior() {
 						window.__parity.events.push(`allow:${href}`)
 					}}
 				>
-					{'[allow](/go)'}
+					{'[allow](#go)'}
 				</Markdown>
 			</span>
 			<span data-parity-key="citation-activate">
@@ -494,6 +508,9 @@ function MarkdownBehavior() {
 			</span>
 			<span data-parity-key="plugin-decline">
 				<Markdown plugins={[boundaryPlugins.decline]}>{BOUNDARY_FIXTURE_SOURCE}</Markdown>
+			</span>
+			<span data-parity-key="plugin-pending">
+				<Markdown plugins={[boundaryPlugins.pending]}>{BOUNDARY_FIXTURE_SOURCE}</Markdown>
 			</span>
 			<SourceSwap />
 			<SourceIdChange />
