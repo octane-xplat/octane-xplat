@@ -274,3 +274,17 @@ silo row get windows_checks scenario:windows-os-selector
 
 A bounded diagnostic pass does not qualify search, multiple selection, grouped
 or long lists, the full props matrix, Narrator or the final fresh-main package.
+
+## Stream and keep-awake depth result (1.0.0.208)
+
+On `org.octanexplat.windows61` 1.0.0.208 (source `4a38d531f`, bounded): a
+512 KiB `files.writeBytes` payload streams back byte-exact across 64 KiB
+chunk boundaries; `maxBytes` at exact size passes while one byte under
+rejects with the byte-limit error; a mid-read abort rejects with
+`AbortError` after three streamed chunks. Keep-awake depth verified:
+duplicate tag activation stays true, releasing an already-released or
+never-activated tag is a benign availability no-op, a bogus tag release
+leaves the shared `DisplayRequest` owned, pair tags release independently,
+and a fresh request re-acquires after full release. Service suite: 80/80
+assertions (launch `mw19z4a0`); storage-verify 8/8 and secure-verify 9/9 on
+relaunch.
