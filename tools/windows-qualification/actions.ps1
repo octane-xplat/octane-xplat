@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs','storage-persist')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1752,6 +1752,20 @@ function Check-ServiceActions{
     Assert ($result.exactBytes -eq $true) 'Sandbox writes preserve each distinct byte payload' $result
     Assert ($result.existedBeforeRelease -eq $true -and $result.removedA -eq $true -and $result.removedB -eq $true) 'Release deletes both previously existing owned files' $result
     Assert ($result.foreignSurvived -eq $true) 'Release preserves the unowned file and its contents' $result
+   }
+   'files-stream' {
+    Assert ($result.fullMatch -eq $true) 'A 512 KiB write reads back byte-exact across chunk boundaries' $result
+    Assert ($result.exactLength -eq 524288) 'maxBytes equal to size passes' $result
+    Assert ($result.underError -match 'file exceeds the 524287-byte limit') 'maxBytes one under rejects with the byte-limit error' $result
+    Assert ($result.midAbort -eq 'AbortError' -and $result.calls -ge 7) 'Aborting mid-read rejects with AbortError after streamed chunks' $result
+   }
+   'keepawake-depth' {
+    Assert ($result.first -eq $true -and $result.again -eq $true) 'Duplicate tag activation stays true' $result
+    Assert ($result.releaseDup -eq $true -and $result.releaseDupAgain -eq $true) 'Releasing an already-released tag is a benign no-op' $result
+    Assert ($result.missing -eq $true) 'Releasing a never-activated tag reports availability' $result
+    Assert ($result.pairA -eq $true -and $result.pairB -eq $true -and $result.releaseBogus -eq $true) 'Bogus tag release leaves the shared request owned' $result
+    Assert ($result.releasePairA -eq $true -and $result.releasePairB -eq $true) 'Both pair tags release cleanly' $result
+    Assert ($result.reacquire -eq $true -and $result.releaseRe -eq $true) 'A fresh request re-acquires after full release' $result
    }
    'media-depth' {
     Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result

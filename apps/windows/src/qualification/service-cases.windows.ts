@@ -549,6 +549,76 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
   return result
 }
 
+/** Streaming depth: multi-chunk reads, exact bounds and mid-read abort. */
+async function filesStreamSpec(): Promise<Record<string, unknown>> {
+  const size = 512 * 1024
+  const source = new Uint8Array(size)
+  for (let index = 0; index < size; index++) {
+    source[index] = (index * 31 + 7) & 0xff
+  }
+  const ref = await files.writeBytes('core20-stream.bin', source)
+  try {
+    const back = await files.readBytes(ref)
+    let fullMatch = back.length === size
+    for (let index = 0; fullMatch && index < size; index++) {
+      if (back[index] !== source[index]) {
+        fullMatch = false
+      }
+    }
+    const exact = await files.readBytes(ref, { maxBytes: size })
+    let underError = ''
+    try {
+      await files.readBytes(ref, { maxBytes: size - 1 })
+    } catch (error) {
+      underError = String(error)
+    }
+    // Mid-read abort: the duck-typed signal throws after several chunk
+    // boundaries have already resolved, inside the read loop.
+    let calls = 0
+    const signal = {
+      aborted: false,
+      addEventListener() {},
+      removeEventListener() {},
+      throwIfAborted() {
+        if (++calls === 7) {
+          const error = new Error('The operation was aborted')
+          error.name = 'AbortError'
+          throw error
+        }
+      },
+    }
+    let midAbort = ''
+    try {
+      await files.readBytes(ref, { signal: signal as unknown as AbortSignal })
+    } catch (error) {
+      midAbort = error instanceof Error ? error.name : String(error)
+    }
+    return { fullMatch, exactLength: exact.length, underError, midAbort, calls }
+  } finally {
+    try {
+      files.release(ref)
+    } catch {}
+  }
+}
+
+/** Tag edge cases: duplicate activation, unknown-tag release, re-acquire. */
+async function keepAwakeDepthSpec(): Promise<Record<string, unknown>> {
+  return {
+    first: await keepAwake.activate('spec-dup'),
+    again: await keepAwake.activate('spec-dup'),
+    releaseDup: await keepAwake.deactivate('spec-dup'),
+    releaseDupAgain: await keepAwake.deactivate('spec-dup'),
+    missing: await keepAwake.deactivate('spec-never-active'),
+    pairA: await keepAwake.activate('spec-pair-a'),
+    pairB: await keepAwake.activate('spec-pair-b'),
+    releaseBogus: await keepAwake.deactivate('spec-bogus'),
+    releasePairA: await keepAwake.deactivate('spec-pair-a'),
+    releasePairB: await keepAwake.deactivate('spec-pair-b'),
+    reacquire: await keepAwake.activate('spec-re'),
+    releaseRe: await keepAwake.deactivate('spec-re'),
+  }
+}
+
 /** Pointer/hover/reduced-motion availability on the packaged projection. */
 async function mediaDepthSpec(): Promise<Record<string, unknown>> {
   const runtime = globalThis as Record<string, any>
@@ -629,6 +699,12 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'files-identity':
         result = await filesIdentitySpec()
+        break
+      case 'files-stream':
+        result = await filesStreamSpec()
+        break
+      case 'keepawake-depth':
+        result = await keepAwakeDepthSpec()
         break
       case 'media-depth':
         result = await mediaDepthSpec()
