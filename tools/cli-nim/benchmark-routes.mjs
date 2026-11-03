@@ -30,7 +30,7 @@ try {
   'app/users/[id].tsx': 'export const validateSearch = (raw: unknown) => raw; ' + screen,
  }
  mkdirSync(join(project, 'node_modules/@octane-xplat'), { recursive: true })
- symlinkSync(join(root, 'packages/build'), join(project, 'node_modules/@octane-xplat/build'), 'dir')
+ symlinkSync(join(root, 'packages/cli'), join(project, 'node_modules/@octane-xplat/cli'), 'dir')
  for (const [file, source] of Object.entries(sources)) {
   mkdirSync(dirname(join(project, file)), { recursive: true })
   writeFileSync(join(project, file), source)

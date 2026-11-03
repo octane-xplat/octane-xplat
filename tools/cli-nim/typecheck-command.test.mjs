@@ -30,7 +30,7 @@ function link(dir, packageName, source = join(root, 'node_modules', packageName)
  mkdirSync(dirname(target), { recursive: true })
  symlinkSync(source, target, 'dir')
 }
-function buildTools(dir) { link(dir, '@octane-xplat/build', join(root, 'packages/build')) }
+function buildTools(dir) { link(dir, '@octane-xplat/cli', join(root, 'packages/cli')) }
 function checker(dir, body = '') {
  write(dir, 'node_modules/.bin/tsrx-tsc', `#!${process.execPath}\nimport fs from 'node:fs';\nfs.appendFileSync('checker-calls.jsonl', JSON.stringify({ argv: process.argv.slice(2), cwd: process.cwd(), sentinel: process.env.XPLAT_TYPECHECK_SENTINEL }) + '\\n');\n${body}\n`)
  chmodSync(join(dir, 'node_modules/.bin/tsrx-tsc'), 0o755)
@@ -134,7 +134,7 @@ test('actual project TSRX checker validates default and combined native programs
  assert.equal(result.status, 0, result.stdout + result.stderr)
  assert.match(result.stdout, /Typecheck clean/)
  const config = JSON.parse(readFileSync(join(dir, 'node_modules/.cache/xplat-typecheck/all.json')))
- assert.match(config.files[0], /build\/dist\/typecheck-globals\/native\.d\.ts$/)
+ assert.match(config.files[0], /cli\/dist\/typecheck-globals\/native\.d\.ts$/)
  write(dir, 'src/view.tsrx', 'export function answer(): number @{ return "wrong" }')
  const badTsrx = run(dir)
  assert.equal(badTsrx.status, 1)

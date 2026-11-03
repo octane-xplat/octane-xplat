@@ -59,7 +59,8 @@ empty-PATH catalog, bounded plugin/worker exports and absent old CLI runtime.
 A native-only Bun installation must leave optional engine peers uninstalled;
 the engine-enabled packed consumer separately checks CLI-owned Vite imports,
 Node declarations, actual build/server behavior and direct worker operations.
-Native worker/declaration lookup migration remains outstanding.
+Native worker/declaration lookup uses the selected project's CLI package;
+the native packed fixture contains no separate build-package installation.
 On macOS, the native HTTP probe calls the real packed Vite bridge: registry,
 submit, poll and outcome waiting use simulated app messages. This does not
 establish a browser, mobile renderer or live macOS app session. Desktop preset
@@ -468,6 +469,16 @@ adapters and complete app ownership before production workflows. Operational mea
 in local reports and Silo rather than this guide.
 
 ## Isolated native portability builds
+
+The project-worker snapshot carries a test-only curated `@octane-xplat/cli`
+export package and its declared engines, with no native bin, installer or old
+CLI command closure. This separates project-operation qualification from native
+executable/distribution qualification on the destination host. Constructing the
+snapshot does not qualify Linux or Windows runtime behavior; execute it there.
+
+```sh
+bun run turbo run snapshot:nim-portability-worker --filter=//
+```
 
 `portability-snapshot.mjs` verifies the current local native build record and
 archives its source, generated command metadata, compile-time asset manifests

@@ -67,7 +67,7 @@ The TypeScript CLI continues to expose its existing plugin paths during the
 parallel migration. The experimental Nim package also retains the small Vite
 exports, with opt-in engine dependencies; changing to a separate package is not
 required for those imports. See [native CLI setup](package-cli.md#experimental-nim-executable)
-for the engine installation and remaining worker-lookup prerequisite. Command availability remains a separate contract: inspect the
+for its opt-in engine installation. Command availability remains a separate contract: inspect the
 installed CLI's catalog before using it to orchestrate builds.
 
 ```sh
@@ -76,10 +76,10 @@ bun run xplat catalog --json
 
 See the [API reference](https://octane-xplat.goddardai.org/api-build) for options.
 
-The experimental native CLI also uses this package's worker to check development
+The experimental native CLI uses its own selected-project `@octane-xplat/cli/worker` to check development
 action input and output. This preserves JavaScript regex/default behavior without
-another validator in the native executable. Use a build package compatible with
-your native CLI; a missing or older worker reports an installation/update hint.
+another validator in the native executable. Use a project CLI package compatible with
+your native executable; a missing or older worker reports an installation/update hint.
 Listing live actions stays native and does not require Node:
 
 ```sh

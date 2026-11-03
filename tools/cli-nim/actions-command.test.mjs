@@ -11,7 +11,7 @@ import { join, resolve, dirname } from 'node:path'
 import { homedir } from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createServer } from 'vite'
-import { xplatDevBridge } from '../../packages/build/dist/vite.js'
+import { xplatDevBridge } from '../../packages/cli/dist/vite.js'
 import { createDevActionsService } from '../../packages/cli/src/mcp/actions/service.ts'
 import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild } from './native-inputs.mjs'
@@ -105,7 +105,7 @@ before(async () => {
  environment.PATH = nodeBin + ':' + environment.PATH
  json(join(appRoot, 'package.json'), { name: 'native-actions-fixture', type: 'module', xplat: { targets: { macos: { runtime: 'appkit-node-api' } } } })
  mkdirSync(join(appRoot, 'node_modules/@octane-xplat'), { recursive: true })
- symlinkSync(join(root, 'packages/build'), join(appRoot, 'node_modules/@octane-xplat/build'))
+ symlinkSync(join(root, 'packages/cli'), join(appRoot, 'node_modules/@octane-xplat/cli'))
  const plugin = xplatDevBridge({ appRoot })
  const registryFile = join(root, 'packages/platform/src/dev-actions-registry.ts')
  server = await createServer({ root: appRoot, configFile: false, logLevel: 'silent', plugins: [plugin, {
@@ -299,7 +299,7 @@ test('missing project worker fails clearly while listing remains native and read
  const listed = await cli(['actions', 'list'], { project: missing, env: { PATH: '' } })
  assert.equal(listed.data.state, 'live')
  const result = await cli(['actions', 'invoke', '--action', 'fixture.increment', '--instance', appBridge.instanceId], { project: missing, expectedCode: 3, env: { NODE_PATH: join(root, 'node_modules') } })
- assert.equal(result.error.code, 'prerequisite_missing'); assert.match(result.error.message, /Install @octane-xplat\/build/)
+ assert.equal(result.error.code, 'prerequisite_missing'); assert.match(result.error.message, /Install @octane-xplat\/cli/)
  const descriptor = JSON.parse(readFileSync(hostPaths(missing).descriptor))
  await rpc(missing, 'host.shutdown'); await until(() => !alive(descriptor.pid), 'Missing-worker host must stop')
 })

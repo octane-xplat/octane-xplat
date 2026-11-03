@@ -158,10 +158,10 @@ test('artifact plans reject unexpected, duplicate and missing destinations befor
   if (mode === 'outside') outputs[0].file = join(dir, 'user-owned.txt')
   if (mode === 'duplicate') outputs.push(outputs[0])
   if (mode === 'incomplete') outputs.pop()
-  const packageRoot = join(dir, 'node_modules/@octane-xplat/build')
+  const packageRoot = join(dir, 'node_modules/@octane-xplat/cli')
   rmSync(packageRoot) // Remove only this fixture's symlink, never its target.
-  write(dir, 'node_modules/@octane-xplat/build/package.json', { name: '@octane-xplat/build', type: 'module', exports: { './worker': './worker.js' } })
-  write(dir, 'node_modules/@octane-xplat/build/worker.js', `import fs from 'node:fs';
+  write(dir, 'node_modules/@octane-xplat/cli/package.json', { name: '@octane-xplat/cli', type: 'module', exports: { './worker': './worker.js' } })
+  write(dir, 'node_modules/@octane-xplat/cli/worker.js', `import fs from 'node:fs';
 const request = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 ${mode === 'changed' ? "fs.appendFileSync('app/index.tsx', '\\n// changed during planning');" : ''}
 fs.writeFileSync(process.argv[3], JSON.stringify({ protocol: request.protocol, version: request.version, id: request.id, ok: true, data: ${JSON.stringify({ version: 1, count: plan.count, outputs })} }));`)

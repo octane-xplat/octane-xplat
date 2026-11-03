@@ -44,15 +44,15 @@ mode and provenance, keep returned refs, and re-index edited linked docs. Native
 cache state is separate from TypeScript; backend vector caches are not interchangeable.
 Native development-action listing/status and HTTP control are available on macOS.
 Invocation validates JS field contracts in the selected project's compatible
-`@octane-xplat/build/worker`, so it needs that package and Node >=22.22.2. Use the
+`@octane-xplat/cli/worker`, so it needs that package and Node >=22.22.2. Use the
 live instance/revision, follow the job, and preserve unknown/partial outcomes.
 The native host owns admission workers too; shutdown awaits them. This host-side
 qualification does not expand the app runtime transport limits in the
 [development-actions reference](development-actions.md).
 The Nim package retains its Vite subpaths and a bounded worker export. Engine
 packages are optional peers, and native-only installs do not fetch them. The
-current native build-worker/declaration lookup still needs `@octane-xplat/build`;
-restored exports alone do not remove that remaining setup step.
+native build-worker/declaration lookup uses the selected project's compatible
+`@octane-xplat/cli` installation, without a separate build-package requirement.
 Native lint on macOS invokes the selected project's `@octane-xplat/lint/bin`
 with Node >=22.22.2. Install that package in the project; it is not bundled with
 the Nim tarball. Help is native. The engine owns its rules, ignores and safe
@@ -80,8 +80,8 @@ xplat diagnostics --job JOB_ID --json
 ```
 
 Keep using the TypeScript CLI for unported workflows.
-Project-installed plugins are available separately as
-`@octane-xplat/build`. See the
+Small plugins and workers are available through the project-installed
+`@octane-xplat/cli` package. See the
 [native migration boundaries](../../../../packages/cli/nim/README.md).
 
 ```sh

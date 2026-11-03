@@ -18,26 +18,30 @@ proc privateWorkerDirectory(): string =
   else:
     raise contractFailure("unavailable","Private project-worker storage is not implemented on this host.")
 
-proc projectBuildRoot*(project: string, packageName = "@octane-xplat/build"): string =
-  if packageName notin ["@octane-xplat/build","@octane-xplat/macos-build"]:
+proc projectBuildRoot*(project: string, packageName = "@octane-xplat/cli"): string =
+  if packageName notin ["@octane-xplat/cli","@octane-xplat/macos-build"]:
     raise newException(ValueError,"Unsupported project worker package")
   var current = absolutePath(project)
   while true:
     let package = current / "node_modules" / packageName
-    let manifest = readJson(package / "package.json")
-    if text(field(manifest,"name")) == packageName:
+    if dirExists(package) or fileExists(package) or symlinkExists(package):
+      let manifest = readJson(package / "package.json")
+      if text(field(manifest,"name")) != packageName:
+        raise contractFailure("prerequisite_missing","Reinstall the selected project's " & packageName & "; its package manifest is missing or invalid.")
       return expandFilename(package)
     let parent = parentOrSelf(current)
     if parent == current: break
     current = parent
-  raise contractFailure("prerequisite_missing","Install " & packageName & " in the selected project (for example: bun add --dev " & packageName & ").")
+  raise contractFailure("prerequisite_missing","Install " & packageName & " in the selected project (for example: bun add --dev " & packageName & (if packageName == "@octane-xplat/cli": "@nim" else: "") & ").")
 
-proc projectWorker*(project: string, packageName = "@octane-xplat/build", entryKey = "./worker"): string =
+proc projectWorker*(project: string, packageName = "@octane-xplat/cli", entryKey = "./worker"): string =
   let root = projectBuildRoot(project,packageName)
   let entry = text(field(field(readJson(root / "package.json"),"exports"),entryKey))
   if entry.startsWith("./"):
     let file = normalizedPath(root / entry)
-    if file.startsWith(root & $DirSep) and fileExists(file): return file
+    if file.startsWith(root & $DirSep) and fileExists(file):
+      let canonical = expandFilename(file)
+      if canonical.startsWith(root & $DirSep): return canonical
   raise contractFailure("prerequisite_missing","The project's " & packageName & " does not provide " &
     (if entryKey == "./worker": "build worker v1" else: "development worker v1") & ". Update it with your project package manager.")
 
@@ -45,7 +49,7 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
     timeoutMs = 60000, signal: ProcessCancel = nil, environment: StringTableRef = nil,
     onDiagnostic: proc(bytes: string) {.closure.} = nil,
     onWarning: proc(message: string) {.closure.} = nil,
-    packageName = "@octane-xplat/build",
+    packageName = "@octane-xplat/cli",
     onOutput: proc(stream, bytes: string) {.closure.} = nil,
     workerSource = ""): Future[JsonNode] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Worker timeout must be positive")

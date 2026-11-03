@@ -20,7 +20,7 @@ function project(installed = true) {
  writeFileSync(join(dir, 'package.json'), '{"private":true,"type":"module"}')
  if (installed) {
   mkdirSync(join(dir, 'node_modules/@octane-xplat'), { recursive: true })
-  symlinkSync(join(root, 'packages/build'), join(dir, 'node_modules/@octane-xplat/build'), 'dir')
+  symlinkSync(join(root, 'packages/cli'), join(dir, 'node_modules/@octane-xplat/cli'), 'dir')
  }
  return dir
 }
@@ -31,9 +31,9 @@ function call(dir, operation, payload = {}, extra = {}) {
  return { ...JSON.parse(run.stdout), stderr: run.stderr }
 }
 function fake(dir, body) {
- const packageDir = join(dir, 'node_modules/@octane-xplat/build')
+ const packageDir = join(dir, 'node_modules/@octane-xplat/cli')
  mkdirSync(packageDir, { recursive: true })
- writeFileSync(join(packageDir, 'package.json'), JSON.stringify({ name: '@octane-xplat/build', type: 'module', exports: { './worker': './worker.js' } }))
+ writeFileSync(join(packageDir, 'package.json'), JSON.stringify({ name: '@octane-xplat/cli', type: 'module', exports: { './worker': './worker.js' } }))
  writeFileSync(join(packageDir, 'worker.js'), `import fs from 'node:fs';\nconst request = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));\nconst result = data => fs.writeFileSync(process.argv[3], JSON.stringify({ protocol: request.protocol, version: request.version, id: request.id, ok: true, data }));\n${body}\n`)
 }
 
@@ -85,7 +85,7 @@ test('baking uses selected-project Vite, strict route JSON and separate diagnost
 test('native worker boundary rejects absent tools, malformed responses and failed exits', macOnly, () => {
  const missing = call(project(false), 'route-analyze', { files: [] })
  assert.equal(missing.ok, false)
- assert.match(missing.message, /Install @octane-xplat\/build/)
+ assert.match(missing.message, /Install @octane-xplat\/cli/)
  const dir = project(false)
  fake(dir, 'result({ env: [process.env.NODE_PATH, process.env.NODE_OPTIONS], cwd: process.cwd(), operation: request.operation });')
  const environment = call(dir, 'echo', {}, { env: { NODE_PATH: '/unwanted', NODE_OPTIONS: '--invalid-option' } })
@@ -105,7 +105,7 @@ test('native worker boundary rejects absent tools, malformed responses and faile
   assert.ok(result.message.length)
  }
  fake(dir, 'fs.writeFileSync(process.argv[3], JSON.stringify({ protocol: request.protocol, version: 1, id: request.id, ok: false, error: { message: "Unsupported build operation: " + request.operation } }));')
- assert.match(call(dir, 'route-plan', { bake: false }).message, /Update @octane-xplat\/build in the selected project/)
+ assert.match(call(dir, 'route-plan', { bake: false }).message, /Update @octane-xplat\/cli in the selected project/)
 })
 
 test('timeouts and observed cancellation clean up the worker process group', macOnly, () => {
@@ -128,4 +128,19 @@ setInterval(() => {}, 1000);`)
  const pre = call(project(), 'route-analyze', { files: [] }, { preabort: true })
  assert.equal(pre.ok, false)
  assert.match(pre.message, /cancelled/)
+})
+
+test('nearer broken CLI installs and escaping worker symlinks never fall back',macOnly,()=>{
+ const parent=project(false)
+ fake(parent,'result({ selected: true });')
+ const child=join(parent,'child');mkdirSync(child)
+ assert.equal(call(child,'echo').value.selected,true)
+ fake(child,'result({ incorrect: true });')
+ const packageDir=join(child,'node_modules/@octane-xplat/cli')
+ writeFileSync(join(packageDir,'package.json'),'{"name":"wrong-package"}')
+ assert.match(call(child,'echo').message,/manifest is missing or invalid/)
+ writeFileSync(join(packageDir,'package.json'),JSON.stringify({name:'@octane-xplat/cli',exports:{'./worker':'./worker.js'}}))
+ rmSync(join(packageDir,'worker.js'))
+ symlinkSync(join(parent,'node_modules/@octane-xplat/cli/worker.js'),join(packageDir,'worker.js'))
+ assert.match(call(child,'echo').message,/does not provide/)
 })

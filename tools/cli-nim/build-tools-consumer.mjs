@@ -40,7 +40,7 @@ try {
   {assert.ok(inventory.includes(`package/${file}`), `Missing packed ${file}`)}
  assert.ok(inventory.every(file => !/\/(node_modules|src|nim|bin|standalone)\//.test(file)), inventory.join('\n'))
  const root = JSON.parse(readFileSync(join(repo,'package.json')))
- const deps = { '@octane-xplat/build': `file:${plugins}`, '@octane-xplat/lib': `file:${lib}`,
+ const deps = { ...(!withNative ? { '@octane-xplat/build': `file:${plugins}` } : {}), '@octane-xplat/lib': `file:${lib}`,
   vite: root.workspaces.catalog.vite, typescript: root.workspaces.catalog.typescript, '@types/node': '24.10.1' }
  let nativeVersion
  if (withNative) {
@@ -60,9 +60,11 @@ try {
  writeFileSync(join(consumer,'package.json'), JSON.stringify({ name: 'packed-build-tools-consumer', private: true,
   type: 'module', devDependencies: deps, overrides: { '@octane-xplat/lib': `file:${lib}` } }))
  run('bun',['install','--ignore-scripts','--linker','isolated'],consumer)
- const installed = JSON.parse(readFileSync(join(consumer,'node_modules/@octane-xplat/build/package.json')))
- assert.equal(installed.dependencies['@octane-xplat/cli'],undefined)
- assert.equal(installed.peerDependencies['@octane-xplat/cli'],undefined)
+ const installedName = withNative ? 'cli' : 'build'
+ const installed = JSON.parse(readFileSync(join(consumer,`node_modules/@octane-xplat/${installedName}/package.json`)))
+ if (withNative) {assert.equal(existsSync(join(consumer,'node_modules/@octane-xplat/build')),false)}
+ assert.equal(installed.dependencies?.['@octane-xplat/cli'],undefined)
+ assert.equal(installed.peerDependencies?.['@octane-xplat/cli'],undefined)
  assert.equal(installed.optionalDependencies?.['@octane-xplat/cli'],undefined)
  // Execute the packed worker outside the repository's dependency topology.
  // The source is inspected, never imported as an application module.

@@ -1,4 +1,4 @@
-import { globSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { globSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { createRequire } from 'node:module'
 import { build, defineConfig } from 'vite'
@@ -47,6 +47,10 @@ export default defineConfig({
 					}
 				}
 				restore('dist')
+				for (const name of ['native', 'macos']) {
+					mkdirSync('dist/typecheck-globals', { recursive: true })
+					writeFileSync(`dist/typecheck-globals/${name}.d.ts`, readFileSync(`src/typecheck-globals/${name}.d.ts`))
+				}
 			},
 		},
 		{

@@ -31,7 +31,7 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode, actions: J
             for instance in actions["instances"]:
               if instance["platform"] == platform: inc count
             if count > 0:
-              entry = %*{"capability": id,"status": "supported","detail": $count & " live app instance(s) announcing a registry. Invocation validation uses the selected project's @octane-xplat/build worker and Node; discovery/status remain native."}
+              entry = %*{"capability": id,"status": "supported","detail": $count & " live app instance(s) announcing a registry. Invocation validation uses the selected project's @octane-xplat/cli worker and Node; discovery/status remain native."}
             elif field(actions,"state") in [%"live",%"no-instance"]:
               entry = %*{"capability": id,"status": "partial","detail": "A development bridge is reachable, but no instance on this platform has announced a registry."}
             else:

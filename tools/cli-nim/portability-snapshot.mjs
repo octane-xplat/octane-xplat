@@ -33,17 +33,37 @@ function json(path, value) {
  files.push(path)
 }
 function packProjectPackage(path) {
- const manifest = JSON.parse(readFileSync(join(root, path, 'package.json')))
+ const manifest = JSON.parse(readFileSync(resolve(root, path, 'package.json')))
  const destination = join(source, 'project-packages')
  mkdirSync(destination, { recursive: true })
  const packed = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', destination], {
-  cwd: join(root, path), encoding: 'utf8', timeout: 120000,
+  cwd: resolve(root, path), encoding: 'utf8', timeout: 120000,
  })
  assert.equal(packed.status, 0, packed.stderr)
  const file = `project-packages/${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`
  const bytes = readFileSync(join(source, file))
  files.push(file)
  return { name: manifest.name, version: manifest.version, file, bytes: bytes.length, sha256: sha256(bytes) }
+}
+function packCliExportFixture() {
+ // This fixture qualifies project operations, not an installed destination CLI.
+ // It deliberately contains no host binary, installer or old command runtime.
+ const directory = join(run,'cli-export-fixture')
+ mkdirSync(directory)
+ const manifest = JSON.parse(readFileSync(join(root,'packages/build/package.json')))
+ manifest.name = '@octane-xplat/cli'
+ manifest.private = true
+ manifest.description = 'Curated CLI exports for native portability workflow qualification only'
+ delete manifest.scripts
+ delete manifest.devDependencies
+ for (const [name,range] of Object.entries(manifest.dependencies)) {
+  if (range === 'workspace:*') {manifest.dependencies[name] = JSON.parse(readFileSync(join(root,'packages',name.split('/')[1],'package.json'))).version}
+ }
+ writeFileSync(join(directory,'package.json'),JSON.stringify(manifest))
+ writeFileSync(join(directory,'README.md'),'Test-only curated CLI exports; no native distribution or installer qualification.\n')
+ cpSync(join(root,'LICENSE'),join(directory,'LICENSE'))
+ cpSync(join(root,'packages/build/dist'),join(directory,'dist'),{recursive:true})
+ return { ...packProjectPackage(directory), kind:'curated-cli-exports-fixture' }
 }
 try {
  await prepareOrtHeaders()
@@ -71,7 +91,7 @@ try {
  assert.match(turbo, /^\d+\.\d+\.\d+$/)
  if (withProjectWorker) {
   json('project-packages.json', { version: 1, vite: repository.workspaces.catalog.vite,
-   packages: [packProjectPackage('packages/build'), packProjectPackage('packages/lib')] })
+   packages: [packCliExportFixture(), packProjectPackage('packages/lib')] })
  }
  json('package.json', { name: 'xplat-nim-portability-snapshot', private: true, type: 'module', packageManager: 'bun@1.4.4', workspaces: ['tools/cli-nim'], devDependencies: { turbo } })
  json('tools/cli-nim/package.json', { name: '@xplat/nim-portability-source', private: true, type: 'module', scripts: { 'build:portability': 'node portability-build.mjs', 'benchmark:portability': 'node portability-smoke.mjs',

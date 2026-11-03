@@ -126,7 +126,7 @@ research/nim-cli/native/xplat catalog --json
 
 On Windows, start the preview CLI from PowerShell or a Bun script. Background
 owners are not qualified to survive a Windows Turbo task finishing. Keep the
-project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/build` package installed;
+project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli@nim` package installed;
 the native executable does not include those tools. A web build returns a job
 that you can inspect and cancel:
 
@@ -140,9 +140,8 @@ xplat job cancel JOB_ID --json
 
 The experimental npm tarball keeps the small Vite plugins and worker alongside
 the native binary. Projects using those JS exports install their engine packages
-separately; a native-only installation does not download them. Existing native
-build commands still require `@octane-xplat/build` while worker lookup is being
-consolidated. For projects using the CLI Vite imports directly, install the
+separately; a native-only installation does not download them. Native build commands resolve their worker and declarations from the selected
+project's compatible CLI installation; no separate build package is required. For projects using the CLI Vite imports directly, install the
 currently supported engines:
 
 ```sh
@@ -241,7 +240,7 @@ bridge; use the returned instance and revision when invoking:
 research/nim-cli/native/xplat actions list --project "$PWD" --app apps/web --json
 ```
 
-Invocation requires Node >=22.22.2 and a compatible `@octane-xplat/build` worker
+Invocation requires Node >=22.22.2 and a compatible `@octane-xplat/cli` worker
 installed in the selected project. During this migration, use the matching
 checkout/prerelease build package; an older worker reports an update requirement.
 The worker checks JavaScript field contracts, including regexes and defaults.
@@ -267,7 +266,7 @@ research/nim-cli/native/xplat job status JOB_ID --project "$PWD" --json
 ```
 
 Native `typecheck` uses the selected project's installed package manager and
-TSRX checker. The project must already contain compatible `@octane-xplat/build`,
+TSRX checker. The project must already contain compatible `@octane-xplat/cli`,
 `@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,
 invoke your built executable by its absolute path. A successful check prints
 `Typecheck clean`; compiler errors exit with status 1. Route types are regenerated
@@ -322,7 +321,7 @@ Install it in an already configured macOS app, then build in the foreground or
 start a job. Its host assets stay in the project toolchain:
 
 ```sh
-bun add --dev @octane-xplat/macos-build @octane-xplat/build
+bun add --dev @octane-xplat/macos-build @octane-xplat/cli@nim
 xplat build --targets macos
 xplat runtime build --platform macos --json
 ```

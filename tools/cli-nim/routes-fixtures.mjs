@@ -23,7 +23,7 @@ export function project(files = {}) {
  const dir = join(scratch, String(++sequence))
  mkdirSync(join(dir, 'node_modules/@octane-xplat'), { recursive: true })
  write(dir, 'package.json', { private: true, type: 'module' })
- symlinkSync(join(root, 'packages/build'), join(dir, 'node_modules/@octane-xplat/build'), 'dir')
+ symlinkSync(join(root, 'packages/cli'), join(dir, 'node_modules/@octane-xplat/cli'), 'dir')
  symlinkSync(join(root, 'packages/cli/node_modules/vite'), join(dir, 'node_modules/vite'), 'dir')
  for (const [file, content] of Object.entries(files)) write(dir, file, content)
  return dir

@@ -99,7 +99,7 @@ The selected project's build worker validates action input/output through the
 existing JS field validator, including JavaScript regex/default semantics. This
 operation neither executes project config nor invokes an action. Native ownership
 bounds validation CPU time and awaits worker teardown, including pre-job admission
-during shutdown. Node and a compatible `@octane-xplat/build` installation are
+during shutdown. Node and a compatible `@octane-xplat/cli` installation are
 required for invocation; listing/status remain native. Inference stays Nim.
 
 ```sh
@@ -226,7 +226,7 @@ modules below.
 `route_paths.nim` preserves the shared parameter vocabulary, platform/presentation
 suffix ordering and layout rules. `route_generation.nim` owns route locations,
 input fingerprints, artifact-plan validation and native publication. The selected
-project's `@octane-xplat/build/worker` shares `src/route-generator.ts` with the
+project's `@octane-xplat/cli/worker` shares `src/route-generator.ts` with the
 TypeScript reference for compiler analysis, rendering and baking. It returns a
 versioned plan without publishing generated files. Native checks reject changed
 inputs, unexpected/duplicate destinations and missing required artifacts before
@@ -448,8 +448,9 @@ The tarball retains `@octane-xplat/cli/vite`, `./macos/vite`, `./linux-gtk/vite`
 and the bounded `./worker` export using the curated plugin closure. Heavy JS
 engines are optional peers; native-only installs do not fetch them. Existing MCP
 JS service exports and the old CLI command implementation are excluded. The
-current native worker/declaration lookup still uses `@octane-xplat/build` during
-consolidation, so the full package split has not yet been removed. macOS host
+native worker/declaration lookup uses the selected project's compatible CLI
+installation. A nearer broken package or escaping worker symlink is rejected
+instead of falling back to another installation. macOS host
 assets remain in the optional project-installed
 [`@octane-xplat/macos-build`](../../macos-build/README.md) package. Other commands
 and complete app workflows still require migration and qualification.

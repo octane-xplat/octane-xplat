@@ -144,7 +144,7 @@ try {
  const catalog = JSON.parse(run(binary, ['catalog', '--json'], { env: { ...nativeEnvironment, PATH: '' } }).stdout)
  assert.equal(catalog.ok, true); assert.equal(catalog.data.cli.version, build.cliVersion)
  const packages = Object.fromEntries(fixture.packages.map(item => {
-  assert.ok(['@octane-xplat/build', '@octane-xplat/lib'].includes(item.name))
+  assert.ok(['@octane-xplat/cli', '@octane-xplat/lib'].includes(item.name))
   const bytes = readFileSync(join(root, item.file))
   assert.equal(bytes.length, item.bytes); assert.equal(sha256(bytes), item.sha256)
   return [item.name, `file:${join(root, item.file).replaceAll('\\', '/')}`]
@@ -153,9 +153,10 @@ try {
  write('package.json', { name: 'native-portability-project', private: true, type: 'module', packageManager: 'bun@1.4.4',
   xplat: { targets: { web: {} } }, devDependencies: { ...packages, vite: fixture.vite }, overrides: { '@octane-xplat/lib': packages['@octane-xplat/lib'] } })
  const installed = run('bun', ['install', '--ignore-scripts', '--linker', 'isolated'])
- const manifest = JSON.parse(readFileSync(join(project, 'node_modules/@octane-xplat/build/package.json')))
+ const manifest = JSON.parse(readFileSync(join(project, 'node_modules/@octane-xplat/cli/package.json')))
  assert.equal(manifest.dependencies['@octane-xplat/cli'], undefined)
- assert.equal(existsSync(join(project, 'node_modules/@octane-xplat/cli')), false)
+ assert.equal(existsSync(join(project, 'node_modules/@octane-xplat/build')), false)
+ assert.equal(existsSync(join(project, 'node_modules/@octane-xplat/cli/bin')), false, 'Project export fixture must not contain a CLI runtime')
  record.projectExecutables = readdirSync(join(project, 'node_modules/.bin')).sort()
  record.packages = fixture
  record.lockSha256 = sha256(readFileSync(join(project, 'bun.lock')))
@@ -165,7 +166,7 @@ try {
  write('theme.web.css', '@platform web { .built-web { color: rgb(11,22,33) } } @platform mobile { .must-not-ship { color: red } }')
  write('app/index.tsx', 'throw Error("screen source must not execute"); export const dataMode = "baked"; export default () => null;\n')
  write('app/index.loader.ts', loader)
- write('vite.config.mjs', `import { xplatCss } from '@octane-xplat/build/vite';
+ write('vite.config.mjs', `import { xplatCss } from '@octane-xplat/cli/vite';
 export default { plugins: [xplatCss('web'), { name: 'portable-engine', buildStart() { console.log('engine stdout π😀'); console.error('engine stderr β'); } }] };\n`)
  assert.deepEqual(cli(['session', 'list'], true), { sessions: [] })
  assert.equal(existsSync(descriptorFile), false)
@@ -196,7 +197,7 @@ export default { plugins: [xplatCss('web'), { name: 'portable-engine', buildStar
  }
  const css = readdirSync(join(project, 'dist/assets')).filter(file => file.endsWith('.css')).map(file => readFileSync(join(project, 'dist/assets', file), 'utf8')).join('\n')
  assert.match(css, /\.built-web/); assert.doesNotMatch(css, /must-not-ship/)
- const worker = join(project, 'node_modules/@octane-xplat/build', manifest.exports['./worker'])
+ const worker = join(project, 'node_modules/@octane-xplat/cli', manifest.exports['./worker'])
  write('reference-request.json', { protocol: 'octane-build-worker', version: 1, id: 'independent-plan', operation: 'route-plan', project: selected, bake: true })
  run(process.execPath, [worker, join(project, 'reference-request.json'), join(project, 'reference-result.json')])
  const reference = JSON.parse(readFileSync(join(project, 'reference-result.json')))

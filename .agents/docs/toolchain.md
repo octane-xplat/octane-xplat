@@ -27,8 +27,9 @@ publication after the worker finishes.
 The existing TypeScript CLI exports remain available during the parallel
 migration. The Nim tarball preserves Vite exports and the bounded `./worker`
 operation through the curated plugin closure; heavy engines are optional peers.
-Native-only installs fetch none of those peers. Native worker lookup still uses
-`@octane-xplat/build` during consolidation; do not claim that split is removed.
+Native-only installs fetch none of those peers. Native worker/declaration lookup uses the selected project's compatible
+`@octane-xplat/cli` installation. The separate build package is no longer a
+native workflow prerequisite.
 See the [build-plugin guide](../../docs/packages/package-build.md) for engine setup.
 
 Nim 2.2.12's `posix_utils.mkdtemp` uses a `posix.nim` declaration naming

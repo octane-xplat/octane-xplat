@@ -18,7 +18,7 @@ proc ambientRoot(project: string, loaded: JsonNode): string =
   result = projectBuildRoot(project) / "dist"
   for file in required:
     if not fileExists(result / "typecheck-globals" / file):
-      raise newException(ValueError,"Update the project's @octane-xplat/build; required typecheck declarations are missing: " & file)
+      raise newException(ValueError,"Update the project's @octane-xplat/cli; required typecheck declarations are missing: " & file)
 
 proc requireProjectChecker(project: string) =
   var current = absolutePath(project)

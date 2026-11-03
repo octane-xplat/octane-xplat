@@ -61,7 +61,8 @@
 			"default": "./dist/mcp/docs-service.js"
 		},
 		"./mcp/*": "./dist/mcp/*.js",
-		"./mcp/*.mjs": "./dist/mcp/*.js"
+		"./mcp/*.mjs": "./dist/mcp/*.js",
+		"./worker": "./dist/build-worker.js"
 	},
 	"publishConfig": {
 		"access": "public"

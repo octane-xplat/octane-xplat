@@ -11,6 +11,6 @@ import { xplatCss } from '@octane-xplat/cli/vite'
 const plugin = xplatCss('web')
 ```
 
-Native worker/declaration lookup still requires the build package during the
-parallel migration. See [native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable)
+Native workers and typecheck declarations resolve from the project's compatible
+CLI package; no separate build package is required. See [native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable)
 for engine prerequisites and current limits.

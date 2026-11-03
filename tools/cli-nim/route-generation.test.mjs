@@ -58,10 +58,10 @@ async function reference(dir, options) {
  finally { log.warn = original }
 }
 function installWorker(dir) {
- const target = join(dir, 'node_modules/@octane-xplat/build')
+ const target = join(dir, 'node_modules/@octane-xplat/cli')
  if (!existsSync(target)) {
   mkdirSync(dirname(target), { recursive: true })
-  symlinkSync(join(root, 'packages/build'), target, 'dir')
+  symlinkSync(join(root, 'packages/cli'), target, 'dir')
  }
 }
 function native(dir, options) {

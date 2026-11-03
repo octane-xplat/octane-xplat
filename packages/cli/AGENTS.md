@@ -11,7 +11,9 @@ Keep heavy engine dependencies opt-in and large platform host assets separate.
 The Nim tarball retains the small Vite/worker exports in this package using
 the curated `@octane-xplat/build` output closure and optional engine peers.
 Native-only installs must not fetch those peers. Native worker/declaration
-lookup still uses `@octane-xplat/build` until its separate migration lands.
+lookup uses the selected project's `@octane-xplat/cli` installation. Reject a
+nearer broken install or worker symlink outside its canonical package root; do
+not supply a missing project worker from another installation or global paths.
 Project-installed plugins also remain in `@octane-xplat/build`. That package compiles
 the Vite plugin closure from the TypeScript reference at build time; its published
 code has no CLI runtime dependency. Those current package locations are not a
@@ -60,7 +62,7 @@ prefix, disclose incomplete tails and retention errors, and use a new capture
 identity when restarting. Bound disk retention separately from memory retention.
 
 Project operations that already need JavaScript use small, versioned workers
-from the selected project's `@octane-xplat/build/worker` or platform-specific
+from the selected project's `@octane-xplat/cli/worker` or platform-specific
 `@octane-xplat/macos-build/worker`. Keep parser/compiler
 AST details and JS execution there; pass stable validated metadata to Nim.
 Nim owns explicit argv/cwd/environment, response bounds, timeout, cancellation
@@ -71,7 +73,7 @@ process ownership native. Inference stays in Nim; useful retrieval quality takes
 precedence over incidental equality with WASM search ranking.
 
 Development-action input/output validation uses the selected project's
-`@octane-xplat/build/worker` (`action-validate`). Reuse the existing JS field
+`@octane-xplat/cli/worker` (`action-validate`). Reuse the existing JS field
 validator: its RegExp and default semantics belong to that runtime; do not add a
 third validator or a partial native regex translation. Listing, HTTP, policy,
 queues and job outcomes remain native. Treat pre-job admission workers as owned
@@ -90,7 +92,8 @@ load its configuration and native binding. Nim validates the complete plan befor
 any source publication, then stages adjacent files and performs native rename.
 Keep raw-byte source digests and permissions in stale-input checks; decoding two
 different invalid UTF-8 byte sequences can yield the same text. Worker/library
-stdout belongs on stderr when stdout carries formatted stdin text. Prefer one canonical implementation; keep validated artifact plans,
+stdout belongs on stderr when stdout carries formatted stdin text.
+Prefer one canonical implementation; keep validated artifact plans,
 stale-input rejection, publication and lifecycle ownership explicit at the boundary.
 Preserve user-visible contracts and data/process safety without expanding a
 general JavaScript compatibility layer to reproduce incidental coercion behavior.

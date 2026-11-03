@@ -30,7 +30,7 @@ export function fixture({ installed = true, apps = ['a'] } = {}) {
   write(app,'main.js',"import './theme.css'; document.body.textContent = 'native project build';\n")
   write(app,'theme.css','.fallback-must-not-ship { color: red }')
   write(app,'theme.web.css','@platform web { .built-web { color: rgb(11, 22, 33) } } @platform mobile { .must-not-ship { color: red } }')
-  write(app,'vite.config.mjs',`import { xplatCss } from '@octane-xplat/build/vite';
+  write(app,'vite.config.mjs',`import { xplatCss } from '@octane-xplat/cli/vite';
 export default { plugins: [xplatCss('web'),{ name:'native-build-diagnostics',buildStart(){ process.stdout.write('out π😀\\n'); process.stderr.write('err β\\n') } }] };\n`)
  }
  if (installed) {
@@ -39,7 +39,7 @@ export default { plugins: [xplatCss('web'),{ name:'native-build-diagnostics',bui
   const vite = realpathSync(join(root,'packages/cli/node_modules/vite'))
   symlinkSync(vite,join(dir,'node_modules/vite'),'dir')
   symlinkSync(join(vite,'bin/vite.js'),join(dir,'node_modules/.bin/vite'))
-  symlinkSync(join(root,'packages/build'),join(dir,'node_modules/@octane-xplat/build'),'dir')
+  symlinkSync(join(root,'packages/cli'),join(dir,'node_modules/@octane-xplat/cli'),'dir')
  }
  return dir
 }
