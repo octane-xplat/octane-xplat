@@ -288,3 +288,19 @@ leaves the shared `DisplayRequest` owned, pair tags release independently,
 and a fresh request re-acquires after full release. Service suite: 80/80
 assertions (launch `mw19z4a0`); storage-verify 8/8 and secure-verify 9/9 on
 relaunch.
+
+## Upstream file-member matrix and connectivity depth result (1.0.0.209)
+
+On `org.octanexplat.windows61` 1.0.0.209 (source `06d4530f4`, bounded): the
+`corefs-depth` probe mapped the upstream `File`/`Folder` surface beyond text
+IO — `File.lastModified` returns a Date, but `Folder.getEntities`/`eachEntity`
+throw `GetFolderFromPathAsync(...).done is not a function` (the fake-sync
+`.done()` pattern), `File.rename` and `File.remove` throw the `IAsyncOperation`
+`HRESULT 0x80004005`, and `File.size` silently returns `0`. The verified-broken
+shapes are now driver-asserted regression guards and recorded in
+[upstream-limitations.md](../upstream-limitations.md). `connectivity-depth`
+verified subscriber fan-out (identical one-event sequences), unsubscribe
+isolation, resubscription, and a stable `online: true, type: "wifi"` state —
+real network transitions are not triggerable in-app and stay uncovered.
+Service suite: 87/87 assertions (launch `mw1b15su`, rerun with the corrected
+driver); files-identity 12/12, storage-verify 8/8, secure-verify 9/9.
